@@ -1,0 +1,56 @@
+version: '1.0'
+steps:
+  TagReleaseName:
+    title: Setup RELEASE_NAME variable with tag
+    image: alpine/git
+    when:
+      condition:
+        all:
+          releaseNameNotDefined: "${{TAG_REPO}} == true"
+    commands:
+      - cf_export RELEASE_NAME=${{TAG_NAME}}
+      
+  BranchReleaseName:
+    title: Setup RELEASE_NAME variable with branch name
+    image: alpine/git
+    when:
+      condition:
+        all:
+          releaseNameNotDefined: "${{TAG_REPO}} == false"
+    commands:
+      - cf_export RELEASE_NAME=${{GLOBAL_RELEASE_VERSION}}.${{CF_BRANCH_TAG_NORMALIZED}}
+
+  Build:
+    title: Maven build
+    image: r.cfcr.io/regnosysops/regnosys/mvn-docker-build:latest
+    working_directory: ./
+    commands:
+      - mvn -U -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - mvn -U -s /settings.xml versions:update-property -Dproperty=com.regnosys.rosetta.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - mvn -s /settings.xml deploy
+
+  TagRepo:
+    title: Tag git repo with release name
+    image: alpine/git
+    when:
+      condition:
+        all:
+          isRelease: "${{TAG_REPO}}"
+    commands:
+      - echo This is a release build, tag repos with release name [${{RELEASE_NAME}}]
+      - git tag ${{RELEASE_NAME}}
+      - git push https://regnosys-ops:O6pl6qXtQLk6Z8KO2QFEcY@github.com/REGnosys/${{CF_REPO_NAME}}.git ${{RELEASE_NAME}}
+
+  StartNavigationBuild:
+    title: Kicks off the rosetta-navigation build on if commited to master
+    image: appropriate/curl
+    when:
+      branch:
+        only:
+          - master
+      condition:
+        all:
+          variableDefined: "${{TAG_REPO}} == false"
+    commands:
+      - >
+        curl 'https://g.codefresh.io/api/builds/5a5f57fb9ade820001698a0c' -H 'content-type:application/json; charset=utf-8'  -H 'x-access-token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJfaWQiOiI1YTMyNTg0NWNmZWY1YTAwMDFlOTlkMDkiLCJhY2NvdW50SWQiOiI1YTU3YTJhOWYzYmI5MzAwMDE0NGI4MzMiLCJpYXQiOjE1MTYyMDQ1MDksImV4cCI6MTUxODc5NjUwOX0.2C5dfg56ZX_ioRWJMVPICdT2_HiKsJhTH_TovIYChDA' --data-binary '{"repoOwner":"REGnosys","repoName":"rosetta-navigation","serviceId":"5a5f57fb9ade820001698a0c","branch":"master","type":"build"}' --compressed

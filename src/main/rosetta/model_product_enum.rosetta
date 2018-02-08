@@ -1,0 +1,155 @@
+Rosetta versionNumber "0.0.1"
+FIX versionNumber "5.0 SP3"
+FpML versionNumber "5.10"
+
+enum ContractStateEnum <"The enumerated values to specify the contract state, i.e. whether open or close.">
+{
+	open,
+	close
+}
+
+enum CouponTypeEnum <"The enumerated values to specify if the bond has a variable coupon, step-up/down coupon or a zero-coupon.">
+	[synonym FpML value couponTypeScheme]
+{
+	Fixed <"Bond has fixed rate coupon.">
+		[synonym FpML value "Fixed"],
+	Float <"Bond has floating rate coupon.">
+		[synonym FpML value "Float"],
+	Structured <"Bond has structured coupon.">
+		[synonym FpML value "Struct"]
+}
+
+enum MortgageSectorEnum <"The enumerated values to specify a mortgage typology.">
+	[synonym FpML value mortgageSectorScheme]
+{
+	ABS	<"Asset Backed Security.">
+		[synonym FpML value "ABS"],
+	CDO	<"Collateralized Debt Obligation.">
+		[synonym FpML value "CDO"],
+	CMBS <"Commercial Mortgage Backed Security.">
+		[synonym FpML value "CMBS"],
+	RMBS	 <"Residential Mortgage Backed Security.">
+		[synonym FpML value "RMBS"]
+}
+
+enum ProductIdSourceEnum <"The enumerated values to specify the product identifier source. FpML doesn't specify a list of values.">
+	[synonym FpML value productIdScheme]
+{
+	CUSIP <"The Committee on Uniform Security Identification Procedures">
+		[synonym FIX value "1" definition "1 = CUSIP"],
+	SEDOL <"The Stock Exchange Daily Official List, a list of security identifiers used in the United Kingdom and Ireland for clearing purposes.">
+		[synonym FIX value "2" definition "2 = SEDOL"],
+	QUIK // Which one is this?
+		[synonym FIX value "3" definition "3 = QUIK"],
+	ISIN <"The ISO 6166 product identifier">
+		[synonym FIX value "4" definition "4 = ISIN number"]
+		[regulatoryReference ESMA_MiFID_II specification "Financial Instruments and Transactions Regulatory Reporting - Message Definition Report - Part 2" section "3.3 C18" provision "ValidISINRule - ISIN code must pass checksum validation."], // TO-DO - Need to implement a such a validation logic
+	RIC <"The Reuters Instrument Code">
+		[synonym FIX value "5" definition "5 = RIC code"],
+	FIGI <"The Financial Instrument Global Identifier">,
+	Wertpapier <"The German Wertpapierkennnummer securities identification code. It is composed of six digits or capital letters (excluding I and O), and no check digit.">
+		[synonym FIX value "B" definition "B = Wertpapier"],
+	Sicovam <"The identification code issued by the French Société Interprofessionnelle pour la Compensation des Valeurs Mobilières.">
+		[synonym FIX value "E" definition "E = Sicovam"]
+/*
+ * A number of the further below values from the FIX standard seem inappropriate, e.g.
+ * ISO currency code, ISO country code, ...
+ * Some other appear lack specificity, such as the Bloomberg symbol (is it FIGI?), Dutch, Belgian, ...
+ * In the case of embedded FpML description, approach should be to parse it and represent it as an OTC
+ */
+//	6 = ISO Currency Code
+//
+//	7 = ISO Country Code
+//	8 = Exchange Symbol
+//
+//	9 = Consolidated Tape Association (CTA) Symbol (SIAC CTS/CQS line format)
+//	
+//	A = Bloomberg Symbol
+//	
+//	C = Dutch
+//	
+//	D = Valoren
+//	
+//	F = Belgian
+//	
+//	G = "Common" (Clearstream and Euroclear)
+//	
+//	H = Clearing House / Clearing Organization
+//	
+//	I = ISDA/FpML Product Specification (XML in EncodedSecurityDesc)
+//	
+//	J = Option Price Reporting Authority
+//	
+//	L = Letter of Credit
+//	
+//	K = ISDA/FpML Product URL (URL in SecurityID)
+//	
+//	M = Marketplace-assigned Identifier
+}
+
+enum CreditSeniorityEnum <"The enumerated values to specify the repayment precedence of a debt instrument.">
+	[synonym FpML value creditSeniorityScheme]
+{
+	Other <"Other as defined under EMIR.">
+		[synonym FpML value "Other"],
+	SeniorSec <"Senior domestic (RED Tier Code: SECDOM).">
+		[synonym FpML value "SeniorSec"],
+	SeniorUnSec <"Senior foreign (RED Tier Code: SNRFOR).">
+		[synonym FpML value "SeniorUnSec"],
+	SubLowerTier2 <"Subordinate, Lower Tier 2 (RED Tier Code: SUBLT2).">
+		[synonym FpML value "SubLowerTier2"],
+	SubTier1 <"Subordinate Tier 1 (RED Tier Code: PREFT1).">
+		[synonym FpML value "SubTier1"],
+	SubTier3	 <"Subordinate, Tier 3.">
+		[synonym FpML value "SubTier3"],
+	SubUpperTier2 <"Subordinate, Upper Tier 2 (RED Tier Code: JRSUBUT2).">
+		[synonym FpML value "SubUpperTier2"]
+}
+
+enum CreditSeniorityTradingEnum <"The enumerated values to specify the seniority of the reference obligation used in a single name credit default swap trade. It overrides the CreditSeniorityEnum.">
+	[synonym FpML value creditSeniorityTradingScheme]
+{
+	Senior <"Top precedence.">
+		[synonym FpML value "Senior"],
+	Subordinate <"Subordinate.">
+		[synonym FpML value "Subordinate"]
+}
+
+enum PackageTypeEnum <"The enumerated values to specify the type of package transaction.">
+	[synonym FpML value packageTypeScheme]
+{
+	Butterfly <"A strategy in which a firm either pays or receives fixed for intermediate term (the 'body'), and does the opposite (receives or pays fixed) for a short and a long term (the 'wings'').">
+		[synonym FpML value "Butterfly"],
+	CalendarRoll <"A strategy in which a swap is used to Roll from one IMM date into another IMM swap.">
+		[synonym FpML value "CalendarRoll"],
+	CalendarSpread <"A strategy in which 2 trades on different dates are done at the same time, e.g. September vs. June.">
+		[synonym FpML value "CalendarSpread"],
+	Custom <"A package created for a particular client need e.g. portfolioCompression, termination.">
+		[synonym FpML value "Custom"],
+	IndexRoll <"A strategy in which a firms buys new version of index and sells and old version of the same index.">
+		[synonym FpML value "IndexRoll"],
+	OneCancelsOthers <"A package in which only a maximum of one of the components will be executed (used for credit limit checking/orders).">
+		[synonym FpML value "OneCancelsOthers"],
+	SwapSpread <"A strategy in which a firm either buys a treasury and enters a payer swap, or sells treasury and enters a receiver swap.">
+		[synonym FpML value "SwapSpread"],
+	Switch <"A strategy in which a firm either pays or receives fixed for some term versus the opposite (receives or pays fixed) for different term. Typically the second term starts at the completion of the first.">
+		[synonym FpML value "Switch"]
+}
+
+enum TaxonomySourceEnum <"The enumerated values to specify taxonomy sources.">
+{
+	CFI <"The ISO 10962 Classification of Financial Instruments code">
+		[regulatoryReference ESMA_MiFIR specification "ISO 20022 - Part 2" section "3.3 Constraint 15" provision "ValidCFIRule - The CFI code must be a valid CFI code as defined by 10962."], // TO-DO - Need to implement a such a validation logic,
+	ISDA <"The ISDA product taxonomy">,
+	/*
+	 * FIX specifies 3 product taxonomies. At this point, it is proposed to position those alongside the CFI, ISDA and other ones.
+	 * We may end-up positioning all of those as enumerations for the purpose of validation, similar to the currencies, countries, etc.
+	 */
+	FIX_Product displayName "FIX Product"<"The FIX Product (460) attribute, which has a set of 13 associated enumerated values, such as Agency, Mortgage.">
+		[synonym FIX value "Product" definition "Indicates the type of product the security is associated with. See also the CFICode (461) and SecurityType (167) fields."],
+	FIX_SecurityType displayName "FIX SecurityType" <"The FIX SecurityType (167) attribute, which has an associated list of enumerated values, such as certificate of deposit, bank note, convertible bond, ...">
+		[synonym FIX value "SecurityType" definition "Indicates type of security. Security type enumerations are grouped by Product(460) field value. NOTE: Additional values may be used by mutual agreement of the counterparties."],
+	FIX_SecuritySubType displayName "FIX SecuritySubType" <"The FIX SecuritySubType (762) indicates the sub-type qualification/identification of the SecurityType (e.g. for SecurityType='MLEG'). If specified, SecurityType is required.">
+		[synonym FIX value "SecurityType" definition "Sub-type qualification/identification of the SecurityType. As an example for SecurityType(167)='REPO', the SecuritySubType='General Collateral' can be used to further specify the type of REPO. If SecuritySubType is used then SecurityType is required. For SecurityType='MLEG' a name of the option or futures strategy name can be specified, such as 'Calendar', 'Vertical', 'Butterfly'."]
+}
+

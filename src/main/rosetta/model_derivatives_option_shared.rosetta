@@ -1,0 +1,463 @@
+Rosetta versionNumber "0.0.1"
+FIX versionNumber "5.0 SP3"
+FpML versionNumber "5.10"
+
+/*
+ * FpML cd validation rules perceived as needing extensions to the data rule syntax or calls to java functions:
+ * - cd-35 At least one child element must exist in CreditEvents 
+ */
+class Asian stereotype contractualProduct <"As per ISDA 2002 Definitions.">
+	[synonym FpML value Asian]
+{
+	averagingInOut AveragingInOutEnum (1..1);
+		[synonym FpML value averagingInOut]
+	strikeFactor bigDecimal (0..1) <"The factor of strike.">;
+		[synonym FpML value strikeFactor]
+	averagingPeriodIn AveragingPeriod (0..1) <"The averaging in period.">;
+		[synonym FpML value averagingPeriodIn]
+	averagingPeriodOut AveragingPeriod (0..1) <"The averaging out period.">;
+		[synonym FpML value averagingPeriodOut]
+}
+
+class AveragingObservationList stereotype contractualProduct <"An unordered list of weighted averaging observations.">
+	[synonym FpML value AveragingObservationList]
+{
+	averagingObservation WeightedAveragingObservation (1..*) <"A single weighted averaging observation.">;
+		[synonym FpML value averagingObservation]
+}
+
+class AveragingPeriod stereotype contractualProduct <"Period over which an average value is taken.">
+	[synonym FpML value AveragingPeriod]
+{
+	schedule AveragingSchedule (0..*) <"A schedule for generating averaging observation dates.">;
+		[synonym FpML value schedule]
+	averagingDateTimes DateTimeList (0..1) <"An unweighted list of averaging observation date and times.">;
+		[synonym FpML value averagingDateTimes]
+	averagingObservations AveragingObservationList (0..1) <"A weighted list of averaging observation date and times.">;
+		[synonym FpML value averagingObservations]
+	marketDisruption MarketDisruptionEnum (0..1) <"The market disruption event as defined by ISDA 2002 Definitions.">;
+		[synonym FpML value marketDisruption]
+}
+
+choice rule AveragingPeriod_choice <"Choice rule to represent an FpML choice construct between unweighted and weighted averaging date and times..">
+	for AveragingPeriod optional choice between
+	averagingDateTimes and averagingObservations
+
+class AveragingSchedule stereotype contractualProduct <"Class to representing a method for generating a series of dates.">
+	[synonym FpML value AveragingSchedule]
+{
+	startDate date (1..1) <"Date on which this period begins.">;
+		[synonym FpML value startDate]
+	endDate date (1..1) <"Date on which this period ends.">;
+		[synonym FpML value endDate]
+	averagingPeriodFrequency CalculationPeriodFrequency (1..1) <"The frequency at which averaging period occurs with the regular part of the valuation schedule and their roll date convention.">;
+		[synonym FpML value averagingPeriodFrequency]
+}
+
+class Barrier stereotype contractualProduct <"As per ISDA 2002 Definitions.">
+	[synonym FpML value Barrier]
+{
+	barrierCap TriggerEvent (0..1) <"A trigger level approached from beneath.">;
+		[synonym FpML value barrierCap]
+	barrierFloor TriggerEvent (0..1) <"A trigger level approached from above.">;
+		[synonym FpML value barrierFloor]
+}
+
+class CalendarSpread stereotype contractualProduct <"A type for defining a calendar spread feature.">
+	[synonym FpML value CalendarSpread]
+{
+	expirationDateTwo AdjustableOrRelativeDate (1..1);
+		[synonym FpML value expirationDateTwo]
+}
+
+class Composite stereotype contractualProduct <"Specifies the conditions to be applied for converting into a reference currency when the actual currency rate is not determined upfront.">
+	[synonym FpML value Composite]
+{
+	determinationMethod DeterminationMethodEnum (0..1) <"Specifies the method according to which an amount or a date is determined.">;
+		[synonym FpML value determinationMethod]
+	relativeDate RelativeDateOffset (0..1) <"A date specified as some offset to another date (the anchor date).">;
+		[synonym FpML value relativeDate]
+	fxSpotRateSource FxSpotRateSource (0..1) <"Specifies the methodology (reference source and, optionally, fixing time) to be used for determining a currency conversion rate.">;
+		[synonym FpML value fxSpotRateSource]
+}
+
+class CreditEvents stereotype contractualProduct
+	[synonym FpML value CreditEvents]
+{
+	id string (1..1);
+		[synonym FpML value id]
+	bankruptcy boolean (0..1) <"A credit event. The reference entity has been dissolved or has become insolvent. It also covers events that may be a precursor to insolvency such as instigation of bankruptcy or insolvency proceedings. Sovereign trades are not subject to Bankruptcy as 'technically' a Sovereign cannot become bankrupt. ISDA 2003 Term: Bankruptcy.">;
+		[synonym FpML value bankruptcy]
+	failureToPay FailureToPay (0..1) <"A credit event. This credit event triggers, after the expiration of any applicable grace period, if the reference entity fails to make due payments in an aggregate amount of not less than the payment requirement on one or more obligations (e.g. a missed coupon payment). ISDA 2003 Term: Failure to Pay.">;
+		[synonym FpML value failureToPay]
+	failureToPayPrincipal boolean (0..1) <"A credit event. Corresponds to the failure by the Reference Entity to pay an expected principal amount or the payment of an actual principal amount that is less than the expected principal amount. ISDA 2003 Term: Failure to Pay Principal.">;
+		[synonym FpML value failureToPayPrincipal]
+	failureToPayInterest boolean (0..1) <"A credit event. Corresponds to the failure by the Reference Entity to pay an expected interest amount or the payment of an actual interest amount that is less than the expected interest amount. ISDA 2003 Term: Failure to Pay Interest.">;
+		[synonym FpML value failureToPayInterest]
+	obligationDefault boolean (0..1) <"A credit event. One or more of the obligations have become capable of being declared due and payable before they would otherwise have been due and payable as a result of, or on the basis of, the occurrence of a default, event of default or other similar condition or event other than failure to pay. ISDA 2003 Term: Obligation Default.">;
+		[synonym FpML value obligationDefault]
+	obligationAcceleration boolean (0..1) <"A credit event. One or more of the obligations have been declared due and payable before they would otherwise have been due and payable as a result of, or on the basis of, the occurrence of a default, event of default or other similar condition or event other than failure to pay (preferred by the market over Obligation Default, because more definitive and encompasses the definition of Obligation Default - this is more favorable to the Seller). Subject to the default requirement amount. ISDA 2003 Term: Obligation Acceleration.">;
+		[synonym FpML value obligationDefault]
+	repudiationMoratorium boolean (0..1) <"A credit event. The reference entity, or a governmental authority, either refuses to recognise or challenges the validity of one or more obligations of the reference entity, or imposes a moratorium thereby postponing payments on one or more of the obligations of the reference entity. Subject to the default requirement amount. ISDA 2003 Term: Repudiation/Moratorium.">;
+		[synonym FpML value repudiationMoratorium]
+	restructuring Restructuring (0..1) <"A credit event. A restructuring is an event that materially impacts the reference entity's obligations, such as an interest rate reduction, principal reduction, deferral of interest or principal, change in priority ranking, or change in currency or composition of payment. ISDA 2003 Term: Restructuring.">;
+		[synonym FpML value restructuring]
+	governmentalIntervention boolean (0..1) <"A credit event. A governmental intervention is an event resulting from an action by a governmental authority that materially impacts the reference entity's obligations, such as an interest rate reduction, principal reduction, deferral of interest or principal, change in priority ranking, or change in currency or composition of payment. ISDA 2014 Term: Governmental Intervention.">;
+		[synonym FpML value governmentalIntervention]
+	distressedRatingsDowngrade boolean (0..1) <"A credit event. Results from the fact that the rating of the reference obligation is downgraded to a distressed rating level. From a usage standpoint, this credit event is typically not applicable in case of RMBS trades.">;
+		[synonym FpML value distressedRatingsDowngrade]
+	maturityExtension boolean (0..1) <"A credit event. Results from the fact that the underlyer fails to make principal payments as expected.">;
+		[synonym FpML value maturityExtension]
+	writedown boolean (0..1) <"A credit event. Results from the fact that the underlyer writes down its outstanding principal amount.">;
+		[synonym FpML value writedown]
+	impliedWritedown boolean (0..1) <"A credit event. Results from the fact that losses occur to the underlying instruments that do not result in reductions of the outstanding principal of the reference obligation.">;
+		[synonym FpML value impliedWritedown]
+	defaultRequirement Money (0..1) <"In relation to certain credit events, serves as a threshold for Obligation Acceleration, Obligation Default, Repudiation/Moratorium and Restructuring. Market standard is USD 10,000,000 (JPY 1,000,000,000 for all Japanese Yen trades). This is applied on an aggregate or total basis across all Obligations of the Reference Entity. Used to prevent technical/operational errors from triggering credit events. ISDA 2003 Term: Default Requirement.">;
+		[synonym FpML value defaultRequirement]
+	creditEventNotice CreditEventNotice (0..1) <"A specified condition to settlement. An irrevocable written or verbal notice that describes a credit event that has occurred. The notice is sent from the notifying party (either the buyer or the seller) to the counterparty. It provides information relevant to determining that a credit event has occurred. This is typically accompanied by Publicly Available Information. ISDA 2003 Term: Credit Event Notice.">;
+		[synonym FpML value creditEventNotice]
+}
+
+data rule CreditEvents_creditEventNotice_buyer <"FpML validation rule cd-13 - Context: CreditDefaultSwap (complex type). If protectionTerms/creditEvents/creditEventNotice/notifyingParty/buyerPartyReference exists, then the @href attribute of protectionTerms/creditEvents/creditEventNotice/notifyingParty/buyerPartyReference is equal to the @href attribute of generalTerms/buyerPartyReference.">
+	when CreditDefaultSwap -> protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> buyerParty exists
+	then CreditDefaultSwap -> protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> buyerParty = CreditDefaultSwap -> generalTerms -> buyerParty
+
+data rule CreditEvents_creditEventNotice_seller <"FpML validation rule cd-14 - Context: CreditDefaultSwap (complex type) If protectionTerms/creditEvents/creditEventNotice/notifyingParty/sellerPartyReference exists, then the @href attribute of protectionTerms/creditEvents/creditEventNotice/notifyingParty/sellerPartyReference must be equal to the @href attribute of generalTerms/sellerPartyReference.">
+	when CreditDefaultSwap -> protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> sellerParty exists
+	then CreditDefaultSwap -> protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> sellerParty = CreditDefaultSwap -> generalTerms -> sellerParty
+
+class CreditEventNotice stereotype contractualProduct
+	[synonym FpML value CreditEventNotice]
+{
+	notifyingParty NotifyingParty (1..1) <"The notifying party is the party that notifies the other party when a credit event has occurred by means of a credit event notice. If more than one party is referenced as being the notifying party then either party may notify the other of a credit event occurring. ISDA 2003 Term: Notifying Party.">;
+		[synonym FpML value notifyingParty]
+	businessCenter BusinessCenterEnum (0..1) <"Inclusion of this business center element implies that Greenwich Mean Time in Section 3.3 of the 2003 ISDA Credit Derivatives Definitions is replaced by the local time of the city indicated by the businessCenter element value.">;
+		[synonym FpML value businessCenter]
+	publiclyAvailableInformation PubliclyAvailableInformation (0..1) <"A specified condition to settlement. Publicly available information means information that reasonably confirms any of the facts relevant to determining that a credit event or potential repudiation/moratorium, as applicable, has occurred. The ISDA defined list (2003) is the market standard and is considered comprehensive, and a minimum of two differing public sources must have published the relevant information, to declare a Credit Event. ISDA 2003 Term: Notice of Publicly Available Information Applicable.">;
+		[synonym FpML value publiclyAvailableInformation]
+}
+
+class OptionExercise stereotype contractualProduct one of <"This class doesn't exists in FpML, as it corresponds to the substitution group associated with the exercise element (which doesn't exists in the instance document.)">
+{
+	americanExercise AmericanExercise (0..1);
+		[synonym FpML value americanExercise]
+	bermudaExercise BermudaExercise (0..1);
+		[synonym FpML value bermudaExercise]
+	europeanExercise EuropeanExercise (0..1);
+}
+
+class FailureToPay stereotype contractualProduct
+	[synonym FpML value notifyingParty]
+{
+	applicable boolean (1..1) <"Indicates whether the failure to pay provision is applicable.">;
+		[synonym FpML value notifyingParty]
+	gracePeriodExtension GracePeriodExtension (0..1) <"If this element is specified, indicates whether or not a grace period extension is applicable. ISDA 2003 Term: Grace Period Extension Applicable.">;
+		[synonym FpML value notifyingParty]
+	paymentRequirement Money (0..1) <"Specifies a threshold for the failure to pay credit event. Market standard is USD 1,000,000 (JPY 100,000,000 for Japanese Yen trades) or its equivalent in the relevant obligation currency. This is applied on an aggregate basis across all Obligations of the Reference Entity. Intended to prevent technical/operational errors from triggering credit events. ISDA 2003 Term: Payment Requirement">;
+		[synonym FpML value notifyingParty]
+}
+
+class FeaturePayment stereotype contractualProduct <"Payment made following trigger occurrence.">
+	[synonym FpML value FeaturePayment]
+{
+	id string (0..1);
+		[synonym FpML value id]
+	payerReceiver PayerReceiver (1..1) <"This attribute doesn't exist as part of the FpML construct, which makes use of the PayerReceiver.model group.">;
+		[synonym FpML value payerReceiver]
+	levelPercentage bigDecimal (0..1) <"The trigger level percentage.">;
+		[synonym FpML value levelPercentage]
+	amount bigDecimal (0..1)	<"The monetary quantity in currency units.">;
+		[synonym FpML value amount]
+	time TimeTypeEnum (0..1) <"The feature payment time.">;
+		[synonym FpML value time]
+	currency CurrencyEnum (0..1) <"The currency in which an amount is denominated.">;
+		[synonym FpML value currency]
+	featurePaymentDate AdjustableOrAdjustedDate (0..1) <"The feature payment date.">;
+		[synonym FpML value featurePaymentDate]
+}
+
+choice rule FeaturePayment_choice <"Choice rule to represent an FpML choice construct.">
+	for FeaturePayment required choice between
+	levelPercentage and amount
+
+data rule FeaturePayment_amount <"The amount attribute is specified in FpML as non-negative decimal.">
+	when FeaturePayment -> amount exists
+	then FeaturePayment -> amount >= 0b
+
+class FxFeature stereotype contractualProduct <"A type for defining FX Features.">
+	[synonym FpML value FxFeature]
+{
+	referenceCurrency CurrencyEnum (1..1) anchor <"Specifies the reference currency of the trade.">;
+		[synonym FpML value referenceCurrency]
+	composite Composite (0..1) <"If 'Composite' is specified as the Settlement Type in the relevant Transaction Supplement, an amount in the Settlement Currency, determined by the Calculation Agent as being equal to the number of Options exercised or deemed exercised, multiplied by: (Settlement Price – Strike Price) / (Strike Price – Settlement Price) x Multiplier provided that if the above is equal to a negative amount the Option Cash Settlement Amount shall be deemed to be zero.">;
+		[synonym FpML value composite]
+	/*
+	 * The below quanto associated definition makes reference to the Equity definitions.  Is that right, considering the cross-assets use of this construct?
+	 */
+	quanto Quanto (0..1) <"If 'Quanto' is specified as the Settlement Type in the relevant Transaction Supplement, an amount, as determined by the Calculation Agent in accordance with the Section 8.2 of the Equity Definitions.">;
+		[synonym FpML value quanto]
+	crossCurrency Composite (0..1) <"If 'Cross-Currency' is specified as the Settlement Type in the relevant Transaction Supplement, an amount in the Settlement Currency, determined by the Calculation Agent as being equal to the number of Options exercised or deemed exercised, multiplied by: (Settlement Price – Strike Price) / (Strike Price – Settlement Price) x Multiplier x one unit of the Reference Currency converted into an amount in the Settlement Currency using the rate of exchange of the Settlement Currency as quoted on the Reference Price Source on the Valuation Date, provided that if the above is equal to a negative amount the Option Cash Settlement Amount shall be deemed to be zero.">;
+		[synonym FpML value crossCurrency]
+}
+
+choice rule FxFeature_choice <"Choice rule to represent an FpML choice construct.">
+	for FxFeature required choice between
+	composite and quanto and crossCurrency
+
+class GracePeriodExtension stereotype contractualProduct
+	[synonym FpML value GracePeriodExtension]
+{
+	applicable boolean (1..1) <"Indicates whether the grace period extension provision is applicable.">;
+		[synonym FpML value applicable]
+	gracePeriod Offset (0..1) <"The number of calendar or business days after any due date that the reference entity has to fulfil its obligations before a failure to pay credit event is deemed to have occurred. ISDA 2003 Term: Grace Period.">;
+		[synonym FpML value gracePeriod]
+}
+
+class Knock stereotype contractualProduct <"Knock In means option to exercise comes into existence. Knock Out means option to exercise goes out of existence.">
+	[synonym FpML value Knock]
+{
+	knockIn TriggerEvent (0..1) <"The knock in.">;
+		[synonym FpML value knockIn]
+	knockOut TriggerEvent (0..1) <"The knock out.">;
+		[synonym FpML value knockOut]
+}
+
+class NotifyingParty stereotype contractualProduct
+	[synonym FpML value NotifyingParty]
+{
+	buyerParty Party (1..1) reference <"FpML specifies a reference to the buyer party. Rosetta explicitly specifies the party, to simplify data access.">;
+		[synonym FpML value buyerPartyReference]
+	sellerParty Party (0..1) reference <"FpML specifies a reference to the seller party. Rosetta explicitly specifies the party, to simplify data access.">;
+		[synonym FpML value sellerPartyReference]
+}
+
+class OptionBaseExtended extends OptionBase stereotype contractualProduct <"FpML qualifies this class as a temporary construct that was developed as part of the 4-3 release, to be refactored as part of the 5-0 release series.  This didn't take place.">
+	[synonym FpML value OptionBaseExtended]
+{
+	premium Premium (0..1) <"The option premium payable by the buyer to the seller.">;
+		[synonym FpML value premium]
+	exercise OptionExercise (1..1) <"This element doesn't exist in the FpML instance document, as it is specified as a substitution group.">;
+	exerciseProcedure ExerciseProcedure (1..1) <"A set of parameters defining procedures associated with the exercise.">;
+		[synonym FpML value exerciseProcedure]
+	feature OptionFeature (0..1) <"An Option feature such as quanto, Asian, barrier, knock.">;
+		[synonym FpML value feature]
+	notionalAmount Money (0..1) reference <"The notional amount.  FpML provides a choice between between an explicit representation of the notional amount, or a reference to a notional amount defined elsewhere in the document.  Rosetta maps those alternative implementations into a notional amount representation.">;
+		[synonym FpML value notionalAmount]
+		[synonym FpML value notionalReference]
+	optionDenomination OptionDenomination (0..1) <"The optionDenomination attribute doesn't exist in FpML, which implementation makes use of an XML group construct, the OptionDenomination.model.">;
+	optionSettlement OptionSettlement (0..1) <"The optionSettlement attribute doesn't exist in FpML, which implementation makes use of an XML group construct, the OptionSettlement.model.">;
+}
+
+class OptionDenomination stereotype contractualProduct <"Class which corresponds to the FpML OptionDenomination.model group.">
+{
+	optionEntitlement bigDecimal (1..1) <"The number of units of underlyer per option comprised in the option transaction.">;
+		[synonym FpML value optionEntitlement]
+	entitlementCurrency CurrencyEnum (0..1);
+		[synonym FpML value entitlementCurrency]
+	numberOfOptions bigDecimal (0..1) <"The number of options comprised in the option transaction.">;
+		[synonym FpML value numberOfOptions]
+}
+
+data rule OptionDenomination_optionEntitlement <"In FpMl the optionEntitlement element is specified as a positive decimal.">
+	when OptionDenomination -> optionEntitlement exists
+	then OptionDenomination -> optionEntitlement >= 0b
+
+data rule OptionDenomination_numberOfOptions <"In FpMl the numberOfOptions element is specified as a positive decimal.">
+	when OptionDenomination -> numberOfOptions exists
+	then OptionDenomination -> numberOfOptions >= 0b
+
+class OptionFeature stereotype contractualProduct <"A class for defining option features.">
+	[synonym FpML value OptionFeature]
+{
+	fxFeature FxFeature (0..1) <"A quanto or composite FX feature.">;
+		[synonym FpML value fxFeature]
+	strategyFeature StrategyFeature (0..1) <"A simple strategy feature.">;
+		[synonym FpML value strategyFeature]
+	asian Asian (0..1) <"An option where and average price is taken on valuation.">;
+		[synonym FpML value asian]
+	barrier Barrier (0..1) <"An option with a barrier feature.">;
+		[synonym FpML value barrier]
+	knock Knock (0..1) <"A knock feature.">;
+		[synonym FpML value knock]
+	passThrough PassThrough (0..1) <"Pass-through payments from the underlyer, such as dividends.">;
+		[synonym FpML value passThrough]
+}
+
+class OptionNumericStrike stereotype contractualProduct one of <"A class for defining the strike price for an option as a numeric value without currency.">
+	[synonym FpML value OptionNumericStrike]
+{
+	strikePrice bigDecimal (0..1) <"The price or level at which the option has been struck.">;
+		[synonym FpML value strikePrice]
+	strikePercentage bigDecimal (0..1) <"The price or level expressed as a percentage of the forward starting spot price.">;
+		[synonym FpML value strikePercentage]
+}
+
+class OptionSettlement stereotype contractualProduct <"This class corresponds to the OptionSettlement.model group.">
+	[synonym FpML value OptionSettlement]
+{
+	settlementType SettlementTypeEnum (0..1);
+		[synonym FpML value settlementType]
+	settlementDate AdjustableOrRelativeDate (0..1);
+		[synonym FpML value settlementDate]
+	settlementAmount Money (0..1) <"Settlement Amount.">;
+		[synonym FpML value settlementAmount]
+	settlementCurrency CurrencyEnum (0..1) <"Settlement Currency for use where the Settlement Amount cannot be known in advance">;
+		[synonym FpML value settlementCurrency]
+}
+
+choice rule OptionSettlement_choice <"Choice rule to represent an FpML choice construct.">
+	for OptionSettlement optional choice between
+	settlementAmount and settlementCurrency
+
+class OptionStrike extends OptionNumericStrike stereotype contractualProduct <"A type for defining the strike price for an option. The strike price is either: (i) in respect of an index option transaction, the level of the relevant index specified or otherwise determined in the transaction; or (ii) in respect of a share option transaction, the price per share specified or otherwise determined in the transaction. This can be expressed either as a percentage of notional amount or as an absolute value.">
+	[synonym FpML value OptionStrike]
+{
+	currency CurrencyEnum (0..1) <"The currency in which an amount is denominated.">;
+		[synonym FpML value currency]
+}
+
+class PassThrough stereotype contractualProduct <"Type which contains pass through payments.">
+	[synonym FpML value PassThrough]
+{
+	passThroughItem PassThroughItem (1..*) <"One to many pass through payment items.">;
+		[synonym FpML value passThroughItem]
+}
+
+class PassThroughItem stereotype contractualProduct <"Class to represent a single pass through payment.">
+	[synonym FpML value PassThroughItem]
+{
+	payerReceiver PayerReceiver (1..1) <"This attribute doesn't exists in the FpML construct, which makes use of the PayerReceiver.model group.">;
+// TODO - To be developed	
+//	underlyer Underlyer (1..1) reference <"This attribute is specified in FpML as a reference to the underlyer whose payments are being passed through. In Rosetta, it is specified as this actual underlyer.">;
+//		[synonym FpML value underlyerReference]
+	passThroughPercentage bigDecimal (1..1) <"Percentage of payments from the underlyer which are passed through.">;
+		[synonym FpML value passThroughPercentage]
+}
+
+class Premium extends SinglePayment stereotype contractualProduct <"A class for defining a premium.">
+	[synonym FpML value Premium]
+{
+	premiumExpression PremiumExpression (0..1) <"This element doesn't exist in FpML, which specifies the Premium.model group for representing the option premium when expressed in a way other than an amount.">;
+	paymentDiscounting PaymentDiscounting (0..1) <"This element doesn't exist in FpML, which specifies the FpML PaymentDiscounting.model group for representing the discounting elements that can be associated with a payment.">;
+}
+
+class PubliclyAvailableInformation stereotype contractualProduct
+	[synonym FpML value PubliclyAvailableInformation]
+{
+	standardPublicSources boolean (0..1) <"If this element is specified and set to 'true', indicates that ISDA defined Standard Public Sources are applicable.">;
+		[synonym FpML value standardPublicSources]
+	publicSource string (0..*) <"A public information source, e.g. a particular newspaper or electronic news service, that may publish relevant information used in the determination of whether or not a credit event has occurred. ISDA 2003 Term: Public Source.">;
+		[synonym FpML value publicSource]
+	specifiedNumber int (0..1) <"The minimum number of the specified public information sources that must publish information that reasonably confirms that a credit event has occurred. The market convention is two. ISDA 2003 Term: Specified Number.">;
+		[synonym FpML value specifiedNumber]
+}
+
+choice rule PubliclyAvailableInformation_choice <"FpML validation rule cd-36 - Context: PubliclyAvailableInformation (complex type). Either standardPublicSources or at least one publicSource element must exist.">
+	for PubliclyAvailableInformation required choice between
+	standardPublicSources and publicSource
+
+data rule PubliclyAvailableInformation_specifiedNumber <"FpML specifies specifiedNumber as a positiveInteger.">
+	when PubliclyAvailableInformation -> specifiedNumber exists
+	then PubliclyAvailableInformation -> specifiedNumber >= 0b
+
+/*
+ * The below definition originating from FpML probably needs to be updated, as it is very equity-specific.
+ */
+class Quanto stereotype contractualProduct <"Determines the currency rate that the seller of the equity amounts will apply at each valuation date for converting the respective amounts into a currency that is different from the currency denomination of the underlyer.">
+	[synonym FpML value Quanto]
+{
+	fxRate FxRate (0..*) <"Specifies a currency conversion rate.">;
+		[synonym FpML value fxRate]
+	fxSpotRateSource FxSpotRateSource (0..1) <"Specifies the methodology (reference source and, optionally, fixing time) to be used for determining a currency conversion rate.">;
+		[synonym FpML value fxSpotRateSource]
+}
+
+class Restructuring stereotype contractualProduct
+	[synonym FpML value Restructuring]
+{
+	applicable boolean (1..1) <"Indicates whether the restructuring provision is applicable.">;
+		[synonym FpML value applicable]
+	restructuringType RestructuringTypeEnum (0..1) <"Specifies the type of restructuring that is applicable.">;
+		[synonym FpML value restructuringType]
+	multipleHolderObligation boolean (0..1) <"In relation to a restructuring credit event, unless multiple holder obligation is not specified restructurings are limited to multiple holder obligations. A multiple holder obligation means an obligation that is held by more than three holders that are not affiliates of each other and where at least two thirds of the holders must agree to the event that constitutes the restructuring credit event. ISDA 2003 Term: Multiple Holder Obligation.">;
+		[synonym FpML value multipleHolderObligation]
+	multipleCreditEventNotices boolean (0..1) <"Presence of this element and value set to 'true' indicates that Section 3.9 of the 2003 Credit Derivatives Definitions shall apply. Absence of this element indicates that Section 3.9 shall not apply. NOTE: Not allowed under ISDA Credit 1999.">;
+		[synonym FpML value multipleCreditEventNotices]
+}
+
+class StrategyFeature stereotype contractualProduct <"A class for defining option simple strike or calendar spread strategy features.">
+	[synonym FpML value StrategyFeature]
+{
+	strikeSpread StrikeSpread (1..1) <"Definition of the upper strike in a strike spread.">;
+		[synonym FpML value strikeSpread]
+	calendarSpread CalendarSpread (1..1) <"Definition of the later expiration date in a calendar spread.">;
+		[synonym FpML value calendarSpread]
+}
+
+class StrikeSpread stereotype contractualProduct <"A class for defining a strike spread feature.">
+	[synonym FpML value StrikeSpread]
+{
+	upperStrike OptionStrike (1..1) <"Upper strike in a strike spread.">;
+		[synonym FpML value upperStrike]
+	upperStrikeNumberOfOptions bigDecimal (1..1) <"Number of options at the upper strike price in a strike spread.">;
+		[synonym FpML value upperStrikeNumberOfOptions]
+}
+
+class Trigger stereotype contractualProduct <"Trigger point at which feature is effective.">
+	[synonym FpML value Trigger]
+{
+	level bigDecimal (0..1) <"The trigger level.">;
+		[synonym FpML value level]
+	levelPercentage bigDecimal (0..1) <"The trigger level percentage.">;
+		[synonym FpML value levelPercentage]
+	creditEvents CreditEvents (0..1) reference;
+		[synonym FpML value creditEvents]
+		[synonym FpML value creditEventsReference]
+	triggerType TriggerTypeEnum (0..1) <"The Triggering condition.">;
+		[synonym FpML value triggerType]
+	triggerTimeType TriggerTimeTypeEnum (0..1) <"The valuation time type of knock condition.">;
+		[synonym FpML value triggerTimeType]
+}
+
+choice rule Trigger_choice <"Choice rule to represent an FpML choice construct.">
+	for Trigger required choice between
+	level and levelPercentage and creditEvents
+
+class TriggerEvent stereotype contractualProduct <"Observation point for trigger.">
+	[synonym FpML value TriggerEvent]
+{
+	/*
+	 * The schedule is specified as an equity derivative schedule in FpML, something which is incorrect in a context of usage beyond equity products.
+	 */
+	schedule AveragingSchedule (0..*) <"A derivative schedule">;
+		[synonym FpML value schedule]
+	triggerDates DateList (0..1) <"The trigger Dates.">;
+		[synonym FpML value triggerDates]
+	trigger Trigger (1..1) <"The trigger level">;
+		[synonym FpML value trigger]
+	featurePayment FeaturePayment (0..1) <"The feature payment, i.e. the payment made following trigger occurrence.">;
+		[synonym FpML value featurePayment]
+}
+
+class WeightedAveragingObservation stereotype contractualProduct <"A single weighted averaging observation.">
+	[synonym FpML value WeightedAveragingObservation]
+{
+	dateTime dateTime (0..1) <"Observation date time, which should be used when literal observation dates are required.">;
+		[synonym FpML value dateTime]
+	observationNumber int (0..1) <"Observation number, which should be unique, within a series generated by a date schedule.">;
+		[synonym FpML value observationNumber]
+	weight bigDecimal (1..1) <"Observation weight, which is used as a multiplier for the observation value.">;
+		[synonym FpML value weight]
+}
+
+choice rule WeightedAveragingObservation_choice <"Choice rule to represent an FpML choice construct between date times for literal date values, and observation numbers for schedule generated observations.">
+	for WeightedAveragingObservation required choice between
+	dateTime and observationNumber
+
+data rule WeightedAveragingObservation_observationNumber <"FpML specifies observationNumber as a positive integer.">
+	when WeightedAveragingObservation -> observationNumber exists
+	then WeightedAveragingObservation -> observationNumber >= 0
+
+data rule WeightedAveragingObservation_weight <"FpML specifies observationNumber as a non-negative decimal.">
+	when WeightedAveragingObservation -> weight exists
+	then WeightedAveragingObservation -> weight >= 0b

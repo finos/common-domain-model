@@ -1,0 +1,927 @@
+Rosetta versionNumber "0.0.1"
+FIX versionNumber "5.0 SP3"
+FpML versionNumber "5.10"
+
+enum AveragingInOutEnum <"The enumerated values to specify the type of averaging used in an Asian option.">
+	[synonym FpML value AveragingInOutEnum]
+{
+	In <"The average price is used to derive the strike price. Also known as 'Asian strike' style option.">
+		[synonym FpML value "In"],
+	Out <"The average price is used to derive the expiration price. Also known as 'Asian price' style option.">
+		[synonym FpML value "Out"],
+	Both <"The average price is used to derive both the strike and the expiration price.">
+		[synonym FpML value "Both"]
+}
+
+enum AveragingMethodEnum <"The enumerated values to specify the method of calculation to be used when averaging rates. Per ISDA 2000 Definitions, Section 6.2. Certain Definitions Relating to Floating Amounts.">
+	[synonym FpML value AveragingMethodEnum]
+{
+	Unweighted <"The arithmetic mean of the relevant rates for each reset date.">
+		[synonym FpML value "Unweighted"],
+	Weighted <"The arithmetic mean of the relevant rates in effect for each day in a calculation period calculated by multiplying each relevant rate by the number of days such relevant rate is in effect, determining the sum of such products and dividing such sum by the number of days in the calculation period.">
+		[synonym FpML value "Weighted"]
+}
+
+enum BrokerConfirmationTypeEnum <"The enumerated values to specify the type of Broker Confirm that the FpML trade represents.">
+	[synonym FpML value brokerConfirmationTypeScheme]
+{
+	ABX <"Broker Confirmation Type representing ABX index trades.">
+		[synonym FpML value "ABX"]
+/*
+ * There are many more values that need to be uploaded through a script
+ */
+}
+
+enum BusinessCenterEnum <"The enumerated values to specify the business centers.">
+	[synonym FpML value businessCenterScheme]
+{
+	AEAD <"Abu Dhabi, United Arab Emirates">
+		[synonym FpML value "AEAD" definition "Abu Dhabi, United Arab Emirates"],
+	AEDU <"Dubai, United Arab Emirates">
+		[synonym FpML value "AEDU" definition "Dubai, United Arab Emirates"],
+	AMYE <"Yerevan, Armenia">
+		[synonym FpML value "AMYE" definition "Yerevan, Armenia"],
+	GBLO <"London, United Kingdom">
+		[synonym FpML value "GBLO" definition "London, United Kingdom"],
+	DEFR <"Frankfurt, Germany">
+		[synonym FpML value "DEFR" definition "Frankfurt, Germany"]
+/* 
+ * Many other entries to be added from the the FpML scheme
+ */
+}
+
+enum BusinessDayConventionEnum <"The enumerated values to specify the convention for adjusting any relevant date if it would otherwise fall on a day that is not a valid business day.">
+	[synonym FpML value BusinessDayConventionEnum]
+{
+	FOLLOWING <"The non-business date will be adjusted to the first following day that is a business day">
+		[synonym FpML value "FOLLOWING"],
+	FRN <"Per 2000 ISDA Definitions, Section 4.11. FRN Convention; Eurodollar Convention. FRN is included here as a type of business day convention although it does not strictly fall within ISDA's definition of a Business Day Convention and does not conform to the simple definition given above.">
+		[synonym FpML value "FRN"],
+	MODFOLLOWING <"The non-business date will be adjusted to the first following day that is a business day unless that day falls in the next calendar month, in which case that date will be the first preceding day that is a business day.">
+		[synonym FpML value "MODFOLLOWING"],
+	PRECEDING <"The non-business day will be adjusted to the first preceding day that is a business day.">
+		[synonym FpML value "PRECEDING"],
+	MODPRECEDING <"The non-business date will be adjusted to the first preceding day that is a business day unless that day falls in the previous calendar month, in which case that date will be the first following day that us a business day.">
+		[synonym FpML value "MODPRECEDING"],
+	NEAREST <"The non-business date will be adjusted to the nearest day that is a business day - i.e. if the non-business day falls on any day other than a Sunday or a Monday, it will be the first preceding day that is a business day, and will be the first following business day if it falls on a Sunday or a Monday.">
+		[synonym FpML value "NEAREST"],
+	NONE <"The date will not be adjusted if it falls on a day that is not a business day.">
+		[synonym FpML value "NONE"],
+	NotApplicable <"The date adjustments conventions are defined elsewhere, so it is not required to specify them here.">
+		[synonym FpML value "NotApplicable"]
+}
+
+enum CalculationAgentPartyEnum <"The enumerated values to specify how a calculation agent will be determined.">
+	[synonym FpML value CalculationAgentPartyEnum]
+{
+	ExercisingParty <"The party that gives notice of exercise. Per 2000 ISDA Definitions, Section 11.1. Parties, paragraph (d).">
+		[synonym FpML value "ExercisingParty"],
+	NonExercisingParty <"The party that is given notice of exercise. Per 2000 ISDA Definitions, Section 11.1. Parties, paragraph (e).">
+		[synonym FpML value "NonExercisingParty"],
+	AsSpecifiedInMasterAgreement <"The Calculation Agent is determined by reference to the relevant master agreement.">
+		[synonym FpML value "AsSpecifiedInMasterAgreement"],
+	AsSpecifiedInStandardTermsSupplement <"The Calculation Agent is determined by reference to the relevant standard terms supplement.">
+		[synonym FpML value "AsSpecifiedInStandardTermsSupplement"],
+	Both <"Both parties with joined rights to be a calculation agent.">
+		[synonym FpML value "Both"]
+}
+
+enum CategoryEnum
+	[synonym FpML value categoryScheme]
+{
+	tbd
+/*
+ * Issue raised on Sept21, 2017 with #1248 with FpML about the fact that there seems to be issues with the scheme specification
+ * - Stated in online documentation http://www.fpml.org/spec/coding-scheme/ as corresponding to the type of organisation, 
+ *   instead of 'trade user-defined categories, such as house trades vs. customer trades' as specified as part of the TradeCategory type.
+ * - Missing from http://www.fpml.org/coding-scheme/
+ */
+}
+
+enum CompoundingMethodEnum <"The enumerated values to specify the type of compounding, e.g. flat, straight.">
+	[synonym FpML value CompoundingMethodEnum]
+{
+	Flat <"Flat compounding. Compounding excludes the spread. Note that the first compounding period has it's interest calculated including any spread then subsequent periods compound this at a rate excluding the spread.">
+		[synonym FpML value "Flat"],
+	None <"No compounding is to be applied.">
+		[synonym FpML value "None"],
+	Straight <"Straight compounding. Compounding includes the spread.">
+		[synonym FpML value "Straight"],
+	SpreadExclusive <"Spread Exclusive compounding.">
+		[synonym FpML value "SpreadExclusive"]
+}
+
+enum ContractualDefinitionsEnum <"The enumerated values to specify a set of standard contract definitions relevant to the transaction.">
+	[synonym FpML value contractualDefinitionsScheme]
+{
+	ISDA1991 <"ISDA 1991 Definitions">
+		[synonym FpML value "ISDA1991"],
+	ISDA1993Commodity <"ISDA 1993 Commodity Derivatives Definitions">
+		[synonym FpML value "ISDA1993Commodity"],
+	ISDA1996Equity <"ISDA 1996 Equity Derivatives Definitions">
+		[synonym FpML value "ISDA1996Equity"],
+	ISDA1997Bullion <"ISDA 1997 Bullion Definitions">
+		[synonym FpML value "ISDA1997Bullion"],
+	ISDA1997GovernmentBond <"ISDA 1997 Government Bond Option Definitions">
+		[synonym FpML value "ISDA1997GovernmentBond"],
+	ISDA1998FX <"ISDA 1998 FX and Currency Option Definitions">
+		[synonym FpML value "ISDA1998FX"],
+	ISDA1999Credit <"ISDA 1999 Credit Derivatives Definitions">
+		[synonym FpML value "ISDA1999Credit"],
+	ISDA2000	 <"ISDA 2000 Definitions">
+		[synonym FpML value "ISDA2000"],
+	ISDA2002Equity <"ISDA 2002 Equity Derivatives Definitions">
+		[synonym FpML value "ISDA2002Equity"],
+	ISDA2003Credit <"ISDA 2003 Credit Derivatives Definitions">
+		[synonym FpML value "ISDA2003Credit"],
+	ISDA2004Novation <"ISDA 2004 Novation Definitions">
+		[synonym FpML value "ISDA2004Novation"],
+	ISDA2005Commodity <"ISDA 2005 Commodity Derivatives Definitions">
+		[synonym FpML value "ISDA2005Commodity"],
+	ISDA2006	 <"ISDA 2006 Definitions">
+		[synonym FpML value "ISDA2006"],
+	ISDA2006Inflation <"ISDA 2006 Inflation Derivatives Definitions">
+		[synonym FpML value "ISDA2006Inflation"],
+	ISDA2008Inflation <"ISDA 2008 Inflation Derivatives Definitions">
+		[synonym FpML value "ISDA2008Inflation"],
+	ISDA2011Equity <"ISDA 2011 Equity Derivatives Definitions">
+		[synonym FpML value "ISDA2011Equity"],
+	ISDA2014Credit <"ISDA 2014 Credit Derivatives Definitions">
+		[synonym FpML value "ISDA2014Credit"]
+}
+
+enum ContractualSupplementEnum <"The enumerated values to define the supplements to a base set of ISDA Definitions that are applicable to the transaction.">
+	[synonym FpML value contractualSupplementScheme]
+{
+	ABX <"Standard Terms Supplement for ABX Transactions.">
+		[synonym FpML value "ABX"]
+/*
+ * There are many more values that need to be uploaded through a script
+ */
+}
+
+enum CreditSupportAgreementTypeEnum <"The enumerated values to specify the type of ISDA Credit Support Agreement governing the transaction.">
+	[synonym FpML value creditSupportAgreementTypeScheme]
+{
+	ISDA1994CreditSupportAnnexNewYorkLaw	<"The ISDA 1994 Credit Support Annex New York Law (pledge) applies.">
+		[synonym FpML value "ISDA1994CreditSupportAnnexNewYorkLaw"],
+	ISDA1995CreditSupportAnnexEnglishLaw	<"The ISDA 1995 Credit Support Annex English Law (title transfer) applies.">
+		[synonym FpML value "ISDA1995CreditSupportAnnexEnglishLaw"],
+	ISDA1995CreditSupportAnnexJapaneseLaw <"The ISDA 1995 Credit Support Annex Japanese Law applies.">
+		[synonym FpML value "ISDA1995CreditSupportAnnexJapaneseLaw"],
+	ISDA1995CreditSupportDeedEnglishLaw <"The ISDA 1995 Credit Support Deed English Law (charge) applies.">
+		[synonym FpML value "ISDA1995CreditSupportDeedEnglishLaw"],
+	ISDA2001MarginProvisions	<"The ISDA 2001 Margin Provisions applies.">
+		[synonym FpML value "ISDA2001MarginProvisions"],
+	ISDA2013StandardCreditSupportAgreement <"The ISDA 2013 Standard Credit Support Agreement.">
+		[synonym FpML value "ISDA2013StandardCreditSupportAgreement"],
+	ISDA2014StandardCreditSupportAgreement <"The ISDA 2014 Standard Credit Support Agreement.">
+		[synonym FpML value "ISDA2014StandardCreditSupportAgreement"]
+}
+
+enum DayCountFractionEnum <"The enumerated values to specify the day count fraction.">
+	[synonym FpML value dayCountFractionScheme]
+{
+	_1_1 displayName "1/1" <"Per 2006 ISDA Definitions, Section 4.16. Day Count Fraction, paragraph (a) or Annex to the 2000 ISDA Definitions (June 2000 Version), Section 4.16. Day Count Fraction, paragraph (a).">
+		[synonym FpML value "1/1"],
+	_30_360 displayName "30/360" <"Per 2006 ISDA Definitions, Section 4.16. Day Count Fraction, paragraph (f) or Annex to the 2000 ISDA Definitions (June 2000 Version), Section 4.16. Day Count Fraction, paragraph (e).">
+		[synonym FpML value "30/360"],
+	_30E_360 displayName "30E/360" <"Per 2006 ISDA Definitions, Section 4.16. Day Count Fraction, paragraph (g) or Annex to the 2000 ISDA Definitions (June 2000 Version), Section 4.16. Day Count Fraction, paragraph (f). Note that the algorithm defined for this day count fraction has changed between the 2000 ISDA Definitions and 2006 ISDA Definitions. See Introduction to the 2006 ISDA Definitions for further information relating to this change.">
+		[synonym FpML value "30E/360"],
+	_30E_360_ISDA displayName "30E/360.ISDA" <"DPer 2006 ISDA Definitions, Section 4.16. Day Count Fraction, paragraph (h). Note the algorithm for this day count fraction under the 2006 ISDA Definitions is designed to yield the same results in practice as the version of the 30E/360 day count fraction defined in the 2000 ISDA Definitions. See Introduction to the 2006 ISDA Definitions for further information relating to this change.">
+		[synonym FpML value "30E/360.ISDA"],
+	ACT_360 displayName "ACT/360" <"Per 2006 ISDA Definitions, Section 4.16. Day Count Fraction, paragraph (e) or Annex to the 2000 ISDA Definitions (June 2000 Version), Section 4.16. Day Count Fraction, paragraph (d).">
+		[synonym FpML value "ACT/360"],
+	ACT_365_FIXED displayName "ACT/365.FIXED" <"Per 2006 ISDA Definitions, Section 4.16. Day Count Fraction, paragraph (d) or Annex to the 2000 ISDA Definitions (June 2000 Version), Section 4.16. Day Count Fraction, paragraph (c).">
+		[synonym FpML value "ACT/365.FIXED"],
+	ACT_365L displayName "ACT/365L" <"Per 2006 ISDA Definitions, Section 4.16. Day Count Fraction, paragraph (i).">
+		[synonym FpML value "ACT/365L"],
+	ACT_ACT_AFB displayName "ACT/ACT.AFB" <"The Fixed/Floating Amount will be calculated in accordance with the 'BASE EXACT/EXACT' day count fraction, as defined in the 'Definitions Communes plusieurs Additifs Techniques' published by the Association Francaise des Banques in September 1994.">
+		[synonym FpML value "ACT/ACT.AFB"],
+	ACT_ACT_ICMA displayName "ACT/ACT.ICMA" <"Per 2006 ISDA Definitions, Section 4.16. Day Count Fraction, paragraph (c). This day count fraction code is applicable for transactions booked under the 2006 ISDA Definitions. Transactions under the 2000 ISDA Definitions should use the ACT/ACT.ISMA code instead.">
+		[synonym FpML value "ACT/ACT.ICMA"],
+	ACT_ACT_ISDA displayName "ACT/ACT.ISDA" <"Per 2006 ISDA Definitions, Section 4.16. Day Count Fraction, paragraph (b) or Annex to the 2000 ISDA Definitions (June 2000 Version), Section 4.16. Day Count Fraction, paragraph (b). Note that going from FpML 2.0 Recommendation to the FpML 3.0 Trial Recommendation the code in FpML 2.0 'ACT/365.ISDA' became 'ACT/ACT.ISDA'.">
+		[synonym FpML value "ACT/ACT.ISDA"],
+	ACT_ACT_ISMA displayName "ACT/ACT.ISMA" <"The Fixed/Floating Amount will be calculated in accordance with Rule 251 of the statutes, by-laws, rules and recommendations of the International Securities Market Association, as published in April 1999, as applied to straight and convertible bonds issued after December 31, 1998, as though the Fixed/Floating Amount were the interest coupon on such a bond. This day count fraction code is applicable for transactions booked under the 2000 ISDA Definitions. Transactions under the 2006 ISDA Definitions should use the ACT/ACT.ICMA code instead.">
+		[synonym FpML value "ACT/ACT.ISMA"],
+	BUS_252 displayName "BUS/252" <"The number of Business Days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 252.">
+		[synonym FpML value "BUS/252"]
+}
+
+enum DayOfWeekEnum <"The enumerated values to specify a day of the seven-day week.">
+	[synonym FpML value DayOfWeekEnum]
+{
+	MON <"Monday">
+		[synonym FpML value "MON"],
+	TUE <"Tuesday">
+		[synonym FpML value "TUE"],
+	WED <"Wednesday">
+		[synonym FpML value "WED"],
+	THU <"Thursday">
+		[synonym FpML value "THU"],
+	FRI <"Friday">
+		[synonym FpML value "FRI"],
+	SAT <"Saturday">
+		[synonym FpML value "SAT"],
+	SUN <"Sunday">
+		[synonym FpML value "SUN"]
+}
+
+enum DayTypeEnum <"The enumerated values to specify the day type classification used in counting the number of days between two dates.">
+	[synonym FpML value DayTypeEnum]
+{
+	Business <"When calculating the number of days between two dates the count includes only business days.">
+		[synonym FpML value "Business"],
+	Calendar <"When calculating the number of days between two dates the count includes all calendar days.">
+		[synonym FpML value "Calendar"],
+	CommodityBusiness <"When calculating the number of days between two dates the count includes only commodity business days.">
+		[synonym FpML value "CommodityBusiness"],
+	CurrencyBusiness <"When calculating the number of days between two dates the count includes only currency business days.">
+		[synonym FpML value "CurrencyBusiness"],
+	ExchangeBusiness <"When calculating the number of days between two dates the count includes only stock exchange business days.">
+		[synonym FpML value "ExchangeBusiness"],
+	ScheduledTradingDay <"When calculating the number of days between two dates the count includes only scheduled trading days.">
+		[synonym FpML value "ScheduledTradingDay"]
+}
+
+enum DeterminationMethodEnum <"The enumerated values to specify the method according to which an amount or a date is determined.">
+	[synonym FpML value DeterminationMethodEnum]
+{
+	AgreedInitialPrice <"Agreed separately between the parties.">
+		[synonym FpML value "AgreedInitialPrice"],
+	AsSpecifiedInMasterConfirmation	<"As specified in Master Confirmation.">
+		[synonym FpML value "AsSpecifiedInMasterConfirmation"],
+	CalculationAgent	<"Determined by the Calculation Agent.">
+		[synonym FpML value "CalculationAgent"],
+	ClosingPrice	 <"Official Closing Price.">
+		[synonym FpML value "ClosingPrice"],
+	DividendCurrency	<"Determined by the Currency of Equity Dividends.">
+		[synonym FpML value "DividendCurrency"],
+	ExpiringContractLevel <"The initial Index Level is the level of the Expiring Contract as provided in the Master Confirmation.">
+		[synonym FpML value "ExpiringContractLevel"],
+	HedgeExecution <"Determined by the Hedging Party.">
+		[synonym FpML value "HedgeExecution"],
+	IssuerPaymentCurrency <"Issuer Payment Currency.">
+		[synonym FpML value "IssuerPaymentCurrency"],
+	NAV	<"Net Asset Value.">
+		[synonym FpML value "NAV"],
+	OpenPrice <"Opening Price of the Market.">
+		[synonym FpML value "OpenPrice"],
+	OSPPrice <"OSP Price.">
+		[synonym FpML value "OSPPrice"],
+	SettlementCurrency <"Settlement Currency.">
+		[synonym FpML value "SettlementCurrency"],
+	StrikeDateDetermination	<"Date on which the strike is determined in respect of a forward starting swap.">
+		[synonym FpML value "StrikeDateDetermination"],
+	TWAPPrice <"Official TWAP Price.">
+		[synonym FpML value "TWAPPrice"],
+	ValuationTime <"Price determined at valuation time.">
+		[synonym FpML value "ValuationTime"],
+	VWAPPrice <"Official VWAP Price.">
+		[synonym FpML value "VWAPPrice"]
+}
+
+enum DiscountingTypeEnum <"The enumerated values to specify the method of calculating discounted payment amounts.">
+	[synonym FpML value DiscountingTypeEnum]
+{
+	Standard <"Per ISDA 2000 Definitions, Section 8.4. Discounting, paragraph (a).">
+		[synonym FpML value "Standard"],
+	FRA <"Per ISDA 2000 Definitions, Section 8.4. Discounting, paragraph (b).">
+		[synonym FpML value "FRA"],
+	FRAYield <"Per ISDA 2000 Definitions, Section 8.4. Discounting, paragraph (e).">
+		[synonym FpML value "FRAYield"]
+}
+
+enum EntityTypeEnum <"The enumerated values to specify the reference entity types corresponding to a list of types defined in the ISDA First to Default documentation.">
+	[synonym FpML value entityTypeScheme]
+{
+	Asian <"Entity Type of Asian.">
+		[synonym FpML value "Asian"],
+	AustralianAndNewZealand	<"Entity Type of Australian and New Zealand.">
+		[synonym FpML value "AustralianAndNewZealand"],
+	EuropeanEmergingMarkets	<"Entity Type of European Emerging Markets.">
+		[synonym FpML value "EuropeanEmergingMarket"],
+	Japanese	 <"Entity Type of Japanese.">
+		[synonym FpML value "Japanese"],
+	NorthAmericanHighYield	<"Entity Type of North American High Yield.">
+		[synonym FpML value "NorthAmericanHighYield"],
+	NorthAmericanInsurance	<"Entity Type of North American Insurance.">
+		[synonym FpML value "NorthAmericanInsurance"],
+	NorthAmericanInvestmentGrade	<"Entity Type of North American Investment Grade.">
+		[synonym FpML value "NorthAmericanInvestmentGrade"],
+	Singaporean	<"Entity Type of Singaporean.">
+		[synonym FpML value "Singaporean"],
+	WesternEuropean	<"Entity Type of Western European.">
+		[synonym FpML value "WesternEuropean"],
+	WesternEuropeanInsurance	<"Entity Type of Western European Insurance.">
+		[synonym FpML value "WesternEuropeanInsurance"]
+}
+
+enum FloatingRateIndexEnum <"The enumerated values to specify the list of floating rate index.">
+	[synonym FpML value floatingRateIndexScheme]
+	[synonym ISO_20022 value BenchmarkCurveName2Code]
+	[regulatoryReference ESMA_MiFIR specification "ISO 20022 - Part 2" section "20.2.2.74" provision "BenchmarkCurveName2Code specifies a benchmark curve name."]
+{
+	AED_EBOR_Reuters displayName "AED-EBOR-Reuters" <"Per supplement number 17 to the 2006 ISDA Definitions (published October 15, 2009).">
+		[synonym FpML value "AED-EBOR-Reuters"],
+	AUD_AONIA_OIS_COMPOUND displayName "AUD-AONIA-OIS-COMPOUND" <"Per 2006 ISDA Definitions or Annex to the 2000 ISDA Definitions, Section 7.1 Rate Options, as amended and supplemented through the date on which parties enter into the relevant transaction.">
+		[synonym FpML value "AUD-AONIA-OIS-COMPOUND"],
+	AUD_AONIA_OIS_COMPOUND_SwapMarker displayName "AUD-AONIA-OIS-COMPOUND-SwapMarker" <"Per 2006 ISDA Definitions, Section 7.1 Rate Options, as amended and supplemented through the date on which parties enter into the relevant transaction.">
+		[synonym FpML value "UD-AONIA-OIS-COMPOUND-SwapMarker"],
+	EUR_LIBOR_BBA displayName "EUR-LIBOR-BBA" <"Per 2006 ISDA Definitions or Annex to the 2000 ISDA Definitions, Section 7.1 Rate Options, as amended and supplemented through the date on which parties enter into the relevant transaction.">
+		[synonym FpML value "EUR-LIBOR-BBA"]
+/* 
+ * List to be automatically uploaded at some future point, as there are many values
+ * Then need to specify synonym relationships with the (few) values specified as part of the ISO 20022 specification.
+ * Also need to check that the FpML scheme definitions are actually correct, because they are all the same, or about.
+ */
+}
+
+enum FraDiscountingEnum <"The enumerated values to specify the method of FRA discounting.">
+	[synonym FpML value FraDiscountingEnum]
+{
+	ISDA <"FRA Discounting per the ISDA Definitions will apply.">
+		[synonym FpML value "ISDA"],
+	AFMA <"FRA discounting per the Australian Financial Markets Association (AFMA) OTC Financial Product Conventions will apply. Note: Should not be used for a FRA trade documented under a legal framework where the 2006 ISDA Definitions have been incorporated.">
+		[synonym FpML value "AFMA"],
+	NONE <"No discounting will apply.">
+		[synonym FpML value "NONE"],
+	ISDAYield <"Per ISDA 2006 Definitions, Section 8.4. Discounting, paragraph (e).">
+		[synonym FpML value "ISDAYield"]
+}
+
+enum GoverningLawEnum <"The enumerated values to specify the law governing the transaction.">
+	[synonym FpML value governingLawScheme]
+{
+	AsSpecifiedInMasterAgreement	<"The Governing Law is determined by reference to the relevant master agreement.">
+		[synonym FpML value "AsSpecifiedInMasterAgreement"]
+/*
+ * More values to be uploaded at some future time
+ */
+}
+
+enum IndexAnnexSourceEnum <"The enumerated values to specify the CDX index annex source.">
+	[synonym FpML value indexAnnexSourceScheme]
+{
+	MasterConfirmation <"As defined in the relevant form of Master Confirmation applicable to the confirmation of Dow Jones CDX indices.">
+		[synonym FpML value "MasterConfirmation"],
+	Publisher <"As defined in the relevant form of Master Confirmation applicable to the confirmation of Dow Jones CDX indices.">
+		[synonym FpML value "Publisher"]
+}
+
+enum InformationProviderEnum <"The enumerated values to specify the list of information providers.">
+	[synonym FpML value informationProviderScheme]
+{
+	Bloomberg <"Bloomberg LP.">
+		[synonym FpML value "Bloomberg"]
+		[synonym FIX value "0" definition "0 = Bloomberg"],
+	Reuters <"Reuters Group Plc.">
+		[synonym FpML value "Reuters"]
+		[synonym FIX value "1" definition "1 = Reuters"],
+	Telerate <"Telerate, Inc.">
+		[synonym FpML value "Telerate"]
+		[synonym FIX value "2" definition "2 = Telerate"],
+	Other
+		[synonym FIX value "99" definition "99 = Other"]
+/* 
+ * Many other entries in the FpML scheme list
+ * Let's look to load them programmatically
+ */
+}
+
+enum InterestShortfallCapEnum <"The enumerated values to specify the interest shortfall cap, applicable to mortgage derivatives.">
+	[synonym FpML value InterestShortfallCapEnum]
+{
+	Fixed
+		[synonym FpML value "Fixed"],
+	Variable
+		[synonym FpML value "Variable"]
+}
+
+enum InterpolationMethodEnum <"The enumerated values to specify the interpolation method, e.g. linear.">
+	[synonym FpML value interpolationMethodScheme]
+{
+	LinearZeroYield <"Linear Interpolation applicable.">
+		[synonym FpML value "LinearZeroYield"],
+	None <"No Interpolation applicable.">
+		[synonym FpML value "None"]
+}
+
+enum LengthUnitEnum <"The enumerated values to specify the length unit in the Resource type.">
+	[synonym FpML value LengthUnitEnum]
+{
+	Pages
+		[synonym FpML value "Pages"],
+	TimeUnit
+		[synonym FpML value "TimeUnit"]
+}
+
+enum MarketDisruptionEnum <"The enumerated values to specify the handling of an averaging date market disruption for an equity derivative transaction.">
+	[synonym FpML value marketDisruptionScheme]
+{
+	ModifiedPostponement	<"As defined in section 6.7 paragraph (c) sub-paragraph (iii) of the ISDA 2002 Equity Derivative definitions.">
+		[synonym FpML value "ModifiedPostponement"],
+	Omission	 <"As defined in section 6.7 paragraph (c) sub-paragraph (i) of the ISDA 2002 Equity Derivative definitions.">
+		[synonym FpML value "Omission"],
+	Postponement	 <"As defined in section 6.7 paragraph (c) sub-paragraph (ii) of the ISDA 2002 Equity Derivative definitions.">
+		[synonym FpML value "Postponement"]
+}
+
+enum MasterAgreementTypeEnum <"The enumerated values to specify the type of the master agreement governing the transaction.">
+	[synonym FpML value masterAgreementTypeScheme]
+{
+	AFB	<"AFB Master Agreement for Foreign Exchange and Derivatives Transactions">
+		[synonym FpML value "AFB"]
+/*
+ * The FpML scheme includes a meaningful number of values, which we should look to load through a script.
+ */
+}
+
+enum MasterConfirmationAnnexTypeEnum <"The enumerated values to specify the type of annex to be used with master confirmation agreement governing the transaction.">
+	[synonym FpML value masterConfirmationAnnexTypeScheme]
+{
+	ISDA2004IndexVarianceSwapAmericasInterdealer	<"The Index Variance Swap 2004 Annex to the ISDA 2004 Americas Interdealer Master Equity Derivatives Confirmation Agreement and to the Revised ISDA 2004 Americas Interdealer Master Equity Derivatives Confirmation Agreement applies.">
+		[synonym FpML value "ISDA2004IndexVarianceSwapAmericasInterdealer"]
+/*
+ * The FpML scheme includes a meaningful number of values, which we should look to load through a script.
+ */
+}
+
+enum MasterConfirmationTypeEnum <"The enumerated values to specify the type of master confirmation agreement governing the transaction. While FpML puts the date a prefix, Rosetta moves it to the suffix to handle grammar type constraints.">
+	[synonym FpML value masterConfirmationTypeScheme]
+{
+	CreditIndex2003 displayName "2003CreditIndex" <"Used for CDS Index trades. Relevant Master Confirmation determined by the contents of the creditDefaultSwap element. Best practice is to use the most specific code that applies.">
+		[synonym FpML value "2003CreditIndex"]
+/*
+ * The FpML scheme includes a meaningful number of values, which we should look to load through a script.
+ */
+}
+
+enum MatrixTermEnum <"The enumerated values to specify a scheme of transaction types specified in the Equity Derivatives Settlement Matrix.">
+	[synonym FpML value matrixTypeScheme]
+{
+	IVS1OpenMarkets <"The ISDA-published 2011 Index Volatility Swap Agreement for Open Markets.">
+		[synonym FpML value "IVS1OpenMarkets"]
+}
+
+enum MatrixTypeEnum <"The enumerated values to specify the identification the form of applicable matrix.">
+	[synonym FpML value matrixTypeScheme]
+{
+	CreditDerivativesPhysicalSettlementMatrix <"The ISDA-published Credit Derivatives Physical Settlement Matrix.">
+		[synonym FpML value "CreditDerivativesPhysicalSettlementMatrix"],
+	EquityDerivativesMatrix <"The ISDA-published Equity Derivatives Matrix.">
+		[synonym FpML value "EquityDerivativesMatrix"],
+	SettlementMatrix	<"The ISDA-published 2000 ISDA Definitions Settlement Matrix for early terminations and swaptions.">
+		[synonym FpML value "SettlementMatrix"]
+}
+
+enum NegativeInterestRateTreatmentEnum <"The enumerated values to specify the method of calculating payment obligations when a floating rate is negative (either due to a quoted negative floating rate or by operation of a spread that is subtracted from the floating rate).">
+	[synonym FpML value NegativeInterestRateTreatmentEnum]
+{
+	NegativeInterestRateMethod <"Negative Interest Rate Method. Per 2000 ISDA Definitions, Section 6.4 Negative Interest Rates, paragraphs (b) and (c).">
+		[synonym FpML value "NegativeInterestRateMethod"],
+	ZeroInterestRateMethod <"Zero Interest Rate Method. Per 2000 ISDA Definitions, Section 6.4. Negative Interest Rates, paragraphs (d) and (e).">
+		[synonym FpML value "ZeroInterestRateMethod"]
+}
+
+enum ObligationCategoryEnum <"The enumerated values used in both the obligations and deliverable obligations of the credit default swap to represent a class or type of securities which apply.">
+	[synonym FpML value ObligationCategoryEnum]
+{
+	Payment <"ISDA term 'Payment'.">
+		[synonym FpML value "Payment"],
+	BorrowedMoney <"ISDA term 'Borrowed Money'.">
+		[synonym FpML value "BorrowedMoney"],
+	ReferenceObligationsOnly <"ISDA term 'Reference Obligations Only'.">
+		[synonym FpML value "ReferenceObligationsOnly"],
+	Bond <"ISDA term 'Bond'.">
+		[synonym FpML value "Bond"],
+	Loan <"ISDA term 'Loan'.">
+		[synonym FpML value "Loan"],
+	BondOrLoan <"ISDA term 'Bond or Loan'.">
+		[synonym FpML value "BondOrLoan"]
+}
+
+enum OptionTypeEnum extends PutCallEnum <"The enumerated values to specify the type of the option.">
+	[synonym FpML value OptionTypeEnum]
+{
+	Payer <"A 'payer' option: If you buy a 'payer' option you have the right but not the obligation to enter into the underlying swap transaction as the 'fixed' rate/price payer and receive float.">
+		[synonym FpML value "Payer"],
+	Receiver <"A 'receiver' option: If you buy a 'receiver' option you have the right but not the obligation to enter into the underlying swap transaction as the 'fixed' rate/price receiver and pay float.">
+		[synonym FpML value "Receiver"],
+	Straddle <"A straddle strategy.">
+		[synonym FpML value "Straddle"]
+}
+
+enum PayerReceiverEnum <"The enumerated values to specify an interest rate stream payer or receiver party.">
+	[synonym FpML value PayerReceiverEnum]
+{
+	Payer <"The party identified as the stream payer.">
+		[synonym FpML value "Payer"],
+	Receiver <"The party identified as the stream receiver.">
+		[synonym FpML value "Receiver"]
+}
+
+enum PayRelativeToEnum <"The enumerated values to specify whether payments occur relative to the calculation period start or end date, or the reset date.">
+	[synonym FpML value PayRelativeToEnum]
+{
+	CalculationPeriodStartDate <"Payments will occur relative to the first day of each calculation period.">
+		[synonym FpML value "CalculationPeriodStartDate"],
+	CalculationPeriodEndDate <"Payments will occur relative to the last day of each calculation period.">
+		[synonym FpML value "CalculationPeriodEndDate"],
+	LastPricingDate <"Payments will occur relative to the last Pricing Date of each Calculation Period.">
+		[synonym FpML value "LastPricingDate"],
+	ResetDate <"Payments will occur relative to the reset date.">
+		[synonym FpML value "ResetDate"],
+	ValuationDate <"Payments will occur relative to the valuation date.">
+		[synonym FpML value "ValuationDate"]
+}
+
+enum PeriodEnum <"The enumerated values to specify the period, e.g. day, week.">
+	[synonym FpML value PeriodEnum]
+	[synonym ISO_20022 value Unit]
+	[regulatoryReference ESMA_MiFIR specification "ISO 20022 - Part 2" section "20.1.10.2.1" provision "Unit <Unit>: Unit for the rate basis."]
+{
+	D <"Day">
+		[synonym FpML value "D"]
+		[synonym ISO_20022 value "DAYS"],
+	W <"Week">
+		[synonym FpML value "W"]
+		[synonym ISO_20022 value "WEEK"],
+	M <"Month">
+		[synonym FpML value "M"]
+		[synonym ISO_20022 value "MNTH"],
+	Y <"Year">
+		[synonym FpML value "Y"]
+		[synonym ISO_20022 value "YEAR"]
+}
+
+enum PeriodExtendedEnum extends PeriodEnum <"The enumerated values to specify a time period containing the additional value of Term.">
+	[synonym FpML value PeriodExtendedEnum]
+{
+	T <"Term. The period commencing on the effective date and ending on the termination date. The T period always appears in association with periodMultiplier = 1, and the notation is intended for use in contexts where the interval thus qualified (e.g. accrual period, payment period, reset period, ...) spans the entire term of the trade.">
+		[synonym FpML value "T"]
+}
+
+enum PremiumTypeEnum <"The enumerated values to specify the premium type for forward start options.">
+	[synonym FpML value PremiumTypeEnum]
+	/*
+	 * The FpML definition relates this enumeration to equity option, although it is also used for credit default swap options
+	 * Is this premium type only applicable to forward starting options?
+	 * Also, aren't prepaid/postpaid and variable/fixed two distinct dimensions that could coexist? 
+	 */
+{
+	PrePaid
+		[synonym FpML value "PrePaid"],
+	PostPaid
+		[synonym FpML value "PostPaid"],
+	Variable
+		[synonym FpML value "Variable"],
+	Fixed
+		[synonym FpML value "Fixed"]
+}
+
+enum PutCallEnum <"The enumerated values to specify whether the option is a call or a put.">
+	[synonym FpML value PutCallEnum]
+{
+	Put <"A put option gives the holder the right to sell the underlying asset by a certain date for a certain price.">
+		[synonym FpML value "Put"],
+	Call <"A call option gives the holder the right to buy the underlying asset by a certain date for a certain price.">
+		[synonym FpML value "Call"]
+}
+
+enum QuotationRateTypeEnum <"The enumerated values to specify the type of quotation rate to be obtained from each cash settlement reference bank.">
+	[synonym FpML value QuotationRateTypeEnum]
+{
+	Bid <"A bid rate.">
+		[synonym FpML value "Bid"],
+	Ask <"An ask rate.">
+		[synonym FpML value "Ask"],
+	Mid <"A mid-market rate.">
+		[synonym FpML value "Mid"],
+	ExercisingPartyPays <"If optional early termination is applicable to a swap transaction, the rate, which may be a bid or ask rate, which would result, if seller is in-the-money, in the higher absolute value of the cash settlement amount, or, is seller is out-of-the-money, in the lower absolute value of the cash settlement amount.">
+		[synonym FpML value "ExercisingPartyPays"]
+}
+
+enum QuotationSideEnum <"The enumerated values to specify the side from which perspective a value is quoted.">
+	[synonym FpML value QuotationSideEnum]
+{
+	Bid <"A value 'bid' by a buyer for an asset, i.e. the value a buyer is willing to pay.">
+		[synonym FpML value "Bid"],
+	Ask <"A value 'asked' by a seller for an asset, i.e. the value at which a seller is willing to sell.">
+		[synonym FpML value "Ask"],
+	Mid <"A value midway between the bid and the ask value.">
+		[synonym FpML value "Mid"]
+}
+
+enum QuotationStyleEnum <"The enumerated values to specify the actual quotation style (e.g. PointsUpFront, TradedSpread) used to quote a credit default swap fee leg.">
+	[synonym FpML value QuotationStyleEnum]
+{
+	PointsUpFront <"When quotation style is 'PointsUpFront', the initialPoints element of the Credit Default Swap feeLeg should be populated">
+		[synonym FpML value "PointsUpFront"],
+	TradedSpread <"When quotation style is 'TradedSpread', the marketFixedRate element of the Credit Default Swap feeLeg should be populated">
+		[synonym FpML value "TradedSpread"],
+	Price <"When quotation style is 'Price', the marketPrice element of the Credit Default Swap feeLeg should be populated">
+		[synonym FpML value "Price"]
+}
+
+enum QuoteBasisEnum <"The enumerated values to specify how an exchange rate is quoted.">
+	[synonym FpML value QuoteBasisEnum]
+{
+	Currency1PerCurrency2 <"The amount of currency1 for one unit of currency2">
+		[synonym FpML value "Currency1PerCurrency2"],
+	Currency2PerCurrency1 <"The amount of currency2 for one unit of currency1">
+		[synonym FpML value "Currency2PerCurrency1"]
+}
+
+enum RateTreatmentEnum <"The enumerated values to specify the methods for converting rates from one basis to another.">
+	[synonym FpML value RateTreatmentEnum]
+{
+	BondEquivalentYield <"Bond Equivalent Yield. Per Annex to the 2000 ISDA Definitions (June 2000 Version), Section 7.3. Certain General Definitions Relating to Floating Rate Options, paragraph (g).">
+		[synonym FpML value "BondEquivalentYield"],
+	MoneyMarketYield <"Money Market Yield. Per Annex to the 2000 ISDA Definitions (June 2000 Version), Section 7.3. Certain General Definitions Relating to Floating Rate Options, paragraph (h).">
+		[synonym FpML value "MoneyMarketYield"]
+}
+
+enum ResetRelativeToEnum <"The enumerated values to specify whether resets occur relative to the first or last day of a calculation period.">
+	[synonym FpML value ResetRelativeToEnum]
+{
+	CalculationPeriodStartDate <"Resets occur relative to the first day of a calculation period.">
+		[synonym FpML value "CalculationPeriodStartDate"],
+	CalculationPeriodEndDate	<"Resets occur relative to the last day of a calculation period.">
+		[synonym FpML value "CalculationPeriodEndDate"]
+}
+
+enum ResourceTypeEnum <"The enumerated values to specify the type of a resource (e.g. document).">
+	[synonym FpML value resourceTypeScheme]
+{
+	Confirmation	 <"Document describing the legal terms of a transaction.">
+		[synonym FpML value "Confirmation"],
+	SupplementalMaterialEconomicTerms <"Document providing supplemental material economic terms to the FpML data representation. The initial intended usage is to fulfill the CFTC Part 45 rule requirement to report 'Any other terms(s) of the swap matched or affirmed by the counterparties in verifying the swap' when the reporting is done via the generic FpML representation.">
+		[synonym FpML value "SupplementalMaterialEconomicTerms"],
+	TermSheet <"Document describing the economic characteristics of a transaction.">
+		[synonym FpML value "TermSheet"]
+}
+
+enum RestructuringTypeEnum <"The enumerated values to specify the form of the restructuring credit event that is applicable to the credit default swap.">
+	[synonym FpML value restructuringScheme]
+{
+	ModModR	<"Restructuring (Section 4.7) and Modified Restructuring Maturity Limitation and Conditionally Transferable Obligation (2014 Definitions: Section 3.31, 2003 Definitions: 2.32) apply.">
+		[synonym FpML value "ModModR"],
+	ModR	 <"Restructuring (Section 4.7) and Restructuring Maturity Limitation and Fully Transferable Obligation (2014 Definitions: Section 3.31, 2003 Definitions: 2.32) apply.">
+		[synonym FpML value "ModR"],
+	R <"Restructuring as defined in the applicable ISDA Credit Derivatives Definitions. (2003 or 2014).">
+		[synonym FpML value "R"]
+}
+
+enum RollConventionEnum <"The enumerated values to specify the convention for determining the sequence of calculation period end dates. It is used in conjunction with a specified frequency and the regular period start date of a calculation period, e.g. semi-annual IMM roll dates.">
+	[synonym FpML value RollConventionEnum]
+{
+	EOM <"Rolls on month end dates irrespective of the length of the month and the previous roll day.">
+		[synonym FpML value "EOM"],
+	FRN <"Roll days are determined according to the FRN Convention or Eurodollar Convention as described in ISDA 2000 definitions.">
+		[synonym FpML value "FRN"],
+	IMM <"IMM Settlement Dates. The third Wednesday of the (delivery) month.">
+		[synonym FpML value "IMM"],
+	IMMCAD <"The last trading day/expiration day of the Canadian Derivatives Exchange (Bourse de Montreal Inc) Three-month Canadian Bankers' Acceptance Futures (Ticker Symbol BAX). The second London banking day prior to the third Wednesday of the contract month. If the determined day is a Bourse or bank holiday in Montreal or Toronto, the last trading day shall be the previous bank business day. Per Canadian Derivatives Exchange BAX contract specification.">
+		[synonym FpML value "IMMCAD"],
+	IMMAUD <"The last trading day of the Sydney Futures Exchange 90 Day Bank Accepted Bills Futures contract (see http://www.sfe.com.au/content/sfe/trading/con_specs.pdf). One Sydney business day preceding the second Friday of the relevant settlement.">
+		[synonym FpML value "IMMAUD"],
+	IMMNZD <"The last trading day of the Sydney Futures Exchange NZ 90 Day Bank Bill Futures contract (see http://www.sfe.com.au/content/sfe/trading/con_specs.pdf). The first Wednesday after the ninth day of the relevant settlement month.">
+		[synonym FpML value "IMMNZD"],
+	SFE <"Sydney Futures Exchange 90-Day Bank Accepted Bill Futures Settlement Dates. The second Friday of the (delivery) month">
+		[synonym FpML value "SFE"],
+	NONE <"The roll convention is not required. For example, in the case of a daily calculation frequency.">
+		[synonym FpML value "NONE"],
+	TBILL <"13-week and 26-week U.S. Treasury Bill Auction Dates. Each Monday except for U.S. (New York) holidays when it will occur on a Tuesday.">
+		[synonym FpML value "TBILL"],
+	_1 displayName "1" <"Rolls on the 1st day of the month.">
+		[synonym FpML value "1"],
+	_2 displayName "2" <"Rolls on the 2nd day of the month.">
+		[synonym FpML value "2"],
+	_3 displayName "3" <"Rolls on the 3rd day of the month.">
+		[synonym FpML value "3"],
+	_4 displayName "4" <"Rolls on the 4th day of the month.">
+		[synonym FpML value "4"],
+	_5 displayName "5" <"Rolls on the 5th day of the month.">
+		[synonym FpML value "5"],
+	_6 displayName "6" <"Rolls on the 6th day of the month.">
+		[synonym FpML value "6"],
+	_7 displayName "7" <"Rolls on the 7th day of the month.">
+		[synonym FpML value "7"],
+	_8 displayName "8" <"Rolls on the 8th day of the month.">
+		[synonym FpML value "8"],
+	_9 displayName "9" <"Rolls on the 9th day of the month.">
+		[synonym FpML value "9"],
+	_10 displayName "10" <"Rolls on the 10th day of the month.">
+		[synonym FpML value "10"],
+	_11 displayName "11" <"Rolls on the 11th day of the month.">
+		[synonym FpML value "11"],
+	_12 displayName "12" <"Rolls on the 12th day of the month.">
+		[synonym FpML value "12"],
+	_13 displayName "13" <"Rolls on the 13th day of the month.">
+		[synonym FpML value "13"],
+	_14 displayName "14" <"Rolls on the 14th day of the month.">
+		[synonym FpML value "14"],
+	_15 displayName "15" <"Rolls on the 15th day of the month.">
+		[synonym FpML value "15"],
+	_16 displayName "16" <"Rolls on the 16th day of the month.">
+		[synonym FpML value "16"],
+	_17 displayName "17" <"Rolls on the 17th day of the month.">
+		[synonym FpML value "17"],
+	_18 displayName "18" <"Rolls on the 18th day of the month.">
+		[synonym FpML value "18"],
+	_19 displayName "19" <"Rolls on the 19th day of the month.">
+		[synonym FpML value "19"],
+	_20 displayName "20" <"Rolls on the 20th day of the month.">
+		[synonym FpML value "20"],
+	_21 displayName "21" <"Rolls on the 21st day of the month.">
+		[synonym FpML value "21"],
+	_22 displayName "22" <"Rolls on the 22nd day of the month.">
+		[synonym FpML value "22"],
+	_23 displayName "23" <"Rolls on the 23rd day of the month.">
+		[synonym FpML value "23"],
+	_24 displayName "24" <"Rolls on the 24th day of the month.">
+		[synonym FpML value "24"],
+	_25 displayName "25" <"Rolls on the 25th day of the month.">
+		[synonym FpML value "25"],
+	_26 displayName "26" <"Rolls on the 26th day of the month.">
+		[synonym FpML value "26"],
+	_27 displayName "27" <"Rolls on the 27th day of the month.">
+		[synonym FpML value "27"],
+	_28 displayName "28" <"Rolls on the 28th day of the month.">
+		[synonym FpML value "28"],
+	_29 displayName "29" <"Rolls on the 29th day of the month.">
+		[synonym FpML value "29"],
+	_30 displayName "30" <"Rolls on the 30th day of the month.">
+		[synonym FpML value "30"],
+	MON <"Rolling weekly on a Monday.">
+		[synonym FpML value "MON"],
+	TUE <"Rolling weekly on a Tuesday">
+		[synonym FpML value "TUE"],
+	WED <"Rolling weekly on a Wednesday">
+		[synonym FpML value "WED"],
+	THU <"Rolling weekly on a Thursday">
+		[synonym FpML value "THU"],
+	FRI <"Rolling weekly on a Friday">
+		[synonym FpML value "FRI"],
+	SAT <"Rolling weekly on a Saturday">
+		[synonym FpML value "SAT"],
+	SUN <"Rolling weekly on a Sunday">
+		[synonym FpML value "SUN"]
+}
+
+enum RoundingDirectionEnum <"The enumerated values to specify the rounding direction and precision to be used in the rounding of a rate.">
+	[synonym FpML value RoundingDirectionEnum]
+	[synonym FIX value RoundingDirection tag 468]
+{
+	Up <"A fractional number will be rounded up to the specified number of decimal places (the precision). For example, 5.21 and 5.25 rounded up to 1 decimal place are 5.3 and 5.3 respectively.">
+		[synonym FpML value "Up"]
+		[synonym FIX value "2" definition "2 = Round up"],
+	Down <"A fractional number will be rounded down to the specified number of decimal places (the precision). For example, 5.29 and 5.25 rounded down to 1 decimal place are 5.2 and 5.2 respectively.">
+		[synonym FpML value "Down"]
+		[synonym FIX value "1" definition "1 = Round down"],
+	Nearest <"A fractional number will be rounded either up or down to the specified number of decimal places (the precision) depending on its value. For example, 5.24 would be rounded down to 5.2 and 5.25 would be rounded up to 5.3 if a precision of 1 decimal place were specified.">
+		[synonym FpML value "Nearest"]
+		[synonym FIX value "0" definition "0 = Round to nearest"]
+}
+
+enum SettledEntityMatrixSourceEnum <"The enumerated values to specify the relevant settled entity matrix source.">
+	[synonym FpML value settledEntityMatrixSourceScheme]
+{
+	ConfirmationAnnex <"The Relevant Settled Entity Matrix shall be the list agreed for this purpose by the parties. The list is not included as part of the electronic confirmation.">
+		[synonym FpML value "ConfirmationAnnex"],
+	NotApplicable <"The term is not applicable.">
+		[synonym FpML value "NotApplicable"],
+	Publisher <"The Settled Entity Matrix published by the Index Publisher.">
+		[synonym FpML value "Publisher"]
+}
+
+enum SettlementRateOptionEnum <"The enumerated values to specify the settlement rate options as specified in the Annex A to the 1998 FX and Currency Options Definitions.">
+	[synonym FpML value settlementRateOptionScheme]
+{
+	ARS_BNAR_ARS01 displayName "ARS.BNAR/ARS01" <"The Spot Rate for a Rate Calculation Date will be the Argentine Peso/U.S. Dollar Specified Rate, expressed as the amount of Argentine Pesos per one U.S. Dollar, for settlement on the same day (or, if such day is not a Business Day in New York, for settlement on the first succeeding day that is a Business Day in both Buenos Aires and New York) which appears on the Reuters Screen BNAR Page at the close of business in Buenos Aires on that Rate Calculation Date.">
+		[synonym FpML value "ARS.BNAR/ARS01"],
+	ARS_EMTA_INDICATIVE_SURVEY_RATE_ARS04 displayName "ARS.EMTA.INDICATIVE.SURVEY.RATE/ARS04" <"The Spot Rate for a Rate Calculation Date will be the Argentine Peso/U.S. Dollar Specified Rate for U.S. Dollars, expressed as the amount of Argentine Pesos per one U.S. Dollar, for settlement on the same day, as published on EMTA's web site (www.emta.org) at approximately 1:00 p.m. (Buenos Aires time), or as soon thereafter as practicable, on such Rate Calculation Date. The Spot Rate shall be calculated by EMTA (or a service provider EMTA may select in its sole discretion) pursuant to the EMTA ARS Indicative Survey Methodology (which means a methodology, dated as of January 2, 2003, as amended from time to time, for a centralized industry-wide survey of financial institutions that are active participants in the Argentine Peso/U.S. Dollar markets for the purpose of determining the EMTA ARS Indicative Survey Rate).">
+		[synonym FpML value "ARS.EMTA.INDICATIVE.SURVEY.RATE/ARS04"]
+/* 
+ * Look to automatically upload the further values
+ */
+}
+
+enum SpreadScheduleTypeEnum <"The enumerated values to specify a long or short spread value.">
+	[synonym FpML value spreadScheduleTypeScheme]
+{
+	Long <"Represents a Long Spread Schedule. Spread schedules defined as 'Long' will be applied to Long Positions.">
+		[synonym FpML value "Long"],
+	Short <"Represents a Short Spread Schedule. Spread schedules defined as 'Short' will be applied to Short Positions.">
+		[synonym FpML value "Short"]
+}
+
+enum StandardSettlementStyleEnum <"The enumerated values to specify whether a trade is settling using standard settlement instructions as well as whether it is a candidate for settlement netting.">
+	[synonym FpML value StandardSettlementStyleEnum]
+{
+	Standard <"This trade will settle using standard predetermined funds settlement instructions.">
+		[synonym FpML value "Standard"],
+	Net <"This trade is a candidate for settlement netting.">
+		[synonym FpML value "Net"],
+	StandardAndNet <"This trade will settle using standard predetermined funds settlement instructions and is a candidate for settlement netting.">
+		[synonym FpML value "StandardAndNet"]
+}
+
+enum StepRelativeToEnum <"The enumerated values to specify whether a percentage rate change, used to calculate a change in notional outstanding, is expressed as a percentage of the initial notional amount or the previously outstanding notional amount.">
+	[synonym FpML value StepRelativeToEnum]
+{
+	Initial <"Change in notional to be applied is calculated by multiplying the percentage rate by the initial notional amount.">
+		[synonym FpML value "Initial"],
+	Previous <"Change in notional to be applied is calculated by multiplying the percentage rate by the previously outstanding notional amount.">
+		[synonym FpML value "Flat"]
+}
+
+enum StubPeriodTypeEnum <"The enumerated values to specify how to deal with a non standard calculation period within a swap stream.">
+	[synonym FpML value StubPeriodTypeEnum]
+{
+	ShortInitial <"If there is a non regular period remaining it is left shorter than the streams calculation period frequency and placed at the start of the stream.">
+		[synonym FpML value "ShortInitial"],
+	ShortFinal <"If there is a non regular period remaining it is left shorter than the streams calculation period frequency and placed at the end of the stream.">
+		[synonym FpML value "ShortFinal"],
+	LongInitial <"If there is a non regular period remaining it is placed at the start of the stream and combined with the adjacent calculation period to give a long first calculation period.">
+		[synonym FpML value "LongInitial"],
+	LongFinal <"If there is a non regular period remaining it is placed at the end of the stream and combined with the adjacent calculation period to give a long last calculation period.">
+		[synonym FpML value "LongFinal"]
+}
+
+enum TriggerTypeEnum <"The enumerated values to specify whether an option will trigger or expire depending upon whether the spot rate is above or below the barrier rate.">
+	[synonym FpML value TriggerTypeEnum]
+{
+	EqualOrLess <"The underlyer price must be equal to or less than the Trigger level.">
+		[synonym FpML value "EqualOrLess"],
+	EqualOrGreater <"The underlyer price must be equal to or greater than the Trigger level.">
+		[synonym FpML value "EqualOrGreater"],
+	Equal <"The underlyer price must be equal to the Trigger level.">
+		[synonym FpML value "Equal"],
+	Less <"The underlyer price must be less than the Trigger level.">
+		[synonym FpML value "Less"],
+	Greater <"The underlyer price must be greater than the Trigger level.">
+		[synonym FpML value "Greater"]
+}
+
+/*
+ * The FpML definition reference equity options, and should be adjusted to reference a broader product scope, 
+ * as this construct is also used for the credit default swap option
+ */
+enum TimeTypeEnum <"The enumerated values to specify points in the day when option exercise and valuation can occur.">
+	[synonym FpML value TimeTypeEnum]
+{
+	Close <"The official closing time of the exchange on the valuation date.">
+		[synonym FpML value "Close"],
+	Open <"The official opening time of the exchange on the valuation date.">
+		[synonym FpML value "Open"],
+	OSP <"The time at which the official settlement price is determined.">
+		[synonym FpML value "OSP"],
+	SpecificTime <"The time specified in the element equityExpirationTime or valuationTime (as appropriate).">
+		[synonym FpML value "SpecificTime"],
+	XETRA <"The time at which the official settlement price (following the auction by the exchange) is determined by the exchange.">
+		[synonym FpML value "XETRA"],
+	DerivativesClose <"The official closing time of the derivatives exchange on which a derivative contract is listed on that security underlyer.">
+		[synonym FpML value "DerivativesClose"],
+	AsSpecifiedInMasterConfirmation <"The time is determined as provided in the relevant Master Confirmation.">
+		[synonym FpML value "AsSpecifiedInMasterConfirmation"]
+}
+
+enum TriggerTimeTypeEnum <"The enumerated values to specify the time of day which would be considered for valuing the knock event.">
+	[synonym FpML value TriggerTimeTypeEnum]
+{
+	Closing <"The close of trading on a day would be considered for valuation.">
+		[synonym FpML value "Closing"],
+	Anytime <"At any time during the Knock Determination period (continuous barrier).">
+		[synonym FpML value "Anytime"]
+}
+
+enum  ValuationMethodEnum <"The enumerated values to specify the ISDA defined methodology for determining the final price of the reference obligation for purposes of cash settlement.">
+	[synonym FpML value ValuationMethodEnum]
+{
+	Market
+		[synonym FpML value "Market"],
+	Highest
+		[synonym FpML value "Highest"],
+	AverageMarket
+		[synonym FpML value "AverageMarket"],
+	AverageHighest
+		[synonym FpML value "AverageHighest"],
+	BlendedMarket
+		[synonym FpML value "BlendedMarket"],
+	BlendedHighest
+		[synonym FpML value "BlendedHighest"],
+	AverageBlendedMarket
+		[synonym FpML value "AverageBlendedMarket"],
+	AverageBlendedHighest
+		[synonym FpML value "AverageBlendedHighest"]
+}
+
+enum WeeklyRollConventionEnum extends DayOfWeekEnum <"The enumerated values to specify the weekly roll day.">
+	[synonym FpML value WeeklyRollConventionEnum]
+{
+	TBILL <"13-week and 26-week U.S. Treasury Bill Auction Dates. Each Monday except for U.S. (New York) holidays when it will occur on a Tuesday">
+		[synonym FpML value "TBILL"]
+}
+

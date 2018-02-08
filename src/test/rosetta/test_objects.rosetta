@@ -1,0 +1,61 @@
+Rosetta versionNumber "0.0.1"
+FIX versionNumber "5.0 SP3"
+FpML versionNumber "5.10"
+
+class Flat {
+	oneField string (1..1) scheme "oneFieldScheme";
+		[synonym FpML value oneSyn]
+	two int (1..*) reference;
+	three string (1..1);
+		[synonym FpML value threeSyn1]
+		[synonym FpML value threeSyn2]
+}
+
+class Parent {
+	parentFieldOne Flat (1..1);
+		[synonym FpML value parentFieldOneSyn]
+	parentFieldTwo Flat (1..*);
+		[synonym FpML value parentFieldTwoSyn1]
+		[synonym FpML value parentFieldTwoSyn2]
+	parentFieldThree string (1..1);
+	parentFieldFour string (1..*);
+	parentFieldFive Flat (1..1) reference;
+} 
+
+class Child extends Parent {
+	childFieldOne Flat (1..1);
+	childFieldTwo Flat (1..*);
+	childFieldThree string (1..1);
+	childFieldFour string (1..*);
+}
+
+root class Root {
+	account CustomerAccount (0..1);
+		[synonym FpML value account]
+}
+
+class CustomerAccount <"Customer account"> {
+	id string (1..1);
+		[synonym FpML value id]
+    client Client (1..*);
+    		[synonym FpML value client]
+    accountType AccountTypeEnum (1..1);
+}
+
+class Client {
+	id string (1..1);
+	firstName string (1..*);
+		[synonym FpML value firstname]
+	lastname Name (1..1);
+		[synonym FpML value familyname]
+}
+
+class Name {
+	id string (1..1);
+	name string (1..1);
+}
+
+enum AccountTypeEnum<"Types of account"> {
+	Retail
+		[synonym FpML value "RetailAccountType"]
+}

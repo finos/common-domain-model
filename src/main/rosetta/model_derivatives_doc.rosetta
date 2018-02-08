@@ -1,0 +1,110 @@
+Rosetta versionNumber "0.0.1"
+FIX versionNumber "5.0 SP3"
+FpML versionNumber "5.10"
+
+class CalculationAgentModel <"This class corresponds to the FpML CalculationAgent.model.">
+{
+	calculationAgent CalculationAgent (0..1) <"The ISDA calculation agent responsible for performing duties as defined in the applicable product definitions.">;
+		[synonym FpML value calculationAgent]
+	calculationAgentBusinessCenter BusinessCenterEnum (0..1) <"The city in which the office through which ISDA Calculation Agent is acting for purposes of the transaction is located. The short-form confirm for a trade that is executed under a Sovereign or Asia-Pacific Master Confirmation Agreement (MCA), does not need to specify the Calculation Agent. However, the confirm does need to specify the Calculation Agent city. This is due to the fact that the MCA sets the value for Calculation Agent but does not set the value for Calculation Agent city.">;
+		[synonym FpML value calculationAgentBusinessCenter]
+}
+
+class LinkId <"The class to represent link identifiers.">
+	[synonym FpML value LinkId]
+{
+	id string (0..1);
+		[synonym FpML value id]
+	linkId string (1..1) scheme "linkIdScheme";
+		[synonym FpML value linkId]
+}
+
+class PackageInformation <"A class defining additional information that may be recorded alongside a transaction package.">
+	[synonym FpML value PackageInformation]
+{
+	relatedParty RelatedParty (0..*) <"This may be used to identify one or more parties that perform a role as part of the transaction.">;
+		[synonym FpML value relatedParty]
+	category CategoryEnum (0..*);
+		[synonym FpML value category]
+	/*
+	 * Why should the below be specifically associated with package transactions?
+	 * It seems to also be relevant in the context of single trades
+	 */
+	intentToAllocate boolean (0..1) <"specifies whether the transaction package is anticipated to be allocated.">;
+		[synonym FpML value intentToAllocate]
+/*
+ * Only some of the attributes have been incorporated at this point, as some seem questionable (e.g. executionDateTime, which should be associated to the relevant execution event).
+ */
+}
+
+class PartyTradeIdentifier extends TradeIdentifier stereotype execution, postExecution <"A class defining one or more identifiers allocated to the trade by a party. A link identifier allows the trade to be associated with other related trades, e.g. trades forming part of a larger structured transaction. It is expected that for external communication of trade there will be only one tradeId sent in the document per party.">
+	[synonym FpML value PartyTradeIdentifier]
+{
+	linkId LinkId (0..*) <"A link identifier allowing the trade to be associated with other related trades, e.g. the linkId may contain a tradeId for an associated trade or several related trades may be given the same linkId. FpML does not define the domain values associated with this element. Note that the domain values for this element are not strictly an enumerated list.">;
+		[synonym FpML value linkId]
+	allocationTradeId TradeIdentifier (0..*) <"The trade id of the allocated trade. This is used by the block trade to reference the allocated trade.">;
+		[synonym FpML value allocationTradeId]
+	resultingTradeId TradeIdentifierExtended (0..*) <"The trade id of a resulting trade (beta or gamma trade) that resulted from this trade during a clearing or similar operation (e.g. prime brokerage).">;
+		[synonym FpML value resultingTradeId]
+	blockTradeId TradeIdentifier (0..1) <"The trade id of the block trade. This is used by each one of the allocated trades to reference the block trade. This element can also represent the trade id of the parent trade for N-level allocations. In the case, this element is only used to model N-level allocations in which the trade acts as block and allocated trade at the same time. This basically means the ability to allocate a block trade to multiple allocation trades, and then allocate these in turn to other allocation trades (and so on if desired).">;
+		[synonym FpML value blockTradeId]
+	originatingTradeId TradeIdentifier (0..*) <"The trade id of the trade(s) upon which this was based, for example the ID of the trade that was submitted for clearing if this is a cleared trade, or of the original trade if this was novated or cancelled and rebooked, or the list of trades that were netted or compressed together in the case of a compression event. The originatingEvent will explain why the trade was created; the existence and number of originatingTradeId elements should correspond to the originatingEvent, and they should be interpreted using that field. If the trade is inside a business event structure (such as a novation or a compression event) this element should not be populated; instead the event should be used to represent the other trades.">;
+		[synonym FpML value originatingTradeId]
+}
+
+choice rule PartyTradeIdentifier_choice <"Choice rule to represent an FpML choice construct.">
+	for PartyTradeIdentifier optional choice between
+	allocationTradeId and resultingTradeId
+
+class TradeIdentifier stereotype execution, postExecution <"A class defining a trade identifier issued by the indicated party. Rosetta implementation doesn't extends the base class PartyAndAccountReference because of the choice logic with the issuer element.">
+	[synonym FpML value TradeIdentifier]
+{
+	id string (0..1);
+		[synonym FpML value id]
+	issuer Party (0..1) scheme "issuerIdScheme" <"The party that assigns the trade identifier. The FpML required cardinality for the issuing party has been relaxed to accommodate FIX messages.">;
+		[synonym FpML value issuer]
+	party Party (0..1) reference <"FpML implements this element as a reference to a party.">;
+		[synonym FpML value partyReference]
+	account Account (0..1) reference <"FpML implements this element as a reference to an account.">;
+		[synonym FpML value accountReference]
+	tradeId string (0..1) anchor scheme "tradeIdScheme" <"In FIX, the unique ID assigned to the trade entity once it is received or matched by the exchange or central counterparty. In FpML, a trade reference identifier allocated by a party.">;
+		[synonym FIX value TradeID tag 1003]
+		[synonym FIX value SecondaryTradeID tag 1040]
+		[synonym FIX value FirmTradeID tag 1041]
+		[synonym FIX value SecondaryFirmTradeID tag 1042]
+		[synonym FpML value tradeId]
+	versionedTradeId VersionedTradeId (0..1) <"A trade identifier accompanied by a version number.">;
+		[synonym FpML value versionedTradeId]
+}
+
+choice rule TradeIdentifier_choice1 <"Choice rule to represent an FpML choice construct.">
+	for TradeIdentifier required choice between
+	tradeId and versionedTradeId
+
+choice rule TradeIdentifier_choice2 <"Choice rule to represent an FpML choice construct.">
+	for TradeIdentifier required choice between
+	issuer and party
+
+data rule TradeIdentifier_party_account <"FpML specifies a choice between issuer and [partyReference, accountReference].  The account element should be populated only alongside the party element.">
+	when TradeIdentifier -> party is absent
+	then TradeIdentifier -> account must be absent
+
+class TradeIdentifierExtended extends TradeIdentifier <"A class defining a trade identifier with a reference to the party that this trade is associated with.">
+	[synonym FpML value TradeIdentifierExtended]
+{
+	associatedParty Party (1..1) reference;
+		[synonym FpML value associatedParty]
+}
+
+class VersionedTradeId
+	[synonym FpML value VersionedTradeId]
+{
+	version int (1..1) <"The version number.">;
+		[synonym FpML value version]
+	effectiveDate date (0..1) <"Optionally it is possible to specify a version effective date when a versionId is supplied.">;
+		[synonym FpML value effectiveDate]
+}
+
+data rule VersionedTradeId_version <"FpML specifies the version as a non-negative integer.">
+	when VersionedTradeId exists
+	then VersionedTradeId -> version >= 0
