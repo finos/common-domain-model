@@ -6,18 +6,17 @@ FpML versionNumber "5.10"
 class ContractNew
 {
 	economicTerms ContractualProductNew (1..1);
+	collateral Collateral (0..1);
+	governingLaw GoverningLawEnum (0..1);
+	masterAgreement MasterAgreement (0..1);
+	credit CreditSupportAgreement (0..1);
+	confirmation Confirmation (1..1);
 }
 
 class ContractualProductNew
 {
 	payout Payout (1..1);
 	quantity ContractQuantity (1..1);
-}
-
-class ContractQuantity one of
-{
-	notional Notional (0..1);
-	fxLinkedNotional FxLinkedNotionalSchedule (0..1);
 }
 
 class Payout
@@ -45,10 +44,30 @@ class InterestRate one of
 	inflationIndex InflationRateCalculation (0..1);
 }
 
+class ContractQuantity one of
+{
+	notional Notional (0..1);
+	fxLinkedNotional FxLinkedNotionalSchedule (0..1);
+}
+
 class CrossCurrencyTerms
 {
 	principalExchanges PrincipalExchanges (0..1);
 	settlementProvision SettlementProvision (0..1);
 }
 
-product Swap
+class Confirmation
+{
+	multiComponentsConfirmation boolean (1..1);
+	otherConfirmationComponents TradeIdentifier (0..*);
+	isConfirmed boolean (1..1);
+}
+
+data rule Confirmation_otherConfirmationComponents
+	when Confirmation -> isConfirmed = True
+	then Confirmation -> multiComponentsConfirmation must exist
+
+
+product FixFixSwap <"A fix/fix swap is a swap that has two fixed interest rate legs.">
+	Swap -> swapStream -> calculationPeriodAmount -> calculation -> fixedRateSchedule
+	and Swap -> swapStream -> calculationPeriodAmount -> calculation -> fixedRateSchedule
