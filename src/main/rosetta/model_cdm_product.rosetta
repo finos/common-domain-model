@@ -3,7 +3,7 @@ FIX versionNumber "5.0 SP3"
 FpML versionNumber "5.10"
 
 
-class ContractNew
+ root class ContractNew
 {
 	economicTerms ContractualProductNew (1..1);
 	collateral Collateral (0..1);
@@ -11,17 +11,6 @@ class ContractNew
 	masterAgreement MasterAgreement (0..1);
 	credit CreditSupportAgreement (0..1);
 	confirmation Confirmation (1..1);
-}
-
-class ContractualProductNew
-{
-	payout Payout (1..1);
-	quantity ContractQuantity (1..1);
-}
-
-class Payout
-{
-	interestRate InterestRatePayout (0..1);
 }
 
 class InterestRatePayout
@@ -44,8 +33,9 @@ class InterestRate one of
 	inflationIndex InflationRateCalculation (0..1);
 }
 
-class ContractQuantity one of
+class ContractualQuantity one of
 {
+	quantity Quantity (0..1);
 	notional Notional (0..1);
 	fxLinkedNotional FxLinkedNotionalSchedule (0..1);
 }
@@ -55,6 +45,10 @@ class CrossCurrencyTerms
 	principalExchanges PrincipalExchanges (0..1);
 	settlementProvision SettlementProvision (0..1);
 }
+
+/*
+ * New component, aimed at providing clarity with respect to the confirmation of multi-components products/strategies
+ */
 
 class Confirmation
 {
@@ -67,7 +61,57 @@ data rule Confirmation_otherConfirmationComponents
 	when Confirmation -> isConfirmed = True
 	then Confirmation -> multiComponentsConfirmation must exist
 
+/*
+ * Product qualified approach
+ */
 
-isProduct FixFixSwap <"A fix/fix swap is a swap that has two fixed interest rate legs.">
-	Swap -> swapStream -> calculationPeriodAmount -> calculation -> fixedRateSchedule
-	and Swap -> swapStream -> calculationPeriodAmount -> calculation -> fixedRateSchedule
+class SwapNew
+{
+	interestRatePayout InterestRatePayout (1..*);
+	quantity ContractualQuantity (1..1);
+	crossCurrencyTerms CrossCurrencyTerms (0..1);
+	earlyTerminationProvision EarlyTerminationProvision (0..1);
+	cancelableProvision CancelableProvision (0..1);
+	extendibleProvision ExtendibleProvision (0..1);
+}
+
+class CreditDefaultSwapNew
+{
+	interestRatePayout InterestRatePayout (1..1);
+	quantity ContractualQuantity (1..1);
+	protectionTerms ProtectionTerms (1..*);
+}
+
+/*
+ * Product composite approach
+ * Problem with the below approach is the implied ambiguity, e.g. how would we represent a swaption?
+ */
+
+class ContractualProductNew
+{
+	payout Payout (1..1);
+	quantity ContractualQuantity (1..1);
+	earlyTerminationProvision EarlyTerminationProvision (0..1);
+	cancelableProvision CancelableProvision (0..1);
+	extendibleProvision ExtendibleProvision (0..1);
+}
+
+class Payout
+{
+	interestRatePayout InterestRatePayout (0..1);
+	protectionTerms ProtectionTerms (0..1);
+	premium Premium (0..1);
+	
+}
+
+isProduct FixFloatSwap
+	ContractualProductNew -> payout -> interestRatePayout -> interestRate -> fixedRate
+	and ContractualProductNew -> payout -> interestRatePayout -> interestRate -> floatingRate
+	
+isProduct basisSwap
+	ContractualProductNew -> payout -> interestRatePayout -> interestRate -> floatingRate
+	and ContractualProductNew -> payout -> interestRatePayout -> interestRate -> floatingRate
+	
+isProduct creditDefaultSwap
+	ContractualProductNew -> payout -> interestRatePayout
+	and ContractualProductNew -> payout -> protectionTerms
