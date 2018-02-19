@@ -3,7 +3,7 @@ FIX versionNumber "5.0 SP3"
 FpML versionNumber "5.10"
 
 
- root class ContractNew_V1
+root class ContractNew_V1
 {
 	economicTerms EconomicTerms (1..1);
 	collateral Collateral (0..1);
@@ -13,7 +13,7 @@ FpML versionNumber "5.10"
 	confirmation Confirmation (1..1);
 }
 
- root class ContractNew_V2
+root class ContractNew_V2
 {
 	contractualProduct ContractualProductNew (1..1);
 	collateral Collateral (0..1);
@@ -63,9 +63,16 @@ class PaymentDatesNew <"Differences with the PaymentDate include addition of CDS
 
 class ContractualQuantity one of
 {
-	quantity Quantity (0..1);
+	quantity QuantityNew (0..1);
 	notional Notional (0..1);
 	fxLinkedNotional FxLinkedNotionalSchedule (0..1);
+}
+
+class QuantityNew 
+{
+	quantity bigDecimal (1..1);
+	unitOfMeasure UnitOfMeasureEnum (0..1);
+	timeUnit TimeUnitEnum (0..1);
 }
 
 class CrossCurrencyTerms
@@ -136,12 +143,12 @@ class ProtectionTermsNew <"Adjusted from the FpML construct to remove the caucla
 	floatingAmountEvents FloatingAmountEvents (0..1);
 }
 
-class TransactedPrice
+class TransactedPrice <"These is the set of transacted price attributes currently positioned as part of the FpML FeeLeg construct.">
 {
-	marketFixedRate bigDecimal (0..1) <"An optional element that only has meaning in a credit index trade. This element contains the credit spread ('fair value') at which the trade was executed. Unlike the fixedRate of an index, the marketFixedRate varies over the life of the index depending on market conditions. The marketFixedRate is the price of the index as quoted by trading desks.">;
-	initialPoints bigDecimal (0..1) <"An optional element that contains the up-front points expressed as a percentage of the notional. An initialPoints value of 5% would be represented as 0.05. The initialPoints element is an alternative to marketFixedRate in quoting the traded level of a trade. When initialPoints is used, the traded level is the sum of fixedRate and initialPoints. The initialPoints is one of the items that are factored into the initialPayment calculation and is payable by the Buyer to the Seller. Note that initialPoints and marketFixedRate may both be present in the same document when both implied values are desired.">;
-	marketPrice bigDecimal (0..1) <"An optional element that only has meaning in a credit index trade. This element contains the price at which the trade was executed and is used instead of marketFixedRate on credit trades on certain indicies which are quoted using a price rather than a spread.">;
-	quotationStyle QuotationStyleEnum (0..1) <"The type of quotation that was used between the trading desks. The purpose of this element is to indicate the actual quotation style that was used to quote this trade which may not be apparent when both marketFixedRate and initialPoints are included in the document. When quotationStyle is ‘PointsUpFront’, the initialPoints element should be populated. When quotationStyle is ‘TradedSpread’, the marketFixedRate element should be populated.">;
+	marketFixedRate bigDecimal (0..1);
+	initialPoints bigDecimal (0..1);
+	marketPrice bigDecimal (0..1);
+	quotationStyle QuotationStyleEnum (0..1);
 }
 
 /*
