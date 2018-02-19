@@ -3,9 +3,19 @@ FIX versionNumber "5.0 SP3"
 FpML versionNumber "5.10"
 
 
- root class ContractNew
+ root class ContractNew_V1
 {
-	economicTerms ContractualProductNew (1..1);
+	economicTerms EconomicTerms (1..1);
+	collateral Collateral (0..1);
+	governingLaw GoverningLawEnum (0..1);
+	masterAgreement MasterAgreement (0..1);
+	creditSupportAgreement CreditSupportAgreement (0..1);
+	confirmation Confirmation (1..1);
+}
+
+ root class ContractNew_V2
+{
+	contractualProduct ContractualProductNew (1..1);
 	collateral Collateral (0..1);
 	governingLaw GoverningLawEnum (0..1);
 	masterAgreement MasterAgreement (0..1);
@@ -84,6 +94,12 @@ data rule Confirmation_otherConfirmationComponents
  * If we follow this approach, the ContractualProduct class is a list of the possible derivative products
  */
 
+class ContractualProductNew one of
+{
+	swap SwapNew (0..1);
+	creditDefaultSwap CreditDefaultSwapNew (0..1);
+}
+
 class SwapNew
 {
 	interestRatePayout InterestRatePayout (1..*);
@@ -133,7 +149,7 @@ class TransactedPrice
  * Problem with the below approach is the implied ambiguity, e.g. how would we represent a swaption?
  */
 
-class ContractualProductNew
+class EconomicTerms
 {
 	payout Payout (1..1);
 	quantity ContractualQuantity (1..1);
@@ -146,26 +162,24 @@ class Payout
 {
 	interestRatePayout InterestRatePayout (0..1);
 	protectionTerms ProtectionTerms (0..1);
-	premium Premium (0..1);
-	
 }
 
 isProduct Swap
-	ContractualProductNew -> payout -> interestRatePayout -> interestRate
-	and ContractualProductNew -> payout -> interestRatePayout -> interestRate
+	EconomicTerms -> payout -> interestRatePayout -> interestRate
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate
 	
 isProduct creditDefaultSwap
-	ContractualProductNew -> payout -> interestRatePayout
-	and ContractualProductNew -> payout -> protectionTerms
+	EconomicTerms -> payout -> interestRatePayout
+	and EconomicTerms -> payout -> protectionTerms
 
 /*
  * This approach could be used to further qualify the product or strategy, as with the current alias
  */
 
 isProduct FixFloatSwap
-	ContractualProductNew -> payout -> interestRatePayout -> interestRate -> fixedRate
-	and ContractualProductNew -> payout -> interestRatePayout -> interestRate -> floatingRate
+	SwapNew -> interestRatePayout -> interestRate -> fixedRate
+	and SwapNew -> interestRatePayout -> interestRate -> floatingRate
 	
 isProduct basisSwap
-	ContractualProductNew -> payout -> interestRatePayout -> interestRate -> floatingRate
-	and ContractualProductNew -> payout -> interestRatePayout -> interestRate -> floatingRate
+	SwapNew -> interestRatePayout -> interestRate -> floatingRate
+	and SwapNew -> interestRatePayout -> interestRate -> floatingRate
