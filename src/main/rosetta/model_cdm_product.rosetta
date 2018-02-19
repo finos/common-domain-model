@@ -22,7 +22,7 @@ class InterestRatePayout
 	discounting Discounting (0..1);
 	compoundingMethod CompoundingMethodEnum (0..1);
 	calculationPeriodDates CalculationPeriodDates (1..1);
-	paymentDates PaymentDates (1..1);
+	paymentDates PaymentDatesNew (1..1);
 	resetDates ResetDates (1..1);
 }
 
@@ -31,6 +31,24 @@ class InterestRate one of
 	fixedRate Schedule (0..1);
 	floatingRate FloatingRateCalculation (0..1);
 	inflationIndex InflationRateCalculation (0..1);
+}
+
+class PaymentDatesNew <"Differences with the PaymentDate include addition of CDS paymentDelay element.">
+{
+	/*
+	 * If the CDM is meant to provide a more streamlined representation, should we (i) keep the cross-referencing, or (ii) avoid/limit the need for it by stating that the
+	 * calculation and reset dates are those specified as part of the payout? 
+	 */
+	calculationPeriodDates CalculationPeriodDates (0..1) reference;
+	resetDates ResetDates (0..1) reference;
+	valuationDates FxFixingDate (0..1) reference;
+	paymentFrequency Frequency (1..1);
+	firstPaymentDate date (0..1);
+	lastRegularPaymentDate date (0..1);
+	payRelativeTo PayRelativeToEnum (1..1);
+	paymentDaysOffset Offset (0..1);
+	paymentDatesAdjustments BusinessDayAdjustments (1..1);
+	paymentDelay boolean (0..1);
 }
 
 class ContractualQuantity one of
@@ -63,6 +81,7 @@ data rule Confirmation_otherConfirmationComponents
 
 /*
  * Product qualified approach
+ * If we follow this approach, the ContractualProduct class is a list of the possible derivative products
  */
 
 class SwapNew
@@ -80,6 +99,33 @@ class CreditDefaultSwapNew
 	interestRatePayout InterestRatePayout (1..1);
 	quantity ContractualQuantity (1..1);
 	protectionTerms ProtectionTerms (1..*);
+	cashSettlementTerms CashSettlementTerms (0..1);
+	physicalSettlementTerms PhysicalSettlementTerms (0..1);
+	transactedPrice TransactedPrice (0..1) <"New class to host attributes that FpML positions as part of the feeLeg.">; 
+}
+
+choice rule CreditDefaultSwap_choice <"Choice rule to represent an FpML choice construct.">
+	for CreditDefaultSwap optional choice between
+	cashSettlementTerms and physicalSettlementTerms
+
+data rule CreditDefaultSwapNew_features
+	when CreditDefaultSwapNew exists
+	then CreditDefaultSwapNew -> interestRatePayout -> interestRate -> inflationIndex must be absent
+	and CreditDefaultSwapNew -> quantity -> quantity must be absent
+
+class ProtectionTermsNew <"Adjusted from the FpML construct to remove the cauclationAmount, a.k.a. notional.">
+{
+	creditEvents CreditEvents (0..1);
+	obligations Obligations (0..1);
+	floatingAmountEvents FloatingAmountEvents (0..1);
+}
+
+class TransactedPrice
+{
+	marketFixedRate bigDecimal (0..1) <"An optional element that only has meaning in a credit index trade. This element contains the credit spread ('fair value') at which the trade was executed. Unlike the fixedRate of an index, the marketFixedRate varies over the life of the index depending on market conditions. The marketFixedRate is the price of the index as quoted by trading desks.">;
+	initialPoints bigDecimal (0..1) <"An optional element that contains the up-front points expressed as a percentage of the notional. An initialPoints value of 5% would be represented as 0.05. The initialPoints element is an alternative to marketFixedRate in quoting the traded level of a trade. When initialPoints is used, the traded level is the sum of fixedRate and initialPoints. The initialPoints is one of the items that are factored into the initialPayment calculation and is payable by the Buyer to the Seller. Note that initialPoints and marketFixedRate may both be present in the same document when both implied values are desired.">;
+	marketPrice bigDecimal (0..1) <"An optional element that only has meaning in a credit index trade. This element contains the price at which the trade was executed and is used instead of marketFixedRate on credit trades on certain indicies which are quoted using a price rather than a spread.">;
+	quotationStyle QuotationStyleEnum (0..1) <"The type of quotation that was used between the trading desks. The purpose of this element is to indicate the actual quotation style that was used to quote this trade which may not be apparent when both marketFixedRate and initialPoints are included in the document. When quotationStyle is ‘PointsUpFront’, the initialPoints element should be populated. When quotationStyle is ‘TradedSpread’, the marketFixedRate element should be populated.">;
 }
 
 /*
@@ -104,6 +150,18 @@ class Payout
 	
 }
 
+isProduct Swap
+	ContractualProductNew -> payout -> interestRatePayout -> interestRate
+	and ContractualProductNew -> payout -> interestRatePayout -> interestRate
+	
+isProduct creditDefaultSwap
+	ContractualProductNew -> payout -> interestRatePayout
+	and ContractualProductNew -> payout -> protectionTerms
+
+/*
+ * This approach could be used to further qualify the product or strategy, as with the current alias
+ */
+
 isProduct FixFloatSwap
 	ContractualProductNew -> payout -> interestRatePayout -> interestRate -> fixedRate
 	and ContractualProductNew -> payout -> interestRatePayout -> interestRate -> floatingRate
@@ -111,7 +169,3 @@ isProduct FixFloatSwap
 isProduct basisSwap
 	ContractualProductNew -> payout -> interestRatePayout -> interestRate -> floatingRate
 	and ContractualProductNew -> payout -> interestRatePayout -> interestRate -> floatingRate
-	
-isProduct creditDefaultSwap
-	ContractualProductNew -> payout -> interestRatePayout
-	and ContractualProductNew -> payout -> protectionTerms
