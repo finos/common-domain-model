@@ -5,18 +5,24 @@ FpML versionNumber "5.10"
 
 /*
  * Product composite approach
- * Problem with the below approach is the implied ambiguity, e.g. how would we represent a swaption?
- * We would also need to specify a proper pre-execution view of the product
  */
  
 root class ContractNew_V1
 {
-	economicTerms EconomicTerms (1..1);
+	tradeDate date (1..1);
+	clearedDate date (0..1);
+	derivativeProduct DerivativeProduct (1..1);
 	collateral Collateral (0..1);
 	governingLaw GoverningLawEnum (0..1);
 	masterAgreement MasterAgreement (0..1);
 	creditSupportAgreement CreditSupportAgreement (0..1);
 	confirmation Confirmation (1..1);
+}
+
+class DerivativeProduct
+{
+	productIdentification string (1..1) isProduct <"Back-end logic would specify the product as a function of the associated economics and the isProduct syntax.">;
+	economicTerms EconomicTerms (1..1);
 }
 
 class EconomicTerms
@@ -35,9 +41,18 @@ class Payout
 	creditDefaultPayout CreditDefaultPayout (0..1);
 }
 
+/*
+ * We would need to work out the fact that a product can be specified at distinct levels... Need for specifying a hierarchical taxonomy?
+ * Of should the isProduct associated logic just return the lowest value available (i.e. BasisSwap in the below)
+ */
+
 isProduct InterestRateSwap
 	EconomicTerms -> payout -> interestRatePayout
 	and EconomicTerms -> payout -> interestRatePayout
+
+isProduct BasisSwap
+	EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate
 
 isProduct InflationSwap
 	EconomicTerms -> payout -> interestRatePayout
@@ -54,6 +69,8 @@ isProduct creditDefaultSwap
 
 root class ContractNew_V2
 {
+	tradeDate date (1..1);
+	clearedDate date (0..1);
 	contractualProduct ContractualProductNew (1..1);
 	collateral Collateral (0..1);
 	governingLaw GoverningLawEnum (0..1);
