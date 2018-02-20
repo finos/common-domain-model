@@ -3,6 +3,12 @@ FIX versionNumber "5.0 SP3"
 FpML versionNumber "5.10"
 
 
+/*
+ * Product composite approach
+ * Problem with the below approach is the implied ambiguity, e.g. how would we represent a swaption?
+ * We would also need to specify a proper pre-execution view of the product
+ */
+ 
 root class ContractNew_V1
 {
 	economicTerms EconomicTerms (1..1);
@@ -12,6 +18,39 @@ root class ContractNew_V1
 	creditSupportAgreement CreditSupportAgreement (0..1);
 	confirmation Confirmation (1..1);
 }
+
+class EconomicTerms
+{
+	payout Payout (1..1);
+	quantity ContractualQuantity (1..1);
+	earlyTerminationProvision EarlyTerminationProvision (0..1);
+	cancelableProvision CancelableProvision (0..1);
+	extendibleProvision ExtendibleProvision (0..1);
+}
+
+class Payout
+{
+	interestRatePayout InterestRatePayout (0..*);
+	inflationIndexPayout InflationRateCalculation (0..*);
+	creditDefaultPayout CreditDefaultPayout (0..1);
+}
+
+isProduct InterestRateSwap
+	EconomicTerms -> payout -> interestRatePayout
+	and EconomicTerms -> payout -> interestRatePayout
+
+isProduct InflationSwap
+	EconomicTerms -> payout -> interestRatePayout
+	and EconomicTerms -> payout -> inflationIndexPayout
+	
+isProduct creditDefaultSwap
+	EconomicTerms -> payout -> interestRatePayout
+	and EconomicTerms -> payout -> creditDefaultPayout
+
+/*
+ * Product qualified approach
+ * If we follow this approach, the ContractualProduct class is a list of the possible derivative products, as in current Rosetta model
+ */
 
 root class ContractNew_V2
 {
@@ -23,11 +62,59 @@ root class ContractNew_V2
 	confirmation Confirmation (1..1);
 }
 
+class ContractualProductNew one of
+{
+	swap SwapNew (0..1);
+	creditDefaultSwap CreditDefaultSwapNew (0..1);
+}
+
+class SwapNew
+{
+	interestRatePayout InterestRatePayout (1..*);
+	quantity ContractualQuantity (1..1);
+	crossCurrencyTerms CrossCurrencyTerms (0..1);
+	earlyTerminationProvision EarlyTerminationProvision (0..1);
+	cancelableProvision CancelableProvision (0..1);
+	extendibleProvision ExtendibleProvision (0..1);
+}
+
+class CreditDefaultSwapNew
+{
+	interestRate InterestRate (1..1);
+	quantity ContractualQuantity (1..1);
+	generalTerms GeneralTerms (1..1);
+	protectionTerms ProtectionTerms (1..*);
+	cashSettlementTerms CashSettlementTerms (0..1);
+	physicalSettlementTerms PhysicalSettlementTerms (0..1);
+	transactedPrice TransactedPrice (0..1) <"New class to host attributes that FpML positions as part of the feeLeg.">; 
+}
+
+choice rule CreditDefaultSwap_choice <"Choice rule to represent an FpML choice construct.">
+	for CreditDefaultSwap optional choice between
+	cashSettlementTerms and physicalSettlementTerms
+
+data rule CreditDefaultSwapNew_features
+	when CreditDefaultSwapNew exists
+	then CreditDefaultSwapNew -> quantity -> quantity must be absent
+
+/*
+ * This approach could be used to further qualify the product or strategy, as with the current alias
+ */
+
+isProduct FixFloatSwap
+	SwapNew -> interestRatePayout -> interestRate -> fixedRate
+	and SwapNew -> interestRatePayout -> interestRate -> floatingRate
+	
+isProduct basisSwap
+	SwapNew -> interestRatePayout -> interestRate -> floatingRate
+	and SwapNew -> interestRatePayout -> interestRate -> floatingRate
+
 class InterestRatePayout
 {
 	payerParty Party (1..1);
 	receiverParty Party (1..1);
-	interestRate InterestRate (1..1);
+	interestRate InterestRate (0..1);
+	inflationRate InflationRateCalculation (0..1);
 	dayCountFraction DayCountFractionEnum (1..1);
 	discounting Discounting (0..1);
 	compoundingMethod CompoundingMethodEnum (0..1);
@@ -36,11 +123,20 @@ class InterestRatePayout
 	resetDates ResetDates (1..1);
 }
 
+choice rule InterestRatePayout_choice
+	for InterestRatePayout required choice between
+	interestRate and inflationRate
+
 class InterestRate one of
 {
 	fixedRate Schedule (0..1);
 	floatingRate FloatingRateCalculation (0..1);
-	inflationIndex InflationRateCalculation (0..1);
+}
+
+class CreditDefaultPayout
+{
+	generalTerms GeneralTerms (1..1);
+	protectionTerms ProtectionTerms (1..1);
 }
 
 class PaymentDatesNew <"Differences with the PaymentDate include addition of CDS paymentDelay element.">
@@ -96,45 +192,7 @@ data rule Confirmation_otherConfirmationComponents
 	when Confirmation -> isConfirmed = True
 	then Confirmation -> multiComponentsConfirmation must exist
 
-/*
- * Product qualified approach
- * If we follow this approach, the ContractualProduct class is a list of the possible derivative products
- */
 
-class ContractualProductNew one of
-{
-	swap SwapNew (0..1);
-	creditDefaultSwap CreditDefaultSwapNew (0..1);
-}
-
-class SwapNew
-{
-	interestRatePayout InterestRatePayout (1..*);
-	quantity ContractualQuantity (1..1);
-	crossCurrencyTerms CrossCurrencyTerms (0..1);
-	earlyTerminationProvision EarlyTerminationProvision (0..1);
-	cancelableProvision CancelableProvision (0..1);
-	extendibleProvision ExtendibleProvision (0..1);
-}
-
-class CreditDefaultSwapNew
-{
-	interestRatePayout InterestRatePayout (1..1);
-	quantity ContractualQuantity (1..1);
-	protectionTerms ProtectionTerms (1..*);
-	cashSettlementTerms CashSettlementTerms (0..1);
-	physicalSettlementTerms PhysicalSettlementTerms (0..1);
-	transactedPrice TransactedPrice (0..1) <"New class to host attributes that FpML positions as part of the feeLeg.">; 
-}
-
-choice rule CreditDefaultSwap_choice <"Choice rule to represent an FpML choice construct.">
-	for CreditDefaultSwap optional choice between
-	cashSettlementTerms and physicalSettlementTerms
-
-data rule CreditDefaultSwapNew_features
-	when CreditDefaultSwapNew exists
-	then CreditDefaultSwapNew -> interestRatePayout -> interestRate -> inflationIndex must be absent
-	and CreditDefaultSwapNew -> quantity -> quantity must be absent
 
 class ProtectionTermsNew <"Adjusted from the FpML construct to remove the cauclationAmount, a.k.a. notional.">
 {
@@ -150,43 +208,3 @@ class TransactedPrice <"These is the set of transacted price attributes currentl
 	marketPrice bigDecimal (0..1);
 	quotationStyle QuotationStyleEnum (0..1);
 }
-
-/*
- * Product composite approach
- * Problem with the below approach is the implied ambiguity, e.g. how would we represent a swaption?
- */
-
-class EconomicTerms
-{
-	payout Payout (1..1);
-	quantity ContractualQuantity (1..1);
-	earlyTerminationProvision EarlyTerminationProvision (0..1);
-	cancelableProvision CancelableProvision (0..1);
-	extendibleProvision ExtendibleProvision (0..1);
-}
-
-class Payout
-{
-	interestRatePayout InterestRatePayout (0..1);
-	protectionTerms ProtectionTerms (0..1);
-}
-
-isProduct Swap
-	EconomicTerms -> payout -> interestRatePayout -> interestRate
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate
-	
-isProduct creditDefaultSwap
-	EconomicTerms -> payout -> interestRatePayout
-	and EconomicTerms -> payout -> protectionTerms
-
-/*
- * This approach could be used to further qualify the product or strategy, as with the current alias
- */
-
-isProduct FixFloatSwap
-	SwapNew -> interestRatePayout -> interestRate -> fixedRate
-	and SwapNew -> interestRatePayout -> interestRate -> floatingRate
-	
-isProduct basisSwap
-	SwapNew -> interestRatePayout -> interestRate -> floatingRate
-	and SwapNew -> interestRatePayout -> interestRate -> floatingRate
