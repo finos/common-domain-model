@@ -101,8 +101,9 @@ class CreditDefaultSwapNew
 	quantity ContractualQuantity (1..1);
 	generalTerms GeneralTerms (1..1);
 	protectionTerms ProtectionTerms (1..*);
-	cashSettlementTerms CashSettlementTerms (0..1);
-	physicalSettlementTerms PhysicalSettlementTerms (0..1);
+	/*
+	 * The below attribute would have to be positioned at the appropriate level in the composite approach
+	 */
 	transactedPrice TransactedPrice (0..1) <"New class to host attributes that FpML positions as part of the feeLeg.">; 
 }
 
@@ -154,7 +155,13 @@ class CreditDefaultPayout
 {
 	generalTerms GeneralTerms (1..1);
 	protectionTerms ProtectionTerms (1..1);
+	cashSettlementTerms CashSettlementTerms (0..1);
+	physicalSettlementTerms PhysicalSettlementTerms (0..1);
 }
+
+choice rule CreditDefaultPayout_choice <"Choice rule to represent an FpML choice construct.">
+	for CreditDefaultPayout optional choice between
+	cashSettlementTerms and physicalSettlementTerms
 
 class PaymentDatesNew <"Differences with the PaymentDate include addition of CDS paymentDelay element.">
 {
