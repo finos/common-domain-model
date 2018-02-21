@@ -1,0 +1,168 @@
+Rosetta versionNumber "0.0.1"
+FIX versionNumber "5.0 SP3"
+FpML versionNumber "5.10"
+
+/*
+ * PRODUCT COMPOSITE APPROACH TO THE CDM
+ * The product is dynamically inferred from the economic terms, based upon a set of definitions that are associated to the model
+ * As part of it, we are looking to converge the data presentation of IRD and CDS products, while still making use of the FpML building blocks
+ */
+ 
+root class ContractNew
+{
+	tradeDate date (1..1);
+	clearedDate date (0..1);
+	derivativeProduct DerivativeProduct (1..1);
+	collateral Collateral (0..1);
+	governingLaw GoverningLawEnum (0..1);
+	masterAgreement MasterAgreement (0..1);
+	creditSupportAgreement CreditSupportAgreement (0..1);
+	confirmation Confirmation (1..1); // This is a new possible attribute, to address issues currently associated with the confirmation of multi-components trades
+}
+
+class DerivativeProduct
+{
+	productIdentification string (1..1) isProduct <"A back-end logic to be associated to the isProduct qualifier would specify the product as a function of the associated economics.">;
+	economicTerms EconomicTerms (1..1);
+}
+
+/*
+ * We would need to work out the fact that a product can be specified at distinct levels...
+ * One practical approach could consist in systematically returning the lowest product specification available (i.e. BasisSwap or FixFloatSwap in the below, not InterestRateSwap)
+ */
+
+isProduct InterestRateSwap
+	EconomicTerms -> payout -> interestRatePayout
+	and EconomicTerms -> payout -> interestRatePayout
+
+isProduct BasisSwap
+	EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate
+
+isProduct FixFloatSwap
+	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate
+
+isProduct InflationSwap
+	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate
+	
+isProduct creditDefaultSwap
+	EconomicTerms -> payout -> interestRatePayout
+	and EconomicTerms -> payout -> creditDefaultPayout
+
+class EconomicTerms
+{
+	payout Payout (1..1);
+	quantity ContractualQuantity (1..1);
+	earlyTerminationProvision EarlyTerminationProvision (0..1);
+	cancelableProvision CancelableProvision (0..1);
+	extendibleProvision ExtendibleProvision (0..1);
+}
+
+class Payout
+{
+	interestRatePayout InterestRatePayout (0..*);
+	creditDefaultPayout CreditDefaultPayout (0..1);
+}
+
+class InterestRatePayout
+{
+	payerParty Party (1..1);
+	receiverParty Party (1..1);
+	interestRate InterestRate (0..1);
+	dayCountFraction DayCountFractionEnum (1..1);
+	discounting Discounting (0..1);
+	compoundingMethod CompoundingMethodEnum (0..1);
+	calculationPeriodDates CalculationPeriodDates (1..1);
+	paymentDates PaymentDatesNew (1..1);
+	resetDates ResetDates (1..1);
+	crossCurrencyTerms CrossCurrencyTerms (0..1); // New construct, that wraps the principleExchanges and settlementProvision terms
+}
+
+class InterestRate one of
+{
+	fixedRate Schedule (0..1);
+	floatingRate FloatingRateCalculation (0..1);
+	inflationRate InflationRateCalculation (0..1);
+}
+
+class CreditDefaultPayout
+{
+	generalTerms GeneralTerms (1..1);
+	protectionTerms ProtectionTerms (1..1);
+	cashSettlementTerms CashSettlementTerms (0..1);
+	physicalSettlementTerms PhysicalSettlementTerms (0..1);
+}
+
+choice rule CreditDefaultPayout_choice <"Choice rule to represent an FpML choice construct.">
+	for CreditDefaultPayout optional choice between
+	cashSettlementTerms and physicalSettlementTerms
+
+data rule CreditDefaultPayout_inflationRate <"A credit default swap should not have a fee leg ">
+	when EconomicTerms -> payout -> creditDefaultPayout exists
+	then EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate must be absent
+
+class PaymentDatesNew <"Differences with the FpML PaymentDate include addition of CDS paymentDelay element.">
+{
+	/*
+	 * If the CDM is meant to provide a more streamlined representation, should we look to limit the need for cross-referencing
+	 * by stating that the calculation period dates, reset dates and fixing dates are those specified as part of the payout which those are part of?
+	 */
+//	calculationPeriodDates CalculationPeriodDates (0..1) reference;
+//	resetDates ResetDates (0..1) reference;
+//	valuationDates FxFixingDate (0..1) reference;
+	paymentFrequency Frequency (1..1);
+	firstPaymentDate date (0..1);
+	lastRegularPaymentDate date (0..1);
+	payRelativeTo PayRelativeToEnum (1..1);
+	paymentDaysOffset Offset (0..1);
+	paymentDatesAdjustments BusinessDayAdjustments (1..1);
+	paymentDelay boolean (0..1);
+}
+
+class ContractualQuantity one of
+{
+	quantity QuantityNew (0..1);
+	notional Notional (0..1);
+	fxLinkedNotional FxLinkedNotionalSchedule (0..1);
+}
+
+class QuantityNew 
+{
+	quantity bigDecimal (1..1);
+	unitOfMeasure UnitOfMeasureEnum (0..1);
+	timeUnit TimeUnitEnum (0..1);
+}
+
+class CrossCurrencyTerms
+{
+	principalExchanges PrincipalExchanges (0..1);
+	settlementProvision SettlementProvision (0..1);
+}
+
+class Confirmation <"Confirmation is a new proposed model component, aimed at providing clarity with respect to the confirmation of multi-components products/strategies.">
+{
+	multiComponentsConfirmation boolean (1..1);
+	otherConfirmationComponents TradeIdentifier (0..*);
+	isConfirmed boolean (1..1);
+}
+
+data rule Confirmation_otherConfirmationComponents
+	when Confirmation -> isConfirmed = True
+	then Confirmation -> otherConfirmationComponents must exist
+
+class ProtectionTermsNew <"Adjusted from the FpML construct to remove the calculationAmount, a.k.a. notional.">
+{
+	creditEvents CreditEvents (0..1);
+	obligations Obligations (0..1);
+	floatingAmountEvents FloatingAmountEvents (0..1);
+}
+
+class TransactedPrice <"These are the set of transacted price attributes currently positioned as part of the FpML FeeLeg construct.">
+{
+	marketFixedRate bigDecimal (0..1);
+	initialPoints bigDecimal (0..1);
+	marketPrice bigDecimal (0..1);
+	quotationStyle QuotationStyleEnum (0..1);
+}
