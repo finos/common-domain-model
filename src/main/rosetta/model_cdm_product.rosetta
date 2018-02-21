@@ -2,12 +2,13 @@ Rosetta versionNumber "0.0.1"
 FIX versionNumber "5.0 SP3"
 FpML versionNumber "5.10"
 
-
 /*
- * Product composite approach
+ * PRODUCT COMPOSITE APPROACH TO THE CDM
+ * The product is dynamically inferred from the economic terms, based upon a set of definitions that are associated to the model
+ * As part of it, we are looking to converge the data presentation of IRD and CDS products, while still making use of the FpML building blocks
  */
  
-root class ContractNew_V1
+root class ContractNew
 {
 	tradeDate date (1..1);
 	clearedDate date (0..1);
@@ -16,14 +17,39 @@ root class ContractNew_V1
 	governingLaw GoverningLawEnum (0..1);
 	masterAgreement MasterAgreement (0..1);
 	creditSupportAgreement CreditSupportAgreement (0..1);
-	confirmation Confirmation (1..1);
+	confirmation Confirmation (1..1); // This is a new possible attribute, to address issues currently associated with the confirmation of multi-components trades
 }
 
 class DerivativeProduct
 {
-	productIdentification string (1..1) isProduct <"Back-end logic would specify the product as a function of the associated economics and the isProduct syntax.">;
+	productIdentification string (1..1) isProduct <"A back-end logic to be associated to the isProduct qualifier would specify the product as a function of the associated economics.">;
 	economicTerms EconomicTerms (1..1);
 }
+
+/*
+ * We would need to work out the fact that a product can be specified at distinct levels...
+ * One practical approach could consist in systematically returning the lowest product specification available (i.e. BasisSwap or FixFloatSwap in the below, not InterestRateSwap)
+ */
+
+isProduct InterestRateSwap
+	EconomicTerms -> payout -> interestRatePayout
+	and EconomicTerms -> payout -> interestRatePayout
+
+isProduct BasisSwap
+	EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate
+
+isProduct FixFloatSwap
+	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate
+
+isProduct InflationSwap
+	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate
+	
+isProduct creditDefaultSwap
+	EconomicTerms -> payout -> interestRatePayout
+	and EconomicTerms -> payout -> creditDefaultPayout
 
 class EconomicTerms
 {
@@ -37,118 +63,28 @@ class EconomicTerms
 class Payout
 {
 	interestRatePayout InterestRatePayout (0..*);
-	inflationIndexPayout InflationRateCalculation (0..*);
 	creditDefaultPayout CreditDefaultPayout (0..1);
 }
-
-/*
- * We would need to work out the fact that a product can be specified at distinct levels... Need for specifying a hierarchical taxonomy?
- * Of should the isProduct associated logic just return the lowest value available (i.e. BasisSwap in the below)
- */
-
-isProduct InterestRateSwap
-	EconomicTerms -> payout -> interestRatePayout
-	and EconomicTerms -> payout -> interestRatePayout
-
-isProduct BasisSwap
-	EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate
-
-isProduct InflationSwap
-	EconomicTerms -> payout -> interestRatePayout
-	and EconomicTerms -> payout -> inflationIndexPayout
-	
-isProduct creditDefaultSwap
-	EconomicTerms -> payout -> interestRatePayout
-	and EconomicTerms -> payout -> creditDefaultPayout
-
-/*
- * Product qualified approach
- * If we follow this approach, the ContractualProduct class is a list of the possible derivative products, as in current Rosetta model
- */
-
-root class ContractNew_V2
-{
-	tradeDate date (1..1);
-	clearedDate date (0..1);
-	contractualProduct ContractualProductNew (1..1);
-	collateral Collateral (0..1);
-	governingLaw GoverningLawEnum (0..1);
-	masterAgreement MasterAgreement (0..1);
-	creditSupportAgreement CreditSupportAgreement (0..1);
-	confirmation Confirmation (1..1);
-}
-
-class ContractualProductNew one of
-{
-	swap SwapNew (0..1);
-	creditDefaultSwap CreditDefaultSwapNew (0..1);
-}
-
-class SwapNew
-{
-	interestRatePayout InterestRatePayout (1..*);
-	quantity ContractualQuantity (1..1);
-	crossCurrencyTerms CrossCurrencyTerms (0..1);
-	earlyTerminationProvision EarlyTerminationProvision (0..1);
-	cancelableProvision CancelableProvision (0..1);
-	extendibleProvision ExtendibleProvision (0..1);
-}
-
-class CreditDefaultSwapNew
-{
-	interestRate InterestRate (1..1);
-	quantity ContractualQuantity (1..1);
-	generalTerms GeneralTerms (1..1);
-	protectionTerms ProtectionTerms (1..*);
-	/*
-	 * The below attribute would have to be positioned at the appropriate level in the composite approach
-	 */
-	transactedPrice TransactedPrice (0..1) <"New class to host attributes that FpML positions as part of the feeLeg.">; 
-}
-
-choice rule CreditDefaultSwap_choice <"Choice rule to represent an FpML choice construct.">
-	for CreditDefaultSwap optional choice between
-	cashSettlementTerms and physicalSettlementTerms
-
-data rule CreditDefaultSwapNew_features
-	when CreditDefaultSwapNew exists
-	then CreditDefaultSwapNew -> quantity -> quantity must be absent
-
-/*
- * This approach could be used to further qualify the product or strategy, as with the current alias
- */
-
-isProduct FixFloatSwap
-	SwapNew -> interestRatePayout -> interestRate -> fixedRate
-	and SwapNew -> interestRatePayout -> interestRate -> floatingRate
-	
-isProduct basisSwap
-	SwapNew -> interestRatePayout -> interestRate -> floatingRate
-	and SwapNew -> interestRatePayout -> interestRate -> floatingRate
 
 class InterestRatePayout
 {
 	payerParty Party (1..1);
 	receiverParty Party (1..1);
 	interestRate InterestRate (0..1);
-	inflationRate InflationRateCalculation (0..1);
 	dayCountFraction DayCountFractionEnum (1..1);
 	discounting Discounting (0..1);
 	compoundingMethod CompoundingMethodEnum (0..1);
 	calculationPeriodDates CalculationPeriodDates (1..1);
 	paymentDates PaymentDatesNew (1..1);
 	resetDates ResetDates (1..1);
+	crossCurrencyTerms CrossCurrencyTerms (0..1); // New construct, that wraps the principleExchanges and settlementProvision terms
 }
-
-choice rule InterestRatePayout_choice
-	for InterestRatePayout required choice between
-	interestRate and inflationRate
 
 class InterestRate one of
 {
 	fixedRate Schedule (0..1);
 	floatingRate FloatingRateCalculation (0..1);
+	inflationRate InflationRateCalculation (0..1);
 }
 
 class CreditDefaultPayout
@@ -163,15 +99,19 @@ choice rule CreditDefaultPayout_choice <"Choice rule to represent an FpML choice
 	for CreditDefaultPayout optional choice between
 	cashSettlementTerms and physicalSettlementTerms
 
-class PaymentDatesNew <"Differences with the PaymentDate include addition of CDS paymentDelay element.">
+data rule CreditDefaultPayout_inflationRate <"A credit default swap should not have a fee leg ">
+	when EconomicTerms -> payout -> creditDefaultPayout exists
+	then EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate must be absent
+
+class PaymentDatesNew <"Differences with the FpML PaymentDate include addition of CDS paymentDelay element.">
 {
 	/*
-	 * If the CDM is meant to provide a more streamlined representation, should we (i) keep the cross-referencing, or (ii) avoid/limit the need for it by stating that the
-	 * calculation and reset dates are those specified as part of the payout? 
+	 * If the CDM is meant to provide a more streamlined representation, should we look to limit the need for cross-referencing
+	 * by stating that the calculation period dates, reset dates and fixing dates are those specified as part of the payout which those are part of?
 	 */
-	calculationPeriodDates CalculationPeriodDates (0..1) reference;
-	resetDates ResetDates (0..1) reference;
-	valuationDates FxFixingDate (0..1) reference;
+//	calculationPeriodDates CalculationPeriodDates (0..1) reference;
+//	resetDates ResetDates (0..1) reference;
+//	valuationDates FxFixingDate (0..1) reference;
 	paymentFrequency Frequency (1..1);
 	firstPaymentDate date (0..1);
 	lastRegularPaymentDate date (0..1);
@@ -201,11 +141,7 @@ class CrossCurrencyTerms
 	settlementProvision SettlementProvision (0..1);
 }
 
-/*
- * New component, aimed at providing clarity with respect to the confirmation of multi-components products/strategies
- */
-
-class Confirmation
+class Confirmation <"Confirmation is a new proposed model component, aimed at providing clarity with respect to the confirmation of multi-components products/strategies.">
 {
 	multiComponentsConfirmation boolean (1..1);
 	otherConfirmationComponents TradeIdentifier (0..*);
@@ -214,18 +150,16 @@ class Confirmation
 
 data rule Confirmation_otherConfirmationComponents
 	when Confirmation -> isConfirmed = True
-	then Confirmation -> multiComponentsConfirmation must exist
+	then Confirmation -> otherConfirmationComponents must exist
 
-
-
-class ProtectionTermsNew <"Adjusted from the FpML construct to remove the cauclationAmount, a.k.a. notional.">
+class ProtectionTermsNew <"Adjusted from the FpML construct to remove the calculationAmount, a.k.a. notional.">
 {
 	creditEvents CreditEvents (0..1);
 	obligations Obligations (0..1);
 	floatingAmountEvents FloatingAmountEvents (0..1);
 }
 
-class TransactedPrice <"These is the set of transacted price attributes currently positioned as part of the FpML FeeLeg construct.">
+class TransactedPrice <"These are the set of transacted price attributes currently positioned as part of the FpML FeeLeg construct.">
 {
 	marketFixedRate bigDecimal (0..1);
 	initialPoints bigDecimal (0..1);
