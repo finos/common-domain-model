@@ -2,8 +2,7 @@ Rosetta versionNumber "0.0.1"
 FIX versionNumber "5.0 SP3"
 FpML versionNumber "5.10"
 
-
-calculation FixedAmount <"2006 ISDA Definition Article 5 section 5.1 …"> {
+calculation FixedAmount <"2006 ISDA Definition Article 4 Section 4.4 'Fixed Amount' means, in respect of a Swap Transaction and a Fixed Rate Payer, an amount that, subject to any other applicable provisions, is payable by that Fixed Rate Payer on an applicable Payment Date and is specified in the related Confirmation or is determined as provided in Article 5 of these 2006 Definitions or as provided in the related Confirmation."> {
 	fixedAmount bigDecimal: amount * fixedRate * dayCountFraction  
 	currency CurrencyEnum: currency
 }
@@ -15,8 +14,7 @@ arguments FixedAmount {
     dayCountFraction: is EconomicTerms -> payout -> interestRatePayout -> dayCountFraction
 }
 
-// [[360 x (Y2 - Y1)] + [30 x (M2 - M1)] + (D2 - D1)]/360
-calculation DayCountFractionEnum_30E_360 <"Annex 2006 ISDA Definition Article 4 section 4.16(f)"> {
+calculation DayCountFractionEnum_30E_360 <"Annex 2006 ISDA Definition Article 4 section 4.16(g) [[360 x (Y2 - Y1)] + [30 x (M2 - M1)] + (D2 - D1)]/360"> {
 	bigDecimal: (360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
 }
 
@@ -28,7 +26,7 @@ calculation DayCountFractionEnum_30E_360 <"Annex 2006 ISDA Definition Article 4 
  *	D1 - the 1st calendar day of the Calculation/Compounding Period (if 31, D1 will be 30)
  *	D2 - the calendar day immediately following the last day of the Calculation/Compounding Period (if 31, D2 will be 30)
  */
-arguments DayCountFractionEnum_30E_360 <"">{
+arguments DayCountFractionEnum_30E_360 {
 	alias period CalculationPeriod()
 	
 	endYear : is period -> endDate -> year
@@ -39,7 +37,7 @@ arguments DayCountFractionEnum_30E_360 <"">{
 	endDay : is Min(period -> endDate -> day + 1, 30.0)
 }
 
-calculation CalculationPeriod <"Given all periods and a date, find me the applicable period"> {
+calculation CalculationPeriod <"Annex 2006 ISDA Definition Article 4 Section 4.13 'Calculation Period' means, in respect of a Swap Transaction and a party, each period from, and including, one Period End Date of that party to, but excluding, the next following applicable Period End Date during the Term of the Swap Transaction, except that (a) the initial Calculation Period for the party will commence on, and include, the Effective Date and (b) the final Calculation Period for the party will end on, but exclude, the Termination Date."> {
 	dateRange : Within(AllCalculationPeriods(), currentPeriodDate)
 }
 
@@ -111,6 +109,7 @@ isProduct creditDefaultSwap
 class EconomicTerms 
 {
 	payout Payout (1..1);
+			[synonym FpML value dateRelativeTo set quantity when EconomicTerms -> payout -> cancelableProvision exists]
 	quantity ContractualQuantity (1..1);
 	earlyTerminationProvision EarlyTerminationProvision (0..1);
 	cancelableProvision CancelableProvision (0..1);
