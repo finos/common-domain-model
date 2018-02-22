@@ -2,6 +2,88 @@ Rosetta versionNumber "0.0.1"
 FIX versionNumber "5.0 SP3"
 FpML versionNumber "5.10"
 
+calculation FixedAmount <"2006 ISDA Definition Article 5 section 5.1 …"> {
+	fixedAmount bigDecimal: amount * fixedRate * dayCountFraction  
+	currency CurrencyEnum: currency
+}
+
+
+arguments FixedAmount {
+	alias economicNotionalStepSchedule DerivativeProduct -> economicTerms -> quantity -> notional ->  notionalStepSchedule
+	alias interestRateEconomics DerivativeProduct -> economicTerms -> payout -> interestRatePayout
+	
+	// amount: is economicNotionalStepSchedule -> initialValue
+	// amount: when economicNotionalStepSchedule -> initialValue exists argument is economicNotionalStepSchedule -> initialValue
+		
+	amount: 
+		when economicNotionalStepSchedule -> initialValue exists use it
+	currency:
+		when economicNotionalStepSchedule -> currency exists
+			economicNotionalStepSchedule -> currency
+	fixedRate:
+		when interestRateEconomics exists 
+			interestRateEconomics -> interestRate -> fixedRate -> initialValue
+    dayCountFraction:
+    		when interestRateEconomics exists 
+    			interestRateEconomics -> dayCountFraction
+}
+
+// def update
+calculation DayCountFractionEnum._30E_360 <"Annex 2006 ISDA Definition Article 4 section 4.16(f) [[360 x (Y2 - Y1)] + [30 x (M2 - M1)] + (D2 - D1)]/360"> {
+		bigDecimal: ((endYear - startYear) * 360 + (endMonth - startMonth) * 30 + (lastCalendarDay - firstCalendarDay)) / 360		
+}
+
+/**
+ * Y1 - the year in which the 1st day of the Calculation/Compounding Period falls
+		Y2 - the year in which the day immediately following the last day of the Calculation/Compounding Period falls
+		M1 - the month in which the 1st day of the Calculation/Compounding Period falls
+		M2 - the month in which the day immediately following the last day of the Calculation/Compounding Period falls
+		D1 - the 1st calendar day of the Calculation/Compounding Period (if 31, D1 will be 30)
+		D2 - the calendar day immediately following the last day of the Calculation/Compounding Period (if 31, D2 will be 30)
+ */
+arguments DayCountFractionEnum._30E_360 <"">{
+	alias period CalculationPeriod()
+	
+	endYear : period -> endDate -> year
+	startYear : period -> startDate -> year
+	endMonth : period -> endDate -> month
+	startMonth : period -> startDate -> month
+	firstCalendarDay  : Min(period -> startDate -> day, 30.0)
+	lastCalendarDay : Min(period -> endDate -> day + 1, 30.0)
+}
+
+calculation CalculationPeriod <"Given all periods and a date, find me the applicable period"> {
+	dateRange : Within(AllCalculationPeriods(), date)
+}
+
+arguments CalculationPeriod {
+	date: when ContractNew -> derivativeProduct -> economicTerms exists use it
+}
+
+// calculate all periods from effective date to term date
+calculation AllCalculationPeriods {	
+	dateRange : DateRanges(Adjust(effectiveDate), Adjust(terminationDate), tenor())
+}
+
+arguments AllCalculationPeriods {
+	effectiveDate <"">:
+		when Swap -> swapStream -> calculationPeriodDates -> effectiveDate exists use it
+	terminationDate <"">:
+		when Swap -> swapStream -> calculationPeriodDates -> terminationDate exists use it
+}
+
+// fake calculation, please specify
+calculation tenor <""> {
+	qualifier int: 1
+	multiplier int: 1
+}
+
+// fake calculation, please specify
+calculation paymentEvent <""> {
+	dateTime: 1
+}
+
+
 /*
  * PRODUCT COMPOSITE APPROACH TO THE CDM
  * The product is dynamically inferred from the economic terms, based upon a set of definitions that are associated to the model
