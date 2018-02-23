@@ -58,7 +58,7 @@ arguments AllCalculationPeriods {
 
 
 /*
- * PRODUCT COMPOSITE APPROACH TO THE CDM
+ * PRODUCT COMPOSITE APPROACH
  * The product is dynamically inferred from the economic terms, based upon a set of definitions that are associated to the model
  * As part of it, we are looking to converge the data presentation of IRD and CDS products, while still making use of the FpML building blocks
  */
@@ -72,17 +72,21 @@ root class ContractNew
 	governingLaw GoverningLawEnum (0..1);
 	masterAgreement MasterAgreement (0..1);
 	creditSupportAgreement CreditSupportAgreement (0..1);
-	confirmation Confirmation (1..1); // This is a new possible attribute, to address issues currently associated with the confirmation of multi-components trades
+	confirmation Confirmation (1..1); // This is a new proposed attribute, to address issues currently associated with the confirmation of multi-components trades
 }
+
+data rule ContractNew_clearedDate
+	when ContractNew -> clearedDate exists
+	then ContractNew -> clearedDate >= ContractNew -> tradeDate
 
 class DerivativeProduct
 {
-	productIdentification string (1..1) isProduct <"A back-end logic to be associated to the isProduct qualifier would specify the product as a function of the associated economics.">;
+	productIdentification string (1..1) isProduct; // A back-end logic associated to the isProduct qualifier will specify the product as a function of the associated economic terms
 	economicTerms EconomicTerms (1..1);
 }
 
 /*
- * We would need to work out the fact that a product can be specified at distinct levels...
+ * We will need to work out the fact that a product can be specified at distinct levels...
  * One practical approach could consist in systematically returning the lowest product specification available (i.e. BasisSwap or FixFloatSwap in the below, not InterestRateSwap)
  */
 
@@ -145,7 +149,7 @@ class InterestRate one of
 
 class CreditDefaultPayout
 {
-	generalTerms GeneralTerms (1..1);
+	generalTerms GeneralTermsNew (1..1);
 	protectionTerms ProtectionTerms (1..1);
 	cashSettlementTerms CashSettlementTerms (0..1);
 	physicalSettlementTerms PhysicalSettlementTerms (0..1);
@@ -155,11 +159,11 @@ choice rule CreditDefaultPayout_choice <"Choice rule to represent an FpML choice
 	for CreditDefaultPayout optional choice between
 	cashSettlementTerms and physicalSettlementTerms
 
-data rule CreditDefaultPayout_inflationRate <"A credit default swap should not have a fee leg ">
+data rule CreditDefaultPayout_inflationRate // Illustrative example of a data rule; do we want to actually have such restriction?  While FpML does't support it, FpML scope is limited to standardised products.
 	when EconomicTerms -> payout -> creditDefaultPayout exists
 	then EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate must be absent
 
-class PaymentDatesNew <"Differences with the FpML PaymentDate include addition of CDS paymentDelay element.">
+class PaymentDatesNew // Differences with the FpML PaymentDate include addition of CDS paymentDelay element.
 {
 	/*
 	 * If the CDM is meant to provide a more streamlined representation, should we look to limit the need for cross-referencing
@@ -197,7 +201,7 @@ class CrossCurrencyTerms
 	settlementProvision SettlementProvision (0..1);
 }
 
-class Confirmation <"Confirmation is a new proposed model component, aimed at providing clarity with respect to the confirmation of multi-components products/strategies.">
+class Confirmation // Confirmation is a new proposed model component, aimed at providing clarity with respect to the confirmation of multi-components products/strategies.
 {
 	multiComponentsConfirmation boolean (1..1);
 	otherConfirmationComponents TradeIdentifier (0..*);
@@ -208,17 +212,32 @@ data rule Confirmation_otherConfirmationComponents
 	when Confirmation -> isConfirmed = True
 	then Confirmation -> otherConfirmationComponents must exist
 
-class ProtectionTermsNew <"Adjusted from the FpML construct to remove the calculationAmount, a.k.a. notional.">
+class ProtectionTermsNew // Adjusted from the FpML construct to remove the calculationAmount, a.k.a. notional.
 {
 	creditEvents CreditEvents (0..1);
 	obligations Obligations (0..1);
 	floatingAmountEvents FloatingAmountEvents (0..1);
 }
 
-class TransactedPrice <"These are the set of transacted price attributes currently positioned as part of the FpML FeeLeg construct.">
+class TransactedPrice // These are the set of transacted price attributes currently positioned as part of the FpML FeeLeg construct.
 {
 	marketFixedRate bigDecimal (0..1);
 	initialPoints bigDecimal (0..1);
 	marketPrice bigDecimal (0..1);
 	quotationStyle QuotationStyleEnum (0..1);
 }
+
+class GeneralTermsNew // Adjusted from the FpML construct by removing the effectiveDate, terminationDate, businessDayAdjustments
+{
+	buyerSeller BuyerSeller (1..1);
+	referenceInformation ReferenceInformation (0..1);
+	indexReferenceInformation IndexReferenceInformation (0..1);
+	basketReferenceInformation BasketReferenceInformation (0..1);
+	additionalTerm string (0..*) scheme "additionalTermScheme";
+	substitution boolean (1..1); // As a change from FpML, the proposal is to remove optional cardinality in a boolean attribute
+	modifiedEquityDelivery boolean (1..1); // As a change from FpML, the proposal is to remove optional cardinality in a boolean attribute
+}
+
+choice rule GeneralTermsNew_choice
+	for GeneralTerms required choice between
+	referenceInformation and indexReferenceInformation and basketReferenceInformation
