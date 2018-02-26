@@ -4,8 +4,7 @@ FpML versionNumber "5.10"
 
 calculation FixedAmount <"2006 ISDA Definition Article 4 Section 4.4 'Fixed Amount' means, in respect of a Swap Transaction and a Fixed Rate Payer, an amount that, subject to any other applicable provisions, is payable by that Fixed Rate Payer on an applicable Payment Date and is specified in the related Confirmation or is determined as provided in Article 5 of these 2006 Definitions or as provided in the related Confirmation."> 
 {
-	fixedAmount bigDecimal: calculationAmount * rate * dayCountFraction  
-	
+	fixedAmount bigDecimal: calculationAmount * rate * dayCountFraction
 	currency CurrencyEnum: currency
 }
 
@@ -32,7 +31,7 @@ calculation DayCountFractionEnum_30E_360 <"Annex 2006 ISDA Definition Article 4 
  */
 arguments DayCountFractionEnum_30E_360 
 {
-	alias period CalculationPeriod()
+	alias period CalculationPeriod(EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates)
 	
 	endYear : is period -> endDate -> year
 	startYear : is period -> startDate -> year
@@ -46,13 +45,8 @@ arguments DayCountFractionEnum_30E_360
  * This is a externally defined function.
  * This defines a function that returns a start date and end date given a calculationPeriodDates instance from the model via 'arguments CalculationPeriod.
  */
-function CalculationPeriod 
+function CalculationPeriod (payout Payout)
 {
-	startDate date:
-	endDate date: 
-}
-
-arguments CalculationPeriod 
-{
-	calculationPeriodDates : is EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates
+	startDate date;
+	endDate date;
 }
