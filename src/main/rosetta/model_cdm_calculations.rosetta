@@ -1,0 +1,58 @@
+Rosetta versionNumber "0.0.1"
+FIX versionNumber "5.0 SP3"
+FpML versionNumber "5.10"
+
+calculation FixedAmount <"2006 ISDA Definition Article 4 Section 4.4 'Fixed Amount' means, in respect of a Swap Transaction and a Fixed Rate Payer, an amount that, subject to any other applicable provisions, is payable by that Fixed Rate Payer on an applicable Payment Date and is specified in the related Confirmation or is determined as provided in Article 5 of these 2006 Definitions or as provided in the related Confirmation."> 
+{
+	fixedAmount bigDecimal: calculationAmount * rate * dayCountFraction  
+	
+	currency CurrencyEnum: currency
+}
+
+arguments FixedAmount 
+{
+	calculationAmount: is EconomicTerms -> quantity -> notional -> notionalStepSchedule -> initialValue
+	currency: is EconomicTerms -> quantity -> notional -> notionalStepSchedule -> currency
+	rate: is EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate -> initialValue
+    dayCountFraction: is EconomicTerms -> payout -> interestRatePayout -> dayCountFraction
+}
+
+calculation DayCountFractionEnum_30E_360 <"Annex 2006 ISDA Definition Article 4 section 4.16(g) [[360 x (Y2 - Y1)] + [30 x (M2 - M1)] + (D2 - D1)]/360"> 
+{
+	bigDecimal: (360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
+}
+
+/**
+ *	Y1 - the year in which the 1st day of the Calculation/Compounding Period falls
+ *	Y2 - the year in which the day immediately following the last day of the Calculation/Compounding Period falls 
+ *	M1 - the month in which the 1st day of the Calculation/Compounding Period falls
+ *	M2 - the month in which the day immediately following the last day of the Calculation/Compounding Period falls
+ *	D1 - the 1st calendar day of the Calculation/Compounding Period (if 31, D1 will be 30)
+ *	D2 - the calendar day immediately following the last day of the Calculation/Compounding Period (if 31, D2 will be 30)
+ */
+arguments DayCountFractionEnum_30E_360 
+{
+	alias period CalculationPeriod()
+	
+	endYear : is period -> endDate -> year
+	startYear : is period -> startDate -> year
+	endMonth : is period -> endDate -> month
+	startMonth : is period -> startDate -> month
+	startDay : is Min(period -> startDate -> day, 30.0)
+	endDay : is Min(period -> endDate -> day, 30.0)
+}
+
+/**
+ * This is a externally defined function.
+ * This defines a function that returns a start date and end date given a calculationPeriodDates instance from the model via 'arguments CalculationPeriod.
+ */
+function CalculationPeriod 
+{
+	startDate date:
+	endDate date: 
+}
+
+arguments CalculationPeriod 
+{
+	calculationPeriodDates : is EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates
+}
