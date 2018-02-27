@@ -2,6 +2,61 @@ Rosetta versionNumber "0.0.1"
 FIX versionNumber "5.0 SP3"
 FpML versionNumber "5.10"
 
+calculation FixedAmount <"2006 ISDA Definition Article 4 Section 4.4 'Fixed Amount' means, in respect of a Swap Transaction and a Fixed Rate Payer, an amount that, subject to any other applicable provisions, is payable by that Fixed Rate Payer on an applicable Payment Date and is specified in the related Confirmation or is determined as provided in Article 5 of these 2006 Definitions or as provided in the related Confirmation."> {
+	fixedAmount bigDecimal: amount * fixedRate * dayCountFraction  
+	currency CurrencyEnum: currency
+}
+
+arguments FixedAmount {
+	amount: is EconomicTerms -> quantity -> notional -> notionalStepSchedule -> initialValue
+	currency: is EconomicTerms -> quantity -> notional -> notionalStepSchedule -> currency
+	fixedRate: is EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate -> initialValue
+    dayCountFraction: is EconomicTerms -> payout -> interestRatePayout -> dayCountFraction
+}
+
+calculation DayCountFractionEnum_30E_360 <"Annex 2006 ISDA Definition Article 4 section 4.16(g) [[360 x (Y2 - Y1)] + [30 x (M2 - M1)] + (D2 - D1)]/360"> {
+	bigDecimal: (360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
+}
+
+/**
+ *	Y1 - the year in which the 1st day of the Calculation/Compounding Period falls
+ *	Y2 - the year in which the day immediately following the last day of the Calculation/Compounding Period falls 
+ *	M1 - the month in which the 1st day of the Calculation/Compounding Period falls
+ *	M2 - the month in which the day immediately following the last day of the Calculation/Compounding Period falls
+ *	D1 - the 1st calendar day of the Calculation/Compounding Period (if 31, D1 will be 30)
+ *	D2 - the calendar day immediately following the last day of the Calculation/Compounding Period (if 31, D2 will be 30)
+ */
+arguments DayCountFractionEnum_30E_360 {
+	alias period CalculationPeriod()
+	
+	endYear : is period -> endDate -> year
+	startYear : is period -> startDate -> year
+	endMonth : is period -> endDate -> month
+	startMonth : is period -> startDate -> month
+	startDay : is Min(period -> startDate -> day, 30.0)
+	endDay : is Min(period -> endDate -> day + 1, 30.0)
+}
+
+calculation CalculationPeriod <"Annex 2006 ISDA Definition Article 4 Section 4.13 'Calculation Period' means, in respect of a Swap Transaction and a party, each period from, and including, one Period End Date of that party to, but excluding, the next following applicable Period End Date during the Term of the Swap Transaction, except that (a) the initial Calculation Period for the party will commence on, and include, the Effective Date and (b) the final Calculation Period for the party will end on, but exclude, the Termination Date."> {
+	dateRange : Within(AllCalculationPeriods(), currentPeriodDate)
+}
+
+arguments CalculationPeriod {
+	currentPeriodDate: is EconomicTerms -> payout -> interestRatePayout -> paymentDates -> firstPaymentDate // -> unknown how we get this at the moment. 
+}
+
+// calculate all periods from effective date to term date
+calculation AllCalculationPeriods {	
+	dateRange : DateRanges(Adjust(effectiveDate), Adjust(terminationDate), paymentFrequency)
+}
+
+arguments AllCalculationPeriods {
+	effectiveDate: is EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate
+	terminationDate: is EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate
+	paymentFrequency: is EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency // TODO this should be a record Type
+}
+
+
 /*
  * PRODUCT COMPOSITE APPROACH
  * The product is dynamically inferred from the economic terms, based upon a set of definitions that are associated to the model
@@ -55,13 +110,14 @@ isProduct creditDefaultSwap
 	EconomicTerms -> payout -> interestRatePayout
 	and EconomicTerms -> payout -> creditDefaultPayout
 
-class EconomicTerms
+class EconomicTerms 
 {
 	payout Payout (1..1);
 	quantity ContractualQuantity (1..1);
 	earlyTerminationProvision EarlyTerminationProvision (0..1);
 	cancelableProvision CancelableProvision (0..1);
 	extendibleProvision ExtendibleProvision (0..1);
+	calculation FixedAmount;
 }
 
 class Payout
