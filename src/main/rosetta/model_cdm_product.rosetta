@@ -109,51 +109,47 @@ class Contract <"A class to specify a contract object, which can be invoked eith
 	 */
 }
 
-data rule ContractNew_clearedDate
+data rule Contract_clearedDate
 	when Contract -> clearedDate exists
 	then Contract -> clearedDate >= Contract -> tradeDate
 
-class ContractualProduct <"">
+class ContractualProduct
 {
 	productIdentification string (1..1) isProduct; // A back-end logic associated to the isProduct qualifier will specify the product as a function of the associated economic terms
 	economicTerms EconomicTerms (1..1);
 }
 
 /*
- * We will need to work out the fact that a product can be specified at distinct levels...
- * One practical approach could consist in systematically returning the lowest product specification available (i.e. BasisSwap or FixFloatSwap in the below, not InterestRateSwap)
+ * The below product specification reflects the ISDA Taxonomy v2.0
  */
 
-isProduct InterestRateSwap
-	EconomicTerms -> payout -> interestRatePayout
-	and EconomicTerms -> payout -> interestRatePayout
-
-isProduct BasisSwap
-	[synonym Bank_A value FloatFloatSwap] // The purpose is to illustrate how firms could map to their own internal product identification
+isProduct InterestRate_IRSwap_Basis
+	[synonym Bank_A value BasisSwap] // The purpose is to illustrate how firms could map to their own internal product identification
 	[synonym Venue_B value FloatFloatInterestSwap]
 	EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate
 
-isProduct FixFloatSwap
+isProduct InterestRate_IRSwap_FixedFloat
 	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate
 
-isProduct InflationSwap
+isProduct InterestRate_IRSwap_FixedFixed
+	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate
+
+isProduct InterestRate_InflationSwap_FixedFloat
 	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate
-	
-isProduct creditDefaultSwap
-	EconomicTerms -> payout -> interestRatePayout
-	and EconomicTerms -> payout -> creditDefaultPayout
 
 class EconomicTerms 
 {
 	payout Payout (1..1);
-	quantity ContractualQuantity (1..1);
 	earlyTerminationProvision EarlyTerminationProvision (0..1);
+		[synonym FpML value earlyTerminationProvision pathExpression "trade.swap"]
 	cancelableProvision CancelableProvision (0..1);
+		[synonym FpML value cancelableProvision pathExpression "trade.swap"]
 	extendibleProvision ExtendibleProvision (0..1);
-	calculation FixedAmount;
+		[synonym FpML value extendibleProvision pathExpression "trade.swap"]
 }
 
 class Payout
@@ -164,9 +160,13 @@ class Payout
 
 class InterestRatePayout
 {
-	payerParty Party (1..1);
-	receiverParty Party (1..1);
+	payerParty Party (1..1) reference;
+		[synonym FpML value payerPartyReference pathExpression "trade.swap.swapStream"]
+	receiverParty Party (1..1) reference;
+		[synonym FpML value receiverPartyReference pathExpression "trade.swap.swapStream"]
+	notional Notional (1..1);
 	interestRate InterestRate (0..1);
+		
 	dayCountFraction DayCountFractionEnum (1..1);
 	discounting Discounting (0..1);
 	compoundingMethod CompoundingMethodEnum (0..1);
@@ -248,8 +248,9 @@ data rule Confirmation_otherConfirmationComponents
 	when Confirmation -> isConfirmed = True
 	then Confirmation -> otherConfirmationComponents must exist
 
-class ProtectionTermsNew // Adjusted from the FpML construct to remove the calculationAmount, a.k.a. notional.
+class ProtectionTerms // Adjusted from the FpML construct by replacing calculationAmount, a.k.a. notional.
 {
+	quantity ContractualQuantity (1..1);
 	creditEvents CreditEvents (0..1);
 	obligations Obligations (0..1);
 	floatingAmountEvents FloatingAmountEvents (0..1);
