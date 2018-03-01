@@ -78,7 +78,7 @@ Rosetta supports the concept of **abstract classes**, which cannot be instantiat
     	id string (0..1);
     		[synonym FpML value id]
     	productTaxonomy ProductTaxonomy (1..*) <"The product taxonomy value(s) associated with a contractual product.">;
-    	priceMultiplier bigDecimal (0..1) <"The number of units of the underlying instrument represented by a single derivative contract.">;
+    	priceMultiplier number (0..1) <"The number of units of the underlying instrument represented by a single derivative contract.">;
     		[regulatoryReference ESMA_MiFID_II regulation "RTS 27" article "3(2)(b)" provision "Trading venues and systematic internalisers shall publish for each market segment they operate and each financial instrument subject to the trading obligation (..) for financial instruments that do not have identifiers (...) the name and a written description of the instrument, including (...) price multiplier (...)."]
     		[regulatoryReference ESMA_MiFID_II regulation "RTS 27" annex "Table 2" provision "Written description of financial instrument, if no identifier available (including the currency of the underlying instrument, price multiplier, price notation, quantity notation and delivery type)."]
     }
@@ -124,7 +124,7 @@ The set of **basic types** available in Rosetta are:
 
 Text - ``string``
 
-Number - ``int`` - ``double`` - ``bigDecimal`` - ``float``
+Number - ``int`` - ``double`` - ``number`` - ``float``
 
 Logic - ``boolean``
 
@@ -769,7 +769,7 @@ As an example, the ``Notional_notionalStepSchedule`` data rule implements the **
     	when Notional -> notionalStepSchedule -> step is absent
     	then Notional -> notionalStepSchedule -> initialValue <> 0b
 
-(**Note**: the above ``0b`` notation is meant to denote the fact that the ``initialValue`` attribute is of type ``bigDecimal``.)
+(**Note**: the above ``0b`` notation is meant to denote the fact that the ``initialValue`` attribute is of type ``number``.)
 
 
 Syntax
@@ -1150,13 +1150,13 @@ Rosetta event model applies the design principle specified as part of the `ISDA 
     		[synonym FIX value Side tag 54]
     	quantity Quantity (0..1) <"The quantity associated with the order.">;
     		[synonym ISO_20022 value Qty]
-    	cashOrderQuantity bigDecimal (0..1) <"Specifies the approximate order quantity desired in total monetary units vs. as tradeable units (e.g. number of shares). The broker or fund manager (for CIV orders) would be responsible for converting and calculating a tradeable unit (e.g. share) quantity (FIX OrderQty (38) attribute, part of the Quantity class in the canonical model) based upon this amount to be used for the actual order and subsequent messages.">;
+    	cashOrderQuantity number (0..1) <"Specifies the approximate order quantity desired in total monetary units vs. as tradeable units (e.g. number of shares). The broker or fund manager (for CIV orders) would be responsible for converting and calculating a tradeable unit (e.g. share) quantity (FIX OrderQty (38) attribute, part of the Quantity class in the canonical model) based upon this amount to be used for the actual order and subsequent messages.">;
     		[synonym FIX value CashOrderQty tag 152]
     	orderType OrderTypeEnum (1..1) <"The type of order (e.g. limit, market), as specified by an enumeration.">;
     		[synonym FIX value OrdType tag 40]
     	solicitedFlag boolean (0..1) <"Indicates whether or not the order was solicited.">;
     		[synonym FIX value SolicitedFlag tag 377]
-    	stopPrice bigDecimal (0..1) <"The top price, per unit of quantity.">;
+    	stopPrice number (0..1) <"The top price, per unit of quantity.">;
     		[synonym FIX value StopPx tag 99]
     	timeInForce TimeInForceEnum (0..1) <"Specifies how long the order remains in effect. According to FIX, absence of this field is interpreted as DAY, while it is not applicable to Collective Investment Vehicles (CIV) Orders.">;
     		[synonym FIX value TimeInForce tag 59]
@@ -1374,7 +1374,7 @@ The Rosetta model for listed products is articuled along the same lines as contr
     		[synonym FpML value seniority]
     	couponType CouponTypeEnum (0..1) <"Specifies if the bond has a variable coupon, step-up/down coupon or a zero-coupon.">;
     		[synonym FpML value couponType]
-    	couponRate bigDecimal (0..1) <"Specifies the coupon rate (expressed in percentage) of a fixed income security or convertible bond.">;
+    	couponRate number (0..1) <"Specifies the coupon rate (expressed in percentage) of a fixed income security or convertible bond.">;
     		[synonym FpML value couponRate]
     	maturity date (0..1) <"The date when the principal amount of a security becomes due and payable.">;
     		[synonym FpML value maturity]
@@ -1392,11 +1392,11 @@ The Rosetta model for listed products is articuled along the same lines as contr
     	effectiveDate date (1..1) <"The effective date, meaning the date on which the payoff terms start to be computed.">;
     	terminationDate date (1..1) <"The termination date.">;
     		[synonym FIX value MaturityDate tag 541]
-    	spread bigDecimal (0..2) <"The spread applicable to the floating interest rate reference.  There can be up to two float rates, as in the case of a basis swap.">;
+    	spread number (0..2) <"The spread applicable to the floating interest rate reference.  There can be up to two float rates, as in the case of a basis swap.">;
     		[synonym FIX value Spread tag 218]
     		[synonym CFTC_Part43 value PN1 projection Price_Derivatives]
     		[synonym CFTC_Part43 value PN2 projection Price_Derivatives]
-    	fixedRate bigDecimal (0..2) <"The fixed rate. There can be up to two fixed rates, as in the case of a fix-fix swap.">;
+    	fixedRate number (0..2) <"The fixed rate. There can be up to two fixed rates, as in the case of a fix-fix swap.">;
     		[synonym CFTC_Part43 value PN1 projection Price_Derivatives]
     		[synonym CFTC_Part43 value PN2 projection Price_Derivatives]
     	fee Money (0..2) <"The ISDA specification for the Price Notation / Additional Price Notation specifies that there can be up to two fees for interest rate derivatives.">;
