@@ -46,10 +46,15 @@ choice rule BulletPayment_choice <"A choice rule to represent the FpML substitut
 	for BulletPayment optional choice between
 	bulletPayment and capFloor and fra and swap and swaption
 
+/*
+ * The below will need to be deprecated at some point, as its content has largely been incorporated as part of the InterestRatePayout
+ * The issue relates to the fact that CalculationPeriodAmount makes use of it
+ * Also note that the notionalSchedule attribute has been changed to be of type NotionalSchedule
+ */
 class Calculation stereotype contractualProduct <"The parameters used in the calculation of the fixed or floating rate calculation period amounts.">
 	[synonym FpML value Calculation]
 {
-	notionalSchedule Notional (0..1) <"The notional amount or notional amount schedule.">;
+	notionalSchedule NotionalSchedule (0..1) <"The notional amount or notional amount schedule.">;
 		[synonym FpML value notionalSchedule]
 	fxLinkedNotionalSchedule FxLinkedNotionalSchedule (0..1) <"A notional amount schedule where each notional that applied to a calculation period is calculated with reference to a notional amount or notional amount schedule in a different currency by means of a spot currency exchange rate which is normally observed at the beginning of each period.">;
 		[synonym FpML value fxLinkedNotionalSchedule]
@@ -69,41 +74,35 @@ class Calculation stereotype contractualProduct <"The parameters used in the cal
 		[synonym FpML value compoundingMethod]
 }
 
-choice rule Calculation_choice1 <"Choice rule to represent an FpML choice construct.">
-	for Calculation required choice between
-	notionalSchedule and fxLinkedNotionalSchedule
+//choice rule Calculation_choice1 <"Choice rule to represent an FpML choice construct.">
+//	for Calculation required choice between
+//	notionalSchedule and fxLinkedNotionalSchedule
 
-choice rule Calculation_choice2 <"Choice rule to represent an FpML choice construct. In FpML, the choice is between a node that includes the fixedRateschedule and the rateCalculation substitution group.">
-	for Calculation required choice between
-	fixedRateSchedule and floatingRateCalculation and inflationRateCalculation
+//choice rule Calculation_choice2 <"Choice rule to represent an FpML choice construct. In FpML, the choice is between a node that includes the fixedRateschedule and the rateCalculation substitution group.">
+//	for Calculation required choice between
+//	fixedRateSchedule and floatingRateCalculation and inflationRateCalculation
 
-data rule Calculation_fixedRateSchedule <"FpML implements a node which has fixedRateSchedule as a required element, and futureValueNotional as an optional one.">
-	when Calculation -> fixedRateSchedule is absent
-	then Calculation -> futureValueNotional must be absent
 
-data rule Calculation_futureValueNotional <"FpML states that the value date associated with the future value notional should match the adjusted termination date.">
-	when InterestRateStream -> calculationPeriodAmount -> calculation -> futureValueNotional exists
-	then InterestRateStream -> calculationPeriodAmount-> calculation -> futureValueNotional -> valueDate = InterestRateStream -> calculationPeriodDates -> terminationDate -> adjustedDate
 
-data rule CompoundingMethod_paymentFrequency_same <"FpML validation rule ird-7 1/2 - Context: InterestRateStream (complex type). The existence of compoundingMethod is required when the calculation-period and payment frequencies differ, and prohibited when they are the same.">
- 	when InterestRateStream -> paymentDates -> paymentFrequency -> period = InterestRateStream -> calculationPeriodDates -> calculationPeriodFrequency -> period
- 		and InterestRateStream -> paymentDates -> paymentFrequency -> periodMultiplier = InterestRateStream -> calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier
- 	then InterestRateStream -> calculationPeriodAmount -> calculation -> compoundingMethod must be absent
-
-data rule CompoundingMethod_paymentFrequency_different <"FpML validation rule ird-7 2/2 - Context: InterestRateStream (complex type). The existence of compoundingMethod is required when the calculation-period and payment frequencies differ, and prohibited when they are the same.">
- 	when (InterestRateStream -> paymentDates -> paymentFrequency -> period <> InterestRateStream -> calculationPeriodDates -> calculationPeriodFrequency -> period
- 		and InterestRateStream -> paymentDates -> paymentFrequency -> periodMultiplier <> InterestRateStream -> calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier)
- 		or (InterestRateStream -> paymentDates -> paymentFrequency -> period <> InterestRateStream -> calculationPeriodDates -> calculationPeriodFrequency -> period
- 		or InterestRateStream -> paymentDates -> paymentFrequency -> periodMultiplier <> InterestRateStream -> calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier)
- 	then InterestRateStream -> calculationPeriodAmount -> calculation -> compoundingMethod must exist
-
-data rule CompoundingMethod_resetDates <"FpML validation rule ird-9 - Context: InterestRateStream (complex type). If calculationPeriodAmount/calculation/compoundingMethod exists, then resetDates must exist.">
-	when InterestRateStream -> calculationPeriodAmount -> calculation -> compoundingMethod exists
-	then InterestRateStream -> resetDates must exist
-
-data rule CompoundingMethod_fixedRate <"FpML validation rule ird-29 - Context: Calculation (complex type). If compoundingMethod exists, then fixedRateSchedule must not exist.">
-	when Calculation -> compoundingMethod exists
-	then Calculation -> fixedRateSchedule must be absent
+//data rule CompoundingMethod_paymentFrequency_same <"FpML validation rule ird-7 1/2 - Context: InterestRateStream (complex type). The existence of compoundingMethod is required when the calculation-period and payment frequencies differ, and prohibited when they are the same.">
+// 	when InterestRateStream -> paymentDates -> paymentFrequency -> period = InterestRateStream -> calculationPeriodDates -> calculationPeriodFrequency -> period
+// 		and InterestRateStream -> paymentDates -> paymentFrequency -> periodMultiplier = InterestRateStream -> calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier
+// 	then InterestRateStream -> calculationPeriodAmount -> calculation -> compoundingMethod must be absent
+//
+//data rule CompoundingMethod_paymentFrequency_different <"FpML validation rule ird-7 2/2 - Context: InterestRateStream (complex type). The existence of compoundingMethod is required when the calculation-period and payment frequencies differ, and prohibited when they are the same.">
+// 	when (InterestRateStream -> paymentDates -> paymentFrequency -> period <> InterestRateStream -> calculationPeriodDates -> calculationPeriodFrequency -> period
+// 		and InterestRateStream -> paymentDates -> paymentFrequency -> periodMultiplier <> InterestRateStream -> calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier)
+// 		or (InterestRateStream -> paymentDates -> paymentFrequency -> period <> InterestRateStream -> calculationPeriodDates -> calculationPeriodFrequency -> period
+// 		or InterestRateStream -> paymentDates -> paymentFrequency -> periodMultiplier <> InterestRateStream -> calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier)
+// 	then InterestRateStream -> calculationPeriodAmount -> calculation -> compoundingMethod must exist
+//
+//data rule CompoundingMethod_resetDates <"FpML validation rule ird-9 - Context: InterestRateStream (complex type). If calculationPeriodAmount/calculation/compoundingMethod exists, then resetDates must exist.">
+//	when InterestRateStream -> calculationPeriodAmount -> calculation -> compoundingMethod exists
+//	then InterestRateStream -> resetDates must exist
+//
+//data rule CompoundingMethod_fixedRate <"FpML validation rule ird-29 - Context: Calculation (complex type). If compoundingMethod exists, then fixedRateSchedule must not exist.">
+//	when Calculation -> compoundingMethod exists
+//	then Calculation -> fixedRateSchedule must be absent
 
 class CalculationPeriod stereotype contractualProduct <"A class defining the parameters used in the calculation of a fixed or floating rate calculation period amount. This class forms part of cashflows representation of a swap stream.">
 	[synonym FpML value CalculationPeriod]
@@ -662,7 +661,7 @@ class FxLinkedNotionalAmount stereotype contractualProduct <"A class to describe
 class FxLinkedNotionalSchedule stereotype contractualProduct <"A class to describe a notional schedule where each notional that applies to a calculation period is calculated with reference to a notional amount or notional amount schedule in a different currency by means of a spot currency exchange rate which is normally observed at the beginning of each period.">
 	[synonym FpML value FxLinkedNotionalSchedule pathExpression "fxLinkedNotionalSchedule"]
 {
-	constantNotionalSchedule Notional (1..1) reference <"Implemented in FpML as a pointer style reference to the associated constant notional schedule defined elsewhere in the document which contains the currency amounts which will be converted into the varying notional currency amounts using the spot currency exchange rate. Implemented as part of this model through an explicit initial notional value.">;
+	constantNotionalSchedule NotionalSchedule (1..1) reference <"Implemented in FpML as a pointer style reference to the associated constant notional schedule defined elsewhere in the document which contains the currency amounts which will be converted into the varying notional currency amounts using the spot currency exchange rate. Implemented as part of this model through an explicit initial notional value.">;
 		[synonym FpML value constantNotionalScheduleReference]
 	initialValue bigDecimal (0..1) <"The initial currency amount for the varying notional. This may be omitted for a forward starting swap if the FX-linked notional value is not known at deal inception.">;
 		[synonym FpML value initialValue]
@@ -822,21 +821,6 @@ class NonDeliverableSettlement stereotype contractualProduct <"A class defining 
 choice rule NonDeliverableSettlement_choice <"Choice rule to represent an FpML choice construct.">
 	for NonDeliverableSettlement required choice between
 	fxFixingDate and fxFixingSchedule
-
-class Notional stereotype contractualProduct <"A class defining the notional amount or notional amount schedule associated with a swap stream.">
-	[synonym FpML value Notional]
-{
-	id string (0..1);
-		[synonym FpML value id]
-	notionalStepSchedule NonNegativeAmountSchedule (1..1) <"The notional amount or notional amount schedule expressed as explicit outstanding notional amounts and dates. In the case of a schedule, the step dates may be subject to adjustments in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">;
-		[synonym FpML value notionalStepSchedule]
-	notionalStepParameters NotionalStepRule (0..1) <"A parametric representation of the notional step schedule, i.e. parameters used to generate the notional schedule.">;
-		[synonym FpML value notionalStepParameters]
-}
-
-data rule Notional_notionalStepSchedule <"FpML validation rule ird-61 - Context: NonNegativeSchedule (complex type). If step does not exist, then initialValue must not be equal to 0.">
-	when Notional -> notionalStepSchedule -> step is absent
-	then Notional -> notionalStepSchedule -> initialValue <> 0b
 
 class NotionalStepRule stereotype contractualProduct <"A class defining a parametric representation for the notional step schedule, i.e. parameters used to generate the notional amount on each step date. This parametric representation is intended to cover the more common amortizing/accreting variations of swaps.">
 	[synonym FpML value NotionalStepRule]
@@ -1027,14 +1011,14 @@ class ResetDates stereotype contractualProduct <"A class defining the parameters
 		[synonym FpML value resetDatesAdjustments]
 }
 
-data rule ResetDates_calculationPeriodAmount <"FpML validation rule ird-1 - Context: InterestRateStream (complex type). resetDates must exist if and only if a floatingRateCalculation or inflationRateCalculation exists in the calculationPeriodAmount/calculation element.">
-	when InterestRateStream -> resetDates exists
-	then (InterestRateStream -> calculationPeriodAmount -> calculation -> floatingRateCalculation 
-		or InterestRateStream -> calculationPeriodAmount -> calculation -> inflationRateCalculation) must exist
+//data rule ResetDates_calculationPeriodAmount <"FpML validation rule ird-1 - Context: InterestRateStream (complex type). resetDates must exist if and only if a floatingRateCalculation or inflationRateCalculation exists in the calculationPeriodAmount/calculation element.">
+//	when InterestRateStream -> resetDates exists
+//	then (InterestRateStream -> calculationPeriodAmount -> calculation -> floatingRateCalculation 
+//		or InterestRateStream -> calculationPeriodAmount -> calculation -> inflationRateCalculation) must exist
 
-data rule ResetDates_floatingRateCalculation <"The FpML standard states that the reset dates schedule only applies for a floating rate stream.">
-	when InterestRateStream -> calculationPeriodAmount -> calculation -> floatingRateCalculation is absent
-	then InterestRateStream -> resetDates must be absent
+//data rule ResetDates_floatingRateCalculation <"The FpML standard states that the reset dates schedule only applies for a floating rate stream.">
+//	when InterestRateStream -> calculationPeriodAmount -> calculation -> floatingRateCalculation is absent
+//	then InterestRateStream -> resetDates must be absent
 
 data rule ResetDates_rateCutOffDaysOffset <"FpML specifies that the rate cut-off number of days must be a negative integer with a value of zero would implying that no rate cut off applies, in which case the rateCutOffDaysOffset element should not be included.">
 	when ResetDates -> rateCutOffDaysOffset exists
@@ -1057,12 +1041,12 @@ class SettlementProvision stereotype contractualProduct <"A class defining the s
 		[synonym FpML value nonDeliverableSettlement]
 }
 
-data rule SettlementProvision_settlementCurrency <"FpML specifies that the SettlementProvision exists when the settlement currency is different to the notional currency of the trade.">
-	when ( InterestRateStream -> settlementProvision exists 
-		and InterestRateStream -> settlementProvision -> settlementCurrency <> InterestRateStream -> calculationPeriodAmount -> calculation -> notionalSchedule -> notionalStepSchedule -> currency )
-	or ( InterestRateStream -> settlementProvision exists 
-		and InterestRateStream -> settlementProvision -> settlementCurrency <> InterestRateStream -> calculationPeriodAmount -> calculation -> fxLinkedNotionalSchedule -> varyingNotionalCurrency )
-	then InterestRateStream -> settlementProvision -> nonDeliverableSettlement must exist
+//data rule SettlementProvision_settlementCurrency <"FpML specifies that the SettlementProvision exists when the settlement currency is different to the notional currency of the trade.">
+//	when ( InterestRateStream -> settlementProvision exists 
+//		and InterestRateStream -> settlementProvision -> settlementCurrency <> InterestRateStream -> calculationPeriodAmount -> calculation -> notionalSchedule -> notionalStepSchedule -> currency )
+//	or ( InterestRateStream -> settlementProvision exists 
+//		and InterestRateStream -> settlementProvision -> settlementCurrency <> InterestRateStream -> calculationPeriodAmount -> calculation -> fxLinkedNotionalSchedule -> varyingNotionalCurrency )
+//	then InterestRateStream -> settlementProvision -> nonDeliverableSettlement must exist
 
 class StubCalculationPeriodAmount stereotype contractualProduct <"A class defining how the initial or final stub calculation period amounts is calculated. For example, the rate to be applied to the initial or final stub calculation period may be the linear interpolation of two different tenors for the floating rate index specified in the calculation period amount component, e.g. A two month stub period may used the linear interpolation of a one month and three month floating rate. The different rate tenors would be specified in this component. Note that a maximum of two rate tenors can be specified. If a stub period uses a single index tenor and this is the same as that specified in the calculation period amount component then the initial stub or final stub component, as the case may be, must not be included.">
 	[synonym FpML value StubCalculationPeriodAmount]
