@@ -104,53 +104,53 @@ projection rule Price_Derivatives <"ISDA specified guidelines as to how an OTC d
 		map ListedInterestRateDerivative -> fee to synonym PN3
 		)
 
-class Quantity stereotype preExecution, execution, postExecution <"The qualification of the quantity to be associated with a quote, order, execution...">
-	[synonym ISO_20022 value FinancialInstrumentQuantity25Choice]
-{
-	quantityType QuantityTypeEnum (1..1) <"The manner in which the quantity is expressed, specified through enumerated values, e.g. units, contracts, ...">;
-		[synonym FIX value QtyType tag 854]
-	quantity bigDecimal (0..1) <"The actual quantity, when expressing through an amount and no currency.">;
-		[synonym FIX value OrderQty tag 38 set quantity when Order exists]
-		[synonym FIX value LastQty tag 32 set quantity when Execution exists]
-		[synonym ISO_20022 value Unit projection Quantity_Unit]
-	currencyAmount Money (0..1) <"The currency is applicable when the quantity is expressed as a nominal or monetary amount, typically for contractual products.">;
-		[synonym ISO_20022 value NmnlVal projection Quantity_NominalAmount]
-		[synonym ISO_20022 value MntryVal]
-	contractMultiplier bigDecimal (0..1) <"FIX definition: Specifies the ratio or multiply factor to convert from 'nominal' units (e.g. contracts) to total units (e.g. shares) (e.g. 1.0, 100, 1000, etc). Applicable For Fixed Income, Convertible Bonds, Derivatives, etc. In general quantities for all classes should be expressed in the basic unit of the instrument, e.g. shares for equities, nominal or par amount for bonds, currency for foreign exchange. When quantity is expressed in contracts, e.g. financing transactions and bond trade reporting, ContractMutliplier should contain the number of units in one contract and can be omitted if the multiplier is the default amount for the instrument, i.e. 1,000 par of bonds, 1,000,000 par for financing transactions.">;
-		[synonym FIX value ContractMultiplier tag 231]
-	unitOfMeasure UnitOfMeasureEnum (0..1) <"The unit of measure, as specified through enumerated values.  FIX defines it as the 'Physical unit of measure for Derivative products.', while in practice it essentially applies to physical products, whether derivatives or not.">;
-		[synonym FIX value UnitofMeasure tag 996]
-	timeUnit TimeUnitEnum (0..1) <"Unit of time associated with the contract.">;
-		[synonym FIX value TimeUnit tag 231]
-}
+//class Quantity stereotype preExecution, execution, postExecution <"The qualification of the quantity to be associated with a quote, order, execution...">
+//	[synonym ISO_20022 value FinancialInstrumentQuantity25Choice]
+//{
+//	quantityType QuantityTypeEnum (1..1) <"The manner in which the quantity is expressed, specified through enumerated values, e.g. units, contracts, ...">;
+//		[synonym FIX value QtyType tag 854]
+//	quantity bigDecimal (0..1) <"The actual quantity, when expressing through an amount and no currency.">;
+//		[synonym FIX value OrderQty tag 38 set quantity when Order exists]
+//		[synonym FIX value LastQty tag 32 set quantity when Execution exists]
+//		[synonym ISO_20022 value Unit projection Quantity_Unit]
+//	currencyAmount Money (0..1) <"The currency is applicable when the quantity is expressed as a nominal or monetary amount, typically for contractual products.">;
+//		[synonym ISO_20022 value NmnlVal projection Quantity_NominalAmount]
+//		[synonym ISO_20022 value MntryVal]
+//	contractMultiplier bigDecimal (0..1) <"FIX definition: Specifies the ratio or multiply factor to convert from 'nominal' units (e.g. contracts) to total units (e.g. shares) (e.g. 1.0, 100, 1000, etc). Applicable For Fixed Income, Convertible Bonds, Derivatives, etc. In general quantities for all classes should be expressed in the basic unit of the instrument, e.g. shares for equities, nominal or par amount for bonds, currency for foreign exchange. When quantity is expressed in contracts, e.g. financing transactions and bond trade reporting, ContractMutliplier should contain the number of units in one contract and can be omitted if the multiplier is the default amount for the instrument, i.e. 1,000 par of bonds, 1,000,000 par for financing transactions.">;
+//		[synonym FIX value ContractMultiplier tag 231]
+//	unitOfMeasure UnitOfMeasureEnum (0..1) <"The unit of measure, as specified through enumerated values.  FIX defines it as the 'Physical unit of measure for Derivative products.', while in practice it essentially applies to physical products, whether derivatives or not.">;
+//		[synonym FIX value UnitofMeasure tag 996]
+//	timeUnit TimeUnitEnum (0..1) <"Unit of time associated with the contract.">;
+//		[synonym FIX value TimeUnit tag 231]
+//}
 
-choice rule Quantity_choice
-	for Quantity required choice between
-	quantity and currencyAmount
-
-data rule ContractMultiplier <"FIX require a contract multiplier when the quantity is expressed in contracts.">
-	when Quantity -> quantityType = QuantityTypeEnum.Contracts
-	then Quantity -> contractMultiplier must exist
-
-data rule UnitOfMeasure <"FIX require a unit of measure when the quantity is expressed in unit of measure per time unit.">	
-	when Quantity -> quantityType = QuantityTypeEnum.UnitsOfMeasurePerTimeUnit
-	then Quantity -> unitOfMeasure must exist
-
-projection rule Quantity_Unit <"ISO 20022 collapses the quantity and quantity type through one field, which is distinct depending up the quantity type.">
-	[regulatoryReference ESMA_MiFIR specification "ISO 20022 - Part 2" section "20.1.11.2.8.3" provision "Quantity <Qty> - Definition: Number of units of the financial instrument, or the number of derivative contracts in the transaction."]
-	[regulatoryReference ESMA_MiFIR specification "ISO 20022 - Part 2" section "20.1.6.1.1" provision "Unit <Unit> - Definition: Quantity expressed as a number, such as a number of shares."]
-	for target ISO_20022
-	when Quantity -> quantityType = QuantityTypeEnum.Units
-		or Quantity -> quantityType = QuantityTypeEnum.Contracts // To-Do: qualify what we do with the FIX value UnitsOfMeasurePerTimeUnit; while it could map to ISO Unit, we need to handle the time dimension
-	map Quantity -> quantity to synonym Unit
+//choice rule Quantity_choice
+//	for Quantity required choice between
+//	quantity and currencyAmount
+//
+//data rule ContractMultiplier <"FIX require a contract multiplier when the quantity is expressed in contracts.">
+//	when Quantity -> quantityType = QuantityTypeEnum.Contracts
+//	then Quantity -> contractMultiplier must exist
+//
+//data rule UnitOfMeasure <"FIX require a unit of measure when the quantity is expressed in unit of measure per time unit.">	
+//	when Quantity -> quantityType = QuantityTypeEnum.UnitsOfMeasurePerTimeUnit
+//	then Quantity -> unitOfMeasure must exist
+//
+//projection rule Quantity_Unit <"ISO 20022 collapses the quantity and quantity type through one field, which is distinct depending up the quantity type.">
+//	[regulatoryReference ESMA_MiFIR specification "ISO 20022 - Part 2" section "20.1.11.2.8.3" provision "Quantity <Qty> - Definition: Number of units of the financial instrument, or the number of derivative contracts in the transaction."]
+//	[regulatoryReference ESMA_MiFIR specification "ISO 20022 - Part 2" section "20.1.6.1.1" provision "Unit <Unit> - Definition: Quantity expressed as a number, such as a number of shares."]
+//	for target ISO_20022
+//	when Quantity -> quantityType = QuantityTypeEnum.Units
+//		or Quantity -> quantityType = QuantityTypeEnum.Contracts // To-Do: qualify what we do with the FIX value UnitsOfMeasurePerTimeUnit; while it could map to ISO Unit, we need to handle the time dimension
+//	map Quantity -> quantity to synonym Unit
 
 /*
  * Need to discuss & test the below, as this is a case where we project a class to a complexType
  */
-projection rule Quantity_NominalAmount
-	for target ISO_20022
-	when ContractualProduct or ListedInterestRateDerivative exists // Many more to be specified here
-	map Quantity -> currencyAmount to synonym NmnlVal
+//projection rule Quantity_NominalAmount
+//	for target ISO_20022
+//	when ContractualProduct or ListedInterestRateDerivative exists // Many more to be specified here
+//	map Quantity -> currencyAmount to synonym NmnlVal
 
 class QuotePrice stereotype preExecution <"The price information as provided through a quote.">
 {
