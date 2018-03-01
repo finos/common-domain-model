@@ -251,6 +251,28 @@ class PaymentDates // Differences with the FpML PaymentDate include addition of 
 		[synonym FpML value paymentDelay pathExpression "trade.swap.swapStream.paymentDates"]
 }
 
+data rule PaymentDates_firstPaymentDate <"FpML validation rule ird-6 - Context: InterestRateStream (complex type). If paymentDates/firstPaymentDate exists, and if calculationPeriodDates/effectiveDate exists, then paymentDates/firstPaymentDate must be after calculationPeriodDates/effectiveDate/unadjustedDate.">
+	when InterestRateStream -> paymentDates -> firstPaymentDate exists 
+		and InterestRateStream -> calculationPeriodDates -> effectiveDate exists
+	then InterestRateStream -> paymentDates -> firstPaymentDate > InterestRateStream -> calculationPeriodDates -> effectiveDate -> unadjustedDate
+
+data rule PaymentDates_firstPaymentDate_lastRegularPaymentDate <"FpML validation rule ird-35 - Context: PaymentDates (complex type). If firstPaymentDate exists, and if lastRegularPaymentDate exists, then firstPaymentDate must be before lastRegularPaymentDate.">
+	when PaymentDates -> firstPaymentDate exists 
+		and PaymentDates -> lastRegularPaymentDate exists
+	then PaymentDates -> firstPaymentDate < PaymentDates -> lastRegularPaymentDate
+
+data rule PaymentDates_firstPaymentDate_initialStub <"FpML specifies that firstPaymentDate must only be included if there is an initial stub.">
+	when InterestRateStream -> stubCalculationPeriodAmount -> initialStub is absent
+	then InterestRateStream -> paymentDates -> firstPaymentDate must be absent 
+
+data rule PaymentDates_lastRegularPaymentDate_finalStub <"FpML specifies that lastRegularPaymentDate must only be included if there is an final stub.">
+	when InterestRateStream -> stubCalculationPeriodAmount -> finalStub is absent
+	then InterestRateStream -> paymentDates -> lastRegularPaymentDate must be absent
+	
+data rule PaymentDates_paymentDaysOffset <"FpML specifies that paymentDaysOffset should only be included if early or delayed payment is applicable, i.e. if the periodMultiplier element value is not equal to zero.">
+	when PaymentDates -> paymentDaysOffset exists
+	then PaymentDates -> paymentDaysOffset -> periodMultiplier <> 0
+
 class Quantity
 {
 	quantity bigDecimal (1..1);
