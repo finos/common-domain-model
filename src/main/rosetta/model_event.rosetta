@@ -133,7 +133,7 @@ data rule Exercise_Contract_before <"The contractState of the contract subject t
 	when Exercise -> before -> contract exists
 	then Exercise -> before -> contract -> contractState = ContractStateEnum.open
 
-root class FinancialTransaction one of <"The entry point for all financial transactions.">
+root class Events one of <"The entry point for all financial transactions.">
 {
 	requestForQuote RequestForQuote (0..1);
 		[synonym FIX value MsgType."R"]
@@ -225,13 +225,13 @@ class Order extends TransactionEvent stereotype preExecution
 		[synonym FIX value Side tag 54]
 	quantity Quantity (0..1) <"The quantity associated with the order.">;
 		[synonym ISO_20022 value Qty]
-	cashOrderQuantity bigDecimal (0..1) <"Specifies the approximate order quantity desired in total monetary units vs. as tradeable units (e.g. number of shares). The broker or fund manager (for CIV orders) would be responsible for converting and calculating a tradeable unit (e.g. share) quantity (FIX OrderQty (38) attribute, part of the Quantity class in the canonical model) based upon this amount to be used for the actual order and subsequent messages.">;
+	cashOrderQuantity number (0..1) <"Specifies the approximate order quantity desired in total monetary units vs. as tradeable units (e.g. number of shares). The broker or fund manager (for CIV orders) would be responsible for converting and calculating a tradeable unit (e.g. share) quantity (FIX OrderQty (38) attribute, part of the Quantity class in the canonical model) based upon this amount to be used for the actual order and subsequent messages.">;
 		[synonym FIX value CashOrderQty tag 152]
 	orderType OrderTypeEnum (1..1) <"The type of order (e.g. limit, market), as specified by an enumeration.">;
 		[synonym FIX value OrdType tag 40]
 	solicitedFlag boolean (0..1) <"Indicates whether or not the order was solicited.">;
 		[synonym FIX value SolicitedFlag tag 377]
-	stopPrice bigDecimal (0..1) <"The top price, per unit of quantity.">;
+	stopPrice number (0..1) <"The top price, per unit of quantity.">;
 		[synonym FIX value StopPx tag 99]
 	timeInForce TimeInForceEnum (0..1) <"Specifies how long the order remains in effect. According to FIX, absence of this field is interpreted as DAY, while it is not applicable to Collective Investment Vehicles (CIV) Orders.">;
 		[synonym FIX value TimeInForce tag 59]

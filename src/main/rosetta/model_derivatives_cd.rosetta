@@ -104,7 +104,7 @@ class CashSettlementTerms stereotype contractualProduct <"In FpML, PhysicalSettl
 		[synonym FpML value cashSettlementBusinessDays]
 	cashSettlementAmount Money (0..1) <"The amount paid by the seller to the buyer for cash settlement on the cash settlement date. If not otherwise specified, would typically be calculated as 100 (or the Reference Price) minus the price of the Reference Obligation (all expressed as a percentage) times Floating Rate Payer Calculation Amount. ISDA 2003 Term: Cash Settlement Amount.">;
 		[synonym FpML value cashSettlementAmount]
-	recoveryFactor bigDecimal (0..1) <"Used for fixed recovery, specifies the recovery level, determined at contract inception, to be applied on a default. Used to calculate the amount paid by the seller to the buyer for cash settlement on the cash settlement date. Amount calculation is (1 minus the Recovery Factor) multiplied by the Floating Rate Payer Calculation Amount. The currency will be derived from the Floating Rate Payer Calculation Amount.">;
+	recoveryFactor number (0..1) <"Used for fixed recovery, specifies the recovery level, determined at contract inception, to be applied on a default. Used to calculate the amount paid by the seller to the buyer for cash settlement on the cash settlement date. Amount calculation is (1 minus the Recovery Factor) multiplied by the Floating Rate Payer Calculation Amount. The currency will be derived from the Floating Rate Payer Calculation Amount.">;
 		[synonym FpML value recoveryFactor]
 	fixedSettlement boolean (0..1) <"Used for Recovery Lock, to indicate whether fixed Settlement is Applicable or Not Applicable. If Buyer fails to deliver an effective Notice of Physical Settlement on or before the Buyer NOPS Cut-off Date, and If Seller fails to deliver an effective Seller NOPS on or before the Seller NOPS Cut-off Date, then either: (a) if Fixed Settlement is specified in the related Confirmation as not applicable, then the Seller NOPS Cut-off Date shall be the Termination Date; or (b) if Fixed Settlement is specified in the related Confirmation as applicable, then: (i) if the Fixed Settlement Amount is a positive number, Seller shall, subject to Section 3.1 (except for the requirement of satisfaction of the Notice of Physical Settlement Condition to Settlement), pay the Fixed Settlement Amount to Buyer on the Fixed Settlement Payment Date; and (ii) if the Fixed Settlement Amount is a negative number, Buyer shall, subject to Section 3.1 (except for the requirement of satisfaction of the Notice of Physical Settlement Condition to Settlement), pay the absolute value of the Fixed Settlement Amount to Seller on the Fixed Settlement Payment Date.">;
 		[synonym FpML value fixedSettlement]
@@ -201,9 +201,9 @@ class CreditDefaultSwapOption extends OptionBaseExtended stereotype contractualP
 class CreditOptionStrike stereotype contractualProduct one of <"A class to specify the strike of a credit swaption or a credit default swap option.">
 	[synonym FpML value CreditOptionStrike]
 {
-	spread bigDecimal (0..1) <"The strike of a credit default swap option or credit swaption when expressed as a spread per annum.">;
+	spread number (0..1) <"The strike of a credit default swap option or credit swaption when expressed as a spread per annum.">;
 		[synonym FpML value spread]
-	price bigDecimal (0..1) <"The strike of a credit default swap option or credit swaption when expressed as in reference to the price of the underlying obligation(s) or index.">;
+	price number (0..1) <"The strike of a credit default swap option or credit swaption when expressed as in reference to the price of the underlying obligation(s) or index.">;
 		[synonym FpML value price]
 	/*
 	 * This referencing is based upon the cd-swaption-1; needs to confirm that there is no other example.
@@ -310,13 +310,13 @@ class FeeLeg stereotype contractualProduct
 		[synonym FpML value periodicPayment]
 	singlePayment SinglePayment (0..1) <"Specifies a single fixed amount that is payable by the buyer to the seller on the fixed rate payer payment date. The fixed amount to be paid is specified in terms of a known currency amount.">;
 		[synonym FpML value singlePayment]
-	marketFixedRate bigDecimal (0..1) <"An optional element that only has meaning in a credit index trade. This element contains the credit spread ('fair value') at which the trade was executed. Unlike the fixedRate of an index, the marketFixedRate varies over the life of the index depending on market conditions. The marketFixedRate is the price of the index as quoted by trading desks.">;
+	marketFixedRate number (0..1) <"An optional element that only has meaning in a credit index trade. This element contains the credit spread ('fair value') at which the trade was executed. Unlike the fixedRate of an index, the marketFixedRate varies over the life of the index depending on market conditions. The marketFixedRate is the price of the index as quoted by trading desks.">;
 		[synonym FpML value marketFixedRate]
 	paymentDelay boolean (0..1) <"Applicable to CDS on MBS to specify whether payment delays are applicable to the fixed Amount. RMBS typically have a payment delay of 5 days between the coupon date of the reference obligation and the payment date of the synthetic swap. CMBS do not, on the other hand, with both payment dates being on the 25th of each month.">;
 		[synonym FpML value paymentDelay]
-	initialPoints bigDecimal (0..1) <"An optional element that contains the up-front points expressed as a percentage of the notional. An initialPoints value of 5% would be represented as 0.05. The initialPoints element is an alternative to marketFixedRate in quoting the traded level of a trade. When initialPoints is used, the traded level is the sum of fixedRate and initialPoints. The initialPoints is one of the items that are factored into the initialPayment calculation and is payable by the Buyer to the Seller. Note that initialPoints and marketFixedRate may both be present in the same document when both implied values are desired.">;
+	initialPoints number (0..1) <"An optional element that contains the up-front points expressed as a percentage of the notional. An initialPoints value of 5% would be represented as 0.05. The initialPoints element is an alternative to marketFixedRate in quoting the traded level of a trade. When initialPoints is used, the traded level is the sum of fixedRate and initialPoints. The initialPoints is one of the items that are factored into the initialPayment calculation and is payable by the Buyer to the Seller. Note that initialPoints and marketFixedRate may both be present in the same document when both implied values are desired.">;
 		[synonym FpML value initialPoints]
-	marketPrice bigDecimal (0..1) <"An optional element that only has meaning in a credit index trade. This element contains the price at which the trade was executed and is used instead of marketFixedRate on credit trades on certain indicies which are quoted using a price rather than a spread.">;
+	marketPrice number (0..1) <"An optional element that only has meaning in a credit index trade. This element contains the price at which the trade was executed and is used instead of marketFixedRate on credit trades on certain indicies which are quoted using a price rather than a spread.">;
 		[synonym FpML value marketPrice]
 	quotationStyle QuotationStyleEnum (0..1) <"The type of quotation that was used between the trading desks. The purpose of this element is to indicate the actual quotation style that was used to quote this trade which may not be apparent when both marketFixedRate and initialPoints are included in the document. When quotationStyle is ‘PointsUpFront’, the initialPoints element should be populated. When quotationStyle is ‘TradedSpread’, the marketFixedRate element should be populated.">;
 		[synonym FpML value quotationStyle]
@@ -345,7 +345,7 @@ class FixedAmountCalculation stereotype contractualProduct
 		[synonym FpML value id]
 	calculationAmount CalculationAmount (0..1) <"The notional amount used in the calculation of fixed amounts where an amount is calculated on a formula basis, i.e. fixed amount = fixed rate payer calculation amount x fixed rate x fixed rate day count fraction. ISDA 2003 Term: Fixed Rate Payer Calculation Amount.">;
 		[synonym FpML value calculationAmount]
-	fixedRate bigDecimal (1..1) <"The calculation period fixed rate. A per annum rate, expressed as a decimal. A fixed rate of 5% would be represented as 0.05.  The FpML implementation consists in a FixedRate complex type with a simpleContent of type decimal and and associated Id.">;
+	fixedRate number (1..1) <"The calculation period fixed rate. A per annum rate, expressed as a decimal. A fixed rate of 5% would be represented as 0.05.  The FpML implementation consists in a FixedRate complex type with a simpleContent of type decimal and and associated Id.">;
 		[synonym FpML value fixedRate]
 	dayCountFraction DayCountFractionEnum (0..1) <"The day count fraction. ISDA 2003 Term: Fixed Rate Day Count Fraction.">;
 		[synonym FpML value dayCountFraction]
@@ -731,7 +731,7 @@ class ReferenceInformation stereotype contractualProduct <"A class specifying th
 		[synonym FpML value unknownReferenceObligation]
 	allGuarantees boolean (0..1) <"Indicates whether an obligation of the Reference Entity, guaranteed by the Reference Entity on behalf of a non-Affiliate, is to be considered an Obligation for the purpose of the transaction. It will be considered an obligation if allGuarantees is applicable (true) and not if allGuarantees is inapplicable (false). ISDA 2003 Term: All Guarantees.">;
 		[synonym FpML value allGuarantees]
-	referencePrice bigDecimal (0..1) <"Used to determine (a) for physically settled trades, the Physical Settlement Amount, which equals the Floating Rate Payer Calculation Amount times the Reference Price and (b) for cash settled trades, the Cash Settlement Amount, which equals the greater of (i) the difference between the Reference Price and the Final Price and (ii) zero. ISDA 2003 Term: Reference Price.">;
+	referencePrice number (0..1) <"Used to determine (a) for physically settled trades, the Physical Settlement Amount, which equals the Floating Rate Payer Calculation Amount times the Reference Price and (b) for cash settled trades, the Cash Settlement Amount, which equals the greater of (i) the difference between the Reference Price and the Final Price and (ii) zero. ISDA 2003 Term: Reference Price.">;
 		[synonym FpML value referencePrice]
 	referencePolicy boolean (0..1) <"Applicable to the transactions on mortgage-backed security, which can make use of a reference policy. Presence of the element with value set to 'true' indicates that the reference policy is applicable; absence implies that it is not.">;
 		[synonym FpML value referencePolicy]
@@ -879,9 +879,9 @@ class SpecifiedCurrency stereotype contractualProduct
 class Tranche stereotype contractualProduct <"The class to represent a CDS Tranche.">
 	[synonym FpML value Tranche]
 {
-	attachmentPoint bigDecimal (1..1) <"Lower bound percentage of the loss that the Tranche can endure, expressed as a decimal. An attachment point of 5% would be represented as 0.05. The difference between Attachment and Exhaustion points is called the width of the Tranche.">;
+	attachmentPoint number (1..1) <"Lower bound percentage of the loss that the Tranche can endure, expressed as a decimal. An attachment point of 5% would be represented as 0.05. The difference between Attachment and Exhaustion points is called the width of the Tranche.">;
 		[synonym FpML value attachmentPoint]
-	exhaustionPoint bigDecimal (1..1) <"Upper bound percentage of the loss that the Tranche can endure, expressed as a decimal. An exhaustion point of 5% would be represented as 0.05. The difference between Attachment and Exhaustion points is call the width of the Tranche.">;
+	exhaustionPoint number (1..1) <"Upper bound percentage of the loss that the Tranche can endure, expressed as a decimal. An exhaustion point of 5% would be represented as 0.05. The difference between Attachment and Exhaustion points is call the width of the Tranche.">;
 		[synonym FpML value exhaustionPoint]
 	incurredRecoveryApplicable boolean (0..1) <"Outstanding Swap Notional Amount is defined at any time on any day, as the greater of: (a) Zero; If Incurred Recovery Amount Applicable: (b) The Original Swap Notional Amount minus the sum of all Incurred Loss Amounts and all Incurred Recovery Amounts (if any) determined under this Confirmation at or prior to such time.Incurred Recovery Amount not populated: (b) The Original Swap Notional Amount minus the sum of all Incurred Loss Amounts determined under this Confirmation at or prior to such time.">;
 		[synonym FpML value incurredRecoveryApplicable]
