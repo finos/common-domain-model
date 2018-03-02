@@ -247,14 +247,24 @@ choice rule Order_choice <"FIX provides the ability to specify the approximate o
 
 /*
  * Following discussion with the CDM group held on March 1st, the cardinality associated with the before and after state has been relaxed 
- * in order to accommodate usages that may not require the statement of both of those
+ * in order to accommodate usages that may not require the statement of both of those.
  */
 class PartialTermination extends TransactionEvent  stereotype postExecution <"The partial termination event has a post-execution scope and only applies to contractual products.">
 {
 	before PostExecutionContractState (0..1);
-	after PostExecutionContractState (0..1);
-	change Quantity (1..1);
+	after PostExecutionContractState (1..1);
+	change Quantity (0..1);
 }
+
+/*
+ * We propose to have a validation logic to ensure that sufficient information is present in the event to validate the partial termination
+ * At present, the code generation doesn't support this expression, which is the reason it has been commented out
+ */
+
+//data rule PartialTermination_BeforeQuantity
+//	when PartialTermination exists
+//	then PartialTermination -> before or PartialTermination -> change must exist
+//		or PartialTermination -> before and PartialTermination -> change must exist
 
 /*
  * Examples of validation logic discussed in the CDM group meeting held on March 1st
@@ -264,11 +274,12 @@ class PartialTermination extends TransactionEvent  stereotype postExecution <"Th
 
 data rule PartialTermination_DeltaNotional_NotionalAmount
 	when PartialTermination -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
+		and PartialTermination -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
 	then PartialTermination -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount <
 		PartialTermination -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount
 
 data rule PartialTermination_RemainingNotional_NotionalAmount
-	when PartialTermination -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
+	when PartialTermination -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
 	then PartialTermination -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount > 0
 
 
