@@ -915,56 +915,30 @@ data rule PaymentCalculationPeriod_unadjustedPaymentDate <"FpML validation rule 
 	then PaymentCalculationPeriod -> unadjustedPaymentDate must exist 
 		or PaymentCalculationPeriod -> adjustedPaymentDate must exist
 
-class PaymentDates stereotype contractualProduct <"A class defining parameters used to generate the payment dates schedule, including the specification of early or delayed payments.  Payment dates are determined relative to the calculation period dates or the reset dates.">
-	[synonym FpML value PaymentDates]
-{
-	id string (0..1);
-		[synonym FpML value id]
-	calculationPeriodDates CalculationPeriodDates (0..1) reference <"The FpML implementation specifies the calculationPeriodDatesReference as an href which is meant to point to the swapStream/calculationPeriodDates element. Rosetta explicitly specifies that reference element, while also persists the href reference associated with the FpML document.">;
-		[synonym FpML value calculationPeriodDatesReference]
-	resetDates ResetDates (0..1) reference <"The FpML implementation specifies the resetDatesReference as an href which is meant to point to the swapStream/resetDates element. Rosetta explicitly specifies that reference element, while also persists the href reference associated with the FpML document.">;
-		[synonym FpML value resetDatesReference]
-	valuationDates FxFixingDate (0..1) reference <"The FpML implementation specifies the valuationDatesReference as an href which is implemented for Brazilian-CDI Swaps where it will refer to the settlemementProvision/nonDeliverableSettlement/fxFixingDate structure. Rosetta explicitly specifies that reference element, while also persists the href reference associated with the FpML document.">;
-		[synonym FpML value valuationDatesReference]
-	paymentFrequency Frequency (1..1) <"The frequency at which regular payment dates occur.">;
-		[synonym FpML value paymentFrequency]
-	firstPaymentDate date (0..1) <"The first unadjusted payment date. This day may be subject to adjustment in accordance with any business day convention specified in paymentDatesAdjustments. This element must only be included if there is an initial stub. This date will normally correspond to an unadjusted calculation period start or end date. This is true even if early or delayed payment is specified to be applicable since the actual first payment date will be the specified number of days before or after the applicable adjusted calculation period start or end date with the resulting payment date then being adjusted in accordance with any business day convention specified in paymentDatesAdjustments.">;
-		[synonym FpML value firstPaymentDate]
-	lastRegularPaymentDate date (0..1) <"The last regular unadjusted payment date. This day may be subject to adjustment in accordance with any business day convention specified in paymentDatesAdjustments. This element must only be included if there is a final stub. All calculation periods after this date contribute to the final payment. The final payment is made relative to the final set of calculation periods or the final reset date as the case may be. This date will normally correspond to an unadjusted calculation period start or end date. This is true even if early or delayed payment is specified to be applicable since the actual last regular payment date will be the specified number of days before or after the applicable adjusted calculation period start or end date with the resulting payment date then being adjusted in accordance with any business day convention specified in paymentDatesAdjustments.">;
-		[synonym FpML value lastRegularPaymentDate]
-	payRelativeTo PayRelativeToEnum (1..1) <"Specifies whether the payments occur relative to each adjusted calculation period start date, adjusted calculation period end date or each reset date. The reset date is applicable in the case of certain euro (former French Franc) floating rate indices. Calculation period start date means relative to the start of the first calculation period contributing to a given payment. Similarly, calculation period end date means the end of the last calculation period contributing to a given payment.The valuation date is applicable for Brazilian-CDI swaps.">;
-		[synonym FpML value payRelativeTo]
-	paymentDaysOffset Offset (0..1) <"If early payment or delayed payment is required, specifies the number of days offset that the payment occurs relative to what would otherwise be the unadjusted payment date. The offset can be specified in terms of either calendar or business days. Even in the case of a calendar days offset, the resulting payment date, adjusted for the specified calendar days offset, will still be adjusted in accordance with the specified payment dates adjustments. This element should only be included if early or delayed payment is applicable, i.e. if the periodMultiplier element value is not equal to zero. An early payment would be indicated by a negative periodMultiplier element value and a delayed payment (or payment lag) would be indicated by a positive periodMultiplier element value.">;
-		[synonym FpML value paymentDaysOffset]
-	paymentDatesAdjustments BusinessDayAdjustments (1..1) <"The business day convention to apply to each payment date if it would otherwise fall on a day that is not a business day in the specified financial business centers.">;
-		[synonym FpML value paymentDatesAdjustments]
-}
-
-choice rule PaymentDates_choice <"Choice rule to represent an FpML choice construct.">
-	for PaymentDates required choice between
-	calculationPeriodDates and resetDates and valuationDates
-
-data rule PaymentDates_firstPaymentDate <"FpML validation rule ird-6 - Context: InterestRateStream (complex type). If paymentDates/firstPaymentDate exists, and if calculationPeriodDates/effectiveDate exists, then paymentDates/firstPaymentDate must be after calculationPeriodDates/effectiveDate/unadjustedDate.">
-	when InterestRateStream -> paymentDates -> firstPaymentDate exists 
-		and InterestRateStream -> calculationPeriodDates -> effectiveDate exists
-	then InterestRateStream -> paymentDates -> firstPaymentDate > InterestRateStream -> calculationPeriodDates -> effectiveDate -> unadjustedDate
-
-data rule PaymentDates_firstPaymentDate_lastRegularPaymentDate <"FpML validation rule ird-35 - Context: PaymentDates (complex type). If firstPaymentDate exists, and if lastRegularPaymentDate exists, then firstPaymentDate must be before lastRegularPaymentDate.">
-	when PaymentDates -> firstPaymentDate exists 
-		and PaymentDates -> lastRegularPaymentDate exists
-	then PaymentDates -> firstPaymentDate < PaymentDates -> lastRegularPaymentDate
-
-data rule PaymentDates_firstPaymentDate_initialStub <"FpML specifies that firstPaymentDate must only be included if there is an initial stub.">
-	when InterestRateStream -> stubCalculationPeriodAmount -> initialStub is absent
-	then InterestRateStream -> paymentDates -> firstPaymentDate must be absent 
-
-data rule PaymentDates_lastRegularPaymentDate_finalStub <"FpML specifies that lastRegularPaymentDate must only be included if there is an final stub.">
-	when InterestRateStream -> stubCalculationPeriodAmount -> finalStub is absent
-	then InterestRateStream -> paymentDates -> lastRegularPaymentDate must be absent
-	
-data rule PaymentDates_paymentDaysOffset <"FpML specifies that paymentDaysOffset should only be included if early or delayed payment is applicable, i.e. if the periodMultiplier element value is not equal to zero.">
-	when PaymentDates -> paymentDaysOffset exists
-	then PaymentDates -> paymentDaysOffset -> periodMultiplier <> 0
+//class PaymentDates stereotype contractualProduct <"A class defining parameters used to generate the payment dates schedule, including the specification of early or delayed payments.  Payment dates are determined relative to the calculation period dates or the reset dates.">
+//	[synonym FpML value PaymentDates]
+//{
+//	id string (0..1);
+//		[synonym FpML value id]
+//	calculationPeriodDates CalculationPeriodDates (0..1) reference <"The FpML implementation specifies the calculationPeriodDatesReference as an href which is meant to point to the swapStream/calculationPeriodDates element. Rosetta explicitly specifies that reference element, while also persists the href reference associated with the FpML document.">;
+//		[synonym FpML value calculationPeriodDatesReference]
+//	resetDates ResetDates (0..1) reference <"The FpML implementation specifies the resetDatesReference as an href which is meant to point to the swapStream/resetDates element. Rosetta explicitly specifies that reference element, while also persists the href reference associated with the FpML document.">;
+//		[synonym FpML value resetDatesReference]
+//	valuationDates FxFixingDate (0..1) reference <"The FpML implementation specifies the valuationDatesReference as an href which is implemented for Brazilian-CDI Swaps where it will refer to the settlemementProvision/nonDeliverableSettlement/fxFixingDate structure. Rosetta explicitly specifies that reference element, while also persists the href reference associated with the FpML document.">;
+//		[synonym FpML value valuationDatesReference]
+//	paymentFrequency Frequency (1..1) <"The frequency at which regular payment dates occur.">;
+//		[synonym FpML value paymentFrequency]
+//	firstPaymentDate date (0..1) <"The first unadjusted payment date. This day may be subject to adjustment in accordance with any business day convention specified in paymentDatesAdjustments. This element must only be included if there is an initial stub. This date will normally correspond to an unadjusted calculation period start or end date. This is true even if early or delayed payment is specified to be applicable since the actual first payment date will be the specified number of days before or after the applicable adjusted calculation period start or end date with the resulting payment date then being adjusted in accordance with any business day convention specified in paymentDatesAdjustments.">;
+//		[synonym FpML value firstPaymentDate]
+//	lastRegularPaymentDate date (0..1) <"The last regular unadjusted payment date. This day may be subject to adjustment in accordance with any business day convention specified in paymentDatesAdjustments. This element must only be included if there is a final stub. All calculation periods after this date contribute to the final payment. The final payment is made relative to the final set of calculation periods or the final reset date as the case may be. This date will normally correspond to an unadjusted calculation period start or end date. This is true even if early or delayed payment is specified to be applicable since the actual last regular payment date will be the specified number of days before or after the applicable adjusted calculation period start or end date with the resulting payment date then being adjusted in accordance with any business day convention specified in paymentDatesAdjustments.">;
+//		[synonym FpML value lastRegularPaymentDate]
+//	payRelativeTo PayRelativeToEnum (1..1) <"Specifies whether the payments occur relative to each adjusted calculation period start date, adjusted calculation period end date or each reset date. The reset date is applicable in the case of certain euro (former French Franc) floating rate indices. Calculation period start date means relative to the start of the first calculation period contributing to a given payment. Similarly, calculation period end date means the end of the last calculation period contributing to a given payment.The valuation date is applicable for Brazilian-CDI swaps.">;
+//		[synonym FpML value payRelativeTo]
+//	paymentDaysOffset Offset (0..1) <"If early payment or delayed payment is required, specifies the number of days offset that the payment occurs relative to what would otherwise be the unadjusted payment date. The offset can be specified in terms of either calendar or business days. Even in the case of a calendar days offset, the resulting payment date, adjusted for the specified calendar days offset, will still be adjusted in accordance with the specified payment dates adjustments. This element should only be included if early or delayed payment is applicable, i.e. if the periodMultiplier element value is not equal to zero. An early payment would be indicated by a negative periodMultiplier element value and a delayed payment (or payment lag) would be indicated by a positive periodMultiplier element value.">;
+//		[synonym FpML value paymentDaysOffset]
+//	paymentDatesAdjustments BusinessDayAdjustments (1..1) <"The business day convention to apply to each payment date if it would otherwise fall on a day that is not a business day in the specified financial business centers.">;
+//		[synonym FpML value paymentDatesAdjustments]
+//}
 
 class PriceSourceDisruption stereotype contractualProduct <"A class defining the parameters used to get a price quote to replace the settlement rate option that is disrupted.">
 	[synonym FpML value PriceSourceDisruption]
