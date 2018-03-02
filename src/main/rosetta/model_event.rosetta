@@ -245,20 +245,43 @@ choice rule Order_choice <"FIX provides the ability to specify the approximate o
 	for Order required choice between
 	quantity and cashOrderQuantity
 
+/*
+ * Following discussion with the CDM group held on March 1st, the cardinality associated with the before and after state has been relaxed 
+ * in order to accommodate usages that may not require the statement of both of those.
+ */
 class PartialTermination extends TransactionEvent  stereotype postExecution <"The partial termination event has a post-execution scope and only applies to contractual products.">
 {
-	before PostExecutionContractState (1..1);
+	before PostExecutionContractState (0..1);
 	after PostExecutionContractState (1..1);
-	change Quantity (1..1);
+	change Quantity (0..1);
 }
 
-data rule PartialTermination_Contract_before <"The contractState before a partial termination event is 'open'.">
-	when PartialTermination exists
-	then PartialTermination -> before -> contract -> contractState = ContractStateEnum.open
+/*
+ * We propose to have a validation logic to ensure that sufficient information is present in the event to validate the partial termination
+ * At present, the code generation doesn't support this expression, which is the reason it has been commented out
+ */
 
-data rule PartialTermination_Contract_after <"The contractState after a partial termination event is 'open'.">
-	when PartialTermination exists
-	then PartialTermination -> after -> contract -> contractState = ContractStateEnum.open
+//data rule PartialTermination_BeforeQuantity
+//	when PartialTermination exists
+//	then PartialTermination -> before or PartialTermination -> change must exist
+//		or PartialTermination -> before and PartialTermination -> change must exist
+
+/*
+ * Examples of validation logic discussed in the CDM group meeting held on March 1st
+ * If we agree on the value, we should look to think as how how to make it more legible (e.g. aliases)
+ * as well as more scalable (5 ways to express a contractual quantity)
+ */
+
+data rule PartialTermination_DeltaNotional_NotionalAmount
+	when PartialTermination -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
+		and PartialTermination -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
+	then PartialTermination -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount <
+		PartialTermination -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount
+
+data rule PartialTermination_RemainingNotional_NotionalAmount
+	when PartialTermination -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
+	then PartialTermination -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount > 0
+
 
 class PortfolioCompression extends TransactionEvent stereotype postExecution <"The portfolio compression event has a post-execution scope and only applies to contractual products.">
 {
@@ -284,11 +307,20 @@ choice rule PostExecutionState_choice
 	for PostExecutionState required choice between
 	listedProduct and contract and packageTransaction
 
+/*
+ * Following discussion with the CDM group held on March 1st, the event model provides the ability to either
+ * point to a contract reference (represented by a contractId/versionNumber) or specify the contract terms.
+ */
 class PostExecutionContractState stereotype postExecution <"A class to represent a post-execution contract state, with an optional payment component.">
 {
-	contract Contract (1..1);
+	contract Contract (0..1);
+	contractReference TradeIdentifier (0..1);
 	fee Payment (0..*);
 }
+
+choice rule PostExecutionContractState_choice
+	for PostExecutionContractState required choice between
+	contract and contractReference
 
 class PreExecuted stereotype preExecution one of <"The set of products applicable to pre-execution activity.">
 {
