@@ -138,8 +138,8 @@ root class Events one of <"The entry point for all financial transactions.">
 	requestForQuote RequestForQuote (0..1);
 		[synonym FIX value MsgType."R"]
 	quote Quote (0..1);
-		[synonym FIX value MsgType."S" set quote and quote -> action to ActionEnum.new]
-		[synonym FIX value MsgType."Z" set quote and quote -> action to ActionEnum.cancel]
+		[synonym FIX value MsgType."S" set quote -> action to ActionEnum.new]
+		[synonym FIX value MsgType."Z" set quote -> action to ActionEnum.cancel]
 	order Order (0..1);
 		[synonym FIX value MsgType."D"]
 		[synonym FpML value orderReport] // Need to confirm fit, as the purpose of the FpML orderReport message is not completely clear
@@ -275,7 +275,7 @@ class PartialTermination extends TransactionEvent  stereotype postExecution <"Th
 data rule PartialTermination_DeltaNotional_NotionalAmount
 	when PartialTermination -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
 		and PartialTermination -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
-	then PartialTermination -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount <
+	then PartialTermination -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount >
 		PartialTermination -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount
 
 data rule PartialTermination_RemainingNotional_NotionalAmount
