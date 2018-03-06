@@ -737,32 +737,32 @@ data rule PayerParty_ReceiverParty <"FpML validation rule ird-8 - Context: Inter
 projection rule BuyerSeller_IRS <"MiFIR requires that the parties to a financial transaction always be identified as a buyer/seller.  To this effect, it specifies a set of logic in the case when this differs from standard market practice.">
 	[regulatoryReference ESMA_MiFIR specification "2016-ITMG-66 - Annex 1 Validation Rules" field "7" provision "The Buyer identification code is the code used to identify the acquirer of the financial instrument. (...) In the case of swaps related to interest rates or inflation indices, the buyer shall be the counterparty paying the fixed rate. The seller shall be the counterparty receiving the fixed rate. In case of basis swaps (float-to-float interest rate swaps), the buyer shall be the counterparty that pays the spread and the seller the counterparty that receives the spread."]
 	for target ISO_20022
-		when alias FixFloatSwap exists {
-			when alias SwapFixStream exists (
+		when FixFloatSwap exists {
+			when SwapFixStream exists (
 				map InterestRateStream -> payerParty to synonym Buyr
 				map InterestRateStream -> receiverParty to synonym Sellr
 				) 
-			when alias SwapFloatStream exists (
+			when SwapFloatStream exists (
 				map InterestRateStream -> payerParty to synonym Sellr
 				map InterestRateStream -> receiverParty to synonym Buyr
 				)
 			}
-		when alias InflationSwap exists {
-			when alias SwapFixStream exists (
+		when InflationSwap exists {
+			when SwapFixStream exists (
 				map InterestRateStream -> payerParty to synonym Buyr
 				map InterestRateStream -> receiverParty to synonym Sellr
 				) 
-			when alias SwapInflationStream exists (
+			when SwapInflationStream exists (
 				map InterestRateStream -> payerParty to synonym Sellr
 				map InterestRateStream -> receiverParty to synonym Buyr
 				)
 			}
-		when alias BasisSwap exists {
-			when alias SwapSpread exists (
+		when BasisSwap exists {
+			when SwapSpread exists (
 				map InterestRateStream -> payerParty to synonym Buyr
 				map InterestRateStream -> receiverParty to synonym Sellr
 				)
-			when alias SwapSpread is absent (
+			when SwapSpread is absent (
 				map InterestRateStream -> payerParty to synonym Sellr
 				map InterestRateStream -> receiverParty to synonym Buyr
 				)
