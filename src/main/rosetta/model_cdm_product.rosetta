@@ -149,7 +149,8 @@ isProduct InterestRate_IRSwap_FixedFloat_PlainVanilla
 
 /*
  * QUESTION TO CDM GROUP
- * TODO Need to confirm that a we should characterise the OIS swaps as a function of the floating rates which have an OIS Style in the list of scheme values
+ * Need to confirm that a we should characterise the OIS swaps as a function of the floating rates which have an OIS Style in the list of scheme values
+ * TODO Once confirmed adjust the Xtext grammar to support enumeration styles
  */
 isProduct InterestRate_IRSwap_FixedFloat_OIS
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFloat] // The v1 taxonomy doesn't have this v2 level of detail
@@ -165,14 +166,13 @@ isProduct InterestRate_IRSwap_Basis_OIS
 	
 /*
  * QUESTION TO CDM GROUP
- * TODO Need to confirm that a YOY inflation swap is characterised by a specific set of inflation index values.
- * If yes, what is the full set of those values?
+ * TODO Need to confirm that a YOY inflation swap is characterised an annual payment periodicity.
  */
 isProduct InterestRate_InflationSwap_FixedFloat_YearOn_Year
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation] // The v1 taxonomy doesn't have this v2 level of detail
 	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate exists
-	and ( EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate -> floatingRateIndex = FloatingRateIndexEnum.USA_CPI_U
-		or EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate -> floatingRateIndex = FloatingRateIndexEnum.UK_RPIX )
+	and 	EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
+	and 	EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.Y
 
 isProduct InterestRate_InflationSwap_FixedFloat_ZeroCoupon
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation] // The v1 taxonomy doesn't have this v2 level of detail
@@ -184,8 +184,8 @@ isProduct InterestRate_InflationSwap_FixedFloat_ZeroCoupon
 isProduct InterestRate_InflationSwap_Basis_YearOn_Year
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation] // The v1 taxonomy doesn't have this v2 level of detail
 	EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate exists
-	and ( EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate -> floatingRateIndex = FloatingRateIndexEnum.USA_CPI_U
-		or EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate -> floatingRateIndex = FloatingRateIndexEnum.UK_RPIX )
+	and 	EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
+	and 	EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.Y
 
 isProduct InterestRate_InflationSwap_Basis_ZeroCoupon
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation] // The v1 taxonomy doesn't have this v2 level of detail
@@ -399,7 +399,7 @@ class Confirmation // Confirmation is a new proposed model component, aimed at p
 }
 
 data rule Confirmation_otherConfirmationComponents
-	when Confirmation -> isConfirmed = True
+	when Confirmation -> multiComponentsConfirmation = True
 	then Confirmation -> otherConfirmationComponents must exist
 
 class ProtectionTerms // Adjusted from the FpML construct by replacing calculationAmount, a.k.a. notional.
