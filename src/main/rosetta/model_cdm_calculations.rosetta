@@ -8,9 +8,7 @@ calculation FixedAmount <"2006 ISDA Definition Article 4 Section 4.4 'Fixed Amou
 	currencyAmount CurrencyEnum: currencyAmount
 }
 
-arguments FixedAmount <"2006 ISDA Definition Article 4 Section 4.8. Calculation Amount. 'Calculation Amount' means, in respect of a Swap Transaction and a party, the applicable Notional Amount or Currency Amount, as the case may be.
-Section 4.6. 'Currency Amount' means, in respect of a party and any Calculation Period for a Swap Transaction involving more than one currency, the amount specified as such for the Swap Transaction or that party.
-">
+arguments FixedAmount <"2006 ISDA Definition Article 4 Section 4.8. Calculation Amount. 'Calculation Amount' means, in respect of a Swap Transaction and a party, the applicable Notional Amount or Currency Amount, as the case may be. Section 4.6. 'Currency Amount' means, in respect of a party and any Calculation Period for a Swap Transaction involving more than one currency, the amount specified as such for the Swap Transaction or that party.">
 {
 	calculationAmount: is EconomicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue	
 	currencyAmount: is EconomicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> currency
@@ -23,17 +21,10 @@ calculation DayCountFractionEnum_30E_360 <"2006 ISDA Definition Article 4 sectio
 	number: (360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
 }
 
-arguments DayCountFractionEnum_30E_360 <"2006 ISDA Definition Article 4 section 4.16(g)
-'Y1' is the year, expressed as a number, in which the first day of the Calculation Period or Compounding Period falls;
-'Y2' is the year, expressed as a number, in which the day immediately following the last day included in the Calculation Period or Compounding Period falls;
-'M1' is the calendar month, expressed as a number, in which the first day of the Calculation Period or Compounding Period falls;
-'M2' is the calendar month, expressed as a number, in which the day immediately following the last day included in the Calculation Period or Compounding Period falls;
-'D1' is the first calendar day, expressed as a number, of the Calculation Period or Compounding Period, unless such number would be 31, in which case D1 will be 30; and
-'D2' is the calendar day, expressed as a number, immediately following the last day included in the Calculation Period or Compounding Period, unless such number would be 31, in which case D2 will be 30.">
+arguments DayCountFractionEnum_30E_360 <"2006 ISDA Definition Article 4 section 4.16(g). 'Y1' is the year, expressed as a number, in which the first day of the Calculation Period or Compounding Period falls; 'Y2' is the year, expressed as a number, in which the day immediately following the last day included in the Calculation Period or Compounding Period falls; 'M1' is the calendar month, expressed as a number, in which the first day of the Calculation Period or Compounding Period falls; 'M2' is the calendar month, expressed as a number, in which the day immediately following the last day included in the Calculation Period or Compounding Period falls; 'D1' is the first calendar day, expressed as a number, of the Calculation Period or Compounding Period, unless such number would be 31, in which case D1 will be 30; and 'D2' is the calendar day, expressed as a number, immediately following the last day included in the Calculation Period or Compounding Period, unless such number would be 31, in which case D2 will be 30.">
 {
 	alias period CalculationPeriod(EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates)
 	
-	//TODO fix this so we can pick 
 	endYear : is period -> endDate -> year
 	startYear : is period -> startDate -> year
 	endMonth : is period -> endDate -> month
@@ -46,7 +37,7 @@ arguments DayCountFractionEnum_30E_360 <"2006 ISDA Definition Article 4 section 
  * This is a externally defined function.
  * This defines a function that returns a start date and end date given a calculationPeriodDates instance from the model via 'arguments CalculationPeriod.
  */
-function CalculationPeriod (payout Payout) <"2006 ISDA Definition Section 4.13. 'Calculation Period' means, in respect of a Swap Transaction and a party, each period from, and including, one Period End Date of that party to, but excluding, the next following applicable Period End Date during the Term of the Swap Transaction, except that (a) the initial Calculation Period for the party will commence on, and include, the Effective Date and (b) the final Calculation Period for the party will end on, but exclude, the Termination Date."> 
+function CalculationPeriod (dates CalculationPeriodDates) <"2006 ISDA Definition Section 4.13. 'Calculation Period' means, in respect of a Swap Transaction and a party, each period from, and including, one Period End Date of that party to, but excluding, the next following applicable Period End Date during the Term of the Swap Transaction, except that (a) the initial Calculation Period for the party will commence on, and include, the Effective Date and (b) the final Calculation Period for the party will end on, but exclude, the Termination Date."> 
 {
 	startDate date;
 	endDate date;
