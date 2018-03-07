@@ -1,0 +1,105 @@
+Rosetta versionNumber "0.0.1"
+FIX versionNumber "5.0 SP3"
+FpML versionNumber "5.10"
+
+class CompositeEvent extends Event
+{
+	intent IntentEnum (0..1);
+}
+
+enum IntentEnum
+{
+	partialTermination,
+	correction,
+	renegotiation,
+	termination,
+	earlyTermination
+}
+
+class ContractState one of
+{
+	contract Contract (0..1);
+	contractReference TradeIdentifier (0..1);
+}
+
+class EventBase extends CompositeEvent
+{
+	quantityChange QuantityChange (0..*);
+	partyChange PartyChange (0..*);
+	otherTermsChange OtherTermsChange (0..1);
+	fee Payment (0..*);
+}
+
+choice rule EventBase_choice
+	for EventBase required choice between
+	quantityChange and partyChange and otherTermsChange
+
+class QuantityChange
+{
+	before ContractState (0..1);
+	after ContractState (1..1);
+	quantityChange ContractualQuantity (1..1);
+}
+
+class PartyChange
+{
+	before ContractState (0..1);
+	after ContractState (1..1);
+	priorParties Party (2..2);
+	newParties Party (2..2);
+}
+
+class OtherTermsChange
+{
+	before ContractState (0..1);
+	after ContractState (1..1);
+}
+
+data rule NotionalAmount_Decrease
+	when EventBase -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
+	then EventBase -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount >
+		EventBase -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount
+
+data rule Quantity_Decrease
+	when EventBase -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity  -> quantity exists
+	then EventBase -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity >
+		EventBase -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity
+
+data rule NotionalAmount_Remaining
+	when EventBase -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
+	then EventBase -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount > 0
+
+data rule Quantity_Remaining
+	when EventBase -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity exists
+	then EventBase -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity -> amount > 0
+
+data rule NotionalAmount_Null
+	when EventBase -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
+	then EventBase -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount = 0
+
+data rule EarlyTermination_InterestPayout_TerminationDate
+	when EventBase -> otherTermsChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout exists
+	then EventBase -> otherTermsChange ->  before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate >
+		EventBase -> otherTermsChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate 
+
+isEvent PartialTermination
+	EventBase -> quantityChange exists
+	and ( EventBase -> intent = IntentEnum.partialTermination
+		or EventBase -> intent <> IntentEnum.correction
+		or EventBase -> intent <> IntentEnum.renegotiation ) // Could we have situations where the agreement between parties doesn't allow for partial termination?
+	and NotionalAmount_Decrease, NotionalAmount_Remaining apply
+	/*
+	 * Should we look to adjust the above to provide for the intent not to exist?
+	 *      when EventBase -> intent exists 
+	 * 		EventBase -> intent = IntentEnum.partialTermination
+	 * 			or EventBase -> intent <> IntentEnum.correction
+	 *			or EventBase -> intent <> IntentEnum.renegotiation
+	 * If yes, we need a defaulting logic
+	 */
+
+isEvent EarlyTermination
+	EventBase -> otherTermsChange exists
+	and EventBase -> otherTermsChange -> before -> contract -> contractualProduct -> economicTerms -> earlyTerminationProvision exists
+	and EarlyTermination_InterestPayout_TerminationDate apply
+		
+	
