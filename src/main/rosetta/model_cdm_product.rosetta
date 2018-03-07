@@ -216,31 +216,32 @@ class EconomicTerms calculation FixedAmount
 class Payout
 {
 	interestRatePayout InterestRatePayout (0..*);
+		[synonym FpML value swapStream pathExpression "trade.swap"]
 	creditDefaultPayout CreditDefaultPayout (0..1);
 }
 
 class InterestRatePayout
 {
 	payerParty Party (1..1) reference;
-		[synonym FpML value payerPartyReference pathExpression "trade.swap.swapStream"]
+		[synonym FpML value payerPartyReference]
 	receiverParty Party (1..1) reference;
-		[synonym FpML value receiverPartyReference pathExpression "trade.swap.swapStream"]
+		[synonym FpML value receiverPartyReference]
 	quantity ContractualQuantity (1..1);
 	interestRate InterestRate (0..1);
 	dayCountFraction DayCountFractionEnum (1..1);
-		[synonym FpML value dayCountFraction pathExpression "trade.swap.swapStream.calculationPeriodAmount.calculation"]
+		[synonym FpML value dayCountFraction pathExpression "calculationPeriodAmount.calculation"]
 		[synonym FpML value dayCountFraction pathExpression "trade.creditDefaultSwap.feeLeg.periodicPayment.fixedAmountCalculation"]
 		[synonym FpML value dayCountFraction pathExpression "trade.creditDefaultSwap.feeLeg.periodicPayment.floatingAmountCalculation"]
 	discounting Discounting (0..1);
-		[synonym FpML value discounting pathExpression "trade.swap.swapStream.calculationPeriodAmount.calculation"]
+		[synonym FpML value discounting pathExpression "calculationPeriodAmount.calculation"]
 	compoundingMethod CompoundingMethodEnum (0..1);
-		[synonym FpML value compoundingMethod pathExpression "trade.swap.swapStream.calculationPeriodAmount.calculation"]
+		[synonym FpML value compoundingMethod pathExpression "calculationPeriodAmount.calculation"]
 	calculationPeriodDates CalculationPeriodDates (1..1);
-		[synonym FpML value calculationPeriodDates pathExpression "trade.swap.swapStream"]
+		[synonym FpML value calculationPeriodDates]
 	paymentDates PaymentDates (1..1);
-		[synonym FpML value paymentDates pathExpression "trade.swap.swapStream"]
+		[synonym FpML value paymentDates]
 	resetDates ResetDates (1..1);
-		[synonym FpML value resetDates pathExpression "trade.swap.swapStream"]
+		[synonym FpML value resetDates]
 	crossCurrencyTerms CrossCurrencyTerms (0..1); // New construct, that wraps the principleExchanges and settlementProvision terms
 }
 
@@ -258,10 +259,10 @@ class ContractualQuantity
 	notionalAmount Money (0..1); // This is applicable to the CDS (among others)
 		[synonym FpML value calculationAmount pathExpression "trade.creditDefaultSwap.protectionTerms.calculationAmount"]
 	notionalSchedule NotionalSchedule (0..1); // This is applicable to the IRS
-		[synonym FpML value notionalSchedule pathExpression "trade.swap.swapStream.calculationPeriodAmount.calculation"]
+		[synonym FpML value notionalSchedule pathExpression "calculationPeriodAmount.calculation"]
 	fxLinkedNotional FxLinkedNotionalSchedule (0..1);
 	futureValueNotional FutureValueAmount (0..1); // This is applicable to BRL CDI swaps and could exist alongside other (current) notional
-	 	[synonym FpML value futureValueNotional pathExpression "trade.swap.swapStream.calculationPeriodAmount.calculation"]
+	 	[synonym FpML value futureValueNotional pathExpression "calculationPeriodAmount.calculation"]
 }
 
 choice rule ContractualQuantity_choice <"TThe below set of notional values are exclusive, while some of those could be associated with the futureValueNotional.">
@@ -297,11 +298,11 @@ data rule NotionalSchedule_notionalStepSchedule <"FpML validation rule ird-61 - 
 class InterestRate one of
 {
 	fixedRate Schedule (0..1);
-		[synonym FpML value fixedRateSchedule pathExpression "trade.swap.swapStream.calculationPeriodAmount.calculation"]
+		[synonym FpML value fixedRateSchedule pathExpression "calculationPeriodAmount.calculation"]
 	floatingRate FloatingRateCalculation (0..1);
-		[synonym FpML value floatingRateCalculation pathExpression "trade.swap.swapStream.calculationPeriodAmount.calculation"]
+		[synonym FpML value floatingRateCalculation pathExpression "calculationPeriodAmount.calculation"]
 	inflationRate InflationRateCalculation (0..1);
-		[synonym FpML value inflationRateCalculation pathExpression "trade.swap.swapStream.calculationPeriodAmount.calculation"]
+		[synonym FpML value inflationRateCalculation pathExpression "calculationPeriodAmount.calculation"]
 }
 
 class CreditDefaultPayout
@@ -339,19 +340,19 @@ class PaymentDates // Differences with the FpML PaymentDate include addition of 
 //	resetDates ResetDates (0..1) reference;
 //	valuationDates FxFixingDate (0..1) reference;
 	paymentFrequency Frequency (1..1);
-		[synonym FpML value paymentFrequency pathExpression "trade.swap.swapStream.paymentDates"]
+		[synonym FpML value paymentFrequency]
 	firstPaymentDate date (0..1);
-		[synonym FpML value firstPaymentDate pathExpression "trade.swap.swapStream.paymentDates"]
+		[synonym FpML value firstPaymentDate]
 	lastRegularPaymentDate date (0..1);
-		[synonym FpML value lastRegularPaymentDate pathExpression "trade.swap.swapStream.paymentDates"]
+		[synonym FpML value lastRegularPaymentDate]
 	payRelativeTo PayRelativeToEnum (1..1);
-		[synonym FpML value payRelativeTo pathExpression "trade.swap.swapStream.paymentDates"]
+		[synonym FpML value payRelativeTo]
 	paymentDaysOffset Offset (0..1);
-		[synonym FpML value paymentDaysOffset pathExpression "trade.swap.swapStream.paymentDates"]
+		[synonym FpML value paymentDaysOffset]
 	paymentDatesAdjustments BusinessDayAdjustments (1..1);
-		[synonym FpML value paymentDatesAdjustments pathExpression "trade.swap.swapStream.paymentDates"]
+		[synonym FpML value paymentDatesAdjustments]
 	paymentDelay boolean (0..1);
-		[synonym FpML value paymentDelay pathExpression "trade.swap.swapStream.paymentDates"]
+		[synonym FpML value paymentDelay]
 }
 
 data rule PaymentDates_firstPaymentDate <"FpML validation rule ird-6 - Context: InterestRateStream (complex type). If paymentDates/firstPaymentDate exists, and if calculationPeriodDates/effectiveDate exists, then paymentDates/firstPaymentDate must be after calculationPeriodDates/effectiveDate/unadjustedDate.">
