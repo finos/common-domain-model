@@ -217,6 +217,7 @@ class Payout
 {
 	interestRatePayout InterestRatePayout (0..*);
 		[synonym FpML value swapStream pathExpression "trade.swap"]
+		[synonym FpML value feeLeg pathExpression "trade.creditDefaultSwap"]
 	creditDefaultPayout CreditDefaultPayout (0..1);
 	fee Payment (0..*);
 		[synonym FpML value additionalPayment pathExpression "trade.swap"]
@@ -232,8 +233,8 @@ class InterestRatePayout
 	interestRate InterestRate (0..1);
 	dayCountFraction DayCountFractionEnum (1..1);
 		[synonym FpML value dayCountFraction pathExpression "calculationPeriodAmount.calculation"]
-		[synonym FpML value dayCountFraction pathExpression "trade.creditDefaultSwap.feeLeg.periodicPayment.fixedAmountCalculation"]
-		[synonym FpML value dayCountFraction pathExpression "trade.creditDefaultSwap.feeLeg.periodicPayment.floatingAmountCalculation"]
+		[synonym FpML value dayCountFraction pathExpression "periodicPayment.fixedAmountCalculation"]
+		[synonym FpML value dayCountFraction pathExpression "periodicPayment.floatingAmountCalculation"]
 	discounting Discounting (0..1);
 		[synonym FpML value discounting pathExpression "calculationPeriodAmount.calculation"]
 	compoundingMethod CompoundingMethodEnum (0..1);
@@ -262,7 +263,7 @@ class ContractualQuantity
 	quantity Quantity (0..1);
 	notionalAmount Money (0..1);
 		[synonym FpML value initialValue pathExpression "calculationPeriodAmount.calculation" set notionalAmount when Payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step is absent]
-		[synonym FpML value calculationAmount pathExpression "trade.creditDefaultSwap.protectionTerms.calculationAmount"]
+		[synonym FpML value calculationAmount pathExpression "periodicPayment.fixedAmountCalculation"]
 	notionalSchedule NotionalSchedule (0..1);
 		[synonym FpML value notionalSchedule pathExpression "calculationPeriodAmount.calculation" set notionalSchedule when Payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step exists]
 	fxLinkedNotional FxLinkedNotionalSchedule (0..1);
@@ -313,7 +314,6 @@ class InterestRate one of
 class CreditDefaultPayout
 {
 	generalTerms GeneralTerms (1..1);
-		[synonym FpML value generalTerms pathExpression "trade.creditDefaultSwap"]
 	protectionTerms ProtectionTerms (1..1);
 		[synonym FpML value protectionTerms pathExpression "trade.creditDefaultSwap"]
 	cashSettlementTerms CashSettlementTerms (0..1);
