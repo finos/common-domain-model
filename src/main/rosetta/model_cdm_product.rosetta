@@ -218,6 +218,8 @@ class Payout
 	interestRatePayout InterestRatePayout (0..*);
 		[synonym FpML value swapStream pathExpression "trade.swap"]
 	creditDefaultPayout CreditDefaultPayout (0..1);
+	fee Payment (0..*);
+		[synonym FpML value additionalPayment pathExpression "trade.swap"]
 }
 
 class InterestRatePayout
@@ -242,6 +244,8 @@ class InterestRatePayout
 		[synonym FpML value paymentDates]
 	resetDates ResetDates (1..1);
 		[synonym FpML value resetDates]
+	cashflows Cashflows (0..1) <"The cashflows representation of the swap stream.">;
+		[synonym FpML value cashflows]
 	crossCurrencyTerms CrossCurrencyTerms (0..1); // New construct, that wraps the principleExchanges and settlementProvision terms
 }
 
@@ -255,13 +259,14 @@ data rule InterestRatePayout_quantity
  */
 class ContractualQuantity
 {
-	quantity Quantity (0..1); // This would be applicable to commodity and equity products
-	notionalAmount Money (0..1); // This is applicable to the CDS (among others)
+	quantity Quantity (0..1);
+	notionalAmount Money (0..1);
+		[synonym FpML value initialValue pathExpression "calculationPeriodAmount.calculation" set notionalAmount when Payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step is absent]
 		[synonym FpML value calculationAmount pathExpression "trade.creditDefaultSwap.protectionTerms.calculationAmount"]
-	notionalSchedule NotionalSchedule (0..1); // This is applicable to the IRS
-		[synonym FpML value notionalSchedule pathExpression "calculationPeriodAmount.calculation"]
+	notionalSchedule NotionalSchedule (0..1);
+		[synonym FpML value notionalSchedule pathExpression "calculationPeriodAmount.calculation" set notionalSchedule when Payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step exists]
 	fxLinkedNotional FxLinkedNotionalSchedule (0..1);
-	futureValueNotional FutureValueAmount (0..1); // This is applicable to BRL CDI swaps and could exist alongside other (current) notional
+	futureValueNotional FutureValueAmount (0..1);
 	 	[synonym FpML value futureValueNotional pathExpression "calculationPeriodAmount.calculation"]
 }
 
