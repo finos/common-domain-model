@@ -263,6 +263,7 @@ class ContractualQuantity
 	quantity Quantity (0..1);
 	notionalAmount Money (0..1);
 		[synonym FpML value initialValue pathExpression "calculationPeriodAmount.calculation" set notionalAmount when Payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step is absent]
+		[synonym FpML value calculationAmount pathExpression "protectionTerms"]
 		[synonym FpML value calculationAmount pathExpression "periodicPayment.fixedAmountCalculation"]
 	notionalSchedule NotionalSchedule (0..1);
 		[synonym FpML value notionalSchedule pathExpression "calculationPeriodAmount.calculation" set notionalSchedule when Payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step exists]
@@ -314,6 +315,7 @@ class InterestRate one of
 class CreditDefaultPayout
 {
 	generalTerms GeneralTerms (1..1);
+//		[synonym FpML value generalTerms pathExpression "trade.creditDefaultSwap"]
 	protectionTerms ProtectionTerms (1..1);
 		[synonym FpML value protectionTerms pathExpression "trade.creditDefaultSwap"]
 	cashSettlementTerms CashSettlementTerms (0..1);
@@ -412,23 +414,23 @@ class ProtectionTerms // Adjusted from the FpML construct by replacing calculati
 {
 	quantity ContractualQuantity (1..1);
 	creditEvents CreditEvents (0..1);
-		[synonym FpML value creditEvents pathExpression "trade.creditDefaultSwap.protectionTerms"]
+		[synonym FpML value creditEvents]
 	obligations Obligations (0..1);
-		[synonym FpML value obligations pathExpression "trade.creditDefaultSwap.protectionTerms"]
+		[synonym FpML value obligations]
 	floatingAmountEvents FloatingAmountEvents (0..1);
-		[synonym FpML value floatingAmountEvents pathExpression "trade.creditDefaultSwap.protectionTerms"]
+		[synonym FpML value floatingAmountEvents]
 }
 
 class TransactedPrice // These are the set of transacted price attributes currently positioned as part of the FpML FeeLeg construct.
 {
 	marketFixedRate number (0..1);
-		[synonym FpML value marketFixedRate pathExpression "trade.creditDefaultSwap.feeLeg"]
+		[synonym FpML value marketFixedRate pathExpression "feeLeg"]
 	initialPoints number (0..1);
-		[synonym FpML value initialPoints pathExpression "trade.creditDefaultSwap.feeLeg"]
+		[synonym FpML value initialPoints pathExpression "feeLeg"]
 	marketPrice number (0..1);
-		[synonym FpML value marketPrice pathExpression "trade.creditDefaultSwap.feeLeg"]
+		[synonym FpML value marketPrice pathExpression "feeLeg"]
 	quotationStyle QuotationStyleEnum (0..1);
-		[synonym FpML value quotationStyle pathExpression "trade.creditDefaultSwap.feeLeg"]
+		[synonym FpML value quotationStyle pathExpression "feeLeg"]
 }
 
 class GeneralTerms // Adjusted from the FpML construct by removing the effectiveDate, terminationDate, businessDayAdjustments
