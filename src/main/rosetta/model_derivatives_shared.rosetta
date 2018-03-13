@@ -232,7 +232,7 @@ class CalculationPeriodFrequency extends Frequency stereotype contractualProduct
 }
 
 data rule CalculationPeriodFrequency_rollConvention_M_Y <"FpML validation rule ird-57 - Context: CalculationPeriodFrequency. [period eq ('M', 'Y')] not(rollConvention = ('NONE', 'SFE', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT','SUN')).">
-	when CalculationPeriodFrequency -> period = PeriodExtendedEnum.M or CalculationPeriodFrequency -> period = PeriodExtendedEnum.Y
+	when CalculationPeriodFrequency -> period = PeriodEnum.M or CalculationPeriodFrequency -> period = PeriodEnum.Y
 	then CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.NONE
 		or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.SFE
 		or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.MON
@@ -244,7 +244,7 @@ data rule CalculationPeriodFrequency_rollConvention_M_Y <"FpML validation rule i
 		or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.SUN
 
 data rule CalculationPeriodFrequency_rollConvention_W <"FpML validation rule ird-58 - Context: CalculationPeriodFrequency (complex type). When the period is 'W', the rollConvention must be a week day, 'SFE' or 'NONE'.">
-	when CalculationPeriodFrequency -> period = PeriodExtendedEnum.W
+	when CalculationPeriodFrequency -> period = PeriodEnum.W
 	then CalculationPeriodFrequency -> rollConvention = RollConventionEnum.NONE
 		or CalculationPeriodFrequency -> rollConvention = RollConventionEnum.SFE
 		or CalculationPeriodFrequency -> rollConvention = RollConventionEnum.MON
@@ -256,7 +256,7 @@ data rule CalculationPeriodFrequency_rollConvention_W <"FpML validation rule ird
 		or CalculationPeriodFrequency -> rollConvention = RollConventionEnum.SUN
 
 data rule CalculationPeriodFrequency_rollConvention_T <"FpML validation rule ird-60 - Context: CalculationPeriodFrequency (complex type). When the period is 'T', the rollConvention must be 'NONE'.">
-	when CalculationPeriodFrequency -> period = PeriodExtendedEnum.T
+	when CalculationPeriodFrequency -> period = PeriodEnum.T
 	then CalculationPeriodFrequency -> rollConvention = RollConventionEnum.NONE
 
 class CashSettlementReferenceBanks stereotype contractualProduct <"A class defining the list of reference institutions polled for relevant rates or prices when determining the cash settlement amount for a product where cash settlement is applicable.">
@@ -480,6 +480,10 @@ data rule FloatingRate_floatingRateMultiplierSchedule <"FpML specifies that the 
 	when FloatingRate -> floatingRateMultiplierSchedule exists
 	then FloatingRate -> floatingRateMultiplierSchedule -> initialValue <> 1b
 
+data rule FloatingRate_indexTenor <"In FpML, indexTenor is of type PeriodEnum, which doesn't include the value 'T'.">
+	when FloatingRate -> indexTenor exists
+	then FloatingRate -> indexTenor -> period <> PeriodEnum.T
+
 class FloatingRateCalculation extends FloatingRate stereotype contractualProduct <"A type defining the floating rate and definitions relating to the calculation of floating rate amounts.">
 	[synonym FpML value FloatingRateCalculation]
 {
@@ -529,12 +533,12 @@ class Frequency stereotype contractualProduct <"A class defining a time frequenc
 		[synonym FpML value id]
 	periodMultiplier int (1..1) <"A time period multiplier, e.g. 1, 2, or 3.  If the period value is T (Term) then period multiplier must contain the value 1.">;
 		[synonym FpML value periodMultiplier]
-	period PeriodExtendedEnum (1..1) <"A time period, e.g. a day, week, month, year or term of the stream.">;
+	period PeriodEnum (1..1) <"A time period, e.g. a day, week, month, year or term of the stream.">;
 		[synonym FpML value period]
 }
 
 data rule Frequency_period <"FpML specifies that if period value is T (Term) then periodMultiplier must contain the value 1.">
-	when Frequency -> period = PeriodExtendedEnum.T
+	when Frequency -> period = PeriodEnum.T
 	then Frequency -> periodMultiplier = 1
 	
 data rule Frequency_periodMultiplier <"FpML specifies periodMultiplier as a positive integer.">
@@ -989,7 +993,7 @@ class ResetFrequency extends Frequency stereotype contractualProduct <"A class d
 
 data rule ResetFrequency_weeklyRollConvention <"FpML validation rule ird-49 - Context: ResetFrequency (complex type). weeklyRollConvention should exist if and only if the period is 'W'.">
 	when ResetFrequency -> weeklyRollConvention exists
-	then ResetFrequency -> period = PeriodExtendedEnum.W
+	then ResetFrequency -> period = PeriodEnum.W
 
 class Resource stereotype contractualProduct <"Describes the resource that contains the media representation of a business event (i.e used for stating the Publicly Available Information). For example, can describe a file or a URL that represents the event. This type is an extended version of a type defined by RIXML (www.rixml.org).  Rosetta restricts the FpML implementation by not providing the ability to associated a document in hexadecimalBinary or base64Binary until such time that actual use cases will come up.">
 	[synonym FpML value Resource]
@@ -1145,6 +1149,10 @@ class StubFloatingRate stereotype contractualProduct <"A class defining a floati
 	floorRateSchedule StrikeSchedule (0..*) <"The floor rate or floor rate schedule, if any, which applies to the floating rate. The floor rate (strike) is only required where the floating rate on a swap stream is floored at a certain strike level. A floor rate schedule is expressed as explicit floor rates and dates and the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The floor rate is assumed to be exclusive of any spread and is a per annum rate, expressed as a decimal. A floor rate of 5% would be represented as 0.05.">;
 		[synonym FpML value floorRateSchedule]
 }
+
+data rule StubFloatingRate_indexTenor <"In FpML, indexTenor is of type PeriodEnum, which doesn't include the value 'T'.">
+	when StubFloatingRate -> indexTenor exists
+	then StubFloatingRate -> indexTenor -> period <> PeriodEnum.T
 
 class StubValue stereotype contractualProduct one of <"A type defining how a stub calculation period amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating rate tenors many be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3 Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.">
 	[synonym FpML value StubValue]

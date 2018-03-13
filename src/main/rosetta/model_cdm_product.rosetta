@@ -37,24 +37,12 @@ class Contract <"A class to specify a contract object, which can be invoked eith
 		[synonym FpML value governingLaw pathExpression "trade"]
 	/*
 	 * QUESTION TO CDM GROUP
-	 * TODO - Need to confirm this new proposed attribute
-	 * 	If need is confirmed, should it be positioned as part of the Documentation class?
-	 */
-	confirmation Confirmation (1..1) <"Specifies whether the contract is confirmed as a stand-alone component and provides a workflow indicator of its confirmation status. This component doesn't exist in FpML.">;
-	/*
-	 * QUESTION TO CDM GROUP
 	 * TODO - Need to confirm whether we want to associate a contractState attribute.
 	 * One of the objection raised in a meeting was the fact that open/close is too simplistic as a state.
 	 * Should we look to enhance the indicator with an associated qualifier, e.g. Legal, Accounting?
 	 * Or should we drop this concept for the time being?
 	 */
 	contractState ContractStateEnum (0..1) <"The state qualification of a contractual product, i.e. whether open or close. This attribute is not present as part of the FpML standard.">;
-	/*
-	 * QUESTION TO CDM GROUP
-	 * TODO - Need to confirm whether it is OK not to include the following FpML attributes:
-	 * - allocations (until such time that we work out the CDM allocation model representation)
-	 * - approvals (until such time that we confirm usage by market participants)
-	 */
 }
 
 data rule Contract_clearedDate
@@ -66,11 +54,6 @@ class ContractualProduct
 	productIdentification string (1..1) isProduct; // A back-end logic associated to the isProduct qualifier will specify the product as a function of the associated economic terms
 	economicTerms EconomicTerms (1..1);
 }
-
-/*
- * The below product specification reflects the ISDA Taxonomy v2.0
- * As requested by CDM Group members, mapping to the v1.0 has been incorporated, as most firm use that version internally
- */
 
 isProduct InterestRate_IRSwap_Basis
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Basis]
@@ -106,7 +89,7 @@ isProduct InterestRate_IRSwap_FixedFloat_ZeroCoupon
 	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate exists
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate exists
 	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
-	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.T
+	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodEnum.T
 
 isProduct InterestRate_IRSwap_FixedFloat_PlainVanilla
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFloat] // The v1 taxonomy doesn't have this v2 level of detail
@@ -114,16 +97,12 @@ isProduct InterestRate_IRSwap_FixedFloat_PlainVanilla
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate exists
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> spreadSchedule -> step is absent
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> floatingRateMultiplierSchedule is absent
-/*
- * TODO - Cannot compare the below because in FpML the period associated with the reset frequency is of type PeriodExtendedEnum, which includes 'T'
- * Need to adjust the implementation once approach is confirmed
- */
-//	and EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period =
-//		EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> indexTenor -> period
+	and EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period =
+		EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> indexTenor -> period
 	and EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier =
 		EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> indexTenor -> periodMultiplier
 	and 	EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier <> 1
-	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period <> PeriodExtendedEnum.T
+	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period <> PeriodEnum.T
 	and ( 
 		// Payment frequency = reset frequency 
 		( EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 
@@ -132,25 +111,23 @@ isProduct InterestRate_IRSwap_FixedFloat_PlainVanilla
 			EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period )
 		// Payment frequency is annual and reset frequency is semi-annual and compounding does not apply
 		// Payment frequency is annual and reset frequency is quarterly and compounding does not apply
-		or ( EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.Y 
-			and ( EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period = PeriodExtendedEnum.M
+		or ( EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodEnum.Y 
+			and ( EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period = PeriodEnum.M
 				and ( EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 6 
 					or EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 3 )
 				and EconomicTerms -> payout -> interestRatePayout -> compoundingMethod is absent )
 		// Payment frequency is semi annual and reset frequency is quarterly and compounding does not apply
 		// Payment frequency is quarterly and reset frequency is monthly and compounding does not apply
-		or ( EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.M 
+		or ( EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodEnum.M 
 			and ( EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 6 
 				or EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 3 )
-			and ( EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period = PeriodExtendedEnum.M
+			and ( EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period = PeriodEnum.M
 				and EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 3 )
 				and EconomicTerms -> payout -> interestRatePayout -> compoundingMethod is absent ) ) )
 	// Not able to represent the clause 'No provision for early termination which uses an off-market valuation'
 
 /*
- * QUESTION TO CDM GROUP
- * Need to confirm that a we should characterise the OIS swaps as a function of the floating rates which have an OIS Style in the list of scheme values
- * TODO Once confirmed adjust the Xtext grammar to support enumeration styles
+ * TODO Adjust the Xtext grammar to support enumeration styles
  */
 isProduct InterestRate_IRSwap_FixedFloat_OIS
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFloat] // The v1 taxonomy doesn't have this v2 level of detail
@@ -164,35 +141,31 @@ isProduct InterestRate_IRSwap_Basis_OIS
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate exists
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> floatingRateIndex = FloatingRateIndexEnum.AUD_AONIA_OIS_COMPOUND
 	
-/*
- * QUESTION TO CDM GROUP
- * TODO Need to confirm that a YOY inflation swap is characterised an annual payment periodicity.
- */
 isProduct InterestRate_InflationSwap_FixedFloat_YearOn_Year
-	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation] // The v1 taxonomy doesn't have this v2 level of detail
+	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation]
 	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate exists
 	and 	EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
-	and 	EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.Y
+	and 	EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodEnum.Y
 
 isProduct InterestRate_InflationSwap_FixedFloat_ZeroCoupon
-	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation] // The v1 taxonomy doesn't have this v2 level of detail
+	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation]
 	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate exists
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate exists
 	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
-	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.T
+	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodEnum.T
 
 isProduct InterestRate_InflationSwap_Basis_YearOn_Year
-	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation] // The v1 taxonomy doesn't have this v2 level of detail
+	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation]
 	EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate exists
 	and 	EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
-	and 	EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.Y
+	and 	EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodEnum.Y
 
 isProduct InterestRate_InflationSwap_Basis_ZeroCoupon
-	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation] // The v1 taxonomy doesn't have this v2 level of detail
+	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation]
 	EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate exists
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate exists
 	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
-	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.T
+	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodEnum.T
 
 
 /*
@@ -254,10 +227,6 @@ data rule InterestRatePayout_quantity
 	when InterestRatePayout exists
 	then InterestRatePayout -> quantity -> notionalSchedule must exist
 
-/*
- * New construct, which purpose is to specify the various ways in which a contractual quantity can be expressed
- * Validation logic is associated with the interestRatePayout and the creditDefaultPayout to specify the way in which the notional should be expressed
- */
 class ContractualQuantity
 {
 	quantity Quantity (0..1);
@@ -338,14 +307,6 @@ data rule CreditDefaultPayout_inflationRate // Do we want to actually have such 
 
 class PaymentDates // Differences with the FpML PaymentDate include addition of CDS paymentDelay element.
 {
-	/*
-	 * QUESTION TO CDM GROUP
-	 * TODO - If the CDM is meant to provide a more streamlined representation, should we look to limit the need for cross-referencing
-	 * by stating that the calculation period dates, reset dates and fixing dates are those specified as part of the payout which those are part of?
-	 */
-//	calculationPeriodDates CalculationPeriodDates (0..1) reference;
-//	resetDates ResetDates (0..1) reference;
-//	valuationDates FxFixingDate (0..1) reference;
 	paymentFrequency Frequency (1..1);
 		[synonym FpML value paymentFrequency]
 	firstPaymentDate date (0..1);
@@ -358,8 +319,11 @@ class PaymentDates // Differences with the FpML PaymentDate include addition of 
 		[synonym FpML value paymentDaysOffset]
 	paymentDatesAdjustments BusinessDayAdjustments (1..1);
 		[synonym FpML value paymentDatesAdjustments]
-	paymentDelay boolean (0..1);
+	paymentDelay boolean (1..1); // As a departure from FpML, the proposal is to remove optional cardinality in a boolean attribute
 		[synonym FpML value paymentDelay]
+//		TODO - The below logic could be a proper way to handle the FpML optional boolean that is quite frequent in the FpML Credit schema
+//		[synonym FpML value paymentDelay set paymentDelay to False when FpML.paymentDelay is absent]
+//		alternative syntax: [synonym FpML value paymentDelay set paymentDelay to False when synonym.paymentDelay is absent]
 }
 
 data rule PaymentDates_firstPaymentDate <"FpML validation rule ird-6 - Context: InterestRateStream (complex type). If paymentDates/firstPaymentDate exists, and if calculationPeriodDates/effectiveDate exists, then paymentDates/firstPaymentDate must be after calculationPeriodDates/effectiveDate/unadjustedDate.">
@@ -384,6 +348,10 @@ data rule PaymentDates_paymentDaysOffset <"FpML specifies that paymentDaysOffset
 	when PaymentDates -> paymentDaysOffset exists
 	then PaymentDates -> paymentDaysOffset -> periodMultiplier <> 0
 
+data rule PaymentDates_inflationLag <"In FpML, Offset extends PeriodEnum, which doesn't include the value 'T'.">
+	when PaymentDates -> paymentDaysOffset exists
+	then PaymentDates -> paymentDaysOffset -> period <> PeriodEnum.T
+
 class Quantity
 {
 	amount number (1..1);
@@ -398,17 +366,6 @@ class CrossCurrencyTerms
 	settlementProvision SettlementProvision (0..1);
 		[synonym FpML value settlementProvision pathExpression "trade.swap.swapStream"]
 }
-
-class Confirmation // Confirmation is a new proposed model component, aimed at providing clarity with respect to the confirmation of multi-components products/strategies.
-{
-	multiComponentsConfirmation boolean (1..1);
-	otherConfirmationComponents TradeIdentifier (0..*);
-	isConfirmed boolean (1..1);
-}
-
-data rule Confirmation_otherConfirmationComponents
-	when Confirmation -> multiComponentsConfirmation = True
-	then Confirmation -> otherConfirmationComponents must exist
 
 class ProtectionTerms // Adjusted from the FpML construct by replacing calculationAmount, a.k.a. notional.
 {
@@ -444,9 +401,9 @@ class GeneralTerms // Adjusted from the FpML construct by removing the effective
 		[synonym FpML value basketReferenceInformation pathExpression "trade.creditDefaultSwap.generalTerms"]
 	additionalTerm string (0..*) scheme "additionalTermScheme";
 		[synonym FpML value additionalTerm pathExpression "trade.creditDefaultSwap.generalTerms"]
-	substitution boolean (1..1); // As a departure from FpML, the proposal is to remove optional cardinality in a boolean attribute
+	substitution boolean (1..1); // As a departure from FpML, the proposal is to remove optional cardinality in a boolean attribute. See class PaymentDates for proposed resolution.
 		[synonym FpML value substitution pathExpression "trade.creditDefaultSwap.generalTerms"]
-	modifiedEquityDelivery boolean (1..1); // As a departure from FpML, the proposal is to remove optional cardinality in a boolean attribute
+	modifiedEquityDelivery boolean (1..1); // As a departure from FpML, the proposal is to remove optional cardinality in a boolean attribute. See class PaymentDates for proposed resolution.
 		[synonym FpML value modifiedEquityDelivery pathExpression "trade.creditDefaultSwap.generalTerms"]
 }
 
