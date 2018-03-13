@@ -37,24 +37,12 @@ class Contract <"A class to specify a contract object, which can be invoked eith
 		[synonym FpML value governingLaw pathExpression "trade"]
 	/*
 	 * QUESTION TO CDM GROUP
-	 * TODO - Need to confirm this new proposed attribute
-	 * 	If need is confirmed, should it be positioned as part of the Documentation class?
-	 */
-	confirmation Confirmation (1..1) <"Specifies whether the contract is confirmed as a stand-alone component and provides a workflow indicator of its confirmation status. This component doesn't exist in FpML.">;
-	/*
-	 * QUESTION TO CDM GROUP
 	 * TODO - Need to confirm whether we want to associate a contractState attribute.
 	 * One of the objection raised in a meeting was the fact that open/close is too simplistic as a state.
 	 * Should we look to enhance the indicator with an associated qualifier, e.g. Legal, Accounting?
 	 * Or should we drop this concept for the time being?
 	 */
 	contractState ContractStateEnum (0..1) <"The state qualification of a contractual product, i.e. whether open or close. This attribute is not present as part of the FpML standard.">;
-	/*
-	 * QUESTION TO CDM GROUP
-	 * TODO - Need to confirm whether it is OK not to include the following FpML attributes:
-	 * - allocations (until such time that we work out the CDM allocation model representation)
-	 * - approvals (until such time that we confirm usage by market participants)
-	 */
 }
 
 data rule Contract_clearedDate
@@ -66,11 +54,6 @@ class ContractualProduct
 	productIdentification string (1..1) isProduct; // A back-end logic associated to the isProduct qualifier will specify the product as a function of the associated economic terms
 	economicTerms EconomicTerms (1..1);
 }
-
-/*
- * The below product specification reflects the ISDA Taxonomy v2.0
- * As requested by CDM Group members, mapping to the v1.0 has been incorporated, as most firm use that version internally
- */
 
 isProduct InterestRate_IRSwap_Basis
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Basis]
@@ -116,7 +99,7 @@ isProduct InterestRate_IRSwap_FixedFloat_PlainVanilla
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> floatingRateMultiplierSchedule is absent
 /*
  * TODO - Cannot compare the below because in FpML the period associated with the reset frequency is of type PeriodExtendedEnum, which includes 'T'
- * Need to adjust the implementation once approach is confirmed
+ * Need to adjust the implementation once a proper implementation approach has been firmed out
  */
 //	and EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period =
 //		EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> indexTenor -> period
@@ -148,47 +131,41 @@ isProduct InterestRate_IRSwap_FixedFloat_PlainVanilla
 	// Not able to represent the clause 'No provision for early termination which uses an off-market valuation'
 
 /*
- * QUESTION TO CDM GROUP
- * TODO Need to confirm that a we should characterise the OIS swaps as a function of the floating rates which have an OIS Style in the list of scheme values
+ * TODO Adjust the Xtext grammar to support enumeration styles
  */
 isProduct InterestRate_IRSwap_FixedFloat_OIS
-	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFloat] // The v1 taxonomy doesn't have this v2 level of detail
+	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFloat]
 	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate exists
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate exists
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> floatingRateIndex = FloatingRateIndexEnum.AUD_AONIA_OIS_COMPOUND
 
 isProduct InterestRate_IRSwap_Basis_OIS
-	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Basis] // The v1 taxonomy doesn't have this v2 level of detail
+	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Basis]
 	EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate exists
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate exists
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> floatingRateIndex = FloatingRateIndexEnum.AUD_AONIA_OIS_COMPOUND
 	
-/*
- * QUESTION TO CDM GROUP
- * TODO Need to confirm that a YOY inflation swap is characterised by a specific set of inflation index values.
- * If yes, what is the full set of those values?
- */
 isProduct InterestRate_InflationSwap_FixedFloat_YearOn_Year
-	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation] // The v1 taxonomy doesn't have this v2 level of detail
+	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation]
 	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate exists
-	and ( EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate -> floatingRateIndex = FloatingRateIndexEnum.USA_CPI_U
-		or EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate -> floatingRateIndex = FloatingRateIndexEnum.UK_RPIX )
+	and 	EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
+	and 	EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.Y
 
 isProduct InterestRate_InflationSwap_FixedFloat_ZeroCoupon
-	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation] // The v1 taxonomy doesn't have this v2 level of detail
+	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation]
 	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate exists
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate exists
 	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
 	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.T
 
 isProduct InterestRate_InflationSwap_Basis_YearOn_Year
-	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation] // The v1 taxonomy doesn't have this v2 level of detail
+	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation]
 	EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate exists
-	and ( EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate -> floatingRateIndex = FloatingRateIndexEnum.USA_CPI_U
-		or EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate -> floatingRateIndex = FloatingRateIndexEnum.UK_RPIX )
+	and 	EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
+	and 	EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.Y
 
 isProduct InterestRate_InflationSwap_Basis_ZeroCoupon
-	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation] // The v1 taxonomy doesn't have this v2 level of detail
+	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation]
 	EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate exists
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate exists
 	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
@@ -216,31 +193,37 @@ class EconomicTerms calculation FixedAmount
 class Payout
 {
 	interestRatePayout InterestRatePayout (0..*);
+		[synonym FpML value swapStream pathExpression "trade.swap"]
+		[synonym FpML value feeLeg pathExpression "trade.creditDefaultSwap"]
 	creditDefaultPayout CreditDefaultPayout (0..1);
+	fee Payment (0..*);
+		[synonym FpML value additionalPayment pathExpression "trade.swap"]
 }
 
 class InterestRatePayout
 {
 	payerParty Party (1..1) reference;
-		[synonym FpML value payerPartyReference pathExpression "trade.swap.swapStream"]
+		[synonym FpML value payerPartyReference]
 	receiverParty Party (1..1) reference;
-		[synonym FpML value receiverPartyReference pathExpression "trade.swap.swapStream"]
+		[synonym FpML value receiverPartyReference]
 	quantity ContractualQuantity (1..1);
 	interestRate InterestRate (0..1);
 	dayCountFraction DayCountFractionEnum (1..1);
-		[synonym FpML value dayCountFraction pathExpression "trade.swap.swapStream.calculationPeriodAmount.calculation"]
-		[synonym FpML value dayCountFraction pathExpression "trade.creditDefaultSwap.feeLeg.periodicPayment.fixedAmountCalculation"]
-		[synonym FpML value dayCountFraction pathExpression "trade.creditDefaultSwap.feeLeg.periodicPayment.floatingAmountCalculation"]
+		[synonym FpML value dayCountFraction pathExpression "calculationPeriodAmount.calculation"]
+		[synonym FpML value dayCountFraction pathExpression "periodicPayment.fixedAmountCalculation"]
+		[synonym FpML value dayCountFraction pathExpression "periodicPayment.floatingAmountCalculation"]
 	discounting Discounting (0..1);
-		[synonym FpML value discounting pathExpression "trade.swap.swapStream.calculationPeriodAmount.calculation"]
+		[synonym FpML value discounting pathExpression "calculationPeriodAmount.calculation"]
 	compoundingMethod CompoundingMethodEnum (0..1);
-		[synonym FpML value compoundingMethod pathExpression "trade.swap.swapStream.calculationPeriodAmount.calculation"]
+		[synonym FpML value compoundingMethod pathExpression "calculationPeriodAmount.calculation"]
 	calculationPeriodDates CalculationPeriodDates (1..1);
-		[synonym FpML value calculationPeriodDates pathExpression "trade.swap.swapStream"]
+		[synonym FpML value calculationPeriodDates]
 	paymentDates PaymentDates (1..1);
-		[synonym FpML value paymentDates pathExpression "trade.swap.swapStream"]
+		[synonym FpML value paymentDates]
 	resetDates ResetDates (1..1);
-		[synonym FpML value resetDates pathExpression "trade.swap.swapStream"]
+		[synonym FpML value resetDates]
+	cashflows Cashflows (0..1) <"The cashflows representation of the swap stream.">;
+		[synonym FpML value cashflows]
 	crossCurrencyTerms CrossCurrencyTerms (0..1); // New construct, that wraps the principleExchanges and settlementProvision terms
 }
 
@@ -248,20 +231,18 @@ data rule InterestRatePayout_quantity
 	when InterestRatePayout exists
 	then InterestRatePayout -> quantity -> notionalSchedule must exist
 
-/*
- * New construct, which purpose is to specify the various ways in which a contractual quantity can be expressed
- * Validation logic is associated with the interestRatePayout and the creditDefaultPayout to specify the way in which the notional should be expressed
- */
 class ContractualQuantity
 {
-	quantity Quantity (0..1); // This would be applicable to commodity and equity products
-	notionalAmount Money (0..1); // This is applicable to the CDS (among others)
-		[synonym FpML value calculationAmount pathExpression "trade.creditDefaultSwap.protectionTerms.calculationAmount"]
-	notionalSchedule NotionalSchedule (0..1); // This is applicable to the IRS
-		[synonym FpML value notionalSchedule pathExpression "trade.swap.swapStream.calculationPeriodAmount.calculation"]
+	quantity Quantity (0..1);
+	notionalAmount Money (0..1);
+		[synonym FpML value initialValue pathExpression "calculationPeriodAmount.calculation" set notionalAmount when Payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step is absent]
+		[synonym FpML value calculationAmount pathExpression "protectionTerms"]
+		[synonym FpML value calculationAmount pathExpression "periodicPayment.fixedAmountCalculation"]
+	notionalSchedule NotionalSchedule (0..1);
+		[synonym FpML value notionalSchedule pathExpression "calculationPeriodAmount.calculation" set notionalSchedule when Payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step exists]
 	fxLinkedNotional FxLinkedNotionalSchedule (0..1);
-	futureValueNotional FutureValueAmount (0..1); // This is applicable to BRL CDI swaps and could exist alongside other (current) notional
-	 	[synonym FpML value futureValueNotional pathExpression "trade.swap.swapStream.calculationPeriodAmount.calculation"]
+	futureValueNotional FutureValueAmount (0..1);
+	 	[synonym FpML value futureValueNotional pathExpression "calculationPeriodAmount.calculation"]
 }
 
 choice rule ContractualQuantity_choice <"TThe below set of notional values are exclusive, while some of those could be associated with the futureValueNotional.">
@@ -297,17 +278,17 @@ data rule NotionalSchedule_notionalStepSchedule <"FpML validation rule ird-61 - 
 class InterestRate one of
 {
 	fixedRate Schedule (0..1);
-		[synonym FpML value fixedRateSchedule pathExpression "trade.swap.swapStream.calculationPeriodAmount.calculation"]
+		[synonym FpML value fixedRateSchedule pathExpression "calculationPeriodAmount.calculation"]
 	floatingRate FloatingRateCalculation (0..1);
-		[synonym FpML value floatingRateCalculation pathExpression "trade.swap.swapStream.calculationPeriodAmount.calculation"]
+		[synonym FpML value floatingRateCalculation pathExpression "calculationPeriodAmount.calculation"]
 	inflationRate InflationRateCalculation (0..1);
-		[synonym FpML value inflationRateCalculation pathExpression "trade.swap.swapStream.calculationPeriodAmount.calculation"]
+		[synonym FpML value inflationRateCalculation pathExpression "calculationPeriodAmount.calculation"]
 }
 
 class CreditDefaultPayout
 {
 	generalTerms GeneralTerms (1..1);
-		[synonym FpML value generalTerms pathExpression "trade.creditDefaultSwap"]
+//		[synonym FpML value generalTerms pathExpression "trade.creditDefaultSwap"]
 	protectionTerms ProtectionTerms (1..1);
 		[synonym FpML value protectionTerms pathExpression "trade.creditDefaultSwap"]
 	cashSettlementTerms CashSettlementTerms (0..1);
@@ -330,28 +311,23 @@ data rule CreditDefaultPayout_inflationRate // Do we want to actually have such 
 
 class PaymentDates // Differences with the FpML PaymentDate include addition of CDS paymentDelay element.
 {
-	/*
-	 * QUESTION TO CDM GROUP
-	 * TODO - If the CDM is meant to provide a more streamlined representation, should we look to limit the need for cross-referencing
-	 * by stating that the calculation period dates, reset dates and fixing dates are those specified as part of the payout which those are part of?
-	 */
-//	calculationPeriodDates CalculationPeriodDates (0..1) reference;
-//	resetDates ResetDates (0..1) reference;
-//	valuationDates FxFixingDate (0..1) reference;
 	paymentFrequency Frequency (1..1);
-		[synonym FpML value paymentFrequency pathExpression "trade.swap.swapStream.paymentDates"]
+		[synonym FpML value paymentFrequency]
 	firstPaymentDate date (0..1);
-		[synonym FpML value firstPaymentDate pathExpression "trade.swap.swapStream.paymentDates"]
+		[synonym FpML value firstPaymentDate]
 	lastRegularPaymentDate date (0..1);
-		[synonym FpML value lastRegularPaymentDate pathExpression "trade.swap.swapStream.paymentDates"]
+		[synonym FpML value lastRegularPaymentDate]
 	payRelativeTo PayRelativeToEnum (1..1);
-		[synonym FpML value payRelativeTo pathExpression "trade.swap.swapStream.paymentDates"]
+		[synonym FpML value payRelativeTo]
 	paymentDaysOffset Offset (0..1);
-		[synonym FpML value paymentDaysOffset pathExpression "trade.swap.swapStream.paymentDates"]
+		[synonym FpML value paymentDaysOffset]
 	paymentDatesAdjustments BusinessDayAdjustments (1..1);
-		[synonym FpML value paymentDatesAdjustments pathExpression "trade.swap.swapStream.paymentDates"]
-	paymentDelay boolean (0..1);
-		[synonym FpML value paymentDelay pathExpression "trade.swap.swapStream.paymentDates"]
+		[synonym FpML value paymentDatesAdjustments]
+	paymentDelay boolean (1..1); // As a departure from FpML, the proposal is to remove optional cardinality in a boolean attribute
+		[synonym FpML value paymentDelay]
+//		TODO - The below logic could be a proper way to handle the FpML optional boolean that is quite frequent in the FpML Credit schema
+//		[synonym FpML value paymentDelay set paymentDelay to False when FpML.paymentDelay is absent]
+//		alternative syntax: [synonym FpML value paymentDelay set paymentDelay to False when synonym.paymentDelay is absent]
 }
 
 data rule PaymentDates_firstPaymentDate <"FpML validation rule ird-6 - Context: InterestRateStream (complex type). If paymentDates/firstPaymentDate exists, and if calculationPeriodDates/effectiveDate exists, then paymentDates/firstPaymentDate must be after calculationPeriodDates/effectiveDate/unadjustedDate.">
@@ -391,38 +367,27 @@ class CrossCurrencyTerms
 		[synonym FpML value settlementProvision pathExpression "trade.swap.swapStream"]
 }
 
-class Confirmation // Confirmation is a new proposed model component, aimed at providing clarity with respect to the confirmation of multi-components products/strategies.
-{
-	multiComponentsConfirmation boolean (1..1);
-	otherConfirmationComponents TradeIdentifier (0..*);
-	isConfirmed boolean (1..1);
-}
-
-data rule Confirmation_otherConfirmationComponents
-	when Confirmation -> isConfirmed = True
-	then Confirmation -> otherConfirmationComponents must exist
-
 class ProtectionTerms // Adjusted from the FpML construct by replacing calculationAmount, a.k.a. notional.
 {
 	quantity ContractualQuantity (1..1);
 	creditEvents CreditEvents (0..1);
-		[synonym FpML value creditEvents pathExpression "trade.creditDefaultSwap.protectionTerms"]
+		[synonym FpML value creditEvents]
 	obligations Obligations (0..1);
-		[synonym FpML value obligations pathExpression "trade.creditDefaultSwap.protectionTerms"]
+		[synonym FpML value obligations]
 	floatingAmountEvents FloatingAmountEvents (0..1);
-		[synonym FpML value floatingAmountEvents pathExpression "trade.creditDefaultSwap.protectionTerms"]
+		[synonym FpML value floatingAmountEvents]
 }
 
 class TransactedPrice // These are the set of transacted price attributes currently positioned as part of the FpML FeeLeg construct.
 {
 	marketFixedRate number (0..1);
-		[synonym FpML value marketFixedRate pathExpression "trade.creditDefaultSwap.feeLeg"]
+		[synonym FpML value marketFixedRate pathExpression "feeLeg"]
 	initialPoints number (0..1);
-		[synonym FpML value initialPoints pathExpression "trade.creditDefaultSwap.feeLeg"]
+		[synonym FpML value initialPoints pathExpression "feeLeg"]
 	marketPrice number (0..1);
-		[synonym FpML value marketPrice pathExpression "trade.creditDefaultSwap.feeLeg"]
+		[synonym FpML value marketPrice pathExpression "feeLeg"]
 	quotationStyle QuotationStyleEnum (0..1);
-		[synonym FpML value quotationStyle pathExpression "trade.creditDefaultSwap.feeLeg"]
+		[synonym FpML value quotationStyle pathExpression "feeLeg"]
 }
 
 class GeneralTerms // Adjusted from the FpML construct by removing the effectiveDate, terminationDate, businessDayAdjustments
@@ -436,9 +401,9 @@ class GeneralTerms // Adjusted from the FpML construct by removing the effective
 		[synonym FpML value basketReferenceInformation pathExpression "trade.creditDefaultSwap.generalTerms"]
 	additionalTerm string (0..*) scheme "additionalTermScheme";
 		[synonym FpML value additionalTerm pathExpression "trade.creditDefaultSwap.generalTerms"]
-	substitution boolean (1..1); // As a departure from FpML, the proposal is to remove optional cardinality in a boolean attribute
+	substitution boolean (1..1); // As a departure from FpML, the proposal is to remove optional cardinality in a boolean attribute. See class PaymentDates for proposed resolution.
 		[synonym FpML value substitution pathExpression "trade.creditDefaultSwap.generalTerms"]
-	modifiedEquityDelivery boolean (1..1); // As a departure from FpML, the proposal is to remove optional cardinality in a boolean attribute
+	modifiedEquityDelivery boolean (1..1); // As a departure from FpML, the proposal is to remove optional cardinality in a boolean attribute. See class PaymentDates for proposed resolution.
 		[synonym FpML value modifiedEquityDelivery pathExpression "trade.creditDefaultSwap.generalTerms"]
 }
 
