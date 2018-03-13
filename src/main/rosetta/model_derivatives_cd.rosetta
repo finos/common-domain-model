@@ -272,6 +272,10 @@ choice rule DeliverableObligations_choice <"Choice rule to represent an FpML cho
 	for DeliverableObligations optional choice between
 	fullFaithAndCreditObLiability and generalFundObligationLiability and revenueObligationLiability
 
+data rule DeliverableObligations_maximumMaturity <"In FpML, maximumMaturity is of type PeriodEnum, which doesn't include the value 'T'.">
+	when DeliverableObligations -> maximumMaturity exists
+	then DeliverableObligations -> maximumMaturity -> period <> PeriodEnum.T
+
 data rule DeliverableObligations_category <"FpML validation rule cd-34 - Context: DeliverableObligations (complex type). If category is equal to 'ReferenceObligationsOnly', then no other elements may be contained in the deliverable obligations element.">
 	when DeliverableObligations -> category exists
 		and DeliverableObligations -> category = ObligationCategoryEnum.ReferenceObligationsOnly
@@ -638,6 +642,10 @@ class PeriodicPayment stereotype contractualProduct
 	adjustedPaymentDates AdjustedPaymentDates (0..*) <"An optional cashflow-like structure allowing the equivalent representation of the periodic fixed payments in terms of a series of adjusted payment dates and amounts. This is intended to support application integration within an organisation and is not intended for use in inter-firm communication or confirmations. ISDA 2003 Term: Fixed Rate Payer Payment Date.">;
 		[synonym FpML value adjustedPaymentDates]
 }
+
+data rule PeriodicPayment_paymentFrequency <"In FpML, indexTenor is of type PeriodEnum, which doesn't include the value 'T'.">
+	when PeriodicPayment -> paymentFrequency exists
+	then PeriodicPayment -> paymentFrequency -> period <> PeriodEnum.T
 
 choice rule PeriodicPayment_choice <"Choice rule to represent an FpML choice construct.">
 	for PeriodicPayment required choice between

@@ -41,6 +41,10 @@ class Bond extends FixedIncomeSecurity stereotype productReferenceData, listedPr
 		[synonym FpML value dayCountFraction]
 }
 
+data rule Bond_paymentFrequency <"In FpML, paymentFrequency is of type PeriodEnum, which doesn't include the value 'T'.">
+	when Bond -> paymentFrequency exists
+	then Bond -> paymentFrequency -> period <> PeriodEnum.T
+
 class ConstituentWeight stereotype contractualProduct, contractualProduct <"A class describing the weight of each of the underlyer constituent within the basket, either in absolute or relative terms.">
 	[synonym FpML value ConstituentWeight]
 {
@@ -128,3 +132,7 @@ class Mortgage extends FixedIncomeSecurity stereotype productReferenceData
 	tranche string (0..1) <"The mortgage obligation tranche that is subject to the derivative transaction.">;
 		[synonym FpML value tranche]
 }
+
+data rule Mortgage_paymentFrequency <"In FpML, paymentFrequency is of type PeriodEnum, which doesn't include the value 'T'.">
+	when Mortgage -> paymentFrequency exists
+	then Mortgage -> paymentFrequency -> period <> PeriodEnum.T
