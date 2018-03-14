@@ -53,6 +53,7 @@ abstract class Event stereotype preExecution, execution, postExecution <"The abs
 {
 	messageInformation MessageInformation (0..1);
 	timeStamp EventTimeStamp (1..1);
+		[synonym FpML value timeStamp]
 	/*
 	 * Need to confirm with FpML experts whether the correlationId is meant to to be used as an eventId
 	 * As part of this, need to confirm whether the sequenceId should used to support cancellations/corrections; there is no mention of such in the FpML specification
@@ -60,7 +61,9 @@ abstract class Event stereotype preExecution, execution, postExecution <"The abs
 	 */
 	correlation Correlation (1..1) <"The correlation Id provides a lineage across related transactions. While optional in FpML, it is made required as part of the Rosetta model, as there is a need for an event identifier of some sort">;
 	eventDate date (1..1);
+		[synonym FpML value eventDate]
 	effectiveDate date (0..1);
+		[synonym FpML value effectiveDate]
 	action ActionEnum (1..1) <"Specifies whether the event is a new, a correction or a cancellation.">;
 		[synonym FpML value isCorrection 
 			set action to ActionEnum.new when False, 
@@ -77,6 +80,7 @@ class EventTimeStamp stereotype preExecution, execution, postExecution <"This cl
 		[synonym FIX value SendingTime tag 52] // Need to confirm whether sendingTime can be equated to createTime
 		[synonym FIX value TransactTime componentID 60]
 		[synonym FpML value creationTimestamp pathExpression "header"]
+		[synonym FpML value creationTimestamp]
 	expiryTimestamp dateTime (0..1) <"The date and time (on the source system) when this event will be considered expired.">;
 		[synonym FpML value expiryTimestamp]
 		[synonym FIX value ExpireTime tag 126]
