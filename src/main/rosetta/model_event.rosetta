@@ -49,17 +49,12 @@ data rule Clearing_Contract_after <"The contractState of the contract subject to
 	when Clearing -> before -> contract exists
 	then Clearing -> before -> contract -> contractState = ContractStateEnum.open
 
-abstract class Event stereotype preExecution, execution, postExecution <"The abstract class for all events.">
+abstract class EventBase stereotype preExecution, execution, postExecution <"The abstract class for all events.">
 {
 	messageInformation MessageInformation (0..1);
 	timeStamp EventTimeStamp (1..1);
 		[synonym FpML value timeStamp]
-	/*
-	 * Need to confirm with FpML experts whether the correlationId is meant to to be used as an eventId
-	 * As part of this, need to confirm whether the sequenceId should used to support cancellations/corrections; there is no mention of such in the FpML specification
-	 * the existence of the orderId in the context of OrderReport is troubling in this respect.
-	 */
-	correlation Correlation (1..1) <"The correlation Id provides a lineage across related transactions. While optional in FpML, it is made required as part of the Rosetta model, as there is a need for an event identifier of some sort">;
+	eventIdentifier Identifier (1..1);
 	eventDate date (1..1);
 		[synonym FpML value eventDate]
 	effectiveDate date (0..1);
@@ -137,7 +132,7 @@ data rule Exercise_Contract_before <"The contractState of the contract subject t
 	when Exercise -> before -> contract exists
 	then Exercise -> before -> contract -> contractState = ContractStateEnum.open
 
-root class Events one of <"The entry point for all financial transactions.">
+root class QualifiedEvents one of <"The entry point for all financial transactions.">
 {
 	requestForQuote RequestForQuote (0..1);
 		[synonym FIX value MsgType."R"]
@@ -215,7 +210,7 @@ data rule Novation_Contract_before <"The contractState of the contract that is s
 	when Novation -> before -> contract exists
 	then Novation -> before -> contract -> contractState = ContractStateEnum.open
 
-class Observation extends MarketEvent stereotype preExecution, execution, postExecution
+class ObservationEvent extends MarketEvent stereotype preExecution, execution, postExecution
 {
 }
 
@@ -360,11 +355,11 @@ class Quote extends TransactionEvent stereotype preExecution
  * The below workflow rule has the potential to apply to all events.
  * Let's confirm its relevance before extending its scope, while also evaluate if it can be specified in a generic manner that is event-agnostic. 
  */
-workflow rule Quote_cancel_correct <"A quote cancellation or correction should be preceded by another quote event, carrying he same correlationId.">
+workflow rule Quote_cancel_correct <"A quote cancellation or correction should be preceded by another quote event, carrying he same identifier.">
 	when Quote -> action = ActionEnum.cancel
 		or Quote -> action = ActionEnum.correct
 	Quote must precede Quote
-	commonId path Quote -> correlation -> correlationId
+	commonId path Quote -> eventIdentifier -> identifier
 
 class RegulatoryReportRequestForQuote extends RequestForQuote stereotype regulatoryReporting <"The regulatory reporting base structure for the RFQ.">
 {
@@ -412,7 +407,7 @@ data rule Termination_close <"When an termination event is cancelled, the contra
 		and Termination -> action = ActionEnum.cancel 
 	then Termination -> after -> contract -> contractState = ContractStateEnum.open
 
-abstract class TransactionEvent extends Event stereotype preExecution, execution, postExecution <"Transaction events are characterised by the fact that they involve parties and, as an implication, regulatory eligibility assessments.">
+abstract class TransactionEvent extends EventBase stereotype preExecution, execution, postExecution <"Transaction events are characterised by the fact that they involve parties and, as an implication, regulatory eligibility assessments.">
 {
 	party Party (1..*) reference <"The parties to the transaction event.">;
 		[synonym FpML value partyMessageInformation]

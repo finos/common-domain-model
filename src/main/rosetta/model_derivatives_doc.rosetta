@@ -56,30 +56,36 @@ choice rule PartyTradeIdentifier_choice <"Choice rule to represent an FpML choic
 	for PartyTradeIdentifier optional choice between
 	allocationTradeId and resultingTradeId
 
-class TradeIdentifier stereotype execution, postExecution <"A class defining a trade identifier issued by the indicated party. Rosetta implementation doesn't extends the base class PartyAndAccountReference because of the choice logic with the issuer element.">
+class Identifier
+{
+	issuer Party (0..1) scheme "issuerIdScheme" <"The party that assigns the trade identifier. The FpML required cardinality for the issuing party has been relaxed to accommodate FIX messages.">;
+		[synonym FpML value issuer]
+	identifier string (1..1) anchor scheme "tradeIdScheme" ;
+		[synonym FpML value tradeId]
+	version int (0..1);
+		[synonym FpML value version]
+}
+
+data rule VersionedTradeId_version <"FpML specifies the version as a non-negative integer.">
+	when Identifier -> version exists
+	then Identifier -> version >= 0
+
+class TradeIdentifier extends Identifier stereotype execution, postExecution <"A class defining a trade identifier issued by the indicated party. Rosetta implementation doesn't extends the base class PartyAndAccountReference because of the choice logic with the issuer element.">
 	[synonym FpML value TradeIdentifier]
 {
 	id string (0..1);
 		[synonym FpML value id]
-	issuer Party (0..1) scheme "issuerIdScheme" <"The party that assigns the trade identifier. The FpML required cardinality for the issuing party has been relaxed to accommodate FIX messages.">;
-		[synonym FpML value issuer]
 	party Party (0..1) reference <"FpML implements this element as a reference to a party.">;
 		[synonym FpML value partyReference]
 	account Account (0..1) reference <"FpML implements this element as a reference to an account.">;
 		[synonym FpML value accountReference]
-	tradeId string (0..1) anchor scheme "tradeIdScheme" <"In FIX, the unique ID assigned to the trade entity once it is received or matched by the exchange or central counterparty. In FpML, a trade reference identifier allocated by a party.">;
-		[synonym FIX value TradeID tag 1003]
-		[synonym FIX value SecondaryTradeID tag 1040]
-		[synonym FIX value FirmTradeID tag 1041]
-		[synonym FIX value SecondaryFirmTradeID tag 1042]
-		[synonym FpML value tradeId]
-	versionedTradeId VersionedTradeId (0..1) <"A trade identifier accompanied by a version number.">;
-		[synonym FpML value versionedTradeId]
+//	versionedTradeId VersionedTradeId (0..1) <"A trade identifier accompanied by a version number.">;
+//		[synonym FpML value versionedTradeId]
 }
 
-choice rule TradeIdentifier_choice1 <"Choice rule to represent an FpML choice construct.">
-	for TradeIdentifier required choice between
-	tradeId and versionedTradeId
+//choice rule TradeIdentifier_choice1 <"Choice rule to represent an FpML choice construct.">
+//	for TradeIdentifier required choice between
+//	tradeId and versionedTradeId
 
 choice rule TradeIdentifier_choice2 <"Choice rule to represent an FpML choice construct.">
 	for TradeIdentifier required choice between
@@ -96,17 +102,13 @@ class TradeIdentifierExtended extends TradeIdentifier <"A class defining a trade
 		[synonym FpML value associatedParty]
 }
 
-class VersionedTradeId
-	[synonym FpML value VersionedTradeId]
-{
-	version int (1..1) <"The version number.">;
-		[synonym FpML value version]
-	effectiveDate date (0..1) <"Optionally it is possible to specify a version effective date when a versionId is supplied.">;
-		[synonym FpML value effectiveDate]
-	tradeId string (1..1) <"The trade id.">;
-		[synonym FpML value tradeId]
-}
-
-data rule VersionedTradeId_version <"FpML specifies the version as a non-negative integer.">
-	when VersionedTradeId exists
-	then VersionedTradeId -> version >= 0
+//class VersionedTradeId
+//	[synonym FpML value VersionedTradeId]
+//{
+//	version int (1..1) <"The version number.">;
+//		[synonym FpML value version]
+//	effectiveDate date (0..1) <"Optionally it is possible to specify a version effective date when a versionId is supplied.">;
+//		[synonym FpML value effectiveDate]
+//	tradeId string (1..1) <"The trade id.">;
+//		[synonym FpML value tradeId]
+//}

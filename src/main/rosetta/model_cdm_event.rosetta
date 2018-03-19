@@ -2,7 +2,7 @@ Rosetta versionNumber "0.0.1"
 FIX versionNumber "5.0 SP3"
 FpML versionNumber "5.10"
 
-class CompositeEvent extends Event
+class CompositeEvent extends EventBase
 {
 	intent IntentEnum (0..1);
 		[synonym FpML value intent]
@@ -24,7 +24,7 @@ class ContractState one of
 		[synonym FpML value contractReference]
 }
 
-class EventBase extends CompositeEvent
+class Event extends CompositeEvent
 {
 	quantityChange QuantityChange (0..*);
 		[synonym FpML value quantityChange]
@@ -33,8 +33,8 @@ class EventBase extends CompositeEvent
 	fee Payment (0..*);
 }
 
-choice rule EventBase_choice
-	for EventBase required choice between
+choice rule Event_choice
+	for Event required choice between
 	quantityChange and partyChange and otherTermsChange
 
 class QuantityChange
@@ -61,36 +61,41 @@ class OtherTermsChange
 	after ContractState (1..1);
 }
 
+class Observation
+{
+	
+}
+
 data rule NotionalAmount_Decrease
-	when EventBase -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
-	then EventBase -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount >
-		EventBase -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount
+	when Event -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
+	then Event -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount >
+		Event -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount
 
 data rule Quantity_Decrease
-	when EventBase -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity  -> quantity exists
-	then EventBase -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity >
-		EventBase -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity
+	when Event -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity  -> quantity exists
+	then Event -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity >
+		Event -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity
 
 data rule NotionalAmount_Remaining
-	when EventBase -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
-	then EventBase -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount > 0
+	when Event -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
+	then Event -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount > 0
 
 data rule Quantity_Remaining
-	when EventBase -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity exists
-	then EventBase -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity -> amount > 0
+	when Event -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity exists
+	then Event -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity -> amount > 0
 
 data rule NotionalAmount_Null
-	when EventBase -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
-	then EventBase -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount = 0
+	when Event -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
+	then Event -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount = 0
 
 data rule EarlyTermination_InterestPayout_TerminationDate
-	when EventBase -> otherTermsChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout exists
-	then EventBase -> otherTermsChange ->  before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate >
-		EventBase -> otherTermsChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate 
+	when Event -> otherTermsChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout exists
+	then Event -> otherTermsChange ->  before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate >
+		Event -> otherTermsChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate 
 
 isEvent PartialTermination
-	EventBase -> quantityChange exists
-	and EventBase -> intent = IntentEnum.partialTermination
+	Event -> quantityChange exists
+	and Event -> intent = IntentEnum.partialTermination
 	and NotionalAmount_Decrease, NotionalAmount_Remaining apply
 	/*
 	 * Should we look to adjust the above to provide for the intent not to exist?
@@ -102,8 +107,8 @@ isEvent PartialTermination
 	 */
 
 isEvent EarlyTermination
-	EventBase -> otherTermsChange exists
-	and EventBase -> otherTermsChange -> before -> contract -> contractualProduct -> economicTerms -> earlyTerminationProvision exists
+	Event -> otherTermsChange exists
+	and Event -> otherTermsChange -> before -> contract -> contractualProduct -> economicTerms -> earlyTerminationProvision exists
 	and EarlyTermination_InterestPayout_TerminationDate apply
 		
 	
