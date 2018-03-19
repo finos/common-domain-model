@@ -2,12 +2,6 @@ Rosetta versionNumber "0.0.1"
 FIX versionNumber "5.0 SP3"
 FpML versionNumber "5.10"
 
-class CompositeEvent extends EventBase
-{
-	intent IntentEnum (0..1);
-		[synonym FpML value intent]
-}
-
 enum IntentEnum
 {
 	partialTermination,
@@ -24,12 +18,13 @@ class ContractState one of
 		[synonym FpML value contractReference]
 }
 
-class Event extends CompositeEvent
+class Event extends EventBase
 {
 	quantityChange QuantityChange (0..*);
 		[synonym FpML value quantityChange]
 	partyChange PartyChange (0..*);
 	otherTermsChange OtherTermsChange (0..1);
+	observation Observation (0..*);
 	fee Payment (0..*);
 }
 
@@ -63,7 +58,21 @@ class OtherTermsChange
 
 class Observation
 {
-	
+	observedObject ObservedObject (1..1);
+	observedValue number (1..1);
+	date date (1..1);
+	time time (0..1);
+	side QuotationSideEnum (0..1) <"The side (bid/mid/ask) of the observation, when applicable.">;
+		[synonym FpML value side]
+	currency CurrencyEnum (0..1);
+	informationSource InformationSource (0..1);
+		[synonym FpML value informationSource]
+}
+
+class ObservedObject one of // This is just a sample of the set of observation objects that should be associated with that class
+{
+	interestRateCurve FloatingRateIndexEnum (0..1);
+	commodityCurve CommodityReferencePriceEnum (0..1);
 }
 
 data rule NotionalAmount_Decrease
