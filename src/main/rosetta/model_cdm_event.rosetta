@@ -15,13 +15,13 @@ class ContractState one of
 {
 	contract Contract (0..1);
 	contractReference TradeIdentifier (0..1);
-		[synonym FpML value contractReference]
+		[synonym Rosetta_Workbench value contractReference]
 }
 
 class Event extends EventBase
 {
 	quantityChange QuantityChange (0..*);
-		[synonym FpML value quantityChange]
+		[synonym Rosetta_Workbench value quantityChange]
 	partyChange PartyChange (0..*);
 	otherTermsChange OtherTermsChange (0..1);
 	observation Observation (0..*);
@@ -35,11 +35,11 @@ choice rule Event_choice
 class QuantityChange
 {
 	before ContractState (0..1);
-		[synonym FpML value before]
+		[synonym Rosetta_Workbench value before]
 	after ContractState (1..1);
-		[synonym FpML value after]
+		[synonym Rosetta_Workbench value after]
 	quantityChange ContractualQuantity (1..1);
-		[synonym FpML value quantityChange]
+		[synonym Rosetta_Workbench value quantityChange]
 }
 
 class PartyChange
@@ -100,7 +100,7 @@ data rule NotionalAmount_Null
 data rule EarlyTermination_InterestPayout_TerminationDate
 	when Event -> otherTermsChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout exists
 	then Event -> otherTermsChange ->  before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate >
-		Event -> otherTermsChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate 
+		Event -> otherTermsChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate
 
 isEvent PartialTermination
 	Event -> quantityChange exists
