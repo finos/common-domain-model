@@ -4,28 +4,38 @@ FpML versionNumber "5.10"
 
 enum IntentEnum
 {
-	partialTermination,
-	correction,
-	renegotiation,
-	termination,
+	partialTermination
+		[synonym Rosetta_Workbench value "partialTermination"],
+	correction
+		[synonym Rosetta_Workbench value "correction"],
+	renegotiation
+		[synonym Rosetta_Workbench value "renegotiation"],
+	termination
+		[synonym Rosetta_Workbench value "termination"],
 	earlyTermination
+		[synonym Rosetta_Workbench value "earlyTermination"]
 }
 
 class ContractState one of
 {
 	contract Contract (0..1);
-	contractReference TradeIdentifier (0..1);
+		[synonym Rosetta_Workbench value contract]
+	contractReference ContractIdentifier (0..1);
 		[synonym Rosetta_Workbench value contractReference]
 }
 
 class Event extends EventBase
 {
+	party Party (0..*);
+		[synonym Rosetta_Workbench value party]
 	quantityChange QuantityChange (0..*);
 		[synonym Rosetta_Workbench value quantityChange]
 	partyChange PartyChange (0..*);
 	otherTermsChange OtherTermsChange (0..1);
-	observation Observation (0..*);
+	observation ObservationPrimitive (0..*);
+	reset ResetPrimitive (0..*);
 	fee Payment (0..*);
+		[synonym Rosetta_Workbench value fee]
 }
 
 choice rule Event_choice
@@ -45,7 +55,9 @@ class QuantityChange
 class PartyChange
 {
 	before ContractState (0..1);
+		[synonym Rosetta_Workbench value before]
 	after ContractState (1..1);
+		[synonym Rosetta_Workbench value after]
 	priorParties Party (2..2);
 	newParties Party (2..2);
 }
@@ -56,10 +68,10 @@ class OtherTermsChange
 	after ContractState (1..1);
 }
 
-class Observation
+class ObservationPrimitive
 {
-	observedObject ObservedObject (1..1);
-	observedValue number (1..1);
+	curve Curve (1..1);
+	observation number (1..1);
 	date date (1..1);
 	time time (0..1);
 	side QuotationSideEnum (0..1) <"The side (bid/mid/ask) of the observation, when applicable.">;
@@ -69,11 +81,23 @@ class Observation
 		[synonym FpML value informationSource]
 }
 
-class ObservedObject one of // This is just a sample of the set of observation objects that should be associated with that class
+class ResetPrimitive
+{
+	contractReference Identifier (1..1);
+	observationReference Identifier (1..1);
+	curve Curve (1..1);
+	date date (1..1);
+	setValue number (1..1);
+	currency CurrencyEnum (0..1);
+	resultingCashflow Money (1..1); // Will need to adjust to support commodity units
+}
+
+class Curve one of // This is just a sample of the set of observation objects that should be associated with that class
 {
 	interestRateCurve FloatingRateIndexEnum (0..1);
 	commodityCurve CommodityReferencePriceEnum (0..1);
 }
+
 
 data rule NotionalAmount_Decrease
 	when Event -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
@@ -106,18 +130,39 @@ isEvent PartialTermination
 	Event -> quantityChange exists
 	and Event -> intent = IntentEnum.partialTermination
 	and NotionalAmount_Decrease, NotionalAmount_Remaining apply
-	/*
-	 * Should we look to adjust the above to provide for the intent not to exist?
-	 *      when EventBase -> intent exists 
-	 * 		EventBase -> intent = IntentEnum.partialTermination
-	 * 			or EventBase -> intent <> IntentEnum.correction
-	 *			or EventBase -> intent <> IntentEnum.renegotiation
-	 * If yes, we need a defaulting logic
-	 */
 
 isEvent EarlyTermination
 	Event -> otherTermsChange exists
 	and Event -> otherTermsChange -> before -> contract -> contractualProduct -> economicTerms -> earlyTerminationProvision exists
 	and EarlyTermination_InterestPayout_TerminationDate apply
+
+/*
+ * Consider adding to the grammar the 'only exists' qualifier, to enhance legibility & maintainability 
+ */
 		
+isEvent Observation
+	Event -> observation exists
+	and Event -> party is absent
+	and Event -> intent is absent
+	and Event -> otherTermsChange is absent
+	and Event -> quantityChange is absent
+	and Event -> partyChange is absent
+	and Event -> reset is absent
+	and Event -> fee is absent
+
+isEvent Reset
+	Event -> reset exists
+	and Event -> party exists
+	and Event -> observation is absent
+	and Event -> otherTermsChange is absent
+	and Event -> quantityChange is absent
+	and Event -> partyChange is absent
+	and Event -> fee is absent
 	
+isEvent Payment
+	Event -> fee exists
+	and Event -> party exists
+	and Event -> observation is absent
+	and Event -> otherTermsChange is absent
+	and Event -> quantityChange is absent
+	and Event -> partyChange is absent
