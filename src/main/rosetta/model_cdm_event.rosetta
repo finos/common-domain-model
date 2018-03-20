@@ -26,7 +26,8 @@ class Event extends EventBase
 		[synonym FpML value quantityChange]
 	partyChange PartyChange (0..*);
 	otherTermsChange OtherTermsChange (0..1);
-	observation Observation (0..*);
+	observation ObservationPrimitive (0..*);
+	reset ResetPrimitive (0..*);
 	fee Payment (0..*);
 }
 
@@ -58,10 +59,10 @@ class OtherTermsChange
 	after ContractState (1..1);
 }
 
-class Observation
+class ObservationPrimitive
 {
-	observedObject ObservedObject (1..1);
-	observedValue number (1..1);
+	curve Curve (1..1);
+	observation number (1..1);
 	date date (1..1);
 	time time (0..1);
 	side QuotationSideEnum (0..1) <"The side (bid/mid/ask) of the observation, when applicable.">;
@@ -71,16 +72,22 @@ class Observation
 		[synonym FpML value informationSource]
 }
 
-class Reset
+class ResetPrimitive
 {
-	contractReference ContractIdentifier (1..1);
+	contractReference Identifier (1..1);
+	observationReference Identifier (1..1);
+	curve Curve (1..1);
+	date date (1..1);
+	setValue number (1..1);
+	currency CurrencyEnum (0..1);
 }
 
-class ObservedObject one of // This is just a sample of the set of observation objects that should be associated with that class
+class Curve one of // This is just a sample of the set of observation objects that should be associated with that class
 {
 	interestRateCurve FloatingRateIndexEnum (0..1);
 	commodityCurve CommodityReferencePriceEnum (0..1);
 }
+
 
 data rule NotionalAmount_Decrease
 	when Event -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
@@ -113,18 +120,25 @@ isEvent PartialTermination
 	Event -> quantityChange exists
 	and Event -> intent = IntentEnum.partialTermination
 	and NotionalAmount_Decrease, NotionalAmount_Remaining apply
-	/*
-	 * Should we look to adjust the above to provide for the intent not to exist?
-	 *      when EventBase -> intent exists 
-	 * 		EventBase -> intent = IntentEnum.partialTermination
-	 * 			or EventBase -> intent <> IntentEnum.correction
-	 *			or EventBase -> intent <> IntentEnum.renegotiation
-	 * If yes, we need a defaulting logic
-	 */
 
 isEvent EarlyTermination
 	Event -> otherTermsChange exists
 	and Event -> otherTermsChange -> before -> contract -> contractualProduct -> economicTerms -> earlyTerminationProvision exists
 	and EarlyTermination_InterestPayout_TerminationDate apply
 		
+isEvent Observation
+	Event -> observation exists
+	and Event -> party is absent
+	and Event -> intent is absent
+	and Event -> otherTermsChange is absent
+	and Event -> quantityChange is absent
+	and Event -> partyChange is absent
+	and Event -> fee is absent
 	
+isEvent Payment
+	Event -> fee exists
+	and Event -> party exists
+	and Event -> observation is absent
+	and Event -> otherTermsChange is absent
+	and Event -> quantityChange is absent
+	and Event -> partyChange is absent
