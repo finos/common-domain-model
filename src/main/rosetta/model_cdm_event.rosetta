@@ -47,7 +47,7 @@ class PrimitiveEvent <"The set of primitive events. The purpose of this class it
 		[synonym Rosetta_Workbench value fee]
 }
 
-class QuantityChange
+class QuantityChange <"The primitive event to represent a change in quantity or notional.">
 {
 	before ContractState (0..1);
 		[synonym Rosetta_Workbench value before]
@@ -57,36 +57,44 @@ class QuantityChange
 		[synonym Rosetta_Workbench value quantityChange]
 }
 
-class PartyChange
+class PartyChange <"The primitive event to represent a change in the parties to a contract.">
 {
 	before ContractState (0..1);
 		[synonym Rosetta_Workbench value before]
 	after ContractState (1..1);
 		[synonym Rosetta_Workbench value after]
 	priorParties Party (2..2);
+		[synonym Rosetta_Workbench value priorParties]
 	newParties Party (2..2);
+		[synonym Rosetta_Workbench value newParties]
 }
 
-class OtherTermsChange
+class OtherTermsChange <"The primitive event to represent change(s) in the contractual terms.">
 {
 	before ContractState (0..1);
+		[synonym Rosetta_Workbench value before]
 	after ContractState (1..1);
+		[synonym Rosetta_Workbench value after]
 }
 
-class ObservationPrimitive
+class ObservationPrimitive <"The primitive event to represent an observation. The reason for the Primitive suffix is not to conflict with the qualified observation event.">
 {
 	curve Curve (1..1);
+		[synonym Rosetta_Workbench value curve]
 	observation number (1..1);
+		[synonym Rosetta_Workbench value observation]
 	date date (1..1);
+		[synonym Rosetta_Workbench value date]
 	time time (0..1);
 	side QuotationSideEnum (0..1) <"The side (bid/mid/ask) of the observation, when applicable.">;
-		[synonym FpML value side]
+		[synonym Rosetta_Workbench value side]
 	currency CurrencyEnum (0..1);
+		[synonym Rosetta_Workbench value currency]
 	informationSource InformationSource (0..1);
-		[synonym FpML value informationSource]
+		[synonym Rosetta_Workbench value informationSource]
 }
 
-class ResetPrimitive
+class ResetPrimitive <"The primitive event to represent a reset. The reason for the Primitive suffix is not to conflict with the qualified reset event.">
 {
 	contractReference Identifier (1..1);
 	observationReference Identifier (1..1);
@@ -97,10 +105,19 @@ class ResetPrimitive
 	resultingCashflow Money (1..1); // Will need to adjust to support commodity units
 }
 
-class Curve one of // This is just a sample of the set of observation objects that should be associated with that class
+class Curve one of
 {
-	interestRateCurve FloatingRateIndexEnum (0..1);
-	commodityCurve CommodityReferencePriceEnum (0..1);
+	interestRateCurve InterestRateCurve (0..1);
+		[synonym Rosetta_Workbench value interestRateCurve]
+	commodityCurve CommodityReferencePriceEnum (0..1); // This is just an illustrative alternative curve instance, which implementation needs to be refined and confirmed
+}
+
+class InterestRateCurve
+{
+	floatingRateIndex FloatingRateIndexEnum (1..1);
+		[synonym Rosetta_Workbench value floatingRateIndex]
+	tenor Period (1..1);
+		[synonym Rosetta_Workbench value tenor]
 }
 
 data rule NotionalAmount_Decrease <"Logic to qualify a decrease in the notional amount as a result of a quantity change primitive event.">
