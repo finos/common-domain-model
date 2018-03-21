@@ -245,13 +245,13 @@ data rule NaturalPersonIdentifier_country <"ESMA RTS 22 specifies the natural pe
 			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.HU 
 			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.IE 
 			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.LU 
-			then Party -> partyId -> proprietaryScheme = "CONCAT"
+			then Party -> partyIdentifier -> proprietaryScheme = "CONCAT"
 		else if Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.EE 
 			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.ES 
 			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.IS 
 			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.IT
 			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.PL
-			then Party -> partyId -> partyIdSource = PartyIdSourceEnum.NIDN
+			then Party -> partyIdentifier -> partyIdSource = PartyIdSourceEnum.NIDN
 		else if Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.BE
 			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.BG 
 			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.DK 
@@ -263,11 +263,11 @@ data rule NaturalPersonIdentifier_country <"ESMA RTS 22 specifies the natural pe
 			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.NO 
 			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.SE 
 			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.SI
-			then Party -> partyId -> partyIdSource = PartyIdSourceEnum.NIDN
-				or Party -> partyId -> proprietaryScheme = "CONCAT"
+			then Party -> partyIdentifier -> partyIdSource = PartyIdSourceEnum.NIDN
+				or Party -> partyIdentifier -> proprietaryScheme = "CONCAT"
 		else if Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.MT
-			then Party -> partyId -> partyIdSource = PartyIdSourceEnum.CCPT
-				or Party -> partyId -> partyIdSource = PartyIdSourceEnum.NIDN
+			then Party -> partyIdentifier-> partyIdSource = PartyIdSourceEnum.CCPT
+				or Party -> partyIdentifier -> partyIdSource = PartyIdSourceEnum.NIDN
 		else if Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.CZ 
 			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.LI 
 			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.LT 
@@ -275,14 +275,14 @@ data rule NaturalPersonIdentifier_country <"ESMA RTS 22 specifies the natural pe
 			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.PT 
 			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.RO 
 			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.SK
-			then Party -> partyId -> partyIdSource = PartyIdSourceEnum.CCPT
-				or Party -> partyId -> partyIdSource = PartyIdSourceEnum.NIDN
-				or Party -> partyId -> proprietaryScheme = "CONCAT"
+			then Party -> partyIdentifier -> partyIdSource = PartyIdSourceEnum.CCPT
+				or Party -> partyIdentifier -> partyIdSource = PartyIdSourceEnum.NIDN
+				or Party -> partyIdentifier -> proprietaryScheme = "CONCAT"
 		else if Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.CY
-			then Party -> partyId -> partyIdSource = PartyIdSourceEnum.CCPT
-				or Party -> partyId -> proprietaryScheme = "CONCAT" 
-		else Party -> partyId -> partyIdSource = PartyIdSourceEnum.CCPT 
-				or Party -> partyId -> proprietaryScheme = "CONCAT"			
+			then Party -> partyIdentifier -> partyIdSource = PartyIdSourceEnum.CCPT
+				or Party -> partyIdentifier -> proprietaryScheme = "CONCAT" 
+		else Party -> partyIdentifier -> partyIdSource = PartyIdSourceEnum.CCPT 
+				or Party -> partyIdentifier -> proprietaryScheme = "CONCAT"			
 
 /*
  * FIX also has the RootParties component block, 'used to provide root information regarding the owning and entering parties of a transaction.'
@@ -296,7 +296,8 @@ class Party stereotype entityReferenceData <"The party class.">
 {
 	id string (0..1);
 		[synonym FpML value id]
-	partyId PartyIdentifier (1..*) <"The set of identifiers associated with a party.">;
+	partyIdentifier PartyIdentifier (1..*) <"The set of identifiers associated with a party.">;
+		[synonym Rosetta_Workbench value identifier]
 	account Account (0..*) <"The account that might be specified by the party in relation to a transaction.">;
 	regulatoryQualification_MiFID_II RegulatoryQualification_MiFID_II (0..1) <"The MiFID II regulatory qualifications associated to the party.">;
 	regulatoryQualification_CFTC_DFA RegulatoryQualification_CFTC_DFA (0..1) <"The CFTC DFA regulatory qualifications associated to the party.">;
@@ -364,6 +365,7 @@ class PartyIdentifier stereotype entityReferenceData <"The set of [partyId, Part
 		[synonym FIX value TargetPartyID tag 1462] /* Part of the TargetParties component block, 'targeted for the action specified in the message' */
 		[synonym FpML value partyId]
 		[synonym FpML value entityId]
+		[synonym Rosetta_Workbench value partyId]
 		[synonym ISO_20022 value LEI projection partyId_LegalEntity]
 		[synonym ISO_20022 value Id projection partyId_NaturalPerson]
 	partyIdSource PartyIdSourceEnum (0..1) <"The reference source for the partyId, e.g. LEI, BIC. The cardinality has been relaxed to account for the fact that the partyId source might be reported using further information, in accordance with the MiFID reporting requirements.">;
@@ -376,6 +378,7 @@ class PartyIdentifier stereotype entityReferenceData <"The set of [partyId, Part
 		[synonym FIX value DerivativeInstrumentPartyIDSource tag 1294]
 		[synonym FIX value TargetPartyIDSource tag 1463] /* Part of the TargetParties component block, 'targeted for the action specified in the message' */
 		[synonym FpML value partyIdScheme]
+		[synonym Rosetta_Workbench value partyIdSource]
 		[synonym ISO_20022 value Cd]
 	proprietaryScheme string (0..1) <"A non-normalised scheme for the identification of a natural person, as specified by ESMA as part of the MiFID/MiFIR regulation.">;
 		[synonym ISO_20022 value Prtry]
@@ -393,14 +396,14 @@ data rule PartyIdentifier_LEI <"The legal entity must be identified through an L
 	[regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "I table 2 #4" provision "The entity executing the transaction must be identified through the LEI."]
 	when Party -> regulatoryQualification_MiFID_II -> isEligibleTo = True
 		and Party -> legalEntity exists
-	then Party -> partyId -> partyIdSource must include PartyIdSourceEnum.LEI
+	then Party -> partyIdentifier -> partyIdSource must include PartyIdSourceEnum.LEI
 
 data rule PartyIdentifier_investmentFirm <"An investment firm must be identified with a validated, issued and duly renewed LEI.">
 	[regulatoryReference ESMA_MiFIR regulation "RTS 22" article "5(1)" provision "An investment firm which executes a transaction shall ensure that it is identified with a validated, issued and duly renewed ISO 17442 legal entity identifier code in the transaction report submitted pursuant to Article 26(1) of Regulation (EU) No 600/2014"]
 	[regulatoryReference ESMA_MiFIR regulation "RTS 22" article "5(2)" provision "An investment firm which executes a transaction shall ensure that the reference data related to its legal entity identifier is renewed in accordance with the terms of any of the accredited Local Operating Units of the Global Legal Entity Identifier System."]
 	when Party -> regulatoryQualification_MiFID_II -> isEligibleTo = True
 		and Party -> regulatoryQualification_MiFID_II -> isInvestmentFirm = True
-	then Party -> partyId -> partyIdSource = PartyIdSourceEnum.LEI
+	then Party -> partyIdentifier -> partyIdSource = PartyIdSourceEnum.LEI
 
 projection rule partyId_LegalEntity <"MiFIR reporting of the party identifier when the party is identified through an LEI, as the ISO 20022 standard collapses the partyId and partyIdSource in one field.">
 	for target ISO_20022
@@ -410,7 +413,7 @@ projection rule partyId_LegalEntity <"MiFIR reporting of the party identifier wh
 projection rule partyId_NaturalPerson <"MiFIR reporting of the party identifier when the party is a natural person.">
 	for target ISO_20022
 	when NaturalPerson exists 
-	map Party -> partyId -> partyId to synonym Id
+	map Party -> partyIdentifier -> partyId to synonym Id
 
 abstract class RegulatoryQualification stereotype regulatoryEligibility
 {
