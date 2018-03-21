@@ -230,7 +230,7 @@ class InterestRatePayout
 
 data rule InterestRatePayout_quantity
 	when InterestRatePayout exists
-	then InterestRatePayout -> quantity -> notionalSchedule must exist
+	then InterestRatePayout -> quantity -> notionalSchedule exists
 
 /*
  * QUESTION TO CDM GROUP
@@ -264,7 +264,7 @@ choice rule ContractualQuantity_choice <"TThe below set of notional values are e
 
 data rule InterestRatePayout_futureValueNotional <"The BRL CDI future value notional only applies to a fixed Rate Schedule.">
 	when InterestRatePayout -> interestRate -> fixedRate is absent
-	then InterestRatePayout -> quantity -> futureValueNotional must be absent
+	then InterestRatePayout -> quantity -> futureValueNotional is absent
 
 data rule FutureValueNotional_terminationDate <"FpML states that the value date associated with the future value notional should match the adjusted termination date.">
 	when InterestRatePayout -> quantity -> futureValueNotional exists
@@ -316,11 +316,11 @@ choice rule CreditDefaultPayout_choice <"Choice rule to represent an FpML choice
 
 data rule CreditDefaultPayout_quantity
 	when InterestRatePayout exists
-	then InterestRatePayout -> quantity -> notionalAmount must exist
+	then InterestRatePayout -> quantity -> notionalAmount exists
 
 data rule CreditDefaultPayout_inflationRate // Do we want to actually have such restriction?  While FpML does't support it, FpML scope is limited to standardised products.
 	when EconomicTerms -> payout -> creditDefaultPayout exists
-	then EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate must be absent
+	then EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate is absent
 
 class PaymentDates // Differences with the FpML PaymentDate include addition of CDS paymentDelay element.
 {
@@ -354,11 +354,11 @@ data rule PaymentDates_firstPaymentDate_lastRegularPaymentDate <"FpML validation
 
 data rule PaymentDates_firstPaymentDate_initialStub <"FpML specifies that firstPaymentDate must only be included if there is an initial stub.">
 	when InterestRateStream -> stubCalculationPeriodAmount -> initialStub is absent
-	then InterestRateStream -> paymentDates -> firstPaymentDate must be absent 
+	then InterestRateStream -> paymentDates -> firstPaymentDate is absent 
 
 data rule PaymentDates_lastRegularPaymentDate_finalStub <"FpML specifies that lastRegularPaymentDate must only be included if there is an final stub.">
 	when InterestRateStream -> stubCalculationPeriodAmount -> finalStub is absent
-	then InterestRateStream -> paymentDates -> lastRegularPaymentDate must be absent
+	then InterestRateStream -> paymentDates -> lastRegularPaymentDate is absent
 	
 data rule PaymentDates_paymentDaysOffset <"FpML specifies that paymentDaysOffset should only be included if early or delayed payment is applicable, i.e. if the periodMultiplier element value is not equal to zero.">
 	when PaymentDates -> paymentDaysOffset exists

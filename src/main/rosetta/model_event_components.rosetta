@@ -53,12 +53,12 @@ data rule Price_no_currency <"The currency should be absent when the priceType a
 		or Price -> priceType = PriceTypeEnum.Spread
 		or Price -> priceType = PriceTypeEnum.Discount
 		or Price -> priceType = PriceTypeEnum.TEDYield
-	then Price -> currency must be absent
+	then Price -> currency is absent
 	
 data rule Price_currency <"The currency should be present when the priceType attribute has certain values, such as fixed amount.">
 	when Price -> priceType = PriceTypeEnum.FixedAmount
 		or Price -> priceType = PriceTypeEnum.Premium
-	then Price -> currency must exist
+	then Price -> currency exists
 
 /*
  * Open issue: the FIX enumeration has a number of values (e.g. discount, per unit, 32nds quote units...) which cannot map properly into the ISO 20022 synonym. 
@@ -167,8 +167,8 @@ class QuotePrice stereotype preExecution <"The price information as provided thr
 data rule Quote_Price
 	[marketPractice FIX_TradingCommunity write-up "Global Fixed Income Committee - Best Practices for Trading Fixed Income Instruments - Volume 3 – Quote-Driven Workflows p. 126" recommendation "Either BidPx, OfferPx or both must be specified."]
 	when QuotePrice exists
-	then (QuotePrice -> bidPrice or QuotePrice -> offerPrice) must exist
-		or (QuotePrice -> bidPrice and QuotePrice -> offerPrice) must exist
+	then (QuotePrice -> bidPrice or QuotePrice -> offerPrice) exists
+		or (QuotePrice -> bidPrice and QuotePrice -> offerPrice) exists
 
 class QuoteSize stereotype preExecution <"The size information that might be associated with a quote.">
 {
@@ -201,9 +201,9 @@ data rule SettlementTerms_settlementDate
 	[marketPractice FIX_TradingCommunity write-up "Global Fixed Income Committee - Best Practices for Trading Fixed Income Instruments - Volume 3 – Quote-Driven Workflows p. 146" recommendation "SettleDate (64) is required if the value of SettlType (63) is 6 (Future) or 8 (Sellers Option)."]
 	when SettlementTerms -> settlementType = SettlementTypeEnum.Future 
 		or SettlementTerms -> settlementType = SettlementTypeEnum.SellersOption
-	then SettlementTerms -> settlementDate must exist
+	then SettlementTerms -> settlementDate exists
 	
 data rule SettlementTerms_no_settlementDate
 	[marketPractice FIX_TradingCommunity write-up "Global Fixed Income Committee - Best Practices for Trading Fixed Income Instruments - Volume 3 – Quote-Driven Workflows p. 146" recommendation "SettleDate (64) must be omitted if the value of SettlType (63) is 7 (When and If Issued)."]
 	when SettlementTerms -> settlementType = SettlementTypeEnum.WhenAndIfIssued 
-	then SettlementTerms -> settlementDate must be absent
+	then SettlementTerms -> settlementDate is absent

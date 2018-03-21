@@ -68,7 +68,7 @@ data rule BasketReferenceInformation_basketName_basketId <"FpML specifies a choi
 
 data rule BasketReferenceInformation_nthToDefault <"As part of the branch of the choice node, FpML requires the nthToDefault element to be present, while the mthToDefault one is optional.">
 	when BasketReferenceInformation -> mthToDefault exists
-	then BasketReferenceInformation -> nthToDefault must exist
+	then BasketReferenceInformation -> nthToDefault exists
 
 data rule BasketReferenceInformation_nthToDefault_mthToDefault <"FpML validation rule cd-39 - Context: BasketReferenceInformation (complex type). If nthToDefault exists, and if mthToDefault exists, then nthToDefault must be less than mthToDefault.">
 	when (BasketReferenceInformation -> nthToDefault and BasketReferenceInformation -> mthToDefault) exists
@@ -297,7 +297,7 @@ data rule DeliverableObligations_category <"FpML validation rule cd-34 - Context
 		and DeliverableObligations -> revenueObligationLiability
 		and DeliverableObligations -> specifiedCurrency
 		and DeliverableObligations -> transferable)
-	must be absent
+	is absent
 	
 class FeeLeg stereotype contractualProduct
 	[synonym FpML value FeeLeg]
@@ -328,15 +328,15 @@ choice rule FeeLeg_choice <"Choice rule to represent an FpML choice construct.">
 
 data rule FeeLeg_initialPoints <"The FpML QuotationStyleEnum states that when quotation style is 'PointsUpFront', the initialPoints element of the feeLeg should be populated.">
 	when FeeLeg -> quotationStyle = QuotationStyleEnum.PointsUpFront
-	then FeeLeg -> initialPoints must exist
+	then FeeLeg -> initialPoints exists
 
 data rule FeeLeg_marketFixedRate <"The FpML QuotationStyleEnum states that when quotation style is 'TradedSpread', the marketFixedRate element of the feeLeg should be populated.">
 	when FeeLeg -> quotationStyle = QuotationStyleEnum.TradedSpread
-	then FeeLeg -> marketFixedRate must exist
+	then FeeLeg -> marketFixedRate exists
 
 data rule FeeLeg_marketPrice <"The FpML QuotationStyleEnum states that when quotation style is 'Price', the marketPrice element of the feeLeg should be populated. FpML specifies marketPrice as a NonNegativeDecimal.">
 	when FeeLeg -> quotationStyle = QuotationStyleEnum.Price
-	then FeeLeg -> marketPrice must exist and FeeLeg -> marketPrice >= 0b
+	then FeeLeg -> marketPrice exists and FeeLeg -> marketPrice >= 0b
 
 class FixedAmountCalculation stereotype contractualProduct
 	[synonym FpML value FixedAmountCalculation]
@@ -449,11 +449,11 @@ class FloatingAmountProvisions stereotype contractualProduct
 
 data rule GeneralTerms_indexReferenceInformation <"FpML validation rule cd-41 - Context: GeneralTerms (complex type). If indexReferenceInformation/tranche does not exist, then modifiedEquityDelivery must not exist.">
 	when GeneralTerms -> indexReferenceInformation -> tranche is absent
-	then GeneralTerms -> modifiedEquityDelivery must be absent
+	then GeneralTerms -> modifiedEquityDelivery is absent
 	
 data rule GeneralTerms_basketReferenceInformation <"FpML validation rule cd-42 - Context: GeneralTerms (complex type). If basketReferenceInformation does not exist, then substitution must not exist.">
 	when GeneralTerms -> basketReferenceInformation is absent
-	then GeneralTerms -> substitution must be absent
+	then GeneralTerms -> substitution is absent
 
 class IndexName stereotype contractualProduct <"The index name, with an optional set of index Id. Corresponds to a sub-construct of the FpML IndexReferenceInformation complex type.">
 {
@@ -804,7 +804,7 @@ class ReferencePool stereotype contractualProduct <"This type contains all the r
 
 data rule ReferencePool_constituentWeight <"FpML validation rule cd-44 - Context: ReferencePool (complex type). All referencePoolItem/constituentWeight must have the same name of child element.">
 	when ReferencePool exists
-	then (ReferencePool -> referencePoolItem -> constituentWeight -> basketPercentage or ReferencePool -> referencePoolItem -> constituentWeight -> openUnits) must exist
+	then (ReferencePool -> referencePoolItem -> constituentWeight -> basketPercentage or ReferencePool -> referencePoolItem -> constituentWeight -> openUnits) exists
 
 class ReferencePoolItem stereotype contractualProduct <"This type contains all the constituent weight and reference information.">
 	[synonym FpML value ReferencePoolItem]

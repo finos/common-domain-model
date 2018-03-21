@@ -37,7 +37,7 @@ workflow rule ExecutionEvent_Allocation <"The allocation event is subsequent to 
 	when ExecutionEvent -> action <> ActionEnum.cancel 
 		and AllocationEvent exists 
 			and AllocationEvent -> action <> ActionEnum.correct
-	ExecutionEvent must precede AllocationEvent
+	ExecutionEvent precedes AllocationEvent
 
 class ClearingEvent extends TransactionEvent stereotype postExecution <"The clearing event has a post-execution scope and applies to contractual and listed products.">
 {
@@ -109,11 +109,11 @@ class ExecutionEvent extends TransactionEvent stereotype execution <"The executi
 data rule Execution_Contract_price <"If the executed product is a contractual product, the price should be represented as part of the Contract rather than the Price class, which only supports one price point.">
 	[regulatoryReference CFTC_DFA guideline "ISDA Price Notation and Additional Price Notation Approach" section "N/A" provision "Spreadsheet that provides an overview with examples for the different asset classes and different scenarios, explaining the approach discussed and agreed with the CFTC for the population of the Price Notation (PN) and Additional Price Notation (APN) fields required under part 45 reporting."]
 	when ExecutionEvent -> after -> contract exists
-	then ExecutionEvent -> price must be absent
+	then ExecutionEvent -> price is absent
 
 data rule Execution_Package_price <"If the executed product is a package transaction, the price should not be positioned as part of Execution class, as it is positioned as part of the respective package components.">
 	when ExecutionEvent -> after -> packageTransaction exists
-	then ExecutionEvent -> price must be absent
+	then ExecutionEvent -> price is absent
 
 data rule ExecutionEvent_Contract_open_correct <"When an execution event is new or corrected and applies to a contract, the resulting contract state is open.">
 	when ( ExecutionEvent -> action = ActionEnum.new or ExecutionEvent -> action = ActionEnum.correct )
@@ -345,7 +345,7 @@ class Quote extends TransactionEvent stereotype preExecution
 workflow rule Quote_cancel_correct <"A quote cancellation or correction should be preceded by another quote event, carrying he same identifier.">
 	when Quote -> action = ActionEnum.cancel
 		or Quote -> action = ActionEnum.correct
-	Quote must precede Quote
+	Quote precedes Quote
 	commonId path Quote -> eventIdentifier -> identifier
 
 class RegulatoryReportRequestForQuote extends RequestForQuote stereotype regulatoryReporting <"The regulatory reporting base structure for the RFQ.">
@@ -406,4 +406,4 @@ data rule TransactionEvent_decisionMaker <"When the transacting party involves a
 	when TransactionEvent -> party -> decisionMaker = True
 		and TransactionEvent -> eligibilityAssessment -> isEligibleToMiFID_II = True
 		and TransactionEvent -> party -> legalEntity exists
-	then TransactionEvent -> party -> partyIdentifier -> partyIdSource must include PartyIdSourceEnum.LEI
+	then TransactionEvent -> party -> partyIdentifier -> partyIdSource includes PartyIdSourceEnum.LEI

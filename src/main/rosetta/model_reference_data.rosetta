@@ -106,9 +106,9 @@ choice rule Country_choice <"The country identification should be undertaken thr
 data rule Country_alpha2 <"The ISO 20022 Financial Instruments and Transactions Regulatory Reporting Message Definition Report, adopted as part of the MiFID II / MiFIR regulation, requires the use of the ISO 3166 alpha2 country code.">
 	[regulatoryReference ESMA_MiFIR specification "ISO 20022 - Part 2" section "3.3 Constraint 4" provision "Country - The code is checked against the list of country names obtained from the United Nations (ISO 3166, Alpha-2 code)."]
 	when TransactionEvent -> eligibilityAssessment -> isEligibleToMiFID_II = True
-	then TransactionEvent -> party -> legalEntity -> countryOfIncorporation -> alpha2 must exist
-		and TransactionEvent -> party -> legalEntity -> branch -> country -> alpha2 must exist
-		and TransactionEvent -> party -> naturalPerson -> nationality -> alpha2 must exist
+	then TransactionEvent -> party -> legalEntity -> countryOfIncorporation -> alpha2 exists
+		and TransactionEvent -> party -> legalEntity -> branch -> country -> alpha2 exists
+		and TransactionEvent -> party -> naturalPerson -> nationality -> alpha2 exists
 
 class ExecutionVenue stereotype entityReferenceData, preExecution, execution, postExecution <"The execution venue.">
 {
@@ -128,7 +128,7 @@ choice rule marketSegment_product <"When an execution venue has an associated ma
 data rule ExecutionVenue_countryOfCompetentAuthority <"MiFID II requires indication of the country that regulates an execution venue.">
 	[regulatoryReference ESMA_MiFID_II regulation "RTS 27" article "1(b)" provision "Requires to report the country of location of the competent authority."]
 	when Party -> regulatoryQualification_MiFID_II -> isEligibleTo = True
-	then Party -> executionVenue -> countryOfCompetentAuthority must exist
+	then Party -> executionVenue -> countryOfCompetentAuthority exists
 
 data rule ExecutionVenue_MIC <"Execution venues must be identified through a MIC code.">
 	[regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "I table 2 #36"provision "Use the ISO 10383 segment MIC for transactions executed on a trading venue, Systematic Internaliser (SI) or organised trading platform outside of the Union. Where the segment MIC does not exist, use the operating MIC."]
@@ -231,7 +231,7 @@ choice rule NaturalPerson_choice <"Choice rule to represent an FpML choice const
 data rule NaturalPerson_nationality <"The nationality attribute is required when the natural is subject to MiFIR compliance, in order to satisfy the requirement to only associate a CONCAT to German nationals.">
 	[regulatoryReference ESMA_MiFIR regulation "RTS 22" article "26" provision "Only 'CONCAT' codes are to be used for identifying natural persons of German nationality instead of a 'personal identity card number' or 'national passport number' https://www.esma.europa.eu/press-news/esma-news/esma-proposes-two-amendments-natural-person-identifiers-under-mifid-ii"]
 	when Party -> regulatoryQualification_MiFID_II -> isEligibleTo = True
-	then Party -> naturalPerson -> nationality must exist
+	then Party -> naturalPerson -> nationality exists
 
 data rule NaturalPersonIdentifier_country <"ESMA RTS 22 specifies the natural person identifier to be used as a function of the EU country.">
 	[regulatoryReference ESMA_MiFIR specification "ISO 20022 - Part 2" section "20.1.8.2.2" provision "In the scope of MIFIR, the scheme name is restricted to a passport number (use of code CCPT), any other national identifier (use of code NIDN) or CONCAT (use of proprietary with value CONCAT). Issuer field will be ignored and should not be populated by reporting parties."]
@@ -396,7 +396,7 @@ data rule PartyIdentifier_LEI <"The legal entity must be identified through an L
 	[regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "I table 2 #4" provision "The entity executing the transaction must be identified through the LEI."]
 	when Party -> regulatoryQualification_MiFID_II -> isEligibleTo = True
 		and Party -> legalEntity exists
-	then Party -> partyIdentifier -> partyIdSource must include PartyIdSourceEnum.LEI
+	then Party -> partyIdentifier -> partyIdSource includes PartyIdSourceEnum.LEI
 
 data rule PartyIdentifier_investmentFirm <"An investment firm must be identified with a validated, issued and duly renewed LEI.">
 	[regulatoryReference ESMA_MiFIR regulation "RTS 22" article "5(1)" provision "An investment firm which executes a transaction shall ensure that it is identified with a validated, issued and duly renewed ISO 17442 legal entity identifier code in the transaction report submitted pursuant to Article 26(1) of Regulation (EU) No 600/2014"]
