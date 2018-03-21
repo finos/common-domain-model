@@ -30,21 +30,7 @@ class BulletPayment extends ContractualHeader stereotype contractualProduct <"A 
 {
 	payment Payment (1..1) <"A known payment between two parties.">;
 		[synonym FpML value payment]
-			bulletPayment BulletPayment (0..1) <"A product to represent a single known payment.">;
-		[synonym FpML value bulletPayment]
-	capFloor CapFloor (0..1) <"A cap, floor or cap floor structures product definition.">;
-		[synonym FpML value capFloor]
-	fra Fra (0..1) <"A forward rate agreement product definition.">;
-		[synonym FpML value fra]
-	swap Swap (0..1) <"A swap product definition.">;
-		[synonym FpML value swap]
-	swaption Swaption (0..1) <"A swaption product definition.">;
-		[synonym FpML value swaption]
 }
-
-choice rule BulletPayment_choice <"A choice rule to represent the FpML substitution group that represents the products that can be associated with a bullet payment.">
-	for BulletPayment optional choice between
-	bulletPayment and capFloor and fra and swap and swaption
 
 /*
  * The below will need to be deprecated at some point, as its content has largely been incorporated as part of the InterestRatePayout
@@ -149,11 +135,11 @@ data rule CalculationPeriod_calculationPeriodNumberOfDays <"FpML specifies calcu
 
 data rule CalculationPeriod_unadjustedStartDate <"FpML validation rule ird-30 - Context: CalculationPeriod (complex type). unadjustedStartDate exists or adjustedStartDate exists.">
 	when CalculationPeriod exists
-	then (CalculationPeriod -> unadjustedStartDate or CalculationPeriod -> adjustedStartDate) must exist
+	then (CalculationPeriod -> unadjustedStartDate or CalculationPeriod -> adjustedStartDate) exists
 
 data rule CalculationPeriod_unadjustedEndDate <"FpML validation rule ird-31 - Context: CalculationPeriod (complex type). unadjustedEndDate exists or adjustedEndDate exists.">
 	when CalculationPeriod exists
-	then (CalculationPeriod -> unadjustedEndDate or CalculationPeriod -> adjustedEndDate) must exist
+	then (CalculationPeriod -> unadjustedEndDate or CalculationPeriod -> adjustedEndDate) exists
 
 class CalculationPeriodAmount stereotype contractualProduct <"A class defining the parameters used in the calculation of fixed or floating rate calculation period amounts or for specifying a known calculation period amount or known amount schedule.">
 	[synonym FpML value CalculationPeriodAmount]
@@ -208,24 +194,24 @@ choice rule CalculationPeriodDates_choice2 <"Choice rule to represent an FpML ch
 
 data rule CalculationPeriodDates_firstPeriodStartDate_effectiveDate <"FpML specifies that the firstPeriodStartDate must only be specified if it is not equal to the effective date.">
 	when CalculationPeriodDates -> firstPeriodStartDate = CalculationPeriodDates -> effectiveDate
-	then CalculationPeriodDates -> firstPeriodStartDate must be absent
+	then CalculationPeriodDates -> firstPeriodStartDate is absent
 
 data rule CalculationPeriodDates_firstPeriodStartDate_stubPeriodType <"FpML specifies that the firstRegularPeriodStartDate must only be specified if there is an initial stub calculation period.">
 	when CalculationPeriodDates -> stubPeriodType is absent 
 		or ( CalculationPeriodDates -> stubPeriodType <> StubPeriodTypeEnum.ShortInitial 
 			and CalculationPeriodDates -> stubPeriodType <> StubPeriodTypeEnum.LongInitial )
-	then CalculationPeriodDates -> firstRegularPeriodStartDate must be absent
+	then CalculationPeriodDates -> firstRegularPeriodStartDate is absent
 		
 data rule CalculationPeriodDates_firstRegularPeriodEndDate <"FpML specifies that the firstRegularPeriodEndDate must only be specified if there is a final stub calculation period.">
 	when CalculationPeriodDates -> stubPeriodType is absent
 		or ( CalculationPeriodDates -> stubPeriodType <> StubPeriodTypeEnum.ShortFinal
 			and CalculationPeriodDates -> stubPeriodType <> StubPeriodTypeEnum.LongFinal )
-	then CalculationPeriodDates -> lastRegularPeriodEndDate must be absent
+	then CalculationPeriodDates -> lastRegularPeriodEndDate is absent
 
 data rule CalculationPeriodDates_firstCompoundingPeriodEndDate <"FpML specifies that the firstCompoundingPeriodEndDate must only be specified when the compounding method is specified and not equal to a value of None.">
 	when InterestRateStream -> calculationPeriodAmount -> calculation -> compoundingMethod is absent
 		or InterestRateStream -> calculationPeriodAmount -> calculation -> compoundingMethod = CompoundingMethodEnum.None
-	then InterestRateStream -> calculationPeriodDates -> firstCompoundingPeriodEndDate must be absent
+	then InterestRateStream -> calculationPeriodDates -> firstCompoundingPeriodEndDate is absent
 
 data rule CalculationPeriodDates_effectiveDate_terminationDate <"FpML validation rule ird-14 - Context: CalculationPeriodDates (complex type). If effectiveDate exists and If terminationDate exists, then terminationDate/unadjustedDate must be after effectiveDate/unadjustedDate.">
 	when CalculationPeriodDates -> effectiveDate exists 
@@ -423,7 +409,7 @@ class Discounting stereotype contractualProduct <"A class defining discounting i
 
 data rule Discounting_discountRate <"In FpML discountingRate and discountRateDayCountFraction are part of an optional node, with discountingRate as the required element as part of that node.">
 	when Discounting -> discountRateDayCountFraction exists
-	then Discounting -> discountRate must exist
+	then Discounting -> discountRate exists
 
 class EarlyTerminationEvent stereotype contractualProduct <"A class to define the adjusted dates associated with an early termination provision.">
 	[synonym FpML value EarlyTerminationEvent]
@@ -471,8 +457,8 @@ class EarlyTerminationProvision stereotype contractualProduct <"A class defining
 
 data rule EarlyTerminationProvision_mandatoryEarlyTermination <"The FpML MandatoryEarlyTermination.model specifies a required choice node. The choice node associated with the FpML EarlyTerminationProvision is quite complex and using the data rule provides a more flexible approach than adding complexity to the choice rule grammar.">
 	when EarlyTerminationProvision exists
-	then (EarlyTerminationProvision -> mandatoryEarlyTermination or EarlyTerminationProvision -> optionalEarlyTermination) must exist
-		or (EarlyTerminationProvision -> mandatoryEarlyTermination and EarlyTerminationProvision -> optionalEarlyTermination) must exist
+	then (EarlyTerminationProvision -> mandatoryEarlyTermination or EarlyTerminationProvision -> optionalEarlyTermination) exists
+		or (EarlyTerminationProvision -> mandatoryEarlyTermination and EarlyTerminationProvision -> optionalEarlyTermination) exists
 
 class ExerciseEvent stereotype contractualProduct <"A class defining the adjusted dates associated with a particular exercise event.">
 	[synonym FpML value ExerciseEvent]
@@ -732,7 +718,7 @@ class InterestRateStream stereotype contractualProduct <"A class defining the co
 }
 
 data rule PayerParty_ReceiverParty <"FpML validation rule ird-8 - Context: InterestRateStream. The @href attribute of payerPartyReference must not be equal to the @href attribute of receiverPartyReference. If they are equal, and if payerAccountReference and receiverAccountReference both exist, the @href attribute of payerAccountReference must not be equal to the @href attribute of receiverAccountReference">
-	when InterestRateStream -> payerParty -> partyId = InterestRateStream -> receiverParty -> partyId
+	when InterestRateStream -> payerParty -> partyIdentifier = InterestRateStream -> receiverParty -> partyIdentifier
 	then InterestRateStream -> payerParty -> account -> accountNumber <> InterestRateStream -> receiverParty -> account -> accountNumber 
 
 projection rule BuyerSeller_IRS <"MiFIR requires that the parties to a financial transaction always be identified as a buyer/seller.  To this effect, it specifies a set of logic in the case when this differs from standard market practice.">
@@ -786,7 +772,7 @@ class MandatoryEarlyTermination stereotype contractualProduct <"A class to defin
 
 data rule MandatoryEarlyTermination_cashSettlement <"FpML validation rule ird-27 - Context: MandatoryEarlyTermination (complex type). cashSettlement/cashSettlementPaymentDate must not exist.">
 	when MandatoryEarlyTermination -> cashSettlement exists
-	then MandatoryEarlyTermination -> cashSettlement -> cashSettlementPaymentDate must be absent
+	then MandatoryEarlyTermination -> cashSettlement -> cashSettlementPaymentDate is absent
 
 class MandatoryEarlyTerminationAdjustedDates stereotype contractualProduct <"A class defining the adjusted dates associated with a mandatory early termination provision.">
 	[synonym FpML value MandatoryEarlyTerminationAdjustedDates]
@@ -844,13 +830,13 @@ class NotionalStepRule stereotype contractualProduct <"A class defining a parame
 
 data rule NotionalStepRule_notionalStepAmount <"FpML specifies a choice as part of the NotionalStepRule construct between the notionalStepAmount and the combination of notionalStepRate and stepRelativeTo.">
 	when NotionalStepRule -> notionalStepAmount exists
-	then NotionalStepRule -> notionalStepRate must be absent 
-		and NotionalStepRule -> stepRelativeTo must be absent
+	then NotionalStepRule -> notionalStepRate is absent 
+		and NotionalStepRule -> stepRelativeTo is absent
 
 data rule NotionalStepRule_notionalStepRate <"FpML specifies a choice as part of the NotionalStepRule construct between the notionalStepAmount and the combination of notionalStepRate and stepRelativeTo.">
 	when NotionalStepRule -> notionalStepAmount is absent
-	then NotionalStepRule -> notionalStepRate must exist 
-		and NotionalStepRule -> stepRelativeTo must exist
+	then NotionalStepRule -> notionalStepRate exists
+		and NotionalStepRule -> stepRelativeTo exists
 
 class OptionalEarlyTermination stereotype contractualProduct <"A class defining an early termination provision where either or both parties have the right to exercise.">
 	[synonym FpML value OptionalEarlyTermination]
@@ -913,8 +899,8 @@ choice rule PaymentCalculationPeriod_choice <"Choice rule to represent an FpML c
 	
 data rule PaymentCalculationPeriod_unadjustedPaymentDate <"FpML validation rule ird-34 - Context: PaymentCalculationPeriod (complex type). Either unadjustedPaymentDate or adjustedPaymentDate must exist.">
 	when PaymentCalculationPeriod exists
-	then PaymentCalculationPeriod -> unadjustedPaymentDate must exist 
-		or PaymentCalculationPeriod -> adjustedPaymentDate must exist
+	then PaymentCalculationPeriod -> unadjustedPaymentDate exists
+		or PaymentCalculationPeriod -> adjustedPaymentDate exists
 
 //class PaymentDates stereotype contractualProduct <"A class defining parameters used to generate the payment dates schedule, including the specification of early or delayed payments.  Payment dates are determined relative to the calculation period dates or the reset dates.">
 //	[synonym FpML value PaymentDates]
@@ -1001,11 +987,11 @@ data rule ResetDates_rateCutOffDaysOffset <"FpML specifies that the rate cut-off
 
 data rule ResetFrequency_weekly <"FpML specifies that the weeklyRollConvention must be specified as part of the reset frequency if and only if the reset frequency is defined as weekly.  This data rule is focused on the first part of the assertion.">
 	when ResetDates -> resetFrequency -> period = PeriodExtendedEnum.W
-	then ResetDates -> resetFrequency -> weeklyRollConvention must exist
+	then ResetDates -> resetFrequency -> weeklyRollConvention exists
 
 data rule ResetFrequency_notWeekly <"FpML specifies that the weeklyRollConvention must be specified as part of the reset frequency if and only if the reset frequency is defined as weekly.  This data rule is focused on the latter part of the assertion.">
 	when ResetDates -> resetFrequency -> period <> PeriodExtendedEnum.W
-	then ResetDates -> resetFrequency -> weeklyRollConvention must be absent
+	then ResetDates -> resetFrequency -> weeklyRollConvention is absent
 
 class SettlementProvision stereotype contractualProduct <"A class defining the specification of settlement terms, occurring when the settlement currency is different to the notional currency of the trade.">
 	[synonym FpML value SettlementProvision]
@@ -1036,17 +1022,17 @@ class StubCalculationPeriodAmount stereotype contractualProduct <"A class defini
 
 data rule InitialStub_FinalStub <"Data rule to represent the FpML nested XML construct as part of StubCalculationPeriodAmount.">
 	when InterestRateStream -> stubCalculationPeriodAmount exists
-	then InterestRateStream -> stubCalculationPeriodAmount -> initialStub must exist
-		or InterestRateStream -> stubCalculationPeriodAmount -> finalStub must exist
-		or (InterestRateStream -> stubCalculationPeriodAmount -> initialStub and InterestRateStream -> stubCalculationPeriodAmount -> finalStub) must exist
+	then InterestRateStream -> stubCalculationPeriodAmount -> initialStub exists
+		or InterestRateStream -> stubCalculationPeriodAmount -> finalStub exists
+		or (InterestRateStream -> stubCalculationPeriodAmount -> initialStub and InterestRateStream -> stubCalculationPeriodAmount -> finalStub) exists
 		
 data rule StubCalculationPeriodAmount_firstRegularPeriodStartDate <"FpML validation rule ird-23 - Context: StubCalculationPeriodAmount (complex type). If stubCalculationPeriodAmount/initialStub exists, the calculationPeriodDates element referenced by the @href attribute of stubCalculationPeriodAmount/calculationPeriodDatesReference contains firstRegularPeriodStartDate.">
 	when StubCalculationPeriodAmount -> initialStub exists
-	then StubCalculationPeriodAmount -> calculationPeriodDates -> firstRegularPeriodStartDate must exist
+	then StubCalculationPeriodAmount -> calculationPeriodDates -> firstRegularPeriodStartDate exists
 
 data rule StubCalculationPeriodAmount_ <"FpML validation rule ird-24 - Context: StubCalculationPeriodAmount (complex type). finalStub exists if and only if the calculationPeriodDates element referenced by calculationPeriodDates/@href contains a lastRegularPeriodEndDate.">
 	when StubCalculationPeriodAmount -> finalStub exists
-	then StubCalculationPeriodAmount -> calculationPeriodDates -> lastRegularPeriodEndDate must exist
+	then StubCalculationPeriodAmount -> calculationPeriodDates -> lastRegularPeriodEndDate exists
 
 class Swap extends ContractualHeader stereotype contractualProduct <"A class defining swap streams and additional payments between the principal parties involved in the swap.">
 	[synonym FpML value Swap]
