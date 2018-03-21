@@ -2,7 +2,7 @@ Rosetta versionNumber "0.0.1"
 FIX versionNumber "5.0 SP3"
 FpML versionNumber "5.10"
 
-class Aggregation extends TransactionEvent stereotype postExecution <"The aggregation event has a post-execution scope and applies to all financial instruments.">
+class AggregationEvent extends TransactionEvent stereotype postExecution <"The aggregation event has a post-execution scope and applies to all financial instruments.">
 {
 	/*
 	 * Need to confirm the product scope of the aggregation event.  Does it indeed applies beyond contractual products?  What is the typical use case?
@@ -11,43 +11,43 @@ class Aggregation extends TransactionEvent stereotype postExecution <"The aggreg
 	after PostExecutionState (1..1);
 }
 
-data rule Aggregation_Contract_before <"The contractState of the contracts that are part of an aggregation event is 'open'.">
-	when Aggregation -> before -> contract exists
-	then Aggregation -> before -> contract -> contractState = ContractStateEnum.open
+data rule AggregationEvent_Contract_before <"The contractState of the contracts that are part of an aggregation event is 'open'.">
+	when AggregationEvent -> before -> contract exists
+	then AggregationEvent -> before -> contract -> contractState = ContractStateEnum.open
 
-data rule Aggregation_Contract_after <"The contractState of the contract resulting from an aggregation event is 'open'.">
-	when Aggregation -> after -> contract exists
-	then Aggregation -> after -> contract -> contractState = ContractStateEnum.open
+data rule AggregationEvent_Contract_after <"The contractState of the contract resulting from an aggregation event is 'open'.">
+	when AggregationEvent -> after -> contract exists
+	then AggregationEvent -> after -> contract -> contractState = ContractStateEnum.open
 
-class Allocation extends TransactionEvent stereotype postExecution <"The allocation event has a post-execution scope and applies to all financial instruments.">
+class AllocationEvent extends TransactionEvent stereotype postExecution <"The allocation event has a post-execution scope and applies to all financial instruments.">
 {
 	before PostExecutionState (1..1);
 	after PostExecutionState (1..*) <"The single lower cardinality is meant to support the case where an allocation process is generically applied to contracts, even when no actual contract split results from it.">;
 }
 
 data rule Allocation_Contract_before <"The contractState of the contract that is subject to an allocation event is 'open'.">
-	when Allocation -> before -> contract exists
-	then Allocation -> before -> contract -> contractState = ContractStateEnum.open
+	when AllocationEvent -> before -> contract exists
+	then AllocationEvent -> before -> contract -> contractState = ContractStateEnum.open
 
 data rule Allocation_Contract_after <"The contractState of the contracts resulting from an allocation event is 'open'.">
-	when Allocation -> after -> contract exists
-	then Allocation -> after -> contract -> contractState = ContractStateEnum.open
+	when AllocationEvent -> after -> contract exists
+	then AllocationEvent -> after -> contract -> contractState = ContractStateEnum.open
 
-workflow rule Execution_Allocation <"The allocation event is subsequent to the execution.">
-	when Execution -> action <> ActionEnum.cancel 
-		and Allocation exists 
-			and Allocation -> action <> ActionEnum.correct
-	Execution must precede Allocation
+workflow rule ExecutionEvent_Allocation <"The allocation event is subsequent to the execution.">
+	when ExecutionEvent -> action <> ActionEnum.cancel 
+		and AllocationEvent exists 
+			and AllocationEvent -> action <> ActionEnum.correct
+	ExecutionEvent must precede AllocationEvent
 
-class Clearing extends TransactionEvent stereotype postExecution <"The clearing event has a post-execution scope and applies to contractual and listed products.">
+class ClearingEvent extends TransactionEvent stereotype postExecution <"The clearing event has a post-execution scope and applies to contractual and listed products.">
 {
 	before PostExecutionState (1..1);
 	after PostExecutionState (2..*) <"Following a clearing event, at least two 'trades' exist: the initial one and the cleared one.">;
 }
 
 data rule Clearing_Contract_after <"The contractState of the contract subject to a clearing event is 'open'.">
-	when Clearing -> before -> contract exists
-	then Clearing -> before -> contract -> contractState = ContractStateEnum.open
+	when ClearingEvent -> before -> contract exists
+	then ClearingEvent -> before -> contract -> contractState = ContractStateEnum.open
 
 abstract class EventBase stereotype preExecution, execution, postExecution <"The abstract class for all events.">
 {
@@ -88,7 +88,7 @@ data rule EventTimeStamp_ExpireTime <"The expire time should be greater than the
 	when EventTimeStamp -> expiryTimestamp exists
 	then EventTimeStamp -> expiryTimestamp > EventTimeStamp -> creationTimestamp
 
-class Execution extends TransactionEvent stereotype execution <"The execution event is characterised by a pre-execution transaction workflow and a post-execution state.">
+class ExecutionEvent extends TransactionEvent stereotype execution <"The execution event is characterised by a pre-execution transaction workflow and a post-execution state.">
 {
 	before PreExecutionFinancialTransaction (0..1);
 	after PostExecutionState (1..1);
@@ -108,22 +108,22 @@ class Execution extends TransactionEvent stereotype execution <"The execution ev
 
 data rule Execution_Contract_price <"If the executed product is a contractual product, the price should be represented as part of the Contract rather than the Price class, which only supports one price point.">
 	[regulatoryReference CFTC_DFA guideline "ISDA Price Notation and Additional Price Notation Approach" section "N/A" provision "Spreadsheet that provides an overview with examples for the different asset classes and different scenarios, explaining the approach discussed and agreed with the CFTC for the population of the Price Notation (PN) and Additional Price Notation (APN) fields required under part 45 reporting."]
-	when Execution -> after -> contract exists
-	then Execution -> price must be absent
+	when ExecutionEvent -> after -> contract exists
+	then ExecutionEvent -> price must be absent
 
 data rule Execution_Package_price <"If the executed product is a package transaction, the price should not be positioned as part of Execution class, as it is positioned as part of the respective package components.">
-	when Execution -> after -> packageTransaction exists
-	then Execution -> price must be absent
+	when ExecutionEvent -> after -> packageTransaction exists
+	then ExecutionEvent -> price must be absent
 
-data rule Execution_Contract_open_correct <"When an execution event is new or corrected and applies to a contract, the resulting contract state is open.">
-	when ( Execution -> action = ActionEnum.new or Execution -> action = ActionEnum.correct )
-		and Execution -> after -> contract exists
-	then Execution -> after -> contract -> contractState = ContractStateEnum.open
+data rule ExecutionEvent_Contract_open_correct <"When an execution event is new or corrected and applies to a contract, the resulting contract state is open.">
+	when ( ExecutionEvent -> action = ActionEnum.new or ExecutionEvent -> action = ActionEnum.correct )
+		and ExecutionEvent -> after -> contract exists
+	then ExecutionEvent -> after -> contract -> contractState = ContractStateEnum.open
 
-data rule Execution_Contract_close <"When an execution event is cancelled and applies to a contract, the resulting contract state is closed.">
-	when Execution -> action = ActionEnum.cancel
-		and Execution -> after -> contract exists
-	then Execution -> after -> contract -> contractState = ContractStateEnum.close
+data rule ExecutionEvent_Contract_close <"When an execution event is cancelled and applies to a contract, the resulting contract state is closed.">
+	when ExecutionEvent -> action = ActionEnum.cancel
+		and ExecutionEvent -> after -> contract exists
+	then ExecutionEvent -> after -> contract -> contractState = ContractStateEnum.close
 
 class Exercise extends TransactionEvent stereotype postExecution <"The exercise event has a post-execution scope and applies to contractual and listed products.">
 {
@@ -145,37 +145,37 @@ root class QualifiedEvents one of <"The entry point for all financial transactio
 	order Order (0..1);
 		[synonym FIX value MsgType."D"]
 		[synonym FpML value orderReport] // Need to confirm fit, as the purpose of the FpML orderReport message is not completely clear
-	execution Execution (0..1);
+	execution ExecutionEvent (0..1);
 		[synonym FIX value MsgType."8"]
 		[synonym FpML value executionNotification]
-	clearing Clearing (0..1);
-	allocation Allocation (0..1);
+	clearing ClearingEvent (0..1);
+	allocation AllocationEvent (0..1);
 		[synonym FIX value MsgType."AS"]
-	exercise Exercise (0..1);
-	partialTermination PartialTermination (0..1);
-	termination Termination (0..1);
-	intermediation Intermediation (0..1);
-	novation Novation (0..1);
+	exercise ExerciseEvent (0..1);
+	partialTermination PartialTerminationEvent (0..1);
+	termination TerminationEvent (0..1);
+	intermediation IntermediationEvent (0..1);
+	novation NovationEvent (0..1);
 		[synonym FIX value MsgType."AW"]
-	aggregation Aggregation (0..1);
-	portfolioCompression PortfolioCompression (0..1);
+	aggregation AggregationEvent (0..1);
+	portfolioCompression PortfolioCompressionEvent (0..1);
 	observation ObservationEvent (0..1);
 	reset ResetEvent (0..1);
 }
 
-class Intermediation extends TransactionEvent stereotype postExecution <"The intermediation event has a post-execution scope which extends to all financial instruments.">
+class IntermediationEvent extends TransactionEvent stereotype postExecution <"The intermediation event has a post-execution scope which extends to all financial instruments.">
 {
 	before PostExecutionState (1..1);
 	after PostExecutionState (1..*);
 }
 
-data rule Intermediation_Contract_before <"The contractState of the contract subject to an intermediation event is 'open'.">
-	when Intermediation -> before -> contract exists
-	then Intermediation -> before -> contract -> contractState = ContractStateEnum.open
+data rule IntermediationEvent_Contract_before <"The contractState of the contract subject to an intermediation event is 'open'.">
+	when IntermediationEvent -> before -> contract exists
+	then IntermediationEvent -> before -> contract -> contractState = ContractStateEnum.open
 
-data rule Intermediation_Contract_after <"The contractState of the contract(s) resulting from an intermediation event is 'open'.">
-	when Intermediation -> after -> contract exists
-	then Intermediation -> after -> contract -> contractState = ContractStateEnum.open
+data rule IntermediationEvent_Contract_after <"The contractState of the contract(s) resulting from an intermediation event is 'open'.">
+	when IntermediationEvent -> after -> contract exists
+	then IntermediationEvent -> after -> contract -> contractState = ContractStateEnum.open
 
 abstract class MarketEvent extends Event stereotype preExecution, execution, postExecution <"Market events are characterised by the fact they are not qualified by party, and have no contract considerations.">
 {
@@ -202,16 +202,16 @@ class MessageInformation stereotype preExecution, execution, postExecution <"Thi
  */
 }
 
-class Novation extends TransactionEvent stereotype postExecution <"The novation event has a post-execution scope and only applies to contractual products.">
+class NovationEvent extends TransactionEvent stereotype postExecution <"The novation event has a post-execution scope and only applies to contractual products.">
 {
 	before PostExecutionContractState (1..1);
 	after PostExecutionContractState (2..*) <"Following a novation event, there are at least two contracts: one with the prior party (in a closed state, if it is a full novation) and one with the new party.">;
 	isPartial boolean (1..1) <"Boolean indicator to qualify whether it is a partial novation.">;
 }
 
-data rule Novation_Contract_before <"The contractState of the contract that is subject to a novation event is 'open'.">
-	when Novation -> before -> contract exists
-	then Novation -> before -> contract -> contractState = ContractStateEnum.open
+data rule NovationEvent_Contract_before <"The contractState of the contract that is subject to a novation event is 'open'.">
+	when NovationEvent -> before -> contract exists
+	then NovationEvent -> before -> contract -> contractState = ContractStateEnum.open
 
 class ObservationEvent extends MarketEvent stereotype preExecution, execution, postExecution
 {
@@ -251,7 +251,7 @@ choice rule Order_choice <"FIX provides the ability to specify the approximate o
  * Following discussion with the CDM group held on March 1st, the cardinality associated with the before and after state has been relaxed 
  * in order to accommodate usages that may not require the statement of both of those.
  */
-class PartialTermination extends TransactionEvent  stereotype postExecution <"The partial termination event has a post-execution scope and only applies to contractual products.">
+class PartialTerminationEvent extends TransactionEvent  stereotype postExecution <"The partial termination event has a post-execution scope and only applies to contractual products.">
 {
 	before PostExecutionContractState (0..1);
 	after PostExecutionContractState (1..1);
@@ -268,31 +268,15 @@ class PartialTermination extends TransactionEvent  stereotype postExecution <"Th
 //	then PartialTermination -> before or PartialTermination -> change must exist
 //		or PartialTermination -> before and PartialTermination -> change must exist
 
-/*
- * Examples of validation logic discussed in the CDM group meeting held on March 1st
- * If we agree on the value, we should look to think as how how to make it more legible (e.g. aliases)
- * as well as more scalable (5 ways to express a contractual quantity)
- */
-
-data rule PartialTermination_DeltaNotional_NotionalAmount
-	when PartialTermination -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
-	then PartialTermination -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount >
-		PartialTermination -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount
-
-data rule PartialTermination_RemainingNotional_NotionalAmount
-	when PartialTermination -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
-	then PartialTermination -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount > 0b
-
-
-class PortfolioCompression extends TransactionEvent stereotype postExecution <"The portfolio compression event has a post-execution scope and only applies to contractual products.">
+class PortfolioCompressionEvent extends TransactionEvent stereotype postExecution <"The portfolio compression event has a post-execution scope and only applies to contractual products.">
 {
 	before PostExecutionContractState (1..*);
 	after PostExecutionContractState (1..*);
 }
 
-data rule PortfolioCompression_Contract_before <"The contractState of the contracts that are part of a portfolio compression event is 'open'.">
-	when PortfolioCompression exists
-	then PortfolioCompression -> before -> contract -> contractState = ContractStateEnum.open
+data rule PortfolioCompressionEvent_Contract_before <"The contractState of the contracts that are part of a portfolio compression event is 'open'.">
+	when PortfolioCompressionEvent exists
+	then PortfolioCompressionEvent -> before -> contract -> contractState = ContractStateEnum.open
 
 class PostExecutionState stereotype postExecution  <"The set of products applicable to post-execution activity, alongside with the applicable fee(s).">
 {
@@ -390,25 +374,25 @@ abstract class ServicingEvent extends Event stereotype postExecution <"Transacti
 	listedProduct ListedProduct (0..*);
 }
 
-class Termination extends TransactionEvent stereotype postExecution <"The termination event has a post-execution scope and only applies to contractual products.">
+class TerminationEvent extends TransactionEvent stereotype postExecution <"The termination event has a post-execution scope and only applies to contractual products.">
 {
 	before PostExecutionContractState (1..1);
 	after PostExecutionContractState (1..1);
 }
 
 data rule Termination_Contract_before <"The contractState before a termination event is 'open'.">
-	when Termination exists
-	then Termination -> before -> contract -> contractState = ContractStateEnum.open
+	when TerminationEvent exists
+	then TerminationEvent -> before -> contract -> contractState = ContractStateEnum.open
 
 data rule Termination_Contract_after <"The contractState after a termination event is 'close'.">
-	when Termination exists
-		and Termination -> action <> ActionEnum.cancel
-	then Termination -> after -> contract -> contractState = ContractStateEnum.close
+	when TerminationEvent exists
+		and TerminationEvent -> action <> ActionEnum.cancel
+	then TerminationEvent -> after -> contract -> contractState = ContractStateEnum.close
 
 data rule Termination_close <"When an termination event is cancelled, the contract state is 'open'.">
-	when Termination exists
-		and Termination -> action = ActionEnum.cancel 
-	then Termination -> after -> contract -> contractState = ContractStateEnum.open
+	when TerminationEvent exists
+		and TerminationEvent -> action = ActionEnum.cancel 
+	then TerminationEvent -> after -> contract -> contractState = ContractStateEnum.open
 
 abstract class TransactionEvent extends EventBase stereotype preExecution, execution, postExecution <"Transaction events are characterised by the fact that they involve parties and, as an implication, regulatory eligibility assessments.">
 {
