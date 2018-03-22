@@ -36,6 +36,8 @@ class Event extends EventBase
 		[synonym Rosetta_Workbench value lineage]
 	primitive PrimitiveEvent (1..1);
 		[synonym Rosetta_Workbench value primitive]
+	functionCall string (0..1);
+		[synonym Rosetta_Workbench value functionCall]
 }
 
 class Lineage
@@ -59,7 +61,7 @@ class PrimitiveEvent <"The set of primitive events. The purpose of this class it
 	reset ResetPrimitive (0..*);
 		[synonym Rosetta_Workbench value reset]
 	payment Payment (0..*);
-		[synonym Rosetta_Workbench value payment]
+		[synonym Rosetta_Workbench value payment]		
 }
 
 class QuantityChange <"The primitive event to represent a change in quantity or notional.">
@@ -194,9 +196,15 @@ isEvent EarlyTermination <"The qualification of an early termination event.">
 isEvent Observation <"The qualification of an observation event.">
 	Event -> primitive -> observation only exists 
 
+isEvent DerivedObservation <"The qualification of a payment event.">
+	(Event -> primitive -> observation 
+	and Event -> functionCall) only exists
+
 isEvent Reset <"The qualification of a reset event.">
 	Event -> primitive -> reset only exists
 	
 isEvent Payment <"The qualification of a payment event.">
 	( Event -> primitive -> payment
 	and Event -> party ) only exists
+
+
