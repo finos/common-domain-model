@@ -28,8 +28,22 @@ class Event extends EventBase
 {
 	party Party (0..*);
 		[synonym Rosetta_Workbench value party]
+		/*
+ * TO CONFIRM WITH CDM GROUP
+ * New generic lineage construct + primitive class to make rule logic associated with primitives more legible and scalable.
+ */
+	lineage Lineage (0..1);
+		[synonym Rosetta_Workbench value lineage]
 	primitive PrimitiveEvent (1..1);
 		[synonym Rosetta_Workbench value primitive]
+}
+
+class Lineage
+{
+	contractReference Identifier (0..*);
+		[synonym Rosetta_Workbench value contractReference]
+	eventReference Identifier (0..*);
+		[synonym Rosetta_Workbench value eventReference]
 }
 
 class PrimitiveEvent <"The set of primitive events. The purpose of this class it to provide clarity with respect to the event qualification logic.">
@@ -44,8 +58,8 @@ class PrimitiveEvent <"The set of primitive events. The purpose of this class it
 		[synonym Rosetta_Workbench value observation]
 	reset ResetPrimitive (0..*);
 		[synonym Rosetta_Workbench value reset]
-	fee Payment (0..*);
-		[synonym Rosetta_Workbench value fee]
+	payment Payment (0..*);
+		[synonym Rosetta_Workbench value payment]
 }
 
 class QuantityChange <"The primitive event to represent a change in quantity or notional.">
@@ -89,18 +103,26 @@ class ObservationPrimitive <"The primitive event to represent an observation. Th
 	time time (0..1);
 	side QuotationSideEnum (0..1) <"The side (bid/mid/ask) of the observation, when applicable.">;
 		[synonym Rosetta_Workbench value side]
-	currency CurrencyEnum (0..1);
-		[synonym Rosetta_Workbench value currency]
+/*
+ * TO CONFIRM WITH CDM GROUP
+ * Take the currency out until such time that we have an actual use case for it.
+ */
+//	currency CurrencyEnum (0..1);
+//		[synonym Rosetta_Workbench value currency]
 	informationSource InformationSource (0..1);
 		[synonym Rosetta_Workbench value informationSource]
 }
 
 class ResetPrimitive <"The primitive event to represent a reset. The reason for the Primitive suffix is not to conflict with the qualified reset event.">
 {
-	contractReference Identifier (1..1);
-		[synonym Rosetta_Workbench value contractReference]
-	observationReference Identifier (1..1);
-		[synonym Rosetta_Workbench value observationReference]
+/*
+ * TO CONFIRM WITH CDM GROUP
+ * The below is being replaced with the Lineage class.
+ */
+//	contractReference Identifier (1..1);
+//		[synonym Rosetta_Workbench value contractReference]
+//	observationReference Identifier (1..1);
+//		[synonym Rosetta_Workbench value observationReference]
 	curve Curve (1..1);
 		[synonym Rosetta_Workbench value curve]
 	date date (1..1);
@@ -110,6 +132,12 @@ class ResetPrimitive <"The primitive event to represent a reset. The reason for 
 	currency CurrencyEnum (0..1);
 		[synonym Rosetta_Workbench value currency]
 }
+
+//class PaymentPrimitive
+//{
+//	payment Payment (1..*);
+//		[synonym Rosetta_Workbench value payment]
+//}
 
 class Curve one of
 {
@@ -170,5 +198,5 @@ isEvent Reset <"The qualification of a reset event.">
 	Event -> primitive -> reset only exists
 	
 isEvent Payment <"The qualification of a payment event.">
-	( Event -> primitive -> fee 
+	( Event -> primitive -> payment
 	and Event -> party ) only exists
