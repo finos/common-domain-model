@@ -28,10 +28,6 @@ class Event extends EventBase
 {
 	party Party (0..*);
 		[synonym Rosetta_Workbench value party]
-		/*
- * TO CONFIRM WITH CDM GROUP
- * New generic lineage construct + primitive class to make rule logic associated with primitives more legible and scalable.
- */
 	lineage Lineage (0..1);
 		[synonym Rosetta_Workbench value lineage]
 	primitive PrimitiveEvent (1..1);
@@ -105,26 +101,12 @@ class ObservationPrimitive <"The primitive event to represent an observation. Th
 	time time (0..1);
 	side QuotationSideEnum (0..1) <"The side (bid/mid/ask) of the observation, when applicable.">;
 		[synonym Rosetta_Workbench value side]
-/*
- * TO CONFIRM WITH CDM GROUP
- * Take the currency out until such time that we have an actual use case for it.
- */
-//	currency CurrencyEnum (0..1);
-//		[synonym Rosetta_Workbench value currency]
 	informationSource InformationSource (0..1);
 		[synonym Rosetta_Workbench value informationSource]
 }
 
 class ResetPrimitive <"The primitive event to represent a reset. The reason for the Primitive suffix is not to conflict with the qualified reset event.">
 {
-/*
- * TO CONFIRM WITH CDM GROUP
- * The below is being replaced with the Lineage class.
- */
-//	contractReference Identifier (1..1);
-//		[synonym Rosetta_Workbench value contractReference]
-//	observationReference Identifier (1..1);
-//		[synonym Rosetta_Workbench value observationReference]
 	curve Curve (1..1);
 		[synonym Rosetta_Workbench value curve]
 	date date (1..1);
@@ -188,15 +170,17 @@ isEvent PartialTermination <"The qualification of a partial termination event.">
 	and Event -> intent = IntentEnum.partialTermination
 	and NotionalAmount_Decrease, NotionalAmount_Remaining apply
 
-isEvent EarlyTermination <"The qualification of an early termination event.">
-	Event -> primitive -> otherTermsChange exists
-	and Event -> primitive -> otherTermsChange -> before -> contract -> contractualProduct -> economicTerms -> earlyTerminationProvision exists
-	and EarlyTermination_InterestPayout_TerminationDate apply
+/*
+ * Do we also need the intent qualification in the case of a full termination?
+ */
+isEvent FullTermination <"The qualification of an full termination event.">
+	Event -> primitive -> quantityChange exists
+	and NotionalAmount_Decrease, NotionalAmount_Null apply
 		
 isEvent Observation <"The qualification of an observation event.">
 	Event -> primitive -> observation only exists 
 
-isEvent DerivedObservation <"The qualification of a payment event.">
+isEvent DerivedObservation <"The qualification of a derived observation event.">
 	(Event -> primitive -> observation 
 	and Event -> functionCall) only exists
 
