@@ -98,7 +98,8 @@ class ObservationPrimitive <"The primitive event to represent an observation. Th
 		[synonym Rosetta_Workbench value observation]
 	date date (1..1) <"The observation date.">;
 		[synonym Rosetta_Workbench value date]
-	
+	time TimeZone (0..1) <"The observation time, with a possible indication of the timezone dimension.">;
+		[synonym Rosetta_Workbench value time]
 	side QuotationSideEnum (0..1) <"The side (bid/mid/ask) of the observation, when applicable.">;
 		[synonym Rosetta_Workbench value side]
 }
@@ -111,10 +112,12 @@ class ObservationSource <"The observation source can be composed of an curve and
 		[synonym Rosetta_Workbench value informationSource]
 }
 
-class ObservationTime
+class TimeZone <"The time alongside with the timezone location information. This class makes use of the FpML TimezoneLocation construct.">
 {
 	time time (1..1) <"The observation time.">;
-//	timeZone TimeZoneLocation scheme (0..1);
+		[synonym Rosetta_Workbench value time]
+	location TimeZoneLocation (0..1) scheme "timezoneLocationScheme" <"FpML specifies the timezoneLocationScheme by reference to the Time Zone Database (a.k.a. tz database) maintained by IANA, the Internet Assigned Numbers Authority.">;
+		[synonym Rosetta_Workbench value location]
 }
 
 class ResetPrimitive <"The primitive event to represent a reset. The reason for the Primitive suffix is not to conflict with the qualified reset event.">
@@ -202,5 +205,3 @@ isEvent Reset <"The qualification of a reset event.">
 isEvent Payment <"The qualification of a payment event.">
 	( Event -> primitive -> payment
 	and Event -> party ) only exists
-
-
