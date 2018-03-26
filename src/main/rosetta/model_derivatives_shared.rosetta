@@ -590,24 +590,17 @@ class IndependentAmount extends PayerReceiver stereotype contractualProduct
 		[synonym FpML value paymentDetail]
 }
 
-class InformationSource stereotype contractualProduct, execution, postExecution <"A class defining the source for a piece of information (e.g. a rate refix or an FX fixing).">
+class InformationSource stereotype contractualProduct, execution, postExecution <"A class defining the source for a piece of information (e.g. a rate refix or an FX fixing). The attribute names have been adjusted from FpML to address the fact that the information is not limited to rates.">
 	[synonym FpML value InformationSource]
-	[synonym FIX value RateSource componentID 1062]
 {
-	rateSourceNumber int (0..1) <"The number of rate sources being specified. This field is part of the FIX RateSource construct, but not the FpML InformationSource one.">;
-		[synonym FIX value NoRateSources tag 1445]
-	rateSource InformationProviderEnum (1..1) <"An information source for obtaining a market rate. For example Bloomberg, Reuters, Telerate etc.">;
+	sourceProvider InformationProviderEnum (1..1) <"An information source for obtaining a market data point. For example Bloomberg, Reuters, Telerate etc.">;
 		[synonym FpML value rateSource]
 		[synonym FIX value RateSource tag 1446]
-	rateSourcePage string (0..1) <"A specific page for the rate source for obtaining a market rate. In FpML, this is specified as a scheme, rateSourcePageScheme, for which no coding Scheme or URI is specified.">;
+	sourcePage string (0..1) scheme "rateSourcePageScheme" <"A specific page for the source for obtaining a market data point. In FpML, this is specified as a scheme, rateSourcePageScheme, for which no coding Scheme or URI is specified.">;
 		[synonym FpML value rateSourcePage]
-	rateSourcePageHeading string (0..1) <"The heading for the rate source on a given rate source page.">;
+	sourcePageHeading string (0..1) <"The heading for the source on a given source page.">;
 		[synonym FpML value rateSourcePageHeading]
 }
-
-data rule InformationSource_RateSourceNumber <"FIX standard specifies that the number of rate sources must be positive.">
-	when InformationSource -> rateSourceNumber exists
-	then InformationSource -> rateSourceNumber >= 0
 
 class IssuerTradeId stereotype productReferenceData <"A class for a two parts identifier, such as a USI. The Rosetta class content is distinct from the FpML one in two respects: the issuer is of type Party (instead of being of type IssuerId) and the identifier value is named 'identifier' (instead of tradeId).">
 	[synonym FpML value IssuerTradeId]
@@ -1171,4 +1164,9 @@ class SwaptionPhysicalSettlement stereotype contractualProduct
 		[synonym FpML value clearedPhysicalSettlement]
 	predeterminedClearingOrganizationPartyReference Party (0..1) reference <"A reference to the clearing organisation (CCP, DCO) to which the trade should be cleared.">;
 		[synonym FpML value predeterminedClearingOrganizationPartyReference]
+}
+
+class TimeZoneLocation <"A geographic location for the purposes of defining a prevailing time according to the tz database.">
+{
+	
 }
