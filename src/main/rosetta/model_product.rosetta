@@ -176,16 +176,17 @@ class ProductIdentifier stereotype productReferenceData <"The product identifier
 
 class ProductTaxonomy stereotype productReferenceData <"The product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
 {
-	taxonomyValue string (1..1) <"The taxonomy value.">;
+	taxonomyValue string (1..1) scheme "productIdScheme" <"The taxonomy value. The taxonomy source can be associated with that attribute through the scheme value.">;
 		[synonym FIX value CFICode tag 461]
 		[synonym FIX value SecurityType tag 167]
 		[synonym FIX value Product tag 460]
 		[synonym FIX value ProductComplex tag 1227]
 		[synonym FIX value TrdType tag 828]
 		[synonym FIX value TrdSubType tag 829]
-		[synonym FpML value productType]
-	taxonomySource TaxonomySourceEnum (1..1) <"The taxonomy source.">;
-		[synonym FpML value productTypeScheme]
+		[synonym FpML value productId pathExpression "trade.swap"]
+		[synonym FpML value productType pathExpression "trade.swap"]
+		[synonym FpML value primaryAssetClass pathExpression "trade.swap"]
+	taxonomySource TaxonomySourceEnum (0..1) <"The taxonomy source. It can be omitted when the taxonomy source is represented as part of the scheme associated with the taxonomy value attribute.">;
 }
 
 data rule TaxonomySourceEnum_SecuritySubType <"FIX standard specifies that if SecuritySubType is set, then the SecurityType is also required as the former is a sub-type qualification of the latter.">
