@@ -112,6 +112,12 @@ class ObservationSource <"The observation source can be composed of an curve and
 		[synonym Rosetta_Workbench value informationSource]
 }
 
+data rule ObservationSource_content <"ObservationSource should not be empty, although the attribute cardinality would allow that.">
+	when ObservationSource exists
+	then ( ObservationSource -> curve and ObservationSource -> informationSource ) exists
+		or ObservationSource -> curve exists
+		or ObservationSource -> informationSource exists
+
 class TimeZone <"The time alongside with the timezone location information. This class makes use of the FpML TimezoneLocation construct.">
 {
 	time time (1..1) <"The observation time.">;
@@ -122,11 +128,9 @@ class TimeZone <"The time alongside with the timezone location information. This
 
 class ResetPrimitive <"The primitive event to represent a reset. The reason for the Primitive suffix is not to conflict with the qualified reset event.">
 {
-	curve Curve (1..1);
-		[synonym Rosetta_Workbench value curve]
-	date date (1..1);
+	date date (1..1) <"The reset date">;
 		[synonym Rosetta_Workbench value date]
-	setValue number (1..1);
+	setValue number (1..1) <"The reset value">;
 		[synonym Rosetta_Workbench value setValue]
 }
 
