@@ -49,7 +49,7 @@ data rule Clearing_Contract_after <"The contractState of the contract subject to
 	when ClearingEvent -> before -> contract exists
 	then ClearingEvent -> before -> contract -> contractState = ContractStateEnum.open
 
-abstract class EventBase stereotype preExecution, execution, postExecution <"The abstract class for all events.">
+abstract class EventBase stereotype preExecution, execution, postExecution <"The event base abstract class.">
 {
 	messageInformation MessageInformation (0..1);
 	timeStamp EventTimeStamp (1..1);
@@ -60,7 +60,7 @@ abstract class EventBase stereotype preExecution, execution, postExecution <"The
 		[synonym Rosetta_Workbench value eventDate]
 	effectiveDate date (0..1);
 		[synonym Rosetta_Workbench value effectiveDate]
-	intent IntentEnum (0..1); // Intent is geared to composite/inferred events
+	intent IntentEnum (0..1);
 		[synonym Rosetta_Workbench value intent]
 	action ActionEnum (1..1) <"Specifies whether the event is a new, a correction or a cancellation.">;
 		[synonym FpML value isCorrection 
@@ -189,17 +189,12 @@ class MessageInformation stereotype preExecution, execution, postExecution <"Thi
 		[synonym FpML value messageId pathExpression "header"]
 	sentBy string (1..1) scheme "messageAddressScheme" <"The identifier for the originator of a message instance. FpML qualifies it with an associated scheme. This field is optional in FpML, but required in FIX.">;
 		[synonym FIX value SenderCompID tag 49]
-		[synonym FpML value sentBy pathExpression "header" ]
+		[synonym FpML value sentBy pathExpression "header"]
 	sentTo string (0..1) scheme "messageAddressScheme" <"The identifier for the recipient of a message instance. FpML qualifies it with an associated scheme. This field is optional in FpML, but required in FIX.">;
 		[synonym FIX value TargetCompID tag 56]
-		[synonym FpML value sentTo]
+		[synonym FpML value sentTo pathExpression "header"]
 	copyTo string (0..*) scheme "messageAddressScheme" <"A unique identifier (within the specified coding scheme) giving the details of some party to whom a copy of this message will be sent for reference.">;
-		[synonym FpML value copyTo]
-/*
- * The FpML implementationSpecification and dsig:Signature have not been included at this time.  Let's confirm the usage.
- * Also, the partyMessageInformation has been moved to the TransactionEvent, the idea being to make it relevant to that type of event,
- * but not applicable to MarketEvent or ServicingEvent.
- */
+		[synonym FpML value copyTo pathExpression "header"]
 }
 
 class NovationEvent extends TransactionEvent stereotype postExecution <"The novation event has a post-execution scope and only applies to contractual products.">
