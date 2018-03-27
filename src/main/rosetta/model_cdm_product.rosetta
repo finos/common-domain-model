@@ -52,6 +52,7 @@ data rule Contract_clearedDate
 class ContractualProduct
 {
 	productIdentification string (1..1) isProduct; // A back-end logic associated to the isProduct qualifier will specify the product as a function of the associated economic terms
+	productTaxonomy ProductTaxonomy (1..*) <"The product taxonomy value(s) associated with a contractual product.">;
 	economicTerms EconomicTerms (1..1);
 }
 
@@ -72,8 +73,14 @@ isProduct InterestRate_IRSwap_FixedFixed
 	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate exists
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate exists
 
+/*
+ * TODO - Need to adjust the grammar to support values that make use of characters which are invalid according to the grammar.
+ * This will require to move to a string format.
+ */
+
 isProduct InterestRate_CrossCurrency_Basis
 	[synonym ISDA_Taxonomy_v1 value InterestRate_CrossCurrency_Basis]
+//	[synonym Rosetta_Workbench value InterestRate:CrossCurrency:Basis] 
 	EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate exists
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate exists
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges exists
@@ -179,15 +186,12 @@ isProduct InterestRate_InflationSwap_Basis_ZeroCoupon
 
 class EconomicTerms calculation FixedAmount
 {
-	payout Payout (1..1);
-	/*
-	 * The below features are not applicable to the CDS
-	 */
-	earlyTerminationProvision EarlyTerminationProvision (0..1);
+	payout Payout (1..1) <"The contract payout.">;
+	earlyTerminationProvision EarlyTerminationProvision (0..1) <"Parameters specifying provisions relating to the optional and mandatory early termination of a swap transaction.">;
 		[synonym FpML value earlyTerminationProvision pathExpression "trade.swap"]
-	cancelableProvision CancelableProvision (0..1);
+	cancelableProvision CancelableProvision (0..1) <"A provision that allows the specification of an embedded option within a swap giving the buyer of the option the right to terminate the swap, in whole or in part, on the early termination date.">;
 		[synonym FpML value cancelableProvision pathExpression "trade.swap"]
-	extendibleProvision ExtendibleProvision (0..1);
+	extendibleProvision ExtendibleProvision (0..1) <"A provision that allows the specification of an embedded option with a swap giving the buyer of the option the right to extend the swap, in whole or in part, to the extended termination date.">;
 }
 
 class Payout
@@ -199,6 +203,7 @@ class Payout
 	creditDefaultPayout CreditDefaultPayout (0..1);
 	fee Payment (0..*);
 		[synonym FpML value additionalPayment pathExpression "trade.swap"]
+		[synonym FpML value initialPayment pathExpression "trade.creditDefaultSwap.feeLeg"]
 }
 
 class InterestRatePayout
@@ -254,6 +259,7 @@ class ContractualQuantity
 	notionalSchedule NotionalSchedule (0..1);
 		[synonym FpML value notionalSchedule pathExpression "calculationPeriodAmount.calculation" set notionalSchedule when notionalSchedule -> notionalStepSchedule -> step exists]
 	fxLinkedNotional FxLinkedNotionalSchedule (0..1);
+		[synonym FpML value fxLinkedNotionalSchedule pathExpression "calculationPeriodAmount.calculation" set notionalSchedule when fxLinkedNotional -> initialValue exists ]
 	futureValueNotional FutureValueAmount (0..1);
 	 	[synonym FpML value futureValueNotional pathExpression "calculationPeriodAmount.calculation"]
 }
@@ -301,7 +307,6 @@ class InterestRate one of
 class CreditDefaultPayout
 {
 	generalTerms GeneralTerms (1..1);
-//		[synonym FpML value generalTerms pathExpression "trade.creditDefaultSwap"]
 	protectionTerms ProtectionTerms (1..1);
 		[synonym FpML value protectionTerms pathExpression "trade.creditDefaultSwap"]
 	cashSettlementTerms CashSettlementTerms (0..1);
@@ -374,9 +379,9 @@ class Quantity
 class CrossCurrencyTerms
 {
 	principalExchanges PrincipalExchanges (0..1);
-		[synonym FpML value principalExchanges pathExpression "trade.swap.swapStream"]
+		[synonym FpML value principalExchanges]
 	settlementProvision SettlementProvision (0..1);
-		[synonym FpML value settlementProvision pathExpression "trade.swap.swapStream"]
+		[synonym FpML value settlementProvision]
 }
 
 class TransactedPrice // These are the set of transacted price attributes currently positioned as part of the FpML FeeLeg construct.
