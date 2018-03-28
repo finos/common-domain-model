@@ -230,22 +230,31 @@ class InterestRatePayout
 		[synonym FpML value resetDates]
 	cashflows Cashflows (0..1) <"The cashflow representation of the swap stream.">;
 		[synonym FpML value cashflows]
-	crossCurrencyTerms CrossCurrencyTerms (0..1); // New construct, that wraps the principleExchanges and settlementProvision terms
+	crossCurrencyTerms CrossCurrencyTerms (0..1);
+	stubPeriod StubPeriod (0..1);
+		[synonym FpML value StubCalculationPeriodAmount]
 }
 
 data rule InterestRatePayout_quantity
 	when InterestRatePayout exists
 	then InterestRatePayout -> quantity -> notionalSchedule exists
 
+class StubPeriod
+{
+	calculationPeriodDates CalculationPeriodDates (1..1) reference <"The associated calculation period dates. In the FpML standard, this is implemented as an href pointer. For clarity and legibility purposes, Rosetta specifies the actual calculation period dates, while keeping the href information for audit trail purposes.">;
+		[synonym FpML value calculationPeriodDatesReference]
+	initialStub StubValue (0..1) <"Specifies how the initial stub amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating tenors may be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3. Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.">;
+		[synonym FpML value initialStub]
+	finalStub StubValue (0..1) <"Specifies how the final stub amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating tenors may be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3. Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.">;
+		[synonym FpML value finalStub]
+}
+
 /*
  * QUESTION TO CDM GROUP
- * Two open questions in relation to normalising the notional amount across IRS and CDS (and other products down the road):
- * 1- FpML CDS include 2 calculationAmount elements: (i) at the feeLeg/periodPayment level for both the fixedAmount and the floatingAmount calculation, 
- *    where the definition references in both cases the ISDA 2003 Term: Fixed Rate Payer Calculation Amount, and (ii) at the protectionTerms level,
- *    where the definition references the ISDA 2003 Term: Floating Rate Payer Calculation Amount.
- *    The CDM provides those 2 notional amounts.  Do we have situations in which those amounts are different?  If not, should we look to collapse those?
- * 2- The cross-reference to the ISDA legal terms will need to include terms such as "When applied to Credit default Swaps (...), when applicable to ....", which is more ambiguous).
- * 
+ * FpML CDS include 2 calculationAmount elements: (i) at the feeLeg/periodPayment level for both the fixedAmount and the floatingAmount calculation, 
+ * where the definition references in both cases the ISDA 2003 Term: Fixed Rate Payer Calculation Amount, and (ii) at the protectionTerms level,
+ * where the definition references the ISDA 2003 Term: Floating Rate Payer Calculation Amount.
+ * The CDM provides those 2 notional amounts.  Do we have situations in which those amounts are different?  If not, should we look to collapse those?
  */
 
 class ContractualQuantity
