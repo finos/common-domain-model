@@ -142,7 +142,7 @@ class LegalEntity stereotype entityReferenceData <"A class to represent the attr
 	entityId string (0..1) scheme "entityIdScheme" <"A legal entity identifier (e.g. RED entity code).">;
 		[synonym FpML value entityId]
 	name string (1..1) scheme "entityNameScheme" <"The legal entity name.">;
-		[synonym FpML value partyName]
+		[synonym FpML value partyName pathExpression "party"]
 		[synonym FpML value entityName]
 	countryOfIncorporation Country (0..1) <"The country in which the legal entity is incorporated.">;
 		[regulatoryReference ESMA_MiFIR regulation "RTS 22" article "14" provision "Where country code details in respect of an investment firm's branch are required to be included in a transaction report in accordance with fields 8, 17, 37, 59 or 61 of Table 2 of Annex I due to the partial or full execution of a transaction through that branch, the investment firm shall provide in the transaction report the ISO 3166 country code for the relevant branch for a set of 4 specified cases."]
@@ -294,10 +294,12 @@ class Party stereotype entityReferenceData <"The party class.">
 	[synonym FIX value Parties componentID 1032]
 	[synonym FIX value RootParties componentID 1031]
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
-	partyIdentifier PartyIdentifier (1..*) <"The set of identifiers associated with a party.">;
-		[synonym Rosetta_Workbench value identifier]
+	partyReference string (0..1) reference <"The reference to the party. Rosetta embeds it as part of the Party class for the purpose of providing type safety support alongside with better model legibility.">;
+//		[synonym FpML value payerPartyReference pathExpression "trade"]
+//		[synonym FpML value receiverPartyReference pathExpression "trade"]
+	partyIdentifier PartyIdentifier (0..*) <"The set of identifiers associated with a party.">;
 	account Account (0..*) <"The account that might be specified by the party in relation to a transaction.">;
 	regulatoryQualification_MiFID_II RegulatoryQualification_MiFID_II (0..1) <"The MiFID II regulatory qualifications associated to the party.">;
 	regulatoryQualification_CFTC_DFA RegulatoryQualification_CFTC_DFA (0..1) <"The CFTC DFA regulatory qualifications associated to the party.">;
@@ -334,6 +336,10 @@ choice rule Party_choice <"A party is either a legal entity or a natural person.
 	for Party optional choice between
 	legalEntity and naturalPerson
 
+choice rule Party_reference <"Rosetta embeds the reference to the party as part of the Party class. As a result, either the partyReference or the partyIdentifier must be used.">
+	for Party required choice between
+	partyReference and partyIdentifier
+
 class PartyAndAccountReference stereotype entityReferenceData <"This class corresponds to the FpML PartyAndAccountReferences.model.">
 {
 	party Party (1..1) reference;
@@ -363,7 +369,7 @@ class PartyIdentifier stereotype entityReferenceData <"The set of [partyId, Part
 		[synonym FIX value InstrumentPartyID tag 1019] /* FIX restricts its use to instrument definition, e.g. listing source information */
 		[synonym FIX value DerivativeInstrumentPartyID tag 1293]
 		[synonym FIX value TargetPartyID tag 1462] /* Part of the TargetParties component block, 'targeted for the action specified in the message' */
-		[synonym FpML value partyId]
+		[synonym FpML value partyId pathExpression "party"]
 		[synonym FpML value entityId]
 		[synonym Rosetta_Workbench value partyId]
 		[synonym ISO_20022 value LEI projection partyId_LegalEntity]
@@ -378,7 +384,7 @@ class PartyIdentifier stereotype entityReferenceData <"The set of [partyId, Part
 		[synonym FIX value DerivativeInstrumentPartyIDSource tag 1294]
 		[synonym FIX value TargetPartyIDSource tag 1463] /* Part of the TargetParties component block, 'targeted for the action specified in the message' */
 		[synonym FpML value partyIdScheme]
-		[synonym Rosetta_Workbench value partyIdSource]
+		[synonym Rosetta_Workbench value partyIdSource pathExpression "party"]
 		[synonym ISO_20022 value Cd]
 	proprietaryScheme string (0..1) <"A non-normalised scheme for the identification of a natural person, as specified by ESMA as part of the MiFID/MiFIR regulation.">;
 		[synonym ISO_20022 value Prtry]
