@@ -9,7 +9,6 @@ FpML versionNumber "5.10"
  */
  
 class Contract <"A class to specify a contract object, which can be invoked either within the context of an event, or independently from it. It corresponds to the FpML Trade, although restricted to execution and post-execution contexts. Attributes also applicable to pre-execution (a.k.a. pre-trade view in FpML) contexts have been positioned as part of the ContractualProduct class.">
-	[synonym FpML value Trade]
 {
 	contractIdentifier PartyContractIdentifier (1..*) <"The contract reference identifier(s) allocated by the parties involved in the contract.">;
 		[synonym FpML value partyTradeIdentifier pathExpression "trade.tradeHeader"] 
@@ -20,7 +19,7 @@ class Contract <"A class to specify a contract object, which can be invoked eith
 	contractualProduct ContractualProduct (1..1) <"The contractual product information that is associated with the contract. The corresponding FpML construct is the product abstract element and the associated substitution group.">;
 	otherPartyPayment Payment (0..*) <"Other fees or additional payments associated with the contract, e.g. broker commissions, where one or more of the parties involved are not principal parties involved in the contract.">;
 		[synonym FpML value otherPartyPayment pathExpression "trade"]
-	brokerParty Party (0..*) reference <"The party (or parties) that brokered the contract. In FpML, this element is specified as a reference to a party.">;
+	brokerParty Party (0..*) reference <"The party (or parties) that brokered the contract.">;
 		[synonym FpML value brokerPartyReference pathExpression "trade"]	
 	calculationAgent CalculationAgentModel (1..1) <"The ISDA Calculation Agent and the associated business center information. This information is represented in FpML via the CalculationAgent.model.">;
 	determiningParty Party (0..2) reference <"The ISDA Determination Party that is specified in the related confirmation as Determination Party.">;
@@ -43,6 +42,7 @@ class Contract <"A class to specify a contract object, which can be invoked eith
 	 * Or should we drop this concept for the time being?
 	 */
 	contractState ContractStateEnum (0..1) <"The state qualification of a contractual product, i.e. whether open or close. This attribute is not present as part of the FpML standard.">;
+	party Party (2..*) <"The parties to the contract. While FpML has a minimal cardinality of 1, a minimal cardinality of 2 seems more appropriate.">;
 }
 
 data rule Contract_clearedDate
