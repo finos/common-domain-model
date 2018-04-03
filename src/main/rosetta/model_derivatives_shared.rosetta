@@ -5,7 +5,7 @@ FpML versionNumber "5.10"
 class AdjustableDate stereotype contractualProduct <"A class for defining a date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
 	[synonym FpML value AdjustableDate pathExpression "effectiveDate", "terminationDate", "firstPeriodStartDate", "mandatoryEarlyTerminationDate", "finalFixingDate", "adjustableDate"]
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 	unadjustedDate date (1..1 ) <"A date subject to adjustment.">;
 		[synonym FpML value unadjustedDate]
@@ -18,7 +18,7 @@ class AdjustableDate stereotype contractualProduct <"A class for defining a date
 class AdjustableDate2 stereotype contractualProduct <"A type that is different from AdjustableDate in two regards. First, date adjustments can be specified with either a dateAdjustments element or a reference to an existing dateAdjustments element. Second, it does not require the specification of date adjustments.">
 	[synonym FpML value AdjustableDate2 pathExpression "effectiveDate", "scheduledTerminationDate"]
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 	unadjustedDate date (1..1 ) <"A date subject to adjustment.">;
 		[synonym FpML value unadjustedDate]
@@ -32,7 +32,7 @@ class AdjustableDate2 stereotype contractualProduct <"A type that is different f
 class AdjustableDates stereotype contractualProduct <"A class for defining a series of dates that shall be subject to adjustment if they would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the dates.">
 	[synonym FpML value AdjustableDates pathExpression "fxFixingSchedule", "adjustableDates"]
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 	unadjustedDate date (1..*) <"A date subject to adjustment.">;
 		[synonym FpML value unadjustedDate]
@@ -45,7 +45,7 @@ class AdjustableDates stereotype contractualProduct <"A class for defining a ser
 class AdjustableOrAdjustedDate stereotype contractualProduct <"A class for defining a date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
 	[synonym FpML value AdjustableOrAdjustedDate pathExpression "paymentDate"]
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 	unadjustedDate date (0..1 ) <"A date subject to adjustment.">;
 		[synonym FpML value unadjustedDate]
@@ -64,7 +64,7 @@ data rule AdjustableOrAdjustedDate_adjustedDate <"FpML implements a choice betwe
 
 class AdjustableOrRelativeDate stereotype contractualProduct <"A class giving the choice between defining a date as an explicit date together with applicable adjustments or as relative to some other (anchor) date.">
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 	adjustableDate AdjustableDate (0..1) <"A date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">;
 		[synonym FpML value adjustableDate]
@@ -78,7 +78,7 @@ choice rule AdjustableOrRelativeDate_choice <"Choice rule to represent and an Fp
 
 class AdjustableOrRelativeDates stereotype contractualProduct <"A class giving the choice between defining a series of dates as an explicit list of dates together with applicable adjustments or as relative to some other series of (anchor) dates.">
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 	adjustableDates AdjustableDates (0..1) <"A series of dates that shall be subject to adjustment if they would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">;
 		[synonym FpML value adjustableDates]
@@ -100,7 +100,7 @@ class AdjustedRelativeDateOffset extends RelativeDateOffset stereotype contractu
 class AmericanExercise stereotype contractualProduct <"A class defining the exercise period for an American style option together with any rules governing the notional amount of the underlying which can be exercised on any given exercise date and any associated exercise fees.">
 	[synonym FpML value AmericanExercise]
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 	commencementDate AdjustableOrRelativeDate (1..1) <"The first day of the exercise period for an American style option.">;
 		[synonym FpML value commencementDate]
@@ -138,7 +138,7 @@ class AutomaticExercise stereotype contractualProduct <"A type to define automat
 class BermudaExercise stereotype contractualProduct <"A class defining the Bermuda option exercise dates and the expiration date together with any rules governing the notional amount of the underlying which can be exercised on any given exercise date and any associated exercise fee.">
 	[synonym FpML value BermudaExercise]
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 	bermudaExerciseDates AdjustableOrRelativeDates (1..1) <"The dates that define the Bermuda option exercise dates and the expiration date. The last specified date is assumed to be the expiration date. The dates can either be specified as a series of explicit dates and associated adjustments or as a series of dates defined relative to another schedule of dates, for example, the calculation period start dates. Where a relative series of dates are defined the first and last possible exercise dates can be separately specified.">;
 		[synonym FpML value bermudaExerciseDates]
@@ -166,7 +166,7 @@ class BrokerConfirmation stereotype contractualProduct <"Identifies the market s
 class BusinessCenters stereotype contractualProduct <"A class for defining business day calendar used in determining whether a day is a business day or not. A list of business day calendar locations may be ordered in the document alphabetically based on business day calendar location code. An FpML document containing an unordered business day calendar location list is still regarded as a conformant document.">
 	[synonym FpML value BusinessCenters]
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 	businessCenter BusinessCenterEnum (1..*) <"A code identifying a business day calendar location. A business day calendar location is drawn from the list identified by the business day calendar location scheme.">;
 		[synonym FpML value businessCenter]
@@ -182,28 +182,36 @@ class BusinessCenterTime stereotype contractualProduct <"A class for defining a 
 		[synonym FpML value businessCenter]
 }
 
+class BusinessCentersOrReference <"Class to represent the FpML BusinessCentersOrReference.model.">
+{
+	businessCentersReference string (0..1) reference <"A pointer style reference to a set of financial business centers defined elsewhere in the document. This set of business centers is used to determine whether a particular day is a business day or not.">;
+		[synonym FpML value businessCentersReference]
+	businessCenters BusinessCenters (0..1) <"The business centers used as a reference for the business day adjustment. ">;
+		[synonym FpML value businessCenters]
+}
+
+choice rule BusinessCentersOrReference_choice <"Choice rule to represent an FpML choice construct.">
+	for BusinessCentersOrReference required choice between
+	businessCenters and businessCentersReference
+
 class BusinessDateRange extends DateRange stereotype contractualProduct <"A class defining a range of contiguous business days by defining an unadjusted first date, an unadjusted last date and a business day convention and business centers for adjusting the first and last dates if they would otherwise fall on a non business day in the specified business centers. The days between the first and last date must also be good business days in the specified centers to be counted in the range.">
 	[synonym FpML value BusinessDateRange]
 {
 	businessDayConvention BusinessDayConventionEnum (1..1) <"The convention for adjusting a date if it would otherwise fall on a day that is not a business day.">;
 		[synonym FpML value businessDayConvention]
-	businessCenters BusinessCenters (0..1) reference <"The business centers used as a reference for the business day adjustment. FpML specifies a choice between businessCenters and businessCentersReference, with this latter being a pointer to a set of financial business centers defined elsewhere in the document. Rosetta collapses those alternatives, as it specifies the actual business centers even when the corresponding FpML document specifies the information through the referencing information.">;
-		[synonym FpML value businessCenters]
-		[synonym FpML value businessCentersReference]
+	businessCentersOrReference BusinessCentersOrReference (0..1) <"The business center(s), specified either explicitly or by reference to those specified somewhere else in the instance document.">;
 }
 
 class BusinessDayAdjustments stereotype contractualProduct <"A class defining the business day convention and financial business centers used for adjusting any relevant date if it would otherwise fall on a day that is not a business day in the specified business center.">
 	[synonym FpML value BusinessDayAdjustments]
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 	businessDayConvention BusinessDayConventionEnum (1..1) <"The convention for adjusting a date if it would otherwise fall on a day that is not a business day.">;
 		[synonym FpML value businessDayConvention]
-	businessCenters BusinessCenters (0..1) reference <"The business centers used as a reference for the business day adjustment. FpML specifies a choice between businessCenters and businessCentersReference, with this latter being a pointer to a set of financial business centers defined elsewhere in the document. Rosetta collapses those alternatives, as it specifies the actual business centers even when the corresponding FpML document specifies the information through the referencing information.">;
-		[synonym FpML value businessCenters]
-		[synonym FpML value businessCentersReference]
+	businessCentersOrReference BusinessCentersOrReference (0..1) <"The business center(s), specified either explicitly or by reference to those specified somewhere else in the instance document.">;
 }
-
+	
 class BuyerSeller stereotype contractualProduct <"This class corresponds to the FpML BuyerSeller.model construct.">
 {
 	buyerParty Party (1..1) reference <"The party that buys this instrument, i.e. pays for this instrument and receives the rights defined by it. See 2000 ISDA definitions Article 11.1 (b). In the case of FRAs this the fixed rate payer. While FpML specifies this element as a href reference, Rosetta specifies the actual party information, for clarity purposes.">;
@@ -359,7 +367,7 @@ choice rule Documentation_choice <"Choice rule to represent an FpML choice const
 class EuropeanExercise stereotype contractualProduct <"A class defining the exercise period for a European style option together with any rules governing the notional amount of the underlying which can be exercised on any given exercise date and any associated exercise fees.">
 	[synonym FpML value EuropeanExercise]
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 	expirationDate AdjustableOrRelativeDate (1..1) <"The last day within an exercise period for an American style option. For a European style option it is the only day within the exercise period.">;
 		[synonym FpML value expirationDate]
@@ -448,7 +456,7 @@ class FloatingRate stereotype contractualProduct <"A class defining a floating r
 	[synonym FpML value FloatingRate]
 	[synonym ISO_20022 value RefRate]
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 	floatingRateIndex FloatingRateIndexEnum (1..1) <"The initial floating rate reset agreed between the principal parties involved in the trade. This is assumed to be the first required reset rate for the first regular calculation period. It should only be included when the rate is not equal to the rate published on the source implied by the floating rate index. An initial rate of 5% would be represented as 0.05.">;
 		[synonym FpML value floatingRateIndex]
@@ -527,7 +535,7 @@ class FormulaComponent stereotype contractualProduct <"Elements describing the c
 class Frequency stereotype contractualProduct <"A class defining a time frequency, e.g. one day, three months. Used for specifying payment or calculation frequencies at which the value T (Term) is applicable.">
 	[synonym FpML value Frequency]
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 		[synonym FpML value id pathExpression "calculationPeriodDates.calculationPeriodFrequency"]
 	periodMultiplier int (1..1) <"A time period multiplier, e.g. 1, 2, or 3.  If the period value is T (Term) then period multiplier must contain the value 1.">;
@@ -605,7 +613,7 @@ class InformationSource stereotype contractualProduct, execution, postExecution 
 class IssuerTradeId stereotype productReferenceData <"A class for a two parts identifier, such as a USI. The Rosetta class content is distinct from the FpML one in two respects: the issuer is of type Party (instead of being of type IssuerId) and the identifier value is named 'identifier' (instead of tradeId).">
 	[synonym FpML value IssuerTradeId]
 {
-	issuer Party (1..1) scheme "issuerIdScheme" <"The party that assigns the trade identifier.  FpML specifies the issue to be of type IssuerId, i.e. a string alongside with an associated scheme which value is not specified by FpML.">;
+	issuer Party (1..1) scheme "issuerIdScheme" <"The party that assigns the trade identifier.">;
 		[synonym FpML value issuer]
 	identifier string (0..1) anchor scheme "tradeIdScheme" <"The package identifier value. Rosetta uses a neutral identifier attribute name rather than the FpML trade qualifier because of the focus that includes the pre-execution lifecycle, at which point a trade doesn't exist yet.">;
 		[synonym FpML value tradeId]
@@ -623,11 +631,11 @@ class ManualExercise stereotype contractualProduct <"A class defining manual exe
 class MasterAgreement stereotype contractualProduct <"A class for defining the agreement executed between the parties and intended to govern all OTC derivatives transactions between those parties.">
 	[synonym FpML value MasterAgreement]
 {
-	masterAgreementId string (0..1) <"An identifier that has been created to identify the master agreement. In FpML, this element has an associated masterAgreementIdScheme, but FpML doesn't specify values and the current understanding is that no scheme exists at the marketplace level. Hence, Rosetta specifies this element as a string.">;
+	masterAgreementId string (0..1) scheme "masterAgreementIdScheme" <"An identifier that has been created to identify the master agreement.">;
 		[synonym FpML value masterAgreementId]
 	masterAgreementType MasterAgreementTypeEnum (1..1) <"The agreement executed between the parties and intended to govern product-specific derivatives transactions between those parties.">;
 		[synonym FpML value masterAgreementType]
-	masterAgreementVersion string (0..1) <"The version of the master agreement.  Similar to the masterAgreementId, FpML specifies a scheme masterAgreementVersionScheme but doesn't specify associated values and the current understanding is that no scheme exists at the marketplace level. Hence, Rosetta specifies this element as a string.">;
+	masterAgreementVersion string (0..1) scheme "masterAgreementVersionScheme" <"The version of the master agreement.">;
 		[synonym FpML value masterAgreementVersion]
 	masterAgreementDate date (0..1) <"The date on which the master agreement was signed.">;
 		[synonym FpML value masterAgreementDate]
@@ -651,7 +659,7 @@ class Money stereotype contractualProduct <"A class defining a currency amount."
 	[synonym ISO_20022 value ActiveOrHistoricCurrencyAndAmount]
 	[synonym ISO_20022 value ActiveCurrencyAnd13DecimalAmount]
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 	currency CurrencyEnum (1..1) <"The currency in which an amount is denominated.">;
 		[synonym FpML value currency]
@@ -687,7 +695,7 @@ class NonNegativeAmountSchedule extends NonNegativeSchedule stereotype contractu
 class NonNegativeSchedule stereotype contractualProduct <"A class defining a schedule of non-negative rates or amounts in terms of an initial value and then a series of step date and value pairs. On each step date the rate or amount changes to the new step value. The series of step date and value pairs are optional. If not specified, this implies that the initial value remains unchanged over time.">
 	[synonym FpML value NonNegativeSchedule pathExpression "notionalStepSchedule"]
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 	initialValue number (1..1) <"The non-negative initial rate or amount, as the case may be. An initial rate of 5% would be represented as 0.05.">;
 		[synonym FpML value initialValue]
@@ -702,7 +710,7 @@ data rule NonNegativeSchedule_initialValue <"FpML specified initialValue as a No
 class NonNegativeStep stereotype contractualProduct <"A class defining a step date and non-negative step value pair. This step definitions are used to define varying rate or amount schedules, e.g. a notional amortisation or a step-up coupon schedule.">
 	[synonym FpML value NonNegativeStep]
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 	stepDate date (1..1) <"The date on which the associated stepValue becomes effective. This day may be subject to adjustment in accordance with a business day convention.">;
 		[synonym FpML value stepDate]
@@ -737,11 +745,11 @@ class OptionBase extends ContractualHeader stereotype contractualProduct <"A typ
 class OtherAgreement stereotype contractualProduct <"A class for defining the an agreement executed between parties.">
 	[synonym FpML value OtherAgreement]
 {
-	identifier string (0..1) <"An identifier that has been created to identify the agreement.  FpML specifies an agreementIdScheme for this identifier, but in Rosetta a string approach has been used.">;
+	identifier string (0..1) scheme "agreementIdScheme" <"An identifier that has been created to identify the agreement.">;
 		[synonym FpML value identifier]
-	type string (1..1) <"The agreement executed between the parties and intended to govern product-specific derivatives transactions between those parties.  Here also, FpML specifies an associated scheme with no value, agreementTypeScheme.  In the absence of marketplace values for such scheme, Rosetta's approach is to adopt a string approach.">;
+	type string (1..1) scheme "agreementTypeScheme" <"The agreement executed between the parties and intended to govern product-specific derivatives transactions between those parties.">;
 		[synonym FpML value type]
-	version string (0..1) <"The version of the agreement. Same consideration as above: FpML has a scheme approach, with agreementVersionScheme, while Rosetta implements it as a string.">;
+	version string (0..1) scheme "agreementVersionScheme" <"The version of the agreement.">;
 		[synonym FpML value version]
 	date date (0..1) <"The date on which the agreement was signed.">;
 		[synonym FpML value date]
@@ -788,7 +796,7 @@ class PayerReceiver stereotype contractualProduct <"A class to represent the FpM
 class Payment extends PayerReceiver stereotype contractualProduct <"A class for defining payments. In FpML Transparency view, normally the payer and receiver party references are not used; however they may be provided if necessary for administrative activities such as Reporting Party Determination in FX. As a difference with FpML, the canonical model implementation extends the PayerReceiver class, which represents the PayerReceiver.model.">
 	[synonym FpML value Payment]
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 	paymentAmount Money (1..1) <"The currency amount of the payment.">;
 		[synonym FpML value paymentAmount]
@@ -810,7 +818,7 @@ class Payment extends PayerReceiver stereotype contractualProduct <"A class for 
 class PaymentDetail stereotype contractualProduct
 	[synonym FpML value PaymentDetail]
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 	paymentDate AdjustableOrAdjustedDate (0..1);
 		[synonym FpML value paymentDate]
@@ -853,7 +861,7 @@ class Period stereotype contractualProduct <"A class to define recurring periods
 	[synonym ISO_20022 value Term]
 	[regulatoryReference ESMA_MiFIR specification "ISO 20022 - Part 2" section "20.1.10.4.2" provision "Term <Term> contains the following elements: Unit <Unit> and Value <Val>."]
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 	periodMultiplier int (1..1) <"A time period multiplier, e.g. 1, 2 or 3 etc. A negative value can be used when specifying an offset relative to another date, e.g. -2 days.">;
 		[synonym FpML value periodMultiplier]
@@ -870,7 +878,7 @@ data rule Period_period <"FpML specifies that if the periodMultiplier value is 0
 class PrincipalExchanges stereotype contractualProduct <"A type defining which principal exchanges occur for the stream.">
 	[synonym FpML value PrincipalExchanges]
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 	initialExchange boolean (1..1) <"A true/false flag to indicate whether there is an initial exchange of principal on the effective date.">;
 		[synonym FpML value initialExchange]
@@ -894,7 +902,7 @@ class QuotedCurrencyPair stereotype contractualProduct <"A class that describes 
 class RateObservation stereotype contractualProduct <"A class defining parameters associated with an individual observation or fixing. This class forms part of the cashflow representation of a stream.">
 	[synonym FpML value RateObservation]
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 	resetDate date (0..1) <"The reset date.">;
 		[synonym FpML value resetDate]
@@ -1044,7 +1052,7 @@ class Rounding stereotype contractualProduct <"A class defining a rounding direc
 class Schedule stereotype contractualProduct <"A class defining a schedule of rates or amounts in terms of an initial value and then a series of step date and value pairs. On each step date the rate or amount changes to the new step value. The series of step date and value pairs are optional. If not specified, this implies that the initial value remains unchanged over time.">
 	[synonym FpML value Schedule pathExpression "fixedRateSchedule", "floatingRateMultiplierSchedule", "feeRateSchedule", "fixedRateSchedule", "knownAmountSchedule", "feeAmountSchedule", "capRateSchedule", "floorRateSchedule", "spreadSchedule/"]
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 	initialValue number (1..1) <"The initial rate or amount, as the case may be. An initial rate of 5% would be represented as 0.05.">;
 		[synonym FpML value initialValue]
@@ -1072,7 +1080,7 @@ class SettlementRateSource stereotype contractualProduct one of <"A class descri
 class SimplePayment extends PayerReceiver stereotype contractualProduct <"A class to specified payments in a simpler fashion than the Payment type. This construct should be used from the FpML version 4.3 onwards.">
 	[synonym FpML value SimplePayment]
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 	paymentAmount Money (1..1) <"The payment amount.">;
 		[synonym FpML value paymentAmount]
@@ -1094,7 +1102,7 @@ class SpreadSchedule extends Schedule stereotype contractualProduct <"Adds an op
 class Step stereotype contractualProduct <"A class defining a step date and step value pair. This step definitions are used to define varying rate or amount schedules, e.g. a notional amortisation or a step-up coupon schedule.">
 	[synonym FpML value Step]
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 	stepDate date (1..1) <"The date on which the associated step value becomes effective.">;
 		[synonym FpML value stepDate]
@@ -1105,7 +1113,7 @@ class Step stereotype contractualProduct <"A class defining a step date and step
 class Strike stereotype contractualProduct <"A class describing a single cap or floor rate.">
 	[synonym FpML value Strike]
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 	strikeRate number (1..1) <"The rate for a cap or floor.">;
 		[synonym FpML value strikeRate]
@@ -1128,7 +1136,7 @@ class StrikeSchedule extends Schedule stereotype contractualProduct <"A class de
 class StubFloatingRate stereotype contractualProduct <"A class defining a floating rate.">
 	[synonym FpML value StubFloatingRate]
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 	floatingRateIndex FloatingRateIndexEnum (1..1) <"The floating rate index.">;
 		[synonym FpML value floatingRateIndex]
