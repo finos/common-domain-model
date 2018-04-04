@@ -797,7 +797,7 @@ class Payment extends PayerReceiver stereotype contractualProduct <"A class for 
 		[synonym FpML value id]
 	paymentAmount Money (1..1) <"The currency amount of the payment.">;
 		[synonym FpML value paymentAmount]
-	paymentDate AdjustableOrRelativeDate (0..1) <"The payment date. While FpML specifies this element to be of type AdjustableOrAdjustedDate, Rosetta uses the type AdjustableOrRelativeDate to accommodate the credit default swap option premium, which uses the relative date construct.">;
+	paymentDate AdjustableOrAdjustedDate (0..1) <"The payment date.">;
 		[synonym FpML value paymentDate]
 	paymentType string (0..1) scheme "paymentTypeScheme" <"A classification of the type of fee or additional payment, e.g. brokerage, upfront fee etc. FpML does not define domain values for this element.">;
 		[synonym FpML value paymentType]
@@ -806,6 +806,22 @@ class Payment extends PayerReceiver stereotype contractualProduct <"A class for 
 	 * suggests that it is not used in practice, as the settlement information is managed as reference data, not as
 	 * transaction data
 	 */
+	discountFactor number (0..1) <"The value representing the discount factor used to calculate the present value of the cash flow.">;
+		[synonym FpML value discountFactor]
+	presentValueAmount Money (0..1) <"The amount representing the present value of the forecast payment.">;
+		[synonym FpML value presentValueAmount]
+}
+
+class OptionPayment extends PayerReceiver stereotype contractualProduct <"A class for an option payment.  While the FpML premium is of type Payment, Rosetta creates a new type for the purpose of merging the interest rate and the credit default swap implementations, as this latter specifies the payment date in relation to another date.">
+{
+	id string (0..1) anchor;
+		[synonym FpML value id]
+	paymentAmount Money (1..1) <"The currency amount of the payment.">;
+		[synonym FpML value paymentAmount]
+	paymentDate AdjustableOrRelativeDate (0..1) <"The payment date. While FpML specifies this element to be of type AdjustableOrAdjustedDate, Rosetta uses the type AdjustableOrRelativeDate to accommodate the credit default swap option premium, which uses the relative date construct.">;
+		[synonym FpML value paymentDate]
+	paymentType string (0..1) scheme "paymentTypeScheme" <"A classification of the type of fee or additional payment, e.g. brokerage, upfront fee etc. FpML does not define domain values for this element.">;
+		[synonym FpML value paymentType]
 	discountFactor number (0..1) <"The value representing the discount factor used to calculate the present value of the cash flow.">;
 		[synonym FpML value discountFactor]
 	presentValueAmount Money (0..1) <"The amount representing the present value of the forecast payment.">;
