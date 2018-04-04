@@ -211,8 +211,10 @@ class BuyerSeller stereotype contractualProduct <"This class corresponds to the 
 {
 	buyerParty Party (1..1) <"The party that buys this instrument, i.e. pays for this instrument and receives the rights defined by it. See 2000 ISDA definitions Article 11.1 (b). In the case of FRAs this the fixed rate payer. While FpML specifies this element as a href reference, Rosetta specifies the actual party information, for clarity purposes.">;
 		[synonym FpML value buyerPartyReference]
+//		[synonym FpML value buyerPartyReference pathExpression "trade.swaption"]
 	buyerAccount Account (0..1) reference <"The account that buys this instrument. While FpML specifies this element as a href reference, Rosetta specifies the actual account information, for clarity purposes.">;
 		[synonym FpML value buyerAccountReference]
+//		[synonym FpML value buyerAccountReference pathExpression "trade.swaption"]
 	sellerParty Party (1..1) <"The party that sells ('writes') this instrument, i.e. that grants the rights defined by this instrument and in return receives a payment for it. See 2000 ISDA definitions Article 11.1 (a). In the case of FRAs this is the floating rate payer. While FpML specifies this element as a href reference, Rosetta specifies the actual party information, for clarity purposes.">;
 		[synonym FpML value sellerPartyReference]
 	sellerAccount Account (0..1) reference <"The account that sells this instrument. While FpML specifies this element as a href reference, Rosetta specifies the actual account information, for clarity purposes.">;
@@ -454,21 +456,21 @@ class FloatingRate stereotype contractualProduct <"A class defining a floating r
 	id string (0..1) anchor;
 		[synonym FpML value id]
 	floatingRateIndex FloatingRateIndexEnum (1..1) <"The initial floating rate reset agreed between the principal parties involved in the trade. This is assumed to be the first required reset rate for the first regular calculation period. It should only be included when the rate is not equal to the rate published on the source implied by the floating rate index. An initial rate of 5% would be represented as 0.05.">;
-		[synonym FpML value floatingRateIndex]
+		[synonym FpML value floatingRateIndex pathExpression "calculationPeriodAmount.calculation.floatingRateCalculation"]
 		[synonym ISO_20022 value Indx projection FloatingRate_floatingRateIndex]
 		[synonym ISO_20022 value Nm projection FloatingRate_floatingRateIndex]
 	indexTenor Period (0..1) <"The ISDA Designated Maturity, i.e. the tenor of the floating rate. A FRA can contain either one or two indexTenor instances.">;
-		[synonym FpML value indexTenor]
+		[synonym FpML value indexTenor pathExpression "calculationPeriodAmount.calculation.floatingRateCalculation"]
 	floatingRateMultiplierSchedule Schedule (0..1) <"A rate multiplier or multiplier schedule to apply to the floating rate. A multiplier schedule is expressed as explicit multipliers and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in the calculationPeriodDatesAdjustments. The multiplier can be a positive or negative decimal. This element should only be included if the multiplier is not equal to 1 (one) for the term of the stream.">;
-		[synonym FpML value floatingRateMultiplierSchedule]
+		[synonym FpML value floatingRateMultiplierSchedule pathExpression "calculationPeriodAmount.calculation.floatingRateCalculation"]
 	spreadSchedule SpreadSchedule (0..*) <"The ISDA Spread or a Spread schedule expressed as explicit spreads and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The spread is a per annum rate, expressed as a decimal. For purposes of determining a calculation period amount, if positive the spread will be added to the floating rate and if negative the spread will be subtracted from the floating rate. A positive 10 basis point (0.1%) spread would be represented as 0.001.">;
-		[synonym FpML value spreadSchedule]
+		[synonym FpML value spreadSchedule pathExpression "calculationPeriodAmount.calculation.floatingRateCalculation"]
 	rateTreatment RateTreatmentEnum (0..1) <"The specification of any rate conversion which needs to be applied to the observed rate before being used in any calculations. The two common conversions are for securities quoted on a bank discount basis which will need to be converted to either a Money Market Yield or Bond Equivalent Yield. See the Annex to the 2000 ISDA Definitions, Section 7.3. Certain General Definitions Relating to Floating Rate Options, paragraphs (g) and (h) for definitions of these terms.">;
-		[synonym FpML value rateTreatment]
+		[synonym FpML value rateTreatment pathExpression "calculationPeriodAmount.calculation.floatingRateCalculation"]
 	capRateSchedule StrikeSchedule (0..*) <"The cap rate or cap rate schedule, if any, which applies to the floating rate. The cap rate (strike) is only required where the floating rate on a swap stream is capped at a certain level. A cap rate schedule is expressed as explicit cap rates and dates and the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The cap rate is assumed to be exclusive of any spread and is a per annum rate, expressed as a decimal. A cap rate of 5% would be represented as 0.05.">;
-		[synonym FpML value capRateSchedule]
+		[synonym FpML value capRateSchedule pathExpression "calculationPeriodAmount.calculation.floatingRateCalculation"]
 	floorRateSchedule StrikeSchedule (0..*) <"The floor rate or floor rate schedule, if any, which applies to the floating rate. The floor rate (strike) is only required where the floating rate on a swap stream is floored at a certain strike level. A floor rate schedule is expressed as explicit floor rates and dates and the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The floor rate is assumed to be exclusive of any spread and is a per annum rate, expressed as a decimal. A floor rate of 5% would be represented as 0.05.">;
-		[synonym FpML value floorRateSchedule]
+		[synonym FpML value floorRateSchedule pathExpression "calculationPeriodAmount.calculation.floatingRateCalculation"]
 }
 
 projection rule FloatingRate_floatingRateIndex <"FpML uses the element to represents the floating and inflation rate index, depending upon the class context, as InflationRateCalculation extends FloatingRate. ISO 20022, on the other hand, uses different field names.">
@@ -489,13 +491,13 @@ class FloatingRateCalculation extends FloatingRate stereotype contractualProduct
 	[synonym FpML value FloatingRateCalculation]
 {
 	initialRate number (0..1) <"The initial floating rate reset agreed between the principal parties involved in the trade. This is assumed to be the first required reset rate for the first regular calculation period. It should only be included when the rate is not equal to the rate published on the source implied by the floating rate index. An initial rate of 5% would be represented as 0.05.">;
-		[synonym FpML value initialRate]
+		[synonym FpML value initialRate pathExpression "calculationPeriodAmount.calculation.floatingRateCalculation"]
 	finalRateRounding Rounding (0..1) <"The rounding convention to apply to the final rate used in determination of a calculation period amount.">;
-		[synonym FpML value finalRateRounding]
+		[synonym FpML value finalRateRounding pathExpression "calculationPeriodAmount.calculation.floatingRateCalculation"]
 	averagingMethod AveragingMethodEnum (0..1) <"If averaging is applicable, this component specifies whether a weighted or unweighted average method of calculation is to be used. The component must only be included when averaging applies.">;
-		[synonym FpML value averagingMethod]
+		[synonym FpML value averagingMethod pathExpression "calculationPeriodAmount.calculation.floatingRateCalculation"]
 	negativeInterestRateTreatment NegativeInterestRateTreatmentEnum (0..1) <"The specification of any provisions for calculating payment obligations when a floating rate is negative (either due to a quoted negative floating rate or by operation of a spread that is subtracted from the floating rate).">;
-		[synonym FpML value negativeInterestRateTreatment]
+		[synonym FpML value negativeInterestRateTreatment pathExpression "calculationPeriodAmount.calculation.floatingRateCalculation"]
 }
 
 class Formula stereotype contractualProduct <"A class describing a financial formula, with its description and components.">
@@ -1050,13 +1052,16 @@ class Schedule stereotype contractualProduct <"A class defining a schedule of ra
 	id string (0..1) anchor;
 		[synonym FpML value id]
 	initialValue number (1..1) <"The initial rate or amount, as the case may be. An initial rate of 5% would be represented as 0.05.">;
-		[synonym FpML value initialValue]
+		[synonym FpML value initialValue pathExpression "calculationPeriodAmount.calculation.fixedRateSchedule"]
+		[synonym FpML value initialValue pathExpression "calculationPeriodAmount.calculation.floatingRateCalculation"]
+		[synonym FpML value fixedRate pathExpression "periodicPayment.fixedAmountCalculation"]
 		[synonym FIX value Spread tag 218]
 		[synonym CFTC_Part43 value PN1 projection Price_Derivatives]
 		[synonym CFTC_Part43 value PN2 projection Price_Derivatives]
 		[regulatoryReference CFTC_DFA guideline "ISDA Price Notation and Additional Price Notation Approach" section "Rates" provision "This is the Price Notation 1 of the fixed rate of an IRS when instantiated through a fixedRateSchedule, and the Price Notation 2 of the floating leg when instantiated through a spreadSchedule."]
 	step Step (0..*) <"The schedule of step date and value pairs. On each step date the associated step value becomes effective A list of steps may be ordered in the document by ascending step date. An FpML document containing an unordered list of steps is still regarded as a conformant document.">;
-		[synonym FpML value step]
+		[synonym FpML value step pathExpression "calculationPeriodAmount.calculation.fixedRateSchedule"]
+		[synonym FpML value step pathExpression "calculationPeriodAmount.calculation.floatingRateCalculation"]
 }
 
 data rule Schedule_step <"FpML validation rule ird-25 - Context: Schedule (complex type). If step does not exist, then initialValue must not be equal to 0.">
