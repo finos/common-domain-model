@@ -211,8 +211,10 @@ class BuyerSeller stereotype contractualProduct <"This class corresponds to the 
 {
 	buyerParty Party (1..1) <"The party that buys this instrument, i.e. pays for this instrument and receives the rights defined by it. See 2000 ISDA definitions Article 11.1 (b). In the case of FRAs this the fixed rate payer. While FpML specifies this element as a href reference, Rosetta specifies the actual party information, for clarity purposes.">;
 		[synonym FpML value buyerPartyReference]
+//		[synonym FpML value buyerPartyReference pathExpression "trade.swaption"]
 	buyerAccount Account (0..1) reference <"The account that buys this instrument. While FpML specifies this element as a href reference, Rosetta specifies the actual account information, for clarity purposes.">;
 		[synonym FpML value buyerAccountReference]
+//		[synonym FpML value buyerAccountReference pathExpression "trade.swaption"]
 	sellerParty Party (1..1) <"The party that sells ('writes') this instrument, i.e. that grants the rights defined by this instrument and in return receives a payment for it. See 2000 ISDA definitions Article 11.1 (a). In the case of FRAs this is the floating rate payer. While FpML specifies this element as a href reference, Rosetta specifies the actual party information, for clarity purposes.">;
 		[synonym FpML value sellerPartyReference]
 	sellerAccount Account (0..1) reference <"The account that sells this instrument. While FpML specifies this element as a href reference, Rosetta specifies the actual account information, for clarity purposes.">;
@@ -373,7 +375,7 @@ class EuropeanExercise stereotype contractualProduct <"A class defining the exer
 	expirationTime BusinessCenterTime (1..1) <"The latest time for exercise on expirationDate.">;
 		[synonym FpML value expirationTime]
 	partialExercise PartialExercise (0..1) <"As defined in the 2000 ISDA Definitions, Section 12.3. Partial Exercise, the buyer of the option has the right to exercise all or less than all the notional amount of the underlying swap on the expiration date, but may not exercise less than the minimum notional amount, and if an integral multiple amount is specified, the notional amount exercised must be equal to, or be an integral multiple of, the integral multiple amount.">;
-		[synonym FpML value expirationTime]
+		[synonym FpML value partialExercise]
 	exerciseFee ExerciseFee (0..1) <"A fee to be paid on exercise. This could be represented as an amount or a rate and notional reference on which to apply the rate.">;
 		[synonym FpML value exerciseFee]
 }
@@ -454,21 +456,21 @@ class FloatingRate stereotype contractualProduct <"A class defining a floating r
 	id string (0..1) anchor;
 		[synonym FpML value id]
 	floatingRateIndex FloatingRateIndexEnum (1..1) <"The initial floating rate reset agreed between the principal parties involved in the trade. This is assumed to be the first required reset rate for the first regular calculation period. It should only be included when the rate is not equal to the rate published on the source implied by the floating rate index. An initial rate of 5% would be represented as 0.05.">;
-		[synonym FpML value floatingRateIndex]
+		[synonym FpML value floatingRateIndex pathExpression "calculationPeriodAmount.calculation.floatingRateCalculation"]
 		[synonym ISO_20022 value Indx projection FloatingRate_floatingRateIndex]
 		[synonym ISO_20022 value Nm projection FloatingRate_floatingRateIndex]
 	indexTenor Period (0..1) <"The ISDA Designated Maturity, i.e. the tenor of the floating rate. A FRA can contain either one or two indexTenor instances.">;
-		[synonym FpML value indexTenor]
+		[synonym FpML value indexTenor pathExpression "calculationPeriodAmount.calculation.floatingRateCalculation"]
 	floatingRateMultiplierSchedule Schedule (0..1) <"A rate multiplier or multiplier schedule to apply to the floating rate. A multiplier schedule is expressed as explicit multipliers and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in the calculationPeriodDatesAdjustments. The multiplier can be a positive or negative decimal. This element should only be included if the multiplier is not equal to 1 (one) for the term of the stream.">;
-		[synonym FpML value floatingRateMultiplierSchedule]
+		[synonym FpML value floatingRateMultiplierSchedule pathExpression "calculationPeriodAmount.calculation.floatingRateCalculation"]
 	spreadSchedule SpreadSchedule (0..*) <"The ISDA Spread or a Spread schedule expressed as explicit spreads and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The spread is a per annum rate, expressed as a decimal. For purposes of determining a calculation period amount, if positive the spread will be added to the floating rate and if negative the spread will be subtracted from the floating rate. A positive 10 basis point (0.1%) spread would be represented as 0.001.">;
-		[synonym FpML value spreadSchedule]
+		[synonym FpML value spreadSchedule pathExpression "calculationPeriodAmount.calculation.floatingRateCalculation"]
 	rateTreatment RateTreatmentEnum (0..1) <"The specification of any rate conversion which needs to be applied to the observed rate before being used in any calculations. The two common conversions are for securities quoted on a bank discount basis which will need to be converted to either a Money Market Yield or Bond Equivalent Yield. See the Annex to the 2000 ISDA Definitions, Section 7.3. Certain General Definitions Relating to Floating Rate Options, paragraphs (g) and (h) for definitions of these terms.">;
-		[synonym FpML value rateTreatment]
+		[synonym FpML value rateTreatment pathExpression "calculationPeriodAmount.calculation.floatingRateCalculation"]
 	capRateSchedule StrikeSchedule (0..*) <"The cap rate or cap rate schedule, if any, which applies to the floating rate. The cap rate (strike) is only required where the floating rate on a swap stream is capped at a certain level. A cap rate schedule is expressed as explicit cap rates and dates and the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The cap rate is assumed to be exclusive of any spread and is a per annum rate, expressed as a decimal. A cap rate of 5% would be represented as 0.05.">;
-		[synonym FpML value capRateSchedule]
+		[synonym FpML value capRateSchedule pathExpression "calculationPeriodAmount.calculation.floatingRateCalculation"]
 	floorRateSchedule StrikeSchedule (0..*) <"The floor rate or floor rate schedule, if any, which applies to the floating rate. The floor rate (strike) is only required where the floating rate on a swap stream is floored at a certain strike level. A floor rate schedule is expressed as explicit floor rates and dates and the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The floor rate is assumed to be exclusive of any spread and is a per annum rate, expressed as a decimal. A floor rate of 5% would be represented as 0.05.">;
-		[synonym FpML value floorRateSchedule]
+		[synonym FpML value floorRateSchedule pathExpression "calculationPeriodAmount.calculation.floatingRateCalculation"]
 }
 
 projection rule FloatingRate_floatingRateIndex <"FpML uses the element to represents the floating and inflation rate index, depending upon the class context, as InflationRateCalculation extends FloatingRate. ISO 20022, on the other hand, uses different field names.">
@@ -489,13 +491,13 @@ class FloatingRateCalculation extends FloatingRate stereotype contractualProduct
 	[synonym FpML value FloatingRateCalculation]
 {
 	initialRate number (0..1) <"The initial floating rate reset agreed between the principal parties involved in the trade. This is assumed to be the first required reset rate for the first regular calculation period. It should only be included when the rate is not equal to the rate published on the source implied by the floating rate index. An initial rate of 5% would be represented as 0.05.">;
-		[synonym FpML value initialRate]
+		[synonym FpML value initialRate pathExpression "calculationPeriodAmount.calculation.floatingRateCalculation"]
 	finalRateRounding Rounding (0..1) <"The rounding convention to apply to the final rate used in determination of a calculation period amount.">;
-		[synonym FpML value finalRateRounding]
+		[synonym FpML value finalRateRounding pathExpression "calculationPeriodAmount.calculation.floatingRateCalculation"]
 	averagingMethod AveragingMethodEnum (0..1) <"If averaging is applicable, this component specifies whether a weighted or unweighted average method of calculation is to be used. The component must only be included when averaging applies.">;
-		[synonym FpML value averagingMethod]
+		[synonym FpML value averagingMethod pathExpression "calculationPeriodAmount.calculation.floatingRateCalculation"]
 	negativeInterestRateTreatment NegativeInterestRateTreatmentEnum (0..1) <"The specification of any provisions for calculating payment obligations when a floating rate is negative (either due to a quoted negative floating rate or by operation of a spread that is subtracted from the floating rate).">;
-		[synonym FpML value negativeInterestRateTreatment]
+		[synonym FpML value negativeInterestRateTreatment pathExpression "calculationPeriodAmount.calculation.floatingRateCalculation"]
 }
 
 class Formula stereotype contractualProduct <"A class describing a financial formula, with its description and components.">
@@ -760,15 +762,15 @@ class PartialExercise stereotype contractualProduct <"A class defining partial e
 		[synonym FpML value notionalReference]
 	integralMultipleAmount number (0..1) <"A notional amount which restricts the amount of notional that can be exercised when partial exercise or multiple exercise is applicable. The integral multiple amount defines a lower limit of notional that can be exercised and also defines a unit multiple of notional that can be exercised, i.e. only integer multiples of this amount can be exercised.">;
 		[synonym FpML value integralMultipleAmount]
-	minimalNotionalAmount number (0..1) <"The minimum notional amount that can be exercised on a given exercise date. See multipleExercise.">;
-		[synonym FpML value minimalNotionalAmount]
+	minimumNotionalAmount number (0..1) <"The minimum notional amount that can be exercised on a given exercise date. See multipleExercise.">;
+		[synonym FpML value minimumNotionalAmount]
 	minimumNumberOfOptions int (0..1) <"The minimum number of options that can be exercised on a given exercise date.">;
 		[synonym FpML value minimumNumberOfOptions]
 }
 
 choice rule PartialExercise_choice <"Choice rule to represent an FpML choice construct.">
 	for PartialExercise required choice between
-		minimalNotionalAmount and minimumNumberOfOptions
+		minimumNotionalAmount and minimumNumberOfOptions
 
 data rule MinimumNumberOfOptions_minimumNumberOfOptions <"FpML MultipleExercise construct specifies the minimumNumberOfOptions as a positive integer.">
 	when MultipleExercise -> minimumNumberOfOptions exists
@@ -795,7 +797,7 @@ class Payment extends PayerReceiver stereotype contractualProduct <"A class for 
 		[synonym FpML value id]
 	paymentAmount Money (1..1) <"The currency amount of the payment.">;
 		[synonym FpML value paymentAmount]
-	paymentDate AdjustableOrAdjustedDate (0..1) <"The payment date. This date is subject to adjustment in accordance with any applicable business day convention.">;
+	paymentDate AdjustableOrAdjustedDate (0..1) <"The payment date.">;
 		[synonym FpML value paymentDate]
 	paymentType string (0..1) scheme "paymentTypeScheme" <"A classification of the type of fee or additional payment, e.g. brokerage, upfront fee etc. FpML does not define domain values for this element.">;
 		[synonym FpML value paymentType]
@@ -804,6 +806,22 @@ class Payment extends PayerReceiver stereotype contractualProduct <"A class for 
 	 * suggests that it is not used in practice, as the settlement information is managed as reference data, not as
 	 * transaction data
 	 */
+	discountFactor number (0..1) <"The value representing the discount factor used to calculate the present value of the cash flow.">;
+		[synonym FpML value discountFactor]
+	presentValueAmount Money (0..1) <"The amount representing the present value of the forecast payment.">;
+		[synonym FpML value presentValueAmount]
+}
+
+class OptionPayment extends PayerReceiver stereotype contractualProduct <"A class for an option payment.  While the FpML premium is of type Payment, Rosetta creates a new type for the purpose of merging the interest rate and the credit default swap implementations, as this latter specifies the payment date in relation to another date.">
+{
+	id string (0..1) anchor;
+		[synonym FpML value id]
+	paymentAmount Money (1..1) <"The currency amount of the payment.">;
+		[synonym FpML value paymentAmount]
+	paymentDate AdjustableOrRelativeDate (0..1) <"The payment date. While FpML specifies this element to be of type AdjustableOrAdjustedDate, Rosetta uses the type AdjustableOrRelativeDate to accommodate the credit default swap option premium, which uses the relative date construct.">;
+		[synonym FpML value paymentDate]
+	paymentType string (0..1) scheme "paymentTypeScheme" <"A classification of the type of fee or additional payment, e.g. brokerage, upfront fee etc. FpML does not define domain values for this element.">;
+		[synonym FpML value paymentType]
 	discountFactor number (0..1) <"The value representing the discount factor used to calculate the present value of the cash flow.">;
 		[synonym FpML value discountFactor]
 	presentValueAmount Money (0..1) <"The amount representing the present value of the forecast payment.">;
@@ -974,11 +992,11 @@ class RelativeDateOffset extends Offset stereotype contractualProduct <"A class 
 	dateRelativeToOptionalEarlyTermination CashSettlementPaymentDate (0..1) reference <"In the FpML standard, this element specifies the anchor date through an href attribute.  This attribute implements the use case corresponding to the validation rule ird-46 which specifies a use case applicable to the OptionalEarlyTermination: cashSettlement/cashSettlementValuationDate/dateRelativeTo/@href attribute is equal to the cashSettlement/cashSettlementPaymentDate/@id attribute.">;
 		[synonym FpML value dateRelativeTo set dateRelativeToOptionalEarlyTermination when OptionalEarlyTermination exists]
 	dateRelativeToSwaptionAmericanExercise AmericanExercise (0..1) reference <"In the FpML standard, this element specifies the anchor date through an href attribute. This attribute implements the use case corresponding to the validation rule ird-48 which specifies a use case applicable to the swaption: cashSettlement/cashSettlementPaymentDate/relativeDate/dateRelativeTo/@href attribute is equal to the @id attribute of americanExercise, bermudaExercise or europeanExercise.  This attribute addresses the americanExercise use case.">;
-		[synonym FpML value dateRelativeTo set dateRelativeToSwaptionAmericanExercise when Swaption -> exercise -> americanExercise exists]
+		[synonym FpML value dateRelativeTo set dateRelativeToSwaptionAmericanExercise when Swaption -> exerciseStyle -> americanExercise exists]
 	dateRelativeToSwaptionEuropeanExercise EuropeanExercise (0..1) reference <"In the FpML standard, this element specifies the anchor date through an href attribute. This attribute implements the use case corresponding to the validation rule ird-48 which specifies a use case applicable to the swaption: cashSettlement/cashSettlementPaymentDate/relativeDate/dateRelativeTo/@href attribute is equal to the @id attribute of americanExercise, bermudaExercise or europeanExercise.  This attribute addresses the europeanExercise use case.">;
-		[synonym FpML value dateRelativeTo set dateRelativeToSwaptionEuropeanExercise when Swaption -> exercise -> europeanExercise exists]
+		[synonym FpML value dateRelativeTo set dateRelativeToSwaptionEuropeanExercise when Swaption -> exerciseStyle -> europeanExercise exists]
 	dateRelativeToSwaptionBermudaExercise BermudaExercise (0..1) reference <"In the FpML standard, this element specifies the anchor date through an href attribute. This attribute implements the use case corresponding to the validation rule ird-48 which specifies a use case applicable to the swaption: cashSettlement/cashSettlementPaymentDate/relativeDate/dateRelativeTo/@href attribute is equal to the @id attribute of americanExercise, bermudaExercise or europeanExercise.  This attribute addresses the bermudaExercise use case.">;
-		[synonym FpML value dateRelativeTo set dateRelativeToSwaptionBermudaExercise when Swaption -> exercise -> bermudaExercise exists]
+		[synonym FpML value dateRelativeTo set dateRelativeToSwaptionBermudaExercise when Swaption -> exerciseStyle -> bermudaExercise exists]
 	adjustedDate date (0..1) <"The date once the adjustment has been performed. (Note that this date may change if the business center holidays change).">;
 		[synonym FpML value adjustedDate]
 }
@@ -1050,13 +1068,16 @@ class Schedule stereotype contractualProduct <"A class defining a schedule of ra
 	id string (0..1) anchor;
 		[synonym FpML value id]
 	initialValue number (1..1) <"The initial rate or amount, as the case may be. An initial rate of 5% would be represented as 0.05.">;
-		[synonym FpML value initialValue]
+		[synonym FpML value initialValue pathExpression "calculationPeriodAmount.calculation.fixedRateSchedule"]
+		[synonym FpML value initialValue pathExpression "calculationPeriodAmount.calculation.floatingRateCalculation"]
+		[synonym FpML value fixedRate pathExpression "periodicPayment.fixedAmountCalculation"]
 		[synonym FIX value Spread tag 218]
 		[synonym CFTC_Part43 value PN1 projection Price_Derivatives]
 		[synonym CFTC_Part43 value PN2 projection Price_Derivatives]
 		[regulatoryReference CFTC_DFA guideline "ISDA Price Notation and Additional Price Notation Approach" section "Rates" provision "This is the Price Notation 1 of the fixed rate of an IRS when instantiated through a fixedRateSchedule, and the Price Notation 2 of the floating leg when instantiated through a spreadSchedule."]
 	step Step (0..*) <"The schedule of step date and value pairs. On each step date the associated step value becomes effective A list of steps may be ordered in the document by ascending step date. An FpML document containing an unordered list of steps is still regarded as a conformant document.">;
-		[synonym FpML value step]
+		[synonym FpML value step pathExpression "calculationPeriodAmount.calculation.fixedRateSchedule"]
+		[synonym FpML value step pathExpression "calculationPeriodAmount.calculation.floatingRateCalculation"]
 }
 
 data rule Schedule_step <"FpML validation rule ird-25 - Context: Schedule (complex type). If step does not exist, then initialValue must not be equal to 0.">

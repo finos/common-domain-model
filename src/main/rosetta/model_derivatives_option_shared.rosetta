@@ -137,13 +137,17 @@ class CreditEventNotice stereotype contractualProduct
 		[synonym FpML value publiclyAvailableInformation]
 }
 
-class OptionExercise stereotype contractualProduct one of <"This class doesn't exists in FpML, as it corresponds to the substitution group associated with the exercise element (which doesn't exists in the instance document.)">
+class OptionStyle stereotype contractualProduct one of <"The qualification of the option style: American, Bermuda or European. FpML implements those features as part of a substitution group.">
 {
 	americanExercise AmericanExercise (0..1);
-		[synonym FpML value americanExercise]
+		[synonym FpML value americanExercise pathExpression "trade.swaption"]
+		[synonym FpML value americanExercise pathExpression "trade.creditDefaultSwapOption"]
 	bermudaExercise BermudaExercise (0..1);
-		[synonym FpML value bermudaExercise]
+		[synonym FpML value bermudaExercise pathExpression "trade.swaption"]
+		[synonym FpML value bermudaExercise pathExpression "trade.creditDefaultSwapOption"]
 	europeanExercise EuropeanExercise (0..1);
+		[synonym FpML value europeanExercise pathExpression "trade.swaption"]
+		[synonym FpML value europeanExercise pathExpression "trade.creditDefaultSwapOption"]
 }
 
 class FailureToPay stereotype contractualProduct
@@ -272,7 +276,6 @@ class OptionFeature stereotype contractualProduct <"A class for defining option 
 	fxFeature FxFeature (0..1) <"A quanto or composite FX feature.">;
 		[synonym FpML value fxFeature]
 	strategyFeature StrategyFeature (0..1) <"A simple strategy feature.">;
-		[synonym FpML value strategyFeature]
 	asian Asian (0..1) <"An option where and average price is taken on valuation.">;
 		[synonym FpML value asian]
 	barrier Barrier (0..1) <"An option with a barrier feature.">;
@@ -292,17 +295,17 @@ class OptionNumericStrike stereotype contractualProduct one of <"A class for def
 		[synonym FpML value strikePercentage]
 }
 
-class OptionSettlement stereotype contractualProduct <"This class corresponds to the OptionSettlement.model group.">
+class OptionSettlement stereotype contractualProduct <"The option settlement terms, i.e. whether cash, physical or by election, the settlement date (when specified), the settlement amount (when specified) The FpML implementation makes use of the OptionSettlement.model group.">
 	[synonym FpML value OptionSettlement]
 {
-	settlementType SettlementTypeEnum (0..1);
-		[synonym FpML value settlementType]
+	settlementType SettlementTypeEnum (0..1) <"The settlement">;
+		[synonym FpML value settlementType pathExpression "trade.creditDefaultSwapOption"]
 	settlementDate AdjustableOrRelativeDate (0..1);
-		[synonym FpML value settlementDate]
-	settlementAmount Money (0..1) <"Settlement Amount.">;
-		[synonym FpML value settlementAmount]
+		[synonym FpML value settlementDate pathExpression "trade.creditDefaultSwapOption"]
+	settlementAmount Money (0..1) <"The Settlement Amount, when known in advance.">;
+		[synonym FpML value settlementAmount pathExpression "trade.creditDefaultSwapOption"]
 	settlementCurrency CurrencyEnum (0..1) <"Settlement Currency for use where the Settlement Amount cannot be known in advance">;
-		[synonym FpML value settlementCurrency]
+		[synonym FpML value settlementCurrency pathExpression "trade.creditDefaultSwapOption"]
 }
 
 choice rule OptionSettlement_choice <"Choice rule to represent an FpML choice construct.">
@@ -334,7 +337,7 @@ class PassThroughItem stereotype contractualProduct <"Class to represent a singl
 		[synonym FpML value passThroughPercentage]
 }
 
-class Premium extends SinglePayment stereotype contractualProduct <"A class for defining a premium.">
+class Premium extends OptionPayment stereotype contractualProduct <"A class for defining a premium. While FpML Premium extends Payment, Rosetta creates a new base class, for the purpose of converging the credit and interest rate option implementations.">
 	[synonym FpML value Premium]
 {
 	premiumExpression PremiumExpression (0..1) <"This element doesn't exist in FpML, which specifies the Premium.model group for representing the option premium when expressed in a way other than an amount.">;
@@ -385,13 +388,14 @@ class Restructuring stereotype contractualProduct
 		[synonym FpML value multipleCreditEventNotices]
 }
 
-class StrategyFeature stereotype contractualProduct <"A class for defining option simple strike or calendar spread strategy features.">
-	[synonym FpML value StrategyFeature]
+class StrategyFeature stereotype contractualProduct <"A class for defining option strategy features. The FpML construct has been extended to add the straddle strategy, that in FpML is associated with the swaption construct..">
 {
-	strikeSpread StrikeSpread (1..1) <"Definition of the upper strike in a strike spread.">;
-		[synonym FpML value strikeSpread]
-	calendarSpread CalendarSpread (1..1) <"Definition of the later expiration date in a calendar spread.">;
-		[synonym FpML value calendarSpread]
+	strikeSpread StrikeSpread (0..1) <"Definition of the upper strike in a strike spread.">;
+		[synonym FpML value strikeSpread pathExpression "strategyFeature"]
+	calendarSpread CalendarSpread (0..1) <"Definition of the later expiration date in a calendar spread.">;
+		[synonym FpML value calendarSpread pathExpression "strategyFeature"]
+	straddle boolean (0..1) <"The qualification of whether the option is part of a straddle. FpML associates this qualification to the swaption, as the swaptionStraddle.">;
+		[synonym FpML value swaptionStraddle pathExpression "trade.swaption"]
 }
 
 class StrikeSpread stereotype contractualProduct <"A class for defining a strike spread feature.">
