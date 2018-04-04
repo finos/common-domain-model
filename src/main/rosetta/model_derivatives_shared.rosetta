@@ -375,7 +375,7 @@ class EuropeanExercise stereotype contractualProduct <"A class defining the exer
 	expirationTime BusinessCenterTime (1..1) <"The latest time for exercise on expirationDate.">;
 		[synonym FpML value expirationTime]
 	partialExercise PartialExercise (0..1) <"As defined in the 2000 ISDA Definitions, Section 12.3. Partial Exercise, the buyer of the option has the right to exercise all or less than all the notional amount of the underlying swap on the expiration date, but may not exercise less than the minimum notional amount, and if an integral multiple amount is specified, the notional amount exercised must be equal to, or be an integral multiple of, the integral multiple amount.">;
-		[synonym FpML value expirationTime]
+		[synonym FpML value partialExercise]
 	exerciseFee ExerciseFee (0..1) <"A fee to be paid on exercise. This could be represented as an amount or a rate and notional reference on which to apply the rate.">;
 		[synonym FpML value exerciseFee]
 }
@@ -762,15 +762,15 @@ class PartialExercise stereotype contractualProduct <"A class defining partial e
 		[synonym FpML value notionalReference]
 	integralMultipleAmount number (0..1) <"A notional amount which restricts the amount of notional that can be exercised when partial exercise or multiple exercise is applicable. The integral multiple amount defines a lower limit of notional that can be exercised and also defines a unit multiple of notional that can be exercised, i.e. only integer multiples of this amount can be exercised.">;
 		[synonym FpML value integralMultipleAmount]
-	minimalNotionalAmount number (0..1) <"The minimum notional amount that can be exercised on a given exercise date. See multipleExercise.">;
-		[synonym FpML value minimalNotionalAmount]
+	minimumNotionalAmount number (0..1) <"The minimum notional amount that can be exercised on a given exercise date. See multipleExercise.">;
+		[synonym FpML value minimumNotionalAmount]
 	minimumNumberOfOptions int (0..1) <"The minimum number of options that can be exercised on a given exercise date.">;
 		[synonym FpML value minimumNumberOfOptions]
 }
 
 choice rule PartialExercise_choice <"Choice rule to represent an FpML choice construct.">
 	for PartialExercise required choice between
-		minimalNotionalAmount and minimumNumberOfOptions
+		minimumNotionalAmount and minimumNumberOfOptions
 
 data rule MinimumNumberOfOptions_minimumNumberOfOptions <"FpML MultipleExercise construct specifies the minimumNumberOfOptions as a positive integer.">
 	when MultipleExercise -> minimumNumberOfOptions exists
@@ -797,7 +797,7 @@ class Payment extends PayerReceiver stereotype contractualProduct <"A class for 
 		[synonym FpML value id]
 	paymentAmount Money (1..1) <"The currency amount of the payment.">;
 		[synonym FpML value paymentAmount]
-	paymentDate AdjustableOrAdjustedDate (0..1) <"The payment date. This date is subject to adjustment in accordance with any applicable business day convention.">;
+	paymentDate AdjustableOrRelativeDate (0..1) <"The payment date. While FpML specifies this element to be of type AdjustableOrAdjustedDate, Rosetta uses the type AdjustableOrRelativeDate to accommodate the credit default swap option premium, which uses the relative date construct.">;
 		[synonym FpML value paymentDate]
 	paymentType string (0..1) scheme "paymentTypeScheme" <"A classification of the type of fee or additional payment, e.g. brokerage, upfront fee etc. FpML does not define domain values for this element.">;
 		[synonym FpML value paymentType]

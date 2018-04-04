@@ -215,9 +215,9 @@ class Payout <"The payout can be specified through a number of combinations, e.g
 		[synonym FpML value swapStream pathExpression "trade.swap"]
 		[synonym FpML value swapStream pathExpression "trade.swaption.swap"]
 		[synonym FpML value feeLeg pathExpression "trade.creditDefaultSwap"]
-		[synonym FpML value feeLeg pathExpression "creditDefaultSwap"]
+		[synonym FpML value feeLeg pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
 		[synonym FpML value generalTerms pathExpression "trade.creditDefaultSwap"]
-		[synonym FpML value generalTerms pathExpression "creditDefaultSwap"]
+		[synonym FpML value generalTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
 	creditDefaultPayout CreditDefaultPayout (0..1);
 	fee Payment (0..*) <"A payment between the parties to the trade. For interest rate products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the initialPayment element.">;
 		[synonym FpML value additionalPayment pathExpression "trade.swap"]
@@ -353,10 +353,13 @@ class CreditDefaultPayout <"The credit default payout specification terms.">
 	generalTerms GeneralTerms (1..1);
 	protectionTerms ProtectionTerms (1..1);
 		[synonym FpML value protectionTerms pathExpression "trade.creditDefaultSwap"]
+		[synonym FpML value protectionTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
 	cashSettlementTerms CashSettlementTerms (0..1);
 		[synonym FpML value cashSettlementTerms pathExpression "trade.creditDefaultSwap"]
+		[synonym FpML value cashSettlementTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
 	physicalSettlementTerms PhysicalSettlementTerms (0..1);
 		[synonym FpML value physicalSettlementTerms pathExpression "trade.creditDefaultSwap"]
+		[synonym FpML value physicalSettlementTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
 }
 
 choice rule CreditDefaultPayout_choice <"Choice rule to represent an FpML choice construct.">
@@ -447,18 +450,24 @@ class GeneralTerms <"A class specifying the general terms of the credit default 
 	buyerSeller BuyerSeller (1..1);
 	dateAdjustments BusinessDayAdjustments (0..1) <"ISDA 2003 Terms: Business Day and Business Day Convention.">;
 		[synonym FpML value dateAdjustments pathExpression "trade.creditDefaultSwap.generalTerms"]
+		[synonym FpML value dateAdjustments pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap.generalTerms"]
 	referenceInformation ReferenceInformation (0..1);
 		[synonym FpML value referenceInformation pathExpression "trade.creditDefaultSwap.generalTerms"]
+		[synonym FpML value referenceInformation pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap.generalTerms"]
 	indexReferenceInformation IndexReferenceInformation (0..1);
 		[synonym FpML value indexReferenceInformation pathExpression "trade.creditDefaultSwap.generalTerms"]
+		[synonym FpML value indexReferenceInformation pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap.generalTerms"]
 	basketReferenceInformation BasketReferenceInformation (0..1);
-		[synonym FpML value basketReferenceInformation pathExpression "trade.creditDefaultSwap.generalTerms"]	
+		[synonym FpML value basketReferenceInformation pathExpression "trade.creditDefaultSwap.generalTerms"]
+		[synonym FpML value basketReferenceInformation pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap.generalTerms"]
 	additionalTerm string (0..*) scheme "additionalTermScheme";
 		[synonym FpML value additionalTerm pathExpression "trade.creditDefaultSwap.generalTerms"]
 	substitution boolean (1..1); // As a departure from FpML, the proposal is to remove optional cardinality in a boolean attribute. See class PaymentDates for proposed resolution.
 		[synonym FpML value substitution pathExpression "trade.creditDefaultSwap.generalTerms"]
+		[synonym FpML value substitution pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap.generalTerms"]
 	modifiedEquityDelivery boolean (1..1); // As a departure from FpML, the proposal is to remove optional cardinality in a boolean attribute. See class PaymentDates for proposed resolution.
 		[synonym FpML value modifiedEquityDelivery pathExpression "trade.creditDefaultSwap.generalTerms"]
+		[synonym FpML value modifiedEquityDelivery pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap.generalTerms"]
 }
 
 choice rule GeneralTerms_choice
@@ -468,12 +477,14 @@ choice rule GeneralTerms_choice
 class OptionPayout <"The option payout specification terms.">
 {
 	buyerSeller BuyerSeller (1..1);
-	optionType OptionTypeEnum (1..1);
+	optionType OptionTypeEnum (1..1) <"The type of option transaction. From a usage standpoint, put/call is the default option type, while payer/receiver indicator is used for options on index credit default swaps, consistently with the industry practice. Straddle is used for the case of straddle strategy, that combine a call and a put with the same strike.">;
+		[synonym FpML value optionType pathExpression "trade.creditDefaultSwapOption"]
 	feature OptionFeature (0..1) <"The option feature, such as quanto, Asian, barrier, knock.">;
 	denomination OptionDenomination (0..1) <"The denomination qualifies the number of units of underlyer per option and the number of options comprised in the option transaction. FpML represents this information as part of the OptionDenomination.model.">;
 	quantity ContractualQuantity (1..1) <"The quantity can be expressed in different formats, depending upon the product, e.g. notional amount for credit and interest rate products, quantity for some of the equity products. The CDM uses the generic term quantity rather than notional amount.">;
-	premium Payment (0..1) <"The option premium payable by the buyer to the seller.">;
+	premium Premium (0..1) <"The option premium payable by the buyer to the seller.">;
 		[synonym FpML value premium pathExpression "trade.swaption"]
+		[synonym FpML value premium pathExpression "trade.creditDefaultSwapOption"]
 	exerciseTerms OptionExercise (1..1) <"The terms for exercising the option, which include the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">;
 	underlyer ContractualProduct (1..1) <"The option underlyer. The implementation is restricted to contractual underlyers as part of the initial CDM phase.">;
 }
@@ -481,7 +492,10 @@ class OptionPayout <"The option payout specification terms.">
 class OptionExercise <"A class to represent the applicable terms to qualify an option exercise: the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">
 {
 	optionStyle OptionStyle (1..1) <"The option exercise can be of American style, Bermuda style or European style. The FpML implementation makes use of a substitution group.">;
+	strike CreditOptionStrike (0..1) <"Specifies the strike of the option on credit default swap.">;
+		[synonym FpML value strike pathExpression "trade.creditDefaultSwapOption"]
 	exerciseProcedure ExerciseProcedure (1..1) <"The set of parameters defining the procedure associated with the exercise, e.g. manual exercise.">;
 		[synonym FpML value exerciseProcedure pathExpression "trade.swaption"]
+		[synonym FpML value exerciseProcedure pathExpression "trade.creditDefaultSwapOption"]
 	settlement OptionSettlement (0..1) <"The option settlement terms, such as cash vs. physical, the settlement date, the settlement currency and/or amount. FpML represents this information as part of the OptionSettlement.model.">;
 }
