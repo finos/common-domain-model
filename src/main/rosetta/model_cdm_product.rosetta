@@ -178,7 +178,22 @@ isProduct InterestRate_InflationSwap_Basis_ZeroCoupon
 	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
 	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.T
 
+isProduct InterestRate_Option_Swaption
+	[synonym ISDA_Taxonomy_v1 value InterestRate_Option_Swaption]
+	EconomicTerms -> payout -> optionPayout exists
+	and EconomicTerms -> payout -> optionPayout -> underlyer -> economicTerms -> payout -> interestRatePayout exists
+	and EconomicTerms -> payout -> optionPayout -> underlyer -> economicTerms -> payout -> interestRatePayout exists
 
+/*
+ * Once loans and mortgages are integrated into the model, and provided that options on such underlyers are effectively transacted, 
+ * the product qualification should be extended to those
+ * The below is meant to illustrate how bond options, which are modelled in FpML, are integrated as part of the CDM
+ */
+isProduct InterestRate_Option_DebtOption
+	[synonym ISDA_Taxonomy_v1 value InterestRate_Option_Swaption]
+	EconomicTerms -> payout -> optionPayout exists
+	and ( EconomicTerms -> payout -> optionPayout -> underlyer -> economicTerms -> payout -> listedProduct -> bond
+		or EconomicTerms -> payout -> optionPayout -> underlyer -> economicTerms -> payout -> listedProduct -> convertibleBond ) exists
 /*
  * QUESTION TO CDM GROUP
  * TODO - How do we identify specify the CDS products, in the absence of normalised scheme values?
@@ -198,12 +213,17 @@ class Payout <"The payout can be specified through a number of combinations, e.g
 {
 	interestRatePayout InterestRatePayout (0..*);
 		[synonym FpML value swapStream pathExpression "trade.swap"]
+		[synonym FpML value swapStream pathExpression "trade.swaption.swap"]
 		[synonym FpML value feeLeg pathExpression "trade.creditDefaultSwap"]
+		[synonym FpML value feeLeg pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
 		[synonym FpML value generalTerms pathExpression "trade.creditDefaultSwap"]
+		[synonym FpML value generalTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
 	creditDefaultPayout CreditDefaultPayout (0..1);
 	fee Payment (0..*) <"A payment between the parties to the trade. For interest rate products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the initialPayment element.">;
 		[synonym FpML value additionalPayment pathExpression "trade.swap"]
 		[synonym FpML value initialPayment pathExpression "trade.creditDefaultSwap.feeLeg"]
+	optionPayout OptionPayout (0..*);
+	listedProduct ListedProduct (0..1);
 }
 
 /*
@@ -273,14 +293,6 @@ class StubPeriod <"A class defining how the initial or final stub calculation pe
 		[synonym FpML value finalStub]
 }
 
-/*
- * QUESTION TO CDM GROUP
- * FpML CDS include 2 calculationAmount elements: (i) at the feeLeg/periodPayment level for both the fixedAmount and the floatingAmount calculation, 
- * where the definition references in both cases the ISDA 2003 Term: Fixed Rate Payer Calculation Amount, and (ii) at the protectionTerms level,
- * where the definition references the ISDA 2003 Term: Floating Rate Payer Calculation Amount.
- * The CDM provides those 2 notional amounts.  Do we have situations in which those amounts are different?  If not, should we look to collapse those?
- */
-
 class ContractualQuantity
 {
 	quantity Quantity (0..1);
@@ -330,9 +342,7 @@ data rule NotionalSchedule_notionalStepSchedule <"FpML validation rule ird-61 - 
 class InterestRate one of
 {
 	fixedRate Schedule (0..1);
-		[synonym FpML value fixedRateSchedule pathExpression "calculationPeriodAmount.calculation"]
 	floatingRate FloatingRateCalculation (0..1);
-		[synonym FpML value floatingRateCalculation pathExpression "calculationPeriodAmount.calculation"]
 	inflationRate InflationRateCalculation (0..1);
 		[synonym FpML value inflationRateCalculation pathExpression "calculationPeriodAmount.calculation"]
 }
@@ -342,10 +352,13 @@ class CreditDefaultPayout <"The credit default payout specification terms.">
 	generalTerms GeneralTerms (1..1);
 	protectionTerms ProtectionTerms (1..1);
 		[synonym FpML value protectionTerms pathExpression "trade.creditDefaultSwap"]
+		[synonym FpML value protectionTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
 	cashSettlementTerms CashSettlementTerms (0..1);
 		[synonym FpML value cashSettlementTerms pathExpression "trade.creditDefaultSwap"]
+		[synonym FpML value cashSettlementTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
 	physicalSettlementTerms PhysicalSettlementTerms (0..1);
 		[synonym FpML value physicalSettlementTerms pathExpression "trade.creditDefaultSwap"]
+		[synonym FpML value physicalSettlementTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
 }
 
 choice rule CreditDefaultPayout_choice <"Choice rule to represent an FpML choice construct.">
@@ -360,24 +373,26 @@ data rule CreditDefaultPayout_inflationRate // Do we want to actually have such 
 	when EconomicTerms -> payout -> creditDefaultPayout exists
 	then EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate is absent
 
-class PaymentDates // Differences with the FpML PaymentDate include addition of CDS paymentDelay element.
+class PaymentDates <"The payment dates schedule. As a difference from the FpML PaymentDate, this class incorporates the CDS paymentDelay element, and the following reference elements have been omitted, because deemed of no relevant usage by the ISDA CDM Group: calculationPeriodDatesReference, resetDatesReference, ValuationDatesReference.">
 {
-	paymentFrequency Frequency (1..1);
+	paymentFrequency Frequency (1..1) <"The frequency at which regular payment dates occur. If the payment frequency is equal to the frequency defined in the calculation period dates component then one calculation period contributes to each payment amount. If the payment frequency is less frequent than the frequency defined in the calculation period dates component then more than one calculation period will contribute to the payment amount. A payment frequency more frequent than the calculation period frequency or one that is not a multiple of the calculation period frequency is invalid. If the payment frequency is of value T (term), the period is defined by the effectiveDate and the terminationDate.">;
 		[synonym FpML value paymentFrequency]
-	firstPaymentDate date (0..1);
+	firstPaymentDate date (0..1) <"The first unadjusted payment date. This day may be subject to adjustment in accordance with any business day convention specified in paymentDatesAdjustments. This element must only be included if there is an initial stub. This date will normally correspond to an unadjusted calculation period start or end date. This is true even if early or delayed payment is specified to be applicable since the actual first payment date will be the specified number of days before or after the applicable adjusted calculation period start or end date with the resulting payment date then being adjusted in accordance with any business day convention specified in paymentDatesAdjustments.">;
 		[synonym FpML value firstPaymentDate]
-	lastRegularPaymentDate date (0..1);
+	lastRegularPaymentDate date (0..1) <"The last regular unadjusted payment date. This day may be subject to adjustment in accordance with any business day convention specified in paymentDatesAdjustments. This element must only be included if there is a final stub. All calculation periods after this date contribute to the final payment. The final payment is made relative to the final set of calculation periods or the final reset date as the case may be. This date will normally correspond to an unadjusted calculation period start or end date. This is true even if early or delayed payment is specified to be applicable since the actual last regular payment date will be the specified number of days before or after the applicable adjusted calculation period start or end date with the resulting payment date then being adjusted in accordance with any business day convention specified in paymentDatesAdjustments.">;
 		[synonym FpML value lastRegularPaymentDate]
-	payRelativeTo PayRelativeToEnum (1..1);
+	payRelativeTo PayRelativeToEnum (1..1) <"Specifies whether the payments occur relative to each adjusted calculation period start date, adjusted calculation period end date or each reset date. The reset date is applicable in the case of certain euro (former French Franc) floating rate indices. Calculation period start date means relative to the start of the first calculation period contributing to a given payment. Similarly, calculation period end date means the end of the last calculation period contributing to a given payment. The valuation date is applicable for Brazilian-CDI swaps.">;
 		[synonym FpML value payRelativeTo]
-	paymentDaysOffset Offset (0..1);
+	paymentDaysOffset Offset (0..1) <"If early payment or delayed payment is required, specifies the number of days offset that the payment occurs relative to what would otherwise be the unadjusted payment date. The offset can be specified in terms of either calendar or business days. Even in the case of a calendar days offset, the resulting payment date, adjusted for the specified calendar days offset, will still be adjusted in accordance with the specified payment dates adjustments. This element should only be included if early or delayed payment is applicable, i.e. if the periodMultiplier element value is not equal to zero. An early payment would be indicated by a negative periodMultiplier element value and a delayed payment (or payment lag) would be indicated by a positive periodMultiplier element value.">;
 		[synonym FpML value paymentDaysOffset]
-	paymentDatesAdjustments BusinessDayAdjustments (1..1);
+	paymentDatesAdjustments BusinessDayAdjustments (1..1) <"The business day convention to apply to each payment date if it would otherwise fall on a day that is not a business day in the specified financial business centers.">;
 		[synonym FpML value paymentDatesAdjustments]
-	paymentDelay boolean (1..1); // As a departure from FpML, the proposal is to remove optional cardinality in a boolean attribute
+	paymentDelay boolean (1..1) <"Applicable to CDS on MBS to specify whether payment delays are applicable to the fixed Amount. RMBS typically have a payment delay of 5 days between the coupon date of the reference obligation and the payment date of the synthetic swap. CMBS do not, on the other hand, with both payment dates being on the 25th of each month.">; 
+/*
+ * TODO - In order not to introduce optional boolean attributes, the below mapping syntax needs to be supported
+ */
 		[synonym FpML value paymentDelay]
-//		TODO - The below logic could be a proper way to handle the FpML optional boolean that is quite frequent in the FpML Credit schema
-//		[synonym FpML value paymentDelay set paymentDelay to False when synonym is absent]
+//		[synonym FpML value paymentDelay set paymentDelay to False when absent]
 }
 
 data rule PaymentDates_firstPaymentDate <"FpML validation rule ird-6 - Context: InterestRateStream (complex type). If paymentDates/firstPaymentDate exists, and if calculationPeriodDates/effectiveDate exists, then paymentDates/firstPaymentDate must be after calculationPeriodDates/effectiveDate/unadjustedDate.">
@@ -429,25 +444,57 @@ class TransactedPrice // These are the set of transacted price attributes curren
 		[synonym FpML value quotationStyle pathExpression "feeLeg"]
 }
 
-class GeneralTerms // Adjusted from the FpML construct by removing the effectiveDate, terminationDate, dateAdjustments
+class GeneralTerms <"A class specifying the general terms of the credit default payout. It corresponds to the FpML GeneralTerms complex type, minus the the effectiveDate, terminationDate and dateAdjustments elements, which have been positioned as part of the InterestRatePayout class.">
 {
 	buyerSeller BuyerSeller (1..1);
 	dateAdjustments BusinessDayAdjustments (0..1) <"ISDA 2003 Terms: Business Day and Business Day Convention.">;
 		[synonym FpML value dateAdjustments pathExpression "trade.creditDefaultSwap.generalTerms"]
+		[synonym FpML value dateAdjustments pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap.generalTerms"]
 	referenceInformation ReferenceInformation (0..1);
 		[synonym FpML value referenceInformation pathExpression "trade.creditDefaultSwap.generalTerms"]
+		[synonym FpML value referenceInformation pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap.generalTerms"]
 	indexReferenceInformation IndexReferenceInformation (0..1);
 		[synonym FpML value indexReferenceInformation pathExpression "trade.creditDefaultSwap.generalTerms"]
+		[synonym FpML value indexReferenceInformation pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap.generalTerms"]
 	basketReferenceInformation BasketReferenceInformation (0..1);
-		[synonym FpML value basketReferenceInformation pathExpression "trade.creditDefaultSwap.generalTerms"]	
+		[synonym FpML value basketReferenceInformation pathExpression "trade.creditDefaultSwap.generalTerms"]
+		[synonym FpML value basketReferenceInformation pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap.generalTerms"]
 	additionalTerm string (0..*) scheme "additionalTermScheme";
 		[synonym FpML value additionalTerm pathExpression "trade.creditDefaultSwap.generalTerms"]
 	substitution boolean (1..1); // As a departure from FpML, the proposal is to remove optional cardinality in a boolean attribute. See class PaymentDates for proposed resolution.
 		[synonym FpML value substitution pathExpression "trade.creditDefaultSwap.generalTerms"]
+		[synonym FpML value substitution pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap.generalTerms"]
 	modifiedEquityDelivery boolean (1..1); // As a departure from FpML, the proposal is to remove optional cardinality in a boolean attribute. See class PaymentDates for proposed resolution.
 		[synonym FpML value modifiedEquityDelivery pathExpression "trade.creditDefaultSwap.generalTerms"]
+		[synonym FpML value modifiedEquityDelivery pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap.generalTerms"]
 }
 
 choice rule GeneralTerms_choice
 	for GeneralTerms required choice between
 	referenceInformation and indexReferenceInformation and basketReferenceInformation
+
+class OptionPayout <"The option payout specification terms.">
+{
+	buyerSeller BuyerSeller (1..1);
+	optionType OptionTypeEnum (1..1) <"The type of option transaction. From a usage standpoint, put/call is the default option type, while payer/receiver indicator is used for options on index credit default swaps, consistently with the industry practice. Straddle is used for the case of straddle strategy, that combine a call and a put with the same strike.">;
+		[synonym FpML value optionType pathExpression "trade.creditDefaultSwapOption"]
+	feature OptionFeature (0..1) <"The option feature, such as quanto, Asian, barrier, knock.">;
+	denomination OptionDenomination (0..1) <"The denomination qualifies the number of units of underlyer per option and the number of options comprised in the option transaction. FpML represents this information as part of the OptionDenomination.model.">;
+	quantity ContractualQuantity (1..1) <"The quantity can be expressed in different formats, depending upon the product, e.g. notional amount for credit and interest rate products, quantity for some of the equity products. The CDM uses the generic term quantity rather than notional amount.">;
+	premium Premium (0..1) <"The option premium payable by the buyer to the seller.">;
+		[synonym FpML value premium pathExpression "trade.swaption"]
+		[synonym FpML value premium pathExpression "trade.creditDefaultSwapOption"]
+	exerciseTerms OptionExercise (1..1) <"The terms for exercising the option, which include the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">;
+	underlyer ContractualProduct (1..1) <"The option underlyer. The implementation is restricted to contractual underlyers as part of the initial CDM phase.">;
+}
+
+class OptionExercise <"A class to represent the applicable terms to qualify an option exercise: the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">
+{
+	optionStyle OptionStyle (1..1) <"The option exercise can be of American style, Bermuda style or European style. The FpML implementation makes use of a substitution group.">;
+	strike CreditOptionStrike (0..1) <"Specifies the strike of the option on credit default swap.">;
+		[synonym FpML value strike pathExpression "trade.creditDefaultSwapOption"]
+	exerciseProcedure ExerciseProcedure (1..1) <"The set of parameters defining the procedure associated with the exercise, e.g. manual exercise.">;
+		[synonym FpML value exerciseProcedure pathExpression "trade.swaption"]
+		[synonym FpML value exerciseProcedure pathExpression "trade.creditDefaultSwapOption"]
+	settlement OptionSettlement (0..1) <"The option settlement terms, such as cash vs. physical, the settlement date, the settlement currency and/or amount. FpML represents this information as part of the OptionSettlement.model.">;
+}
