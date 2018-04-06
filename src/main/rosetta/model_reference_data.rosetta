@@ -290,21 +290,26 @@ data rule NaturalPersonIdentifier_country <"ESMA RTS 22 specifies the natural pe
  */
 class Party stereotype entityReferenceData <"The party class.">
 	[synonym FpML value Party]
+	[synonym FpML value relatedParty] // Need to confirm whether this works effectively
 	[synonym FIX value Parties componentID 1032]
 	[synonym FIX value RootParties componentID 1031]
 {
 	id string (0..1) anchor;
 		[synonym FpML value id pathExpression "party"]
 	partyReference string (0..1) reference <"The reference to the party. Rosetta embeds it as part of the Party class for the purpose of providing type safety support alongside with better model legibility.">;
-		[synonym FpML value payerPartyReference pathExpression "trade.swap.swapStream"]
-		[synonym FpML value receiverPartyReference pathExpression "trade.swap.swapStream"]
+		[synonym FpML value payerPartyReference]
+		[synonym FpML value receiverPartyReference]
 		[synonym FpML value buyerPartyReference pathExpression "trade.creditDefaultSwap.generalTerms"]
 		[synonym FpML value sellerPartyReference pathExpression "trade.creditDefaultSwap.generalTerms"]
+		[synonym FpML value buyerPartyReference pathExpression "trade.swaption"]
+		[synonym FpML value sellerPartyReference pathExpression "trade.swaption"]
+		[synonym FpML value buyerPartyReference pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap.generalTerms"]
+		[synonym FpML value sellerPartyReference pathExpression "trade.creditDefaultSwapOption.creaditDefaultSwap.generalTerms"]
+		[synonym FpML value calculationAgentPartyReference]
 	partyIdentifier PartyIdentifier (0..*) <"The set of identifiers associated with a party.">;
+		//[synonym Rosetta_Workbench value identifier]
 		[synonym FpML value party]
-		[synonym Rosetta_Workbench value identifier]
 	account Account (0..*) <"The account that might be specified by the party in relation to a transaction.">;
-		[synonym FpML value account]
 	regulatoryQualification_MiFID_II RegulatoryQualification_MiFID_II (0..1) <"The MiFID II regulatory qualifications associated to the party.">;
 	regulatoryQualification_CFTC_DFA RegulatoryQualification_CFTC_DFA (0..1) <"The CFTC DFA regulatory qualifications associated to the party.">;
 	partyRole PartyRoleEnum (0..*) <"The role associated with the party in the context of a transaction, e.g. agent, custodian, exchange, ...">;
@@ -373,6 +378,7 @@ class PartyIdentifier stereotype entityReferenceData <"The set of [partyId, Part
 		[synonym FIX value InstrumentPartyID tag 1019] /* FIX restricts its use to instrument definition, e.g. listing source information */
 		[synonym FIX value DerivativeInstrumentPartyID tag 1293]
 		[synonym FIX value TargetPartyID tag 1462] /* Part of the TargetParties component block, 'targeted for the action specified in the message' */
+		[synonym FpML value partyId pathExpression "identifier"]
 		[synonym FpML value partyId pathExpression "party"]
 		[synonym FpML value entityId]
 		[synonym Rosetta_Workbench value partyId]
@@ -388,7 +394,7 @@ class PartyIdentifier stereotype entityReferenceData <"The set of [partyId, Part
 		[synonym FIX value DerivativeInstrumentPartyIDSource tag 1294]
 		[synonym FIX value TargetPartyIDSource tag 1463] /* Part of the TargetParties component block, 'targeted for the action specified in the message' */
 		[synonym FpML value partyIdScheme]
-		[synonym Rosetta_Workbench value partyIdSource]
+		[synonym Rosetta_Workbench value partyIdSource pathExpression "identifier"]
 		[synonym ISO_20022 value Cd]
 	proprietaryScheme string (0..1) <"A non-normalised scheme for the identification of a natural person, as specified by ESMA as part of the MiFID/MiFIR regulation.">;
 		[synonym ISO_20022 value Prtry]
