@@ -221,9 +221,11 @@ class Payout <"The payout can be specified through a number of combinations, e.g
 		[synonym FpML value generalTerms pathExpression "trade.creditDefaultSwap"]
 		[synonym FpML value generalTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
 	creditDefaultPayout CreditDefaultPayout (0..1);
-	fee Payment (0..*) <"A payment between the parties to the trade. For interest rate products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the initialPayment element.">;
+	cashflow Payment (0..*) <"A payment between the parties to the trade. For interest rate products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the initialPayment element.">;
 		[synonym FpML value additionalPayment pathExpression "trade.swap"]
 		[synonym FpML value initialPayment pathExpression "trade.creditDefaultSwap.feeLeg"]
+		[synonym FpML value premium pathExpression "trade.swaption"]
+		[synonym FpML value premium pathExpression "trade.creditDefaultSwapOption"]
 	optionPayout OptionPayout (0..*);
 	listedProduct ListedProduct (0..1);
 }
@@ -481,10 +483,6 @@ class OptionPayout <"The option payout specification terms.">
 		[synonym FpML value optionType pathExpression "trade.creditDefaultSwapOption"]
 	feature OptionFeature (0..1) <"The option feature, such as quanto, Asian, barrier, knock.">;
 	denomination OptionDenomination (0..1) <"The denomination qualifies the number of units of underlyer per option and the number of options comprised in the option transaction. FpML represents this information as part of the OptionDenomination.model.">;
-	quantity ContractualQuantity (1..1) <"The quantity can be expressed in different formats, depending upon the product, e.g. notional amount for credit and interest rate products, quantity for some of the equity products. The CDM uses the generic term quantity rather than notional amount.">;
-	premium Premium (0..1) <"The option premium payable by the buyer to the seller.">;
-		[synonym FpML value premium pathExpression "trade.swaption"]
-		[synonym FpML value premium pathExpression "trade.creditDefaultSwapOption"]
 	exerciseTerms OptionExercise (1..1) <"The terms for exercising the option, which include the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">;
 	underlyer ContractualProduct (1..1) <"The option underlyer. The implementation is restricted to contractual underlyers as part of the initial CDM phase.">;
 }
