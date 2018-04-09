@@ -192,25 +192,32 @@ class CreditDefaultSwapOption extends OptionBaseExtended stereotype contractualP
 {
 	clearingInstructions OptionPhysicalSettlement (0..1) <"Specifies any instructions on how the physical settlement is to be effected when the option is exercised.">;
 		[synonym FpML value clearingInstructions]
-	strike CreditOptionStrike (1..1) <"Specifies the strike of the option on credit default swap.">;
+	strike OptionStrike (1..1) <"Specifies the strike of the option on credit default swap.">;
 		[synonym FpML value strike]
 	creditDefaultSwap CreditDefaultSwap (1..1);
 		[synonym FpML value creditDefaultSwap]
 }
 
-class CreditOptionStrike stereotype contractualProduct one of <"A class to specify the strike of a credit swaption or a credit default swap option.">
+class OptionStrike stereotype contractualProduct one of <"A class to specify the option strike.">
 	[synonym FpML value CreditOptionStrike]
 {
 	spread number (0..1) <"The strike of a credit default swap option or credit swaption when expressed as a spread per annum.">;
 		[synonym FpML value spread]
 	price number (0..1) <"The strike of a credit default swap option or credit swaption when expressed as in reference to the price of the underlying obligation(s) or index.">;
-		[synonym FpML value price]
-	/*
-	 * This referencing is based upon the cd-swaption-1; needs to confirm that there is no other example.
-	 */
-	strikeReference FixedAmountCalculation (0..1) reference <"The strike of a credit default swap option or credit swaption when expressed in reference to the spread of the underlying swap (typical practice in the case of single name swaps).">;
+		[synonym FpML value strikePrice pathExpression "price"]
+	currency CurrencyEnum (0..1) <"The currency in which an amount is denominated.">;
+		[synonym FpML value currency pathExpression "price"]
+	percentage number (0..1) <"The price or level expressed as a percentage of the forward starting spot price.">;
+		[synonym FpML value strikePercentage pathExpression "price"]
+	strikeReference string (0..1) reference <"The strike of an option on a credit default swap when expressed in reference to the spread of the underlying swap (typical practice in the case of credit single name swaps).">;
 		[synonym FpML value strikeReference]
+	referenceSwapCurve ReferenceSwapCurve (0..1) <"The strike of an option when expressed by reference to a swap curve. (Typically the case for a convertible bond option.)">;
+		[synonym FpML value referenceSwapCurve]
 }
+
+choice rule OptionStrike_expression <"The option strike should be expressed either as a spread, a price, a percentage of a forward starting price, or by reference to a value expressed somewhere else in the document.">
+	for OptionStrike required choice between
+	spread and price and percentage and strikeReference and referenceSwapCurve
 
 class DeliverableObligations stereotype contractualProduct <"A class to specify all the ISDA terms relevant to defining the deliverable obligations.">
 	[synonym FpML value DeliverableObligations]

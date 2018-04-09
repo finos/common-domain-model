@@ -69,6 +69,7 @@ class ContractualQuantity
 		[synonym FpML value initialValue pathExpression "calculationPeriodAmount.calculation" set notionalAmount when notionalSchedule -> notionalStepSchedule -> step is absent]
 		[synonym FpML value calculationAmount pathExpression "periodicPayment.fixedAmountCalculation"]
 		[synonym FpML value calculationAmount pathExpression "periodicPayment.floatingAmountCalculation"]
+		[synonym FpML value notionalAmount pathExpression "trade.bondOption"]
 		[synonym Rosetta_Workbench value notionalAmount]
 	notionalSchedule NotionalSchedule (0..1);
 		[synonym FpML value notionalSchedule pathExpression "calculationPeriodAmount.calculation" set notionalSchedule when notionalSchedule -> notionalStepSchedule -> step exists]
@@ -243,11 +244,13 @@ data rule NotionalSchedule_notionalStepSchedule <"FpML validation rule ird-61 - 
 class OptionExercise <"A class to represent the applicable terms to qualify an option exercise: the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">
 {
 	optionStyle OptionStyle (1..1) <"The option exercise can be of American style, Bermuda style or European style. The FpML implementation makes use of a substitution group.">;
-	strike CreditOptionStrike (0..1) <"Specifies the strike of the option on credit default swap.">;
+	strike OptionStrike (0..1) <"Specifies the strike of the option on credit default swap.">;
 		[synonym FpML value strike pathExpression "trade.creditDefaultSwapOption"]
+		[synonym FpML value strike pathExpression "trade.bondOption"]
 	exerciseProcedure ExerciseProcedure (1..1) <"The set of parameters defining the procedure associated with the exercise, e.g. manual exercise.">;
 		[synonym FpML value exerciseProcedure pathExpression "trade.swaption"]
 		[synonym FpML value exerciseProcedure pathExpression "trade.creditDefaultSwapOption"]
+		[synonym FpML value exerciseProcedure pathExpression "trade.bondOption"]
 	settlement OptionSettlement (0..1) <"The option settlement terms, such as cash vs. physical, the settlement date, the settlement currency and/or amount. FpML represents this information as part of the OptionSettlement.model.">;
 }
 
@@ -256,6 +259,7 @@ class OptionPayout <"The option payout specification terms.">
 	buyerSeller BuyerSeller (1..1);
 	optionType OptionTypeEnum (1..1) <"The type of option transaction. From a usage standpoint, put/call is the default option type, while payer/receiver indicator is used for options on index credit default swaps, consistently with the industry practice. Straddle is used for the case of straddle strategy, that combine a call and a put with the same strike.">;
 		[synonym FpML value optionType pathExpression "trade.creditDefaultSwapOption"]
+		[synonym FpML value optionType pathExpression "trade.bondOption"]
 /*
  * Need to implement a mapping logic to map the FpML swaption straddle boolean flag into the common optionType
  */
@@ -264,7 +268,7 @@ class OptionPayout <"The option payout specification terms.">
 	denomination OptionDenomination (0..1) <"The denomination qualifies the number of units of underlyer per option and the number of options comprised in the option transaction. FpML represents this information as part of the OptionDenomination.model.">;
 	quantity ContractualQuantity (0..1) <"The option notional amount. The CDM uses the generic term quantity rather than notional amount. The number of options is specified as part of the denomination attribute.">;
 	exerciseTerms OptionExercise (1..1) <"The terms for exercising the option, which include the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">;
-	underlyer ContractualProduct (1..1) <"The option underlyer. The implementation is restricted to contractual underlyers as part of the initial CDM phase.">;
+	underlyer Product (1..1) <"The option underlyer. The implementation is restricted to contractual underlyers as part of the initial CDM phase.">;
 }
 
 class PaymentDates <"The payment dates schedule. As a difference from the FpML PaymentDate, this class incorporates the CDS paymentDelay element, and the following reference elements have been omitted, because deemed of no relevant usage by the ISDA CDM Group: calculationPeriodDatesReference, resetDatesReference, ValuationDatesReference.">
@@ -336,7 +340,13 @@ class Payout <"The payout can be specified through a number of combinations, e.g
 		[synonym FpML value initialPayment pathExpression "trade.creditDefaultSwap.feeLeg"]
 		[synonym FpML value premium pathExpression "trade.swaption"]
 		[synonym FpML value premium pathExpression "trade.creditDefaultSwapOption"]
+		[synonym FpML value premium pathExpression "trade.bondOption"]
 	optionPayout OptionPayout (0..*);
+}
+
+class Product one of 
+{
+	contractualProduct ContractualProduct (0..1);
 	listedProduct ListedProduct (0..1);
 }
 
@@ -495,8 +505,8 @@ isProduct InterestRate_InflationSwap_Basis_ZeroCoupon
 isProduct InterestRate_Option_Swaption
 	[synonym ISDA_Taxonomy_v1 value InterestRate_Option_Swaption]
 	EconomicTerms -> payout -> optionPayout exists
-	and EconomicTerms -> payout -> optionPayout -> underlyer -> economicTerms -> payout -> interestRatePayout exists
-	and EconomicTerms -> payout -> optionPayout -> underlyer -> economicTerms -> payout -> interestRatePayout exists
+	and EconomicTerms -> payout -> optionPayout -> underlyer -> contractualProduct -> economicTerms -> payout -> interestRatePayout exists
+	and EconomicTerms -> payout -> optionPayout -> underlyer -> contractualProduct -> economicTerms -> payout -> interestRatePayout exists
 
 /*
  * Once loans and mortgages are integrated into the model, and provided that options on such underlyers are effectively transacted, 
@@ -505,9 +515,8 @@ isProduct InterestRate_Option_Swaption
  */
 isProduct InterestRate_Option_DebtOption
 	[synonym ISDA_Taxonomy_v1 value InterestRate_Option_Swaption]
-	EconomicTerms -> payout -> optionPayout exists
-	and ( EconomicTerms -> payout -> optionPayout -> underlyer -> economicTerms -> payout -> listedProduct -> bond
-		or EconomicTerms -> payout -> optionPayout -> underlyer -> economicTerms -> payout -> listedProduct -> convertibleBond ) exists
+	EconomicTerms -> payout -> optionPayout -> underlyer -> listedProduct -> bond exists
+		or EconomicTerms -> payout -> optionPayout -> underlyer -> listedProduct -> convertibleBond exists
 /*
  * QUESTION TO CDM GROUP
  * TODO - How do we identify specify the CDS products, in the absence of normalised scheme values?

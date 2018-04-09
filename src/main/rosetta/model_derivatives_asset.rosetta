@@ -75,7 +75,13 @@ class EquityAsset extends ListedHeader stereotype productReferenceData, listedPr
 
 class FixedIncomeSecurity extends ListedHeader stereotype productReferenceData, listedProduct <"A fixed income security. In FpML, it corresponds to the FixedIncomeSecurityContent.model.">
 {
-	issuer Party (0..1) reference <"FpML implements this element as an href into the party information. Rosetta restricts the type of party that can issue a product to a legal entity. FpML provides the ability to specify the issuer name, but this is deemed insufficient in the context of Rosetta at a time when the LEI is available and of paramount importance to identify entities.">;
+	/*
+	 * TODO - Once the CDM model reference data is extended to include the legal entity, the issueName should be adjusted to reference the entity name
+	 * instead of being specified as a string like in FpML
+	 */
+	issuerName string (0..1) <"The issuer, when specified as a string.">;
+		[synonym FpML value issuerName]
+	issuerReference string (0..1) reference <"The issuer, when specified by reference to a party specified somewhere else in the instance document.">;
 		[synonym FpML value issuerPartyReference]
 	seniority CreditSeniorityEnum (0..1) <"The repayment precedence of a debt instrument, as specified by a set of enumerated values.  FpML specifies that creditSeniorityTradingScheme (specified in Rosetta through the CreditSeniorityTradingEnum) overrides creditSeniorityScheme (specified in Rosetta through the CreditSeniorityEnum) when the underlyer defines the reference obligation used in a single name credit default swap trade.">;
 		[synonym FpML value seniority]
@@ -89,6 +95,10 @@ class FixedIncomeSecurity extends ListedHeader stereotype productReferenceData, 
 	issueDate date (0..1) <"The date on which the instrument was issued.">;
 		[synonym FIX value issueDate]
 }
+
+choice rule FixedIncomeSecurity_issuer <"Choice rule to represent an FpML choice construct.">
+	for FixedIncomeSecurity optional choice between
+	issuerName and issuerReference
 
 class Loan stereotype productReferenceData
 	[synonym FpML value Loan]
