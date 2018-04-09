@@ -291,9 +291,6 @@ data rule NaturalPersonIdentifier_country <"ESMA RTS 22 specifies the natural pe
  */
 class Party stereotype entityReferenceData <"The party class.">
 	[synonym FpML value Party]
-	[synonym FpML value relatedParty] // Need to confirm whether this works effectively
-	[synonym FIX value Parties componentID 1032]
-	[synonym FIX value RootParties componentID 1031]
 {
 	id string (0..1) anchor;
 		[synonym FpML value id pathExpression "party"]
@@ -318,14 +315,6 @@ class Party stereotype entityReferenceData <"The party class.">
 	regulatoryQualification_MiFID_II RegulatoryQualification_MiFID_II (0..1) <"The MiFID II regulatory qualifications associated to the party.">;
 	regulatoryQualification_CFTC_DFA RegulatoryQualification_CFTC_DFA (0..1) <"The CFTC DFA regulatory qualifications associated to the party.">;
 	partyRole PartyRoleEnum (0..*) <"The role associated with the party in the context of a transaction, e.g. agent, custodian, exchange, ...">;
-		[synonym FIX value PartyRole tag 452]
-		[synonym FIX value NestedPartyRole tag 538]
-		[synonym FIX value Nested2PartyRole tag 759]
-		[synonym FIX value Nested3PartyRole tag 951]
-		[synonym FIX value Nested4PartyRole tag 1417]
-		[synonym FIX value InstrumentPartyRole tag 1051] /* FIX restricts its use to instrument definition, e.g. listing source information */
-		[synonym FIX value DerivativeInstrumentPartyRole tag 1295]
-		[synonym FIX value TargetPartyRole tag 1464] /* Part of the FIX TargetParties component block, 'targeted for the action specified in the message' */
 		[synonym FpML value role]
 	/*
 	 * Let's see if this could be collapsed as part of the roles
@@ -343,7 +332,6 @@ class Party stereotype entityReferenceData <"The party class.">
 		[synonym FIX value LastCapacity tag 29]
 	legalEntity LegalEntity (0..1);
 	naturalPerson NaturalPerson (0..1);
-//	executionVenue ExecutionVenue (0..1);
 }
 
 choice rule Party_choice <"A party is either a legal entity or a natural person.">
@@ -393,16 +381,6 @@ data rule PartyIdentifier_investmentFirm <"An investment firm must be identified
 	when Party -> regulatoryQualification_MiFID_II -> isEligibleTo = True
 		and Party -> regulatoryQualification_MiFID_II -> isInvestmentFirm = True
 	then Party -> partyIdentifier -> partyIdSource = PartyIdSourceEnum.LEI
-
-//projection rule partyId_LegalEntity <"MiFIR reporting of the party identifier when the party is identified through an LEI, as the ISO 20022 standard collapses the partyId and partyIdSource in one field.">
-//	for target ISO_20022
-//	when PartyIdentifier -> partyIdSource = PartyIdSourceEnum.LEI
-//	map PartyIdentifier -> partyId to synonym LEI
-//
-//projection rule partyId_NaturalPerson <"MiFIR reporting of the party identifier when the party is a natural person.">
-//	for target ISO_20022
-//	when NaturalPerson exists 
-//	map Party -> partyIdentifier -> partyId to synonym Id
 
 abstract class RegulatoryQualification stereotype regulatoryEligibility
 {
