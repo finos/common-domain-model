@@ -295,7 +295,7 @@ class OptionNumericStrike stereotype contractualProduct one of <"A class for def
 		[synonym FpML value strikePercentage]
 }
 
-class OptionSettlement stereotype contractualProduct <"The option settlement terms, i.e. whether cash, physical or by election, the settlement date (when specified), the settlement amount (when specified) The FpML implementation makes use of the OptionSettlement.model group.">
+class OptionSettlement stereotype contractualProduct <"The option settlement terms, i.e. the settlement type (e.g. cash, physical, by election), the settlement date (when specified), the settlement amount (when specified) and the cash or physical settlement terms.">
 	[synonym FpML value OptionSettlement]
 {
 	settlementType SettlementTypeEnum (0..1) <"The settlement">;
@@ -306,11 +306,23 @@ class OptionSettlement stereotype contractualProduct <"The option settlement ter
 		[synonym FpML value settlementAmount pathExpression "trade.creditDefaultSwapOption"]
 	settlementCurrency CurrencyEnum (0..1) <"Settlement Currency for use where the Settlement Amount cannot be known in advance">;
 		[synonym FpML value settlementCurrency pathExpression "trade.creditDefaultSwapOption"]
+	cashSettlementTerms OptionCashSettlement (0..1) <"Specifies the parameters associated with the cash settlement procedure.">;
+		[synonym FpML value cashSettlement pathExpression "trade.swaption"]
+	physicalSettlementTerms OptionPhysicalSettlement (0..1) <"Specifies the physical settlement terms which apply to the transaction.">;
+		[synonym FpML value cashSettlement pathExpression "trade.swaption"]
 }
 
 choice rule OptionSettlement_choice <"Choice rule to represent an FpML choice construct.">
 	for OptionSettlement optional choice between
 	settlementAmount and settlementCurrency
+
+data rule OptionSettlement_cashSettlementTerms <"If the cash settlement terms are specified, then the settlementType can either be Cash, Election or CashOrPhysical">
+	when OptionSettlement -> cashSettlementTerms exists
+	then OptionSettlement -> settlementType <> SettlementTypeEnum.Physical
+	
+data rule OptionSettlement_physicalSettlementTerms <"If the physical settlement terms are specifies, then the settlementType can either be Physical, Election or CashOrPhysical">
+	when OptionSettlement -> cashSettlementTerms exists
+	then OptionSettlement -> settlementType <> SettlementTypeEnum.Cash
 
 class OptionStrike extends OptionNumericStrike stereotype contractualProduct <"A type for defining the strike price for an option. The strike price is either: (i) in respect of an index option transaction, the level of the relevant index specified or otherwise determined in the transaction; or (ii) in respect of a share option transaction, the price per share specified or otherwise determined in the transaction. This can be expressed either as a percentage of notional amount or as an absolute value.">
 	[synonym FpML value OptionStrike]
@@ -381,14 +393,12 @@ class Restructuring stereotype contractualProduct
 		[synonym FpML value multipleCreditEventNotices]
 }
 
-class StrategyFeature stereotype contractualProduct <"A class for defining option strategy features. The FpML construct has been extended to add the straddle strategy, that in FpML is associated with the swaption construct..">
+class StrategyFeature stereotype contractualProduct <"A class for defining option strategy features.">
 {
 	strikeSpread StrikeSpread (0..1) <"Definition of the upper strike in a strike spread.">;
 		[synonym FpML value strikeSpread pathExpression "strategyFeature"]
 	calendarSpread CalendarSpread (0..1) <"Definition of the later expiration date in a calendar spread.">;
 		[synonym FpML value calendarSpread pathExpression "strategyFeature"]
-	straddle boolean (0..1) <"The qualification of whether the option is part of a straddle. FpML associates this qualification to the swaption, as the swaptionStraddle.">;
-		[synonym FpML value swaptionStraddle pathExpression "trade.swaption"]
 }
 
 class StrikeSpread stereotype contractualProduct <"A class for defining a strike spread feature.">
