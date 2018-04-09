@@ -82,12 +82,16 @@ class ListedInterestRateDerivative extends ListedHeader stereotype productRefere
 
 abstract class ListedHeader stereotype productReferenceData, listedProduct <"An abstract class to holds the attributes that are common across listed products.">
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 	productTaxonomy ProductTaxonomy (1..*) <"The product taxonomy value(s) associated with a product.">;
 	productIdentifier ProductIdentifier (1..*) <"There can be several identifiers associated with a given product.">;
 	description string (1..1) <"The product name.">;
 		[synonym FpML value description]
+	currency CurrencyEnum (0..1) <"The denomination currency of the instrument.">;
+		[synonym FpML value currency]
+	clearanceSystem string (0..1) scheme "clearanceSystemScheme" <"Identification of the clearance system associated with the transaction exchange.">;
+		[synonym FpML value clearanceSystem]
 }
 
 class ListedProductPackageComponent stereotype preExecution, execution, postExecution <"Class which purpose is to associate a price and quantity qualification to each of the listed product components of a package transaction.">
@@ -101,7 +105,9 @@ class ListedProductPackageComponent stereotype preExecution, execution, postExec
 class ListedProduct stereotype productReferenceData, listedProduct one of <"Product which terms are abstracted through a product identifier and are then publicly available through a central venue.">
 {
 	bond Bond (0..1);
+		[synonym FpML value bond pathExpression "trade.bondOption"]
 	convertibleBond ConvertibleBond (0..1);
+		[synonym FpML value convertibleBond pathExpression "trade.bondOption"]
 	mortgage Mortgage (0..1);
 	listedInterestRateDerivative ListedInterestRateDerivative (0..1);
 }
@@ -161,17 +167,21 @@ choice rule PackageComponent_choice <"The contractualProduct is used in a pre-ex
 
 class ProductIdentifier stereotype productReferenceData <"The product identifier, composed of an identifier and a source.">
 {
-	productId string (1..1) <"The product identifier.">;
+	productId string (1..1) scheme "instrumentIdScheme"  <"The product identifier.">;
 		[synonym FIX value Symbol tag 55]
 		[synonym FIX value SecurityID tag 48]
 		[synonym FIX value SecurityAltID tag 455]
 		[synonym FpML value productId]
-		[synonym FpML value instrumentId] // Need to confirm with FpML experts that this is a valid mapping
-	productIdSource ProductIdSourceEnum (1..1) <"The product identifier source.">;
-		[synonym FIX value SecurityIDSource tag 22]
-		[synonym FIX value SecurityAltIDSource tag 456]
-		[synonym FpML value productIdScheme]
-		[synonym FpML value instrumentIdScheme] // Need to confirm that this is a valid mapping
+		[synonym FpML value instrumentId]
+		/*
+		 * TODO - Enhance the CDM model to position the productId scheme value as an enumeration
+		 * This require mapping syntax enhancement
+		 */
+//	productIdSource ProductIdSourceEnum (1..1) scheme "instrumentIdScheme" <"The product identifier source.">;
+//		[synonym FIX value SecurityIDSource tag 22]
+//		[synonym FIX value SecurityAltIDSource tag 456]
+//		[synonym FpML value productId]
+//		[synonym FpML value instrumentId]
 }
 
 class ProductTaxonomy stereotype productReferenceData <"The product taxonomy, which is composed of a taxonomy value and a taxonomy source.">

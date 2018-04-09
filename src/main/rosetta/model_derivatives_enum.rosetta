@@ -52,7 +52,9 @@ enum BusinessCenterEnum <"The enumerated values to specify the business centers.
 	BEBR <"Brussels, Belgium">
 		[synonym FpML value "BEBR"],
 	JPTO <"Tokyo, Japan">
-		[synonym FpML value "JPTO"]
+		[synonym FpML value "JPTO"],
+	CHZU <"Zurich, Switzerland">
+		[synonym FpML value "CHZU"]
 /* 
  * Many other entries to be added from the the FpML scheme
  */
@@ -92,6 +94,15 @@ enum CalculationAgentPartyEnum <"The enumerated values to specify how a calculat
 		[synonym FpML value "AsSpecifiedInStandardTermsSupplement"],
 	Both <"Both parties with joined rights to be a calculation agent.">
 		[synonym FpML value "Both"]
+}
+
+enum CashflowTypeEnum <"The cashflow qualification.">
+	[synonym FpML value paymentTypeScheme]
+{
+	brokerageCommission <"The brokerage commission.">, 
+	premium <"The option premium.">,
+	upfrontFree <"The upfront fee.">
+	
 }
 
 enum CategoryEnum
@@ -477,7 +488,9 @@ enum MasterConfirmationTypeEnum <"The enumerated values to specify the type of m
 	[synonym FpML value masterConfirmationTypeScheme]
 {
 	CreditIndex2003 displayName "2003CreditIndex" <"Used for CDS Index trades. Relevant Master Confirmation determined by the contents of the creditDefaultSwap element. Best practice is to use the most specific code that applies.">
-		[synonym FpML value "2003CreditIndex"]
+		[synonym FpML value "2003CreditIndex"],
+	DJ_CDX_NA displayName "DJ.CDX.NA" <"Used for CDS Index trades executed under the Dow Jones CDX Master Confirmation that covers CDX.NA.IG, CDX.NA.HY, and CDX.NA.XO.">
+		[synonym FpML value "DJ.CDX.NA"]
 /*
  * The FpML scheme includes a meaningful number of values, which we should look to load through a script.
  */
@@ -527,14 +540,18 @@ enum ObligationCategoryEnum <"The enumerated values used in both the obligations
 		[synonym FpML value "BondOrLoan"]
 }
 
-enum OptionTypeEnum extends PutCallEnum <"The enumerated values to specify the type of the option.">
+enum OptionTypeEnum <"The enumerated values to specify the type of the option. In FpML, OptionTypeEnum is a union with PutCallEnum, which specifies whether the option is a put or a call.">
 	[synonym FpML value OptionTypeEnum]
 {
+	Put <"A put option gives the holder the right to sell the underlying asset by a certain date for a certain price.">
+		[synonym FpML value "Put"],
+	Call <"A call option gives the holder the right to buy the underlying asset by a certain date for a certain price.">
+		[synonym FpML value "Call"],
 	Payer <"A 'payer' option: If you buy a 'payer' option you have the right but not the obligation to enter into the underlying swap transaction as the 'fixed' rate/price payer and receive float.">
 		[synonym FpML value "Payer"],
 	Receiver <"A 'receiver' option: If you buy a 'receiver' option you have the right but not the obligation to enter into the underlying swap transaction as the 'fixed' rate/price receiver and pay float.">
 		[synonym FpML value "Receiver"],
-	Straddle <"A straddle strategy.">
+	Straddle <"A straddle strategy, which involves the simultaneous buying of a put and a call of the same underlyer, at the same strike and same expiration date">
 		[synonym FpML value "Straddle"]
 }
 
@@ -604,15 +621,6 @@ enum PremiumTypeEnum <"The enumerated values to specify the premium type for for
 		[synonym FpML value "Variable"],
 	Fixed
 		[synonym FpML value "Fixed"]
-}
-
-enum PutCallEnum <"The enumerated values to specify whether the option is a call or a put.">
-	[synonym FpML value PutCallEnum]
-{
-	Put <"A put option gives the holder the right to sell the underlying asset by a certain date for a certain price.">
-		[synonym FpML value "Put"],
-	Call <"A call option gives the holder the right to buy the underlying asset by a certain date for a certain price.">
-		[synonym FpML value "Call"]
 }
 
 enum QuotationRateTypeEnum <"The enumerated values to specify the type of quotation rate to be obtained from each cash settlement reference bank.">

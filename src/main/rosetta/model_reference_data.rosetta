@@ -18,17 +18,18 @@ FpML versionNumber "5.10"
 class Account stereotype entityReferenceData <"The account specification, either as just an account identifier (the FIX practice), or with additional information as specified by FpML.">
 	[synonym FpML value Account]
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
-	accountNumber string (1..1) <"The account number.">;
-		[synonym FIX value Account tag 1]
+	accountReference string (0..1) reference <"The reference to the account. Rosetta embeds it as part of the Account class for the purpose of providing type safety support alongside with better model legibility.">;
+		[synonym FpML value payerAccountReference]
+		[synonym FpML value receiverAccountReference]
+	accountNumber string (1..1) scheme "accountIdScheme" <"The account number.">;
 		[synonym FpML value accountId]
 	accountName string (0..1) <"The name by which the account is known.">;
 		[synonym FpML value accountName]
 	accountType AccountTypeEnum (0..1) <"The type of account, e.g. client, house.">;
-		[synonym FIX value AccountType tag 581]
 		[synonym FpML value accountType]
-	servicingParty Party (0..1) <"The legal entity that services the account, i.e. in the books of which the account is held.">;
+	servicingParty Party (0..1) reference <"The legal entity that services the account, i.e. in the books of which the account is held.">;
 		[synonym FpML value servicingParty]
 }
 
@@ -303,11 +304,14 @@ class Party stereotype entityReferenceData <"The party class.">
 		[synonym FpML value sellerPartyReference pathExpression "trade.creditDefaultSwap.generalTerms"]
 		[synonym FpML value buyerPartyReference pathExpression "trade.swaption"]
 		[synonym FpML value sellerPartyReference pathExpression "trade.swaption"]
+		[synonym FpML value buyerPartyReference pathExpression "trade.creditDefaultSwapOption"]
+		[synonym FpML value sellerPartyReference pathExpression "trade.creditDefaultSwapOption"]
 		[synonym FpML value buyerPartyReference pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap.generalTerms"]
-		[synonym FpML value sellerPartyReference pathExpression "trade.creditDefaultSwapOption.creaditDefaultSwap.generalTerms"]
+		[synonym FpML value sellerPartyReference pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap.generalTerms"]
 		[synonym FpML value calculationAgentPartyReference]
+		[synonym FpML value buyerPartyReference pathExpression "trade.bondOption"]
+		[synonym FpML value sellerPartyReference pathExpression "trade.bondOption"]
 	partyIdentifier PartyIdentifier (0..*) <"The set of identifiers associated with a party.">;
-		//[synonym Rosetta_Workbench value identifier]
 		[synonym FpML value party]
 	account Account (0..*) <"The account that might be specified by the party in relation to a transaction.">;
 	regulatoryQualification_MiFID_II RegulatoryQualification_MiFID_II (0..1) <"The MiFID II regulatory qualifications associated to the party.">;
