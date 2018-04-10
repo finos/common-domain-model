@@ -21,14 +21,14 @@ class Contract <"A class to specify a contract object, which can be invoked eith
 	contractualProduct ContractualProduct (1..1) <"The contractual product information that is associated with the contract. The corresponding FpML construct is the product abstract element and the associated substitution group.">;
 	otherPartyPayment Payment (0..*) <"Other fees or additional payments associated with the contract, e.g. broker commissions, where one or more of the parties involved are not principal parties involved in the contract.">;
 		[synonym FpML value otherPartyPayment pathExpression "trade"]
-	brokerParty Party (0..*) reference <"The party (or parties) that brokered the contract.">;
+	brokerParty string (0..*) reference <"The reference to the party (or parties) that brokered the contract.">;
 		[synonym FpML value brokerPartyReference pathExpression "trade"]	
 	calculationAgent CalculationAgentModel (1..1) <"The ISDA Calculation Agent and the associated business center information. This information is represented in FpML via the CalculationAgent.model.">;
-	determiningParty Party (0..2) reference <"The ISDA Determination Party that is specified in the related confirmation as Determination Party.">;
+	determiningParty string (0..2) reference <"TThe party referenced is specified in the related Confirmation as Determination Party.">;
 		[synonym FpML value determiningParty pathExpression "trade"]
 	barrierDeterminationAgent Party (0..1) reference <"The party specified in the related confirmation as Barrier Determination Agent.">;
 		[synonym FpML value barrierDeterminationAgent pathExpression "trade"]
-	hedgingParty Party (0..2) reference <"The ISDA Hedging Party that is specified in the related confirmation as Hedging, or if no Hedging Party is specified, either party to the contract.">;
+	hedgingParty string (0..2) reference <"The ISDA Hedging Party that is specified in the related confirmation as Hedging, or if no Hedging Party is specified, either party to the contract.">;
 		[synonym FpML value hedgingParty pathExpression "trade"]
 	collateral Collateral (0..1) <"Defines the collateral obligations of a party.">;
 		[synonym FpML value collateral pathExpression "trade"]
@@ -45,7 +45,7 @@ class Contract <"A class to specify a contract object, which can be invoked eith
 	 */
 	contractState ContractStateEnum (0..1) <"The state qualification of a contractual product, i.e. whether open or close. This attribute is not present as part of the FpML standard.">;
 	party Party (2..*) <"The parties to the contract. While FpML has a minimal cardinality of 1, a minimal cardinality of 2 seems more appropriate.">;
-//		[synonym FpML value party]
+		[synonym FpML value party]
 	account Account (0..*) <"Optional account information.">;
 		[synonym FpML value account]
 }
@@ -176,10 +176,10 @@ class InterestRate one of
  * TODO - Need to cross-reference the 2014 credit definitions when relevant. 
  * (FpML schema has not been updated to reflect those definitions.)
  */
-class InterestRatePayout calculation FixedAmount <"The interest rate payout specification terms.">
+class InterestRatePayout extends PayerReceiver calculation FixedAmount <"The interest rate payout specification terms.">
 {
-	payerParty Party (1..1) <"The payer party. While FpML specifies it as an href into one of the parties, Rosetta specifies the party, to enhance clarity and legibility.">;
-	receiverParty Party (1..1) <"The receiver party.  While FpML specifies it as an href into one of the parties, Rosetta specifies the party, to enhance clarity and legibility.">;
+	id string (0..1) anchor;
+		[synonym FpML value id]
 	quantity ContractualQuantity (1..1) <"The quantity can be expressed in different formats, depending upon the product, e.g. notional amount for credit and interest rate products, quantity for some of the equity products. The CDM uses the generic term quantity rather than notional amount.">;
 	interestRate InterestRate (0..1) <"The interest rate can be a floating rate, a fixed rate of an inflation rate.">;
 	dayCountFraction DayCountFractionEnum (1..1) <"The day count fraction.">;

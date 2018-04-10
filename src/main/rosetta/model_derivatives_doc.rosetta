@@ -11,9 +11,36 @@ class CalculationAgentModel <"This class corresponds to the FpML CalculationAgen
 		[synonym FpML value calculationAgentBusinessCenter pathExpression "trade"]
 }
 
+class ContractIdentifier extends Identifier stereotype execution, postExecution <"A class defining a trade identifier issued by the indicated party. Rosetta implementation doesn't extends the base class PartyAndAccountReference because of the choice logic with the issuer element.">
+	[synonym FpML value TradeIdentifier]
+{
+	id string (0..1);
+		[synonym FpML value id]
+	partyReference string (0..1) reference <"Reference to a party.">;
+		[synonym FpML value partyReference]
+	accountReference string (0..1) reference <"Reference to an account.">;
+		[synonym FpML value accountReference]
+}
+
+choice rule ContractIdentifier_choice2 <"Choice rule to represent an FpML choice construct.">
+	for ContractIdentifier required choice between
+	issuer and partyReference
+
+data rule TradeIdentifier_account <"FpML specifies a choice between issuer and [partyReference, accountReference].  The account element should be populated only alongside the party element.">
+	when ContractIdentifier -> partyReference is absent
+	then ContractIdentifier -> accountReference is absent
+
+class ContractIdentifierExtended extends ContractIdentifier <"A class defining a trade identifier with a reference to the party that this trade is associated with.">
+	[synonym FpML value TradeIdentifierExtended]
+{
+	associatedParty Party (1..1) reference;
+		[synonym FpML value associatedParty]
+}
+
 class Identifier
 {
-	issuer Party (0..1) scheme "issuerIdScheme" <"The party that assigns the trade identifier. The FpML required cardinality for the issuing party has been relaxed to accommodate FIX messages.">;
+	issuer string (0..1) reference scheme "issuerIdScheme" <"The reference to the party that assigns the trade identifier.">;
+		[synonym Rosetta_Workbench value issuer]
 	identifier IdentifierValue (1..1); 
 	version int (0..1);
 		[synonym FpML value version]
@@ -81,29 +108,3 @@ choice rule PartyContractIdentifier_choice <"Choice rule to represent an FpML ch
 data rule VersionedTradeId_version <"FpML specifies the version as a non-negative integer.">
 	when Identifier -> version exists
 	then Identifier -> version >= 0
-
-class ContractIdentifier extends Identifier stereotype execution, postExecution <"A class defining a trade identifier issued by the indicated party. Rosetta implementation doesn't extends the base class PartyAndAccountReference because of the choice logic with the issuer element.">
-	[synonym FpML value TradeIdentifier]
-{
-	id string (0..1);
-		[synonym FpML value id]
-	party Party (0..1) reference <"FpML implements this element as a reference to a party.">;
-		[synonym FpML value partyReference]
-	account Account (0..1) reference <"FpML implements this element as a reference to an account.">;
-		[synonym FpML value accountReference]
-}
-
-choice rule ContractIdentifier_choice2 <"Choice rule to represent an FpML choice construct.">
-	for ContractIdentifier required choice between
-	issuer and party
-
-data rule TradeIdentifier_party_account <"FpML specifies a choice between issuer and [partyReference, accountReference].  The account element should be populated only alongside the party element.">
-	when ContractIdentifier -> party is absent
-	then ContractIdentifier -> account is absent
-
-class ContractIdentifierExtended extends ContractIdentifier <"A class defining a trade identifier with a reference to the party that this trade is associated with.">
-	[synonym FpML value TradeIdentifierExtended]
-{
-	associatedParty Party (1..1) reference;
-		[synonym FpML value associatedParty]
-}
