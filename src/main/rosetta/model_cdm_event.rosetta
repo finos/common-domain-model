@@ -20,8 +20,15 @@ class ContractState one of
 {
 	contract Contract (0..1);
 		[synonym Rosetta_Workbench value contract]
-	contractReference ContractIdentifier (0..1);
+	contractReference ContractIdentifier (0..*);
 		[synonym Rosetta_Workbench value contractReference]
+}
+
+class Curve one of
+{
+	interestRateCurve InterestRateCurve (0..1);
+		[synonym Rosetta_Workbench value interestRateCurve]
+	commodityCurve CommodityReferencePriceEnum (0..1); // This is just an illustrative alternative curve instance, which implementation needs to be refined and confirmed
 }
 
 class Event extends EventBase
@@ -36,58 +43,20 @@ class Event extends EventBase
 		[synonym Rosetta_Workbench value functionCall]
 }
 
+class InterestRateCurve
+{
+	floatingRateIndex FloatingRateIndexEnum (1..1);
+		[synonym Rosetta_Workbench value floatingRateIndex]
+	tenor Period (1..1);
+		[synonym Rosetta_Workbench value tenor]
+}
+
 class Lineage
 {
 	contractReference Identifier (0..*) scheme "correlationIdScheme";
 		[synonym Rosetta_Workbench value contractReference]
 	eventReference Identifier (0..*);
 		[synonym Rosetta_Workbench value eventReference]
-}
-
-class PrimitiveEvent <"The set of primitive events. The purpose of this class it to provide clarity with respect to the event qualification logic.">
-{
-	quantityChange QuantityChange (0..*);
-		[synonym Rosetta_Workbench value quantityChange]
-	partyChange PartyChange (0..*);
-		[synonym Rosetta_Workbench value partyChange]
-	otherTermsChange OtherTermsChange (0..1);
-		[synonym Rosetta_Workbench value otherTermsChange]
-	observation ObservationPrimitive (0..*);
-		[synonym Rosetta_Workbench value observation]
-	reset ResetPrimitive (0..*);
-		[synonym Rosetta_Workbench value reset]
-	payment Payment (0..*);
-		[synonym Rosetta_Workbench value payment]		
-}
-
-class QuantityChange <"The primitive event to represent a change in quantity or notional.">
-{
-	before ContractState (0..1);
-		[synonym Rosetta_Workbench value before]
-	after ContractState (1..1);
-		[synonym Rosetta_Workbench value after]
-	quantityChange ContractualQuantity (1..*);
-		[synonym Rosetta_Workbench value quantityChange]
-}
-
-class PartyChange <"The primitive event to represent a change in the parties to a contract.">
-{
-	before ContractState (0..1);
-		[synonym Rosetta_Workbench value before]
-	after ContractState (1..1);
-		[synonym Rosetta_Workbench value after]
-	priorParties Party (2..2);
-		[synonym Rosetta_Workbench value priorParties]
-	newParties Party (2..2);
-		[synonym Rosetta_Workbench value newParties]
-}
-
-class OtherTermsChange <"The primitive event to represent change(s) in the contractual terms.">
-{
-	before ContractState (0..1);
-		[synonym Rosetta_Workbench value before]
-	after ContractState (1..1);
-		[synonym Rosetta_Workbench value after]
 }
 
 class ObservationPrimitive <"The primitive event to represent an observation. The reason for the Primitive suffix is not to conflict with the qualified observation event.">
@@ -118,12 +87,50 @@ data rule ObservationSource_content <"ObservationSource should not be empty, alt
 		or ObservationSource -> curve exists
 		or ObservationSource -> informationSource exists
 
-class TimeZone <"The time alongside with the timezone location information. This class makes use of the FpML TimezoneLocation construct.">
+class OtherTermsChange <"The primitive event to represent change(s) in the contractual terms.">
 {
-	time time (1..1) <"The observation time.">;
-		[synonym Rosetta_Workbench value time]
-	location string (0..1) scheme "timezoneLocationScheme" <"FpML specifies the timezoneLocationScheme by reference to the Time Zone Database (a.k.a. tz database) maintained by IANA, the Internet Assigned Numbers Authority.">;
-		[synonym Rosetta_Workbench value location]
+	before ContractState (0..1);
+		[synonym Rosetta_Workbench value before]
+	after ContractState (1..1);
+		[synonym Rosetta_Workbench value after]
+}
+
+class PartyChange <"The primitive event to represent a change in the parties to a contract.">
+{
+	before ContractState (0..1);
+		[synonym Rosetta_Workbench value before]
+	after ContractState (1..1);
+		[synonym Rosetta_Workbench value after]
+	priorParties Party (2..2);
+		[synonym Rosetta_Workbench value priorParties]
+	newParties Party (2..2);
+		[synonym Rosetta_Workbench value newParties]
+}
+
+class PrimitiveEvent <"The set of primitive events. The purpose of this class it to provide clarity with respect to the event qualification logic.">
+{
+	quantityChange QuantityChange (0..*);
+		[synonym Rosetta_Workbench value quantityChange]
+	partyChange PartyChange (0..*);
+		[synonym Rosetta_Workbench value partyChange]
+	otherTermsChange OtherTermsChange (0..1);
+		[synonym Rosetta_Workbench value otherTermsChange]
+	observation ObservationPrimitive (0..*);
+		[synonym Rosetta_Workbench value observation]
+	reset ResetPrimitive (0..*);
+		[synonym Rosetta_Workbench value reset]
+	payment Payment (0..*);
+		[synonym Rosetta_Workbench value payment]		
+}
+
+class QuantityChange <"The primitive event to represent a change in quantity or notional.">
+{
+	before ContractState (0..1);
+		[synonym Rosetta_Workbench value before]
+	after ContractState (1..1);
+		[synonym Rosetta_Workbench value after]
+	change ContractualQuantity (1..*);
+		[synonym Rosetta_Workbench value change]
 }
 
 class ResetPrimitive <"The primitive event to represent a reset. The reason for the Primitive suffix is not to conflict with the qualified reset event.">
@@ -134,19 +141,12 @@ class ResetPrimitive <"The primitive event to represent a reset. The reason for 
 		[synonym Rosetta_Workbench value setValue]
 }
 
-class Curve one of
+class TimeZone <"The time alongside with the timezone location information. This class makes use of the FpML TimezoneLocation construct.">
 {
-	interestRateCurve InterestRateCurve (0..1);
-		[synonym Rosetta_Workbench value interestRateCurve]
-	commodityCurve CommodityReferencePriceEnum (0..1); // This is just an illustrative alternative curve instance, which implementation needs to be refined and confirmed
-}
-
-class InterestRateCurve
-{
-	floatingRateIndex FloatingRateIndexEnum (1..1);
-		[synonym Rosetta_Workbench value floatingRateIndex]
-	tenor Period (1..1);
-		[synonym Rosetta_Workbench value tenor]
+	time time (1..1) <"The observation time.">;
+		[synonym Rosetta_Workbench value time]
+	location string (0..1) scheme "timezoneLocationScheme" <"FpML specifies the timezoneLocationScheme by reference to the Time Zone Database (a.k.a. tz database) maintained by IANA, the Internet Assigned Numbers Authority.">;
+		[synonym Rosetta_Workbench value location]
 }
 
 data rule NotionalAmount_Decrease <"Logic to qualify a decrease in the notional amount as a result of a quantity change primitive event.">
