@@ -982,7 +982,7 @@ class SettlementProvision stereotype contractualProduct <"A class defining the s
 class StubCalculationPeriodAmount stereotype contractualProduct <"A class defining how the initial or final stub calculation period amounts is calculated. For example, the rate to be applied to the initial or final stub calculation period may be the linear interpolation of two different tenors for the floating rate index specified in the calculation period amount component, e.g. A two month stub period may used the linear interpolation of a one month and three month floating rate. The different rate tenors would be specified in this component. Note that a maximum of two rate tenors can be specified. If a stub period uses a single index tenor and this is the same as that specified in the calculation period amount component then the initial stub or final stub component, as the case may be, must not be included.">
 	[synonym FpML value StubCalculationPeriodAmount]
 {
-	calculationPeriodDates CalculationPeriodDates (1..1) reference <"The associated calculation period dates. In the FpML standard, this is implemented as an href pointer. For clarity and legibility purposes, Rosetta specifies the actual calculation period dates, while keeping the href information for audit trail purposes.">;
+	calculationPeriodDates string (1..1) reference <"The associated calculation period dates. In the FpML standard, this is implemented as an href pointer. For clarity and legibility purposes, Rosetta specifies the actual calculation period dates, while keeping the href information for audit trail purposes.">;
 		[synonym FpML value calculationPeriodDatesReference]
 	initialStub StubValue (0..1) <"Specifies how the initial stub amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating tenors may be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3. Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.">;
 		[synonym FpML value initialStub]
@@ -996,13 +996,13 @@ data rule InitialStub_FinalStub <"Data rule to represent the FpML nested XML con
 		or InterestRateStream -> stubCalculationPeriodAmount -> finalStub exists
 		or (InterestRateStream -> stubCalculationPeriodAmount -> initialStub and InterestRateStream -> stubCalculationPeriodAmount -> finalStub) exists
 		
-data rule StubCalculationPeriodAmount_firstRegularPeriodStartDate <"FpML validation rule ird-23 - Context: StubCalculationPeriodAmount (complex type). If stubCalculationPeriodAmount/initialStub exists, the calculationPeriodDates element referenced by the @href attribute of stubCalculationPeriodAmount/calculationPeriodDatesReference contains firstRegularPeriodStartDate.">
-	when StubCalculationPeriodAmount -> initialStub exists
-	then StubCalculationPeriodAmount -> calculationPeriodDates -> firstRegularPeriodStartDate exists
-
-data rule StubCalculationPeriodAmount_ <"FpML validation rule ird-24 - Context: StubCalculationPeriodAmount (complex type). finalStub exists if and only if the calculationPeriodDates element referenced by calculationPeriodDates/@href contains a lastRegularPeriodEndDate.">
-	when StubCalculationPeriodAmount -> finalStub exists
-	then StubCalculationPeriodAmount -> calculationPeriodDates -> lastRegularPeriodEndDate exists
+//data rule StubCalculationPeriodAmount_firstRegularPeriodStartDate <"FpML validation rule ird-23 - Context: StubCalculationPeriodAmount (complex type). If stubCalculationPeriodAmount/initialStub exists, the calculationPeriodDates element referenced by the @href attribute of stubCalculationPeriodAmount/calculationPeriodDatesReference contains firstRegularPeriodStartDate.">
+//	when StubCalculationPeriodAmount -> initialStub exists
+//	then StubCalculationPeriodAmount -> calculationPeriodDates -> firstRegularPeriodStartDate exists
+//
+//data rule StubCalculationPeriodAmount_ <"FpML validation rule ird-24 - Context: StubCalculationPeriodAmount (complex type). finalStub exists if and only if the calculationPeriodDates element referenced by calculationPeriodDates/@href contains a lastRegularPeriodEndDate.">
+//	when StubCalculationPeriodAmount -> finalStub exists
+//	then StubCalculationPeriodAmount -> calculationPeriodDates -> lastRegularPeriodEndDate exists
 
 class Swap extends ContractualHeader stereotype contractualProduct <"A class defining swap streams and additional payments between the principal parties involved in the swap.">
 	[synonym FpML value Swap]
