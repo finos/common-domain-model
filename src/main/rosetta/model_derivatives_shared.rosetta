@@ -672,8 +672,6 @@ class Money stereotype contractualProduct <"A class defining a currency amount."
 		[synonym FpML value amount]
 		[synonym ISO_20022 value ActiveCurrencyAnd13DecimalAmount_SimpleType]
 		[synonym ISO_20022 value ActiveOrHistoricCurrencyAndAmount_SimpleType]
-		[synonym CFTC_Part43 value PN3 projection Price_Derivatives]
-		[synonym CFTC_Part43 value APN projection Price_Derivatives]
 }
 
 class MultipleExercise extends PartialExercise stereotype contractualProduct one of <"A class defining multiple exercises. As defined in the 2000 ISDA Definitions, Section 12.4. Multiple Exercise, the buyer of the option has the right to exercise all or less than all the unexercised notional amount of the underlying swap on one or more days in the exercise period, but on any such day may not exercise less than the minimum notional amount or more than the maximum notional amount, and if an integral multiple amount is specified, the notional exercised must be equal to or, be an integral multiple of, the integral multiple amount. In FpML, MultipleExercise is built upon the PartialExercise.model.">
@@ -972,19 +970,8 @@ class RelativeDateOffset extends Offset stereotype contractualProduct <"A class 
 	businessCenters BusinessCenters (1..1) <"FpML specifies a choice between businessCenters and businessCentersReference, this latter being a pointer to business centers specified somewhere else in the document. Rosetta specifies the actual business centers, and hence collapses those alternative implementations.">;
 		[synonym FpML value businessCenters]
 		[synonym FpML value businessCentersReference]
-	/*
-	 * At the moment, two uses of dateRelativeTo have been identified, both in relation to CashSettlement: 
-	 * - one governed by ird-46, applies to OptionalEarlyTermination and references cashSettlement/cashSettlementPaymentDate/@id
-	 * - the other is governed by ird-48, applies to Swaption and references americanExercise/@id, bermudaExercise/@id, europeanExercise/@id
-	 */
-	dateRelativeToOptionalEarlyTermination CashSettlementPaymentDate (0..1) reference <"In the FpML standard, this element specifies the anchor date through an href attribute.  This attribute implements the use case corresponding to the validation rule ird-46 which specifies a use case applicable to the OptionalEarlyTermination: cashSettlement/cashSettlementValuationDate/dateRelativeTo/@href attribute is equal to the cashSettlement/cashSettlementPaymentDate/@id attribute.">;
-		[synonym FpML value dateRelativeTo set dateRelativeToOptionalEarlyTermination when OptionalEarlyTermination exists]
-	dateRelativeToSwaptionAmericanExercise AmericanExercise (0..1) reference <"In the FpML standard, this element specifies the anchor date through an href attribute. This attribute implements the use case corresponding to the validation rule ird-48 which specifies a use case applicable to the swaption: cashSettlement/cashSettlementPaymentDate/relativeDate/dateRelativeTo/@href attribute is equal to the @id attribute of americanExercise, bermudaExercise or europeanExercise.  This attribute addresses the americanExercise use case.">;
-		[synonym FpML value dateRelativeTo set dateRelativeToSwaptionAmericanExercise when Swaption -> exerciseStyle -> americanExercise exists]
-	dateRelativeToSwaptionEuropeanExercise EuropeanExercise (0..1) reference <"In the FpML standard, this element specifies the anchor date through an href attribute. This attribute implements the use case corresponding to the validation rule ird-48 which specifies a use case applicable to the swaption: cashSettlement/cashSettlementPaymentDate/relativeDate/dateRelativeTo/@href attribute is equal to the @id attribute of americanExercise, bermudaExercise or europeanExercise.  This attribute addresses the europeanExercise use case.">;
-		[synonym FpML value dateRelativeTo set dateRelativeToSwaptionEuropeanExercise when Swaption -> exerciseStyle -> europeanExercise exists]
-	dateRelativeToSwaptionBermudaExercise BermudaExercise (0..1) reference <"In the FpML standard, this element specifies the anchor date through an href attribute. This attribute implements the use case corresponding to the validation rule ird-48 which specifies a use case applicable to the swaption: cashSettlement/cashSettlementPaymentDate/relativeDate/dateRelativeTo/@href attribute is equal to the @id attribute of americanExercise, bermudaExercise or europeanExercise.  This attribute addresses the bermudaExercise use case.">;
-		[synonym FpML value dateRelativeTo set dateRelativeToSwaptionBermudaExercise when Swaption -> exerciseStyle -> bermudaExercise exists]
+	dateRelativeTo string (0..1) reference <"Specifies the anchor as an href attribute. The href attribute value is a pointer style reference to the element or component elsewhere in the document where the anchor date is defined.">;
+		[synonym FpML value dateRelativeTo]
 	adjustedDate date (0..1) <"The date once the adjustment has been performed. (Note that this date may change if the business center holidays change).">;
 		[synonym FpML value adjustedDate]
 }
@@ -1061,8 +1048,6 @@ class Schedule stereotype contractualProduct <"A class defining a schedule of ra
 		[synonym FpML value initialValue pathExpression "calculationPeriodAmount.calculation.floatingRateCalculation"]
 		[synonym FpML value fixedRate pathExpression "periodicPayment.fixedAmountCalculation"]
 		[synonym FIX value Spread tag 218]
-		[synonym CFTC_Part43 value PN1 projection Price_Derivatives]
-		[synonym CFTC_Part43 value PN2 projection Price_Derivatives]
 		[regulatoryReference CFTC_DFA guideline "ISDA Price Notation and Additional Price Notation Approach" section "Rates" provision "This is the Price Notation 1 of the fixed rate of an IRS when instantiated through a fixedRateSchedule, and the Price Notation 2 of the floating leg when instantiated through a spreadSchedule."]
 	step Step (0..*) <"The schedule of step date and value pairs. On each step date the associated step value becomes effective A list of steps may be ordered in the document by ascending step date. An FpML document containing an unordered list of steps is still regarded as a conformant document.">;
 		[synonym FpML value step pathExpression "calculationPeriodAmount.calculation.fixedRateSchedule"]
