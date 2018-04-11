@@ -199,12 +199,29 @@ class InterestRatePayout extends PayerReceiver calculation FixedAmount <"The int
 	crossCurrencyTerms CrossCurrencyTerms (0..1) <"The specification of the principle exchange and settlement provision terms.">;
 	stubPeriod StubPeriod (0..1) <"The stub calculation period amount parameters. This element must only be included if there is an initial or final stub calculation period. Even then, it must only be included if either the stub references a different floating rate tenor to the regular calculation periods, or if the stub is calculated as a linear interpolation of two different floating rate tenors, or if a specific stub rate or stub amount has been negotiated.">;
 		[synonym FpML value StubCalculationPeriodAmount]
+/*
+ * QUESTION TO CDM GROUP
+ * TODO - Cannot locate an asset swap example in the FpML samples to test this provision
+ * It would be good to get a sample trade from a member
+ */
+	bondReference BondReference (0..1) <"Reference to a bond underlyer to represent an asset swap or Condition Precedent Bond.">;
+		[synonym FpML value bondReference]
 }
+
+data rule ResetDates_calculationPeriodAmount <"FpML validation rule ird-1 - Reset dates must exist if and only if a floating rate or inflation rate exists.">
+	when InterestRatePayout -> resetDates exists
+	then (InterestRatePayout -> interestRate -> floatingRate 
+		or InterestRatePayout -> interestRate-> inflationRate) exists
 
 data rule InterestRatePayout_firstPaymentDate <"FpML validation rule ird-6 - If paymentDates/firstPaymentDate exists, and if calculationPeriodDates/effectiveDate exists, then paymentDates/firstPaymentDate must be after calculationPeriodDates/effectiveDate/unadjustedDate.">
 	when InterestRatePayout -> paymentDates -> firstPaymentDate exists 
 		and InterestRatePayout -> calculationPeriodDates -> effectiveDate exists
 	then InterestRatePayout -> paymentDates -> firstPaymentDate > InterestRatePayout -> calculationPeriodDates -> effectiveDate -> unadjustedDate
+
+data rule InterestRatePayout_payerReceiver <"FpML validation rule ird-8 - The @href attribute of payerPartyReference must not be equal to the @href attribute of receiverPartyReference. If they are equal, and if payerAccountReference and receiverAccountReference both exist, the @href attribute of payerAccountReference must not be equal to the @href attribute of receiverAccountReference">
+	when InterestRatePayout exists
+	then InterestRatePayout -> payerPartyReference <> InterestRatePayout -> receiverPartyReference
+		or InterestRatePayout -> payerAccountReference <> InterestRatePayout -> receiverAccountReference
 
 data rule InitialStub_firstPaymentDate <"FpML specifies that firstPaymentDate must only be included if there is an initial stub.">
 	when InterestRatePayout -> stubPeriod -> initialStub is absent
@@ -290,6 +307,8 @@ class OptionPayout <"The option payout specification terms.">
 
 class PaymentDates <"The payment dates schedule. As a difference from the FpML PaymentDate, this class incorporates the CDS paymentDelay element, and the following reference elements have been omitted, because deemed of no relevant usage by the ISDA CDM Group: calculationPeriodDatesReference, resetDatesReference, ValuationDatesReference.">
 {
+	id string (0..1) anchor;
+		[synonym FpML value id]
 	calculationPeriodDatesReference string (0..1) reference <"A pointer style reference to the associated calculation period dates component defined elsewhere in the document.">;
 		[synonym FpML value calculationPeriodDatesReference]
 	resetDatesReference string (0..1) reference <"A pointer style reference to the associated reset dates component defined elsewhere in the document.">;
