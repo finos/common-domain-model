@@ -100,10 +100,14 @@ class CrossCurrencyTerms
 		[synonym FpML value settlementProvision]
 }
 
+/*
+ * TODO - Need to cross-reference the 2014 credit definitions when relevant. 
+ * (FpML schema has not been updated to reflect those definitions.)
+ */
 class CreditDefaultPayout <"The credit default payout specification terms.">
 {
-	generalTerms GeneralTerms (1..1);
-	protectionTerms ProtectionTerms (1..1);
+	generalTerms GeneralTerms (1..1) <"This element contains all the data that appears in the section entitled '1. General Terms' in the 2003 ISDA Credit Derivatives Confirmation, except for the effectiveDate, terminationDate and dateAdjustments elements, which have been positioned as part of the InterestRatePayout class.">;
+	protectionTerms ProtectionTerms (1..1) <"The credit protection terms.">;
 		[synonym FpML value protectionTerms pathExpression "trade.creditDefaultSwap"]
 		[synonym FpML value protectionTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
 	cashSettlementTerms CashSettlementTerms (0..1);
@@ -112,19 +116,16 @@ class CreditDefaultPayout <"The credit default payout specification terms.">
 	physicalSettlementTerms PhysicalSettlementTerms (0..1);
 		[synonym FpML value physicalSettlementTerms pathExpression "trade.creditDefaultSwap"]
 		[synonym FpML value physicalSettlementTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
+	transactedPrice TransactedPrice (0..1) <"The qualification of the price at which the contract has been transacted, in terms of market fixed rate, initial points, market price and/or quotation style. In FpML, those attributes are positioned as part of the fee leg.">;
 }
 
 choice rule CreditDefaultPayout_choice <"Choice rule to represent an FpML choice construct.">
 	for CreditDefaultPayout optional choice between
 	cashSettlementTerms and physicalSettlementTerms
 
-data rule CreditDefaultPayout_quantity
+data rule CreditDefaultPayout_quantity <"The notional associated with a credit product is always expressed as a notional amount.">
 	when InterestRatePayout exists
 	then InterestRatePayout -> quantity -> notionalAmount exists
-
-data rule CreditDefaultPayout_inflationRate // Do we want to actually have such restriction?  While FpML does't support it, FpML scope is limited to standardised products.
-	when EconomicTerms -> payout -> creditDefaultPayout exists
-	then EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate is absent
 
 class EconomicTerms <"This class represents the full set of product economics: the payout component, as well as the legal optional provisions which have valuation implications.">
 {
@@ -136,7 +137,7 @@ class EconomicTerms <"This class represents the full set of product economics: t
 	extendibleProvision ExtendibleProvision (0..1) <"A provision that allows the specification of an embedded option with a swap giving the buyer of the option the right to extend the swap, in whole or in part, to the extended termination date.">;
 }
 
-class GeneralTerms <"A class specifying the general terms of the credit default payout. It corresponds to the FpML GeneralTerms complex type, minus the the effectiveDate, terminationDate and dateAdjustments elements, which have been positioned as part of the InterestRatePayout class.">
+class GeneralTerms <"A class specifying the general terms of the credit default payout. It corresponds to the FpML GeneralTerms complex type, minus the effectiveDate, terminationDate and dateAdjustments elements, which have been positioned as part of the InterestRatePayout class.">
 {
 	buyerSeller BuyerSeller (1..1);
 	dateAdjustments BusinessDayAdjustments (0..1) <"ISDA 2003 Terms: Business Day and Business Day Convention.">;
@@ -161,21 +162,18 @@ class GeneralTerms <"A class specifying the general terms of the credit default 
 		[synonym FpML value modifiedEquityDelivery pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap.generalTerms"]
 }
 
-choice rule GeneralTerms_choice
+choice rule GeneralTerms_choice <"Choice rule to represent an FpML choice construct.">
 	for GeneralTerms required choice between
 	referenceInformation and indexReferenceInformation and basketReferenceInformation
 
 class InterestRate one of
 {
-	fixedRate Schedule (0..1);
-	floatingRate FloatingRateCalculation (0..1);
-	inflationRate InflationRateCalculation (0..1);
+	fixedRate Schedule (0..1) <"The fixed rate or fixed rate schedule expressed as explicit fixed rates and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">;
+	floatingRate FloatingRateCalculation (0..1) <"A floating rate calculation definition.">;
+	inflationRate InflationRateCalculation (0..1) <"An inflation rate calculation definition.">;
 		[synonym FpML value inflationRateCalculation pathExpression "calculationPeriodAmount.calculation"]
 }
-/*
- * TODO - Need to cross-reference the 2014 credit definitions when relevant. 
- * (FpML schema has not been updated to reflect those definitions.)
- */
+
 class InterestRatePayout extends PayerReceiver calculation FixedAmount <"The interest rate payout specification terms.">
 {
 	id string (0..1) anchor;
@@ -203,6 +201,23 @@ class InterestRatePayout extends PayerReceiver calculation FixedAmount <"The int
 		[synonym FpML value StubCalculationPeriodAmount]
 }
 
+data rule InterestRatePayout_firstPaymentDate <"FpML validation rule ird-6 - If paymentDates/firstPaymentDate exists, and if calculationPeriodDates/effectiveDate exists, then paymentDates/firstPaymentDate must be after calculationPeriodDates/effectiveDate/unadjustedDate.">
+	when InterestRatePayout -> paymentDates -> firstPaymentDate exists 
+		and InterestRatePayout -> calculationPeriodDates -> effectiveDate exists
+	then InterestRatePayout -> paymentDates -> firstPaymentDate > InterestRatePayout -> calculationPeriodDates -> effectiveDate -> unadjustedDate
+
+data rule InitialStub_firstPaymentDate <"FpML specifies that firstPaymentDate must only be included if there is an initial stub.">
+	when InterestRatePayout -> stubPeriod -> initialStub is absent
+	then InterestRatePayout -> paymentDates -> firstPaymentDate is absent 
+
+data rule FinalStub_lastRegularPaymentDate <"FpML specifies that lastRegularPaymentDate must only be included if there is an final stub.">
+	when InterestRatePayout -> stubPeriod -> finalStub is absent
+	then InterestRatePayout -> paymentDates -> lastRegularPaymentDate is absent
+
+data rule InterestRatePayout_quantity <"The quantity associated to an interest rate payout should not be expressed as a quantity, but rather as a notional (which can itself be expressed in a number of distinct ways).">
+	when InterestRatePayout exists
+	then InterestRatePayout -> quantity -> quantity is absent
+	
 data rule CompoundingMethod_absent <"Compounding method is prohibited when the calculation period and the payment frequencies are the same. This data rule implements the FpML validation rule ird-7.">
  	when InterestRatePayout -> paymentDates -> paymentFrequency -> period = InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> period
  		and InterestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier
@@ -223,11 +238,12 @@ data rule CompoundingMethod_fixedRate <"Compounding method exists is prohibited 
 	when InterestRatePayout -> compoundingMethod exists
 	then InterestRatePayout -> interestRate -> fixedRate is absent
 
-data rule InterestRatePayout_quantity <"The quantity associated to an interest rate payout should not be expressed as a quantity, but rather as a notional.">
-	when InterestRatePayout exists
-	then InterestRatePayout -> quantity -> quantity is absent
+data rule CalculationPeriodDates_firstCompoundingPeriodEndDate <"FpML specifies that the firstCompoundingPeriodEndDate must only be specified when the compounding method is specified and not equal to a value of None.">
+	when InterestRatePayout -> compoundingMethod is absent
+		or InterestRatePayout -> compoundingMethod = CompoundingMethodEnum.None
+	then InterestRatePayout -> calculationPeriodDates -> firstCompoundingPeriodEndDate is absent
 
-class NotionalSchedule
+class NotionalSchedule <"A class specifying defining the notional amount or notional amount schedule associated with a contractual product. The notional schedule will be captured explicitly, specifying the dates that the notional changes and the outstanding notional amount that applies from that date. A parametric representation of the rules defining the notional step schedule can optionally be included.">
 	[synonym FpML value Notional]
 {
 	id string (0..1);
@@ -304,23 +320,10 @@ choice rule PaymentDates_references <"Choice rule to represent an FpML choice co
 	for PaymentDates required choice between
 	calculationPeriodDatesReference and resetDatesReference and valuationDatesReference
 
-data rule PaymentDates_firstPaymentDate <"FpML validation rule ird-6 - Context: InterestRateStream (complex type). If paymentDates/firstPaymentDate exists, and if calculationPeriodDates/effectiveDate exists, then paymentDates/firstPaymentDate must be after calculationPeriodDates/effectiveDate/unadjustedDate.">
-	when InterestRateStream -> paymentDates -> firstPaymentDate exists 
-		and InterestRateStream -> calculationPeriodDates -> effectiveDate exists
-	then InterestRateStream -> paymentDates -> firstPaymentDate > InterestRateStream -> calculationPeriodDates -> effectiveDate -> unadjustedDate
-
-data rule PaymentDates_firstPaymentDate_lastRegularPaymentDate <"FpML validation rule ird-35 - Context: PaymentDates (complex type). If firstPaymentDate exists, and if lastRegularPaymentDate exists, then firstPaymentDate must be before lastRegularPaymentDate.">
+data rule PaymentDates_firstPaymentDate_lastRegularPaymentDate <"FpML validation rule ird-35 - If firstPaymentDate exists, and if lastRegularPaymentDate exists, then firstPaymentDate must be before lastRegularPaymentDate.">
 	when PaymentDates -> firstPaymentDate exists 
 		and PaymentDates -> lastRegularPaymentDate exists
 	then PaymentDates -> firstPaymentDate < PaymentDates -> lastRegularPaymentDate
-
-data rule PaymentDates_firstPaymentDate_initialStub <"FpML specifies that firstPaymentDate must only be included if there is an initial stub.">
-	when InterestRateStream -> stubCalculationPeriodAmount -> initialStub is absent
-	then InterestRateStream -> paymentDates -> firstPaymentDate is absent 
-
-data rule PaymentDates_lastRegularPaymentDate_finalStub <"FpML specifies that lastRegularPaymentDate must only be included if there is an final stub.">
-	when InterestRateStream -> stubCalculationPeriodAmount -> finalStub is absent
-	then InterestRateStream -> paymentDates -> lastRegularPaymentDate is absent
 	
 data rule PaymentDates_paymentDaysOffset <"FpML specifies that paymentDaysOffset should only be included if early or delayed payment is applicable, i.e. if the periodMultiplier element value is not equal to zero.">
 	when PaymentDates -> paymentDaysOffset exists
@@ -345,7 +348,7 @@ class Payout <"The payout can be specified through a number of combinations, e.g
 	optionPayout OptionPayout (0..*);
 }
 
-class Product one of 
+class Product one of
 {
 	contractualProduct ContractualProduct (0..1);
 	listedProduct ListedProduct (0..1);
@@ -369,17 +372,27 @@ class StubPeriod <"A class defining how the initial or final stub calculation pe
 		[synonym FpML value finalStub]
 }
 
-class TransactedPrice // These are the set of transacted price attributes currently positioned as part of the FpML FeeLeg construct.
+/*
+ * QUESTION TO CDM GROUP
+ * TODO - FpML sample credit trades don't include examples that specify those attributes
+ * Would be great if we could confirm the actual usage though sample transactions
+ */
+class TransactedPrice <"A class to represent the transacted price attributes that are positioned as part of the FpML FeeLeg.">
 {
-	marketFixedRate number (0..1);
+	marketFixedRate number (0..1) <"An optional element that only has meaning in a credit index trade. This element contains the credit spread ('fair value') at which the trade was executed. Unlike the fixedRate of an index, the marketFixedRate varies over the life of the index depending on market conditions. The marketFixedRate is the price of the index as quoted by trading desks.">;
 		[synonym FpML value marketFixedRate pathExpression "feeLeg"]
-	initialPoints number (0..1);
+	initialPoints number (0..1) <"An optional element that contains the up-front points expressed as a percentage of the notional. An initialPoints value of 5% would be represented as 0.05. The initialPoints element is an alternative to marketFixedRate in quoting the traded level of a trade. When initialPoints is used, the traded level is the sum of fixedRate and initialPoints. The initialPoints is one of the items that are factored into the initialPayment calculation and is payable by the Buyer to the Seller. Note that initialPoints and marketFixedRate may both be present in the same document when both implied values are desired.">;
 		[synonym FpML value initialPoints pathExpression "feeLeg"]
-	marketPrice number (0..1);
+	marketPrice number (0..1) <"An optional element that only has meaning in a credit index trade. This element contains the price at which the trade was executed and is used instead of marketFixedRate on credit trades on certain indicies which are quoted using a price rather than a spread.">;
 		[synonym FpML value marketPrice pathExpression "feeLeg"]
-	quotationStyle QuotationStyleEnum (0..1);
+	quotationStyle QuotationStyleEnum (0..1) <"An optional element that contains the up-front points expressed as a percentage of the notional. An initialPoints value of 5% would be represented as 0.05. The initialPoints element is an alternative to marketFixedRate in quoting the traded level of a trade. When initialPoints is used, the traded level is the sum of fixedRate and initialPoints. The initialPoints is one of the items that are factored into the initialPayment calculation and is payable by the Buyer to the Seller. Note that initialPoints and marketFixedRate may both be present in the same document when both implied values are desired.">;
 		[synonym FpML value quotationStyle pathExpression "feeLeg"]
 }
+
+data rule TransactedPrice_marketPrice <"FpML specifies that  marketFixedRate and marketPrice only have meaning in a credit index trade">
+	when Payout -> creditDefaultPayout -> generalTerms -> indexReferenceInformation is absent
+	then Payout -> creditDefaultPayout -> transactedPrice -> marketFixedRate is absent
+		and Payout -> creditDefaultPayout -> transactedPrice -> marketPrice is absent
 
 isProduct InterestRate_IRSwap_Basis
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Basis]
@@ -398,14 +411,8 @@ isProduct InterestRate_IRSwap_FixedFixed
 	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate exists
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate exists
 
-/*
- * TODO - Need to adjust the grammar to support values that make use of characters which are invalid according to the grammar.
- * This will require to move to a string format.
- */
-
 isProduct InterestRate_CrossCurrency_Basis
 	[synonym ISDA_Taxonomy_v1 value InterestRate_CrossCurrency_Basis]
-//	[synonym Rosetta_Workbench value InterestRate:CrossCurrency:Basis] 
 	EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate exists
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate exists
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges exists
@@ -509,13 +516,8 @@ isProduct InterestRate_Option_Swaption
 	and EconomicTerms -> payout -> optionPayout -> underlyer -> contractualProduct -> economicTerms -> payout -> interestRatePayout exists
 	and EconomicTerms -> payout -> optionPayout -> underlyer -> contractualProduct -> economicTerms -> payout -> interestRatePayout exists
 
-/*
- * Once loans and mortgages are integrated into the model, and provided that options on such underlyers are effectively transacted, 
- * the product qualification should be extended to those
- * The below is meant to illustrate how bond options, which are modelled in FpML, are integrated as part of the CDM
- */
 isProduct InterestRate_Option_DebtOption
-	[synonym ISDA_Taxonomy_v1 value InterestRate_Option_Swaption]
+	[synonym ISDA_Taxonomy_v1 value InterestRate_DebtOption]
 	EconomicTerms -> payout -> optionPayout -> underlyer -> listedProduct -> bond exists
 		or EconomicTerms -> payout -> optionPayout -> underlyer -> listedProduct -> convertibleBond exists
 /*

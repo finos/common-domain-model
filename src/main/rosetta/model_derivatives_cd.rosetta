@@ -131,24 +131,20 @@ data rule CashSettlementTerms_quotationAmount <"FpML validation rule cd-37 - Con
 		and CashSettlementTerms -> quotationAmount -> currency = CashSettlementTerms -> minimumQuotationAmout -> currency
 	then CashSettlementTerms -> quotationAmount -> amount > CashSettlementTerms -> minimumQuotationAmout -> amount
 
-class CreditDefaultSwap extends ContractualHeader stereotype contractualProduct <"A class defining the credit default swap.">
-	[synonym FpML value CreditDefaultSwap]
-{
-	generalTerms GeneralTerms (1..1) <"This element contains all the data that appears in the section entitled '1. General Terms' in the 2003 ISDA Credit Derivatives Confirmation.">;
-		[synonym FpML value generalTerms]
-	feeLeg FeeLeg (1..1) <"This element contains all the terms relevant to defining the fixed amounts/payments per the applicable ISDA definitions.">;
-		[synonym FpML value feeLeg]
-	protectionTerms ProtectionTerms (1..*) <"This element contains all the terms relevant to defining the applicable floating rate payer calculation amount, credit events and associated conditions to settlement, and reference obligations.">;
-		[synonym FpML value protectionTerms]
-	cashSettlementTerms CashSettlementTerms (0..1);
-		[synonym FpML value cashSettlementTerms]
-	physicalSettlementTerms PhysicalSettlementTerms (0..1);
-		[synonym FpML value physicalSettlementTerms]
-}
-
-choice rule CreditDefaultSwap_choice <"Choice rule to represent an FpML choice construct.">
-	for CreditDefaultSwap optional choice between
-	cashSettlementTerms and physicalSettlementTerms
+//class CreditDefaultSwap extends ContractualHeader stereotype contractualProduct <"A class defining the credit default swap.">
+//	[synonym FpML value CreditDefaultSwap]
+//{
+//	generalTerms GeneralTerms (1..1) <"This element contains all the data that appears in the section entitled '1. General Terms' in the 2003 ISDA Credit Derivatives Confirmation.">;
+//		[synonym FpML value generalTerms]
+//	feeLeg FeeLeg (1..1) <"This element contains all the terms relevant to defining the fixed amounts/payments per the applicable ISDA definitions.">;
+//		[synonym FpML value feeLeg]
+//	protectionTerms ProtectionTerms (1..*) <"This element contains all the terms relevant to defining the applicable floating rate payer calculation amount, credit events and associated conditions to settlement, and reference obligations.">;
+//		[synonym FpML value protectionTerms]
+//	cashSettlementTerms CashSettlementTerms (0..1);
+//		[synonym FpML value cashSettlementTerms]
+//	physicalSettlementTerms PhysicalSettlementTerms (0..1);
+//		[synonym FpML value physicalSettlementTerms]
+//}
 
 //data rule CreditDefaultSwap_contractualDefinitions_ISDA1999Credit <"FpML validation rule cd-19 - Context: CreditDefaultSwap (complex type). If the condition ISDA1999Credit is true, then the following elements must not exist: protectionTerms/creditEvents/creditEventNotice/businessCenter, protectionTerms/creditEvents/restructuring/multipleHolderObligation, protectionTerms/creditEvents/restructuring/multipleCreditEventNotices, generalTerms/referenceInformation/allGuarantees, generalTerms/indexReferenceInformation, generalTerms/substitution, generalTerms/modifiedEquityDelivery.">
 //	when Contract -> documentation -> contractualDefinitions = ContractualDefinitionsEnum.ISDA1999Credit
@@ -187,16 +183,16 @@ choice rule CreditDefaultSwap_choice <"Choice rule to represent an FpML choice c
 //		and Contract -> contractualProduct -> creditDefaultSwap -> physicalSettlementTerms -> deliverableObligations -> accruedInterest)
 //		must exist
 
-class CreditDefaultSwapOption extends OptionBaseExtended stereotype contractualProduct <"An option on a credit default swap.">
-	[synonym FpML value CreditDefaultSwapOption]
-{
-	clearingInstructions OptionPhysicalSettlement (0..1) <"Specifies any instructions on how the physical settlement is to be effected when the option is exercised.">;
-		[synonym FpML value clearingInstructions]
-	strike OptionStrike (1..1) <"Specifies the strike of the option on credit default swap.">;
-		[synonym FpML value strike]
-	creditDefaultSwap CreditDefaultSwap (1..1);
-		[synonym FpML value creditDefaultSwap]
-}
+//class CreditDefaultSwapOption extends OptionBaseExtended stereotype contractualProduct <"An option on a credit default swap.">
+//	[synonym FpML value CreditDefaultSwapOption]
+//{
+//	clearingInstructions OptionPhysicalSettlement (0..1) <"Specifies any instructions on how the physical settlement is to be effected when the option is exercised.">;
+//		[synonym FpML value clearingInstructions]
+//	strike OptionStrike (1..1) <"Specifies the strike of the option on credit default swap.">;
+//		[synonym FpML value strike]
+//	creditDefaultSwap CreditDefaultSwap (1..1);
+//		[synonym FpML value creditDefaultSwap]
+//}
 
 class OptionStrike stereotype contractualProduct one of <"A class to specify the option strike.">
 	[synonym FpML value CreditOptionStrike]
@@ -398,41 +394,6 @@ class FloatingAmountProvisions stereotype contractualProduct
 	stepUpProvision boolean (0..1) <"As specified by the ISDA Standard Terms Supplement for use with trades on mortgage-backed securities. The presence of the element with value set to 'true' signifies that the provision is applicable. If applicable, the applicable step-up terms are specified as part of that ISDA Standard Terms Supplement. From a usage standpoint, this provision is typically applicable in the case of RMBS and not applicable in case of CMBS trades.">;
 		[synonym FpML value stepUpProvision]
 }
-
-//class GeneralTerms stereotype contractualProduct <"A class specifying the general terms of the credit default swap.">
-//	[synonym FpML value GeneralTerms]
-//{
-//	effectiveDate AdjustableDate2 (0..1) <"The first day of the term of the trade. This day may be subject to adjustment in accordance with a business day convention. ISDA 2003 Term: Effective Date.">;
-//		[synonym FpML value effectiveDate]
-//	scheduledTerminationDate AdjustableDate2 (0..1) <"The scheduled date on which the credit protection will lapse. This day may be subject to adjustment in accordance with a business day convention. ISDA 2003 Term: Scheduled Termination Date.">;
-//		[synonym FpML value scheduledTerminationDate]
-//	buyerParty Party (1..1) reference <"FML specifies a reference to the party that buys this instrument, i.e. pays for this instrument and receives the rights defined by it. See 2000 ISDA definitions Article 11.1 (b).  Rosetta explicitly indicates the party, to simplify data access.">;
-//		[synonym FpML value buyerPartyReference]
-//	buyerAccount Account (0..1) reference <"FpML specifies a reference to the account that buys this instrument. Rosetta explicitly specifies the account, to simplify data access.">;
-//		[synonym FpML value buyerAccountReference]
-//	sellerParty Party (1..1) reference <"FML specifies a reference to the party that sells ('writes') this instrument, i.e. that grants the rights defined by this instrument and in return receives a payment for it. See 2000 ISDA definitions Article 11.1 (a).  Rosetta explicitly indicates the party, to simplify data access.">;
-//		[synonym FpML value sellerPartyReference]
-//	sellerAccount Account (0..1) reference <"FpML specifies a reference to the account that sells this instrument. Rosetta explicitly specifies the account, to simplify data access.">;
-//		[synonym FpML value sellerAccountReference]
-//	dateAdjustments BusinessDayAdjustments (0..1) <"ISDA 2003 Terms: Business Day and Business Day Convention.">;
-//		[synonym FpML value dateAdjustments]
-//	referenceInformation ReferenceInformation (0..1) <"This element contains all the terms relevant to defining the reference entity and reference obligation(s).">;
-//		[synonym FpML value referenceInformation]
-//	indexReferenceInformation IndexReferenceInformation (0..1) <"This element contains all the terms relevant to defining the Credit Default Swap Index.">;
-//		[synonym FpML value indexReferenceInformation]
-//	basketReferenceInformation BasketReferenceInformation (0..1) <"This element contains all the terms relevant to defining the Credit Default Swap Basket.">;
-//		[synonym FpML value basketReferenceInformation]
-//	additionalTerm string (0..*) scheme "additionalTermScheme" <"This element is used for representing information contained in the Additional Terms field of the 2003 Master Credit Derivatives confirm.">;
-//		[synonym FpML value AdditionalTerm]
-//	substitution boolean (0..1) <"Value of this element set to 'true' indicates that substitution is applicable.">;
-//		[synonym FpML value substitution]
-//	modifiedEquityDelivery boolean (0..1) <"Value of this element set to 'true' indicates that modified equity delivery is applicable.">;
-//		[synonym FpML value modifiedEquityDelivery]
-//}
-//
-//choice rule GeneralTerms_choice <"Choice rule to represent an FpML choice construct.">
-//	for GeneralTerms required choice between
-//	referenceInformation and indexReferenceInformation and basketReferenceInformation
 
 //data rule GeneralTerms_tradeDate <"FpML validation rule cd-1 - Context: Trade (complex type). If creditDefaultSwap/generalTerms/referenceInformation exists, tradeHeader/tradeDate must be before creditDefaultSwap/generalTerms/effectiveDate/unadjustedDate.">
 //	when Contract -> contractualProduct -> creditDefaultSwap -> generalTerms -> referenceInformation exists
@@ -663,10 +624,10 @@ choice rule PeriodicPayment_choice <"Choice rule to represent an FpML choice con
 //		and CreditDefaultSwap -> generalTerms -> scheduledTerminationDate) exists
 //	then CreditDefaultSwap -> feeLeg -> periodicPayment -> lastRegularPaymentDate < CreditDefaultSwap -> generalTerms -> scheduledTerminationDate -> unadjustedDate
 	
-data rule PeriodicPayment_firstPaymentDate_lastRegularPaymentDate <"FpML validation rule cd-31 - Context: PeriodicPayment (complex type). If firstPaymentDate exists, and if lastRegularPaymentDate exists, then firstPaymentDate must be before lastRegularPaymentDate.">
-	when (CreditDefaultSwap -> feeLeg -> periodicPayment -> firstPaymentDate
-		and CreditDefaultSwap -> feeLeg -> periodicPayment -> lastRegularPaymentDate) exists
-	then CreditDefaultSwap -> feeLeg -> periodicPayment -> firstPaymentDate < CreditDefaultSwap -> feeLeg -> periodicPayment -> lastRegularPaymentDate
+//data rule PeriodicPayment_firstPaymentDate_lastRegularPaymentDate <"FpML validation rule cd-31 - Context: PeriodicPayment (complex type). If firstPaymentDate exists, and if lastRegularPaymentDate exists, then firstPaymentDate must be before lastRegularPaymentDate.">
+//	when (CreditDefaultSwap -> feeLeg -> periodicPayment -> firstPaymentDate
+//		and CreditDefaultSwap -> feeLeg -> periodicPayment -> lastRegularPaymentDate) exists
+//	then CreditDefaultSwap -> feeLeg -> periodicPayment -> firstPaymentDate < CreditDefaultSwap -> feeLeg -> periodicPayment -> lastRegularPaymentDate
 
 //data rule PeriodicPayment_LongForm <"FpML validation rule cd-32 - Context: PeriodicPayment (complex type). If condition LongForm is true, and if fixedAmountCalculation/calculationAmount exists, then fixedAmountCalculation/dayCountFraction must exist.">
 //	when ( (Contract -> documentation -> masterConfirmation or Contract -> documentation -> contractualMatrix) is absent )
@@ -756,9 +717,9 @@ choice rule ReferenceInformation_choice <"Choice rule to represent an FpML choic
 //		and Contract -> documentation -> contractualDefinitions = ContractualDefinitionsEnum.ISDA2003Credit )
 //	then Contract -> contractualProduct -> creditDefaultSwap -> generalTerms -> referenceInformation -> allGuarantees = True
 
-data rule ReferenceInformation_referencePrice <"FpML validation rule cd-12 - Context: ReferenceInformation (complex type). If referencePrice exists, referencePrice must be greater or equal to 0">
-	when CreditDefaultSwap -> generalTerms -> referenceInformation -> referencePrice exists
-	then CreditDefaultSwap -> generalTerms -> referenceInformation -> referencePrice >= 0b
+//data rule ReferenceInformation_referencePrice <"FpML validation rule cd-12 - Context: ReferenceInformation (complex type). If referencePrice exists, referencePrice must be greater or equal to 0">
+//	when CreditDefaultSwap -> generalTerms -> referenceInformation -> referencePrice exists
+//	then CreditDefaultSwap -> generalTerms -> referenceInformation -> referencePrice >= 0b
 
 class ReferenceObligation stereotype contractualProduct
 	[synonym FpML value ReferenceObligation]
