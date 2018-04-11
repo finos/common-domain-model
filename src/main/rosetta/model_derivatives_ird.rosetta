@@ -846,10 +846,9 @@ class SettlementProvision stereotype contractualProduct <"A class defining the s
 }
 
 data rule SettlementProvision_settlementCurrency <"FpML specifies that the SettlementProvision exists when the settlement currency is different to the notional currency of the trade.">
-	when InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> settlementCurrency <> 
-			( InterestRatePayout -> quantity -> notionalAmount -> currency
-				or InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> currency
-				or InterestRatePayout -> quantity -> fxLinkedNotional -> varyingNotionalCurrency )
+	when InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> settlementCurrency <>  InterestRatePayout -> quantity -> notionalAmount -> currency
+		or InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> settlementCurrency <> InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> currency
+		or InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> settlementCurrency <> InterestRatePayout -> quantity -> fxLinkedNotional -> varyingNotionalCurrency
 	then InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> nonDeliverableSettlement exists
 
 class StubCalculationPeriodAmount stereotype contractualProduct <"A class defining how the initial or final stub calculation period amounts is calculated. For example, the rate to be applied to the initial or final stub calculation period may be the linear interpolation of two different tenors for the floating rate index specified in the calculation period amount component, e.g. A two month stub period may used the linear interpolation of a one month and three month floating rate. The different rate tenors would be specified in this component. Note that a maximum of two rate tenors can be specified. If a stub period uses a single index tenor and this is the same as that specified in the calculation period amount component then the initial stub or final stub component, as the case may be, must not be included.">
@@ -867,7 +866,6 @@ data rule InitialStub_FinalStub <"Data rule to represent the FpML nested XML con
 	when InterestRatePayout -> stubPeriod exists
 	then InterestRatePayout -> stubPeriod -> initialStub exists
 		or InterestRatePayout -> stubPeriod -> finalStub exists
-		or (InterestRatePayout -> stubPeriod -> initialStub and InterestRatePayout -> stubPeriod -> finalStub) exists
 		
 data rule StubCalculationPeriodAmount_firstRegularPeriodStartDate <"FpML validation rule ird-23 - If the initialStub exists, the calculationPeriodDates element referenced by the @href attribute of stubCalculationPeriodAmount/calculationPeriodDatesReference contains firstRegularPeriodStartDate.">
 	when InterestRatePayout -> stubPeriod -> initialStub exists
