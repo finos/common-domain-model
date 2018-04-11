@@ -25,13 +25,6 @@ class BondReference stereotype contractualProduct <"A class including a referenc
 		[synonym FpML value discrepancyClause]
 }
 
-class BulletPayment extends ContractualHeader stereotype contractualProduct <"A product to represent a single known payment.">
-	[synonym FpML value BulletPayment]
-{
-	payment Payment (1..1) <"A known payment between two parties.">;
-		[synonym FpML value payment]
-}
-
 /*
  * The below will need to be deprecated at some point, as its content has largely been incorporated as part of the InterestRatePayout
  * The issue relates to the fact that CalculationPeriodAmount makes use of it
@@ -254,19 +247,6 @@ class CancellationEvent stereotype contractualProduct <"The adjusted dates for a
 		[synonym FpML value adjustedEarlyTerminationDate]
 }
 
-//class CapFloor extends ContractualHeader stereotype contractualProduct <"A cap, floor or cap floor structures product definition.">
-//	[synonym FpML value CapFloor]
-//{
-//	capFloorStream InterestRateStream (1..1) <"Reference to the leg, where date adjustments may apply.">;
-//		[synonym FpML value capFloorStream]
-//	premium Payment (0..*) <"The option premium amount payable by buyer to seller on the specified payment date.">;
-//		[synonym FpML value premium]
-//	additionalPayment Payment (0..*) <"Additional payments between the principal parties.">;
-//		[synonym FpML value additionalPayment]
-//	earlyTerminationProvision EarlyTerminationProvision (0..1) <"Parameters specifying provisions relating to the optional and mandatory early termination of a CapFloor transaction.">;
-//		[synonym FpML value earlyTerminationProvision]
-//}
-
 class Cashflows stereotype contractualProduct <"A class defining the cashflow representation of a swap trade.">
 	[synonym FpML value Cashflows]
 {
@@ -352,14 +332,14 @@ class CrossCurrencyMethod stereotype contractualProduct <"A class to represent t
 class DateRelativeToCalculationPeriodDates stereotype contractualProduct <"A class to provide the ability to point to multiple payment nodes in the document through the unbounded paymentDatesReference.">
 	[synonym FpML value DateRelativeToCalculationPeriodDates]
 {
-	calculationPeriodDates date (1..*) reference <"FpML specifies calculationPeriodDatesReference as an href pointed to a set of calculation period dates defined somewhere else in the document. Rosetta specifies the corresponding model attribute as those actual calculation dates for clarity and eligibility considerations.">;
+	calculationPeriodDatesReference string (1..*) reference <"A set of href pointers to calculation period dates defined somewhere else in the document.">;
 		[synonym FpML value calculationPeriodDatesReference]
 }
 
 class DateRelativeToPaymentDates stereotype contractualProduct <"A class to provide the ability to point to multiple payment nodes in the document through the unbounded paymentDatesReference.">
 	[synonym FpML value DateRelativeToPaymentDates]
 {
-	paymentDates date (1..*) reference <"FpML specified this element as a set of href pointers to payment dates defined somewhere else in the instance document. Rosetta, for clarity and legibility considerations, specifies those actual dates.">;
+	paymentDatesReference string (1..*) reference <"A set of href pointers to payment dates defined somewhere else in the document.">;
 		[synonym FpML value paymentDatesReference]
 }
 
@@ -543,59 +523,64 @@ data rule FloatingRateDefinition_FloatingRateMultiplier <"FpML specifies that th
 	when FloatingRateDefinition -> floatingRateMultiplier exists
 	then FloatingRateDefinition -> floatingRateMultiplier <> 1b
 
-class Fra extends ContractualHeader stereotype contractualProduct <"A type defining a Forward Rate Agreement (FRA) product.">
-	[synonym FpML value Fra]
-{
-	buyerSeller BuyerSeller (1..1) <"This elements is not presents in FpML, which uses the BuyerSeller.model, which Rosetta represents as a class.">;
-	adjustedEffectiveDate date (1..1) anchor <"The start date of the calculation period. This date should already be adjusted for any applicable business day convention. This is also the date when the observed rate is applied, the reset date.">;
-		[synonym FpML value adjustedEffectiveDate]
-	adjustedTerminationDate date (1..1) <"The end date of the calculation period. This date should already be adjusted for any applicable business day convention.">;
-		[synonym FpML value adjustedTerminationDate]
-	paymentDate AdjustableDate (1..1) <"The payment date. This date is subject to adjustment in accordance with any applicable business day convention.">;
-		[synonym FpML value paymentDate]
-	fixingDateOffset RelativeDateOffset (1..1) <"Specifies the fixing date relative to the reset date in terms of a business days offset and an associated set of financial business centers. Normally these offset calculation rules will be those specified in the ISDA definition for the relevant floating rate index (ISDA's Floating Rate Option). However, non-standard offset calculation rules may apply for a trade if mutually agreed by the principal parties to the transaction. The href attribute on the dateRelativeTo element should reference the id attribute on the adjustedEffectiveDate element.">;
-		[synonym FpML value fixingDateOffset]
-	dayCountFraction DayCountFractionEnum (1..1) <"The day count fraction.">;
-		[synonym FpML value dayCountFraction]
-	calculationPeriodNumberOfDays int (1..1) <"The number of days from the adjusted effective date to the adjusted termination date calculated in accordance with the applicable day count fraction.">;
-		[synonym FpML value calculationPeriodNumberOfDays]
-	notional Money (1..1) <"The notional amount.">;
-		[synonym FpML value notional]
-	fixedRate number (1..1) anchor <"The calculation period fixed rate. A per annum rate, expressed as a decimal. A fixed rate of 5% would be represented as 0.05.">;
-		[synonym FpML value fixedRate]
-	floatingRateIndex FloatingRateIndexEnum (1..1);
-		[synonym FpML value floatingRateIndex]
-	indexTenor Period (1..1) <"The ISDA Designated Maturity, i.e. the tenor of the floating rate. A FRA can contain either one or two indexTenor instances.">;
-		[synonym FpML value indexTenor]
-	fraDiscounting FraDiscountingEnum (1..1) <"Specifies whether discounting applies and, if so, what type.">;
-		[synonym FpML value fraDiscounting]
-	additionalPayment Payment (1..1) <"Additional payments between the principal parties (i.e. the parties referenced as the FRA buyer and seller).">;
-		[synonym FpML value additionalPayment]
-}
+//class Fra extends ContractualHeader stereotype contractualProduct <"A type defining a Forward Rate Agreement (FRA) product.">
+//	[synonym FpML value Fra]
+//{
+//	buyerSeller BuyerSeller (1..1) <"This elements is not presents in FpML, which uses the BuyerSeller.model, which Rosetta represents as a class.">;
+//	adjustedEffectiveDate date (1..1) anchor <"The start date of the calculation period. This date should already be adjusted for any applicable business day convention. This is also the date when the observed rate is applied, the reset date.">;
+//		[synonym FpML value adjustedEffectiveDate]
+//	adjustedTerminationDate date (1..1) <"The end date of the calculation period. This date should already be adjusted for any applicable business day convention.">;
+//		[synonym FpML value adjustedTerminationDate]
+//	paymentDate AdjustableDate (1..1) <"The payment date. This date is subject to adjustment in accordance with any applicable business day convention.">;
+//		[synonym FpML value paymentDate]
+//	fixingDateOffset RelativeDateOffset (1..1) <"Specifies the fixing date relative to the reset date in terms of a business days offset and an associated set of financial business centers. Normally these offset calculation rules will be those specified in the ISDA definition for the relevant floating rate index (ISDA's Floating Rate Option). However, non-standard offset calculation rules may apply for a trade if mutually agreed by the principal parties to the transaction. The href attribute on the dateRelativeTo element should reference the id attribute on the adjustedEffectiveDate element.">;
+//		[synonym FpML value fixingDateOffset]
+//	dayCountFraction DayCountFractionEnum (1..1) <"The day count fraction.">;
+//		[synonym FpML value dayCountFraction]
+//	calculationPeriodNumberOfDays int (1..1) <"The number of days from the adjusted effective date to the adjusted termination date calculated in accordance with the applicable day count fraction.">;
+//		[synonym FpML value calculationPeriodNumberOfDays]
+//	notional Money (1..1) <"The notional amount.">;
+//		[synonym FpML value notional]
+//	fixedRate number (1..1) anchor <"The calculation period fixed rate. A per annum rate, expressed as a decimal. A fixed rate of 5% would be represented as 0.05.">;
+//		[synonym FpML value fixedRate]
+//	floatingRateIndex FloatingRateIndexEnum (1..1);
+//		[synonym FpML value floatingRateIndex]
+//	indexTenor Period (1..1) <"The ISDA Designated Maturity, i.e. the tenor of the floating rate. A FRA can contain either one or two indexTenor instances.">;
+//		[synonym FpML value indexTenor]
+//	fraDiscounting FraDiscountingEnum (1..1) <"Specifies whether discounting applies and, if so, what type.">;
+//		[synonym FpML value fraDiscounting]
+//	additionalPayment Payment (1..1) <"Additional payments between the principal parties (i.e. the parties referenced as the FRA buyer and seller).">;
+//		[synonym FpML value additionalPayment]
+//}
 
-data rule Fra_calculationPeriodNumberOfDays <"FpML specifies calculationPeriodNumberOfDays as a positive integer.">
-	when Fra -> calculationPeriodNumberOfDays exists
-	then Fra -> calculationPeriodNumberOfDays >= 0
-
-data rule Fra_adjustedTerminationDate <"FpML validation rule ird-33 - Context: Fra (complex type) adjustedTerminationDate must be after adjustedEffectiveDate.">
-	when Fra -> adjustedEffectiveDate exists
-	then Fra -> adjustedTerminationDate > Fra -> adjustedEffectiveDate
+//data rule Fra_calculationPeriodNumberOfDays <"FpML specifies calculationPeriodNumberOfDays as a positive integer.">
+//	when Fra -> calculationPeriodNumberOfDays exists
+//	then Fra -> calculationPeriodNumberOfDays >= 0
+//
+//data rule Fra_adjustedTerminationDate <"FpML validation rule ird-33 - Context: Fra (complex type) adjustedTerminationDate must be after adjustedEffectiveDate.">
+//	when Fra -> adjustedEffectiveDate exists
+//	then Fra -> adjustedTerminationDate > Fra -> adjustedEffectiveDate
 
 class FxFixingDate extends Offset stereotype contractualProduct <"A class that is extending the Offset structure for providing the ability to specify an FX fixing date as an offset to dates specified somewhere else in the document.">
 	[synonym FpML value priceSourceDisruption]
 {
 	businessDayConvention BusinessDayConventionEnum (1..1) <"The convention for adjusting a date if it would otherwise fall on a day that is not a business day.">;
 		[synonym FpML value businessDayConvention]
-	businessCenters BusinessCenters (0..1) reference <"FpML specifies a choice between businessCentersReference and businessCenters, with the former being a pointer style reference to a set of financial business centers defined elsewhere in the document. Rosetta explicitly indicates the business centers, for clarity and legibility considerations.">;
+	businessCenters BusinessCenters (0..1);
 		[synonym FpML value businessCenters]
+	businessCentersReference string (0..1) reference <"A pointer style reference to a set of financial business centers defined elsewhere in the document. This set of business centers is used to determine whether a particular day is a business day or not.">;
 		[synonym FpML value businessCentersReference]
-	dateRelativeToPaymentDates DateRelativeToPaymentDates (0..1) <"The payment dates (references in FpML) on which settlements in non-deliverable currency are due and will then have to be converted according to the terms specified through the other parts of the nonDeliverableSettlement structure.">;
+	dateRelativeToPaymentDates DateRelativeToPaymentDates (0..1) <"The payment date references on which settlements in non-deliverable currency are due and will then have to be converted according to the terms specified through the other parts of the nonDeliverableSettlement structure.">;
 		[synonym FpML value dateRelativeToPaymentDates]
-	dateRelativeToCalculationPeriodDates DateRelativeToCalculationPeriodDates (0..1) <"The calculation periods (references in FpML) on which settlements in non-deliverable currency are due and will then have to be converted according to the terms specified through the other parts of the nonDeliverableSettlement structure. Implemented for Brazilian-CDI swaps where it will refer to the termination date of the appropriate leg.">;
+	dateRelativeToCalculationPeriodDates DateRelativeToCalculationPeriodDates (0..1) <"The calculation period references on which settlements in non-deliverable currency are due and will then have to be converted according to the terms specified through the other parts of the nonDeliverableSettlement structure. Implemented for Brazilian-CDI swaps where it will refer to the termination date of the appropriate leg.">;
 		[synonym FpML value dateRelativeToCalculationPeriodDates]
 }
 
-choice rule FxFixingDate_choice <"Choice rule to represent an FpML choice construct.">
+choice rule FxFixingDate_choice1 <"Choice rule to represent an FpML choice construct.">
+	for FxFixingDate optional choice between
+	businessCenters and businessCentersReference
+
+choice rule FxFixingDate_choice2 <"Choice rule to represent an FpML choice construct.">
 	for FxFixingDate required choice between
 	dateRelativeToPaymentDates and dateRelativeToCalculationPeriodDates
 
@@ -615,7 +600,7 @@ class FxLinkedNotionalAmount stereotype contractualProduct <"A class to describe
 class FxLinkedNotionalSchedule stereotype contractualProduct <"A class to describe a notional schedule where each notional that applies to a calculation period is calculated with reference to a notional amount or notional amount schedule in a different currency by means of a spot currency exchange rate which is normally observed at the beginning of each period.">
 	[synonym FpML value FxLinkedNotionalSchedule pathExpression "fxLinkedNotionalSchedule"]
 {
-	constantNotionalSchedule NotionalSchedule (1..1) reference <"Implemented in FpML as a pointer style reference to the associated constant notional schedule defined elsewhere in the document which contains the currency amounts which will be converted into the varying notional currency amounts using the spot currency exchange rate. Implemented as part of this model through an explicit initial notional value.">;
+	constantNotionalScheduleReference string (1..1) reference <"A pointer style reference to the associated constant notional schedule defined elsewhere in the document which contains the currency amounts which will be converted into the varying notional currency amounts using the spot currency exchange rate.">;
 		[synonym FpML value constantNotionalScheduleReference]
 	initialValue number (0..1) <"The initial currency amount for the varying notional. This may be omitted for a forward starting swap if the FX-linked notional value is not known at deal inception.">;
 		[synonym FpML value initialValue]
@@ -646,81 +631,6 @@ class InflationRateCalculation extends FloatingRateCalculation stereotype contra
 	fallbackBondApplicable boolean (1..1) <"The applicability of a fallback bond as defined in the 2006 ISDA Inflation Derivatives Definitions, sections 1.3 and 1.8.">;
 		[synonym FpML value fallbackBondApplicable]
 }
-
-//class InterestRateStream stereotype contractualProduct <"A class defining the components specifying an interest rate stream, including both a parametric and cashflow representation for the stream of payments.">
-//	[synonym FpML value InterestRateStream]
-//{
-//	id string (0..1);
-//		[synonym FpML value id]
-//	payerParty Party (1..1) reference <"The payer party. While FpML specifies it as an href into one of the parties, Rosetta specifies the party, to enhance clarity and legibility.">;
-//		[synonym FpML value payerPartyReference]
-//		[synonym ISO_20022 value Buyr projection BuyerSeller_IRS]
-//		[synonym ISO_20022 value Sellr projection BuyerSeller_IRS]
-//	payerAccount Account (0..1) reference <"FpML specifies a reference to the account responsible for making the payments defined by this structure. Rosetta specifies the account, to enhance clarity and legibility.">;
-//		[synonym FpML value payerAccountReference]
-//	receiverParty Party (1..1) reference <"The receiver party.  While FpML specifies it as an href into one of the parties, Rosetta specifies the party, to enhance clarity and legibility.">;
-//		[synonym FpML value receiverPartyReference]
-//		[synonym ISO_20022 value Buyr projection BuyerSeller_IRS]
-//		[synonym ISO_20022 value Sellr projection BuyerSeller_IRS]
-//	receiverAccount Account (0..1) reference <"FpML specifies a reference to the account that receives the payments corresponding to this structure. Rosetta specifies the account, to enhance clarity and legibility.">;
-//		[synonym FpML value receiverAccountReference]
-//	calculationPeriodDates CalculationPeriodDates (1..1) <"The calculation period dates schedule.">;
-//		[synonym FpML value calculationPeriodDates]
-//	paymentDates PaymentDates (1..1) <"The payment dates schedule.">;
-//		[synonym FpML value paymentDates]
-//	resetDates ResetDates (0..1) <"The reset dates schedule. The reset dates schedule only applies for a floating rate stream.">;
-//		[synonym FpML value resetDates]
-//	calculationPeriodAmount CalculationPeriodAmount (1..1) <"The calculation period amount parameters.">;
-//		[synonym FpML value calculationPeriodAmount]
-//	stubCalculationPeriodAmount StubCalculationPeriodAmount (0..1) <"The stub calculation period amount parameters. This element must only be included if there is an initial or final stub calculation period. Even then, it must only be included if either the stub references a different floating rate tenor to the regular calculation periods, or if the stub is calculated as a linear interpolation of two different floating rate tenors, or if a specific stub rate or stub amount has been negotiated.">;
-//		[synonym FpML value stubCalculationPeriodAmount]
-//	principalExchanges PrincipalExchanges (0..1) <"The true/false flags indicating whether initial, intermediate or final exchanges of principal should occur.">;
-//		[synonym FpML value principleExchanges]
-//	cashflows Cashflows (0..1) <"The cashflows representation of the swap stream.">;
-//		[synonym FpML value cashflows]
-//	settlementProvision SettlementProvision (0..1) <"A provision that allows the specification of settlement terms, occurring when the settlement currency is different to the notional currency of the trade.">;
-//		[synonym FpML value settlementProvision]
-//	formula Formula (0..1) <"An interest rate derivative formula.">;
-//		[synonym FpML value formula]
-//}
-
-//data rule PayerParty_ReceiverParty <"FpML validation rule ird-8 - Context: InterestRateStream. The @href attribute of payerPartyReference must not be equal to the @href attribute of receiverPartyReference. If they are equal, and if payerAccountReference and receiverAccountReference both exist, the @href attribute of payerAccountReference must not be equal to the @href attribute of receiverAccountReference">
-//	when InterestRateStream -> payerParty -> partyId = InterestRateStream -> receiverParty -> partyId
-//	then InterestRateStream -> payerParty -> account -> accountNumber <> InterestRateStream -> receiverParty -> account -> accountNumber 
-
-//projection rule BuyerSeller_IRS <"MiFIR requires that the parties to a financial transaction always be identified as a buyer/seller.  To this effect, it specifies a set of logic in the case when this differs from standard market practice.">
-//	[regulatoryReference ESMA_MiFIR specification "2016-ITMG-66 - Annex 1 Validation Rules" field "7" provision "The Buyer identification code is the code used to identify the acquirer of the financial instrument. (...) In the case of swaps related to interest rates or inflation indices, the buyer shall be the counterparty paying the fixed rate. The seller shall be the counterparty receiving the fixed rate. In case of basis swaps (float-to-float interest rate swaps), the buyer shall be the counterparty that pays the spread and the seller the counterparty that receives the spread."]
-//	for target ISO_20022
-//		when FixFloatSwap exists {
-//			when SwapFixStream exists (
-//				map InterestRateStream -> payerParty to synonym Buyr
-//				map InterestRateStream -> receiverParty to synonym Sellr
-//				) 
-//			when SwapFloatStream exists (
-//				map InterestRateStream -> payerParty to synonym Sellr
-//				map InterestRateStream -> receiverParty to synonym Buyr
-//				)
-//			}
-//		when InflationSwap exists {
-//			when SwapFixStream exists (
-//				map InterestRateStream -> payerParty to synonym Buyr
-//				map InterestRateStream -> receiverParty to synonym Sellr
-//				) 
-//			when SwapInflationStream exists (
-//				map InterestRateStream -> payerParty to synonym Sellr
-//				map InterestRateStream -> receiverParty to synonym Buyr
-//				)
-//			}
-//		when BasisSwap exists {
-//			when SwapSpread exists (
-//				map InterestRateStream -> payerParty to synonym Buyr
-//				map InterestRateStream -> receiverParty to synonym Sellr
-//				)
-//			when SwapSpread is absent (
-//				map InterestRateStream -> payerParty to synonym Sellr
-//				map InterestRateStream -> receiverParty to synonym Buyr
-//				)
-//			}
 
 class MandatoryEarlyTermination stereotype contractualProduct <"A class to define an early termination provision for which exercise is mandatory.">
 	[synonym FpML value MandatoryEarlyTermination]
@@ -779,7 +689,7 @@ choice rule NonDeliverableSettlement_choice <"Choice rule to represent an FpML c
 class NotionalStepRule stereotype contractualProduct <"A class defining a parametric representation for the notional step schedule, i.e. parameters used to generate the notional amount on each step date. This parametric representation is intended to cover the more common amortizing/accreting variations of swaps.">
 	[synonym FpML value NotionalStepRule]
 {
-	calculationPeriodDates CalculationPeriodDates (1..1) reference <"FpML specifies calculationPeriodDatesReference as a reference to the associated calculation period dates component defined elsewhere in the document.  Rosetta specifies it as the actual calculationPeriodDatesReference anchor element in the instance document.">;
+	calculationPeriodDatesReference string (1..1) reference <"A pointer style reference to the associated calculation period dates component defined elsewhere in the document.">;
 		[synonym FpML value calculationPeriodDatesReference]
 	stepFrequency Frequency (1..1) <"The frequency at which the notional step changes occur. This frequency must be an integer multiple of the stream calculation period frequency.">;
 		[synonym FpML value stepFrequency]
@@ -869,31 +779,6 @@ data rule PaymentCalculationPeriod_unadjustedPaymentDate <"FpML validation rule 
 	then PaymentCalculationPeriod -> unadjustedPaymentDate exists
 		or PaymentCalculationPeriod -> adjustedPaymentDate exists
 
-//class PaymentDates stereotype contractualProduct <"A class defining parameters used to generate the payment dates schedule, including the specification of early or delayed payments.  Payment dates are determined relative to the calculation period dates or the reset dates.">
-//	[synonym FpML value PaymentDates]
-//{
-//	id string (0..1);
-//		[synonym FpML value id]
-//	calculationPeriodDates CalculationPeriodDates (0..1) reference <"The FpML implementation specifies the calculationPeriodDatesReference as an href which is meant to point to the swapStream/calculationPeriodDates element. Rosetta explicitly specifies that reference element, while also persists the href reference associated with the FpML document.">;
-//		[synonym FpML value calculationPeriodDatesReference]
-//	resetDates ResetDates (0..1) reference <"The FpML implementation specifies the resetDatesReference as an href which is meant to point to the swapStream/resetDates element. Rosetta explicitly specifies that reference element, while also persists the href reference associated with the FpML document.">;
-//		[synonym FpML value resetDatesReference]
-//	valuationDates FxFixingDate (0..1) reference <"The FpML implementation specifies the valuationDatesReference as an href which is implemented for Brazilian-CDI Swaps where it will refer to the settlemementProvision/nonDeliverableSettlement/fxFixingDate structure. Rosetta explicitly specifies that reference element, while also persists the href reference associated with the FpML document.">;
-//		[synonym FpML value valuationDatesReference]
-//	paymentFrequency Frequency (1..1) <"The frequency at which regular payment dates occur.">;
-//		[synonym FpML value paymentFrequency]
-//	firstPaymentDate date (0..1) <"The first unadjusted payment date. This day may be subject to adjustment in accordance with any business day convention specified in paymentDatesAdjustments. This element must only be included if there is an initial stub. This date will normally correspond to an unadjusted calculation period start or end date. This is true even if early or delayed payment is specified to be applicable since the actual first payment date will be the specified number of days before or after the applicable adjusted calculation period start or end date with the resulting payment date then being adjusted in accordance with any business day convention specified in paymentDatesAdjustments.">;
-//		[synonym FpML value firstPaymentDate]
-//	lastRegularPaymentDate date (0..1) <"The last regular unadjusted payment date. This day may be subject to adjustment in accordance with any business day convention specified in paymentDatesAdjustments. This element must only be included if there is a final stub. All calculation periods after this date contribute to the final payment. The final payment is made relative to the final set of calculation periods or the final reset date as the case may be. This date will normally correspond to an unadjusted calculation period start or end date. This is true even if early or delayed payment is specified to be applicable since the actual last regular payment date will be the specified number of days before or after the applicable adjusted calculation period start or end date with the resulting payment date then being adjusted in accordance with any business day convention specified in paymentDatesAdjustments.">;
-//		[synonym FpML value lastRegularPaymentDate]
-//	payRelativeTo PayRelativeToEnum (1..1) <"Specifies whether the payments occur relative to each adjusted calculation period start date, adjusted calculation period end date or each reset date. The reset date is applicable in the case of certain euro (former French Franc) floating rate indices. Calculation period start date means relative to the start of the first calculation period contributing to a given payment. Similarly, calculation period end date means the end of the last calculation period contributing to a given payment.The valuation date is applicable for Brazilian-CDI swaps.">;
-//		[synonym FpML value payRelativeTo]
-//	paymentDaysOffset Offset (0..1) <"If early payment or delayed payment is required, specifies the number of days offset that the payment occurs relative to what would otherwise be the unadjusted payment date. The offset can be specified in terms of either calendar or business days. Even in the case of a calendar days offset, the resulting payment date, adjusted for the specified calendar days offset, will still be adjusted in accordance with the specified payment dates adjustments. This element should only be included if early or delayed payment is applicable, i.e. if the periodMultiplier element value is not equal to zero. An early payment would be indicated by a negative periodMultiplier element value and a delayed payment (or payment lag) would be indicated by a positive periodMultiplier element value.">;
-//		[synonym FpML value paymentDaysOffset]
-//	paymentDatesAdjustments BusinessDayAdjustments (1..1) <"The business day convention to apply to each payment date if it would otherwise fall on a day that is not a business day in the specified financial business centers.">;
-//		[synonym FpML value paymentDatesAdjustments]
-//}
-
 class PriceSourceDisruption stereotype contractualProduct <"A class defining the parameters used to get a price quote to replace the settlement rate option that is disrupted.">
 	[synonym FpML value PriceSourceDisruption]
 {
@@ -923,7 +808,7 @@ class ResetDates stereotype contractualProduct <"A class defining the parameters
 {
 	id string (0..1) anchor;
 		[synonym FpML value id]
-	calculationPeriodDates CalculationPeriodDates (1..1) reference <"FpML specifies it as a reference to the associated calculation period end dates defined elsewhere. FpML validation rule ird-59 specifies that the reference element is calculationPeriodDates in the same swapStream.">;
+	calculationPeriodDatesReference string (1..1) reference <"A pointer style reference to the associated calculation period dates component defined elsewhere in the document.">;
 		[synonym FpML value calculationPeriodDatesReference]
 	resetRelativeTo ResetRelativeToEnum (0..1) <"Specifies whether the reset dates are determined with respect to each adjusted calculation period start date or adjusted calculation period end date.  If the reset frequency is specified as daily this element must not be included.">;
 		[synonym FpML value resetRelativeTo]
@@ -938,15 +823,6 @@ class ResetDates stereotype contractualProduct <"A class defining the parameters
 	resetDatesAdjustments BusinessDayAdjustments (1..1) <"The business day convention to apply to each reset date if it would otherwise fall on a day that is not a business day in the specified financial business centers.">;
 		[synonym FpML value resetDatesAdjustments]
 }
-
-//data rule ResetDates_calculationPeriodAmount <"FpML validation rule ird-1 - Context: InterestRateStream (complex type). resetDates must exist if and only if a floatingRateCalculation or inflationRateCalculation exists in the calculationPeriodAmount/calculation element.">
-//	when InterestRateStream -> resetDates exists
-//	then (InterestRateStream -> calculationPeriodAmount -> calculation -> floatingRateCalculation 
-//		or InterestRateStream -> calculationPeriodAmount -> calculation -> inflationRateCalculation) must exist
-
-//data rule ResetDates_floatingRateCalculation <"The FpML standard states that the reset dates schedule only applies for a floating rate stream.">
-//	when InterestRateStream -> calculationPeriodAmount -> calculation -> floatingRateCalculation is absent
-//	then InterestRateStream -> resetDates must be absent
 
 data rule ResetDates_rateCutOffDaysOffset <"FpML specifies that the rate cut-off number of days must be a negative integer with a value of zero would implying that no rate cut off applies, in which case the rateCutOffDaysOffset element should not be included.">
 	when ResetDates -> rateCutOffDaysOffset exists
@@ -969,17 +845,16 @@ class SettlementProvision stereotype contractualProduct <"A class defining the s
 		[synonym FpML value nonDeliverableSettlement]
 }
 
-//data rule SettlementProvision_settlementCurrency <"FpML specifies that the SettlementProvision exists when the settlement currency is different to the notional currency of the trade.">
-//	when ( InterestRateStream -> settlementProvision exists 
-//		and InterestRateStream -> settlementProvision -> settlementCurrency <> InterestRateStream -> calculationPeriodAmount -> calculation -> notionalSchedule -> notionalStepSchedule -> currency )
-//	or ( InterestRateStream -> settlementProvision exists 
-//		and InterestRateStream -> settlementProvision -> settlementCurrency <> InterestRateStream -> calculationPeriodAmount -> calculation -> fxLinkedNotionalSchedule -> varyingNotionalCurrency )
-//	then InterestRateStream -> settlementProvision -> nonDeliverableSettlement must exist
+data rule SettlementProvision_settlementCurrency <"FpML specifies that the SettlementProvision exists when the settlement currency is different to the notional currency of the trade.">
+	when InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> settlementCurrency <>  InterestRatePayout -> quantity -> notionalAmount -> currency
+		or InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> settlementCurrency <> InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> currency
+		or InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> settlementCurrency <> InterestRatePayout -> quantity -> fxLinkedNotional -> varyingNotionalCurrency
+	then InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> nonDeliverableSettlement exists
 
 class StubCalculationPeriodAmount stereotype contractualProduct <"A class defining how the initial or final stub calculation period amounts is calculated. For example, the rate to be applied to the initial or final stub calculation period may be the linear interpolation of two different tenors for the floating rate index specified in the calculation period amount component, e.g. A two month stub period may used the linear interpolation of a one month and three month floating rate. The different rate tenors would be specified in this component. Note that a maximum of two rate tenors can be specified. If a stub period uses a single index tenor and this is the same as that specified in the calculation period amount component then the initial stub or final stub component, as the case may be, must not be included.">
 	[synonym FpML value StubCalculationPeriodAmount]
 {
-	calculationPeriodDates string (1..1) reference <"The associated calculation period dates. In the FpML standard, this is implemented as an href pointer. For clarity and legibility purposes, Rosetta specifies the actual calculation period dates, while keeping the href information for audit trail purposes.">;
+	calculationPeriodDatesReference string (1..1) reference <"A pointer style reference to the associated calculation period dates component defined elsewhere in the document.">;
 		[synonym FpML value calculationPeriodDatesReference]
 	initialStub StubValue (0..1) <"Specifies how the initial stub amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating tenors may be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3. Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.">;
 		[synonym FpML value initialStub]
@@ -987,74 +862,25 @@ class StubCalculationPeriodAmount stereotype contractualProduct <"A class defini
 		[synonym FpML value finalStub]
 }
 
-//data rule InitialStub_FinalStub <"Data rule to represent the FpML nested XML construct as part of StubCalculationPeriodAmount.">
-//	when InterestRateStream -> stubCalculationPeriodAmount exists
-//	then InterestRateStream -> stubCalculationPeriodAmount -> initialStub exists
-//		or InterestRateStream -> stubCalculationPeriodAmount -> finalStub exists
-//		or (InterestRateStream -> stubCalculationPeriodAmount -> initialStub and InterestRateStream -> stubCalculationPeriodAmount -> finalStub) exists
-//		
-//data rule StubCalculationPeriodAmount_firstRegularPeriodStartDate <"FpML validation rule ird-23 - Context: StubCalculationPeriodAmount (complex type). If stubCalculationPeriodAmount/initialStub exists, the calculationPeriodDates element referenced by the @href attribute of stubCalculationPeriodAmount/calculationPeriodDatesReference contains firstRegularPeriodStartDate.">
-//	when StubCalculationPeriodAmount -> initialStub exists
-//	then StubCalculationPeriodAmount -> calculationPeriodDates -> firstRegularPeriodStartDate exists
-//
-//data rule StubCalculationPeriodAmount_ <"FpML validation rule ird-24 - Context: StubCalculationPeriodAmount (complex type). finalStub exists if and only if the calculationPeriodDates element referenced by calculationPeriodDates/@href contains a lastRegularPeriodEndDate.">
-//	when StubCalculationPeriodAmount -> finalStub exists
-//	then StubCalculationPeriodAmount -> calculationPeriodDates -> lastRegularPeriodEndDate exists
+data rule InitialStub_FinalStub <"Data rule to represent the FpML nested XML construct as part of StubCalculationPeriodAmount.">
+	when InterestRatePayout -> stubPeriod exists
+	then InterestRatePayout -> stubPeriod -> initialStub exists
+		or InterestRatePayout -> stubPeriod -> finalStub exists
+		
+data rule StubCalculationPeriodAmount_firstRegularPeriodStartDate <"FpML validation rule ird-23 - If the initialStub exists, the calculationPeriodDates element referenced by the @href attribute of stubCalculationPeriodAmount/calculationPeriodDatesReference contains firstRegularPeriodStartDate.">
+	when InterestRatePayout -> stubPeriod -> initialStub exists
+	then InterestRatePayout -> calculationPeriodDates -> firstRegularPeriodStartDate exists
 
-//class Swap extends ContractualHeader stereotype contractualProduct <"A class defining swap streams and additional payments between the principal parties involved in the swap.">
-//	[synonym FpML value Swap]
+data rule StubCalculationPeriodAmount_lastRegularPeriodEndDate <"FpML validation rule ird-24 - The finalStub exists if and only if the calculationPeriodDates element referenced by calculationPeriodDates/@href contains a lastRegularPeriodEndDate.">
+	when InterestRatePayout -> stubPeriod -> finalStub exists
+	then InterestRatePayout -> calculationPeriodDates -> lastRegularPeriodEndDate exists
+
+//class SwaptionAdjustedDates stereotype contractualProduct <"A type describing the adjusted dates associated with swaption exercise and settlement.">
+//	[synonym FpML value SwaptionAdjustedDates]
 //{
-//	swapStream InterestRateStream (1..*) <"The swap streams.">;
-//		[synonym FpML value swapStream]
-//	earlyTerminationProvision EarlyTerminationProvision (0..1) <"Parameters specifying provisions relating to the optional and mandatory early termination of a swap transaction.">;
-//		[synonym FpML value earlyTerminationProvision]
-//	cancelableProvision CancelableProvision (0..1) <"A provision that allows the specification of an embedded option within a swap giving the buyer of the option the right to terminate the swap, in whole or in part, on the early termination date.">;
-//		[synonym FpML value cancelableProvision]
-//	extendibleProvision ExtendibleProvision (0..1) <"A provision that allows the specification of an embedded option with a swap giving the buyer of the option the right to extend the swap, in whole or in part, to the extended termination date.">;
-//		[synonym FpML value extendibleProvision]
-//	additionalPayment Payment (0..*) <"Additional payments between the principal parties.">;
-//		[synonym FpML value additionalPayment]
-//		[regulatoryReference CFTC_DFA guideline "ISDA Price Notation and Additional Price Notation Approach" section "Rates" provision "This is the Additional Price Notation (and, when a 2nd fee exists, the Price Notation 3) of an IRS when corresponding to a swap fee."]
-//	additionalTerms SwapAdditionalTerms (0..1) <"Contains any additional terms to the swap contract.">;
-//		[synonym FpML value additionalTerms]
+//	exerciseEvent ExerciseEvent (1..*) <"The adjusted dates associated with an individual swaption exercise date.">;
+//		[synonym FpML value exerciseEvent]
 //}
-
-class SwapAdditionalTerms stereotype contractualProduct <"Additional terms to a swap contract.">
-	[synonym FpML value SwapAdditionalTerms]
-{
-	bondReference BondReference (0..1) <"Reference to a bond underlyer to represent an asset swap or Condition Precedent Bond.">;
-		[synonym FpML value bondReference]
-}
-
-//class Swaption extends ContractualHeader stereotype contractualProduct <"A swaption product definition.">
-//	[synonym FpML value Swaption]
-//{
-//	buyerSeller BuyerSeller (1..1) <"This element is not present in FpML, which uses the BuyerSeller.model, which Rosetta represents as a class.">;
-//	premium Payment (0..*) <"The option premium amount payable by buyer to seller on the specified payment date.">;
-//		[synonym FpML value premium]
-//	exerciseStyle OptionStyle (1..1) <"This element doesn't exist in the FpML instance document, as it is specified as a substitution group.">;
-//	exerciseProcedure ExerciseProcedure (0..1) <"A set of parameters defining procedures associated with the exercise.">;
-//		[synonym FpML value exerciseProcedure]
-//	calculationAgent CalculationAgent (0..1) <"The ISDA Calculation Agent responsible for performing duties associated with an optional early termination.">;
-//		[synonym FpML value calculationAgent]
-//	cashSettlement OptionCashSettlement (0..1) <"If specified, this means that cash settlement is applicable to the transaction and defines the parameters associated with the cash settlement procedure. If not specified, then physical settlement is applicable.">;
-//		[synonym FpML value cashSettlement]
-//	physicalSettlement OptionPhysicalSettlement (0..1) <"If specified, this defines physical settlement terms which apply to the transaction.">;
-//		[synonym FpML value physicalSettlement]
-//	swaptionStraddle boolean (1..1) <"Whether the option is a swaption or a swaption straddle.">;
-//		[synonym FpML value swaptionStraddle]
-//	swaptionAdjustedDates SwaptionAdjustedDates (0..1) <"The adjusted dates associated with swaption exercise. These dates have been adjusted for any applicable business day convention.">;
-//		[synonym FpML value swaptionAdjustedDates]
-//	swap Swap (1..1);
-//		[synonym FpML value swap]
-//}
-
-class SwaptionAdjustedDates stereotype contractualProduct <"A type describing the adjusted dates associated with swaption exercise and settlement.">
-	[synonym FpML value SwaptionAdjustedDates]
-{
-	exerciseEvent ExerciseEvent (1..*) <"The adjusted dates associated with an individual swaption exercise date.">;
-		[synonym FpML value exerciseEvent]
-}
 
 class ValuationPostponement stereotype contractualProduct <"Specifies how long to wait to get a quote from a settlement rate option upon a price source disruption.">
 	[synonym FpML value ValuationPostponement]
