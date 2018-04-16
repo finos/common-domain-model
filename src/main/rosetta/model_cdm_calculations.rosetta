@@ -57,19 +57,18 @@ arguments DayCountFractionEnum._30E_360 <"2006 ISDA Definition Article 4 section
 	endDay: is Min(period -> endDate -> day, 30)
 }
 
-//calculation DayCountFractionEnum.Actual_360 <"'Act/360' or 'A/360' is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 360.">
-//{
-//	number: (endDate - startDate) / 360
-//}
-//
-//arguments DayCountFractionEnum.Actual_360
-//{
-//	alias period CalculationPeriod(InterestRatePayout -> calculationPeriodDates)
-//	
-//	
-//	endDate: is period -> endDate
-//	startDate: is period -> startDate
-//}
+calculation DayCountFractionEnum.ACT_360 <"'2006 ISDA Definition Article 4 section 4.16(e): If 'Actual/360', 'Act/360' or 'A/360' is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 360.">
+{
+	number: duration / 360
+}
+
+/*
+ * We want to leverage existing open source libraries to compute the actual number of days between two dates
+ */
+arguments DayCountFractionEnum.ACT_360
+{
+	duration: is FunctionCall -> duration
+}
 
 function CalculationPeriod (dates CalculationPeriodDates) <"2006 ISDA Definition Section 4.13: 'Calculation Period' means, in respect of a Swap Transaction and a party, each period from, and including, one Period End Date of that party to, but excluding, the next following applicable Period End Date during the Term of the Swap Transaction, except that (a) the initial Calculation Period for the party will commence on, and include, the Effective Date and (b) the final Calculation Period for the party will end on, but exclude, the Termination Date."> 
 {
@@ -77,4 +76,7 @@ function CalculationPeriod (dates CalculationPeriodDates) <"2006 ISDA Definition
 	endDate date;
 }
 
-//function differenceBetweenDates (date )
+class FunctionCall
+{
+	duration number (0..1) <"Returns the number of actual days between two dates.">;
+}
