@@ -23,6 +23,9 @@ arguments FixedAmount <"The set of arguments to calculate the FixedAmount.">
 
 calculation FloatingAmount <"2006 ISDA Definition Article 6 Section 6.1. Calculation of a Floating Amount: Subject to the provisions of Section 6.4 (Negative Interest Rates), the Floating Amount payable by a party on a Payment Date will be: (a) if Compounding is not specified for the Swap Transaction or that party, an amount calculated on a formula basis for that Payment Date or for the related Calculation Period as follows: Floating Amount = Calculation Amount × Floating Rate + Spread × Floating Rate Day Count Fraction (b) if “Compounding” is specified to be applicable to the Swap Transaction or that party and 'Flat Compounding' is not specified, an amount equal to the sum of the Compounding Period Amounts for each of the Compounding Periods in the related Calculation Period; or (c) if 'Flat Compounding' is specified to be applicable to the Swap Transaction or that party, an amount equal to the sum of the Basic Compounding Period Amounts for each of the Compounding Periods in the related Calculation Period plus the sum of the Additional Compounding Period Amounts for each such Compounding Period.">
 {
+	/*
+	 * TODO - The below calculation needs to be refined for the case of negative interest rate and compounding
+	 */
 	floatingAmount number: calculationAmount * ( floatingRate + spread ) * dayCountFraction
 	currencyAmount CurrencyEnum: currencyAmount
 }
@@ -36,6 +39,10 @@ arguments FloatingAmount <"The set of arguments to calculate the FloatingAmount.
 	dayCountFraction: is Payout -> interestRatePayout -> dayCountFraction
 }
 
+/**************************
+ * DayCountFraction 30E/360
+ */
+ 
 calculation DayCountFractionEnum._30E_360 <"2006 ISDA Definition Article 4 section 4.16(g): If '30E/360' or 'Eurobond Basis' is specified, the number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 360, calculated on a formula basis as follows:[[360 x (Y2 - Y1)] + [30 x (M2 - M1)] + (D2 - D1)]/360"> 
 {
 	number: (360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
@@ -53,26 +60,31 @@ arguments DayCountFractionEnum._30E_360 <"2006 ISDA Definition Article 4 section
 	endDay: is Min(period -> endDate -> day, 30)
 }
 
-calculation DayCountFractionEnum.ACT_360 <"'2006 ISDA Definition Article 4 section 4.16(e): If 'Actual/360', 'Act/360' or 'A/360' is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 360.">
-{
-	number: duration / 360
-}
-
-/*
- * We want to leverage existing open source libraries to compute the actual number of days between two dates
- */
-arguments DayCountFractionEnum.ACT_360
-{
-	duration: is FunctionCall -> duration
-}
-
 function CalculationPeriod (dates CalculationPeriodDates) <"2006 ISDA Definition Section 4.13: 'Calculation Period' means, in respect of a Swap Transaction and a party, each period from, and including, one Period End Date of that party to, but excluding, the next following applicable Period End Date during the Term of the Swap Transaction, except that (a) the initial Calculation Period for the party will commence on, and include, the Effective Date and (b) the final Calculation Period for the party will end on, but exclude, the Termination Date."> 
 {
 	startDate date;
 	endDate date;
 }
 
-class FunctionCall
+/*************************************
+ * DayCountFraction Actual/365 (Fixed)
+ */
+ 
+calculation DayCountFractionEnum.ACT_365_FIXED <"'2006 ISDA Definition Article 4 section 4.16(d): If'Actual/365 (Fixed)', 'Act/365 (Fixed)', 'A/365 (Fixed)' or 'A/365F' is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 365.">
 {
-	duration number (0..1) <"Returns the number of actual days between two dates.">;
+	number: (endDate - startDate) / 365
+}
+
+arguments DayCountFractionEnum.ACT_365_FIXED
+{
+	startDate: is period -> startDate
+	endDate: is period -> endDate
+}
+
+/*
+ * Not using the below at this time
+ */
+function Duration (startDate date, endDate date) <"The actual difference, expressed in number of days, between two dates.">
+{
+	duration int;
 }
