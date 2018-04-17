@@ -20,7 +20,7 @@ enum IntentEnum
  * CDM testing artefacts
  */
 
-class EventPackage <"Class which combines several events for testing purposes.">
+class EventTestBundle <"Class which combines several events for testing purposes.">
 {
 	event Event (2..*);
 		[synonym Rosetta_Workbench value event]
@@ -77,6 +77,10 @@ class Lineage
 		[synonym Rosetta_Workbench value eventReference]
 }
 
+class NewTrade extends ContractState one of <"The primitive event to represent a new trade.">
+{
+}
+
 class ObservationPrimitive <"The primitive event to represent an observation. The reason for the Primitive suffix is not to conflict with the qualified observation event.">
 {
 	source ObservationSource (1..1) <"The observation source.">;
@@ -127,6 +131,13 @@ class PartyChange <"The primitive event to represent a change in the parties to 
 
 class PrimitiveEvent <"The set of primitive events. The purpose of this class it to provide clarity with respect to the event qualification logic.">
 {
+	/*
+	 * Alternative to representing a new trade as a QuantityChange would be to have a dedicated new primitive
+	 * One of the implied benefit would be to facilitate the further adjustments once we expand the CDM scope
+	 * to include pre-execution events 
+	 */
+	newTrade NewTrade (0..*);
+		[synonym Rosetta_Workbench value newTrade]
 	quantityChange QuantityChange (0..*);
 		[synonym Rosetta_Workbench value quantityChange]
 	partyChange PartyChange (0..*);
@@ -194,13 +205,16 @@ data rule EarlyTermination_InterestPayout_TerminationDate <"Logic to  qualify a 
 	then Event -> primitive -> otherTermsChange ->  before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate >
 		Event -> primitive -> otherTermsChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate
 
-isEvent NewTrade <"The qualification of a new trade event.">
+isEvent NewTradeEvent <"The qualification of a new trade event.">
 	Event -> primitive -> quantityChange -> after -> contract exists
 	and Event -> primitive -> quantityChange -> before is absent
 	and Event -> primitive -> quantityChange -> change -> notionalAmount -> amount > 0b
 		or Event -> primitive -> quantityChange -> change -> quantity -> amount > 0b
 		or Event -> primitive -> quantityChange -> change -> notionalSchedule -> notionalStepSchedule -> initialValue > 0b
 		or Event -> primitive -> quantityChange -> change -> fxLinkedNotional -> initialValue > 0b
+
+isEvent NewTradeEvent_alternative
+	Event -> primitive -> newTrade exists
 	
 isEvent PartialTermination <"The qualification of a partial termination event.">
 	Event -> primitive -> quantityChange exists
