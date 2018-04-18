@@ -5,7 +5,7 @@ FpML versionNumber "5.10"
 /*
  * FpML cd validation rules perceived as needing extensions to the data rule syntax or calls to java functions:
  * - cd-15, cd-16, cd-17, cd-18 as they require to test the number of referenceObligation nodes
- * - cd-21, cd-21b, cd-22 as in order to test the condition that a trade is a short form, we need to have a like-type function to represent that an enumeration value that begins with string "iTraxx" or "CDX".
+ * - cd-21, cd-21.0, cd-22 as in order to test the condition that a trade is a short form, we need to have a like-type function to represent that an enumeration value that begins with string "iTraxx" or "CDX".
  * - cd-33 as there is a need for date computation by 'adding an integer multiple of the period in paymentFrequency to firstPaymentDate'
  * - cd-38 as there is a need to sum-up a set of values and check that their total = 1
  */
@@ -124,7 +124,7 @@ data rule CashSettlementTerms_cashSettlementBusinessDays <"FpML specifies cashSe
 
 data rule CashSettlementTerms_recoveryFactor <"FpML specifies recoveryFactor as a RestrictedPercentage, meaning that it is a decimal which value is restricted between 0 and 1.">
 	when CashSettlementTerms -> recoveryFactor exists
-	then CashSettlementTerms -> recoveryFactor >= 0b and CashSettlementTerms -> recoveryFactor <= 1b
+	then CashSettlementTerms -> recoveryFactor >= 0.0 and CashSettlementTerms -> recoveryFactor <= 1.0
 
 data rule CashSettlementTerms_quotationAmount <"FpML validation rule cd-37 - Context: CashSettlementTerms (complex type). If condition quotationAmount is true, and if condition minimumQuotationAmount is true, and if both amounts have the same-currency, then quotationAmount/amount must be greater or equal to minimumQuotationAmount/amount.">
 	when (CashSettlementTerms -> quotationAmount and CashSettlementTerms -> minimumQuotationAmout) exists
@@ -339,7 +339,7 @@ data rule FeeLeg_marketFixedRate <"The FpML QuotationStyleEnum states that when 
 
 data rule FeeLeg_marketPrice <"The FpML QuotationStyleEnum states that when quotation style is 'Price', the marketPrice element of the feeLeg should be populated. FpML specifies marketPrice as a NonNegativeDecimal.">
 	when FeeLeg -> quotationStyle = QuotationStyleEnum.Price
-	then FeeLeg -> marketPrice exists and FeeLeg -> marketPrice >= 0b
+	then FeeLeg -> marketPrice exists and FeeLeg -> marketPrice >= 0.0
 
 class FixedAmountCalculation stereotype contractualProduct
 	[synonym FpML value FixedAmountCalculation]
@@ -719,7 +719,7 @@ choice rule ReferenceInformation_choice <"Choice rule to represent an FpML choic
 
 //data rule ReferenceInformation_referencePrice <"FpML validation rule cd-12 - Context: ReferenceInformation (complex type). If referencePrice exists, referencePrice must be greater or equal to 0">
 //	when CreditDefaultSwap -> generalTerms -> referenceInformation -> referencePrice exists
-//	then CreditDefaultSwap -> generalTerms -> referenceInformation -> referencePrice >= 0b
+//	then CreditDefaultSwap -> generalTerms -> referenceInformation -> referencePrice >=0.0
 
 class ReferenceObligation stereotype contractualProduct
 	[synonym FpML value ReferenceObligation]
@@ -859,11 +859,11 @@ class Tranche stereotype contractualProduct <"The class to represent a CDS Tranc
 
 data rule Tranche_attachmentPoint <"FpML definition associated with the attachmentPoint element specifies that a schema facet to constraint the value between 0 to 1 will be introduced in FpML 4.3.">
 	when Tranche exists
-	then Tranche -> attachmentPoint >= 0b and Tranche -> attachmentPoint <= 1b
+	then Tranche -> attachmentPoint >=0.0 and Tranche -> attachmentPoint <= 1.0
 
 data rule Tranche_exhaustionPoint <"FpML definition associated with the exhaustionPoint element specifies that a schema facet to constraint the value between 0 to 1 will be introduced in FpML 4.3.">
 	when Tranche exists
-	then Tranche -> exhaustionPoint >= 0b and Tranche -> exhaustionPoint <= 1b
+	then Tranche -> exhaustionPoint >=0.0 and Tranche -> exhaustionPoint <= 1.0
 
 data rule Tranche_attachmentPoint_exhaustionPoint <"FpML validation rule cd-40 - Context: Tranche (complex type) attachmentPoint must be less or equal to exhaustionPoint.">
 	when Tranche exists
