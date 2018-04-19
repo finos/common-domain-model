@@ -122,6 +122,68 @@ class CreditDefaultPayout <"The credit default payout specification terms.">
 	transactedPrice TransactedPrice (0..1) <"The qualification of the price at which the contract has been transacted, in terms of market fixed rate, initial points, market price and/or quotation style. In FpML, those attributes are positioned as part of the fee leg.">;
 }
 
+data rule ReferenceInformation_allGuarantees <"FpML validation rule cd-11 - If condition LongForm is true, and if condition ISDA2003 is true, then allGuarantees must exist.">
+	when ( ( Contract -> documentation -> masterConfirmation exists 
+		or Contract -> documentation -> contractualMatrix exists ) 
+		and Contract -> documentation -> contractualDefinitions = ContractualDefinitionsEnum.ISDA2003Credit )
+	then Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> allGuarantees = True
+
+data rule ReferenceInformation_referencePrice <"FpML validation rule cd-12 - If referencePrice exists, referencePrice must be greater or equal to 0">
+	when CreditDefaultPayout -> generalTerms -> referenceInformation -> referencePrice exists
+	then CreditDefaultPayout -> generalTerms -> referenceInformation -> referencePrice >= 0
+//
+//data rule CreditEvents_creditEventNotice_buyer <"FpML validation rule cd-13 - Context: CreditDefaultSwap (complex type). If protectionTerms/creditEvents/creditEventNotice/notifyingParty/buyerPartyReference exists, then the @href attribute of protectionTerms/creditEvents/creditEventNotice/notifyingParty/buyerPartyReference is equal to the @href attribute of generalTerms/buyerPartyReference.">
+//	when CreditDefaultSwap -> protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> buyerParty exists
+//	then CreditDefaultSwap -> protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> buyerParty = CreditDefaultSwap -> generalTerms -> buyerParty
+//
+//data rule CreditEvents_creditEventNotice_seller <"FpML validation rule cd-14 - Context: CreditDefaultSwap (complex type) If protectionTerms/creditEvents/creditEventNotice/notifyingParty/sellerPartyReference exists, then the @href attribute of protectionTerms/creditEvents/creditEventNotice/notifyingParty/sellerPartyReference must be equal to the @href attribute of generalTerms/sellerPartyReference.">
+//	when CreditDefaultSwap -> protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> sellerParty exists
+//	then CreditDefaultSwap -> protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> sellerParty = CreditDefaultSwap -> generalTerms -> sellerParty
+
+data rule CreditDefaultPayout_contractualDefinitions_ISDA1999Credit <"FpML validation rule cd-19 - If the condition ISDA1999Credit is true, then the following elements must not exist: protectionTerms/creditEvents/creditEventNotice/businessCenter, protectionTerms/creditEvents/restructuring/multipleHolderObligation, protectionTerms/creditEvents/restructuring/multipleCreditEventNotices, generalTerms/referenceInformation/allGuarantees, generalTerms/indexReferenceInformation, generalTerms/substitution, generalTerms/modifiedEquityDelivery.">
+	when Contract -> documentation -> contractualDefinitions = ContractualDefinitionsEnum.ISDA1999Credit
+	then (Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> creditEventNotice -> businessCenter
+		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleHolderObligation 
+		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleCreditEventNotices
+		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> allGuarantees
+		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> indexReferenceInformation
+		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> substitution
+		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> modifiedEquityDelivery)
+		is absent
+
+//data rule SinglePayment_adjustablePaymentDate_effectiveDate <"FpML validation rule cd-26 - If feeLeg/singlePayment/adjustablePaymentDate exists, then feeLeg/singlePayment/adjustablePaymentDate must be after generalTerms/effectiveDate/unadjustedDate.">
+//	when CreditDefaultSwap -> feeLeg -> singlePayment -> adjustablePaymentDate exists
+//	then CreditDefaultSwap -> feeLeg -> singlePayment -> adjustablePaymentDate > CreditDefaultSwap -> generalTerms -> effectiveDate -> unadjustedDate
+
+//data rule SinglePayment_adjustablePaymentDate_scheduledTerminationDate <"FpML validation rule cd-27 - Context: CreditDefaultSwap (complex type). If feeLeg/singlePayment/adjustablePaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/singlePayment/adjustablePaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
+//	when (CreditDefaultSwap -> feeLeg -> singlePayment -> adjustablePaymentDate 
+//		and CreditDefaultSwap -> generalTerms -> scheduledTerminationDate) exists
+//	then CreditDefaultSwap -> feeLeg -> singlePayment -> adjustablePaymentDate < CreditDefaultSwap -> generalTerms -> scheduledTerminationDate -> unadjustedDate
+
+//data rule PeriodicPayment_firstPaymentDate_effectiveDate <"FpML validation rule cd-28 - Context: CreditDefaultSwap (complex type). If feeLeg/periodicPayment/firstPaymentDate exists, then feeLeg/periodicPayment/firstPaymentDate must be after generalTerms/effectiveDate/unadjustedDate.">
+//	when CreditDefaultSwap -> feeLeg -> periodicPayment -> firstPaymentDate exists
+//	then CreditDefaultSwap -> feeLeg -> periodicPayment -> firstPaymentDate > CreditDefaultSwap -> generalTerms -> effectiveDate -> unadjustedDate
+
+//data rule PeriodicPayment_firstPaymentDate_scheduledTerminationDate <"FpML validation rule cd-29 - Context: CreditDefaultSwap (complex type). If feeLeg/periodicPayment/firstPaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/periodicPayment/firstPaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
+//	when CreditDefaultSwap -> feeLeg -> periodicPayment -> firstPaymentDate exists
+//	then CreditDefaultSwap -> feeLeg -> periodicPayment -> firstPaymentDate < CreditDefaultSwap -> generalTerms -> scheduledTerminationDate -> unadjustedDate
+
+//data rule PeriodicPayment_lastRegularPaymentDate <"FpML validation rule cd-30 - Context: CreditDefaultSwap (complex type). If feeLeg/periodicPayment/lastRegularPaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/periodicPayment/lastRegularPaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
+//	when (CreditDefaultSwap -> feeLeg -> periodicPayment -> lastRegularPaymentDate 
+//		and CreditDefaultSwap -> generalTerms -> scheduledTerminationDate) exists
+//	then CreditDefaultSwap -> feeLeg -> periodicPayment -> lastRegularPaymentDate < CreditDefaultSwap -> generalTerms -> scheduledTerminationDate -> unadjustedDate
+	
+//data rule PeriodicPayment_firstPaymentDate_lastRegularPaymentDate <"FpML validation rule cd-31 - Context: PeriodicPayment (complex type). If firstPaymentDate exists, and if lastRegularPaymentDate exists, then firstPaymentDate must be before lastRegularPaymentDate.">
+//	when (CreditDefaultSwap -> feeLeg -> periodicPayment -> firstPaymentDate
+//		and CreditDefaultSwap -> feeLeg -> periodicPayment -> lastRegularPaymentDate) exists
+//	then CreditDefaultSwap -> feeLeg -> periodicPayment -> firstPaymentDate < CreditDefaultSwap -> feeLeg -> periodicPayment -> lastRegularPaymentDate
+
+//data rule PeriodicPayment_LongForm <"FpML validation rule cd-32 - Context: PeriodicPayment (complex type). If condition LongForm is true, and if fixedAmountCalculation/calculationAmount exists, then fixedAmountCalculation/dayCountFraction must exist.">
+//	when ( (Contract -> documentation -> masterConfirmation or Contract -> documentation -> contractualMatrix) is absent )
+//		and Contract -> contractualProduct -> creditDefaultSwap -> generalTerms -> referenceInformation exists
+//	 	and Contract -> contractualProduct -> creditDefaultSwap -> feeLeg -> periodicPayment -> fixedAmountCalculation -> calculationAmount exists
+//	then Contract -> contractualProduct -> creditDefaultSwap -> feeLeg -> periodicPayment -> fixedAmountCalculation -> dayCountFraction must exist
+
 choice rule CreditDefaultPayout_choice <"Choice rule to represent an FpML choice construct.">
 	for CreditDefaultPayout optional choice between
 	cashSettlementTerms and physicalSettlementTerms
