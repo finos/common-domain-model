@@ -78,10 +78,10 @@ class Lineage
 }
 
 /*
- * TODO - If the NewTrade primitive is agreed upon, it should inherit the ContractState class
+ * TODO - The NewTrade primitive should inherit the ContractState class
  * The ingestion doesn't currently supports this inheritance, which needs to be understood/adjusted
  */
-class NewTrade <"The primitive event to represent a new trade.">
+class NewTrade one of <"The primitive event to represent a new trade.">
 {
 	contract Contract (0..1);
 	contractReference ContractIdentifier (0..*);
@@ -138,12 +138,7 @@ class PartyChange <"The primitive event to represent a change in the parties to 
 
 class PrimitiveEvent <"The set of primitive events. The purpose of this class it to provide clarity with respect to the event qualification logic.">
 {
-	/*
-	 * Alternative to representing a new trade as a QuantityChange would be to have a dedicated new primitive
-	 * One of the implied benefit would be to facilitate the further adjustments once we expand the CDM scope
-	 * to include pre-execution events 
-	 */
-	newTrade NewTrade (0..*);
+	newTrade NewTrade (0..*) <"The new trade primitive is unbounded to address the case of events such as portfolio compressions, which could result in multiple new trades.">;
 		[synonym Rosetta_Workbench value newTrade]
 	quantityChange QuantityChange (0..*);
 		[synonym Rosetta_Workbench value quantityChange]
@@ -161,7 +156,7 @@ class PrimitiveEvent <"The set of primitive events. The purpose of this class it
 
 class QuantityChange <"The primitive event to represent a change in quantity or notional.">
 {
-	before ContractState (0..1);
+	before ContractState (1..1);
 		[synonym Rosetta_Workbench value before]
 	after ContractState (1..1);
 		[synonym Rosetta_Workbench value after]
