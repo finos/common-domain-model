@@ -2,255 +2,207 @@ Rosetta versionNumber "0.0.1"
 FIX versionNumber "5.0 SP3"
 FpML versionNumber "5.10"
 
-class AggregationEvent extends TransactionEvent stereotype postExecution <"The aggregation event has a post-execution scope and applies to all financial instruments.">
-{
-	/*
-	 * Need to confirm the product scope of the aggregation event.  Does it indeed applies beyond contractual products?  What is the typical use case?
-	 */
-	before PostExecutionState (2..*);
-	after PostExecutionState (1..1);
-}
+//class AggregationEvent extends TransactionEvent stereotype postExecution <"The aggregation event has a post-execution scope and applies to all financial instruments.">
+//{
+//	/*
+//	 * Need to confirm the product scope of the aggregation event.  Does it indeed applies beyond contractual products?  What is the typical use case?
+//	 */
+//	before PostExecutionState (2..*);
+//	after PostExecutionState (1..1);
+//}
+//
+//data rule AggregationEvent_Contract_before <"The contractState of the contracts that are part of an aggregation event is 'open'.">
+//	when AggregationEvent -> before -> contract exists
+//	then AggregationEvent -> before -> contract -> contractState = ContractStateEnum.open
+//
+//data rule AggregationEvent_Contract_after <"The contractState of the contract resulting from an aggregation event is 'open'.">
+//	when AggregationEvent -> after -> contract exists
+//	then AggregationEvent -> after -> contract -> contractState = ContractStateEnum.open
+//
+//class AllocationEvent extends TransactionEvent stereotype postExecution <"The allocation event has a post-execution scope and applies to all financial instruments.">
+//{
+//	before PostExecutionState (1..1);
+//	after PostExecutionState (1..*) <"The single lower cardinality is meant to support the case where an allocation process is generically applied to contracts, even when no actual contract split results from it.">;
+//}
+//
+//data rule Allocation_Contract_before <"The contractState of the contract that is subject to an allocation event is 'open'.">
+//	when AllocationEvent -> before -> contract exists
+//	then AllocationEvent -> before -> contract -> contractState = ContractStateEnum.open
+//
+//data rule Allocation_Contract_after <"The contractState of the contracts resulting from an allocation event is 'open'.">
+//	when AllocationEvent -> after -> contract exists
+//	then AllocationEvent -> after -> contract -> contractState = ContractStateEnum.open
+//
+//workflow rule ExecutionEvent_Allocation <"The allocation event is subsequent to the execution.">
+//	when ExecutionEvent -> action <> ActionEnum.cancel 
+//		and AllocationEvent exists 
+//			and AllocationEvent -> action <> ActionEnum.correct
+//	ExecutionEvent precedes AllocationEvent
+//
+//class ClearingEvent extends TransactionEvent stereotype postExecution <"The clearing event has a post-execution scope and applies to contractual and listed products.">
+//{
+//	before PostExecutionState (1..1);
+//	after PostExecutionState (2..*) <"Following a clearing event, at least two 'trades' exist: the initial one and the cleared one.">;
+//}
+//
+//data rule Clearing_Contract_after <"The contractState of the contract subject to a clearing event is 'open'.">
+//	when ClearingEvent -> before -> contract exists
+//	then ClearingEvent -> before -> contract -> contractState = ContractStateEnum.open
 
-data rule AggregationEvent_Contract_before <"The contractState of the contracts that are part of an aggregation event is 'open'.">
-	when AggregationEvent -> before -> contract exists
-	then AggregationEvent -> before -> contract -> contractState = ContractStateEnum.open
 
-data rule AggregationEvent_Contract_after <"The contractState of the contract resulting from an aggregation event is 'open'.">
-	when AggregationEvent -> after -> contract exists
-	then AggregationEvent -> after -> contract -> contractState = ContractStateEnum.open
 
-class AllocationEvent extends TransactionEvent stereotype postExecution <"The allocation event has a post-execution scope and applies to all financial instruments.">
-{
-	before PostExecutionState (1..1);
-	after PostExecutionState (1..*) <"The single lower cardinality is meant to support the case where an allocation process is generically applied to contracts, even when no actual contract split results from it.">;
-}
 
-data rule Allocation_Contract_before <"The contractState of the contract that is subject to an allocation event is 'open'.">
-	when AllocationEvent -> before -> contract exists
-	then AllocationEvent -> before -> contract -> contractState = ContractStateEnum.open
 
-data rule Allocation_Contract_after <"The contractState of the contracts resulting from an allocation event is 'open'.">
-	when AllocationEvent -> after -> contract exists
-	then AllocationEvent -> after -> contract -> contractState = ContractStateEnum.open
+//class ExecutionEvent extends TransactionEvent stereotype execution <"The execution event is characterised by a pre-execution transaction workflow and a post-execution state.">
+//{
+//	before PreExecutionFinancialTransaction (0..1);
+//	after PostExecutionState (1..1);
+//	side SideEnum (0..1) <"The side of the execution, e.g. buy or sell. It is not applicable in the case where the execution involves a contractual product, as the side is represented as part of it.">;
+//		[synonym FIX value Side tag 54]
+//	quantity Quantity (0..1) <"The quantity associated with the execution. It is not applicable in the case where the execution involves a contractual product, as the quantity is represented as part of it.">;
+//		[synonym ISO_20022 value Qty]
+//	price Price (0..1) <"The price. As part of the Rosetta model, it is not applicable if the product is a contractual instrument, as the price is then represented through those contractual terms.">;
+//		[synonym ISO_20022 value Pric]
+//	executionType ExecutionTypeEnum (1..1) <"FIX definition: Describes the specific ExecutionRpt (i.e. Pending Cancel) while OrdStatus (39) will always identify the current order status (i.e. Partially Filled).">;
+//		[synonym FIX value ExecType tag 150]
+//	solicitedFlag boolean (0..1) <"Indicates whether or not the execution was solicited.">;
+//		[synonym FIX value Side tag 377]
+//	executionDateTime dateTime (0..1);
+//		[synonym FpML value executionDateTime]
+//}
+//
+//data rule Execution_Contract_price <"If the executed product is a contractual product, the price should be represented as part of the Contract rather than the Price class, which only supports one price point.">
+//	[regulatoryReference CFTC_DFA guideline "ISDA Price Notation and Additional Price Notation Approach" section "N/A" provision "Spreadsheet that provides an overview with examples for the different asset classes and different scenarios, explaining the approach discussed and agreed with the CFTC for the population of the Price Notation (PN) and Additional Price Notation (APN) fields required under part 45 reporting."]
+//	when ExecutionEvent -> after -> contract exists
+//	then ExecutionEvent -> price is absent
+//
+//data rule Execution_Package_price <"If the executed product is a package transaction, the price should not be positioned as part of Execution class, as it is positioned as part of the respective package components.">
+//	when ExecutionEvent -> after -> packageTransaction exists
+//	then ExecutionEvent -> price is absent
+//
+//data rule ExecutionEvent_Contract_open_correct <"When an execution event is new or corrected and applies to a contract, the resulting contract state is open.">
+//	when ( ExecutionEvent -> action = ActionEnum.new or ExecutionEvent -> action = ActionEnum.correct )
+//		and ExecutionEvent -> after -> contract exists
+//	then ExecutionEvent -> after -> contract -> contractState = ContractStateEnum.open
+//
+//data rule ExecutionEvent_Contract_close <"When an execution event is cancelled and applies to a contract, the resulting contract state is closed.">
+//	when ExecutionEvent -> action = ActionEnum.cancel
+//		and ExecutionEvent -> after -> contract exists
+//	then ExecutionEvent -> after -> contract -> contractState = ContractStateEnum.close
+//
+//class Exercise extends TransactionEvent stereotype postExecution <"The exercise event has a post-execution scope and applies to contractual and listed products.">
+//{
+//	before PostExecutionState (1..1);
+//	after PostExecutionState (1..*);
+//}
+//
+//data rule Exercise_Contract_before <"The contractState of the contract subject to an optionExercise event is 'open'. The contractState following the exercise is handled at the product level, as a function of the resulting notional.">
+//	when Exercise -> before -> contract exists
+//	then Exercise -> before -> contract -> contractState = ContractStateEnum.open
+//
+//root class QualifiedEvents one of <"The entry point for all financial transactions.">
+//{
+//	requestForQuote RequestForQuote (0..1);
+//		[synonym FIX value MsgType."R"]
+//	quote Quote (0..1);
+//		[synonym FIX value MsgType."S" set quote -> action to ActionEnum.new]
+//		[synonym FIX value MsgType."Z" set quote -> action to ActionEnum.cancel]
+//	order Order (0..1);
+//		[synonym FIX value MsgType."D"]
+//		[synonym FpML value orderReport] // Need to confirm fit, as the purpose of the FpML orderReport message is not completely clear
+//	execution ExecutionEvent (0..1);
+//		[synonym FIX value MsgType."8"]
+//		[synonym FpML value executionNotification]
+//	clearing ClearingEvent (0..1);
+//	allocation AllocationEvent (0..1);
+//		[synonym FIX value MsgType."AS"]
+//	exercise ExerciseEvent (0..1);
+//	partialTermination PartialTerminationEvent (0..1);
+//	termination TerminationEvent (0..1);
+//	intermediation IntermediationEvent (0..1);
+//	novation NovationEvent (0..1);
+//		[synonym FIX value MsgType."AW"]
+//	aggregation AggregationEvent (0..1);
+//	portfolioCompression PortfolioCompressionEvent (0..1);
+//	observation ObservationEvent (0..1);
+//	reset ResetEvent (0..1);
+//}
 
-workflow rule ExecutionEvent_Allocation <"The allocation event is subsequent to the execution.">
-	when ExecutionEvent -> action <> ActionEnum.cancel 
-		and AllocationEvent exists 
-			and AllocationEvent -> action <> ActionEnum.correct
-	ExecutionEvent precedes AllocationEvent
+//class IntermediationEvent extends TransactionEvent stereotype postExecution <"The intermediation event has a post-execution scope which extends to all financial instruments.">
+//{
+//	before PostExecutionState (1..1);
+//	after PostExecutionState (1..*);
+//}
+//
+//data rule IntermediationEvent_Contract_before <"The contractState of the contract subject to an intermediation event is 'open'.">
+//	when IntermediationEvent -> before -> contract exists
+//	then IntermediationEvent -> before -> contract -> contractState = ContractStateEnum.open
+//
+//data rule IntermediationEvent_Contract_after <"The contractState of the contract(s) resulting from an intermediation event is 'open'.">
+//	when IntermediationEvent -> after -> contract exists
+//	then IntermediationEvent -> after -> contract -> contractState = ContractStateEnum.open
+//
+//abstract class MarketEvent extends Event stereotype preExecution, execution, postExecution <"Market events are characterised by the fact they are not qualified by party, and have no contract considerations.">
+//{
+//}
 
-class ClearingEvent extends TransactionEvent stereotype postExecution <"The clearing event has a post-execution scope and applies to contractual and listed products.">
-{
-	before PostExecutionState (1..1);
-	after PostExecutionState (2..*) <"Following a clearing event, at least two 'trades' exist: the initial one and the cleared one.">;
-}
 
-data rule Clearing_Contract_after <"The contractState of the contract subject to a clearing event is 'open'.">
-	when ClearingEvent -> before -> contract exists
-	then ClearingEvent -> before -> contract -> contractState = ContractStateEnum.open
 
-abstract class EventBase stereotype preExecution, execution, postExecution <"The event base abstract class.">
-{
-	messageInformation MessageInformation (0..1);
-	timeStamp EventTimeStamp (1..1);
-		[synonym Rosetta_Workbench value timeStamp]
-	eventIdentifier Identifier (1..1);
-		[synonym Rosetta_Workbench value eventIdentifier]
-	eventDate date (1..1);
-		[synonym Rosetta_Workbench value eventDate]
-	effectiveDate date (0..1);
-		[synonym Rosetta_Workbench value effectiveDate]
-	intent IntentEnum (0..1);
-		[synonym Rosetta_Workbench value intent]
-	action ActionEnum (1..1) <"Specifies whether the event is a new, a correction or a cancellation.">;
-		[synonym FpML value isCorrection 
-			set action to ActionEnum.new when False, 
-			set action to ActionEnum.correct when True]
-		[synonym FIX value TradeReportTransType tag 487 
-			set action to ActionEnum.new when ["0", "5"],
-			set action to ActionEnum.correct when "2",
-			set action to ActionEnum.cancel when "1"]
-}
+//class NovationEvent extends TransactionEvent stereotype postExecution <"The novation event has a post-execution scope and only applies to contractual products.">
+//{
+//	before PostExecutionContractState (1..1);
+//	after PostExecutionContractState (2..*) <"Following a novation event, there are at least two contracts: one with the prior party (in a closed state, if it is a full novation) and one with the new party.">;
+//	isPartial boolean (1..1) <"Boolean indicator to qualify whether it is a partial novation.">;
+//}
+//
+//data rule NovationEvent_Contract_before <"The contractState of the contract that is subject to a novation event is 'open'.">
+//	when NovationEvent -> before -> contract exists
+//	then NovationEvent -> before -> contract -> contractState = ContractStateEnum.open
+//
+//class ObservationEvent extends MarketEvent stereotype preExecution, execution, postExecution
+//{
+//}
 
-class EventTimeStamp stereotype preExecution, execution, postExecution <"This class corresponds to the timestamp components of the FpML MessageHeader.model. These would be applicable even if the event is communicated through a mean other than messaging (e.g. blockchain).">
-{
-	creationTimestamp dateTime (1..1) <"The date and time (on the source system) when this event was created.">;
-		[synonym FIX value SendingTime tag 52] // Need to confirm whether sendingTime can be equated to createTime
-		[synonym FIX value TransactTime componentID 60]
-		[synonym FpML value creationTimestamp pathExpression "header"]
-		[synonym Rosetta_Workbench value creationTimestamp]
-	expiryTimestamp dateTime (0..1) <"The date and time (on the source system) when this event will be considered expired.">;
-		[synonym FpML value expiryTimestamp]
-		[synonym FIX value ExpireTime tag 126]
-}
-
-data rule EventTimeStamp_ExpireTime <"The expire time should be greater than the creation time.">
-	when EventTimeStamp -> expiryTimestamp exists
-	then EventTimeStamp -> expiryTimestamp > EventTimeStamp -> creationTimestamp
-
-class ExecutionEvent extends TransactionEvent stereotype execution <"The execution event is characterised by a pre-execution transaction workflow and a post-execution state.">
-{
-	before PreExecutionFinancialTransaction (0..1);
-	after PostExecutionState (1..1);
-	side SideEnum (0..1) <"The side of the execution, e.g. buy or sell. It is not applicable in the case where the execution involves a contractual product, as the side is represented as part of it.">;
-		[synonym FIX value Side tag 54]
-	quantity Quantity (0..1) <"The quantity associated with the execution. It is not applicable in the case where the execution involves a contractual product, as the quantity is represented as part of it.">;
-		[synonym ISO_20022 value Qty]
-	price Price (0..1) <"The price. As part of the Rosetta model, it is not applicable if the product is a contractual instrument, as the price is then represented through those contractual terms.">;
-		[synonym ISO_20022 value Pric]
-	executionType ExecutionTypeEnum (1..1) <"FIX definition: Describes the specific ExecutionRpt (i.e. Pending Cancel) while OrdStatus (39) will always identify the current order status (i.e. Partially Filled).">;
-		[synonym FIX value ExecType tag 150]
-	solicitedFlag boolean (0..1) <"Indicates whether or not the execution was solicited.">;
-		[synonym FIX value Side tag 377]
-	executionDateTime dateTime (0..1);
-		[synonym FpML value executionDateTime]
-}
-
-data rule Execution_Contract_price <"If the executed product is a contractual product, the price should be represented as part of the Contract rather than the Price class, which only supports one price point.">
-	[regulatoryReference CFTC_DFA guideline "ISDA Price Notation and Additional Price Notation Approach" section "N/A" provision "Spreadsheet that provides an overview with examples for the different asset classes and different scenarios, explaining the approach discussed and agreed with the CFTC for the population of the Price Notation (PN) and Additional Price Notation (APN) fields required under part 45 reporting."]
-	when ExecutionEvent -> after -> contract exists
-	then ExecutionEvent -> price is absent
-
-data rule Execution_Package_price <"If the executed product is a package transaction, the price should not be positioned as part of Execution class, as it is positioned as part of the respective package components.">
-	when ExecutionEvent -> after -> packageTransaction exists
-	then ExecutionEvent -> price is absent
-
-data rule ExecutionEvent_Contract_open_correct <"When an execution event is new or corrected and applies to a contract, the resulting contract state is open.">
-	when ( ExecutionEvent -> action = ActionEnum.new or ExecutionEvent -> action = ActionEnum.correct )
-		and ExecutionEvent -> after -> contract exists
-	then ExecutionEvent -> after -> contract -> contractState = ContractStateEnum.open
-
-data rule ExecutionEvent_Contract_close <"When an execution event is cancelled and applies to a contract, the resulting contract state is closed.">
-	when ExecutionEvent -> action = ActionEnum.cancel
-		and ExecutionEvent -> after -> contract exists
-	then ExecutionEvent -> after -> contract -> contractState = ContractStateEnum.close
-
-class Exercise extends TransactionEvent stereotype postExecution <"The exercise event has a post-execution scope and applies to contractual and listed products.">
-{
-	before PostExecutionState (1..1);
-	after PostExecutionState (1..*);
-}
-
-data rule Exercise_Contract_before <"The contractState of the contract subject to an optionExercise event is 'open'. The contractState following the exercise is handled at the product level, as a function of the resulting notional.">
-	when Exercise -> before -> contract exists
-	then Exercise -> before -> contract -> contractState = ContractStateEnum.open
-
-root class QualifiedEvents one of <"The entry point for all financial transactions.">
-{
-	requestForQuote RequestForQuote (0..1);
-		[synonym FIX value MsgType."R"]
-	quote Quote (0..1);
-		[synonym FIX value MsgType."S" set quote -> action to ActionEnum.new]
-		[synonym FIX value MsgType."Z" set quote -> action to ActionEnum.cancel]
-	order Order (0..1);
-		[synonym FIX value MsgType."D"]
-		[synonym FpML value orderReport] // Need to confirm fit, as the purpose of the FpML orderReport message is not completely clear
-	execution ExecutionEvent (0..1);
-		[synonym FIX value MsgType."8"]
-		[synonym FpML value executionNotification]
-	clearing ClearingEvent (0..1);
-	allocation AllocationEvent (0..1);
-		[synonym FIX value MsgType."AS"]
-	exercise ExerciseEvent (0..1);
-	partialTermination PartialTerminationEvent (0..1);
-	termination TerminationEvent (0..1);
-	intermediation IntermediationEvent (0..1);
-	novation NovationEvent (0..1);
-		[synonym FIX value MsgType."AW"]
-	aggregation AggregationEvent (0..1);
-	portfolioCompression PortfolioCompressionEvent (0..1);
-	observation ObservationEvent (0..1);
-	reset ResetEvent (0..1);
-}
-
-class IntermediationEvent extends TransactionEvent stereotype postExecution <"The intermediation event has a post-execution scope which extends to all financial instruments.">
-{
-	before PostExecutionState (1..1);
-	after PostExecutionState (1..*);
-}
-
-data rule IntermediationEvent_Contract_before <"The contractState of the contract subject to an intermediation event is 'open'.">
-	when IntermediationEvent -> before -> contract exists
-	then IntermediationEvent -> before -> contract -> contractState = ContractStateEnum.open
-
-data rule IntermediationEvent_Contract_after <"The contractState of the contract(s) resulting from an intermediation event is 'open'.">
-	when IntermediationEvent -> after -> contract exists
-	then IntermediationEvent -> after -> contract -> contractState = ContractStateEnum.open
-
-abstract class MarketEvent extends Event stereotype preExecution, execution, postExecution <"Market events are characterised by the fact they are not qualified by party, and have no contract considerations.">
-{
-}
-
-class MessageInformation stereotype preExecution, execution, postExecution <"This class corresponds to the messaging components of the FpML MessageHeader.model.">
-{
-	messageId string (1..1) scheme "messageIdScheme" <"A unique identifier assigned to the message.">;
-		[synonym FIX value MsgSeqNum tag 34]
-		[synonym FIX value QuoteMsgID tag 1166 set messageId when Quote exists]
-		[synonym Rosetta_Workbench value messageId pathExpression "messageInformation"]
-	sentBy string (1..1) scheme "messageAddressScheme" <"The identifier for the originator of a message instance. FpML qualifies it with an associated scheme. This field is optional in FpML, but required in FIX.">;
-		[synonym FIX value SenderCompID tag 49]
-		[synonym Rosetta_Workbench value sentBy pathExpression "messageInformation"]
-	sentTo string (0..1) scheme "messageAddressScheme" <"The identifier for the recipient of a message instance. FpML qualifies it with an associated scheme. This field is optional in FpML, but required in FIX.">;
-		[synonym FIX value TargetCompID tag 56]
-		[synonym Rosetta_Workbench value sentTo pathExpression "messageInformation"]
-	copyTo string (0..*) scheme "messageAddressScheme" <"A unique identifier (within the specified coding scheme) giving the details of some party to whom a copy of this message will be sent for reference.">;
-}
-
-class NovationEvent extends TransactionEvent stereotype postExecution <"The novation event has a post-execution scope and only applies to contractual products.">
-{
-	before PostExecutionContractState (1..1);
-	after PostExecutionContractState (2..*) <"Following a novation event, there are at least two contracts: one with the prior party (in a closed state, if it is a full novation) and one with the new party.">;
-	isPartial boolean (1..1) <"Boolean indicator to qualify whether it is a partial novation.">;
-}
-
-data rule NovationEvent_Contract_before <"The contractState of the contract that is subject to a novation event is 'open'.">
-	when NovationEvent -> before -> contract exists
-	then NovationEvent -> before -> contract -> contractState = ContractStateEnum.open
-
-class ObservationEvent extends MarketEvent stereotype preExecution, execution, postExecution
-{
-}
-
-class Order extends TransactionEvent stereotype preExecution
-	[synonym FIX value NewOrderSingle componentID 14]
-	[regulatoryReference ESMA_MiFIR regulation "RTS 22" article "4" provision "Specifies the order details (i.e. attributes) which shall be transmitted by an investment firm in relation with an order. A list of 10 attributes is specified: identification code of the financial instrument, acquisition/disposal indication, price and quantity, identification of the client and its decision maker, short sale indicator, identification of the decision maker or algorithm at the investment firm, identification of investment firm and the branch where the decision maker is located, indication of whether the order is meant to reduce risk in the case where the product is a commodity derivative."]
-{
-	before PreExecutionFinancialTransaction (0..1);
-	product PreExecuted (1..1) <"The contractual product, listed product or package transaction which is subject the transaction; corresponds to the Instrument block in the FIX protocol.">;
-	side SideEnum (1..1) <"The side of the order, i.e. buy or sell.">;
-		[synonym FIX value Side tag 54]
-	quantity Quantity (0..1) <"The quantity associated with the order.">;
-		[synonym ISO_20022 value Qty]
-	cashOrderQuantity number (0..1) <"Specifies the approximate order quantity desired in total monetary units vs. as tradeable units (e.g. number of shares). The broker or fund manager (for CIV orders) would be responsible for converting and calculating a tradeable unit (e.g. share) quantity (FIX OrderQty (38) attribute, part of the Quantity class in the canonical model) based upon this amount to be used for the actual order and subsequent messages.">;
-		[synonym FIX value CashOrderQty tag 152]
-	orderType OrderTypeEnum (1..1) <"The type of order (e.g. limit, market), as specified by an enumeration.">;
-		[synonym FIX value OrdType tag 40]
-	solicitedFlag boolean (0..1) <"Indicates whether or not the order was solicited.">;
-		[synonym FIX value SolicitedFlag tag 377]
-	stopPrice number (0..1) <"The top price, per unit of quantity.">;
-		[synonym FIX value StopPx tag 99]
-	timeInForce TimeInForceEnum (0..1) <"Specifies how long the order remains in effect. According to FIX, absence of this field is interpreted as DAY, while it is not applicable to Collective Investment Vehicles (CIV) Orders.">;
-		[synonym FIX value TimeInForce tag 59]
-	expireDate date (0..1) <"Date of order expiration (last day the order can trade), always expressed in terms of the local market date. The time at which the order expires is determined by the local market’s business practices.">;
-		[synonym FIX value ExpireDate tag 432]
-	expireTime time (0..1) <"Time of order expiration (always expressed in UTC) The meaning of expiration is specific to the context where the field is used. For orders, this is the expiration time of a Good Til Date TimeInForce.">;
-		[synonym FIX value ExpireTime tag 126]
-}
-
-choice rule Order_choice <"FIX provides the ability to specify the approximate order quantity desired in total monetary units.">
-	for Order required choice between
-	quantity and cashOrderQuantity
+//class Order extends TransactionEvent stereotype preExecution
+//	[synonym FIX value NewOrderSingle componentID 14]
+//	[regulatoryReference ESMA_MiFIR regulation "RTS 22" article "4" provision "Specifies the order details (i.e. attributes) which shall be transmitted by an investment firm in relation with an order. A list of 10 attributes is specified: identification code of the financial instrument, acquisition/disposal indication, price and quantity, identification of the client and its decision maker, short sale indicator, identification of the decision maker or algorithm at the investment firm, identification of investment firm and the branch where the decision maker is located, indication of whether the order is meant to reduce risk in the case where the product is a commodity derivative."]
+//{
+//	before PreExecutionFinancialTransaction (0..1);
+//	product PreExecuted (1..1) <"The contractual product, listed product or package transaction which is subject the transaction; corresponds to the Instrument block in the FIX protocol.">;
+//	side SideEnum (1..1) <"The side of the order, i.e. buy or sell.">;
+//		[synonym FIX value Side tag 54]
+//	quantity Quantity (0..1) <"The quantity associated with the order.">;
+//		[synonym ISO_20022 value Qty]
+//	cashOrderQuantity number (0..1) <"Specifies the approximate order quantity desired in total monetary units vs. as tradeable units (e.g. number of shares). The broker or fund manager (for CIV orders) would be responsible for converting and calculating a tradeable unit (e.g. share) quantity (FIX OrderQty (38) attribute, part of the Quantity class in the canonical model) based upon this amount to be used for the actual order and subsequent messages.">;
+//		[synonym FIX value CashOrderQty tag 152]
+//	orderType OrderTypeEnum (1..1) <"The type of order (e.g. limit, market), as specified by an enumeration.">;
+//		[synonym FIX value OrdType tag 40]
+//	solicitedFlag boolean (0..1) <"Indicates whether or not the order was solicited.">;
+//		[synonym FIX value SolicitedFlag tag 377]
+//	stopPrice number (0..1) <"The top price, per unit of quantity.">;
+//		[synonym FIX value StopPx tag 99]
+//	timeInForce TimeInForceEnum (0..1) <"Specifies how long the order remains in effect. According to FIX, absence of this field is interpreted as DAY, while it is not applicable to Collective Investment Vehicles (CIV) Orders.">;
+//		[synonym FIX value TimeInForce tag 59]
+//	expireDate date (0..1) <"Date of order expiration (last day the order can trade), always expressed in terms of the local market date. The time at which the order expires is determined by the local market’s business practices.">;
+//		[synonym FIX value ExpireDate tag 432]
+//	expireTime time (0..1) <"Time of order expiration (always expressed in UTC) The meaning of expiration is specific to the context where the field is used. For orders, this is the expiration time of a Good Til Date TimeInForce.">;
+//		[synonym FIX value ExpireTime tag 126]
+//}
+//
+//choice rule Order_choice <"FIX provides the ability to specify the approximate order quantity desired in total monetary units.">
+//	for Order required choice between
+//	quantity and cashOrderQuantity
 
 /*
  * Following discussion with the CDM group held on March 1st, the cardinality associated with the before and after state has been relaxed 
  * in order to accommodate usages that may not require the statement of both of those.
  */
-class PartialTerminationEvent extends TransactionEvent  stereotype postExecution <"The partial termination event has a post-execution scope and only applies to contractual products.">
-{
-	before PostExecutionContractState (0..1);
-	after PostExecutionContractState (1..1);
-	change Quantity (0..1);
-}
+//class PartialTerminationEvent extends TransactionEvent  stereotype postExecution <"The partial termination event has a post-execution scope and only applies to contractual products.">
+//{
+//	before PostExecutionContractState (0..1);
+//	after PostExecutionContractState (1..1);
+//	change Quantity (0..1);
+//}
 
 /*
  * We propose to have a validation logic to ensure that sufficient information is present in the event to validate the partial termination
@@ -262,138 +214,138 @@ class PartialTerminationEvent extends TransactionEvent  stereotype postExecution
 //	then PartialTermination -> before or PartialTermination -> change must exist
 //		or PartialTermination -> before and PartialTermination -> change must exist
 
-class PortfolioCompressionEvent extends TransactionEvent stereotype postExecution <"The portfolio compression event has a post-execution scope and only applies to contractual products.">
-{
-	before PostExecutionContractState (1..*);
-	after PostExecutionContractState (1..*);
-}
+//class PortfolioCompressionEvent extends TransactionEvent stereotype postExecution <"The portfolio compression event has a post-execution scope and only applies to contractual products.">
+//{
+//	before PostExecutionContractState (1..*);
+//	after PostExecutionContractState (1..*);
+//}
+//
+//data rule PortfolioCompressionEvent_Contract_before <"The contractState of the contracts that are part of a portfolio compression event is 'open'.">
+//	when PortfolioCompressionEvent exists
+//	then PortfolioCompressionEvent -> before -> contract -> contractState = ContractStateEnum.open
+//
+//class PostExecutionState stereotype postExecution  <"The set of products applicable to post-execution activity, alongside with the applicable fee(s).">
+//{
+//	listedProduct ListedProduct (0..1);
+//	contract Contract (0..1);
+//		[synonym FpML value trade]
+//	packageTransaction PackageTransaction (0..1);
+//		[synonym FpML value tradePackage]
+//	fee Payment (0..*);
+//}
 
-data rule PortfolioCompressionEvent_Contract_before <"The contractState of the contracts that are part of a portfolio compression event is 'open'.">
-	when PortfolioCompressionEvent exists
-	then PortfolioCompressionEvent -> before -> contract -> contractState = ContractStateEnum.open
-
-class PostExecutionState stereotype postExecution  <"The set of products applicable to post-execution activity, alongside with the applicable fee(s).">
-{
-	listedProduct ListedProduct (0..1);
-	contract Contract (0..1);
-		[synonym FpML value trade]
-	packageTransaction PackageTransaction (0..1);
-		[synonym FpML value tradePackage]
-	fee Payment (0..*);
-}
-
-choice rule PostExecutionState_choice
-	for PostExecutionState required choice between
-	listedProduct and contract and packageTransaction
+//choice rule PostExecutionState_choice
+//	for PostExecutionState required choice between
+//	listedProduct and contract and packageTransaction
 
 /*
  * Following discussion with the CDM group held on March 1st, the event model provides the ability to either
  * point to a contract reference (represented by a contractId/versionNumber) or specify the contract terms.
  */
-class PostExecutionContractState stereotype postExecution <"A class to represent a post-execution contract state, with an optional payment component.">
-{
-	contract Contract (0..1);
-	contractReference ContractIdentifier (0..1);
-	fee Payment (0..*);
-}
+//class PostExecutionContractState stereotype postExecution <"A class to represent a post-execution contract state, with an optional payment component.">
+//{
+//	contract Contract (0..1);
+//	contractReference ContractIdentifier (0..1);
+//	fee Payment (0..*);
+//}
+//
+//choice rule PostExecutionContractState_choice
+//	for PostExecutionContractState required choice between
+//	contract and contractReference
+//
+//class PreExecuted stereotype preExecution one of <"The set of products applicable to pre-execution activity.">
+//{
+//	listedProduct ListedProduct (0..1);
+//	contractualProduct ContractualProduct (0..1);
+//		[synonym FpML value trade set contractualProduct when (RequestForQuote or Quote or Order) exists]
+//	packageTransaction PackageTransaction (0..1);
+//		[synonym FpML value tradePackage]
+//}
 
-choice rule PostExecutionContractState_choice
-	for PostExecutionContractState required choice between
-	contract and contractReference
-
-class PreExecuted stereotype preExecution one of <"The set of products applicable to pre-execution activity.">
-{
-	listedProduct ListedProduct (0..1);
-	contractualProduct ContractualProduct (0..1);
-		[synonym FpML value trade set contractualProduct when (RequestForQuote or Quote or Order) exists]
-	packageTransaction PackageTransaction (0..1);
-		[synonym FpML value tradePackage]
-}
-
-class PreExecutionFinancialTransaction stereotype preExecution one of <"A class to hold the array of pre-execution events.">
-{
-	requestForQuote RequestForQuote (0..1);
-	quote Quote (0..1);
-	order Order (0..1);
-}
-
-class Quote extends TransactionEvent stereotype preExecution
-	[synonym FIX value Quote componentID 27] // Implement new mapping logic to the class level, so that mapping applies if action <> cancel
-	[synonym FIX value QuoteCancel componentID 33] // Implement new mapping logic to the class level, so that mapping applies if action = cancel
-{
-	before PreExecutionFinancialTransaction (0..1);
-	product PreExecuted (1..1) <"The contractual product, listed product or package transaction which is subject the transaction; corresponds to the Instrument block in the FIX protocol.">;
-	price QuotePrice (0..1) <"The price associated with the quote, e.g. bid or offer price.">; // This construct needs to be further evaluated to accommodate the expression of a bid/offer price for a contractual product
-	type QuoteTypeEnum (0..1) <"Specifies whether the quote is indicative, tradable, etc. Absence implies an indicative quote.">;
-		[synonym FIX value QuoteType tag 1070]
-	side SideEnum (0..1) <"The side of the quote, i.e. buy or sell. It is optional, as not applicable in the case where the quote involves a contractual product, as the side is represented as part of it.">;
-		[synonym FIX value Side tag 54]
-	size QuoteSize (0..1) <"The size considerations associated with the quote.  It is optional, as there may be none.">;
-	settlementTerms SettlementTerms (0..1) <"The specific settlement terms that might be associated with the RFQ.  If no settlement terms are specified, the default settlement associated with the product take place.">;
-}
+//class PreExecutionFinancialTransaction stereotype preExecution one of <"A class to hold the array of pre-execution events.">
+//{
+//	requestForQuote RequestForQuote (0..1);
+//	quote Quote (0..1);
+//	order Order (0..1);
+//}
+//
+//class Quote extends TransactionEvent stereotype preExecution
+//	[synonym FIX value Quote componentID 27] // Implement new mapping logic to the class level, so that mapping applies if action <> cancel
+//	[synonym FIX value QuoteCancel componentID 33] // Implement new mapping logic to the class level, so that mapping applies if action = cancel
+//{
+//	before PreExecutionFinancialTransaction (0..1);
+//	product PreExecuted (1..1) <"The contractual product, listed product or package transaction which is subject the transaction; corresponds to the Instrument block in the FIX protocol.">;
+//	price QuotePrice (0..1) <"The price associated with the quote, e.g. bid or offer price.">; // This construct needs to be further evaluated to accommodate the expression of a bid/offer price for a contractual product
+//	type QuoteTypeEnum (0..1) <"Specifies whether the quote is indicative, tradable, etc. Absence implies an indicative quote.">;
+//		[synonym FIX value QuoteType tag 1070]
+//	side SideEnum (0..1) <"The side of the quote, i.e. buy or sell. It is optional, as not applicable in the case where the quote involves a contractual product, as the side is represented as part of it.">;
+//		[synonym FIX value Side tag 54]
+//	size QuoteSize (0..1) <"The size considerations associated with the quote.  It is optional, as there may be none.">;
+//	settlementTerms SettlementTerms (0..1) <"The specific settlement terms that might be associated with the RFQ.  If no settlement terms are specified, the default settlement associated with the product take place.">;
+//}
 
 /*
  * The below workflow rule has the potential to apply to all events.
  * Let's confirm its relevance before extending its scope, while also evaluate if it can be specified in a generic manner that is event-agnostic. 
  */
-workflow rule Quote_cancel_correct <"A quote cancellation or correction should be preceded by another quote event, carrying he same identifier.">
-	when Quote -> action = ActionEnum.cancel
-		or Quote -> action = ActionEnum.correct
-	Quote precedes Quote
-	commonId path Quote -> eventIdentifier -> identifierValue
+//workflow rule Quote_cancel_correct <"A quote cancellation or correction should be preceded by another quote event, carrying he same identifier.">
+//	when Quote -> action = ActionEnum.cancel
+//		or Quote -> action = ActionEnum.correct
+//	Quote precedes Quote
+//	commonId path Quote -> eventIdentifier -> identifierValue
 
-class RegulatoryReportRequestForQuote extends RequestForQuote stereotype regulatoryReporting <"The regulatory reporting base structure for the RFQ.">
-{
-	regulatoryInformation ReportingEventHeader (1..1) <"The regulatory information that is common among regulators.">;
-}
+//class RegulatoryReportRequestForQuote extends RequestForQuote stereotype regulatoryReporting <"The regulatory reporting base structure for the RFQ.">
+//{
+//	regulatoryInformation ReportingEventHeader (1..1) <"The regulatory information that is common among regulators.">;
+//}
+//
+//class RequestForQuote extends TransactionEvent stereotype preExecution
+//	[synonym FIX value QuoteRequest componentID 26]
+//{
+//	before PreExecutionFinancialTransaction (0..1);
+//	product PreExecuted (1..1) <"The contractual product, listed product or package transaction which is subject the transaction; corresponds to the Instrument block in the FIX protocol.">;
+//	side SideEnum (0..1) <"The side of the RFQ, i.e. buy or sell. As part of the RFQ, absence of a side implies that a two-sided quote is being requested.">;
+//		[synonym FIX value Side tag 54]
+//	quantity Quantity (0..1) <"The quantity consideration that might be associated with an RFQ.">;
+//		[synonym ISO_20022 value Qty]
+//}
 
-class RequestForQuote extends TransactionEvent stereotype preExecution
-	[synonym FIX value QuoteRequest componentID 26]
-{
-	before PreExecutionFinancialTransaction (0..1);
-	product PreExecuted (1..1) <"The contractual product, listed product or package transaction which is subject the transaction; corresponds to the Instrument block in the FIX protocol.">;
-	side SideEnum (0..1) <"The side of the RFQ, i.e. buy or sell. As part of the RFQ, absence of a side implies that a two-sided quote is being requested.">;
-		[synonym FIX value Side tag 54]
-	quantity Quantity (0..1) <"The quantity consideration that might be associated with an RFQ.">;
-		[synonym ISO_20022 value Qty]
-}
+//class ResetEvent extends ServicingEvent stereotype postExecution
+//{
+//}
+//
+//abstract class ServicingEvent extends Event stereotype postExecution <"Transaction events are characterised by the fact that they are tied to product(s) and/or contract(s).">
+//{
+//	contract Contract (0..*);
+//	listedProduct ListedProduct (0..*);
+//}
+//
+//class TerminationEvent extends TransactionEvent stereotype postExecution <"The termination event has a post-execution scope and only applies to contractual products.">
+//{
+//	before PostExecutionContractState (1..1);
+//	after PostExecutionContractState (1..1);
+//}
 
-class ResetEvent extends ServicingEvent stereotype postExecution
-{
-}
-
-abstract class ServicingEvent extends Event stereotype postExecution <"Transaction events are characterised by the fact that they are tied to product(s) and/or contract(s).">
-{
-	contract Contract (0..*);
-	listedProduct ListedProduct (0..*);
-}
-
-class TerminationEvent extends TransactionEvent stereotype postExecution <"The termination event has a post-execution scope and only applies to contractual products.">
-{
-	before PostExecutionContractState (1..1);
-	after PostExecutionContractState (1..1);
-}
-
-data rule Termination_Contract_before <"The contractState before a termination event is 'open'.">
-	when TerminationEvent exists
-	then TerminationEvent -> before -> contract -> contractState = ContractStateEnum.open
-
-data rule Termination_Contract_after <"The contractState after a termination event is 'close'.">
-	when TerminationEvent exists
-		and TerminationEvent -> action <> ActionEnum.cancel
-	then TerminationEvent -> after -> contract -> contractState = ContractStateEnum.close
-
-data rule Termination_close <"When an termination event is cancelled, the contract state is 'open'.">
-	when TerminationEvent exists
-		and TerminationEvent -> action = ActionEnum.cancel 
-	then TerminationEvent -> after -> contract -> contractState = ContractStateEnum.open
-
-abstract class TransactionEvent extends EventBase stereotype preExecution, execution, postExecution <"Transaction events are characterised by the fact that they involve parties and, as an implication, regulatory eligibility assessments.">
-{
-	party Party (1..*) reference <"The parties to the transaction event.">;
-		[synonym FpML value partyMessageInformation]
-	eligibilityAssessment TransactionEligibility (1..1) <"The eligibility assessment is expected to be associated with every transaction as a result of an eligibility rule engine.">;
-}
+//data rule Termination_Contract_before <"The contractState before a termination event is 'open'.">
+//	when TerminationEvent exists
+//	then TerminationEvent -> before -> contract -> contractState = ContractStateEnum.open
+//
+//data rule Termination_Contract_after <"The contractState after a termination event is 'close'.">
+//	when TerminationEvent exists
+//		and TerminationEvent -> action <> ActionEnum.cancel
+//	then TerminationEvent -> after -> contract -> contractState = ContractStateEnum.close
+//
+//data rule Termination_close <"When an termination event is cancelled, the contract state is 'open'.">
+//	when TerminationEvent exists
+//		and TerminationEvent -> action = ActionEnum.cancel 
+//	then TerminationEvent -> after -> contract -> contractState = ContractStateEnum.open
+//
+//abstract class TransactionEvent extends EventBase stereotype preExecution, execution, postExecution <"Transaction events are characterised by the fact that they involve parties and, as an implication, regulatory eligibility assessments.">
+//{
+//	party Party (1..*) reference <"The parties to the transaction event.">;
+//		[synonym FpML value partyMessageInformation]
+//	eligibilityAssessment TransactionEligibility (1..1) <"The eligibility assessment is expected to be associated with every transaction as a result of an eligibility rule engine.">;
+//}
 
 //data rule TransactionEvent_decisionMaker <"When the transacting party involves a decision maker, MiFID rules specify that that decision maker should be identified through the LEI when a legal entity is involved.">
 //	[regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "I table 2 #12" provision "Buyer[Seller] decision maker code - Where the decision is made by an investment firm, this field shall be populated with the identity of the investment firm rather than the individual making the investment decision. Where the decision maker is a legal entity, the LEI code of the decision maker shall be used."]

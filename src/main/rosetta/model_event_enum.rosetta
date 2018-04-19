@@ -10,22 +10,22 @@ enum ActionEnum <"The enumeration values to specify the actions associated with 
 	cancel
 }
 
-enum CommissionTypeEnum <"The enumeration values to specify the manner in which commissions are expressed.">
-	[synonym FIX value CommType tag 13]
-{
-	PerUnit <"Per unit (share, contract. ...).">
-		[synonym FIX value "1" definition "1 = Per Unit (implying shares, par, currency, etc.)"],
-	Percent <"Percentage of the underlying transaction."> /* How is it expressed? 30% or 0.30? */
-		[synonym FIX value "2" definition "2 = Percent"],
-	Absolute <"Monetary amount.">
-		[synonym FIX value "3" definition "3 = Absolute (total monetary amount)"],
-	PercentageWaivedCashDiscount /* Not clear what this is */
-		[synonym FIX value "4" definition "4 = Percentage waived - cash discount (for CIV buy orders)"],
-	PercentageWaivedEnhancedUnits /* Not clear what this is */
-		[synonym FIX value "5" definition "5 = Percentage waived -= enhanced units (for CIV buy orders)"],
-	BasisPoint <"Basis points.  If used in relation to contract, FIX indicates that the ContractMultiplier (tag 231) should be indicated, although it is not necessarily clear as to whether it should be applied to compute the actual commission.">
-		[synonym FIX value "6" definition "6 = Points per bond or contract (supply ContractMultiplier (231) in the component block if the object security is denominated in a size other than the industry default - 1000 par for bonds)"]
-}
+//enum CommissionTypeEnum <"The enumeration values to specify the manner in which commissions are expressed.">
+//	[synonym FIX value CommType tag 13]
+//{
+//	PerUnit <"Per unit (share, contract. ...).">
+//		[synonym FIX value "1" definition "1 = Per Unit (implying shares, par, currency, etc.)"],
+//	Percent <"Percentage of the underlying transaction."> /* How is it expressed? 30% or 0.30? */
+//		[synonym FIX value "2" definition "2 = Percent"],
+//	Absolute <"Monetary amount.">
+//		[synonym FIX value "3" definition "3 = Absolute (total monetary amount)"],
+//	PercentageWaivedCashDiscount /* Not clear what this is */
+//		[synonym FIX value "4" definition "4 = Percentage waived - cash discount (for CIV buy orders)"],
+//	PercentageWaivedEnhancedUnits /* Not clear what this is */
+//		[synonym FIX value "5" definition "5 = Percentage waived -= enhanced units (for CIV buy orders)"],
+//	BasisPoint <"Basis points.  If used in relation to contract, FIX indicates that the ContractMultiplier (tag 231) should be indicated, although it is not necessarily clear as to whether it should be applied to compute the actual commission.">
+//		[synonym FIX value "6" definition "6 = Points per bond or contract (supply ContractMultiplier (231) in the component block if the object security is denominated in a size other than the industry default - 1000 par for bonds)"]
+//}
 
 enum CommodityReferencePriceEnum <"The enumeration values to specify the Commodity Reference Prices specified in the Annex to the 2005 ISDA Commodity Definitions.">
 	[synonym FpML value commodityReferencePriceScheme]
@@ -37,102 +37,116 @@ enum CommodityReferencePriceEnum <"The enumeration values to specify the Commodi
 	 */
 }
 
-enum ExecutionTypeEnum <"The enumeration values to specify the purpose of the FIX execution report message.">
-	[synonym FIX value ExecType tag 39]
+enum IntentEnum
 {
+	partialTermination
+		[synonym Rosetta_Workbench value "partialTermination"],
+	correction
+		[synonym Rosetta_Workbench value "correction"],
+	renegotiation
+		[synonym Rosetta_Workbench value "renegotiation"],
+	termination
+		[synonym Rosetta_Workbench value "termination"],
+	earlyTermination
+		[synonym Rosetta_Workbench value "earlyTermination"]
+}
+
+//enum ExecutionTypeEnum <"The enumeration values to specify the purpose of the FIX execution report message.">
+//	[synonym FIX value ExecType tag 39]
+//{
 	/*
 	 * It is not completely clear as to whether those enumerated qualifications apply to the execution
 	 * considering the values such as trade; it seems that the purpose of the attribute has been overloaded
 	 * over time, which seems quite typical of FIX
 	 */
-	New <"New">
-		[synonym FIX value "0" definition "0 = New"],
-	DoneForDay <"Done for day">
-		[synonym FIX value "3" definition "3 = Done for day"],
-	Canceled <"Canceled">
-		[synonym FIX value "4" definition "4 = Canceled"],
-	Replaced <"Replaced">
-		[synonym FIX value "5" definition "5 = Replaced"],
-	PendingCancel
-		[synonym FIX value "6" definition "6 = Pending Cancel (e.g. result of Order Cancel Request)"],
-	Stopped
-		[synonym FIX value "7" definition "7 = Stopped"],
-	Rejected
-		[synonym FIX value "8" definition "8 = Rejected"],
-	Suspended
-		[synonym FIX value "9" definition "9 = Suspended"],
-	PendingNew
-		[synonym FIX value "A" definition "A = Pending New"],
-	Calculated
-		[synonym FIX value "B" definition "B = Calculated"],
-	Expired
-		[synonym FIX value "C" definition "C = Expired"],
-	Restated <"Restated represents an Execution Report sent by the sell-side communicating a change in the order or a restatement of the order’s parameters without an electronic request from the customer. FIX specifies that the ExecRestatementReason must be set.">
-		[synonym FIX value "D" definition "D = Restated (Execution Report sent unsolicited by sell-side, with ExecRestatementReason (378) set)"],
-	PendingReplace
-		[synonym FIX value "E" definition "E = Pending Replace (e.g. result of Order Cancel/Replace Request)"],
-	Trade
-		[synonym FIX value "F" definition "F = Trade (partial fill or fill)"],
-	TradeCorrect
-		[synonym FIX value "G" definition "G = Trade Correct"],
-	TradeCancel
-		[synonym FIX value "H" definition "H = Trade Cancel"],
-	OrderStatus
-		[synonym FIX value "I" definition "I = Order Status"],
-	ClearingHold
-		[synonym FIX value "J" definition "J = Trade in a Clearing Hold"],
-	ReleasedToClearing
-		[synonym FIX value "K" definition "K = Trade has been released to Clearing"],
-	Triggered
-		[synonym FIX value "L" definition "L = Triggered or Activated by System"]
-}
+//	New <"New">
+//		[synonym FIX value "0" definition "0 = New"],
+//	DoneForDay <"Done for day">
+//		[synonym FIX value "3" definition "3 = Done for day"],
+//	Canceled <"Canceled">
+//		[synonym FIX value "4" definition "4 = Canceled"],
+//	Replaced <"Replaced">
+//		[synonym FIX value "5" definition "5 = Replaced"],
+//	PendingCancel
+//		[synonym FIX value "6" definition "6 = Pending Cancel (e.g. result of Order Cancel Request)"],
+//	Stopped
+//		[synonym FIX value "7" definition "7 = Stopped"],
+//	Rejected
+//		[synonym FIX value "8" definition "8 = Rejected"],
+//	Suspended
+//		[synonym FIX value "9" definition "9 = Suspended"],
+//	PendingNew
+//		[synonym FIX value "A" definition "A = Pending New"],
+//	Calculated
+//		[synonym FIX value "B" definition "B = Calculated"],
+//	Expired
+//		[synonym FIX value "C" definition "C = Expired"],
+//	Restated <"Restated represents an Execution Report sent by the sell-side communicating a change in the order or a restatement of the order’s parameters without an electronic request from the customer. FIX specifies that the ExecRestatementReason must be set.">
+//		[synonym FIX value "D" definition "D = Restated (Execution Report sent unsolicited by sell-side, with ExecRestatementReason (378) set)"],
+//	PendingReplace
+//		[synonym FIX value "E" definition "E = Pending Replace (e.g. result of Order Cancel/Replace Request)"],
+//	Trade
+//		[synonym FIX value "F" definition "F = Trade (partial fill or fill)"],
+//	TradeCorrect
+//		[synonym FIX value "G" definition "G = Trade Correct"],
+//	TradeCancel
+//		[synonym FIX value "H" definition "H = Trade Cancel"],
+//	OrderStatus
+//		[synonym FIX value "I" definition "I = Order Status"],
+//	ClearingHold
+//		[synonym FIX value "J" definition "J = Trade in a Clearing Hold"],
+//	ReleasedToClearing
+//		[synonym FIX value "K" definition "K = Trade has been released to Clearing"],
+//	Triggered
+//		[synonym FIX value "L" definition "L = Triggered or Activated by System"]
+//}
 
-enum OrderTypeEnum <"The enumeration values to specify the type of order.">
-	[synonym FIX value OrdType tag 40]
-{
-	Market <"Market order.">
-		[synonym FIX value "1" definition "1 = Market"],
-	Limit <"Limit order">
-		[synonym FIX value "2" definition "2 = Limit"],
-	Stop <"Stop / Stop Loss order.">
-		[synonym FIX value "3" definition "3 = Stop / Stop Loss"],
-	StopLimit <"Stop Limit order.">
-		[synonym FIX value "4" definition "4 = Stop Limit"],
-	WithOrWithout <"With Or Without order.">
-		[synonym FIX value "6" definition "6 = With Or Without"],
-	LimitOrBetter <"Limit Or Better order.">
-		[synonym FIX value "7" definition "7 = Limit Or Better"],
-	LimitWithOrWithout <"Limit With Or Without order.">
-		[synonym FIX value "8" definition "8 = Limit With Or Without"],
-	OnBasis <"On Basis">
-		[synonym FIX value "9" definition "9 = On Basis"],
-	PreviouslyQuoted <"Previously Quoted">
-		[synonym FIX value "D" definition "D = Previously Quoted"],
-	PreviouslyIndicated <"Previously Indicated order.">
-		[synonym FIX value "E" definition "E = Previously Indicated"],
-	/* 
-	 * This qualifies a product, not an order
-	 */
-	ForexSwap
-		[synonym FIX value "G" definition "G = Forex Swap"],
-	Funari <"Funari order, i.e. limit day order with an unexecuted portion handles as Market On Close. Applicable in Japan.)">
-		[synonym FIX value "I" definition "I = Funari (Limit day order with unexecuted portion handles as Market On Close. E.g. Japan)"],
-	MarketIfTouched <"Market If Touched (MIT) order.">
-		[synonym FIX value "J" definition "J = Market If Touched (MIT)"],
-	MarketWithLeftOverAsLimit <"Market With Left Over as Limit order, i.e. market order with unexecuted quantity becoming limit order at last price.">
-		[synonym FIX value "K" definition "K = Market With Left Over as Limit (market order with unexecuted quantity becoming limit order at last price)"],
-	PreviousFundValuationPoint <"Previous Fund Valuation Point order, i.e. based upon historic pricing. Applicable to Collective Investment Vehicles, CIV.">
-		[synonym FIX value "L" definition "L = Previous Fund Valuation Point, i.e. based upon historic pricing. Applicable to Collective Investment Vehicles, CIV."],
-	NextFundValuationPoint <"Next Fund Valuation Point (Forward pricing order. Applicable to Collective Investment Vehicles, CIV.">
-		[synonym FIX value "M" definition "M = Next Fund Valuation Point (Forward pricing; for CIV)"],
-	Pegged <"Pegged order.">
-		[synonym FIX value "P" definition "P = Pegged"],
-	/* 
-	 * Not clear as to what this is.
-	 */
-	CounterOrderSelection
-		[synonym FIX value "Q" definition "Q = Counter-order selection"]
-}
+//enum OrderTypeEnum <"The enumeration values to specify the type of order.">
+//	[synonym FIX value OrdType tag 40]
+//{
+//	Market <"Market order.">
+//		[synonym FIX value "1" definition "1 = Market"],
+//	Limit <"Limit order">
+//		[synonym FIX value "2" definition "2 = Limit"],
+//	Stop <"Stop / Stop Loss order.">
+//		[synonym FIX value "3" definition "3 = Stop / Stop Loss"],
+//	StopLimit <"Stop Limit order.">
+//		[synonym FIX value "4" definition "4 = Stop Limit"],
+//	WithOrWithout <"With Or Without order.">
+//		[synonym FIX value "6" definition "6 = With Or Without"],
+//	LimitOrBetter <"Limit Or Better order.">
+//		[synonym FIX value "7" definition "7 = Limit Or Better"],
+//	LimitWithOrWithout <"Limit With Or Without order.">
+//		[synonym FIX value "8" definition "8 = Limit With Or Without"],
+//	OnBasis <"On Basis">
+//		[synonym FIX value "9" definition "9 = On Basis"],
+//	PreviouslyQuoted <"Previously Quoted">
+//		[synonym FIX value "D" definition "D = Previously Quoted"],
+//	PreviouslyIndicated <"Previously Indicated order.">
+//		[synonym FIX value "E" definition "E = Previously Indicated"],
+//	/* 
+//	 * This qualifies a product, not an order
+//	 */
+//	ForexSwap
+//		[synonym FIX value "G" definition "G = Forex Swap"],
+//	Funari <"Funari order, i.e. limit day order with an unexecuted portion handles as Market On Close. Applicable in Japan.)">
+//		[synonym FIX value "I" definition "I = Funari (Limit day order with unexecuted portion handles as Market On Close. E.g. Japan)"],
+//	MarketIfTouched <"Market If Touched (MIT) order.">
+//		[synonym FIX value "J" definition "J = Market If Touched (MIT)"],
+//	MarketWithLeftOverAsLimit <"Market With Left Over as Limit order, i.e. market order with unexecuted quantity becoming limit order at last price.">
+//		[synonym FIX value "K" definition "K = Market With Left Over as Limit (market order with unexecuted quantity becoming limit order at last price)"],
+//	PreviousFundValuationPoint <"Previous Fund Valuation Point order, i.e. based upon historic pricing. Applicable to Collective Investment Vehicles, CIV.">
+//		[synonym FIX value "L" definition "L = Previous Fund Valuation Point, i.e. based upon historic pricing. Applicable to Collective Investment Vehicles, CIV."],
+//	NextFundValuationPoint <"Next Fund Valuation Point (Forward pricing order. Applicable to Collective Investment Vehicles, CIV.">
+//		[synonym FIX value "M" definition "M = Next Fund Valuation Point (Forward pricing; for CIV)"],
+//	Pegged <"Pegged order.">
+//		[synonym FIX value "P" definition "P = Pegged"],
+//	/* 
+//	 * Not clear as to what this is.
+//	 */
+//	CounterOrderSelection
+//		[synonym FIX value "Q" definition "Q = Counter-order selection"]
+//}
 
 enum PriceTypeEnum <"The enumeration values to qualify the way a price is expressed: per unit, yield, ... The FpML enumeration is more restrictive, as it only has two values as of version 5.9: AbsoluteTerms and PercentageOfNotional.">
 	[synonym FIX value PriceType tag 423]
@@ -192,94 +206,94 @@ enum QuantityTypeEnum <"The enumeration values to qualify the type of quantity."
 		[synonym FIX value "2" definition "2 = Units of Measure per Time Unit (if used - must specify UnitofMeasure (tag 996) and TimeUnit (tag 997))"]
 }
 
-enum QuoteStatusEnum <"The enumeration values to qualify the status of a quote.">
-	[synonym FIX value QuoteStatus tag 297]
-{
-	Accepted <"Accepted">
-		[synonym FIX value "0" definition "0 = Accepted"],
-	CanceledForSymbol <"Canceled for symbol(s)">
-		[synonym FIX value "1" definition "1 = Cancel for Symbol(s)"],
-	Pending <"Pending">
-		[synonym FIX value "10" definition "10 = Pending"],
-	Pass <"Pass">
-		[synonym FIX value "11" definition "11 = Pass"],
-	LockedMarketWarning <"Locked Market Warning">
-		[synonym FIX value "12" definition "12 = Locked Market Warning"],
-	CrossMarketWarning <"Cross Market Warning">
-		[synonym FIX value "13" definition "13 = Cross Market Warning"],
-	CanceledDueToLockMarket <"Canceled Due To Locked Market">
-		[synonym FIX value "14" definition "14 = Canceled Due To Lock Market"],
-	CanceledDueToCrossMarket <"Canceled Due To Cross Market">
-		[synonym FIX value "15" definition "15 = Canceled Due To Cross Market"],
-	CanceledForSecurityType <"Canceled for Security Type(s)">
-		[synonym FIX value "2" definition "2 = Canceled for Security Type(s)"],
-	CanceledForUnderlying <"Canceled for Underlying">
-		[synonym FIX value "3" definition "3 = Canceled for Underlying"],
-	CanceledAll <"Canceled All">
-		[synonym FIX value "4" definition "4 = Canceled All"],
-	Rejected <"Rejected">
-		[synonym FIX value "5" definition "5 = Rejected"],
-	RemovedFromMarket <"Removed from Market">
-		[synonym FIX value "6" definition "6 = Removed from Market"],
-	Expired <"Expired">
-		[synonym FIX value "7" definition "7 = Expired"],
-	Query <"Query">
-		[synonym FIX value "8" definition "8 = Query"],
-	QuoteNotFound <"Quote Not Found">
-		[synonym FIX value "9" definition "9 = Quote Not Found"],
-	Active <"Active">
-		[synonym FIX value "16" definition "16 = Active"],
-	Canceled <"Canceled">
-		[synonym FIX value "17" definition "17 = Canceled"],
-	UnsolicitedQuoteReplenishment <"Unsolicited Quote Replenishment">
-		[synonym FIX value "18" definition "18 = Unsolicited Quote Replenishment"],
-	PendingEndTrade <"Pending End Trade">
-		[synonym FIX value "19" definition "19 = Pending End Trade"],
-	TooLateToEnd <"Too Late to End">
-		[synonym FIX value "20" definition "20 = Too Late to End"]
-}
+//enum QuoteStatusEnum <"The enumeration values to qualify the status of a quote.">
+//	[synonym FIX value QuoteStatus tag 297]
+//{
+//	Accepted <"Accepted">
+//		[synonym FIX value "0" definition "0 = Accepted"],
+//	CanceledForSymbol <"Canceled for symbol(s)">
+//		[synonym FIX value "1" definition "1 = Cancel for Symbol(s)"],
+//	Pending <"Pending">
+//		[synonym FIX value "10" definition "10 = Pending"],
+//	Pass <"Pass">
+//		[synonym FIX value "11" definition "11 = Pass"],
+//	LockedMarketWarning <"Locked Market Warning">
+//		[synonym FIX value "12" definition "12 = Locked Market Warning"],
+//	CrossMarketWarning <"Cross Market Warning">
+//		[synonym FIX value "13" definition "13 = Cross Market Warning"],
+//	CanceledDueToLockMarket <"Canceled Due To Locked Market">
+//		[synonym FIX value "14" definition "14 = Canceled Due To Lock Market"],
+//	CanceledDueToCrossMarket <"Canceled Due To Cross Market">
+//		[synonym FIX value "15" definition "15 = Canceled Due To Cross Market"],
+//	CanceledForSecurityType <"Canceled for Security Type(s)">
+//		[synonym FIX value "2" definition "2 = Canceled for Security Type(s)"],
+//	CanceledForUnderlying <"Canceled for Underlying">
+//		[synonym FIX value "3" definition "3 = Canceled for Underlying"],
+//	CanceledAll <"Canceled All">
+//		[synonym FIX value "4" definition "4 = Canceled All"],
+//	Rejected <"Rejected">
+//		[synonym FIX value "5" definition "5 = Rejected"],
+//	RemovedFromMarket <"Removed from Market">
+//		[synonym FIX value "6" definition "6 = Removed from Market"],
+//	Expired <"Expired">
+//		[synonym FIX value "7" definition "7 = Expired"],
+//	Query <"Query">
+//		[synonym FIX value "8" definition "8 = Query"],
+//	QuoteNotFound <"Quote Not Found">
+//		[synonym FIX value "9" definition "9 = Quote Not Found"],
+//	Active <"Active">
+//		[synonym FIX value "16" definition "16 = Active"],
+//	Canceled <"Canceled">
+//		[synonym FIX value "17" definition "17 = Canceled"],
+//	UnsolicitedQuoteReplenishment <"Unsolicited Quote Replenishment">
+//		[synonym FIX value "18" definition "18 = Unsolicited Quote Replenishment"],
+//	PendingEndTrade <"Pending End Trade">
+//		[synonym FIX value "19" definition "19 = Pending End Trade"],
+//	TooLateToEnd <"Too Late to End">
+//		[synonym FIX value "20" definition "20 = Too Late to End"]
+//}
 
-enum QuoteTypeEnum <"The enumeration values to qualify the type of quote: indicative, firm, ...">
-	[synonym FIX value QuoteType tag 1070]
-{
-	Indicative <"Indicative quote">
-		[synonym FIX value "0" definition "0 = Indicative"],
-	Tradeable <"Tradeable quote">
-		[synonym FIX value "1" definition "1 = Tradeable"],
-	/* 
-	 * What is a restricted tradeable?
-	 */
-	RestrictedTradeable
-		[synonym FIX value "2" definition "2 = Restricted Tradeable"],
-	/* 
-	 * Can't a quote be counter while either indicative or tradeable?  Or is this latter qualification implied by the former quote?
-	 */
-	Counter <"Counter quote">
-		[synonym FIX value "3" definition "3 = Counter"],
-	IndicativeAndTradeable <"Indicative and tradeable quote.">
-		[synonym FIX value "4" definition "4 = Indicative and Tradeable"]
-}
+//enum QuoteTypeEnum <"The enumeration values to qualify the type of quote: indicative, firm, ...">
+//	[synonym FIX value QuoteType tag 1070]
+//{
+//	Indicative <"Indicative quote">
+//		[synonym FIX value "0" definition "0 = Indicative"],
+//	Tradeable <"Tradeable quote">
+//		[synonym FIX value "1" definition "1 = Tradeable"],
+//	/* 
+//	 * What is a restricted tradeable?
+//	 */
+//	RestrictedTradeable
+//		[synonym FIX value "2" definition "2 = Restricted Tradeable"],
+//	/* 
+//	 * Can't a quote be counter while either indicative or tradeable?  Or is this latter qualification implied by the former quote?
+//	 */
+//	Counter <"Counter quote">
+//		[synonym FIX value "3" definition "3 = Counter"],
+//	IndicativeAndTradeable <"Indicative and tradeable quote.">
+//		[synonym FIX value "4" definition "4 = Indicative and Tradeable"]
+//}
 
-enum ReportingRoleEnum <"The enumeration values to specify the role of a party as part of a reporting activity.">
-	[synonym FpML value eportingRoleScheme]
-{
-	Agent <"The reporting counterparty has concluded the contract as agent for the account of and on behalf of a client.">
-		[synonym FpML value "Agent"],
-	Counterparty	 <"The reporting counterparty is providing the relevant details for their side of the transaction.">
-		[synonym FpML value "Counterparty"],
-	FullyDelegated <"Party has fully delegated responsibility of their reporting obligation in this jurisdiction to the submitter of this transaction.">
-		[synonym FpML value "FullyDelegated"],
-	Independent <"Party has taken sole responsibility of the reporting obligation in the applicable jurisdiction.">
-		[synonym FpML value "Independent"],
-	PartiallyDelegated <"Party has partially delegated responsibility of their reporting obligation (typically the common data only) in this jurisdiction to the submitter of this transaction.">
-		[synonym FpML value "PartiallyDelegated"],
-	Principal <"The reporting counterparty has concluded the contract as principal on own account (on own behalf or on behalf of a client).">
-		[synonym FpML value "Principal"],
-	ReportingParty <"Party responsible for reporting this transaction.">
-		[synonym FpML value "ReportingParty"],
-	VoluntaryParty <"Party not responsible for reporting this transaction.">
-		[synonym FpML value "VoluntaryParty"]
-}
+//enum ReportingRoleEnum <"The enumeration values to specify the role of a party as part of a reporting activity.">
+//	[synonym FpML value eportingRoleScheme]
+//{
+//	Agent <"The reporting counterparty has concluded the contract as agent for the account of and on behalf of a client.">
+//		[synonym FpML value "Agent"],
+//	Counterparty	 <"The reporting counterparty is providing the relevant details for their side of the transaction.">
+//		[synonym FpML value "Counterparty"],
+//	FullyDelegated <"Party has fully delegated responsibility of their reporting obligation in this jurisdiction to the submitter of this transaction.">
+//		[synonym FpML value "FullyDelegated"],
+//	Independent <"Party has taken sole responsibility of the reporting obligation in the applicable jurisdiction.">
+//		[synonym FpML value "Independent"],
+//	PartiallyDelegated <"Party has partially delegated responsibility of their reporting obligation (typically the common data only) in this jurisdiction to the submitter of this transaction.">
+//		[synonym FpML value "PartiallyDelegated"],
+//	Principal <"The reporting counterparty has concluded the contract as principal on own account (on own behalf or on behalf of a client).">
+//		[synonym FpML value "Principal"],
+//	ReportingParty <"Party responsible for reporting this transaction.">
+//		[synonym FpML value "ReportingParty"],
+//	VoluntaryParty <"Party not responsible for reporting this transaction.">
+//		[synonym FpML value "VoluntaryParty"]
+//}
 
 enum SettlementTypeEnum <"The enumeration values to specify how the option is to be settled when exercised.">
 	[synonym FpML value SettlementTypeEnum]
@@ -294,70 +308,70 @@ enum SettlementTypeEnum <"The enumeration values to specify how the option is to
 		[synonym FpML value "CashOrPhysical"]
 }
 
-enum SideEnum <"The enumeration values to qualify the side/direction of the quote or transaction, e.g. buy or sell.">
-	[synonym FIX value Side tag 54]
-{
-	Buy <"Buy">
-		[synonym FIX value "1" definition "1 = Buy"],
-	Sell <"Sell">
-		[synonym FIX value "2" definition "2 = Sell"],
-	/* 
-	 * Need to clarify the meaning of those 2 FIX enumeration values
-	 */
-	BuyMinus <"Buy minus">
-		[synonym FIX value "3" definition "3 = Buy minus"],
-	SellMinus <"Sell plus">
-		[synonym FIX value "4" definition "4 = Sell plus"],
-	SellShort <"Sell short">
-		[synonym FIX value "5" definition "5 = Sell short"],
-	SellShortExempt <"Sell short exempt">
-		[synonym FIX value "6" definition "6 = Sell short exempt"],
-	Undisclosed <"FIX definition: Undisclosed (valid for IOI and List Order messages only)"> /* Need to clarify the meaning of this FIX enumeration value */
-		[synonym FIX value "7" definition "7 = Undisclosed (valid for IOI and List Order messages only)"],
-	Cross <"FIX definition: Cross (orders where counterparty is an exchange, valid for all messages except IOIs)"> /* Need to clarify the meaning of this FIX enumeration value */
-		[synonym FIX value "8" definition "8 = Cross (orders where counterparty is an exchange, valid for all messages except IOIs)"],
-	CrossShort <"Cross short"> /* Need to clarify the meaning of this FIX enumeration value */
-		[synonym FIX value "9" definition "9 = Cross short"],
-	CrossShortExempt <"Cross short exempt"> /* Need to clarify the meaning of this FIX enumeration value */
-		[synonym FIX value "A" definition "A = Cross short exempt"],
-	AsDefined <"FIX definition: 'As Defined' (for use with multileg instruments)"> /* Need to clarify the meaning of this FIX enumeration value */
-		[synonym FIX value "B" definition "B = 'As Defined' (for use with multileg instruments)"],
-	Opposite <"FIX definition: 'Opposite' (for use with multileg instruments)"> /* Need to clarify the meaning of this FIX enumeration value */
-		[synonym FIX value "C" definition "C = 'Opposite' (for use with multileg instruments)"],
-	Subscribe <"FIX definition: Subscribe (e.g. Collective Investment Vehicles, CIV.)">
-		[synonym FIX value "D" definition "D = Subscribe (e.g. CIV)"],
-	Redeeem <"FIX definition: Redeem (e.g. Collective Investment Vehicles, CIV.)">
-		[synonym FIX value "E" definition "E = Redeem (e.g. CIV)"],
-	Lend <"FIX definition: Lend (FINANCING - identifies direction of collateral)"> /* Need to clarify the meaning of this FIX enumeration value */
-		[synonym FIX value "F" definition "F = Lend (FINANCING - identifies direction of collateral)"],
-	Borrow <"FIX definition: Borrow (FINANCING - identifies direction of collateral)"> /* Need to clarify the meaning of this FIX enumeration value */
-		[synonym FIX value "G" definition "G = Borrow (FINANCING - identifies direction of collateral)"]
-}
+//enum SideEnum <"The enumeration values to qualify the side/direction of the quote or transaction, e.g. buy or sell.">
+//	[synonym FIX value Side tag 54]
+//{
+//	Buy <"Buy">
+//		[synonym FIX value "1" definition "1 = Buy"],
+//	Sell <"Sell">
+//		[synonym FIX value "2" definition "2 = Sell"],
+//	/* 
+//	 * Need to clarify the meaning of those 2 FIX enumeration values
+//	 */
+//	BuyMinus <"Buy minus">
+//		[synonym FIX value "3" definition "3 = Buy minus"],
+//	SellMinus <"Sell plus">
+//		[synonym FIX value "4" definition "4 = Sell plus"],
+//	SellShort <"Sell short">
+//		[synonym FIX value "5" definition "5 = Sell short"],
+//	SellShortExempt <"Sell short exempt">
+//		[synonym FIX value "6" definition "6 = Sell short exempt"],
+//	Undisclosed <"FIX definition: Undisclosed (valid for IOI and List Order messages only)"> /* Need to clarify the meaning of this FIX enumeration value */
+//		[synonym FIX value "7" definition "7 = Undisclosed (valid for IOI and List Order messages only)"],
+//	Cross <"FIX definition: Cross (orders where counterparty is an exchange, valid for all messages except IOIs)"> /* Need to clarify the meaning of this FIX enumeration value */
+//		[synonym FIX value "8" definition "8 = Cross (orders where counterparty is an exchange, valid for all messages except IOIs)"],
+//	CrossShort <"Cross short"> /* Need to clarify the meaning of this FIX enumeration value */
+//		[synonym FIX value "9" definition "9 = Cross short"],
+//	CrossShortExempt <"Cross short exempt"> /* Need to clarify the meaning of this FIX enumeration value */
+//		[synonym FIX value "A" definition "A = Cross short exempt"],
+//	AsDefined <"FIX definition: 'As Defined' (for use with multileg instruments)"> /* Need to clarify the meaning of this FIX enumeration value */
+//		[synonym FIX value "B" definition "B = 'As Defined' (for use with multileg instruments)"],
+//	Opposite <"FIX definition: 'Opposite' (for use with multileg instruments)"> /* Need to clarify the meaning of this FIX enumeration value */
+//		[synonym FIX value "C" definition "C = 'Opposite' (for use with multileg instruments)"],
+//	Subscribe <"FIX definition: Subscribe (e.g. Collective Investment Vehicles, CIV.)">
+//		[synonym FIX value "D" definition "D = Subscribe (e.g. CIV)"],
+//	Redeeem <"FIX definition: Redeem (e.g. Collective Investment Vehicles, CIV.)">
+//		[synonym FIX value "E" definition "E = Redeem (e.g. CIV)"],
+//	Lend <"FIX definition: Lend (FINANCING - identifies direction of collateral)"> /* Need to clarify the meaning of this FIX enumeration value */
+//		[synonym FIX value "F" definition "F = Lend (FINANCING - identifies direction of collateral)"],
+//	Borrow <"FIX definition: Borrow (FINANCING - identifies direction of collateral)"> /* Need to clarify the meaning of this FIX enumeration value */
+//		[synonym FIX value "G" definition "G = Borrow (FINANCING - identifies direction of collateral)"]
+//}
 
-enum TimeInForceEnum <"The enumeration values to specify the period of time during which an order remains in effect.">
-	[synonym FIX value TimeInForce tag 59]
-{
-	Day <"Day (or session)">
-		[synonym FIX value "0" definition "0 = Day (or session)"],
-	GoodTillCancel <"Good Till Cancel (GTC)">
-		[synonym FIX value "1" definition "1 = Good Till Cancel (GTC)"],
-	AtTheOpening <"At the Opening (OPG)">
-		[synonym FIX value "2" definition "2 = At the Opening (OPG)"],
-	ImmediateOrCancel <"Immediate Or Cancel (IOC)">
-		[synonym FIX value "3" definition "3 = Immediate Or Cancel (IOC)"],
-	FillOrKill <"Fill Or Kill (FOK)">
-		[synonym FIX value "4" definition "4 = Fill Or Kill (FOK)"],
-	GoodTillCrossing <"Good Till Crossing (GTX)">
-		[synonym FIX value "5" definition "5 = Good Till Crossing (GTX)"],
-	GoodTillDate <"Good Till Date (GTD)">
-		[synonym FIX value "6" definition "6 = Good Till Date (GTD)"],
-	AtTheClose <"At the Close">
-		[synonym FIX value "7" definition "7 = At the Close"],
-	GoodThroughCrossing <"Good Through Crossing">
-		[synonym FIX value "8" definition "8 = Good Through Crossing"],
-	AtCrossing <"At Crossing">
-		[synonym FIX value "9" definition "9 = At Crossing"]
-}
+//enum TimeInForceEnum <"The enumeration values to specify the period of time during which an order remains in effect.">
+//	[synonym FIX value TimeInForce tag 59]
+//{
+//	Day <"Day (or session)">
+//		[synonym FIX value "0" definition "0 = Day (or session)"],
+//	GoodTillCancel <"Good Till Cancel (GTC)">
+//		[synonym FIX value "1" definition "1 = Good Till Cancel (GTC)"],
+//	AtTheOpening <"At the Opening (OPG)">
+//		[synonym FIX value "2" definition "2 = At the Opening (OPG)"],
+//	ImmediateOrCancel <"Immediate Or Cancel (IOC)">
+//		[synonym FIX value "3" definition "3 = Immediate Or Cancel (IOC)"],
+//	FillOrKill <"Fill Or Kill (FOK)">
+//		[synonym FIX value "4" definition "4 = Fill Or Kill (FOK)"],
+//	GoodTillCrossing <"Good Till Crossing (GTX)">
+//		[synonym FIX value "5" definition "5 = Good Till Crossing (GTX)"],
+//	GoodTillDate <"Good Till Date (GTD)">
+//		[synonym FIX value "6" definition "6 = Good Till Date (GTD)"],
+//	AtTheClose <"At the Close">
+//		[synonym FIX value "7" definition "7 = At the Close"],
+//	GoodThroughCrossing <"Good Through Crossing">
+//		[synonym FIX value "8" definition "8 = Good Through Crossing"],
+//	AtCrossing <"At Crossing">
+//		[synonym FIX value "9" definition "9 = At Crossing"]
+//}
 
 enum TimeUnitEnum <"The enumeration values to qualify the allowed units of time.">
 	[synonym FIX value TimeUnit tag 997]
