@@ -2,31 +2,11 @@ Rosetta versionNumber "0.0.1"
 FIX versionNumber "5.0 SP3"
 FpML versionNumber "5.10"
 
-enum IntentEnum
-{
-	partialTermination
-		[synonym Rosetta_Workbench value "partialTermination"],
-	correction
-		[synonym Rosetta_Workbench value "correction"],
-	renegotiation
-		[synonym Rosetta_Workbench value "renegotiation"],
-	termination
-		[synonym Rosetta_Workbench value "termination"],
-	earlyTermination
-		[synonym Rosetta_Workbench value "earlyTermination"]
-}
 
 /*
  * CDM testing artefacts
  */
 
-class EventTestBundle <"Class which combines several events for testing purposes.">
-{
-	event Event (2..*);
-		[synonym Rosetta_Workbench value event]
-	computedAmount ComputedAmount (0..*);
-		[synonym Rosetta_Workbench value computedAmount]
-}
 
 class ComputedAmount <"A class to specify the outcome of a computed amount, for testing purposes">
 {
@@ -61,6 +41,54 @@ class Event extends EventBase
 		[synonym Rosetta_Workbench value functionCall]
 }
 
+abstract class EventBase stereotype preExecution, execution, postExecution <"The event base abstract class.">
+{
+	messageInformation MessageInformation (0..1);
+	timeStamp EventTimeStamp (1..1);
+		[synonym Rosetta_Workbench value timeStamp]
+	eventIdentifier Identifier (1..1);
+		[synonym Rosetta_Workbench value eventIdentifier]
+	eventDate date (1..1);
+		[synonym Rosetta_Workbench value eventDate]
+	effectiveDate date (0..1);
+		[synonym Rosetta_Workbench value effectiveDate]
+	intent IntentEnum (0..1);
+		[synonym Rosetta_Workbench value intent]
+	action ActionEnum (1..1) <"Specifies whether the event is a new, a correction or a cancellation.">;
+		[synonym FpML value isCorrection 
+			set action to ActionEnum.new when False, 
+			set action to ActionEnum.correct when True]
+		[synonym FIX value TradeReportTransType tag 487 
+			set action to ActionEnum.new when ["0", "5"],
+			set action to ActionEnum.correct when "2",
+			set action to ActionEnum.cancel when "1"]
+}
+
+class EventTestBundle <"Class which combines several events for testing purposes.">
+{
+	event Event (2..*);
+		[synonym Rosetta_Workbench value event]
+	computedAmount ComputedAmount (0..*);
+		[synonym Rosetta_Workbench value computedAmount]
+}
+
+
+class EventTimeStamp stereotype preExecution, execution, postExecution <"This class corresponds to the timestamp components of the FpML MessageHeader.model. These would be applicable even if the event is communicated through a mean other than messaging (e.g. blockchain).">
+{
+	creationTimestamp dateTime (1..1) <"The date and time (on the source system) when this event was created.">;
+		[synonym FIX value SendingTime tag 52] // Need to confirm whether sendingTime can be equated to createTime
+		[synonym FIX value TransactTime componentID 60]
+		[synonym FpML value creationTimestamp pathExpression "header"]
+		[synonym Rosetta_Workbench value creationTimestamp]
+	expiryTimestamp dateTime (0..1) <"The date and time (on the source system) when this event will be considered expired.">;
+		[synonym FpML value expiryTimestamp]
+		[synonym FIX value ExpireTime tag 126]
+}
+
+data rule EventTimeStamp_ExpireTime <"The expire time should be greater than the creation time.">
+	when EventTimeStamp -> expiryTimestamp exists
+	then EventTimeStamp -> expiryTimestamp > EventTimeStamp -> creationTimestamp
+
 class InterestRateCurve
 {
 	floatingRateIndex FloatingRateIndexEnum (1..1);
@@ -75,6 +103,21 @@ class Lineage
 		[synonym Rosetta_Workbench value contractReference]
 	eventReference Identifier (0..*);
 		[synonym Rosetta_Workbench value eventReference]
+}
+
+class MessageInformation stereotype preExecution, execution, postExecution <"This class corresponds to the messaging components of the FpML MessageHeader.model.">
+{
+	messageId string (1..1) scheme "messageIdScheme" <"A unique identifier assigned to the message.">;
+		[synonym FIX value MsgSeqNum tag 34]
+//		[synonym FIX value QuoteMsgID tag 1166 set messageId when Quote exists]
+		[synonym Rosetta_Workbench value messageId pathExpression "messageInformation"]
+	sentBy string (0..1) scheme "messageAddressScheme" <"The identifier for the originator of a message instance.">;
+//		[synonym FIX value SenderCompID tag 49]
+		[synonym Rosetta_Workbench value sentBy pathExpression "messageInformation"]
+	sentTo string (0..1) scheme "messageAddressScheme" <"The identifier for the recipient of a message instance.">;
+		[synonym FIX value TargetCompID tag 56]
+		[synonym Rosetta_Workbench value sentTo pathExpression "messageInformation"]
+	copyTo string (0..*) scheme "messageAddressScheme" <"A unique identifier (within the specified coding scheme) giving the details of some party to whom a copy of this message will be sent for reference.">;
 }
 
 /*
