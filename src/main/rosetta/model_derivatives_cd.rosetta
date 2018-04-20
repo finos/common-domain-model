@@ -663,8 +663,9 @@ class ReferenceObligation stereotype contractualProduct
 		[synonym FpML value mortgage]
 	loan Loan (0..1) <"Identifies the underlying asset when it is a loan.">;
 		[synonym FpML value loan]
-	primaryObligor LegalEntity (0..1) reference <"The entity primarily responsible for repaying debt to a creditor as a result of borrowing or issuing bonds. ISDA 2003 Term: Primary Obligor.">;
+	primaryObligor LegalEntity (0..1) <"The entity primarily responsible for repaying debt to a creditor as a result of borrowing or issuing bonds. ISDA 2003 Term: Primary Obligor.">;
 		[synonym FpML value primaryObligor]
+	primaryObligorReference string (0..1) reference <"A pointer style reference to a reference entity defined elsewhere in the document. Used when the reference entity is the primary obligor.">;
 		[synonym FpML value primaryObligorReference]
 	guarantor LegalEntity (0..1) reference <"The party that guarantees by way of a contractual arrangement to pay the debts of an obligor if the obligor is unable to make the required payments itself. ISDA 2003 Term: Guarantor.">;
 		[synonym FpML value guarantor]
@@ -673,9 +674,13 @@ class ReferenceObligation stereotype contractualProduct
 		[synonym FpML value standardReferenceObligation]
 }
 
-choice rule ReferenceObligation_choice <"Choice rule to represent an FpML choice construct.">
+choice rule ReferenceObligation_choice1 <"Choice rule to represent an FpML choice construct.">
 	for ReferenceObligation required choice between
 	bond and convertibleBond and loan and mortgage
+
+choice rule ReferenceObligation_choice2 <"Choice rule to represent an FpML choice construct.">
+	for ReferenceObligation optional choice between
+	primaryObligor and primaryObligorReference
 
 class ReferencePair stereotype contractualProduct
 	[synonym FpML value ReferencePair]
