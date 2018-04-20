@@ -25,9 +25,11 @@ steps:
     image: r.cfcr.io/regnosysops/regnosys/mvn-docker-build:latest
     working_directory: ./
     commands:
+      - ls -l /codefresh/volume/.m2/com/regnosys/rosetta/
+      - rm -rf /codefresh/volume/.m2/com/regnosys/rosetta/
       - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
       - mvn -s /settings.xml versions:update-property -Dproperty=com.regnosys.rosetta.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
-      - mvn -s /settings.xml clean deploy
+      - mvn -U -s /settings.xml clean deploy
 
   TagRepo:
     title: Tag git repo with release name

@@ -290,11 +290,11 @@ class Collateral stereotype contractualProduct <"A type for defining the obligat
 class ContractualMatrix stereotype contractualProduct
 	[synonym FpML value ContractualMatrix]
 {
-	matrixType MatrixTypeEnum (1..1) <"Identifies the form of applicable matrix.">;
+	matrixType MatrixTypeEnum (1..1) scheme "matrixTypeScheme" <"Identifies the form of applicable matrix.">;
 		[synonym FpML value matrixType]
 	publicationDate date (0..1) <"Specifies the publication date of the applicable version of the matrix. When this element is omitted, the ISDA supplemental language for incorporation of the relevant matrix will generally define rules for which version of the matrix is applicable.">;
 		[synonym FpML value publicationDate]
-	matrixTerm MatrixTermEnum (0..1) <"Defines any applicable key into the relevant matrix. For example, the Transaction Type would be the single term required for the Credit Derivatives Physical Settlement Matrix. This element should be omitted in the case of the 2000 ISDA Definitions Settlement Matrix for Early Termination and Swaptions.">;
+	matrixTerm MatrixTermEnum (0..1)  scheme "matrixTermScheme" <"Defines any applicable key into the relevant matrix. For example, the Transaction Type would be the single term required for the Credit Derivatives Physical Settlement Matrix. This element should be omitted in the case of the 2000 ISDA Definitions Settlement Matrix for Early Termination and Swaptions.">;
 		[synonym FpML value matrixTerm]
 }
 
@@ -310,7 +310,7 @@ class ContractualTermsSupplement stereotype contractualProduct <"A contractual s
 class CreditSupportAgreement stereotype contractualProduct <"The agreement executed between the parties and intended to govern collateral arrangement for all OTC derivatives transactions between those parties.">
 	[synonym FpML value CreditSupportAgreement]
 {
-	type CreditSupportAgreementTypeEnum (1..1) <"The type of ISDA Credit Support Agreement.">;
+	type CreditSupportAgreementTypeEnum (1..1) scheme "creditSupportAgreementTypeScheme" <"The type of ISDA Credit Support Agreement.">;
 		[synonym FpML value type]
 	date date (1..1) <"The date of the agreement executed between the parties and intended to govern collateral arrangements for all OTC derivatives transactions between those parties.">;
 		[synonym FpML value date]
@@ -462,7 +462,7 @@ class FloatingRate stereotype contractualProduct <"A class defining a floating r
 {
 	id string (0..1) anchor;
 		[synonym FpML value id]
-	floatingRateIndex FloatingRateIndexEnum (1..1) <"The initial floating rate reset agreed between the principal parties involved in the trade. This is assumed to be the first required reset rate for the first regular calculation period. It should only be included when the rate is not equal to the rate published on the source implied by the floating rate index. An initial rate of 5% would be represented as 0.05.">;
+	floatingRateIndex FloatingRateIndexEnum (1..1) scheme "floatingRateIndexScheme" <"The initial floating rate reset agreed between the principal parties involved in the trade. This is assumed to be the first required reset rate for the first regular calculation period. It should only be included when the rate is not equal to the rate published on the source implied by the floating rate index. An initial rate of 5% would be represented as 0.05.">;
 		[synonym FpML value floatingRateIndex pathExpression "calculationPeriodAmount.calculation.floatingRateCalculation"]
 		[synonym ISO_20022 value Indx projection FloatingRate_floatingRateIndex]
 		[synonym ISO_20022 value Nm projection FloatingRate_floatingRateIndex]
@@ -605,7 +605,7 @@ class IndependentAmount extends PayerReceiver stereotype contractualProduct
 class InformationSource stereotype contractualProduct, execution, postExecution <"A class defining the source for a piece of information (e.g. a rate refix or an FX fixing). The attribute names have been adjusted from FpML to address the fact that the information is not limited to rates.">
 	[synonym FpML value InformationSource]
 {
-	sourceProvider InformationProviderEnum (1..1) <"An information source for obtaining a market data point. For example Bloomberg, Reuters, Telerate etc.">;
+	sourceProvider InformationProviderEnum (1..1) scheme "informationProviderScheme" <"An information source for obtaining a market data point. For example Bloomberg, Reuters, Telerate etc.">;
 		[synonym FpML value rateSource]
 		[synonym FIX value RateSource tag 1446]
 	sourcePage string (0..1) scheme "rateSourcePageScheme" <"A specific page for the source for obtaining a market data point. In FpML, this is specified as a scheme, rateSourcePageScheme, for which no coding Scheme or URI is specified.">;
@@ -637,7 +637,7 @@ class MasterAgreement stereotype contractualProduct <"A class for defining the a
 {
 	masterAgreementId string (0..1) scheme "masterAgreementIdScheme" <"An identifier that has been created to identify the master agreement.">;
 		[synonym FpML value masterAgreementId]
-	masterAgreementType MasterAgreementTypeEnum (1..1) <"The agreement executed between the parties and intended to govern product-specific derivatives transactions between those parties.">;
+	masterAgreementType MasterAgreementTypeEnum (1..1) scheme "masterAgreementTypeScheme" <"The agreement executed between the parties and intended to govern product-specific derivatives transactions between those parties.">;
 		[synonym FpML value masterAgreementType]
 	masterAgreementVersion string (0..1) scheme "masterAgreementVersionScheme" <"The version of the master agreement.">;
 		[synonym FpML value masterAgreementVersion]
@@ -648,13 +648,13 @@ class MasterAgreement stereotype contractualProduct <"A class for defining the a
 class MasterConfirmation stereotype contractualProduct <"A class for defining the master confirmation agreement executed between the parties.">
 	[synonym FpML value MasterConfirmation]
 {
-	masterConfirmationType MasterConfirmationTypeEnum (1..1) <"The type of master confirmation executed between the parties.">;
+	masterConfirmationType MasterConfirmationTypeEnum (1..1) scheme "masterConfirmationTypeScheme" <"The type of master confirmation executed between the parties.">;
 		[synonym FpML value masterConfirmationType]
 	masterConfirmationDate date (1..1) <"The date of the confirmation executed between the parties and intended to govern all relevant transactions between those parties.">;
 		[synonym FpML value masterConfirmationDate]
 	masterConfirmationAnnexDate date (0..1) <"The date that an annex to the master confirmation was executed between the parties.">;
 		[synonym FpML value masterConfirmationAnnexDate]
-	masterConfirmationAnnexType MasterConfirmationAnnexTypeEnum (0..1) <"The type of master confirmation annex executed between the parties.">;
+	masterConfirmationAnnexType MasterConfirmationAnnexTypeEnum (0..1) scheme "masterConfirmationAnnexTypeScheme" <"The type of master confirmation annex executed between the parties.">;
 		[synonym FpML value masterConfirmationAnnexType]
 }
 
@@ -992,7 +992,7 @@ class Resource stereotype contractualProduct <"Describes the resource that conta
 {
 	resourceId string (1..1) scheme "resourceIdScheme" <"The unique identifier of the resource within the event. FpML specifies this element of type resourceIdScheme but with no specified value.">;
 		[synonym FpML value resourceId]
-	resourceType ResourceTypeEnum (0..1) <"A description of the type of the resource, e.g. a confirmation.">;
+	resourceType ResourceTypeEnum (0..1) scheme "resourceTypeScheme" <"A description of the type of the resource, e.g. a confirmation.">;
 		[synonym FpML value resourceType]
 	language string (0..1) scheme "languageScheme" <"Indicates the language of the resource, described using the ISO 639-2/T Code.">;
 		[synonym FpML value language]
@@ -1085,7 +1085,7 @@ data rule SimplePayment_PaymentAmount <"FpML specifies paymentAmount as NonNegat
 class SpreadSchedule extends Schedule stereotype contractualProduct <"Adds an optional spread type element to the Schedule to identify a long or short spread value.">
 	[synonym FpML value SpreadSchedule]
 {
-	type SpreadScheduleTypeEnum (0..1) <"An element which purpose is to identify a long or short spread value.">;
+	type SpreadScheduleTypeEnum (0..1) scheme "spreadScheduleTypeScheme" <"An element which purpose is to identify a long or short spread value.">;
 		[synonym FpML value SpreadScheduleType]
 }
 
