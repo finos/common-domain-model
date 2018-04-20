@@ -83,7 +83,7 @@ class ContractualQuantity
 	 	[synonym FpML value futureValueNotional pathExpression "calculationPeriodAmount.calculation"]
 }
 
-choice rule ContractualQuantity_choice <"TThe below set of notional values are exclusive, while some of those could be associated with the futureValueNotional.">
+choice rule ContractualQuantity_choice <"The below set of notional values are exclusive, while some of those could be associated with the futureValueNotional.">
 	for ContractualQuantity optional choice between
 	quantity and notionalAmount and notionalSchedule and fxLinkedNotional
 
@@ -122,7 +122,27 @@ class CreditDefaultPayout <"The credit default payout specification terms.">
 	transactedPrice TransactedPrice (0..1) <"The qualification of the price at which the contract has been transacted, in terms of market fixed rate, initial points, market price and/or quotation style. In FpML, those attributes are positioned as part of the fee leg.">;
 }
 
-data rule ReferenceInformation_allGuarantees <"FpML validation rule cd-11 - If condition LongForm is true, and if condition ISDA2003 is true, then allGuarantees must exist.">
+data rule GeneralTerms_tradeDate <"FpML validation rule cd-1 - If referenceInformation exists, tradeDate must be before effectiveDate/unadjustedDate.">
+	when Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
+	then Contract -> tradeDate < Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> unadjustedDate
+
+data rule GeneralTerms_effectiveDate <"FpML validation rule cd-5 - If effectiveDate exists, and if scheduledTerminationDate exists, then effectiveDate/unadjustedDate must be before scheduledTerminationDate/unadjustedDate.">
+	when Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate exists
+	then Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> unadjustedDate < Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> unadjustedDate
+
+data rule GeneralTerms_effectiveDateAdjustments <"FpML validation rule cd-7 - If condition LongForm is true, then effectiveDate/dateAdjustments exists, with LongForm being specified as masterConfirmation and contractualMatrix do not exist and SingleName condition applies, with SingleName being specified as referenceInformation exists.">
+	when (Contract -> documentation -> masterConfirmation is absent 
+		or Contract -> documentation -> contractualMatrix is absent
+		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists)
+	then Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> dateAdjustments exists
+	
+data rule GeneralTerms_terminationDateAdjustments <"FpML validation rule cd-8 - If condition LongForm is true, and if scheduledTerminationDate exists then scheduledTerminationDate/dateAdjustments exists, with LongForm being specified as masterConfirmation and contractualMatrix do not exist and SingleName condition applies, with SingleName being specified as referenceInformation exists.">
+	when (Contract -> documentation -> masterConfirmation is absent 
+		or Contract -> documentation -> contractualMatrix is absent
+		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists)
+	then Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> dateAdjustments exists
+
+data rule ReferenceInformation_allGuarantees <"FpML validation rule cd-11 - If condition LongForm is true, and if condition ISDA2003 is true, then allGuarantees must exist, with LongForm being specified as masterConfirmation and contractualMatrix do not exist and SingleName condition applies, with SingleName being specified as referenceInformation exists.">
 	when ( ( Contract -> documentation -> masterConfirmation exists 
 		or Contract -> documentation -> contractualMatrix exists ) 
 		and Contract -> documentation -> contractualDefinitions = ContractualDefinitionsEnum.ISDA2003Credit )
@@ -131,14 +151,14 @@ data rule ReferenceInformation_allGuarantees <"FpML validation rule cd-11 - If c
 data rule ReferenceInformation_referencePrice <"FpML validation rule cd-12 - If referencePrice exists, referencePrice must be greater or equal to 0">
 	when CreditDefaultPayout -> generalTerms -> referenceInformation -> referencePrice exists
 	then CreditDefaultPayout -> generalTerms -> referenceInformation -> referencePrice >= 0
-//
-//data rule CreditEvents_creditEventNotice_buyer <"FpML validation rule cd-13 - Context: CreditDefaultSwap (complex type). If protectionTerms/creditEvents/creditEventNotice/notifyingParty/buyerPartyReference exists, then the @href attribute of protectionTerms/creditEvents/creditEventNotice/notifyingParty/buyerPartyReference is equal to the @href attribute of generalTerms/buyerPartyReference.">
-//	when CreditDefaultSwap -> protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> buyerParty exists
-//	then CreditDefaultSwap -> protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> buyerParty = CreditDefaultSwap -> generalTerms -> buyerParty
-//
-//data rule CreditEvents_creditEventNotice_seller <"FpML validation rule cd-14 - Context: CreditDefaultSwap (complex type) If protectionTerms/creditEvents/creditEventNotice/notifyingParty/sellerPartyReference exists, then the @href attribute of protectionTerms/creditEvents/creditEventNotice/notifyingParty/sellerPartyReference must be equal to the @href attribute of generalTerms/sellerPartyReference.">
-//	when CreditDefaultSwap -> protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> sellerParty exists
-//	then CreditDefaultSwap -> protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> sellerParty = CreditDefaultSwap -> generalTerms -> sellerParty
+
+data rule CreditEvents_creditEventNotice_buyer <"FpML validation rule cd-13 - If protectionTerms/creditEvents/creditEventNotice/notifyingParty/buyerPartyReference exists, then the @href attribute of protectionTerms/creditEvents/creditEventNotice/notifyingParty/buyerPartyReference is equal to the @href attribute of generalTerms/buyerPartyReference.">
+	when CreditDefaultPayout -> protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> buyerPartyReference exists
+	then CreditDefaultPayout -> protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> buyerPartyReference = CreditDefaultPayout -> generalTerms -> buyerSeller -> buyerPartyReference
+	
+data rule CreditEvents_creditEventNotice_seller <"FpML validation rule cd-14 - If protectionTerms/creditEvents/creditEventNotice/notifyingParty/sellerPartyReference exists, then the @href attribute of protectionTerms/creditEvents/creditEventNotice/notifyingParty/sellerPartyReference must be equal to the @href attribute of generalTerms/sellerPartyReference.">
+	when CreditDefaultPayout -> protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> sellerPartyReference exists
+	then CreditDefaultPayout -> protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> sellerPartyReference = CreditDefaultPayout -> generalTerms -> buyerSeller -> sellerPartyReference
 
 data rule CreditDefaultPayout_contractualDefinitions_ISDA1999Credit <"FpML validation rule cd-19 - If the condition ISDA1999Credit is true, then the following elements must not exist: protectionTerms/creditEvents/creditEventNotice/businessCenter, protectionTerms/creditEvents/restructuring/multipleHolderObligation, protectionTerms/creditEvents/restructuring/multipleCreditEventNotices, generalTerms/referenceInformation/allGuarantees, generalTerms/indexReferenceInformation, generalTerms/substitution, generalTerms/modifiedEquityDelivery.">
 	when Contract -> documentation -> contractualDefinitions = ContractualDefinitionsEnum.ISDA1999Credit
@@ -183,6 +203,14 @@ data rule CreditDefaultPayout_contractualDefinitions_ISDA1999Credit <"FpML valid
 //		and Contract -> contractualProduct -> creditDefaultSwap -> generalTerms -> referenceInformation exists
 //	 	and Contract -> contractualProduct -> creditDefaultSwap -> feeLeg -> periodicPayment -> fixedAmountCalculation -> calculationAmount exists
 //	then Contract -> contractualProduct -> creditDefaultSwap -> feeLeg -> periodicPayment -> fixedAmountCalculation -> dayCountFraction must exist
+
+//data rule GeneralTerms_indexReferenceInformation <"FpML validation rule cd-41 - Context: GeneralTerms (complex type). If indexReferenceInformation/tranche does not exist, then modifiedEquityDelivery must not exist.">
+//	when GeneralTerms -> indexReferenceInformation -> tranche is absent
+//	then GeneralTerms -> modifiedEquityDelivery is absent
+//	
+//data rule GeneralTerms_basketReferenceInformation <"FpML validation rule cd-42 - Context: GeneralTerms (complex type). If basketReferenceInformation does not exist, then substitution must not exist.">
+//	when GeneralTerms -> basketReferenceInformation is absent
+//	then GeneralTerms -> substitution is absent
 
 choice rule CreditDefaultPayout_choice <"Choice rule to represent an FpML choice construct.">
 	for CreditDefaultPayout optional choice between
@@ -605,6 +633,7 @@ isProduct InterestRate_Option_DebtOption
 	[synonym ISDA_Taxonomy_v1 value InterestRate_DebtOption]
 	EconomicTerms -> payout -> optionPayout -> underlyer -> listedProduct -> bond exists
 		or EconomicTerms -> payout -> optionPayout -> underlyer -> listedProduct -> convertibleBond exists
+			
 /*
  * QUESTION TO CDM GROUP
  * TODO - How do we identify specify the CDS products, in the absence of normalised scheme values?

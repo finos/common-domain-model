@@ -2,38 +2,35 @@ Rosetta versionNumber "0.0.1"
 FIX versionNumber "5.0 SP3"
 FpML versionNumber "5.10"
 
-class AdjustableDate stereotype contractualProduct <"A class for defining a date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
-	[synonym FpML value AdjustableDate pathExpression "effectiveDate", "terminationDate", "firstPeriodStartDate", "mandatoryEarlyTerminationDate", "finalFixingDate", "adjustableDate"]
+class AdjustableDate stereotype contractualProduct <"A class for defining a date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date. Rosetta collapses the FpML AdjustableDate and AdjustableDat2 FpML constructs, as the only difference is that this latter allows for the ability to reference date adjustments through the dateAdjustmentsReference element.">
+	[synonym FpML value AdjustableDate2]
 {
 	id string (0..1) anchor;
 		[synonym FpML value id]
 	unadjustedDate date (1..1 ) <"A date subject to adjustment.">;
 		[synonym FpML value unadjustedDate]
-		[synonym FpML value unadjustedDate pathExpression "adjustableDate"]	
+		[synonym FpML value unadjustedDate pathExpression "adjustableDate"]
+		[synonym FpML value unadjustedDate pathExpression "calculationPeriodDates.firstPeriodStartDate"]
+		[synonym FpML value firstPeriodStartDate pathExpression "periodicPayment"]
 	dateAdjustments BusinessDayAdjustments (1..1) <"The business day convention and financial business centers used for adjusting the date if it would otherwise fall on a day that is not a business date in the specified business centers.">;
-		[synonym FpML value dateAdjustments]
+		[synonym FpML value dateAdjustments pathExpression "calculationPeriodDates.terminationDate"]
+		[synonym FpML value dateAdjustments pathExpression "calculationPeriodDates.effectiveDate"]
+		[synonym FpML value dateAdjustments pathExpression "calculationPeriodDates.firstPeriodStartDate"]
 		[synonym FpML value dateAdjustments pathExpression "adjustableDate"]
+		[synonym FpML value dateAdjustments]
+	dateAdjustmentsReference string (0..1) reference <"A pointer style reference to date adjustments defined elsewhere in the document.">;
+		[synonym FpML value dateAdjustmentsReference]
 	adjustedDate date (0..1) anchor <"The date once the adjustment has been performed. (Note that this date may change if the business center holidays change).">;
 		[synonym FpML value adjustedDate]
 		[synonym FpML value adjustedDate pathExpression "adjustableDate"]
 }
 
-class AdjustableDate2 stereotype contractualProduct <"A type that is different from AdjustableDate in two regards. First, date adjustments can be specified with either a dateAdjustments element or a reference to an existing dateAdjustments element. Second, it does not require the specification of date adjustments.">
-	[synonym FpML value AdjustableDate2 pathExpression "effectiveDate", "scheduledTerminationDate"]
-{
-	id string (0..1) anchor;
-		[synonym FpML value id]
-	unadjustedDate date (1..1 ) <"A date subject to adjustment.">;
-		[synonym FpML value unadjustedDate]
-	dateAdjustments BusinessDayAdjustments (0..1) reference <"The business day convention and financial business centers used for adjusting the date if it would otherwise fall on a day that is not a business date in the specified business centers. FpML specifies a choice between dateAdjustments and dateAdjustmentsReference, this latter being a reference to a dateAdjustments element specified somewhere else in the document. For legibility purposes, Rosetta specifies the actual business day adjustments.">;
-		[synonym FpML value dateAdjustments]
-		[synonym FpML value dateAdjustmentsReference]
-	adjustedDate date (0..1) anchor <"The date once the adjustment has been performed. (Note that this date may change if the business center holidays change).">;
-		[synonym FpML value adjustedDate]
-}
+choice rule AdjustableDate_choice <"Choice rule to represent an FpML choice construct.">
+	for AdjustableDate optional choice between
+	dateAdjustments and dateAdjustmentsReference 
 
 class AdjustableDates stereotype contractualProduct <"A class for defining a series of dates that shall be subject to adjustment if they would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the dates.">
-	[synonym FpML value AdjustableDates pathExpression "fxFixingSchedule", "adjustableDates"]
+	[synonym FpML value AdjustableDates]
 {
 	id string (0..1) anchor;
 		[synonym FpML value id]
@@ -46,7 +43,7 @@ class AdjustableDates stereotype contractualProduct <"A class for defining a ser
 }
 
 class AdjustableOrAdjustedDate stereotype contractualProduct <"A class for defining a date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
-	[synonym FpML value AdjustableOrAdjustedDate pathExpression "paymentDate"]
+	[synonym FpML value AdjustableOrAdjustedDate]
 {
 	id string (0..1) anchor;
 		[synonym FpML value id]
