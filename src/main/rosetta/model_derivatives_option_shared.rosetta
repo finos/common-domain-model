@@ -402,8 +402,9 @@ class Trigger stereotype contractualProduct <"Trigger point at which feature is 
 		[synonym FpML value level]
 	levelPercentage number (0..1) <"The trigger level percentage.">;
 		[synonym FpML value levelPercentage]
-	creditEvents CreditEvents (0..1) reference;
+	creditEvents CreditEvents (0..1);
 		[synonym FpML value creditEvents]
+	creditEventsReference string (0..1) reference;
 		[synonym FpML value creditEventsReference]
 	triggerType TriggerTypeEnum (0..1) <"The Triggering condition.">;
 		[synonym FpML value triggerType]
@@ -411,17 +412,18 @@ class Trigger stereotype contractualProduct <"Trigger point at which feature is 
 		[synonym FpML value triggerTimeType]
 }
 
-choice rule Trigger_choice <"Choice rule to represent an FpML choice construct.">
+choice rule Trigger_choice1 <"Choice rule to represent an FpML choice construct.">
 	for Trigger required choice between
 	level and levelPercentage and creditEvents
+
+choice rule Trigger_choice2 <"Choice rule to represent an FpML choice construct.">
+	for Trigger required choice between
+	creditEvents and creditEventsReference
 
 class TriggerEvent stereotype contractualProduct <"Observation point for trigger.">
 	[synonym FpML value TriggerEvent]
 {
-	/*
-	 * The schedule is specified as an equity derivative schedule in FpML, something which is incorrect in a context of usage beyond equity products.
-	 */
-	schedule AveragingSchedule (0..*) <"A derivative schedule">;
+	schedule AveragingSchedule (0..*) <"A derivative schedule.">;
 		[synonym FpML value schedule]
 	triggerDates DateList (0..1) <"The trigger Dates.">;
 		[synonym FpML value triggerDates]
