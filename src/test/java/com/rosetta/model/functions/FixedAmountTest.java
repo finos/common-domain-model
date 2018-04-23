@@ -31,13 +31,13 @@ class FixedAmountTest {
                 .setDayCountFraction(DayCountFractionEnum._30E_360)
                 .setCalculationPeriodDates(CalculationPeriodDates.builder()
                         .setEffectiveDate(AdjustableDate.builder()
-                                .setUnadjustedDate(LocalDate.of(2018, 3, 1))
+                                .setUnadjustedDate(LocalDate.of(2018, 1, 3))
                                 .setDateAdjustments(BusinessDayAdjustments.builder()
                                         .setBusinessDayConvention(BusinessDayConventionEnum.NONE)
                                         .build())
                                 .build())
                         .setTerminationDate(AdjustableDate.builder()
-                                .setUnadjustedDate(LocalDate.of(2020, 3, 1))
+                                .setUnadjustedDate(LocalDate.of(2020, 1, 3))
                                 .setDateAdjustments(BusinessDayAdjustments.builder()
                                         .setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
                                         .setBusinessCenters(BusinessCenters.builder()
@@ -61,7 +61,7 @@ class FixedAmountTest {
 
         FixedAmount.Result fixedAmount = new FixedAmount().calculate(interestRatePayout);
 
-// FIXME       assertThat(fixedAmount.getFixedAmount(), is(new BigDecimal("750000.0000")));
+        assertThat(fixedAmount.getFixedAmount(), is(new BigDecimal("750000.0000")));
         assertThat(fixedAmount.getCurrencyAmount(), is(CurrencyEnum.EUR));
     }
 
