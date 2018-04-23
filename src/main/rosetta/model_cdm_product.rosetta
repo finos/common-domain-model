@@ -51,6 +51,47 @@ data rule Contract_clearedDate
 	when Contract -> clearedDate exists
 	then Contract -> clearedDate >= Contract -> tradeDate
 
+data rule FpML_cd_1 <"FpML validation rule cd-1 - If referenceInformation exists, tradeDate must be before effectiveDate/unadjustedDate.">
+	when Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
+	then Contract -> tradeDate < Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> unadjustedDate
+
+data rule FpML_cd_5 <"FpML validation rule cd-5 - If effectiveDate exists, and if scheduledTerminationDate exists, then effectiveDate/unadjustedDate must be before scheduledTerminationDate/unadjustedDate.">
+	when Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate exists
+	then Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> unadjustedDate < Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> unadjustedDate
+
+data rule FpML_cd_7 <"FpML validation rule cd-7 - If condition LongForm is true, then effectiveDate/dateAdjustments exists.">
+	when ( Contract -> documentation -> masterConfirmation or Contract -> documentation -> contractualMatrix ) is absent
+		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
+	then Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> dateAdjustments exists
+	
+data rule FpML_cd_8 <"FpML validation rule cd-8 - If condition LongForm is true, and if scheduledTerminationDate exists then scheduledTerminationDate/dateAdjustments exists.">
+	when ( Contract -> documentation -> masterConfirmation or Contract -> documentation -> contractualMatrix ) is absent
+		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
+	then Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> dateAdjustments exists
+
+data rule FpML_cd_11 <"FpML validation rule cd-11 - If condition LongForm is true, and if condition ISDA2003 is true, then allGuarantees must exist.">
+	when ( Contract -> documentation -> masterConfirmation or Contract -> documentation -> contractualMatrix ) is absent
+		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
+		and Contract -> documentation -> contractualDefinitions = ContractualDefinitionsEnum.ISDA2003Credit
+	then Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> allGuarantees = True
+
+data rule FpML_cd_19 <"FpML validation rule cd-19 - If the condition ISDA1999Credit is true, then the following elements must not exist: protectionTerms/creditEvents/creditEventNotice/businessCenter, protectionTerms/creditEvents/restructuring/multipleHolderObligation, protectionTerms/creditEvents/restructuring/multipleCreditEventNotices, generalTerms/referenceInformation/allGuarantees, generalTerms/indexReferenceInformation, generalTerms/substitution, generalTerms/modifiedEquityDelivery.">
+	when Contract -> documentation -> contractualDefinitions = ContractualDefinitionsEnum.ISDA1999Credit
+	then (Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> creditEventNotice -> businessCenter
+		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleHolderObligation 
+		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleCreditEventNotices
+		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> allGuarantees
+		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> indexReferenceInformation
+		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> substitution
+		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> modifiedEquityDelivery)
+		is absent
+
+data rule FpML_cd_32 <"FpML validation rule cd-32 - If condition LongForm is true, and if fixedAmountCalculation/calculationAmount exists, then fixedAmountCalculation/dayCountFraction must exist.">
+	when (Contract -> documentation -> masterConfirmation or Contract -> documentation -> contractualMatrix) is absent
+		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
+	 	and Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
+	 	then Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> dayCountFraction exists
+
 class ContractualProduct <"The contractual product class is meant to be used across the entire pre-execution, execution and (as part of the Contract) post-execution lifecycle contexts.">
 {
 	productIdentification string (1..1) isProduct;
@@ -116,32 +157,6 @@ class CreditDefaultPayout <"The credit default payout specification terms.">
 	transactedPrice TransactedPrice (0..1) <"The qualification of the price at which the contract has been transacted, in terms of market fixed rate, initial points, market price and/or quotation style. In FpML, those attributes are positioned as part of the fee leg.">;
 }
 
-data rule FpML_cd_1 <"FpML validation rule cd-1 - If referenceInformation exists, tradeDate must be before effectiveDate/unadjustedDate.">
-	when Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
-	then Contract -> tradeDate < Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> unadjustedDate
-
-data rule FpML_cd_5 <"FpML validation rule cd-5 - If effectiveDate exists, and if scheduledTerminationDate exists, then effectiveDate/unadjustedDate must be before scheduledTerminationDate/unadjustedDate.">
-	when Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate exists
-	then Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> unadjustedDate < Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> unadjustedDate
-
-data rule FpML_cd_7 <"FpML validation rule cd-7 - If condition LongForm is true, then effectiveDate/dateAdjustments exists, with LongForm being specified as masterConfirmation and contractualMatrix do not exist and SingleName condition applies, with SingleName being specified as referenceInformation exists.">
-	when (Contract -> documentation -> masterConfirmation is absent 
-		or Contract -> documentation -> contractualMatrix is absent
-		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists)
-	then Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> dateAdjustments exists
-	
-data rule FpML_cd_8 <"FpML validation rule cd-8 - If condition LongForm is true, and if scheduledTerminationDate exists then scheduledTerminationDate/dateAdjustments exists, with LongForm being specified as masterConfirmation and contractualMatrix do not exist and SingleName condition applies, with SingleName being specified as referenceInformation exists.">
-	when (Contract -> documentation -> masterConfirmation is absent 
-		or Contract -> documentation -> contractualMatrix is absent
-		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists)
-	then Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> dateAdjustments exists
-
-data rule FpML_cd_11 <"FpML validation rule cd-11 - If condition LongForm is true, and if condition ISDA2003 is true, then allGuarantees must exist, with LongForm being specified as masterConfirmation and contractualMatrix do not exist and SingleName condition applies, with SingleName being specified as referenceInformation exists.">
-	when ( ( Contract -> documentation -> masterConfirmation exists 
-		or Contract -> documentation -> contractualMatrix exists ) 
-		and Contract -> documentation -> contractualDefinitions = ContractualDefinitionsEnum.ISDA2003Credit )
-	then Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> allGuarantees = True
-
 data rule FpML_cd_12 <"FpML validation rule cd-12 - If referencePrice exists, referencePrice must be greater or equal to 0">
 	when CreditDefaultPayout -> generalTerms -> referenceInformation -> referencePrice exists
 	then CreditDefaultPayout -> generalTerms -> referenceInformation -> referencePrice >= 0
@@ -154,58 +169,9 @@ data rule FpML_cd_14 <"FpML validation rule cd-14 - If protectionTerms/creditEve
 	when CreditDefaultPayout -> protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> sellerPartyReference exists
 	then CreditDefaultPayout -> protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> sellerPartyReference = CreditDefaultPayout -> generalTerms -> buyerSeller -> sellerPartyReference
 
-data rule FpML_cd_19 <"FpML validation rule cd-19 - If the condition ISDA1999Credit is true, then the following elements must not exist: protectionTerms/creditEvents/creditEventNotice/businessCenter, protectionTerms/creditEvents/restructuring/multipleHolderObligation, protectionTerms/creditEvents/restructuring/multipleCreditEventNotices, generalTerms/referenceInformation/allGuarantees, generalTerms/indexReferenceInformation, generalTerms/substitution, generalTerms/modifiedEquityDelivery.">
-	when Contract -> documentation -> contractualDefinitions = ContractualDefinitionsEnum.ISDA1999Credit
-	then (Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> creditEventNotice -> businessCenter
-		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleHolderObligation 
-		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleCreditEventNotices
-		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> allGuarantees
-		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> indexReferenceInformation
-		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> substitution
-		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> modifiedEquityDelivery)
-		is absent
-
-data rule FpML_cd_26_28 <"This data rule corresponds to two FpML validation rules, as the singlePayment and the firstPayment have been represented through the same Payout/cashflow attribute. FpML validation rule cd-26 - If feeLeg/singlePayment/adjustablePaymentDate exists, then feeLeg/singlePayment/adjustablePaymentDate must be after generalTerms/effectiveDate/unadjustedDate. FpML validation rule cd-28 - If feeLeg/periodicPayment/firstPaymentDate exists, then feeLeg/periodicPayment/firstPaymentDate must be after generalTerms/effectiveDate/unadjustedDate.">
-	when Payout -> creditDefaultPayout exists
-	and Payout -> cashflow exists
-	then Payout -> cashflow -> paymentDate -> adjustableDate -> unadjustedDate > Payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> unadjustedDate
-
-data rule FpML_cd_27_29 <"This data rule corresponds to two FpML validation rules, as the singlePayment and the firstPayment have been represented through the same Payout/cashflow attribute. FpML validation rule cd-27 - If feeLeg/singlePayment/adjustablePaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/singlePayment/adjustablePaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate. FpML validation rule cd-29 - If feeLeg/periodicPayment/firstPaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/periodicPayment/firstPaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
-	when Payout -> creditDefaultPayout exists
-	and Payout -> cashflow exists
-	then Payout -> cashflow -> paymentDate -> adjustableDate -> unadjustedDate < Payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> unadjustedDate
-
-data rule FpML_cd_30 <"FpML validation rule cd-30 - If feeLeg/periodicPayment/lastRegularPaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/periodicPayment/lastRegularPaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
-	when (Payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate 
-		and Payout -> interestRatePayout -> calculationPeriodDates -> terminationDate) exists
-	then Payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate < Payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> unadjustedDate
-	
-//data rule PeriodicPayment_firstPaymentDate_lastRegularPaymentDate <"FpML validation rule cd-31 - Context: PeriodicPayment (complex type). If firstPaymentDate exists, and if lastRegularPaymentDate exists, then firstPaymentDate must be before lastRegularPaymentDate.">
-//	when (CreditDefaultSwap -> feeLeg -> periodicPayment -> firstPaymentDate
-//		and CreditDefaultSwap -> feeLeg -> periodicPayment -> lastRegularPaymentDate) exists
-//	then CreditDefaultSwap -> feeLeg -> periodicPayment -> firstPaymentDate < CreditDefaultSwap -> feeLeg -> periodicPayment -> lastRegularPaymentDate
-
-//data rule PeriodicPayment_LongForm <"FpML validation rule cd-32 - Context: PeriodicPayment (complex type). If condition LongForm is true, and if fixedAmountCalculation/calculationAmount exists, then fixedAmountCalculation/dayCountFraction must exist.">
-//	when ( (Contract -> documentation -> masterConfirmation or Contract -> documentation -> contractualMatrix) is absent )
-//		and Contract -> contractualProduct -> creditDefaultSwap -> generalTerms -> referenceInformation exists
-//	 	and Contract -> contractualProduct -> creditDefaultSwap -> feeLeg -> periodicPayment -> fixedAmountCalculation -> calculationAmount exists
-//	then Contract -> contractualProduct -> creditDefaultSwap -> feeLeg -> periodicPayment -> fixedAmountCalculation -> dayCountFraction must exist
-
-//data rule GeneralTerms_indexReferenceInformation <"FpML validation rule cd-41 - Context: GeneralTerms (complex type). If indexReferenceInformation/tranche does not exist, then modifiedEquityDelivery must not exist.">
-//	when GeneralTerms -> indexReferenceInformation -> tranche is absent
-//	then GeneralTerms -> modifiedEquityDelivery is absent
-//	
-//data rule GeneralTerms_basketReferenceInformation <"FpML validation rule cd-42 - Context: GeneralTerms (complex type). If basketReferenceInformation does not exist, then substitution must not exist.">
-//	when GeneralTerms -> basketReferenceInformation is absent
-//	then GeneralTerms -> substitution is absent
-
 choice rule CreditDefaultPayout_choice <"Choice rule to represent an FpML choice construct.">
 	for CreditDefaultPayout optional choice between
 	cashSettlementTerms and physicalSettlementTerms
-
-data rule CreditDefaultPayout_quantity <"The notional associated with a credit product is always expressed as a notional amount.">
-	when InterestRatePayout exists
-	then InterestRatePayout -> quantity -> notionalAmount exists
 
 class EconomicTerms <"This class represents the full set of product economics: the payout component, as well as the legal optional provisions which have valuation implications.">
 {
@@ -245,6 +211,14 @@ class GeneralTerms <"A class specifying the general terms of the credit default 
 choice rule GeneralTerms_choice <"Choice rule to represent an FpML choice construct.">
 	for GeneralTerms required choice between
 	referenceInformation and indexReferenceInformation and basketReferenceInformation
+
+data rule FpML_cd_41 <"FpML validation rule cd-41 - If indexReferenceInformation/tranche does not exist, then modifiedEquityDelivery must not exist.">
+	when GeneralTerms -> indexReferenceInformation -> tranche is absent
+	then GeneralTerms -> modifiedEquityDelivery is absent
+	
+data rule FpML_cd_42 <"FpML validation rule cd-42 - If basketReferenceInformation does not exist, then substitution must not exist.">
+	when GeneralTerms -> basketReferenceInformation is absent
+	then GeneralTerms -> substitution is absent
 
 class InterestRate one of
 {
@@ -286,17 +260,17 @@ class InterestRatePayout extends PayerReceiver calculation FixedAmount, Floating
 		[synonym FpML value bondReference]
 }
 
-data rule ResetDates_calculationPeriodAmount <"FpML validation rule ird-1 - Reset dates must exist if and only if a floating rate or inflation rate exists.">
+data rule FpML_ird_1 <"FpML validation rule ird-1 - Reset dates must exist if and only if a floating rate or inflation rate exists.">
 	when InterestRatePayout -> resetDates exists
 	then (InterestRatePayout -> interestRate -> floatingRate 
 		or InterestRatePayout -> interestRate-> inflationRate) exists
 
-data rule InterestRatePayout_firstPaymentDate <"FpML validation rule ird-6 - If paymentDates/firstPaymentDate exists, and if calculationPeriodDates/effectiveDate exists, then paymentDates/firstPaymentDate must be after calculationPeriodDates/effectiveDate/unadjustedDate.">
+data rule FpML_ird_6 <"FpML validation rule ird-6 - If paymentDates/firstPaymentDate exists, and if calculationPeriodDates/effectiveDate exists, then paymentDates/firstPaymentDate must be after calculationPeriodDates/effectiveDate/unadjustedDate.">
 	when InterestRatePayout -> paymentDates -> firstPaymentDate exists 
 		and InterestRatePayout -> calculationPeriodDates -> effectiveDate exists
 	then InterestRatePayout -> paymentDates -> firstPaymentDate > InterestRatePayout -> calculationPeriodDates -> effectiveDate -> unadjustedDate
 
-data rule InterestRatePayout_payerReceiver <"FpML validation rule ird-8 - The @href attribute of payerPartyReference must not be equal to the @href attribute of receiverPartyReference. If they are equal, and if payerAccountReference and receiverAccountReference both exist, the @href attribute of payerAccountReference must not be equal to the @href attribute of receiverAccountReference">
+data rule FpML_ird_8 <"FpML validation rule ird-8 - The @href attribute of payerPartyReference must not be equal to the @href attribute of receiverPartyReference. If they are equal, and if payerAccountReference and receiverAccountReference both exist, the @href attribute of payerAccountReference must not be equal to the @href attribute of receiverAccountReference">
 	when InterestRatePayout exists
 	then InterestRatePayout -> payerPartyReference <> InterestRatePayout -> receiverPartyReference
 		or InterestRatePayout -> payerAccountReference <> InterestRatePayout -> receiverAccountReference
@@ -349,7 +323,7 @@ class NotionalSchedule <"A class specifying defining the notional amount or noti
 		[synonym FpML value notionalStepParameters]
 }
 
-data rule NotionalSchedule_notionalStepSchedule <"FpML validation rule ird-61 - Context: NonNegativeSchedule (complex type). If step does not exist, then initialValue must not be equal to 0.">
+data rule FpML_ird_61 <"FpML validation rule ird-61 - Context: NonNegativeSchedule (complex type). If step does not exist, then initialValue must not be equal to 0.">
 	when NotionalSchedule -> notionalStepSchedule -> step is absent
 	then NotionalSchedule -> notionalStepSchedule -> initialValue <>0.0
 
@@ -373,7 +347,7 @@ class OptionPayout <"The option payout specification terms.">
 		[synonym FpML value optionType pathExpression "trade.creditDefaultSwapOption"]
 		[synonym FpML value optionType pathExpression "trade.bondOption"]
 /*
- * Need to implement a mapping logic to map the FpML swaption straddle boolean flag into the common optionType
+ * TODO - Need to implement a mapping logic to map the FpML swaption straddle boolean flag into the common optionType
  */
 //		[synonym FpML value optionType set optionType.straddle when synonym trade.swaption.swaptionStraddle = True ]
 	feature OptionFeature (0..1) <"The option feature, such as quanto, Asian, barrier, knock.">;
@@ -449,6 +423,26 @@ class Payout <"The payout can be specified through a number of combinations, e.g
 		[synonym FpML value premium pathExpression "trade.bondOption"]
 	optionPayout OptionPayout (0..*);
 }
+
+data rule FpML_cd_26_28 <"This data rule corresponds to two FpML validation rules, as the singlePayment and the firstPayment have been represented through the same Payout/cashflow attribute. FpML validation rule cd-26 - If feeLeg/singlePayment/adjustablePaymentDate exists, then feeLeg/singlePayment/adjustablePaymentDate must be after generalTerms/effectiveDate/unadjustedDate. FpML validation rule cd-28 - If feeLeg/periodicPayment/firstPaymentDate exists, then feeLeg/periodicPayment/firstPaymentDate must be after generalTerms/effectiveDate/unadjustedDate.">
+	when Payout -> creditDefaultPayout exists
+	and Payout -> cashflow exists
+	then Payout -> cashflow -> paymentDate -> adjustableDate -> unadjustedDate > Payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> unadjustedDate
+
+data rule FpML_cd_27_29 <"This data rule corresponds to two FpML validation rules, as the singlePayment and the firstPayment have been represented through the same Payout/cashflow attribute. FpML validation rule cd-27 - If feeLeg/singlePayment/adjustablePaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/singlePayment/adjustablePaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate. FpML validation rule cd-29 - If feeLeg/periodicPayment/firstPaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/periodicPayment/firstPaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
+	when Payout -> creditDefaultPayout exists
+	and Payout -> cashflow exists
+	then Payout -> cashflow -> paymentDate -> adjustableDate -> unadjustedDate < Payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> unadjustedDate
+
+data rule FpML_cd_30 <"FpML validation rule cd-30 - If feeLeg/periodicPayment/lastRegularPaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/periodicPayment/lastRegularPaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
+	when (Payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate 
+		and Payout -> interestRatePayout -> calculationPeriodDates -> terminationDate) exists
+	then Payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate < Payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> unadjustedDate
+	
+data rule FpML_cd_31 <"FpML validation rule cd-31 - If firstPaymentDate exists, and if lastRegularPaymentDate exists, then firstPaymentDate must be before lastRegularPaymentDate.">
+	when (Payout -> interestRatePayout -> paymentDates -> firstPaymentDate
+		and Payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate) exists
+	then Payout -> interestRatePayout -> paymentDates -> firstPaymentDate < Payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate
 
 class Product one of
 {
