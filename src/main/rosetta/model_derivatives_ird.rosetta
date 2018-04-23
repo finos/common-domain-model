@@ -26,7 +26,7 @@ class BondReference stereotype contractualProduct <"A class including a referenc
 }
 
 /*
- * The below will need to be deprecated at some point, as its content has largely been incorporated as part of the InterestRatePayout
+ * TODO - The below will need to be deprecated at some point, as its content has largely been incorporated as part of the InterestRatePayout
  * The issue relates to the fact that CalculationPeriodAmount makes use of it
  * Also note that the notionalSchedule attribute has been changed to be of type NotionalSchedule
  */
@@ -92,17 +92,17 @@ choice rule CalculationPeriod_choice2 <"Choice rule to represent an FpML choice 
 	for CalculationPeriod required choice between
 		floatingRateDefinition and fixedRate
 
-data rule CalculationPeriod_calculationPeriodNumberOfDays <"FpML specifies calculationPeriodNumberOfDays as a positive integer.">
-	when PaymentCalculationPeriod -> calculationPeriod -> calculationPeriodNumberOfDays exists
-	then PaymentCalculationPeriod -> calculationPeriod -> calculationPeriodNumberOfDays >= 0
-
-data rule CalculationPeriod_unadjustedStartDate <"FpML validation rule ird-30 - Context: CalculationPeriod (complex type). unadjustedStartDate exists or adjustedStartDate exists.">
+data rule FpML_ird_30 <"FpML validation rule ird-30 - Context: CalculationPeriod (complex type). unadjustedStartDate exists or adjustedStartDate exists.">
 	when CalculationPeriod exists
 	then (CalculationPeriod -> unadjustedStartDate or CalculationPeriod -> adjustedStartDate) exists
 
-data rule CalculationPeriod_unadjustedEndDate <"FpML validation rule ird-31 - Context: CalculationPeriod (complex type). unadjustedEndDate exists or adjustedEndDate exists.">
+data rule FpML_ird_31 <"FpML validation rule ird-31 - Context: CalculationPeriod (complex type). unadjustedEndDate exists or adjustedEndDate exists.">
 	when CalculationPeriod exists
 	then (CalculationPeriod -> unadjustedEndDate or CalculationPeriod -> adjustedEndDate) exists
+
+data rule CalculationPeriod_calculationPeriodNumberOfDays <"FpML specifies calculationPeriodNumberOfDays as a positive integer.">
+	when PaymentCalculationPeriod -> calculationPeriod -> calculationPeriodNumberOfDays exists
+	then PaymentCalculationPeriod -> calculationPeriod -> calculationPeriodNumberOfDays >= 0
 
 class CalculationPeriodAmount stereotype contractualProduct <"A class defining the parameters used in the calculation of fixed or floating rate calculation period amounts or for specifying a known calculation period amount or known amount schedule.">
 	[synonym FpML value CalculationPeriodAmount]
@@ -135,7 +135,6 @@ class CalculationPeriodDates stereotype contractualProduct <"A class defining th
 	calculationPeriodDatesAdjustments BusinessDayAdjustments (1..1) <"The business day convention to apply to each calculation period end date if it would otherwise fall on a day which is not a business day in the specified business centers.">;
 		[synonym FpML value calculationPeriodDatesAdjustments pathExpression "calculationPeriodDates"]
 	firstPeriodStartDate AdjustableDate (0..1) <"The start date of the calculation period if the date falls before the effective date. It must only be specified if it is not equal to the effective date. This date may be subject to adjustment in accordance with a business day convention.">;
-		[synonym FpML value firstPeriodStartDate pathExpression "calculationPeriodDates"]
 	firstRegularPeriodStartDate date (0..1) <"The start date of the regular part of the calculation period schedule. It must only be specified if there is an initial stub calculation period. This day may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">;
 		[synonym FpML value firstRegularPeriodStartDate pathExpression "calculationPeriodDates"]
 	firstCompoundingPeriodEndDate date (0..1) <"The end date of the initial compounding period when compounding is applicable. It must only be specified when the compoundingMethod element is present and not equal to a value of None. This date may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">;
@@ -171,35 +170,33 @@ data rule CalculationPeriodDates_firstRegularPeriodEndDate <"FpML specifies that
 			and CalculationPeriodDates -> stubPeriodType <> StubPeriodTypeEnum.LongFinal )
 	then CalculationPeriodDates -> lastRegularPeriodEndDate is absent
 
-
-
-data rule CalculationPeriodDates_effectiveDate_terminationDate <"FpML validation rule ird-14 - Context: CalculationPeriodDates (complex type). If effectiveDate exists and If terminationDate exists, then terminationDate/unadjustedDate must be after effectiveDate/unadjustedDate.">
+data rule FpML_ird_14 <"FpML validation rule ird-14 - If effectiveDate exists and If terminationDate exists, then terminationDate/unadjustedDate must be after effectiveDate/unadjustedDate.">
 	when CalculationPeriodDates -> effectiveDate exists 
 		and CalculationPeriodDates -> terminationDate exists
 	then CalculationPeriodDates -> terminationDate -> unadjustedDate > CalculationPeriodDates -> effectiveDate -> unadjustedDate
 
-data rule CalculationPeriodDates_firstRegularPeriodStartDate <"FpML validation rule ird-16 - Context: CalculationPeriodDates (complex type). If firstRegularPeriodStartDate exists within any element of type CalculationPeriodDates, then terminationDate/unadjustedDate must be after firstRegularPeriodStartDate.">
+data rule FpML_ird_16 <"FpML validation rule ird-16 - If firstRegularPeriodStartDate exists within any element of type CalculationPeriodDates, then terminationDate/unadjustedDate must be after firstRegularPeriodStartDate.">
 	when CalculationPeriodDates -> firstRegularPeriodStartDate exists
 	then CalculationPeriodDates -> terminationDate -> unadjustedDate > CalculationPeriodDates -> firstRegularPeriodStartDate
 
-data rule CalculationPeriodDates_lastRegularPeriodEndDate <"FpML validation rule ird-17 - Context: CalculationPeriodDates (complex type). If lastRegularPeriodEndDate exists, then terminationDate/unadjustedDate must be after lastRegularPeriodEndDate.">
+data rule FpML_ird_17 <"FpML validation rule ird-17 - If lastRegularPeriodEndDate exists, then terminationDate/unadjustedDate must be after lastRegularPeriodEndDate.">
 	when CalculationPeriodDates -> lastRegularPeriodEndDate exists
 	then CalculationPeriodDates -> terminationDate -> unadjustedDate > CalculationPeriodDates -> lastRegularPeriodEndDate
 
-data rule FirstRegularPeriodStartDate_lastRegularPeriodEndDate <"FpML validation rule ird-18 - Context: CalculationPeriodDates (complex type) If firstRegularPeriodStartDate exists, and if lastRegularPeriodEndDate exists, then lastRegularPeriodEndDate must be after firstRegularPeriodStartDate.">
+data rule FpML_ird_18 <"FpML validation rule ird-18 - If firstRegularPeriodStartDate exists, and if lastRegularPeriodEndDate exists, then lastRegularPeriodEndDate must be after firstRegularPeriodStartDate.">
 	when (CalculationPeriodDates -> firstRegularPeriodStartDate 
 		and CalculationPeriodDates -> lastRegularPeriodEndDate) exists 
 	then CalculationPeriodDates -> lastRegularPeriodEndDate > CalculationPeriodDates -> firstRegularPeriodStartDate
 
-data rule LastRegularPeriodEndDate_effectiveDate <"FpML validation rule ird-20 - Context: CalculationPeriodDates (complex type). If lastRegularPeriodEndDate exists, then lastRegularPeriodEndDate must be after effectiveDate/unadjustedDate.">
+data rule FpML_ird_20 <"FpML validation rule ird-20 - If lastRegularPeriodEndDate exists, then lastRegularPeriodEndDate must be after effectiveDate/unadjustedDate.">
 	when CalculationPeriodDates -> lastRegularPeriodEndDate exists 
 	then CalculationPeriodDates -> lastRegularPeriodEndDate > CalculationPeriodDates -> effectiveDate -> unadjustedDate
 	
-data rule FirstPeriodStartDate_effectiveDate <"FpML validation rule ird-21 - Context: CalculationPeriodDates (complex type). If firstPeriodStartDate exists, then firstPeriodStartDate/unadjustedDate must be before effectiveDate/unadjustedDate.">
+data rule FpML_ird_21 <"FpML validation rule ird-21 - If firstPeriodStartDate exists, then firstPeriodStartDate/unadjustedDate must be before effectiveDate/unadjustedDate.">
 	when CalculationPeriodDates -> firstPeriodStartDate exists 
 	then CalculationPeriodDates -> firstPeriodStartDate -> unadjustedDate < CalculationPeriodDates -> effectiveDate -> unadjustedDate
 
-data rule FirstPeriodStartDate_firstRegularPeriodStartDate <"FpML validation rule ird-22 - Context: CalculationPeriodDates (complex type). If firstPeriodStartDate exists, and if firstRegularPeriodStartDate exists, then firstPeriodStartDate/unadjustedDate must be before firstRegularPeriodStartDate.">
+data rule FpML_ird_22 <"FpML validation rule ird-22 - If firstPeriodStartDate exists, and if firstRegularPeriodStartDate exists, then firstPeriodStartDate/unadjustedDate must be before firstRegularPeriodStartDate.">
 	when CalculationPeriodDates -> firstPeriodStartDate exists
 		and CalculationPeriodDates -> firstRegularPeriodStartDate exists 
 	then CalculationPeriodDates -> firstPeriodStartDate -> unadjustedDate < CalculationPeriodDates -> firstRegularPeriodStartDate
@@ -267,33 +264,6 @@ class CashPriceMethod stereotype contractualProduct <"A type defining the parame
 		[synonym FpML value cashSettlementCurrency]
 	quotationRateType QuotationRateTypeEnum (1..1) <"Which rate quote is to be observed, either Bid, Mid, Offer or Exercising Party Pays. The meaning of Exercising Party Pays is defined in the 2000 ISDA Definitions, Section 17.2. Certain Definitions Relating to Cash Settlement, paragraph (j).">;
 		[synonym FpML value quotationRateType]
-}
-
-class OptionCashSettlement stereotype contractualProduct <"A class to define the cash settlement terms for a product where cash settlement is applicable.">
-	[synonym FpML value CashSettlement]
-{
-	id string (0..1);
-		[synonym FpML value id]
-	cashSettlementValuationTime BusinessCenterTime (0..1) <"The time of the cash settlement valuation date when the cash settlement amount will be determined according to the cash settlement method if the parties have not otherwise been able to agree the cash settlement amount.">;
-		[synonym FpML value cashSettlementValuationTime]
-	cashSettlementValuationDate RelativeDateOffset (0..1) <"The date on which the cash settlement amount will be determined according to the cash settlement method if the parties have not otherwise been able to agree the cash settlement amount.">;
-		[synonym FpML value cashSettlementValuationDate]
-	cashSettlementPaymentDate CashSettlementPaymentDate (0..1) <"The date on which the cash settlement amount will be paid, subject to adjustment in accordance with any applicable business day convention. This component would not be present for a mandatory early termination provision where the cash settlement payment date is the mandatory early termination date.">;
-		[synonym FpML value cashSettlementPaymentDate]
-	cashPriceMethod CashPriceMethod (0..1) <"An ISDA defined cash settlement method used for the determination of the applicable cash settlement amount. The method is defined in the 2006 ISDA Definitions, Section 18.3. Cash Settlement Methods, paragraph (a).">;
-		[synonym FpML value cashPriceMethod]
-	cashPriceAlternateMethod CashPriceMethod (0..1) <"An ISDA defined cash settlement method used for the determination of the applicable cash settlement amount. The method is defined in the 2006 ISDA Definitions, Section 18.3. Cash Settlement Methods, paragraph (b).">;
-		[synonym FpML value cashPriceAlternateMethod]
-	parYieldCurveAdjustedMethod YieldCurveMethod (0..1) <"An ISDA defined cash settlement method used for the determination of the applicable cash settlement amount. The method is defined in the 2006 ISDA Definitions, Section 18.3. Cash Settlement Methods, paragraph (c).">;
-		[synonym FpML value parYieldCurveAdjustedMethod]
-	zeroCouponYieldAdjustedMethod YieldCurveMethod (0..1) <"An ISDA defined cash settlement method used for the determination of the applicable cash settlement amount. The method is defined in the 2006 ISDA Definitions, Section 18.3. Cash Settlement Methods, paragraph (d).">;
-		[synonym FpML value zeroCouponYieldAdjustedMethod]
-	parYieldCurveUnadjustedMethod YieldCurveMethod (0..1) <"An ISDA defined cash settlement method used for the determination of the applicable cash settlement amount. The method is defined in the 2006 ISDA Definitions, Section 18.3. Cash Settlement Methods, paragraph (e).">;
-		[synonym FpML value parYieldCurveUnadjustedMethod]
-	crossCurrencyMethod CrossCurrencyMethod (0..1) <"An ISDA defined cash settlement method used for the determination of the applicable cash settlement amount. The method is defined in the 2006 ISDA Definitions, Section 18.3. Cash Settlement Methods, paragraph (f) (published in Supplement number 23).">;
-		[synonym FpML value crossCurrencyMethod]
-	collateralizedCashPriceMethod YieldCurveMethod (0..1) <"An ISDA defined cash settlement method used for the determination of the applicable cash settlement amount. The method is defined in the 2006 ISDA Definitions, Section 18.3. Cash Settlement Methods, paragraph (g) (published in Supplement number 28).">;
-		[synonym FpML value collateralizedCashPriceMethod]
 }
 
 choice rule OptionCashSettlement_choice <"Choice rule to represent an FpML choice construct.">
@@ -474,7 +444,7 @@ class ExtensionEvent stereotype contractualProduct <"A class to define the adjus
 		[synonym FpML value adjustedExtendedTerminationDate]
 }
 
-data rule ExtensionEvent_adjustedExerciseDate <"FpML validation rule ird-42 - Context: ExtensionEvent (complex type). adjustedExerciseDate must be before adjustedExtendedTerminationDate.">
+data rule FpML_ird_42 <"FpML validation rule ird-42 - adjustedExerciseDate must be before adjustedExtendedTerminationDate.">
 	when ExtensionEvent exists
 	then ExtensionEvent -> adjustedExerciseDate < ExtensionEvent -> adjustedExtendedTerminationDate
 
@@ -647,7 +617,7 @@ class MandatoryEarlyTermination stereotype contractualProduct <"A class to defin
 		[synonym FpML value mandatoryEarlyTerminationAdjustedDates]
 }
 
-data rule MandatoryEarlyTermination_cashSettlement <"FpML validation rule ird-27 - Context: MandatoryEarlyTermination (complex type). cashSettlement/cashSettlementPaymentDate must not exist.">
+data rule FpML_ird_27 <"FpML validation rule ird-27 - cashSettlement/cashSettlementPaymentDate must not exist.">
 	when MandatoryEarlyTermination -> cashSettlement exists
 	then MandatoryEarlyTermination -> cashSettlement -> cashSettlementPaymentDate is absent
 
@@ -662,7 +632,7 @@ class MandatoryEarlyTerminationAdjustedDates stereotype contractualProduct <"A c
 		[synonym FpML value adjustedCashSettlementPaymentDate]
 }
 
-data rule MandatoryEarlyTerminationAdjustedDates_datesPrecedence <"FpML validation rule ird-44 - Context: MandatoryEarlyTerminationAdjustedDates (complex type). adjustedEarlyTerminationDate must be before or equal to adjustedCashSettlementValuationDate must be before or the same as adjustedCashSettlementPaymentDate">
+data rule FpML_ird_44 <"FpML validation rule ird-44 - Context: MandatoryEarlyTerminationAdjustedDates (complex type). adjustedEarlyTerminationDate must be before or equal to adjustedCashSettlementValuationDate must be before or the same as adjustedCashSettlementPaymentDate">
 	when MandatoryEarlyTerminationAdjustedDates exists
 	then MandatoryEarlyTerminationAdjustedDates -> adjustedEarlyTerminationDate <= MandatoryEarlyTerminationAdjustedDates -> adjustedCashSettlementValuationDate
 		and MandatoryEarlyTerminationAdjustedDates -> adjustedCashSettlementValuationDate <= MandatoryEarlyTerminationAdjustedDates -> adjustedCashSettlementPaymentDate
@@ -749,6 +719,33 @@ class OptionalEarlyTerminationAdjustedDates stereotype contractualProduct <"A cl
 		[synonym FpML value earlyTerminationEvent]
 }
 
+class OptionCashSettlement stereotype contractualProduct <"A class to define the cash settlement terms for a product where cash settlement is applicable.">
+	[synonym FpML value CashSettlement]
+{
+	id string (0..1);
+		[synonym FpML value id]
+	cashSettlementValuationTime BusinessCenterTime (0..1) <"The time of the cash settlement valuation date when the cash settlement amount will be determined according to the cash settlement method if the parties have not otherwise been able to agree the cash settlement amount.">;
+		[synonym FpML value cashSettlementValuationTime]
+	cashSettlementValuationDate RelativeDateOffset (0..1) <"The date on which the cash settlement amount will be determined according to the cash settlement method if the parties have not otherwise been able to agree the cash settlement amount.">;
+		[synonym FpML value cashSettlementValuationDate]
+	cashSettlementPaymentDate CashSettlementPaymentDate (0..1) <"The date on which the cash settlement amount will be paid, subject to adjustment in accordance with any applicable business day convention. This component would not be present for a mandatory early termination provision where the cash settlement payment date is the mandatory early termination date.">;
+		[synonym FpML value cashSettlementPaymentDate]
+	cashPriceMethod CashPriceMethod (0..1) <"An ISDA defined cash settlement method used for the determination of the applicable cash settlement amount. The method is defined in the 2006 ISDA Definitions, Section 18.3. Cash Settlement Methods, paragraph (a).">;
+		[synonym FpML value cashPriceMethod]
+	cashPriceAlternateMethod CashPriceMethod (0..1) <"An ISDA defined cash settlement method used for the determination of the applicable cash settlement amount. The method is defined in the 2006 ISDA Definitions, Section 18.3. Cash Settlement Methods, paragraph (b).">;
+		[synonym FpML value cashPriceAlternateMethod]
+	parYieldCurveAdjustedMethod YieldCurveMethod (0..1) <"An ISDA defined cash settlement method used for the determination of the applicable cash settlement amount. The method is defined in the 2006 ISDA Definitions, Section 18.3. Cash Settlement Methods, paragraph (c).">;
+		[synonym FpML value parYieldCurveAdjustedMethod]
+	zeroCouponYieldAdjustedMethod YieldCurveMethod (0..1) <"An ISDA defined cash settlement method used for the determination of the applicable cash settlement amount. The method is defined in the 2006 ISDA Definitions, Section 18.3. Cash Settlement Methods, paragraph (d).">;
+		[synonym FpML value zeroCouponYieldAdjustedMethod]
+	parYieldCurveUnadjustedMethod YieldCurveMethod (0..1) <"An ISDA defined cash settlement method used for the determination of the applicable cash settlement amount. The method is defined in the 2006 ISDA Definitions, Section 18.3. Cash Settlement Methods, paragraph (e).">;
+		[synonym FpML value parYieldCurveUnadjustedMethod]
+	crossCurrencyMethod CrossCurrencyMethod (0..1) <"An ISDA defined cash settlement method used for the determination of the applicable cash settlement amount. The method is defined in the 2006 ISDA Definitions, Section 18.3. Cash Settlement Methods, paragraph (f) (published in Supplement number 23).">;
+		[synonym FpML value crossCurrencyMethod]
+	collateralizedCashPriceMethod YieldCurveMethod (0..1) <"An ISDA defined cash settlement method used for the determination of the applicable cash settlement amount. The method is defined in the 2006 ISDA Definitions, Section 18.3. Cash Settlement Methods, paragraph (g) (published in Supplement number 28).">;
+		[synonym FpML value collateralizedCashPriceMethod]
+}
+
 class PaymentCalculationPeriod stereotype contractualProduct <"A class defining the adjusted payment date and associated calculation period parameters required to calculate the actual or projected payment amount. This class forms part of the cashflow representation of a swap stream.">
 	[synonym FpML value PaymentCalculationPeriod]
 {
@@ -774,7 +771,7 @@ choice rule PaymentCalculationPeriod_choice <"Choice rule to represent an FpML c
 	for PaymentCalculationPeriod required choice between
 		calculationPeriod and fixedPaymentAmount
 	
-data rule PaymentCalculationPeriod_unadjustedPaymentDate <"FpML validation rule ird-34 - Context: PaymentCalculationPeriod (complex type). Either unadjustedPaymentDate or adjustedPaymentDate must exist.">
+data rule FpML_ird_34 <"FpML validation rule ird-34 - Context: PaymentCalculationPeriod (complex type). Either unadjustedPaymentDate or adjustedPaymentDate must exist.">
 	when PaymentCalculationPeriod exists
 	then PaymentCalculationPeriod -> unadjustedPaymentDate exists
 		or PaymentCalculationPeriod -> adjustedPaymentDate exists

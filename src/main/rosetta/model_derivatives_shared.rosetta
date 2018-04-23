@@ -2,38 +2,42 @@ Rosetta versionNumber "0.0.1"
 FIX versionNumber "5.0 SP3"
 FpML versionNumber "5.10"
 
-class AdjustableDate stereotype contractualProduct <"A class for defining a date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
-	[synonym FpML value AdjustableDate pathExpression "effectiveDate", "terminationDate", "firstPeriodStartDate", "mandatoryEarlyTerminationDate", "finalFixingDate", "adjustableDate"]
+class AdjustableDate stereotype contractualProduct <"A class for defining a date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date. Rosetta collapses the FpML AdjustableDate and AdjustableDat2 FpML constructs, as the only difference is that this latter allows for the ability to reference date adjustments through the dateAdjustmentsReference element.">
+	[synonym FpML value AdjustableDate2]
 {
 	id string (0..1) anchor;
 		[synonym FpML value id]
 	unadjustedDate date (1..1 ) <"A date subject to adjustment.">;
 		[synonym FpML value unadjustedDate]
-		[synonym FpML value unadjustedDate pathExpression "adjustableDate"]	
+		[synonym FpML value unadjustedDate pathExpression "adjustableDate"]
+		[synonym FpML value unadjustedDate pathExpression "paymentDate"]
+		[synonym FpML value unadjustedDate pathExpression "paymentDate.adjustableDate"]
+		[synonym FpML value unadjustedDate pathExpression "calculationPeriodDates.firstPeriodStartDate"]
+		[synonym FpML value firstPeriodStartDate pathExpression "periodicPayment"]
+		[synonym FpML value adjustablePaymentDate pathExpression "singlePayment"]
 	dateAdjustments BusinessDayAdjustments (1..1) <"The business day convention and financial business centers used for adjusting the date if it would otherwise fall on a day that is not a business date in the specified business centers.">;
 		[synonym FpML value dateAdjustments]
+		[synonym FpML value dateAdjustments pathExpression "calculationPeriodDates.terminationDate"]
+		[synonym FpML value dateAdjustments pathExpression "calculationPeriodDates.effectiveDate"]
+		[synonym FpML value dateAdjustments pathExpression "calculationPeriodDates.firstPeriodStartDate"]
+		[synonym FpML value dateAdjustments pathExpression "paymentDate.adjustableDate"]
 		[synonym FpML value dateAdjustments pathExpression "adjustableDate"]
-	adjustedDate date (0..1) anchor <"The date once the adjustment has been performed. (Note that this date may change if the business center holidays change).">;
-		[synonym FpML value adjustedDate]
-		[synonym FpML value adjustedDate pathExpression "adjustableDate"]
-}
-
-class AdjustableDate2 stereotype contractualProduct <"A type that is different from AdjustableDate in two regards. First, date adjustments can be specified with either a dateAdjustments element or a reference to an existing dateAdjustments element. Second, it does not require the specification of date adjustments.">
-	[synonym FpML value AdjustableDate2 pathExpression "effectiveDate", "scheduledTerminationDate"]
-{
-	id string (0..1) anchor;
-		[synonym FpML value id]
-	unadjustedDate date (1..1 ) <"A date subject to adjustment.">;
-		[synonym FpML value unadjustedDate]
-	dateAdjustments BusinessDayAdjustments (0..1) reference <"The business day convention and financial business centers used for adjusting the date if it would otherwise fall on a day that is not a business date in the specified business centers. FpML specifies a choice between dateAdjustments and dateAdjustmentsReference, this latter being a reference to a dateAdjustments element specified somewhere else in the document. For legibility purposes, Rosetta specifies the actual business day adjustments.">;
-		[synonym FpML value dateAdjustments]
+		[synonym FpML value dateAdjustments pathExpression "paymentDate"]
+	dateAdjustmentsReference string (0..1) reference <"A pointer style reference to date adjustments defined elsewhere in the document.">;
 		[synonym FpML value dateAdjustmentsReference]
 	adjustedDate date (0..1) anchor <"The date once the adjustment has been performed. (Note that this date may change if the business center holidays change).">;
 		[synonym FpML value adjustedDate]
+		[synonym FpML value adjustedDate pathExpression "paymentDate"]
+		[synonym FpML value adjustedDate pathExpression "adjustableDate"]
+		[synonym FpML value adjustedDate pathExpression "paymentDate.adjustableDate"]
 }
 
+choice rule AdjustableDate_choice <"Choice rule to represent an FpML choice construct.">
+	for AdjustableDate optional choice between
+	dateAdjustments and dateAdjustmentsReference 
+
 class AdjustableDates stereotype contractualProduct <"A class for defining a series of dates that shall be subject to adjustment if they would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the dates.">
-	[synonym FpML value AdjustableDates pathExpression "fxFixingSchedule", "adjustableDates"]
+	[synonym FpML value AdjustableDates]
 {
 	id string (0..1) anchor;
 		[synonym FpML value id]
@@ -46,7 +50,7 @@ class AdjustableDates stereotype contractualProduct <"A class for defining a ser
 }
 
 class AdjustableOrAdjustedDate stereotype contractualProduct <"A class for defining a date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
-	[synonym FpML value AdjustableOrAdjustedDate pathExpression "paymentDate"]
+	[synonym FpML value AdjustableOrAdjustedDate]
 {
 	id string (0..1) anchor;
 		[synonym FpML value id]
@@ -72,6 +76,7 @@ class AdjustableOrRelativeDate stereotype contractualProduct <"A class giving th
 	adjustableDate AdjustableDate (0..1) <"A date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">;
 	relativeDate RelativeDateOffset (0..1) <"A date specified as some offset to another date (the anchor date).">;
 		[synonym FpML value relativeDate]
+		[synonym FpML value relativeDate pathExpression "paymentDate"]
 }
 
 choice rule AdjustableOrRelativeDate_choice <"Choice rule to represent and an FpML choice construct.">
@@ -507,35 +512,6 @@ class FloatingRateCalculation extends FloatingRate stereotype contractualProduct
 		[synonym FpML value negativeInterestRateTreatment pathExpression "calculationPeriodAmount.calculation.floatingRateCalculation"]
 }
 
-class Formula stereotype contractualProduct <"A class describing a financial formula, with its description and components.">
-	[synonym FpML value Formula]
-{
-	formulaDescription string (0..1) <"Text description of the formula.">;
-		[synonym FpML value formulaDescription]
-	formulaComponent FormulaComponent (0..*) <"Elements describing the components of the formula. The name attribute points to a value used in the math element.">;
-		[synonym FpML value formulaComponent]
-/*
- * The math element that is part of the FpML Formula type has not be specified at this point, 
- * as it not clear how to express MathML components as part of the model.
- * Need to clarify whether it is actually used as part of the market practice before engaging in such avenue.
- */
-}
-
-class FormulaComponent stereotype contractualProduct <"Elements describing the components of the formula. The name attribute points to a value used in the math element.">
-	[synonym FpML value formulaComponent]
-{
-	/* 
-	 * The name attribute should be commented out until such time that as math element is introduced as part of Formula 
-	 * name string (0..1) <"The formula component name.">;
-	 * [synonym FpML value name]
-	 */
-	componentdescription string (1..1) <"Text description of the component.">;
-		[synonym FpML value componentdescription]
-//	The below Formula has been commented out, as this circular reference is creating issues.  Actual use needs to be confirmed.
-//	formula Formula (0..1) <"Additional formula required to describe this component.">;
-//	[synonym FpML value formula]
-}
-
 class Frequency stereotype contractualProduct <"A class defining a time frequency, e.g. one day, three months. Used for specifying payment or calculation frequencies at which the value T (Term) is applicable.">
 	[synonym FpML value Frequency]
 {
@@ -660,18 +636,17 @@ class MasterConfirmation stereotype contractualProduct <"A class for defining th
 
 class Money stereotype contractualProduct <"A class defining a currency amount.">
 	[synonym FpML value Money]
-	[synonym ISO_20022 value ActiveOrHistoricCurrencyAndAmount]
-	[synonym ISO_20022 value ActiveCurrencyAnd13DecimalAmount]
 {
 	id string (0..1) anchor;
 		[synonym FpML value id]
-	currency CurrencyEnum (1..1) <"The currency in which an amount is denominated.">;
+	currency CurrencyEnum (1..1) scheme "currencyScheme" <"The currency in which an amount is denominated.">;
 		[synonym FpML value currency]
-		[synonym ISO_20022 value Ccy]
+		[synonym FpML value currency pathExpression "paymentAmount"]
+		[synonym FpML value currency pathExpression "fixedAmount"]
 	amount number (1..1) <"The monetary quantity in currency units.">;
 		[synonym FpML value amount]
-		[synonym ISO_20022 value ActiveCurrencyAnd13DecimalAmount_SimpleType]
-		[synonym ISO_20022 value ActiveOrHistoricCurrencyAndAmount_SimpleType]
+		[synonym FpML value amount pathExpression "paymentAmount"]
+		[synonym FpML value amount pathExpression "fixedAmount"]
 }
 
 class MultipleExercise extends PartialExercise stereotype contractualProduct one of <"A class defining multiple exercises. As defined in the 2000 ISDA Definitions, Section 12.4. Multiple Exercise, the buyer of the option has the right to exercise all or less than all the unexercised notional amount of the underlying swap on one or more days in the exercise period, but on any such day may not exercise less than the minimum notional amount or more than the maximum notional amount, and if an integral multiple amount is specified, the notional exercised must be equal to or, be an integral multiple of, the integral multiple amount. In FpML, MultipleExercise is built upon the PartialExercise.model.">
@@ -798,9 +773,7 @@ class Payment extends PayerReceiver stereotype contractualProduct <"A class for 
 	id string (0..1) anchor;
 		[synonym FpML value id]
 	paymentAmount Money (1..1) <"The currency amount of the payment.">;
-		[synonym FpML value paymentAmount]
 	paymentDate AdjustableOrRelativeDate (0..1) <"The payment date. While FpML specifies this element to be of type AdjustableOrAdjustedDate, Rosetta uses the type AdjustableOrRelativeDate to accommodate the credit default swap option premium, which uses the relative date construct.">;
-		[synonym FpML value paymentDate]
 	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">;
 /*
  * TODO - Enable mapping syntax to map to the premium qualification
@@ -823,10 +796,11 @@ class PaymentDetail stereotype contractualProduct
 		[synonym FpML value paymentDate]
 	paymentAmount Money (0..1) <"A fixed payment amount.">;
 		[synonym FpML value paymentAmount]
-/*
- * FpML provides the ability to specify a payment rule through an abstract base type.
- * Before engaging into representing it as part of Rosetta, let's see if it's actually used.
- */
+	/*
+	 * TODO - Need to specify the paymentRule, which is specified in FpML as an abstract type,
+	 * but without associated substitution group.  The example cds-ELCDS-ReferenceObligation
+	 * references paymentRule xsi:type="PercentageRule", but it is not clear as to where this rule is specified
+	 */
 }
 
 data rule Payment_paymentAmount <"FpML specifies paymentAmount as a NonNegativeMoney type.">
@@ -1042,6 +1016,7 @@ class Schedule stereotype contractualProduct <"A class defining a schedule of ra
 {
 	id string (0..1) anchor;
 		[synonym FpML value id]
+		[synonym FpML value id pathExpression "periodicPayment.fixedAmountCalculation.fixedRate"]
 	initialValue number (1..1) <"The initial rate or amount, as the case may be. An initial rate of 5% would be represented as 0.05.">;
 		[synonym FpML value initialValue]
 		[synonym FpML value initialValue pathExpression "calculationPeriodAmount.calculation.fixedRateSchedule"]
