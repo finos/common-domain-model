@@ -29,19 +29,13 @@ arguments FloatingAmount <"The set of arguments to calculate the FloatingAmount.
 {
 	calculationAmount: is InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
 	currencyAmount: is InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> currency
-	floatingRate: is ResolveRateIndex(InterestRatePayout -> interestRate -> floatingRate -> floatingRateIndex) -> rate
-	spread: is CurrentSchedule ( InterestRatePayout -> interestRate -> floatingRate ) -> schedule -> initialValue
+	floatingRate: is ResolveRateIndex( InterestRatePayout -> interestRate -> floatingRate -> floatingRateIndex ) -> rate
+
+	/*
+	 * TODO: question to group: why can a float rate calculation node in FpML contain multiple rate schedules?
+	 */
+	spread: is GetRateSchedule( InterestRatePayout -> interestRate -> floatingRate ) -> schedule -> initialValue
 	dayCountFraction: is InterestRatePayout -> dayCountFraction
-}
-
-function CurrentSchedule(floatingRateCalculation FloatingRateCalculation)
-{
-	schedule SpreadSchedule;
-}
-
-function ResolveRateIndex(index FloatingRateIndexEnum) <"The function to specify that the floating rate index enumeration will be expressed as a number once the rate is observed.">
-{
-	rate number;
 }
 
 /**************************
@@ -55,35 +49,47 @@ calculation DayCountFractionEnum._30E_360 <"2006 ISDA Definition Article 4 secti
 
 arguments DayCountFractionEnum._30E_360 <"2006 ISDA Definition Article 4 section 4.16(g). 'Y1' is the year, expressed as a number, in which the first day of the Calculation Period or Compounding Period falls; 'Y2' is the year, expressed as a number, in which the day immediately following the last day included in the Calculation Period or Compounding Period falls; 'M1' is the calendar month, expressed as a number, in which the first day of the Calculation Period or Compounding Period falls; 'M2' is the calendar month, expressed as a number, in which the day immediately following the last day included in the Calculation Period or Compounding Period falls; 'D1' is the first calendar day, expressed as a number, of the Calculation Period or Compounding Period, unless such number would be 31, in which case D1 will be 30; and 'D2' is the calendar day, expressed as a number, immediately following the last day included in the Calculation Period or Compounding Period, unless such number would be 31, in which case D2 will be 30.">
 {
-	alias period CalculationPeriod(InterestRatePayout -> calculationPeriodDates)
+	alias period CalculationPeriod( InterestRatePayout -> calculationPeriodDates )
 
 	endYear : is period -> endDate -> year
 	startYear : is period -> startDate -> year
 	endMonth : is period -> endDate -> month
 	startMonth : is period -> startDate -> month
-	startDay : is Min(period -> startDate -> day, 30)
-	endDay : is Min(period -> endDate -> day, 30)
-}
-
-function CalculationPeriod (dates CalculationPeriodDates) <"2006 ISDA Definition Section 4.13. 'Calculation Period' means, in respect of a Swap Transaction and a party, each period from, and including, one Period End Date of that party to, but excluding, the next following applicable Period End Date during the Term of the Swap Transaction, except that (a) the initial Calculation Period for the party will commence on, and include, the Effective Date and (b) the final Calculation Period for the party will end on, but exclude, the Termination Date.">
-{
-	startDate date;
-	endDate date;
+	startDay : is Min( period -> startDate -> day, 30 )
+	endDay : is Min( period -> endDate -> day, 30 )
 }
 
 /*************************************
  * DayCountFraction Actual/365 (Fixed)
  */
- 
+
 calculation DayCountFractionEnum.ACT_365_FIXED <"'2006 ISDA Definition Article 4 section 4.16(d): If'Actual/365 (Fixed)', 'Act/365 (Fixed)', 'A/365 (Fixed)' or 'A/365F' is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 365.">
 {
-	number: (endDay - startDay) / 365
+	number:  daysInPeriod / 365
 }
 
 arguments DayCountFractionEnum.ACT_365_FIXED
 {
-	alias period CalculationPeriod(InterestRatePayout -> calculationPeriodDates)
-	
-	startDay : is period -> startDate -> day
-	endDay : is period -> endDate -> day
+	daysInPeriod : is DaysInPeriod( InterestRatePayout -> calculationPeriodDates ) -> days
+}
+
+function CalculationPeriod( calculationPeriodDates CalculationPeriodDates ) <"2006 ISDA Definition Section 4.13. 'Calculation Period' means, in respect of a Swap Transaction and a party, each period from, and including, one Period End Date of that party to, but excluding, the next following applicable Period End Date during the Term of the Swap Transaction, except that (a) the initial Calculation Period for the party will commence on, and include, the Effective Date and (b) the final Calculation Period for the party will end on, but exclude, the Termination Date.">
+{
+	startDate date;
+	endDate date;
+}
+
+function GetRateSchedule( floatingRateCalculation FloatingRateCalculation )
+{
+	schedule SpreadSchedule;
+}
+
+function ResolveRateIndex( index FloatingRateIndexEnum ) <"The function to specify that the floating rate index enumeration will be expressed as a number once the rate is observed.">
+{
+	rate number;
+}
+
+function DaysInPeriod( calculationPeriodDates CalculationPeriodDates )
+{
+	days int;
 }
