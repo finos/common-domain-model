@@ -14,7 +14,7 @@ class AssetPool stereotype contractualProduct, productReferenceData <"Characteri
 	effectiveDate date (0..1) <"Optionally it is possible to specify a version effective date when a version is supplied.">;
 		[synonym FpML value effectiveDate]
 	initialFactor number (1..1) <"The part of the mortgage that is outstanding on trade inception, i.e. has not been repaid yet as principal. It is expressed as a multiplier factor to the mortgage: 1 means that the whole mortgage amount is outstanding, 0.8 means that 20% has been repaid.">;
-		[synonym FpML value initialCost]
+		[synonym FpML value initialFactor]
 	currentFactor number (0..1) <"The part of the mortgage that is currently outstanding. It is expressed similarly to the initial factor, as factor multiplier to the mortgage. This term is formally defined as part of the 'ISDA Standard Terms Supplement for use with credit derivatives transactions on mortgage-backed security with pas-as-you-go or physical settlement'.">;
 		[synonym FpML value currentFactor]
 }
@@ -100,11 +100,24 @@ choice rule FixedIncomeSecurity_issuer <"Choice rule to represent an FpML choice
 	for FixedIncomeSecurity optional choice between
 	issuerName and issuerReference
 
-class Loan stereotype productReferenceData
+class IdentifiedAsset <"A generic class describing an identified asset.">
+	[synonym FpML value IdentifiedAsset]
+{
+	id string (0..1) anchor;
+		[synonym FpML value id]
+	instrumentIdentifier string (1..*) scheme "instrumentIdScheme" <"Identification of the underlying asset, using public and/or private identifiers.">	;
+		[synonym FpML value instrumentId]
+	description string (0..1) <"Long name of the underlying asset.">;
+		[synonym FpML value descrption]
+}
+
+class Loan extends IdentifiedAsset stereotype productReferenceData
 	[synonym FpML value Loan]
 {
-	borrower Party (0..*) reference <"Specifies the borrower. There can be more than one borrower. It is meant to be used in the event that there is no Bloomberg Id or the Secured List isn't applicable.  In FpML, the borrower is of type LegalEntity, while in Rosetta we deem important to provide the ability for natural persons to be loan borrowers.">;
+	
+	borrower LegalEntity (0..*) <"Specifies the borrower. There can be more than one borrower. It is meant to be used in the event that there is no Bloomberg Id or the Secured List isn't applicable.">;
 		[synonym FpML value borrower]
+	borrowerReference string (0..*) reference;
 		[synonym FpML value borrowerReference]
 	lien string (0..1) scheme "lienScheme" <"Specifies the seniority level of the lien.">;
 		[synonym FpML value lien]

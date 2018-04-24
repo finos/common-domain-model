@@ -117,14 +117,6 @@ class CreditEvents stereotype contractualProduct
 	creditEventNotice CreditEventNotice (0..1) <"A specified condition to settlement. An irrevocable written or verbal notice that describes a credit event that has occurred. The notice is sent from the notifying party (either the buyer or the seller) to the counterparty. It provides information relevant to determining that a credit event has occurred. This is typically accompanied by Publicly Available Information. ISDA 2003 Term: Credit Event Notice.">;
 		[synonym FpML value creditEventNotice]
 }
-//
-//data rule CreditEvents_creditEventNotice_buyer <"FpML validation rule cd-13 - Context: CreditDefaultSwap (complex type). If protectionTerms/creditEvents/creditEventNotice/notifyingParty/buyerPartyReference exists, then the @href attribute of protectionTerms/creditEvents/creditEventNotice/notifyingParty/buyerPartyReference is equal to the @href attribute of generalTerms/buyerPartyReference.">
-//	when CreditDefaultSwap -> protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> buyerParty exists
-//	then CreditDefaultSwap -> protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> buyerParty = CreditDefaultSwap -> generalTerms -> buyerParty
-//
-//data rule CreditEvents_creditEventNotice_seller <"FpML validation rule cd-14 - Context: CreditDefaultSwap (complex type) If protectionTerms/creditEvents/creditEventNotice/notifyingParty/sellerPartyReference exists, then the @href attribute of protectionTerms/creditEvents/creditEventNotice/notifyingParty/sellerPartyReference must be equal to the @href attribute of generalTerms/sellerPartyReference.">
-//	when CreditDefaultSwap -> protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> sellerParty exists
-//	then CreditDefaultSwap -> protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> sellerParty = CreditDefaultSwap -> generalTerms -> sellerParty
 
 class CreditEventNotice stereotype contractualProduct
 	[synonym FpML value CreditEventNotice]
@@ -232,9 +224,9 @@ class Knock stereotype contractualProduct <"Knock In means option to exercise co
 class NotifyingParty stereotype contractualProduct
 	[synonym FpML value NotifyingParty]
 {
-	buyerParty Party (1..1) reference <"FpML specifies a reference to the buyer party. Rosetta explicitly specifies the party, to simplify data access.">;
+	buyerPartyReference string (1..1) reference;
 		[synonym FpML value buyerPartyReference]
-	sellerParty Party (0..1) reference <"FpML specifies a reference to the seller party. Rosetta explicitly specifies the party, to simplify data access.">;
+	sellerPartyReference string (0..1) reference;
 		[synonym FpML value sellerPartyReference]
 }
 
@@ -410,8 +402,9 @@ class Trigger stereotype contractualProduct <"Trigger point at which feature is 
 		[synonym FpML value level]
 	levelPercentage number (0..1) <"The trigger level percentage.">;
 		[synonym FpML value levelPercentage]
-	creditEvents CreditEvents (0..1) reference;
+	creditEvents CreditEvents (0..1);
 		[synonym FpML value creditEvents]
+	creditEventsReference string (0..1) reference;
 		[synonym FpML value creditEventsReference]
 	triggerType TriggerTypeEnum (0..1) <"The Triggering condition.">;
 		[synonym FpML value triggerType]
@@ -419,17 +412,18 @@ class Trigger stereotype contractualProduct <"Trigger point at which feature is 
 		[synonym FpML value triggerTimeType]
 }
 
-choice rule Trigger_choice <"Choice rule to represent an FpML choice construct.">
+choice rule Trigger_choice1 <"Choice rule to represent an FpML choice construct.">
 	for Trigger required choice between
 	level and levelPercentage and creditEvents
+
+choice rule Trigger_choice2 <"Choice rule to represent an FpML choice construct.">
+	for Trigger required choice between
+	creditEvents and creditEventsReference
 
 class TriggerEvent stereotype contractualProduct <"Observation point for trigger.">
 	[synonym FpML value TriggerEvent]
 {
-	/*
-	 * The schedule is specified as an equity derivative schedule in FpML, something which is incorrect in a context of usage beyond equity products.
-	 */
-	schedule AveragingSchedule (0..*) <"A derivative schedule">;
+	schedule AveragingSchedule (0..*) <"A derivative schedule.">;
 		[synonym FpML value schedule]
 	triggerDates DateList (0..1) <"The trigger Dates.">;
 		[synonym FpML value triggerDates]

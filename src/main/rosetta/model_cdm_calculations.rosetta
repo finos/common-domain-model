@@ -30,7 +30,7 @@ arguments FloatingAmount <"The set of arguments to calculate the FloatingAmount.
 	calculationAmount: is InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
 	currencyAmount: is InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> currency
 	floatingRate: is ResolveRateIndex( InterestRatePayout -> interestRate -> floatingRate -> floatingRateIndex ) -> rate
-	
+
 	/*
 	 * TODO: question to group: why can a float rate calculation node in FpML contain multiple rate schedules?
 	 */
@@ -62,21 +62,17 @@ arguments DayCountFractionEnum._30E_360 <"2006 ISDA Definition Article 4 section
 /*************************************
  * DayCountFraction Actual/365 (Fixed)
  */
- 
+
 calculation DayCountFractionEnum.ACT_365_FIXED <"'2006 ISDA Definition Article 4 section 4.16(d): If'Actual/365 (Fixed)', 'Act/365 (Fixed)', 'A/365 (Fixed)' or 'A/365F' is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 365.">
 {
 	number:  daysInPeriod / 365
 }
 
 arguments DayCountFractionEnum.ACT_365_FIXED
-{	
+{
 	daysInPeriod : is DaysInPeriod( InterestRatePayout -> calculationPeriodDates ) -> days
 }
 
-/**
- * This is a externally defined function.
- * This defines a function that returns a start date and end date given a calculationPeriodDates instance from the model via 'arguments CalculationPeriod.
- */
 function CalculationPeriod( calculationPeriodDates CalculationPeriodDates ) <"2006 ISDA Definition Section 4.13. 'Calculation Period' means, in respect of a Swap Transaction and a party, each period from, and including, one Period End Date of that party to, but excluding, the next following applicable Period End Date during the Term of the Swap Transaction, except that (a) the initial Calculation Period for the party will commence on, and include, the Effective Date and (b) the final Calculation Period for the party will end on, but exclude, the Termination Date.">
 {
 	startDate date;
@@ -93,7 +89,7 @@ function ResolveRateIndex( index FloatingRateIndexEnum ) <"The function to speci
 	rate number;
 }
 
-function DaysInPeriod( calculationPeriodDates CalculationPeriodDates ) 
+function DaysInPeriod( calculationPeriodDates CalculationPeriodDates )
 {
 	days int;
 }

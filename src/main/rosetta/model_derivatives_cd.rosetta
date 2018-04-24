@@ -131,16 +131,7 @@ data rule CashSettlementTerms_quotationAmount <"FpML validation rule cd-37 - Con
 		and CashSettlementTerms -> quotationAmount -> currency = CashSettlementTerms -> minimumQuotationAmout -> currency
 	then CashSettlementTerms -> quotationAmount -> amount > CashSettlementTerms -> minimumQuotationAmout -> amount
 
-//data rule CreditDefaultSwap_contractualDefinitions_ISDA1999Credit <"FpML validation rule cd-19 - Context: CreditDefaultSwap (complex type). If the condition ISDA1999Credit is true, then the following elements must not exist: protectionTerms/creditEvents/creditEventNotice/businessCenter, protectionTerms/creditEvents/restructuring/multipleHolderObligation, protectionTerms/creditEvents/restructuring/multipleCreditEventNotices, generalTerms/referenceInformation/allGuarantees, generalTerms/indexReferenceInformation, generalTerms/substitution, generalTerms/modifiedEquityDelivery.">
-//	when Contract -> documentation -> contractualDefinitions = ContractualDefinitionsEnum.ISDA1999Credit
-//	then (Contract -> contractualProduct -> creditDefaultSwap -> protectionTerms -> creditEvents -> creditEventNotice -> businessCenter
-//		and Contract -> contractualProduct -> creditDefaultSwap -> protectionTerms -> creditEvents -> restructuring -> multipleHolderObligation 
-//		and Contract -> contractualProduct -> creditDefaultSwap -> protectionTerms -> creditEvents -> restructuring -> multipleCreditEventNotices
-//		and Contract -> contractualProduct -> creditDefaultSwap -> generalTerms -> referenceInformation -> allGuarantees
-//		and Contract -> contractualProduct -> creditDefaultSwap -> generalTerms -> indexReferenceInformation
-//		and Contract -> contractualProduct -> creditDefaultSwap -> generalTerms -> substitution
-//		and Contract -> contractualProduct -> creditDefaultSwap -> generalTerms -> modifiedEquityDelivery)
-//		must be absent
+
 //
 //data rule CreditDefaultSwap_contractualDefinitions_ISDA2003Credit <"FpML validation rule cd-20 - Context: CreditDefaultSwap (complex type). If the condition ISDA2003 is true, then protectionTerms/obligations/notContingent must not exist."> 
 //	when Contract -> documentation -> contractualDefinitions = ContractualDefinitionsEnum.ISDA2003Credit
@@ -530,7 +521,7 @@ class Obligations stereotype contractualProduct <"A class to specify the underly
 	notContingent boolean (0..1) <"OTE: Only allowed as an obligation characteristic under ISDA Credit 1999. In essence Not Contingent means the repayment of principal cannot be dependent on a formula/index, i.e. to prevent the risk of being delivered an instrument that may never pay any element of principal, and to ensure that the obligation is interest bearing (on a regular schedule). ISDA 2003 Term: Not Contingent.">;
 		[synonym FpML value notContingent]
 	excluded string (0..1) <"A free format string to specify any excluded obligations or deliverable obligations, as the case may be, of the reference entity or excluded types of obligations or deliverable obligations. ISDA 2003 Term: Excluded Obligations/Excluded Deliverable Obligations.">;
-		[synonym FpML value notContingent]
+		[synonym FpML value excluded]
 	othReferenceEntityObligations string (0..1) <"This element is used to specify any other obligations of a reference entity in both obligations and deliverable obligations. The obligations can be specified free-form. ISDA 2003 Term: Other Obligations of a Reference Entity.">;
 		[synonym FpML value othReferenceEntityObligations]
 	designatedPriority string (0..1) scheme "lienScheme" <"Applies to Loan CDS, to indicate what lien level is appropriate for a deliverable obligation. Applies to European Loan CDS, to indicate the Ranking of the obligation. Example: a 2nd lien Loan CDS would imply that the deliverable obligations are 1st or 2nd lien loans.">;
@@ -584,30 +575,6 @@ class PeriodicPayment stereotype contractualProduct
 choice rule PeriodicPayment_choice <"Choice rule to represent an FpML choice construct.">
 	for PeriodicPayment required choice between
 	fixedAmount and fixedAmountCalculation and floatingAmountCalculation
-
-//data rule PeriodicPayment_firstPaymentDate_effectiveDate <"FpML validation rule cd-28 - Context: CreditDefaultSwap (complex type). If feeLeg/periodicPayment/firstPaymentDate exists, then feeLeg/periodicPayment/firstPaymentDate must be after generalTerms/effectiveDate/unadjustedDate.">
-//	when CreditDefaultSwap -> feeLeg -> periodicPayment -> firstPaymentDate exists
-//	then CreditDefaultSwap -> feeLeg -> periodicPayment -> firstPaymentDate > CreditDefaultSwap -> generalTerms -> effectiveDate -> unadjustedDate
-
-//data rule PeriodicPayment_firstPaymentDate_scheduledTerminationDate <"FpML validation rule cd-29 - Context: CreditDefaultSwap (complex type). If feeLeg/periodicPayment/firstPaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/periodicPayment/firstPaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
-//	when CreditDefaultSwap -> feeLeg -> periodicPayment -> firstPaymentDate exists
-//	then CreditDefaultSwap -> feeLeg -> periodicPayment -> firstPaymentDate < CreditDefaultSwap -> generalTerms -> scheduledTerminationDate -> unadjustedDate
-
-//data rule PeriodicPayment_lastRegularPaymentDate <"FpML validation rule cd-30 - Context: CreditDefaultSwap (complex type). If feeLeg/periodicPayment/lastRegularPaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/periodicPayment/lastRegularPaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
-//	when (CreditDefaultSwap -> feeLeg -> periodicPayment -> lastRegularPaymentDate 
-//		and CreditDefaultSwap -> generalTerms -> scheduledTerminationDate) exists
-//	then CreditDefaultSwap -> feeLeg -> periodicPayment -> lastRegularPaymentDate < CreditDefaultSwap -> generalTerms -> scheduledTerminationDate -> unadjustedDate
-	
-//data rule PeriodicPayment_firstPaymentDate_lastRegularPaymentDate <"FpML validation rule cd-31 - Context: PeriodicPayment (complex type). If firstPaymentDate exists, and if lastRegularPaymentDate exists, then firstPaymentDate must be before lastRegularPaymentDate.">
-//	when (CreditDefaultSwap -> feeLeg -> periodicPayment -> firstPaymentDate
-//		and CreditDefaultSwap -> feeLeg -> periodicPayment -> lastRegularPaymentDate) exists
-//	then CreditDefaultSwap -> feeLeg -> periodicPayment -> firstPaymentDate < CreditDefaultSwap -> feeLeg -> periodicPayment -> lastRegularPaymentDate
-
-//data rule PeriodicPayment_LongForm <"FpML validation rule cd-32 - Context: PeriodicPayment (complex type). If condition LongForm is true, and if fixedAmountCalculation/calculationAmount exists, then fixedAmountCalculation/dayCountFraction must exist.">
-//	when ( (Contract -> documentation -> masterConfirmation or Contract -> documentation -> contractualMatrix) is absent )
-//		and Contract -> contractualProduct -> creditDefaultSwap -> generalTerms -> referenceInformation exists
-//	 	and Contract -> contractualProduct -> creditDefaultSwap -> feeLeg -> periodicPayment -> fixedAmountCalculation -> calculationAmount exists
-//	then Contract -> contractualProduct -> creditDefaultSwap -> feeLeg -> periodicPayment -> fixedAmountCalculation -> dayCountFraction must exist
 
 class PhysicalSettlementPeriod stereotype contractualProduct one of
 	[synonym FpML value PhysicalSettlementPeriod]
@@ -684,16 +651,6 @@ class ReferenceInformation stereotype contractualProduct <"A class specifying th
 choice rule ReferenceInformation_choice <"Choice rule to represent an FpML choice construct.">
 	for ReferenceInformation required choice between
 		referenceObligation and noReferenceObligation and unknownReferenceObligation
-//
-//data rule ReferenceInformation_allGuarantees <"FpML validation rule cd-11 - Context: ReferenceInformation (complex type). If condition LongForm is true, and if condition ISDA2003 is true, then allGuarantees must exist.">
-//	when ( ( Contract -> documentation -> masterConfirmation exists 
-//		or Contract -> documentation -> contractualMatrix exists ) 
-//		and Contract -> documentation -> contractualDefinitions = ContractualDefinitionsEnum.ISDA2003Credit )
-//	then Contract -> contractualProduct -> creditDefaultSwap -> generalTerms -> referenceInformation -> allGuarantees = True
-
-//data rule ReferenceInformation_referencePrice <"FpML validation rule cd-12 - Context: ReferenceInformation (complex type). If referencePrice exists, referencePrice must be greater or equal to 0">
-//	when CreditDefaultSwap -> generalTerms -> referenceInformation -> referencePrice exists
-//	then CreditDefaultSwap -> generalTerms -> referenceInformation -> referencePrice >=0.0
 
 class ReferenceObligation stereotype contractualProduct
 	[synonym FpML value ReferenceObligation]
@@ -706,8 +663,9 @@ class ReferenceObligation stereotype contractualProduct
 		[synonym FpML value mortgage]
 	loan Loan (0..1) <"Identifies the underlying asset when it is a loan.">;
 		[synonym FpML value loan]
-	primaryObligor LegalEntity (0..1) reference <"The entity primarily responsible for repaying debt to a creditor as a result of borrowing or issuing bonds. ISDA 2003 Term: Primary Obligor.">;
+	primaryObligor LegalEntity (0..1) <"The entity primarily responsible for repaying debt to a creditor as a result of borrowing or issuing bonds. ISDA 2003 Term: Primary Obligor.">;
 		[synonym FpML value primaryObligor]
+	primaryObligorReference string (0..1) reference <"A pointer style reference to a reference entity defined elsewhere in the document. Used when the reference entity is the primary obligor.">;
 		[synonym FpML value primaryObligorReference]
 	guarantor LegalEntity (0..1) reference <"The party that guarantees by way of a contractual arrangement to pay the debts of an obligor if the obligor is unable to make the required payments itself. ISDA 2003 Term: Guarantor.">;
 		[synonym FpML value guarantor]
@@ -716,9 +674,13 @@ class ReferenceObligation stereotype contractualProduct
 		[synonym FpML value standardReferenceObligation]
 }
 
-choice rule ReferenceObligation_choice <"Choice rule to represent an FpML choice construct.">
+choice rule ReferenceObligation_choice1 <"Choice rule to represent an FpML choice construct.">
 	for ReferenceObligation required choice between
 	bond and convertibleBond and loan and mortgage
+
+choice rule ReferenceObligation_choice2 <"Choice rule to represent an FpML choice construct.">
+	for ReferenceObligation optional choice between
+	primaryObligor and primaryObligorReference
 
 class ReferencePair stereotype contractualProduct
 	[synonym FpML value ReferencePair]
@@ -790,15 +752,6 @@ class SinglePayment stereotype contractualProduct
 		[synonym FpML value paymentAmount]
 		
 }
-
-//data rule SinglePayment_adjustablePaymentDate_effectiveDate <"FpML validation rule cd-26 - Context: CreditDefaultSwap (complex type). If feeLeg/singlePayment/adjustablePaymentDate exists, then feeLeg/singlePayment/adjustablePaymentDate must be after generalTerms/effectiveDate/unadjustedDate.">
-//	when CreditDefaultSwap -> feeLeg -> singlePayment -> adjustablePaymentDate exists
-//	then CreditDefaultSwap -> feeLeg -> singlePayment -> adjustablePaymentDate > CreditDefaultSwap -> generalTerms -> effectiveDate -> unadjustedDate
-//
-//data rule SinglePayment_adjustablePaymentDate_scheduledTerminationDate <"FpML validation rule cd-27 - Context: CreditDefaultSwap (complex type). If feeLeg/singlePayment/adjustablePaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/singlePayment/adjustablePaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
-//	when (CreditDefaultSwap -> feeLeg -> singlePayment -> adjustablePaymentDate 
-//		and CreditDefaultSwap -> generalTerms -> scheduledTerminationDate) exists
-//	then CreditDefaultSwap -> feeLeg -> singlePayment -> adjustablePaymentDate < CreditDefaultSwap -> generalTerms -> scheduledTerminationDate -> unadjustedDate
 
 class SingleValuationDate stereotype contractualProduct <"A class to specify the number of business days after satisfaction of all conditions to settlement.">
 	[synonym FpML value SingleValuationDate]
