@@ -33,7 +33,7 @@ class CalculationPeriodImplTest {
                             .build())
                     .build())
             .setCalculationPeriodFrequency((CalculationPeriodFrequency) CalculationPeriodFrequency.builder()
-                    .setRollConvention(RollConventionEnum._1)
+                    .setRollConvention(RollConventionEnum._3)
                     .setPeriodMultiplier(3)
                     .setPeriod(PeriodExtendedEnum.M)
                     .build())
@@ -47,15 +47,17 @@ class CalculationPeriodImplTest {
 
     @Test
     void shouldReturnStartAndEndDateOfFirstPeriod() {
-        CalculationPeriod.Result usingStartDate = unit.execute(calculationPeriodDates, LocalDate.of(2018, 3, 1));
+        CalculationPeriod.Result usingStartDate = unit.execute(calculationPeriodDates, LocalDate.of(2018, 1, 3));
 
-        assertThat(usingStartDate.getStartDate(), is(new DateImpl(1, 3, 2018)));
-        assertThat(usingStartDate.getEndDate(), is(new DateImpl(1, 6, 2018)));
+        assertThat(usingStartDate.getStartDate(), is(new DateImpl(3, 1, 2018)));
+        assertThat(usingStartDate.getEndDate(), is(new DateImpl(3, 4, 2018)));
 
-        CalculationPeriod.Result usingAnyDate = unit.execute(calculationPeriodDates, LocalDate.of(2018, 4, 23));
-        CalculationPeriod.Result usingEndDate = unit.execute(calculationPeriodDates, LocalDate.of(2018, 5, 31));
+        CalculationPeriod.Result usingAnyDate = unit.execute(calculationPeriodDates, LocalDate.of(2018, 2, 14));
+        CalculationPeriod.Result usingEndDate = unit.execute(calculationPeriodDates, LocalDate.of(2018, 3, 31));
 
-        assertThat(usingStartDate, allOf(is(usingAnyDate), is(usingEndDate)));
+        // TODO: once equals and hashcode for Result objects in place, compare objects directly (no need to compare fields)
+        assertThat(usingStartDate.getStartDate(), allOf(is(usingAnyDate.getStartDate()), is(usingEndDate.getStartDate())));
+        assertThat(usingStartDate.getEndDate(), allOf(is(usingAnyDate.getEndDate()), is(usingEndDate.getEndDate())));
     }
 
     @Test
