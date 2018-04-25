@@ -9,105 +9,13 @@ class Account stereotype entityReferenceData <"The account specification.">
 		[synonym FpML value id]
 	accountNumber string (1..1) scheme "accountIdScheme" <"The account number.">;
 		[synonym FpML value accountId]
-	accountName string (0..1) <"The name by which the account is known.">;
+	accountName string (0..1) scheme "accountNameScheme" <"The name by which the account is known.">;
 		[synonym FpML value accountName]
-	accountType AccountTypeEnum (0..1) <"The type of account, e.g. client, house.">;
+	accountType AccountTypeEnum (0..1) scheme "accountTypeScheme" <"The type of account, e.g. client, house.">;
 		[synonym FpML value accountType]
 	servicingParty string (0..1) reference <"The reference to the legal entity that services the account, i.e. in the books of which the account is held.">;
 		[synonym FpML value servicingParty]
 }
-
-class Address stereotype entityReferenceData <"A class to specify a postal address. While all the elements' cardinalities are optional in FpML, a number of those have been set as required in Rosetta.">
-	[synonym FpML value Address]
-{
-	streetAddress StreetAddress (1..1) <"The set of street and building number information that identifies a postal address within a city.">;
-	city string (1..1) <"The city component of a postal address.">;
-	state string (0..1) <"A country subdivision used in postal addresses in some countries. For example, US states, Canadian provinces, Swiss cantons.">;
-	country Country (1..1) <"The country where the address is located.">;
-	postalCode string (0..1) <"The code, required for computerised mail sorting systems, that is allocated to a physical address by a national postal authority.">;
-}
-
-class Algorithm stereotype entityReferenceData <"Provides information about an algorithm that executed or otherwise participated in the transaction.">
-	[synonym FpML value Algorithm]
-	[regulatoryReference ESMA_MiFIR specification "ISO 20022 - Part 2" section "20.1.11.2.10.2" provision "Algorithm <Algo> - Definition: Identification of an algorithm."]
-{
-	name string (1..1) <"The name of the algorithm.">;
-		[synonym FpML value name]
-		[synonym ISO_20022 value Algo]
-	role AlgorithmRoleEnum (0..1) <"The algorithm role, as specified through an enumeration, e.g. Execution, InvestmentDecision.">;
-		[synonym FpML value role]
-}
-
-class Branch stereotype entityReferenceData <"The branch of an investment firm.">
-{
-	country Country (0..1) <"The country in which the branch is established.">;
-		[synonym ISO_20022 value CtryOfBrnch]
-		[regulatoryReference ESMA_MiFIR regulation "RTS 22" article "4(h)" provision "Orders need to include the indication of the country of the branch of the investment firm where the person responsible for the investment decision is located and country of the investment firm's branch that received the order from the client or made an investment decision for a client in accordance with a discretionary mandate given to it by the client."]
-}
-
-class BusinessUnit stereotype entityReferenceData <"A class that represents information about a unit within an organisation.">
-	[synonym FpML value BusinessUnit]
-{
-	id string (0..1);
-		[synonym FpML value id]
-	name string (0..1) <"A name used to describe the organisation unit.">;
-		[synonym FpML value name]
-	businessUnitId string (0..1) scheme "unitScheme" <"An identifier used to uniquely identify organisation unit.">;
-		[synonym FpML value businessUnitId]
-	contactInformation ContactInformation (0..1) <"Information on how to contact the unit using various means.">;
-		[synonym FpML value contactInfo]
-	country Country (0..1) <"The country where the business unit is located. FpML corresponding definition is '(...) country where the individual works.', but that definition seems erroneous.">;
-		[synonym FpML value country]
-}
-
-class ContactInformation stereotype entityReferenceData <"A class that represents how to contact an individual or organisation.">
-	[synonym FpML value ContactInformation]
-{
-	telephone TelephoneNumber (0..1) <"A telephonic contact.">;
-		[synonym FpML value telephone]
-	email string (0..1) <"An address on an electronic mail or messaging system.">;
-		[synonym FpML value email]
-	address Address (0..1) <"A postal or street address.">;
-		[synonym FpML value address]
-}
-
-class Country stereotype otherReferenceData <"The ISO 3166 country codes.">
-{
-	name string (1..1) <"The country name.">; // Expectation is that the country name will be derived from the ISO 3166-1 alpha-2 extract; there will be a need for a logic that checks that it is consistent with the names associated with the other codes
-	alpha2 CountryAlpha2Enum (0..1) <"The ISO 3166-1 alpha-2 country code, e.g. AD for Andorra. FIX makes use of the ISO alpha2 code.">;
-		[synonym FIX value Country tag 421]
-	alpha3 CountryAlpha3Enum (0..1) <"The ISO 3166-1 alpha-3 country code, e.g. AND for Andorra.">;
-	unM49 int (0..1) <"The United Nations M49 Code, e.g. 020 for Andorra.">;
-}
-
-choice rule Country_choice <"The country identification should be undertaken through one of the alternative country codes.">
-	for Country required choice between
-		alpha2 and alpha3 and unM49
-
-/*
- * Need to revisit that rule at some point, as it is not efficient to list all possible usages of the country
- * Also, MiFID requirement is that alpha2 code be used to report the transaction, not that alpha2 code be used to express all business transactions
- */
-//data rule Country_alpha2 <"The ISO 20022 Financial Instruments and Transactions Regulatory Reporting Message Definition Report, adopted as part of the MiFID II / MiFIR regulation, requires the use of the ISO 3166 alpha2 country code.">
-//	[regulatoryReference ESMA_MiFIR specification "ISO 20022 - Part 2" section "3.3 Constraint 4" provision "Country - The code is checked against the list of country names obtained from the United Nations (ISO 3166, Alpha-2 code)."]
-//	when TransactionEvent -> eligibilityAssessment -> isEligibleToMiFID_II = True
-//	then TransactionEvent -> party -> legalEntity -> countryOfIncorporation -> alpha2 exists
-//		and TransactionEvent -> party -> legalEntity -> branch -> country -> alpha2 exists
-//		and TransactionEvent -> party -> naturalPerson -> nationality -> alpha2 exists
-
-class ExecutionVenue stereotype entityReferenceData, preExecution, execution, postExecution <"The execution venue.">
-{
-	marketId MarketIdentifier (1..1) <"The identifier, and associated name and source, associated with the execution venue, e.g. MIC code.">;
-		[synonym FpML value exchangeId]
-	legalEntity Party (1..1) <"The legal entity associated with the execution venue">;
-	countryOfCompetentAuthority Country (0..*) <"The country(ies) which regulates the trading venue. This information is required as part of MiFID II.">;
-	marketSegment MarketSegment (0..*) <"In relation to its MIC code standard, ISO defines the market segment as a 'section of an exchange/market/trade reporting facility that specialises in one or more specific instruments or that is regulated differently'">;
-	products ListedProduct (0..*) <"The products transacted through the execution venue.  It is optional, as when a market segment exists for an execution venue, the association should be at the market segment level.">;
-}
-
-choice rule marketSegment_product <"When an execution venue has an associated market segment, the qualification of eligible products should be done at the market segment level.">
-	for ExecutionVenue required choice between
-		marketSegment and products
 
 class LegalEntity stereotype entityReferenceData <"A class to represent the attributes that are specific to a legal entity.">
 {
@@ -118,150 +26,30 @@ class LegalEntity stereotype entityReferenceData <"A class to represent the attr
 	name string (1..1) scheme "entityNameScheme" <"The legal entity name.">;
 		[synonym FpML value partyName]
 		[synonym FpML value entityName]
-	countryOfIncorporation Country (0..1) <"The country in which the legal entity is incorporated.">;
-		[regulatoryReference ESMA_MiFIR regulation "RTS 22" article "14" provision "Where country code details in respect of an investment firm's branch are required to be included in a transaction report in accordance with fields 8, 17, 37, 59 or 61 of Table 2 of Annex I due to the partial or full execution of a transaction through that branch, the investment firm shall provide in the transaction report the ISO 3166 country code for the relevant branch for a set of 4 specified cases."]
-	branch Branch (0..*) <"The set of branches that might be associated with the party.">; // Potential for moving it if we identify banking attributes that are independent from a regulatory qualification.
-	businessUnit BusinessUnit (0..*) <"Optional organisation unit information used to describe the organisation units (e.g. trading desks) involved in a transaction or business process.">;
-}
-
-class MarketIdentifier stereotype preExecution, execution, postExecution <"The market / execution venue identifier, which is composed of a source, and identifier and an associated name. The ISO MIC code will be the primary source of such identifier. MIC code FAQ: https://www.iso20022.org/sites/default/files/ISO10383_MIC/FAQ_ISO_10383.pdf">
-{
-	name string (1..1) <"The market identifier name, e.g. 'ICAP EUROPE' as an operating MIC.">;
-	identifierValue string (1..1) <"The execution venue identifier, which is distinct from the LEI that identifies the legal entity that is associated with the execution venue, e.g. 'ICAP' as the operating MIC code associated with 'ICAP EUROPE'.">;
-		[synonym ISO_20022 value MktIdCd projection MktIdCd_MIC]
-	identifierSource MarketIdSourceEnum (1..1) <"The market identifier source, e.g. MIC, Market Identifier Code.">;
-}
-
-projection rule MktIdCd_MIC <"MiFIR specifies MIC as the identifier source for the market and the market segment, with a priority order on the market segment, which provides a higher level of granularity.">
-	[regulatoryReference ESMA_MiFIR specification "ISO 20022 - Part 2" section "3.4.1.1.1" provision "MarketIdentificationCode <MktIdCd>. Definition: Identification used where reporting entity uses a market identification code (MIC). Under MiFIR, this code must be at the level of Segment MIC where one exists otherwise an Operating MIC can be used."]
-	[regulatoryReference ESMA_MiFIR specification "ISO 20022 - Part 2" section "5.4.1.1.1" provision "MarketIdentificationCode <MktIdCd>. Definition: Identification used where reporting entity uses a market identification code (MIC). Under MiFIR, this code must be at the level of Segment MIC where one exists otherwise an Operating MIC can be used."]
-	[regulatoryReference ESMA_MiFIR specification "ISO 20022 - Part 2" section "6.4.1.1.1" provision "MarketIdentificationCode <MktIdCd>. Definition: Identification used where reporting entity uses a market identification code (MIC). Under MiFIR, this code must be at the level of Segment MIC where one exists otherwise an Operating MIC can be used."]
-	[regulatoryReference ESMA_MiFIR specification "ISO 20022 - Part 2" section "7.4.1.1.1" provision "MarketIdentificationCode <MktIdCd>. Definition: Identification used where reporting entity uses a market identification code (MIC). Under MiFIR, this code must be at the level of Segment MIC where one exists otherwise an Operating MIC can be used."]
-	[regulatoryReference ESMA_MiFIR specification "ISO 20022 - Part 2" section "8.4.1.1.1" provision "MarketIdentificationCode <MktIdCd>. Definition: Identification used where reporting entity uses a market identification code (MIC). Under MiFIR, this code must be at the level of Segment MIC where one exists otherwise an Operating MIC can be used."]
-	[regulatoryReference ESMA_MiFIR specification "ISO 20022 - Part 2" section "9.4.1.1.1" provision "MarketIdentificationCode <MktIdCd>. Definition: Identification used where reporting entity uses a market identification code (MIC). Under MiFIR, this code must be at the level of Segment MIC where one exists otherwise an Operating MIC can be used."]
-	[regulatoryReference ESMA_MiFIR specification "ISO 20022 - Part 2" section "11.4.1.1.1" provision "MarketIdentificationCode <MktIdCd>. Definition: Identification used where reporting entity uses a market identification code (MIC). Under MiFIR, this code must be at the level of Segment MIC where one exists otherwise an Operating MIC can be used."]
-	[regulatoryReference ESMA_MiFIR specification "ISO 20022 - Part 2" section "16.4.1.1.1" provision "MarketIdentificationCode <MktIdCd>. Definition: Identification used where reporting entity uses a market identification code (MIC). Under MiFIR, this code must be at the level of Segment MIC where one exists otherwise an Operating MIC can be used."]
-	[regulatoryReference ESMA_MiFIR specification "ISO 20022 - Part 2" section "18.4.1.1.1" provision "MarketIdentificationCode <MktIdCd>. Definition: Identification used where reporting entity uses a market identification code (MIC). Under MiFIR, this code must be at the level of Segment MIC where one exists otherwise an Operating MIC can be used."]
-	for target ISO_20022
-	when ExecutionVenue -> marketSegment exists {
-		when MarketSegment -> marketSegmentId -> identifierSource = MarketSegmentIdSourceEnum.MIC
-		map MarketSegment -> marketSegmentId to synonym MktIdCd
-		}
-	when ExecutionVenue -> marketSegment is absent {
-		when ExecutionVenue -> marketId -> identifierSource = MarketIdSourceEnum.MIC
-		map ExecutionVenue -> marketId to synonym MktIdCd
-		}
-
-class MarketSegment stereotype preExecution, execution, postExecution <"The market segment, composed of a market segment name, identifier and identifier source. The ISO MIC code will be the primary source of such identifier.">
-	[regulatoryReference ESMA_MiFID_II regulation "RTS 27" whereas "4" provision "To avoid inappropriate comparison between execution venues and ensure the relevance of collected data, execution venues should submit separate reports corresponding to segments that operate different order books or that are regulated differently or use different market segment identifiers."]
-	[regulatoryReference ESMA_MiFID_II regulation "RTS 27" article "3.1" provision "Trading venues and systematic internalisers shall publish for each market segment they operate and each financial instrument subject to the trading obligation in Article 23 and 28 of Regulation (EU) No 600/2014 information on the type of execution venue in accordance with the third subparagraph."]
-	[regulatoryReference ESMA_MiFID_II regulation "RTS 27" annex "Table 1" provision "Market segment is specified through the combination of a name and an identifier, which is the ISO 10383 market segment MIC."]
-{
-	marketSegmentId MarketSegmentId (1..1) <"The market segment identifier, which structure is the same as the market identifier as far as the MIC code is concerned. (No other market identifier source has been identified at this point.)">;
-	products ListedProduct (1..*) <"The products transacted through the market segment.">;
-}
-
-class MarketSegmentId stereotype preExecution, execution, postExecution <"The market segment identifier, which is composed of a source, and identifier and an associated name. The ISO MIC code will be the primary source of such identifier. MIC code FAQ: https://www.iso20022.org/sites/default/files/ISO10383_MIC/FAQ_ISO_10383.pdf">
-{
-	name string (1..1) <"The market segment name that is associated with the identifier, e.g. 'ICAP ENERGY' as a Market Segment MIC">;
-	identifierValue string (1..1) <"The market segment identifier, e.g. ICEN as the market segment MIC code associated with 'ICAP ENERGY'.">;
-		[synonym ISO_20022 value MktIdCd projection MktIdCd_MIC]
-	identifierSource MarketSegmentIdSourceEnum (1..1) <"The market segment identifier source, e.g. Market Segment MIC.">;
 }
 
 class NaturalPerson stereotype entityReferenceData <"A class to represent the attributes that are specific to a natural person.">
-	[synonym ISO_20022 value PersonIdentification10]
-	[regulatoryReference ESMA_MiFIR regulation "RTS 22" article "7(1)" provision "A transaction report relating to a transaction executed on behalf of a client who is a natural person shall include the full name and date of birth of the client as specified in Fields 9, 10, 11, 18, 19 and 20 of Table 2 of Annex I."]
-	[regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "I table 2 #9-11" provision "Specifies the natural persons' attributes to be reported."]
 {
 	honorific string (0..1) <"An honorific title, such as Mr., Ms., Dr. etc.">;
 		[synonym FpML value honorific]
 	firstName string (1..1) <"The natural person's first name. It is optional in FpML.">;
 		[synonym FpML value firstName]
-		[synonym ISO_20022 value FrstNm]
 	middleName string (0..*);
 		[synonym FpML value firstName]
 	initial string (0..*);
 		[synonym FpML value initial]
 	surname string (1..1) <"The natural person's surname. It is optional in FpML.">;
 		[synonym FpML value surname]
-		[synonym ISO_20022 value Nm]
 	suffix string (0..1) <"Name suffix, such as Jr., III, etc.">;
 		[synonym FpML value suffix]
 	dateOfBirth date (1..1) <"The natural person's date of birth.">;
 		[synonym FpML value dateOfBirth]
-		[synonym FIX value DateOfBirth tag 486]
-		[synonym ISO_20022 value BirthDt]
-	nationality Country (1..*) <"The natural person's nationality. While not required for MiFID transaction reporting, it is needed for the purpose of qualifying the relevant identifier for the natural person.  FpML associated the 'country where the person works', which is a different concept, for different purposes.">;
-		[regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "II" provision "National client identifiers for natural persons to be used in transaction reports."]
-	businessUnit string (0..1) reference <"The business unit associated with a legal entity in which the natural person works.">;
-		[synonym FpML value businessUnitReference]
 }
 
 choice rule NaturalPerson_choice <"Choice rule to represent an FpML choice construct.">
 	for NaturalPerson optional choice between
 	middleName and initial
 
-//data rule NaturalPerson_nationality <"The nationality attribute is required when the natural is subject to MiFIR compliance, in order to satisfy the requirement to only associate a CONCAT to German nationals.">
-//	[regulatoryReference ESMA_MiFIR regulation "RTS 22" article "26" provision "Only 'CONCAT' codes are to be used for identifying natural persons of German nationality instead of a 'personal identity card number' or 'national passport number' https://www.esma.europa.eu/press-news/esma-news/esma-proposes-two-amendments-natural-person-identifiers-under-mifid-ii"]
-//	when Party -> regulatoryQualification_MiFID_II -> isEligibleTo = True
-//	then Party -> naturalPerson -> nationality exists
-//
-//data rule NaturalPersonIdentifier_country <"ESMA RTS 22 specifies the natural person identifier to be used as a function of the EU country.">
-//	[regulatoryReference ESMA_MiFIR specification "ISO 20022 - Part 2" section "20.1.8.2.2" provision "In the scope of MIFIR, the scheme name is restricted to a passport number (use of code CCPT), any other national identifier (use of code NIDN) or CONCAT (use of proprietary with value CONCAT). Issuer field will be ignored and should not be populated by reporting parties."]
-//	[regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "II" provision "National client identifiers for natural persons to be used in transaction reports."]
-//	when Party -> naturalPerson exists
-//		and Party -> regulatoryQualification_MiFID_II -> isEligibleTo = True
-//	then 
-//		if Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.AT 
-//			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.DE 
-//			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.FR 
-//			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.HU 
-//			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.IE 
-//			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.LU 
-//			then Party -> partyIdentifier -> proprietaryScheme = "CONCAT"
-//		else if Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.EE 
-//			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.ES 
-//			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.IS 
-//			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.IT
-//			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.PL
-//			then Party -> partyIdentifier -> partyIdSource = PartyIdSourceEnum.NIDN
-//		else if Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.BE
-//			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.BG 
-//			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.DK 
-//			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.FI 
-//			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.GB 
-//			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.GR 
-//			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.HR 
-//			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.LV 
-//			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.NO 
-//			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.SE 
-//			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.SI
-//			then Party -> partyIdentifier -> partyIdSource = PartyIdSourceEnum.NIDN
-//				or Party -> partyIdentifier -> proprietaryScheme = "CONCAT"
-//		else if Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.MT
-//			then Party -> partyIdentifier-> partyIdSource = PartyIdSourceEnum.CCPT
-//				or Party -> partyIdentifier -> partyIdSource = PartyIdSourceEnum.NIDN
-//		else if Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.CZ 
-//			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.LI 
-//			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.LT 
-//			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.NL 
-//			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.PT 
-//			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.RO 
-//			or Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.SK
-//			then Party -> partyIdentifier -> partyIdSource = PartyIdSourceEnum.CCPT
-//				or Party -> partyIdentifier -> partyIdSource = PartyIdSourceEnum.NIDN
-//				or Party -> partyIdentifier -> proprietaryScheme = "CONCAT"
-//		else if Party -> naturalPerson -> nationality -> alpha2 = CountryAlpha2Enum.CY
-//			then Party -> partyIdentifier -> partyIdSource = PartyIdSourceEnum.CCPT
-//				or Party -> partyIdentifier -> proprietaryScheme = "CONCAT" 
-//		else Party -> partyIdentifier -> partyIdSource = PartyIdSourceEnum.CCPT 
-//				or Party -> partyIdentifier -> proprietaryScheme = "CONCAT"			
-
-/*
- * FIX also has the RootParties component block, 'used to provide root information regarding the owning and entering parties of a transaction.'
- * Its usage will need to be clarified. Associated elements are RootPartyID <1117>, RootPartyIDSource <1118>, RootPartyRole <1119>
- */
 class Party stereotype entityReferenceData <"The party class.">
 	[synonym FpML value Party]
 {
@@ -270,24 +58,6 @@ class Party stereotype entityReferenceData <"The party class.">
 	partyId string (1..1) scheme "partyIdScheme" <"The identifier associated with a party, e.g. the 20 digits LEI code.">;
 		[synonym FpML value partyId]
 		[synonym Rosetta_Workbench value partyId]
-//	regulatoryQualification_MiFID_II RegulatoryQualification_MiFID_II (0..1) <"The MiFID II regulatory qualifications associated to the party.">;
-//	regulatoryQualification_CFTC_DFA RegulatoryQualification_CFTC_DFA (0..1) <"The CFTC DFA regulatory qualifications associated to the party.">;
-	partyRole PartyRoleEnum (0..*) <"The role associated with the party in the context of a transaction, e.g. agent, custodian, exchange, ...">;
-		[synonym FpML value role]
-	/*
-	 * Let's see if this could be collapsed as part of the roles
-	 */
-//	reportingRole ReportingRoleEnum (0..1) <"Identifies the role of this party in reporting this trade (e.g. originator, counterparty).">;
-//		[synonym FpML value reportingRole]
-	algorithm Algorithm (0..*) <"Provides information about the algorithm(s) that might be involved in the transaction by the party.  MiFID requires this information.">;
-	/*
-	 * Need to adjust as a function of FpML/FIX approach
-	 */
-	decisionMaker boolean (0..1) <"The party that makes the investment decision when the transacting party is not acting in such capacity. The MiFID/MiFIR regulation identifies two such scenarios: (i) when the investment decision is made under a power of representation, or (ii) when the transacting party is a natural person.">;
-		[regulatoryReference ESMA_MiFIR regulation "RTS 22" article "7(2)" provision "Where the client is not the person taking the investment decision in relation to that transaction, the transaction report shall identify the person taking such decision on behalf of the client as specified in fields 12 to 15 for the buyer and in fields 21 to 24 for the seller in Table 2 of Annex I"]
-		[regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "I table 2 #12-15" provision "Specifies the buyer/seller decision maker code (and, in the case where it is a natural person, its details)."]
-	brokerCapacity BrokerCapacityEnum (0..1) <"designates the capacity of the broker involved in the transaction, when applicable.">;
-		[synonym FIX value LastCapacity tag 29]
 	legalEntity LegalEntity (0..1);
 	naturalPerson NaturalPerson (0..1);
 }
@@ -302,84 +72,4 @@ class PartyAndAccountReference stereotype entityReferenceData <"This class corre
 		[synonym FpML value partyReference]
 	accountReference string (0..1) reference;
 		[synonym FpML value accountReference]
-}
-
-//class PartyIdentifier stereotype entityReferenceData <"The set of [partyId, PartyIdSource] associated with a party.">
-//	[synonym FpML value PartyId]
-//{
-//	partyId string (1..1) scheme "partyIdScheme" <"The identifier associated with a party, e.g. the 20 digits LEI code.">;
-//		[synonym FpML value partyId]
-//		[synonym Rosetta_Workbench value partyId]
-//	partyIdSource PartyIdSourceEnum (0..1) <"The reference source for the partyId, e.g. LEI, BIC. The cardinality has been relaxed to account for the fact that the partyId source might be reported using further information, in accordance with the MiFID reporting requirements.">;
-//		[synonym FpML value partyIdScheme]
-//		[synonym Rosetta_Workbench value partyIdSource]
-//	proprietaryScheme string (0..1) <"A non-normalised scheme for the identification of a natural person, as specified by ESMA as part of the MiFID/MiFIR regulation.">;
-//		[synonym ISO_20022 value Prtry]
-//}
-//
-//choice rule PartyIdentifier_choice <"The MiFIR reporting specification requires that the identification of a natural person be done through either a normalised code or a proprietary scheme.">
-//	[regulatoryReference ESMA_MiFIR specification "ISO 20022 - Part 2" section "20.1.7.4.3" provision "SchemeName <SchmeNm> contains one of the following elements Code <Cd> or Proprietary <Prtry>."]
-//	for PartyIdentifier optional choice between 
-//		partyIdSource and proprietaryScheme
-
-//data rule PartyIdentifier_LEI <"The legal entity must be identified through an LEI.">
-//	[regulatoryReference ESMA_MiFIR regulation "RTS 23" article "3(2)" provision "Trading venues and systematic internalisers shall ensure that legal entity identifier codes included in the reference data provided comply with the ISO 17442:201 standard, pertain to the issuer concerned, and are listed in the Global Legal Entity Identifier database maintained by the Central Operating Unit appointed by the The Legal Entity Identifier Regulatory Oversight Committee."]
-//	[regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "I table 2 #4" provision "The entity executing the transaction must be identified through the LEI."]
-//	when Party -> regulatoryQualification_MiFID_II -> isEligibleTo = True
-//		and Party -> legalEntity exists
-//	then Party -> partyIdentifier -> partyIdSource includes PartyIdSourceEnum.LEI
-//
-//data rule PartyIdentifier_investmentFirm <"An investment firm must be identified with a validated, issued and duly renewed LEI.">
-//	[regulatoryReference ESMA_MiFIR regulation "RTS 22" article "5(1)" provision "An investment firm which executes a transaction shall ensure that it is identified with a validated, issued and duly renewed ISO 17442 legal entity identifier code in the transaction report submitted pursuant to Article 26(1) of Regulation (EU) No 600/2014"]
-//	[regulatoryReference ESMA_MiFIR regulation "RTS 22" article "5(2)" provision "An investment firm which executes a transaction shall ensure that the reference data related to its legal entity identifier is renewed in accordance with the terms of any of the accredited Local Operating Units of the Global Legal Entity Identifier System."]
-//	when Party -> regulatoryQualification_MiFID_II -> isEligibleTo = True
-//		and Party -> regulatoryQualification_MiFID_II -> isInvestmentFirm = True
-//	then Party -> partyIdentifier -> partyIdSource = PartyIdSourceEnum.LEI
-
-abstract class RegulatoryQualification stereotype regulatoryEligibility
-{
-	isEligibleTo boolean (1..1) <"The qualification of whether the party is subject to the applicable regulatory regime.">;
-}
-
-class RegulatoryQualification_CFTC_DFA extends RegulatoryQualification stereotype regulatoryEligibility <"The CFTC Dodd-Frank Act regulatory entity level qualification attributes and entity eligibility assertion.">
-{
-	isFinancialEntity boolean (0..1) <"The qualification of whether the entity qualifies as a financial entity according to the CFTC DFA regulation.">;
-		[regulatoryReference CFTC_DFA regulation "17 CFR Part 1" article "240.3a67–6" provision "(...) The term financial entity means: (1) A swap dealer; (2) A major swap participant; (3) A commodity pool as defined in section 1a(10) of the Commodity Exchange Act (7 U.S.C. 1a(10)); (4) A private fund as defined in section 202(a) of the Investment Advisers Act of 1940 (15 U.S.C. 80b–2(a)); (5) An employee benefit plan as defined in paragraphs (3) and (32) of section 3 of the Employee Retirement Income Security Act of 1974 (29 U.S.C. 1002); and (6) A person predominantly engaged in activities that are in the business of banking or financial in nature, as defined in section 4(k) of the Bank Holding Company Act of 1956 (12 U.S.C. 1843k)."]
-	registeredOrganisation RegisteredOrganisationEnum_CFTC (0..1) <"The qualification of the type of organisation as specified by the CFTC CFA regulatory regime, e.g. Swap Dealer. This corresponds to the FpML organizationTypeScheme in FpML, although specified by regulatory regime.">;
-		[synonym FpML value organizationType]
-}
-
-class RegulatoryQualification_MiFID_II extends RegulatoryQualification stereotype regulatoryEligibility <"The MiFID regulatory qualification attributes, which are of two types: entity-related attributes which qualification is specific to this regulatory regime (e.g. investment firm) and entity level eligibility assertion.">
-{
-	isInvestmentFirm boolean (1..1) <"The qualification of whether the entity qualifies as an investment firm under the local regulation. This qualification being regulation-specified, it is modelled as an attribute of the MiFID regulatory context.">;
-		[synonym ISO_20022 value InvstmtPtyInd]
-		[regulatoryReference ESMA_MiFID_II regulation "Directive 2014/65/EU" article "4.1(1)" provision "'investment firm’ means any legal person whose regular occupation or business is the provision of one or more investment services to third parties and/or the performance of one or more investment activities on a professional basis."]
-		[regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "I table 2 #5" provision "Technical standards for the reporting of transactions must include the boolean indication as to whether the executing entity is an investment firm as defined by Article 4(1) of Directive 2014/65/EU."]
-		[regulatoryReference ESMA_MiFIR specification "ISO 20022 - Part 2" section "20.1.11.2.3" provision "InvestmentPartyIndicator <InvstmtPtyInd> - Definition: Indicates whether the reporting party is defined as an investment firm under the local regulation or not."]
-		[regulatoryReference ESMA_MiFIR specification "2016-ITMG-66 - Annex 1 Validation Rules" field "5" provision "Only 'true' or 'false' values allowed to indicate whether the entity identified in field 4 is an investment firm covered by Directive 2014/65/EU."]
-		[regulatoryReference ESMA_MiFIR specification "2016-ITMG-66 - Annex 1 Validation Rules" field "5" provision "The Investment Firm covered by Directive 2014/65/EU field is mandatory for all new transaction reports."]
-	registeredOrganisation RegisteredOrganisationEnum_MiFID (0..1) <"The qualification of the type of organisation as specified by the MiFID regulatory regime, e.g. Systematic Internaliser. This corresponds to the FpML organizationTypeScheme in FpML, although specified by regulatory regime.">;
-		[synonym FpML value organizationType]
-}
-
-class StreetAddress stereotype entityReferenceData <"A class that specifies the set of street and building number information that identifies a postal address within a city.">
-	[synonym FpML value StreetAddress]
-{
-	streetLine string (1..*) <"An individual line of street and building number information, forming part of a postal address.">;
-		[synonym FpML value streetLine]
-}
-
-class TelephoneNumber stereotype entityReferenceData <"A class that represents a telephonic contact.">
-	[synonym FpML value TelephoneNumber]
-{
-	type TelephoneTypeEnum (0..1) <"The type of telephone number (work, personal, mobile).">;
-		[synonym FpML value type]
-	number string (1..1) <"A telephonic contact.">;
-		[synonym FpML value number]
-}
-
-class TransactionEligibility stereotype regulatoryEligibility <"The qualification of whether the transaction is subject to the regulatory regime.">
-{
-	isEligibleToMiFID_II boolean (1..1) <"Outcome of the MiFID II transaction eligibility assessment.">;
-	isEligibleToCFTC_DFA boolean (1..1) <"Outcome of the CFTC Dodd-Frank transaction eligibility assessment.">;
 }
