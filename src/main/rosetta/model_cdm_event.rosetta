@@ -58,10 +58,6 @@ abstract class EventBase stereotype preExecution, execution, postExecution <"The
 		[synonym FpML value isCorrection 
 			set action to ActionEnum.new when False, 
 			set action to ActionEnum.correct when True]
-		[synonym FIX value TradeReportTransType tag 487 
-			set action to ActionEnum.new when ["0", "5"],
-			set action to ActionEnum.correct when "2",
-			set action to ActionEnum.cancel when "1"]
 }
 
 class EventTestBundle <"A class which combines several events for testing purposes.">
@@ -76,13 +72,10 @@ class EventTestBundle <"A class which combines several events for testing purpos
 class EventTimeStamp stereotype preExecution, execution, postExecution <"This class corresponds to the timestamp components of the FpML MessageHeader.model. These would be applicable even if the event is communicated through a mean other than messaging (e.g. blockchain).">
 {
 	creationTimestamp dateTime (1..1) <"The date and time (on the source system) when this event was created.">;
-		[synonym FIX value SendingTime tag 52] // Need to confirm whether sendingTime can be equated to createTime
-		[synonym FIX value TransactTime componentID 60]
 		[synonym FpML value creationTimestamp pathExpression "header"]
 		[synonym Rosetta_Workbench value creationTimestamp]
 	expiryTimestamp dateTime (0..1) <"The date and time (on the source system) when this event will be considered expired.">;
 		[synonym FpML value expiryTimestamp]
-		[synonym FIX value ExpireTime tag 126]
 }
 
 data rule EventTimeStamp_ExpireTime <"The expire time should be greater than the creation time.">
@@ -108,14 +101,10 @@ class Lineage
 class MessageInformation stereotype preExecution, execution, postExecution <"This class corresponds to the messaging components of the FpML MessageHeader.model.">
 {
 	messageId string (1..1) scheme "messageIdScheme" <"A unique identifier assigned to the message.">;
-		[synonym FIX value MsgSeqNum tag 34]
-//		[synonym FIX value QuoteMsgID tag 1166 set messageId when Quote exists]
 		[synonym Rosetta_Workbench value messageId pathExpression "messageInformation"]
 	sentBy string (0..1) scheme "messageAddressScheme" <"The identifier for the originator of a message instance.">;
-//		[synonym FIX value SenderCompID tag 49]
 		[synonym Rosetta_Workbench value sentBy pathExpression "messageInformation"]
 	sentTo string (0..1) scheme "messageAddressScheme" <"The identifier for the recipient of a message instance.">;
-		[synonym FIX value TargetCompID tag 56]
 		[synonym Rosetta_Workbench value sentTo pathExpression "messageInformation"]
 	copyTo string (0..*) scheme "messageAddressScheme" <"A unique identifier (within the specified coding scheme) giving the details of some party to whom a copy of this message will be sent for reference.">;
 }
@@ -255,14 +244,6 @@ data rule EarlyTermination_InterestPayout_TerminationDate <"Logic to  qualify a 
 		Event -> primitive -> otherTermsChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate
 
 isEvent NewTradeEvent <"The qualification of a new trade event.">
-	Event -> primitive -> quantityChange -> after -> contract exists
-	and Event -> primitive -> quantityChange -> before is absent
-	and Event -> primitive -> quantityChange -> change -> notionalAmount -> amount > 0.0
-		or Event -> primitive -> quantityChange -> change -> quantity -> amount > 0.0
-		or Event -> primitive -> quantityChange -> change -> notionalSchedule -> notionalStepSchedule -> initialValue > 0.0
-		or Event -> primitive -> quantityChange -> change -> fxLinkedNotional -> initialValue > 0.0
-
-isEvent NewTradeEvent_alternative
 	Event -> primitive -> newTrade exists
 	
 isEvent PartialTermination <"The qualification of a partial termination event.">

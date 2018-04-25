@@ -41,11 +41,9 @@ class ProductIdentifier stereotype productReferenceData <"The product identifier
 		[synonym FpML value instrumentId]
 		/*
 		 * TODO - Enhance the CDM model to position the productId scheme value as an enumeration
-		 * This require mapping syntax enhancement
+		 * This require mapping syntax enhancement.  The same approach should be applied to the taxonomy.
 		 */
 //	productIdSource ProductIdSourceEnum (1..1) scheme "instrumentIdScheme" <"The product identifier source.">;
-//		[synonym FIX value SecurityIDSource tag 22]
-//		[synonym FIX value SecurityAltIDSource tag 456]
 //		[synonym FpML value productId]
 //		[synonym FpML value instrumentId]
 }
@@ -61,7 +59,3 @@ class ProductTaxonomy stereotype productReferenceData <"The product taxonomy, wh
 		[synonym FpML value primaryAssetClass pathExpression "trade.creditDefaultSwap"]	
 	taxonomySource TaxonomySourceEnum (0..1) <"The taxonomy source. It can be omitted when the taxonomy source is represented as part of the scheme associated with the taxonomy value attribute.">;
 }
-
-data rule TaxonomySourceEnum_SecuritySubType <"FIX standard specifies that if SecuritySubType is set, then the SecurityType is also required as the former is a sub-type qualification of the latter.">
-	when ProductTaxonomy -> taxonomySource = TaxonomySourceEnum.FIX_SecuritySubType
-	then ProductTaxonomy -> taxonomySource = TaxonomySourceEnum.FIX_SecurityType
