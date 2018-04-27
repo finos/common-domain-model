@@ -41,6 +41,30 @@ class Event extends EventBase
 		[synonym Rosetta_Workbench value functionCall]
 }
 
+class EventNew extends EventBase
+{
+	party Party (0..*);
+		[synonym Rosetta_Workbench value party]
+	lineage Lineage (0..1);
+		[synonym Rosetta_Workbench value lineage]
+	before Before (1..1);
+	after After (1..1);
+	functionCall string (0..1);
+		[synonym Rosetta_Workbench value functionCall]
+}
+
+class Before
+{
+	contractState ContractState (1..*);
+}
+
+class After
+{
+	contractState ContractState (0..*);
+	cashflow Payment (0..*);
+}
+
+
 abstract class EventBase stereotype preExecution, execution, postExecution <"The event base abstract class.">
 {
 	messageInformation MessageInformation (0..1);
@@ -200,7 +224,7 @@ class QuantityChange <"The primitive event to represent a change in quantity or 
 		[synonym Rosetta_Workbench value change]
 }
 
-class ResetPrimitive <"The primitive event to represent a reset. The reason for the Primitive suffix is not to conflict with the qualified reset event.">
+class ResetPrimitive <"The primitive event to represent a reset. The reason for the Primitive suffix is not to conflict with the isEvent Reset.">
 {
 	date date (1..1) <"The reset date">;
 		[synonym Rosetta_Workbench value date]
@@ -271,3 +295,34 @@ isEvent Reset <"The qualification of a reset event.">
 isEvent Payment <"The qualification of a payment event.">
 	( Event -> primitive -> payment
 	and Event -> party ) only exists
+
+isEvent Exercise <"The qualification of an exercise event.">
+	EventNew -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout exists
+	and ( EventNew -> after -> contractState -> contract -> contractualProduct = 
+		EventNew -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> underlyer -> contractualProduct )
+	or 	( EventNew -> after -> cashflow exists 
+		and EventNew -> after -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity <
+			EventNew -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity )
+
+isEvent PartialPhysicalExercise <"The qualification of a partial physical exercise event.">
+EventNew -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout exists
+	and ( EventNew -> after -> contractState -> contract -> contractualProduct = 
+		EventNew -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> underlyer -> contractualProduct )
+	and EventNew -> after -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout exists
+	and ( EventNew -> after -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity < 
+		EventNew -> after -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity )
+		
+isEvent Allocation <"The qualification of an allocation event.">
+	EventNew -> before -> contractState only exists
+	and EventNew -> after -> contractState exists // Grammar adjustment to express plurality?
+	
+isEvent PortfolioCompression <"The qualification of a portfolio compression event.">
+	EventNew -> intent = IntentEnum.portfolioCompression
+	and EventNew -> before -> contractState exists // Grammar adjustment to express plurality?
+	and ( ( EventNew -> after -> contractState and EventNew -> after -> cashflow exists )
+		or EventNew -> after -> cashflow exists )
+
+isEvent Novation <"The qualification of a novation event.">
+	EventNew -> before -> contractState -> contract -> party <>
+	EventNew -> after -> contractState -> contract -> party
+	and EventNew -> after -> cashflow exists // Comparing the payer/receiver parties to the contract parties would be tricky because not using the same constructs 
