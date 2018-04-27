@@ -119,9 +119,78 @@
                     </execution>
                 </executions>
             </plugin>
+            <!--This plugin's configuration is used to store Eclipse m2e settings
+                    only. It has no influence on the Maven build itself. -->
+            <plugin>
+                <groupId>org.eclipse.m2e</groupId>
+                <artifactId>lifecycle-mapping</artifactId>
+                <version>1.0.0</version>
+                <configuration>
+                    <lifecycleMappingMetadata>
+                        <pluginExecutions>
+                            <pluginExecution>
+                                <pluginExecutionFilter>
+                                    <groupId>
+                                        org.codehaus.mojo
+                                    </groupId>
+                                    <artifactId>
+                                        build-helper-maven-plugin
+                                    </artifactId>
+                                    <versionRange>
+                                        [1.8,)
+                                    </versionRange>
+                                    <goals>
+                                        <goal>add-source</goal>
+                                    </goals>
+                                </pluginExecutionFilter>
+                                <action>
+                                    <ignore></ignore>
+                                </action>
+                            </pluginExecution>
+                        </pluginExecutions>
+                    </lifecycleMappingMetadata>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.eclipse.xtext</groupId>
                 <artifactId>xtext-maven-plugin</artifactId>
+                <version>${xtext-version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <languages>
+                        <language>
+                            <setup>com.regnosys.rosetta.RosettaStandaloneSetup</setup>
+                            <outputConfigurations>
+                                <outputConfiguration>
+                                    <outputDirectory>src/generated/java/</outputDirectory>
+                                </outputConfiguration>
+                            </outputConfigurations>
+                        </language>
+                    </languages>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.regnosys.rosetta</groupId>
+                        <artifactId>com.regnosys.rosetta</artifactId>
+                        <version>${com.regnosys.rosetta.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.regnosys.rosetta</groupId>
+                        <artifactId>com.regnosys.rosetta.lib</artifactId>
+                        <version>${com.regnosys.rosetta.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.apache.maven</groupId>
+                        <artifactId>maven-core</artifactId>
+                        <version>3.2.5</version>
+                    </dependency>
+                </dependencies>
             </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -156,7 +225,6 @@
                             </resources>
                         </configuration>
                     </execution>
-
                     <execution>
                         <id>copy-documentation</id>
                         <!-- here the phase you need -->
@@ -217,92 +285,7 @@
                 </executions>
             </plugin>
         </plugins>
-
-        <pluginManagement>
-            <plugins>
-                <!--This plugin's configuration is used to store Eclipse m2e settings
-                    only. It has no influence on the Maven build itself. -->
-                <plugin>
-                    <groupId>org.eclipse.m2e</groupId>
-                    <artifactId>lifecycle-mapping</artifactId>
-                    <version>1.0.0</version>
-                    <configuration>
-                        <lifecycleMappingMetadata>
-                            <pluginExecutions>
-                                <pluginExecution>
-                                    <pluginExecutionFilter>
-                                        <groupId>
-                                            org.codehaus.mojo
-                                        </groupId>
-                                        <artifactId>
-                                            build-helper-maven-plugin
-                                        </artifactId>
-                                        <versionRange>
-                                            [1.8,)
-                                        </versionRange>
-                                        <goals>
-                                            <goal>add-source</goal>
-                                        </goals>
-                                    </pluginExecutionFilter>
-                                    <action>
-                                        <ignore></ignore>
-                                    </action>
-                                </pluginExecution>
-                            </pluginExecutions>
-                        </lifecycleMappingMetadata>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.eclipse.xtext</groupId>
-                    <artifactId>xtext-maven-plugin</artifactId>
-                    <version>${xtext-version}</version>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>generate</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                    <configuration>
-                        <languages>
-                            <language>
-                                <setup>com.regnosys.rosetta.RosettaStandaloneSetup</setup>
-                                <outputConfigurations>
-                                    <outputConfiguration>
-                                        <outputDirectory>src/generated/java/</outputDirectory>
-                                    </outputConfiguration>
-                                </outputConfigurations>
-                            </language>
-                        </languages>
-                    </configuration>
-                    <dependencies>
-                        <dependency>
-                            <groupId>com.regnosys.rosetta</groupId>
-                            <artifactId>com.regnosys.rosetta</artifactId>
-                            <version>${com.regnosys.rosetta.version}</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>com.regnosys.rosetta</groupId>
-                            <artifactId>com.regnosys.rosetta.lib</artifactId>
-                            <version>${com.regnosys.rosetta.version}</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.maven</groupId>
-                            <artifactId>maven-core</artifactId>
-                            <version>3.2.5</version>
-                            <exclusions>
-                                <exclusion>
-                                    <groupId>com.google.guava</groupId>
-                                    <artifactId>guava</artifactId>
-                                </exclusion>
-                            </exclusions>
-                        </dependency>
-                    </dependencies>
-                </plugin>
-            </plugins>
-        </pluginManagement>
     </build>
-
 
     <dependencies>
         <dependency>
@@ -310,6 +293,13 @@
             <artifactId>com.regnosys.rosetta.lib</artifactId>
             <version>${com.regnosys.rosetta.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.opengamma.strata</groupId>
+            <artifactId>strata-basics</artifactId>
+            <version>1.7.0</version>
+        </dependency>
+
+        <!-- Test dependencies-->
         <dependency>
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-launcher</artifactId>
@@ -329,28 +319,13 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.xtend</groupId>
-            <artifactId>org.eclipse.xtend.lib</artifactId>
-            <version>${xtext-version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.google.guava</groupId>
-                    <artifactId>guava</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>java-hamcrest</artifactId>
             <version>2.0.0.0</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.opengamma.strata</groupId>
-            <artifactId>strata-basics</artifactId>
-            <version>1.7.0</version>
-        </dependency>
     </dependencies>
+
     <distributionManagement>
         <repository>
             <id>snapshots</id>
