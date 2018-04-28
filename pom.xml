@@ -22,77 +22,6 @@
     <build>
         <plugins>
             <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.7.0</version>
-                <configuration>
-                    <compilerId>eclipse</compilerId>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.codehaus.plexus</groupId>
-                        <artifactId>plexus-compiler-eclipse</artifactId>
-                        <version>RELEASE</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>2.0.4</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.0.0-M1</version>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>javadoc</goal>
-                        </goals>
-                        <configuration>
-                            <reportOutputDirectory>${project.build.directory}/classes/rosetta-model
-                            </reportOutputDirectory>
-                            <doclet>nl.talsmasoftware.umldoclet.UMLDoclet</doclet>
-                            <docletArtifact>
-                                <groupId>nl.talsmasoftware</groupId>
-                                <artifactId>umldoclet</artifactId>
-                                <version>LATEST</version>
-                            </docletArtifact>
-                            <additionalparam>
-                            </additionalparam>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>1.8</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>add-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>src/generated/java/</source>
-                                <source>src/main/rosetta/</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>
                 <version>2.5</version>
@@ -119,37 +48,86 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--This plugin's configuration is used to store Eclipse m2e settings
-                    only. It has no influence on the Maven build itself. -->
             <plugin>
-                <groupId>org.eclipse.m2e</groupId>
-                <artifactId>lifecycle-mapping</artifactId>
-                <version>1.0.0</version>
-                <configuration>
-                    <lifecycleMappingMetadata>
-                        <pluginExecutions>
-                            <pluginExecution>
-                                <pluginExecutionFilter>
-                                    <groupId>
-                                        org.codehaus.mojo
-                                    </groupId>
-                                    <artifactId>
-                                        build-helper-maven-plugin
-                                    </artifactId>
-                                    <versionRange>
-                                        [1.8,)
-                                    </versionRange>
-                                    <goals>
-                                        <goal>add-source</goal>
-                                    </goals>
-                                </pluginExecutionFilter>
-                                <action>
-                                    <ignore></ignore>
-                                </action>
-                            </pluginExecution>
-                        </pluginExecutions>
-                    </lifecycleMappingMetadata>
-                </configuration>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.0.2</version>
+                <executions>
+                    <execution>
+                        <id>copy-rosetta-files</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/classes/rosetta-model/rosetta</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/rosetta</directory>
+                                    <includes>
+                                        <include>*.rosetta</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-documentation</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/documentation-build</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/documentation/source</directory>
+                                    <excludes>
+                                        <exclude>conf.py</exclude>
+                                    </excludes>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>amend-documentation-version</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/documentation-build</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/documentation/source</directory>
+                                    <includes>
+                                        <include>conf.py</include>
+                                    </includes>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src/generated/java/</source>
+                                <source>src/main/rosetta/</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.eclipse.xtext</groupId>
@@ -157,6 +135,7 @@
                 <version>${xtext-version}</version>
                 <executions>
                     <execution>
+                        <phase>generate-sources</phase>
                         <goals>
                             <goal>generate</goal>
                         </goals>
@@ -193,6 +172,20 @@
                 </dependencies>
             </plugin>
             <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.7.0</version>
+                <configuration>
+                    <compilerId>eclipse</compilerId>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.codehaus.plexus</groupId>
+                        <artifactId>plexus-compiler-eclipse</artifactId>
+                        <version>RELEASE</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.19</version>
                 <dependencies>
@@ -204,65 +197,27 @@
                 </dependencies>
             </plugin>
             <plugin>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>3.0.2</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.0.0-M1</version>
                 <executions>
                     <execution>
-                        <id>copy-rosetta-files</id>
-                        <phase>validate</phase>
+                        <id>attach-javadocs</id>
+                        <phase>prepare-package</phase>
                         <goals>
-                            <goal>copy-resources</goal>
+                            <goal>javadoc</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${basedir}/target/classes/rosetta-model/rosetta</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>src/main/rosetta</directory>
-                                    <includes>
-                                        <include>*.rosetta</include>
-                                    </includes>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>copy-documentation</id>
-                        <!-- here the phase you need -->
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/documentation-build</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>${basedir}/documentation/source</directory>
-                                    <excludes>
-                                        <exclude>conf.py</exclude>
-                                    </excludes>
-                                    <filtering>false</filtering>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>amend-documentation-version</id>
-                        <!-- here the phase you need -->
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/documentation-build</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>${basedir}/documentation/source</directory>
-                                    <includes>
-                                        <include>conf.py</include>
-                                    </includes>
-                                    <filtering>true</filtering>
-                                </resource>
-                            </resources>
+                            <reportOutputDirectory>${project.build.directory}/classes/rosetta-model
+                            </reportOutputDirectory>
+                            <doclet>nl.talsmasoftware.umldoclet.UMLDoclet</doclet>
+                            <docletArtifact>
+                                <groupId>nl.talsmasoftware</groupId>
+                                <artifactId>umldoclet</artifactId>
+                                <version>LATEST</version>
+                            </docletArtifact>
+                            <additionalparam>
+                            </additionalparam>
                         </configuration>
                     </execution>
                 </executions>
@@ -285,6 +240,20 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.0.4</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>3.1.0</version>
                 <configuration>
@@ -292,15 +261,47 @@
                         <descriptor>src/assembly/dist.xml</descriptor>
                     </descriptors>
                 </configuration>
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<id>make-assembly</id> &lt;!&ndash; this is used for inheritance merges &ndash;&gt;-->
-                        <!--<phase>package</phase> &lt;!&ndash; bind to the packaging phase &ndash;&gt;-->
-                        <!--<goals>-->
-                            <!--<goal>single</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
+                <executions>
+                    <execution>
+                        <id>make-assembly</id> <!-- this is used for inheritance merges -->
+                        <phase>package</phase> <!-- bind to the packaging phase -->
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!--This plugin's configuration is used to store Eclipse m2e settings
+                    only. It has no influence on the Maven build itself. -->
+            <plugin>
+                <groupId>org.eclipse.m2e</groupId>
+                <artifactId>lifecycle-mapping</artifactId>
+                <version>1.0.0</version>
+                <configuration>
+                    <lifecycleMappingMetadata>
+                        <pluginExecutions>
+                            <pluginExecution>
+                                <pluginExecutionFilter>
+                                    <groupId>
+                                        org.codehaus.mojo
+                                    </groupId>
+                                    <artifactId>
+                                        build-helper-maven-plugin
+                                    </artifactId>
+                                    <versionRange>
+                                        [1.8,)
+                                    </versionRange>
+                                    <goals>
+                                        <goal>add-source</goal>
+                                    </goals>
+                                </pluginExecutionFilter>
+                                <action>
+                                    <ignore></ignore>
+                                </action>
+                            </pluginExecution>
+                        </pluginExecutions>
+                    </lifecycleMappingMetadata>
+                </configuration>
             </plugin>
         </plugins>
     </build>
