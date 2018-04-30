@@ -49,10 +49,10 @@ class Event extends EventBase
 
 class TransactionEvent extends EventBase <"A transaction event involves 2 or more parties, can have an intent and has a before/after contract state">
 {
-	intent IntentEnum (0..1);
-		[synonym Rosetta_Workbench value intent]
 	party Party (0..*);
 		[synonym Rosetta_Workbench value party]
+	intent IntentEnum (0..1);
+		[synonym Rosetta_Workbench value intent]
 	lineage Lineage (0..1);
 		[synonym Rosetta_Workbench value lineage]
 	before Before (1..1);
@@ -85,8 +85,14 @@ class Before one of
 
 class After
 {
-	contractState ContractState (0..*);
+	contractOrListedProduct ContractOrListedProduct (0..*);
 	cashflow Payment (0..*);
+}
+
+class ContractOrListedProduct one of
+{
+	contractState ContractState (0..1);
+	listedProduct ListedProduct (0..1);
 }
 
 abstract class EventBase stereotype preExecution, execution, postExecution <"The event base abstract class.">
@@ -317,40 +323,53 @@ isEvent Reset <"The qualification of a reset event.">
 isEvent Payment <"The qualification of a payment event.">
 	( Event -> primitive -> payment
 	and Event -> party ) only exists
-
-isEvent Exercise <"The qualification of an exercise event.">
-	TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout exists
-	and ( TransactionEvent -> after -> contractState -> contract -> contractualProduct = 
-		TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> underlyer -> contractualProduct )
-	or 	( TransactionEvent -> after -> cashflow exists 
-		and TransactionEvent -> after -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity <
-			TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity )
-
-isEvent PhysicalExercise <"The qualification of a physical exercise event.">
-	TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout exists
-	and ( TransactionEvent -> after -> contractState -> contract -> contractualProduct = 
-		TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> underlyer -> contractualProduct )
-	and TransactionEvent -> after -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout is absent
-
-isEvent PartialPhysicalExercise <"The qualification of a partial physical exercise event.">
-	TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout exists
-	and ( TransactionEvent -> after -> contractState -> contract -> contractualProduct = 
-		TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> underlyer -> contractualProduct )
-	and TransactionEvent -> after -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout exists
-	and ( TransactionEvent -> after -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity < 
-		TransactionEvent -> after -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity )
-		
-isEvent Allocation <"The qualification of an allocation event.">
-	TransactionEvent -> before -> contractState only exists
-	and TransactionEvent -> after -> contractState exists // Grammar adjustment to express plurality?
 	
-isEvent PortfolioCompression <"The qualification of a portfolio compression event.">
-	TransactionEvent -> intent = IntentEnum.portfolioCompression
-	and TransactionEvent -> before -> contractState exists // Grammar adjustment to express plurality?
-	and ( ( TransactionEvent -> after -> contractState and TransactionEvent -> after -> cashflow exists )
-		or TransactionEvent -> after -> cashflow exists )
+/**********************
+ * New event expression
+ */	
 
-isEvent Novation <"The qualification of a novation event.">
+isEvent CashExercise <"The qualification of a physical exercise event: the before contract state is an option, the after state is a cashflow with no option.">
+	TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout exists
+	and TransactionEvent -> after -> cashflow exists
+	and TransactionEvent -> after -> contractOrListedProduct -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout is absent
+
+isEvent PhysicalExercise <"The qualification of a physical exercise event: the before contract state is an option, the after state is a product that corresponds to the option underlyer with no option.">
+	TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout exists
+	and ( TransactionEvent -> after -> contractOrListedProduct -> contractState -> contract -> contractualProduct =
+		TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> underlyer -> contractualProduct )
+		or ( TransactionEvent -> after -> contractOrListedProduct -> listedProduct =
+		TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> underlyer -> listedProduct )
+	and TransactionEvent -> after -> contractOrListedProduct -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout is absent
+
+isEvent CashPartialExercise <"The qualification of a physical exercise event: the before contract state is an option, the after state is a cashflow with an option which quantity is less than the before state.">
+	TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout exists
+	and TransactionEvent -> after -> cashflow exists
+	and TransactionEvent -> after -> contractOrListedProduct -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity <
+		TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity
+
+isEvent PhysicalPartialExercise <"The qualification of a physical exercise event: the before contract state is an option, the after state is a product that corresponds to the option underlyer with an option which quantity is less than the before state.">
+	TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout exists
+	and ( TransactionEvent -> after -> contractOrListedProduct -> contractState -> contract -> contractualProduct =
+		TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> underlyer -> contractualProduct )
+		or ( TransactionEvent -> after -> contractOrListedProduct -> listedProduct =
+		TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> underlyer -> listedProduct )
+	and TransactionEvent -> after -> contractOrListedProduct -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity <
+		TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity
+
+isEvent Allocation <"The qualification of an allocation event: the before state has one contract, while the after state has several contracts.">
+	TransactionEvent -> before -> contractState only exists
+	and TransactionEvent -> after -> contractOrListedProduct -> contractState exists // Grammar adjustment to express plurality
+	// TODO - Enhance the grammar to have a syntax to qualify that the sum of the notionals/quantities on the allocated contracts is equal to the before contract
+	
+isEvent PortfolioCompression <"The qualification of a portfolio compression event: the before state has several contracts, and the after state has either contract(s) with cashflows or only cashflows.">
+	TransactionEvent -> intent = IntentEnum.portfolioCompression
+	and TransactionEvent -> before -> contractState exists // Grammar adjustment to express plurality
+	and ( ( TransactionEvent -> after -> contractOrListedProduct -> contractState and TransactionEvent -> after -> cashflow exists )
+		or TransactionEvent -> after -> cashflow exists )
+	// TODO - Possibly, enhance the grammar to qualify that the number of contracts before > number of contracts after
+
+isEvent Novation <"The qualification of a novation event: the contract before has different parties that the contract after.">
 	TransactionEvent -> before -> contractState -> contract -> party <>
-	TransactionEvent -> after -> contractState -> contract -> party
+	TransactionEvent -> after -> contractOrListedProduct -> contractState -> contract -> party
+	// TODO - Need to refine the syntax to qualify that one of the parties is the same, while the other one has changed.
 	and TransactionEvent -> after -> cashflow exists // Comparing the payer/receiver parties to the contract parties would be tricky because not using the same constructs 
