@@ -339,11 +339,14 @@ isEvent PhysicalExercise <"The qualification of a physical exercise event: the b
 		TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> underlyer -> contractualProduct )
 		or ( TransactionEvent -> after -> contractOrListedProduct -> listedProduct =
 		TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> underlyer -> listedProduct )
+	// TODO - Provide the ability to compute this equality in the case where the contractReference is specified, instead of the actual contract
 	and TransactionEvent -> after -> contractOrListedProduct -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout is absent
 
 isEvent CashPartialExercise <"The qualification of a physical exercise event: the before contract state is an option, the after state is a cashflow with an option which quantity is less than the before state.">
 	TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout exists
 	and TransactionEvent -> after -> cashflow exists
+	and TransactionEvent -> after -> contractOrListedProduct -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount -> amount > 0
+	// TODO - Add an alias to abstract the various ways in which the quantity can be expressed: actual quantity, schedule, ...
 	and TransactionEvent -> after -> contractOrListedProduct -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity <
 		TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity
 
@@ -353,6 +356,9 @@ isEvent PhysicalPartialExercise <"The qualification of a physical exercise event
 		TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> underlyer -> contractualProduct )
 		or ( TransactionEvent -> after -> contractOrListedProduct -> listedProduct =
 		TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> underlyer -> listedProduct )
+	// TODO - Enhance the grammar to provide the ability to exclude the quantity from this equality statement
+	and TransactionEvent -> after -> contractOrListedProduct -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount -> amount > 0
+	// TODO - Add an alias to abstract the various ways in which the quantity can be expressed: actual quantity, schedule, ...
 	and TransactionEvent -> after -> contractOrListedProduct -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity <
 		TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity
 
