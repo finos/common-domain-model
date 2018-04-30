@@ -31,6 +31,8 @@ class Curve one of
 
 class Event extends EventBase
 {
+	intent IntentEnum (0..1);
+		[synonym Rosetta_Workbench value intent]
 	party Party (0..*);
 		[synonym Rosetta_Workbench value party]
 	lineage Lineage (0..1);
@@ -41,8 +43,14 @@ class Event extends EventBase
 		[synonym Rosetta_Workbench value functionCall]
 }
 
-class EventNew extends EventBase
+/*******************************
+ * New Proposed Event Approach
+ */
+
+class TransactionEvent extends EventBase <"A transaction event involves 2 or more parties, can have an intent and has a before/after contract state">
 {
+	intent IntentEnum (0..1);
+		[synonym Rosetta_Workbench value intent]
 	party Party (0..*);
 		[synonym Rosetta_Workbench value party]
 	lineage Lineage (0..1);
@@ -53,9 +61,26 @@ class EventNew extends EventBase
 		[synonym Rosetta_Workbench value functionCall]
 }
 
-class Before
+class MarketEvent extends EventBase <"A market event doesn't involve parties, intent nor contract reference.">
 {
-	contractState ContractState (1..*);
+	source ObservationSource (1..1) <"The observation source.">;
+		[synonym Rosetta_Workbench value source]
+	observation number (1..1) <"The observation value.">;
+		[synonym Rosetta_Workbench value observation]
+	date date (1..1) <"The observation date.">;
+		[synonym Rosetta_Workbench value date]
+	time TimeZone (0..1) <"The observation time, with a possible indication of the timezone dimension.">;
+		[synonym Rosetta_Workbench value time]
+	side QuotationSideEnum (0..1) <"The side (bid/mid/ask) of the observation, when applicable.">;
+		[synonym Rosetta_Workbench value side]
+	functionCall string (0..1);
+		[synonym Rosetta_Workbench value functionCall]
+}
+
+class Before one of
+{
+	contractState ContractState (0..*);
+	marketEvent MarketEvent (0..*);
 }
 
 class After
@@ -63,7 +88,6 @@ class After
 	contractState ContractState (0..*);
 	cashflow Payment (0..*);
 }
-
 
 abstract class EventBase stereotype preExecution, execution, postExecution <"The event base abstract class.">
 {
@@ -76,8 +100,6 @@ abstract class EventBase stereotype preExecution, execution, postExecution <"The
 		[synonym Rosetta_Workbench value eventDate]
 	effectiveDate date (0..1);
 		[synonym Rosetta_Workbench value effectiveDate]
-	intent IntentEnum (0..1);
-		[synonym Rosetta_Workbench value intent]
 	action ActionEnum (1..1) <"Specifies whether the event is a new, a correction or a cancellation.">;
 		[synonym FpML value isCorrection 
 			set action to ActionEnum.new when False, 
@@ -148,7 +170,7 @@ data rule NewTrade_party <"The party node associated with a new trade event shou
 	when Event -> primitive -> newTrade -> contract exists
 	then Event -> party is absent
 
-class ObservationPrimitive <"The primitive event to represent an observation. The reason for the Primitive suffix is not to conflict with the qualified observation event.">
+class ObservationPrimitive <"The primitive event to represent an observation.">
 {
 	source ObservationSource (1..1) <"The observation source.">;
 		[synonym Rosetta_Workbench value source]
@@ -297,32 +319,38 @@ isEvent Payment <"The qualification of a payment event.">
 	and Event -> party ) only exists
 
 isEvent Exercise <"The qualification of an exercise event.">
-	EventNew -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout exists
-	and ( EventNew -> after -> contractState -> contract -> contractualProduct = 
-		EventNew -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> underlyer -> contractualProduct )
-	or 	( EventNew -> after -> cashflow exists 
-		and EventNew -> after -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity <
-			EventNew -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity )
+	TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout exists
+	and ( TransactionEvent -> after -> contractState -> contract -> contractualProduct = 
+		TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> underlyer -> contractualProduct )
+	or 	( TransactionEvent -> after -> cashflow exists 
+		and TransactionEvent -> after -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity <
+			TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity )
+
+isEvent PhysicalExercise <"The qualification of a physical exercise event.">
+	TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout exists
+	and ( TransactionEvent -> after -> contractState -> contract -> contractualProduct = 
+		TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> underlyer -> contractualProduct )
+	and TransactionEvent -> after -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout is absent
 
 isEvent PartialPhysicalExercise <"The qualification of a partial physical exercise event.">
-EventNew -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout exists
-	and ( EventNew -> after -> contractState -> contract -> contractualProduct = 
-		EventNew -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> underlyer -> contractualProduct )
-	and EventNew -> after -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout exists
-	and ( EventNew -> after -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity < 
-		EventNew -> after -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity )
+	TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout exists
+	and ( TransactionEvent -> after -> contractState -> contract -> contractualProduct = 
+		TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> underlyer -> contractualProduct )
+	and TransactionEvent -> after -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout exists
+	and ( TransactionEvent -> after -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity < 
+		TransactionEvent -> after -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity )
 		
 isEvent Allocation <"The qualification of an allocation event.">
-	EventNew -> before -> contractState only exists
-	and EventNew -> after -> contractState exists // Grammar adjustment to express plurality?
+	TransactionEvent -> before -> contractState only exists
+	and TransactionEvent -> after -> contractState exists // Grammar adjustment to express plurality?
 	
 isEvent PortfolioCompression <"The qualification of a portfolio compression event.">
-	EventNew -> intent = IntentEnum.portfolioCompression
-	and EventNew -> before -> contractState exists // Grammar adjustment to express plurality?
-	and ( ( EventNew -> after -> contractState and EventNew -> after -> cashflow exists )
-		or EventNew -> after -> cashflow exists )
+	TransactionEvent -> intent = IntentEnum.portfolioCompression
+	and TransactionEvent -> before -> contractState exists // Grammar adjustment to express plurality?
+	and ( ( TransactionEvent -> after -> contractState and TransactionEvent -> after -> cashflow exists )
+		or TransactionEvent -> after -> cashflow exists )
 
 isEvent Novation <"The qualification of a novation event.">
-	EventNew -> before -> contractState -> contract -> party <>
-	EventNew -> after -> contractState -> contract -> party
-	and EventNew -> after -> cashflow exists // Comparing the payer/receiver parties to the contract parties would be tricky because not using the same constructs 
+	TransactionEvent -> before -> contractState -> contract -> party <>
+	TransactionEvent -> after -> contractState -> contract -> party
+	and TransactionEvent -> after -> cashflow exists // Comparing the payer/receiver parties to the contract parties would be tricky because not using the same constructs 
