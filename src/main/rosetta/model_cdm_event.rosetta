@@ -81,7 +81,8 @@ class EventTimeStamp stereotype preExecution, execution, postExecution <"This cl
 
 class ExerciseOutcome extends ContractOrListedProduct one of
 {
-	cashflow Payment (0..1);
+	payment Payment (0..1);
+		[synonym Rosetta_Workbench value payment]
 }
 
 class ExercisePrimitive
@@ -337,12 +338,14 @@ class Before one of
 class After
 {
 	contractOrListedProduct ContractOrListedProduct (0..*);
-	cashflow Payment (0..*);
+		[synonym Rosetta_Workbench value contractOrListedProduct]
+	payment Payment (0..*);
+		[synonym Rosetta_Workbench value payment]
 }
 
 isEvent CashExercise <"The qualification of a physical exercise event: the before contract state is an option, the after state is a cashflow with no option.">
 	TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout exists
-	and TransactionEvent -> after -> cashflow exists
+	and TransactionEvent -> after -> payment exists
 	and TransactionEvent -> after -> contractOrListedProduct -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout is absent
 
 isEvent PhysicalExercise <"The qualification of a physical exercise event: the before contract state is an option, the after state is a product that corresponds to the option underlyer with no option.">
@@ -356,7 +359,7 @@ isEvent PhysicalExercise <"The qualification of a physical exercise event: the b
 
 isEvent CashPartialExercise <"The qualification of a physical exercise event: the before contract state is an option, the after state is a cashflow with an option which quantity is less than the before state.">
 	TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout exists
-	and TransactionEvent -> after -> cashflow exists
+	and TransactionEvent -> after -> payment exists
 	and TransactionEvent -> after -> contractOrListedProduct -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount -> amount > 0
 	// TODO - Add an alias to abstract the various ways in which the quantity can be expressed: actual quantity, schedule, ...
 	and TransactionEvent -> after -> contractOrListedProduct -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity <
@@ -383,12 +386,12 @@ isEvent Allocation <"The qualification of an allocation event: the before state 
 isEvent PortfolioCompression <"The qualification of a portfolio compression event: the before state has several contracts, and the after state has either contract(s) with cashflows or only cashflows.">
 	TransactionEvent -> intent = IntentEnum.portfolioCompression
 	and TransactionEvent -> before -> contractState exists // Grammar adjustment to express plurality
-	and ( ( TransactionEvent -> after -> contractOrListedProduct -> contractState and TransactionEvent -> after -> cashflow exists )
-		or TransactionEvent -> after -> cashflow exists )
+	and ( ( TransactionEvent -> after -> contractOrListedProduct -> contractState and TransactionEvent -> after -> payment exists )
+		or TransactionEvent -> after -> payment exists )
 	// TODO - Possibly, enhance the grammar to qualify that the number of contracts before > number of contracts after
 
 isEvent Novation <"The qualification of a novation event: the contract before has different parties that the contract after.">
 	TransactionEvent -> before -> contractState -> contract -> party <>
 	TransactionEvent -> after -> contractOrListedProduct -> contractState -> contract -> party
 	// TODO - Need to refine the syntax to qualify that one of the parties is the same, while the other one has changed.
-	and TransactionEvent -> after -> cashflow exists // Comparing the payer/receiver parties to the contract parties would be tricky because not using the same constructs 
+	and TransactionEvent -> after -> payment exists // Comparing the payer/receiver parties to the contract parties would be tricky because not using the same constructs 
