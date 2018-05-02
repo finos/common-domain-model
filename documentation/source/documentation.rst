@@ -1,10 +1,10 @@
 .. figure:: rosetta-overview.png
 **Rosetta Overview**
 
-Introduction to Rosetta
-=======================
+The ISDA CDM and the Rosetta Workbench
+======================================
 
-Rosetta is a digital repository whose purpose is to consolidate market standards and practices into a cohesive model, from which executable code is automatically generated.
+The ISDA Common Domain Model (CDM) is supported by a digital repository called Rosetta whose purpose is to consolidate market standards and practices into a cohesive model, from which executable code is automatically generated.
 
 The key idea behind Rosetta is that financial markets presently have two unappealing characteristics as it relates to their supporting electronic data representation:
 
@@ -13,12 +13,11 @@ The key idea behind Rosetta is that financial markets presently have two unappea
 
 Rosetta is looking to address those shortcomings by **consolidating various data and workflow representations into a cohesive model** (hence the naming reference to the Rosetta Stone), which can be **automatically translated into executable code**.
 
-Rosetta’s ambition is to provide a digital repository for all financial markets products and workflows, from pre-execution through post-execution lifecycle events, and across all asset classes and products.
-
-Rosetta Components
-==================
-
 .. figure:: rosetta-components.png
+
+As illustrated by the above picture, Rosetta has two main components as it relates to its usage as part of the ISDA CDM:
+* The **Model Repository**
+
 
 *  **Model**: Data representation artefacts (classes, attributes, enumerations) and associated validation, mapping and workflow rules, all expressed through a cohesive syntax.
 *  **Generated code**: Rosetta model artefacts expressed in executable code. The initial implementation can be expressed through Java code and a JSON representation.
@@ -27,19 +26,11 @@ Rosetta Components
 *  **Ingestion service**: Rosetta provides the ability to ingest trades and events represented through FpML or other data representation protocols (e.g. a customised event schema has been developed for the purpose of testing the ingestion of lifecycle events as part of the Initial Phase of the digital CDM) and express those according to the canonical model, as a JSON document.
 *  **Code generators**: Similar to the grammar, those code generators are supported through open source software, and access to those is not required as part of standard usages.
 
-Rosetta Modelling Principles
-============================
 
-Rosetta model is based upon three fundamental principles:
+CDM Artefacts – Purpose & Syntax
+================================
 
-1. **Leverage and reference existing data standards**. The Rosetta modelling bias is to represent through its syntax the most compelling and widely used data representations already available, while explictly reference them through attribute synonyms. So far, FpML has been used as the baseline for post-execution OTC derivatives flow, FIX as the baseline for the pre-execution and execution of standardised/listed products, and a blend of those two standards for the intersecting points.
-2. **Aim for the utmost data quality**. Some of the data standards which are consolidated through Rosetta aim for wide usage, with implied relaxed cardinality (e.g. FIX standard). Backward compatibility constraints may also translate into the need for those standards to keep data representation constructs even if not deemed anymore appropriate. In this respect, we are looking to tie the Rosetta model to actual market practices (when deemed appropriate), and programmatically enforce adherence to those. The same holds true as it relates to compliance with the eligible regulatory provisions and adherence to established market practices. This is done by complementing data representation artefacts with a validation logic that is expressed in a cohesive and legible syntax.
-3. **Reference applicable marketplace practices and regulatory provisions**. Though the associated metadata, such systematic references will provide market practitioners and regulators with the ability to easily check how the model conforms to those recommendations and provisions, while provide explicit rationale for the modelling representation and logic.
-
-Rosetta Artefacts – Purpose & Syntax
-====================================
-
-Rosetta combines three modelling dimensions:
+The digital CDM combines three modelling dimensions:
 
 * Data representation
 * External references
@@ -48,7 +39,7 @@ Rosetta combines three modelling dimensions:
 Data Representation Artefacts
 -----------------------------
 
-Rosetta specifies **four data representation artefacts**:
+The CDM specifies **four data representation artefacts**:
 
 * Classes
 * Attributes
@@ -63,50 +54,38 @@ Classes
 Purpose
 ^^^^^^^
 
-Rosetta classes are objects that contain the granular data representation elements, in the form of attributes. When representing XML data artefacts (e.g. FpML, FIXML), Rosetta classes correspond to XML complex types.
+CDM classes are objects that contain the granular data representation elements, in the form of attributes.
 
 Syntax
 ^^^^^^
 
 The class is delineated by brackets ``{`` ``}``.
 
-Rosetta supports the concept of **abstract classes**, which cannot be instantiated as part of the generated executable code and are meant to be extended by other classes.  An example of such is the ``ContractualHeader`` class, which is extended by all contractual products, such as the credit default swap.
+The CDM supports the concept of **abstract classes**, which cannot be instantiated as part of the generated executable code and are meant to be extended by other classes.  An example of such is the ``EventBase`` class, which contains the attributes that are applicable to all events.
 
   .. code-block:: Java
 
-    abstract class ContractualHeader stereotype productReferenceData, contractualProduct <"An abstract class to specify the attributes that are common across contractual products and which apply across the pre-execution, execution and post-execution stages.">
-    {
-    	id string (0..1);
-    		[synonym FpML value id]
-    	productTaxonomy ProductTaxonomy (1..*) <"The product taxonomy value(s) associated with a contractual product.">;
-    	priceMultiplier number (0..1) <"The number of units of the underlying instrument represented by a single derivative contract.">;
-    		[regulatoryReference ESMA_MiFID_II regulation "RTS 27" article "3(2)(b)" provision "Trading venues and systematic internalisers shall publish for each market segment they operate and each financial instrument subject to the trading obligation (..) for financial instruments that do not have identifiers (...) the name and a written description of the instrument, including (...) price multiplier (...)."]
-    		[regulatoryReference ESMA_MiFID_II regulation "RTS 27" annex "Table 2" provision "Written description of financial instrument, if no identifier available (including the currency of the underlying instrument, price multiplier, price notation, quantity notation and delivery type)."]
-    }
-
-  .. code-block:: Java
-
-    class CreditDefaultSwap extends ContractualHeader stereotype contractualProduct <"A class defining the credit default swap.">
-    	[synonym FpML value CreditDefaultSwap]
-    {
-    	generalTerms GeneralTerms (1..1) <"This element contains all the data that appears in the section entitled '1. General Terms' in the 2003 ISDA Credit Derivatives Confirmation.">;
-    		[synonym FpML value generalTerms]
-    	feeLeg FeeLeg (1..1) <"This element contains all the terms relevant to defining the fixed amounts/payments per the applicable ISDA definitions.">;
-    		[synonym FpML value feeLeg]
-    	protectionTerms ProtectionTerms (1..*) <"This element contains all the terms relevant to defining the applicable floating rate payer calculation amount, credit events and associated conditions to settlement, and reference obligations.">;
-    		[synonym FpML value protectionTerms]
-    	cashSettlementTerms CashSettlementTerms (0..1);
-    		[synonym FpML value cashSettlementTerms]
-    	physicalSettlementTerms PhysicalSettlementTerms (0..1);
-    		[synonym FpML value physicalSettlementTerms]
-    }
+  abstract class EventBase stereotype preExecution, execution, postExecution <"The event base abstract class.">
+  {
+  	messageInformation MessageInformation (0..1);
+  	timeStamp EventTimeStamp (1..1);
+  		[synonym Rosetta_Workbench value timeStamp]
+  	eventIdentifier Identifier (1..1);
+  		[synonym Rosetta_Workbench value eventIdentifier]
+  	eventDate date (1..1);
+  		[synonym Rosetta_Workbench value eventDate]
+  	effectiveDate date (0..1);
+  		[synonym Rosetta_Workbench value effectiveDate]
+  	action ActionEnum (1..1) <"Specifies whether the event is a new, a correction or a cancellation.">;
+  		[synonym FpML value isCorrection
+  			set action to ActionEnum.new when False,
+  			set action to ActionEnum.correct when True]
+  }
 
 
-**Stereotype values**, such as ``contractualProduct`` in the above example, are specified for the purpose of supporting analytical queries and navigation tools at some further point down the road. The values are controlled by the grammar.
+**Stereotype values**, such as ``postExecution`` in the above example, are specified for the purpose of supporting analytical queries and navigation tools at some further point down the road. The values are controlled by the grammar.
 
-**Synonyms**, **regulatory references** and **market practice references** can also be associated to classes.
-
-Rosetta convention is that class names start with a capital letter, and a warning will be generated by the grammar if this is not the case. Class names need to be unique across the model, including with respect to rule names. This is also controlled by the grammar.
+The CDM convention is that class names start with a capital letter. Class names need to be unique across the model, including with respect to rule names. Both those are controlled by the Rosetta Workbench grammar.
 
 Attributes
 ~~~~~~~~~~
@@ -125,39 +104,41 @@ The set of **basic types** available in Rosetta are:
 
 Text - ``string``
 
-Number - ``int`` - ``double`` - ``number`` - ``float``
+Number - ``int`` - ``number``
 
 Logic - ``boolean``
 
 Date and Time - ``date`` - ``dateTime`` - ``time``
 
-Rosetta provides the ability to associate either a ``reference``, an identifier (expressed as ``anchor``) and/or a ``scheme`` qualifier to the attribute. The purpose here is to provide the ability to properly map source XML documents, such as FpML ones, which make use of such cross-referencing modelling representation. The implementation works as follows:
+The CDM provides the ability to associate either a ``reference``, an identifier (expressed as ``anchor``) and/or a ``scheme`` qualifier to the attribute. The purpose here is to provide the ability to properly map source XML documents, such as FpML ones, which make use of such cross-referencing modelling representation. The implementation works as follows:
 
-* In the case where a source element is specified by reference to another element, Rosetta specifies this reference element explictly (leveraging the id/href link present in the source document), while also stamps those id/href references alongside the attribute in order to preserve data lineage.
-
-  .. code-block:: Java
-
-    class DateRelativeToPaymentDates stereotype contractualProduct <"A class to provide the ability to point to multiple payment nodes in the document through the unbounded paymentDatesReference.">
-    	[synonym FpML value DateRelativeToPaymentDates]
-    {
-    	paymentDates date (1..*) reference <"FpML specified this element as a set of href pointers to payment dates defined somewhere else in the instance document. Rosetta, for clarity and legibility considerations, specifies those actual dates.">;
-    		[synonym FpML value paymentDatesReference]
-    }
-
-* In the case where a source element makes reference to a scheme and if the values for that scheme are specified, that scheme is positioned as an enumeration.  An example of such is the FpML *creditSupportAgreementTypeScheme* which is represented in Rosetta via the ``CreditSupportAgreementTypeEnum``.
+* In the case where a source element is specified by reference to another element, Rosetta will replicate this reference:
 
   .. code-block:: Java
 
-    class CreditSupportAgreement stereotype contractualProduct <"The agreement executed between the parties and intended to govern collateral arrangement for all OTC derivatives transactions between those parties.">
-    	[synonym FpML value CreditSupportAgreement]
-    {
-    	type CreditSupportAgreementTypeEnum (1..1) <"The type of ISDA Credit Support Agreement.">;
-    		[synonym FpML value type]
-    	date date (1..1) <"The date of the agreement executed between the parties and intended to govern collateral arrangements for all OTC derivatives transactions between those parties.">;
-    		[synonym FpML value date]
-    	identifierValue string (0..1) <"An identifier used to uniquely identify the CSA. FpML specifies the type as creditSupportAgreementIdScheme, but without proposing any value.  As far as e understand, no scheme has yet been developed at this point.">;
-    		[synonym FpML value identifier]
-    }
+  class DateRelativeToPaymentDates stereotype contractualProduct <"A class to provide the ability to point to multiple payment nodes in the document through the unbounded paymentDatesReference.">
+  	[synonym FpML value DateRelativeToPaymentDates]
+  {
+  	paymentDatesReference string (1..*) reference <"A set of href pointers to payment dates defined somewhere else in the document.">;
+  		[synonym FpML value paymentDatesReference]
+  }
+
+
+* In the case where a source element makes reference to a scheme and if the values for that scheme are specified, that scheme is positioned as an enumeration.  An example of such is the FpML *creditSupportAgreementTypeScheme* which is represented in Rosetta via the ``CreditSupportAgreementTypeEnum``. While the scheme value is represented as part of the enumeration, the CDM attribute also carries the scheme associated with the original document, such as not to discard any origination information.
+
+  .. code-block:: Java
+
+  class CreditSupportAgreement stereotype contractualProduct <"The agreement executed between the parties and intended to govern collateral arrangement for all OTC derivatives transactions between those parties.">
+  	[synonym FpML value CreditSupportAgreement]
+  {
+  	type CreditSupportAgreementTypeEnum (1..1) scheme "creditSupportAgreementTypeScheme" <"The type of ISDA Credit Support Agreement.">;
+  		[synonym FpML value type]
+  	date date (1..1) <"The date of the agreement executed between the parties and intended to govern collateral arrangements for all OTC derivatives transactions between those parties.">;
+  		[synonym FpML value date]
+  	identifierValue string (0..1) <"An identifier used to uniquely identify the CSA. FpML specifies the type as creditSupportAgreementIdScheme, but without proposing any value.  As far as e understand, no scheme has yet been developed at this point.">;
+  		[synonym FpML value identifier]
+  }
+
 
 * In the case where a source element makes reference to a scheme while the values for that scheme are not specified, the corresponding attribute is set as a ``string``, with an associated scheme reference.  An example of such is the FpML *linkIdScheme*.
 
@@ -172,7 +153,7 @@ Rosetta provides the ability to associate either a ``reference``, an identifier 
     		[synonym FpML value linkId]
     }
 
-Rosetta syntax convention is for attribute names to be expressed in lower case, and a warning will be generated by the grammar if this is not the case. Attribute names need to be unique within the context of a class (and within the context of the base class, if a class extends another class), but can be duplicated across classes. The semi-column ``;`` acts as the terminal character for the attribute specification, with associated synonyms and rules being positioned underneath that specification line.
+CDM syntax convention is for attribute names to be expressed in lower case, and a warning will be generated by the grammar if this is not the case. Attribute names need to be unique within the context of a class (and within the context of the base class, if a class extends another class), but can be duplicated across classes. The semi-column ``;`` acts as the terminal character for the attribute specification, with associated synonyms being positioned underneath that specification line.
 
 Enumerations
 ~~~~~~~~~~~~
@@ -182,9 +163,7 @@ Purpose
 
 Enumerations are the mechanism through which controlled values are specified at the attribute level. They are the container for the corresponding set of enumeration values.
 
-With respect to the FpML standard, the schemes which values are specified as part of the standard are represented through enumerations in Rosetta. As mentioned in the preceding section, FpML schemes with no defined values are represented in Rosetta as a type ``string`` alongside that an associated scheme qualification.
-
-With respect to the FIX standard, the elements that have associated *valid values* (to use the FIX terminology) are represented in Rosetta through enumerations.
+With respect to the FpML standard, the schemes which values are specified as part of the standard are represented through enumerations in the CDM. As mentioned in the preceding section, FpML schemes with no defined values are represented in the CDM as a type ``string`` alongside that an associated scheme qualification.
 
 Syntax
 ^^^^^^
@@ -195,50 +174,16 @@ Similar to the class, the enumeration is delineated by brackets ``{`` ``}``.
 
  .. code-block:: Java
 
-  enum RoundingDirectionEnum <"The enumerated values to specify the rounding direction and precision to be used in the rounding of a rate.">
-  	[synonym FpML value RoundingDirectionEnum]
-  	[synonym FIX value RoundingDirection tag 468]
+ enum CouponTypeEnum <"The enumerated values to specify if the bond has a variable coupon, step-up/down coupon or a zero-coupon.">
+  [synonym FpML value couponTypeScheme]
   {
-  	Up <"A fractional number will be rounded up to the specified number of decimal places (the precision). For example, 5.21 and 5.25 rounded up to 1 decimal place are 5.3 and 5.3 respectively.">
-  		[synonym FpML value "Up"]
-  		[synonym FIX value "2" definition "2 = Round up"],
-  	Down <"A fractional number will be rounded down to the specified number of decimal places (the precision). For example, 5.29 and 5.25 rounded down to 1 decimal place are 5.2 and 5.2 respectively.">
-  		[synonym FpML value "Down"]
-  		[synonym FIX value "1" definition "1 = Round down"],
-  	Nearest <"A fractional number will be rounded either up or down to the specified number of decimal places (the precision) depending on its value. For example, 5.24 would be rounded down to 5.2 and 5.25 would be rounded up to 5.3 if a precision of 1 decimal place were specified.">
-  		[synonym FpML value "Nearest"]
-  		[synonym FIX value "0" definition "0 = Round to nearest"]
+  Fixed <"Bond has fixed rate coupon.">
+    [synonym FpML value "Fixed"],
+  Float <"Bond has floating rate coupon.">
+    [synonym FpML value "Float"],
+  Structured <"Bond has structured coupon.">
+    [synonym FpML value "Struct"]
   }
-
-The ability for an enumeration to extend another enumeration has been specified for the purpose of replicating the *xsd:unionconstruct*, which is used in FpML in order for an enumeration (such as ``PeriodExtendedEnum``) to include values that are specified in another enumeration (in this case, ``PeriodEnum``).
-
- .. code-block:: Java
-
-   enum PeriodEnum <"The enumerated values to specify the period, e.g. day, week.">
-   	[synonym FpML value PeriodEnum]
-   	[synonym ISO_20022 value Unit]
-   	[regulatoryReference ESMA_MiFIR specification "ISO 20022 - Part 2" section "20.1.10.2.1" provision "Unit <Unit>: Unit for the rate basis."]
-   {
-   	D <"Day">
-   		[synonym FpML value "D"]
-   		[synonym ISO_20022 value "DAYS"],
-   	W <"Week">
-   		[synonym FpML value "W"]
-   		[synonym ISO_20022 value "WEEK"],
-   	M <"Month">
-   		[synonym FpML value "M"]
-   		[synonym ISO_20022 value "MNTH"],
-   	Y <"Year">
-   		[synonym FpML value "Y"]
-   		[synonym ISO_20022 value "YEAR"]
-   }
-
-   enum PeriodExtendedEnum extends PeriodEnum <"The enumerated values to specify a time period containing the additional value of Term.">
-   	[synonym FpML value PeriodExtendedEnum]
-   {
-   	T <"Term. The period commencing on the effective date and ending on the termination date. The T period always appears in association with periodMultiplier = 1, and the notation is intended for use in contexts where the interval thus qualified (e.g. accrual period, payment period, reset period, ...) spans the entire term of the trade.">
-   		[synonym FpML value "T"]
-   }
 
 
 Enumeration Values
@@ -288,10 +233,10 @@ In order to handle the integration of FpML scheme values such as the *dayCountFr
    }
 
 
-The **synonym syntax** associated with enumeration values differs in two respects from the synonyms associated with other Rosetta artefacts:
+The **synonym syntax** associated with enumeration values differs in two respects from the synonyms associated with other CDM artefacts:
 
 * The synonym value is of type ``string``, for the above reason related to the need to facilitate integration with executable code. (The alternative approach consisting in specifying the value as a compatible identifier alongside with a display name has been disregarded because it has been deemed not appropriate to create a 'code-friendly' value for the respective synonyms. A ``string`` type removes such need.)
-* The synonym value has an associated definition, the objective here being to effectively support the FIX use cases where the synonym value is a letter or numerical code, which is then positioned as the prefix of the associated definition. The ``TimeInForceEnum`` illustrates this approach.
+* Although this use case is not part of the current CDM scope, the ability to associate a definition to a synonym value has been enabled, the objective being to effectively support the FIX use cases where the synonym value is a letter or numerical code, which is then positioned as the prefix of the associated definition. The ``TimeInForceEnum`` illustrates this approach.
 
   .. code-block:: Java
 
@@ -320,36 +265,6 @@ The **synonym syntax** associated with enumeration values differs in two respect
     		[synonym FIX value "9" definition "9 = At Crossing"]
     }
 
-Regulatory references can also be associated with each of the enumeration values, as illustrated by the ``AccountTypeEnum``.
-
- .. code-block:: Java
-
-   enum AccountTypeEnum <"The enumeration values to qualify the type of account.">
-  	[synonym FIX value AccountType tag 581]
-  	[synonym FpML value accountTypeScheme]
-    {
-    	AggregateClient <"Aggregate client account, as specified under ESMA MiFIR">
-    		[synonym FpML value "AggregateClient" definition "Aggregate client account, as defined under ESMA MiFIR."]
-    		[synonym ISO_20022 value "INTC" definition "Party acting as an internal agent."]
-    		[regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "I Table 2 #7" provision "‘INTC’ shall be used to designate an aggregate client account within the investment firm in order to report a transfer into or out of that account with an associated allocation to the individual client(s) out of or into that account respectively."],
-    	Client <"The account contains trading activity or positions that belong to a client of the firm that opened the account.">
-    		[synonym FIX value "1" definition "1 = Account is carried on customer side of the books"]
-    		[synonym FpML value "Client" definition "The account contains trading activity or positions that belong to a client of the firm that opened the account."],
-    	House <"The account contains trading activity or positions belonging to the firm that is the owner of the account.">
-    		[synonym FIX value "2" definition "2 = Account is carried on non-customer side of books"]
-    		[synonym FpML value "House" definition "The account contains proprietary trading activity or positions, belonging to the firm that is the owner of the account."],
-    	HouseTrader <"House Trader">
-    		[synonym FIX value "3" definition "3 = House Trader"],
-    	FloorTrader <"Floor Trader">
-    		[synonym FIX value "4" definition "4 = Floor Trader"],
-    	CrossMarginedNonCustomer
-    		[synonym FIX value "4" definition "6 = Account is carried on non-customer side of books and is cross margined"],
-    	CrossMarginedHouse
-    		[synonym FIX value "7" definition "7 = Account is house trader and is cross margined"],
-    	JointBackOffice
-    		[synonym FIX value "8" definition "8 = Joint back office account (JBO)"]
-    }
-
 
 Aliases
 ~~~~~~~
@@ -359,76 +274,24 @@ Purpose
 
 Two considerations stand behind the introduction of aliases as part of Rosetta:
 
-* The recognition that model tree expressions can be cumbersome at time and hence may contradict the primary goals of clarity and legibility that are associated with Rosetta. The below contractual product aliases and their use as part of the ``BuyerSeller`` projection rule provides an example of such approach to provide further clarity and legibility to the model syntax.
+* The recognition that model tree expressions can be cumbersome at time and hence may contradict the primary goals of clarity and legibility that are associated with Rosetta. The current CDM model only makes use of the alias as part of the interest calculation syntax, with the ``period`` alias which purpose is to provide further clarity and legibility as part of the date arguments associated with the day count fraction computation.
 
   .. code-block:: Java
 
-    alias BasisSwap <"A basis swap is a swap that has two float interest rate legs.">
-    	Swap -> swapStream -> calculationPeriodAmount -> calculation -> floatingRateCalculation
-    	and Swap -> swapStream -> calculationPeriodAmount -> calculation -> floatingRateCalculation
+  alias period CalculationPeriod( InterestRatePayout -> calculationPeriodDates )
 
-    alias FixFixSwap <"A fix/fix swap is a swap that has two fixed interest rate legs.">
-    	Swap -> swapStream -> calculationPeriodAmount -> calculation -> fixedRateSchedule
-    	and Swap -> swapStream -> calculationPeriodAmount -> calculation -> fixedRateSchedule
-
-    alias FixFloatSwap <"A fixed/float interest rate swap is a swap that has a fixed interest rate leg and a float interest rate leg.">
-    	Swap -> swapStream -> calculationPeriodAmount -> calculation -> fixedRateSchedule
-    	and Swap -> swapStream -> calculationPeriodAmount -> calculation -> floatingRateCalculation
-
-    alias InflationSwap <"An inflation swap is a swap that has a fixed interest rate leg and an inflation leg.">
-    	Swap -> swapStream -> calculationPeriodAmount -> calculation -> fixedRateSchedule
-    	and Swap -> swapStream -> calculationPeriodAmount -> calculation -> inflationRateCalculation
-
-    alias SingleNameCreditDefaultSwap <"The conditions terms of the FpML Credit Validation Rules specify that a SingleName CDS is characterised by '(context: Trade) creditDefaultSwap/generalTerms/referenceInformation exists.'">
-    	CreditDefaultSwap -> generalTerms -> referenceInformation
-
-    alias SwapFixStream <"The swap stream fixed rate schedule.">
-    	InterestRateStream -> calculationPeriodAmount -> calculation -> fixedRateSchedule
-
-    alias SwapFloatStream <"The swap stream float rate schedule.">
-    	InterestRateStream -> calculationPeriodAmount -> calculation -> floatingRateCalculation
-
-    alias SwapInflationStream <"The swap stream inflation rate schedule.">
-    	InterestRateStream -> calculationPeriodAmount -> calculation -> inflationRateCalculation
+  endYear : is period -> endDate -> year
+  startYear : is period -> startDate -> year
+  endMonth : is period -> endDate -> month
+  startMonth : is period -> startDate -> month
+  startDay : is Min( period -> startDate -> day, 30 )
+  endDay : is Min( period -> endDate -> day, 30 )
 
   .. code-block:: Java
 
-    projection rule BuyerSeller_IRS <"MiFIR requires that the parties to a financial transaction always be identified as a buyer/seller.  To this effect, it specifies a set of logic in the case when this differs from standard market practice.">
-    	[regulatoryReference ESMA_MiFIR specification "2016-ITMG-66 - Annex 1 Validation Rules" field "7" provision "The Buyer identification code is the code used to identify the acquirer of the financial instrument. (...) In the case of swaps related to interest rates or inflation indices, the buyer shall be the counterparty paying the fixed rate. The seller shall be the counterparty receiving the fixed rate. In case of basis swaps (float-to-float interest rate swaps), the buyer shall be the counterparty that pays the spread and the seller the counterparty that receives the spread."]
-    	for target ISO_20022
-    		when alias FixFloatSwap exists {
-    			when alias SwapFixStream exists (
-    				map InterestRateStream -> payerParty to synonym Buyr
-    				map InterestRateStream -> receiverParty to synonym Sellr
-    				)
-    			when	 alias SwapFloatStream exists (
-    				map InterestRateStream -> payerParty to synonym Sellr
-    				map InterestRateStream -> receiverParty to synonym Buyr
-    				)
-    			}
-    		when alias InflationSwap exists {
-    			when alias SwapFixStream exists (
-    				map InterestRateStream -> payerParty to synonym Buyr
-    				map InterestRateStream -> receiverParty to synonym Sellr
-    				)
-    			when	 alias SwapInflationStream exists (
-    				map InterestRateStream -> payerParty to synonym Sellr
-    				map InterestRateStream -> receiverParty to synonym Buyr
-    				)
-    			}
-    		when alias BasisSwap exists {
-    			when	 alias SwapSpread exists (
-    				map InterestRateStream -> payerParty to synonym Buyr
-    				map InterestRateStream -> receiverParty to synonym Sellr
-    				)
-    			when	 alias SwapSpread is absent (
-    				map InterestRateStream -> payerParty to synonym Sellr
-    				map InterestRateStream -> receiverParty to synonym Buyr
-    				)
-    			}
+It can be expected that the further developments of the CDM might make a broader use of this syntax artefact.
 
-
-* The assessment that key concepts such as the price or the notional of a financial instrument require an abstraction layer in order to provide a straightforward and cohesive way to express / access them across products. The aliases ``CdsNotional`` and ``IrsInitialNotional`` are good illustrations of such approach.
+* As part of the Rosetta model which has been used as an input for the CDM, aliases have been used to express key concepts such as the price or the notional of a financial instrument in order to provide a straightforward and cohesive way to express / access them across products. The aliases ``CdsNotional`` and ``IrsInitialNotional`` were good illustrations of such approach.
 
   .. code-block:: Java
 
@@ -437,8 +300,6 @@ Two considerations stand behind the introduction of aliases as part of Rosetta:
 
     alias IrsInitialNotional <"The initial notional of an interest rate swap.">
     	Swap -> swapStream -> calculationPeriodAmount -> calculation -> notionalSchedule -> notionalStepSchedule -> initialValue
-
-That being said, scalability considerations need to be kept in mind, as there is an obvious need to easily navigate the available set of aliases.
 
 Syntax
 ^^^^^^
@@ -458,7 +319,7 @@ Synonyms
 Purpose
 ^^^^^^^
 
-Synonym is the baseline building block in the relationship between Rosetta and alternative data representations, whether those are open standards or proprietary data representations. It can be complemented by mapping and projection rules when the relationship is not a one-to-one or is conditional.
+Synonym is the baseline building block in the relationship between the CDM and alternative data representations, whether those are open standards or proprietary data representations. It can be complemented by relevant mapping logic when the relationship is not a one-to-one or is conditional.
 
 Synonyms can be associated to all four sets of Rosetta data modelling artefacts:
 
@@ -474,7 +335,7 @@ Syntax
 
 The baseline synonym syntax has two components:
 
-*  The **source**, whose possible values are controlled by the grammar and correspond to the various standards and protocols which are subject to associations as part of Rosetta (e.g. ``FIX``, ``ISO 20022``).
+*  The **source**, whose possible values are controlled by the grammar and correspond to the various standards and protocols which are subject to associations as part of Rosetta (e.g. ``FpML``, ``ISO 20022``).
 *  The **value**, which is of type ``identifier``.
 
 Example:
@@ -483,84 +344,9 @@ Example:
 
 A further set of attributes can be associated with a synonym, to address specific use cases:
 
-*  A **tag** (e.g. ``[synonym FIX value AccountType tag 581]``) or a **componentID** (e.g. ``[synonym FIX value RateSource componentID 1062]``) can be associated to a synonym value. Those are of type ``integer``. The purpose here is to properly represent the FIX standard. It should be noted that the ability to set those attributes is not restricted to the source value FIX, because it is expected that further protocol sources will actually be variations of the FIX standard.
-*  A **mapping rule** and/or a **projection rule** can be associated to a synonym to address the case where the relationship between the Rosetta data element and that synonym is subject to a logic of some sort.
+*  A **tag** (e.g. ``[synonym FIX value AccountType tag 581]``) or a **componentID** (e.g. ``[synonym FIX value RateSource componentID 1062]``) can be associated to a synonym value. Those are of type ``integer``. The purpose here is to properly represent the FIX standard. It should be noted that the ability to set those attributes is not restricted to the source value FIX, because it is expected that further protocol sources will actually be variations of the FIX standard. (Note: this is not a relevant use case as it relates to the current CDM model, which scope is limited to the equivalence with the FpML standard.)
+*  A **mapping logic** can be associated to a synonym to address the case where the relationship between the CDM data element and that synonym is subject to a logic of some sort.
 *  A **definition** (of type ``string``) can be associated with the enumeration value synonyms, as noted above, the purpose being to provide a more explicit reference to the FIX enumeration values, which are specified through a single digit or letter, which value is then positioned as a prefix to the associated definition.
-
-Regulatory References
-~~~~~~~~~~~~~~~~~~~~~
-
-Purpose
-^^^^^^^
-
-Regulatory references are to provide relevant metadata to easily ascertain how regulatory provisions are represented throughout the Rosetta model.
-
-To take a simple example, if a regulatory provision specifies that the price of a financial instrument needs to be expressed in a certain way, all data artefacts and rules that relate to the satisfaction of that provision will be tagged with this regulatory reference. Those modelling components will then be returned when querying this regulatory reference.
-
-Regulatory references can be associated to the following Rosetta artefacts:
-
--  Classes
--  Attributes
--  Enumerations
--  Enumeration values
--  Data rules
--  Workflow rules
-
-Syntax
-^^^^^^
-
-Regulatory references are specified by four qualifiers:
-
-*  **The regulatory regime**, which possible set of values is controlled by the grammar and corresponds to the list of such regimes, such as ``CFTC DFA``, ``ESMA MiFID II``, …
-*  **The mandate** specifies the granularity level underneath the regulatory regime through the combination of a qualifier, which value is controlled by the grammar, and a value, which is of type ``string``. At present, the qualifier values can be either ``regulation``, ``specification`` or ``guideline``.
-*  **The segment** specifies the granularity level underneath the mandate, also through the combination of a qualifier, which value is controlled by the grammar, and a value, which is of type ``string``. At present, the qualifier values can either be ``article``, ``whereas``, ``annex``, ``section`` or ``field``.
-*  **The provision** specifies the regulatory provision at stake, through the combination of this prefix and a field of type ``string``. There is no limit to the field size, and the guidance is to copy the relevant regulatory provision to the extent possible, with a mention such as ``(…)`` if a non-relevant part of that provision has been omitted. It is worth noting that the supplemental/alternative approach consisting in inserting a uri link to the relevant regulatory provision has been disregarded because of maintainability concerns.
-
-  .. code-block:: Java
-
-   class Algorithm stereotype entityReferenceData <"Provides information about an algorithm that executed or otherwise participated in the transaction.">
-  	[synonym FpML value Algorithm]
-  	[regulatoryReference ESMA_MiFIR specification "ISO 20022 - Part 2" section "20.1.11.2.10.2" provision "Algorithm <Algo> - Definition: Identification of an algorithm."]
-    {
-    	name string (1..1) <"The name of the algorithm.">;
-    		[synonym FpML value name]
-    		[synonym ISO_20022 value Algo]
-    	role AlgorithmRoleEnum (0..1) <"The algorithm role, as specified through an enumeration, e.g. Execution, InvestmentDecision.">;
-    		[synonym FpML value role]
-    }
-
-Market Practice References
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Purpose
-^^^^^^^
-
-Market practice references are meant to document the rationale behind components of the Rosetta model through query-able metadata elements. They are similar in purpose and approach to the regulatory references.
-
-Market practice references can be associated to the following Rosetta artefacts:
-
--  Classes
--  Attributes
--  Data rules
--  Workflow rules
-
-Syntax
-^^^^^^
-
-Market practice references are specified through three qualifiers:
-
-* **The market practice**, which is qualified through the authoring organisation, such as ``ISDA``, ``SIFMA`` or the ``FIX Trading Community``. The possible values are controlled by the grammar.
-*  **The write-up reference**, whose value is of type ``string``.
-*  **The provision**, which specifies the relevant market practice through a field of type ``string``. Similar to the regulatory provision, its length is not limited by the grammar, and the usage guidance is to copy the relevant text whenever possible.
-
- .. code-block:: Java
-
-   data rule Quote_Price
-  	[marketPractice FIX_TradingCommunity write-up "Global Fixed Income Committee - Best Practices for Trading Fixed Income Instruments - Volume 3 – Quote-Driven Workflows p. 126" recommendation "Either BidPx, OfferPx or both must be specified."]
-  	when QuotePrice exists
-  	then (QuotePrice -> bidPrice or QuotePrice -> offerPrice) must exist
-  		or (QuotePrice -> bidPrice and QuotePrice -> offerPrice) must exist
-
 
 Rule Artefacts
 --------------
@@ -615,57 +401,6 @@ The mapping logic associated with the below ``action`` attribute provides a good
     			set action to ActionEnum.cancel when "1"]
     }
 
-Projection Rules
-~~~~~~~~~~~~~~~~
-
-Purpose
-^^^^^^^
-
-Projection rules can be characterised as a way to map Rosetta data ‘on the way out’, while mapping rules map data ‘on the way in’.
-
-We recognise that standards such as FpML and FIXML can be used for sourcing information into Rosetta-based data repositories as well as for reporting information from those. In that context, if the relationship between the Rosetta model and those data representations is the same for sourcing and reporting purposes, the intent is certainly not to express it twice: once as part of a mapping rule and once as part of projection rule. Mapping rules could be used for both purposes, and we will look to craft relevant guidance (and, possibly, further adjust the syntax) for such purpose once those use cases get firmed up.
-
-Projection rules are driven by the consideration that a number of data representations and use cases associated with extracting data from a granular model such as Rosetta will actually result in aggregating and normalising information across products and transaction types. This is expected to translate into a specific and more complex set of logic. For this reason, it has been deemed appropriate to provide a dedicated syntax, distinct from the mapping rules.
-
-Syntax
-^^^^^^
-
-The synonym to which the projection rule is applied to is called ``target`` and its syntax is in the form ``for target <synonym source>``.
-
-The Rosetta model expression is positioned as the starting point of the mapping expression, as ``map <Rosetta model expression> to <synonym value>``.
-
-Projection rules provide the ability to have unbounded mapping expressions, as this seems like a good way to express the data normalisation features that characterise some of those data projections.
-
-``Price_Derivatives`` is a good illustration of this unbounded feature, as it projects the price of derivatives products into a set of normalised fields, through expressions in the form of ‘when the product is such, map this to that’.
-
- .. code-block:: Java
-
-   projection rule Price_Derivatives <"ISDA specified guidelines as to how an OTC derivative price is expressed for the purpose of complying with the CFTC public price reporting provisions.  This has become the reference guideline for the marketplace.">
-  	[marketPractice ISDA write-up "ISDA PN-APN Approach Document v1.0 2013_03_15" recommendation "ISDA recommendation for the reporting of the price information of OTC derivatives for compliance with the CFTC Part 43 public price reporting rule, which specifies the Price Notation (PN) and Additional Price Notation (APN) fields."]
-  	for target CFTC_Part43
-  	when alias FixFloatSwap exists (
-  		map alias SwapFixRate to synonym PN1
-  		map alias SwapSpread to synonym PN2
-  		map alias SwapFee to synonym [PN3, APN]
-  		)
-  	when alias InflationSwap exists (
-  		map alias SwapFixRate to synonym PN1
-  		map alias SwapSpread to synonym PN2
-  		map alias SwapFee to synonym [PN3, APN]
-  		)
-  	when alias BasisSwap exists (
-  		map alias SwapSpread to synonym [PN1, PN2]
-  		map alias SwapFee to synonym [PN3, APN]
-  		)
-  	when alias FixFixSwap exists (
-  		map alias SwapFixRate to synonym [PN1, PN2]
-  		map alias SwapFee to synonym [PN3, APN]
-  		)
-  	when ListedInterestRateDerivative exists (
-  		map ListedInterestRateDerivative -> fixedRate to synonym PN1
-  		map ListedInterestRateDerivative -> spread to synonym PN2
-  		map ListedInterestRateDerivative -> fee to synonym PN3
-  		)
 
 Choice Rules
 ~~~~~~~~~~~~
@@ -932,40 +667,19 @@ A good illustration of this syntax is the ``NaturalPersonIdentifier_country``, w
   		else Party -> partyId -> partyIdSource = PartyIdSourceEnum.CCPT
   				or Party -> partyId -> proprietaryScheme = "CONCAT"
 
-Workflow Rules
-~~~~~~~~~~~~~~
 
-Purpose
-^^^^^^^
-
-The purpose of workflow rules is to specify state transition constraints.
-
-Syntax
-^^^^^^
-
-As with classes, enumerations and other rule artefacts, the workflow rules name needs to be unique across the Rosetta model, which is enforced through validation logic.
-
-As workflow rules essentially consist in specifying a dependency constraint between transaction artefacts which are expressed in the form of classes as part of Rosetta, the naming convention is in the form of ``<class1>_<class2>``.
-
-Market practice references can be associated with workflow rules.
-
-The ``RequestForQuote_cancel_correct`` provides an example of a workflow rule.
-
- .. code-block:: Java
-
-   workflow rule RequestForQuote_cancel_correct
-  	when RequestForQuote -> action = ActionEnum.cancel
-  		or RequestForQuote -> action = ActionEnum.correct
-  	RequestForQuote must precede RequestForQuote
-  	commonId path RequestForQuote -> correlation -> correlationId
+CDM Model
+=========
 
 
-Rosetta Model
-=============
+Standardising Data and Workflows
+--------------------------------
 
-Rosetta’s ambition is to provide a digital repository for all financial markets products and workflows, from pre-execution through post-execution lifecycle events, and across all asset classes and products.
+Machine Executable ISDA Definitions
+-----------------------------------
 
-This section presents an outline of the **three dimensions of the Rosetta model representation**: event, product and reference data.
+
+This section presents an outline of the **four dimensions of the CDM model representation**: event, product, reference data.
 
 Event Model
 -----------
