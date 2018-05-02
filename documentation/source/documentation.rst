@@ -16,15 +16,19 @@ Rosetta is looking to address those shortcomings by **consolidating various data
 .. figure:: rosetta-components.png
 
 As illustrated by the above picture, Rosetta has two main components as it relates to its usage as part of the ISDA CDM:
-* The **Model Repository**
+* The **Model Repository** has two components:
+    1- The legible model, that expresses the data and associated logic using the Rosetta syntax.
+    2- The projection of this model into a variery of executable code representations (presently, JSON and Java).
+* The **Rosetta Workbench** corresponds to the toolset that supports the CDM, through 4 sets of functions:
+    1- The grammar, which is specified as part of a Domain Specific Language (DLS) component which has been developed using open source software. While the CDM syntax is based upon this grammar, access to this grammar is needed for using the CDM.
+    2- The navigation tools, which expose through a web portal a textual and a graphical interface into the CDM.
+    3- The ingestion service, which transforms events and trades expressed using alternative data representations into JSON documents that conform to the CDM. At present, the ingested trades confirm to the version 5.10 of the FpML standard, and the events are originated using a custom data representation.
+    4- The code generators, which are used to produce the executable code projections that are part of the model repository. Those code generators are developed using the same open source software component as the grammar, and access to those is not required for CDM usage purposes.
 
+Those worbench components are presented in
+.. figure:: rosetta-home.png
 
-*  **Model**: Data representation artefacts (classes, attributes, enumerations) and associated validation, mapping and workflow rules, all expressed through a cohesive syntax.
-*  **Generated code**: Rosetta model artefacts expressed in executable code. The initial implementation can be expressed through Java code and a JSON representation.
-*  **Grammar**: Programmatic logic expressed through open source software which specifies the syntax in which the model is expressed. Access to that grammar is not required to access the model, and even to extend it. As a result, this is an ‘under the hood’ component which access is not provided for standard usages.
-*  **Navigation tools**: Access to the Rosetta model artefacts is provided through a web browser interface, via textual and graphical representations. Access to those navigation tools is provided through entitlement during the development phase. The intent is to provide an unrestricted access at a later point in time.
-*  **Ingestion service**: Rosetta provides the ability to ingest trades and events represented through FpML or other data representation protocols (e.g. a customised event schema has been developed for the purpose of testing the ingestion of lifecycle events as part of the Initial Phase of the digital CDM) and express those according to the canonical model, as a JSON document.
-*  **Code generators**: Similar to the grammar, those code generators are supported through open source software, and access to those is not required as part of standard usages.
+The above picture presents
 
 
 CDM Artefacts – Purpose & Syntax
