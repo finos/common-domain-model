@@ -1,4 +1,4 @@
-.. figure:: rosetta-overview.png
+˜.. figure:: rosetta-overview.png
 **Rosetta Overview**
 
 The ISDA CDM and the Rosetta Workbench
@@ -25,25 +25,30 @@ As illustrated by the above picture, Rosetta has two main components as it relat
     3- The ingestion service, which transforms events and trades expressed using alternative data representations into JSON documents that conform to the CDM. At present, the ingested trades confirm to the version 5.10 of the FpML standard, and the events are originated using a custom data representation.
     4- The code generators, which are used to produce the executable code projections that are part of the model repository. Those code generators are developed using the same open source software component as the grammar, and access to those is not required for CDM usage purposes.
 
-Those worbench components are presented in
+Those worbench components are presented in the below picture, the further one being the milestoned CDM 1.0 version of the model. Once further version of the CDM will be release, this icon will be repositioned as a generic access to those respective versions.
+
 .. figure:: rosetta-home.png
 
-The above picture presents
 
 
-CDM Artefacts – Purpose & Syntax
-================================
+CDM Modelling Artefacts
+=======================
 
-The digital CDM combines three modelling dimensions:
+The CDM combines **five modelling artefacts**, which are consistently expressed through the Rosetta syntax:
 
 * Data representation
-* External references
-* Rule logic
+* Mapping
+* Data validation
+* Model qualification
+* Calculation
 
-Data Representation Artefacts
------------------------------
+The below sections of this documentation detail the purpose and features of each of those CDM artefacts, and highlight the relationships that exists among those.
 
-The CDM specifies **four data representation artefacts**:
+
+CDM Data Representation
+-----------------------
+
+Rosetta makes use of **four data representation components** to represent the CDM:
 
 * Classes
 * Attributes
@@ -87,9 +92,9 @@ The CDM supports the concept of **abstract classes**, which cannot be instantiat
   }
 
 
-**Stereotype values**, such as ``postExecution`` in the above example, are specified for the purpose of supporting analytical queries and navigation tools at some further point down the road. The values are controlled by the grammar.
+**Stereotype values**, such as ``postExecution`` in the above example, are specified for the purpose of supporting analytical queries and navigation tools at some further point down the road.
 
-The CDM convention is that class names start with a capital letter. Class names need to be unique across the model, including with respect to rule names. Both those are controlled by the Rosetta Workbench grammar.
+The Rosetta convention is that class names start with a capital letter. Class names need to be unique across the model, including with respect to rule names. Both those are controlled by the Rosetta Workbench grammar.
 
 Attributes
 ~~~~~~~~~~
@@ -97,7 +102,7 @@ Attributes
 Purpose
 ^^^^^^^
 
-Attributes specify the granular model elements in terms of type of value (e.g. integer, string, predefined value), cardinality and through an associated definition.
+Attributes specify the granular model elements in terms of type of value (e.g. ``integer``, ``string``, enumerated value), cardinality and through an associated definition.
 
 Syntax
 ^^^^^^
