@@ -24,6 +24,7 @@ Rosetta Components
 *  **Generated code**: Rosetta model artefacts expressed in executable code. The initial implementation can be expressed through Java code and a JSON representation.
 *  **Grammar**: Programmatic logic expressed through open source software which specifies the syntax in which the model is expressed. Access to that grammar is not required to access the model, and even to extend it. As a result, this is an ‘under the hood’ component which access is not provided for standard usages.
 *  **Navigation tools**: Access to the Rosetta model artefacts is provided through a web browser interface, via textual and graphical representations. Access to those navigation tools is provided through entitlement during the development phase. The intent is to provide an unrestricted access at a later point in time.
+*  **Ingestion service**: Rosetta provides the ability to ingest trades and events represented through FpML or other data representation protocols (e.g. a customised event schema has been developed for the purpose of testing the ingestion of lifecycle events as part of the Initial Phase of the digital CDM) and express those according to the canonical model, as a JSON document.
 *  **Code generators**: Similar to the grammar, those code generators are supported through open source software, and access to those is not required as part of standard usages.
 
 Rosetta Modelling Principles
