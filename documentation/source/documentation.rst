@@ -633,7 +633,7 @@ Product Qualification
 Purpose
 ^^^^^^^
 
-The product qualification syntax leverages the **alias** syntax presented earlier in this documentation, by qualifying a product
+The product qualification leverages the **alias** syntax presented earlier in this documentation, by qualifying a product from its economic terms, those latter being expressed through a set of assertions associated with modelling components.
 
 Syntax
 ^^^^^^
@@ -642,31 +642,49 @@ The product qualification syntax is as follows: ``isProduct <name> <Rosetta expr
 
 The product name needs to be unique across the product and event qualifications, the classes and the aliases, and validation logic is in place to enforce this. The naming convention is to have one CamelCased word.
 
+The CDM makes use of the ISDA taxonomy V2.0 leaf level to qualify the event.  The synonymity with the ISDA taxonomy V1.0 has been systematically indicated as part of the model upon request from CDM group participants, who pointed out that a number of them use it internally.
+
  .. code-block:: Java
 
  isProduct InterestRate_IRSwap_FixedFloat
  	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFloat]
- 	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate exists
+  EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate exists
  	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate exists
 
 Event Qualification
 ~~~~~~~~~~~~~~~~~~~
 
-15 events have been qualified as part of the CDM 1.0.
+14 events have been qualified as part of the CDM 1.0.
 
 Purpose
 ^^^^^^^
 
+Similar to the product qualification syntax, the purpose of the event qualifier is to qualify a product from the existence of the a set of modelling attributes.
 
 Syntax
 ^^^^^^
 
-The event qualification syntax is similar to the product and the alias, the difference being that it is possible to associate a set of data rules to it: ``isProduct <name> <Rosetta expression> <Data rule>``.
+The event qualification syntax is similar to the product and the alias, the difference being that it is possible to associate a set of data rules to a: ``isProduct <name> <Rosetta expression> <Data rule>``.
 
 The event name needs to be unique across the product and event qualifications, the classes and the aliases, and validation logic is in place to enforce this. The naming convention is to have one CamelCased word.
 
+The ``PartialTermination`` illustrates quite well how the syntax qualifies this event by requiring that four conditions be met: the CDM quantityChange class must be instantiated, the intent must be qualified as a partialTermination (in order to disambiguate from a correction event) and two data rules must be met: the notional must have decreased, while the remaining notional must be greater than 0.
+
  .. code-block:: Java
 
+ isEvent PartialTermination <"The qualification of a partial termination event.">
+ 	  Event -> primitive -> quantityChange exists
+ 	  and Event -> intent = IntentEnum.partialTermination
+ 	  and NotionalAmount_Decrease, NotionalAmount_Remaining apply
+
+  data rule NotionalAmount_Decrease <"Logic to qualify a decrease in the notional amount as a result of a quantity change primitive event.">
+    	when Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
+    	then Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount >
+    	Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount
+
+  data rule NotionalAmount_Remaining <"Logic to qualify a remaining notional amount as a result of a quantity change primitive event.">
+    	when Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
+    	then Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount > 0
 
 
 Calculation Artefacts
