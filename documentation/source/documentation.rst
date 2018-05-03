@@ -690,9 +690,50 @@ The ``PartialTermination`` illustrates quite well how the syntax qualifies this 
 Calculation Artefacts
 ---------------------
 
+Purpose
+^^^^^^^
 
+One of the objectives of the CDM Initial Phase has been to express in a machine executable format some of the ISDA Definitions as a way to confirm the extent to which this digital CDM solution can be used.
 
+The ISDA 2006 definitions of the **Fixed Amount** and **Floating Amount** have been used as an initial scope.
 
+To this effect, the grammar component of the Rosetta workbench has been extended as a way to express a syntax that can support such expressions.
+
+Syntax
+^^^^^^
+
+The calculation syntax has three components: the **calculation** itself, the **argument** used as an input to that calculation and (possibly) associated **function**.
+
+The application of this syntax to the ``ACT/365.FIXED`` ISDA day count fraction definition provides a good illustration of that syntax:
+
+ .. code-block:: Java
+
+ alculation DayCountFractionEnum._30E_360 <"2006 ISDA Definition Article 4 section 4.16(g): If '30E/360' or 'Eurobond Basis' is specified, the number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 360, calculated on a formula basis as follows:[[360 x (Y2 - Y1)] + [30 x (M2 - M1)] + (D2 - D1)]/360">
+ {
+  	number: (360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
+ }
+
+ .. code-block:: Java
+
+ arguments DayCountFractionEnum._30E_360 <"2006 ISDA Definition Article 4 section 4.16(g). 'Y1' is the year, expressed as a number, in which the first day of the Calculation Period or Compounding Period falls; 'Y2' is the year, expressed as a number, in which the day immediately following the last day included in the Calculation Period or Compounding Period falls; 'M1' is the calendar month, expressed as a number, in which the first day of the Calculation Period or Compounding Period falls; 'M2' is the calendar month, expressed as a number, in which the day immediately following the last day included in the Calculation Period or Compounding Period falls; 'D1' is the first calendar day, expressed as a number, of the Calculation Period or Compounding Period, unless such number would be 31, in which case D1 will be 30; and 'D2' is the calendar day, expressed as a number, immediately following the last day included in the Calculation Period or Compounding Period, unless such number would be 31, in which case D2 will be 30.">
+ {
+ 	alias period CalculationPeriod( InterestRatePayout -> calculationPeriodDates )
+
+ 	endYear : is period -> endDate -> year
+ 	startYear : is period -> startDate -> year
+ 	endMonth : is period -> endDate -> month
+ 	startMonth : is period -> startDate -> month
+ 	startDay : is Min( period -> startDate -> day, 30 )
+ 	endDay : is Min( period -> endDate -> day, 30 )
+ }
+
+ 
+ .. code-block:: Java
+
+ function ResolveRateIndex( index FloatingRateIndexEnum ) <"The function to specify that the floating rate index enumeration will be expressed as a number once the rate is observed.">
+ {
+ 	rate number;
+ }
 
 CDM Model
 =========
