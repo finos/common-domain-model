@@ -926,91 +926,91 @@ The ``ListedProduct`` class provides a **choice between the respective listed pr
   }
 
 
+A **two-levels class inheritance structure** has been specified to provide for a scalable implementation:
 
-
-Loans and Mortgages as Underlyers of Derivative Products
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-
-
-
-Listed products
-~~~~~~~~~~~~~~~
-
-Listed products have some (or all) of their economic terms abstracted through a **product identifier** and publicly disseminated by a central venue. As a result, fungibility applies as a function of this product identifier.
-
-The Rosetta model for listed products is articuled along the same lines as contractual products:
-
-* The ``ListedProduct`` class provides a **choice between the respective listed product representations**;
+* All listed products inherit from a ``ListedHeader`` abstract class which contains a ``productTaxonomy``, ``productIdentifier`` and a ``description`` attribute;
 
  .. code-block:: Java
 
-   class ListedProduct stereotype productReferenceData, listedProduct one of <"Product which terms are abstracted through a product identifier and are then publicly available through a central venue.">
-    {
-     bond Bond (0..1);
-     convertibleBond ConvertibleBond (0..1);
-     mortgage Mortgage (0..1);
-     listedInterestRateDerivative ListedInterestRateDerivative (0..1);
-    }
+  abstract class ListedHeader stereotype productReferenceData, listedProduct <"An abstract class to holds the attributes that are common across listed products.">
+  {
+      	id string (0..1);
+      		[synonym FpML value id]
+      	productTaxonomy ProductTaxonomy (1..*) <"The product taxonomy value(s) associated with a product.">;
+      	productIdentifier ProductIdentifier (1..*) <"There can be several identifiers associated with a given product.">;
+      	description string (1..1) <"The product name.">;
+      		[synonym FpML value description]
+      }
 
-* A **two-levels class inheritance structure** has been specified to provide for a scalable implementation:
 
-  - All listed products inherit from a ``ListedHeader`` abstract class which contains a ``productTaxonomy``, ``productIdentifier`` and a ``description`` attribute;
-
-  .. code-block:: Java
-
-    abstract class ListedHeader stereotype productReferenceData, listedProduct <"An abstract class to holds the attributes that are common across listed products.">
-    {
-    	id string (0..1);
-    		[synonym FpML value id]
-    	productTaxonomy ProductTaxonomy (1..*) <"The product taxonomy value(s) associated with a product.">;
-    	productIdentifier ProductIdentifier (1..*) <"There can be several identifiers associated with a given product.">;
-    	description string (1..1) <"The product name.">;
-    		[synonym FpML value description]
-    }
-
-  - Leveraging the FpML approach for underlyer components, a ``FixedIncomeSecurity`` and an ``EquityAsset`` abstract class then provide the commmon attributes for those respective type of instruments.
+* Leveraging the FpML approach for underlyer components, a ``FixedIncomeSecurity`` and an ``EquityAsset`` abstract class then provide the commmon attributes for those respective type of instruments.
 
   .. code-block:: Java
 
     class FixedIncomeSecurity extends ListedHeader stereotype productReferenceData, listedProduct <"A fixed income security. In FpML, it corresponds to the FixedIncomeSecurityContent.model.">
     {
-    	issuer Party (0..1) reference <"FpML implements this element as an href into the party information. Rosetta restricts the type of party that can issue a product to a legal entity. FpML provides the ability to specify the issuer name, but this is deemed insufficient in the context of Rosetta at a time when the LEI is available and of paramount importance to identify entities.">;
-    		[synonym FpML value issuerPartyReference]
-    	seniority CreditSeniorityEnum (0..1) <"The repayment precedence of a debt instrument, as specified by a set of enumerated values.  FpML specifies that creditSeniorityTradingScheme (specified in Rosetta through the CreditSeniorityTradingEnum) overrides creditSeniorityScheme (specified in Rosetta through the CreditSeniorityEnum) when the underlyer defines the reference obligation used in a single name credit default swap trade.">;
-    		[synonym FpML value seniority]
-    	couponType CouponTypeEnum (0..1) <"Specifies if the bond has a variable coupon, step-up/down coupon or a zero-coupon.">;
-    		[synonym FpML value couponType]
-    	couponRate number (0..1) <"Specifies the coupon rate (expressed in percentage) of a fixed income security or convertible bond.">;
-    		[synonym FpML value couponRate]
-    	maturity date (0..1) <"The date when the principal amount of a security becomes due and payable.">;
-    		[synonym FpML value maturity]
-    		[synonym FIX value maturityDate]
-    	issueDate date (0..1) <"The date on which the instrument was issued.">;
-    		[synonym FIX value issueDate]
+    	 issuer Party (0..1) reference <"FpML implements this element as an href into the party information. Rosetta restricts the type of party that can issue a product to a legal entity. FpML provides the ability to specify the issuer name, but this is deemed insufficient in the context of Rosetta at a time when the LEI is available and of paramount importance to identify entities.">;
+        		[synonym FpML value issuerPartyReference]
+       seniority CreditSeniorityEnum (0..1) <"The repayment precedence of a debt instrument, as specified by a set of enumerated values.  FpML specifies that creditSeniorityTradingScheme (specified in Rosetta through the CreditSeniorityTradingEnum) overrides creditSeniorityScheme (specified in Rosetta through the CreditSeniorityEnum) when the underlyer defines the reference obligation used in a single name credit default swap trade.">;
+        		[synonym FpML value seniority]
+       couponType CouponTypeEnum (0..1) <"Specifies if the bond has a variable coupon, step-up/down coupon or a zero-coupon.">;
+      		  [synonym FpML value couponType]
+       couponRate number (0..1) <"Specifies the coupon rate (expressed in percentage) of a fixed income security or convertible bond.">;
+        		[synonym FpML value couponRate]
+       maturity date (0..1) <"The date when the principal amount of a security becomes due and payable.">;
+        		[synonym FpML value maturity]
+        		[synonym FIX value maturityDate]
+       issueDate date (0..1) <"The date on which the instrument was issued.">;
+        		[synonym FIX value issueDate]
     }
 
-  - At the moment, listed derivatives products such as the **listed interest rate derivatives** have been positioned alongside those in order to take into consideration the further applicable attributes. This design will need to be confirmed as a function of the ISIN implementation that supports standardised listed derivatives.
+Loans and Mortgages as Underlyers of Derivative Products
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  .. code-block:: Java
 
-    class ListedInterestRateDerivative extends ListedHeader stereotype productReferenceData, listedProduct <"The terms applicable to interest rate derivatives which are required to infer a price but are not abstracted through a product identifier.">
-    {
-    	effectiveDate date (1..1) <"The effective date, meaning the date on which the payoff terms start to be computed.">;
-    	terminationDate date (1..1) <"The termination date.">;
-    		[synonym FIX value MaturityDate tag 541]
-    	spread number (0..2) <"The spread applicable to the floating interest rate reference.  There can be up to two float rates, as in the case of a basis swap.">;
-    		[synonym FIX value Spread tag 218]
-    		[synonym CFTC_Part43 value PN1 projection Price_Derivatives]
-    		[synonym CFTC_Part43 value PN2 projection Price_Derivatives]
-    	fixedRate number (0..2) <"The fixed rate. There can be up to two fixed rates, as in the case of a fix-fix swap.">;
-    		[synonym CFTC_Part43 value PN1 projection Price_Derivatives]
-    		[synonym CFTC_Part43 value PN2 projection Price_Derivatives]
-    	fee Money (0..2) <"The ISDA specification for the Price Notation / Additional Price Notation specifies that there can be up to two fees for interest rate derivatives.">;
-    		[synonym CFTC_Part43 value PN3 projection Price_Derivatives]
-    		[synonym CFTC_Part43 value APN projection Price_Derivatives]
-    }
+ .. code-block:: Java
+
+  class Loan extends IdentifiedAsset stereotype productReferenceData
+	[synonym FpML value Loan]
+  {
+	   borrower LegalEntity (0..*) <"Specifies the borrower. There can be more than one borrower. It is meant to be used in the event that there is no Bloomberg Id or the Secured List isn't applicable.">;
+		    [synonym FpML value borrower]
+	   borrowerReference string (0..*) reference;
+		    [synonym FpML value borrowerReference]
+	   lien string (0..1) scheme "lienScheme" <"Specifies the seniority level of the lien.">;
+		    [synonym FpML value lien]
+	   facilityType string (0..1) scheme "facilityTypeScheme" <"The type of loan facility (letter of credit, revolving, ...).">;
+		    [synonym FpML value facilityType]
+	   maturity date (0..1) <"The date when the principal amount of the loan becomes due and payable.">;
+		    [synonym FpML value maturity]
+		    [synonym FIX value maturityDate]
+	   creditAgreementDate date (0..1) <"The credit agreement date is the closing date (the date where the agreement has been signed) for the loans in the credit agreement. Funding of the facilities occurs on (or sometimes a little after) the Credit Agreement date. This underlyer attribute is used to help identify which of the company's outstanding loans are being referenced by knowing to which credit agreement it belongs. ISDA Standards Terms Supplement term: Date of Original Credit Agreement.">;
+		    [synonym FpML value creditAgreementDate]
+	   tranche string (0..1) <"The loan tranche that is subject to the derivative transaction. It will typically be referenced as the Bloomberg tranche number. ISDA Standards Terms Supplement term: Bloomberg Tranche Number. In FpML, this element is of type loanTrancheScheme.  It is assumed at this point that setting up an enumeration as part of the Rosetta model would not practicable.">;
+		    [synonym FpML value tranche]
+  }
+
+ .. code-block:: Java
+
+  class Mortgage extends FixedIncomeSecurity stereotype productReferenceData
+    	[synonym FpML value Mortgage]
+  {
+  	 insurer Party (0..1) reference <"Applicable to the case of default swaps on MBS terms. For specifying the insurer name, when applicable.  When the element is not present, it signifies that the insurer is Not Applicable.">;
+  		  [synonym FpML value insurer]
+  		  [synonym FpML value insurerReference]
+  	 paymentFrequency Period (0..1) <"Specifies the frequency at which the mortgage pays, e.g. 6M.">;
+  	  	[synonym FpML value paymentFrequency]
+  	 dayCountFraction DayCountFractionEnum (0..1) <"The day count basis for the mortgage.">;
+  	   	[synonym FpML value dayCountFraction]
+  	 originalPrincipalAmount number (0..1) <"The initial issued amount of the mortgage obligation.">;
+  	  	[synonym FpML value originalPrincipalAmount]
+  	 pool AssetPool (0..1) <"The mortgage pool that is underneath the mortgage obligation.">;
+  	  	[synonym FpML value pool]
+  	 sector MortgageSectorEnum (0..1) <"The sector classification of the mortgage obligation.">;
+  	  	[synonym FpML value sector]
+  	 tranche string (0..1) <"The mortgage obligation tranche that is subject to the derivative transaction.">;
+  	  	[synonym FpML value tranche]
+  }
 
 
 
@@ -1196,15 +1196,6 @@ Reference Data Model
 --------------------
 
 Rosetta scope as it relates to the reference data modelling components is driven by the need to provide all relevant information to support the product and event components of the model in the pre-execution, execution and post-execution scenarios, including the associated regulatory reporting one.
-
-Below are insights into the following components of this reference data model:
-
-* Entity reference data
-* Regulatory eligibility
-
-
-Entity reference Data
-~~~~~~~~~~~~~~~~~~~~~
 
 The ``stereotype entityReferenceData`` is associated with the classes that support that segment of the Rosetta model.
 
