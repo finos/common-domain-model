@@ -893,11 +893,38 @@ The absence of synonym entry for the  ``creditDefaultPayout`` attribute is due t
 Infering the product qualification from its economic terms
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+The product qualification is inferred from the economic terms through a dedicated Rosetta syntax which navigate the CDM components. The qualification of a **zero coupon fixed float inflation swap** provides a good example of the set of logic that can be used for such purpose, and which combines boolean and qualified expressions.
+
+The CDM makes use of the ISDA taxonomy V2.0 leaf level to qualify the product.  The CDM 1.0 only qualifies interest rate swaps, as the ISDA taxonomy V2.0 for credit default swap references the transaction type, which values are not publicly available and hence not positioned as a CDM enumeration.  This issue will be addressed as part of the later versions of the model.
+
+ .. code-block:: Java
+
+  isProduct InterestRate_InflationSwap_FixedFloat_ZeroCoupon
+	   [synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation]
+	   EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate exists
+	   and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate exists
+	   and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
+     and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.T
 
 Listed Products as Underlyers of Derivative Products
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Listed products have some (or all) of their economic terms abstracted through a **product identifier** and publicly disseminated by a central venue. As a result, fungibility applies as a function of this product identifier.
+
+As mentioned above, as part of the CDM V1.0 the modelling representation of listed products is limited to the underlyers for the in-scope OTC derivatives products, which in practice means options on bonds and convertible bonds.
+
+The ``ListedProduct`` class provides a **choice between the respective listed product representations**.  As part of the CDM V1.0 only two
+
+ .. code-block:: Java
+
+  class ListedProduct stereotype productReferenceData, listedProduct one of <"Product which terms are abstracted through a product identifier and are then publicly available through a central venue.">
+  {
+	   bond Bond (0..1);
+		   [synonym FpML value bond pathExpression "trade.bondOption"]
+	   convertibleBond ConvertibleBond (0..1);
+		   [synonym FpML value convertibleBond pathExpression "trade.bondOption"]
+  }
+
 
 
 
