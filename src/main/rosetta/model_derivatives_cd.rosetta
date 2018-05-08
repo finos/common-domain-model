@@ -131,34 +131,6 @@ data rule CashSettlementTerms_quotationAmount <"FpML validation rule cd-37 - Con
 		and CashSettlementTerms -> quotationAmount -> currency = CashSettlementTerms -> minimumQuotationAmout -> currency
 	then CashSettlementTerms -> quotationAmount -> amount > CashSettlementTerms -> minimumQuotationAmout -> amount
 
-
-//
-//data rule CreditDefaultSwap_contractualDefinitions_ISDA2003Credit <"FpML validation rule cd-20 - Context: CreditDefaultSwap (complex type). If the condition ISDA2003 is true, then protectionTerms/obligations/notContingent must not exist."> 
-//	when Contract -> documentation -> contractualDefinitions = ContractualDefinitionsEnum.ISDA2003Credit
-//	then Contract -> contractualProduct -> creditDefaultSwap -> protectionTerms -> obligations -> notContingent must be absent
-//
-//data rule CreditDefaultSwap_contractualDefinitions_cashSettlementTerms <"FpML validation rule cd-23 - Context: CreditDefaultSwap (complex type) If the condition LongForm is true, then cashSettlementTerms or physicalSettlementTerms must exist.">
-//	when ( Contract -> documentation -> masterConfirmation or Contract -> documentation -> contractualMatrix) is absent
-//		and Contract -> contractualProduct -> creditDefaultSwap -> generalTerms -> referenceInformation exists
-//	then (Contract -> contractualProduct -> creditDefaultSwap -> cashSettlementTerms or Contract -> contractualProduct -> creditDefaultSwap -> physicalSettlementTerms) must exist
-//
-//data rule CreditDefaultSwap_LongForm <"FpML validation rule cd-24 - Context: CreditDefaultSwap (complex type). If the condition LongForm is true, then the following elements must exist: protectionTerms/creditEvents/creditEventNotice, protectionTerms/obligations, generalTerms/referenceInformation/referencePrice.">
-//	when ( Contract -> documentation -> masterConfirmation or Contract -> documentation -> contractualMatrix ) is absent 
-//		and Contract -> contractualProduct -> creditDefaultSwap -> generalTerms -> referenceInformation exists
-//	then ( Contract -> contractualProduct -> creditDefaultSwap -> protectionTerms -> creditEvents -> creditEventNotice 
-//		and Contract -> contractualProduct -> creditDefaultSwap -> protectionTerms -> obligations 
-//		and Contract -> contractualProduct -> creditDefaultSwap ->generalTerms -> referenceInformation -> referencePrice ) must exist
-//
-//data rule CreditDefaultSwap_LongForm_physicalSettlementTerms <"FpML validation rule cd-25 - Context: CreditDefaultSwap (complex type). If the condition LongForm is true, and if physicalSettlementTerms exists, then physicalSettlementTerms must contain settlementCurrency, physicalSettlementPeriod, escrow and deliverableObligations/accruedInterest.">
-//	when (Contract -> documentation -> masterConfirmation or Contract -> documentation -> contractualMatrix) is absent 
-//		and Contract -> contractualProduct -> creditDefaultSwap -> generalTerms -> referenceInformation exists
-//		and Contract -> contractualProduct -> creditDefaultSwap -> physicalSettlementTerms exists
-//	then (Contract -> contractualProduct -> creditDefaultSwap -> physicalSettlementTerms -> settlementCurrency 
-//		and Contract -> contractualProduct -> creditDefaultSwap -> physicalSettlementTerms -> physicalSettlementPeriod
-//		and Contract -> contractualProduct -> creditDefaultSwap -> physicalSettlementTerms -> escrow 
-//		and Contract -> contractualProduct -> creditDefaultSwap -> physicalSettlementTerms -> deliverableObligations -> accruedInterest)
-//		must exist
-
 class OptionStrike stereotype contractualProduct one of <"A class to specify the option strike.">
 	[synonym FpML value CreditOptionStrike]
 {
@@ -359,26 +331,6 @@ class FloatingAmountProvisions stereotype contractualProduct
 	stepUpProvision boolean (0..1) <"As specified by the ISDA Standard Terms Supplement for use with trades on mortgage-backed securities. The presence of the element with value set to 'true' signifies that the provision is applicable. If applicable, the applicable step-up terms are specified as part of that ISDA Standard Terms Supplement. From a usage standpoint, this provision is typically applicable in the case of RMBS and not applicable in case of CMBS trades.">;
 		[synonym FpML value stepUpProvision]
 }
-
-//data rule GeneralTerms_tradeDate <"FpML validation rule cd-1 - Context: Trade (complex type). If creditDefaultSwap/generalTerms/referenceInformation exists, tradeHeader/tradeDate must be before creditDefaultSwap/generalTerms/effectiveDate/unadjustedDate.">
-//	when Contract -> contractualProduct -> creditDefaultSwap -> generalTerms -> referenceInformation exists
-//	then Contract -> tradeDate < Contract -> contractualProduct -> creditDefaultSwap -> generalTerms -> effectiveDate -> unadjustedDate
-//
-//data rule GeneralTerms_effectiveDate <"FpML validation rule cd-5 - Context: GeneralTerms (complex type). If effectiveDate exists, and if scheduledTerminationDate exists, then effectiveDate/unadjustedDate must be before scheduledTerminationDate/unadjustedDate.">
-//	when CreditDefaultSwap -> generalTerms -> effectiveDate exists
-//	then CreditDefaultSwap -> generalTerms -> effectiveDate -> unadjustedDate < CreditDefaultSwap -> generalTerms -> scheduledTerminationDate -> unadjustedDate
-//
-//data rule GeneralTerms_effectiveDateAdjustments <"FpML validation rule cd-7 - Context: GeneralTerms (complex type). If condition LongForm is true, then effectiveDate/dateAdjustments or effectiveDate/dateAdjustmentsReference must exist.">
-//	when (Contract -> documentation -> masterConfirmation is absent 
-//		or Contract -> documentation -> contractualMatrix is absent
-//		and Contract -> contractualProduct -> creditDefaultSwap -> generalTerms -> referenceInformation exists)
-//	then Contract -> contractualProduct -> creditDefaultSwap -> generalTerms -> effectiveDate -> dateAdjustments exists
-//	
-//data rule GeneralTerms_terminationDateAdjustments <"FpML validation rule cd-8 - Context: GeneralTerms (complex type). If condition LongForm is true, and if scheduledTerminationDate exists then scheduledTerminationDate/dateAdjustments or scheduledTerminationDate/dateAdjustmentsReference must exist.">
-//	when (Contract -> documentation -> masterConfirmation is absent 
-//		or Contract -> documentation -> contractualMatrix is absent
-//		and Contract -> contractualProduct -> creditDefaultSwap -> generalTerms -> referenceInformation exists)
-//	then Contract -> contractualProduct -> creditDefaultSwap -> generalTerms -> scheduledTerminationDate -> dateAdjustments exists 
 
 data rule GeneralTerms_indexReferenceInformation <"FpML validation rule cd-41 - Context: GeneralTerms (complex type). If indexReferenceInformation/tranche does not exist, then modifiedEquityDelivery must not exist.">
 	when GeneralTerms -> indexReferenceInformation -> tranche is absent
@@ -667,8 +619,9 @@ class ReferenceObligation stereotype contractualProduct
 		[synonym FpML value primaryObligor]
 	primaryObligorReference string (0..1) reference <"A pointer style reference to a reference entity defined elsewhere in the document. Used when the reference entity is the primary obligor.">;
 		[synonym FpML value primaryObligorReference]
-	guarantor LegalEntity (0..1) reference <"The party that guarantees by way of a contractual arrangement to pay the debts of an obligor if the obligor is unable to make the required payments itself. ISDA 2003 Term: Guarantor.">;
+	guarantor LegalEntity (0..1) <"The party that guarantees by way of a contractual arrangement to pay the debts of an obligor if the obligor is unable to make the required payments itself. ISDA 2003 Term: Guarantor.">;
 		[synonym FpML value guarantor]
+	guarantorReference string (0..1) <"A pointer style reference to a reference entity defined elsewhere in the document. Used when the reference entity is the guarantor.">;
 		[synonym FpML value guarantorReference]
 	standardReferenceObligation boolean (0..1) <"Indicates if the reference obligation is a Standard Reference Obligation. ISDA 2014 Term: Standard Reference Obligation.">;
 		[synonym FpML value standardReferenceObligation]
@@ -717,17 +670,11 @@ class ReferencePoolItem stereotype contractualProduct <"This type contains all t
 		[synonym FpML value constituentWeight]
 	referencePair ReferencePair (1..1);
 		[synonym FpML value referencePair]
-	protectionTerms ProtectionTerms (0..1) reference <"The documentation terms applicable to this item.">;
+	protectionTermsReference string (0..1) reference <"Reference to the documentation terms applicable to this item.">;
 		[synonym FpML value protectionTermsReference]
-	cashSettlementTerms CashSettlementTerms (0..1) reference <"Reference to the cash settlement terms applicable to this item. Rosetta's model differs from FpML, which has one settlementTermsReference element with an associated href which points to the id anchor which is associated to the cashSettlementTerms and physicalSettlementTerms elements that are part of the CreditDefaultSwap.">;
-		[synonym FpML value settlementTermsReference]
-	physicalSettlementTerms PhysicalSettlementTerms (0..1) reference <"Reference to the physical settlement terms applicable to this item.  Rosetta's model differs from FpML, which has one settlementTermsReference element with an associated href which points to the id anchor which is associated to the cashSettlementTerms and physicalSettlementTerms elements that are part of the CreditDefaultSwap.">;
+	settlementTermsReference string (0..1) reference <"Reference to the settlement terms applicable to this item.">;
 		[synonym FpML value settlementTermsReference]
 }
-
-choice rule ReferencePoolItem_choice <"Rosetta model differs from FpML as instead of having a settlementTermsReference with an associated href, it has explicit cash and physical settlement constructs, the reason being that Rosetta instantiates the element associated with the id anchor.">
-	for ReferencePoolItem optional choice between
-	physicalSettlementTerms and cashSettlementTerms
 
 class SettledEntityMatrix stereotype contractualProduct <"A class to specify the Relevant Settled Entity Matrix.">
 	[synonym FpML value SettledEntityMatrix]
