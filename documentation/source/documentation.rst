@@ -906,7 +906,7 @@ The absence of synonym entry for the  ``creditDefaultPayout`` attribute is due t
  }
 
 Infering the product qualification from its economic terms
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The product qualification is inferred from the economic terms through a dedicated Rosetta syntax which navigate the CDM components. The qualification of a **zero coupon fixed float inflation swap** provides a good example of the set of logic that can be used for such purpose, and which combines boolean and qualified expressions.
 
@@ -1033,233 +1033,255 @@ The CDM implementation closely reflects the FpML standard, and the approach here
 Event Model
 -----------
 
-Rosetta model representation encompasses the pre-execution, execution and post-execution lifecycle.
+The CDM event model is based upon the same high-level principles as the product model:
 
-Its implementation takes into consideration the concept specified as part of the `ISDA CDM Design Definition Document <https://www.isda.org/a/gVKDE/CDM-FINAL.pdf>`__, while extending it to the pre-execution space as well as to the listed products.
+* The events are specified by composition of **primitive events**, which make in turn use of a large set of FpML building blocks;
+* The event qualification is inferred from those primitive events and, in some relevant cases, from an **intent** qualifier.
 
 Baseline event modelling features
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Two classes act as foundational blocks for the Rosetta event model: the ``Event`` abstract class and the ``FinancialTransaction`` root class.
+Two classes act as foundational blocks for the Rosetta event model: the ``EventBase`` abstract class and the ``Event`` root class. **Note**: if the further developments confirm the unique event structure, those two classes may well be collapsed, as such inheritance structure would have no value.
 
-* All events inherit from the ``Event`` abstract class, which includes five set of information:
+* The ``EventBase`` abstract class includes five set of information:
 
-  - **Messaging information**, such as ``messageId``, ``sentBy``, ``sentTo``; this information is optional, as possibly not applicable in a context such as blockchain;
-  - **Timestamp information**;
-  - **Event identification** information, leveraging the FpML *correlation* construct;
-  - **Time dimension** information, through the event date and effective date;
-  - **Action qualification**, to specify whether the event is a new one, a correction or a cancellation of a prior one.
+  * **Messaging information**: ``messageId``, ``sentBy``, ``sentTo`` and ``copyTo``. This information is optional, as possibly not applicable in a context such as blockchain. It corresponds to some of the components of the FpML *MessageHeader.model*.
+  * **Timestamp information**: ``creationTimestamp`` and ``expiryTimestamp``. In FpML, this information is also positioned as part of the *MessageHeader.model*.
+  * **Event identification** information: the ``identifier``, alongside an optional ``version`` and ``issuer``. As a departure from FpML, which makes use of an event identifier construct (the *Correlation* which is distinct from the one associated with the trade (which itself comes in different variation: *PartyTradeIdentifier*, with the *TradeId* and the *VersionedTradeId* as sub-components of it), the CDM approach consists in using a common identifier component across products and events.
+  * **Time dimension** information, through the ``eventDate`` and ``effectiveDate``;
+  * **Action qualification**, to specify whether the event is a new one, a correction or a cancellation of a prior one.
 
   .. code-block:: Java
 
-   abstract class Event stereotype preExecution, execution, postExecution
+   abstract class EventBase stereotype preExecution, execution, postExecution <"The event base abstract class.">
+   {
+  	  messageInformation MessageInformation (0..1);
+  	  timeStamp EventTimeStamp (1..1);
+  		    [synonym Rosetta_Workbench value timeStamp]
+  	  eventIdentifier Identifier (1..1);
+  		    [synonym Rosetta_Workbench value eventIdentifier]
+  	  eventDate date (1..1);
+  		    [synonym Rosetta_Workbench value eventDate]
+  	  effectiveDate date (0..1);
+  		    [synonym Rosetta_Workbench value effectiveDate]
+  	  action ActionEnum (1..1) <"Specifies whether the event is a new, a correction or a cancellation.">;
+  		    [synonym FpML value isCorrection
+  			     set action to ActionEnum.new when False,
+  			     set action to ActionEnum.correct when True]
+   }
+
+* ``Event`` also has five components, all optional except for the primitive events component:
+
+  * **Intent qualification**, in the form of a set of enumerated values, such as ``allocation``, ``earlyTermination``, ``partialTermination``, etc.
+  * **Party information**.
+  * **Lineage information**, in the form of a class that provides the ability to reference an unbouded set of contracts or events, as shown by the below code snippet:
+
+    .. code-block:: Java
+
+     class Lineage
      {
-     	messageInformation MessageInformation (0..1);
-     	timeStamp EventTimeStamp (1..1);
-     	correlation Correlation (1..1) <"The correlation Id provides a lineage across related transactions. While optional in FpML, it is made required as part of the Rosetta model, as there is a need for an event identifier of some sort">;
-     	eventDate date (1..1);
-     	effectiveDate date (0..1);
-     	action ActionEnum (1..1) <"Specifies whether the event is a new, a correction or a cancellation.">;
-     		[synonym FpML value isCorrection
-     			set action to ActionEnum.new when False,
-     			set action to ActionEnum.correct when True]
-     		[synonym FIX value TradeReportTransType tag 487
-     			set action to ActionEnum.new when ["0", "5"],
-     			set action to ActionEnum.correct when "2",
-     			set action to ActionEnum.cancel when "1"]
+	      contractReference Identifier (0..*) scheme "correlationIdScheme";
+		        [synonym Rosetta_Workbench value contractReference]
+	      eventReference Identifier (0..*);
+		        [synonym Rosetta_Workbench value eventReference]
      }
-
-* ``FinancialTransaction`` is positioned as the 'entry point' for all financial transactions. It is used as such as part of the Rosetta graphical navigation.
-
-  .. code-block:: Java
-
-    root class FinancialTransaction one of <"The entry point for all financial transactions.">
-    {
-    	requestForQuote RequestForQuote (0..1);
-    		[synonym FIX value MsgType."R"]
-    	quote Quote (0..1);
-    		[synonym FIX value MsgType."S"]
-    		[synonym FIX value MsgType."Z" set quote -> Quote -> action to ActionEnum.cancel]
-    	order Order (0..1);
-    		[synonym FIX value MsgType."D"]
-    		[synonym FpML value orderReport]
-    	execution Execution (0..1);
-    		[synonym FIX value MsgType."8"]
-    		[synonym FpML value executionNotification]
-    	clearing Clearing (0..1);
-    	allocation Allocation (0..1);
-    	optionExercise OptionExercise (0..1);
-    	partialTermination PartialTermination (0..1);
-    	termination Termination (0..1);
-    	intermediation Intermediation (0..1);
-    	aggregation Aggregation (0..1);
-    	portfolioCompression PortfolioCompression (0..1);
-    }
-
-Event typology
-~~~~~~~~~~~~~~
-
-While the `ISDA CDM Design Definition Document <https://www.isda.org/a/gVKDE/CDM-FINAL.pdf>`__ proposes to operate a distinction between *Independent Events* (those that have to be negotiated) and *Dependent Events* (those that don't involve a negotiation between parties), Rosetta current event implementation is slightly different and articulated around the distinction between the following **three types of events**:
-
-* **Transaction events** are characterised by the fact that they **require party information** and, as an implication, may involve regulatory eligibility qualification. As a result, the set of events which are part of that scope is slightly broader than those that are part of the *Independent Events*, as the **option exercise** would, among others, also be part of it. While the *Independent Events* focuses on the underlying driver for the event (the negotiation), the Rosetta approach focuses upon the actual event features (presence of party information).
-* **Market events** are characterised by the fact they **do not involve party nor contract information**. A typical example of such is an **observation event**. When applicable to listed products, market events may involve product information (e.g. a dividend event).
-* **Servicing events** do not involve party information, but do **require contract information**. An example of such is a **reset event**, which will refer to an observation event and will carry reference to the contract(s) to which it applies.
-
-Rosetta event model applies the design principle specified as part of the `ISDA CDM Design Definition Document <https://www.isda.org/a/gVKDE/CDM-FINAL.pdf>`__ by structuring the transaction events via a ``before`` and ``after`` modelling construct.  This modelling construct is applied differently depending upon certain considerations:
-
-* **Post-execution events applicable to contractual products** are specified by a ``before`` and ``after`` **contract** state, with a cardinality that varies as a function of the event, as suggested by the CDM Concept Paper. Leveraging Rosetta rule logic capability, the model associates contract state logic to those events, as shown below in relation to the termination event. In some cases, as for the **partial termination event**, the ``before`` and ``after`` qualification is complemented with some further relevant information (in such case, the variation in the quantity/notional, which is deemed more efficient to compute upfront at event creation rather than having to be inferred by each consumer).  The below are a sample example of such post-execution transaction events:
+  * **Primitive events**: the CDM composite approach uses the primitive events as its building blocks. Those primitive events are detailed in the next section of the documentation.
+  * **Function call**: an example of such a function call is the interpolation function that would be associated with a **derived observation** event that assembles two observed values (say, a 3 months and a 6 months rate observation) to provide a derived one (say, a 5 months observation). As part of the CDM V1.0 this function call as been specified as a mere string element. It will be appropriately specified once such implementation is developed, some of which consisting in the machine readable implementation of the ISDA Definitions (see next Interest Calculation section).
 
   .. code-block:: Java
 
-    class Termination extends TransactionEvent stereotype postExecution
-    {
-    	before PostExecutionContractState (1..1);
-    	after PostExecutionContractState (1..1);
+   class Event extends EventBase
+   {
+	    intent IntentEnum (0..1);
+		      [synonym Rosetta_Workbench value intent]
+	    party Party (0..*);
+		      [synonym Rosetta_Workbench value party]
+	    lineage Lineage (0..1);
+		      [synonym Rosetta_Workbench value lineage]
+	    primitive PrimitiveEvent (1..1);
+		      [synonym Rosetta_Workbench value primitive]
+	    functionCall string (0..1);
+		      [synonym Rosetta_Workbench value functionCall]
     }
 
-    data rule Termination_Contract_before <"The contractState before a termination event is 'open'.">
-    	when Termination exists
-    	then Termination -> before -> contract -> contractState = ContractStateEnum.open
+Primitive events
+~~~~~~~~~~~~~~~~
 
-    data rule Termination_Contract_after <"The contractState after a termination event is 'close'.">
-    	when Termination exists
-    		and Termination -> action <> ActionEnum.cancel
-    	then Termination -> after -> contract -> contractState = ContractStateEnum.close
+CDM primitive events are the building block components used to specify business events.
 
-    data rule Termination_close <"When an termination event is cancelled, the contract state is 'open'.">
-    	when Termination exists
-    		and Termination -> action = ActionEnum.cancel
-    	then Termination -> after -> contract -> contractState = ContractStateEnum.open
+ .. code-block:: Java
 
-  .. code-block:: Java
+  class PrimitiveEvent <"The set of primitive events. The purpose of this class it to provide clarity with respect to the event qualification logic.">
+  {
+	   newTrade NewTrade (0..*) <"The new trade primitive is unbounded to address the case of events such as portfolio compressions, which could result in multiple new trades.">;
+		    [synonym Rosetta_Workbench value newTrade]
+	   quantityChange QuantityChange (0..*);
+		    [synonym Rosetta_Workbench value quantityChange]
+	   partyChange PartyChange (0..*);
+		    [synonym Rosetta_Workbench value partyChange]
+	   otherTermsChange OtherTermsChange (0..1);
+		    [synonym Rosetta_Workbench value otherTermsChange]
+	   exercise ExercisePrimitive (0..1);
+		    [synonym Rosetta_Workbench value exercise]
+	   observation ObservationPrimitive (0..*);
+		    [synonym Rosetta_Workbench value observation]
+	   reset ResetPrimitive (0..*);
+		    [synonym Rosetta_Workbench value reset]
+	   payment Payment (0..*);
+		    [synonym Rosetta_Workbench value payment]
+   }
 
-    class PartialTermination extends TransactionEvent  stereotype postExecution
-    {
-    	before PostExecutionContractState (1..1);
-    	after PostExecutionContractState (1..1);
-    	change Quantity (1..1);
-    }
-  .. code-block:: Java
+Event qualification from primitive events and intent qualification
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    class Aggregation extends TransactionEvent stereotype postExecution
-    {
-    	before PostExecutionState (2..*);
-    	after PostExecutionState (1..1);
-    }
+Similar to the product modelling approach, the event qualification is inferred from the primitive events. One distinction with the product approach is that the ``intent`` qualification is also deemed necessary to complement such primitive event information in certain cases.
 
-  The ``PostExecutionContractState`` class associated with those events is composed of a single contract (as the contract cardinality is handled at the event level) and optional fee(s).
+An example of such is the **partial termination event**, which is deemed as needed such intent qualification in order to be disambiguated from a **correction event**:
 
-  .. code-block:: Java
+ .. code-block:: Java
 
-    class PostExecutionContractState stereotype postExecution
-    {
-    	contract Contract (1..1);
-    	fee Payment (0..*);
-    }
+  isEvent PartialTermination <"The qualification of a partial termination event.">
+    Event -> primitive -> quantityChange exists
+    and Event -> intent = IntentEnum.partialTermination
+    and NotionalAmount_Decrease, NotionalAmount_Remaining apply
 
-  Referring to the list of events specified as part of the `ISDA CDM Design Definition Document <https://www.isda.org/a/gVKDE/CDM-FINAL.pdf>`__, this modelling approach applies to the following events:
-
-    - Portfolio compression
-    - Termination
-    - Partial termination
-
-
-* **Post-execution events applicable to contractual and listed products**, such as the **intermediation event**, differ by the fact that the attributes ``before`` and ``after`` are of type ``PostExecutionState`` in order to provide for the ability to **specify the resulting state as a contract, a listed product or a package transaction** (with the package transaction having a further product qualification tree, as detailed in the below Product section).
-
-  .. code-block:: Java
-
-    class Intermediation extends TransactionEvent stereotype postExecution
-    {
-    	before PostExecutionState (1..1);
-    	after PostExecutionState (1..*);
-    }
-
-  .. code-block:: Java
-
-    class PostExecutionState stereotype postExecution
-    {
-    	listedProduct ListedProduct (0..1);
-    	contract Contract (0..1);
-    		[synonym FpML value trade]
-    	packageTransaction PackageTransaction (0..1);
-    		[synonym FpML value tradePackage]
-    	fee Payment (0..*);
-    }
-
-    choice rule PostExecutionState_choice
-    	for PostExecutionState required choice between
-    	listedProduct and contract and packageTransaction
-
-  This modeling approach applies to the following events:
-
-    - Clearing
-    - Allocation
-    - Option exercise (to take into consideration the listed options)
-    - Intermediation
-    - Aggregation
-
-
+A further example would be the need for disambiguation between a **portfolio rebalancing event** and an **asset servicing event** as applying to a total return swap.
 
 
 Interest Calculation
 --------------------
 
+CDM V1.0 implements the **Fixed Amount** and **Floating Amount** ISDA 2006 Definitions, alongside with two day count fractions: **30E/360** and **ACT/365.FIXED**.
+
+Fixed Amount and Floating Amount Definitions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The CDM syntax to express the Fixed Amount and Floating Amount is similar in structure: a calculation that reflects the terms of the ISDA 2006 Definitions, and associated arguments.
 
 
+ .. code-block:: Java
+
+  calculation FixedAmount <"2006 ISDA Definition Article 4 Section 4.4 'Fixed Amount' means, in respect of a Swap Transaction and a Fixed Rate Payer, an amount that, subject to any other applicable provisions, is payable by that Fixed Rate Payer on an applicable Payment Date and is specified in the related Confirmation or is determined as provided in Article 5 of these 2006 Definitions or as provided in the related Confirmation.">
+  {
+ 	   fixedAmount number: calculationAmount * rate * dayCountFraction
+ 	   currencyAmount CurrencyEnum: currencyAmount
+  }
+
+  arguments FixedAmount <"2006 ISDA Definition Article 4 Section 4.8. Calculation Amount. 'Calculation Amount' means, in respect of a Swap Transaction and a party, the applicable Notional Amount or Currency Amount, as the case may be. Section 4.6. 'Currency Amount' means, in respect of a party and any Calculation Period for a Swap Transaction involving more than one currency, the amount specified as such for the Swap Transaction or that party.">
+  {
+ 	   calculationAmount: is InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
+ 	   currencyAmount: is InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> currency
+ 	   rate: is InterestRatePayout -> interestRate -> fixedRate -> initialValue
+     dayCountFraction: is InterestRatePayout -> dayCountFraction
+  }
+
+ .. code-block:: Java
+
+  calculation FloatingAmount <"2006 ISDA Definition Article 6 Section 6.1. Calculation of a Floating Amount: Subject to the provisions of Section 6.4 (Negative Interest Rates), the Floating Amount payable by a party on a Payment Date will be: (a) if Compounding is not specified for the Swap Transaction or that party, an amount calculated on a formula basis for that Payment Date or for the related Calculation Period as follows: Floating Amount = Calculation Amount × Floating Rate + Spread × Floating Rate Day Count Fraction (b) if “Compounding” is specified to be applicable to the Swap Transaction or that party and 'Flat Compounding' is not specified, an amount equal to the sum of the Compounding Period Amounts for each of the Compounding Periods in the related Calculation Period; or (c) if 'Flat Compounding' is specified to be applicable to the Swap Transaction or that party, an amount equal to the sum of the Basic Compounding Period Amounts for each of the Compounding Periods in the related Calculation Period plus the sum of the Additional Compounding Period Amounts for each such Compounding Period.">
+  {
+  	 floatingAmount number: calculationAmount * ( floatingRate + spread ) * dayCountFraction
+  	 currencyAmount CurrencyEnum: currencyAmount
+   }
+
+  arguments FloatingAmount <"The set of arguments to calculate the FloatingAmount.">
+  {
+  	 calculationAmount: is InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
+  	 currencyAmount: is InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> currency
+  	 floatingRate: is ResolveRateIndex( InterestRatePayout -> interestRate -> floatingRate -> floatingRateIndex ) -> rate
+  	 spread: is GetRateSchedule( InterestRatePayout -> interestRate -> floatingRate ) -> schedule -> initialValue
+  	 dayCountFraction: is InterestRatePayout -> dayCountFraction
+  }
+
+
+Day Count Fractions: 30E/360 and ACT/365.FIXED
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+CDM V1.0 incorporates two day acount fractions calculations which are quite representative of the set of day count fractions that are specified as part of the ISDA 2006 Definitions: while the **30E/360** definition specifies the actual computation in quite details as a result of the use of a 360 days year and a 30 maximum days month, the **ACT/365.FIXED** is much simpler and relies upon a computation of the number of days in a period which is not specified as part of the syntax because not involving any specific logic.
+
+ .. code-block:: Java
+
+  calculation DayCountFractionEnum._30E_360 <"2006 ISDA Definition Article 4 section 4.16(g): If '30E/360' or 'Eurobond Basis' is specified, the number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 360, calculated on a formula basis as follows:[[360 x (Y2 - Y1)] + [30 x (M2 - M1)] + (D2 - D1)]/360">
+  {
+ 	    number: (360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
+  }
+
+  arguments DayCountFractionEnum._30E_360 <"2006 ISDA Definition Article 4 section 4.16(g). 'Y1' is the year, expressed as a number, in which the first day of the Calculation Period or Compounding Period falls; 'Y2' is the year, expressed as a number, in which the day immediately following the last day included in the Calculation Period or Compounding Period falls; 'M1' is the calendar month, expressed as a number, in which the first day of the Calculation Period or Compounding Period falls; 'M2' is the calendar month, expressed as a number, in which the day immediately following the last day included in the Calculation Period or Compounding Period falls; 'D1' is the first calendar day, expressed as a number, of the Calculation Period or Compounding Period, unless such number would be 31, in which case D1 will be 30; and 'D2' is the calendar day, expressed as a number, immediately following the last day included in the Calculation Period or Compounding Period, unless such number would be 31, in which case D2 will be 30.">
+  {
+	   alias period CalculationPeriod( InterestRatePayout -> calculationPeriodDates )
+
+	   endYear : is period -> endDate -> year
+	   startYear : is period -> startDate -> year
+	   endMonth : is period -> endDate -> month
+	   startMonth : is period -> startDate -> month
+	   startDay : is Min( period -> startDate -> day, 30 )
+	   endDay : is Min( period -> endDate -> day, 30 )
+  }
+
+ .. code-block:: Java
+
+  calculation DayCountFractionEnum.ACT_365_FIXED <"'2006 ISDA Definition Article 4 section 4.16(d): If'Actual/365 (Fixed)', 'Act/365 (Fixed)', 'A/365 (Fixed)' or 'A/365F' is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 365.">
+  {
+	   number:  daysInPeriod / 365
+  }
+
+  arguments DayCountFractionEnum.ACT_365_FIXED
+  {
+  	 daysInPeriod : is DaysInPeriod( InterestRatePayout -> calculationPeriodDates ) -> days
+  }
 
 
 Reference Data Model
 --------------------
 
-Rosetta scope as it relates to the reference data modelling components is driven by the need to provide all relevant information to support the product and event components of the model in the pre-execution, execution and post-execution scenarios, including the associated regulatory reporting one.
+CDM V1.0 only integrates the reference data components that are specifically needed to model the in-scope products, events and interest calculation components.
 
-The ``stereotype entityReferenceData`` is associated with the classes that support that segment of the Rosetta model.
+This translate into the representation of the **party**, with two alternate representations, modeled as attributes: the **legal entity** and the **natural person**.  Indeed, a number of product constructs, such as those applicable to credit default swaps, make use of a a legal entity representation.
 
-The ``Party`` class is the cornertone of the entity reference data model. As a result of the fact that Rosetta doesn't support downcasting, the ``legalEntity`` and ``naturalPerson`` features are positioned as Party attributes, rather than extend this class.
-
-The regulatory qualification that is specified as part of the ``regulatoryQualification_MiFID_II`` and ``regulatoryQualification_CFTC_DFA`` attributes is detailed as part of the below Regulatory Eligibility section.
+It is expected that this CDM reference data representation will be further expanded once use cases for the model will be firmed out.
 
  .. code-block:: Java
 
-  class Party stereotype entityReferenceData <"The party class, which is extended through the NaturalPerson and LegalEntity classes.">
-  	[synonym FpML value Party]
-  	[synonym FpML value relatedParty]
-  	[synonym FIX value Parties componentID 1032]
-  	[synonym FIX value RootParties componentID 1031]
+  class Party stereotype entityReferenceData <"The party class.">
+    [synonym FpML value Party]
   {
-  	id string (0..1);
-  		[synonym FpML value id]
-  	partyId PartyIdentifier (1..*) <"The set of identifiers associated with a party.">;
-  	account Account (0..*) <"The account that might be specified by the party in relation to a transaction.">;
-  	regulatoryQualification_MiFID_II RegulatoryQualification_MiFID_II (0..1) <"The MiFID II regulatory qualifications associated to the party.">;
-  	regulatoryQualification_CFTC_DFA RegulatoryQualification_CFTC_DFA (0..1) <"The CFTC DFA regulatory qualifications associated to the party.">;
-  	partyRole PartyRoleEnum (0..*) <"The role associated with the party in the context of a transaction, e.g. agent, custodian, exchange, ...">;
-  		[synonym FIX value PartyRole tag 452]
-  		[synonym FIX value NestedPartyRole tag 538]
-  		[synonym FIX value Nested2PartyRole tag 759]
-  		[synonym FIX value Nested3PartyRole tag 951]
-  		[synonym FIX value Nested4PartyRole tag 1417]
-  		[synonym FIX value InstrumentPartyRole tag 1051]
-  		[synonym FIX value DerivativeInstrumentPartyRole tag 1295]
-  		[synonym FIX value TargetPartyRole tag 1464]
-  		[synonym FpML value role]
-  	reportingRole ReportingRoleEnum (0..1) <"Identifies the role of this party in reporting this trade (e.g. originator, counterparty).">;
-  		[synonym FpML value reportingRole]
-  	algorithm Algorithm (0..*) <"Provides information about the algorithm(s) that might be involved in the transaction by the party.  MiFID requires this information.">;
-  	decisionMaker boolean (0..1) <"The party that makes the investment decision when the transacting party is not acting in such capacity. The MiFID/MiFIR regulation identifies two such scenarios: (i) when the investment decision is made under a power of representation, or (ii) when the transacting party is a natural person.">;
-  		[regulatoryReference ESMA_MiFIR regulation "RTS 22" article "7(2)" provision "Where the client is not the person taking the investment decision in relation to that transaction, the transaction report shall identify the person taking such decision on behalf of the client as specified in fields 12 to 15 for the buyer and in fields 21 to 24 for the seller in Table 2 of Annex I"]
-  		[regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "I table 2 #12-15" provision "Specifies the buyer/seller decision maker code (and, in the case where it is a natural person, its details)."]
-  	brokerCapacity BrokerCapacityEnum (0..1) <"designates the capacity of the broker involved in the transaction, when applicable.">;
-  		[synonym FIX value LastCapacity tag 29]
-  	legalEntity LegalEntity (0..1);
-  	naturalPerson NaturalPerson (0..1);
-  	executionVenue ExecutionVenue (0..1);
+    id string (0..1) anchor;
+      [synonym FpML value id]
+    partyId string (1..1) scheme "partyIdScheme" <"The identifier associated with a party, e.g. the 20 digits LEI code.">;
+      [synonym FpML value partyId]
+      [synonym Rosetta_Workbench value partyId]
+    legalEntity LegalEntity (0..1);
+    naturalPerson NaturalPerson (0..1);
   }
 
   choice rule Party_choice <"A party is either a legal entity or a natural person.">
-  	for Party optional choice between
-  	legalEntity and naturalPerson
+    for Party optional choice between
+    legalEntity and naturalPerson
 
+  class LegalEntity stereotype entityReferenceData <"A class to represent the attributes that are specific to a legal entity.">
+  {
+	  id string (0..1);
+		  [synonym FpML value id]
+	  entityId string (0..1) scheme "entityIdScheme" <"A legal entity identifier (e.g. RED entity code).">;
+		  [synonym FpML value entityId]
+	  name string (1..1) scheme "entityNameScheme" <"The legal entity name.">;
+		  [synonym FpML value partyName]
+	    [synonym FpML value entityName]
+  }
 
-Machine Executable ISDA Definitions
------------------------------------
+  class NaturalPerson stereotype entityReferenceData <"A class to represent the attributes that are specific to a natural person.">
+  {
+	  honorific string (0..1) <"An honorific title, such as Mr., Ms., Dr. etc.">;
+		  [synonym FpML value honorific]
+	  firstName string (1..1) <"The natural person's first name. It is optional in FpML.">;
+		  [synonym FpML value firstName]
+	  middleName string (0..*);
+		  [synonym FpML value firstName]
+	  initial string (0..*);
+		  [synonym FpML value initial]
+	  surname string (1..1) <"The natural person's surname. It is optional in FpML.">;
+		  [synonym FpML value surname]
+	  suffix string (0..1) <"Name suffix, such as Jr., III, etc.">;
+		  [synonym FpML value suffix]
+	  dateOfBirth date (1..1) <"The natural person's date of birth.">;
+		  [synonym FpML value dateOfBirth]
+}
