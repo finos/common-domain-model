@@ -752,6 +752,7 @@ Product Model
 -------------
 
 CDM provides a composite product model whereby:
+
 * The economic terms are specified by composition, leveraging the FpML building blocks to the extent possible while also looking for further consistency and simplicity whenever possible;
 * The product qualification is inferred from those economic terms.
 
@@ -760,6 +761,20 @@ The scope of the CDM 1.0 is limited to contractual derivative products, and list
 Contractual Derivative Products
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+The scope of products implemented as part of CDM 1.0 is as follows:
+
+* Interest rate derivatives:
+  * Interest rate swaps (incl. cross-currency swaps, non-deliverable swaps, basis swaps, swaps with non-regular periods, ...)
+  * Swaptions
+  * Bond and convertible bond options
+
+* Credit derivatives:
+  * Credit default swaps (incl. baskets, tranche, swaps with mortgage and loans underlyers, ...)
+  * Options on credit default swaps
+
+
+The below sections detail the key features of this product implementation: contract representation, economic terms component and how the product qualification is inferred from those economic terms.
+
 Post-execution: the contract
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -767,7 +782,7 @@ Contractual products are bilateral contracts between two parties, which terms ar
 
 The CDM ``Contract`` class incorporates all the elements that are part of the FpML *Trade* confirmation view, with the exception of the following elements: *tradeSummary*, *originatingPackage*, *allocations* and *approvals*.
 
-The Rosetta ``Contract`` class includes a ``contractState`` attribute whose purpose is to specify the state of a contract (i.e. ``open`` or ``close``) as a result of an event, i.e. the state transition outcome as it relates to the contract state.  **Note**: the need to further refine this ``contractState`` attribute has been identfied by the CDM group.
+The Rosetta ``Contract`` class includes a ``contractState`` attribute whose purpose is to specify the state of a contract (i.e. ``open`` or ``close``) as a result of an event, i.e. the state transition outcome as it relates to the contract state.  **Note**: the need to further refine this ``contractState`` attribute has been identified by the CDM group as part of the initial phase, and will be tackled through subsequent work.
 
   .. code-block:: Java
 
@@ -810,7 +825,7 @@ The Rosetta ``Contract`` class includes a ``contractState`` attribute whose purp
 		    [synonym FpML value account]
    }
 
-The scope of the contract is limited to the post-execution lifecycle, as it involves legal entities and has a set of attributes which are only qualified post execution stage: trade date, calculation agent, documentatiom, governing law, etc.
+The scope of the contract is limited to the post-execution lifecycle, as it involves legal entities and has a set of attributes which are only qualified at the excution and post-execution stage: trade date, calculation agent, documentatiom, governing law, etc.
 
 The economic terms of the contract are positioned as part of the ``contractualProduct`` attribute, alongside the product identification and product taxonomy information. This is the construct that is used in the pre-execution stages, although this is beyond the scope of the CDM 1.0.
 
@@ -824,7 +839,7 @@ The economic terms of the contract are positioned as part of the ``contractualPr
    }
 
 
-In this respect, the CDM ``contract`` corresponds to the confirmation view of the FpML *trade*, while the ``contractualProduct`` corresponds to the pre-trade view of the FpML *trade*.  The FpML *trade* term is indeed deemed ambiguous, and its use as part of the standard is largely due to an exclusive focus on post-execution activity in the initial stages of its development. Later adjustments in this respect would have been made difficult as a result of backward compatibility considerations.
+In this respect, the CDM ``contract`` corresponds to the confirmation view of the FpML *trade*, while the ``contractualProduct`` corresponds to the pre-trade view of the FpML *trade*.  (The FpML *trade* term has not been used as part of the CDM because deemed ambiguous in this respect. Its use as part of the standard is largely due to an exclusive focus on post-execution activity in the initial stages of its development. Later adjustments in this respect would have been made difficult as a result of backward compatibility considerations.)
 
 The economic terms
 ^^^^^^^^^^^^^^^^^^
@@ -843,7 +858,7 @@ The CDM ``EconomicTerms`` class ands the underlying ``Payout`` class represent a
 	    extendibleProvision ExtendibleProvision (0..1) <"A provision that allows the specification of an embedded option with a swap giving the buyer of the option the right to extend the swap, in whole or in part, to the extended termination date.">;
    }
 
-The ``Payout`` class provides some provide some appropriate insight with respect to the correspondance between an FpML product its CDM representation through the FpML synonyms and associated path expressions.  As an example, one can see that the CDS *feeLeg* is represented through the ``interestRatePayout``, while its *singlePayment* and *initialPayment* is represented through the ``cashflow``.
+The ``Payout`` class provides some provide some appropriate insight with respect to the correspondance between an FpML product and its CDM representation, through the FpML synonyms and associated path expressions.  As an example, one can see that the FpML *feeLeg* is represented through the CDM ``interestRatePayout``, while the FpML *singlePayment* and *initialPayment* are both represented through the CDM ``cashflow``.
 
  .. code-block:: Java
 
@@ -871,7 +886,7 @@ The ``Payout`` class provides some provide some appropriate insight with respect
   	  optionPayout OptionPayout (0..*);
   }
 
-The absence of synonym entry for the  ``creditDefaultPayout`` attribute is due to the fact that the corresponding CDS constructs are positioned as part of the ``CreditDefaultPayout`` class:
+The absence of synonym entry for the  ``creditDefaultPayout`` attribute is due to the fact that the corresponding CDS constructs are positioned within the ``CreditDefaultPayout`` class:
 
 .. code-block:: Java
 
@@ -895,7 +910,7 @@ Infering the product qualification from its economic terms
 
 The product qualification is inferred from the economic terms through a dedicated Rosetta syntax which navigate the CDM components. The qualification of a **zero coupon fixed float inflation swap** provides a good example of the set of logic that can be used for such purpose, and which combines boolean and qualified expressions.
 
-The CDM makes use of the ISDA taxonomy V2.0 leaf level to qualify the product.  The CDM 1.0 only qualifies interest rate swaps, as the ISDA taxonomy V2.0 for credit default swap references the transaction type, which values are not publicly available and hence not positioned as a CDM enumeration.  This issue will be addressed as part of the later versions of the model.
+The CDM makes use of the ISDA taxonomy V2.0 leaf level to qualify the product.  That being said, the CDM 1.0 only qualifies interest rate swaps, as the ISDA taxonomy V2.0 for credit default swap references the transaction type, which values are not publicly available and hence not positioned as a CDM enumeration.  This issue will be addressed as part of later versions of the model.
 
  .. code-block:: Java
 
@@ -909,11 +924,9 @@ The CDM makes use of the ISDA taxonomy V2.0 leaf level to qualify the product.  
 Listed Products as Underlyers of Derivative Products
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Listed products have some (or all) of their economic terms abstracted through a **product identifier** and publicly disseminated by a central venue. As a result, fungibility applies as a function of this product identifier.
+Listed products have some (or all) of their economic terms abstracted through a **product identifier** and publicly disseminated by a central venue. As a result, fungibility applies as a function of this product identifier. Hence, the approach of qualifying a product from its economic terms is not applicable to such listed products.
 
-As mentioned above, as part of the CDM V1.0 the modelling representation of listed products is limited to the underlyers for the in-scope OTC derivatives products, which in practice means options on bonds and convertible bonds.
-
-The ``ListedProduct`` class provides a **choice between the respective listed product representations**.  As part of the CDM V1.0 only two
+The ``ListedProduct`` class provides a **choice between the respective listed product representations**.  As part of the CDM V1.0 only two of such products have been specified: bonds and convertible bonds.
 
  .. code-block:: Java
 
@@ -928,19 +941,19 @@ The ``ListedProduct`` class provides a **choice between the respective listed pr
 
 A **two-levels class inheritance structure** has been specified to provide for a scalable implementation:
 
-* All listed products inherit from a ``ListedHeader`` abstract class which contains a ``productTaxonomy``, ``productIdentifier`` and a ``description`` attribute;
+* All listed products inherit from a ``ListedHeader`` abstract class which contains a ``productTaxonomy``, ``productIdentifier`` and a ``description`` attribute.
 
  .. code-block:: Java
 
   abstract class ListedHeader stereotype productReferenceData, listedProduct <"An abstract class to holds the attributes that are common across listed products.">
   {
-      	id string (0..1);
+    	id string (0..1);
       		[synonym FpML value id]
-      	productTaxonomy ProductTaxonomy (1..*) <"The product taxonomy value(s) associated with a product.">;
-      	productIdentifier ProductIdentifier (1..*) <"There can be several identifiers associated with a given product.">;
-      	description string (1..1) <"The product name.">;
+    	productTaxonomy ProductTaxonomy (1..*) <"The product taxonomy value(s) associated with a product.">;
+    	productIdentifier ProductIdentifier (1..*) <"There can be several identifiers associated with a given product.">;
+    	description string (1..1) <"The product name.">;
       		[synonym FpML value description]
-      }
+  }
 
 
 * Leveraging the FpML approach for underlyer components, a ``FixedIncomeSecurity`` and an ``EquityAsset`` abstract class then provide the commmon attributes for those respective type of instruments.
@@ -966,6 +979,10 @@ A **two-levels class inheritance structure** has been specified to provide for a
 
 Loans and Mortgages as Underlyers of Derivative Products
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Loans and mortgages are part of the CDM 1.0 as certain credit default swaps have such underlyers.
+
+The CDM implementation closely reflects the FpML standard, and the approach here has not been to infer the product from its economic terms. This approach could be revisited at a later point, once those products are fully represented as part of the CDM, i.e. not just as underlyer components.
 
 
  .. code-block:: Java
@@ -1011,7 +1028,6 @@ Loans and Mortgages as Underlyers of Derivative Products
   	 tranche string (0..1) <"The mortgage obligation tranche that is subject to the derivative transaction.">;
   	  	[synonym FpML value tranche]
   }
-
 
 
 Event Model
