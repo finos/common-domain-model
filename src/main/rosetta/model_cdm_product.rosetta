@@ -91,8 +91,33 @@ data rule FpML_cd_19 <"FpML validation rule cd-19 - If the condition ISDA1999Cre
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> modifiedEquityDelivery)
 		is absent
 
+data rule FpML_cd_20 <"FpML validation rule cd-20 - If the condition ISDA2003 is true, then protectionTerms/obligations/notContingent must not exist."> 
+	when Contract -> documentation -> contractualDefinitions = ContractualDefinitionsEnum.ISDA2003Credit
+	then Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notContingent is absent
+
+data rule FpML_cd_23 <"FpML validation rule cd-23 - If the condition LongForm is true, then cashSettlementTerms or physicalSettlementTerms must exist.">
+	when ( Contract -> documentation -> masterConfirmation or Contract -> documentation -> contractualMatrix ) is absent
+		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
+	then ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> cashSettlementTerms or Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms ) exists
+
+data rule FpML_cd_24 <"FpML validation rule cd-24 - If the condition LongForm is true, then the following elements must exist: protectionTerms/creditEvents/creditEventNotice, protectionTerms/obligations, generalTerms/referenceInformation/referencePrice.">
+	when ( Contract -> documentation -> masterConfirmation or Contract -> documentation -> contractualMatrix ) is absent 
+		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
+	then ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> creditEventNotice 
+		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations 
+		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout ->generalTerms -> referenceInformation -> referencePrice ) exists
+
+data rule FpML_cd_25 <"FpML validation rule cd-25 - If the condition LongForm is true, and if physicalSettlementTerms exists, then physicalSettlementTerms must contain settlementCurrency, physicalSettlementPeriod, escrow and deliverableObligations/accruedInterest.">
+	when ( Contract -> documentation -> masterConfirmation or Contract -> documentation -> contractualMatrix ) is absent 
+		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
+		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms exists
+	then ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> settlementCurrency 
+		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> physicalSettlementPeriod
+		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> escrow 
+		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> accruedInterest ) exists
+
 data rule FpML_cd_32 <"FpML validation rule cd-32 - If condition LongForm is true, and if fixedAmountCalculation/calculationAmount exists, then fixedAmountCalculation/dayCountFraction must exist.">
-	when (Contract -> documentation -> masterConfirmation or Contract -> documentation -> contractualMatrix) is absent
+	when ( Contract -> documentation -> masterConfirmation or Contract -> documentation -> contractualMatrix ) is absent
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
 	 	and Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
 	 	then Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> dayCountFraction exists
@@ -291,24 +316,27 @@ data rule FinalStub_lastRegularPaymentDate <"FpML specifies that lastRegularPaym
 data rule InterestRatePayout_quantity <"The quantity associated to an interest rate payout should not be expressed as a quantity, but rather as a notional (which can itself be expressed in a number of distinct ways).">
 	when InterestRatePayout exists
 	then InterestRatePayout -> quantity -> quantity is absent
-	
-data rule CompoundingMethod_absent <"Compounding method is prohibited when the calculation period and the payment frequencies are the same. This data rule implements the FpML validation rule ird-7.">
+
+/*
+ * TODO - Need for an associated logic that will parse the respective legs of the swap, as this is not made explicit at present as part of the syntax
+ */	
+data rule FpML_ird_7_1 <"FpML validation rule ird-7 1/2 - The existence of compoundingMethod is prohibited when the calculation-period and payment frequencies are the same.">
  	when InterestRatePayout -> paymentDates -> paymentFrequency -> period = InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> period
  		and InterestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier
  	then InterestRatePayout -> compoundingMethod is absent
  	
-data rule CompoundingMethod_present <"Compounding method is required when the calculation-period and payment frequencies differ. This data rule implements the FpML validation rule ird-7.">
+data rule FpML_ird_7_2 <"FpML validation rule ird-7 2/2 - The existence of compoundingMethod is required when the calculation-period and payment frequencies differ.">
  	when (InterestRatePayout -> paymentDates -> paymentFrequency -> period <> InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> period
  		and InterestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier <> InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier)
  	or (InterestRatePayout -> paymentDates -> paymentFrequency -> period <> InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> period
  		or InterestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier <> InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier)
  	then InterestRatePayout -> compoundingMethod exists
 
-data rule CompoundingMethod_resetDates <"Compounding method must be associated with the presence of reset dates. This data rule implements the FpML validation rule ird-9.">
+data rule FpML_ird_9 <"FpML validation rule ird-9 - If calculationPeriodAmount/calculation/compoundingMethod exists, then resetDates must exist.">
 	when InterestRatePayout -> compoundingMethod exists
 	then InterestRatePayout -> resetDates exists
 
-data rule CompoundingMethod_fixedRate <"Compounding method exists is prohibited when the fixed rate applies. This data rule implements the FpML validation rule ird-29. ">
+data rule FpML_ird_29 <"FpML validation rule ird-29 - If compoundingMethod exists, then fixedRateSchedule must not exist.">
 	when InterestRatePayout -> compoundingMethod exists
 	then InterestRatePayout -> interestRate -> fixedRate is absent
 

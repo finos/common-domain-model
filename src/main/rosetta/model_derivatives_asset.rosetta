@@ -92,7 +92,7 @@ class FixedIncomeSecurity extends ListedHeader stereotype productReferenceData, 
 		[synonym FIX value issueDate]
 }
 
-choice rule FixedIncomeSecurity_issuer <"Choice rule to represent an FpML choice construct.">
+choice rule FixedIncomeSecurity_choice <"Choice rule to represent an FpML choice construct.">
 	for FixedIncomeSecurity optional choice between
 	issuerName and issuerReference
 
@@ -131,8 +131,9 @@ class Loan extends IdentifiedAsset stereotype productReferenceData
 class Mortgage extends FixedIncomeSecurity stereotype productReferenceData
 	[synonym FpML value Mortgage]
 {
-	insurer Party (0..1) reference <"Applicable to the case of default swaps on MBS terms. For specifying the insurer name, when applicable.  When the element is not present, it signifies that the insurer is Not Applicable.">;
+	insurer Party (0..1) <"Applicable to the case of default swaps on MBS terms. For specifying the insurer name, when applicable.  When the element is not present, it signifies that the insurer is Not Applicable.">;
 		[synonym FpML value insurer]
+	insurerReference string (0..1) reference;
 		[synonym FpML value insurerReference]
 	paymentFrequency Period (0..1) <"Specifies the frequency at which the mortgage pays, e.g. 6M.">;
 		[synonym FpML value paymentFrequency]
@@ -147,3 +148,7 @@ class Mortgage extends FixedIncomeSecurity stereotype productReferenceData
 	tranche string (0..1) <"The mortgage obligation tranche that is subject to the derivative transaction.">;
 		[synonym FpML value tranche]
 }
+
+choice rule Mortgage_choice <"Choice rule to represent an FpML choice construct.">
+	for Mortgage optional choice between
+	insurer and insurerReference
