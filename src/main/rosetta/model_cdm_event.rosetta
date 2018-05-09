@@ -257,8 +257,8 @@ data rule NotionalAmount_Null <"Logic to qualify a null notional amount as a res
 
 data rule EarlyTermination_InterestPayout_TerminationDate <"Logic to  qualify a change to an earlier termination date as a result of an other terms change primitive event.">
 	when Event -> primitive -> otherTermsChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout exists
-	then Event -> primitive -> otherTermsChange ->  before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate >
-		Event -> primitive -> otherTermsChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate
+	then if Event -> primitive -> otherTermsChange ->  before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate >
+		Event -> primitive -> otherTermsChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate then True else False
 
 isEvent NewTradeEvent <"The qualification of a new trade event.">
 	Event -> primitive -> newTrade exists
@@ -267,6 +267,20 @@ isEvent PartialTermination <"The qualification of a partial termination event.">
 	Event -> primitive -> quantityChange exists
 	and Event -> intent = IntentEnum.partialTermination
 	and NotionalAmount_Decrease, NotionalAmount_Remaining apply
+
+/**
+ * Event qualification without need for intent to be set 
+ */
+	
+isEvent PartialTermination_Optional_Intent <"The qualification of a partial termination event.">
+	if Event -> intent exists 
+	then 
+		Event -> intent = IntentEnum.partialTermination  
+		and Event -> primitive -> quantityChange exists
+	else 
+		Event -> primitive -> quantityChange exists
+	and NotionalAmount_Decrease, NotionalAmount_Remaining apply
+
 
 /*
  * Do we also need the intent qualification in the case of a full termination?
