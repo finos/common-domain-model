@@ -175,26 +175,12 @@ class OtherTermsChange <"The primitive event to represent change(s) in the contr
 		[synonym Rosetta_Workbench value after]
 }
 
-class PartyChange <"The primitive event to represent a change in the parties to a contract.">
-{
-	before ContractOrContractReference (0..1);
-		[synonym Rosetta_Workbench value before]
-	after ContractOrContractReference (1..1);
-		[synonym Rosetta_Workbench value after]
-	priorParties Party (2..2);
-		[synonym Rosetta_Workbench value priorParties]
-	newParties Party (2..2);
-		[synonym Rosetta_Workbench value newParties]
-}
-
 class PrimitiveEvent <"The set of primitive events. The purpose of this class it to provide clarity with respect to the event qualification logic.">
 {
 	newTrade NewTrade (0..*) <"The new trade primitive is unbounded to address the case of events such as portfolio compressions, which could result in multiple new trades.">;
 		[synonym Rosetta_Workbench value newTrade]
 	quantityChange QuantityChange (0..*);
 		[synonym Rosetta_Workbench value quantityChange]
-	partyChange PartyChange (0..*);
-		[synonym Rosetta_Workbench value partyChange]
 	otherTermsChange OtherTermsChange (0..1);
 		[synonym Rosetta_Workbench value otherTermsChange]
 	exercise ExercisePrimitive (0..1);
@@ -268,9 +254,6 @@ isEvent PartialTermination <"The qualification of a partial termination event.">
 	and Event -> intent = IntentEnum.partialTermination
 	and NotionalAmount_Decrease, NotionalAmount_Remaining apply
 
-/*
- * Do we also need the intent qualification in the case of a full termination?
- */
 isEvent FullTermination <"The qualification of an full termination event.">
 	Event -> primitive -> quantityChange exists
 	and NotionalAmount_Decrease, NotionalAmount_Null apply
@@ -288,3 +271,30 @@ isEvent Reset <"The qualification of a reset event.">
 isEvent Payment <"The qualification of a payment event.">
 	( Event -> primitive -> payment
 	and Event -> party ) only exists
+
+/*
+ * Do we also need the intent qualification to qualify a novation?
+ * A flexible approach could be to state 'if intent exists it is equal to novation'
+ */
+//isEvent Novation <"The qualification of a novation event.">	
+	// Syntax that specifies that it is a composite event
+	// for event 1
+	Event -> primitive -> quantityChange exists
+	and Event -> primitive -> payment exists
+	and ( if Event -> intent exists or foo exists and bar not exists then Event -> intent =  
+	and NotionalAmount_Decrease apply
+	
+	 Need for logic that will specify that those event identifiers and contract identifiers are distinct
+	 But event effective date, economics, etc. are the same & at least 
+	 for event 2
+	 Event -> primitive -> newTrade exists
+
+	
+isEvent Allocation <"The qualification of an allocation event.">
+	Event -> primitive -> quantityChange exists
+	and NotionalAmount_Decrease, NotionalAmount_Null apply
+		
+
+//data rule Distinct_Contracts_Across_Events
+//	when Event -> primitive -> quantityChange and Event -> primitive -> newTrade exists
+//	then Event -> primitive -> 
