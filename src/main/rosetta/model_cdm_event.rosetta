@@ -175,12 +175,32 @@ class OtherTermsChange <"The primitive event to represent change(s) in the contr
 		[synonym Rosetta_Workbench value after]
 }
 
+class PartyChange <"The primitive event to represent a change in party(ies) to a contract. The cardinality associated to the after attribute is unbounded to address the case of party changes applicable to only part of a contract.">
+{
+	before ContractOrContractReference (1..1);
+		[synonym Rosetta_Workbench value before]
+	after ContractOrContractReference (1..*);
+		[synonym Rosetta_Workbench value after]
+}
+
+data rule PartyChange_Full
+	when Event -> primitive -> partyChange exists
+	then Event -> primitive -> partyChange -> before -> contract -> party <> Event -> primitive -> partyChange -> after -> contract -> party
+	and Event -> primitive -> partyChange -> before -> contract -> contractualProduct = Event -> primitive -> partyChange -> after -> contract -> contractualProduct 
+
+data rule PartyChange_Partial
+	when Event -> primitive -> partyChange exists
+	then Event -> primitive -> partyChange -> before -> contract -> party <> Event -> primitive -> partyChange -> after -> contract -> party
+	and Event -> primitive -> partyChange -> before -> contract -> contractualProduct = Event -> primitive -> partyChange -> after -> contract -> contractualProduct
+
 class PrimitiveEvent <"The set of primitive events. The purpose of this class it to provide clarity with respect to the event qualification logic.">
 {
 	newTrade NewTrade (0..*) <"The new trade primitive is unbounded to address the case of events such as portfolio compressions, which could result in multiple new trades.">;
 		[synonym Rosetta_Workbench value newTrade]
 	quantityChange QuantityChange (0..*);
 		[synonym Rosetta_Workbench value quantityChange]
+	partyChange PartyChange (0..*);
+		[synonym Rosetta_Workbench value partyChange]	
 	otherTermsChange OtherTermsChange (0..1);
 		[synonym Rosetta_Workbench value otherTermsChange]
 	exercise ExercisePrimitive (0..1);
@@ -273,28 +293,34 @@ isEvent Payment <"The qualification of a payment event.">
 	and Event -> party ) only exists
 
 /*
- * Do we also need the intent qualification to qualify a novation?
- * A flexible approach could be to state 'if intent exists it is equal to novation'
+ * Alternative 1 - QuantityChange primitive
  */
-//isEvent Novation <"The qualification of a novation event.">	
-	// Syntax that specifies that it is a composite event
-	// for event 1
+isEvent Novation_Qty
 	Event -> primitive -> quantityChange exists
 	and Event -> primitive -> payment exists
-	and ( if Event -> intent exists or foo exists and bar not exists then Event -> intent =  
+	and Event -> primitive -> newTrade exists
 	and NotionalAmount_Decrease apply
-	
-	 Need for logic that will specify that those event identifiers and contract identifiers are distinct
-	 But event effective date, economics, etc. are the same & at least 
-	 for event 2
-	 Event -> primitive -> newTrade exists
 
-	
-isEvent Allocation <"The qualification of an allocation event.">
+/*
+ * Alternative 2 - PartyChange primitive
+ */
+isEvent Novation_Pty
+	Event -> primitive -> partyChange exists
+	and Event -> primitive -> payment exists // The payment could be handled as a distinct event, between step-in and step-out parties
+
+/*
+ * Alternative 3 - Two distinct events with logic to tie those together
+ */
+isEvent StepOut_Qty <"The qualification of the step-in part of a novation event.">	
 	Event -> primitive -> quantityChange exists
-	and NotionalAmount_Decrease, NotionalAmount_Null apply
-		
-
-//data rule Distinct_Contracts_Across_Events
-//	when Event -> primitive -> quantityChange and Event -> primitive -> newTrade exists
-//	then Event -> primitive -> 
+	and Event -> primitive -> payment exists
+	and NotionalAmount_Decrease apply
+		 
+isEvent StepIn <"The qualification of the step-in part of a novation event.">
+	Event -> primitive -> newTrade exists
+	
+//workflow rule StepIn_StepOut
+//	when StepIn exists StepOut exists 	
+//	alias economicTerms are the same
+//	alias party is different
+	
