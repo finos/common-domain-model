@@ -11,7 +11,7 @@ class ComputedAmount <"A class to specify the outcome of a computed amount, for 
 
 class ContractOrContractReference one of
 {
-	contract Contract (0..1);
+	contract Contract (0..*);
 	contractReference ContractIdentifier (0..*);
 		[synonym Rosetta_Workbench value contractReference]
 }
@@ -175,17 +175,23 @@ class OtherTermsChange <"The primitive event to represent change(s) in the contr
 		[synonym Rosetta_Workbench value after]
 }
 
-class PartyChange <"The primitive event to represent a change in the parties to a contract.">
+class PartyChange <"The primitive event to represent a change in party(ies) to a contract.">
 {
-	before ContractOrContractReference (0..1);
+	before ContractOrContractReference (1..1);
 		[synonym Rosetta_Workbench value before]
 	after ContractOrContractReference (1..1);
 		[synonym Rosetta_Workbench value after]
-	priorParties Party (2..2);
-		[synonym Rosetta_Workbench value priorParties]
-	newParties Party (2..2);
-		[synonym Rosetta_Workbench value newParties]
 }
+
+data rule PartyChange_Full
+	when Event -> primitive -> partyChange exists
+	then Event -> primitive -> partyChange -> before -> contract -> party <> Event -> primitive -> partyChange -> after -> contract -> party
+	and Event -> primitive -> partyChange -> before -> contract -> contractualProduct = Event -> primitive -> partyChange -> after -> contract -> contractualProduct 
+
+data rule PartyChange_Partial
+	when Event -> primitive -> partyChange exists
+	then Event -> primitive -> partyChange -> before -> contract -> party <> Event -> primitive -> partyChange -> after -> contract -> party
+	and Event -> primitive -> partyChange -> before -> contract -> contractualProduct = Event -> primitive -> partyChange -> after -> contract -> contractualProduct
 
 class PrimitiveEvent <"The set of primitive events. The purpose of this class it to provide clarity with respect to the event qualification logic.">
 {
@@ -194,7 +200,7 @@ class PrimitiveEvent <"The set of primitive events. The purpose of this class it
 	quantityChange QuantityChange (0..*);
 		[synonym Rosetta_Workbench value quantityChange]
 	partyChange PartyChange (0..*);
-		[synonym Rosetta_Workbench value partyChange]
+		[synonym Rosetta_Workbench value partyChange]	
 	otherTermsChange OtherTermsChange (0..1);
 		[synonym Rosetta_Workbench value otherTermsChange]
 	exercise ExercisePrimitive (0..1);
@@ -204,7 +210,8 @@ class PrimitiveEvent <"The set of primitive events. The purpose of this class it
 	reset ResetPrimitive (0..*);
 		[synonym Rosetta_Workbench value reset]
 	payment Payment (0..*);
-		[synonym Rosetta_Workbench value payment]	
+		[synonym Rosetta_Workbench value payment]
+		[synonym Rosetta_Workbench value cashflow]
 }
 
 class QuantityChange <"The primitive event to represent a change in quantity or notional.">
@@ -304,109 +311,52 @@ isEvent Payment <"The qualification of a payment event.">
 	( Event -> primitive -> payment
 	and Event -> party ) only exists
 
-
-	
-/*******************************
- * New Proposed Event Approach
+/*
+ * Alternative 1 - QuantityChange primitive
  */
+isEvent Novation_Qty
+	if Event -> intent exists
+		then Event -> intent = IntentEnum.novation
+		and Event -> primitive -> quantityChange exists
+		and Event -> primitive -> payment exists
+		and Event -> primitive -> newTrade exists
+	else Event -> primitive -> quantityChange exists
+		and Event -> primitive -> payment exists
+		and Event -> primitive -> newTrade exists
+	and NotionalAmount_Decrease apply
 
-class TransactionEvent extends EventBase <"A transaction event involves 2 or more parties, can have an intent and has a before/after contract state">
-{
-	party Party (0..*);
-		[synonym Rosetta_Workbench value party]
-	intent IntentEnum (0..1);
-		[synonym Rosetta_Workbench value intent]
-	lineage Lineage (0..1);
-		[synonym Rosetta_Workbench value lineage]
-	before Before (1..1);
-		[synonym Rosetta_Workbench value before]
-	after After (1..1);
-		[synonym Rosetta_Workbench value after]
-	functionCall string (0..1);
-		[synonym Rosetta_Workbench value functionCall]
-}
+/*
+ * Alternative 2 - PartyChange primitive
+ */
+isEvent Novation_Pty
+	if Event -> intent exists
+		then Event -> intent = IntentEnum.novation
+		and Event -> primitive -> partyChange exists
+		and Event -> primitive -> payment exists
+	else Event -> primitive -> partyChange exists
+		and Event -> primitive -> payment exists
 
-class MarketEvent extends EventBase <"A market event doesn't involve parties, intent nor contract reference.">
-{
-	source ObservationSource (1..1) <"The observation source.">;
-		[synonym Rosetta_Workbench value source]
-	observation number (1..1) <"The observation value.">;
-		[synonym Rosetta_Workbench value observation]
-	date date (1..1) <"The observation date.">;
-		[synonym Rosetta_Workbench value date]
-	time TimeZone (0..1) <"The observation time, with a possible indication of the timezone dimension.">;
-		[synonym Rosetta_Workbench value time]
-	side QuotationSideEnum (0..1) <"The side (bid/mid/ask) of the observation, when applicable.">;
-		[synonym Rosetta_Workbench value side]
-	functionCall string (0..1);
-		[synonym Rosetta_Workbench value functionCall]
-}
-
-class Before one of
-{
-	contractState ContractOrContractReference (0..*);
-		[synonym Rosetta_Workbench value contractState]
-	marketEvent MarketEvent (0..*);
-		[synonym Rosetta_Workbench value marketEvent]
-}
-
-class After
-{
-	contractOrListedProduct ContractOrListedProduct (0..*);
-		[synonym Rosetta_Workbench value contractOrListedProduct]
-	payment Payment (0..*);
-		[synonym Rosetta_Workbench value payment]
-}
-
-isEvent CashExercise <"The qualification of a physical exercise event: the before contract state is an option, the after state is a cashflow with no option.">
-	TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout exists
-	and TransactionEvent -> after -> payment exists
-	and TransactionEvent -> after -> contractOrListedProduct -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout is absent
-
-isEvent PhysicalExercise <"The qualification of a physical exercise event: the before contract state is an option, the after state is a product that corresponds to the option underlyer with no option.">
-	TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout exists
-	and ( TransactionEvent -> after -> contractOrListedProduct -> contractState -> contract -> contractualProduct =
-		TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> underlyer -> contractualProduct )
-		or ( TransactionEvent -> after -> contractOrListedProduct -> listedProduct =
-		TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> underlyer -> listedProduct )
-	// TODO - Provide the ability to compute this equality in the case where the contractReference is specified, instead of the actual contract
-	and TransactionEvent -> after -> contractOrListedProduct -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout is absent
-
-isEvent CashPartialExercise <"The qualification of a physical exercise event: the before contract state is an option, the after state is a cashflow with an option which quantity is less than the before state.">
-	TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout exists
-	and TransactionEvent -> after -> payment exists
-	and TransactionEvent -> after -> contractOrListedProduct -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount -> amount > 0
-	// TODO - Add an alias to abstract the various ways in which the quantity can be expressed: actual quantity, schedule, ...
-	and TransactionEvent -> after -> contractOrListedProduct -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity <
-		TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity
-
-isEvent PhysicalPartialExercise <"The qualification of a physical exercise event: the before contract state is an option, the after state is a product that corresponds to the option underlyer with an option which quantity is less than the before state.">
-	TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout exists
-	and ( TransactionEvent -> after -> contractOrListedProduct -> contractState -> contract -> contractualProduct =
-		TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> underlyer -> contractualProduct )
-		or ( TransactionEvent -> after -> contractOrListedProduct -> listedProduct =
-		TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> underlyer -> listedProduct )
-	// TODO - Enhance the grammar to provide the ability to exclude the quantity from this equality statement
-	and TransactionEvent -> after -> contractOrListedProduct -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount -> amount > 0
-	// TODO - Add an alias to abstract the various ways in which the quantity can be expressed: actual quantity, schedule, ...
-	and TransactionEvent -> after -> contractOrListedProduct -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity <
-		TransactionEvent -> before -> contractState -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity
-
-isEvent Allocation <"The qualification of an allocation event: the before state has one contract, while the after state has several contracts.">
-	TransactionEvent -> before -> contractState only exists
-	and TransactionEvent -> after -> contractOrListedProduct -> contractState exists // Grammar adjustment to express plurality
-	and TransactionEvent -> intent = IntentEnum.allocation
-	// TODO - Enhance the grammar to have a syntax to qualify that the sum of the notionals/quantities on the allocated contracts is equal to the before contract
+/*
+ * Alternative 1-b - Two distinct events with logic to tie those together
+ */
+isEvent StepOut_Qty <"The qualification of the step-in part of a novation event.">	
+	Event -> primitive -> quantityChange exists
+	and Event -> primitive -> payment exists
+	and NotionalAmount_Decrease apply
+		 
+isEvent StepIn <"The qualification of the step-in part of a novation event.">
+	Event -> primitive -> newTrade exists
 	
-isEvent PortfolioCompression <"The qualification of a portfolio compression event: the before state has several contracts, and the after state has either contract(s) with cashflows or only cashflows.">
-	TransactionEvent -> intent = IntentEnum.portfolioCompression
-	and TransactionEvent -> before -> contractState exists // Grammar adjustment to express plurality
-	and ( ( TransactionEvent -> after -> contractOrListedProduct -> contractState and TransactionEvent -> after -> payment exists )
-		or TransactionEvent -> after -> payment exists )
-	// TODO - Possibly, enhance the grammar to qualify that the number of contracts before > number of contracts after
-
-isEvent Novation <"The qualification of a novation event: the contract before has different parties that the contract after.">
-	TransactionEvent -> before -> contractState -> contract -> party <>
-	TransactionEvent -> after -> contractOrListedProduct -> contractState -> contract -> party
-	// TODO - Need to refine the syntax to qualify that one of the parties is the same, while the other one has changed.
-	and TransactionEvent -> after -> payment exists // Comparing the payer/receiver parties to the contract parties would be tricky because not using the same constructs 
+//workflow rule StepIn_StepOut
+//	when StepIn exists StepOut exists 	
+//	alias economicTerms are the same
+//	alias party is different
+	
+/*
+ * Alternative 2-b - Recommended - PartyChange primitive with distinct payment event
+ */
+isEvent Novation
+	if Event -> intent exists
+		then Event -> intent = IntentEnum.novation
+		and Event -> primitive -> partyChange exists
+	else Event -> primitive -> partyChange exists
