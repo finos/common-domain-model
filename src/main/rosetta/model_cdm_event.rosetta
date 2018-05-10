@@ -12,6 +12,7 @@ class ComputedAmount <"A class to specify the outcome of a computed amount, for 
 class ContractOrContractReference one of
 {
 	contract Contract (0..*);
+		[synonym Rosetta_Workbench value contract]
 	contractReference ContractIdentifier (0..*);
 		[synonym Rosetta_Workbench value contractReference]
 }
@@ -131,6 +132,7 @@ class MessageInformation stereotype preExecution, execution, postExecution <"Thi
 class NewTrade one of <"The primitive event to represent a new trade.">
 {
 	contract Contract (0..1);
+		[synonym Rosetta_Workbench value contract]
 	contractReference ContractIdentifier (0..*);
 		[synonym Rosetta_Workbench value contractReference]
 }
@@ -337,21 +339,13 @@ isEvent Novation_Pty
 		and Event -> primitive -> payment exists
 
 /*
- * Alternative 1-b - Two distinct events with logic to tie those together
+ * Alternative 1-b - QuantityChange primitive with distinct payment event
  */
-isEvent StepOut_Qty <"The qualification of the step-in part of a novation event.">	
+isEvent StepIn_StepOut
 	Event -> primitive -> quantityChange exists
-	and Event -> primitive -> payment exists
+	and Event -> primitive -> newTrade exists
 	and NotionalAmount_Decrease apply
-		 
-isEvent StepIn <"The qualification of the step-in part of a novation event.">
-	Event -> primitive -> newTrade exists
-	
-//workflow rule StepIn_StepOut
-//	when StepIn exists StepOut exists 	
-//	alias economicTerms are the same
-//	alias party is different
-	
+
 /*
  * Alternative 2-b - Recommended - PartyChange primitive with distinct payment event
  */

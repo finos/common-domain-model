@@ -6,46 +6,46 @@ class Contract <"A class to specify a contract object, which can be invoked eith
 {
 	contractIdentifier PartyContractIdentifier (1..*) <"The contract reference identifier(s) allocated by the parties involved in the contract.">;
 		[synonym FpML value partyTradeIdentifier pathExpression "trade.tradeHeader"]	
-		[synonym Rosetta_Workbench value partyTradeIdentifier pathExpression "contract.tradeHeader"]	
+		[synonym Rosetta_Workbench value partyTradeIdentifier pathExpression "tradeHeader"]	
 	tradeDate date (1..1) anchor <"The trade date. This is the date the trade was originally executed. In the case of a novation, the novated part of the trade should be reported (by both the remaining party and the transferee) using a trade date corresponding to the date the novation was agreed. The remaining part of a trade should be reported (by both the transferor and the remaining party) using a trade date corresponding to the original execution date.">;
 		[synonym FpML value tradeDate pathExpression "trade.tradeHeader"]
-		[synonym Rosetta_Workbench value tradeDate pathExpression "contract.tradeHeader"]
+		[synonym Rosetta_Workbench value tradeDate pathExpression "tradeHeader"]
 /*
  * TODO - Need to refactor this tradeDateId, to be associated with the trade date, ideally as a side effect of the anchor
  * If not, create the IdentifiedDate (or specialised TradeDate class) a la FpML
  */
 	tradeDateId string (0..1) anchor;
 		[synonym FpML value id pathExpression "trade.tradeHeader.tradeDate"]
-		[synonym Rosetta_Workbench value id pathExpression "contract.tradeHeader.tradeDate"]
+		[synonym Rosetta_Workbench value id pathExpression "tradeHeader.tradeDate"]
 	clearedDate date (0..1) anchor <"If the trade was cleared (novated) through a central counterparty clearing service, this represents the date the trade was cleared (transferred to the central counterparty).">;
 		[synonym FpML value clearedDate pathExpression "trade.tradeHeader"]
-		[synonym Rosetta_Workbench value clearedDate pathExpression "contract.tradeHeader"]
+		[synonym Rosetta_Workbench value clearedDate pathExpression "tradeHeader"]
 	contractualProduct ContractualProduct (1..1) <"The contractual product information that is associated with the contract. The corresponding FpML construct is the product abstract element and the associated substitution group.">;
 	otherPartyPayment Payment (0..*) <"Other fees or additional payments associated with the contract, e.g. broker commissions, where one or more of the parties involved are not principal parties involved in the contract.">;
 		[synonym FpML value otherPartyPayment pathExpression "trade"]
-		[synonym Rosetta_Workbench value otherPartyPayment pathExpression "contract"]
+		[synonym Rosetta_Workbench value otherPartyPayment]
 	brokerParty string (0..*) reference <"The reference to the party (or parties) that brokered the contract.">;
 		[synonym FpML value brokerPartyReference pathExpression "trade"]
-		[synonym Rosetta_Workbench value brokerPartyReference pathExpression "contract"]
+		[synonym Rosetta_Workbench value brokerPartyReference]
 	calculationAgent CalculationAgentModel (1..1) <"The ISDA Calculation Agent and the associated business center information. This information is represented in FpML via the CalculationAgent.model.">;
 	determiningParty string (0..2) reference <"TThe party referenced is specified in the related Confirmation as Determination Party.">;
 		[synonym FpML value determiningParty pathExpression "trade"]
-		[synonym Rosetta_Workbench value determiningParty pathExpression "contract"]
+		[synonym Rosetta_Workbench value determiningParty]
 	barrierDeterminationAgent Party (0..1) reference <"The party specified in the related confirmation as Barrier Determination Agent.">;
 		[synonym FpML value barrierDeterminationAgent pathExpression "trade"]
-		[synonym Rosetta_Workbench value barrierDeterminationAgent pathExpression "contract"]
+		[synonym Rosetta_Workbench value barrierDeterminationAgent]
 	hedgingParty string (0..2) reference <"The ISDA Hedging Party that is specified in the related confirmation as Hedging, or if no Hedging Party is specified, either party to the contract.">;
 		[synonym FpML value hedgingParty pathExpression "trade"]
-		[synonym Rosetta_Workbench value hedgingParty pathExpression "contract"]
+		[synonym Rosetta_Workbench value hedgingParty]
 	collateral Collateral (0..1) <"Defines the collateral obligations of a party.">;
 		[synonym FpML value collateral pathExpression "trade"]
-		[synonym Rosetta_Workbench value collateral pathExpression "contract"]
+		[synonym Rosetta_Workbench value collateral]
 	documentation Documentation (0..1) <"Defines the definitions that govern the document and should include the year and type of definitions referenced, along with any relevant documentation (such as master agreement) and the date it was signed.">;
 		[synonym FpML value documentation pathExpression "trade"]
-		[synonym Rosetta_Workbench value documentation pathExpression "contract"]
+		[synonym Rosetta_Workbench value documentation]
 	governingLaw GoverningLawEnum (0..1) scheme "governingLawScheme" <"Identification of the law governing the transaction.">;
 		[synonym FpML value governingLaw pathExpression "trade"]
-		[synonym Rosetta_Workbench value governingLaw pathExpression "contract"]
+		[synonym Rosetta_Workbench value governingLaw]
 	/*
 	 * QUESTION TO CDM GROUP
 	 * TODO - Need to confirm whether we want to associate a contractState attribute.
@@ -54,7 +54,7 @@ class Contract <"A class to specify a contract object, which can be invoked eith
 	 * Or should we drop this concept for the time being?
 	 */
 	state ContractStateEnum (0..1) <"The state qualification of a contractual product, i.e. whether open or close. This attribute is not present as part of the FpML standard.">;
-	party Party (2..*) <"The parties to the contract. While FpML has a minimal cardinality of 1, a minimal cardinality of 2 seems more appropriate.">;
+	party Party (0..*) <"The parties to the contract. While FpML has a minimal cardinality of 1, a minimal cardinality of 2 seems more appropriate.">;
 		[synonym FpML value party]
 		[synonym Rosetta_Workbench value party]
 	account Account (0..*) <"Optional account information.">;
@@ -187,7 +187,7 @@ class CreditDefaultPayout <"The credit default payout specification terms.">
 	protectionTerms ProtectionTerms (1..1) <"The credit protection terms.">;
 		[synonym FpML value protectionTerms pathExpression "trade.creditDefaultSwap"]
 		[synonym FpML value protectionTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
-		[synonym Rosetta_Workbench value protectionTerms pathExpression "contract.creditDefaultSwap"]
+		[synonym Rosetta_Workbench value protectionTerms pathExpression "creditDefaultSwap"]
 	cashSettlementTerms CashSettlementTerms (0..1);
 		[synonym FpML value cashSettlementTerms pathExpression "trade.creditDefaultSwap"]
 		[synonym FpML value cashSettlementTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
@@ -234,7 +234,7 @@ class GeneralTerms <"A class specifying the general terms of the credit default 
 		[synonym FpML value referenceInformation pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap.generalTerms"]
 	indexReferenceInformation IndexReferenceInformation (0..1);
 		[synonym FpML value indexReferenceInformation pathExpression "trade.creditDefaultSwap.generalTerms"]
-		[synonym Rosetta_Workbench value indexReferenceInformation pathExpression "contract.creditDefaultSwap.generalTerms"]
+		[synonym Rosetta_Workbench value indexReferenceInformation pathExpression "creditDefaultSwap.generalTerms"]
 		[synonym FpML value indexReferenceInformation pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap.generalTerms"]
 	basketReferenceInformation BasketReferenceInformation (0..1);
 		[synonym FpML value basketReferenceInformation pathExpression "trade.creditDefaultSwap.generalTerms"]
@@ -376,16 +376,16 @@ class OptionExercise <"A class to represent the applicable terms to qualify an o
 	optionStyle OptionStyle (1..1) <"The option exercise can be of American style, Bermuda style or European style. The FpML implementation makes use of a substitution group.">;
 	strike OptionStrike (0..1) <"Specifies the strike of the option on credit default swap.">;
 		[synonym FpML value strike pathExpression "trade.creditDefaultSwapOption"]
-		[synonym Rosetta_Workbench value strike pathExpression "contract.creditDefaultSwapOption"]
+		[synonym Rosetta_Workbench value strike pathExpression "creditDefaultSwapOption"]
 		[synonym FpML value strike pathExpression "trade.bondOption"]
-		[synonym Rosetta_Workbench value strike pathExpression "contract.bondOption"]
+		[synonym Rosetta_Workbench value strike pathExpression "bondOption"]
 	exerciseProcedure ExerciseProcedure (1..1) <"The set of parameters defining the procedure associated with the exercise, e.g. manual exercise.">;
 		[synonym FpML value exerciseProcedure pathExpression "trade.swaption"]
-		[synonym Rosetta_Workbench value exerciseProcedure pathExpression "contract.swaption"]
+		[synonym Rosetta_Workbench value exerciseProcedure pathExpression "swaption"]
 		[synonym FpML value exerciseProcedure pathExpression "trade.creditDefaultSwapOption"]
-		[synonym Rosetta_Workbench value exerciseProcedure pathExpression "contract.creditDefaultSwapOption"]
+		[synonym Rosetta_Workbench value exerciseProcedure pathExpression "creditDefaultSwapOption"]
 		[synonym FpML value exerciseProcedure pathExpression "trade.bondOption"]
-		[synonym Rosetta_Workbench value exerciseProcedure pathExpression "contract.bondOption"]
+		[synonym Rosetta_Workbench value exerciseProcedure pathExpression "bondOption"]
 	settlement OptionSettlement (0..1) <"The option settlement terms, such as cash vs. physical, the settlement date, the settlement currency and/or amount. FpML represents this information as part of the OptionSettlement.model.">;
 }
 
@@ -394,9 +394,9 @@ class OptionPayout <"The option payout specification terms.">
 	buyerSeller BuyerSeller (1..1);
 	optionType OptionTypeEnum (1..1) <"The type of option transaction. From a usage standpoint, put/call is the default option type, while payer/receiver indicator is used for options on index credit default swaps, consistently with the industry practice. Straddle is used for the case of straddle strategy, that combine a call and a put with the same strike.">;
 		[synonym FpML value optionType pathExpression "trade.creditDefaultSwapOption"]
-		[synonym Rosetta_Workbench value optionType pathExpression "contract.creditDefaultSwapOption"]
+		[synonym Rosetta_Workbench value optionType pathExpression "creditDefaultSwapOption"]
 		[synonym FpML value optionType pathExpression "trade.bondOption"]
-		[synonym Rosetta_Workbench value optionType pathExpression "contract.bondOption"]
+		[synonym Rosetta_Workbench value optionType pathExpression "bondOption"]
 /*
  * TODO - Need to implement a mapping logic to map the FpML swaption straddle boolean flag into the common optionType
  */
@@ -459,31 +459,31 @@ class Payout <"The payout can be specified through a number of combinations, e.g
 {
 	interestRatePayout InterestRatePayout (0..*);
 		[synonym FpML value swapStream pathExpression "trade.swap"]
-		[synonym Rosetta_Workbench value swapStream pathExpression "contract.swap"]
+		[synonym Rosetta_Workbench value swapStream pathExpression "swap"]
 		[synonym FpML value swapStream pathExpression "trade.swaption.swap"]
-		[synonym Rosetta_Workbench value swapStream pathExpression "contract.swaption.swap"]
+		[synonym Rosetta_Workbench value swapStream pathExpression "swaption.swap"]
 		[synonym FpML value feeLeg pathExpression "trade.creditDefaultSwap"]
-		[synonym Rosetta_Workbench value feeLeg pathExpression "contract.creditDefaultSwap"]
+		[synonym Rosetta_Workbench value feeLeg pathExpression "creditDefaultSwap"]
 		[synonym FpML value feeLeg pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
-		[synonym Rosetta_Workbench value feeLeg pathExpression "contract.creditDefaultSwapOption.creditDefaultSwap"]
+		[synonym Rosetta_Workbench value feeLeg pathExpression "creditDefaultSwapOption.creditDefaultSwap"]
 		[synonym FpML value generalTerms pathExpression "trade.creditDefaultSwap"]
-		[synonym Rosetta_Workbench value generalTerms pathExpression "contract.creditDefaultSwap"]
+		[synonym Rosetta_Workbench value generalTerms pathExpression "creditDefaultSwap"]
 		[synonym FpML value generalTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
-		[synonym Rosetta_Workbench value generalTerms pathExpression "contract.creditDefaultSwapOption.creditDefaultSwap"]
+		[synonym Rosetta_Workbench value generalTerms pathExpression "creditDefaultSwapOption.creditDefaultSwap"]
 	creditDefaultPayout CreditDefaultPayout (0..1);
 	cashflow Payment (0..*) <"A payment between the parties to the trade. For interest rate products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the initialPayment element and the singlePayment element of the fee leg.">;
 		[synonym FpML value additionalPayment pathExpression "trade.swap"]
-		[synonym Rosetta_Workbench value additionalPayment pathExpression "contract.swap"]
+		[synonym Rosetta_Workbench value additionalPayment pathExpression "swap"]
 		[synonym FpML value initialPayment pathExpression "trade.creditDefaultSwap.feeLeg"]
-		[synonym Rosetta_Workbench value initialPayment pathExpression "contract.creditDefaultSwap.feeLeg"]
+		[synonym Rosetta_Workbench value initialPayment pathExpression "creditDefaultSwap.feeLeg"]
 		[synonym FpML value singlePayment pathExpression "trade.creditDefaultSwap.feeLeg"]
-		[synonym Rosetta_Workbench value singlePayment pathExpression "contract.creditDefaultSwap.feeLeg"]
+		[synonym Rosetta_Workbench value singlePayment pathExpression "creditDefaultSwap.feeLeg"]
 		[synonym FpML value premium pathExpression "trade.swaption"]
-		[synonym Rosetta_Workbench value premium pathExpression "contract.swaption"]
+		[synonym Rosetta_Workbench value premium pathExpression "swaption"]
 		[synonym FpML value premium pathExpression "trade.creditDefaultSwapOption"]
-		[synonym Rosetta_Workbench value premium pathExpression "contract.creditDefaultSwapOption"]
+		[synonym Rosetta_Workbench value premium pathExpression "creditDefaultSwapOption"]
 		[synonym FpML value premium pathExpression "trade.bondOption"]
-		[synonym Rosetta_Workbench value premium pathExpression "contract.bondOption"]
+		[synonym Rosetta_Workbench value premium pathExpression "bondOption"]
 	optionPayout OptionPayout (0..*);
 }
 
