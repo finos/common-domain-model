@@ -267,13 +267,28 @@ isEvent PartialTermination <"The qualification of a partial termination event.">
 	Event -> primitive -> quantityChange exists
 	and Event -> intent = IntentEnum.partialTermination
 	and NotionalAmount_Decrease, NotionalAmount_Remaining apply
+	
+isEvent PartialTermination_Optional_Intent <"The qualification of a partial termination event, where the intent is optionally specified.">
+	if Event -> intent exists 
+	then 
+		Event -> intent = IntentEnum.partialTermination  
+		and Event -> primitive -> quantityChange exists
+	else 
+		Event -> primitive -> quantityChange exists
+	and NotionalAmount_Decrease, NotionalAmount_Remaining apply
 
-/*
- * Do we also need the intent qualification in the case of a full termination?
- */
 isEvent FullTermination <"The qualification of an full termination event.">
 	Event -> primitive -> quantityChange exists
 	and NotionalAmount_Decrease, NotionalAmount_Null apply
+	
+isEvent FullTermination_Optional_Intent <"where the intent is optionally specified, where the intent is optionally specified.">
+	if Event -> intent exists
+	then 
+		Event -> intent = IntentEnum.termination
+		and Event -> primitive -> quantityChange exists
+	else 
+		Event -> primitive -> quantityChange exists
+	and NotionalAmount_Decrease, NotionalAmount_Null apply	
 		
 isEvent Observation <"The qualification of an observation event.">
 	Event -> primitive -> observation only exists 
