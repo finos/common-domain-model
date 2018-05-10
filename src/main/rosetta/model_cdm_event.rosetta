@@ -11,7 +11,7 @@ class ComputedAmount <"A class to specify the outcome of a computed amount, for 
 
 class ContractOrContractReference one of
 {
-	contract Contract (0..1);
+	contract Contract (0..*);
 	contractReference ContractIdentifier (0..*);
 		[synonym Rosetta_Workbench value contractReference]
 }
@@ -175,11 +175,11 @@ class OtherTermsChange <"The primitive event to represent change(s) in the contr
 		[synonym Rosetta_Workbench value after]
 }
 
-class PartyChange <"The primitive event to represent a change in party(ies) to a contract. The cardinality associated to the after attribute is unbounded to address the case of party changes applicable to only part of a contract.">
+class PartyChange <"The primitive event to represent a change in party(ies) to a contract.">
 {
 	before ContractOrContractReference (1..1);
 		[synonym Rosetta_Workbench value before]
-	after ContractOrContractReference (1..*);
+	after ContractOrContractReference (1..1);
 		[synonym Rosetta_Workbench value after]
 }
 
@@ -210,7 +210,8 @@ class PrimitiveEvent <"The set of primitive events. The purpose of this class it
 	reset ResetPrimitive (0..*);
 		[synonym Rosetta_Workbench value reset]
 	payment Payment (0..*);
-		[synonym Rosetta_Workbench value payment]	
+		[synonym Rosetta_Workbench value payment]
+		[synonym Rosetta_Workbench value cashflow]
 }
 
 class QuantityChange <"The primitive event to represent a change in quantity or notional.">
@@ -296,20 +297,29 @@ isEvent Payment <"The qualification of a payment event.">
  * Alternative 1 - QuantityChange primitive
  */
 isEvent Novation_Qty
-	Event -> primitive -> quantityChange exists
-	and Event -> primitive -> payment exists
-	and Event -> primitive -> newTrade exists
+	if Event -> intent exists
+		then Event -> intent = IntentEnum.novation
+		and Event -> primitive -> quantityChange exists
+		and Event -> primitive -> payment exists
+		and Event -> primitive -> newTrade exists
+	else Event -> primitive -> quantityChange exists
+		and Event -> primitive -> payment exists
+		and Event -> primitive -> newTrade exists
 	and NotionalAmount_Decrease apply
 
 /*
  * Alternative 2 - PartyChange primitive
  */
 isEvent Novation_Pty
-	Event -> primitive -> partyChange exists
-	and Event -> primitive -> payment exists // The payment could be handled as a distinct event, between step-in and step-out parties
+	if Event -> intent exists
+		then Event -> intent = IntentEnum.novation
+		and Event -> primitive -> partyChange exists
+		and Event -> primitive -> payment exists
+	else Event -> primitive -> partyChange exists
+		and Event -> primitive -> payment exists
 
 /*
- * Alternative 3 - Two distinct events with logic to tie those together
+ * Alternative 1-b - Two distinct events with logic to tie those together
  */
 isEvent StepOut_Qty <"The qualification of the step-in part of a novation event.">	
 	Event -> primitive -> quantityChange exists
@@ -324,3 +334,11 @@ isEvent StepIn <"The qualification of the step-in part of a novation event.">
 //	alias economicTerms are the same
 //	alias party is different
 	
+/*
+ * Alternative 2-b - Recommended - PartyChange primitive with distinct payment event
+ */
+isEvent Novation
+	if Event -> intent exists
+		then Event -> intent = IntentEnum.novation
+		and Event -> primitive -> partyChange exists
+	else Event -> primitive -> partyChange exists
