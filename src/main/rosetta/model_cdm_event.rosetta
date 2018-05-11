@@ -25,6 +25,14 @@ class ContractOrListedProduct one of
 		[synonym Rosetta_Workbench value listedProduct]
 }
 
+class ContractualProductOrContract one of
+{
+	execution Execution (0..1);
+		[synonym Rosetta_Workbench value execution]
+	contractState ContractOrContractReference (0..1);
+		[synonym Rosetta_Workbench value contractState]	
+}
+
 class Curve one of
 {
 	interestRateCurve InterestRateCurve (0..1);
@@ -92,6 +100,17 @@ class ExercisePrimitive
 		[synonym Rosetta_Workbench value before]
 	after ExerciseOutcome (1..1);
 		[synonym Rosetta_Workbench value after]
+}
+
+class Execution
+{
+	identifier PartyContractIdentifier (1..*) <"The identifier(s) associated with the execution.">;
+		[synonym Rosetta_Workbench value partyTradeIdentifier pathExpression "tradeHeader"]	
+	tradeDate date (1..1) anchor <"The trade/execution date.">;
+		[synonym Rosetta_Workbench value tradeDate pathExpression "tradeHeader"]
+	contractualProduct ContractualProduct (1..1);
+		[synonym Rosetta_Workbench value contractualProduct]
+	party Party (2..*);
 }
 
 data rule EventTimeStamp_ExpireTime <"The expire time should be greater than the creation time.">
@@ -171,7 +190,7 @@ data rule ObservationSource_content <"ObservationSource should not be empty, alt
 
 class OtherTermsChange <"The primitive event to represent change(s) in the contractual terms.">
 {
-	before ContractOrContractReference (0..1);
+	before ContractOrContractReference (1..1);
 		[synonym Rosetta_Workbench value before]
 	after ContractOrContractReference (1..1);
 		[synonym Rosetta_Workbench value after]
@@ -185,16 +204,6 @@ class PartyChange <"The primitive event to represent a change in party(ies) to a
 		[synonym Rosetta_Workbench value after]
 }
 
-data rule PartyChange_Full
-	when Event -> primitive -> partyChange exists
-	then Event -> primitive -> partyChange -> before -> contract -> party <> Event -> primitive -> partyChange -> after -> contract -> party
-	and Event -> primitive -> partyChange -> before -> contract -> contractualProduct = Event -> primitive -> partyChange -> after -> contract -> contractualProduct 
-
-data rule PartyChange_Partial
-	when Event -> primitive -> partyChange exists
-	then Event -> primitive -> partyChange -> before -> contract -> party <> Event -> primitive -> partyChange -> after -> contract -> party
-	and Event -> primitive -> partyChange -> before -> contract -> contractualProduct = Event -> primitive -> partyChange -> after -> contract -> contractualProduct
-
 class PrimitiveEvent <"The set of primitive events. The purpose of this class it to provide clarity with respect to the event qualification logic.">
 {
 	newTrade NewTrade (0..*) <"The new trade primitive is unbounded to address the case of events such as portfolio compressions, which could result in multiple new trades.">;
@@ -202,7 +211,9 @@ class PrimitiveEvent <"The set of primitive events. The purpose of this class it
 	quantityChange QuantityChange (0..*);
 		[synonym Rosetta_Workbench value quantityChange]
 	partyChange PartyChange (0..*);
-		[synonym Rosetta_Workbench value partyChange]	
+		[synonym Rosetta_Workbench value partyChange]
+	split SplitPrimitive (0..*);
+		[synonym Rosetta_Workbench value split]	
 	otherTermsChange OtherTermsChange (0..1);
 		[synonym Rosetta_Workbench value otherTermsChange]
 	exercise ExercisePrimitive (0..1);
@@ -234,6 +245,14 @@ class ResetPrimitive <"The primitive event to represent a reset. The reason for 
 		[synonym Rosetta_Workbench value setValue]
 }
 
+class SplitPrimitive <"The primitive event to represent a split/allocation of a contractual product or a contract.">
+{
+	before ContractualProductOrContract (1..1);
+		[synonym Rosetta_Workbench value before]
+	after ContractOrContractReference (1..1);
+		[synonym Rosetta_Workbench value after]
+}
+
 class TimeZone <"The time alongside with the timezone location information. This class makes use of the FpML TimezoneLocation construct.">
 {
 	time time (1..1) <"The observation time.">;
@@ -242,19 +261,24 @@ class TimeZone <"The time alongside with the timezone location information. This
 		[synonym Rosetta_Workbench value location]
 }
 
+data rule EarlyTermination_InterestPayout_TerminationDate <"Logic to  qualify a change to an earlier termination date as a result of an other terms change primitive event.">
+	when Event -> primitive -> otherTermsChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout exists
+	then Event -> primitive -> otherTermsChange ->  before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate >
+		Event -> primitive -> otherTermsChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate
+
 data rule NotionalAmount_Decrease <"Logic to qualify a decrease in the notional amount as a result of a quantity change primitive event.">
 	when Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
 	then Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount >
 		Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount
 
+data rule NotionalAmount_Remaining <"Logic to qualify a remaining notional amount as a result of a quantity change primitive event.">
+	when Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
+	then Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount > 0
+
 data rule Quantity_Decrease <"Logic to qualify an increase in the notional amount as a result of a quantity change primitive event.">
 	when Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity  -> quantity exists
 	then Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity >
 		Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity
-
-data rule NotionalAmount_Remaining <"Logic to qualify a remaining notional amount as a result of a quantity change primitive event.">
-	when Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
-	then Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount > 0
 
 data rule Quantity_Remaining <"Logic to qualify a remaining quantity as a result of a quantity change primitive event.">
 	when Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity exists
@@ -264,33 +288,40 @@ data rule NotionalAmount_Null <"Logic to qualify a null notional amount as a res
 	when Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
 	then Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount = 0
 
-data rule EarlyTermination_InterestPayout_TerminationDate <"Logic to  qualify a change to an earlier termination date as a result of an other terms change primitive event.">
-	when Event -> primitive -> otherTermsChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout exists
-	then Event -> primitive -> otherTermsChange ->  before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate >
-		Event -> primitive -> otherTermsChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate
+data rule PartyChange_Full
+	when Event -> primitive -> partyChange exists
+	then Event -> primitive -> partyChange -> before -> contract -> party <> Event -> primitive -> partyChange -> after -> contract -> party
+	and Event -> primitive -> partyChange -> after -> contract only exists
+	and Event -> primitive -> partyChange -> after -> contract only exists
+	and Event -> primitive -> partyChange -> before -> contract -> contractualProduct = Event -> primitive -> partyChange -> after -> contract -> contractualProduct 
+
+data rule PartyChange_Partial
+	when Event -> primitive -> partyChange exists
+	// The below is an approximation as there is one contract before and several after, one of which has the same party information
+	// A better approach might be to compare the after contract instances between each others
+	then Event -> primitive -> partyChange -> before -> contract -> party <> Event -> primitive -> partyChange -> after -> contract -> party
+	and Event -> primitive -> partyChange -> after -> contract only exists
+	and Event -> primitive -> partyChange -> after -> contract several exists
+	// The below is very partial and should be replaced with an alias that abstracts away a syntax that states that every is equal, but the quantity
+	and ( Event -> primitive -> partyChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity >
+		Event -> primitive -> partyChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity
+		or Event -> primitive -> partyChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity >
+		Event -> primitive -> partyChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity )
+
 
 isEvent NewTradeEvent <"The qualification of a new trade event.">
 	Event -> primitive -> newTrade exists
 	
 isEvent PartialTermination <"The qualification of a partial termination event.">
-	Event -> primitive -> quantityChange exists
-	and Event -> intent = IntentEnum.partialTermination
-	and NotionalAmount_Decrease, NotionalAmount_Remaining apply
-	
-isEvent PartialTermination_Optional_Intent <"The qualification of a partial termination event, where the intent is optionally specified.">
 	if Event -> intent exists 
 	then 
-		Event -> intent = IntentEnum.partialTermination  
+		Event -> intent = IntentEnum.partialTermination
 		and Event -> primitive -> quantityChange exists
-	else 
+	else
 		Event -> primitive -> quantityChange exists
 	and NotionalAmount_Decrease, NotionalAmount_Remaining apply
-
-isEvent FullTermination <"The qualification of an full termination event.">
-	Event -> primitive -> quantityChange exists
-	and NotionalAmount_Decrease, NotionalAmount_Null apply
 	
-isEvent FullTermination_Optional_Intent <"where the intent is optionally specified, where the intent is optionally specified.">
+isEvent FullTermination <"The qualification of a full termination event.">
 	if Event -> intent exists
 	then 
 		Event -> intent = IntentEnum.termination
@@ -318,7 +349,8 @@ isEvent Payment <"The qualification of a payment event.">
  */
 isEvent Novation_Qty
 	if Event -> intent exists
-		then Event -> intent = IntentEnum.novation
+	then 
+		Event -> intent = IntentEnum.novation
 		and Event -> primitive -> quantityChange exists
 		and Event -> primitive -> payment exists
 		and Event -> primitive -> newTrade exists
@@ -332,7 +364,8 @@ isEvent Novation_Qty
  */
 isEvent Novation_Pty
 	if Event -> intent exists
-		then Event -> intent = IntentEnum.novation
+	then 
+		Event -> intent = IntentEnum.novation
 		and Event -> primitive -> partyChange exists
 		and Event -> primitive -> payment exists
 	else Event -> primitive -> partyChange exists
@@ -341,9 +374,14 @@ isEvent Novation_Pty
 /*
  * Alternative 1-b - QuantityChange primitive with distinct payment event
  */
-isEvent StepIn_StepOut
-	Event -> primitive -> quantityChange exists
-	and Event -> primitive -> newTrade exists
+isEvent Novation_Qty_NoCash
+	if Event -> intent exists
+	then 
+		Event -> intent = IntentEnum.novation
+		and Event -> primitive -> quantityChange exists
+		and Event -> primitive -> newTrade exists
+	else Event -> primitive -> quantityChange exists
+		and Event -> primitive -> newTrade exists
 	and NotionalAmount_Decrease apply
 
 /*
@@ -351,6 +389,7 @@ isEvent StepIn_StepOut
  */
 isEvent Novation
 	if Event -> intent exists
-		then Event -> intent = IntentEnum.novation
+	then 
+		Event -> intent = IntentEnum.novation
 		and Event -> primitive -> partyChange exists
 	else Event -> primitive -> partyChange exists
