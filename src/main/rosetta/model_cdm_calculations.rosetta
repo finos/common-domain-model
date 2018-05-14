@@ -2,13 +2,13 @@ Rosetta versionNumber "0.0.1"
 FIX versionNumber "5.0 SP3"
 FpML versionNumber "5.10"
 
-calculation FixedAmount <"2006 ISDA Definition Article 4 Section 4.4 'Fixed Amount' means, in respect of a Swap Transaction and a Fixed Rate Payer, an amount that, subject to any other applicable provisions, is payable by that Fixed Rate Payer on an applicable Payment Date and is specified in the related Confirmation or is determined as provided in Article 5 of these 2006 Definitions or as provided in the related Confirmation.">
+calculation FixedAmount <"2006 ISDA Definition Article 5 Section 5.1. Calculation of a Fixed Amount: The Fixed Amount payable by a party on a Payment Date will be: (a) if an amount is specified for the Swap Transaction as the Fixed Amount payable by that party for that Payment Date or for the related Calculation Period, that amount; or (b) if an amount is not specified for the Swap Transaction as the Fixed Amount payable by that party for that Payment Date or for the related Calculation Period, an amount calculated on a formula basis for that Payment Date or for the related Calculation Period as follows: Fixed Amount = Calculation Amount × Fixed Rate × Day Count Fraction.">
 {
 	fixedAmount number: calculationAmount * rate * dayCountFraction
 	currencyAmount CurrencyEnum: currencyAmount
 }
 
-arguments FixedAmount <"2006 ISDA Definition Article 4 Section 4.8. Calculation Amount. 'Calculation Amount' means, in respect of a Swap Transaction and a party, the applicable Notional Amount or Currency Amount, as the case may be. Section 4.6. 'Currency Amount' means, in respect of a party and any Calculation Period for a Swap Transaction involving more than one currency, the amount specified as such for the Swap Transaction or that party.">
+arguments FixedAmount <"The set of arguments to calculate the FixedAmount.">
 {
 	calculationAmount: is InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
 	currencyAmount: is InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> currency
@@ -22,7 +22,8 @@ calculation FloatingAmount <"2006 ISDA Definition Article 6 Section 6.1. Calcula
 	 * TODO - The below calculation needs to be refined for the case of negative interest rate and compounding
 	 */
 	 /*
-	  * TODO - Evaluate the FpML rate multiplier: what does the ISDA definition says about it?  Need to follow-up with Jonathan
+	  * TODO - The ISDA 2006 doesn't make reference to the FpML floatingRateMultiplierSchedule.  
+	  * Discussed resolution path with Jonthan & Harry is for Jonathan to ask the Rates Committee if the rate multiplier is actually used.
 	  */
 	floatingAmount number: calculationAmount * ( floatingRate + spread ) * dayCountFraction
 	currencyAmount CurrencyEnum: currencyAmount
@@ -50,7 +51,7 @@ calculation DayCountFractionEnum._30E_360 <"2006 ISDA Definition Article 4 secti
 	number: (360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
 }
 
-arguments DayCountFractionEnum._30E_360 <"2006 ISDA Definition Article 4 section 4.16(g). 'Y1' is the year, expressed as a number, in which the first day of the Calculation Period or Compounding Period falls; 'Y2' is the year, expressed as a number, in which the day immediately following the last day included in the Calculation Period or Compounding Period falls; 'M1' is the calendar month, expressed as a number, in which the first day of the Calculation Period or Compounding Period falls; 'M2' is the calendar month, expressed as a number, in which the day immediately following the last day included in the Calculation Period or Compounding Period falls; 'D1' is the first calendar day, expressed as a number, of the Calculation Period or Compounding Period, unless such number would be 31, in which case D1 will be 30; and 'D2' is the calendar day, expressed as a number, immediately following the last day included in the Calculation Period or Compounding Period, unless such number would be 31, in which case D2 will be 30.">
+arguments DayCountFractionEnum._30E_360 <"The arguments to calculate the 30E/360 day count fraction. 2006 ISDA Definition Article 4 section 4.16(g). 'Y1' is the year, expressed as a number, in which the first day of the Calculation Period or Compounding Period falls; 'Y2' is the year, expressed as a number, in which the day immediately following the last day included in the Calculation Period or Compounding Period falls; 'M1' is the calendar month, expressed as a number, in which the first day of the Calculation Period or Compounding Period falls; 'M2' is the calendar month, expressed as a number, in which the day immediately following the last day included in the Calculation Period or Compounding Period falls; 'D1' is the first calendar day, expressed as a number, of the Calculation Period or Compounding Period, unless such number would be 31, in which case D1 will be 30; and 'D2' is the calendar day, expressed as a number, immediately following the last day included in the Calculation Period or Compounding Period, unless such number would be 31, in which case D2 will be 30.">
 {
 	alias period CalculationPeriod( InterestRatePayout -> calculationPeriodDates )
 
@@ -71,7 +72,7 @@ calculation DayCountFractionEnum.ACT_365_FIXED <"'2006 ISDA Definition Article 4
 	number:  daysInPeriod / 365
 }
 
-arguments DayCountFractionEnum.ACT_365_FIXED
+arguments DayCountFractionEnum.ACT_365_FIXED <"The arguments to calculate the Actual/365 (Fixed) day count fraction.">
 {
 	daysInPeriod : is DaysInPeriod( InterestRatePayout -> calculationPeriodDates ) -> days
 }
