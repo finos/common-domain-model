@@ -237,7 +237,7 @@ class QuantityChange <"The primitive event to represent a change in quantity or 
 		[synonym Rosetta_Workbench value change]
 }
 
-class ResetPrimitive <"The primitive event to represent a reset. The reason for the Primitive suffix is not to conflict with the isEvent Reset.">
+class ResetPrimitive <"The primitive event to represent a reset.">
 {
 	date date (1..1) <"The reset date">;
 		[synonym Rosetta_Workbench value date]
@@ -261,11 +261,6 @@ class TimeZone <"The time alongside with the timezone location information. This
 		[synonym Rosetta_Workbench value location]
 }
 
-data rule EarlyTermination_InterestPayout_TerminationDate <"Logic to  qualify a change to an earlier termination date as a result of an other terms change primitive event.">
-	when Event -> primitive -> otherTermsChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout exists
-	then Event -> primitive -> otherTermsChange ->  before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate >
-		Event -> primitive -> otherTermsChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate
-
 data rule NotionalAmount_Decrease <"Logic to qualify a decrease in the notional amount as a result of a quantity change primitive event.">
 	when Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
 	then Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount >
@@ -288,108 +283,102 @@ data rule NotionalAmount_Null <"Logic to qualify a null notional amount as a res
 	when Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
 	then Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount = 0
 
-data rule PartyChange_Full
-	when Event -> primitive -> partyChange exists
+data rule FullNovation <"Logic to qualify a full novation by the fact that (i) the partyChange primitive is associated with only one resulting contract, (ii) the party and the contract identifier are distinct between the before an after, (iii) the economic terms are unchanged, and (iv) the trade date of the novated contract is equal to the novation date.">
+	when Event -> primitive -> partyChange -> after -> contract single exists
 	then Event -> primitive -> partyChange -> before -> contract -> party <> Event -> primitive -> partyChange -> after -> contract -> party
-	and Event -> primitive -> partyChange -> after -> contract only exists
-	and Event -> primitive -> partyChange -> after -> contract only exists
-	and Event -> primitive -> partyChange -> before -> contract -> contractualProduct = Event -> primitive -> partyChange -> after -> contract -> contractualProduct 
+	and Event -> primitive -> partyChange -> before -> contract -> contractIdentifier <> Event -> primitive -> partyChange -> after -> contract -> contractIdentifier
+	and Event -> primitive -> partyChange -> before -> contract -> contractualProduct -> economicTerms = Event -> primitive -> partyChange -> after -> contract -> contractualProduct -> economicTerms
+	and Event -> primitive -> partyChange -> after -> contract -> tradeDate = Event -> eventDate
 
-data rule PartyChange_Partial
-	when Event -> primitive -> partyChange exists
-	// The below is an approximation as there is one contract before and several after, one of which has the same party information
-	// A better approach might be to compare the after contract instances between each others
-	then Event -> primitive -> partyChange -> before -> contract -> party <> Event -> primitive -> partyChange -> after -> contract -> party
-	and Event -> primitive -> partyChange -> after -> contract only exists
-	and Event -> primitive -> partyChange -> after -> contract several exists
-	// The below is very partial and should be replaced with an alias that abstracts away a syntax that states that every is equal, but the quantity
-	and ( Event -> primitive -> partyChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity >
-		Event -> primitive -> partyChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity
-		or Event -> primitive -> partyChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity >
-		Event -> primitive -> partyChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity )
+data rule PartialNovation <"Logic to qualify a partial novation by the fact that (i) the partyChange primitive is associated with only multiple resulting contracts, (ii) the party and the contract identifier are distinct across the two after contracts.">
+	when Event -> primitive -> partyChange -> after -> contract multiple exists
+	then Event -> primitive -> partyChange -> after -> contract -> party <> Event -> primitive -> partyChange -> after -> contract -> party // Need to confirm that this syntax will work programmatically
+	and Event -> primitive -> partyChange -> after -> contract -> contractIdentifier <> Event -> primitive -> partyChange -> after -> contract -> contractIdentifier
+	/*
+	 * Need to add logic to qualify the fact that the economic terms should be unchanged except for the quantity
+	 * and the that sum of quantity after = quantity before
+	 * 
+	 * Need to add logic to qualify the novated portion of the contract (characterised by a party change) have a TD = event date
+	 */
 
+data rule NovationFee <"Logic to specify that if a payment is qualified as a novation fee, it must have lineage into multiple contracts and one single event (the novation event).">
+	when Event -> primitive -> payment -> cashflowType = CashflowTypeEnum.novationFee
+	then Event -> lineage -> contractReference multiple exists
+	and Event -> lineage -> eventReference single exists
 
-isEvent NewTradeEvent <"The qualification of a new trade event.">
-	Event -> primitive -> newTrade exists
+data rule Allocation_Rule <"Logic to qualify a partial novation by the fact that a single contractual product results in ">
+	when Event -> primitive -> split -> before -> execution -> contractualProduct single exists
+	then Event -> primitive -> split -> after -> contract multiple exists
+	/*
+	 * Need to extend the grammar in order to qualify that before quantity = sum of after quantities
+	 */
+
+data rule ContractSplit_Rule <"Logic to qualify a partial novation by the fact that a single contractual product results in ">
+	when Event -> primitive -> split -> before -> contractState single exists
+	then Event -> primitive -> split -> after -> contract multiple exists
+	/*
+	 * Need to extend the grammar in order to qualify that before quantity = sum of after quantities
+	 */
+
+isEvent NewTradeEvent <"The qualification of a new trade event from the fact that the only primitive is the newTrade.">
+	Event -> primitive -> newTrade only exists
 	
-isEvent PartialTermination <"The qualification of a partial termination event.">
+isEvent PartialTermination <"The qualification of a full termination event from the fact that (i) the only primitive is the quantityChange, (ii) the intent is a full termination when such intent is specified, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
 	if Event -> intent exists 
 	then 
 		Event -> intent = IntentEnum.partialTermination
-		and Event -> primitive -> quantityChange exists
+		and Event -> primitive -> quantityChange only exists
 	else
-		Event -> primitive -> quantityChange exists
+		Event -> primitive -> quantityChange only exists
 	and NotionalAmount_Decrease, NotionalAmount_Remaining apply
 	
-isEvent FullTermination <"The qualification of a full termination event.">
+isEvent FullTermination <"The qualification of a full termination event from the fact that (i) the only primitive is the quantityChange, (ii) the intent is a full termination when such intent is specified, the (iii) the quantity associated with the contract decreases, and (iv) the remaining quantity is null.">
 	if Event -> intent exists
 	then 
 		Event -> intent = IntentEnum.termination
-		and Event -> primitive -> quantityChange exists
+		and Event -> primitive -> quantityChange only exists
 	else 
-		Event -> primitive -> quantityChange exists
+		Event -> primitive -> quantityChange only exists
 	and NotionalAmount_Decrease, NotionalAmount_Null apply	
 		
-isEvent Observation <"The qualification of an observation event.">
-	Event -> primitive -> observation only exists 
+isEvent Observation <"The qualification of an observation event from the fact that (i) the only primitive is the observation, and (ii) that there is only a single instance of such observation.">
+	Event -> primitive -> observation only single exists 
 
-isEvent DerivedObservation <"The qualification of a derived observation event.">
-	(Event -> primitive -> observation 
-	and Event -> functionCall) only exists
-
-isEvent Reset <"The qualification of a reset event.">
-	Event -> primitive -> reset only exists
+isEvent DerivedObservation <"The qualification of a derived observation event from the fact that (i) the only primitive is the observation, that (ii) there are multiple instances of such observations, and (iii) that there is an associated call function to compute, say, an interpolation.">
+	Event -> primitive -> observation only multiple exists
+	and Event -> functionCall exists
 	
-isEvent Payment <"The qualification of a payment event.">
+isEvent Payment <"The qualification of a payment event from the fact that the only primitive is the payment.">
 	( Event -> primitive -> payment
 	and Event -> party ) only exists
 
-/*
- * Alternative 1 - QuantityChange primitive
- */
-isEvent Novation_Qty
-	if Event -> intent exists
-	then 
-		Event -> intent = IntentEnum.novation
-		and Event -> primitive -> quantityChange exists
-		and Event -> primitive -> payment exists
-		and Event -> primitive -> newTrade exists
-	else Event -> primitive -> quantityChange exists
-		and Event -> primitive -> payment exists
-		and Event -> primitive -> newTrade exists
-	and NotionalAmount_Decrease apply
+isEvent Reset <"The qualification of a reset event from the fact that the only primitive is the reset.">
+	Event -> primitive -> reset only exists
 
-/*
- * Alternative 2 - PartyChange primitive
- */
-isEvent Novation_Pty
+isEvent Novation <"The qualification of a novation event from the fact that (i) the only primitive is the partyChange, (ii) the intent is a novation when such intent is specified, (iii) the data rules to qualify a partial or a full novation apply.">
 	if Event -> intent exists
 	then 
 		Event -> intent = IntentEnum.novation
-		and Event -> primitive -> partyChange exists
-		and Event -> primitive -> payment exists
-	else Event -> primitive -> partyChange exists
-		and Event -> primitive -> payment exists
+		and Event -> primitive -> partyChange only exists
+	else 
+		Event -> primitive -> partyChange exists
+	and FullNovation or PartialNovation apply
 
-/*
- * Alternative 1-b - QuantityChange primitive with distinct payment event
- */
-isEvent Novation_Qty_NoCash
+isEvent Allocation <"The qualification of a novation event from the fact that (i) the only primitive is the split, (ii) there is a single contractualProduct before, and (iii) there are multiple contracts after.">
 	if Event -> intent exists
 	then 
-		Event -> intent = IntentEnum.novation
-		and Event -> primitive -> quantityChange exists
-		and Event -> primitive -> newTrade exists
-	else Event -> primitive -> quantityChange exists
-		and Event -> primitive -> newTrade exists
-	and NotionalAmount_Decrease apply
+		Event -> intent = IntentEnum.allocation
+		and Event -> primitive -> split only exists
+	else 
+		Event -> primitive -> split only exists
+	and Allocation_Rule apply
 
-/*
- * Alternative 2-b - Recommended - PartyChange primitive with distinct payment event
- */
-isEvent Novation
+isEvent ContractSplit <"The qualification of a contract split event from the fact that (i) the only primitive is the split, (ii) there is a single contract before, and (iii) there are multiple contracts after.">
 	if Event -> intent exists
 	then 
-		Event -> intent = IntentEnum.novation
-		and Event -> primitive -> partyChange exists
-	else Event -> primitive -> partyChange exists
+		Event -> intent = IntentEnum.contractSplit
+		and Event -> primitive -> split only exists
+	else 
+		Event -> primitive -> split only exists
+	and ContractSplit_Rule apply	
+	
