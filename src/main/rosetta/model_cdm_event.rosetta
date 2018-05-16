@@ -57,7 +57,7 @@ class Event extends EventBase
 abstract class EventBase stereotype preExecution, execution, postExecution <"The event base abstract class.">
 {
 	messageInformation MessageInformation (0..1);
-	timeStamp EventTimeStamp (1..1);
+	timestamp EventTimestamp (1..1);
 		[synonym Rosetta_Workbench value timeStamp]
 	eventIdentifier Identifier (1..1);
 		[synonym Rosetta_Workbench value eventIdentifier]
@@ -79,7 +79,7 @@ class EventTestBundle <"A class which combines several events for testing purpos
 		[synonym Rosetta_Workbench value computedAmount]
 }
 
-class EventTimeStamp stereotype preExecution, execution, postExecution <"This class corresponds to the timestamp components of the FpML MessageHeader.model. These would be applicable even if the event is communicated through a mean other than messaging (e.g. blockchain).">
+class EventTimestamp stereotype preExecution, execution, postExecution <"This class corresponds to the timestamp components of the FpML MessageHeader.model. These would be applicable even if the event is communicated through a mean other than messaging (e.g. blockchain).">
 {
 	creationTimestamp dateTime (1..1) <"The date and time (on the source system) when this event was created.">;
 		[synonym FpML value creationTimeStamp pathExpression "header"]
@@ -113,9 +113,9 @@ class Execution
 	party Party (2..*);
 }
 
-data rule EventTimeStamp_ExpireTime <"The expire time should be greater than the creation time.">
-	when EventTimeStamp -> expiryTimestamp exists
-	then EventTimeStamp -> expiryTimestamp > EventTimeStamp -> creationTimestamp
+data rule EventTimestamp_ExpireTime <"The expire time should be greater than the creation time.">
+	when EventTimestamp -> expiryTimestamp exists
+	then EventTimestamp -> expiryTimestamp > EventTimestamp -> creationTimestamp
 
 class InterestRateCurve
 {
@@ -364,7 +364,7 @@ isEvent Novation <"The qualification of a novation event from the fact that (i) 
 		Event -> primitive -> partyChange exists
 	and FullNovation or PartialNovation apply
 
-isEvent Allocation <"The qualification of a novation event from the fact that (i) the only primitive is the split, (ii) there is a single contractualProduct before, and (iii) there are multiple contracts after.">
+isEvent Allocation <"The qualification of a novation event from the fact that (i) the only primitive is the split, (ii) the intent is an allocation when such intent is specified, (iii) there is a single contractualProduct before, and (iv) there are multiple contracts after.">
 	if Event -> intent exists
 	then 
 		Event -> intent = IntentEnum.allocation
@@ -373,7 +373,7 @@ isEvent Allocation <"The qualification of a novation event from the fact that (i
 		Event -> primitive -> split only exists
 	and Allocation_Rule apply
 
-isEvent ContractSplit <"The qualification of a contract split event from the fact that (i) the only primitive is the split, (ii) there is a single contract before, and (iii) there are multiple contracts after.">
+isEvent ContractSplit <"The qualification of a contract split event from the fact that (i) the only primitive is the split, (ii) the intent is a contract split when such intent is specified, (iii) there is a single contract before, and (iv) there are multiple contracts after.">
 	if Event -> intent exists
 	then 
 		Event -> intent = IntentEnum.contractSplit
