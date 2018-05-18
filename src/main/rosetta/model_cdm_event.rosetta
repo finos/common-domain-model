@@ -326,50 +326,6 @@ data rule ContractSplit_Rule <"Logic to qualify a partial novation by the fact t
 	 * Need to extend the grammar in order to qualify that before quantity = sum of after quantities
 	 */
 
-isEvent NewTradeEvent <"The qualification of a new trade event from the fact that the only primitive is the newTrade.">
-	Event -> primitive -> newTrade only exists
-	
-isEvent PartialTermination <"The qualification of a full termination event from the fact that (i) the only primitive is the quantityChange, (ii) the intent is a full termination when such intent is specified, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
-	if Event -> intent exists 
-	then 
-		Event -> intent = IntentEnum.partialTermination
-		and Event -> primitive -> quantityChange only exists
-	else
-		Event -> primitive -> quantityChange only exists
-	and NotionalAmount_Decrease, NotionalAmount_Remaining apply
-	
-isEvent FullTermination <"The qualification of a full termination event from the fact that (i) the only primitive is the quantityChange, (ii) the intent is a full termination when such intent is specified, the (iii) the quantity associated with the contract decreases, and (iv) the remaining quantity is null.">
-	if Event -> intent exists
-	then 
-		Event -> intent = IntentEnum.termination
-		and Event -> primitive -> quantityChange only exists
-	else 
-		Event -> primitive -> quantityChange only exists
-	and NotionalAmount_Decrease, NotionalAmount_Null apply	
-		
-isEvent Observation <"The qualification of an observation event from the fact that (i) the only primitive is the observation, and (ii) that there is only a single instance of such observation.">
-	Event -> primitive -> observation only single exists 
-
-isEvent DerivedObservation <"The qualification of a derived observation event from the fact that (i) the only primitive is the observation, that (ii) there are multiple instances of such observations, and (iii) that there is an associated call function to compute, say, an interpolation.">
-	Event -> primitive -> observation only multiple exists
-	and Event -> functionCall exists
-	
-isEvent Payment <"The qualification of a payment event from the fact that the only primitive is the payment.">
-	( Event -> primitive -> payment
-	and Event -> party ) only exists
-
-isEvent Reset <"The qualification of a reset event from the fact that the only primitive is the reset.">
-	Event -> primitive -> reset only exists
-
-isEvent Novation <"The qualification of a novation event from the fact that (i) the only primitive is the partyChange, (ii) the intent is a novation when such intent is specified, (iii) the data rules to qualify a partial or a full novation apply.">
-	if Event -> intent exists
-	then 
-		Event -> intent = IntentEnum.novation
-		and Event -> primitive -> partyChange only exists
-	else 
-		Event -> primitive -> partyChange only exists
-	and FullNovation or PartialNovation apply
-
 isEvent Allocation <"The qualification of a novation event from the fact that (i) the only primitive is the split, (ii) the intent is an allocation when such intent is specified, (iii) there is a single contractualProduct before, and (iv) there are multiple contracts after.">
 	if Event -> intent exists
 	then 
@@ -386,5 +342,56 @@ isEvent ContractSplit <"The qualification of a contract split event from the fac
 		and Event -> primitive -> split only exists
 	else 
 		Event -> primitive -> split only exists
-	and ContractSplit_Rule apply	
+	and ContractSplit_Rule apply
+
+isEvent Compression <"The qualification of a compression event from the fact that (i) the quantity change primitive exists and (ii) the intent is a compression when such intent is specified.">
+	if Event -> intent exists
+	then 
+		Event -> intent = IntentEnum.compression
+		and Event -> primitive -> quantityChange exists
+	else 
+		Event -> primitive -> quantityChange exists
+
+isEvent DerivedObservation <"The qualification of a derived observation event from the fact that (i) the only primitive is the observation, that (ii) there are multiple instances of such observations, and (iii) that there is an associated call function to compute, say, an interpolation.">
+	Event -> primitive -> observation only multiple exists
+	and Event -> functionCall exists
 	
+isEvent FullTermination <"The qualification of a full termination event from the fact that (i) the only primitive is the quantityChange, (ii) the intent is a full termination when such intent is specified, the (iii) the quantity associated with the contract decreases, and (iv) the remaining quantity is null.">
+	if Event -> intent exists
+	then 
+		Event -> intent = IntentEnum.termination
+		and Event -> primitive -> quantityChange only exists
+	else 
+		Event -> primitive -> quantityChange only exists
+	and NotionalAmount_Decrease, NotionalAmount_Null apply
+	
+isEvent PartialTermination <"The qualification of a full termination event from the fact that (i) the only primitive is the quantityChange, (ii) the intent is a full termination when such intent is specified, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
+	if Event -> intent exists 
+	then 
+		Event -> intent = IntentEnum.partialTermination
+		and Event -> primitive -> quantityChange only exists
+	else
+		Event -> primitive -> quantityChange only exists
+	and NotionalAmount_Decrease, NotionalAmount_Remaining apply
+
+isEvent NewTradeEvent <"The qualification of a new trade event from the fact that the only primitive is the newTrade.">
+	Event -> primitive -> newTrade only exists
+
+isEvent Novation <"The qualification of a novation event from the fact that (i) the only primitive is the partyChange, (ii) the intent is a novation when such intent is specified, (iii) the data rules to qualify a partial or a full novation apply.">
+	if Event -> intent exists
+	then 
+		Event -> intent = IntentEnum.novation
+		and Event -> primitive -> partyChange only exists
+	else 
+		Event -> primitive -> partyChange only exists
+	and FullNovation or PartialNovation apply
+		
+isEvent Observation <"The qualification of an observation event from the fact that (i) the only primitive is the observation, and (ii) that there is only a single instance of such observation.">
+	Event -> primitive -> observation only single exists 
+
+isEvent Payment <"The qualification of a payment event from the fact that the only primitive is the payment.">
+	( Event -> primitive -> payment
+	and Event -> party ) only exists
+
+isEvent Reset <"The qualification of a reset event from the fact that the only primitive is the reset.">
+	Event -> primitive -> reset only exists
