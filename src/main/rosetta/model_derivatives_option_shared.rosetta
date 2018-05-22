@@ -129,31 +129,6 @@ class CreditEventNotice stereotype contractualProduct
 		[synonym FpML value publiclyAvailableInformation]
 }
 
-class OptionStyle stereotype contractualProduct one of <"The qualification of the option style: American, Bermuda or European. FpML implements those features as part of a substitution group.">
-{
-	americanExercise AmericanExercise (0..1);
-		[synonym FpML value americanExercise pathExpression "trade.swaption"]
-		[synonym Rosetta_Workbench value americanExercise pathExpression "swaption"]
-		[synonym FpML value americanExercise pathExpression "trade.creditDefaultSwapOption"]
-		[synonym Rosetta_Workbench value americanExercise pathExpression "creditDefaultSwapOption"]
-		[synonym FpML value americanExercise pathExpression "trade.bondOption"]
-		[synonym Rosetta_Workbench value americanExercise pathExpression "bondOption"]
-	bermudaExercise BermudaExercise (0..1);
-		[synonym FpML value bermudaExercise pathExpression "trade.swaption"]
-		[synonym Rosetta_Workbench value bermudaExercise pathExpression "swaption"]
-		[synonym FpML value bermudaExercise pathExpression "trade.creditDefaultSwapOption"]
-		[synonym Rosetta_Workbench value bermudaExercise pathExpression "creditDefaultSwapOption"]
-		[synonym FpML value bermudaExercise pathExpression "trade.bondOption"]
-		[synonym Rosetta_Workbench value bermudaExercise pathExpression "bondOption"]
-	europeanExercise EuropeanExercise (0..1);
-		[synonym FpML value europeanExercise pathExpression "trade.swaption"]
-		[synonym Rosetta_Workbench value europeanExercise pathExpression "swaption"]
-		[synonym FpML value europeanExercise pathExpression "trade.creditDefaultSwapOption"]
-		[synonym Rosetta_Workbench value europeanExercise pathExpression "creditDefaultSwapOption"]
-		[synonym FpML value europeanExercise pathExpression "trade.bondOption"]
-		[synonym Rosetta_Workbench value europeanExercise pathExpression "bondOption"]
-}
-
 class FailureToPay stereotype contractualProduct
 	[synonym FpML value notifyingParty]
 {
@@ -239,6 +214,14 @@ class NotifyingParty stereotype contractualProduct
 		[synonym FpML value sellerPartyReference]
 }
 
+class OptionBase extends ContractualHeader stereotype contractualProduct <"A type for defining the common features of options.">
+	[synonym FpML value OptionBase]
+{
+	buyerSeller BuyerSeller (1..1) <"This element is not present in FpML, which uses the BuyerSeller.model, which the CDM represents as a class.">;
+	optionType OptionTypeEnum (1..1) <"The type of option transaction. From a usage standpoint, put/call is the default option type, while payer/receiver indicator is used for options index credit default swaps, consistently with the industry practice. Straddle is used for the case of straddle strategy, that combine a call and a put with the same strike.">;
+		[synonym FpML value optionType]
+}
+
 class OptionBaseExtended extends OptionBase stereotype contractualProduct <"FpML qualifies this class as a temporary construct that was developed as part of the 4-3 release, to be refactored as part of the 5-0 release series.  This didn't take place.">
 	[synonym FpML value OptionBaseExtended]
 {
@@ -249,12 +232,17 @@ class OptionBaseExtended extends OptionBase stereotype contractualProduct <"FpML
 		[synonym FpML value exerciseProcedure]
 	feature OptionFeature (0..1) <"An Option feature such as quanto, Asian, barrier, knock.">;
 		[synonym FpML value feature]
-	notionalAmount Money (0..1) reference <"The notional amount.  FpML provides a choice between between an explicit representation of the notional amount, or a reference to a notional amount defined elsewhere in the document.  Rosetta maps those alternative implementations into a notional amount representation.">;
+	notionalAmount Money (0..1) <"The notional amount.">;
 		[synonym FpML value notionalAmount]
+	notionalReference string (0..1) reference;
 		[synonym FpML value notionalReference]
 	optionDenomination OptionDenomination (0..1) <"The optionDenomination attribute doesn't exist in FpML, which implementation makes use of an XML group construct, the OptionDenomination.model.">;
 	optionSettlement OptionSettlement (0..1) <"The optionSettlement attribute doesn't exist in FpML, which implementation makes use of an XML group construct, the OptionSettlement.model.">;
 }
+
+choice rule OptionBaseExtended_choice <"Choice rule to represent an FpML choice construct.">
+	for OptionBaseExtended optional choice between
+	notionalAmount and notionalReference
 
 class OptionDenomination stereotype contractualProduct <"Class which corresponds to the FpML OptionDenomination.model group.">
 {
@@ -333,6 +321,31 @@ data rule OptionSettlement_physicalSettlementTerms <"If the physical settlement 
 	when OptionSettlement -> cashSettlementTerms exists
 	then OptionSettlement -> settlementType <> SettlementTypeEnum.Cash
 
+class OptionStyle stereotype contractualProduct one of <"The qualification of the option style: American, Bermuda or European. FpML implements those features as part of a substitution group.">
+{
+	americanExercise AmericanExercise (0..1);
+		[synonym FpML value americanExercise pathExpression "trade.swaption"]
+		[synonym Rosetta_Workbench value americanExercise pathExpression "swaption"]
+		[synonym FpML value americanExercise pathExpression "trade.creditDefaultSwapOption"]
+		[synonym Rosetta_Workbench value americanExercise pathExpression "creditDefaultSwapOption"]
+		[synonym FpML value americanExercise pathExpression "trade.bondOption"]
+		[synonym Rosetta_Workbench value americanExercise pathExpression "bondOption"]
+	bermudaExercise BermudaExercise (0..1);
+		[synonym FpML value bermudaExercise pathExpression "trade.swaption"]
+		[synonym Rosetta_Workbench value bermudaExercise pathExpression "swaption"]
+		[synonym FpML value bermudaExercise pathExpression "trade.creditDefaultSwapOption"]
+		[synonym Rosetta_Workbench value bermudaExercise pathExpression "creditDefaultSwapOption"]
+		[synonym FpML value bermudaExercise pathExpression "trade.bondOption"]
+		[synonym Rosetta_Workbench value bermudaExercise pathExpression "bondOption"]
+	europeanExercise EuropeanExercise (0..1);
+		[synonym FpML value europeanExercise pathExpression "trade.swaption"]
+		[synonym Rosetta_Workbench value europeanExercise pathExpression "swaption"]
+		[synonym FpML value europeanExercise pathExpression "trade.creditDefaultSwapOption"]
+		[synonym Rosetta_Workbench value europeanExercise pathExpression "creditDefaultSwapOption"]
+		[synonym FpML value europeanExercise pathExpression "trade.bondOption"]
+		[synonym Rosetta_Workbench value europeanExercise pathExpression "bondOption"]
+}
+
 class PassThrough stereotype contractualProduct <"Type which contains pass through payments.">
 	[synonym FpML value PassThrough]
 {
@@ -345,7 +358,7 @@ class PassThroughItem stereotype contractualProduct <"Class to represent a singl
 {
 	payerReceiver PayerReceiver (1..1) <"This attribute doesn't exists in the FpML construct, which makes use of the PayerReceiver.model group.">;
 // TODO - To be developed	
-//	underlyer Underlyer (1..1) reference <"This attribute is specified in FpML as a reference to the underlyer whose payments are being passed through. In Rosetta, it is specified as this actual underlyer.">;
+//	underlyer Underlyer (1..1) reference <"This attribute is specified in FpML as a reference to the underlyer whose payments are being passed through. In the CDM, it is specified as this actual underlyer.">;
 //		[synonym FpML value underlyerReference]
 	passThroughPercentage number (1..1) <"Percentage of payments from the underlyer which are passed through.">;
 		[synonym FpML value passThroughPercentage]

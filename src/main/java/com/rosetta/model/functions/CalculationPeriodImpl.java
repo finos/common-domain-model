@@ -20,7 +20,7 @@ public class CalculationPeriodImpl {
 
 	Result execute(CalculationPeriodDates calculationPeriodDates, LocalDate referenceDate) {
 		PeriodicSchedule periodicSchedule = PeriodicSchedule.of(
-				calculationPeriodDates.getEffectiveDate().getUnadjustedDate(),
+				calculationPeriodDates.getEffectiveDate().getAdjustableDate().getUnadjustedDate(),
 				calculationPeriodDates.getTerminationDate().getUnadjustedDate(),
 				getFrequency(calculationPeriodDates),
 				BusinessDayAdjustment.NONE,

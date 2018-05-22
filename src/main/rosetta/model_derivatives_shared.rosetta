@@ -2,7 +2,7 @@ Rosetta versionNumber "0.0.1"
 FIX versionNumber "5.0 SP3"
 FpML versionNumber "5.10"
 
-class AdjustableDate stereotype contractualProduct <"A class for defining a date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date. Rosetta collapses the FpML AdjustableDate and AdjustableDat2 FpML constructs, as the only difference is that this latter allows for the ability to reference date adjustments through the dateAdjustmentsReference element.">
+class AdjustableDate stereotype contractualProduct <"A class for defining a date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date. The CDM collapses the FpML AdjustableDate and AdjustableDate2 FpML constructs, as the only difference is that this latter allows for the ability to reference date adjustments through the dateAdjustmentsReference element.">
 	[synonym FpML value AdjustableDate2]
 {
 	id string (0..1) anchor;
@@ -169,7 +169,7 @@ class BrokerConfirmation stereotype contractualProduct <"Identifies the market s
 		[synonym FpML value brokerConfirmationType]
 }
 
-class BusinessCenters stereotype contractualProduct <"A class for defining business day calendar used in determining whether a day is a business day or not. A list of business day calendar locations may be ordered in the document alphabetically based on business day calendar location code. An FpML document containing an unordered business day calendar location list is still regarded as a conformant document. Rosetta adjusts the FpML constructs by embedding the ability to reference the business center(s) as part of that class.">
+class BusinessCenters stereotype contractualProduct <"A class for defining business day calendar used in determining whether a day is a business day or not. A list of business day calendar locations may be ordered in the document alphabetically based on business day calendar location code. An FpML document containing an unordered business day calendar location list is still regarded as a conformant document. The CDM adjusts the FpML constructs by embedding the ability to reference the business center(s) as part of that class.">
 	[synonym FpML value BusinessCenters]
 {
 	id string (0..1) anchor;
@@ -182,7 +182,7 @@ class BusinessCenters stereotype contractualProduct <"A class for defining busin
 		[synonym FpML value businessCentersReference]
 }
 
-choice rule BusinessCenters_choice <"Rosetta embeds as part of the BusinessCenters class the ability to reference business center(s).">
+choice rule BusinessCenters_choice <"The CDM embeds as part of the BusinessCenters class the ability to reference business center(s).">
 	for BusinessCenters required choice between
 	businessCenter and businessCentersReference
 
@@ -334,6 +334,26 @@ class DateRange stereotype contractualProduct <"A class defining a contiguous se
 	unadjustedLastDate date (1..1) <"The last date of a date range.">;
 		[synonym FpML value unadjustedLastDate]
 }
+
+class DateInstances <"A class to provide for the ability to specify a date alongside with prior instance(s) of that date. This is to provide for the ability to indicated the prior trade date and effective trade of a novated trade.">
+{
+	id string (0..1) anchor;
+		[synonym FpML value id pathExpression "trade.tradeHeader.tradeDate"]
+		[synonym Rosetta_Workbench value id pathExpression "tradeHeader.tradeDate"]
+		[synonym FpML value id pathExpression "trade.tradeHeader.effectiveDate"]
+		[synonym Rosetta_Workbench value id pathExpression "tradeHeader.effectiveDate"]
+	date date (0..1) <"Specification of the current date when expressed as a date, such as the trade date.">;
+		[synonym FpML value tradeDate pathExpression "trade.tradeHeader"]
+		[synonym Rosetta_Workbench value tradeDate pathExpression "tradeHeader"]
+	adjustableDate AdjustableDate (0..1) <"Specification of the current date when expressed as an adjustable date, such as the effective date.">;
+		[synonym FpML value effectiveDate pathExpression "calculationPeriodDates"]
+		[synonym FpML value effectiveDate]
+	priorDateInstance PriorDateInstance (0..*) <"Specification of the prior date instance, when applicable, alongside with the ability to associate a contract reference to that date.">;
+}
+
+choice rule DateInstances_choice <"The date associated with the DateInstances class needs to be expressed either as a date or an adjustableDate.">
+	for DateInstances required choice between
+	date and adjustableDate
 
 class DateList stereotype contractualProduct <"List of dates.">
 	[synonym FpML value DateList]
@@ -580,12 +600,12 @@ class InformationSource stereotype contractualProduct, execution, postExecution 
 		[synonym FpML value rateSourcePageHeading]
 }
 
-class IssuerTradeId stereotype productReferenceData <"A class for a two parts identifier, such as a USI. The Rosetta class content is distinct from the FpML one in two respects: the issuer is of type Party (instead of being of type IssuerId) and the identifier value is named 'identifier' (instead of tradeId).">
+class IssuerTradeId stereotype productReferenceData <"A class for a two-parts identifier, such as a USI.">
 	[synonym FpML value IssuerTradeId]
 {
-	issuer Party (1..1) scheme "issuerIdScheme" <"The party that assigns the trade identifier.">;
+	issuer string (1..1) scheme "issuerIdScheme" <"The party that assigns the trade identifier.">;
 		[synonym FpML value issuer]
-	identifier string (0..1) anchor scheme "tradeIdScheme" <"The package identifier value. Rosetta uses a neutral identifier attribute name rather than the FpML trade qualifier because of the focus that includes the pre-execution lifecycle, at which point a trade doesn't exist yet.">;
+	identifier string (0..1) anchor scheme "tradeIdScheme" <"The identifier value. The CDM uses a neutral identifier attribute name rather than the FpML trade qualifier because of the focus that includes the pre-execution lifecycle, at which point a trade doesn't exist yet.">;
 		[synonym FpML value tradeId]
 }
 
@@ -701,14 +721,6 @@ data rule Offset_DayType <"FpML specifies that the dayType must only be included
 		or Offset -> periodMultiplier = 0
 	then Offset -> dayType is absent
 
-class OptionBase extends ContractualHeader stereotype contractualProduct <"A type for defining the common features of options.">
-	[synonym FpML value OptionBase]
-{
-	buyerSeller BuyerSeller (1..1) <"This element is not present in FpML, which uses the BuyerSeller.model, which Rosetta represents as a class.">;
-	optionType OptionTypeEnum (1..1) <"The type of option transaction. From a usage standpoint, put/call is the default option type, while payer/receiver indicator is used for options index credit default swaps, consistently with the industry practice. Straddle is used for the case of straddle strategy, that combine a call and a put with the same strike.">;
-		[synonym FpML value optionType]
-}
-
 class OptionPhysicalSettlement stereotype contractualProduct
 	[synonym FpML value SwaptionPhysicalSettlement]
 {
@@ -774,6 +786,7 @@ class Payment extends PayerReceiver stereotype contractualProduct <"A class for 
 	paymentAmount Money (1..1) <"The currency amount of the payment.">;
 	paymentDate AdjustableOrRelativeDate (0..1) <"The payment date. While FpML specifies this element to be of type AdjustableOrAdjustedDate, Rosetta uses the type AdjustableOrRelativeDate to accommodate the credit default swap option premium, which uses the relative date construct.">;
 	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">;
+		[synonym Rosetta_Workbench value cashflowType]
 /*
  * TODO - Enable mapping syntax to map to the premium qualification
  */
@@ -846,7 +859,7 @@ class PremiumExpression <"This class corresponds to the FpML Premium.model group
 	 	[synonym FpML value percentageOfNotional]
 }
 
-class PrincipalExchanges stereotype contractualProduct <"A type defining which principal exchanges occur for the stream.">
+class PrincipalExchanges stereotype contractualProduct <"A class defining which principal exchanges occur for the stream.">
 	[synonym FpML value PrincipalExchanges]
 {
 	id string (0..1) anchor;
@@ -857,6 +870,12 @@ class PrincipalExchanges stereotype contractualProduct <"A type defining which p
 		[synonym FpML value finalExchange]
 	intermediateExchange boolean (1..1) <"A true/false flag to indicate whether there are intermediate or interim exchanges of principal during the term of the swap.">;
 		[synonym FpML value intermediateExchange]
+}
+
+class PriorDateInstance <"A class to specify the ability to specify a date alongside a contract reference. This is to provide for the ability to indicated the prior trade date and effective trade of a novated trade.">
+{
+	date date (1..1) <"The prior date instance. If the date has been expressed as an adjustable date as part of the DateInstances class, this date is also meant as an adjustable date.">;
+	contractReference Lineage (0..1) <"The contract reference lineage that can be associated to a prior date instance.">;
 }
 
 class QuotedCurrencyPair stereotype contractualProduct <"A class that describes the composition of a rate that has been quoted or is to be quoted. This includes the two currencies and the quotation relationship between the two currencies and is used as a building block throughout the FX specification.">
