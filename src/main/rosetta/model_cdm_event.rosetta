@@ -291,7 +291,8 @@ data rule Contract_Terminated <"Logic to qualify that a contract has been termin
 	then Event -> primitive -> quantityChange -> after -> contract -> state = ContractStateEnum.terminated
 
 /*
- * TODO - Comment from CDM working group is that the change in some of the legal agreements might
+ * TODO - Comment from the CDM group is that while the equality in the economic terms between the prior contract and the novated contract is appropriate in principle, we should further look into potential edge cases. The case that was discussed relates to the fact that a novation could imply that a swaption that was negotiated under MCA terms might move to Matrix terms following the novation, which would result in a change of the exercise time. It was however noted that, if the contract had been properly drafted, such exercise time would not be specified as part of the trade because it would be implied by such reference terms, and hence would not result in economic differences between those contracts.
+ * 
  */
 data rule FullNovation_Contract <"Logic to qualify a full novation when the resulting contract is specified (instead of being referenced) by the fact that (i) there is only one resulting contract, (ii) the party and the contract identifier are distinct between the before an after, (iii) the economic terms are unchanged, (iv) the trade date of the novated contract is equal to the novation date, and (v) the resulting contract state is 'novated'.">
 	when Event -> primitive -> partyChange -> after -> contract single exists
@@ -299,7 +300,12 @@ data rule FullNovation_Contract <"Logic to qualify a full novation when the resu
 	and Event -> primitive -> partyChange -> before -> contract -> contractIdentifier <> Event -> primitive -> partyChange -> after -> contract -> contractIdentifier
 	and Event -> primitive -> partyChange -> before -> contract -> contractualProduct -> economicTerms = Event -> primitive -> partyChange -> after -> contract -> contractualProduct -> economicTerms
 	and Event -> primitive -> partyChange -> after -> contract -> tradeDate -> date = Event -> eventDate
+	and Event -> primitive -> partyChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate = Event -> effectiveDate
 	and Event -> primitive -> partyChange -> after -> contract -> state = ContractStateEnum.novated
+
+data rule Novation_EffectiveDate <"The requirement that the effective date of the novated trade be equal to the event effective date implies that the novation event should always have an associated effective date (which is optional from a data cardinality standpoint).">
+	when Event -> primitive -> partyChange exists
+	then Event -> effectiveDate exists
 
 data rule FullNovation_ContractReference <"Logic to qualify a full novation when the resulting contract is referenced (instead of being specified) by the fact that (i) there is only one resulting contract and (ii) the resulting contract state is 'novated'.">
 	when Event -> primitive -> partyChange -> after -> contractReference single exists
@@ -313,7 +319,7 @@ data rule PartialNovation <"Logic to qualify a partial novation by the fact that
 	 * Need to add logic to qualify the fact that the economic terms should be unchanged except for the quantity
 	 * and the that sum of quantity after = quantity before
 	 * 
-	 * Need to add logic to qualify the novated portion of the contract (characterised by a party change) have a TD = event date
+	 * Need to add logic to qualify the novated portion of the contract (characterised by a party change) have a TD = event date & EF = event effective date
 	 */
 
 data rule NovationFee <"Logic to specify that if a payment is qualified as a novation fee, it must have lineage into multiple contracts and one single event (the novation event).">
@@ -386,7 +392,7 @@ isEvent Novation <"The qualification of a novation event from the fact that (i) 
 		and Event -> primitive -> partyChange only exists
 	else 
 		Event -> primitive -> partyChange only exists
-	and FullNovation_Contract or FullNovation_ContractReference or PartialNovation apply
+	and Novation_EffectiveDate, FullNovation_Contract or FullNovation_ContractReference or PartialNovation apply
 		
 isEvent Observation <"The qualification of an observation event from the fact that (i) the only primitive is the observation, and (ii) that there is only a single instance of such observation.">
 	Event -> primitive -> observation only single exists 
