@@ -7,17 +7,8 @@ class Contract <"A class to specify a contract object, which can be invoked eith
 	contractIdentifier PartyContractIdentifier (1..*) <"The contract reference identifier(s) allocated by the parties involved in the contract.">;
 		[synonym FpML value partyTradeIdentifier pathExpression "trade.tradeHeader"]	
 		[synonym Rosetta_Workbench value partyTradeIdentifier pathExpression "tradeHeader"]	
-	tradeDate date (1..1) anchor <"The trade date. This is the date the trade was originally executed. In the case of a novation, the novated part of the trade should be reported (by both the remaining party and the transferee) using a trade date corresponding to the date the novation was agreed. The remaining part of a trade should be reported (by both the transferor and the remaining party) using a trade date corresponding to the original execution date.">;
-		[synonym FpML value tradeDate pathExpression "trade.tradeHeader"]
-		[synonym Rosetta_Workbench value tradeDate pathExpression "tradeHeader"]
-/*
- * TODO - Need to refactor this tradeDateId, to be associated with the trade date, ideally as a side effect of the anchor
- * If not, create the IdentifiedDate (or specialised TradeDate class) a la FpML
- */
-	tradeDateId string (0..1) anchor;
-		[synonym FpML value id pathExpression "trade.tradeHeader.tradeDate"]
-		[synonym Rosetta_Workbench value id pathExpression "tradeHeader.tradeDate"]
-	clearedDate date (0..1) anchor <"If the trade was cleared (novated) through a central counterparty clearing service, this represents the date the trade was cleared (transferred to the central counterparty).">;
+	tradeDate DateInstances (1..1) <"The trade date. This is the date the trade was originally executed. In the case of a novation, the novated part of the trade should be reported (by both the remaining party and the transferee) using a trade date corresponding to the date the novation was agreed. The remaining part of a trade should be reported (by both the transferor and the remaining party) using a trade date corresponding to the original execution date.">;
+	clearedDate date (0..1) <"If the trade was cleared (novated) through a central counterparty clearing service, this represents the date the trade was cleared (transferred to the central counterparty).">;
 		[synonym FpML value clearedDate pathExpression "trade.tradeHeader"]
 		[synonym Rosetta_Workbench value clearedDate pathExpression "tradeHeader"]
 	contractualProduct ContractualProduct (1..1) <"The contractual product information that is associated with the contract. The corresponding FpML construct is the product abstract element and the associated substitution group.">;
@@ -64,20 +55,20 @@ class Contract <"A class to specify a contract object, which can be invoked eith
 
 data rule Contract_clearedDate
 	when Contract -> clearedDate exists
-	then Contract -> clearedDate >= Contract -> tradeDate
+	then Contract -> clearedDate >= Contract -> tradeDate -> date
 
 data rule FpML_cd_1 <"FpML validation rule cd-1 - If referenceInformation exists, tradeDate must be before effectiveDate/unadjustedDate.">
 	when Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
-	then Contract -> tradeDate < Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> unadjustedDate
+	then Contract -> tradeDate -> date < Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
 
 data rule FpML_cd_5 <"FpML validation rule cd-5 - If effectiveDate exists, and if scheduledTerminationDate exists, then effectiveDate/unadjustedDate must be before scheduledTerminationDate/unadjustedDate.">
 	when Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate exists
-	then Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> unadjustedDate < Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> unadjustedDate
+	then Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate < Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> unadjustedDate
 
 data rule FpML_cd_7 <"FpML validation rule cd-7 - If condition LongForm is true, then effectiveDate/dateAdjustments exists.">
 	when ( Contract -> documentation -> masterConfirmation or Contract -> documentation -> contractualMatrix ) is absent
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
-	then Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> dateAdjustments exists
+	then Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> dateAdjustments exists
 	
 data rule FpML_cd_8 <"FpML validation rule cd-8 - If condition LongForm is true, and if scheduledTerminationDate exists then scheduledTerminationDate/dateAdjustments exists.">
 	when ( Contract -> documentation -> masterConfirmation or Contract -> documentation -> contractualMatrix ) is absent
@@ -322,7 +313,7 @@ data rule FpML_ird_1 <"FpML validation rule ird-1 - Reset dates must exist if an
 data rule FpML_ird_6 <"FpML validation rule ird-6 - If paymentDates/firstPaymentDate exists, and if calculationPeriodDates/effectiveDate exists, then paymentDates/firstPaymentDate must be after calculationPeriodDates/effectiveDate/unadjustedDate.">
 	when InterestRatePayout -> paymentDates -> firstPaymentDate exists 
 		and InterestRatePayout -> calculationPeriodDates -> effectiveDate exists
-	then InterestRatePayout -> paymentDates -> firstPaymentDate > InterestRatePayout -> calculationPeriodDates -> effectiveDate -> unadjustedDate
+	then InterestRatePayout -> paymentDates -> firstPaymentDate > InterestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
 
 data rule FpML_ird_8 <"FpML validation rule ird-8 - The @href attribute of payerPartyReference must not be equal to the @href attribute of receiverPartyReference. If they are equal, and if payerAccountReference and receiverAccountReference both exist, the @href attribute of payerAccountReference must not be equal to the @href attribute of receiverAccountReference">
 	when InterestRatePayout exists
@@ -503,7 +494,7 @@ class Payout <"The payout can be specified through a number of combinations, e.g
 data rule FpML_cd_26_28 <"This data rule corresponds to two FpML validation rules, as the singlePayment and the firstPayment have been represented through the same Payout/cashflow attribute. FpML validation rule cd-26 - If feeLeg/singlePayment/adjustablePaymentDate exists, then feeLeg/singlePayment/adjustablePaymentDate must be after generalTerms/effectiveDate/unadjustedDate. FpML validation rule cd-28 - If feeLeg/periodicPayment/firstPaymentDate exists, then feeLeg/periodicPayment/firstPaymentDate must be after generalTerms/effectiveDate/unadjustedDate.">
 	when Payout -> creditDefaultPayout exists
 	and Payout -> cashflow exists
-	then Payout -> cashflow -> paymentDate -> adjustableDate -> unadjustedDate > Payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> unadjustedDate
+	then Payout -> cashflow -> paymentDate -> adjustableDate -> unadjustedDate > Payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
 
 data rule FpML_cd_27_29 <"This data rule corresponds to two FpML validation rules, as the singlePayment and the firstPayment have been represented through the same Payout/cashflow attribute. FpML validation rule cd-27 - If feeLeg/singlePayment/adjustablePaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/singlePayment/adjustablePaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate. FpML validation rule cd-29 - If feeLeg/periodicPayment/firstPaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/periodicPayment/firstPaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
 	when Payout -> creditDefaultPayout exists

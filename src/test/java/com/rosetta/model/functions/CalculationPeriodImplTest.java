@@ -17,12 +17,13 @@ class CalculationPeriodImplTest {
 
     private final CalculationPeriodImpl unit = new CalculationPeriodImpl();
     private final CalculationPeriodDates calculationPeriodDates = CalculationPeriodDates.builder()
-            .setEffectiveDate(AdjustableDate.builder()
+            .setEffectiveDate(DateInstances.builder()
+            			.setAdjustableDate(AdjustableDate.builder()
                     .setUnadjustedDate(LocalDate.of(2018, 1, 3))
                     .setDateAdjustments(BusinessDayAdjustments.builder()
                             .setBusinessDayConvention(BusinessDayConventionEnum.NONE)
                             .build())
-                    .build())
+                    .build()))
             .setTerminationDate(AdjustableDate.builder()
                     .setUnadjustedDate(LocalDate.of(2020, 1, 3))
                     .setDateAdjustments(BusinessDayAdjustments.builder()

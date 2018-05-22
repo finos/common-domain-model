@@ -122,9 +122,7 @@ class CalculationPeriodDates stereotype contractualProduct <"A class defining th
 {
 	id string (0..1) anchor;
 		[synonym FpML value id pathExpression "calculationPeriodDates"]
-	effectiveDate AdjustableDate (0..1) <"The first day of the term of the trade. This day may be subject to adjustment in accordance with a business day convention.">;
-		[synonym FpML value effectiveDate pathExpression "calculationPeriodDates"]
-		[synonym FpML value effectiveDate]
+	effectiveDate DateInstances (0..1) <"The first day of the term of the trade. This day may be subject to adjustment in accordance with a business day convention.">;
 	relativeEffectiveDate AdjustedRelativeDateOffset (0..1) <"Defines the effective date.">;
 		[synonym FpML value relativeEffectiveDate pathExpression "calculationPeriodDates"]
 	terminationDate AdjustableDate (0..1) <"The last day of the terms of the trade. This date may be subject to adjustments in accordance with the business day convention.">;
@@ -155,7 +153,7 @@ choice rule CalculationPeriodDates_choice2 <"Choice rule to represent an FpML ch
 	terminationDate and relativeTerminationDate
 
 data rule CalculationPeriodDates_firstPeriodStartDate_effectiveDate <"FpML specifies that the firstPeriodStartDate must only be specified if it is not equal to the effective date.">
-	when CalculationPeriodDates -> firstPeriodStartDate = CalculationPeriodDates -> effectiveDate
+	when CalculationPeriodDates -> firstPeriodStartDate = CalculationPeriodDates -> effectiveDate -> adjustableDate
 	then CalculationPeriodDates -> firstPeriodStartDate is absent
 
 data rule CalculationPeriodDates_firstPeriodStartDate_stubPeriodType <"FpML specifies that the firstRegularPeriodStartDate must only be specified if there is an initial stub calculation period.">
@@ -173,7 +171,7 @@ data rule CalculationPeriodDates_firstRegularPeriodEndDate <"FpML specifies that
 data rule FpML_ird_14 <"FpML validation rule ird-14 - If effectiveDate exists and If terminationDate exists, then terminationDate/unadjustedDate must be after effectiveDate/unadjustedDate.">
 	when CalculationPeriodDates -> effectiveDate exists 
 		and CalculationPeriodDates -> terminationDate exists
-	then CalculationPeriodDates -> terminationDate -> unadjustedDate > CalculationPeriodDates -> effectiveDate -> unadjustedDate
+	then CalculationPeriodDates -> terminationDate -> unadjustedDate > CalculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
 
 data rule FpML_ird_16 <"FpML validation rule ird-16 - If firstRegularPeriodStartDate exists within any element of type CalculationPeriodDates, then terminationDate/unadjustedDate must be after firstRegularPeriodStartDate.">
 	when CalculationPeriodDates -> firstRegularPeriodStartDate exists
@@ -190,11 +188,11 @@ data rule FpML_ird_18 <"FpML validation rule ird-18 - If firstRegularPeriodStart
 
 data rule FpML_ird_20 <"FpML validation rule ird-20 - If lastRegularPeriodEndDate exists, then lastRegularPeriodEndDate must be after effectiveDate/unadjustedDate.">
 	when CalculationPeriodDates -> lastRegularPeriodEndDate exists 
-	then CalculationPeriodDates -> lastRegularPeriodEndDate > CalculationPeriodDates -> effectiveDate -> unadjustedDate
+	then CalculationPeriodDates -> lastRegularPeriodEndDate > CalculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
 	
 data rule FpML_ird_21 <"FpML validation rule ird-21 - If firstPeriodStartDate exists, then firstPeriodStartDate/unadjustedDate must be before effectiveDate/unadjustedDate.">
 	when CalculationPeriodDates -> firstPeriodStartDate exists 
-	then CalculationPeriodDates -> firstPeriodStartDate -> unadjustedDate < CalculationPeriodDates -> effectiveDate -> unadjustedDate
+	then CalculationPeriodDates -> firstPeriodStartDate -> unadjustedDate < CalculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
 
 data rule FpML_ird_22 <"FpML validation rule ird-22 - If firstPeriodStartDate exists, and if firstRegularPeriodStartDate exists, then firstPeriodStartDate/unadjustedDate must be before firstRegularPeriodStartDate.">
 	when CalculationPeriodDates -> firstPeriodStartDate exists
