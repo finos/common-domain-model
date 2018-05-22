@@ -1,9 +1,9 @@
-package com.rosetta.model.functions;
+package org.isda.cdm.functions;
 
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.RollConvention;
-import com.rosetta.model.CalculationPeriodDates;
-import com.rosetta.model.RollConventionEnum;
+import org.isda.cdm.CalculationPeriodDates;
+import org.isda.cdm.RollConventionEnum;
 import com.rosetta.model.lib.annotations.RosettaSynonym;
 
 import java.util.Arrays;

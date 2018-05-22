@@ -1,16 +1,16 @@
-package com.rosetta.model.functions;
+package org.isda.cdm.functions;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.schedule.*;
-import com.rosetta.model.CalculationPeriodDates;
-import com.rosetta.model.functions.CalculationPeriod.Result;
+import org.isda.cdm.CalculationPeriodDates;
+import org.isda.cdm.functions.CalculationPeriod.Result;
 import com.rosetta.model.lib.records.DateImpl;
 
-import java.time.LocalDate;
+import static org.isda.cdm.functions.CdmToStrataMapper.getFrequency;
+import static org.isda.cdm.functions.CdmToStrataMapper.getRollConvention;
 
-import static com.rosetta.model.functions.CdmToStrataMapper.getFrequency;
-import static com.rosetta.model.functions.CdmToStrataMapper.getRollConvention;
+import java.time.LocalDate;
 
 public class CalculationPeriodImpl {
 

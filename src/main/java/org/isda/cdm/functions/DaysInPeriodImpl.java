@@ -1,7 +1,7 @@
-package com.rosetta.model.functions;
+package org.isda.cdm.functions;
 
-import com.rosetta.model.CalculationPeriodDates;
-import  com.rosetta.model.functions.DaysInPeriod.Result;
+import org.isda.cdm.CalculationPeriodDates;
+import org.isda.cdm.functions.DaysInPeriod.Result;
 import com.rosetta.model.lib.records.Date;
 
 import java.time.LocalDate;
@@ -9,7 +9,7 @@ import java.time.temporal.ChronoUnit;
 
 public class DaysInPeriodImpl {
 	
-	public Result execute(com.rosetta.model.CalculationPeriodDates calculationPeriodDates) {
+	public Result execute(org.isda.cdm.CalculationPeriodDates calculationPeriodDates) {
 		return execute(calculationPeriodDates, LocalDate.now());
 	}
 
