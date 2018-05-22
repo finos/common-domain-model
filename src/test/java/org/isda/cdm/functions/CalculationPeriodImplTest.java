@@ -1,7 +1,7 @@
-package com.rosetta.model.functions;
+package org.isda.cdm.functions;
 
 import com.opengamma.strata.basics.schedule.ScheduleException;
-import com.rosetta.model.*;
+import org.isda.cdm.*;
 import com.rosetta.model.lib.records.DateImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
