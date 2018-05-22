@@ -2,7 +2,7 @@ Rosetta versionNumber "0.0.1"
 FIX versionNumber "5.0 SP3"
 FpML versionNumber "5.10"
 
-class AdjustableDate stereotype contractualProduct <"A class for defining a date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date. Rosetta collapses the FpML AdjustableDate and AdjustableDat2 FpML constructs, as the only difference is that this latter allows for the ability to reference date adjustments through the dateAdjustmentsReference element.">
+class AdjustableDate stereotype contractualProduct <"A class for defining a date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date. The CDM collapses the FpML AdjustableDate and AdjustableDate2 FpML constructs, as the only difference is that this latter allows for the ability to reference date adjustments through the dateAdjustmentsReference element.">
 	[synonym FpML value AdjustableDate2]
 {
 	id string (0..1) anchor;
@@ -169,7 +169,7 @@ class BrokerConfirmation stereotype contractualProduct <"Identifies the market s
 		[synonym FpML value brokerConfirmationType]
 }
 
-class BusinessCenters stereotype contractualProduct <"A class for defining business day calendar used in determining whether a day is a business day or not. A list of business day calendar locations may be ordered in the document alphabetically based on business day calendar location code. An FpML document containing an unordered business day calendar location list is still regarded as a conformant document. Rosetta adjusts the FpML constructs by embedding the ability to reference the business center(s) as part of that class.">
+class BusinessCenters stereotype contractualProduct <"A class for defining business day calendar used in determining whether a day is a business day or not. A list of business day calendar locations may be ordered in the document alphabetically based on business day calendar location code. An FpML document containing an unordered business day calendar location list is still regarded as a conformant document. The CDM adjusts the FpML constructs by embedding the ability to reference the business center(s) as part of that class.">
 	[synonym FpML value BusinessCenters]
 {
 	id string (0..1) anchor;
@@ -182,7 +182,7 @@ class BusinessCenters stereotype contractualProduct <"A class for defining busin
 		[synonym FpML value businessCentersReference]
 }
 
-choice rule BusinessCenters_choice <"Rosetta embeds as part of the BusinessCenters class the ability to reference business center(s).">
+choice rule BusinessCenters_choice <"The CDM embeds as part of the BusinessCenters class the ability to reference business center(s).">
 	for BusinessCenters required choice between
 	businessCenter and businessCentersReference
 
@@ -600,12 +600,12 @@ class InformationSource stereotype contractualProduct, execution, postExecution 
 		[synonym FpML value rateSourcePageHeading]
 }
 
-class IssuerTradeId stereotype productReferenceData <"A class for a two parts identifier, such as a USI. The Rosetta class content is distinct from the FpML one in two respects: the issuer is of type Party (instead of being of type IssuerId) and the identifier value is named 'identifier' (instead of tradeId).">
+class IssuerTradeId stereotype productReferenceData <"A class for a two-parts identifier, such as a USI.">
 	[synonym FpML value IssuerTradeId]
 {
-	issuer Party (1..1) scheme "issuerIdScheme" <"The party that assigns the trade identifier.">;
+	issuer string (1..1) scheme "issuerIdScheme" <"The party that assigns the trade identifier.">;
 		[synonym FpML value issuer]
-	identifier string (0..1) anchor scheme "tradeIdScheme" <"The package identifier value. Rosetta uses a neutral identifier attribute name rather than the FpML trade qualifier because of the focus that includes the pre-execution lifecycle, at which point a trade doesn't exist yet.">;
+	identifier string (0..1) anchor scheme "tradeIdScheme" <"The identifier value. The CDM uses a neutral identifier attribute name rather than the FpML trade qualifier because of the focus that includes the pre-execution lifecycle, at which point a trade doesn't exist yet.">;
 		[synonym FpML value tradeId]
 }
 
@@ -720,14 +720,6 @@ data rule Offset_DayType <"FpML specifies that the dayType must only be included
 	when Offset -> period <> PeriodEnum.D 
 		or Offset -> periodMultiplier = 0
 	then Offset -> dayType is absent
-
-class OptionBase extends ContractualHeader stereotype contractualProduct <"A type for defining the common features of options.">
-	[synonym FpML value OptionBase]
-{
-	buyerSeller BuyerSeller (1..1) <"This element is not present in FpML, which uses the BuyerSeller.model, which Rosetta represents as a class.">;
-	optionType OptionTypeEnum (1..1) <"The type of option transaction. From a usage standpoint, put/call is the default option type, while payer/receiver indicator is used for options index credit default swaps, consistently with the industry practice. Straddle is used for the case of straddle strategy, that combine a call and a put with the same strike.">;
-		[synonym FpML value optionType]
-}
 
 class OptionPhysicalSettlement stereotype contractualProduct
 	[synonym FpML value SwaptionPhysicalSettlement]

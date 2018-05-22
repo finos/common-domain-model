@@ -289,7 +289,7 @@ choice rule CashSettlementPaymentDate_choice <"Choice rule to represent an FpML 
 class CrossCurrencyMethod stereotype contractualProduct <"A class to represent the cash settlement method defined in the 2006 ISDA Definitions, Section 18.3. Cash Settlement Methods, paragraph (g) (published in Supplement number 28).">
 	[synonym FpML value CrossCurrencyMethod]
 {
-	cashSettlementReferenceBanks Party (0..*) <"A container for a set of institutions that may be called upon to provide rate quotations as part of the method to determine the applicable cash settlement amount. If institutions are not specified, it is assumed that reference institutions will be agreed between the parties on the exercise date, or in the case of swap transaction to which mandatory early termination is applicable, the cash settlement valuation date. In FpML, CashSettlementReferenceBanks is implemented through referenceBank, which is implemented as a (non-specified) scheme, alongside an optional name. For the purpose of the Rosetta model a party attribute seems more appropriate.">;
+	cashSettlementReferenceBanks CashSettlementReferenceBanks (0..*) <"A container for a set of institutions that may be called upon to provide rate quotations as part of the method to determine the applicable cash settlement amount. If institutions are not specified, it is assumed that reference institutions will be agreed between the parties on the exercise date, or in the case of swap transaction to which mandatory early termination is applicable, the cash settlement valuation date.">;
 		[synonym FpML value cashSettlementReferenceBanks]
 	cashSettlementCurrency CurrencyEnum (1..2) <"The currency, or currencies, in which the cash settlement amount(s) will be calculated and settled. While the order in which the currencies are stated is unimportant, the cash settlement currency or currencies must correspond to one or both of the constituent currencies of the swap transaction.">;
 		[synonym FpML value cashSettlementCurrency]
@@ -453,7 +453,7 @@ class FallbackReferencePrice stereotype contractualProduct <"The method, priorit
 		[synonym FpML value valuationPostponement]
 	fallBackSettlementRateOption SettlementRateOptionEnum (0..*) scheme "settlementRateOptionScheme" <"This settlement rate option will be used in its place.">;
 		[synonym FpML value fallBackSettlementRateOption]
-	fallbackSurveyValuationPostponement boolean (0..1) <"Request rate quotes from the market. This element is set as type Empty in FpML. When present, the FpML synonym is mapped to a value True in Rosetta.">;
+	fallbackSurveyValuationPostponement boolean (0..1) <"Request rate quotes from the market. This element is set as type Empty in FpML. When present, the FpML synonym is mapped to a value True in the CDM.">;
 		[synonym FpML value fallbackSurveyValuationPostponement set fallbackSurveyValuationPostponement to True]
 	calculationAgenDetermination CalculationAgent (0..1) <"The calculation agent will decide the rate.">;
 		[synonym FpML value calculationAgenDetermination]
@@ -490,44 +490,6 @@ class FloatingRateDefinition stereotype contractualProduct <"A class defining pa
 data rule FloatingRateDefinition_FloatingRateMultiplier <"FpML specifies that the floatingRateMultiplier should only be included if different from 1.">
 	when FloatingRateDefinition -> floatingRateMultiplier exists
 	then FloatingRateDefinition -> floatingRateMultiplier <> 1
-
-//class Fra extends ContractualHeader stereotype contractualProduct <"A type defining a Forward Rate Agreement (FRA) product.">
-//	[synonym FpML value Fra]
-//{
-//	buyerSeller BuyerSeller (1..1) <"This elements is not presents in FpML, which uses the BuyerSeller.model, which Rosetta represents as a class.">;
-//	adjustedEffectiveDate date (1..1) anchor <"The start date of the calculation period. This date should already be adjusted for any applicable business day convention. This is also the date when the observed rate is applied, the reset date.">;
-//		[synonym FpML value adjustedEffectiveDate]
-//	adjustedTerminationDate date (1..1) <"The end date of the calculation period. This date should already be adjusted for any applicable business day convention.">;
-//		[synonym FpML value adjustedTerminationDate]
-//	paymentDate AdjustableDate (1..1) <"The payment date. This date is subject to adjustment in accordance with any applicable business day convention.">;
-//		[synonym FpML value paymentDate]
-//	fixingDateOffset RelativeDateOffset (1..1) <"Specifies the fixing date relative to the reset date in terms of a business days offset and an associated set of financial business centers. Normally these offset calculation rules will be those specified in the ISDA definition for the relevant floating rate index (ISDA's Floating Rate Option). However, non-standard offset calculation rules may apply for a trade if mutually agreed by the principal parties to the transaction. The href attribute on the dateRelativeTo element should reference the id attribute on the adjustedEffectiveDate element.">;
-//		[synonym FpML value fixingDateOffset]
-//	dayCountFraction DayCountFractionEnum (1..1) <"The day count fraction.">;
-//		[synonym FpML value dayCountFraction]
-//	calculationPeriodNumberOfDays int (1..1) <"The number of days from the adjusted effective date to the adjusted termination date calculated in accordance with the applicable day count fraction.">;
-//		[synonym FpML value calculationPeriodNumberOfDays]
-//	notional Money (1..1) <"The notional amount.">;
-//		[synonym FpML value notional]
-//	fixedRate number (1..1) anchor <"The calculation period fixed rate. A per annum rate, expressed as a decimal. A fixed rate of 5% would be represented as 0.05.">;
-//		[synonym FpML value fixedRate]
-//	floatingRateIndex FloatingRateIndexEnum (1..1);
-//		[synonym FpML value floatingRateIndex]
-//	indexTenor Period (1..1) <"The ISDA Designated Maturity, i.e. the tenor of the floating rate. A FRA can contain either one or two indexTenor instances.">;
-//		[synonym FpML value indexTenor]
-//	fraDiscounting FraDiscountingEnum (1..1) <"Specifies whether discounting applies and, if so, what type.">;
-//		[synonym FpML value fraDiscounting]
-//	additionalPayment Payment (1..1) <"Additional payments between the principal parties (i.e. the parties referenced as the FRA buyer and seller).">;
-//		[synonym FpML value additionalPayment]
-//}
-
-//data rule Fra_calculationPeriodNumberOfDays <"FpML specifies calculationPeriodNumberOfDays as a positive integer.">
-//	when Fra -> calculationPeriodNumberOfDays exists
-//	then Fra -> calculationPeriodNumberOfDays >= 0
-//
-//data rule Fra_adjustedTerminationDate <"FpML validation rule ird-33 - Context: Fra (complex type) adjustedTerminationDate must be after adjustedEffectiveDate.">
-//	when Fra -> adjustedEffectiveDate exists
-//	then Fra -> adjustedTerminationDate > Fra -> adjustedEffectiveDate
 
 class FxFixingDate extends Offset stereotype contractualProduct <"A class that is extending the Offset structure for providing the ability to specify an FX fixing date as an offset to dates specified somewhere else in the document.">
 	[synonym FpML value priceSourceDisruption]
