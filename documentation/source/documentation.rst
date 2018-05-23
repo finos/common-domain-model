@@ -788,42 +788,47 @@ The Rosetta ``Contract`` class includes a ``contractState`` attribute whose purp
 
  class Contract <"A class to specify a contract object, which can be invoked either within the context of an event, or independently from it. It corresponds to the FpML Trade, although restricted to execution and post-execution contexts. Attributes also applicable to pre-execution (a.k.a. pre-trade view in FpML) contexts have been positioned as part of the ContractualProduct class.">
  {
-	   contractIdentifier PartyContractIdentifier (1..*) <"The contract reference identifier(s) allocated by the parties involved in the contract.">;
-		    [synonym FpML value partyTradeIdentifier pathExpression "trade.tradeHeader"]
-		    [synonym Rosetta_Workbench value partyTradeIdentifier pathExpression "contract.tradeHeader"]
-	   tradeDate date (1..1) anchor <"The trade date. This is the date the trade was originally executed. In the case of a novation, the novated part of the trade should be reported (by both the remaining party and the transferee) using a trade date corresponding to the date the novation was agreed. The remaining part of a trade should be reported (by both the transferor and the remaining party) using a trade date corresponding to the original execution date.">;
-		    [synonym FpML value tradeDate pathExpression "trade.tradeHeader"]
-		    [synonym Rosetta_Workbench value tradeDate pathExpression "contract.tradeHeader"]
-	   tradeDateId string (0..1) anchor;
-		    [synonym FpML value id pathExpression "trade.tradeHeader.tradeDate"]
-		    [synonym Rosetta_Workbench value id pathExpression "contract.tradeHeader.tradeDate"]
-	   clearedDate date (0..1) anchor <"If the trade was cleared (novated) through a central counterparty clearing service, this represents the date the trade was cleared (transferred to the central counterparty).">;
-		    [synonym FpML value clearedDate pathExpression "trade.tradeHeader"]
-	   contractualProduct ContractualProduct (1..1) <"The contractual product information that is associated with the contract. The corresponding FpML construct is the product abstract element and the associated substitution group.">;
- 	   otherPartyPayment Payment (0..*) <"Other fees or additional payments associated with the contract, e.g. broker commissions, where one or more of the parties involved are not principal parties involved in the contract.">;
-		    [synonym FpML value otherPartyPayment pathExpression "trade"]
-	   brokerParty string (0..*) reference <"The reference to the party (or parties) that brokered the contract.">;
-		    [synonym FpML value brokerPartyReference pathExpression "trade"]
-	   calculationAgent CalculationAgentModel (1..1) <"The ISDA Calculation Agent and the associated business center information. This information is represented in FpML via the CalculationAgent.model.">;
-	   determiningParty string (0..2) reference <"TThe party referenced is specified in the related Confirmation as Determination Party.">;
-		    [synonym FpML value determiningParty pathExpression "trade"]
-	   barrierDeterminationAgent Party (0..1) reference <"The party specified in the related confirmation as Barrier Determination Agent.">;
-		    [synonym FpML value barrierDeterminationAgent pathExpression "trade"]
-	   hedgingParty string (0..2) reference <"The ISDA Hedging Party that is specified in the related confirmation as Hedging, or if no Hedging Party is specified, either party to the contract.">;
-		    [synonym FpML value hedgingParty pathExpression "trade"]
-	   collateral Collateral (0..1) <"Defines the collateral obligations of a party.">;
-		    [synonym FpML value collateral pathExpression "trade"]
-	   documentation Documentation (0..1) <"Defines the definitions that govern the document and should include the year and type of definitions referenced, along with any relevant documentation (such as master agreement) and the date it was signed.">;
-		    [synonym FpML value documentation pathExpression "trade"]
-	   governingLaw GoverningLawEnum (0..1) scheme "governingLawScheme" <"Identification of the law governing the transaction.">;
-		    [synonym FpML value governingLaw pathExpression "trade"]
-	   state ContractStateEnum (0..1) <"The state qualification of a contractual product, i.e. whether open or close. This attribute is not present as part of the FpML standard.">;
-	   party Party (2..*) <"The parties to the contract. While FpML has a minimal cardinality of 1, a minimal cardinality of 2 seems more appropriate.">;
-		    [synonym FpML value party]
-		    [synonym Rosetta_Workbench value party]
-	   account Account (0..*) <"Optional account information.">;
-		    [synonym FpML value account]
-  }
+    contractIdentifier PartyContractIdentifier (1..*) <"The contract reference identifier(s) allocated by the parties involved in the contract.">;
+      [synonym FpML value partyTradeIdentifier pathExpression "trade.tradeHeader"]
+      [synonym Rosetta_Workbench value partyTradeIdentifier pathExpression "tradeHeader"]
+   tradeDate DateInstances (1..1) <"The trade date. This is the date the trade was originally executed. In the case of a novation, the novated part of the trade should be reported (by both the remaining party and the transferee) using a trade date corresponding to the date the novation was agreed. The remaining part of a trade should be reported (by both the transferor and the remaining party) using a trade date corresponding to the original execution date.">;
+   clearedDate date (0..1) <"If the trade was cleared (novated) through a central counterparty clearing service, this represents the date the trade was cleared (transferred to the central counterparty).">;
+      [synonym FpML value clearedDate pathExpression "trade.tradeHeader"]
+      [synonym Rosetta_Workbench value clearedDate pathExpression "tradeHeader"]
+   contractualProduct ContractualProduct (1..1) <"The contractual product information that is associated with the contract. The corresponding FpML construct is the product abstract element and the associated substitution group.">;
+   otherPartyPayment Payment (0..*) <"Other fees or additional payments associated with the contract, e.g. broker commissions, where one or more of the parties involved are not principal parties involved in the contract.">;
+   [synonym FpML value otherPartyPayment pathExpression "trade"]
+   [synonym Rosetta_Workbench value otherPartyPayment]
+   brokerParty string (0..*) reference <"The reference to the party (or parties) that brokered the contract.">;
+      [synonym FpML value brokerPartyReference pathExpression "trade"]
+      [synonym Rosetta_Workbench value brokerPartyReference]
+   calculationAgent CalculationAgentModel (1..1) <"The ISDA Calculation Agent and the associated business center information. This information is represented in FpML via the CalculationAgent.model.">;
+   determiningParty string (0..2) reference <"TThe party referenced is specified in the related Confirmation as Determination Party.">;
+      [synonym FpML value determiningParty pathExpression "trade"]
+      [synonym Rosetta_Workbench value determiningParty]
+   barrierDeterminationAgent Party (0..1) reference <"The party specified in the related confirmation as Barrier Determination Agent.">;
+      [synonym FpML value barrierDeterminationAgent pathExpression "trade"]
+      [synonym Rosetta_Workbench value barrierDeterminationAgent]
+   hedgingParty string (0..2) reference <"The ISDA Hedging Party that is specified in the related confirmation as Hedging, or if no Hedging Party is specified, either party to the contract.">;
+      [synonym FpML value hedgingParty pathExpression "trade"]
+      [synonym Rosetta_Workbench value hedgingParty]
+   collateral Collateral (0..1) <"Defines the collateral obligations of a party.">;
+      [synonym FpML value collateral pathExpression "trade"]
+      [synonym Rosetta_Workbench value collateral]
+   documentation Documentation (0..1) <"Defines the definitions that govern the document and should include the year and type of definitions referenced, along with any relevant documentation (such as master agreement) and the date it was signed.">;
+      [synonym FpML value documentation pathExpression "trade"]
+      [synonym Rosetta_Workbench value documentation]
+   governingLaw GoverningLawEnum (0..1) scheme "governingLawScheme" <"Identification of the law governing the transaction.">;
+      [synonym FpML value governingLaw pathExpression "trade"]
+      [synonym Rosetta_Workbench value governingLaw]
+   state ContractStateEnum (0..1) <"The state qualification of a contractual product.">;
+      [synonym Rosetta_Workbench value state]
+   party Party (2..*) <"The parties to the contract. While FpML has a minimal cardinality of 1, a minimal cardinality of 2 seems more appropriate.">;
+      [synonym FpML value party]
+      [synonym Rosetta_Workbench value party]
+   account Account (0..*) <"Optional account information.">;
+      [synonym FpML value account]
+ }
 
 The scope of the contract is limited to the post-execution lifecycle, as it involves legal entities and has a set of attributes which are only qualified at the excution and post-execution stage: trade date, calculation agent, documentatiom, governing law, etc.
 
@@ -1085,7 +1090,7 @@ Two classes act as foundational blocks for the Rosetta event model: the ``EventB
 	      eventReference Identifier (0..*);
 		        [synonym Rosetta_Workbench value eventReference]
    }
-   
+
   * **Primitive events**: the CDM composite approach uses the primitive events as its building blocks. Those primitive events are detailed in the next section of the documentation.
   * **Function call**: an example of such a function call is the interpolation function that would be associated with a **derived observation** event that assembles two observed values (say, a 3 months and a 6 months rate observation) to provide a derived one (say, a 5 months observation). As part of the CDM V1.0 this function call as been specified as a mere string element. It will be appropriately specified once such implementation is developed, some of which consisting in the machine readable implementation of the ISDA Definitions (see next Interest Calculation section).
 
@@ -1114,22 +1119,25 @@ CDM primitive events are the building block components used to specify business 
 
   class PrimitiveEvent <"The set of primitive events. The purpose of this class it to provide clarity with respect to the event qualification logic.">
   {
-	   newTrade NewTrade (0..*) <"The new trade primitive is unbounded to address the case of events such as portfolio compressions, which could result in multiple new trades.">;
-		    [synonym Rosetta_Workbench value newTrade]
-	   quantityChange QuantityChange (0..*);
-		    [synonym Rosetta_Workbench value quantityChange]
-	   partyChange PartyChange (0..*);
-		    [synonym Rosetta_Workbench value partyChange]
-	   otherTermsChange OtherTermsChange (0..1);
-		    [synonym Rosetta_Workbench value otherTermsChange]
-	   exercise ExercisePrimitive (0..1);
-		    [synonym Rosetta_Workbench value exercise]
-	   observation ObservationPrimitive (0..*);
-		    [synonym Rosetta_Workbench value observation]
-	   reset ResetPrimitive (0..*);
-		    [synonym Rosetta_Workbench value reset]
-	   payment Payment (0..*);
-		    [synonym Rosetta_Workbench value payment]
+    newTrade NewTrade (0..*) <"The new trade primitive is unbounded to address the case of events such as portfolio compressions, which could result in multiple new trades.">;
+      [synonym Rosetta_Workbench value newTrade]
+    quantityChange QuantityChange (0..*);
+      [synonym Rosetta_Workbench value quantityChange]
+    partyChange PartyChange (0..*);
+      [synonym Rosetta_Workbench value partyChange]
+    allocation AllocationPrimitive (0..*);
+      [synonym Rosetta_Workbench value allocation]
+    otherTermsChange OtherTermsChange (0..1);
+      [synonym Rosetta_Workbench value otherTermsChange]
+    exercise ExercisePrimitive (0..1);
+      [synonym Rosetta_Workbench value exercise]
+    observation ObservationPrimitive (0..*);
+      [synonym Rosetta_Workbench value observation]
+    reset ResetPrimitive (0..*);
+      [synonym Rosetta_Workbench value reset]
+    payment Payment (0..*);
+      [synonym Rosetta_Workbench value payment]
+      [synonym Rosetta_Workbench value cashflow]
    }
 
 Event qualification from primitive events and intent qualification
@@ -1141,10 +1149,14 @@ An example of such is the **partial termination event**, which is deemed as need
 
  .. code-block:: Java
 
-  isEvent PartialTermination <"The qualification of a partial termination event.">
-    Event -> primitive -> quantityChange exists
-    and Event -> intent = IntentEnum.partialTermination
-    and NotionalAmount_Decrease, NotionalAmount_Remaining apply
+  isEvent PartialTermination <"The qualification of a full termination event from the fact that (i) the only primitive is the quantityChange, (ii) the intent is a full termination when such intent is specified, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
+	   if Event -> intent exists
+	   then
+		   Event -> intent = IntentEnum.partialTermination
+		   and Event -> primitive -> quantityChange only exists
+	   else
+		   Event -> primitive -> quantityChange only exists
+	   and NotionalAmount_Decrease, NotionalAmount_Remaining apply
 
 A further example would be the need for disambiguation between a **portfolio rebalancing event** and an **asset servicing event** as applying to a total return swap.
 
@@ -1162,18 +1174,18 @@ The CDM syntax to express the Fixed Amount and Floating Amount is similar in str
 
 .. code-block:: Java
 
- calculation FixedAmount <"2006 ISDA Definition Article 4 Section 4.4 'Fixed Amount' means, in respect of a Swap Transaction and a Fixed Rate Payer, an amount that, subject to any other applicable provisions, is payable by that Fixed Rate Payer on an applicable Payment Date and is specified in the related Confirmation or is determined as provided in Article 5 of these 2006 Definitions or as provided in the related Confirmation.">
+ calculation FixedAmount <"2006 ISDA Definition Article 5 Section 5.1. Calculation of a Fixed Amount: The Fixed Amount payable by a party on a Payment Date will be: (a) if an amount is specified for the Swap Transaction as the Fixed Amount payable by that party for that Payment Date or for the related Calculation Period, that amount; or (b) if an amount is not specified for the Swap Transaction as the Fixed Amount payable by that party for that Payment Date or for the related Calculation Period, an amount calculated on a formula basis for that Payment Date or for the related Calculation Period as follows: Fixed Amount = Calculation Amount × Fixed Rate × Day Count Fraction.">
  {
  	   fixedAmount number: calculationAmount * rate * dayCountFraction
  	   currencyAmount CurrencyEnum: currencyAmount
  }
 
- arguments FixedAmount <"2006 ISDA Definition Article 4 Section 4.8. Calculation Amount. 'Calculation Amount' means, in respect of a Swap Transaction and a party, the applicable Notional Amount or Currency Amount, as the case may be. Section 4.6. 'Currency Amount' means, in respect of a party and any Calculation Period for a Swap Transaction involving more than one currency, the amount specified as such for the Swap Transaction or that party.">
+ arguments FixedAmount <"The set of arguments to calculate the FixedAmount.">
  {
- 	   calculationAmount: is InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
- 	   currencyAmount: is InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> currency
- 	   rate: is InterestRatePayout -> interestRate -> fixedRate -> initialValue
-     dayCountFraction: is InterestRatePayout -> dayCountFraction
+ 	  calculationAmount: is InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
+ 	  currencyAmount: is InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> currency
+ 	  rate: is InterestRatePayout -> interestRate -> fixedRate -> initialValue
+    dayCountFraction: is InterestRatePayout -> dayCountFraction
  }
 
 .. code-block:: Java
@@ -1182,7 +1194,7 @@ The CDM syntax to express the Fixed Amount and Floating Amount is similar in str
  {
   	 floatingAmount number: calculationAmount * ( floatingRate + spread ) * dayCountFraction
   	 currencyAmount CurrencyEnum: currencyAmount
-  }
+ }
 
  arguments FloatingAmount <"The set of arguments to calculate the FloatingAmount.">
  {
