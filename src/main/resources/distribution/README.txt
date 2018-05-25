@@ -19,7 +19,8 @@ The file names in the common-domain-model folder should be considered in aggrega
 Contains both the Java and CDM documentation in html format.  In each on the sub-folders there is an index.html file.  Open this file to use the documentation.  You must extract the .zip archive before your browser can assess all the files and render them correctly.
 
 /lib
-The generated Java artefacts of the CDM, including its source code. Use this code to create CDM objects in Java and to execute calculation logic. Whilst there exists Java classes representing choice and data rules, these are still a work in progress.
+The generated Java artefacts of the CDM, including its source code. Use this code to create CDM objects in Java and to execute calculation logic. Whilst there exists Java classes representing choice and data rules, these are still a work in progress.  The JSON projection fo the CDM model is also available as part of those artefacts, although it should be noted that it has two limitations with respect to its usability: (i) the logic associated with data rules, calculation expressions and choice rules is expressed as data, and (ii) the model meta-data is not expressed with a distinct syntax.
+
 
 /lib/dependencies
 Contains all upstream dependencies necessary to compile and run the generated Java code.
