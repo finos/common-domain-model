@@ -1,8 +1,28 @@
+.. |trade|  unicode:: U+02122 .. TRADE MARK SIGN
 
-The ISDA CDM and the Rosetta Workbench
-======================================
 
-The ISDA Common Domain Model (CDM) is supported by a digital repository called Rosetta whose purpose is to consolidate market standards and practices into a cohesive model, from which executable code is automatically generated.
+The ISDA Common Domain Model
+============================
+The ISDA Common Domain Model (ISDA CDM|trade|)  is an initiative that ISDA has spearheaded to produce a common, robust, digital blueprint for how derivatives are traded and managed across their lifecycle. ISDA is proposing, in a machine-readable format, to build a standard digital representation of products, events and actions that occur during the life of a derivatives trade. It is based on the design principles specified as part of ISDA’s October 2017 `CDM concept paper <https://www.isda.org/a/gVKDE/CDM-FINAL.pdf>`_ for a product scope limited to simple interest and credit derivative products and an agreed sample of business events.
+
+ISDA anticipates that establishing a common set of data and processing standards that participants can access will include the following benefits:
+
+* Reduce the current need for continual reconciliations to address mismatches caused by variations in how each firm records trade lifecycle events.
+* Enable consistency in regulatory compliance and reporting.
+* Accelerate greater automation and efficiency in the derivatives market.
+* Provide a common foundation for new technologies like distributed ledger, cloud and smart contracts to facilitate data consistency.
+* Facilitate interoperability across firms and platforms.
+
+A high-level presentation of the ISDA CDM and additional information is available on the ISDA website (`www.isda.org <http://www.isda.org/>`_) and particularly with the referred `Short Video <https://www.isda.org/2017/11/30/what-is-the-isda-cdm/>`_.
+
+The remainder of this document goes into details of the structure and design considerations of the CDM Design Working Group.
+
+
+The Rosetta Workbench
+=====================
+To tie the design choices made by the Working Group to how they manefest practically, we make reference to the Rosetta Workbench which we will refer to simply as Rosetta. It will be useful to think of Rosetta as a set of tools to use when creating domain models. Much like how software engineers use programming languages and tools to create software.
+
+Rosetta is a digital repository whose purpose is to consolidate market standards and practices into a cohesive model, from which executable code is automatically generated.
 
 The key idea behind Rosetta is that financial markets presently have two unappealing characteristics as it relates to their supporting electronic data representation:
 
@@ -83,14 +103,7 @@ The CDM supports the concept of **abstract classes**, which cannot be instantiat
   		  [synonym Rosetta_Workbench value timeStamp]
   	  eventIdentifier Identifier (1..1);
   		  [synonym Rosetta_Workbench value eventIdentifier]
-  	  eventDate date (1..1);
-  		  [synonym Rosetta_Workbench value eventDate]
-  	  effectiveDate date (0..1);
-  		  [synonym Rosetta_Workbench value effectiveDate]
-  	  action ActionEnum (1..1) <"Specifies whether the event is a new, a correction or a cancellation.">;
-  		  [synonym FpML value isCorrection
-  			   set action to ActionEnum.new when False,
-  			   set action to ActionEnum.correct when True]
+      ...
  }
 
 
@@ -135,7 +148,7 @@ The CDM provides the ability to associate either a ``reference``, an identifier 
    }
 
 
-* In the case where a source element makes reference to a scheme and if the values for that scheme are specified as part of the FpML standard, that scheme is positioned as an enumeration.  An example of such is the FpML *creditSupportAgreementTypeScheme* which is represented in Rosetta via the ``CreditSupportAgreementTypeEnum``. While the scheme value is represented as part of the enumeration, the CDM attribute also carries the scheme reference associated with the original document:
+* In the case where a source element makes reference to a scheme and if the values for that scheme are specified as part of the FpML standard, that scheme is positioned as an enumeration.  An example of such is the FpML *creditSupportAgreementTypeScheme* which is represented in CDM via the ``CreditSupportAgreementTypeEnum``. While the scheme value is represented as part of the enumeration, the CDM attribute also carries the scheme reference associated with the original document:
 
   .. code-block:: Java
 
@@ -168,8 +181,6 @@ Rosetta syntax convention is for attribute names to be expressed in lower case, 
 
 Enumerations
 ~~~~~~~~~~~~
-
-166 enumerations are part of the CDM 1.0.
 
 Purpose
 ^^^^^^^
@@ -218,30 +229,12 @@ In order to handle the integration of FpML scheme values such as the *dayCountFr
  enum DayCountFractionEnum <"The enumerated values to specify the day count fraction.">
    	    [synonym FpML value dayCountFractionScheme]
  {
-      _1_1 displayName "1/1" <"Per 2006 ISDA Definitions, Section 4.16. Day Count Fraction, paragraph (a) or Annex to the 2000 ISDA Definitions (June 2000 Version), Section 4.16. Day Count Fraction, paragraph (a).">
-   		   [synonym FpML value "1/1"],
-   	  _30_360 displayName "30/360" <"Per 2006 ISDA Definitions, Section 4.16. Day Count Fraction, paragraph (f) or Annex to the 2000 ISDA Definitions (June 2000 Version), Section 4.16. Day Count Fraction, paragraph (e).">
-   		   [synonym FpML value "30/360"],
-   	  _30E_360 displayName "30E/360" <"Per 2006 ISDA Definitions, Section 4.16. Day Count Fraction, paragraph (g) or Annex to the 2000 ISDA Definitions (June 2000 Version), Section 4.16. Day Count Fraction, paragraph (f). Note that the algorithm defined for this day count fraction has changed between the 2000 ISDA Definitions and 2006 ISDA Definitions. See Introduction to the 2006 ISDA Definitions for further information relating to this change.">
-   		   [synonym FpML value "30E/360"],
-   	  _30E_360_ISDA displayName "30E/360.ISDA" <"DPer 2006 ISDA Definitions, Section 4.16. Day Count Fraction, paragraph (h). Note the algorithm for this day count fraction under the 2006 ISDA Definitions is designed to yield the same results in practice as the version of the 30E/360 day count fraction defined in the 2000 ISDA Definitions. See Introduction to the 2006 ISDA Definitions for further information relating to this change.">
-   		   [synonym FpML value "30E/360.ISDA"],
+      ...
    	  ACT_360 displayName "ACT/360" <"Per 2006 ISDA Definitions, Section 4.16. Day Count Fraction, paragraph (e) or Annex to the 2000 ISDA Definitions (June 2000 Version), Section 4.16. Day Count Fraction, paragraph (d).">
    		   [synonym FpML value "ACT/360"],
-   	  ACT_365_FIXED displayName "ACT/365.FIXED" <"Per 2006 ISDA Definitions, Section 4.16. Day Count Fraction, paragraph (d) or Annex to the 2000 ISDA Definitions (June 2000 Version), Section 4.16. Day Count Fraction, paragraph (c).">
-   		   [synonym FpML value "ACT/365.FIXED"],
-   	  ACT_365L displayName "ACT/365L" <"Per 2006 ISDA Definitions, Section 4.16. Day Count Fraction, paragraph (i).">
-   		   [synonym FpML value "ACT/365L"],
-   	  ACT_ACT_AFB displayName "ACT/ACT.AFB" <"The Fixed/Floating Amount will be calculated in accordance with the 'BASE EXACT/EXACT' day count fraction, as defined in the 'Definitions Communes plusieurs Additifs Techniques' published by the Association Francaise des Banques in September 1994.">
-   		   [synonym FpML value "ACT/ACT.AFB"],
-   	  ACT_ACT_ICMA displayName "ACT/ACT.ICMA" <"Per 2006 ISDA Definitions, Section 4.16. Day Count Fraction, paragraph (c). This day count fraction code is applicable for transactions booked under the 2006 ISDA Definitions. Transactions under the 2000 ISDA Definitions should use the ACT/ACT.ISMA code instead.">
-   		   [synonym FpML value "ACT/ACT.ICMA"],
    	  ACT_ACT_ISDA displayName "ACT/ACT.ISDA" <"Per 2006 ISDA Definitions, Section 4.16. Day Count Fraction, paragraph (b) or Annex to the 2000 ISDA Definitions (June 2000 Version), Section 4.16. Day Count Fraction, paragraph (b). Note that going from FpML 2.0 Recommendation to the FpML 3.0 Trial Recommendation the code in FpML 2.0 'ACT/365.ISDA' became 'ACT/ACT.ISDA'.">
    		   [synonym FpML value "ACT/ACT.ISDA"],
-   	  ACT_ACT_ISMA displayName "ACT/ACT.ISMA" <"The Fixed/Floating Amount will be calculated in accordance with Rule 251 of the statutes, by-laws, rules and recommendations of the International Securities Market Association, as published in April 1999, as applied to straight and convertible bonds issued after December 31, 1998, as though the Fixed/Floating Amount were the interest coupon on such a bond. This day count fraction code is applicable for transactions booked under the 2000 ISDA Definitions. Transactions under the 2006 ISDA Definitions should use the ACT/ACT.ICMA code instead.">
-   		   [synonym FpML value "ACT/ACT.ISMA"],
-   	  BUS_252 displayName "BUS/252" <"The number of Business Days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 252.">
-   		   [synonym FpML value "BUS/252"]
+   	  ...
  }
 
 The **synonym syntax** associated with enumeration values differs in two respects from the synonyms associated with other CDM artefacts:
@@ -249,42 +242,25 @@ The **synonym syntax** associated with enumeration values differs in two respect
 * The synonym value is of type ``string``, for the above reason related to the need to facilitate integration with executable code. (The alternative approach consisting in specifying the value as a compatible identifier alongside with a display name has been disregarded because it has been deemed not appropriate to create a 'code-friendly' value for the respective synonyms. A ``string`` type removes such need.)
 * Although this use case is not part of the current CDM scope, the ability to associate a definition to a synonym value has been enabled, the objective being to effectively support the FIX use cases where the synonym value is a letter or numerical code, which is then positioned as the prefix of the associated definition. Although not part of the CDM 1.0 scope, the ``TimeInForceEnum`` illustrates this approach:
 
-  .. code-block:: Java
+.. code-block:: Java
 
-   enum TimeInForceEnum <"The enumeration values to specify the period of time during which an order remains in effect.">
-  	 [synonym FIX value TimeInForce tag 59]
-   {
-    	Day <"Day (or session)">
-    		[synonym FIX value "0" definition "0 = Day (or session)"],
-    	GoodTillCancel <"Good Till Cancel (GTC)">
-    		[synonym FIX value "1" definition "1 = Good Till Cancel (GTC)"],
-    	AtTheOpening <"At the Opening (OPG)">
-    		[synonym FIX value "2" definition "2 = At the Opening (OPG)"],
-    	ImmediateOrCancel <"Immediate Or Cancel (IOC)">
-    		[synonym FIX value "3" definition "3 = Immediate Or Cancel (IOC)"],
-    	FillOrKill <"Fill Or Kill (FOK)">
-    		[synonym FIX value "4" definition "4 = Fill Or Kill (FOK)"],
-    	GoodTillCrossing <"Good Till Crossing (GTX)">
-    		[synonym FIX value "5" definition "5 = Good Till Crossing (GTX)"],
-    	GoodTillDate <"Good Till Date (GTD)">
-    		[synonym FIX value "6" definition "6 = Good Till Date (GTD)"],
-    	AtTheClose <"At the Close">
-    		[synonym FIX value "7" definition "7 = At the Close"],
-    	GoodThroughCrossing <"Good Through Crossing">
-    		[synonym FIX value "8" definition "8 = Good Through Crossing"],
-    	AtCrossing <"At Crossing">
-    		[synonym FIX value "9" definition "9 = At Crossing"]
-    }
+ enum TimeInForceEnum <"The enumeration values to specify the period of time during which an order remains in effect.">
+	 [synonym FIX value TimeInForce tag 59]
+ {
+  	Day <"Day (or session)">
+  		[synonym FIX value "0" definition "0 = Day (or session)"],
+  	GoodTillCancel <"Good Till Cancel (GTC)">
+  		[synonym FIX value "1" definition "1 = Good Till Cancel (GTC)"],
+    ...
+  }
 
 Choice Rules
 ~~~~~~~~~~~~
 
-59 choice rules are part of the CDM 1.0.
-
 Purpose
 ^^^^^^^
 
-Choice rules apply within the context of a class. They define a choice constraint between a set of attributes. They are meant as a simple and robust construct to translate the XML *xsd:choicesyntax* as part of the Rosetta model, although their usage is not limited to those XML use cases.
+Choice rules apply within the context of a class. They define a choice constraint between a set of attributes. They are meant as a simple and robust construct to translate the XML *xsd:choicesyntax* as part of any model created using Rosetta, although their usage is not limited to those XML use cases.
 
 Syntax
 ^^^^^^
@@ -293,34 +269,20 @@ Choice rules only apply within the context of a class, and the naming convention
 
 .. code-block:: Java
 
- class TradeIdentifier stereotype execution, postExecution <"A class defining a trade identifier issued by the indicated party. Rosetta implementation doesn't extends the base class PartyAndAccountReference because of the choice logic with the issuer element.">
-      [synonym FpML value TradeIdentifier]
+ class ContractIdentifier extends Identifier stereotype execution, postExecution <"A class defining a trade identifier issued by the indicated party. The CDM doesn't extends the base class PartyAndAccountReference because of the choice logic with the issuer element.">
+	[synonym FpML value TradeIdentifier]
  {
-      id string (0..1);
-          [synonym FpML value id]
-      issuer Party (0..1) scheme "issuerIdScheme" <"The party that assigns the trade identifier. The FpML required cardinality for the issuing party has been relaxed to accommodate FIX messages.">;
-          [synonym FpML value issuer]
-      party Party (0..1) reference <"FpML implements this element as a reference to a party.">;
-          [synonym FpML value partyReference]
-      account Account (0..1) reference <"FpML implements this element as a reference to an account.">;
-          [synonym FpML value accountReference]
-      tradeId string (0..1) anchor scheme "tradeIdScheme" <"In FIX, the unique ID assigned to the trade entity once it is received or matched by the exchange or central counterparty. In FpML, a trade reference identifier allocated by a party.">;
-          [synonym FIX value TradeID tag 1003]
-          [synonym FIX value SecondaryTradeID tag 1040]
-          [synonym FIX value FirmTradeID tag 1041]
-          [synonym FIX value SecondaryFirmTradeID tag 1042]
-          [synonym FpML value tradeId]
-      versionedTradeId VersionedTradeId (0..1) <"A trade identifier accompanied by a version number.">;
-          [synonym FpML value versionedTradeId]
-  }
+ 	 id string (0..1);
+	  	[synonym FpML value id]
+	 partyReference string (0..1) reference <"Reference to a party.">;
+	  	[synonym FpML value partyReference]
+	 accountReference string (0..1) reference <"Reference to an account.">;
+		 [synonym FpML value accountReference]
+ }
 
-  choice rule TradeIdentifier_choice1 <"Choice rule to represent an FpML choice construct.">
-      for TradeIdentifier required choice between
-      tradeId and versionedTradeId
-
-  choice rule TradeIdentifier_choice2 <"Choice rule to represent an FpML choice construct.">
-      for TradeIdentifier required choice between
-      issuer and party
+ choice rule ContractIdentifier_choice <"Choice rule to represent an FpML choice construct.">
+	for ContractIdentifier required choice between
+	issuer and partyReference
 
 The choice constraint can either be **required** (implying that exactly one of the attributes needs to be present) or **optional** (implying that at most one of the attributes needs to be present).
 
@@ -444,20 +406,7 @@ A further set of attributes can be associated with a synonym, to address specifi
     	terminationDate AdjustableDate (0..1) <"The last day of the terms of the trade. This date may be subject to adjustments in accordance with the business day convention.">;
     		  [synonym FpML value terminationDate pathExpression "calculationPeriodDates"]
     	    [synonym FpML value scheduledTerminationDate]
-    	relativeTerminationDate RelativeDateOffset (0..1) <"The term/maturity of the swap, express as a tenor (typically in years).">;
-    		  [synonym FpML value relativeTerminationDate pathExpression "calculationPeriodDates"]
-    	calculationPeriodDatesAdjustments BusinessDayAdjustments (1..1) <"The business day convention to apply to each calculation period end date if it would otherwise fall on a day which is not a business day in the specified business centers.">;
-    		  [synonym FpML value calculationPeriodDatesAdjustments pathExpression "calculationPeriodDates"]
-    	firstPeriodStartDate AdjustableDate (0..1) <"The start date of the calculation period if the date falls before the effective date. It must only be specified if it is not equal to the effective date. This date may be subject to adjustment in accordance with a business day convention.">;
-    	firstRegularPeriodStartDate date (0..1) <"The start date of the regular part of the calculation period schedule. It must only be specified if there is an initial stub calculation period. This day may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">;
-    		  [synonym FpML value firstRegularPeriodStartDate pathExpression "calculationPeriodDates"]
-    	firstCompoundingPeriodEndDate date (0..1) <"The end date of the initial compounding period when compounding is applicable. It must only be specified when the compoundingMethod element is present and not equal to a value of None. This date may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">;
-    		  [synonym FpML value firstCompoundingPeriodEndDate pathExpression "calculationPeriodDates"]
-    	lastRegularPeriodEndDate date (0..1) <"The end date of the regular part of the calculation period schedule. It must only be specified if there is a final stub calculation period. This day may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">;
-    		  [synonym FpML value lastRegularPeriodEndDate pathExpression "calculationPeriodDates"]
-    	stubPeriodType StubPeriodTypeEnum (0..1) <"Method to allocate any irregular period remaining after regular periods have been allocated between the effective and termination date.">;
-    		  [synonym FpML value stubPeriodType pathExpression "calculationPeriodDates"]
-    	calculationPeriodFrequency CalculationPeriodFrequency (1..1) <"The frequency at which calculation period end dates occur with the regular part of the calculation period schedule and their roll date convention.">;
+    	...
    }
 
 Mapping Logic
@@ -504,8 +453,6 @@ Data Validation Artefacts
 
 Data Rules
 ~~~~~~~~~~
-
-156 data rules are part of the CDM 1.0.
 
 Purpose
 ^^^^^^^
@@ -782,7 +729,7 @@ Contractual products are bilateral contracts between two parties, which terms ar
 
 The CDM ``Contract`` class incorporates all the elements that are part of the FpML *Trade* confirmation view, with the exception of the following elements: *tradeSummary*, *originatingPackage*, *allocations* and *approvals*.
 
-The Rosetta ``Contract`` class includes a ``contractState`` attribute whose purpose is to specify the state of a contract (i.e. ``open`` or ``close``) as a result of an event, i.e. the state transition outcome as it relates to the contract state.  **Note**: the need to further refine this ``contractState`` attribute has been identified by the CDM group as part of the initial phase, and will be tackled through subsequent work.
+The Rosetta ``Contract`` class includes a ``contractState`` attribute whose purpose is to specify the state of a contract as a result of an event, i.e. the state transition outcome as it relates to the contract state.  **Note**: the need to further refine this ``contractState`` attribute has been identified by the CDM group as part of the initial phase, and will be tackled through subsequent work.
 
 .. code-block:: Java
 
@@ -796,38 +743,7 @@ The Rosetta ``Contract`` class includes a ``contractState`` attribute whose purp
       [synonym FpML value clearedDate pathExpression "trade.tradeHeader"]
       [synonym Rosetta_Workbench value clearedDate pathExpression "tradeHeader"]
    contractualProduct ContractualProduct (1..1) <"The contractual product information that is associated with the contract. The corresponding FpML construct is the product abstract element and the associated substitution group.">;
-   otherPartyPayment Payment (0..*) <"Other fees or additional payments associated with the contract, e.g. broker commissions, where one or more of the parties involved are not principal parties involved in the contract.">;
-   [synonym FpML value otherPartyPayment pathExpression "trade"]
-   [synonym Rosetta_Workbench value otherPartyPayment]
-   brokerParty string (0..*) reference <"The reference to the party (or parties) that brokered the contract.">;
-      [synonym FpML value brokerPartyReference pathExpression "trade"]
-      [synonym Rosetta_Workbench value brokerPartyReference]
-   calculationAgent CalculationAgentModel (1..1) <"The ISDA Calculation Agent and the associated business center information. This information is represented in FpML via the CalculationAgent.model.">;
-   determiningParty string (0..2) reference <"TThe party referenced is specified in the related Confirmation as Determination Party.">;
-      [synonym FpML value determiningParty pathExpression "trade"]
-      [synonym Rosetta_Workbench value determiningParty]
-   barrierDeterminationAgent Party (0..1) reference <"The party specified in the related confirmation as Barrier Determination Agent.">;
-      [synonym FpML value barrierDeterminationAgent pathExpression "trade"]
-      [synonym Rosetta_Workbench value barrierDeterminationAgent]
-   hedgingParty string (0..2) reference <"The ISDA Hedging Party that is specified in the related confirmation as Hedging, or if no Hedging Party is specified, either party to the contract.">;
-      [synonym FpML value hedgingParty pathExpression "trade"]
-      [synonym Rosetta_Workbench value hedgingParty]
-   collateral Collateral (0..1) <"Defines the collateral obligations of a party.">;
-      [synonym FpML value collateral pathExpression "trade"]
-      [synonym Rosetta_Workbench value collateral]
-   documentation Documentation (0..1) <"Defines the definitions that govern the document and should include the year and type of definitions referenced, along with any relevant documentation (such as master agreement) and the date it was signed.">;
-      [synonym FpML value documentation pathExpression "trade"]
-      [synonym Rosetta_Workbench value documentation]
-   governingLaw GoverningLawEnum (0..1) scheme "governingLawScheme" <"Identification of the law governing the transaction.">;
-      [synonym FpML value governingLaw pathExpression "trade"]
-      [synonym Rosetta_Workbench value governingLaw]
-   state ContractStateEnum (0..1) <"The state qualification of a contractual product.">;
-      [synonym Rosetta_Workbench value state]
-   party Party (2..*) <"The parties to the contract. While FpML has a minimal cardinality of 1, a minimal cardinality of 2 seems more appropriate.">;
-      [synonym FpML value party]
-      [synonym Rosetta_Workbench value party]
-   account Account (0..*) <"Optional account information.">;
-      [synonym FpML value account]
+   ...
  }
 
 The scope of the contract is limited to the post-execution lifecycle, as it involves legal entities and has a set of attributes which are only qualified at the excution and post-execution stage: trade date, calculation agent, documentatiom, governing law, etc.
@@ -973,13 +889,7 @@ A **two-levels class inheritance structure** has been specified to provide for a
         		[synonym FpML value seniority]
        couponType CouponTypeEnum (0..1) <"Specifies if the bond has a variable coupon, step-up/down coupon or a zero-coupon.">;
       		  [synonym FpML value couponType]
-       couponRate number (0..1) <"Specifies the coupon rate (expressed in percentage) of a fixed income security or convertible bond.">;
-        		[synonym FpML value couponRate]
-       maturity date (0..1) <"The date when the principal amount of a security becomes due and payable.">;
-        		[synonym FpML value maturity]
-        		[synonym FIX value maturityDate]
-       issueDate date (0..1) <"The date on which the instrument was issued.">;
-        		[synonym FIX value issueDate]
+       ...
    }
 
 Loans and Mortgages as Underlyers of Derivative Products
@@ -1001,15 +911,7 @@ The CDM implementation closely reflects the FpML standard, and the approach here
 		    [synonym FpML value borrowerReference]
 	   lien string (0..1) scheme "lienScheme" <"Specifies the seniority level of the lien.">;
 		    [synonym FpML value lien]
-	   facilityType string (0..1) scheme "facilityTypeScheme" <"The type of loan facility (letter of credit, revolving, ...).">;
-		    [synonym FpML value facilityType]
-	   maturity date (0..1) <"The date when the principal amount of the loan becomes due and payable.">;
-		    [synonym FpML value maturity]
-		    [synonym FIX value maturityDate]
-	   creditAgreementDate date (0..1) <"The credit agreement date is the closing date (the date where the agreement has been signed) for the loans in the credit agreement. Funding of the facilities occurs on (or sometimes a little after) the Credit Agreement date. This underlyer attribute is used to help identify which of the company's outstanding loans are being referenced by knowing to which credit agreement it belongs. ISDA Standards Terms Supplement term: Date of Original Credit Agreement.">;
-		    [synonym FpML value creditAgreementDate]
-	   tranche string (0..1) <"The loan tranche that is subject to the derivative transaction. It will typically be referenced as the Bloomberg tranche number. ISDA Standards Terms Supplement term: Bloomberg Tranche Number. In FpML, this element is of type loanTrancheScheme.  It is assumed at this point that setting up an enumeration as part of the Rosetta model would not practicable.">;
-		    [synonym FpML value tranche]
+	  ...
   }
 
  .. code-block:: Java
@@ -1017,21 +919,13 @@ The CDM implementation closely reflects the FpML standard, and the approach here
   class Mortgage extends FixedIncomeSecurity stereotype productReferenceData
     	[synonym FpML value Mortgage]
   {
-  	 insurer Party (0..1) reference <"Applicable to the case of default swaps on MBS terms. For specifying the insurer name, when applicable.  When the element is not present, it signifies that the insurer is Not Applicable.">;
-  		  [synonym FpML value insurer]
-  		  [synonym FpML value insurerReference]
-  	 paymentFrequency Period (0..1) <"Specifies the frequency at which the mortgage pays, e.g. 6M.">;
-  	  	[synonym FpML value paymentFrequency]
-  	 dayCountFraction DayCountFractionEnum (0..1) <"The day count basis for the mortgage.">;
-  	   	[synonym FpML value dayCountFraction]
-  	 originalPrincipalAmount number (0..1) <"The initial issued amount of the mortgage obligation.">;
-  	  	[synonym FpML value originalPrincipalAmount]
   	 pool AssetPool (0..1) <"The mortgage pool that is underneath the mortgage obligation.">;
   	  	[synonym FpML value pool]
   	 sector MortgageSectorEnum (0..1) <"The sector classification of the mortgage obligation.">;
   	  	[synonym FpML value sector]
   	 tranche string (0..1) <"The mortgage obligation tranche that is subject to the derivative transaction.">;
   	  	[synonym FpML value tranche]
+     ...
   }
 
 

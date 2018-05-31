@@ -2,11 +2,11 @@ Users of the distribution are encouraged to start with the CDM documentation fou
 
 The ISDA Digital CDM distribution is organised into the folders below.  Please also see LICENCE.txt for licence terms.
 
-Delivery Manifest.pdf
-A document describing the modelling components developed as part this release of the CDM.
-
 cdm-events.xsd
 The XML Schema that specifies the lifecycle events that are ingested as part of the Rosetta Ingestion service.  Can be used to validate CDM Event XML documents.
+
+Delivery Manifest.pdf
+A document describing the modelling components developed as part this release of the CDM.
 
 /common-domain-model
 The set of files that describe the Common Domain Model.  The files use the .rosetta extension as that carries special meaning in the Rosetta Workbench and Rosetta Portal, to view the files simply use the text editor of your choice as these are in effect, plain text files.
@@ -20,7 +20,6 @@ Contains both the Java and CDM documentation in html format.  In each on the sub
 
 /lib
 The generated Java artefacts of the CDM, including its source code. Use this code to create CDM objects in Java and to execute calculation logic. Whilst there exists Java classes representing choice and data rules, these are still a work in progress.  The JSON projection fo the CDM model is also available as part of those artefacts, although it should be noted that it has two limitations with respect to its usability: (i) the logic associated with data rules, calculation expressions and choice rules is expressed as data, and (ii) the model meta-data is not expressed with a distinct syntax.
-
 
 /lib/dependencies
 Contains all upstream dependencies necessary to compile and run the generated Java code.
