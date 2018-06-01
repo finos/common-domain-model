@@ -8,6 +8,11 @@ The XML Schema that specifies the lifecycle events that are ingested as part of 
 Delivery Manifest.pdf
 A document describing the modelling components developed as part this release of the CDM.
 
+json-xml-document.zip
+Contained inside the archive are:
+1. Sample xml and json documents that the group has used to discuss the CDM during the initial phase;
+2. The CDM in JSON format.
+
 /common-domain-model
 The set of files that describe the Common Domain Model.  The files use the .rosetta extension as that carries special meaning in the Rosetta Workbench and Rosetta Portal, to view the files simply use the text editor of your choice as these are in effect, plain text files.
 
