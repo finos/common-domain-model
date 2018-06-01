@@ -1,6 +1,5 @@
 .. |trade|  unicode:: U+02122 .. TRADE MARK SIGN
 
-
 The ISDA Common Domain Model
 ============================
 The ISDA Common Domain Model (ISDA CDM|trade|)  is an initiative that ISDA has spearheaded to produce a common, robust, digital blueprint for how derivatives are traded and managed across their lifecycle. ISDA is proposing, in a machine-readable format, to build a standard digital representation of products, events and actions that occur during the life of a derivatives trade. It is based on the design principles specified as part of ISDA’s October 2017 `CDM concept paper <https://www.isda.org/a/gVKDE/CDM-FINAL.pdf>`_ for a product scope limited to simple interest and credit derivative products and an agreed sample of business events.
@@ -16,7 +15,6 @@ ISDA anticipates that establishing a common set of data and processing standards
 A high-level presentation of the ISDA CDM and additional information is available on the ISDA website (`www.isda.org <http://www.isda.org/>`_) and particularly with the referred `Short Video <https://www.isda.org/2017/11/30/what-is-the-isda-cdm/>`_.
 
 The remainder of this document goes into details of the structure and design considerations of the CDM Design Working Group.
-
 
 The Rosetta Workbench
 =====================
@@ -40,7 +38,6 @@ The **Model Repository** has two components:
 * The **legible model**, that expresses the data and associated logic using the Rosetta syntax.
 * The **projection of this model** into a variery of executable code representations (presently, JSON and Java).
 
-
 The **Rosetta Workbench** corresponds to the toolset that supports the CDM, through 4 sets of functions:
 
 * The **grammar**, which is specified as part of a Domain Specific Language (DLS) component which has been developed using open source software. While the CDM syntax is based upon this grammar, access to this grammar is needed for using the CDM.
@@ -51,7 +48,6 @@ The **Rosetta Workbench** corresponds to the toolset that supports the CDM, thro
 Those worbench components are presented in the below picture, the further one being the milestoned CDM 1.0 version of the model. Once further version of the CDM will be released, this icon will be repositioned as a generic access to those respective versions.
 
 .. figure:: rosetta-home.png
-
 
 CDM Modelling Artefacts
 =======================
@@ -66,7 +62,6 @@ The CDM combines **five modelling artefacts**, which are consistently expressed 
 
 The below sections of this documentation detail the purpose and features of each of those CDM artefacts, and highlight the relationships that exists among those.
 
-
 Data Representation Artefacts
 -----------------------------
 
@@ -80,15 +75,15 @@ Rosetta makes use of **six data representation components** to represent the CDM
 * Aliases
 
 Classes
-~~~~~~~
+^^^^^^^
 
 Purpose
-^^^^^^^
+"""""""
 
 CDM classes are objects that contain the granular data representation elements, in the form of attributes.
 
 Syntax
-^^^^^^
+""""""
 
 The class is delineated by brackets ``{`` ``}``.
 
@@ -106,21 +101,20 @@ The CDM supports the concept of **abstract classes**, which cannot be instantiat
       ...
  }
 
-
 **Stereotype values**, such as ``postExecution`` in the above example, are specified for the purpose of supporting analytical queries and navigation tools at some further point down the road.
 
 The Rosetta convention is that class names start with a capital letter. Class names need to be unique across the model, including with respect to rule names. Both those are controlled by the Rosetta Workbench grammar.
 
 Attributes
-~~~~~~~~~~
+^^^^^^^^^^
 
 Purpose
-^^^^^^^
+"""""""
 
 Attributes specify the granular model elements in terms of type of value (e.g. ``integer``, ``string``, enumerated value), cardinality and through an associated definition.
 
 Syntax
-^^^^^^
+""""""
 
 A Rosetta attribute can be specified either as a basic type, a class or an enumeration.
 
@@ -147,7 +141,6 @@ The CDM provides the ability to associate either a ``reference``, an identifier 
   		  [synonym FpML value paymentDatesReference]
    }
 
-
 * In the case where a source element makes reference to a scheme and if the values for that scheme are specified as part of the FpML standard, that scheme is positioned as an enumeration.  An example of such is the FpML *creditSupportAgreementTypeScheme* which is represented in CDM via the ``CreditSupportAgreementTypeEnum``. While the scheme value is represented as part of the enumeration, the CDM attribute also carries the scheme reference associated with the original document:
 
   .. code-block:: Java
@@ -162,7 +155,6 @@ The CDM provides the ability to associate either a ``reference``, an identifier 
   	  identifierValue string (0..1) <"An identifier used to uniquely identify the CSA. FpML specifies the type as creditSupportAgreementIdScheme, but without proposing any value.  As far as e understand, no scheme has yet been developed at this point.">;
   		  [synonym FpML value identifier]
    }
-
 
 * In the case where a source element makes reference to a scheme while the values for that scheme are not specified, the corresponding attribute is set as a ``string``, with an associated scheme reference.  An example of such is the FpML *linkIdScheme*.
 
@@ -180,17 +172,17 @@ The CDM provides the ability to associate either a ``reference``, an identifier 
 Rosetta syntax convention is for attribute names to be expressed in lower case, and a warning will be generated by the grammar if this is not the case. Attribute names need to be unique within the context of a class (and within the context of the base class, if a class extends another class), but can be duplicated across classes. The semi-column ``;`` acts as the terminal character for the attribute specification, with associated synonyms being positioned underneath that specification line.
 
 Enumerations
-~~~~~~~~~~~~
+^^^^^^^^^^^^
 
 Purpose
-^^^^^^^
+"""""""
 
 Enumerations are the mechanism through which controlled values are specified at the attribute level. They are the container for the corresponding set of enumeration values.
 
 As mentioned in the preceding section, with respect to the FpML standard, the schemes which values are specified as part of the standard are represented through enumerations in the CDM, while schemes with no defined values are represented in the CDM as a type ``string`` alongside that an associated scheme qualification. The only current exception are the currencies, which are positioned as an enumeration as part of the CDM.
 
 Syntax
-^^^^^^
+""""""
 
 Enumerations are very simple modelling container artefacts. They can have associated synonyms and regulatory references.
 
@@ -210,15 +202,15 @@ Similar to the class, the enumeration is delineated by brackets ``{`` ``}``.
  }
 
 Enumeration Values
-~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^
 
 Purpose
-^^^^^^^
+"""""""
 
 As indicated in the above section, enumeration values are the set of controlled values that are specified as part of an enumeration container.
 
 Syntax
-^^^^^^
+""""""
 
 Enumeration values have a restricted syntax for the purpose of facilitating their integration with executable code: they cannot start with a numerical digit, and the only special character that can be associated with them is the underscore ``_``.
 
@@ -255,15 +247,15 @@ The **synonym syntax** associated with enumeration values differs in two respect
   }
 
 Choice Rules
-~~~~~~~~~~~~
+^^^^^^^^^^^^
 
 Purpose
-^^^^^^^
+"""""""
 
 Choice rules apply within the context of a class. They define a choice constraint between a set of attributes. They are meant as a simple and robust construct to translate the XML *xsd:choicesyntax* as part of any model created using Rosetta, although their usage is not limited to those XML use cases.
 
 Syntax
-^^^^^^
+""""""
 
 Choice rules only apply within the context of a class, and the naming convention is ``<className>_choice``, e.g. ``TradeIdentifier_choice``. If multiple choice rules exist in relation to a class, the naming convention is to suffix the 'choice' term with a number, e.g. ``TradeIdentifier_choice1`` and ``TradeIdentifier_choice2``.
 
@@ -298,7 +290,7 @@ While most of the choice rules have two attributes, there is no limit to the num
 Members of a choice rule need to have their lower cardinality set to 0, something which is enforced by a validation rule.
 
 ``one of`` syntax as a complement to the choice rule
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 In the case where all the attributes of a given class are subject to a choice logic, Rosetta provides the ability to qualify the class information with the ``one of`` qualifier, that is positioned after the stereotype information. This feature is illustrated by the ``BondOptionStrike`` class.
 
@@ -314,10 +306,10 @@ In the case where all the attributes of a given class are subject to a choice lo
   }
 
 Aliases
-~~~~~~~
+^^^^^^^
 
 Purpose
-^^^^^^^
+"""""""
 
 Two considerations stand behind the introduction of aliases as part of the Rosetta syntax:
 
@@ -345,21 +337,20 @@ Two considerations stand behind the introduction of aliases as part of the Roset
     	Swap -> swapStream -> calculationPeriodAmount -> calculation -> notionalSchedule -> notionalStepSchedule -> initialValue
 
 Syntax
-^^^^^^
+""""""
 
 The alias syntax is straightforward: ``alias <name> <Rosetta expression>``.
 
 The alias name needs to be unique across the product and event qualifications, the classes and the aliases, and validation logic is in place to enforce this. The naming convention is to have one CamelCased word, instead of a composite name as for the Rosetta rules, with implied meaning.
 
-
 Mapping Artefacts
 -----------------
 
 Synonyms
-~~~~~~~~
+^^^^^^^^
 
 Purpose
-^^^^^^^
+"""""""
 
 Synonym is the baseline building block in the relationship between the CDM and alternative data representations, whether those are open standards or proprietary data representations. It can be complemented by relevant mapping logic when the relationship is not a one-to-one or is conditional.
 
@@ -373,7 +364,7 @@ Synonyms can be associated to all four sets of Rosetta data modelling artefacts:
 There is no limit to the number of synonyms that can be associated with each of those artefacts, and there can even be several synonyms for a given data source (e.g. in the case of a conditional mapping).
 
 Syntax
-^^^^^^
+""""""
 
 The baseline synonym syntax has two components:
 
@@ -410,17 +401,17 @@ A further set of attributes can be associated with a synonym, to address specifi
    }
 
 Mapping Logic
-~~~~~~~~~~~~~
+^^^^^^^^^^^^^
 
 Purpose
-^^^^^^^
+"""""""
 
 There are cases where the rerlationship between the marketplace standards and protocols and their relation to the CDM is not one-to-one or is conditional.
 
 Hence, the need to complement the synonyms with a syntax that provides the ability to express a mapping logic in a mannet that provides a good balance between flexibility and legibility.
 
 Syntax
-^^^^^^
+""""""
 
 The mapping logic differs from the data rule, choice rule and calculation syntax in that its syntax is not expressed as a stand-alone block with a qualifier prefix such as ``rule``. Rather, the mapping rule is positioned as an extension to the synonym expression, and each of the mapping expressions (several mapping expressions can be associated with a given synonym) is prefixed with the ``set`` qualifier, followed by the name of the Rosetta attribute to which the synonym is being mapped to.
 
@@ -447,15 +438,14 @@ The mapping logic associated with the below ``action`` attribute provides a good
   			   set action to ActionEnum.correct when True]
  }
 
-
 Data Validation Artefacts
 -------------------------
 
 Data Rules
-~~~~~~~~~~
+^^^^^^^^^^
 
 Purpose
-^^^^^^^
+"""""""
 
 Data rules are the primary channel through which data validation is enforced as part of Rosetta.
 
@@ -482,9 +472,8 @@ As an example, the ``FpML_ird_61`` data rule implements the **FpML ird validatio
 
 (**Note**: the above ``0.0`` notation is meant to denote the fact that the ``initialValue`` attribute is of type ``number``.)
 
-
 Syntax
-^^^^^^
+""""""
 
 Data rules apply to classes and associated attributes.
 
@@ -523,7 +512,6 @@ Another variation example of this naming convention is ``CalculationPeriodFreque
  data rule CalculationPeriodFrequency_rollConvention_T <"FpML validation rule ird-60 - Context: CalculationPeriodFrequency (complex type). When the period is 'T', the rollConvention must be 'NONE'.">
     when CalculationPeriodFrequency -> period = PeriodExtendedEnum.T
     then CalculationPeriodFrequency -> rollConvention = RollConventionEnum.NONE
-
 
 The main data rule syntax is in the form of ``when <Rosetta expression> then <Rosetta expression>``.
 
@@ -565,25 +553,23 @@ Here are a set of relevant examples of this data rule syntax:
      and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
    then Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> dateAdjustments exists
 
-
 Object Qualification Artefacts
 ------------------------------
 
 The CDM modelling approach consists in inferring the product and event qualification from their relevant attributes, rather than qualifying those upfront. As a result, the Rosetta syntax has been adjusted to meet this requirement, with slight variations in the implementation across those two use cases.
 
-
 Product Qualification
-~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^
 
 15 products have been qualified as part of the CDM 1.0.
 
 Purpose
-^^^^^^^
+"""""""
 
 The product qualification leverages the **alias** syntax presented earlier in this documentation, by qualifying a product from its economic terms, those latter being expressed through a set of assertions associated with modelling components.
 
 Syntax
-^^^^^^
+""""""
 
 The product qualification syntax is as follows: ``isProduct <name> <Rosetta expression>``.
 
@@ -599,17 +585,17 @@ The CDM makes use of the ISDA taxonomy V2.0 leaf level to qualify the event.  Th
       and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate exists
 
 Event Qualification
-~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^
 
 14 events have been qualified as part of the CDM 1.0.
 
 Purpose
-^^^^^^^
+"""""""
 
 Similar to the product qualification syntax, the purpose of the event qualifier is to qualify a product from the existence of the a set of modelling attributes.
 
 Syntax
-^^^^^^
+""""""
 
 The event qualification syntax is similar to the product and the alias, the difference being that it is possible to associate a set of data rules to a: ``isProduct <name> <Rosetta expression> <Data rule>``.
 
@@ -632,7 +618,6 @@ The ``PartialTermination`` illustrates quite well how the syntax qualifies this 
  data rule NotionalAmount_Remaining <"Logic to qualify a remaining notional amount as a result of a quantity change primitive event.">
     	when Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
     	then Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount > 0
-
 
 Calculation Artefacts
 ---------------------
@@ -674,15 +659,12 @@ The application of this syntax to the ``ACT/365.FIXED`` ISDA day count fraction 
       endDay : is Min( period -> endDate -> day, 30 )
  }
 
-
 .. code-block:: Java
 
   function ResolveRateIndex( index FloatingRateIndexEnum ) <"The function to specify that the floating rate index enumeration will be expressed as a number once the rate is observed.">
   {
  	      rate number;
   }
-
-
 
 CDM Model
 =========
@@ -693,7 +675,6 @@ This section presents an outline of the **four dimensions of the CDM model repre
 * events
 * interest calcution
 * reference data
-
 
 Product Model
 -------------
@@ -706,7 +687,7 @@ CDM provides a composite product model whereby:
 The scope of the CDM 1.0 is limited to contractual derivative products, and listed products, loans and mortgages are represented only in relation to the features needed to position those as underlyers of such derivative products.
 
 Contractual Derivative Products
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The scope of products implemented as part of CDM 1.0 is as follows:
 
@@ -719,11 +700,10 @@ The scope of products implemented as part of CDM 1.0 is as follows:
   * Credit default swaps (incl. baskets, tranche, swaps with mortgage and loans underlyers, ...)
   * Options on credit default swaps
 
-
 The below sections detail the key features of this product implementation: contract representation, economic terms component and how the product qualification is inferred from those economic terms.
 
 Post-execution: the contract
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+""""""""""""""""""""""""""""
 
 Contractual products are bilateral contracts between two parties, which terms are specified at trade inception and apply throughout the life of the contract. Contractual products are fungible only under specific terms (e.g. existence of a close-out netting agreement between the parties).
 
@@ -759,11 +739,10 @@ The economic terms of the contract are positioned as part of the ``contractualPr
     economicTerms EconomicTerms (1..1);
  }
 
-
 In this respect, the CDM ``contract`` corresponds to the confirmation view of the FpML *trade*, while the ``contractualProduct`` corresponds to the pre-trade view of the FpML *trade*.  (The FpML *trade* term has not been used as part of the CDM because deemed ambiguous in this respect. Its use as part of the standard is largely due to an exclusive focus on post-execution activity in the initial stages of its development. Later adjustments in this respect would have been made difficult as a result of backward compatibility considerations.)
 
 The economic terms
-^^^^^^^^^^^^^^^^^^
+""""""""""""""""""
 
 The CDM ``EconomicTerms`` class ands the underlying ``Payout`` class represent a significant departure from the FpML standard. While FpML qualifies the product through the *product* substitution group, CDM specifies the various set of possible economic terms as part of those afore mentioned ``economicTerms`` and ``payout`` classes. A contractual product will then consist in an assembling of such economic terms, from which the product qualification will be syntactically inferred.
 
@@ -827,7 +806,7 @@ The absence of synonym entry for the  ``creditDefaultPayout`` attribute is due t
  }
 
 Infering the product qualification from its economic terms
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 The product qualification is inferred from the economic terms through a dedicated Rosetta syntax which navigate the CDM components. The qualification of a **zero coupon fixed float inflation swap** provides a good example of the set of logic that can be used for such purpose, and which combines boolean and qualified expressions.
 
@@ -843,7 +822,7 @@ The CDM makes use of the ISDA taxonomy V2.0 leaf level to qualify the product.  
    and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.T
 
 Listed Products as Underlyers of Derivative Products
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Listed products have some (or all) of their economic terms abstracted through a **product identifier** and publicly disseminated by a central venue. As a result, fungibility applies as a function of this product identifier. Hence, the approach of qualifying a product from its economic terms is not applicable to such listed products.
 
@@ -858,7 +837,6 @@ The ``ListedProduct`` class provides a **choice between the respective listed pr
    convertibleBond ConvertibleBond (0..1);
 		   [synonym FpML value convertibleBond pathExpression "trade.bondOption"]
  }
-
 
 A **two-levels class inheritance structure** has been specified to provide for a scalable implementation:
 
@@ -876,7 +854,6 @@ A **two-levels class inheritance structure** has been specified to provide for a
       		[synonym FpML value description]
   }
 
-
 * Leveraging the FpML approach for underlyer components, a ``FixedIncomeSecurity`` and an ``EquityAsset`` abstract class then provide the commmon attributes for those respective type of instruments.
 
   .. code-block:: Java
@@ -893,12 +870,11 @@ A **two-levels class inheritance structure** has been specified to provide for a
    }
 
 Loans and Mortgages as Underlyers of Derivative Products
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Loans and mortgages are part of the CDM 1.0 as certain credit default swaps have such underlyers.
 
 The CDM implementation closely reflects the FpML standard, and the approach here has not been to infer the product from its economic terms. This approach could be revisited at a later point, once those products are fully represented as part of the CDM, i.e. not just as underlyer components.
-
 
  .. code-block:: Java
 
@@ -928,7 +904,6 @@ The CDM implementation closely reflects the FpML standard, and the approach here
      ...
   }
 
-
 Event Model
 -----------
 
@@ -938,7 +913,7 @@ The CDM event model is based upon the same high-level principles as the product 
 * The event qualification is inferred from those primitive events and, in some relevant cases, from an **intent** qualifier.
 
 Baseline event modelling features
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Two classes act as foundational blocks for the Rosetta event model: the ``EventBase`` abstract class and the ``Event`` root class. **Note**: if the further developments confirm the unique event structure, those two classes may well be collapsed, as such inheritance structure would have no value.
 
@@ -1005,7 +980,7 @@ Two classes act as foundational blocks for the Rosetta event model: the ``EventB
     }
 
 Primitive events
-~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^
 
 CDM primitive events are the building block components used to specify business events.
 
@@ -1035,7 +1010,7 @@ CDM primitive events are the building block components used to specify business 
    }
 
 Event qualification from primitive events and intent qualification
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 Similar to the product modelling approach, the event qualification is inferred from the primitive events. One distinction with the product approach is that the ``intent`` qualification is also deemed necessary to complement such primitive event information in certain cases.
 
@@ -1054,17 +1029,15 @@ An example of such is the **partial termination event**, which is deemed as need
 
 A further example would be the need for disambiguation between a **portfolio rebalancing event** and an **asset servicing event** as applying to a total return swap.
 
-
 Interest Calculation
 --------------------
 
 CDM V1.0 implements the **Fixed Amount** and **Floating Amount** ISDA 2006 Definitions, alongside with two day count fractions: **30E/360** and **ACT/365.FIXED**.
 
 Fixed Amount and Floating Amount Definitions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The CDM syntax to express the Fixed Amount and Floating Amount is similar in structure: a calculation that reflects the terms of the ISDA 2006 Definitions, and associated arguments.
-
 
 .. code-block:: Java
 
@@ -1099,9 +1072,8 @@ The CDM syntax to express the Fixed Amount and Floating Amount is similar in str
   	 dayCountFraction: is InterestRatePayout -> dayCountFraction
  }
 
-
 Day Count Fractions: 30E/360 and ACT/365.FIXED
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 CDM V1.0 incorporates two day acount fractions calculations which are quite representative of the set of day count fractions that are specified as part of the ISDA 2006 Definitions: while the **30E/360** definition specifies the actual computation in quite details as a result of the use of a 360 days year and a 30 maximum days month, the **ACT/365.FIXED** is much simpler and relies upon a computation of the number of days in a period which is not specified as part of the syntax because not involving any specific logic.
 
@@ -1135,7 +1107,6 @@ CDM V1.0 incorporates two day acount fractions calculations which are quite repr
   {
   	 daysInPeriod : is DaysInPeriod( InterestRatePayout -> calculationPeriodDates ) -> days
   }
-
 
 Reference Data Model
 --------------------
