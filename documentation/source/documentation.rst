@@ -132,7 +132,7 @@ The CDM provides the ability to associate either a ``reference``, an identifier 
 
 * In the case where a source element is specified by reference to another element, the CDM will model this attribute in the same manner:
 
-  .. code-block:: Java
+ .. code-block:: Java
 
    class DateRelativeToPaymentDates stereotype contractualProduct <"A class to provide the ability to point to multiple payment nodes in the document through the unbounded paymentDatesReference.">
   	[synonym FpML value DateRelativeToPaymentDates]
@@ -143,7 +143,7 @@ The CDM provides the ability to associate either a ``reference``, an identifier 
 
 * In the case where a source element makes reference to a scheme and if the values for that scheme are specified as part of the FpML standard, that scheme is positioned as an enumeration.  An example of such is the FpML *creditSupportAgreementTypeScheme* which is represented in CDM via the ``CreditSupportAgreementTypeEnum``. While the scheme value is represented as part of the enumeration, the CDM attribute also carries the scheme reference associated with the original document:
 
-  .. code-block:: Java
+ .. code-block:: Java
 
    class CreditSupportAgreement stereotype contractualProduct <"The agreement executed between the parties and intended to govern collateral arrangement for all OTC derivatives transactions between those parties.">
       [synonym FpML value CreditSupportAgreement]
@@ -158,7 +158,7 @@ The CDM provides the ability to associate either a ``reference``, an identifier 
 
 * In the case where a source element makes reference to a scheme while the values for that scheme are not specified, the corresponding attribute is set as a ``string``, with an associated scheme reference.  An example of such is the FpML *linkIdScheme*.
 
-  .. code-block:: Java
+ .. code-block:: Java
 
     class LinkId <"The class to represent link identifiers.">
     	[synonym FpML value LinkId]
@@ -234,11 +234,11 @@ The **synonym syntax** associated with enumeration values differs in two respect
 * The synonym value is of type ``string``, for the above reason related to the need to facilitate integration with executable code. (The alternative approach consisting in specifying the value as a compatible identifier alongside with a display name has been disregarded because it has been deemed not appropriate to create a 'code-friendly' value for the respective synonyms. A ``string`` type removes such need.)
 * Although this use case is not part of the current CDM scope, the ability to associate a definition to a synonym value has been enabled, the objective being to effectively support the FIX use cases where the synonym value is a letter or numerical code, which is then positioned as the prefix of the associated definition. Although not part of the CDM 1.0 scope, the ``TimeInForceEnum`` illustrates this approach:
 
-.. code-block:: Java
+ .. code-block:: Java
 
- enum TimeInForceEnum <"The enumeration values to specify the period of time during which an order remains in effect.">
+  enum TimeInForceEnum <"The enumeration values to specify the period of time during which an order remains in effect.">
 	 [synonym FIX value TimeInForce tag 59]
- {
+  {
   	Day <"Day (or session)">
   		[synonym FIX value "0" definition "0 = Day (or session)"],
   	GoodTillCancel <"Good Till Cancel (GTC)">
@@ -315,7 +315,7 @@ Two considerations stand behind the introduction of aliases as part of the Roset
 
 * The recognition that model tree expressions can be cumbersome at time and hence may contradict the primary goals of clarity and legibility. The CDM 1.0  makes use of the this syntax artefact through the ``period`` alias as part of the date arguments associated with the day count fraction computation:
 
-  .. code-block:: Java
+ .. code-block:: Java
 
    alias period CalculationPeriod( InterestRatePayout -> calculationPeriodDates )
 
@@ -328,7 +328,7 @@ Two considerations stand behind the introduction of aliases as part of the Roset
 
 * As part of the Rosetta model which has been used as an input for the CDM, aliases have been used to express key concepts such as the price or the notional of a financial instrument, as a way to provide a straightforward and cohesive way to express / access them across products. The aliases ``CdsNotional`` and ``IrsInitialNotional`` were good illustrations of such approach:
 
-  .. code-block:: Java
+ .. code-block:: Java
 
     alias CdsNotional <"The notional of credit default swap.">
     	CreditDefaultSwap -> protectionTerms -> calculationAmount
@@ -382,7 +382,7 @@ A further set of attributes can be associated with a synonym, to address specifi
 *  A **definition** (of type ``string``) can be associated with the enumeration value synonyms, as noted above, the purpose being to provide a more explicit reference to the FIX enumeration values, which are specified through a single digit or letter, which value is then positioned as a prefix to the associated definition.
 * A **pathExpression** which purpose is allows mapping in cases where the data is nested in different ways between the respective models.  The ``CalculationPeriodDates`` is a good illustration of such cases, as it is a widely used building block that is leveraged from the FpML standard:
 
-  .. code-block:: Java
+ .. code-block:: Java
 
    class CalculationPeriodDates stereotype contractualProduct <"A class defining the parameters used to generate the calculation period dates schedule, including the specification of any initial or final stub calculation periods. A calculation perod schedule consists of an optional initial stub calculation period, one or more regular calculation periods and an optional final stub calculation period. In the absence of any initial or final stub calculation periods, the regular part of the calculation period schedule is assumed to be between the effective date and the termination date. No implicit stubs are allowed, i.e. stubs must be explicitly specified using an appropriate combination of firstPeriodStateDate, firstRegularPeriodStartDate and lastRegularPeriodEndDate..">
 	     [synonym FpML value CalculationPeriodDates]
@@ -692,11 +692,13 @@ Contractual Derivative Products
 The scope of products implemented as part of CDM 1.0 is as follows:
 
 * Interest rate derivatives:
-  * Interest rate swaps (incl. cross-currency swaps, non-deliverable swaps, basis swaps, swaps with non-regular periods, ...)
+
+  * Interest rate swaps (incl. cross-currency swaps, non-deliverable swaps, basis swaps, swaps with  non-regular periods, ...)
   * Swaptions
   * Bond and convertible bond options
 
 * Credit derivatives:
+
   * Credit default swaps (incl. baskets, tranche, swaps with mortgage and loans underlyers, ...)
   * Options on credit default swaps
 
@@ -856,7 +858,7 @@ A **two-levels class inheritance structure** has been specified to provide for a
 
 * Leveraging the FpML approach for underlyer components, a ``FixedIncomeSecurity`` and an ``EquityAsset`` abstract class then provide the commmon attributes for those respective type of instruments.
 
-  .. code-block:: Java
+ .. code-block:: Java
 
    class FixedIncomeSecurity extends ListedHeader stereotype productReferenceData, listedProduct <"A fixed income security. In FpML, it corresponds to the FixedIncomeSecurityContent.model.">
    {
@@ -876,7 +878,7 @@ Loans and mortgages are part of the CDM 1.0 as certain credit default swaps have
 
 The CDM implementation closely reflects the FpML standard, and the approach here has not been to infer the product from its economic terms. This approach could be revisited at a later point, once those products are fully represented as part of the CDM, i.e. not just as underlyer components.
 
- .. code-block:: Java
+.. code-block:: Java
 
   class Loan extends IdentifiedAsset stereotype productReferenceData
 	[synonym FpML value Loan]
@@ -890,7 +892,7 @@ The CDM implementation closely reflects the FpML standard, and the approach here
 	  ...
   }
 
- .. code-block:: Java
+.. code-block:: Java
 
   class Mortgage extends FixedIncomeSecurity stereotype productReferenceData
     	[synonym FpML value Mortgage]
@@ -925,7 +927,7 @@ Two classes act as foundational blocks for the Rosetta event model: the ``EventB
   * **Time dimension** information, through the ``eventDate`` and ``effectiveDate``;
   * **Action qualification**, to specify whether the event is a new one, a correction or a cancellation of a prior one.
 
-  .. code-block:: Java
+   .. code-block:: Java
 
    abstract class EventBase stereotype preExecution, execution, postExecution <"The event base abstract class.">
    {
@@ -950,7 +952,7 @@ Two classes act as foundational blocks for the Rosetta event model: the ``EventB
   * **Party information**.
   * **Lineage information**, in the form of a class that provides the ability to reference an unbouded set of contracts or events, as shown by the below code snippet:
 
-  .. code-block:: Java
+   .. code-block:: Java
 
    class Lineage
    {
@@ -963,7 +965,7 @@ Two classes act as foundational blocks for the Rosetta event model: the ``EventB
   * **Primitive events**: the CDM composite approach uses the primitive events as its building blocks. Those primitive events are detailed in the next section of the documentation.
   * **Function call**: an example of such a function call is the interpolation function that would be associated with a **derived observation** event that assembles two observed values (say, a 3 months and a 6 months rate observation) to provide a derived one (say, a 5 months observation). As part of the CDM V1.0 this function call as been specified as a mere string element. It will be appropriately specified once such implementation is developed, some of which consisting in the machine readable implementation of the ISDA Definitions (see next Interest Calculation section).
 
-  .. code-block:: Java
+   .. code-block:: Java
 
    class Event extends EventBase
    {
@@ -984,7 +986,7 @@ Primitive events
 
 CDM primitive events are the building block components used to specify business events.
 
- .. code-block:: Java
+.. code-block:: Java
 
   class PrimitiveEvent <"The set of primitive events. The purpose of this class it to provide clarity with respect to the event qualification logic.">
   {
@@ -1016,7 +1018,7 @@ Similar to the product modelling approach, the event qualification is inferred f
 
 An example of such is the **partial termination event**, which is deemed as needed such intent qualification in order to be disambiguated from a **correction event**:
 
- .. code-block:: Java
+.. code-block:: Java
 
   isEvent PartialTermination <"The qualification of a full termination event from the fact that (i) the only primitive is the quantityChange, (ii) the intent is a full termination when such intent is specified, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
 	   if Event -> intent exists
