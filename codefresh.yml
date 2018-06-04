@@ -9,7 +9,7 @@ steps:
           releaseNameNotDefined: "${{TAG_REPO}} == true"
     commands:
       - cf_export RELEASE_NAME=${{TAG_NAME}}
-      
+
   BranchReleaseName:
     title: Setup RELEASE_NAME variable with branch name
     image: alpine/git
@@ -40,6 +40,7 @@ steps:
           isRelease: "${{TAG_REPO}}"
     commands:
       - echo This is a release build, tag repos with release name [${{RELEASE_NAME}}]
+      - git push https://regnosys-ops:O6pl6qXtQLk6Z8KO2QFEcY@github.com/REGnosys/${{CF_REPO_NAME}}.git :${{RELEASE_NAME}}
       - git fetch --prune https://regnosys-ops:O6pl6qXtQLk6Z8KO2QFEcY@github.com/REGnosys/${{CF_REPO_NAME}}.git "+refs/tags/*:refs/tags/*"
       - git tag ${{RELEASE_NAME}}
       - git push https://regnosys-ops:O6pl6qXtQLk6Z8KO2QFEcY@github.com/REGnosys/${{CF_REPO_NAME}}.git ${{RELEASE_NAME}}
