@@ -1,14 +1,14 @@
-package com.rosetta.model.functions;
+package org.isda.cdm.functions;
 
-import com.rosetta.model.SpreadSchedule;
-import  com.rosetta.model.functions.GetRateSchedule.Result;
+import org.isda.cdm.SpreadSchedule;
+import  org.isda.cdm.functions.GetRateSchedule.Result;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 public class GetRateScheduleImpl {
 
-	public Result execute(com.rosetta.model.FloatingRateCalculation floatingRateCalculation) {
+	public Result execute(org.isda.cdm.FloatingRateCalculation floatingRateCalculation) {
 		List<SpreadSchedule> spreadSchedules = floatingRateCalculation.getSpreadSchedule();
 
 		if (spreadSchedules != null && !spreadSchedules.isEmpty()) {

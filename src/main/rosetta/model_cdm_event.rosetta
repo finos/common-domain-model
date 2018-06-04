@@ -1,13 +1,23 @@
-Rosetta versionNumber "0.0.1"
-FIX versionNumber "5.0 SP3"
-FpML versionNumber "5.10"
+namespace "org.isda.cdm"
 
+class AllocationOutcome extends ContractOrContractReference <"Class to specify the allocated contracts or contract references, alongside the state qualification of the execution.">
+{
+	execution ExecutionReference (1..1);
+}
+
+class ExecutionReference
+{
+	executionReference Identifier (1..1);
+		[synonym Rosetta_Workbench value executionReference]
+	state StateEnum (1..1);
+		[synonym Rosetta_Workbench value state]
+}
 
 class AllocationPrimitive <"The primitive event to represent a split/allocation of a contractual product or a contract.">
 {
 	before Execution (1..1);
 		[synonym Rosetta_Workbench value before]
-	after ContractOrContractReference (1..1);
+	after AllocationOutcome (1..1);
 		[synonym Rosetta_Workbench value after]
 }
 
@@ -36,7 +46,7 @@ class ContractOrListedProduct one of
 
 class ContractReference extends ContractIdentifier
 {
-	state ContractStateEnum (0..1) <"The state qualification of a contractual product.">;
+	state StateEnum (0..1) <"The state qualification of a contractual product.">;
 		[synonym Rosetta_Workbench value state]
 }
 
@@ -271,7 +281,11 @@ data rule NotionalAmount_Remaining <"Logic to qualify a remaining notional amoun
 
 data rule Quantity_Decrease <"Logic to qualify a decrease in the quantity as a result of a quantity change primitive event.">
 	when Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity  -> quantity exists
+<<<<<<< HEAD
 	then Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity -> amount>
+=======
+	then Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity -> amount >
+>>>>>>> branch 'master' of https://github.com/REGnosys/rosetta-cdm.git
 		Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity -> amount
 
 data rule Quantity_Remaining <"Logic to qualify a remaining quantity as a result of a quantity change primitive event.">
@@ -284,26 +298,38 @@ data rule NotionalAmount_Null <"Logic to qualify a null notional amount as a res
 
 data rule ContractReference_Terminated <"Logic to qualify that a contract reference has been terminated.">
 	when Event -> primitive -> quantityChange -> after -> contractReference exists
-	then Event -> primitive -> quantityChange -> after -> contractReference -> state = ContractStateEnum.terminated
+	then Event -> primitive -> quantityChange -> after -> contractReference -> state = StateEnum.terminated
 
 data rule Contract_Terminated <"Logic to qualify that a contract has been terminated.">
 	when Event -> primitive -> quantityChange -> after -> contract exists
-	then Event -> primitive -> quantityChange -> after -> contract -> state = ContractStateEnum.terminated
+	then Event -> primitive -> quantityChange -> after -> contract -> state = StateEnum.terminated
 
 /*
- * TODO - Comment from CDM working group is that the change in some of the legal agreements might
+ * TODO - Comment from the CDM group is that while the equality in the economic terms between the prior contract and the novated contract is appropriate in principle, we should further look into potential edge cases. The case that was discussed relates to the fact that a novation could imply that a swaption that was negotiated under MCA terms might move to Matrix terms following the novation, which would result in a change of the exercise time. It was however noted that, if the contract had been properly drafted, such exercise time would not be specified as part of the trade because it would be implied by such reference terms, and hence would not result in economic differences between those contracts.
+ * 
  */
-data rule FullNovation_Contract <"Logic to qualify a full novation when the resulting contract is specified (instead of being referenced) by the fact that (i) there is only one resulting contract, (ii) the party and the contract identifier are distinct between the before an after, (iii) the economic terms are unchanged, (iv) the trade date of the novated contract is equal to the novation date, and (v) the resulting contract state is 'novated'.">
+data rule FullNovation_Contract <"Logic to qualify a full novation when the resulting contract is specified (instead of being referenced) by the fact that (i) there is only one resulting contract, (ii) the party and the contract identifier are distinct between the before an after, (iii) the economic terms are unchanged, (iv) the trade date of the new contract is equal to the novation date, (v) the effective date of the new contract is equal to the event effective date, and (vi) the resulting contract state is 'novated'.">
 	when Event -> primitive -> partyChange -> after -> contract single exists
 	then Event -> primitive -> partyChange -> before -> contract -> party <> Event -> primitive -> partyChange -> after -> contract -> party
 	and Event -> primitive -> partyChange -> before -> contract -> contractIdentifier <> Event -> primitive -> partyChange -> after -> contract -> contractIdentifier
 	and Event -> primitive -> partyChange -> before -> contract -> contractualProduct -> economicTerms = Event -> primitive -> partyChange -> after -> contract -> contractualProduct -> economicTerms
 	and Event -> primitive -> partyChange -> after -> contract -> tradeDate -> date = Event -> eventDate
-	and Event -> primitive -> partyChange -> after -> contract -> state = ContractStateEnum.novated
+	and Event -> primitive -> partyChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate = Event -> effectiveDate
+	and Event -> primitive -> partyChange -> after -> contractReference -> state = StateEnum.novated
+	/*
+	 * Needs to refine the syntax to state that the contract reference which contractId = the one before has a novated state
+	 */
 
-data rule FullNovation_ContractReference <"Logic to qualify a full novation when the resulting contract is referenced (instead of being specified) by the fact that (i) there is only one resulting contract and (ii) the resulting contract state is 'novated'.">
+data rule Novation_EffectiveDate <"The requirement that the effective date of the novated trade be equal to the event effective date implies that the novation event should always have an associated effective date (which is optional from a data cardinality standpoint).">
+	when Event -> primitive -> partyChange exists
+	then Event -> effectiveDate exists
+
+data rule FullNovation_ContractReference <"Logic to qualify a full novation when the resulting contract is referenced (instead of being specified) by the fact that (i) there is only one resulting contract and (ii) the prior contract state is 'novated'.">
 	when Event -> primitive -> partyChange -> after -> contractReference single exists
-	then Event -> primitive -> partyChange -> after -> contractReference -> state = ContractStateEnum.novated
+	then Event -> primitive -> partyChange -> after -> contractReference -> state = StateEnum.novated
+	/*
+	 * Needs to refine the syntax to state the the contract reference which contractId = the one before has a novated state
+	 */
 
 data rule PartialNovation <"Logic to qualify a partial novation by the fact that (i) the partyChange primitive is associated with only multiple resulting contracts, (ii) the party and the contract identifier are distinct across the two after contracts.">
 	when Event -> primitive -> partyChange -> after -> contract multiple exists
@@ -313,7 +339,7 @@ data rule PartialNovation <"Logic to qualify a partial novation by the fact that
 	 * Need to add logic to qualify the fact that the economic terms should be unchanged except for the quantity
 	 * and the that sum of quantity after = quantity before
 	 * 
-	 * Need to add logic to qualify the novated portion of the contract (characterised by a party change) have a TD = event date
+	 * Need to add logic to qualify the novated portion of the contract (characterised by a party change) have a TD = event date & EF = event effective date
 	 */
 
 data rule NovationFee <"Logic to specify that if a payment is qualified as a novation fee, it must have lineage into multiple contracts and one single event (the novation event).">
@@ -324,7 +350,7 @@ data rule NovationFee <"Logic to specify that if a payment is qualified as a nov
 data rule Allocation_ContractReference <"Logic to qualify an allocation that references the allocated contracts (instead of explicitly stating those) from the fact that (i) there are multiple such references and (ii) the resulting state is 'allocated'.">
 	when Event -> primitive -> allocation -> after -> contractReference exists
 	then Event -> primitive -> allocation -> after -> contractReference multiple exists
-	and Event -> primitive -> allocation -> after -> contractReference -> state = ContractStateEnum.allocated
+	and Event -> primitive -> allocation -> after -> execution -> state = StateEnum.allocated
 	/*
 	 * Need to extend the grammar in order to qualify that before quantity = sum of after quantities
 	 */
@@ -332,7 +358,7 @@ data rule Allocation_ContractReference <"Logic to qualify an allocation that ref
  data rule Allocation_Contract <"Logic to qualify an allocation that specifies the allocated contracts (instead of referencing those) from the fact that (i) there are multiple such references and (ii) the resulting state is 'allocated'.">
 	when Event -> primitive -> allocation -> after -> contract exists
 	then Event -> primitive -> allocation -> after -> contract multiple exists
-	and Event -> primitive -> allocation -> after -> contract -> state = ContractStateEnum.allocated
+	and Event -> primitive -> allocation -> after -> execution -> state = StateEnum.allocated
 	/*
 	 * Need to extend the grammar in order to qualify that before quantity = sum of after quantities
 	 */
@@ -386,7 +412,7 @@ isEvent Novation <"The qualification of a novation event from the fact that (i) 
 		and Event -> primitive -> partyChange only exists
 	else 
 		Event -> primitive -> partyChange only exists
-	and FullNovation_Contract or FullNovation_ContractReference or PartialNovation apply
+	and Novation_EffectiveDate, FullNovation_Contract or FullNovation_ContractReference or PartialNovation apply
 		
 isEvent Observation <"The qualification of an observation event from the fact that (i) the only primitive is the observation, and (ii) that there is only a single instance of such observation.">
 	Event -> primitive -> observation only single exists 

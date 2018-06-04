@@ -49,9 +49,9 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'Rosetta Model'
-copyright = '2018, REGnosys'
-author = 'REGnosys'
+project = 'ISDA CDM'
+copyright = '2018, ISDA'
+author = 'ISDA'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -115,7 +115,7 @@ html_sidebars = {
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'rosetta-model-docsdoc'
+htmlhelp_basename = 'cdm-docsdoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -142,8 +142,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'rosetta-model-docs.tex', 'rosetta-model-docs Documentation',
-     'REGnosys', 'manual'),
+    (master_doc, 'cdm-docs.tex', 'cdm-docs Documentation',
+     'ISDA', 'manual'),
 ]
 
 
@@ -152,7 +152,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'rosetta-model-docs', 'rosetta-model-docs Documentation',
+    (master_doc, 'cdm-docs', 'cdm-docs Documentation',
      [author], 1)
 ]
 
@@ -163,8 +163,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'rosetta-model-docs', 'rosetta-model-docs Documentation',
-     author, 'rosetta-model-docs', 'One line description of project.',
+    (master_doc, 'cdm-docs', 'cdm-docs Documentation',
+     author, 'cdm-docs', 'ISDA Digital Common Domain Model.',
      'Miscellaneous'),
 ]
 

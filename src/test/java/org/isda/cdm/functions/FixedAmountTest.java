@@ -1,7 +1,7 @@
-package com.rosetta.model.functions;
+package org.isda.cdm.functions;
 
-import com.rosetta.model.*;
-import com.rosetta.model.calculation.FixedAmount;
+import org.isda.cdm.*;
+import org.isda.cdm.calculation.FixedAmount;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
