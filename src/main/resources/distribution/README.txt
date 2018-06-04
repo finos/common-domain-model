@@ -5,11 +5,11 @@ The ISDA Digital CDM distribution is organised into the folders below.  Please a
 cdm-events.xsd
 The XML Schema that specifies the lifecycle events that are ingested as part of the Rosetta Ingestion service.  Can be used to validate CDM Event XML documents.
 
-Delivery Manifest.pdf
+Delivery Manifest
 A document describing the modelling components developed as part this release of the CDM.
 
-json-xml-document.zip
-Contained inside the archive are:
+json-xml-document
+Contained inside are:
 1. Sample xml and json documents that the group has used to discuss the CDM during the initial phase;
 2. The CDM in JSON format.
 
