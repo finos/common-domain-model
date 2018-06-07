@@ -3,6 +3,9 @@ namespace "org.isda.cdm"
  
 class Contract <"A class to specify a contract object, which can be invoked either within the context of an event, or independently from it. It corresponds to the FpML Trade, although restricted to execution and post-execution contexts. Attributes also applicable to pre-execution (a.k.a. pre-trade view in FpML) contexts have been positioned as part of the ContractualProduct class.">
 {
+	hashValue string (0..1) <"A hash value which input data set are the associated class attributes.">;
+	id string (0..1) anchor;
+		[synonym FpML value id]
 	contractIdentifier PartyContractIdentifier (1..*) <"The contract reference identifier(s) allocated by the parties involved in the contract.">;
 		[synonym FpML value partyTradeIdentifier pathExpression "trade.tradeHeader"]	
 		[synonym Rosetta_Workbench value partyTradeIdentifier pathExpression "tradeHeader"]	
@@ -43,6 +46,16 @@ class Contract <"A class to specify a contract object, which can be invoked eith
 		[synonym Rosetta_Workbench value party]
 	account Account (0..*) <"Optional account information.">;
 		[synonym FpML value account]
+	contractEffect ContractEffect (1..*) <"The set of contract effects associated with the contract, i.e. generated cashflows, contracts (from, say, exercise events), reset values, ...">;
+}
+
+class ContractEffect <"The set of operational and positional effects associated with a contract.">
+{
+	timeStamp dateTime (1..1) <"The date and time on which the contract effect is taking place.">;
+	referenceContract string (1..1) reference <"The contract to which the contract effect(s) apply.">;
+	contract string (0..*) reference;
+	payment string (0..*) reference;
+	reset string (0..*) reference;
 }
 
 data rule Contract_clearedDate
