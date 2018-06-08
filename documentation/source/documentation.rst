@@ -927,7 +927,7 @@ Two classes act as foundational blocks for the Rosetta event model: the ``EventB
   * **Time dimension** information, through the ``eventDate`` and ``effectiveDate``;
   * **Action qualification**, to specify whether the event is a new one, a correction or a cancellation of a prior one.
 
-   .. code-block:: Java
+  .. code-block:: Java
 
    abstract class EventBase stereotype preExecution, execution, postExecution <"The event base abstract class.">
    {
@@ -952,7 +952,7 @@ Two classes act as foundational blocks for the Rosetta event model: the ``EventB
   * **Party information**.
   * **Lineage information**, in the form of a class that provides the ability to reference an unbouded set of contracts or events, as shown by the below code snippet:
 
-   .. code-block:: Java
+  .. code-block:: Java
 
    class Lineage
    {
@@ -965,7 +965,7 @@ Two classes act as foundational blocks for the Rosetta event model: the ``EventB
   * **Primitive events**: the CDM composite approach uses the primitive events as its building blocks. Those primitive events are detailed in the next section of the documentation.
   * **Function call**: an example of such a function call is the interpolation function that would be associated with a **derived observation** event that assembles two observed values (say, a 3 months and a 6 months rate observation) to provide a derived one (say, a 5 months observation). As part of the CDM V1.0 this function call as been specified as a mere string element. It will be appropriately specified once such implementation is developed, some of which consisting in the machine readable implementation of the ISDA Definitions (see next Interest Calculation section).
 
-   .. code-block:: Java
+  .. code-block:: Java
 
    class Event extends EventBase
    {
