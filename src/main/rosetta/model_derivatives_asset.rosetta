@@ -1,6 +1,6 @@
 namespace "org.isda.cdm"
 
-class AssetPool stereotype contractualProduct, productReferenceData <"Characterises the asset pool behind an asset backed bond.">
+class AssetPool <"Characterises the asset pool behind an asset backed bond.">
 	[synonym FpML value AssetPool]
 {
 	version string (0..1) <"The asset pool version.">;
@@ -17,7 +17,7 @@ data rule AssetPool_effectiveDate <"The effectiveDate associated to the version 
  	when AssetPool -> version is absent
  	then AssetPool -> effectiveDate is absent
  
-class Bond extends FixedIncomeSecurity stereotype productReferenceData, listedProduct <"FpML specifies this complex type as an exchange traded bond, but it seems that this class also applies to bonds that are traded over-the-counter.">
+class Bond extends FixedIncomeSecurity <"FpML specifies this complex type as an exchange traded bond, but it seems that this class also applies to bonds that are traded over-the-counter.">
 	[synonym FpML value Bond]
 {
 	parValue number (0..1) <"Specifies the nominal amount of a fixed income security or convertible bond.">;
@@ -35,7 +35,7 @@ class Bond extends FixedIncomeSecurity stereotype productReferenceData, listedPr
 		[synonym FpML value dayCountFraction]
 }
 
-class ConstituentWeight stereotype contractualProduct, contractualProduct <"A class describing the weight of each of the underlyer constituent within the basket, either in absolute or relative terms.">
+class ConstituentWeight <"A class describing the weight of each of the underlyer constituent within the basket, either in absolute or relative terms.">
 	[synonym FpML value ConstituentWeight]
 {
 	openUnits number (0..1) <"The number of units (index or securities) that constitute the underlyer of the swap. In the case of a basket swap, this element is used to reference both the number of basket units, and the number of each asset components of the basket when these are expressed in absolute terms.">;
@@ -48,7 +48,7 @@ data rule ConstituentWeight_basketPercentage <"FpML specifies basketPercentage a
 	when ConstituentWeight -> basketPercentage exists
 	then ConstituentWeight -> basketPercentage >=0.0 and ConstituentWeight -> basketPercentage >= 1.0
 
-class ConvertibleBond extends Bond stereotype productReferenceData
+class ConvertibleBond extends Bond
 	[synonym FpML value ConvertibleBond]
 {
 	underlyingEquity EquityAsset (0..1) <"Specifies the equity in which the convertible bond can be converted.">;
@@ -57,7 +57,7 @@ class ConvertibleBond extends Bond stereotype productReferenceData
 		[synonym FpML value redemptionDate]
 }
 
-class EquityAsset extends ListedHeader stereotype productReferenceData, listedProduct
+class EquityAsset extends ListedHeader
 	[synonym FpML value EquityAsset]
 {
 	/*
@@ -65,7 +65,7 @@ class EquityAsset extends ListedHeader stereotype productReferenceData, listedPr
 	 */
 }
 
-class FixedIncomeSecurity extends ListedHeader stereotype productReferenceData, listedProduct <"A fixed income security. In FpML, it corresponds to the FixedIncomeSecurityContent.model.">
+class FixedIncomeSecurity extends ListedHeader <"A fixed income security. In FpML, it corresponds to the FixedIncomeSecurityContent.model.">
 {
 	/*
 	 * TODO - Once the CDM model reference data is extended to include the legal entity, the issueName should be adjusted to reference the entity name
@@ -103,7 +103,7 @@ class IdentifiedAsset <"A generic class describing an identified asset.">
 		[synonym FpML value descrption]
 }
 
-class Loan extends IdentifiedAsset stereotype productReferenceData
+class Loan extends IdentifiedAsset
 	[synonym FpML value Loan]
 {
 	
@@ -124,7 +124,7 @@ class Loan extends IdentifiedAsset stereotype productReferenceData
 		[synonym FpML value tranche]
 }
 
-class Mortgage extends FixedIncomeSecurity stereotype productReferenceData
+class Mortgage extends FixedIncomeSecurity
 	[synonym FpML value Mortgage]
 {
 	insurer Party (0..1) <"Applicable to the case of default swaps on MBS terms. For specifying the insurer name, when applicable.  When the element is not present, it signifies that the insurer is Not Applicable.">;
