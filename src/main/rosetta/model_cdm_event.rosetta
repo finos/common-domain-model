@@ -342,31 +342,22 @@ data rule NovationFee <"Logic to specify that if a payment is qualified as a nov
 	when Event -> primitive -> payment -> cashflowType = CashflowTypeEnum.novationFee
 	then Event -> lineage -> contractReference multiple exists
 	and Event -> lineage -> eventReference single exists
-
-data rule Allocation_ContractReference <"Logic to qualify an allocation that references the allocated contracts (instead of explicitly stating those) from the fact that (i) there are multiple such references and (ii) the resulting state is 'allocated'.">
-	when Event -> primitive -> allocation -> after -> contractReference exists
-	then Event -> primitive -> allocation -> after -> contractReference multiple exists
-	and Event -> primitive -> allocation -> after -> execution -> state = StateEnum.allocated
-	/*
-	 * Need to extend the grammar in order to qualify that before quantity = sum of after quantities
-	 */
  
- data rule Allocation_Contract <"Logic to qualify an allocation that specifies the allocated contracts (instead of referencing those) from the fact that (i) there are multiple such references and (ii) the resulting state is 'allocated'.">
-	when Event -> primitive -> allocation -> after -> contract exists
-	then Event -> primitive -> allocation -> after -> contract multiple exists
-	and Event -> primitive -> allocation -> after -> execution -> state = StateEnum.allocated
-	/*
-	 * Need to extend the grammar in order to qualify that before quantity = sum of after quantities
-	 */
- 
-isEvent Allocation <"The qualification of a novation event from the fact that (i) the only primitive is the split, (ii) the intent is an allocation when such intent is specified, (iii) there is a single contractualProduct before, and (iv) there are multiple contracts after.">
+isEvent Allocation <"The qualification of allocation event from the fact that (i) the only primitive is the allocation, (ii) the intent is an allocation when such intent is specified, (iii) there is a single contractualProduct before, and (iv) there are multiple contracts after.">
 	if Event -> intent exists
 	then 
 		Event -> intent = IntentEnum.allocation
 		and Event -> primitive -> allocation only exists
 	else 
 		Event -> primitive -> allocation only exists
-	and Allocation_ContractReference or Allocation_Contract apply
+//	and allocatedContract multiple exists
+	/*
+	 * Need to extend the grammar in order to qualify that before quantity = sum of after quantities
+	 */
+
+alias allocatedContract
+	Event -> primitive -> allocation -> after -> contractReference
+	or Event -> primitive -> allocation -> after -> contract
 
 isEvent Compression <"The qualification of a compression event from the fact that (i) the quantity change primitive exists and (ii) the intent is a compression when such intent is specified.">
 	if Event -> intent exists
