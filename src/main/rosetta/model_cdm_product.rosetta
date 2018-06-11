@@ -1,6 +1,6 @@
 namespace "org.isda.cdm"
  
-class Contract <"A class to specify a contract object, which can be invoked either within the context of an event, or independently from it. It corresponds to the FpML Trade, although restricted to execution and post-execution contexts. Attributes also applicable to pre-execution (a.k.a. pre-trade view in FpML) contexts have been positioned as part of the ContractualProduct class.">
+class Contract rosettaKey <"A class to specify a contract object, which can be invoked either within the context of an event, or independently from it. It corresponds to the FpML Trade, although restricted to execution and post-execution contexts. Attributes also applicable to pre-execution (a.k.a. pre-trade view in FpML) contexts have been positioned as part of the ContractualProduct class.">
 {
 	id string (0..1) anchor;
 		[synonym FpML value id]
@@ -564,42 +564,54 @@ isProduct InterestRate_IRSwap_Basis
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Basis]
 	[synonym Bank_A value BasisSwap] // The purpose is to illustrate how firms could map to their own internal product identification
 	[synonym Venue_B value FloatFloatInterestSwap]
-	EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate exists
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate exists
+	EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate count = 2
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate is absent
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate is absent
+	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 
 isProduct InterestRate_IRSwap_FixedFloat
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFloat]
-	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate exists
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate exists
+	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate count = 1
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate count = 1
+	and  EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate is absent
+	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 
 isProduct InterestRate_IRSwap_FixedFixed
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFixed]
-	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate exists
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate exists
+	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate count = 2
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate is absent
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate is absent
+	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 
 isProduct InterestRate_CrossCurrency_Basis
 	[synonym ISDA_Taxonomy_v1 value InterestRate_CrossCurrency_Basis]
-	EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate exists
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate exists
+	EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate count = 2
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate is absent
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges exists
 
 isProduct InterestRate_CrossCurrency_FixedFloat
 	[synonym ISDA_Taxonomy_v1 value InterestRate_CrossCurrency_FixedFloat]
-	EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate exists
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate exists
+	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate count = 1
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate count = 1
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges exists
 
 isProduct InterestRate_IRSwap_FixedFloat_ZeroCoupon
-	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFloat] // The v1 taxonomy doesn't have this v2 level of detail
-	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate exists
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate exists
+	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFloat]
+	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate count = 1
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate count = 1
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate is absent
+	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
 	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.T
 
 isProduct InterestRate_IRSwap_FixedFloat_PlainVanilla
-	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFloat] // The v1 taxonomy doesn't have this v2 level of detail
-	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate exists
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate exists
+	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFloat]
+	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate count = 1
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate count = 1
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate is absent
+	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> spreadSchedule -> step is absent
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> floatingRateMultiplierSchedule is absent
 /*
@@ -640,39 +652,50 @@ isProduct InterestRate_IRSwap_FixedFloat_PlainVanilla
  */
 isProduct InterestRate_IRSwap_FixedFloat_OIS
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFloat]
-	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate exists
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate exists
+	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate count = 1
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate count = 1
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate is absent
+	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> floatingRateIndex = FloatingRateIndexEnum.AUD_AONIA_OIS_COMPOUND
 
 isProduct InterestRate_IRSwap_Basis_OIS
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Basis]
-	EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate exists
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate exists
+	EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate count = 2
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate is absent
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate is absent
+	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> floatingRateIndex = FloatingRateIndexEnum.AUD_AONIA_OIS_COMPOUND
 	
 isProduct InterestRate_InflationSwap_FixedFloat_YearOn_Year
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation]
-	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate exists
+	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate count = 1
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate count = 1
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate is absent
+	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 	and 	EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
 	and 	EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.Y
 
 isProduct InterestRate_InflationSwap_FixedFloat_ZeroCoupon
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation]
-	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate exists
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate exists
+	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate count = 1
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate count = 1
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
 	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.T
 
 isProduct InterestRate_InflationSwap_Basis_YearOn_Year
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation]
-	EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate exists
+	EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate count = 1
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate count = 1
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate is absent
 	and 	EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
 	and 	EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.Y
 
 isProduct InterestRate_InflationSwap_Basis_ZeroCoupon
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation]
-	EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate exists
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate exists
+	EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate count = 1
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate count = 1
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
 	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.T
 
