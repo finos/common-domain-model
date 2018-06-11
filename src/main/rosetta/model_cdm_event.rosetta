@@ -342,18 +342,28 @@ data rule NovationFee <"Logic to specify that if a payment is qualified as a nov
 	when Event -> primitive -> payment -> cashflowType = CashflowTypeEnum.novationFee
 	then Event -> lineage -> contractReference multiple exists
 	and Event -> lineage -> eventReference single exists
- 
+
+/*
+ *  TODO - WIP to extend the grammar in order to support aliases as part of the isEvent syntax
+ */
 isEvent Allocation <"The qualification of allocation event from the fact that (i) the only primitive is the allocation, (ii) the intent is an allocation when such intent is specified, (iii) there is a single contractualProduct before, and (iv) there are multiple contracts after.">
 	if Event -> intent exists
 	then 
 		Event -> intent = IntentEnum.allocation
 		and Event -> primitive -> allocation only exists
+//		and allocatedContract multiple exists
 	else 
 		Event -> primitive -> allocation only exists
-//	and allocatedContract multiple exists
+//		and allocatedContract multiple exists
 	/*
 	 * Need to extend the grammar in order to qualify that before quantity = sum of after quantities
 	 */
+
+
+//projection rule Foo
+//	for target FpML
+//		when allocatedContract exists
+//			map Account -> accountName to synonym account
 
 alias allocatedContract
 	Event -> primitive -> allocation -> after -> contractReference
