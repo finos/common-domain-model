@@ -4,7 +4,7 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.schedule.*;
 import org.isda.cdm.CalculationPeriodDates;
-import org.isda.cdm.functions.CalculationPeriod.Result;
+import org.isda.cdm.functions.CalculationPeriod._Result;
 import com.rosetta.model.lib.records.DateImpl;
 
 import static org.isda.cdm.functions.CdmToStrataMapper.getFrequency;
@@ -14,11 +14,11 @@ import java.time.LocalDate;
 
 public class CalculationPeriodImpl {
 
-	public Result execute(CalculationPeriodDates calculationPeriodDates) {
+	public _Result execute(CalculationPeriodDates calculationPeriodDates) {
 		return execute(calculationPeriodDates, LocalDate.now());
 	}
 
-	Result execute(CalculationPeriodDates calculationPeriodDates, LocalDate referenceDate) {
+	_Result execute(CalculationPeriodDates calculationPeriodDates, LocalDate referenceDate) {
 		PeriodicSchedule periodicSchedule = PeriodicSchedule.of(
 				calculationPeriodDates.getEffectiveDate().getAdjustableDate().getUnadjustedDate(),
 				calculationPeriodDates.getTerminationDate().getUnadjustedDate(),
@@ -34,7 +34,7 @@ public class CalculationPeriodImpl {
 				.findFirst()
 				.orElseThrow(() -> new IllegalArgumentException("Date " + referenceDate.toString() + "not within schedule"));
 
-		return new Result()
+		return new _Result()
 				.setStartDate(new DateImpl(targetPeriod.getStartDate()))
 				.setEndDate(new DateImpl(targetPeriod.getEndDate()));
 	}
