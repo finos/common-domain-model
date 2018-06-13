@@ -57,21 +57,7 @@ class Curve one of
 	commodityCurve CommodityReferencePriceEnum (0..1); // This is just an illustrative alternative curve instance, which implementation needs to be refined and confirmed
 }
 
-class Event extends EventBase
-{
-	intent IntentEnum (0..1);
-		[synonym Rosetta_Workbench value intent]
-	party Party (0..*);
-		[synonym Rosetta_Workbench value party]
-	lineage Lineage (0..1);
-		[synonym Rosetta_Workbench value lineage]
-	primitive PrimitiveEvent (1..1);
-		[synonym Rosetta_Workbench value primitive]
-	functionCall string (0..1);
-		[synonym Rosetta_Workbench value functionCall]
-}
-
-abstract class EventBase stereotype preExecution, execution, postExecution <"The event base abstract class.">
+class Event 
 {
 	messageInformation MessageInformation (0..1);
 	timestamp EventTimestamp (1..1);
@@ -86,6 +72,17 @@ abstract class EventBase stereotype preExecution, execution, postExecution <"The
 		[synonym FpML value isCorrection 
 			set action to ActionEnum.new when False, 
 			set action to ActionEnum.correct when True]
+	intent IntentEnum (0..1);
+		[synonym Rosetta_Workbench value intent]
+	party Party (0..*);
+		[synonym Rosetta_Workbench value party]
+	lineage Lineage (0..1);
+		[synonym Rosetta_Workbench value lineage]
+	primitive PrimitiveEvent (1..1);
+		[synonym Rosetta_Workbench value primitive]
+	functionCall string (0..1);
+		[synonym Rosetta_Workbench value functionCall]
+	contractEffect ContractEffect (0..1) <"The set of contract effects associated with the event, i.e. generated cashflows, contracts (from, say, exercise events), reset values, ...">;
 }
 
 class EventTestBundle <"A class which combines several events for testing purposes.">
@@ -96,7 +93,7 @@ class EventTestBundle <"A class which combines several events for testing purpos
 		[synonym Rosetta_Workbench value computedAmount]
 }
 
-class EventTimestamp stereotype preExecution, execution, postExecution <"This class corresponds to the timestamp components of the FpML MessageHeader.model. These would be applicable even if the event is communicated through a mean other than messaging (e.g. blockchain).">
+class EventTimestamp <"This class corresponds to the timestamp components of the FpML MessageHeader.model. These would be applicable even if the event is communicated through a mean other than messaging (e.g. blockchain).">
 {
 	creationTimestamp dateTime (1..1) <"The date and time (on the source system) when this event was created.">;
 		[synonym FpML value creationTimeStamp pathExpression "header"]
@@ -150,7 +147,7 @@ class Lineage
 		[synonym Rosetta_Workbench value eventReference]
 }
 
-class MessageInformation stereotype preExecution, execution, postExecution <"This class corresponds to the messaging components of the FpML MessageHeader.model.">
+class MessageInformation <"This class corresponds to the messaging components of the FpML MessageHeader.model.">
 {
 	messageId string (1..1) scheme "messageIdScheme" <"A unique identifier assigned to the message.">;
 		[synonym Rosetta_Workbench value messageId pathExpression "messageInformation"]
@@ -346,28 +343,16 @@ data rule NovationFee <"Logic to specify that if a payment is qualified as a nov
 /*
  *  TODO - WIP to extend the grammar in order to support aliases as part of the isEvent syntax
  */
-isEvent Allocation <"The qualification of allocation event from the fact that (i) the only primitive is the allocation, (ii) the intent is an allocation when such intent is specified, (iii) there is a single contractualProduct before, and (iv) there are multiple contracts after.">
+isEvent Allocation <"The qualification of allocation event from the fact that (i) the only primitive is the allocation, (ii) the intent is an allocation when such intent is specified, (iii) there is a single contractualProduct before. Note: it is accepted that an allocation can result in a single contract.">
 	if Event -> intent exists
 	then 
 		Event -> intent = IntentEnum.allocation
 		and Event -> primitive -> allocation only exists
-//		and allocatedContract multiple exists
 	else 
 		Event -> primitive -> allocation only exists
-//		and allocatedContract multiple exists
 	/*
 	 * Need to extend the grammar in order to qualify that before quantity = sum of after quantities
 	 */
-
-
-//projection rule Foo
-//	for target FpML
-//		when allocatedContract exists
-//			map Account -> accountName to synonym account
-
-alias allocatedContract
-	Event -> primitive -> allocation -> after -> contractReference
-	or Event -> primitive -> allocation -> after -> contract
 
 isEvent Compression <"The qualification of a compression event from the fact that (i) the quantity change primitive exists and (ii) the intent is a compression when such intent is specified.">
 	if Event -> intent exists
@@ -376,6 +361,16 @@ isEvent Compression <"The qualification of a compression event from the fact tha
 		and Event -> primitive -> quantityChange exists
 	else 
 		Event -> primitive -> quantityChange exists
+		/*
+		 * Add syntax logic to specify that the number of contracts after which state is <> terminated is less than number of contracts before
+		 */
+
+//alias contractsBeforeQuantityChange
+//	Event -> primitive -> quantityChange -> before -> contract
+//	or Event -> primitive -> quantityChange -> before -> contractReference
+//
+//alias TerminatedContract
+//	Event -> primitive -> quantityChange -> after -> contract
 
 isEvent DerivedObservation <"The qualification of a derived observation event from the fact that (i) the only primitive is the observation, that (ii) there are multiple instances of such observations, and (iii) that there is an associated call function to compute, say, an interpolation.">
 	Event -> primitive -> observation only multiple exists
