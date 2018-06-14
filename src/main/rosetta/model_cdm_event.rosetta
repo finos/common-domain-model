@@ -5,14 +5,6 @@ class AllocationOutcome extends ContractOrContractReference <"Class to specify t
 	execution ExecutionReference (1..1);
 }
 
-class ExecutionReference
-{
-	executionReference Identifier (1..1);
-		[synonym Rosetta_Workbench value executionReference]
-	state StateEnum (1..1);
-		[synonym Rosetta_Workbench value state]
-}
-
 class AllocationPrimitive <"The primitive event to represent a split/allocation of a contractual product or a contract.">
 {
 	before Execution (1..1);
@@ -82,7 +74,17 @@ class Event
 		[synonym Rosetta_Workbench value primitive]
 	functionCall string (0..1);
 		[synonym Rosetta_Workbench value functionCall]
-	contractEffect ContractEffect (0..1) <"The set of contract effects associated with the event, i.e. generated cashflows, contracts (from, say, exercise events), reset values, ...">;
+	eventEffect EventEffect (0..1) <"The set of effects associated with the lifecycle event, i.e. generated cashflows, contracts (from, say, exercise events), reset values, ...">;
+}
+
+class EventEffect <"The set of operational and positional effects associated with a lifecycle event.">
+{
+	timeStamp dateTime (1..1) <"The date and time on which the contract effect is taking place.">;
+	referenceContract Contract (1..1) rosettaKey <"A pointer to the contract to which the contract effect(s) apply.">;
+	referenceEvent Event (1..1) rosettaKey <"A pointer to the contract to which the contract effect(s) apply.">;
+	product ContractOrListedProduct (0..*) rosettaKey <"A pointer to the products effect(s), an example of such being the outcome of an option physical exercise.">;
+	payment Payment (0..*) rosettaKey <"A pointer to the payment effect(s).">;
+	reset ResetPrimitive (0..*) rosettaKey <"A pointer to the reset effect(s).">;
 }
 
 class EventTestBundle <"A class which combines several events for testing purposes.">
@@ -100,6 +102,14 @@ class EventTimestamp <"This class corresponds to the timestamp components of the
 		[synonym Rosetta_Workbench value creationTimeStamp]
 	expiryTimestamp dateTime (0..1) <"The date and time (on the source system) when this event will be considered expired.">;
 		[synonym FpML value expiryTimestamp]
+}
+
+class ExecutionReference
+{
+	executionReference Identifier (1..1);
+		[synonym Rosetta_Workbench value executionReference]
+	state StateEnum (1..1);
+		[synonym Rosetta_Workbench value state]
 }
 
 class ExerciseOutcome extends ContractOrListedProduct one of
