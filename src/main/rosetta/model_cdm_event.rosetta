@@ -303,6 +303,11 @@ data rule ContractReference_Terminated <"Logic to qualify that a contract refere
 	when Event -> primitive -> quantityChange -> after -> contractReference exists
 	then Event -> primitive -> quantityChange -> after -> contractReference -> state = StateEnum.terminated
 
+/*
+ * TODO - That rule is actually useless as far as the model is concerned.  2 possibilities:
+ * - Remove the ability to specify the after state by contract reference
+ * - Specify the contract state alongside the contract reference
+ */
 data rule Contract_Terminated <"Logic to qualify that a contract has been terminated.">
 	when Event -> primitive -> quantityChange -> after -> contract exists
 	then Event -> primitive -> quantityChange -> after -> contract -> state = StateEnum.terminated
@@ -351,8 +356,13 @@ data rule NovationFee <"Logic to specify that if a payment is qualified as a nov
 	and Event -> lineage -> eventReference single exists
 
 /*
- *  TODO - WIP to extend the grammar in order to support aliases as part of the isEvent syntax
+ * TODO - As a way to avoid a repeat of the same clauses to handle the intent / no intent, look to adjust the isEvent syntax as:
+ * Event -> intent = IntentEnum.compression when present 
+ * and clause 1
+ * and clause 2
+ * ....
  */
+
 isEvent Allocation <"The qualification of allocation event from the fact that (i) the only primitive is the allocation, (ii) the intent is an allocation when such intent is specified, (iii) there is a single contractualProduct before. Note: it is accepted that an allocation can result in a single contract.">
 	if Event -> intent exists
 	then 
@@ -361,30 +371,77 @@ isEvent Allocation <"The qualification of allocation event from the fact that (i
 	else 
 		Event -> primitive -> allocation only exists
 	/*
-	 * Need to extend the grammar in order to qualify that before quantity = sum of after quantities
+	 * TODO - before quantity = sum of after quantities
+	 * Could be:
+	 * and quantityBeforeAllocation = sum quantityAfterAllocation
+	 * Note: is there a way to make it workable for the references?  If challenging, we could look to check whether such references are used in practice,
+	 * or specify that the validation logic is not applicable to such cases. 
 	 */
 
-isEvent Compression <"The qualification of a compression event from the fact that (i) the quantity change primitive exists and (ii) the intent is a compression when such intent is specified.">
+alias quantityBeforeAllocation <"The alias to represent the quantity or notional amount associated to a pre-allocation contractual product in terms of number of units (i.e. ignoring the currency or units denomination) or reference to such quantity/notional.">
+	Event -> primitive -> allocation -> before -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalReference
+	or Event -> primitive -> allocation -> before -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity -> amount
+	or Event -> primitive -> allocation -> before -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount
+	or Event -> primitive -> allocation -> before -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
+	or Event -> primitive -> allocation -> before -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step -> stepValue
+	or Event -> primitive -> allocation -> before -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepParameters -> notionalStepAmount
+	or Event -> primitive -> allocation -> before -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> fxLinkedNotional -> initialValue
+	or Event -> primitive -> allocation -> before -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> fxLinkedNotional -> constantNotionalScheduleReference
+	or Event -> primitive -> allocation -> before -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalReference
+	or Event -> primitive -> allocation -> before -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount -> amount
+
+alias quantityAfterAllocation <"The alias to represent the quantity or notional amount associated allocated contract(s) in terms of number of units (i.e. ignoring the currency or units denomination) or reference to such quantity/notional.">
+	Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalReference
+	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity -> amount
+	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount
+	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
+	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step -> stepValue
+	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepParameters -> notionalStepAmount
+	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> fxLinkedNotional -> initialValue
+	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> fxLinkedNotional -> constantNotionalScheduleReference
+	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalReference
+	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount -> amount
+
+
+/*
+ * TODO - We should look to remove the ability to specify the after by contractReference, as the qualification logic will need to navigate the terms of the contract
+ */
+
+isEvent Compression <"The qualification of a compression event from the fact that (i) the quantity change primitive exists, (ii) the intent is a compression when such intent is specified, (iii) there are multiple contracts (or contract references) specified in the before state and (iv) the number of contracts in the after state that are not terminated is less than the number of contracts in the before state.">
 	if Event -> intent exists
 	then 
 		Event -> intent = IntentEnum.compression
 		and Event -> primitive -> quantityChange exists
+//		and contractBeforeQuantityChange multiple exists
 	else 
 		Event -> primitive -> quantityChange exists
+//		and contractBeforeQuantityChange multiple exists
 		/*
-		 * Add syntax logic to specify that the number of contracts after which state is <> terminated is less than number of contracts before
+		 * TODO Add syntax logic to specify that the number of contracts after which state is <> terminated is less than number of contracts before
+		 * could be:
+		 * and contractBeforeQuantityChange count > Event -> primitive -> quantityChange -> after -> contract -> state <> StateEnum.terminated count
+		 * or:
+		 * and contractBeforeQuantityChange count > contractAfterQuantityChange -> state <> StateEnum.terminated count
 		 */
 
-//alias contractsBeforeQuantityChange
-//	Event -> primitive -> quantityChange -> before -> contract
-//	or Event -> primitive -> quantityChange -> before -> contractReference
-//
-//alias TerminatedContract
-//	Event -> primitive -> quantityChange -> after -> contract
+alias contractBeforeQuantityChange
+	Event -> primitive -> quantityChange -> before -> contract
+	or Event -> primitive -> quantityChange -> before -> contractReference
+
+alias contractAfterQuantityChange
+	Event -> primitive -> quantityChange -> after -> contract
 
 isEvent DerivedObservation <"The qualification of a derived observation event from the fact that (i) the only primitive is the observation, that (ii) there are multiple instances of such observations, and (iii) that there is an associated call function to compute, say, an interpolation.">
 	Event -> primitive -> observation only multiple exists
 	and Event -> functionCall exists
+
+isEvent Exercise <"The qualification of a full termination event from the fact that (i) the only primitive is the quantityChange, (ii) the intent is an exercise when such intent is specified.">
+	if Event -> intent exists
+	then 
+		Event -> intent = IntentEnum.exercise
+		and Event -> primitive -> exercise only exists
+	else 
+		Event -> primitive -> exercise only exists
 	
 isEvent FullTermination <"The qualification of a full termination event from the fact that (i) the only primitive is the quantityChange, (ii) the intent is a full termination when such intent is specified, the (iii) the quantity associated with the contract decreases, (iv) the remaining quantity is null, and (v) the contract state has the value 'terminated'.">
 	if Event -> intent exists
