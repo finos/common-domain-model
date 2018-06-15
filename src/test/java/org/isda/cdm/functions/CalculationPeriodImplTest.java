@@ -48,13 +48,13 @@ class CalculationPeriodImplTest {
 
     @Test
     void shouldReturnStartAndEndDateOfFirstPeriod() {
-        CalculationPeriod._Result usingStartDate = unit.execute(calculationPeriodDates, LocalDate.of(2018, 1, 3));
+        CalculationPeriod.CalculationResult usingStartDate = unit.execute(calculationPeriodDates, LocalDate.of(2018, 1, 3));
 
         assertThat(usingStartDate.getStartDate(), is(new DateImpl(3, 1, 2018)));
         assertThat(usingStartDate.getEndDate(), is(new DateImpl(3, 4, 2018)));
 
-        CalculationPeriod._Result usingAnyDate = unit.execute(calculationPeriodDates, LocalDate.of(2018, 2, 14));
-        CalculationPeriod._Result usingEndDate = unit.execute(calculationPeriodDates, LocalDate.of(2018, 3, 31));
+        CalculationPeriod.CalculationResult usingAnyDate = unit.execute(calculationPeriodDates, LocalDate.of(2018, 2, 14));
+        CalculationPeriod.CalculationResult usingEndDate = unit.execute(calculationPeriodDates, LocalDate.of(2018, 3, 31));
 
         // TODO: once equals and hashcode for Result objects in place, compare objects directly (no need to compare fields)
         assertThat(usingStartDate.getStartDate(), allOf(is(usingAnyDate.getStartDate()), is(usingEndDate.getStartDate())));
