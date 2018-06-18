@@ -51,18 +51,9 @@ class BasketReferenceInformation <"CDS Basket Reference Information.">
 		[synonym FpML value tranche]
 }
 
-choice rule BasketReferenceInformation_choice1 <"Choice rule to represent the FpML choice construct between [basketName, basketId] and basketId.">
-	for BasketReferenceInformation required choice between
-	basketName and basketId
-
-choice rule BasketReferenceInformation_choice2 <"Choice rule to represent an FpML choice construct. This choice rule is complemented by the data rule BasketReferenceInformation_nthToDefault to represent the FpML construct where there is a choice between a tranche element and a [required nthToDefault, optional mthToDefault] branch.">
+choice rule BasketReferenceInformation_choice <"Choice rule to represent an FpML choice construct. This choice rule is complemented by the data rule BasketReferenceInformation_nthToDefault to represent the FpML construct where there is a choice between a tranche element and a [required nthToDefault, optional mthToDefault] branch.">
 	for BasketReferenceInformation required choice between
 	nthToDefault and tranche
-
-data rule BasketReferenceInformation_basketName_basketId <"FpML specifies a choice between (basketName and optional basketId) and basketId.">
-	when BasketReferenceInformation exists
-	then (BasketReferenceInformation -> basketName exists and BasketReferenceInformation -> basketId exists)
-		or (BasketReferenceInformation -> basketName exists or BasketReferenceInformation -> basketId exists)
 
 data rule BasketReferenceInformation_nthToDefault <"As part of the branch of the choice node, FpML requires the nthToDefault element to be present, while the mthToDefault one is optional.">
 	when BasketReferenceInformation -> mthToDefault exists
@@ -657,9 +648,9 @@ class ReferencePool <"This type contains all the reference pool items to define 
 		[synonym FpML value referencePoolItem]
 }
 
-data rule ReferencePool_constituentWeight <"FpML validation rule cd-44 - Context: ReferencePool (complex type). All referencePoolItem/constituentWeight must have the same name of child element.">
-	when ReferencePool exists
-	then (ReferencePool -> referencePoolItem -> constituentWeight -> basketPercentage or ReferencePool -> referencePoolItem -> constituentWeight -> openUnits) exists
+data rule FpML_cd_44 <"FpML validation rule cd-44 - All referencePoolItem/constituentWeight must have the same name of child element.">
+	when ReferencePoolItem -> constituentWeight exists
+	then ( ReferencePoolItem -> constituentWeight -> basketPercentage or ReferencePoolItem -> constituentWeight -> openUnits ) exists
 
 class ReferencePoolItem <"This type contains all the constituent weight and reference information.">
 	[synonym FpML value ReferencePoolItem]
