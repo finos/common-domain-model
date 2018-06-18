@@ -126,7 +126,7 @@ class ContractualProduct <"The contractual product class is meant to be used acr
 class ContractualQuantity
 {
 	notionalReference string (0..1) reference <"The notional amount when specified by reference to the notional specified somewhere else in the instance document.">;
-		[synonym FpML value notionalReference pathExpression "trade.creditDefaultSwapOption"]
+		[synonym FpML value notionalReference]
 	quantity Quantity (0..1);
 	notionalAmount Money (0..1) <"When applied to Credit default Swaps, this is the notional amount of protection coverage. ISDA 2003 Term: Floating Rate Payer Calculation Amount">;
 		[synonym FpML value initialValue pathExpression "calculationPeriodAmount.calculation" set notionalAmount when notionalSchedule -> notionalStepSchedule -> step is absent]
@@ -328,16 +328,17 @@ data rule InterestRatePayout_quantity <"The quantity associated to an interest r
 /*
  * TODO - Need for an associated logic that will parse the respective legs of the swap, as this is not made explicit at present as part of the syntax
  */	
-data rule FpML_ird_7_1 <"FpML validation rule ird-7 1/2 - The existence of compoundingMethod is prohibited when the calculation-period and payment frequencies are the same.">
+data rule FpML_ird_7_1 <"FpML validation rule ird-7 1/2 - The existence of compoundingMethod is prohibited when the calculation period and payment frequencies are the same.">
  	when InterestRatePayout -> paymentDates -> paymentFrequency -> period = InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> period
  		and InterestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier
- 	then InterestRatePayout -> compoundingMethod is absent
+ 	then ( InterestRatePayout -> compoundingMethod is absent or InterestRatePayout -> compoundingMethod = CompoundingMethodEnum.None )
  	
-data rule FpML_ird_7_2 <"FpML validation rule ird-7 2/2 - The existence of compoundingMethod is required when the calculation-period and payment frequencies differ.">
- 	when (InterestRatePayout -> paymentDates -> paymentFrequency -> period <> InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> period
+data rule FpML_ird_7_2 <"FpML validation rule ird-7 2/2 - The existence of compoundingMethod is required when the calculation period and payment frequencies differ.">
+ 	when InterestRatePayout count = 2
+ 	and ( (InterestRatePayout -> paymentDates -> paymentFrequency -> period <> InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> period
  		and InterestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier <> InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier)
  	or (InterestRatePayout -> paymentDates -> paymentFrequency -> period <> InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> period
- 		or InterestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier <> InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier)
+ 		or InterestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier <> InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier) )
  	then InterestRatePayout -> compoundingMethod exists
 
 data rule FpML_ird_9 <"FpML validation rule ird-9 - If calculationPeriodAmount/calculation/compoundingMethod exists, then resetDates must exist.">
@@ -372,34 +373,27 @@ class OptionExercise <"A class to represent the applicable terms to qualify an o
 {
 	optionStyle OptionStyle (1..1) <"The option exercise can be of American style, Bermuda style or European style. The FpML implementation makes use of a substitution group.">;
 	strike OptionStrike (0..1) <"Specifies the strike of the option on credit default swap.">;
-		[synonym FpML value strike pathExpression "trade.creditDefaultSwapOption"]
-		[synonym Rosetta_Workbench value strike pathExpression "creditDefaultSwapOption"]
-		[synonym FpML value strike pathExpression "trade.bondOption"]
-		[synonym Rosetta_Workbench value strike pathExpression "bondOption"]
+		[synonym FpML value strike]
 	exerciseProcedure ExerciseProcedure (1..1) <"The set of parameters defining the procedure associated with the exercise, e.g. manual exercise.">;
-		[synonym FpML value exerciseProcedure pathExpression "trade.swaption"]
-		[synonym Rosetta_Workbench value exerciseProcedure pathExpression "swaption"]
-		[synonym FpML value exerciseProcedure pathExpression "trade.creditDefaultSwapOption"]
-		[synonym Rosetta_Workbench value exerciseProcedure pathExpression "creditDefaultSwapOption"]
-		[synonym FpML value exerciseProcedure pathExpression "trade.bondOption"]
-		[synonym Rosetta_Workbench value exerciseProcedure pathExpression "bondOption"]
+		[synonym FpML value exerciseProcedure]
 	settlement OptionSettlement (0..1) <"The option settlement terms, such as cash vs. physical, the settlement date, the settlement currency and/or amount. FpML represents this information as part of the OptionSettlement.model.">;
 }
 
+/*
+ * TODO - Below is a current applicability of the synonym syntax simplification by having 
+ * [synonym FpML, Rosetta_Workbench value optionType]
+ */
 class OptionPayout <"The option payout specification terms.">
 {
 	buyerSeller BuyerSeller (1..1);
 	optionType OptionTypeEnum (1..1) <"The type of option transaction. From a usage standpoint, put/call is the default option type, while payer/receiver indicator is used for options on index credit default swaps, consistently with the industry practice. Straddle is used for the case of straddle strategy, that combine a call and a put with the same strike.">;
-		[synonym FpML value optionType pathExpression "trade.creditDefaultSwapOption"]
-		[synonym Rosetta_Workbench value optionType pathExpression "creditDefaultSwapOption"]
-		[synonym FpML value optionType pathExpression "trade.bondOption"]
-		[synonym Rosetta_Workbench value optionType pathExpression "bondOption"]
+		[synonym FpML value optionType]
 /*
  * TODO - Need to implement a mapping logic to map the FpML swaption straddle boolean flag into the common optionType
  */
 //		[synonym FpML value optionType set optionType.straddle when synonym trade.swaption.swaptionStraddle = True ]
 	feature OptionFeature (0..1) <"The option feature, such as quanto, Asian, barrier, knock.">;
-		[synonym FpML value feature pathExpression "trade.creditDefaultSwapOption"]
+		[synonym FpML value feature]
 	denomination OptionDenomination (0..1) <"The denomination qualifies the number of units of underlyer per option and the number of options comprised in the option transaction. FpML represents this information as part of the OptionDenomination.model.">;
 	quantity ContractualQuantity (0..1) <"The option notional amount. The CDM uses the generic term quantity rather than notional amount. The number of options is specified as part of the denomination attribute.">;
 	exerciseTerms OptionExercise (1..1) <"The terms for exercising the option, which include the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">;
@@ -482,6 +476,12 @@ class Payout <"The payout can be specified through a number of combinations, e.g
 		[synonym FpML value premium pathExpression "trade.bondOption"]
 		[synonym Rosetta_Workbench value premium pathExpression "bondOption"]
 	optionPayout OptionPayout (0..*);
+		[synonym FpML value swaption pathExpression "trade"]
+		[synonym Rosetta_Workbench value swaption]
+		[synonym FpML value creditDefaultSwapOption pathExpression "trade"]
+		[synonym Rosetta_Workbench value creditDefaultSwapOption]
+		[synonym FpML value bondOption pathExpression "trade"]
+		[synonym Rosetta_Workbench value bondOption]
 }
 
 data rule FpML_cd_26_28 <"This data rule corresponds to two FpML validation rules, as the singlePayment and the firstPayment have been represented through the same Payout/cashflow attribute. FpML validation rule cd-26 - If feeLeg/singlePayment/adjustablePaymentDate exists, then feeLeg/singlePayment/adjustablePaymentDate must be after generalTerms/effectiveDate/unadjustedDate. FpML validation rule cd-28 - If feeLeg/periodicPayment/firstPaymentDate exists, then feeLeg/periodicPayment/firstPaymentDate must be after generalTerms/effectiveDate/unadjustedDate.">
