@@ -30,7 +30,7 @@ public class ModelClassValidationTest {
 				+ "calculationAgent - Expected cardinality lower bound of [1], found [0].\n"
 				+ "determiningParty - Expected cardinality upper bound of [2], found [3].\n"
 				+ "party - Expected cardinality lower bound of [2], found [0].",
-				result.failureReason().orElse("No error message"));
+				result.getFailureReason().orElse("No error message"));
 	}
 
 }
