@@ -211,6 +211,7 @@ class EconomicTerms <"This class represents the full set of product economics: t
 class GeneralTerms <"A class specifying the general terms of the credit default payout. It corresponds to the FpML GeneralTerms complex type, minus the effectiveDate, terminationDate and dateAdjustments elements, which have been positioned as part of the InterestRatePayout class.">
 {
 	buyerSeller BuyerSeller (1..1);
+		[synonym FpML value buyerSeller]
 	dateAdjustments BusinessDayAdjustments (0..1) <"ISDA 2003 Terms: Business Day and Business Day Convention.">;
 		[synonym FpML value dateAdjustments pathExpression "trade.creditDefaultSwap.generalTerms"]
 		[synonym Rosetta_Workbench value dateAdjustments pathExpression "creditDefaultSwap.generalTerms"]
@@ -433,8 +434,8 @@ class PaymentDates <"The payment dates schedule. As a difference from the FpML P
 //		[synonym FpML value paymentDelay set paymentDelay to False when absent]
 }
 
-choice rule PaymentDates_references <"Choice rule to represent an FpML choice construct.">
-	for PaymentDates required choice between
+choice rule PaymentDates_choice <"Choice rule to represent an FpML choice construct. The choice is made optional to take into consideration the fact that he PaymentDates class is used for the credit products, to specify the payment delay.">
+	for PaymentDates optional choice between
 	calculationPeriodDatesReference and resetDatesReference and valuationDatesReference
 
 data rule PaymentDates_firstPaymentDate_lastRegularPaymentDate <"FpML validation rule ird-35 - If firstPaymentDate exists, and if lastRegularPaymentDate exists, then firstPaymentDate must be before lastRegularPaymentDate.">
