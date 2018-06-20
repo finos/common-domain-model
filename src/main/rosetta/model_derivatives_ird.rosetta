@@ -131,6 +131,8 @@ class CalculationPeriodDates <"A class defining the parameters used to generate 
 	calculationPeriodDatesAdjustments BusinessDayAdjustments (1..1) <"The business day convention to apply to each calculation period end date if it would otherwise fall on a day which is not a business day in the specified business centers.">;
 		[synonym FpML value calculationPeriodDatesAdjustments pathExpression "calculationPeriodDates"]
 	firstPeriodStartDate AdjustableDate (0..1) <"The start date of the calculation period if the date falls before the effective date. It must only be specified if it is not equal to the effective date. This date may be subject to adjustment in accordance with a business day convention.">;
+		[synonym FpML value firstPeriodStartDate pathExpression "calculationPeriodDates"]
+		[synonym FpML value periodicPayment]
 	firstRegularPeriodStartDate date (0..1) <"The start date of the regular part of the calculation period schedule. It must only be specified if there is an initial stub calculation period. This day may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">;
 		[synonym FpML value firstRegularPeriodStartDate pathExpression "calculationPeriodDates"]
 	firstCompoundingPeriodEndDate date (0..1) <"The end date of the initial compounding period when compounding is applicable. It must only be specified when the compoundingMethod element is present and not equal to a value of None. This date may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">;
@@ -154,17 +156,19 @@ data rule CalculationPeriodDates_firstPeriodStartDate_effectiveDate <"FpML speci
 	when CalculationPeriodDates -> firstPeriodStartDate = CalculationPeriodDates -> effectiveDate -> adjustableDate
 	then CalculationPeriodDates -> firstPeriodStartDate is absent
 
-data rule CalculationPeriodDates_firstPeriodStartDate_stubPeriodType <"FpML specifies that the firstRegularPeriodStartDate must only be specified if there is an initial stub calculation period.">
-	when CalculationPeriodDates -> stubPeriodType is absent 
-		or ( CalculationPeriodDates -> stubPeriodType <> StubPeriodTypeEnum.ShortInitial 
-			and CalculationPeriodDates -> stubPeriodType <> StubPeriodTypeEnum.LongInitial )
-	then CalculationPeriodDates -> firstRegularPeriodStartDate is absent
+data rule FirstPeriodStartDate_initialStub <"FpML specifies that the firstRegularPeriodStartDate must only be specified if there is an initial stub calculation period. In practice, this is the key element as part of the initial stub specification.">
+	when InterestRatePayout -> calculationPeriodDates -> stubPeriodType is absent 
+		and ( InterestRatePayout -> calculationPeriodDates -> stubPeriodType <> StubPeriodTypeEnum.ShortInitial 
+			or InterestRatePayout -> calculationPeriodDates -> stubPeriodType <> StubPeriodTypeEnum.LongInitial )
+		or InterestRatePayout -> stubPeriod -> initialStub is absent 	
+	then InterestRatePayout -> calculationPeriodDates -> firstRegularPeriodStartDate is absent
 		
-data rule CalculationPeriodDates_firstRegularPeriodEndDate <"FpML specifies that the firstRegularPeriodEndDate must only be specified if there is a final stub calculation period.">
-	when CalculationPeriodDates -> stubPeriodType is absent
-		or ( CalculationPeriodDates -> stubPeriodType <> StubPeriodTypeEnum.ShortFinal
-			and CalculationPeriodDates -> stubPeriodType <> StubPeriodTypeEnum.LongFinal )
-	then CalculationPeriodDates -> lastRegularPeriodEndDate is absent
+data rule FirstRegularPeriodEndDate_finalStub <"FpML specifies that the lastRegularPeriodEndDate must only be specified if there is a final stub calculation period. In practice, this is the key element as part of the final stub specification.">
+	when InterestRatePayout -> calculationPeriodDates -> stubPeriodType is absent
+		and ( InterestRatePayout -> calculationPeriodDates -> stubPeriodType <> StubPeriodTypeEnum.ShortFinal
+			or InterestRatePayout -> calculationPeriodDates -> stubPeriodType <> StubPeriodTypeEnum.LongFinal )
+		or InterestRatePayout -> stubPeriod -> finalStub is absent
+	then InterestRatePayout -> calculationPeriodDates -> lastRegularPeriodEndDate is absent
 
 data rule FpML_ird_14 <"FpML validation rule ird-14 - If effectiveDate exists and If terminationDate exists, then terminationDate/unadjustedDate must be after effectiveDate/unadjustedDate.">
 	when CalculationPeriodDates -> effectiveDate exists 

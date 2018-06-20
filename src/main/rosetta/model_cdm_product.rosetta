@@ -283,7 +283,7 @@ class InterestRatePayout extends PayerReceiver calculation FixedAmount, Floating
 		[synonym FpML value compoundingMethod pathExpression "calculationPeriodAmount.calculation"]
 	calculationPeriodDates CalculationPeriodDates (1..1) <"The calculation period dates schedule.">;
 	paymentDates PaymentDates (1..1) <"The payment dates schedule.">;
-	resetDates ResetDates (1..1) <"The reset dates schedule. The reset dates schedule only applies for a floating rate stream.">;
+	resetDates ResetDates (0..1) <"The reset dates schedule. The reset dates schedule only applies for a floating rate stream.">;
 		[synonym FpML value resetDates]
 	cashflows Cashflows (0..1) <"The cashflow representation of the swap stream.">;
 		[synonym FpML value cashflows]
@@ -313,10 +313,6 @@ data rule FpML_ird_8 <"FpML validation rule ird-8 - The @href attribute of payer
 	when InterestRatePayout exists
 	then InterestRatePayout -> payerPartyReference <> InterestRatePayout -> receiverPartyReference
 		or InterestRatePayout -> payerAccountReference <> InterestRatePayout -> receiverAccountReference
-
-data rule InitialStub_firstPaymentDate <"FpML specifies that firstPaymentDate must only be included if there is an initial stub.">
-	when InterestRatePayout -> stubPeriod -> initialStub is absent
-	then InterestRatePayout -> paymentDates -> firstPaymentDate is absent 
 
 data rule FinalStub_lastRegularPaymentDate <"FpML specifies that lastRegularPaymentDate must only be included if there is an final stub.">
 	when InterestRatePayout -> stubPeriod -> finalStub is absent
