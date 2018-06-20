@@ -153,8 +153,9 @@ choice rule CalculationPeriodDates_choice2 <"Choice rule to represent an FpML ch
 	terminationDate and relativeTerminationDate
 
 data rule CalculationPeriodDates_firstPeriodStartDate_effectiveDate <"FpML specifies that the firstPeriodStartDate must only be specified if it is not equal to the effective date.">
-	when CalculationPeriodDates -> firstPeriodStartDate = CalculationPeriodDates -> effectiveDate -> adjustableDate
-	then CalculationPeriodDates -> firstPeriodStartDate is absent
+	when CalculationPeriodDates -> firstPeriodStartDate exists
+	then CalculationPeriodDates -> firstPeriodStartDate -> adjustedDate <> CalculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate
+		or CalculationPeriodDates -> firstPeriodStartDate -> unadjustedDate <> CalculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
 
 data rule FirstPeriodStartDate_initialStub <"FpML specifies that the firstRegularPeriodStartDate must only be specified if there is an initial stub calculation period. In practice, this is the key element as part of the initial stub specification.">
 	when InterestRatePayout -> calculationPeriodDates -> stubPeriodType is absent 

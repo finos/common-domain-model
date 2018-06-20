@@ -481,9 +481,13 @@ isEvent PartialTermination <"The qualification of a full termination event from 
 	if Event -> intent exists 
 	then 
 		Event -> intent = IntentEnum.partialTermination
-		and Event -> primitive -> quantityChange only exists
+		and ( Event -> primitive -> quantityChange only exists
+			or ( Event -> primitive -> quantityChange and Event -> primitive -> payment ) only exists )
+		and Event -> primitive -> quantityChange single exists
 	else
-		Event -> primitive -> quantityChange only exists
+		( Event -> primitive -> quantityChange only exists
+			or ( Event -> primitive -> quantityChange and Event -> primitive -> payment ) only exists )
+		and Event -> primitive -> quantityChange single exists
 	and NotionalAmount_Decrease, NotionalAmount_Remaining apply
 
 isEvent NewTradeEvent <"The qualification of a new trade event from the fact that the only primitive is the newTrade.">
