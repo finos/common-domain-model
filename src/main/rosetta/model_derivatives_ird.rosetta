@@ -128,7 +128,7 @@ class CalculationPeriodDates <"A class defining the parameters used to generate 
 		[synonym FpML value scheduledTerminationDate]
 	relativeTerminationDate RelativeDateOffset (0..1) <"The term/maturity of the swap, express as a tenor (typically in years).">;
 		[synonym FpML value relativeTerminationDate pathExpression "calculationPeriodDates"]
-	calculationPeriodDatesAdjustments BusinessDayAdjustments (1..1) <"The business day convention to apply to each calculation period end date if it would otherwise fall on a day which is not a business day in the specified business centers.">;
+	calculationPeriodDatesAdjustments BusinessDayAdjustments (0..1) <"The business day convention to apply to each calculation period end date if it would otherwise fall on a day which is not a business day in the specified business centers.">;
 		[synonym FpML value calculationPeriodDatesAdjustments pathExpression "calculationPeriodDates"]
 	firstPeriodStartDate AdjustableDate (0..1) <"The start date of the calculation period if the date falls before the effective date. It must only be specified if it is not equal to the effective date. This date may be subject to adjustment in accordance with a business day convention.">;
 		[synonym FpML value firstPeriodStartDate pathExpression "calculationPeriodDates"]
@@ -141,7 +141,7 @@ class CalculationPeriodDates <"A class defining the parameters used to generate 
 		[synonym FpML value lastRegularPeriodEndDate pathExpression "calculationPeriodDates"]
 	stubPeriodType StubPeriodTypeEnum (0..1) <"Method to allocate any irregular period remaining after regular periods have been allocated between the effective and termination date.">;
 		[synonym FpML value stubPeriodType pathExpression "calculationPeriodDates"]
-	calculationPeriodFrequency CalculationPeriodFrequency (1..1) <"The frequency at which calculation period end dates occur with the regular part of the calculation period schedule and their roll date convention.">;
+	calculationPeriodFrequency CalculationPeriodFrequency (0..1) <"The frequency at which calculation period end dates occur with the regular part of the calculation period schedule and their roll date convention.">;
 }
 
 choice rule CalculationPeriodDates_choice1 <"Choice rule to represent an FpML choice construct. The choice rule has been made optional as credit derivative products might not have a specified effective date.">
@@ -152,7 +152,17 @@ choice rule CalculationPeriodDates_choice2 <"Choice rule to represent an FpML ch
 	for CalculationPeriodDates optional choice between
 	terminationDate and relativeTerminationDate
 
-data rule CalculationPeriodDates_firstPeriodStartDate_effectiveDate <"FpML specifies that the firstPeriodStartDate must only be specified if it is not equal to the effective date.">
+data rule CalculationPeriodDates_calculationPeriodDatesAdjustments <"FpML specifies a required calculationPeriodDatesAdjustments element as part of the CalculationPeriodDates. As standardised CDS don't have such business day adjustment provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product as two interest rate streams, this provision must exist.">
+	when Payout -> interestRatePayout count = 2
+	and Payout -> interestRatePayout -> calculationPeriodDates exists
+	then Payout -> interestRatePayout -> calculationPeriodDates -> calculationPeriodDatesAdjustments exists
+
+data rule CalculationPeriodDates_calculationPeriodFrequency <"FpML specifies a required calculationPeriodFrequency element as part of the CalculationPeriodDates. As standardised CDS don't have such calculationPeriodFrequency provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product as two interest rate streams, this provision must exist.">
+	when Payout -> interestRatePayout count = 2
+	and Payout -> interestRatePayout -> calculationPeriodDates exists
+	then Payout -> interestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency exists
+
+data rule FirstPeriodStartDate_effectiveDate <"FpML specifies that the firstPeriodStartDate must only be specified if it is not equal to the effective date.">
 	when CalculationPeriodDates -> firstPeriodStartDate exists
 	then CalculationPeriodDates -> firstPeriodStartDate -> adjustedDate <> CalculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate
 		or CalculationPeriodDates -> firstPeriodStartDate -> unadjustedDate <> CalculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
