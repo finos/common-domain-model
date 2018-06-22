@@ -1,6 +1,7 @@
 namespace "org.isda.cdm"
 
 class AdjustableDate <"A class for defining a date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date. The CDM collapses the FpML AdjustableDate and AdjustableDate2 FpML constructs, as the only difference is that this latter allows for the ability to reference date adjustments through the dateAdjustmentsReference element.">
+	[synonym FpML value AdjustableDate]
 	[synonym FpML value AdjustableDate2]
 {
 	id string (0..1) anchor;
@@ -12,7 +13,7 @@ class AdjustableDate <"A class for defining a date that shall be subject to adju
 		[synonym FpML value unadjustedDate pathExpression "paymentDate.adjustableDate"]
 		[synonym FpML value firstPeriodStartDate]
 		[synonym FpML value adjustablePaymentDate]
-	dateAdjustments BusinessDayAdjustments (1..1) <"The business day convention and financial business centers used for adjusting the date if it would otherwise fall on a day that is not a business date in the specified business centers.">;
+	dateAdjustments BusinessDayAdjustments (0..1) <"The business day convention and financial business centers used for adjusting the date if it would otherwise fall on a day that is not a business date in the specified business centers.">;
 		[synonym FpML value dateAdjustments]
 		[synonym FpML value dateAdjustments pathExpression "calculationPeriodDates.terminationDate"]
 		[synonym FpML value dateAdjustments pathExpression "calculationPeriodDates.effectiveDate"]
@@ -944,8 +945,9 @@ class RelativeDateOffset extends Offset <"A class defining a date (referred to a
 {
 	businessDayConvention BusinessDayConventionEnum (1..1) <"The convention for adjusting a date if it would otherwise fall on a day that is not a business day.">;
 		[synonym FpML value businessDayConvention]
-	businessCenters BusinessCenters (1..1) <"FpML specifies a choice between businessCenters and businessCentersReference, this latter being a pointer to business centers specified somewhere else in the document. Rosetta specifies the actual business centers, and hence collapses those alternative implementations.">;
+	businessCenters BusinessCenters (0..1);
 		[synonym FpML value businessCenters]
+	businessCentersReference string (0..1) reference	<"A pointer style reference to a set of financial business centers defined elsewhere in the document. This set of business centers is used to determine whether a particular day is a business day or not.">;
 		[synonym FpML value businessCentersReference]
 	dateRelativeTo string (0..1) reference <"Specifies the anchor as an href attribute. The href attribute value is a pointer style reference to the element or component elsewhere in the document where the anchor date is defined.">;
 		[synonym FpML value dateRelativeTo]

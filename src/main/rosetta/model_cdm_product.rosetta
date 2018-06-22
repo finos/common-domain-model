@@ -18,7 +18,7 @@ class Contract rosettaKey <"A class to specify a contract object, which can be i
 	brokerParty string (0..*) reference <"The reference to the party (or parties) that brokered the contract.">;
 		[synonym FpML value brokerPartyReference pathExpression "trade"]
 		[synonym Rosetta_Workbench value brokerPartyReference]
-	calculationAgent CalculationAgentModel (1..1) <"The ISDA Calculation Agent and the associated business center information. This information is represented in FpML via the CalculationAgent.model.">;
+	calculationAgent CalculationAgentModel (0..1) <"The ISDA Calculation Agent and the associated business center information. This information is represented in FpML via the CalculationAgent.model.">;
 	determiningParty string (0..2) reference <"TThe party referenced is specified in the related Confirmation as Determination Party.">;
 		[synonym FpML value determiningParty pathExpression "trade"]
 		[synonym Rosetta_Workbench value determiningParty]
@@ -37,7 +37,7 @@ class Contract rosettaKey <"A class to specify a contract object, which can be i
 	governingLaw GoverningLawEnum (0..1) scheme "governingLawScheme" <"Identification of the law governing the transaction.">;
 		[synonym FpML value governingLaw pathExpression "trade"]
 		[synonym Rosetta_Workbench value governingLaw]
-	party Party (2..*) <"The parties to the contract. While FpML has a minimal cardinality of 1, a minimal cardinality of 2 seems more appropriate.">;
+	party Party (0..*) <"The parties to the contract. While FpML has a minimal cardinality of 1, a minimal cardinality of 2 seems more appropriate.">;
 		[synonym FpML value party]
 		[synonym Rosetta_Workbench value party]
 	account Account (0..*) <"Optional account information.">;
@@ -118,8 +118,8 @@ data rule FpML_cd_32 <"FpML validation rule cd-32 - If condition LongForm is tru
 
 class ContractualProduct <"The contractual product class is meant to be used across the entire pre-execution, execution and (as part of the Contract) post-execution lifecycle contexts.">
 {
-	productIdentification string (1..1) isProduct;
-	productTaxonomy ProductTaxonomy (1..*) <"The product taxonomy value(s) associated with a contractual product.">;
+	productIdentification string (0..1) isProduct;
+	productTaxonomy ProductTaxonomy (0..*) <"The product taxonomy value(s) associated with a contractual product.">;
 	economicTerms EconomicTerms (1..1);
 }
 
@@ -231,11 +231,11 @@ class GeneralTerms <"A class specifying the general terms of the credit default 
 	additionalTerm string (0..*) scheme "additionalTermScheme";
 		[synonym FpML value additionalTerm]
 		[synonym Rosetta_Workbench value additionalTerm]
-	substitution boolean (1..1); // As a departure from FpML, the proposal is to remove optional cardinality in a boolean attribute. See class PaymentDates for proposed resolution.
-		[synonym FpML value substitution]
+	substitution boolean (1..1);
+		[synonym FpML value substitution] // set substitution to False when absent]
 		[synonym Rosetta_Workbench value substitution]
-	modifiedEquityDelivery boolean (1..1); // As a departure from FpML, the proposal is to remove optional cardinality in a boolean attribute. See class PaymentDates for proposed resolution.
-		[synonym FpML value modifiedEquityDelivery]
+	modifiedEquityDelivery boolean (1..1);
+		[synonym FpML value modifiedEquityDelivery] // set modifiedEquityDelivery to False when absent]
 		[synonym Rosetta_Workbench value modifiedEquityDelivery]
 }
 
@@ -263,9 +263,9 @@ class InterestRatePayout extends PayerReceiver calculation FixedAmount, Floating
 {
 	id string (0..1) anchor;
 		[synonym FpML value id]
-	quantity ContractualQuantity (1..1) <"The quantity can be expressed in different formats, depending upon the product, e.g. notional amount for credit and interest rate products, quantity for some of the equity products. The CDM uses the generic term quantity rather than notional amount.">;
+	quantity ContractualQuantity (0..1) <"The quantity can be expressed in different formats, depending upon the product, e.g. notional amount for credit and interest rate products, quantity for some of the equity products. The CDM uses the generic term quantity rather than notional amount.">;
 	interestRate InterestRate (0..1) <"The interest rate can be a floating rate, a fixed rate of an inflation rate.">;
-	dayCountFraction DayCountFractionEnum (1..1) scheme "dayCountFractionScheme" <"The day count fraction.">;
+	dayCountFraction DayCountFractionEnum (0..1) <"The day count fraction.">;
 		[synonym FpML value dayCountFraction pathExpression "calculationPeriodAmount.calculation"]
 		[synonym FpML value dayCountFraction pathExpression "periodicPayment.fixedAmountCalculation"]
 		[synonym FpML value dayCountFraction pathExpression "periodicPayment.floatingAmountCalculation"]
@@ -274,7 +274,7 @@ class InterestRatePayout extends PayerReceiver calculation FixedAmount, Floating
 	compoundingMethod CompoundingMethodEnum (0..1) <"If one or more calculation period contributes to a single payment amount this element specifies whether compounding is applicable and, if so, what compounding method is to be used. This element must only be included when more than one calculation period contributes to a single payment amount.">;
 		[synonym FpML value compoundingMethod pathExpression "calculationPeriodAmount.calculation"]
 	calculationPeriodDates CalculationPeriodDates (1..1) <"The calculation period dates schedule.">;
-	paymentDates PaymentDates (1..1) <"The payment dates schedule.">;
+	paymentDates PaymentDates (0..1) <"The payment dates schedule.">;
 	resetDates ResetDates (0..1) <"The reset dates schedule. The reset dates schedule only applies for a floating rate stream.">;
 		[synonym FpML value resetDates]
 	cashflows Cashflows (0..1) <"The cashflow representation of the swap stream.">;
@@ -290,6 +290,23 @@ class InterestRatePayout extends PayerReceiver calculation FixedAmount, Floating
 	bondReference BondReference (0..1) <"Reference to a bond underlyer to represent an asset swap or Condition Precedent Bond.">;
 		[synonym FpML value bondReference]
 }
+
+data rule InterestRatePayout_quantity <"When there an InterestRatePayout but no creditDefaultPayout nor optionPayout, the notional must be specified. The notional of a credit default swap is expressed as part of the protection terms.">
+	when Payout -> interestRatePayout exists
+		and Payout -> creditDefaultPayout is absent
+	then Payout -> interestRatePayout -> quantity exists
+
+data rule InterestRatePayout_actualQuantity <"The quantity associated to an interest rate payout should not be expressed as a quantity, but rather as a notional (which can itself be expressed in a number of distinct ways).">
+	when InterestRatePayout exists
+	then InterestRatePayout -> quantity -> quantity is absent
+
+data rule InterestRatePayout_dayCountFraction <"FpML specifies a required dayCountFraction element as part of the swapStream/calculationPeriodAmount/calculation. As standardised CDS don't have such specified day count fraction, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product as two interest rate streams, this provision must exist.">
+	when Payout -> interestRatePayout count = 2
+	then Payout -> interestRatePayout -> dayCountFraction exists
+
+data rule InterestRatePayout_paymentDates <"FpML specifies a required paymentDates element as part of the swapStream. As standardised CDS may not have specified payment dates, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product as two interest rate streams, this provision must exist.">
+	when Payout -> interestRatePayout count = 2
+	then Payout -> interestRatePayout -> dayCountFraction exists
 
 data rule FpML_ird_1 <"FpML validation rule ird-1 - Reset dates must exist if and only if a floating rate or inflation rate exists.">
 	when InterestRatePayout -> resetDates exists
@@ -310,10 +327,6 @@ data rule FinalStub_lastRegularPaymentDate <"FpML specifies that lastRegularPaym
 	when InterestRatePayout count = 2
 	and 	InterestRatePayout -> stubPeriod -> finalStub is absent
 	then InterestRatePayout -> paymentDates -> lastRegularPaymentDate is absent
-
-data rule InterestRatePayout_quantity <"The quantity associated to an interest rate payout should not be expressed as a quantity, but rather as a notional (which can itself be expressed in a number of distinct ways).">
-	when InterestRatePayout exists
-	then InterestRatePayout -> quantity -> quantity is absent
 
 /*
  * TODO - Need for an associated logic that will parse the respective legs of the swap, as this is not made explicit at present as part of the syntax
@@ -376,12 +389,9 @@ class OptionExercise <"A class to represent the applicable terms to qualify an o
 class OptionPayout <"The option payout specification terms.">
 {
 	buyerSeller BuyerSeller (1..1);
-	optionType OptionTypeEnum (1..1) <"The type of option transaction. From a usage standpoint, put/call is the default option type, while payer/receiver indicator is used for options on index credit default swaps, consistently with the industry practice. Straddle is used for the case of straddle strategy, that combine a call and a put with the same strike.">;
-		[synonym FpML value optionType]
-/*
- * TODO - Need to implement a mapping logic to map the FpML swaption straddle boolean flag into the common optionType
- */
-//		[synonym FpML value optionType set optionType.straddle when synonym trade.swaption.swaptionStraddle = True ]
+	optionType OptionTypeEnum (0..1) <"The type of option transaction. From a usage standpoint, put/call is the default option type, while payer/receiver indicator is used for options on index credit default swaps, consistently with the industry practice. Straddle is used for the case of straddle strategy, that combine a call and a put with the same strike.">;
+		[synonym FpML value optionType] 
+		[synonym FpML value swaptionStraddle set OptionTypeEnum.Straddle when True]
 	feature OptionFeature (0..1) <"The option feature, such as quanto, Asian, barrier, knock.">;
 		[synonym FpML value feature]
 	denomination OptionDenomination (0..1) <"The denomination qualifies the number of units of underlyer per option and the number of options comprised in the option transaction. FpML represents this information as part of the OptionDenomination.model.">;
@@ -400,7 +410,7 @@ class PaymentDates <"The payment dates schedule. As a difference from the FpML P
 		[synonym FpML value resetDatesReference pathExpression "paymentDates"]
 	valuationDatesReference string (0..1) reference <"A pointer style reference to the associated valuation dates component defined elsewhere in the document. Implemented for Brazilian-CDI Swaps where it will refer to the settlemementProvision/nonDeliverableSettlement/fxFixingDate structure.">;
 		[synonym FpML value valuationDatesReference pathExpression "paymentDates"]
-	paymentFrequency Frequency (1..1) <"The frequency at which regular payment dates occur. If the payment frequency is equal to the frequency defined in the calculation period dates component then one calculation period contributes to each payment amount. If the payment frequency is less frequent than the frequency defined in the calculation period dates component then more than one calculation period will contribute to the payment amount. A payment frequency more frequent than the calculation period frequency or one that is not a multiple of the calculation period frequency is invalid. If the payment frequency is of value T (term), the period is defined by the effectiveDate and the terminationDate.">;
+	paymentFrequency Frequency (0..1) <"The frequency at which regular payment dates occur. If the payment frequency is equal to the frequency defined in the calculation period dates component then one calculation period contributes to each payment amount. If the payment frequency is less frequent than the frequency defined in the calculation period dates component then more than one calculation period will contribute to the payment amount. A payment frequency more frequent than the calculation period frequency or one that is not a multiple of the calculation period frequency is invalid. If the payment frequency is of value T (term), the period is defined by the effectiveDate and the terminationDate.">;
 		[synonym FpML value paymentFrequency pathExpression "paymentDates"]
 		[synonym FpML value paymentFrequency pathExpression "periodicPayment"]
 	firstPaymentDate date (0..1) <"The first unadjusted payment date. This day may be subject to adjustment in accordance with any business day convention specified in paymentDatesAdjustments. This element must only be included if there is an initial stub. This date will normally correspond to an unadjusted calculation period start or end date. This is true even if early or delayed payment is specified to be applicable since the actual first payment date will be the specified number of days before or after the applicable adjusted calculation period start or end date with the resulting payment date then being adjusted in accordance with any business day convention specified in paymentDatesAdjustments.">;
@@ -409,18 +419,18 @@ class PaymentDates <"The payment dates schedule. As a difference from the FpML P
 	lastRegularPaymentDate date (0..1) <"The last regular unadjusted payment date. This day may be subject to adjustment in accordance with any business day convention specified in paymentDatesAdjustments. In the case of interest rate swaps, this element must only be included if there is a final stub. All calculation periods after this date contribute to the final payment. The final payment is made relative to the final set of calculation periods or the final reset date as the case may be. This date will normally correspond to an unadjusted calculation period start or end date. This is true even if early or delayed payment is specified to be applicable since the actual last regular payment date will be the specified number of days before or after the applicable adjusted calculation period start or end date with the resulting payment date then being adjusted in accordance with any business day convention specified in paymentDatesAdjustments.">;
 		[synonym FpML value lastRegularPaymentDate pathExpression "paymentDates"]
 		[synonym FpML value lastRegularPaymentDate pathExpression "periodicPayment"]
-	payRelativeTo PayRelativeToEnum (1..1) <"Specifies whether the payments occur relative to each adjusted calculation period start date, adjusted calculation period end date or each reset date. The reset date is applicable in the case of certain euro (former French Franc) floating rate indices. Calculation period start date means relative to the start of the first calculation period contributing to a given payment. Similarly, calculation period end date means the end of the last calculation period contributing to a given payment. The valuation date is applicable for Brazilian-CDI swaps.">;
+	payRelativeTo PayRelativeToEnum (0..1) <"Specifies whether the payments occur relative to each adjusted calculation period start date, adjusted calculation period end date or each reset date. The reset date is applicable in the case of certain euro (former French Franc) floating rate indices. Calculation period start date means relative to the start of the first calculation period contributing to a given payment. Similarly, calculation period end date means the end of the last calculation period contributing to a given payment. The valuation date is applicable for Brazilian-CDI swaps.">;
 		[synonym FpML value payRelativeTo pathExpression "paymentDates"]
 	paymentDaysOffset Offset (0..1) <"If early payment or delayed payment is required, specifies the number of days offset that the payment occurs relative to what would otherwise be the unadjusted payment date. The offset can be specified in terms of either calendar or business days. Even in the case of a calendar days offset, the resulting payment date, adjusted for the specified calendar days offset, will still be adjusted in accordance with the specified payment dates adjustments. This element should only be included if early or delayed payment is applicable, i.e. if the periodMultiplier element value is not equal to zero. An early payment would be indicated by a negative periodMultiplier element value and a delayed payment (or payment lag) would be indicated by a positive periodMultiplier element value.">;
 		[synonym FpML value paymentDaysOffset pathExpression "paymentDates"]
-	paymentDatesAdjustments BusinessDayAdjustments (1..1) <"The business day convention to apply to each payment date if it would otherwise fall on a day that is not a business day in the specified financial business centers.">;
+	paymentDatesAdjustments BusinessDayAdjustments (0..1) <"The business day convention to apply to each payment date if it would otherwise fall on a day that is not a business day in the specified financial business centers.">;
 		[synonym FpML value paymentDatesAdjustments pathExpression "paymentDates"]
-	paymentDelay boolean (1..1) <"Applicable to CDS on MBS to specify whether payment delays are applicable to the fixed Amount. RMBS typically have a payment delay of 5 days between the coupon date of the reference obligation and the payment date of the synthetic swap. CMBS do not, on the other hand, with both payment dates being on the 25th of each month.">; 
+	paymentDelay boolean (0..1) <"Applicable to CDS on MBS to specify whether payment delays are applicable to the fixed Amount. RMBS typically have a payment delay of 5 days between the coupon date of the reference obligation and the payment date of the synthetic swap. CMBS do not, on the other hand, with both payment dates being on the 25th of each month.">; 
 /*
  * TODO - In order not to introduce optional boolean attributes, the below mapping syntax needs to be supported
  */
 		[synonym FpML value paymentDelay]
-//		[synonym FpML value paymentDelay set paymentDelay to False when absent]
+		[synonym FpML value paymentDelay] // set paymentDelay to False when absent
 }
 
 choice rule PaymentDates_choice <"Choice rule to represent an FpML choice construct. The choice is made optional to take into consideration the fact that he PaymentDates class is used for the credit products, to specify the payment delay.">
@@ -435,6 +445,21 @@ data rule PaymentDates_firstPaymentDate_lastRegularPaymentDate <"FpML validation
 data rule PaymentDates_paymentDaysOffset <"FpML specifies that paymentDaysOffset should only be included if early or delayed payment is applicable, i.e. if the periodMultiplier element value is not equal to zero.">
 	when PaymentDates -> paymentDaysOffset exists
 	then PaymentDates -> paymentDaysOffset -> periodMultiplier <> 0
+
+data rule PaymentDates_payRelativeTo <"FpML specifies a required payRelativeTo element as part of the PaymentDates. As standardised CDS don't have such payRelativeTo provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product as two interest rate streams, this provision must exist.">
+	when Payout -> interestRatePayout count = 2
+	and Payout -> interestRatePayout -> paymentDates exists
+	then Payout -> interestRatePayout -> paymentDates -> payRelativeTo exists
+
+data rule PaymentDates_paymentDatesAdjustments <"FpML specifies a required paymentDatesAdjustments element as part of the PaymentDates. As standardised CDS don't have such paymentDatesAdjustments provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product as two interest rate streams, this provision must exist.">
+	when Payout -> interestRatePayout count = 2
+	and Payout -> interestRatePayout -> paymentDates exists
+	then Payout -> interestRatePayout -> paymentDates -> paymentDatesAdjustments exists
+
+data rule PaymentDates_paymentFrequency <"FpML specifies a required paymentFrequency element as part of the PaymentDates. As standardised CDS may not have such paymentFrequency provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product as two interest rate streams, this provision must exist.">
+	when Payout -> interestRatePayout count = 2
+	and Payout -> interestRatePayout -> paymentDates exists
+	then Payout -> interestRatePayout -> paymentDates -> paymentFrequency exists
 
 class Payout <"The payout can be specified through a number of combinations, e.g. by associating several interest rate payouts to specify an interest rate swap, or a credit default and an interest rate payout to specify a credit default swap. The implied product is inferred by the isProduct CDM artefact.">
 {
