@@ -27,9 +27,7 @@ public class ModelClassValidationTest {
 				  "contractIdentifier - Expected cardinality lower bound of [1] found [0]; "
 				+ "tradeDate - Expected cardinality lower bound of [1] found [0]; "
 				+ "contractualProduct - Expected cardinality lower bound of [1] found [0]; "
-				+ "calculationAgent - Expected cardinality lower bound of [1] found [0]; "
-				+ "determiningParty - Expected cardinality upper bound of [2] found [3]; "
-				+ "party - Expected cardinality lower bound of [2] found [0]",
+				+ "determiningParty - Expected cardinality upper bound of [2] found [3]",
 				result.getFailureReason().orElse("No error message"));
 	}
 
