@@ -766,25 +766,16 @@ class PayerReceiver <"A class to represent the FpML PayerReceiver.model.">
 		[synonym FpML value receiverAccountReference]
 }
 
-class Payment extends PayerReceiver rosettaKey <"A class for defining payments. Rosetta extends the FpML Payment type for the purpose of supporting premium payment, by adding the premiumExpression and the paymentDiscounting attributes.">
+class Payment extends CashflowBase rosettaKey <"A class for defining payments. Rosetta extends the FpML Payment type for the purpose of supporting premium payment, by adding the premiumExpression and the paymentDiscounting attributes.">
 {
-	id string (0..1) anchor;
-		[synonym FpML value id]
 	paymentAmount Money (1..1) <"The currency amount of the payment.">;
 	paymentDate AdjustableOrRelativeDate (0..1) <"The payment date. While FpML specifies this element to be of type AdjustableOrAdjustedDate, Rosetta uses the type AdjustableOrRelativeDate to accommodate the credit default swap option premium, which uses the relative date construct.">;
-	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">;
-		[synonym Rosetta_Workbench value cashflowType]
-/*
- * TODO - Enable mapping syntax to map to the premium qualification
- */
-//		[synonym FpML value paymentType set cashflowType.premium when synonym premium exists]
-	discountFactor number (0..1) <"The value representing the discount factor used to calculate the present value of the cash flow.">;
-		[synonym FpML value discountFactor]
-	presentValueAmount Money (0..1) <"The amount representing the present value of the forecast payment.">;
-		[synonym FpML value presentValueAmount]
-	premiumExpression PremiumExpression (0..1) <"FpML specifies the Premium.model group for representing the option premium when expressed in a way other than an amount.">;
-	paymentDiscounting PaymentDiscounting (0..1) <"FpML specifies the FpML PaymentDiscounting.model group for representing the discounting elements that can be associated with a payment.">;
+	paymentType PaymentTypeEnum (0..1);
 }
+
+data rule Payment_paymentflowAmount <"FpML specifies paymentAmount as a NonNegativeMoney type. The direction is indeed implied by the payer/receiver attribute.">
+	when Payment -> paymentAmount exists
+	then Payment -> paymentAmount -> amount >=0.0
 
 class PaymentDetail
 	[synonym FpML value PaymentDetail]
@@ -798,10 +789,6 @@ class PaymentDetail
 	paymentAmount Money (0..1) <"A fixed payment amount.">;
 		[synonym FpML value paymentAmount]
 }
-
-data rule Payment_paymentAmount <"FpML specifies paymentAmount as a NonNegativeMoney type.">
-	when Payment -> paymentAmount exists
-	then Payment -> paymentAmount -> amount >=0.0
 
 class PaymentDiscounting <"This class corresponds to the FpML PaymentDiscounting.model group for representing the discounting elements that can be associated with a payment.">
 {
