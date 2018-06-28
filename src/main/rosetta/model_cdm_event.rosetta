@@ -17,6 +17,8 @@ class Cashflow extends CashflowBase <"A class to specify a cashflow, i.e. the ou
 {
 	cashflowAmount Money (1..1) <"The currency amount of the payment.">;
 		[synonym Rosetta_Workbench value paymentAmount]
+	cashflowDate AdjustableOrRelativeDate (0..1);
+		[synonym Rosetta_Workbench value paymentDate]
 	cashflowCalculation string (0..1) calculation <"The computation arguments used to compute the cashflow, when applicable.">;
 		[synonym Rosetta_Workbench value cashflowCalculation]	
 	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">;
@@ -164,7 +166,7 @@ class Execution
 		[synonym Rosetta_Workbench value tradeDate pathExpression "tradeHeader"]
 	contractualProduct ContractualProduct (1..1);
 		[synonym Rosetta_Workbench value contractualProduct]
-	party Party (2..*);
+	party Party (0..*) <"The party reference is optional because positioned as part of the Event class when the execution is specified as part of such context.">;
 }
 
 data rule EventTimestamp_ExpireTime <"The expire time should be greater than the creation time.">
@@ -202,7 +204,7 @@ class MessageInformation <"This class corresponds to the messaging components of
  * TODO - The NewTrade primitive should inherit the ContractState class
  * The ingestion doesn't currently supports this inheritance, which needs to be understood/adjusted
  */
-class NewTrade one of <"The primitive event to represent a new trade.">
+class NewTradePrimitive one of <"The primitive event to represent a new trade.">
 {
 	contract Contract (0..1);
 		[synonym Rosetta_Workbench value contract]
@@ -238,7 +240,7 @@ data rule ObservationSource_content <"ObservationSource should not be empty, alt
 		or ObservationSource -> curve exists
 		or ObservationSource -> informationSource exists
 
-class OtherTermsChange <"The primitive event to represent change(s) in the contractual terms.">
+class TermsChangePrimitive <"The primitive event to represent change(s) to the contractual terms.">
 {
 	before ContractOrContractReference (1..1);
 		[synonym Rosetta_Workbench value before]
@@ -246,7 +248,7 @@ class OtherTermsChange <"The primitive event to represent change(s) in the contr
 		[synonym Rosetta_Workbench value after]
 }
 
-class PartyChange <"The primitive event to represent a change in party(ies) to a contract.">
+class PartyChangePrimitive <"The primitive event to represent a change in party(ies) to a contract.">
 {
 	before ContractOrContractReference (1..1);
 		[synonym Rosetta_Workbench value before]
@@ -256,15 +258,15 @@ class PartyChange <"The primitive event to represent a change in party(ies) to a
 
 class PrimitiveEvent <"The set of primitive events. The purpose of this class it to provide clarity with respect to the event qualification logic.">
 {
-	newTrade NewTrade (0..*) <"The new trade primitive is unbounded to address the case of events such as portfolio compressions, which could result in multiple new trades.">;
+	newTrade NewTradePrimitive (0..*) <"The new trade primitive is unbounded to address the case of events such as portfolio compressions, which could result in multiple new trades.">;
 		[synonym Rosetta_Workbench value newTrade]
-	quantityChange QuantityChange (0..*);
+	quantityChange QuantityChangePrimitive (0..*);
 		[synonym Rosetta_Workbench value quantityChange]
-	partyChange PartyChange (0..*);
+	partyChange PartyChangePrimitive (0..*);
 		[synonym Rosetta_Workbench value partyChange]
 	allocation AllocationPrimitive (0..*);
 		[synonym Rosetta_Workbench value allocation]	
-	otherTermsChange OtherTermsChange (0..1);
+	termsChange TermsChangePrimitive (0..1);
 		[synonym Rosetta_Workbench value otherTermsChange]
 	exercise ExercisePrimitive (0..1);
 		[synonym Rosetta_Workbench value exercise]
@@ -277,7 +279,7 @@ class PrimitiveEvent <"The set of primitive events. The purpose of this class it
 		[synonym Rosetta_Workbench value cashflow]
 }
 
-class QuantityChange <"The primitive event to represent a change in quantity or notional.">
+class QuantityChangePrimitive <"The primitive event to represent a change in quantity or notional.">
 {
 	before ContractOrContractReference (1..1);
 		[synonym Rosetta_Workbench value before]
@@ -305,27 +307,87 @@ class TimeZone <"The time alongside with the timezone location information. This
 		[synonym Rosetta_Workbench value location]
 }
 
-data rule NotionalAmount_Decrease <"Logic to qualify a decrease in the notional amount as a result of a quantity change primitive event.">
-	when Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
-	then Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount >
-		Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount
+isEvent Allocation <"The qualification of allocation event from the fact that (i) the intent is Allocation when specified, (ii) the only primitive is the allocation, (iii) the sum of quantities/notional before = after, and (iv) there is a single contractualProduct before (ensured through cardinality). Note: it is accepted that an allocation can result in a single contract.">
+//	Event -> intent = IntentEnum.Allocation when present
+	Event -> primitive -> allocation only exists
+//	and quantityBeforeAllocation = quantityAfterAllocation
 
-data rule NotionalAmount_Remaining <"Logic to qualify a remaining notional amount as a result of a quantity change primitive event.">
-	when Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
-	then Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount > 0
+alias quantityBeforeAllocation <"The alias to represent the quantity or notional amount associated to a pre-allocation contractual product in terms of number of units (i.e. ignoring the currency or units denomination).">
+	Event -> primitive -> allocation -> before -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity -> amount
+	or Event -> primitive -> allocation -> before -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount
+	or Event -> primitive -> allocation -> before -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
+	or Event -> primitive -> allocation -> before -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step -> stepValue
+	or Event -> primitive -> allocation -> before -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepParameters -> notionalStepAmount
+	or Event -> primitive -> allocation -> before -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> fxLinkedNotional -> initialValue
+	or Event -> primitive -> allocation -> before -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> notionalAmount -> amount
+	or Event -> primitive -> allocation -> before -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount -> amount
 
-data rule Quantity_Decrease <"Logic to qualify a decrease in the quantity as a result of a quantity change primitive event.">
-	when Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity  -> quantity exists
-	then Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity -> amount >
-		Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity -> amount
+alias quantityAfterAllocation <"The alias to represent the quantity or notional amount associated to allocated contract(s) in terms of number of units (i.e. ignoring the currency or units denomination).">
+	Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity -> amount
+	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount
+	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
+	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step -> stepValue 
+	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepParameters -> notionalStepAmount
+	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> fxLinkedNotional -> initialValue
+	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> notionalAmount -> amount
+	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount -> amount
 
-data rule Quantity_Remaining <"Logic to qualify a remaining quantity as a result of a quantity change primitive event.">
-	when Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity exists
-	then Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity -> amount > 0
+isEvent Compression <"The qualification of a compression event from the fact that (i) the intent is Compression when specified, (ii) the quantity change primitive exists, (iii) there are multiple contracts (or contract references) specified in the before state and (iv) the number of non-terminated contracts in the after state is less than the number of contracts in the before state.">
+	Event -> intent = IntentEnum.Compression // when present
+	and Event -> primitive -> quantityChange exists
+//	and contractBeforeQuantityChange multiple exists
 
-data rule NotionalAmount_Null <"Logic to qualify a null notional amount as a result of a quantity change primitive event.">
-	when Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
-	then Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount = 0
+		/*
+		 * TODO Add syntax logic to specify that the number of contracts after which state is <> terminated is less than number of contracts before
+		 * could be:
+		 * and contractBeforeQuantityChange count > Event -> primitive -> quantityChange -> after -> contract -> state <> StateEnum.terminated count
+		 * or:
+		 * and contractBeforeQuantityChange count > contractAfterQuantityChange -> state <> StateEnum.terminated count
+		 */
+
+alias contractBeforeQuantityChange
+	Event -> primitive -> quantityChange -> before -> contract
+	or Event -> primitive -> quantityChange -> before -> contractReference
+
+alias contractAfterQuantityChange
+	Event -> primitive -> quantityChange -> after -> contract
+
+isEvent DerivedObservation <"The qualification of a derived observation event from the fact that (i) the only primitive is the observation, (ii) there are multiple instances of such observations, and (iii) there is an associated call function to compute, say, an interpolation.">
+	Event -> primitive -> observation only multiple exists
+	and Event -> functionCall exists
+
+isEvent Exercise <"The qualification of a full termination event from the fact that (i) the intent is Exercise when specified, (ii) the only primitive is the quantityChange.">
+//	Event -> intent = IntentEnum.Exercise when present
+	Event -> primitive -> exercise only exists
+
+isEvent NewTradeEvent <"The qualification of a new trade event from the fact that (i) the intent is NewTrade when specified, and (ii) the only primitive is the newTrade.">
+//	Event -> intent = IntentEnum.NewTrade when present
+	Event -> primitive -> newTrade only exists
+
+isEvent Novation <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the only primitive is the partyChange, (iii) there is one resulting contract which state is Novated, (iv) the counterpries.">
+//	Event -> intent = IntentEnum.Novation when present
+	Event -> primitive -> partyChange only exists
+	and Event -> primitive -> partyChange -> after -> contract -> state = StateEnum.Novated // count = 1
+
+isEvent PartialNovation <"The qualification of a partial novation event from the fact that (i) the intent is PartialNovation when specified, (ii) the only primitive is the partyChange, (iii) the data rules to qualify a partial or a full novation apply.">
+	Event -> intent = IntentEnum.PartialNovation // when present
+	and Event -> primitive -> partyChange only exists
+	and Event -> primitive -> partyChange -> after -> contract multiple exists
+
+//data rule StepInContract <"As part of the novation event, the contract which has distinct counterparties than the original contract has a trade date equal to the novation event date and an effective date equal to the novation event effective date.">
+//	when originalContractParties <> newContractParties
+//	then Event -> eventDate = Event -> primitive -> partyChange -> after -> contract -> tradeDate -> date
+//	and Event -> effectiveDate = NovatedContractEffectiveDate
+
+data rule Novation_EffectiveDate <"The requirement that the effective date of the novated trade be equal to the event effective date implies that the novation event should always have an associated effective date (which is optional from a data cardinality standpoint).">
+	when Event -> primitive -> partyChange exists
+	then Event -> effectiveDate exists
+
+data rule NovationFee <"Logic to specify that if a payment is qualified as a novation fee, it must have lineage into multiple contracts and one single event (the novation event).">
+	when Event -> primitive -> payment -> paymentType = PaymentTypeEnum.NovationFee
+	then Event -> lineage -> contractReference multiple exists
+	and Event -> lineage -> eventReference single exists
+
 
 /*
  * TODO - Comment from the CDM group is that while the equality in the economic terms between the prior contract and the novated contract is appropriate in principle, 
@@ -356,7 +418,7 @@ data rule FullNovation_Contract <"Logic to qualify a full novation when the resu
 
 alias originalContractParties
 	( Event -> primitive -> partyChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> buyerPartyReference
-		and 	Event -> primitive -> partyChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> sellerPartyReference)
+		and 	Event -> primitive -> partyChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> sellerPartyReference )
 	or ( Event -> primitive -> partyChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver -> payerPartyReference
 		and Event -> primitive -> partyChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver -> receiverPartyReference )
 	or ( Event -> primitive -> partyChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> buyerSeller -> buyerPartyReference
@@ -364,171 +426,45 @@ alias originalContractParties
 	
 alias newContractParties
 	( Event -> primitive -> partyChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> buyerPartyReference
-		and 	Event -> primitive -> partyChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> sellerPartyReference)
+		and 	Event -> primitive -> partyChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> sellerPartyReference )
 	or ( Event -> primitive -> partyChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver -> payerPartyReference
 		and Event -> primitive -> partyChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver -> receiverPartyReference )
 	or ( Event -> primitive -> partyChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> buyerSeller -> buyerPartyReference
 		and Event -> primitive -> partyChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> buyerSeller -> sellerPartyReference	)	
 
-data rule Novation_EffectiveDate <"The requirement that the effective date of the novated trade be equal to the event effective date implies that the novation event should always have an associated effective date (which is optional from a data cardinality standpoint).">
-	when Event -> primitive -> partyChange exists
-	then Event -> effectiveDate exists
+alias NovatedContractEffectiveDate
+	Event -> primitive -> partyChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> date 
+	or Event -> primitive -> partyChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> date
 
-/*
- * TODO - Same as noted for ContractReference_Terminated.  That rule is actually useless as far as the model is concerned.  3 alternatives:
- * - Remove the ability to specify the after state by contract reference
- * - Specify the contract state alongside the contract reference
- * - Keep the ability to specify the contract state, but accept the fact that no validation logic can apply at the CDM level
- */
-data rule FullNovation_ContractReference <"Logic to qualify a full novation when the resulting contract is referenced (instead of being specified) by the fact that (i) there is only one resulting contract and (ii) the prior contract state is 'novated'.">
-	when Event -> primitive -> partyChange -> after -> contractReference single exists
-	then Event -> primitive -> partyChange -> after -> contractReference -> state = StateEnum.novated
-
-data rule PartialNovation <"Logic to qualify a partial novation by the fact that (i) the partyChange primitive is associated with only multiple resulting contracts, (ii) the party and the contract identifier are distinct across the two after contracts.">
-	when Event -> primitive -> partyChange -> after -> contract multiple exists
-	then Event -> primitive -> partyChange -> after -> contract -> party <> Event -> primitive -> partyChange -> after -> contract -> party // Need to confirm that this syntax will work programmatically
-	and Event -> primitive -> partyChange -> after -> contract -> contractIdentifier <> Event -> primitive -> partyChange -> after -> contract -> contractIdentifier
-	/*
-	 * Need to add logic to qualify the fact that the economic terms should be unchanged except for the quantity
-	 * and the that sum of quantity after = quantity before
-	 * 
-	 * Need to add logic to qualify the novated portion of the contract (characterised by a party change) have a TD = event date & EF = event effective date
-	 */
-
-data rule NovationFee <"Logic to specify that if a payment is qualified as a novation fee, it must have lineage into multiple contracts and one single event (the novation event).">
-	when Event -> primitive -> payment -> paymentType = PaymentTypeEnum.NovationFee
-	then Event -> lineage -> contractReference multiple exists
-	and Event -> lineage -> eventReference single exists
-
-/*
- * TODO - As a way to avoid a repeat of the same clauses to handle the intent / no intent, look to adjust the isEvent syntax as:
- * Event -> intent = IntentEnum.compression when present 
- * and clause 1
- * and clause 2
- * ....
- */
-
-isEvent Allocation <"The qualification of allocation event from the fact that (i) the only primitive is the allocation, (ii) the intent is an allocation when such intent is specified, (iii) there is a single contractualProduct before. Note: it is accepted that an allocation can result in a single contract.">
-	if Event -> intent exists
-	then 
-		Event -> intent = IntentEnum.Allocation
-		and Event -> primitive -> allocation only exists
-	else 
-		Event -> primitive -> allocation only exists
-	/*
-	 * TODO - before quantity = sum of after quantities
-	 * Could be:
-	 * and quantityBeforeAllocation = sum quantityAfterAllocation
-	 * Note: is there a way to make it workable for the references?  If challenging, we could look to check whether such references are used in practice,
-	 * or specify that the validation logic is not applicable to such cases. 
-	 */
-
-alias quantityBeforeAllocation <"The alias to represent the quantity or notional amount associated to a pre-allocation contractual product in terms of number of units (i.e. ignoring the currency or units denomination) or reference to such quantity/notional.">
-	Event -> primitive -> allocation -> before -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalReference
-	or Event -> primitive -> allocation -> before -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity -> amount
-	or Event -> primitive -> allocation -> before -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount
-	or Event -> primitive -> allocation -> before -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
-	or Event -> primitive -> allocation -> before -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step -> stepValue
-	or Event -> primitive -> allocation -> before -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepParameters -> notionalStepAmount
-	or Event -> primitive -> allocation -> before -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> fxLinkedNotional -> initialValue
-	or Event -> primitive -> allocation -> before -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> fxLinkedNotional -> constantNotionalScheduleReference
-	or Event -> primitive -> allocation -> before -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalReference
-	or Event -> primitive -> allocation -> before -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount -> amount
-
-alias quantityAfterAllocation <"The alias to represent the quantity or notional amount associated allocated contract(s) in terms of number of units (i.e. ignoring the currency or units denomination) or reference to such quantity/notional.">
-	Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalReference
-	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity -> amount
-	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount
-	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
-	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step -> stepValue
-	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepParameters -> notionalStepAmount
-	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> fxLinkedNotional -> initialValue
-	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> fxLinkedNotional -> constantNotionalScheduleReference
-	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalReference
-	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount -> amount
-
-
-/*
- * TODO - We should look to remove the ability to specify the after by contractReference, as the qualification logic will need to navigate the terms of the contract
- */
-
-isEvent Compression <"The qualification of a compression event from the fact that (i) the quantity change primitive exists, (ii) the intent is a compression when such intent is specified, (iii) there are multiple contracts (or contract references) specified in the before state and (iv) the number of contracts in the after state that are not terminated is less than the number of contracts in the before state.">
-	if Event -> intent exists
-	then 
-		Event -> intent = IntentEnum.Compression
-		and Event -> primitive -> quantityChange exists
-//		and contractBeforeQuantityChange multiple exists
-	else 
-		Event -> primitive -> quantityChange exists
-//		and contractBeforeQuantityChange multiple exists
-		/*
-		 * TODO Add syntax logic to specify that the number of contracts after which state is <> terminated is less than number of contracts before
-		 * could be:
-		 * and contractBeforeQuantityChange count > Event -> primitive -> quantityChange -> after -> contract -> state <> StateEnum.terminated count
-		 * or:
-		 * and contractBeforeQuantityChange count > contractAfterQuantityChange -> state <> StateEnum.terminated count
-		 */
-
-alias contractBeforeQuantityChange
-	Event -> primitive -> quantityChange -> before -> contract
-	or Event -> primitive -> quantityChange -> before -> contractReference
-
-alias contractAfterQuantityChange
-	Event -> primitive -> quantityChange -> after -> contract
-	or Event -> primitive -> quantityChange -> before -> contractReference
-
-isEvent DerivedObservation <"The qualification of a derived observation event from the fact that (i) the only primitive is the observation, that (ii) there are multiple instances of such observations, and (iii) that there is an associated call function to compute, say, an interpolation.">
-	Event -> primitive -> observation only multiple exists
-	and Event -> functionCall exists
-
-isEvent Exercise <"The qualification of a full termination event from the fact that (i) the only primitive is the quantityChange, (ii) the intent is an exercise when such intent is specified.">
-	if Event -> intent exists
-	then 
-		Event -> intent = IntentEnum.Exercise
-		and Event -> primitive -> exercise only exists
-	else 
-		Event -> primitive -> exercise only exists
-	
-isEvent Termination <"The qualification of a termination event from the fact that (i) the only primitive is the quantityChange, (ii) the intent is a full termination when such intent is specified, the (iii) the quantity associated with the contract decreases, (iv) the remaining quantity is null, and (v) the contract state has the value 'terminated'.">
-	if Event -> intent exists
-	then 
-		Event -> intent = IntentEnum.Termination
-		and Event -> primitive -> quantityChange only exists
-	else 
-		Event -> primitive -> quantityChange only exists
-	and NotionalAmount_Decrease, NotionalAmount_Null apply
-
-//data rule ContractState_Terminated <"Logic to qualify that a contract reference has been terminated.">
-//	when alias contractAfterQuantityChange exists
-//	then alias -> state = StateEnum.terminated
-	
-isEvent PartialTermination <"The qualification of a full termination event from the fact that (i) the only primitive is the quantityChange, (ii) the intent is a full termination when such intent is specified, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
-	if Event -> intent exists 
-	then 
-		Event -> intent = IntentEnum.PartialTermination
-		and ( Event -> primitive -> quantityChange only exists
-			or ( Event -> primitive -> quantityChange and Event -> primitive -> payment ) only exists )
-		and Event -> primitive -> quantityChange single exists
-	else
-		( Event -> primitive -> quantityChange only exists
-			or ( Event -> primitive -> quantityChange and Event -> primitive -> payment ) only exists )
-		and Event -> primitive -> quantityChange single exists
-	and NotionalAmount_Decrease, NotionalAmount_Remaining apply
-
-isEvent NewTradeEvent <"The qualification of a new trade event from the fact that the only primitive is the newTrade.">
-	Event -> primitive -> newTrade only exists
-
-isEvent Novation <"The qualification of a novation event from the fact that (i) the only primitive is the partyChange, (ii) the intent is a novation when such intent is specified, (iii) the data rules to qualify a partial or a full novation apply.">
-	if Event -> intent exists
-	then 
-		Event -> intent = IntentEnum.Novation
-		and Event -> primitive -> partyChange only exists
-	else 
-		Event -> primitive -> partyChange only exists
-	and Novation_EffectiveDate, FullNovation_Contract or FullNovation_ContractReference, PartialNovation apply
-		
 isEvent Observation <"The qualification of an observation event from the fact that (i) the only primitive is the observation, and (ii) that there is only a single instance of such observation.">
 	Event -> primitive -> observation only single exists 
+
+isEvent PartialTermination <"The qualification of a partial termination event from the fact that (i) the intent is Partial Termination when specified, (ii) the only primitive is the quantityChange and there is only one such primitive involved, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
+//	Event -> intent = IntentEnum.PartialTermination when present
+	( Event -> primitive -> quantityChange exists
+		or ( Event -> primitive -> quantityChange and Event -> primitive -> payment ) exists )
+//	and quantityBeforeQuantityChange > quantityAfterQuantityChange
+//	and quantityAfterQuantityChange > 0
+
+alias quantityBeforeQuantityChange <"The alias to represent the quantity or notional amount in terms of number of units (i.e. ignoring the currency or units denomination) before a quantity change primitive.">
+	Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity -> amount
+	or Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount
+	or Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
+	or Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step -> stepValue 
+	or Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepParameters -> notionalStepAmount
+	or Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> fxLinkedNotional -> initialValue
+	or Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> notionalAmount -> amount
+	or Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount -> amount
+
+alias quantityAfterQuantityChange <"The alias to represent the quantity or notional amount in terms of number of units (i.e. ignoring the currency or units denomination) after a quantity change primitive.">
+	Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity -> amount
+	or Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount
+	or Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
+	or Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step -> stepValue 
+	or Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepParameters -> notionalStepAmount
+	or Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> fxLinkedNotional -> initialValue
+	or Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> notionalAmount -> amount
+	or Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount -> amount	
 
 isEvent Payment <"The qualification of a payment event from the fact that the only primitive is the payment.">
 	( Event -> primitive -> payment
@@ -536,3 +472,9 @@ isEvent Payment <"The qualification of a payment event from the fact that the on
 
 isEvent Reset <"The qualification of a reset event from the fact that the only primitive is the reset.">
 	Event -> primitive -> reset only exists
+
+isEvent Termination <"The qualification of a termination event from the fact that (i) the intent is Termination when specified, (ii) the only primitive is the quantityChange and there is only one such primitive involved, the (iii) the remaining quantity is null, and (iv) the contract state has the value 'terminated'.">
+//	Event -> intent = IntentEnum.Termination when present
+	Event -> primitive -> quantityChange single exists
+//	and quantityAfterQuantityChange = 0
+	and Event -> primitive -> quantityChange -> after -> contract -> state = StateEnum.Terminated
