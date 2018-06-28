@@ -248,22 +248,12 @@ class TermsChangePrimitive <"The primitive event to represent change(s) to the c
 		[synonym Rosetta_Workbench value after]
 }
 
-class PartyChangePrimitive <"The primitive event to represent a change in party(ies) to a contract.">
-{
-	before ContractOrContractReference (1..1);
-		[synonym Rosetta_Workbench value before]
-	after ContractOrContractReference (1..1);
-		[synonym Rosetta_Workbench value after]
-}
-
 class PrimitiveEvent <"The set of primitive events. The purpose of this class it to provide clarity with respect to the event qualification logic.">
 {
 	newTrade NewTradePrimitive (0..*) <"The new trade primitive is unbounded to address the case of events such as portfolio compressions, which could result in multiple new trades.">;
 		[synonym Rosetta_Workbench value newTrade]
 	quantityChange QuantityChangePrimitive (0..*);
 		[synonym Rosetta_Workbench value quantityChange]
-	partyChange PartyChangePrimitive (0..*);
-		[synonym Rosetta_Workbench value partyChange]
 	allocation AllocationPrimitive (0..*);
 		[synonym Rosetta_Workbench value allocation]	
 	termsChange TermsChangePrimitive (0..1);
@@ -275,7 +265,6 @@ class PrimitiveEvent <"The set of primitive events. The purpose of this class it
 	reset ResetPrimitive (0..*);
 		[synonym Rosetta_Workbench value reset]
 	payment Payment (0..*);
-		[synonym Rosetta_Workbench value payment]
 		[synonym Rosetta_Workbench value cashflow]
 }
 
@@ -336,14 +325,7 @@ isEvent Compression <"The qualification of a compression event from the fact tha
 	Event -> intent = IntentEnum.Compression // when present
 	and Event -> primitive -> quantityChange exists
 //	and contractBeforeQuantityChange multiple exists
-
-		/*
-		 * TODO Add syntax logic to specify that the number of contracts after which state is <> terminated is less than number of contracts before
-		 * could be:
-		 * and contractBeforeQuantityChange count > Event -> primitive -> quantityChange -> after -> contract -> state <> StateEnum.terminated count
-		 * or:
-		 * and contractBeforeQuantityChange count > contractAfterQuantityChange -> state <> StateEnum.terminated count
-		 */
+// and contractBeforeQuantityChange count > Event -> primitive -> quantityChange -> after -> contract -> state <> StateEnum.terminated count
 
 alias contractBeforeQuantityChange
 	Event -> primitive -> quantityChange -> before -> contract
@@ -364,77 +346,51 @@ isEvent NewTradeEvent <"The qualification of a new trade event from the fact tha
 //	Event -> intent = IntentEnum.NewTrade when present
 	Event -> primitive -> newTrade only exists
 
-isEvent Novation <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the only primitive is the partyChange, (iii) there is one resulting contract which state is Novated, (iv) the counterpries.">
+isEvent Novation <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and newTrade exist, (iii) the contract quantity/notional has decreased as part of the quantityChange primitive, while (iv) there is a remaining quantity/notional, (v) the stepped-in contract has a different contract identifier than the original contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
 //	Event -> intent = IntentEnum.Novation when present
-	Event -> primitive -> partyChange only exists
-	and Event -> primitive -> partyChange -> after -> contract -> state = StateEnum.Novated // count = 1
-
-isEvent PartialNovation <"The qualification of a partial novation event from the fact that (i) the intent is PartialNovation when specified, (ii) the only primitive is the partyChange, (iii) the data rules to qualify a partial or a full novation apply.">
-	Event -> intent = IntentEnum.PartialNovation // when present
-	and Event -> primitive -> partyChange only exists
-	and Event -> primitive -> partyChange -> after -> contract multiple exists
-
-//data rule StepInContract <"As part of the novation event, the contract which has distinct counterparties than the original contract has a trade date equal to the novation event date and an effective date equal to the novation event effective date.">
-//	when originalContractParties <> newContractParties
-//	then Event -> eventDate = Event -> primitive -> partyChange -> after -> contract -> tradeDate -> date
+	Event -> primitive -> quantityChange exists
+	and Event -> primitive -> newTrade exists
+//	and quantityBeforeQuantityChange > quantityAfterQuantityChange
+//	and quantityAfterQuantityChange > 0
+	and Event -> primitive -> newTrade -> contract -> contractIdentifier <> Event -> primitive -> quantityChange -> before -> contract -> contractIdentifier
+	and Event -> eventDate = Event -> primitive -> newTrade -> contract -> tradeDate -> date
 //	and Event -> effectiveDate = NovatedContractEffectiveDate
-
-data rule Novation_EffectiveDate <"The requirement that the effective date of the novated trade be equal to the event effective date implies that the novation event should always have an associated effective date (which is optional from a data cardinality standpoint).">
-	when Event -> primitive -> partyChange exists
-	then Event -> effectiveDate exists
+//	and originalContractParties <> newContractParties
+	
+alias NovatedContractEffectiveDate
+	Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> date 
+	or Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> date
+	
+alias originalContractParties
+	( Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> buyerPartyReference
+		and 	Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> sellerPartyReference )
+	or ( Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver -> payerPartyReference
+		and Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver -> receiverPartyReference )
+	or ( Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> buyerSeller -> buyerPartyReference
+		and Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> buyerSeller -> sellerPartyReference	)
+	
+alias newContractParties
+	( Event -> primitive -> newTrade -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> buyerPartyReference
+		and 	Event -> primitive -> newTrade -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> sellerPartyReference )
+	or ( Event -> primitive -> newTrade -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver -> payerPartyReference
+		and Event -> primitive -> newTrade -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver -> receiverPartyReference )
+	or ( Event -> primitive -> newTrade -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> buyerSeller -> buyerPartyReference
+		and Event -> primitive -> newTrade -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> buyerSeller -> sellerPartyReference	)	
+		
+isEvent PartialNovation <"The qualification of a novation event from the fact that (i) the intent is PartialNovation when specified, (ii) the primitives quantityChange and newTrade exist, (iii) the contract in the quantityChange/after node has a Novated state, (iv) the stepped-in contract has a different contract identifier than the novated contract, (v) the stepped-in contract has the novation event date and the novation event effective date, and (vi) the contract counterparties have changed.">
+//	Event -> intent = IntentEnum.PartialNovation when present
+	Event -> primitive -> quantityChange exists
+	and Event -> primitive -> newTrade exists
+	and Event -> primitive -> quantityChange -> after -> contract -> state = StateEnum.Novated
+	and Event -> primitive -> newTrade -> contract -> contractIdentifier <> Event -> primitive -> quantityChange -> before -> contract -> contractIdentifier
+	and Event -> eventDate = Event -> primitive -> newTrade -> contract -> tradeDate -> date
+//	and Event -> effectiveDate = NovatedContractEffectiveDate
+//	and originalContractParties <> newContractParties
 
 data rule NovationFee <"Logic to specify that if a payment is qualified as a novation fee, it must have lineage into multiple contracts and one single event (the novation event).">
 	when Event -> primitive -> payment -> paymentType = PaymentTypeEnum.NovationFee
 	then Event -> lineage -> contractReference multiple exists
 	and Event -> lineage -> eventReference single exists
-
-
-/*
- * TODO - Comment from the CDM group is that while the equality in the economic terms between the prior contract and the novated contract is appropriate in principle, 
- * we should further look into potential edge cases. The case that was discussed relates to the fact that a novation could imply that a swaption that was negotiated under MCA terms might move to Matrix terms following the novation, which would result in a change of the exercise time. 
- * It was however noted that, if the contract had been properly drafted, such exercise time would not be specified as part of the trade because it would be implied by such reference terms, and hence would not result in economic differences between those contracts.
- * 
- * TODO - Enable the ability for data rules to reference aliases
- * 
- */
-data rule FullNovation_Contract <"Logic to qualify a full novation when the resulting contract is specified (instead of being referenced) by the fact that (i) there are two resulting contracts, (ii) the party and the contract identifier are distinct between the before an after, (iii) the economic terms are unchanged, (iv) the trade date of the new contract is equal to the novation date, (v) the effective date of the new contract is equal to the event effective date, and (vi) the resulting contract state is 'novated'.">
-//	Event -> intent = IntentEnum.novation when present 
-//	and for Event -> primitive -> partyChange -> after -> contract -> contractIdentifier = Event -> primitive -> partyChange -> before -> contract -> contractIdentifier
-//		Event -> primitive -> partyChange -> after -> contract -> 
-	
-	when Event -> primitive -> partyChange -> after -> contract count = 2
-		or ( Event -> primitive -> partyChange -> after -> contract single exists
-			and Event -> primitive -> partyChange -> after -> contractReference single exists )
-	then Event -> primitive -> partyChange -> before -> contract -> contractIdentifier <> Event -> primitive -> partyChange -> after -> contract -> contractIdentifier
-//	and originalContractParties <> newContractParties
-	and Event -> primitive -> partyChange -> before -> contract -> contractualProduct -> economicTerms = Event -> primitive -> partyChange -> after -> contract -> contractualProduct -> economicTerms
-	and Event -> primitive -> partyChange -> after -> contract -> tradeDate -> date = Event -> eventDate
-	and Event -> primitive -> partyChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate = Event -> effectiveDate
-	and Event -> primitive -> partyChange -> before -> contract -> contractIdentifier = Event -> primitive -> partyChange -> before -> contract -> contractIdentifier
-		
-	/*
-	 * Needs to refine the syntax to state that the contract reference which contractId = the one before has a novated state
-	 */
-
-alias originalContractParties
-	( Event -> primitive -> partyChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> buyerPartyReference
-		and 	Event -> primitive -> partyChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> sellerPartyReference )
-	or ( Event -> primitive -> partyChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver -> payerPartyReference
-		and Event -> primitive -> partyChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver -> receiverPartyReference )
-	or ( Event -> primitive -> partyChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> buyerSeller -> buyerPartyReference
-		and Event -> primitive -> partyChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> buyerSeller -> sellerPartyReference	)
-	
-alias newContractParties
-	( Event -> primitive -> partyChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> buyerPartyReference
-		and 	Event -> primitive -> partyChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> sellerPartyReference )
-	or ( Event -> primitive -> partyChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver -> payerPartyReference
-		and Event -> primitive -> partyChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver -> receiverPartyReference )
-	or ( Event -> primitive -> partyChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> buyerSeller -> buyerPartyReference
-		and Event -> primitive -> partyChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> buyerSeller -> sellerPartyReference	)	
-
-alias NovatedContractEffectiveDate
-	Event -> primitive -> partyChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> date 
-	or Event -> primitive -> partyChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> date
 
 isEvent Observation <"The qualification of an observation event from the fact that (i) the only primitive is the observation, and (ii) that there is only a single instance of such observation.">
 	Event -> primitive -> observation only single exists 
