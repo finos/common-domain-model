@@ -13,6 +13,36 @@ class AllocationPrimitive <"The primitive event to represent a split/allocation 
 		[synonym Rosetta_Workbench value after]
 }
 
+class Cashflow extends CashflowBase <"A class to specify a cashflow, i.e. the outcome of either of computation (e.g. interest accrual) or an assessment (e.g. a fee). The cashflow can then be turned into a payment, artefact which either can be instructed by a payment system, or has been instructed by it.">
+{
+	cashflowAmount Money (1..1) <"The currency amount of the payment.">;
+		[synonym Rosetta_Workbench value paymentAmount]
+	cashflowCalculation string (0..1) calculation <"The computation arguments used to compute the cashflow, when applicable.">;
+		[synonym Rosetta_Workbench value cashflowCalculation]
+	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">;
+		[synonym Rosetta_Workbench value cashflowType] // set cashflowType.premium when synonym premium exists]
+		/*
+	  	 * TODO - Enable mapping syntax to map to the premium qualification
+	 	 */
+}
+
+data rule Cashflow_cashflowAmount <"The cashflow amount should be a positive number, as the cashflow direction is indeed implied by the payer/receiver attribute.">
+	when Cashflow -> cashflowAmount exists
+	then Cashflow -> cashflowAmount -> amount >=0.0
+
+class CashflowBase <"A class to represent the attributes to be shared by the Cashflow and Payment classes.">
+{
+	id string (0..1) anchor;
+		[synonym FpML value id]
+	payerReceiver PayerReceiver (1..1);
+	discountFactor number (0..1) <"The value representing the discount factor used to calculate the present value of the cash flow.">;
+		[synonym FpML value discountFactor]
+	presentValueAmount Money (0..1) <"The amount representing the present value of the forecast payment.">;
+		[synonym FpML value presentValueAmount]
+	premiumExpression PremiumExpression (0..1) <"FpML specifies the Premium.model group for representing the option premium when expressed in a way other than an amount.">;
+	paymentDiscounting PaymentDiscounting (0..1) <"FpML specifies the FpML PaymentDiscounting.model group for representing the discounting elements that can be associated with a payment.">;
+}
+
 class ComputedAmount <"A class to specify the outcome of a computed amount, for testing purposes.">
 {
 	callFunction string (1..1);
@@ -62,8 +92,8 @@ class Event rosettaKey
 		[synonym Rosetta_Workbench value effectiveDate]
 	action ActionEnum (1..1) <"Specifies whether the event is a new, a correction or a cancellation.">;
 		[synonym FpML value isCorrection 
-			set action to ActionEnum.new when False, 
-			set action to ActionEnum.correct when True]
+			set action to ActionEnum.New when False,
+			set action to ActionEnum.Correct when True]
 	intent IntentEnum (0..1);
 		[synonym Rosetta_Workbench value intent]
 	party Party (0..*);
@@ -90,7 +120,7 @@ class EventTestBundle <"A class which combines several events for testing purpos
 {
 	event Event (2..*);
 		[synonym Rosetta_Workbench value event]
-	computedAmount ComputedAmount (0..*);
+	computedAmount ComputedAmount (0..*) calculation;
 		[synonym Rosetta_Workbench value computedAmount]
 }
 
@@ -260,8 +290,10 @@ class ResetPrimitive rosettaKey <"The primitive event to represent a reset.">
 {
 	date date (1..1) <"The reset date">;
 		[synonym Rosetta_Workbench value date]
-	setValue number (1..1) <"The reset value">;
-		[synonym Rosetta_Workbench value setValue]
+	resetValue number (1..1) <"The reset value">;
+		[synonym Rosetta_Workbench value resetValue]
+	cashflow Cashflow (1..*);
+		[synonym Rosetta_Workbench value cashflow]
 }
 
 class TimeZone <"The time alongside with the timezone location information. This class makes use of the FpML TimezoneLocation construct.">
@@ -324,16 +356,16 @@ data rule FullNovation_Contract <"Logic to qualify a full novation when the resu
 alias originalContractParties
 	( Event -> primitive -> partyChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> buyerPartyReference
 		and 	Event -> primitive -> partyChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> sellerPartyReference)
-	or ( Event -> primitive -> partyChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerPartyReference
-		and Event -> primitive -> partyChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> receiverPartyReference )
+	or ( Event -> primitive -> partyChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver -> payerPartyReference
+		and Event -> primitive -> partyChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver -> receiverPartyReference )
 	or ( Event -> primitive -> partyChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> buyerSeller -> buyerPartyReference
 		and Event -> primitive -> partyChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> buyerSeller -> sellerPartyReference	)
 	
 alias newContractParties
 	( Event -> primitive -> partyChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> buyerPartyReference
 		and 	Event -> primitive -> partyChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> sellerPartyReference)
-	or ( Event -> primitive -> partyChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerPartyReference
-		and Event -> primitive -> partyChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> receiverPartyReference )
+	or ( Event -> primitive -> partyChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver -> payerPartyReference
+		and Event -> primitive -> partyChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver -> receiverPartyReference )
 	or ( Event -> primitive -> partyChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> buyerSeller -> buyerPartyReference
 		and Event -> primitive -> partyChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> buyerSeller -> sellerPartyReference	)	
 
@@ -363,7 +395,7 @@ data rule PartialNovation <"Logic to qualify a partial novation by the fact that
 	 */
 
 data rule NovationFee <"Logic to specify that if a payment is qualified as a novation fee, it must have lineage into multiple contracts and one single event (the novation event).">
-	when Event -> primitive -> payment -> cashflowType = CashflowTypeEnum.novationFee
+	when Event -> primitive -> payment -> paymentType = PaymentTypeEnum.NovationFee
 	then Event -> lineage -> contractReference multiple exists
 	and Event -> lineage -> eventReference single exists
 
@@ -378,7 +410,7 @@ data rule NovationFee <"Logic to specify that if a payment is qualified as a nov
 isEvent Allocation <"The qualification of allocation event from the fact that (i) the only primitive is the allocation, (ii) the intent is an allocation when such intent is specified, (iii) there is a single contractualProduct before. Note: it is accepted that an allocation can result in a single contract.">
 	if Event -> intent exists
 	then 
-		Event -> intent = IntentEnum.allocation
+		Event -> intent = IntentEnum.Allocation
 		and Event -> primitive -> allocation only exists
 	else 
 		Event -> primitive -> allocation only exists
@@ -422,7 +454,7 @@ alias quantityAfterAllocation <"The alias to represent the quantity or notional 
 isEvent Compression <"The qualification of a compression event from the fact that (i) the quantity change primitive exists, (ii) the intent is a compression when such intent is specified, (iii) there are multiple contracts (or contract references) specified in the before state and (iv) the number of contracts in the after state that are not terminated is less than the number of contracts in the before state.">
 	if Event -> intent exists
 	then 
-		Event -> intent = IntentEnum.compression
+		Event -> intent = IntentEnum.Compression
 		and Event -> primitive -> quantityChange exists
 //		and contractBeforeQuantityChange multiple exists
 	else 
@@ -451,7 +483,7 @@ isEvent DerivedObservation <"The qualification of a derived observation event fr
 isEvent Exercise <"The qualification of a full termination event from the fact that (i) the only primitive is the quantityChange, (ii) the intent is an exercise when such intent is specified.">
 	if Event -> intent exists
 	then 
-		Event -> intent = IntentEnum.exercise
+		Event -> intent = IntentEnum.Exercise
 		and Event -> primitive -> exercise only exists
 	else 
 		Event -> primitive -> exercise only exists
@@ -459,7 +491,7 @@ isEvent Exercise <"The qualification of a full termination event from the fact t
 isEvent Termination <"The qualification of a termination event from the fact that (i) the only primitive is the quantityChange, (ii) the intent is a full termination when such intent is specified, the (iii) the quantity associated with the contract decreases, (iv) the remaining quantity is null, and (v) the contract state has the value 'terminated'.">
 	if Event -> intent exists
 	then 
-		Event -> intent = IntentEnum.termination
+		Event -> intent = IntentEnum.Termination
 		and Event -> primitive -> quantityChange only exists
 	else 
 		Event -> primitive -> quantityChange only exists
@@ -472,7 +504,7 @@ isEvent Termination <"The qualification of a termination event from the fact tha
 isEvent PartialTermination <"The qualification of a full termination event from the fact that (i) the only primitive is the quantityChange, (ii) the intent is a full termination when such intent is specified, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
 	if Event -> intent exists 
 	then 
-		Event -> intent = IntentEnum.partialTermination
+		Event -> intent = IntentEnum.PartialTermination
 		and ( Event -> primitive -> quantityChange only exists
 			or ( Event -> primitive -> quantityChange and Event -> primitive -> payment ) only exists )
 		and Event -> primitive -> quantityChange single exists
@@ -488,7 +520,7 @@ isEvent NewTradeEvent <"The qualification of a new trade event from the fact tha
 isEvent Novation <"The qualification of a novation event from the fact that (i) the only primitive is the partyChange, (ii) the intent is a novation when such intent is specified, (iii) the data rules to qualify a partial or a full novation apply.">
 	if Event -> intent exists
 	then 
-		Event -> intent = IntentEnum.novation
+		Event -> intent = IntentEnum.Novation
 		and Event -> primitive -> partyChange only exists
 	else 
 		Event -> primitive -> partyChange only exists

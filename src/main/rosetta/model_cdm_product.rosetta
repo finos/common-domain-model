@@ -259,10 +259,11 @@ class InterestRate one of
 		[synonym FpML value inflationRateCalculation pathExpression "calculationPeriodAmount.calculation"]
 }
 
-class InterestRatePayout extends PayerReceiver calculation FixedAmount, FloatingAmount <"The interest rate payout specification terms.">
+class InterestRatePayout calculation FixedAmount, FloatingAmount <"The interest rate payout specification terms.">
 {
 	id string (0..1) anchor;
 		[synonym FpML value id]
+	payerReceiver PayerReceiver (1..1);
 	quantity ContractualQuantity (0..1) <"The quantity can be expressed in different formats, depending upon the product, e.g. notional amount for credit and interest rate products, quantity for some of the equity products. The CDM uses the generic term quantity rather than notional amount.">;
 	interestRate InterestRate (0..1) <"The interest rate can be a floating rate, a fixed rate of an inflation rate.">;
 	dayCountFraction DayCountFractionEnum (0..1) <"The day count fraction.">;
@@ -320,8 +321,8 @@ data rule FpML_ird_6 <"FpML validation rule ird-6 - If paymentDates/firstPayment
 
 data rule FpML_ird_8 <"FpML validation rule ird-8 - The @href attribute of payerPartyReference must not be equal to the @href attribute of receiverPartyReference. If they are equal, and if payerAccountReference and receiverAccountReference both exist, the @href attribute of payerAccountReference must not be equal to the @href attribute of receiverAccountReference">
 	when InterestRatePayout exists
-	then InterestRatePayout -> payerPartyReference <> InterestRatePayout -> receiverPartyReference
-		or InterestRatePayout -> payerAccountReference <> InterestRatePayout -> receiverAccountReference
+	then InterestRatePayout -> payerReceiver -> payerPartyReference <> InterestRatePayout -> payerReceiver -> receiverPartyReference
+		or InterestRatePayout -> payerReceiver -> payerAccountReference <> InterestRatePayout -> payerReceiver -> receiverAccountReference
 
 data rule FinalStub_lastRegularPaymentDate <"FpML specifies that lastRegularPaymentDate must only be included if there is a final stub. As part of the CDM, this data rule has been adjusted to specify that it only applies to interest rate swaps, as the credit derivatives products can have a specified lastRegularPaymentDate while the stub is typically  not applicable to those.">
 	when InterestRatePayout count = 2
