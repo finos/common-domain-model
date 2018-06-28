@@ -17,6 +17,8 @@ class Cashflow extends CashflowBase <"A class to specify a cashflow, i.e. the ou
 {
 	cashflowAmount Money (1..1) <"The currency amount of the payment.">;
 		[synonym Rosetta_Workbench value paymentAmount]
+	cashflowDate AdjustableOrRelativeDate (0..1);
+		[synonym Rosetta_Workbench value paymentDate]
 	cashflowCalculation string (0..1) calculation <"The computation arguments used to compute the cashflow, when applicable.">;
 		[synonym Rosetta_Workbench value cashflowCalculation]	
 	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">;
@@ -164,7 +166,7 @@ class Execution
 		[synonym Rosetta_Workbench value tradeDate pathExpression "tradeHeader"]
 	contractualProduct ContractualProduct (1..1);
 		[synonym Rosetta_Workbench value contractualProduct]
-	party Party (2..*);
+	party Party (0..*) <"The party reference is optional because positioned as part of the Event class when the execution is specified as part of such context.">;
 }
 
 data rule EventTimestamp_ExpireTime <"The expire time should be greater than the creation time.">
@@ -202,7 +204,7 @@ class MessageInformation <"This class corresponds to the messaging components of
  * TODO - The NewTrade primitive should inherit the ContractState class
  * The ingestion doesn't currently supports this inheritance, which needs to be understood/adjusted
  */
-class NewTrade one of <"The primitive event to represent a new trade.">
+class NewTradePrimitive one of <"The primitive event to represent a new trade.">
 {
 	contract Contract (0..1);
 		[synonym Rosetta_Workbench value contract]
@@ -238,7 +240,7 @@ data rule ObservationSource_content <"ObservationSource should not be empty, alt
 		or ObservationSource -> curve exists
 		or ObservationSource -> informationSource exists
 
-class OtherTermsChange <"The primitive event to represent change(s) in the contractual terms.">
+class TermsChangePrimitive <"The primitive event to represent change(s) to the contractual terms.">
 {
 	before ContractOrContractReference (1..1);
 		[synonym Rosetta_Workbench value before]
@@ -246,7 +248,7 @@ class OtherTermsChange <"The primitive event to represent change(s) in the contr
 		[synonym Rosetta_Workbench value after]
 }
 
-class PartyChange <"The primitive event to represent a change in party(ies) to a contract.">
+class PartyChangePrimitive <"The primitive event to represent a change in party(ies) to a contract.">
 {
 	before ContractOrContractReference (1..1);
 		[synonym Rosetta_Workbench value before]
@@ -256,15 +258,15 @@ class PartyChange <"The primitive event to represent a change in party(ies) to a
 
 class PrimitiveEvent <"The set of primitive events. The purpose of this class it to provide clarity with respect to the event qualification logic.">
 {
-	newTrade NewTrade (0..*) <"The new trade primitive is unbounded to address the case of events such as portfolio compressions, which could result in multiple new trades.">;
+	newTrade NewTradePrimitive (0..*) <"The new trade primitive is unbounded to address the case of events such as portfolio compressions, which could result in multiple new trades.">;
 		[synonym Rosetta_Workbench value newTrade]
-	quantityChange QuantityChange (0..*);
+	quantityChange QuantityChangePrimitive (0..*);
 		[synonym Rosetta_Workbench value quantityChange]
-	partyChange PartyChange (0..*);
+	partyChange PartyChangePrimitive (0..*);
 		[synonym Rosetta_Workbench value partyChange]
 	allocation AllocationPrimitive (0..*);
 		[synonym Rosetta_Workbench value allocation]	
-	otherTermsChange OtherTermsChange (0..1);
+	termsChange TermsChangePrimitive (0..1);
 		[synonym Rosetta_Workbench value otherTermsChange]
 	exercise ExercisePrimitive (0..1);
 		[synonym Rosetta_Workbench value exercise]
@@ -277,7 +279,7 @@ class PrimitiveEvent <"The set of primitive events. The purpose of this class it
 		[synonym Rosetta_Workbench value cashflow]
 }
 
-class QuantityChange <"The primitive event to represent a change in quantity or notional.">
+class QuantityChangePrimitive <"The primitive event to represent a change in quantity or notional.">
 {
 	before ContractOrContractReference (1..1);
 		[synonym Rosetta_Workbench value before]
@@ -306,8 +308,8 @@ class TimeZone <"The time alongside with the timezone location information. This
 }
 
 isEvent Allocation <"The qualification of allocation event from the fact that (i) the intent is Allocation when specified, (ii) the only primitive is the allocation, (iii) the sum of quantities/notional before = after, and (iv) there is a single contractualProduct before (ensured through cardinality). Note: it is accepted that an allocation can result in a single contract.">
-	Event -> intent = IntentEnum.Allocation // when present
-	and Event -> primitive -> allocation only exists
+//	Event -> intent = IntentEnum.Allocation when present
+	Event -> primitive -> allocation only exists
 //	and quantityBeforeAllocation = quantityAfterAllocation
 
 alias quantityBeforeAllocation <"The alias to represent the quantity or notional amount associated to a pre-allocation contractual product in terms of number of units (i.e. ignoring the currency or units denomination).">
@@ -355,16 +357,16 @@ isEvent DerivedObservation <"The qualification of a derived observation event fr
 	and Event -> functionCall exists
 
 isEvent Exercise <"The qualification of a full termination event from the fact that (i) the intent is Exercise when specified, (ii) the only primitive is the quantityChange.">
-	Event -> intent = IntentEnum.Exercise // when present
-	and Event -> primitive -> exercise only exists
+//	Event -> intent = IntentEnum.Exercise when present
+	Event -> primitive -> exercise only exists
 
 isEvent NewTradeEvent <"The qualification of a new trade event from the fact that (i) the intent is NewTrade when specified, and (ii) the only primitive is the newTrade.">
-	Event -> intent = IntentEnum.NewTrade // when present
-	and Event -> primitive -> newTrade only exists
+//	Event -> intent = IntentEnum.NewTrade when present
+	Event -> primitive -> newTrade only exists
 
 isEvent Novation <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the only primitive is the partyChange, (iii) there is one resulting contract which state is Novated, (iv) the counterpries.">
-	Event -> intent = IntentEnum.Novation // when present
-	and Event -> primitive -> partyChange only exists
+//	Event -> intent = IntentEnum.Novation when present
+	Event -> primitive -> partyChange only exists
 	and Event -> primitive -> partyChange -> after -> contract -> state = StateEnum.Novated // count = 1
 
 isEvent PartialNovation <"The qualification of a partial novation event from the fact that (i) the intent is PartialNovation when specified, (ii) the only primitive is the partyChange, (iii) the data rules to qualify a partial or a full novation apply.">
@@ -438,9 +440,9 @@ isEvent Observation <"The qualification of an observation event from the fact th
 	Event -> primitive -> observation only single exists 
 
 isEvent PartialTermination <"The qualification of a partial termination event from the fact that (i) the intent is Partial Termination when specified, (ii) the only primitive is the quantityChange and there is only one such primitive involved, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
-	Event -> intent = IntentEnum.PartialTermination // when present
-	and ( Event -> primitive -> quantityChange only single exists
-		or ( Event -> primitive -> quantityChange and Event -> primitive -> payment ) only single exists )
+//	Event -> intent = IntentEnum.PartialTermination when present
+	( Event -> primitive -> quantityChange exists
+		or ( Event -> primitive -> quantityChange and Event -> primitive -> payment ) exists )
 //	and quantityBeforeQuantityChange > quantityAfterQuantityChange
 //	and quantityAfterQuantityChange > 0
 
@@ -472,7 +474,7 @@ isEvent Reset <"The qualification of a reset event from the fact that the only p
 	Event -> primitive -> reset only exists
 
 isEvent Termination <"The qualification of a termination event from the fact that (i) the intent is Termination when specified, (ii) the only primitive is the quantityChange and there is only one such primitive involved, the (iii) the remaining quantity is null, and (iv) the contract state has the value 'terminated'.">
-	Event -> intent = IntentEnum.Termination // when present
-	and Event -> primitive -> quantityChange only single exists
+//	Event -> intent = IntentEnum.Termination when present
+	Event -> primitive -> quantityChange single exists
 //	and quantityAfterQuantityChange = 0
 	and Event -> primitive -> quantityChange -> after -> contract -> state = StateEnum.Terminated
