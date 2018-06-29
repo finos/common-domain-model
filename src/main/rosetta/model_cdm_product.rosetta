@@ -478,7 +478,7 @@ class Payout <"The payout can be specified through a number of combinations, e.g
 		[synonym FpML value generalTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap" set interestRatePayout when Payout -> optionPayout -> underlyer -> contractualProduct is absent]
 		[synonym Rosetta_Workbench value generalTerms pathExpression "creditDefaultSwapOption.creditDefaultSwap" set interestRatePayout when Payout -> optionPayout -> underlyer -> contractualProduct is absent]
 	creditDefaultPayout CreditDefaultPayout (0..1);
-	cashflow Payment (0..*) <"A payment between the parties to the trade. For interest rate products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the initialPayment element and the singlePayment element of the fee leg.">;
+	cashflow Cashflow (0..*) <"A payment between the parties to the trade. For interest rate products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the initialPayment element and the singlePayment element of the fee leg.">;
 		[synonym FpML value additionalPayment pathExpression "trade.swap"]
 		[synonym Rosetta_Workbench value additionalPayment pathExpression "swap"]
 		[synonym FpML value initialPayment pathExpression "trade.creditDefaultSwap.feeLeg"]
@@ -504,17 +504,17 @@ data rule FpML_cd_26_28 <"This data rule corresponds to two FpML validation rule
 	when Payout -> creditDefaultPayout exists
 	and Payout -> cashflow exists
 	and Payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate exists
-	and Payout -> cashflow -> paymentDate exists
-	and Payout -> cashflow -> paymentDate -> relativeDate is absent
-	then Payout -> cashflow -> paymentDate -> adjustableDate -> unadjustedDate > Payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
+	and Payout -> cashflow -> cashflowDate exists
+	and Payout -> cashflow -> cashflowDate -> relativeDate is absent
+	then Payout -> cashflow -> cashflowDate -> unadjustedDate > Payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
 
 data rule FpML_cd_27_29 <"This data rule corresponds to two FpML validation rules, as the singlePayment and the firstPayment have been represented through the same Payout/cashflow attribute. It has also been adjusted to take into consideration the fact that credit derivatives (i) might not have a termination date, while in some other cases the payment date is either (ii) absent, or (iii) specified as a relative date (e.g. to the trade date). FpML validation rule cd-27 - If feeLeg/singlePayment/adjustablePaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/singlePayment/adjustablePaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate. FpML validation rule cd-29 - If feeLeg/periodicPayment/firstPaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/periodicPayment/firstPaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
 	when Payout -> creditDefaultPayout exists
 	and Payout -> cashflow exists
 	and Payout -> interestRatePayout -> calculationPeriodDates -> terminationDate exists
-	and Payout -> cashflow -> paymentDate exists
-	and Payout -> cashflow -> paymentDate -> relativeDate is absent
-	then Payout -> cashflow -> paymentDate -> adjustableDate -> unadjustedDate < Payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> unadjustedDate
+	and Payout -> cashflow -> cashflowDate exists
+	and Payout -> cashflow -> cashflowDate -> relativeDate is absent
+	then Payout -> cashflow -> cashflowDate -> unadjustedDate < Payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> unadjustedDate
 
 data rule FpML_cd_30 <"FpML validation rule cd-30 - If feeLeg/periodicPayment/lastRegularPaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/periodicPayment/lastRegularPaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
 	when (Payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate 

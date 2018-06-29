@@ -16,8 +16,7 @@ class AllocationPrimitive <"The primitive event to represent a split/allocation 
 class Cashflow extends CashflowBase <"A class to specify a cashflow, i.e. the outcome of either of computation (e.g. interest accrual) or an assessment (e.g. a fee). The cashflow can then be turned into a payment, artefact which either can be instructed by a payment system, or has been instructed by it.">
 {
 	cashflowAmount Money (1..1) <"The currency amount of the payment.">;
-		[synonym Rosetta_Workbench value paymentAmount]
-	cashflowDate AdjustableOrRelativeDate (0..1);
+	cashflowDate AdjustableOrAdjustedOrRelativeDate (0..1);
 		[synonym Rosetta_Workbench value paymentDate]
 	cashflowCalculation string (0..1) calculation <"The computation arguments used to compute the cashflow, when applicable.">;
 		[synonym Rosetta_Workbench value cashflowCalculation]	
@@ -240,14 +239,6 @@ data rule ObservationSource_content <"ObservationSource should not be empty, alt
 		or ObservationSource -> curve exists
 		or ObservationSource -> informationSource exists
 
-class TermsChangePrimitive <"The primitive event to represent change(s) to the contractual terms.">
-{
-	before ContractOrContractReference (1..1);
-		[synonym Rosetta_Workbench value before]
-	after ContractOrContractReference (1..1);
-		[synonym Rosetta_Workbench value after]
-}
-
 class PrimitiveEvent <"The set of primitive events. The purpose of this class it to provide clarity with respect to the event qualification logic.">
 {
 	newTrade NewTradePrimitive (0..*) <"The new trade primitive is unbounded to address the case of events such as portfolio compressions, which could result in multiple new trades.">;
@@ -286,6 +277,14 @@ class ResetPrimitive rosettaKey <"The primitive event to represent a reset.">
 		[synonym Rosetta_Workbench value resetValue]
 	cashflow Cashflow (1..*);
 		[synonym Rosetta_Workbench value cashflow]
+}
+
+class TermsChangePrimitive <"The primitive event to represent change(s) to the contractual terms.">
+{
+	before ContractOrContractReference (1..1);
+		[synonym Rosetta_Workbench value before]
+	after ContractOrContractReference (1..1);
+		[synonym Rosetta_Workbench value after]
 }
 
 class TimeZone <"The time alongside with the timezone location information. This class makes use of the FpML TimezoneLocation construct.">

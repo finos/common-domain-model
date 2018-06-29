@@ -59,12 +59,41 @@ class AdjustableOrAdjustedDate <"A class for defining a date that shall be subje
 		[synonym FpML value adjustedDate]
 }
 
-data rule AdjustableOrAdjustedDate_adjustedDate <"FpML implements a choice between adjustedDate and [unadjustedDate (required), dateAdjutsments (required), adjustedDate (optional)].">
+data rule AdjustableOrAdjustedDate_adjustedDate <"FpML specifies a choice between adjustedDate and [unadjustedDate (required), dateAdjutsments (required), adjustedDate (optional)].">
 	when AdjustableOrAdjustedDate exists
 	then AdjustableOrAdjustedDate -> adjustedDate exists 
-		or ( (AdjustableOrAdjustedDate -> unadjustedDate and AdjustableOrAdjustedDate -> dateAdjustments and AdjustableOrAdjustedDate -> adjustedDate ) exists
-		or ( (AdjustableOrAdjustedDate -> unadjustedDate and AdjustableOrAdjustedDate -> dateAdjustments ) exists 
-				and AdjustableOrAdjustedDate -> adjustedDate is absent) )
+	or ( AdjustableOrAdjustedDate -> unadjustedDate and AdjustableOrAdjustedDate -> dateAdjustments and AdjustableOrAdjustedDate -> adjustedDate ) exists
+	or ( ( AdjustableOrAdjustedDate -> unadjustedDate and AdjustableOrAdjustedDate -> dateAdjustments ) exists 
+		and AdjustableOrAdjustedDate -> adjustedDate is absent )
+
+class AdjustableOrAdjustedOrRelativeDate <"This Rosetta class specifies the date as either an unadjusted, adjusted or relative date. It supplements the features of the AdjustableOrAdjustedDate to support the credit default swap option premium, which uses the relative date construct.">
+{
+	id string (0..1) anchor;
+		[synonym FpML value id]
+	unadjustedDate date (0..1 ) <"A date subject to adjustment.">;
+		[synonym FpML value unadjustedDate]
+		[synonym FpML value adjustablePaymentDate]
+		[synonym FpML value unadjustedDate pathExpression "adjustableDate"]
+		[synonym FpML value unadjustedDate pathExpression "paymentDate"]
+	dateAdjustments BusinessDayAdjustments (0..1) <"The business day convention and financial business centers used for adjusting the date if it would otherwise fall on a day that is not a business date in the specified business centers.">;
+		[synonym FpML value dateAdjustments]
+		[synonym FpML value dateAdjustments pathExpression "adjustableDate"]
+		[synonym FpML value dateAdjustments pathExpression "paymentDate"]
+	adjustedDate date (0..1) anchor <"The date once the adjustment has been performed. (Note that this date may change if the business center holidays change).">;
+		[synonym FpML value adjustedDate]
+		[synonym FpML value adjustedDate pathExpression "paymentDate"]
+	relativeDate RelativeDateOffset (0..1) <"A date specified as some offset to another date (the anchor date).">;
+		[synonym FpML value relativeDate]
+		[synonym FpML value relativeDate pathExpression "paymentDate"]
+}
+
+data rule AdjustableOrAdjustedOrRelativeDate_adjustedDate <"This data rule extends the data rule AdjustableOrAdjustedDate_adjustedDate by specifying logic applicable to the relative date.">
+	when AdjustableOrAdjustedOrRelativeDate exists
+	then AdjustableOrAdjustedOrRelativeDate -> adjustedDate exists
+	or AdjustableOrAdjustedOrRelativeDate -> relativeDate exists
+	or ( AdjustableOrAdjustedOrRelativeDate -> unadjustedDate and AdjustableOrAdjustedOrRelativeDate -> dateAdjustments and AdjustableOrAdjustedOrRelativeDate -> adjustedDate ) exists
+	or ( ( AdjustableOrAdjustedOrRelativeDate -> unadjustedDate and AdjustableOrAdjustedOrRelativeDate -> dateAdjustments ) exists 
+		and AdjustableOrAdjustedOrRelativeDate -> adjustedDate is absent )
 
 class AdjustableOrRelativeDate <"A class giving the choice between defining a date as an explicit date together with applicable adjustments or as relative to some other (anchor) date.">
 {
@@ -76,7 +105,7 @@ class AdjustableOrRelativeDate <"A class giving the choice between defining a da
 		[synonym FpML value relativeDate pathExpression "paymentDate"]
 }
 
-choice rule AdjustableOrRelativeDate_choice <"Choice rule to represent and an FpML choice construct.">
+choice rule AdjustableOrRelativeDate_choice <"Choice rule to represent an FpML choice construct.">
 	for AdjustableOrRelativeDate required choice between
 		adjustableDate and relativeDate
 
@@ -769,7 +798,7 @@ class PayerReceiver <"A class to represent the FpML PayerReceiver.model.">
 class Payment extends CashflowBase rosettaKey <"A class for defining payments. Rosetta extends the FpML Payment type for the purpose of supporting premium payment, by adding the premiumExpression and the paymentDiscounting attributes.">
 {
 	paymentAmount Money (1..1) <"The currency amount of the payment.">;
-	paymentDate AdjustableOrRelativeDate (0..1) <"The payment date. While FpML specifies this element to be of type AdjustableOrAdjustedDate, Rosetta uses the type AdjustableOrRelativeDate to accommodate the credit default swap option premium, which uses the relative date construct.">;
+	paymentDate AdjustableOrAdjustedOrRelativeDate (0..1) <"The payment date. While FpML specifies this element to be of type AdjustableOrAdjustedDate, Rosetta uses the AdjustableOrAdjustedOrRelativeDate to accommodate the credit default swap option premium, which uses the relative date construct.">;
 	paymentType PaymentTypeEnum (0..1);
 }
 
