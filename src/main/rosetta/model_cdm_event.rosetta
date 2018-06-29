@@ -13,11 +13,14 @@ class AllocationPrimitive <"The primitive event to represent a split/allocation 
 		[synonym Rosetta_Workbench value after]
 }
 
-class Cashflow extends CashflowBase <"A class to specify a cashflow, i.e. the outcome of either of computation (e.g. interest accrual) or an assessment (e.g. a fee). The cashflow can then be turned into a payment, artefact which either can be instructed by a payment system, or has been instructed by it.">
+class Cashflow extends CashflowBase <"A class to specify a cashflow, i.e. the outcome of either of computation (e.g. interest accrual) or some assessment of some sort (e.g. a fee). The cashflow can then be turned into a payment, artefact artefact to be used as the input to a payment system or the outcome of it.">
 {
 	cashflowAmount Money (1..1) <"The currency amount of the payment.">;
 	cashflowDate AdjustableOrAdjustedOrRelativeDate (0..1);
 		[synonym Rosetta_Workbench value paymentDate]
+		/*
+		 * TODO - Position calculation as an attribute type
+		 */
 	cashflowCalculation string (0..1) calculation <"The computation arguments used to compute the cashflow, when applicable.">;
 		[synonym Rosetta_Workbench value cashflowCalculation]	
 	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">;
@@ -29,7 +32,7 @@ class Cashflow extends CashflowBase <"A class to specify a cashflow, i.e. the ou
 
 data rule Cashflow_cashflowAmount <"The cashflow amount should be a positive number, as the cashflow direction is indeed implied by the payer/receiver attribute.">
 	when Cashflow -> cashflowAmount exists
-	then Cashflow -> cashflowAmount -> amount >=0.0
+	then Cashflow -> cashflowAmount -> amount >= 0.0
 
 class CashflowBase <"A class to represent the attributes to be shared by the Cashflow and Payment classes.">
 {
@@ -346,8 +349,8 @@ isEvent NewTradeEvent <"The qualification of a new trade event from the fact tha
 	Event -> primitive -> newTrade only exists
 
 isEvent Novation <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and newTrade exist, (iii) the contract quantity/notional has decreased as part of the quantityChange primitive, while (iv) there is a remaining quantity/notional, (v) the stepped-in contract has a different contract identifier than the original contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
-//	Event -> intent = IntentEnum.Novation when present
-	Event -> primitive -> quantityChange exists
+	Event -> intent = IntentEnum.Novation // when present
+	and Event -> primitive -> quantityChange exists
 	and Event -> primitive -> newTrade exists
 //	and quantityBeforeQuantityChange > quantityAfterQuantityChange
 //	and quantityAfterQuantityChange > 0
@@ -395,9 +398,9 @@ isEvent Observation <"The qualification of an observation event from the fact th
 	Event -> primitive -> observation only single exists 
 
 isEvent PartialTermination <"The qualification of a partial termination event from the fact that (i) the intent is Partial Termination when specified, (ii) the only primitive is the quantityChange and there is only one such primitive involved, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
-//	Event -> intent = IntentEnum.PartialTermination when present
-	( Event -> primitive -> quantityChange exists
-		or ( Event -> primitive -> quantityChange and Event -> primitive -> payment ) exists )
+	Event -> intent = IntentEnum.PartialTermination // when present
+	and Event -> primitive -> quantityChange only exists
+		or ( Event -> primitive -> quantityChange and Event -> primitive -> payment ) exists
 //	and quantityBeforeQuantityChange > quantityAfterQuantityChange
 //	and quantityAfterQuantityChange > 0
 
