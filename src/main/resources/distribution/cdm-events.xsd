@@ -16,25 +16,27 @@
         schemaLocation="../../../../test/resources/fpml-5-10/confirmation/fpml-main-5-10.xsd"/>
     <xsd:import namespace="http://www.fpml.org/FpML-5/confirmation"
         schemaLocation="../../../../test/resources/fpml-5-10/confirmation/fpml-confirmation-processes-5-10.xsd"/>
-    <xsd:complexType name="MessageInformation">
-        <xsd:sequence>
-            <xsd:element name="messageId" type="fpml:MessageId"/>
-            <xsd:element name="sentBy" type="xsd:string"/>
-            <xsd:element name="sentTo" type="xsd:string" minOccurs="0"/>
-            <xsd:element name="copyTo" type="xsd:string" minOccurs="0"/>
-        </xsd:sequence>
-    </xsd:complexType>
-    <xsd:complexType name="EventTimestamp">
-        <xsd:sequence>
-            <xsd:element name="creationTimestamp" type="xsd:dateTime"/>
-            <xsd:element name="expiryTimestamp" type="xsd:dateTime" minOccurs="0"/>
-        </xsd:sequence>
-    </xsd:complexType>
+    <!-- Enumerations -->
     <xsd:simpleType name="ActionEnum">
         <xsd:restriction base="xsd:token">
             <xsd:enumeration value="new"/>
             <xsd:enumeration value="correct"/>
             <xsd:enumeration value="cancel"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="CashflowCalculationEnum">
+        <xsd:restriction base="xsd:token">
+            <xsd:enumeration value="FixedAmount"/>
+            <xsd:enumeration value="FloatingAmount"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="ContractStateEnum">
+        <xsd:restriction base="xsd:token">
+            <xsd:enumeration value="allocated"/>
+            <xsd:enumeration value="modified"/>
+            <xsd:enumeration value="newCounterparty"/>
+            <xsd:enumeration value="novated"/>
+            <xsd:enumeration value="terminated"/>
         </xsd:restriction>
     </xsd:simpleType>
     <xsd:simpleType name="IntentEnum">
@@ -43,24 +45,15 @@
             <xsd:enumeration value="compression"/>
             <xsd:enumeration value="correction"/>
             <xsd:enumeration value="earlyTermination"/>
-            <xsd:enumeration value="fullTermination"/>
+            <xsd:enumeration value="exercise"/>
+            <xsd:enumeration value="increase"/>
+            <xsd:enumeration value="newTrade"/>
             <xsd:enumeration value="novation"/>
+            <xsd:enumeration value="partialNovation"/>
             <xsd:enumeration value="partialTermination"/>
+            <xsd:enumeration value="portfolioCompression"/>
             <xsd:enumeration value="renegotiation"/>
             <xsd:enumeration value="termination"/>
-        </xsd:restriction>
-    </xsd:simpleType>
-    <xsd:simpleType name="CashflowTypeEnum">
-        <xsd:restriction base="xsd:token">
-            <xsd:enumeration value="novationFee"/>
-            <xsd:enumeration value="premium"/>
-        </xsd:restriction>
-    </xsd:simpleType>
-    <xsd:simpleType name="ContractStateEnum">
-        <xsd:restriction base="xsd:token">
-            <xsd:enumeration value="allocated"/>
-            <xsd:enumeration value="novated"/>
-            <xsd:enumeration value="terminated"/>
         </xsd:restriction>
     </xsd:simpleType>
     <xsd:simpleType name="PartyIdSourceEnum">
@@ -68,11 +61,68 @@
             <xsd:enumeration value="LEI"/>
         </xsd:restriction>
     </xsd:simpleType>
+    <xsd:simpleType name="PaymentTypeEnum">
+        <xsd:restriction base="xsd:token">
+            <xsd:enumeration value="novationFee"/>
+            <xsd:enumeration value="premium"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <!-- Complex Types -->
+    <xsd:complexType name="AllocationOutcome">
+        <xsd:complexContent>
+            <xsd:extension base="ContractOrContractReference">
+                <xsd:sequence>
+                    <xsd:element name="executionReference" type="Identifier"/>
+                    <xsd:element name="state" type="ContractStateEnum"/>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:complexType name="AllocationPrimitive">
+        <xsd:sequence>
+            <xsd:element name="before" type="Execution"/>
+            <xsd:element name="after" type="AllocationOutcome"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="Cashflow">
+        <xsd:complexContent>
+            <xsd:extension base="Payment">
+                <xsd:sequence>
+                    <xsd:element name="cashflowCalculation" type="CashflowCalculationEnum"/>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:complexType name="CommodityReferencePrice">
+        <xsd:simpleContent>
+            <xsd:extension base="fpml:Scheme">
+                <xsd:attribute name="commodityReferencePriceScheme" type="fpml:NonEmptyURI"
+                    default="http://www.fpml.org/coding-scheme/commodity-reference-price"/>
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:complexType name="Contract">
+        <xsd:complexContent>
+            <xsd:extension base="fpml:Trade">
+                <xsd:sequence>
+                    <xsd:element name="state" type="ContractStateEnum" minOccurs="0"/>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
     <xsd:complexType name="ContractOrContractReference">
         <xsd:sequence maxOccurs="unbounded">
             <xsd:choice>
                 <xsd:element name="contractReference" type="ContractReference"/>
                 <xsd:element name="contract" type="Contract"/>
+            </xsd:choice>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="ContractOrListedProduct">
+        <xsd:sequence>
+            <xsd:choice>
+                <xsd:element name="contractState" type="ContractOrContractReference"/>
+                <xsd:element name="listedProduct" type="ListedProduct"/>
             </xsd:choice>
         </xsd:sequence>
     </xsd:complexType>
@@ -85,47 +135,9 @@
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
-    <xsd:complexType name="Contract">
-        <xsd:complexContent>
-            <xsd:extension base="fpml:Trade">
-                <xsd:sequence>
-                    <xsd:element name="state" type="ContractStateEnum" minOccurs="0"/>
-                </xsd:sequence>
-            </xsd:extension>
-        </xsd:complexContent>
-    </xsd:complexType>
     <xsd:complexType name="ContractualProduct">
         <xsd:sequence>
             <xsd:element ref="fpml:product"/>
-        </xsd:sequence>
-    </xsd:complexType>
-    <xsd:complexType name="Execution">
-        <xsd:sequence>
-            <xsd:element name="tradeHeader" type="fpml:TradeHeader"/>
-            <xsd:element name="contractualProduct" type="ContractualProduct"/>
-        </xsd:sequence>
-    </xsd:complexType>
-    <xsd:complexType name="ContractualProductOrContract">
-        <xsd:sequence>
-            <xsd:choice>
-                <xsd:element name="execution" type="Execution"/>
-                <xsd:element name="contractState" type="ContractOrContractReference"/>
-            </xsd:choice>
-        </xsd:sequence>
-    </xsd:complexType>
-    <xsd:complexType name="NewTrade">
-        <xsd:sequence>
-            <xsd:choice>
-                <xsd:element name="contractReference" type="fpml:TradeIdentifier"/>
-                <xsd:element name="contract" type="fpml:Trade"/>
-            </xsd:choice>
-        </xsd:sequence>
-    </xsd:complexType>
-    <xsd:complexType name="QuantityChange">
-        <xsd:sequence>
-            <xsd:element name="before" type="ContractOrContractReference"/>
-            <xsd:element name="after" type="ContractOrContractReference"/>
-            <xsd:element name="change" type="ContractualQuantity" maxOccurs="unbounded"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="ContractualQuantity">
@@ -138,44 +150,12 @@
             </xsd:choice>
         </xsd:sequence>
     </xsd:complexType>
-    <xsd:complexType name="PartyChange">
+    <xsd:complexType name="ContractualProductOrContract">
         <xsd:sequence>
-            <xsd:element name="before" type="ContractOrContractReference"/>
-            <xsd:element name="after" type="ContractOrContractReference"/>
-        </xsd:sequence>
-    </xsd:complexType>
-    <xsd:complexType name="AllocationPrimitive">
-        <xsd:sequence>
-            <xsd:element name="before" type="Execution"/>
-            <xsd:element name="after" type="ContractOrContractReference"/>
-        </xsd:sequence>
-    </xsd:complexType>
-    <xsd:complexType name="ObservationPrimitive">
-        <xsd:sequence>
-            <xsd:element name="source" type="ObservationSource"/>
-            <xsd:element name="observation" type="xsd:decimal"/>
-            <xsd:element name="date" type="xsd:date"/>
-            <xsd:element name="time" type="TimeZone" minOccurs="0"/>
-            <xsd:element name="side" type="fpml:QuotationSideEnum" minOccurs="0"/>
-            <xsd:element name="currency" type="fpml:Currency" minOccurs="0"/>
-        </xsd:sequence>
-    </xsd:complexType>
-    <xsd:complexType name="ObservationSource">
-        <xsd:sequence>
-            <xsd:element name="curve" type="Curve"/>
-            <xsd:element name="informationSource" type="fpml:InformationSource" minOccurs="0"/>
-        </xsd:sequence>
-    </xsd:complexType>
-    <xsd:complexType name="TimeZone">
-        <xsd:sequence>
-            <xsd:element name="time" type="xsd:time"/>
-            <xsd:element name="location" type="fpml:TimezoneLocation"/>
-        </xsd:sequence>
-    </xsd:complexType>
-    <xsd:complexType name="ResetPrimitive">
-        <xsd:sequence>
-            <xsd:element name="date" type="xsd:date"/>
-            <xsd:element name="setValue" type="xsd:decimal"/>
+            <xsd:choice>
+                <xsd:element name="execution" type="Execution"/>
+                <xsd:element name="contractState" type="ContractOrContractReference"/>
+            </xsd:choice>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="Curve">
@@ -186,39 +166,10 @@
             </xsd:choice>
         </xsd:sequence>
     </xsd:complexType>
-    <xsd:complexType name="InterestRateCurve">
+    <xsd:complexType name="Execution">
         <xsd:sequence>
-            <xsd:element name="floatingRateIndex" type="fpml:FloatingRateIndex"/>
-            <xsd:element name="tenor" type="fpml:Period"/>
-        </xsd:sequence>
-    </xsd:complexType>
-    <xsd:complexType name="CommodityReferencePrice">
-        <xsd:simpleContent>
-            <xsd:extension base="fpml:Scheme">
-                <xsd:attribute name="commodityReferencePriceScheme" type="fpml:NonEmptyURI"
-                    default="http://www.fpml.org/coding-scheme/commodity-reference-price"/>
-            </xsd:extension>
-        </xsd:simpleContent>
-    </xsd:complexType>
-    <xsd:complexType name="Identifier">
-        <xsd:sequence>
-            <xsd:element name="issuer" type="fpml:PartyReference" minOccurs="0"/>
-            <xsd:element name="identifier" type="xsd:string"/>
-            <xsd:element name="version" type="xsd:integer" minOccurs="0"/>
-        </xsd:sequence>
-    </xsd:complexType>
-    <xsd:complexType name="Lineage">
-        <xsd:sequence>
-            <xsd:element name="contractReference" type="Identifier" minOccurs="0"
-                maxOccurs="unbounded"/>
-            <xsd:element name="eventReference" type="Identifier" minOccurs="0" maxOccurs="unbounded"
-            />
-        </xsd:sequence>
-    </xsd:complexType>
-    <xsd:complexType name="ExercisePrimitive">
-        <xsd:sequence>
-            <xsd:element name="before" type="ContractOrContractReference"/>
-            <xsd:element name="after" type="ExerciseOutcome"/>
+            <xsd:element name="tradeHeader" type="fpml:TradeHeader"/>
+            <xsd:element name="contractualProduct" type="ContractualProduct"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="ExerciseOutcome">
@@ -230,38 +181,10 @@
             </xsd:choice>
         </xsd:sequence>
     </xsd:complexType>
-    <xsd:complexType name="Payment">
-        <xsd:complexContent>
-            <xsd:extension base="fpml:Payment">
-                <xsd:sequence>
-                    <xsd:element name="cashflowType" type="CashflowTypeEnum" minOccurs="0"/>
-                </xsd:sequence>
-            </xsd:extension>
-        </xsd:complexContent>
-    </xsd:complexType>
-    <xsd:complexType name="Primitive">
+    <xsd:complexType name="ExercisePrimitive">
         <xsd:sequence>
-            <xsd:element name="quantityChange" type="QuantityChange" minOccurs="0"
-                maxOccurs="unbounded"/>
-            <xsd:element name="partyChange" type="PartyChange" minOccurs="0" maxOccurs="unbounded"/>
-            <xsd:element name="newTrade" type="NewTrade" minOccurs="0" maxOccurs="unbounded"/>
-            <xsd:element name="cashflow" type="Payment" minOccurs="0" maxOccurs="unbounded"/>
-            <xsd:element name="observation" type="ObservationPrimitive" minOccurs="0"
-                maxOccurs="unbounded"/>
-            <xsd:element name="exercise" type="ExercisePrimitive" minOccurs="0"
-                maxOccurs="unbounded"/>
-            <xsd:element name="reset" type="ResetPrimitive" minOccurs="0"/>
-            <xsd:element name="allocation" type="AllocationPrimitive" minOccurs="0"/>
-        </xsd:sequence>
-    </xsd:complexType>
-    <xsd:complexType name="EventBase">
-        <xsd:sequence>
-            <xsd:element name="messageInformation" type="MessageInformation" minOccurs="0"/>
-            <xsd:element name="timeStamp" type="EventTimestamp"/>
-            <xsd:element name="eventIdentifier" type="Identifier"/>
-            <xsd:element name="eventDate" type="xsd:date"/>
-            <xsd:element name="effectiveDate" type="xsd:date" minOccurs="0"/>
-            <xsd:element name="isCorrection" type="xsd:boolean"/>
+            <xsd:element name="before" type="ContractOrContractReference"/>
+            <xsd:element name="after" type="ExerciseOutcome"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="Event">
@@ -277,17 +200,46 @@
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
+    <xsd:complexType name="EventBase">
+        <xsd:sequence>
+            <xsd:element name="messageInformation" type="MessageInformation" minOccurs="0"/>
+            <xsd:element name="timestamp" type="EventTimestamp"/>
+            <xsd:element name="eventIdentifier" type="Identifier"/>
+            <xsd:element name="eventDate" type="xsd:date"/>
+            <xsd:element name="effectiveDate" type="xsd:date" minOccurs="0"/>
+            <xsd:element name="isCorrection" type="xsd:boolean"/>
+        </xsd:sequence>
+    </xsd:complexType>
     <xsd:complexType name="EventPackage">
         <xsd:sequence>
             <xsd:element name="event" type="Event" minOccurs="2" maxOccurs="unbounded"/>
         </xsd:sequence>
     </xsd:complexType>
-    <xsd:complexType name="ContractOrListedProduct">
+    <xsd:complexType name="EventTimestamp">
         <xsd:sequence>
-            <xsd:choice>
-                <xsd:element name="contractState" type="ContractOrContractReference"/>
-                <xsd:element name="listedProduct" type="ListedProduct"/>
-            </xsd:choice>
+            <xsd:element name="creationTimestamp" type="xsd:dateTime"/>
+            <xsd:element name="expiryTimestamp" type="xsd:dateTime" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="Identifier">
+        <xsd:sequence>
+            <xsd:element name="issuer" type="fpml:PartyReference" minOccurs="0"/>
+            <xsd:element name="identifier" type="xsd:string"/>
+            <xsd:element name="version" type="xsd:integer" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="InterestRateCurve">
+        <xsd:sequence>
+            <xsd:element name="floatingRateIndex" type="fpml:FloatingRateIndex"/>
+            <xsd:element name="tenor" type="fpml:Period"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="Lineage">
+        <xsd:sequence>
+            <xsd:element name="contractReference" type="Identifier" minOccurs="0"
+                maxOccurs="unbounded"/>
+            <xsd:element name="eventReference" type="Identifier" minOccurs="0" maxOccurs="unbounded"
+            />
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="ListedProduct">
@@ -298,6 +250,82 @@
             </xsd:choice>
         </xsd:sequence>
     </xsd:complexType>
+    <xsd:complexType name="MessageInformation">
+        <xsd:sequence>
+            <xsd:element name="messageId" type="fpml:MessageId"/>
+            <xsd:element name="sentBy" type="xsd:string"/>
+            <xsd:element name="sentTo" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="copyTo" type="xsd:string" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="NewTrade">
+        <xsd:sequence>
+            <xsd:choice>
+                <xsd:element name="contractReference" type="fpml:TradeIdentifier"/>
+                <xsd:element name="contract" type="fpml:Trade"/>
+            </xsd:choice>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="ObservationSource">
+        <xsd:sequence>
+            <xsd:element name="curve" type="Curve"/>
+            <xsd:element name="informationSource" type="fpml:InformationSource" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="ObservationPrimitive">
+        <xsd:sequence>
+            <xsd:element name="source" type="ObservationSource"/>
+            <xsd:element name="observation" type="xsd:decimal"/>
+            <xsd:element name="date" type="xsd:date"/>
+            <xsd:element name="time" type="TimeZone" minOccurs="0"/>
+            <xsd:element name="side" type="fpml:QuotationSideEnum" minOccurs="0"/>
+            <xsd:element name="currency" type="fpml:Currency" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="Payment">
+        <xsd:complexContent>
+            <xsd:extension base="fpml:Payment">
+                <xsd:sequence>
+                    <xsd:element name="paymentType" type="PaymentTypeEnum" minOccurs="0"/>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:complexType name="Primitive">
+        <xsd:sequence>
+            <xsd:element name="allocation" type="AllocationPrimitive" minOccurs="0" maxOccurs="1"/>
+            <xsd:element name="exercise" type="ExercisePrimitive" minOccurs="0"
+                maxOccurs="unbounded"/>
+            <xsd:element name="newTrade" type="NewTrade" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="observation" type="ObservationPrimitive" minOccurs="0"
+                maxOccurs="unbounded"/>
+            <xsd:element name="payment" type="Payment" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="quantityChange" type="QuantityChange" minOccurs="0"
+                maxOccurs="unbounded"/>
+            <xsd:element name="reset" type="ResetPrimitive" minOccurs="0" maxOccurs="1"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="QuantityChange">
+        <xsd:sequence>
+            <xsd:element name="before" type="ContractOrContractReference"/>
+            <xsd:element name="after" type="ContractOrContractReference"/>
+            <xsd:element name="change" type="ContractualQuantity" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="ResetPrimitive">
+        <xsd:sequence>
+            <xsd:element name="date" type="xsd:date"/>
+            <xsd:element name="resetValue" type="xsd:decimal"/>
+            <xsd:element name="cashflow" type="Cashflow" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="TimeZone">
+        <xsd:sequence>
+            <xsd:element name="time" type="xsd:time"/>
+            <xsd:element name="location" type="fpml:TimezoneLocation"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <!-- Elements -->
     <xsd:element name="event" type="Event"/>
     <xsd:element name="eventPackage" type="EventPackage"/>
 </xsd:schema>
