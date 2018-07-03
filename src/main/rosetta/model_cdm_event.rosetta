@@ -298,8 +298,8 @@ class TimeZone <"The time alongside with the timezone location information. This
 }
 
 isEvent Allocation <"The qualification of allocation event from the fact that (i) the intent is Allocation when specified, (ii) the only primitive is the allocation, (iii) the sum of quantities/notional before = after, and (iv) there is a single contractualProduct before (ensured through cardinality). Note: it is accepted that an allocation can result in a single contract.">
-//	Event -> intent = IntentEnum.Allocation when present
-	Event -> primitive -> allocation only exists
+	Event -> intent when present = IntentEnum.Allocation
+	and Event -> primitive -> allocation only exists
 //	and quantityBeforeAllocation = quantityAfterAllocation
 
 alias quantityBeforeAllocation <"The alias to represent the quantity or notional amount associated to a pre-allocation contractual product in terms of number of units (i.e. ignoring the currency or units denomination).">
@@ -323,7 +323,7 @@ alias quantityAfterAllocation <"The alias to represent the quantity or notional 
 	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount -> amount
 
 isEvent Compression <"The qualification of a compression event from the fact that (i) the intent is Compression when specified, (ii) the quantity change primitive exists, (iii) there are multiple contracts (or contract references) specified in the before state and (iv) the number of non-terminated contracts in the after state is less than the number of contracts in the before state.">
-	Event -> intent = IntentEnum.Compression // when present
+	Event -> intent when present = IntentEnum.Compression
 	and Event -> primitive -> quantityChange exists
 //	and contractBeforeQuantityChange multiple exists
 // and contractBeforeQuantityChange count > Event -> primitive -> quantityChange -> after -> contract -> state <> StateEnum.terminated count
@@ -340,19 +340,20 @@ isEvent DerivedObservation <"The qualification of a derived observation event fr
 	and Event -> functionCall exists
 
 isEvent Exercise <"The qualification of a full termination event from the fact that (i) the intent is Exercise when specified, (ii) the only primitive is the quantityChange.">
-//	Event -> intent = IntentEnum.Exercise when present
-	Event -> primitive -> exercise only exists
+	Event -> intent when present = IntentEnum.Exercise
+	and Event -> primitive -> exercise only exists
 
 isEvent NewTradeEvent <"The qualification of a new trade event from the fact that (i) the intent is NewTrade when specified, and (ii) the only primitive is the newTrade.">
-//	Event -> intent = IntentEnum.NewTrade when present
-	Event -> primitive -> newTrade only exists
+	Event -> intent when present = IntentEnum.NewTrade
+	and Event -> primitive -> newTrade only exists
 
-isEvent Novation <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and newTrade exist, (iii) the contract quantity/notional has decreased as part of the quantityChange primitive, while (iv) there is a remaining quantity/notional, (v) the stepped-in contract has a different contract identifier than the original contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
-	Event -> intent = IntentEnum.Novation // when present
+isEvent Novation <"The qualification of a novation event from the fact that (i) the intent is PartialNovation when specified, (ii) the primitives quantityChange and newTrade exist, (iii) the contract in the quantityChange/after node has a Novated state, (iv) the stepped-in contract has a different contract identifier than the novated contract, (v) the stepped-in contract has the novation event date and the novation event effective date, and (vi) the contract counterparties have changed.">
+	Event -> intent when present = IntentEnum.Novation
 	and Event -> primitive -> quantityChange exists
 	and Event -> primitive -> newTrade exists
-//	and quantityBeforeQuantityChange > quantityAfterQuantityChange
-//	and quantityAfterQuantityChange > 0
+//	and quantityAfterQuantityChange = 0
+	and Event -> primitive -> quantityChange -> after -> contract -> state = StateEnum.Novated
+		or Event -> primitive -> quantityChange -> after -> contractReference -> state = StateEnum.Novated 
 	and Event -> primitive -> newTrade -> contract -> contractIdentifier <> Event -> primitive -> quantityChange -> before -> contract -> contractIdentifier
 	and Event -> eventDate = Event -> primitive -> newTrade -> contract -> tradeDate -> date
 //	and Event -> effectiveDate = NovatedContractEffectiveDate
@@ -378,14 +379,15 @@ alias newContractParties
 	or ( Event -> primitive -> newTrade -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> buyerSeller -> buyerPartyReference
 		and Event -> primitive -> newTrade -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> buyerSeller -> sellerPartyReference	)	
 		
-isEvent PartialNovation <"The qualification of a novation event from the fact that (i) the intent is PartialNovation when specified, (ii) the primitives quantityChange and newTrade exist, (iii) the contract in the quantityChange/after node has a Novated state, (iv) the stepped-in contract has a different contract identifier than the novated contract, (v) the stepped-in contract has the novation event date and the novation event effective date, and (vi) the contract counterparties have changed.">
-//	Event -> intent = IntentEnum.PartialNovation when present
-	Event -> primitive -> quantityChange exists
+isEvent PartialNovation <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and newTrade exist, (iii) the contract quantity/notional has decreased as part of the quantityChange primitive, while (iv) there is a remaining quantity/notional, (v) the stepped-in contract has a different contract identifier than the original contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
+	Event -> intent when present = IntentEnum.PartialNovation
+	and Event -> primitive -> quantityChange exists
 	and Event -> primitive -> newTrade exists
-	and Event -> primitive -> quantityChange -> after -> contract -> state = StateEnum.Novated
 	and Event -> primitive -> newTrade -> contract -> contractIdentifier <> Event -> primitive -> quantityChange -> before -> contract -> contractIdentifier
 	and Event -> eventDate = Event -> primitive -> newTrade -> contract -> tradeDate -> date
 //	and Event -> effectiveDate = NovatedContractEffectiveDate
+//	and quantityBeforeQuantityChange > quantityAfterQuantityChange
+//	and quantityAfterQuantityChange > 0
 //	and originalContractParties <> newContractParties
 
 data rule NovationFee <"Logic to specify that if a payment is qualified as a novation fee, it must have lineage into multiple contracts and one single event (the novation event).">
@@ -397,7 +399,7 @@ isEvent Observation <"The qualification of an observation event from the fact th
 	Event -> primitive -> observation only single exists 
 
 isEvent PartialTermination <"The qualification of a partial termination event from the fact that (i) the intent is Partial Termination when specified, (ii) the only primitive is the quantityChange and there is only one such primitive involved, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
-	Event -> intent = IntentEnum.PartialTermination // when present
+	Event -> intent when present = IntentEnum.PartialTermination
 	and Event -> primitive -> quantityChange only exists
 		or ( Event -> primitive -> quantityChange and Event -> primitive -> payment ) exists
 //	and quantityBeforeQuantityChange > quantityAfterQuantityChange
@@ -431,7 +433,7 @@ isEvent Reset <"The qualification of a reset event from the fact that the only p
 	Event -> primitive -> reset only exists
 
 isEvent Termination <"The qualification of a termination event from the fact that (i) the intent is Termination when specified, (ii) the only primitive is the quantityChange and there is only one such primitive involved, the (iii) the remaining quantity is null, and (iv) the contract state has the value 'terminated'.">
-//	Event -> intent = IntentEnum.Termination when present
-	Event -> primitive -> quantityChange single exists
+	Event -> intent when present = IntentEnum.Termination
+	and Event -> primitive -> quantityChange single exists
 //	and quantityAfterQuantityChange = 0
 	and Event -> primitive -> quantityChange -> after -> contract -> state = StateEnum.Terminated
