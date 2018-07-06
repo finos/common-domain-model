@@ -27,13 +27,13 @@ class Contract rosettaKey <"A class to specify a contract object, which can be i
 	party Party (0..*) <"The parties to the contract. While FpML has a minimal cardinality of 1, a minimal cardinality of 2 seems more appropriate.">;
 		[synonym FpML value party]
 		[synonym Rosetta_Workbench value party]
+	account Account (0..*) <"Optional account information.">;
+		[synonym FpML value account]
 	partyRole PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the contract, further to the principal parties (i.e payer/receive or buyer/seller) to it.">;
 	partyContractInformation PartyContractInformation (0..*) <"Additional contract information that may be provided by each involved party.">;
 		[synonym FpML value partyTradeInformation pathExpression "trade.tradeHeader"]
 	calculationAgentParty CalculationAgentPartyEnum (0..1) <"The ISDA calculation agent responsible for performing duties as defined in the applicable product definitions. For example, the Calculation Agent may be defined as being the Non-exercising Party.">;
 		[synonym FpML value calculationAgentParty]
-	account Account (0..*) <"Optional account information.">;
-		[synonym FpML value account]
 	state StateEnum (0..1) <"The state qualification of a contractual product.">;
 		[synonym Rosetta_Workbench value state]
 }
@@ -593,6 +593,57 @@ isProduct InterestRate_IRSwap_Basis
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 	and EconomicTerms -> payout -> optionPayout is absent
 
+isProduct InterestRate_IRSwap_FixedFloat_PlainVanilla
+	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFloat]
+	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate count = 1
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate count = 1
+	and  EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate is absent
+	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
+	and EconomicTerms -> payout -> optionPayout is absent
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> spreadSchedule -> step is absent
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate -> step is absent // Not specified in the ISDA taxonomy
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> floatingRateMultiplierSchedule is absent
+	and EconomicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step is absent // Not specified in the ISDA taxonomy
+	and EconomicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepParameters is absent // Not specified in the ISDA taxonomy
+	and EconomicTerms -> payout -> interestRatePayout -> stubPeriod is absent  // Not specified in the ISDA taxonomy
+	/*
+ 	* TODO - Cannot compare the below because in FpML the period associated with the reset frequency is of type PeriodExtendedEnum, which includes 'T'
+	* Need to adjust the implementation once a proper implementation approach has been firmed out
+	*/
+//	and EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period =
+//		EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> indexTenor -> period
+	and EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier =
+		EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> indexTenor -> periodMultiplier
+	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period <> PeriodExtendedEnum.T
+	and EconomicTerms -> payout -> interestRatePayout -> compoundingMethod is absent
+	and Vanilla_AnnualPaymentDifferentResetFrequency, Vanilla_SemiAnnualPayment_QuarterlyReset, Vanilla_QuarterlyPayment_MonthlyReset apply
+	// Not able to represent the clause 'No provision for early termination which uses an off-market valuation'
+
+/*
+ * TODO Address the below data rule  
+ */		
+//data rule Vanilla_SamePaymentResetFrequency
+//	when EconomicTerms -> payout -> interestRatePayout -> resetDates exists
+//	then EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier
+
+data rule Vanilla_AnnualPaymentDifferentResetFrequency <"One of the provision to qualify a plain vanilla swap according to the ISDA Taxonomy V2.0 is that when the payment frequency is annual, the reset frequency is semi-annual or quarterly.">
+	when EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.Y
+	then EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period = PeriodExtendedEnum.M
+	and ( EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 6 
+		or EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 3 )
+		 
+data rule Vanilla_SemiAnnualPayment_QuarterlyReset <"One of the provision to qualify a plain vanilla swap according to the ISDA Taxonomy V2.0 is that when the payment frequency is semi-annual, the reset frequency is quarterly.">
+	when EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.M
+		and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 6
+	then EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period = PeriodExtendedEnum.M
+		and EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 3 	
+
+data rule Vanilla_QuarterlyPayment_MonthlyReset <"One of the provision to qualify a plain vanilla swap according to the ISDA Taxonomy V2.0 is that when the payment frequency is quarterly, the reset frequency is monthly.">
+	when EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.M
+		and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 6
+	then EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period = PeriodExtendedEnum.M
+		and EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 3
+
 isProduct InterestRate_IRSwap_FixedFloat
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFloat]
 	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate count = 1
@@ -600,6 +651,16 @@ isProduct InterestRate_IRSwap_FixedFloat
 	and  EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 	and EconomicTerms -> payout -> optionPayout is absent
+	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period <> PeriodExtendedEnum.T
+	and ( EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> spreadSchedule -> step exists
+		or EconomicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step exists
+		or EconomicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepParameters exists
+		or EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> floatingRateMultiplierSchedule exists
+		or EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate -> step exists
+		or EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier <>
+		EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> indexTenor -> periodMultiplier
+		or EconomicTerms -> payout -> interestRatePayout -> compoundingMethod exists 
+		or EconomicTerms -> payout -> interestRatePayout -> stubPeriod exists )
 
 isProduct InterestRate_IRSwap_FixedFixed
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFixed]
@@ -634,48 +695,6 @@ isProduct InterestRate_IRSwap_FixedFloat_ZeroCoupon
 	and EconomicTerms -> payout -> optionPayout is absent
 	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
 	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.T
-
-isProduct InterestRate_IRSwap_FixedFloat_PlainVanilla
-	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFloat]
-	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate count = 1
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate count = 1
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate is absent
-	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
-	and EconomicTerms -> payout -> optionPayout is absent
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> spreadSchedule -> step is absent
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> floatingRateMultiplierSchedule is absent
-/*
- * TODO - Cannot compare the below because in FpML the period associated with the reset frequency is of type PeriodExtendedEnum, which includes 'T'
- * Need to adjust the implementation once a proper implementation approach has been firmed out
- */
-//	and EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period =
-//		EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> indexTenor -> period
-	and EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier =
-		EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> indexTenor -> periodMultiplier
-	and 	EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier <> 1
-	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period <> PeriodExtendedEnum.T
-	and ( 
-		// Payment frequency = reset frequency 
-		( EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 
-		EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier
-		and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = 
-			EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period )
-		// Payment frequency is annual and reset frequency is semi-annual and compounding does not apply
-		// Payment frequency is annual and reset frequency is quarterly and compounding does not apply
-		or ( EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.Y 
-			and ( EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period = PeriodExtendedEnum.M
-				and ( EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 6 
-					or EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 3 )
-				and EconomicTerms -> payout -> interestRatePayout -> compoundingMethod is absent )
-		// Payment frequency is semi annual and reset frequency is quarterly and compounding does not apply
-		// Payment frequency is quarterly and reset frequency is monthly and compounding does not apply
-		or ( EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.M 
-			and ( EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 6 
-				or EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 3 )
-			and ( EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period = PeriodExtendedEnum.M
-				and EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 3 )
-				and EconomicTerms -> payout -> interestRatePayout -> compoundingMethod is absent ) ) )
-	// Not able to represent the clause 'No provision for early termination which uses an off-market valuation'
 
 /*
  * TODO Adjust the Xtext grammar to support enumeration styles

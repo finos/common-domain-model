@@ -50,7 +50,7 @@ choice rule NaturalPerson_choice <"Choice rule to represent an FpML choice const
 	for NaturalPerson optional choice between
 	middleName and initial
 
-class NaturalPersonRole
+class NaturalPersonRole <"The class to specify the role(s) that natural person(s) may have in relation to the contract.">
 {
 	personReference string (1..1) reference <"A reference to the natural person to whom the role refers to.">;
 		[synonym FpML value personReference]
@@ -78,7 +78,14 @@ class PartyAndAccountReference <"This class corresponds to the FpML PartyAndAcco
 		[synonym FpML value accountReference]
 }
 
-class PartyRole
+/*
+ * Follow-up in progress with Jon Martin to confirm whether, as it relates to the ISDA Calculation Agent,
+ * the Sovereign or Asia Pacific Master Confirmation Agreement still sets the value for Calculation Agent 
+ * but does not set the value for Calculation Agent City.
+ * If the case, the partyReference's cardinality would have to be relaxed, and a data rule specified so that it can be omitted
+ * only for the CalculationAgent role.
+ */
+class PartyRole <"The class to specify the role(s) that party(ies) may have in relation to the contract.">
 {
 	partyReference string (1..1) reference <"A reference to the party to which the role refers to.">;
 		[synonym FpML value calculationAgentPartyReference pathExpression "trade.calculationAgent"]
@@ -92,8 +99,7 @@ class PartyRole
 		[synonym FpML value determiningParty pathExpression "trade" set role to PartyRoleEnum.DeterminingParty]
 		[synonym FpML value barrierDeterminationAgent pathExpression "trade" set role to PartyRoleEnum.BarrierDeterminationAgent]
 		[synonym FpML value hedgingParty pathExpression "trade" set role to PartyRoleEnum.HedgingParty]
-		[synonym FpML value brokerPartyReference pathExpression "trade" set role to PartyRoleEnum.Broker]
-		
+		[synonym FpML value brokerPartyReference pathExpression "trade" set role to PartyRoleEnum.Broker]	
 	businessCenter BusinessCenterEnum (0..1) scheme "businessCenterScheme" <"The business center in which the party which is referenced as part of the role is located. This information is specified for the ISDA Calculation Agent, as the short-form confirm for a contract that is executed under a Sovereign or Asia-Pacific Master Confirmation Agreement (MCA) does need to specify the Calculation Agent city. This is due to the fact that the MCA sets the value for Calculation Agent but does not set the value for Calculation Agent city.">;
 		[synonym FpML value calculationAgentBusinessCenter pathExpression "trade"]
 }
