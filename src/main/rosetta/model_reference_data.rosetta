@@ -28,41 +28,47 @@ class LegalEntity <"A class to represent the attributes that are specific to a l
 
 class NaturalPerson <"A class to represent the attributes that are specific to a natural person.">
 {
+	id string (0..1) anchor;
+		[synonym FpML value id pathExpression "person"]
 	honorific string (0..1) <"An honorific title, such as Mr., Ms., Dr. etc.">;
-		[synonym FpML value honorific]
+		[synonym FpML value honorific pathExpression "person"]
 	firstName string (1..1) <"The natural person's first name. It is optional in FpML.">;
-		[synonym FpML value firstName]
+		[synonym FpML value firstName pathExpression "person"]
 	middleName string (0..*);
-		[synonym FpML value firstName]
+		[synonym FpML value middleName pathExpression "person"]
 	initial string (0..*);
-		[synonym FpML value initial]
-	surname string (1..1) <"The natural person's surname. It is optional in FpML.">;
-		[synonym FpML value surname]
+		[synonym FpML value initial pathExpression "person"]
+	surname string (1..1) <"The natural person's surname.">;
+		[synonym FpML value surname pathExpression "person"]
 	suffix string (0..1) <"Name suffix, such as Jr., III, etc.">;
-		[synonym FpML value suffix]
-	dateOfBirth date (1..1) <"The natural person's date of birth.">;
-		[synonym FpML value dateOfBirth]
+		[synonym FpML value suffix pathExpression "person"]
+	dateOfBirth date (0..1) <"The natural person's date of birth.">;
+		[synonym FpML value dateOfBirth pathExpression "person"]
 }
 
 choice rule NaturalPerson_choice <"Choice rule to represent an FpML choice construct.">
 	for NaturalPerson optional choice between
 	middleName and initial
 
+class NaturalPersonRole
+{
+	personReference string (1..1) reference <"A reference to the natural person to whom the role refers to.">;
+		[synonym FpML value personReference]
+	role NaturalPersonRoleEnum (0..1) <"FpML specifies a person role that is distinct from the party role.">;
+		[synonym FpML value role] 
+}
+
 class Party <"The party class.">
 	[synonym FpML value Party]
 {
 	id string (0..1) anchor;
 		[synonym FpML value id]
-	partyId string (1..1) scheme "partyIdScheme" <"The identifier associated with a party, e.g. the 20 digits LEI code.">;
+	partyId string (1..*) scheme "partyIdScheme" <"The identifier associated with a party, e.g. the 20 digits LEI code.">;
 		[synonym FpML value partyId]
 		[synonym Rosetta_Workbench value partyId]
 	legalEntity LegalEntity (0..1);
-	naturalPerson NaturalPerson (0..1);
+	naturalPerson NaturalPerson (0..*);
 }
-
-choice rule Party_choice <"A party is either a legal entity or a natural person.">
-	for Party optional choice between
-	legalEntity and naturalPerson
 
 class PartyAndAccountReference <"This class corresponds to the FpML PartyAndAccountReferences.model.">
 {
@@ -90,12 +96,4 @@ class PartyRole
 		
 	businessCenter BusinessCenterEnum (0..1) scheme "businessCenterScheme" <"The business center in which the party which is referenced as part of the role is located. This information is specified for the ISDA Calculation Agent, as the short-form confirm for a contract that is executed under a Sovereign or Asia-Pacific Master Confirmation Agreement (MCA) does need to specify the Calculation Agent city. This is due to the fact that the MCA sets the value for Calculation Agent but does not set the value for Calculation Agent city.">;
 		[synonym FpML value calculationAgentBusinessCenter pathExpression "trade"]
-}
-
-class NaturalPersonRole
-{
-	personReference string (1..1) reference <"A reference to the natural person to whom the role refers to.">;
-		[synonym FpML value buyerPartyReference]
-	role NaturalPersonRoleEnum (0..1) <"FpML specifies a person role that is distinct from the party role.">;
-		[synonym FpML value role] 
 }

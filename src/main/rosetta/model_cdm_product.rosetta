@@ -28,7 +28,8 @@ class Contract rosettaKey <"A class to specify a contract object, which can be i
 		[synonym FpML value party]
 		[synonym Rosetta_Workbench value party]
 	partyRole PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the contract, further to the principal parties (i.e payer/receive or buyer/seller) to it.">;
-	naturalPersonRole NaturalPersonRole (0..*) <"The role(s) that natural person(s) may have in relation to the contract.">;
+	partyContractInformation PartyContractInformation (0..*) <"Additional contract information that may be provided by each involved party.">;
+		[synonym FpML value partyTradeInformation pathExpression "trade.tradeHeader"]
 	calculationAgentParty CalculationAgentPartyEnum (0..1) <"The ISDA calculation agent responsible for performing duties as defined in the applicable product definitions. For example, the Calculation Agent may be defined as being the Non-exercising Party.">;
 		[synonym FpML value calculationAgentParty]
 	account Account (0..*) <"Optional account information.">;
@@ -41,6 +42,9 @@ data rule Contract_calculationAgentParty <"FpML provides the ability to specify 
 	when Contract -> calculationAgentParty exists
 	then Contract -> partyRole -> role <> PartyRoleEnum.CalculationAgent
 
+/*
+ * TODO - Once the partyRole will be mapped, need to test the below data rules to confirm that they work effectively
+ */
 data rule Contract_hedgingParty <"FpML specifies that there cannot be more than 2 hedging parties.">
 	when Contract -> partyRole -> role = PartyRoleEnum.HedgingParty
 	then Contract -> partyRole -> role count <= 2
