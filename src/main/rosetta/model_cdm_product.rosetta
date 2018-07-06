@@ -15,19 +15,6 @@ class Contract rosettaKey <"A class to specify a contract object, which can be i
 	otherPartyPayment Payment (0..*) <"Other fees or additional payments associated with the contract, e.g. broker commissions, where one or more of the parties involved are not principal parties involved in the contract.">;
 		[synonym FpML value otherPartyPayment pathExpression "trade"]
 		[synonym Rosetta_Workbench value otherPartyPayment]
-	brokerParty string (0..*) reference <"The reference to the party (or parties) that brokered the contract.">;
-		[synonym FpML value brokerPartyReference pathExpression "trade"]
-		[synonym Rosetta_Workbench value brokerPartyReference]
-	calculationAgent CalculationAgentModel (0..1) <"The ISDA Calculation Agent and the associated business center information. This information is represented in FpML via the CalculationAgent.model.">;
-	determiningParty string (0..2) reference <"TThe party referenced is specified in the related Confirmation as Determination Party.">;
-		[synonym FpML value determiningParty pathExpression "trade"]
-		[synonym Rosetta_Workbench value determiningParty]
-	barrierDeterminationAgent Party (0..1) reference <"The party specified in the related confirmation as Barrier Determination Agent.">;
-		[synonym FpML value barrierDeterminationAgent pathExpression "trade"]
-		[synonym Rosetta_Workbench value barrierDeterminationAgent]
-	hedgingParty string (0..2) reference <"The ISDA Hedging Party that is specified in the related confirmation as Hedging, or if no Hedging Party is specified, either party to the contract.">;
-		[synonym FpML value hedgingParty pathExpression "trade"]
-		[synonym Rosetta_Workbench value hedgingParty]
 	collateral Collateral (0..1) <"Defines the collateral obligations of a party.">;
 		[synonym FpML value collateral pathExpression "trade"]
 		[synonym Rosetta_Workbench value collateral]
@@ -40,13 +27,37 @@ class Contract rosettaKey <"A class to specify a contract object, which can be i
 	party Party (0..*) <"The parties to the contract. While FpML has a minimal cardinality of 1, a minimal cardinality of 2 seems more appropriate.">;
 		[synonym FpML value party]
 		[synonym Rosetta_Workbench value party]
+	partyRole PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the contract, further to the principal parties (i.e payer/receive or buyer/seller) to it.">;
+	partyContractInformation PartyContractInformation (0..*) <"Additional contract information that may be provided by each involved party.">;
+		[synonym FpML value partyTradeInformation pathExpression "trade.tradeHeader"]
+	calculationAgentParty CalculationAgentPartyEnum (0..1) <"The ISDA calculation agent responsible for performing duties as defined in the applicable product definitions. For example, the Calculation Agent may be defined as being the Non-exercising Party.">;
+		[synonym FpML value calculationAgentParty]
 	account Account (0..*) <"Optional account information.">;
 		[synonym FpML value account]
 	state StateEnum (0..1) <"The state qualification of a contractual product.">;
 		[synonym Rosetta_Workbench value state]
 }
 
-data rule Contract_clearedDate
+data rule Contract_calculationAgentParty <"FpML provides the ability to specify the calculation either through a party reference or as part of of the CalculationAgentPartyEnum.">
+	when Contract -> calculationAgentParty exists
+	then Contract -> partyRole -> role <> PartyRoleEnum.CalculationAgent
+
+/*
+ * TODO - Once the partyRole will be mapped, need to test the below data rules to confirm that they work effectively
+ */
+data rule Contract_hedgingParty <"FpML specifies that there cannot be more than 2 hedging parties.">
+	when Contract -> partyRole -> role = PartyRoleEnum.HedgingParty
+	then Contract -> partyRole -> role count <= 2
+
+data rule Contract_determiningParty <"FpML specifies that there cannot be more than 2 determining parties.">
+	when Contract -> partyRole -> role = PartyRoleEnum.DeterminingParty
+	then Contract -> partyRole -> role count <= 2
+
+data rule Contract_barrierDerterminationAgent <"FpML specifies that there cannot be more than 1 barrier determination agent.">
+	when Contract -> partyRole -> role = PartyRoleEnum.BarrierDeterminationAgent
+	then Contract -> partyRole -> role count <= 1
+	
+data rule Contract_clearedDate <"If the cleared date exists, it needs to be on or after the trade date.">
 	when Contract -> clearedDate exists
 	then Contract -> clearedDate >= Contract -> tradeDate -> date
 
