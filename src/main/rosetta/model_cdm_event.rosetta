@@ -108,12 +108,12 @@ class Event rosettaKey
 		[synonym Rosetta_Workbench value primitive]
 	functionCall string (0..1);
 		[synonym Rosetta_Workbench value functionCall]
-	eventEffect EventEffect (0..1) <"The set of effects associated with the lifecycle event, i.e. generated cashflows, contracts (from, say, exercise events), reset values, ...">;
+	eventEffect EventEffect (0..1) <"The set of effects associated with the lifecycle event, i.e. generated cashflows, contracts (from, say, exercise events), reset values and more.  This attribute should not contribute to the rosettaKey of Events. EventEffect must first take the rosettaKey from Event, but once stamped onto EventEffect, the rosettaKey for Event will have changed.">;
 }
 
 class EventEffect <"The set of operational and positional effects associated with a lifecycle event.">
 {
-	referenceContract Contract (0..1) rosettaKey <"A pointer to the contract to which the event effect(s) apply. This reference is optional to address the case where an event with candidate event effect(s) would only have associated referenceContract.">;
+	referenceContract Contract (0..*) rosettaKey <"A pointer to the contract to which the event effect(s) apply. This reference is optional to address the case where an event with candidate event effect(s) would only have associated referenceContract.">;
 	referenceEvent Event (1..1) rosettaKey <"A pointer to the event to which the event effect(s) apply.">;
 	product ContractOrListedProduct (0..*) rosettaKey <"A pointer to the products effect(s), an example of such being the outcome of an option physical exercise.">;
 	payment Payment (0..*) rosettaKey <"A pointer to the payment effect(s).">;
