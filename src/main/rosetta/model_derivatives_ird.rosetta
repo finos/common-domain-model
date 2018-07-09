@@ -152,12 +152,12 @@ choice rule CalculationPeriodDates_choice2 <"Choice rule to represent an FpML ch
 	for CalculationPeriodDates optional choice between
 	terminationDate and relativeTerminationDate
 
-data rule CalculationPeriodDates_calculationPeriodDatesAdjustments <"FpML specifies a required calculationPeriodDatesAdjustments element as part of the CalculationPeriodDates. As standardised CDS don't have such business day adjustment provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product as two interest rate streams, this provision must exist.">
+data rule CalculationPeriodDates_calculationPeriodDatesAdjustments <"FpML specifies a required calculationPeriodDatesAdjustments element as part of the CalculationPeriodDates. As standardised CDS don't have such business day adjustment provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
 	when Payout -> interestRatePayout count = 2
 	and Payout -> interestRatePayout -> calculationPeriodDates exists
 	then Payout -> interestRatePayout -> calculationPeriodDates -> calculationPeriodDatesAdjustments exists
 
-data rule CalculationPeriodDates_calculationPeriodFrequency <"FpML specifies a required calculationPeriodFrequency element as part of the CalculationPeriodDates. As standardised CDS don't have such calculationPeriodFrequency provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product as two interest rate streams, this provision must exist.">
+data rule CalculationPeriodDates_calculationPeriodFrequency <"FpML specifies a required calculationPeriodFrequency element as part of the CalculationPeriodDates. As standardised CDS don't have such calculationPeriodFrequency provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
 	when Payout -> interestRatePayout count = 2
 	and Payout -> interestRatePayout -> calculationPeriodDates exists
 	then Payout -> interestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency exists
@@ -181,7 +181,7 @@ data rule FirstRegularPeriodEndDate_finalStub <"FpML specifies that the lastRegu
 		or InterestRatePayout -> stubPeriod -> finalStub is absent
 	then InterestRatePayout -> calculationPeriodDates -> lastRegularPeriodEndDate is absent
 
-data rule FpML_ird_14 <"FpML validation rule ird-14 - If effectiveDate exists and If terminationDate exists, then terminationDate/unadjustedDate must be after effectiveDate/unadjustedDate.">
+data rule FpML_ird_14 <"FpML validation rule ird-14 - If effectiveDate exists and if terminationDate exists, then terminationDate/unadjustedDate must be after effectiveDate/unadjustedDate.">
 	when CalculationPeriodDates -> effectiveDate exists 
 		and CalculationPeriodDates -> terminationDate exists
 	then CalculationPeriodDates -> terminationDate -> unadjustedDate > CalculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
@@ -356,15 +356,15 @@ class EarlyTerminationEvent <"A class to define the adjusted dates associated wi
 		[synonym FpML value adjustedExerciseFeePaymentDate]
 }
 
-data rule EarlyTerminationEvent_adjustedExerciseDate_adjustedEarlyTerminationDate <"FpML validation rule ird-39 - Context: EarlyTerminationEvent (complex type). adjustedExerciseDate must be before or equal to adjustedEarlyTerminationDate.">
+data rule FpML_ird_39 <"FpML validation rule ird-39 - AdjustedExerciseDate must be before or equal to adjustedEarlyTerminationDate.">
 	when EarlyTerminationEvent exists
 	then EarlyTerminationEvent -> adjustedExerciseDate <= EarlyTerminationEvent -> adjustedEarlyTerminationDate
 
-data rule EarlyTerminationEvent_adjustedExerciseDate_adjustedCashSettlementValuationDate <"FpML validation rule ird-40 - Context: EarlyTerminationEvent (complex type). adjustedExerciseDate must be before or equal to adjustedCashSettlementValuationDate.">
+data rule FpML_ird_40 <"FpML validation rule ird-40 - AdjustedExerciseDate must be before or equal to adjustedCashSettlementValuationDate.">
 	when EarlyTerminationEvent exists
 	then EarlyTerminationEvent -> adjustedExerciseDate <= EarlyTerminationEvent -> adjustedCashSettlementValuationDate
 
-data rule EarlyTerminationEvent_adjustedCashSettlementValuationDate_adjustedCashSettlementPaymentDate <"FpML validation rule ird-41 - Context: EarlyTerminationEvent (complex type). adjustedCashSettlementValuationDate must be before or equal to adjustedCashSettlementPaymentDate.">
+data rule FpML_ird_41 <"FpML validation rule ird-41 - AdjustedCashSettlementValuationDate must be before or equal to adjustedCashSettlementPaymentDate.">
 	when EarlyTerminationEvent exists
 	then EarlyTerminationEvent -> adjustedCashSettlementValuationDate <= EarlyTerminationEvent -> adjustedCashSettlementPaymentDate
 
@@ -605,7 +605,7 @@ class MandatoryEarlyTerminationAdjustedDates <"A class defining the adjusted dat
 		[synonym FpML value adjustedCashSettlementPaymentDate]
 }
 
-data rule FpML_ird_44 <"FpML validation rule ird-44 - Context: MandatoryEarlyTerminationAdjustedDates (complex type). adjustedEarlyTerminationDate must be before or equal to adjustedCashSettlementValuationDate must be before or the same as adjustedCashSettlementPaymentDate">
+data rule FpML_ird_44 <"FpML validation rule ird-44 - AdjustedEarlyTerminationDate must be before or equal to adjustedCashSettlementValuationDate must be before or the same as adjustedCashSettlementPaymentDate">
 	when MandatoryEarlyTerminationAdjustedDates exists
 	then MandatoryEarlyTerminationAdjustedDates -> adjustedEarlyTerminationDate <= MandatoryEarlyTerminationAdjustedDates -> adjustedCashSettlementValuationDate
 		and MandatoryEarlyTerminationAdjustedDates -> adjustedCashSettlementValuationDate <= MandatoryEarlyTerminationAdjustedDates -> adjustedCashSettlementPaymentDate
@@ -744,7 +744,7 @@ choice rule PaymentCalculationPeriod_choice <"Choice rule to represent an FpML c
 	for PaymentCalculationPeriod required choice between
 		calculationPeriod and fixedPaymentAmount
 	
-data rule FpML_ird_34 <"FpML validation rule ird-34 - Context: PaymentCalculationPeriod (complex type). Either unadjustedPaymentDate or adjustedPaymentDate must exist.">
+data rule FpML_ird_34 <"FpML validation rule ird-34 - Either unadjustedPaymentDate or adjustedPaymentDate must exist.">
 	when PaymentCalculationPeriod exists
 	then PaymentCalculationPeriod -> unadjustedPaymentDate exists
 		or PaymentCalculationPeriod -> adjustedPaymentDate exists
@@ -837,11 +837,11 @@ data rule InitialStub_FinalStub <"Data rule to represent the FpML nested XML con
 	then InterestRatePayout -> stubPeriod -> initialStub exists
 		or InterestRatePayout -> stubPeriod -> finalStub exists
 		
-data rule StubCalculationPeriodAmount_firstRegularPeriodStartDate <"FpML validation rule ird-23 - If the initialStub exists, the calculationPeriodDates element referenced by the @href attribute of stubCalculationPeriodAmount/calculationPeriodDatesReference contains firstRegularPeriodStartDate.">
+data rule FpML_ird_23 <"FpML validation rule ird-23 - If the initialStub exists, the calculationPeriodDates element referenced by the @href attribute of stubCalculationPeriodAmount/calculationPeriodDatesReference contains firstRegularPeriodStartDate.">
 	when InterestRatePayout -> stubPeriod -> initialStub exists
 	then InterestRatePayout -> calculationPeriodDates -> firstRegularPeriodStartDate exists
 
-data rule StubCalculationPeriodAmount_lastRegularPeriodEndDate <"FpML validation rule ird-24 - The finalStub exists if and only if the calculationPeriodDates element referenced by calculationPeriodDates/@href contains a lastRegularPeriodEndDate.">
+data rule FpML_ird_24 <"FpML validation rule ird-24 - The finalStub exists if and only if the calculationPeriodDates element referenced by calculationPeriodDates/@href contains a lastRegularPeriodEndDate.">
 	when InterestRatePayout -> stubPeriod -> finalStub exists
 	then InterestRatePayout -> calculationPeriodDates -> lastRegularPeriodEndDate exists
 
