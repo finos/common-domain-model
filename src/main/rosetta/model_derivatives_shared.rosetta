@@ -267,7 +267,7 @@ class CalculationPeriodFrequency extends Frequency <"A class to specify the freq
 		[synonym FpML value rollConvention pathExpression "periodicPayment"]
 }
 
-data rule CalculationPeriodFrequency_rollConvention_M_Y <"FpML validation rule ird-57 - Context: CalculationPeriodFrequency. [period eq ('M', 'Y')] not(rollConvention = ('NONE', 'SFE', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT','SUN')).">
+data rule FpML_ird_57 <"FpML validation rule ird-57 - Context: CalculationPeriodFrequency. [period eq ('M', 'Y')] not(rollConvention = ('NONE', 'SFE', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT','SUN')).">
 	when CalculationPeriodFrequency -> period = PeriodExtendedEnum.M or CalculationPeriodFrequency -> period = PeriodExtendedEnum.Y
 	then CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.NONE
 		or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.SFE
@@ -279,7 +279,7 @@ data rule CalculationPeriodFrequency_rollConvention_M_Y <"FpML validation rule i
 		or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.SAT
 		or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.SUN
 
-data rule CalculationPeriodFrequency_rollConvention_W <"FpML validation rule ird-58 - Context: CalculationPeriodFrequency (complex type). When the period is 'W', the rollConvention must be a week day, 'SFE' or 'NONE'.">
+data rule FpML_ird_58 <"FpML validation rule ird-58 - Context: CalculationPeriodFrequency. When the period is 'W', the rollConvention must be a week day, 'SFE' or 'NONE'.">
 	when CalculationPeriodFrequency -> period = PeriodExtendedEnum.W
 	then CalculationPeriodFrequency -> rollConvention = RollConventionEnum.NONE
 		or CalculationPeriodFrequency -> rollConvention = RollConventionEnum.SFE
@@ -291,7 +291,7 @@ data rule CalculationPeriodFrequency_rollConvention_W <"FpML validation rule ird
 		or CalculationPeriodFrequency -> rollConvention = RollConventionEnum.SAT
 		or CalculationPeriodFrequency -> rollConvention = RollConventionEnum.SUN
 
-data rule CalculationPeriodFrequency_rollConvention_T <"FpML validation rule ird-60 - Context: CalculationPeriodFrequency (complex type). When the period is 'T', the rollConvention must be 'NONE'.">
+data rule FpML_ird_60 <"FpML validation rule ird-60 - Context: CalculationPeriodFrequency. When the period is 'T', the rollConvention must be 'NONE'.">
 	when CalculationPeriodFrequency -> period = PeriodExtendedEnum.T
 	then CalculationPeriodFrequency -> rollConvention = RollConventionEnum.NONE
 
@@ -569,7 +569,7 @@ class FutureValueAmount extends Money <"A type defining a currency amount as at 
 
 data rule FutureValueAmount_nonNegativeAmount <"In FpML the type FutureValueAmount extends NonNegativeMoney.">
 	when FutureValueAmount exists
-	then FutureValueAmount -> amount >=0.0
+	then FutureValueAmount -> amount >= 0.0
 
 data rule FutureValueAmount_calculationPeriodNumberOfDays <"FpML specifies calculationPeriodNumberOfDays as a positiveInteger.">
 	when FutureValueAmount exists
@@ -684,7 +684,7 @@ class MultipleExercise extends PartialExercise one of <"A class defining multipl
 
 data rule MultipleExercise_maximumNumberOfOptions <"FpML MultipleExercise construct specifies the minimumNumberOfOptions as a positive integer.">
 	when MultipleExercise -> maximumNumberOfOptions exists
-	then MultipleExercise -> maximumNotionalAmount >=0.0
+	then MultipleExercise -> maximumNotionalAmount >= 0.0
 
 class NonNegativeAmountSchedule extends NonNegativeSchedule <"A class defining a currency amount or a currency amount schedule.">
 	[synonym FpML value NonNegativeAmountSchedule]
@@ -706,7 +706,7 @@ class NonNegativeSchedule <"A class defining a schedule of non-negative rates or
 
 data rule NonNegativeSchedule_initialValue <"FpML specified initialValue as a NonNegativeDecimal.">
 	when NonNegativeSchedule exists
-	then NonNegativeSchedule -> initialValue >=0.0
+	then NonNegativeSchedule -> initialValue >= 0.0
 
 class NonNegativeStep <"A class defining a step date and non-negative step value pair. This step definitions are used to define varying rate or amount schedules, e.g. a notional amortisation or a step-up coupon schedule.">
 	[synonym FpML value NonNegativeStep]
@@ -721,7 +721,7 @@ class NonNegativeStep <"A class defining a step date and non-negative step value
 
 data rule NonNegativeStep_stepValue <"FpML specified stepValue as a NonNegativeDecimal.">
 	when NonNegativeStep exists
-	then NonNegativeStep -> stepValue >=0.0
+	then NonNegativeStep -> stepValue >= 0.0
 
 class Offset extends Period <"A class defining an offset used in calculating a new date relative to a reference date, e.g. calendar days, business days, commodity Business days, etc.">
 	[synonym FpML value Offset]
@@ -801,7 +801,7 @@ class Payment extends CashflowBase rosettaKey <"A class for defining payments, a
 
 data rule Payment_paymentflowAmount <"FpML specifies paymentAmount as a NonNegativeMoney type. The direction is indeed implied by the payer/receiver attribute.">
 	when Payment -> paymentAmount exists
-	then Payment -> paymentAmount -> amount >=0.0
+	then Payment -> paymentAmount -> amount >= 0.0
 
 class PaymentDetail
 	[synonym FpML value PaymentDetail]
@@ -975,7 +975,7 @@ class ResetFrequency extends Frequency <"A class defining the reset frequency. I
 		[synonym FpML value weeklyRollConvention]
 }
 
-data rule ResetFrequency_weeklyRollConvention <"FpML validation rule ird-49 - Context: ResetFrequency (complex type). weeklyRollConvention should exist if and only if the period is 'W'.">
+data rule FpML_ird_49 <"FpML validation rule ird-49 - WeeklyRollConvention should exist if and only if the period is 'W'.">
 	when ResetFrequency -> weeklyRollConvention exists
 	then ResetFrequency -> period = PeriodExtendedEnum.W
 
@@ -1068,7 +1068,7 @@ class SimplePayment extends PayerReceiver <"A class to specified payments in a s
 
 data rule SimplePayment_PaymentAmount <"FpML specifies paymentAmount as NonNegativeMoney.">
 	when SimplePayment -> paymentAmount exists
-	then SimplePayment -> paymentAmount -> amount >0.0
+	then SimplePayment -> paymentAmount -> amount > 0.0
 
 class SpreadSchedule extends Schedule <"Adds an optional spread type element to the Schedule to identify a long or short spread value.">
 	[synonym FpML value SpreadSchedule]

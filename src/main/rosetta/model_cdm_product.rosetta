@@ -27,13 +27,13 @@ class Contract rosettaKey <"A class to specify a contract object, which can be i
 	party Party (0..*) <"The parties to the contract. While FpML has a minimal cardinality of 1, a minimal cardinality of 2 seems more appropriate.">;
 		[synonym FpML value party]
 		[synonym Rosetta_Workbench value party]
+	account Account (0..*) <"Optional account information.">;
+		[synonym FpML value account]
 	partyRole PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the contract, further to the principal parties (i.e payer/receive or buyer/seller) to it.">;
 	partyContractInformation PartyContractInformation (0..*) <"Additional contract information that may be provided by each involved party.">;
 		[synonym FpML value partyTradeInformation pathExpression "trade.tradeHeader"]
 	calculationAgentParty CalculationAgentPartyEnum (0..1) <"The ISDA calculation agent responsible for performing duties as defined in the applicable product definitions. For example, the Calculation Agent may be defined as being the Non-exercising Party.">;
 		[synonym FpML value calculationAgentParty]
-	account Account (0..*) <"Optional account information.">;
-		[synonym FpML value account]
 	state StateEnum (0..1) <"The state qualification of a contractual product.">;
 		[synonym Rosetta_Workbench value state]
 }
@@ -312,11 +312,11 @@ data rule InterestRatePayout_actualQuantity <"The quantity associated to an inte
 	when InterestRatePayout exists
 	then InterestRatePayout -> quantity -> quantity is absent
 
-data rule InterestRatePayout_dayCountFraction <"FpML specifies a required dayCountFraction element as part of the swapStream/calculationPeriodAmount/calculation. As standardised CDS don't have such specified day count fraction, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product as two interest rate streams, this provision must exist.">
+data rule InterestRatePayout_dayCountFraction <"FpML specifies a required dayCountFraction element as part of the swapStream/calculationPeriodAmount/calculation. As standardised CDS don't have such specified day count fraction, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
 	when Payout -> interestRatePayout count = 2
 	then Payout -> interestRatePayout -> dayCountFraction exists
 
-data rule InterestRatePayout_paymentDates <"FpML specifies a required paymentDates element as part of the swapStream. As standardised CDS may not have specified payment dates, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product as two interest rate streams, this provision must exist.">
+data rule InterestRatePayout_paymentDates <"FpML specifies a required paymentDates element as part of the swapStream. As standardised CDS may not have specified payment dates, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
 	when Payout -> interestRatePayout count = 2
 	then Payout -> interestRatePayout -> dayCountFraction exists
 
@@ -335,9 +335,9 @@ data rule FpML_ird_8 <"FpML validation rule ird-8 - The @href attribute of payer
 	then InterestRatePayout -> payerReceiver -> payerPartyReference <> InterestRatePayout -> payerReceiver -> receiverPartyReference
 		or InterestRatePayout -> payerReceiver -> payerAccountReference <> InterestRatePayout -> payerReceiver -> receiverAccountReference
 
-data rule FinalStub_lastRegularPaymentDate <"FpML specifies that lastRegularPaymentDate must only be included if there is a final stub. As part of the CDM, this data rule has been adjusted to specify that it only applies to interest rate swaps, as the credit derivatives products can have a specified lastRegularPaymentDate while the stub is typically  not applicable to those.">
+data rule FinalStub_lastRegularPaymentDate <"FpML specifies that lastRegularPaymentDate must only be included if there is a final stub. As part of the CDM, this data rule has been adjusted to specify that it only applies to interest rate swaps, as the credit derivatives products can have a specified lastRegularPaymentDate while the stub is typically not applicable to those.">
 	when InterestRatePayout count = 2
-	and 	InterestRatePayout -> stubPeriod -> finalStub is absent
+	and InterestRatePayout -> stubPeriod -> finalStub is absent
 	then InterestRatePayout -> paymentDates -> lastRegularPaymentDate is absent
 
 /*
@@ -345,7 +345,7 @@ data rule FinalStub_lastRegularPaymentDate <"FpML specifies that lastRegularPaym
  */	
 data rule FpML_ird_7_1 <"FpML validation rule ird-7 1/2 - The existence of compoundingMethod is prohibited when the calculation period and payment frequencies are the same.">
  	when InterestRatePayout -> paymentDates -> paymentFrequency -> period = InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> period
- 		and InterestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier
+ 	and InterestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier
  	then ( InterestRatePayout -> compoundingMethod is absent or InterestRatePayout -> compoundingMethod = CompoundingMethodEnum.None )
  	
 data rule FpML_ird_7_2 <"FpML validation rule ird-7 2/2 - The existence of compoundingMethod is required when the calculation period and payment frequencies differ.">
@@ -380,9 +380,9 @@ class NotionalSchedule <"A class specifying defining the notional amount or noti
 		[synonym FpML value notionalStepParameters]
 }
 
-data rule FpML_ird_61 <"FpML validation rule ird-61 - Context: NonNegativeSchedule (complex type). If step does not exist, then initialValue must not be equal to 0.">
+data rule FpML_ird_61 <"FpML validation rule ird-61 - If step does not exist, then initialValue must not be equal to 0.">
 	when NotionalSchedule -> notionalStepSchedule -> step is absent
-	then NotionalSchedule -> notionalStepSchedule -> initialValue <>0.0
+	then NotionalSchedule -> notionalStepSchedule -> initialValue <> 0.0
 
 class OptionExercise <"A class to represent the applicable terms to qualify an option exercise: the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">
 {
@@ -449,26 +449,26 @@ choice rule PaymentDates_choice <"Choice rule to represent an FpML choice constr
 	for PaymentDates optional choice between
 	calculationPeriodDatesReference and resetDatesReference and valuationDatesReference
 
-data rule PaymentDates_firstPaymentDate_lastRegularPaymentDate <"FpML validation rule ird-35 - If firstPaymentDate exists, and if lastRegularPaymentDate exists, then firstPaymentDate must be before lastRegularPaymentDate.">
+data rule FpML_ird_35 <"FpML validation rule ird-35 - If firstPaymentDate exists, and if lastRegularPaymentDate exists, then firstPaymentDate must be before lastRegularPaymentDate.">
 	when PaymentDates -> firstPaymentDate exists 
-		and PaymentDates -> lastRegularPaymentDate exists
+	and PaymentDates -> lastRegularPaymentDate exists
 	then PaymentDates -> firstPaymentDate < PaymentDates -> lastRegularPaymentDate
 	
 data rule PaymentDates_paymentDaysOffset <"FpML specifies that paymentDaysOffset should only be included if early or delayed payment is applicable, i.e. if the periodMultiplier element value is not equal to zero.">
 	when PaymentDates -> paymentDaysOffset exists
 	then PaymentDates -> paymentDaysOffset -> periodMultiplier <> 0
 
-data rule PaymentDates_payRelativeTo <"FpML specifies a required payRelativeTo element as part of the PaymentDates. As standardised CDS don't have such payRelativeTo provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product as two interest rate streams, this provision must exist.">
+data rule PaymentDates_payRelativeTo <"FpML specifies a required payRelativeTo element as part of the PaymentDates. As standardised CDS don't have such payRelativeTo provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
 	when Payout -> interestRatePayout count = 2
 	and Payout -> interestRatePayout -> paymentDates exists
 	then Payout -> interestRatePayout -> paymentDates -> payRelativeTo exists
 
-data rule PaymentDates_paymentDatesAdjustments <"FpML specifies a required paymentDatesAdjustments element as part of the PaymentDates. As standardised CDS don't have such paymentDatesAdjustments provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product as two interest rate streams, this provision must exist.">
+data rule PaymentDates_paymentDatesAdjustments <"FpML specifies a required paymentDatesAdjustments element as part of the PaymentDates. As standardised CDS don't have such paymentDatesAdjustments provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
 	when Payout -> interestRatePayout count = 2
 	and Payout -> interestRatePayout -> paymentDates exists
 	then Payout -> interestRatePayout -> paymentDates -> paymentDatesAdjustments exists
 
-data rule PaymentDates_paymentFrequency <"FpML specifies a required paymentFrequency element as part of the PaymentDates. As standardised CDS may not have such paymentFrequency provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product as two interest rate streams, this provision must exist.">
+data rule PaymentDates_paymentFrequency <"FpML specifies a required paymentFrequency element as part of the PaymentDates. As standardised CDS may not have such paymentFrequency provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
 	when Payout -> interestRatePayout count = 2
 	and Payout -> interestRatePayout -> paymentDates exists
 	then Payout -> interestRatePayout -> paymentDates -> paymentFrequency exists
@@ -581,17 +581,65 @@ class TransactedPrice <"A class to represent the transacted price attributes tha
 data rule TransactedPrice_marketPrice <"FpML specifies that  marketFixedRate and marketPrice only have meaning in a credit index trade">
 	when Payout -> creditDefaultPayout -> generalTerms -> indexReferenceInformation is absent
 	then Payout -> creditDefaultPayout -> transactedPrice -> marketFixedRate is absent
-		and Payout -> creditDefaultPayout -> transactedPrice -> marketPrice is absent
+	and Payout -> creditDefaultPayout -> transactedPrice -> marketPrice is absent
 
 isProduct InterestRate_IRSwap_Basis
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Basis]
-	[synonym Bank_A value BasisSwap] // The purpose is to illustrate how firms could map to their own internal product identification
-	[synonym Venue_B value FloatFloatInterestSwap]
 	EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate count = 2
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 	and EconomicTerms -> payout -> optionPayout is absent
+
+isProduct InterestRate_IRSwap_FixedFloat_PlainVanilla <"This data rule doesn't represent the ISDA Taxonomomy V2.0 clause according to which a plain vaniNo provision for early termination which uses an off-market valuation'">
+	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFloat]
+	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate count = 1
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate count = 1
+	and  EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate is absent
+	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
+	and EconomicTerms -> payout -> optionPayout is absent
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> spreadSchedule -> step is absent
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate -> step is absent // Not specified in the ISDA taxonomy
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> floatingRateMultiplierSchedule is absent
+	and EconomicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step is absent // Not specified in the ISDA taxonomy
+	and EconomicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepParameters is absent // Not specified in the ISDA taxonomy
+	and EconomicTerms -> payout -> interestRatePayout -> stubPeriod is absent  // Not specified in the ISDA taxonomy
+	/*
+ 	* TODO - Cannot compare the below because in FpML the period associated with the reset frequency is of type PeriodExtendedEnum, which includes 'T'
+	* Need to adjust the implementation once a proper implementation approach has been firmed out
+	*/
+//	and EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period =
+//		EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> indexTenor -> period
+	and EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier =
+		EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> indexTenor -> periodMultiplier
+	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period <> PeriodExtendedEnum.T
+	and EconomicTerms -> payout -> interestRatePayout -> compoundingMethod is absent
+	and Vanilla_AnnualPaymentDifferentResetFrequency, Vanilla_SemiAnnualPayment_QuarterlyReset, Vanilla_QuarterlyPayment_MonthlyReset apply
+
+/*
+ * TODO Address the below data rule  
+ */		
+//data rule Vanilla_SamePaymentResetFrequency
+//	when EconomicTerms -> payout -> interestRatePayout -> resetDates exists
+//	then EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier
+
+data rule Vanilla_AnnualPaymentDifferentResetFrequency <"One of the provision to qualify a plain vanilla swap according to the ISDA Taxonomy V2.0 is that when the payment frequency is annual, the reset frequency is semi-annual or quarterly.">
+	when EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.Y
+	then EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period = PeriodExtendedEnum.M
+	and ( EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 6 
+		or EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 3 )
+		 
+data rule Vanilla_SemiAnnualPayment_QuarterlyReset <"One of the provision to qualify a plain vanilla swap according to the ISDA Taxonomy V2.0 is that when the payment frequency is semi-annual, the reset frequency is quarterly.">
+	when EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.M
+		and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 6
+	then EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period = PeriodExtendedEnum.M
+		and EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 3 	
+
+data rule Vanilla_QuarterlyPayment_MonthlyReset <"One of the provision to qualify a plain vanilla swap according to the ISDA Taxonomy V2.0 is that when the payment frequency is quarterly, the reset frequency is monthly.">
+	when EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.M
+		and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 6
+	then EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period = PeriodExtendedEnum.M
+		and EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 3
 
 isProduct InterestRate_IRSwap_FixedFloat
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFloat]
@@ -600,6 +648,16 @@ isProduct InterestRate_IRSwap_FixedFloat
 	and  EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 	and EconomicTerms -> payout -> optionPayout is absent
+	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period <> PeriodExtendedEnum.T
+	and ( EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> spreadSchedule -> step exists
+		or EconomicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step exists
+		or EconomicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepParameters exists
+		or EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> floatingRateMultiplierSchedule exists
+		or EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate -> step exists
+		or EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier <>
+		EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> indexTenor -> periodMultiplier
+		or EconomicTerms -> payout -> interestRatePayout -> compoundingMethod exists 
+		or EconomicTerms -> payout -> interestRatePayout -> stubPeriod exists )
 
 isProduct InterestRate_IRSwap_FixedFixed
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFixed]
@@ -634,48 +692,6 @@ isProduct InterestRate_IRSwap_FixedFloat_ZeroCoupon
 	and EconomicTerms -> payout -> optionPayout is absent
 	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
 	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.T
-
-isProduct InterestRate_IRSwap_FixedFloat_PlainVanilla
-	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFloat]
-	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate count = 1
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate count = 1
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate is absent
-	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
-	and EconomicTerms -> payout -> optionPayout is absent
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> spreadSchedule -> step is absent
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> floatingRateMultiplierSchedule is absent
-/*
- * TODO - Cannot compare the below because in FpML the period associated with the reset frequency is of type PeriodExtendedEnum, which includes 'T'
- * Need to adjust the implementation once a proper implementation approach has been firmed out
- */
-//	and EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period =
-//		EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> indexTenor -> period
-	and EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier =
-		EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> indexTenor -> periodMultiplier
-	and 	EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier <> 1
-	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period <> PeriodExtendedEnum.T
-	and ( 
-		// Payment frequency = reset frequency 
-		( EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 
-		EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier
-		and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = 
-			EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period )
-		// Payment frequency is annual and reset frequency is semi-annual and compounding does not apply
-		// Payment frequency is annual and reset frequency is quarterly and compounding does not apply
-		or ( EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.Y 
-			and ( EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period = PeriodExtendedEnum.M
-				and ( EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 6 
-					or EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 3 )
-				and EconomicTerms -> payout -> interestRatePayout -> compoundingMethod is absent )
-		// Payment frequency is semi annual and reset frequency is quarterly and compounding does not apply
-		// Payment frequency is quarterly and reset frequency is monthly and compounding does not apply
-		or ( EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.M 
-			and ( EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 6 
-				or EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 3 )
-			and ( EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period = PeriodExtendedEnum.M
-				and EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 3 )
-				and EconomicTerms -> payout -> interestRatePayout -> compoundingMethod is absent ) ) )
-	// Not able to represent the clause 'No provision for early termination which uses an off-market valuation'
 
 /*
  * TODO Adjust the Xtext grammar to support enumeration styles
