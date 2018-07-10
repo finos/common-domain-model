@@ -54,7 +54,7 @@ class NaturalPersonRole <"The class to specify the role(s) that natural person(s
 {
 	personReference string (1..1) reference <"A reference to the natural person to whom the role refers to.">;
 		[synonym FpML value personReference]
-	role NaturalPersonRoleEnum (0..1) <"FpML specifies a person role that is distinct from the party role.">;
+	role NaturalPersonRoleEnum (0..1) scheme "personRoleScheme" <"FpML specifies a person role that is distinct from the party role.">;
 		[synonym FpML value role] 
 }
 
@@ -77,16 +77,9 @@ class PartyAndAccountReference <"This class corresponds to the FpML PartyAndAcco
 		[synonym FpML value accountReference]
 }
 
-/*
- * Follow-up in progress with Jon Martin to confirm whether, as it relates to the ISDA Calculation Agent,
- * the Sovereign or Asia Pacific Master Confirmation Agreement still sets the value for Calculation Agent 
- * but does not set the value for Calculation Agent City.
- * If the case, the partyReference's cardinality would have to be relaxed, and a data rule specified so that it can be omitted
- * only for the CalculationAgent role.
- */
 class PartyRole <"The class to specify the role(s) that party(ies) may have in relation to the contract.">
 {
-	partyReference string (1..1) reference <"A reference to the party to which the role refers to.">;
+	partyReference string (0..1) reference <"A reference to the party to which the role refers to. The PartReference is optional to accommodate the fact that if a contract is executed under a Sovereign or Asia Pacific Master Confirmation Agreement, it does not need to specify the Calculation Agent. However, the confirm does need to specify the Calculation Agent City. This is due to the fact that the MCA sets the value for Calculation Agent but does not set the value for Calculation Agent City.">;
 		[synonym FpML value calculationAgentPartyReference pathExpression "trade.calculationAgent"]
 		[synonym FpML value calculationAgentPartyReference pathExpression "trade.swaption.calculationAgent"]
 		[synonym FpML value determiningParty pathExpression "trade"]
@@ -102,3 +95,7 @@ class PartyRole <"The class to specify the role(s) that party(ies) may have in r
 	businessCenter BusinessCenterEnum (0..1) scheme "businessCenterScheme" <"The business center in which the party which is referenced as part of the role is located. This information is specified for the ISDA Calculation Agent, as the short-form confirm for a contract that is executed under a Sovereign or Asia-Pacific Master Confirmation Agreement (MCA) does need to specify the Calculation Agent city. This is due to the fact that the MCA sets the value for Calculation Agent but does not set the value for Calculation Agent city.">;
 		[synonym FpML value calculationAgentBusinessCenter pathExpression "trade"]
 }
+
+data rule PartyRole_calculationAgent <"The party to which the role refers to should be specified except for the case of the calculation agent. Indeed, if a contract is executed under a Sovereign or Asia Pacific Master Confirmation Agreement, it does not need to specify the Calculation Agent. However, the confirm does need to specify the Calculation Agent City. This is due to the fact that the MCA sets the value for Calculation Agent but does not set the value for Calculation Agent City.">
+	when PartyRole -> role <> PartyRoleEnum.CalculationAgent
+	then PartyRole -> partyReference exists

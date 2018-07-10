@@ -75,7 +75,7 @@ class CashSettlementTerms <"In FpML, PhysicalSettlementTerms and CashSettlementT
 {
 	id string (0..1) anchor;
 		[synonym FpML value id]
-	settlementCurrency CurrencyEnum (0..1) <"ISDA 2003 Term: Settlement Currency.">;
+	settlementCurrency CurrencyEnum (0..1) scheme "currencyScheme" <"ISDA 2003 Term: Settlement Currency.">;
 		[synonym FpML value settlementCurrency]
 	valuationDate ValuationDate (0..1) <"The number of business days after conditions to settlement have been satisfied when the calculation agent obtains a price quotation on the Reference Obligation for purposes of cash settlement. There may be one or more valuation dates. This is typically specified if the cash settlement amount is not a fixed amount. ISDA 2003 Term: Valuation Date.">;
 		[synonym FpML value valuationDate]
@@ -95,7 +95,7 @@ class CashSettlementTerms <"In FpML, PhysicalSettlementTerms and CashSettlementT
 		[synonym FpML value cashSettlementAmount]
 	recoveryFactor number (0..1) <"Used for fixed recovery, specifies the recovery level, determined at contract inception, to be applied on a default. Used to calculate the amount paid by the seller to the buyer for cash settlement on the cash settlement date. Amount calculation is (1 minus the Recovery Factor) multiplied by the Floating Rate Payer Calculation Amount. The currency will be derived from the Floating Rate Payer Calculation Amount.">;
 		[synonym FpML value recoveryFactor]
-	fixedSettlement boolean (0..1) <"Used for Recovery Lock, to indicate whether fixed Settlement is Applicable or Not Applicable. If Buyer fails to deliver an effective Notice of Physical Settlement on or before the Buyer NOPS Cut-off Date, and If Seller fails to deliver an effective Seller NOPS on or before the Seller NOPS Cut-off Date, then either: (a) if Fixed Settlement is specified in the related Confirmation as not applicable, then the Seller NOPS Cut-off Date shall be the Termination Date; or (b) if Fixed Settlement is specified in the related Confirmation as applicable, then: (i) if the Fixed Settlement Amount is a positive number, Seller shall, subject to Section 3.1 (except for the requirement of satisfaction of the Notice of Physical Settlement Condition to Settlement), pay the Fixed Settlement Amount to Buyer on the Fixed Settlement Payment Date; and (ii) if the Fixed Settlement Amount is a negative number, Buyer shall, subject to Section 3.1 (except for the requirement of satisfaction of the Notice of Physical Settlement Condition to Settlement), pay the absolute value of the Fixed Settlement Amount to Seller on the Fixed Settlement Payment Date.">;
+	fixedSettlement boolean (0..1) <"Used for Recovery Lock, to indicate whether fixed Settlement is Applicable or Not Applicable. If Buyer fails to deliver an effective Notice of Physical Settlement on or before the Buyer NOPS Cut-off Date, and if Seller fails to deliver an effective Seller NOPS on or before the Seller NOPS Cut-off Date, then either: (a) if Fixed Settlement is specified in the related Confirmation as not applicable, then the Seller NOPS Cut-off Date shall be the Termination Date; or (b) if Fixed Settlement is specified in the related Confirmation as applicable, then: (i) if the Fixed Settlement Amount is a positive number, Seller shall, subject to Section 3.1 (except for the requirement of satisfaction of the Notice of Physical Settlement Condition to Settlement), pay the Fixed Settlement Amount to Buyer on the Fixed Settlement Payment Date; and (ii) if the Fixed Settlement Amount is a negative number, Buyer shall, subject to Section 3.1 (except for the requirement of satisfaction of the Notice of Physical Settlement Condition to Settlement), pay the absolute value of the Fixed Settlement Amount to Seller on the Fixed Settlement Payment Date.">;
 		[synonym FpML value fixedSettlement]
 	accruedInterest boolean (0..1) <"Indicates whether accrued interest is included (true) or not (false). For cash settlement this specifies whether quotations should be obtained inclusive or not of accrued interest. For physical settlement this specifies whether the buyer should deliver the obligation with an outstanding principal balance that includes or excludes accrued interest. ISDA 2003 Term: Include/Exclude Accrued Interest.">;
 		[synonym FpML value accruedInterest]
@@ -120,35 +120,9 @@ data rule CashSettlementTerms_quotationAmount <"FpML validation rule cd-37 - Con
 		and CashSettlementTerms -> quotationAmount -> currency = CashSettlementTerms -> minimumQuotationAmout -> currency
 	then CashSettlementTerms -> quotationAmount -> amount > CashSettlementTerms -> minimumQuotationAmout -> amount
 
-class OptionStrike one of <"A class to specify the option strike.">
-	[synonym FpML value CreditOptionStrike]
-{
-	spread number (0..1) <"The strike of a credit default swap option or credit swaption when expressed as a spread per annum.">;
-		[synonym FpML value spread]
-	price number (0..1) <"The strike of a credit default swap option or credit swaption when expressed as in reference to the price of the underlying obligation(s) or index.">;
-		[synonym FpML value strikePrice pathExpression "price"]
-	currency CurrencyEnum (0..1) <"The currency in which an amount is denominated.">;
-		[synonym FpML value currency pathExpression "price"]
-	percentage number (0..1) <"The price or level expressed as a percentage of the forward starting spot price.">;
-		[synonym FpML value strikePercentage pathExpression "price"]
-	strikeReference string (0..1) reference <"The strike of an option on a credit default swap when expressed in reference to the spread of the underlying swap (typical practice in the case of credit single name swaps).">;
-		[synonym FpML value strikeReference]
-	referenceSwapCurve ReferenceSwapCurve (0..1) <"The strike of an option when expressed by reference to a swap curve. (Typically the case for a convertible bond option.)">;
-		[synonym FpML value referenceSwapCurve]
-}
-
-choice rule OptionStrike_expression <"The option strike should be expressed either as a spread, a price, a percentage of a forward starting price, or by reference to a value expressed somewhere else in the document.">
-	for OptionStrike required choice between
-	spread and price and percentage and strikeReference and referenceSwapCurve
-
 class DeliverableObligations <"A class to specify all the ISDA terms relevant to defining the deliverable obligations.">
 	[synonym FpML value DeliverableObligations]
 {
-	/*
-	 * TODO - The FpML credit construct makes a large use of optional boolean elements, with indication as part of the documentation that the applicability of the element is indicated by the appearance of its corresponding element.
-	 * A follow-up is needed with the FpML group to confirm whether an element with the value 'true' would have the same meaning with an element with the value 'false', and possibly implement
-	 * restriction logic as part of the CDM.
-	 */
 	accruedInterest boolean (0..1) <"Indicates whether accrued interest is included (true) or not (false). For cash settlement this specifies whether quotations should be obtained inclusive or not of accrued interest. For physical settlement this specifies whether the buyer should deliver the obligation with an outstanding principal balance that includes or excludes accrued interest. ISDA 2003 Term: Include/Exclude Accrued Interest.">;
 		[synonym FpML value accruedInterest]
 	category ObligationCategoryEnum (0..1) <"Used in both obligations and deliverable obligations to represent a class or type of securities which apply. ISDA 2003 Term: Obligation Category/Deliverable Obligation Category.">;
@@ -227,45 +201,6 @@ data rule DeliverableObligations_category <"FpML validation rule cd-34 - Context
 		and DeliverableObligations -> specifiedCurrency
 		and DeliverableObligations -> transferable)
 	is absent
-	
-class FeeLeg
-	[synonym FpML value FeeLeg]
-{
-	id string (0..1);
-		[synonym FpML value id]
-	initialPayment InitialPayment (0..1) <"Specifies a single fixed payment that is payable by the payer to the receiver on the initial payment date. The fixed payment to be paid is specified in terms of a known currency amount. This element should be used for CDS Index trades, Standard CDS trades, and can be used for CDS trades where it is necessary to represent a payment from Seller to Buyer. For CDS trades where a payment is to be made from Buyer to Seller the feeLeg/singlePayment structure must be used.">;
-		[synonym FpML value initialPayment]
-	periodicPayment PeriodicPayment (0..1) <"Specifies a periodic schedule of fixed amounts that are payable by the buyer to the seller on the fixed rate payer payment dates. The fixed amount to be paid on each payment date can be specified in terms of a known currency amount or as an amount calculated on a formula basis by reference to a per annum fixed rate. The applicable business day convention and business day for adjusting any fixed rate payer payment date if it would otherwise fall on a day that is not a business day are those specified in the dateAdjustments element within the generalTerms component.">;
-		[synonym FpML value periodicPayment]
-	singlePayment SinglePayment (0..1) <"Specifies a single fixed amount that is payable by the buyer to the seller on the fixed rate payer payment date. The fixed amount to be paid is specified in terms of a known currency amount.">;
-		[synonym FpML value singlePayment]
-	marketFixedRate number (0..1) <"An optional element that only has meaning in a credit index trade. This element contains the credit spread ('fair value') at which the trade was executed. Unlike the fixedRate of an index, the marketFixedRate varies over the life of the index depending on market conditions. The marketFixedRate is the price of the index as quoted by trading desks.">;
-		[synonym FpML value marketFixedRate]
-	paymentDelay boolean (0..1) <"Applicable to CDS on MBS to specify whether payment delays are applicable to the fixed Amount. RMBS typically have a payment delay of 5 days between the coupon date of the reference obligation and the payment date of the synthetic swap. CMBS do not, on the other hand, with both payment dates being on the 25th of each month.">;
-		[synonym FpML value paymentDelay]
-	initialPoints number (0..1) <"An optional element that contains the up-front points expressed as a percentage of the notional. An initialPoints value of 5% would be represented as 0.05. The initialPoints element is an alternative to marketFixedRate in quoting the traded level of a trade. When initialPoints is used, the traded level is the sum of fixedRate and initialPoints. The initialPoints is one of the items that are factored into the initialPayment calculation and is payable by the Buyer to the Seller. Note that initialPoints and marketFixedRate may both be present in the same document when both implied values are desired.">;
-		[synonym FpML value initialPoints]
-	marketPrice number (0..1) <"An optional element that only has meaning in a credit index trade. This element contains the price at which the trade was executed and is used instead of marketFixedRate on credit trades on certain indicies which are quoted using a price rather than a spread.">;
-		[synonym FpML value marketPrice]
-	quotationStyle QuotationStyleEnum (0..1) <"The type of quotation that was used between the trading desks. The purpose of this element is to indicate the actual quotation style that was used to quote this trade which may not be apparent when both marketFixedRate and initialPoints are included in the document. When quotationStyle is ‘PointsUpFront’, the initialPoints element should be populated. When quotationStyle is ‘TradedSpread’, the marketFixedRate element should be populated.">;
-		[synonym FpML value quotationStyle]
-}
-
-choice rule FeeLeg_choice <"Choice rule to represent an FpML choice construct.">
-	for FeeLeg required choice between
-	initialPayment and singlePayment
-
-data rule FeeLeg_initialPoints <"The FpML QuotationStyleEnum states that when quotation style is 'PointsUpFront', the initialPoints element of the feeLeg should be populated.">
-	when FeeLeg -> quotationStyle = QuotationStyleEnum.PointsUpFront
-	then FeeLeg -> initialPoints exists
-
-data rule FeeLeg_marketFixedRate <"The FpML QuotationStyleEnum states that when quotation style is 'TradedSpread', the marketFixedRate element of the feeLeg should be populated.">
-	when FeeLeg -> quotationStyle = QuotationStyleEnum.TradedSpread
-	then FeeLeg -> marketFixedRate exists
-
-data rule FeeLeg_marketPrice <"The FpML QuotationStyleEnum states that when quotation style is 'Price', the marketPrice element of the feeLeg should be populated. FpML specifies marketPrice as a NonNegativeDecimal.">
-	when FeeLeg -> quotationStyle = QuotationStyleEnum.Price
-	then FeeLeg -> marketPrice exists and FeeLeg -> marketPrice >= 0.0
 
 class FixedAmountCalculation
 	[synonym FpML value FixedAmountCalculation]
@@ -426,17 +361,13 @@ class NotDomesticCurrency <"A class to specify the ISDA 2003 Term: Not Domestic 
 {
 	applicable boolean (1..1) <"Indicates whether the Not Domestic Currency provision is applicable.">;
 		[synonym FpML value applicable]
-	currency CurrencyEnum (0..1) <"An explicit specification of the domestic currency">;
+	currency CurrencyEnum (0..1) scheme "currencyScheme" <"An explicit specification of the domestic currency">;
 		[synonym FpML value currency]
 }
 
 class Obligations <"A class to specify the underlying obligations of the reference entity on which protection is purchased or sold through the Credit Default Swap.">
 	[synonym FpML value Obligations]
 {
-	/*
-	 * As mentioned, the optional boolean creates a level of ambiguity and should be reassessed.
-	 * Discussions with relevant FpML experts should held as part of that.
-	 */
 	category ObligationCategoryEnum (1..1) <"Used in both obligations and deliverable obligations to represent a class or type of securities which apply. ISDA 2003 Term: Obligation Category/Deliverable Obligation Category.">;
 		[synonym FpML value category]
 	notSubordinated boolean (0..1) <"An obligation and deliverable obligation characteristic. An obligation that ranks at least equal with the most senior Reference Obligation in priority of payment or, if no Reference Obligation is specified in the related Confirmation, the obligations of the Reference Entity that are senior. ISDA 2003 Term: Not Subordinated.">;
@@ -478,6 +409,28 @@ class Obligations <"A class to specify the underlying obligations of the referen
 choice rule Obligations_choice <"Choice rule to represent an FpML choice construct.">
 	for Obligations optional choice between
 	fullFaithAndCreditObLiability and generalFundObligationLiability and revenueObligationLiability
+
+
+class OptionStrike one of <"A class to specify the option strike.">
+	[synonym FpML value CreditOptionStrike]
+{
+	spread number (0..1) <"The strike of a credit default swap option or credit swaption when expressed as a spread per annum.">;
+		[synonym FpML value spread]
+	price number (0..1) <"The strike of a credit default swap option or credit swaption when expressed as in reference to the price of the underlying obligation(s) or index.">;
+		[synonym FpML value strikePrice pathExpression "price"]
+	currency CurrencyEnum (0..1) scheme "currencyScheme" <"The currency in which an amount is denominated.">;
+		[synonym FpML value currency pathExpression "price"]
+	percentage number (0..1) <"The price or level expressed as a percentage of the forward starting spot price.">;
+		[synonym FpML value strikePercentage pathExpression "price"]
+	strikeReference string (0..1) reference <"The strike of an option on a credit default swap when expressed in reference to the spread of the underlying swap (typical practice in the case of credit single name swaps).">;
+		[synonym FpML value strikeReference]
+	referenceSwapCurve ReferenceSwapCurve (0..1) <"The strike of an option when expressed by reference to a swap curve. (Typically the case for a convertible bond option.)">;
+		[synonym FpML value referenceSwapCurve]
+}
+
+choice rule OptionStrike_expression <"The option strike should be expressed either as a spread, a price, a percentage of a forward starting price, or by reference to a value expressed somewhere else in the document.">
+	for OptionStrike required choice between
+	spread and price and percentage and strikeReference and referenceSwapCurve
 
 class PCDeliverableObligationCharac <"A class to specify the Partial Cash Deliverable Obligation Characteristic.">
 	[synonym FpML value PCDeliverableObligationCharac]
@@ -541,7 +494,7 @@ class PhysicalSettlementTerms <"In FpML, PhysicalSettlementTerms and CashSettlem
 {
 	id string (0..1);
 		[synonym FpML value id]
-	settlementCurrency CurrencyEnum (0..1) <"ISDA 2003 Term: Settlement Currency.">;
+	settlementCurrency CurrencyEnum (0..1) scheme "currencyScheme" <"ISDA 2003 Term: Settlement Currency.">;
 		[synonym FpML value settlementCurrency]
 	physicalSettlementPeriod PhysicalSettlementPeriod (0..1) <"The number of business days used in the determination of the physical settlement date. The physical settlement date is this number of business days after all applicable conditions to settlement are satisfied. If a number of business days is not specified fallback provisions apply for determining the number of business days. If Section 8.5/8.6 of the 1999/2003 ISDA Definitions are to apply the businessDaysNotSpecified element should be included. If a specified number of business days are to apply these should be specified in the businessDays element. If Section 8.5/8.6 of the 1999/2003 ISDA Definitions are to apply but capped at a maximum number of business days then the maximum number should be specified in the maximumBusinessDays element. ISDA 2003 Term: Physical Settlement Period.">;
 		[synonym FpML value physicalSettlementPeriod]
@@ -704,7 +657,7 @@ class SpecifiedCurrency
 {
 	applicable boolean (1..1) <"Indicates whether the specified currency provision is applicable.">;
 		[synonym FpML value applicable]
-	currency CurrencyEnum (0..1) <"The currency in which an amount is denominated.">;
+	currency CurrencyEnum (0..1) scheme "currencyScheme" <"The currency in which an amount is denominated.">;
 		[synonym FpML value currency]
 }
 
