@@ -1,32 +1,31 @@
 namespace "org.isda.cdm"
- 
+
 class Contract rosettaKey <"A class to specify a contract object, which can be invoked either within the context of an event, or independently from it. It corresponds to the FpML Trade, although restricted to execution and post-execution contexts. Attributes also applicable to pre-execution (a.k.a. pre-trade view in FpML) contexts have been positioned as part of the ContractualProduct class.">
 {
 	id string (0..1) anchor;
 		[synonym FpML value id]
 	contractIdentifier PartyContractIdentifier (1..*) <"The contract reference identifier(s) allocated by the parties involved in the contract.">;
-		[synonym FpML value partyTradeIdentifier pathExpression "trade.tradeHeader"]	
-		[synonym Rosetta_Workbench value partyTradeIdentifier pathExpression "tradeHeader"]	
+		[synonym FpML value partyTradeIdentifier pathExpression "trade.tradeHeader"]
+		[synonym FpML value partyTradeIdentifier pathExpression "tradeHeader"]
 	tradeDate DateInstances (1..1) <"The trade date. This is the date on which the trade was originally executed. The trade date is specified through the DateInstances class so that in the case of a novation the novated part of the trade be reported (by both the remaining party and the transferee) using the date on which the novation was agreed on. The remaining part of a trade is to be reported (by both the transferor and the remaining party) using a trade date corresponding to the original execution date.">;
 	clearedDate date (0..1) <"If the trade was cleared (novated) through a central counterparty clearing service, this represents the date the trade was cleared (transferred to the central counterparty).">;
 		[synonym FpML value clearedDate pathExpression "trade.tradeHeader"]
-		[synonym Rosetta_Workbench value clearedDate pathExpression "tradeHeader"]
+		[synonym FpML value clearedDate pathExpression "tradeHeader"]
 	contractualProduct ContractualProduct (1..1) <"The contractual product information that is associated with the contract. The corresponding FpML construct is the product abstract element and the associated substitution group.">;
 	otherPartyPayment Payment (0..*) <"Other fees or additional payments associated with the contract, e.g. broker commissions, where one or more of the parties involved are not principal parties involved in the contract.">;
 		[synonym FpML value otherPartyPayment pathExpression "trade"]
-		[synonym Rosetta_Workbench value otherPartyPayment]
+		[synonym FpML value otherPartyPayment]
 	collateral Collateral (0..1) <"Defines the collateral obligations of a party.">;
 		[synonym FpML value collateral pathExpression "trade"]
-		[synonym Rosetta_Workbench value collateral]
+		[synonym FpML value collateral]
 	documentation Documentation (0..1) <"Defines the definitions that govern the document and should include the year and type of definitions referenced, along with any relevant documentation (such as master agreement) and the date it was signed.">;
 		[synonym FpML value documentation pathExpression "trade"]
-		[synonym Rosetta_Workbench value documentation]
+		[synonym FpML value documentation]
 	governingLaw GoverningLawEnum (0..1) scheme "governingLawScheme" <"Identification of the law governing the transaction.">;
 		[synonym FpML value governingLaw pathExpression "trade"]
-		[synonym Rosetta_Workbench value governingLaw]
+		[synonym FpML value governingLaw]
 	party Party (0..*) <"The parties to the contract. While FpML has a minimal cardinality of 1, a minimal cardinality of 2 seems more appropriate.">;
 		[synonym FpML value party]
-		[synonym Rosetta_Workbench value party]
 	account Account (0..*) <"Optional account information.">;
 		[synonym FpML value account]
 	partyRole PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the contract, further to the principal parties (i.e payer/receive or buyer/seller) to it.">;
@@ -56,7 +55,7 @@ data rule Contract_determiningParty <"FpML specifies that there cannot be more t
 data rule Contract_barrierDerterminationAgent <"FpML specifies that there cannot be more than 1 barrier determination agent.">
 	when Contract -> partyRole -> role = PartyRoleEnum.BarrierDeterminationAgent
 	then Contract -> partyRole -> role count <= 1
-	
+
 data rule Contract_clearedDate <"If the cleared date exists, it needs to be on or after the trade date.">
 	when Contract -> clearedDate exists
 	then Contract -> clearedDate >= Contract -> tradeDate -> date
@@ -73,7 +72,7 @@ data rule FpML_cd_7 <"FpML validation rule cd-7 - If condition LongForm is true,
 	when ( Contract -> documentation -> masterConfirmation and Contract -> documentation -> contractualMatrix ) is absent
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
 	then Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> dateAdjustments exists
-	
+
 data rule FpML_cd_8 <"FpML validation rule cd-8 - If condition LongForm is true, and if scheduledTerminationDate exists then scheduledTerminationDate/dateAdjustments exists.">
 	when ( Contract -> documentation -> masterConfirmation and Contract -> documentation -> contractualMatrix ) is absent
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
@@ -88,7 +87,7 @@ data rule FpML_cd_11 <"FpML validation rule cd-11 - If condition LongForm is tru
 data rule FpML_cd_19 <"FpML validation rule cd-19 - If the condition ISDA1999Credit is true, then the following elements must not exist: protectionTerms/creditEvents/creditEventNotice/businessCenter, protectionTerms/creditEvents/restructuring/multipleHolderObligation, protectionTerms/creditEvents/restructuring/multipleCreditEventNotices, generalTerms/referenceInformation/allGuarantees, generalTerms/indexReferenceInformation, generalTerms/substitution, generalTerms/modifiedEquityDelivery.">
 	when Contract -> documentation -> contractualDefinitions = ContractualDefinitionsEnum.ISDA1999Credit
 	then (Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> creditEventNotice -> businessCenter
-		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleHolderObligation 
+		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleHolderObligation
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleCreditEventNotices
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> allGuarantees
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> indexReferenceInformation
@@ -96,7 +95,7 @@ data rule FpML_cd_19 <"FpML validation rule cd-19 - If the condition ISDA1999Cre
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> modifiedEquityDelivery)
 		is absent
 
-data rule FpML_cd_20 <"FpML validation rule cd-20 - If the condition ISDA2003 is true, then protectionTerms/obligations/notContingent must not exist."> 
+data rule FpML_cd_20 <"FpML validation rule cd-20 - If the condition ISDA2003 is true, then protectionTerms/obligations/notContingent must not exist.">
 	when Contract -> documentation -> contractualDefinitions = ContractualDefinitionsEnum.ISDA2003Credit
 	then Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notContingent is absent
 
@@ -106,19 +105,19 @@ data rule FpML_cd_23 <"FpML validation rule cd-23 - If the condition LongForm is
 	then ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> cashSettlementTerms or Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms ) exists
 
 data rule FpML_cd_24 <"FpML validation rule cd-24 - If the condition LongForm is true, then the following elements must exist: protectionTerms/creditEvents/creditEventNotice, protectionTerms/obligations, generalTerms/referenceInformation/referencePrice.">
-	when ( Contract -> documentation -> masterConfirmation and Contract -> documentation -> contractualMatrix ) is absent 
+	when ( Contract -> documentation -> masterConfirmation and Contract -> documentation -> contractualMatrix ) is absent
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
-	then ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> creditEventNotice 
-		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations 
+	then ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> creditEventNotice
+		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout ->generalTerms -> referenceInformation -> referencePrice ) exists
 
 data rule FpML_cd_25 <"FpML validation rule cd-25 - If the condition LongForm is true, and if physicalSettlementTerms exists, then physicalSettlementTerms must contain settlementCurrency, physicalSettlementPeriod, escrow and deliverableObligations/accruedInterest.">
-	when ( Contract -> documentation -> masterConfirmation and Contract -> documentation -> contractualMatrix ) is absent 
+	when ( Contract -> documentation -> masterConfirmation and Contract -> documentation -> contractualMatrix ) is absent
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms exists
-	then ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> settlementCurrency 
+	then ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> settlementCurrency
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> physicalSettlementPeriod
-		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> escrow 
+		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> escrow
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> accruedInterest ) exists
 
 data rule FpML_cd_32 <"FpML validation rule cd-32 - If condition LongForm is true, and if fixedAmountCalculation/calculationAmount exists, then fixedAmountCalculation/dayCountFraction must exist.">
@@ -143,8 +142,8 @@ class ContractualQuantity
 		[synonym FpML value initialValue pathExpression "calculationPeriodAmount.calculation" set notionalAmount when notionalSchedule -> notionalStepSchedule -> step is absent]
 		[synonym FpML value calculationAmount pathExpression "periodicPayment.fixedAmountCalculation"]
 		[synonym FpML value calculationAmount pathExpression "periodicPayment.floatingAmountCalculation"]
-		[synonym FpML value notionalAmount pathExpression "trade.bondOption"]
 		[synonym Rosetta_Workbench value notionalAmount]
+		[synonym FpML value notionalAmount]
 	notionalSchedule NotionalSchedule (0..1);
 		[synonym FpML value notionalSchedule pathExpression "calculationPeriodAmount.calculation" set notionalSchedule when notionalSchedule -> notionalStepSchedule -> step exists]
 	fxLinkedNotional FxLinkedNotionalSchedule (0..1);
@@ -174,7 +173,7 @@ class CrossCurrencyTerms
 }
 
 /*
- * TODO - Need to cross-reference the 2014 credit definitions when relevant. 
+ * TODO - Need to cross-reference the 2014 credit definitions when relevant.
  * (FpML schema has not been updated to reflect those definitions.)
  */
 class CreditDefaultPayout <"The credit default payout specification terms.">
@@ -182,19 +181,19 @@ class CreditDefaultPayout <"The credit default payout specification terms.">
 	generalTerms GeneralTerms (1..1) <"This element contains all the data that appears in the section entitled '1. General Terms' in the 2003 ISDA Credit Derivatives Confirmation, except for the effectiveDate, terminationDate and dateAdjustments elements, which have been positioned as part of the InterestRatePayout class.">;
 		[synonym FpML value generalTerms pathExpression "trade.creditDefaultSwap"]
 		[synonym FpML value generalTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
-		[synonym Rosetta_Workbench value generalTerms pathExpression "creditDefaultSwap"]
+		[synonym FpML value generalTerms pathExpression "creditDefaultSwap"]
 	protectionTerms ProtectionTerms (1..1) <"The credit protection terms.">;
 		[synonym FpML value protectionTerms pathExpression "trade.creditDefaultSwap"]
 		[synonym FpML value protectionTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
-		[synonym Rosetta_Workbench value protectionTerms pathExpression "creditDefaultSwap"]
+		[synonym FpML value protectionTerms pathExpression "creditDefaultSwap"]
 	cashSettlementTerms CashSettlementTerms (0..1);
 		[synonym FpML value cashSettlementTerms pathExpression "trade.creditDefaultSwap"]
 		[synonym FpML value cashSettlementTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
-		[synonym Rosetta_Workbench value cashSettlementTerms pathExpression "creditDefaultSwap"]
+		[synonym FpML value cashSettlementTerms pathExpression "creditDefaultSwap"]
 	physicalSettlementTerms PhysicalSettlementTerms (0..1);
 		[synonym FpML value physicalSettlementTerms pathExpression "trade.creditDefaultSwap"]
 		[synonym FpML value physicalSettlementTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
-		[synonym Rosetta_Workbench value physicalSettlementTerms pathExpression "creditDefaultSwap"]
+		[synonym FpML value physicalSettlementTerms pathExpression "creditDefaultSwap"]
 	transactedPrice TransactedPrice (0..1) <"The qualification of the price at which the contract has been transacted, in terms of market fixed rate, initial points, market price and/or quotation style. In FpML, those attributes are positioned as part of the fee leg.">;
 }
 
@@ -205,7 +204,7 @@ data rule FpML_cd_12 <"FpML validation rule cd-12 - If referencePrice exists, re
 data rule FpML_cd_13 <"FpML validation rule cd-13 - If protectionTerms/creditEvents/creditEventNotice/notifyingParty/buyerPartyReference exists, then the @href attribute of protectionTerms/creditEvents/creditEventNotice/notifyingParty/buyerPartyReference is equal to the @href attribute of generalTerms/buyerPartyReference.">
 	when CreditDefaultPayout -> protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> buyerPartyReference exists
 	then CreditDefaultPayout -> protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> buyerPartyReference = CreditDefaultPayout -> generalTerms -> buyerSeller -> buyerPartyReference
-	
+
 data rule FpML_cd_14 <"FpML validation rule cd-14 - If protectionTerms/creditEvents/creditEventNotice/notifyingParty/sellerPartyReference exists, then the @href attribute of protectionTerms/creditEvents/creditEventNotice/notifyingParty/sellerPartyReference must be equal to the @href attribute of generalTerms/sellerPartyReference.">
 	when CreditDefaultPayout -> protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> sellerPartyReference exists
 	then CreditDefaultPayout -> protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> sellerPartyReference = CreditDefaultPayout -> generalTerms -> buyerSeller -> sellerPartyReference
@@ -229,21 +228,16 @@ class GeneralTerms <"A class specifying the general terms of the credit default 
 	buyerSeller BuyerSeller (1..1);
 	dateAdjustments BusinessDayAdjustments (0..1) <"ISDA 2003 Terms: Business Day and Business Day Convention.">;
 		[synonym FpML value dateAdjustments]
-		[synonym Rosetta_Workbench value dateAdjustments]
 	referenceInformation ReferenceInformation (0..1) <"This attribute contains all the terms relevant to defining the reference entity and reference obligation(s).">;
 		[synonym FpML value referenceInformation]
-		[synonym Rosetta_Workbench value referenceInformation]
 	indexReferenceInformation IndexReferenceInformation (0..1) <"This attribute contains all the terms relevant to defining the Credit DefaultSwap Index.">;
 		[synonym FpML value indexReferenceInformation]
-		[synonym Rosetta_Workbench value indexReferenceInformation]
 	basketReferenceInformation BasketReferenceInformation (0..1) <"This attribute contains all the terms relevant to defining the Credit Default Swap Basket.">;
 		[synonym FpML value basketReferenceInformation]
-		[synonym Rosetta_Workbench value basketReferenceInformation]
 	additionalTerm string (0..*) scheme "additionalTermScheme" <"This attribute is used for representing information contained in the Additional Terms field of the 2003 Master Credit Derivatives confirm.">;
 		[synonym FpML value additionalTerm]
-		[synonym Rosetta_Workbench value additionalTerm]
 	substitution boolean (0..1) <"Value of this attribute set to 'true' indicates that substitution is applicable.">;
-		[synonym FpML value substitution]
+		[synonym FpML value substitution] // set substitution to False when absent]
 		[synonym Rosetta_Workbench value substitution]
 	modifiedEquityDelivery boolean (0..1) <"Value of this attribute set to 'true' indicates that modified equity delivery is applicable.">;
 		[synonym FpML value modifiedEquityDelivery]
@@ -257,7 +251,7 @@ choice rule GeneralTerms_choice <"Choice rule to represent an FpML choice constr
 data rule FpML_cd_41 <"FpML validation rule cd-41 - If indexReferenceInformation/tranche does not exist, then modifiedEquityDelivery must not exist.">
 	when GeneralTerms -> indexReferenceInformation -> tranche is absent
 	then GeneralTerms -> modifiedEquityDelivery is absent
-	
+
 data rule FpML_cd_42 <"FpML validation rule cd-42 - If basketReferenceInformation does not exist, then substitution must not exist.">
 	when GeneralTerms -> basketReferenceInformation is absent
 	then GeneralTerms -> substitution is absent
@@ -322,11 +316,11 @@ data rule InterestRatePayout_paymentDates <"FpML specifies a required paymentDat
 
 data rule FpML_ird_1 <"FpML validation rule ird-1 - Reset dates must exist if and only if a floating rate or inflation rate exists.">
 	when InterestRatePayout -> resetDates exists
-	then (InterestRatePayout -> interestRate -> floatingRate 
+	then (InterestRatePayout -> interestRate -> floatingRate
 		or InterestRatePayout -> interestRate-> inflationRate) exists
 
 data rule FpML_ird_6 <"FpML validation rule ird-6 - If paymentDates/firstPaymentDate exists, and if calculationPeriodDates/effectiveDate exists, then paymentDates/firstPaymentDate must be after calculationPeriodDates/effectiveDate/unadjustedDate.">
-	when InterestRatePayout -> paymentDates -> firstPaymentDate exists 
+	when InterestRatePayout -> paymentDates -> firstPaymentDate exists
 		and InterestRatePayout -> calculationPeriodDates -> effectiveDate exists
 	then InterestRatePayout -> paymentDates -> firstPaymentDate > InterestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
 
@@ -342,12 +336,12 @@ data rule FinalStub_lastRegularPaymentDate <"FpML specifies that lastRegularPaym
 
 /*
  * TODO - Need for an associated logic that will parse the respective legs of the swap, as this is not made explicit at present as part of the syntax
- */	
+ */
 data rule FpML_ird_7_1 <"FpML validation rule ird-7 1/2 - The existence of compoundingMethod is prohibited when the calculation period and payment frequencies are the same.">
  	when InterestRatePayout -> paymentDates -> paymentFrequency -> period = InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> period
  	and InterestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier
  	then ( InterestRatePayout -> compoundingMethod is absent or InterestRatePayout -> compoundingMethod = CompoundingMethodEnum.None )
- 	
+
 data rule FpML_ird_7_2 <"FpML validation rule ird-7 2/2 - The existence of compoundingMethod is required when the calculation period and payment frequencies differ.">
  	when InterestRatePayout count = 2
  	and ( (InterestRatePayout -> paymentDates -> paymentFrequency -> period <> InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> period
@@ -395,14 +389,14 @@ class OptionExercise <"A class to represent the applicable terms to qualify an o
 }
 
 /*
- * TODO - Below is a current applicability of the synonym syntax simplification by having 
+ * TODO - Below is a current applicability of the synonym syntax simplification by having
  * [synonym FpML, Rosetta_Workbench value optionType]
  */
 class OptionPayout <"The option payout specification terms.">
 {
 	buyerSeller BuyerSeller (1..1);
 	optionType OptionTypeEnum (0..1) <"The type of option transaction. From a usage standpoint, put/call is the default option type, while payer/receiver indicator is used for options on index credit default swaps, consistently with the industry practice. Straddle is used for the case of straddle strategy, that combine a call and a put with the same strike.">;
-		[synonym FpML value optionType] 
+		[synonym FpML value optionType]
 		[synonym FpML value swaptionStraddle set OptionTypeEnum.Straddle when True]
 	feature OptionFeature (0..1) <"The option feature, such as quanto, Asian, barrier, knock.">;
 		[synonym FpML value feature]
@@ -437,7 +431,7 @@ class PaymentDates <"The payment dates schedule. As a difference from the FpML P
 		[synonym FpML value paymentDaysOffset pathExpression "paymentDates"]
 	paymentDatesAdjustments BusinessDayAdjustments (0..1) <"The business day convention to apply to each payment date if it would otherwise fall on a day that is not a business day in the specified financial business centers.">;
 		[synonym FpML value paymentDatesAdjustments pathExpression "paymentDates"]
-	paymentDelay boolean (0..1) <"Applicable to CDS on MBS to specify whether payment delays are applicable to the fixed Amount. RMBS typically have a payment delay of 5 days between the coupon date of the reference obligation and the payment date of the synthetic swap. CMBS do not, on the other hand, with both payment dates being on the 25th of each month.">; 
+	paymentDelay boolean (0..1) <"Applicable to CDS on MBS to specify whether payment delays are applicable to the fixed Amount. RMBS typically have a payment delay of 5 days between the coupon date of the reference obligation and the payment date of the synthetic swap. CMBS do not, on the other hand, with both payment dates being on the 25th of each month.">;
 /*
  * TODO - In order not to introduce optional boolean attributes, the below mapping syntax needs to be supported
  */
@@ -450,10 +444,10 @@ choice rule PaymentDates_choice <"Choice rule to represent an FpML choice constr
 	calculationPeriodDatesReference and resetDatesReference and valuationDatesReference
 
 data rule FpML_ird_35 <"FpML validation rule ird-35 - If firstPaymentDate exists, and if lastRegularPaymentDate exists, then firstPaymentDate must be before lastRegularPaymentDate.">
-	when PaymentDates -> firstPaymentDate exists 
+	when PaymentDates -> firstPaymentDate exists
 	and PaymentDates -> lastRegularPaymentDate exists
 	then PaymentDates -> firstPaymentDate < PaymentDates -> lastRegularPaymentDate
-	
+
 data rule PaymentDates_paymentDaysOffset <"FpML specifies that paymentDaysOffset should only be included if early or delayed payment is applicable, i.e. if the periodMultiplier element value is not equal to zero.">
 	when PaymentDates -> paymentDaysOffset exists
 	then PaymentDates -> paymentDaysOffset -> periodMultiplier <> 0
@@ -477,38 +471,38 @@ class Payout <"The payout can be specified through a number of combinations, e.g
 {
 	interestRatePayout InterestRatePayout (0..*);
 		[synonym FpML value swapStream pathExpression "trade.swap" set interestRatePayout when Payout -> optionPayout -> underlyer -> contractualProduct is absent]
-		[synonym Rosetta_Workbench value swapStream pathExpression "swap" set interestRatePayout when Payout -> optionPayout -> underlyer -> contractualProduct is absent]
+		[synonym FpML value swapStream pathExpression "swap" set interestRatePayout when Payout -> optionPayout -> underlyer -> contractualProduct is absent]
 		[synonym FpML value swapStream pathExpression "trade.swaption.swap"]
-		[synonym Rosetta_Workbench value swapStream pathExpression "swaption.swap"]
+		[synonym FpML value swapStream pathExpression "swaption.swap"]
 		[synonym FpML value feeLeg pathExpression "trade.creditDefaultSwap"]
-		[synonym Rosetta_Workbench value feeLeg pathExpression "creditDefaultSwap"]
+		[synonym FpML value feeLeg pathExpression "creditDefaultSwap"]
 		[synonym FpML value feeLeg pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap" set interestRatePayout when Payout -> optionPayout -> underlyer -> contractualProduct is absent]
-		[synonym Rosetta_Workbench value feeLeg pathExpression "creditDefaultSwapOption.creditDefaultSwap" set interestRatePayout when Payout -> optionPayout -> underlyer -> contractualProduct is absent]
+		[synonym FpML value feeLeg pathExpression "creditDefaultSwapOption.creditDefaultSwap" set interestRatePayout when Payout -> optionPayout -> underlyer -> contractualProduct is absent]
 		[synonym FpML value generalTerms pathExpression "trade.creditDefaultSwap"]
-		[synonym Rosetta_Workbench value generalTerms pathExpression "creditDefaultSwap"]
+		[synonym FpML value generalTerms pathExpression "creditDefaultSwap"]
 		[synonym FpML value generalTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap" set interestRatePayout when Payout -> optionPayout -> underlyer -> contractualProduct is absent]
-		[synonym Rosetta_Workbench value generalTerms pathExpression "creditDefaultSwapOption.creditDefaultSwap" set interestRatePayout when Payout -> optionPayout -> underlyer -> contractualProduct is absent]
+		[synonym FpML value generalTerms pathExpression "creditDefaultSwapOption.creditDefaultSwap" set interestRatePayout when Payout -> optionPayout -> underlyer -> contractualProduct is absent]
 	creditDefaultPayout CreditDefaultPayout (0..1);
 	cashflow Cashflow (0..*) <"A payment between the parties to the trade. For interest rate products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the initialPayment element and the singlePayment element of the fee leg.">;
 		[synonym FpML value additionalPayment pathExpression "trade.swap"]
-		[synonym Rosetta_Workbench value additionalPayment pathExpression "swap"]
+		[synonym FpML value additionalPayment pathExpression "swap"]
 		[synonym FpML value initialPayment pathExpression "trade.creditDefaultSwap.feeLeg"]
-		[synonym Rosetta_Workbench value initialPayment pathExpression "creditDefaultSwap.feeLeg"]
+		[synonym FpML value initialPayment pathExpression "creditDefaultSwap.feeLeg"]
 		[synonym FpML value singlePayment pathExpression "trade.creditDefaultSwap.feeLeg"]
-		[synonym Rosetta_Workbench value singlePayment pathExpression "creditDefaultSwap.feeLeg"]
+		[synonym FpML value singlePayment pathExpression "creditDefaultSwap.feeLeg"]
 		[synonym FpML value premium pathExpression "trade.swaption"]
-		[synonym Rosetta_Workbench value premium pathExpression "swaption"]
+		[synonym FpML value premium pathExpression "swaption"]
 		[synonym FpML value premium pathExpression "trade.creditDefaultSwapOption"]
-		[synonym Rosetta_Workbench value premium pathExpression "creditDefaultSwapOption"]
+		[synonym FpML value premium pathExpression "creditDefaultSwapOption"]
 		[synonym FpML value premium pathExpression "trade.bondOption"]
-		[synonym Rosetta_Workbench value premium pathExpression "bondOption"]
+		[synonym FpML value premium pathExpression "bondOption"]
 	optionPayout OptionPayout (0..*);
 		[synonym FpML value swaption pathExpression "trade"]
-		[synonym Rosetta_Workbench value swaption]
+		[synonym FpML value swaption]
 		[synonym FpML value creditDefaultSwapOption pathExpression "trade"]
-		[synonym Rosetta_Workbench value creditDefaultSwapOption]
+		[synonym FpML value creditDefaultSwapOption]
 		[synonym FpML value bondOption pathExpression "trade"]
-		[synonym Rosetta_Workbench value bondOption]
+		[synonym FpML value bondOption]
 }
 
 data rule FpML_cd_26_28 <"This data rule corresponds to two FpML validation rules, as the singlePayment and the firstPayment have been represented through the same Payout/cashflow attribute. It has also been adjusted to take into consideration the fact that credit derivatives (i) might not have an effective date, while in some other cases the payment date is either (ii) absent, or (iii) specified as a relative date (e.g. to the trade date). FpML validation rule cd-26 - If feeLeg/singlePayment/adjustablePaymentDate exists, then feeLeg/singlePayment/adjustablePaymentDate must be after generalTerms/effectiveDate/unadjustedDate. FpML validation rule cd-28 - If feeLeg/periodicPayment/firstPaymentDate exists, then feeLeg/periodicPayment/firstPaymentDate must be after generalTerms/effectiveDate/unadjustedDate.">
@@ -528,10 +522,10 @@ data rule FpML_cd_27_29 <"This data rule corresponds to two FpML validation rule
 	then Payout -> cashflow -> cashflowDate -> unadjustedDate < Payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> unadjustedDate
 
 data rule FpML_cd_30 <"FpML validation rule cd-30 - If feeLeg/periodicPayment/lastRegularPaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/periodicPayment/lastRegularPaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
-	when (Payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate 
+	when (Payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate
 		and Payout -> interestRatePayout -> calculationPeriodDates -> terminationDate) exists
 	then Payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate < Payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> unadjustedDate
-	
+
 data rule FpML_cd_31 <"FpML validation rule cd-31 - If firstPaymentDate exists, and if lastRegularPaymentDate exists, then firstPaymentDate must be before lastRegularPaymentDate.">
 	when (Payout -> interestRatePayout -> paymentDates -> firstPaymentDate
 		and Payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate) exists
@@ -617,8 +611,8 @@ isProduct InterestRate_IRSwap_FixedFloat_PlainVanilla <"This data rule doesn't r
 	and Vanilla_AnnualPaymentDifferentResetFrequency, Vanilla_SemiAnnualPayment_QuarterlyReset, Vanilla_QuarterlyPayment_MonthlyReset apply
 
 /*
- * TODO Address the below data rule  
- */		
+ * TODO Address the below data rule
+ */
 //data rule Vanilla_SamePaymentResetFrequency
 //	when EconomicTerms -> payout -> interestRatePayout -> resetDates exists
 //	then EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier
@@ -626,14 +620,14 @@ isProduct InterestRate_IRSwap_FixedFloat_PlainVanilla <"This data rule doesn't r
 data rule Vanilla_AnnualPaymentDifferentResetFrequency <"One of the provision to qualify a plain vanilla swap according to the ISDA Taxonomy V2.0 is that when the payment frequency is annual, the reset frequency is semi-annual or quarterly.">
 	when EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.Y
 	then EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period = PeriodExtendedEnum.M
-	and ( EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 6 
+	and ( EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 6
 		or EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 3 )
-		 
+
 data rule Vanilla_SemiAnnualPayment_QuarterlyReset <"One of the provision to qualify a plain vanilla swap according to the ISDA Taxonomy V2.0 is that when the payment frequency is semi-annual, the reset frequency is quarterly.">
 	when EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.M
 		and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 6
 	then EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period = PeriodExtendedEnum.M
-		and EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 3 	
+		and EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 3
 
 data rule Vanilla_QuarterlyPayment_MonthlyReset <"One of the provision to qualify a plain vanilla swap according to the ISDA Taxonomy V2.0 is that when the payment frequency is quarterly, the reset frequency is monthly.">
 	when EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.M
@@ -656,7 +650,7 @@ isProduct InterestRate_IRSwap_FixedFloat
 		or EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate -> step exists
 		or EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier <>
 		EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> indexTenor -> periodMultiplier
-		or EconomicTerms -> payout -> interestRatePayout -> compoundingMethod exists 
+		or EconomicTerms -> payout -> interestRatePayout -> compoundingMethod exists
 		or EconomicTerms -> payout -> interestRatePayout -> stubPeriod exists )
 
 isProduct InterestRate_IRSwap_FixedFixed
@@ -713,7 +707,7 @@ isProduct InterestRate_IRSwap_Basis_OIS
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 	and EconomicTerms -> payout -> optionPayout is absent
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> floatingRateIndex = FloatingRateIndexEnum.AUD_AONIA_OIS_COMPOUND
-	
+
 isProduct InterestRate_InflationSwap_FixedFloat_YearOn_Year
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation]
 	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate count = 1
@@ -763,7 +757,7 @@ isProduct InterestRate_Option_DebtOption
 	[synonym ISDA_Taxonomy_v1 value InterestRate_DebtOption]
 	EconomicTerms -> payout -> optionPayout -> underlyer -> listedProduct -> bond exists
 		or EconomicTerms -> payout -> optionPayout -> underlyer -> listedProduct -> convertibleBond exists
-			
+
 /*
  * QUESTION TO CDM GROUP
  * TODO - How do we identify specify the CDS products, in the absence of normalised scheme values?
