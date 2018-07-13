@@ -250,14 +250,22 @@ class BuyerSeller <"This class corresponds to the FpML BuyerSeller.model constru
 	sellerAccountReference string (0..1) reference <"A reference to the account that sells this instrument.">;
 }
 
-class CalculationAgent one of <"A class defining the ISDA calculation agent responsible for performing duties as defined in the applicable product definitions.">
+class CalculationAgent <"A class defining the ISDA calculation agent responsible for performing duties as defined in the applicable product definitions.">
 	[synonym FpML value CalculationAgent]
 {
 	calculationAgentPartyReference string (0..*) reference <"In FpML, a pointer style reference to a party identifier defined elsewhere in the document. The party referenced is the ISDA Calculation Agent for the trade. If more than one party is referenced then the parties are assumed to be co-calculation agents, i.e. they have joint responsibility.">;
-		[synonym FpML value calculationAgentPartyReference]
+		[synonym FpML value calculationAgentPartyReference pathExpression "trade.calculationAgent"]
+		[synonym FpML value calculationAgentPartyReference pathExpression "trade.swaption.calculationAgent"]
 	calculationAgentParty CalculationAgentPartyEnum (0..1) <"The ISDA calculation agent responsible for performing duties as defined in the applicable product definitions. For example, the Calculation Agent may be defined as being the Non-exercising Party.">;
-		[synonym FpML value calculationAgentParty]
+		[synonym FpML value calculationAgentParty pathExpression "trade.calculationAgent"]
+		[synonym FpML value calculationAgentParty pathExpression "trade.swaption.calculationAgent"]
+	calculationAgentBusinessCenter BusinessCenterEnum (0..1) scheme "businessCenterScheme" <"The city in which the office through which ISDA Calculation Agent is acting for purposes of the transaction is located The short-form confirm for a trade that is executed under a Sovereign or Asia Pacific Master Confirmation Agreement ( MCA ), does not need to specify the Calculation Agent. However, the confirm does need to specify the Calculation Agent City. This is due to the fact that the MCA sets the value for Calculation Agent but does not set the value for Calculation Agent City.">;
+		[synonym FpML value calculationAgentBusinessCenter pathExpression "trade"]
 }
+
+choice rule CalculationAgent_choice <"Choice rule to represent an FpML choice construct.">
+	for CalculationAgent required choice between
+	calculationAgentPartyReference and calculationAgentParty
 
 class CalculationPeriodFrequency extends Frequency <"A class to specify the frequency at which calculation period end dates occur within the regular part of the calculation period schedule and their roll date convention.">
 	[synonym FpML value CalculationPeriodFrequency]
