@@ -18,7 +18,7 @@ class FixedAmountTest {
                 .setQuantity(ContractualQuantity.builder()
                         .setNotionalSchedule(NotionalSchedule.builder()
                                 .setNotionalStepSchedule((NonNegativeAmountSchedule) NonNegativeAmountSchedule.builder()
-                                        .setCurrency(CurrencyEnum.EUR)
+                                        .setCurrency("EUR")
                                         .setInitialValue(BigDecimal.valueOf(50_000_000))
                                         .build())
                                 .build())
@@ -64,7 +64,7 @@ class FixedAmountTest {
         FixedAmount.CalculationResult fixedAmount = new FixedAmount().calculate(interestRatePayout);
 
         assertThat(fixedAmount.getFixedAmount(), is(new BigDecimal("750000.0000")));
-        assertThat(fixedAmount.getCurrencyAmount(), is(CurrencyEnum.EUR));
+        assertThat(fixedAmount.getCurrencyAmount(), is("EUR"));
     }
 
 }
