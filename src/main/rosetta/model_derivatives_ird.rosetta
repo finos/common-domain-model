@@ -23,34 +23,6 @@ class BondReference <"A class including a reference to a bond to support the rep
 		[synonym FpML value discrepancyClause]
 }
 
-/*
- * TODO - The below will need to be deprecated at some point, as its content has largely been incorporated as part of the InterestRatePayout
- * The issue relates to the fact that CalculationPeriodAmount makes use of it
- * Also note that the notionalSchedule attribute has been changed to be of type NotionalSchedule
- */
-class Calculation <"The parameters used in the calculation of the fixed or floating rate calculation period amounts.">
-	[synonym FpML value Calculation]
-{
-	notionalSchedule NotionalSchedule (0..1) <"The notional amount or notional amount schedule.">;
-		[synonym FpML value notionalSchedule]
-	fxLinkedNotionalSchedule FxLinkedNotionalSchedule (0..1) <"A notional amount schedule where each notional that applied to a calculation period is calculated with reference to a notional amount or notional amount schedule in a different currency by means of a spot currency exchange rate which is normally observed at the beginning of each period.">;
-		[synonym FpML value fxLinkedNotionalSchedule]
-	fixedRateSchedule Schedule (0..1) <"The fixed rate or fixed rate schedule expressed as explicit fixed rates and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">;
-		[synonym FpML value fixedRateSchedule]
-	futureValueNotional FutureValueAmount (0..1) <"The future value notional is normally only required for BRL CDI Swaps. The value is calculated as follows: Future Value Notional = Notional Amount * (1 + Fixed Rate) ^ (Fixed Rate Day Count Fraction). The currency should always match that expressed in the notional schedule. The value date should match the adjusted termination date.">;
-		[synonym FpML value futureValueNotional]
-	floatingRateCalculation FloatingRateCalculation (0..1) <"A floating rate calculation definition. In FpML, this is part of a rateCalculation substitution group construct.">;
-		[synonym FpML value floatingRateCalculation]
-	inflationRateCalculation InflationRateCalculation (0..1) <"An inflation rate calculation definition. In FpML, this is part of a rateCalculation substitution group construct.">;
-		[synonym FpML value inflationRateCalculation]
-	dayCountFraction DayCountFractionEnum (1..1) scheme "dayCountFractionScheme" <"The day count fraction.">;
-		[synonym FpML value dayCountFraction]
-	discounting Discounting (0..1) <"The parameters specifying any discounting conventions that may apply. This element must only be included if discounting applies.">;
-		[synonym FpML value discounting]
-	compoundingMethod CompoundingMethodEnum (0..1) <"If one or more calculation period contributes to a single payment amount this element specifies whether compounding is applicable and, if so, what compounding method is to be used.  This element must only be included when more than one calculation period contributes to a single payment amount.">;
-		[synonym FpML value compoundingMethod]
-}
-
 class CalculationPeriod <"A class defining the parameters used in the calculation of a fixed or floating rate calculation period amount. This class forms part of cashflows representation of a swap stream.">
 	[synonym FpML value CalculationPeriod]
 {
@@ -101,19 +73,6 @@ data rule FpML_ird_31 <"FpML validation rule ird-31 - Context: CalculationPeriod
 data rule CalculationPeriod_calculationPeriodNumberOfDays <"FpML specifies calculationPeriodNumberOfDays as a positive integer.">
 	when PaymentCalculationPeriod -> calculationPeriod -> calculationPeriodNumberOfDays exists
 	then PaymentCalculationPeriod -> calculationPeriod -> calculationPeriodNumberOfDays >= 0
-
-class CalculationPeriodAmount <"A class defining the parameters used in the calculation of fixed or floating rate calculation period amounts or for specifying a known calculation period amount or known amount schedule.">
-	[synonym FpML value CalculationPeriodAmount]
-{
-	calculation Calculation (0..1) <"The parameters used in the calculation of the fixed or floating rate calculation period amounts.">;
-		[synonym FpML value calculation]
-	knownAmountSchedule AmountSchedule (0..1) <"The known calculation period amount or a known amount schedule expressed as explicit known amounts and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">;
-		[synonym FpML value knownAmountSchedule]
-}
-
-choice rule CalculationPeriodAmount_choice <"Choice rule to represent an FpML choice construct.">
-	for CalculationPeriodAmount required choice between 
-	calculation and knownAmountSchedule
  
 class CalculationPeriodDates <"A class defining the parameters used to generate the calculation period dates schedule, including the specification of any initial or final stub calculation periods. A calculation perod schedule consists of an optional initial stub calculation period, one or more regular calculation periods and an optional final stub calculation period. In the absence of any initial or final stub calculation periods, the regular part of the calculation period schedule is assumed to be between the effective date and the termination date. No implicit stubs are allowed, i.e. stubs must be explicitly specified using an appropriate combination of firstPeriodStateDate, firstRegularPeriodStartDate and lastRegularPeriodEndDate..">
 	[synonym FpML value CalculationPeriodDates]
