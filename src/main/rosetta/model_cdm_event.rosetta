@@ -95,7 +95,7 @@ class Event rosettaKey
 	effectiveDate date (0..1);
 		[synonym Rosetta_Workbench value effectiveDate]
 	action ActionEnum (1..1) <"Specifies whether the event is a new, a correction or a cancellation.">;
-		[synonym FpML value isCorrection 
+		[synonym FpML value isCorrection
 			set action to ActionEnum.New when False,
 			set action to ActionEnum.Correct when True]
 	intent IntentEnum (0..1);
@@ -124,7 +124,7 @@ class EventTestBundle <"A class which combines several events for testing purpos
 {
 	event Event (2..*);
 		[synonym Rosetta_Workbench value event]
-	computedAmount ComputedAmount (0..*) calculation;
+	computedAmount ComputedAmount (0..*); // calculation;
 		[synonym Rosetta_Workbench value computedAmount]
 }
 
@@ -162,7 +162,7 @@ class ExercisePrimitive
 class Execution
 {
 	identifier PartyContractIdentifier (1..*) <"The identifier(s) associated with the execution.">;
-		[synonym Rosetta_Workbench value partyTradeIdentifier pathExpression "tradeHeader"]	
+		[synonym Rosetta_Workbench value partyTradeIdentifier pathExpression "tradeHeader"]
 	tradeDate date (1..1) anchor <"The trade/execution date.">;
 		[synonym Rosetta_Workbench value tradeDate pathExpression "tradeHeader"]
 	contractualProduct ContractualProduct (1..1);
@@ -248,7 +248,7 @@ class PrimitiveEvent <"The set of primitive events. The purpose of this class it
 	quantityChange QuantityChangePrimitive (0..*);
 		[synonym Rosetta_Workbench value quantityChange]
 	allocation AllocationPrimitive (0..*);
-		[synonym Rosetta_Workbench value allocation]	
+		[synonym Rosetta_Workbench value allocation]
 	termsChange TermsChangePrimitive (0..1);
 		[synonym Rosetta_Workbench value otherTermsChange]
 	exercise ExercisePrimitive (0..1);
@@ -316,7 +316,7 @@ alias quantityAfterAllocation <"The alias to represent the quantity or notional 
 	Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity -> amount
 	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount
 	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
-	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step -> stepValue 
+	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step -> stepValue
 	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepParameters -> notionalStepAmount
 	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> fxLinkedNotional -> initialValue
 	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> notionalAmount -> amount
@@ -353,16 +353,16 @@ isEvent Novation <"The qualification of a novation event from the fact that (i) 
 	and Event -> primitive -> newTrade exists
 //	and quantityAfterQuantityChange = 0
 	and Event -> primitive -> quantityChange -> after -> contract -> state = StateEnum.Novated
-		or Event -> primitive -> quantityChange -> after -> contractReference -> state = StateEnum.Novated 
+		or Event -> primitive -> quantityChange -> after -> contractReference -> state = StateEnum.Novated
 	and Event -> primitive -> newTrade -> contract -> contractIdentifier <> Event -> primitive -> quantityChange -> before -> contract -> contractIdentifier
 	and Event -> eventDate = Event -> primitive -> newTrade -> contract -> tradeDate -> date
 //	and Event -> effectiveDate = NovatedContractEffectiveDate
 //	and originalContractParties <> newContractParties
-	
+
 alias NovatedContractEffectiveDate
-	Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> date 
+	Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> date
 	or Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> date
-	
+
 alias originalContractParties
 	( Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> buyerPartyReference
 		and 	Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> sellerPartyReference )
@@ -370,15 +370,15 @@ alias originalContractParties
 		and Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver -> receiverPartyReference )
 	or ( Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> buyerSeller -> buyerPartyReference
 		and Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> buyerSeller -> sellerPartyReference	)
-	
+
 alias newContractParties
 	( Event -> primitive -> newTrade -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> buyerPartyReference
 		and 	Event -> primitive -> newTrade -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> sellerPartyReference )
 	or ( Event -> primitive -> newTrade -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver -> payerPartyReference
 		and Event -> primitive -> newTrade -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver -> receiverPartyReference )
 	or ( Event -> primitive -> newTrade -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> buyerSeller -> buyerPartyReference
-		and Event -> primitive -> newTrade -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> buyerSeller -> sellerPartyReference	)	
-		
+		and Event -> primitive -> newTrade -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> buyerSeller -> sellerPartyReference	)
+
 isEvent PartialNovation <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and newTrade exist, (iii) the contract quantity/notional has decreased as part of the quantityChange primitive, while (iv) there is a remaining quantity/notional, (v) the stepped-in contract has a different contract identifier than the original contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
 	Event -> intent when present = IntentEnum.PartialNovation
 	and Event -> primitive -> quantityChange exists
@@ -396,7 +396,7 @@ data rule NovationFee <"Logic to specify that if a payment is qualified as a nov
 	and Event -> lineage -> eventReference single exists
 
 isEvent Observation <"The qualification of an observation event from the fact that (i) the only primitive is the observation, and (ii) that there is only a single instance of such observation.">
-	Event -> primitive -> observation only single exists 
+	Event -> primitive -> observation only single exists
 
 isEvent PartialTermination <"The qualification of a partial termination event from the fact that (i) the intent is Partial Termination when specified, (ii) the only primitive is the quantityChange and there is only one such primitive involved, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
 	Event -> intent when present = IntentEnum.PartialTermination
@@ -409,7 +409,7 @@ alias quantityBeforeQuantityChange <"The alias to represent the quantity or noti
 	Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity -> amount
 	or Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount
 	or Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
-	or Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step -> stepValue 
+	or Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step -> stepValue
 	or Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepParameters -> notionalStepAmount
 	or Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> fxLinkedNotional -> initialValue
 	or Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> notionalAmount -> amount
@@ -419,11 +419,11 @@ alias quantityAfterQuantityChange <"The alias to represent the quantity or notio
 	Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity -> amount
 	or Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount
 	or Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
-	or Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step -> stepValue 
+	or Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step -> stepValue
 	or Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepParameters -> notionalStepAmount
 	or Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> fxLinkedNotional -> initialValue
 	or Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> notionalAmount -> amount
-	or Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount -> amount	
+	or Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount -> amount
 
 isEvent Payment <"The qualification of a payment event from the fact that the only primitive is the payment.">
 	Event -> primitive -> payment only exists
