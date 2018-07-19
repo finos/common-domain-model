@@ -86,7 +86,7 @@ class CashSettlementTerms <"In FpML, PhysicalSettlementTerms and CashSettlementT
 	quotationAmount Money (0..1) <"In the determination of a cash settlement amount, if weighted average quotations are to be obtained, the quotation amount specifies an upper limit to the outstanding principal balance of the reference obligation for which the quote should be obtained. If not specified, the ISDA definitions provide for a fallback amount equal to the floating rate payer calculation amount. ISDA 2003 Term: Quotation Amount.">;
 		[synonym FpML value quotationAmount]
 	minimumQuotationAmout Money (0..1) <"In the determination of a cash settlement amount, if weighted average quotations are to be obtained, the minimum quotation amount specifies a minimum intended threshold amount of outstanding principal balance of the reference obligation for which the quote should be obtained. If not specified, the ISDA definitions provide for a fallback amount of the lower of either USD 1,000,000 (or its equivalent in the relevant obligation currency) or the quotation amount. ISDA 2003 Term: Minimum Quotation Amount.">;
-		[synonym FpML value minimumQuotationAmout]
+		[synonym FpML value minimumQuotationAmount]
 	dealer string (0..1) <"A dealer from whom quotations are obtained by the calculation agent on the reference obligation for purposes of cash settlement. ISDA 2003 Term: Dealer.">;
 		[synonym FpML value dealer]
 	cashSettlementBusinessDays int (0..1) <"The number of business days used in the determination of the cash settlement payment date. If a cash settlement amount is specified, the cash settlement payment date will be this number of business days following the calculation of the final price. If a cash settlement amount is not specified, the cash settlement payment date will be this number of business days after all conditions to settlement are satisfied. ISDA 2003 Term: Cash Settlement Date.">;
@@ -115,7 +115,7 @@ data rule CashSettlementTerms_recoveryFactor <"FpML specifies recoveryFactor as 
 	when CashSettlementTerms -> recoveryFactor exists
 	then CashSettlementTerms -> recoveryFactor >= 0.0 and CashSettlementTerms -> recoveryFactor <= 1.0
 
-data rule CashSettlementTerms_quotationAmount <"FpML validation rule cd-37 - Context: CashSettlementTerms (complex type). If condition quotationAmount is true, and if condition minimumQuotationAmount is true, and if both amounts have the same-currency, then quotationAmount/amount must be greater or equal to minimumQuotationAmount/amount.">
+data rule FpML_cd_37 <"FpML validation rule cd-37 - If condition quotationAmount is true, and if condition minimumQuotationAmount is true, and if both amounts have the same-currency, then quotationAmount/amount must be greater or equal to minimumQuotationAmount/amount.">
 	when (CashSettlementTerms -> quotationAmount and CashSettlementTerms -> minimumQuotationAmout) exists
 		and CashSettlementTerms -> quotationAmount -> currency = CashSettlementTerms -> minimumQuotationAmout -> currency
 	then CashSettlementTerms -> quotationAmount -> amount > CashSettlementTerms -> minimumQuotationAmout -> amount
@@ -175,7 +175,7 @@ choice rule DeliverableObligations_choice <"Choice rule to represent an FpML cho
 	for DeliverableObligations optional choice between
 	fullFaithAndCreditObLiability and generalFundObligationLiability and revenueObligationLiability
 
-data rule DeliverableObligations_category <"FpML validation rule cd-34 - Context: DeliverableObligations (complex type). If category is equal to 'ReferenceObligationsOnly', then no other elements may be contained in the deliverable obligations element.">
+data rule FpML_cd_34 <"FpML validation rule cd-34 - Context: DeliverableObligations. If category is equal to 'ReferenceObligationsOnly', then no other elements may be contained in the deliverable obligations element.">
 	when DeliverableObligations -> category exists
 		and DeliverableObligations -> category = ObligationCategoryEnum.ReferenceObligationsOnly
 	then (DeliverableObligations -> acceleratedOrMatured
@@ -215,21 +215,6 @@ class FixedAmountCalculation
 		[synonym FpML value dayCountFraction]
 }
 
-class FloatingAmountCalculation
-	[synonym FpML value FloatingAmountCalculation]
-{
-	calculationAmount CalculationAmount (0..1) <"The notional amount used in the calculation of fixed amounts where an amount is calculated on a formula basis, i.e. fixed amount = fixed rate payer calculation amount x fixed rate x fixed rate day count fraction. ISDA 2003 Term: Fixed Rate Payer Calculation Amount.">;
-		[synonym FpML value calculationAmount]
-	floatingRate FloatingRateCalculation (1..1) <"The calculation period floating rate.">;
-		[synonym FpML value floatingRate]
-	dayCountFraction DayCountFractionEnum (0..1) <"The day count fraction. ISDA 2003 Term: Fixed Rate Day Count Fraction.">;
-		[synonym FpML value dayCountFraction]
-	initialFixingDate date (0..1);
-		[synonym FpML value initialFixingDate]
-	finalFixingDate AdjustableDate (0..1);
-		[synonym FpML value finalFixingDate]
-}
-
 class FloatingAmountEvents <"A class to specify the ISDA terms relating to the floating rate payment events and the implied additional fixed payments, applicable to the credit derivatives transactions on mortgage-backed securities with pay-as-you-go or physical settlement.">
 	[synonym FpML value FloatingAmountEvents]
 {
@@ -255,14 +240,6 @@ class FloatingAmountProvisions
 	stepUpProvision boolean (0..1) <"As specified by the ISDA Standard Terms Supplement for use with trades on mortgage-backed securities. The presence of the element with value set to 'true' signifies that the provision is applicable. If applicable, the applicable step-up terms are specified as part of that ISDA Standard Terms Supplement. From a usage standpoint, this provision is typically applicable in the case of RMBS and not applicable in case of CMBS trades.">;
 		[synonym FpML value stepUpProvision]
 }
-
-data rule GeneralTerms_indexReferenceInformation <"FpML validation rule cd-41 - Context: GeneralTerms (complex type). If indexReferenceInformation/tranche does not exist, then modifiedEquityDelivery must not exist.">
-	when GeneralTerms -> indexReferenceInformation -> tranche is absent
-	then GeneralTerms -> modifiedEquityDelivery is absent
-	
-data rule GeneralTerms_basketReferenceInformation <"FpML validation rule cd-42 - Context: GeneralTerms (complex type). If basketReferenceInformation does not exist, then substitution must not exist.">
-	when GeneralTerms -> basketReferenceInformation is absent
-	then GeneralTerms -> substitution is absent
 
 class IndexName <"The index name, with an optional set of index Id. Corresponds to a sub-construct of the FpML IndexReferenceInformation complex type.">
 {
@@ -441,35 +418,6 @@ class PCDeliverableObligationCharac <"A class to specify the Partial Cash Delive
 		[synonym FpML value partialCashSettlement]
 }
 
-class PeriodicPayment
-	[synonym FpML value PeriodicPayment]
-{
-	id string (0..1);
-		[synonym FpML value id]
-	paymentFrequency Period (0..1) <"The time interval between regular fixed rate payer payment dates.">;
-		[synonym FpML value paymentFrequency]
-	firstPeriodStartDate date (0..1) <"The start date of the initial calculation period if such date is not equal to the trade’s effective date. It must only be specified if it is not equal to the effective date. The applicable business day convention and business day are those specified in the dateAdjustments element within the generalTerms component (or in a transaction supplement representation defined within the referenced general terms confirmation agreement).">;
-		[synonym FpML value firstPeriodStartDate]
-	firstPaymentDate date (0..1) <"The first unadjusted fixed rate payer payment date. The applicable business day convention and business day are those specified in the dateAdjustments element within the generalTerms component (or in a transaction supplement FpML representation defined within the referenced general terms confirmation agreement). ISDA 2003 Term: Fixed Rate Payer Payment Date.">;
-		[synonym FpML value firstPaymentDate]
-	lastRegularPaymentDate date (0..1) <"The last regular unadjusted fixed rate payer payment date. The applicable business day convention and business day are those specified in the dateAdjustments element within the generalTerms component (or in a transaction supplement FpML representation defined within the referenced general terms confirmation agreement). This element should only be included if there is a final payment stub, i.e. where the last regular unadjusted fixed rate payer payment date is not equal to the scheduled termination date. ISDA 2003 Term: Fixed Rate Payer Payment Date.">;
-		[synonym FpML value lastRegularPaymentDate]
-	rollConvention RollConventionEnum (0..1) <"Used in conjunction with the effectiveDate, scheduledTerminationDate, firstPaymentDate, lastRegularPaymentDate and paymentFrequency to determine the regular fixed rate payer payment dates.">;
-		[synonym FpML value rollConvention]
-	fixedAmount Money (0..1) <"A fixed payment amount. ISDA 2003 Term: Fixed Amount.">;
-		[synonym FpML value fixedAmount]
-	fixedAmountCalculation FixedAmountCalculation (0..1) <"This element contains all the terms relevant to calculating a fixed amount where the fixed amount is calculated by reference to a per annum fixed rate. There is no corresponding ISDA 2003 Term. The equivalent is Sec 5.1 'Calculation of Fixed Amount' but this in itself is not a defined Term.">;
-		[synonym FpML value fixedAmountCalculation]
-	floatingAmountCalculation FloatingAmountCalculation (0..1);
-		[synonym FpML value floatingAmountCalculation]
-	adjustedPaymentDates AdjustedPaymentDates (0..*) <"An optional cashflow-like structure allowing the equivalent representation of the periodic fixed payments in terms of a series of adjusted payment dates and amounts. This is intended to support application integration within an organisation and is not intended for use in inter-firm communication or confirmations. ISDA 2003 Term: Fixed Rate Payer Payment Date.">;
-		[synonym FpML value adjustedPaymentDates]
-}
-
-choice rule PeriodicPayment_choice <"Choice rule to represent an FpML choice construct.">
-	for PeriodicPayment required choice between
-	fixedAmount and fixedAmountCalculation and floatingAmountCalculation
-
 class PhysicalSettlementPeriod one of
 	[synonym FpML value PhysicalSettlementPeriod]
 {
@@ -601,10 +549,6 @@ class ReferencePool <"This type contains all the reference pool items to define 
 		[synonym FpML value referencePoolItem]
 }
 
-data rule FpML_cd_44 <"FpML validation rule cd-44 - All referencePoolItem/constituentWeight must have the same name of child element.">
-	when ReferencePoolItem -> constituentWeight exists
-	then ( ReferencePoolItem -> constituentWeight -> basketPercentage or ReferencePoolItem -> constituentWeight -> openUnits ) exists
-
 class ReferencePoolItem <"This type contains all the constituent weight and reference information.">
 	[synonym FpML value ReferencePoolItem]
 {
@@ -617,6 +561,10 @@ class ReferencePoolItem <"This type contains all the constituent weight and refe
 	settlementTermsReference string (0..1) reference <"Reference to the settlement terms applicable to this item.">;
 		[synonym FpML value settlementTermsReference]
 }
+
+data rule FpML_cd_44 <"FpML validation rule cd-44 - All referencePoolItem/constituentWeight must have the same name of child element.">
+	when ReferencePoolItem -> constituentWeight exists
+	then ( ReferencePoolItem -> constituentWeight -> basketPercentage or ReferencePoolItem -> constituentWeight -> openUnits ) exists
 
 class SettledEntityMatrix <"A class to specify the Relevant Settled Entity Matrix.">
 	[synonym FpML value SettledEntityMatrix]
