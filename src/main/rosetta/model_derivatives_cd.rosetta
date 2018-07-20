@@ -241,20 +241,13 @@ class FloatingAmountProvisions
 		[synonym FpML value stepUpProvision]
 }
 
-class IndexName <"The index name, with an optional set of index Id. Corresponds to a sub-construct of the FpML IndexReferenceInformation complex type.">
-{
-	indexName string (1..1) scheme "indexNameScheme" <"The name of the index expressed as a free format string. FpML does not define usage rules for this element.">;
-		[synonym FpML value indexName]
-	indexId string (0..*) scheme "indexIdScheme" <"A CDS index identifier (e.g. RED pair code).">;
-		[synonym FpML value indexId]
-}
-
 class IndexReferenceInformation <"A class defining a Credit Default Swap Index.">
 	[synonym FpML value IndexReferenceInformation]
 {
 	id string (0..1);
 		[synonym FpML value id]
-	indexName IndexName (0..1) scheme "indexNameScheme" <"This attribute corresponds to the FpML combination of a index name and a index Id, as a component of the IndexReferenceInformation complex type.">;
+	indexName string (0..1) scheme "indexNameScheme" <"The name of the index expressed as a free format string with an associated scheme.">;
+		[synonym FpML value indexName]
 	indexId string (0..*) scheme "indexIdScheme" <"A CDS index identifier (e.g. RED pair code).">;
 		[synonym FpML value indexId]
 	indexSeries int (0..1) <"A CDS index series identifier, e.g. 1, 2, 3 etc.">;
@@ -272,10 +265,6 @@ class IndexReferenceInformation <"A class defining a Credit Default Swap Index."
 	settledEntityMatrix SettledEntityMatrix (0..1) <"Used to specify the Relevant Settled Entity Matrix when there are settled entities at the time of the trade.">;
 		[synonym FpML value settledEntityMatrix]
 }
-
-choice rule IndexReferenceInformation_choice <"Choice rule to represent the FpML choice construct between [indexName, indexId] and indexId.">
-	for IndexReferenceInformation required choice between
-	indexName and indexId
 
 data rule IndexReferenceInformation_indexSeries <"FpML specifies the type associated to indexSeries as a positive integer.">
 	when IndexReferenceInformation -> indexSeries exists
