@@ -59,10 +59,6 @@ data rule FpML_cd_1 <"FpML validation rule cd-1 - If referenceInformation exists
 	when Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
 	then Contract -> tradeDate -> date < Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
 
-data rule FpML_cd_5 <"FpML validation rule cd-5 - If effectiveDate exists, and if scheduledTerminationDate exists, then effectiveDate/unadjustedDate must be before scheduledTerminationDate/unadjustedDate.">
-	when Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate exists
-	then Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate < Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> unadjustedDate
-
 data rule FpML_cd_7 <"FpML validation rule cd-7 - If condition LongForm is true, then effectiveDate/dateAdjustments exists.">
 	when ( Contract -> documentation -> masterConfirmation and Contract -> documentation -> contractualMatrix ) is absent
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
@@ -77,17 +73,17 @@ data rule FpML_cd_11 <"FpML validation rule cd-11 - If condition LongForm is tru
 	when ( Contract -> documentation -> masterConfirmation and Contract -> documentation -> contractualMatrix ) is absent
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
 		and Contract -> documentation -> contractualDefinitions = ContractualDefinitionsEnum.ISDA2003Credit
-	then Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> allGuarantees = True
+	then Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> allGuarantees exists
 
 data rule FpML_cd_19 <"FpML validation rule cd-19 - If the condition ISDA1999Credit is true, then the following elements must not exist: protectionTerms/creditEvents/creditEventNotice/businessCenter, protectionTerms/creditEvents/restructuring/multipleHolderObligation, protectionTerms/creditEvents/restructuring/multipleCreditEventNotices, generalTerms/referenceInformation/allGuarantees, generalTerms/indexReferenceInformation, generalTerms/substitution, generalTerms/modifiedEquityDelivery.">
 	when Contract -> documentation -> contractualDefinitions = ContractualDefinitionsEnum.ISDA1999Credit
-	then (Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> creditEventNotice -> businessCenter
-		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleHolderObligation
-		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleCreditEventNotices
-		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> allGuarantees
-		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> indexReferenceInformation
-		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> substitution
-		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> modifiedEquityDelivery)
+	then ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> creditEventNotice -> businessCenter
+		or Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleHolderObligation
+		or Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleCreditEventNotices
+		or Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> allGuarantees
+		or Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> indexReferenceInformation
+		or Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> substitution
+		or Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> modifiedEquityDelivery )
 		is absent
 
 data rule FpML_cd_20 <"FpML validation rule cd-20 - If the condition ISDA2003 is true, then protectionTerms/obligations/notContingent must not exist.">
@@ -361,7 +357,7 @@ data rule CalculationPeriodDates_firstCompoundingPeriodEndDate <"FpML specifies 
 class NotionalSchedule <"A class specifying defining the notional amount or notional amount schedule associated with a contractual product. The notional schedule will be captured explicitly, specifying the dates that the notional changes and the outstanding notional amount that applies from that date. A parametric representation of the rules defining the notional step schedule can optionally be included.">
 	[synonym FpML value Notional]
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 	notionalStepSchedule NonNegativeAmountSchedule (1..1) <"The notional amount or notional amount schedule expressed as explicit outstanding notional amounts and dates. In the case of a schedule, the step dates may be subject to adjustments in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">;
 		[synonym FpML value notionalStepSchedule]

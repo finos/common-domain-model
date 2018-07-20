@@ -26,7 +26,7 @@ class BondReference <"A class including a reference to a bond to support the rep
 class CalculationPeriod <"A class defining the parameters used in the calculation of a fixed or floating rate calculation period amount. This class forms part of cashflows representation of a swap stream.">
 	[synonym FpML value CalculationPeriod]
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 	unadjustedStartDate date (0..1) <"The calculation start date, unadjusted.">;
 		[synonym FpML value unadjustedStartDate]
@@ -121,26 +121,19 @@ data rule CalculationPeriodDates_calculationPeriodFrequency <"FpML specifies a r
 	and Payout -> interestRatePayout -> calculationPeriodDates exists
 	then Payout -> interestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency exists
 
-data rule FirstPeriodStartDate_effectiveDate <"FpML specifies that the firstPeriodStartDate must only be specified if it is not equal to the effective date.">
-	when CalculationPeriodDates -> firstPeriodStartDate exists
-	then CalculationPeriodDates -> firstPeriodStartDate -> adjustedDate <> CalculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate
-		or CalculationPeriodDates -> firstPeriodStartDate -> unadjustedDate <> CalculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
-
-data rule FirstPeriodStartDate_initialStub <"FpML specifies that the firstRegularPeriodStartDate must only be specified if there is an initial stub calculation period. In practice, this is the key element as part of the initial stub specification.">
-	when InterestRatePayout -> calculationPeriodDates -> stubPeriodType is absent 
-		and ( InterestRatePayout -> calculationPeriodDates -> stubPeriodType <> StubPeriodTypeEnum.ShortInitial 
-			or InterestRatePayout -> calculationPeriodDates -> stubPeriodType <> StubPeriodTypeEnum.LongInitial )
-		or InterestRatePayout -> stubPeriod -> initialStub is absent 	
-	then InterestRatePayout -> calculationPeriodDates -> firstRegularPeriodStartDate is absent
+data rule FirstRegularPeriodStartDate_initialStub <"FpML specifies that the firstRegularPeriodStartDate must only be specified if there is an initial stub calculation period. In practice, this is the key element as part of the initial stub specification.">
+	when InterestRatePayout -> calculationPeriodDates -> firstRegularPeriodStartDate exists
+	then ( InterestRatePayout -> calculationPeriodDates -> stubPeriodType = StubPeriodTypeEnum.ShortInitial 
+		or InterestRatePayout -> calculationPeriodDates -> stubPeriodType = StubPeriodTypeEnum.LongInitial
+		or InterestRatePayout -> stubPeriod -> initialStub exists )
 		
-data rule FirstRegularPeriodEndDate_finalStub <"FpML specifies that the lastRegularPeriodEndDate must only be specified if there is a final stub calculation period. In practice, this is the key element as part of the final stub specification.">
-	when InterestRatePayout -> calculationPeriodDates -> stubPeriodType is absent
-		and ( InterestRatePayout -> calculationPeriodDates -> stubPeriodType <> StubPeriodTypeEnum.ShortFinal
-			or InterestRatePayout -> calculationPeriodDates -> stubPeriodType <> StubPeriodTypeEnum.LongFinal )
-		or InterestRatePayout -> stubPeriod -> finalStub is absent
-	then InterestRatePayout -> calculationPeriodDates -> lastRegularPeriodEndDate is absent
+data rule LastRegularPeriodEndDate_finalStub <"FpML specifies that the lastRegularPeriodEndDate must only be specified if there is a final stub calculation period. In practice, this is the key element as part of the final stub specification.">
+	when InterestRatePayout -> calculationPeriodDates -> lastRegularPeriodEndDate exists
+	then ( InterestRatePayout -> calculationPeriodDates -> stubPeriodType = StubPeriodTypeEnum.ShortFinal
+		or InterestRatePayout -> calculationPeriodDates -> stubPeriodType = StubPeriodTypeEnum.LongFinal
+		or InterestRatePayout -> stubPeriod -> finalStub exists )
 
-data rule FpML_ird_14 <"FpML validation rule ird-14 - If effectiveDate exists and if terminationDate exists, then terminationDate/unadjustedDate must be after effectiveDate/unadjustedDate.">
+data rule FpML_ird_14 <"FpML validation rule ird-14 & cd-5 - If effectiveDate exists and if terminationDate exists, then terminationDate/unadjustedDate must be after effectiveDate/unadjustedDate.">
 	when CalculationPeriodDates -> effectiveDate exists 
 		and CalculationPeriodDates -> terminationDate exists
 	then CalculationPeriodDates -> terminationDate -> unadjustedDate > CalculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
@@ -206,7 +199,7 @@ class CancelableProvisionAdjustedDates <"A class to define the adjusted dates fo
 class CancellationEvent <"The adjusted dates for a specific cancellation date, including the adjusted exercise date and adjusted termination date.">
 	[synonym FpML value CancellationEvent]
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 	adjustedExerciseDate date (1..1) <"The date on which option exercise takes place. This date should already be adjusted for any applicable business day convention.">;
 		[synonym FpML value adjustedExerciseDate]
@@ -244,7 +237,7 @@ choice rule OptionCashSettlement_choice <"Choice rule to represent an FpML choic
 class CashSettlementPaymentDate <"A class defining the cash settlement payment date(s) as either a set of explicit dates, together with applicable adjustments, or as a date relative to some other (anchor) date, or as any date in a range of contiguous business days.">
 	[synonym FpML value CashSettlementPaymentDate]
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 	adjustableDates AdjustableDates (0..1) <"A series of dates that shall be subject to adjustment if they would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">;
 		[synonym FpML value adjustableDates]
@@ -301,7 +294,7 @@ data rule Discounting_discountRate <"In FpML discountingRate and discountRateDay
 class EarlyTerminationEvent <"A class to define the adjusted dates associated with an early termination provision.">
 	[synonym FpML value EarlyTerminationEvent]
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 	adjustedExerciseDate date (1..1) <"The date on which option exercise takes place. This date should already be adjusted for any applicable business day convention.">;
 		[synonym FpML value adjustedExerciseDate]
@@ -330,7 +323,7 @@ data rule FpML_ird_41 <"FpML validation rule ird-41 - AdjustedCashSettlementValu
 class EarlyTerminationProvision <"A class defining an early termination provision for a swap. This early termination is at fair value, i.e. on termination the fair value of the product must be settled between the parties.">
 	[synonym FpML value EarlyTerminationProvision]
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 	mandatoryEarlyTermination MandatoryEarlyTermination (0..1) <"A mandatory early termination provision to terminate the swap at fair value.">;
 		[synonym FpML value mandatoryEarlyProvision]
@@ -350,7 +343,7 @@ data rule EarlyTerminationProvision_mandatoryEarlyTermination <"The FpML Mandato
 class ExerciseEvent <"A class defining the adjusted dates associated with a particular exercise event.">
 	[synonym FpML value ExerciseEvent]
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 	adjustedExerciseDate date (1..1) <"The date on which the option exercise takes place. This date should already be adjusted for any applicable business day convention.">;
 		[synonym FpML value adjustedExerciseDate]
@@ -367,7 +360,7 @@ class ExerciseEvent <"A class defining the adjusted dates associated with a part
 class ExercisePeriod <"This defines the time interval to the start of the exercise period, i.e. the earliest exercise date, and the frequency of subsequent exercise dates (if any).">
 	[synonym FpML value ExercisePeriod]
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 	earliestExerciseDateTenor Period (1..1) <"The time interval to the first (and possibly only) exercise date in the exercise period.">;
 		[synonym FpML value earliestExerciseDateTenor]
@@ -406,7 +399,7 @@ class ExtendibleProvisionAdjustedDates <"A class defining the adjusted dates ass
 class ExtensionEvent <"A class to define the adjusted dates associated with an individual extension event.">
 	[synonym FpML value ExtensionEvent]
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 	adjustedExerciseDate date (1..1) <"The date on which option exercise takes place. This date should already be adjusted for any applicable business day convention.">;
 		[synonym FpML value adjustedExerciseDate]
@@ -537,7 +530,7 @@ class InflationRateCalculation extends FloatingRateCalculation <"A class definin
 class MandatoryEarlyTermination <"A class to define an early termination provision for which exercise is mandatory.">
 	[synonym FpML value MandatoryEarlyTermination]
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 	mandatoryEarlyTerminationDate AdjustableDate (1..1) <"The early termination date associated with a mandatory early termination of a swap.">;
 		[synonym FpML value mandatoryEarlyTerminationDate]
@@ -654,7 +647,7 @@ class OptionalEarlyTerminationAdjustedDates <"A class defining the adjusted date
 class OptionCashSettlement <"A class to define the cash settlement terms for a product where cash settlement is applicable.">
 	[synonym FpML value CashSettlement]
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 	cashSettlementValuationTime BusinessCenterTime (0..1) <"The time of the cash settlement valuation date when the cash settlement amount will be determined according to the cash settlement method if the parties have not otherwise been able to agree the cash settlement amount.">;
 		[synonym FpML value cashSettlementValuationTime]
@@ -681,7 +674,7 @@ class OptionCashSettlement <"A class to define the cash settlement terms for a p
 class PaymentCalculationPeriod <"A class defining the adjusted payment date and associated calculation period parameters required to calculate the actual or projected payment amount. This class forms part of the cashflow representation of a swap stream.">
 	[synonym FpML value PaymentCalculationPeriod]
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 	unadjustedPaymentDate date (0..1) <"The unadjusted payment date.">;
 		[synonym FpML value unadjustedPaymentDate]
@@ -718,7 +711,7 @@ class PriceSourceDisruption <"A class defining the parameters used to get a pric
 class PrincipalExchange <"A class defining a principal exchange amount and adjusted exchange date. The class forms part of the cashflow representation of a swap stream.">
 	[synonym FpML value PrincipalExchange]
 {
-	id string (0..1);
+	id string (0..1) anchor;
 		[synonym FpML value id]
 	unadjustedPrincipalExchangeDate date (0..1) <"The non adjusted principal exchange date.">;
 		[synonym FpML value unadjustedPrincipalExchangeDate]
