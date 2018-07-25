@@ -87,21 +87,23 @@ Syntax
 
 The class is delineated by brackets ``{`` ``}``.
 
-The CDM supports the concept of **abstract classes**, which cannot be instantiated as part of the generated executable code and are meant to be extended by other classes.  An example of such is the ``EventBase`` class, which contains the attributes that are applicable to all events.
+The CDM supports the concept of **abstract classes**, which cannot be instantiated as part of the generated executable code and are meant to be extended by other classes.  An example of such is the ``ListedHeader`` class, which contains the attributes that are common among listed products.
 
 .. code-block:: Java
 
- abstract class EventBase stereotype preExecution, execution, postExecution <"The event base abstract class.">
+ abstract class ListedHeader <"An abstract class to holds the attributes that are common across listed products.">
  {
-      messageInformation MessageInformation (0..1);
-  	  timeStamp EventTimeStamp (1..1);
-  		  [synonym Rosetta_Workbench value timeStamp]
-  	  eventIdentifier Identifier (1..1);
-  		  [synonym Rosetta_Workbench value eventIdentifier]
-      ...
+   id string (0..1) anchor;
+      [synonym FpML value id]
+   productTaxonomy ProductTaxonomy (1..*) <"The product taxonomy value(s) associated with a product.">;
+   productIdentifier ProductIdentifier (1..*) <"There can be several identifiers associated with a given product.">;
+   description string (1..1) <"The product name.">;
+      [synonym FpML value description]
+   currency string (0..1) scheme "currencyScheme" <"The denomination currency of the instrument.">;
+      [synonym FpML value currency]
+   clearanceSystem string (0..1) scheme "clearanceSystemScheme" <"Identification of the clearance system associated with the transaction exchange.">;
+      [synonym FpML value clearanceSystem]
  }
-
-**Stereotype values**, such as ``postExecution`` in the above example, are specified for the purpose of supporting analytical queries and navigation tools at some further point down the road.
 
 The Rosetta convention is that class names start with a capital letter. Class names need to be unique across the model, including with respect to rule names. Both those are controlled by the Rosetta Workbench grammar.
 
@@ -128,48 +130,75 @@ Logic - ``boolean``
 
 Date and Time - ``date`` - ``dateTime`` - ``time``
 
-The CDM provides the ability to associate either a ``reference``, an identifier (expressed as ``anchor``) and/or a ``scheme`` qualifier to the attribute. The purpose here is to provide the ability to properly map source XML documents, such as FpML ones, which make use of such cross-referencing modelling representation. The implementation works as follows:
-
-* In the case where a source element is specified by reference to another element, the CDM will model this attribute in the same manner:
-
- .. code-block:: Java
-
-   class DateRelativeToPaymentDates stereotype contractualProduct <"A class to provide the ability to point to multiple payment nodes in the document through the unbounded paymentDatesReference.">
-  	[synonym FpML value DateRelativeToPaymentDates]
-   {
-      paymentDatesReference string (1..*) reference <"A set of href pointers to payment dates defined somewhere else in the document.">;
-  		  [synonym FpML value paymentDatesReference]
-   }
-
-* In the case where a source element makes reference to a scheme and if the values for that scheme are specified as part of the FpML standard, that scheme is positioned as an enumeration.  An example of such is the FpML *creditSupportAgreementTypeScheme* which is represented in CDM via the ``CreditSupportAgreementTypeEnum``. While the scheme value is represented as part of the enumeration, the CDM attribute also carries the scheme reference associated with the original document:
-
- .. code-block:: Java
-
-   class CreditSupportAgreement stereotype contractualProduct <"The agreement executed between the parties and intended to govern collateral arrangement for all OTC derivatives transactions between those parties.">
-      [synonym FpML value CreditSupportAgreement]
-   {
-      type CreditSupportAgreementTypeEnum (1..1) scheme "creditSupportAgreementTypeScheme" <"The type of ISDA Credit Support Agreement.">;
-  		  [synonym FpML value type]
-  	  date date (1..1) <"The date of the agreement executed between the parties and intended to govern collateral arrangements for all OTC derivatives transactions between those parties.">;
-  		  [synonym FpML value date]
-  	  identifierValue string (0..1) <"An identifier used to uniquely identify the CSA. FpML specifies the type as creditSupportAgreementIdScheme, but without proposing any value.  As far as e understand, no scheme has yet been developed at this point.">;
-  		  [synonym FpML value identifier]
-   }
-
-* In the case where a source element makes reference to a scheme while the values for that scheme are not specified, the corresponding attribute is set as a ``string``, with an associated scheme reference.  An example of such is the FpML *linkIdScheme*.
-
- .. code-block:: Java
-
-    class LinkId <"The class to represent link identifiers.">
-    	[synonym FpML value LinkId]
-    {
-    	 id string (0..1);
-    		  [synonym FpML value id]
-    	 linkId string (1..1) scheme "linkIdScheme";
-    	  	[synonym FpML value linkId]
-    }
-
 Rosetta syntax convention is for attribute names to be expressed in lower case, and a warning will be generated by the grammar if this is not the case. Attribute names need to be unique within the context of a class (and within the context of the base class, if a class extends another class), but can be duplicated across classes. The semi-column ``;`` acts as the terminal character for the attribute specification, with associated synonyms being positioned underneath that specification line.
+
+The CDM provides the ability to associate a set of **qualifiers** to the attributes: ``anchor``, ``reference``, ``scheme``, ``calculation``, ``isProduct`` and ``rosettaKey``.
+
+* The ``anchor`` and ``reference`` qualifiers represent the cross-referencing mechanism widely used in the XML space (and particularly as part of the FpML standard) as a way to provide data integrity within the context of an instance document.
+
+* The ``scheme`` qualifier specifies scheme references.
+
+  The below CDM snippet provides a good illustration as to how those 3 qualifiers are implemented, with the ``anchor`` qualifier being associated to the ``id`` attribute of the ``Party`` class, while the ``reference`` is associated to the ``partyReference`` attribute of the ``PartyAndAccountReference`` class.  The values associated with the *partyIdScheme* being not specified by FpML, this scheme is associated as such with the ``partyId`` attribute.  (As detailed in the Enumerations section below, the schemes which values are specified by FpML are positioned as CDM enumerations.)
+
+ .. code-block:: Java
+
+  class Party <"The party class.">
+	   [synonym FpML value Party]
+  {
+	  id string (0..1) anchor;
+		   [synonym FpML value id]
+	  partyId string (1..*) scheme "partyIdScheme" <"The identifier associated with a party, e.g. the 20 digits LEI code.">;
+		   [synonym FpML value partyId]
+	  legalEntity LegalEntity (0..1);
+	  naturalPerson NaturalPerson (0..*);
+  }
+
+  class PartyAndAccountReference <"This class corresponds to the FpML PartyAndAccountReferences.model.">
+  {
+	  partyReference string (1..1) reference;
+		   [synonym FpML value partyReference]
+	  accountReference string (0..1) reference;
+		   [synonym FpML value accountReference]
+  }
+
+* The ``calculation`` qualifier represents the outcome of the CDM interest accrual calculation. It is currently associated with two attributes: ``cashflowCalculation" in the ``Cashflow`` class, and ``callFunction`` in the ``computedAmount`` class. The intent is to deprecate this qualifier in the near future, and to instead create a ``calculation`` type.
+
+* The ``isProduct`` qualifier is asociated with the ``productIdentification`` (see the below model snippet) to support the outcome of the product qualification.  Like the ``calculation`` attribute, the intent is to adjust the implement and position it as a type.
+
+ .. code-block:: Java
+
+  class ContractualProduct <"The contractual product class is meant to be used across the entire pre-execution, execution and (as part of the Contract) post-execution lifecycle contexts.">
+  {
+ 	   productIdentification string (0..1) isProduct;
+ 	   productTaxonomy ProductTaxonomy (0..*) <"The product taxonomy value(s) associated with a contractual product.">;
+ 	   economicTerms EconomicTerms (1..1);
+  }
+
+* The ``rosettaKey`` corresponds to a hash code generated by the CDM as part of the ``EventEffect`` features, which are further detailed below as part of the CDM Model section. In essence, the rosettaKey hash associated with the class instanciation hashes the values associated with that class (``Contract`` in the below snippet), while that ``rosettaKey`` entry is also associated with the corresponding attribute (``referenceContract`` in the below snippet).
+
+ .. code-block:: Java
+
+ class EventEffect <"The set of operational and positional effects associated with a lifecycle event.">
+ {
+ 	  referenceContract Contract (0..*) rosettaKey <"A pointer to the contract to which the event effect(s) apply. This reference is optional to address the case where an event with candidate event effect(s) would only have associated referenceContract.">;
+ 	  referenceEvent Event (1..1) rosettaKey <"A pointer to the event to which the event effect(s) apply.">;
+ 	  product ContractOrListedProduct (0..*) rosettaKey <"A pointer to the products effect(s), an example of such being the outcome of an option physical exercise.">;
+ 	  payment Payment (0..*) rosettaKey <"A pointer to the payment effect(s).">;
+ 	  reset ResetPrimitive (0..*) rosettaKey <"A pointer to the reset effect(s).">;
+  }
+
+  class Contract rosettaKey <"A class to specify a contract object, which can be invoked either within the context of an event, or independently from it. It corresponds to the FpML Trade, although restricted to execution and post-execution contexts. Attributes also applicable to pre-execution (a.k.a. pre-trade view in FpML) contexts have been positioned as part of the ContractualProduct class.">
+  {
+  	 id string (0..1) anchor;
+  		  [synonym FpML value id]
+  	 contractIdentifier PartyContractIdentifier (1..*) <"The contract reference identifier(s) allocated by the parties involved in the contract.">;
+  		[synonym FpML value partyTradeIdentifier pathExpression "trade.tradeHeader"]
+  		[synonym FpML value partyTradeIdentifier pathExpression "tradeHeader"]
+  	 (...)
+  		[synonym FpML value partyTradeInformation pathExpression "trade.tradeHeader"]
+  	 state StateEnum (0..1) <"The state qualification of a contractual product.">;
+  		[synonym Rosetta_Workbench value state]
+   }
 
 Enumerations
 ^^^^^^^^^^^^
