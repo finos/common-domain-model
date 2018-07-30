@@ -119,7 +119,7 @@ data rule FpML_cd_32 <"FpML validation rule cd-32 - If condition LongForm is tru
 
 class ContractualProduct <"The contractual product class is meant to be used across the entire pre-execution, execution and (as part of the Contract) post-execution lifecycle contexts.">
 {
-	productIdentification string (0..1) isProduct;
+	productIdentification ProductIdentification (0..1);
 	productTaxonomy ProductTaxonomy (0..*) <"The product taxonomy value(s) associated with a contractual product.">;
 	economicTerms EconomicTerms (1..1);
 }
@@ -528,6 +528,47 @@ class Product one of
 {
 	contractualProduct ContractualProduct (0..1);
 	listedProduct ListedProduct (0..1);
+}
+
+class ProductIdentification <"A class to combine the CDM product qualifier with other product qualifiers, such as the FpML ones.">
+{
+	productQualifier string (0..1) isProduct <"The CDM product qualifier.">;
+	primaryAssetClass AssetClassEnum (0..1) scheme "assetClassScheme" <"A classification of the most important risk class of the trade. FpML defines a simple asset class categorisation using a coding scheme.">;
+		[synonym FpML value primaryAssetClass pathExpression "trade.swap"]
+		[synonym FpML value primaryAssetClass pathExpression "swap"]
+		[synonym FpML value primaryAssetClass pathExpression "trade.creditDefaultSwap"]
+		[synonym FpML value primaryAssetClass pathExpression "creditDefaultSwap"]
+		[synonym Rosetta_Workbench value primaryAssetClass pathExpression "trade.swaption"]
+		[synonym Rosetta_Workbench value primaryAssetClass pathExpression "swaption"]
+		[synonym Rosetta_Workbench value primaryAssetClass pathExpression "trade.swaption.swap"]
+		[synonym Rosetta_Workbench value primaryAssetClass pathExpression "swaption.swap"]
+	secondaryAssetClass AssetClassEnum (0..*) scheme "assetClassScheme" <"A classification of additional risk classes of the trade, if any. FpML defines a simple asset class categorisation using a coding scheme.">;
+		[synonym FpML value secondaryAssetClass pathExpression "trade.swap"]
+		[synonym FpML value secondaryAssetClass pathExpression "swap"]
+		[synonym FpML value secondaryAssetClass pathExpression "trade.creditDefaultSwap"]
+		[synonym FpML value secondaryAssetClass pathExpression "creditDefaultSwap"]
+		[synonym Rosetta_Workbench value secondaryAssetClass pathExpression "trade.swaption"]
+		[synonym Rosetta_Workbench value secondaryAssetClass pathExpression "swaption"]
+		[synonym Rosetta_Workbench value secondaryAssetClass pathExpression "trade.swaption.swap"]
+		[synonym Rosetta_Workbench value secondaryAssetClass pathExpression "swaption.swap"]
+	productType string (0..*) scheme "productTypeScheme" <"A classification of the type of product. FpML defines a simple product categorisation using a coding scheme.">;
+		[synonym FpML value productType pathExpression "trade.swap"]
+		[synonym FpML value productType pathExpression "swap"]
+		[synonym FpML value productType pathExpression "trade.creditDefaultSwap"]
+		[synonym FpML value productType pathExpression "creditDefaultSwap"]
+		[synonym Rosetta_Workbench value productType pathExpression "trade.swaption"]
+		[synonym Rosetta_Workbench value productType pathExpression "swaption"]
+		[synonym Rosetta_Workbench value productType pathExpression "trade.swaption.swap"]
+		[synonym Rosetta_Workbench value productType pathExpression "swaption.swap"]
+	productId string (0..*) scheme "productIdScheme" <"A product reference identifier. The product Id is an identifier that describes the key economic characteristics of the trade type, with the exception of concepts such as size (notional, quantity, number of units) and price (fixed rate, strike, etc.) that are negotiated for each transaction. It can be used to hold identifiers such as the 'UPI' (universal product identifier) required by certain regulatory reporting rules. It can also be used to hold identifiers of benchmark products or product temnplates used by certain trading systems or facilities. FpML does not define the domain values associated with this element. Note that the domain values for this element are not strictly an enumerated list.">;
+		[synonym FpML value productId pathExpression "trade.swap"]
+		[synonym FpML value productId pathExpression "swap"]
+		[synonym FpML value productId pathExpression "trade.creditDefaultSwap"]
+		[synonym FpML value productId pathExpression "creditDefaultSwap"]
+		[synonym Rosetta_Workbench value productType pathExpression "trade.swaption"]
+		[synonym Rosetta_Workbench value productType pathExpression "swaption"]
+		[synonym Rosetta_Workbench value productType pathExpression "trade.swaption.swap"]
+		[synonym Rosetta_Workbench value productType pathExpression "swaption.swap"]
 }
 
 class Quantity
