@@ -159,15 +159,29 @@ class ExercisePrimitive
 		[synonym Rosetta_Workbench value after]
 }
 
+/*
+ * TODO - Having the tradeHeader attribute as part of the execution is a work-around the fact that 
+ * the tradeDate and the identifier are mapped through the FpML synonym while the tradeHeader is part of the Wosetta_Workbench.
+ * It appears that to make it work we would need to have the ability to qualify the path expression to be in a distinct namespace.
+ * The syntax could be [synonym FpML value partyTradeIdentifier pathExpression synonym Rosetta_Workbench "tradeHeader"], with absence of
+ * further synonym meaning that there is no distinct namespace for the path expression.  (Should we be thinking about the case where
+ * severeal nodes are part of the pathExpression, which cross distinct namespaces?)
+ */
 class Execution
 {
-	identifier PartyContractIdentifier (1..*) <"The identifier(s) associated with the execution.">;
-		[synonym Rosetta_Workbench value partyTradeIdentifier pathExpression "tradeHeader"]
-	tradeDate date (1..1) anchor <"The trade/execution date.">;
-		[synonym Rosetta_Workbench value tradeDate pathExpression "tradeHeader"]
+	tradeHeader TradeHeader (1..1);
+		[synonym Rosetta_Workbench value tradeHeader]
 	contractualProduct ContractualProduct (1..1);
 		[synonym Rosetta_Workbench value contractualProduct]
 	party Party (0..*) <"The party reference is optional because positioned as part of the Event class when the execution is specified as part of such context.">;
+}
+
+class TradeHeader
+{
+	identifier PartyContractIdentifier (1..*) <"The identifier(s) associated with the execution.">;
+		[synonym FpML value partyTradeIdentifier]
+	tradeDate date (1..1) anchor <"The trade/execution date.">;
+		[synonym FpML value tradeDate]
 }
 
 data rule EventTimestamp_ExpireTime <"The expire time should be greater than the creation time.">
@@ -300,6 +314,10 @@ class TimeZone <"The time alongside with the timezone location information. This
 isEvent Allocation <"The qualification of allocation event from the fact that (i) the intent is Allocation when specified, (ii) the only primitive is the allocation, (iii) the sum of quantities/notional before = after, and (iv) there is a single contractualProduct before (ensured through cardinality). Note: it is accepted that an allocation can result in a single contract.">
 	Event -> intent when present = IntentEnum.Allocation
 	and Event -> primitive -> allocation only exists
+	/*
+	 * TODO - The below syntax needs to be expanded to specify a summation
+	 * This could be specify as  quantityBeforeAllocation = sum(quantityAfterAllocation)
+	 */
 //	and quantityBeforeAllocation = quantityAfterAllocation
 
 alias quantityBeforeAllocation <"The alias to represent the quantity or notional amount associated to a pre-allocation contractual product in terms of number of units (i.e. ignoring the currency or units denomination).">
@@ -322,11 +340,10 @@ alias quantityAfterAllocation <"The alias to represent the quantity or notional 
 	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> notionalAmount -> amount
 	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount -> amount
 
-isEvent Compression <"The qualification of a compression event from the fact that (i) the intent is Compression when specified, (ii) the quantity change primitive exists, (iii) there are multiple contracts (or contract references) specified in the before state and (iv) the number of non-terminated contracts in the after state is less than the number of contracts in the before state.">
+isEvent Compression <"The qualification of a compression event from the fact that (i) the intent is Compression when specified, (ii) the quantity change primitive exists, (iii) and there are multiple contracts (or contract references) specified in the before state.">
 	Event -> intent when present = IntentEnum.Compression
 	and Event -> primitive -> quantityChange exists
-//	and contractBeforeQuantityChange multiple exists
-// and contractBeforeQuantityChange count > Event -> primitive -> quantityChange -> after -> contract -> state <> StateEnum.terminated count
+	and contractBeforeQuantityChange multiple exists
 
 alias contractBeforeQuantityChange
 	Event -> primitive -> quantityChange -> before -> contract
@@ -351,17 +368,18 @@ isEvent Novation <"The qualification of a novation event from the fact that (i) 
 	Event -> intent when present = IntentEnum.Novation
 	and Event -> primitive -> quantityChange exists
 	and Event -> primitive -> newTrade exists
-//	and quantityAfterQuantityChange = 0
+	and quantityAfterQuantityChange = 0.0
 	and Event -> primitive -> quantityChange -> after -> contract -> state = StateEnum.Novated
 		or Event -> primitive -> quantityChange -> after -> contractReference -> state = StateEnum.Novated
 	and Event -> primitive -> newTrade -> contract -> contractIdentifier <> Event -> primitive -> quantityChange -> before -> contract -> contractIdentifier
 	and Event -> eventDate = Event -> primitive -> newTrade -> contract -> tradeDate -> date
-//	and Event -> effectiveDate = NovatedContractEffectiveDate
+	and Event -> effectiveDate = NovatedContractEffectiveDate
 //	and originalContractParties <> newContractParties
 
 alias NovatedContractEffectiveDate
-	Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> date
-	or Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> date
+	Event -> primitive -> newTrade -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> date
+	or Event -> primitive -> newTrade -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate
+	or Event -> primitive -> newTrade -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
 
 alias originalContractParties
 	( Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> buyerPartyReference
@@ -385,9 +403,9 @@ isEvent PartialNovation <"The qualification of a novation event from the fact th
 	and Event -> primitive -> newTrade exists
 	and Event -> primitive -> newTrade -> contract -> contractIdentifier <> Event -> primitive -> quantityChange -> before -> contract -> contractIdentifier
 	and Event -> eventDate = Event -> primitive -> newTrade -> contract -> tradeDate -> date
-//	and Event -> effectiveDate = NovatedContractEffectiveDate
-//	and quantityBeforeQuantityChange > quantityAfterQuantityChange
-//	and quantityAfterQuantityChange > 0
+	and Event -> effectiveDate = NovatedContractEffectiveDate
+	and quantityBeforeQuantityChange > quantityAfterQuantityChange
+	and quantityAfterQuantityChange > 0.0
 //	and originalContractParties <> newContractParties
 
 data rule NovationFee <"Logic to specify that if a payment is qualified as a novation fee, it must have lineage into multiple contracts and one single event (the novation event).">
@@ -401,9 +419,15 @@ isEvent Observation <"The qualification of an observation event from the fact th
 isEvent PartialTermination <"The qualification of a partial termination event from the fact that (i) the intent is Partial Termination when specified, (ii) the only primitive is the quantityChange and there is only one such primitive involved, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
 	Event -> intent when present = IntentEnum.PartialTermination
 	and Event -> primitive -> quantityChange only exists
-		or ( Event -> primitive -> quantityChange and Event -> primitive -> payment ) exists
-//	and quantityBeforeQuantityChange > quantityAfterQuantityChange
-//	and quantityAfterQuantityChange > 0
+	or ( Event -> primitive -> quantityChange and Event -> primitive -> payment ) exists
+		and Event -> primitive -> newTrade is absent
+	/*
+	 * TODO - Need to decide with the CDM Group if the event representation should provide the ability to reference a contract
+	 * If this is the case, we should adjust the logic across events so that if the contract reference is used instead of the contract terms, then the intent should be specified
+	 * If used as such, the below logic create an ambiguity with the partial novation.
+	 */	
+//	or ( quantityBeforeQuantityChange > quantityAfterQuantityChange
+//		and quantityAfterQuantityChange > 0.0 )
 
 alias quantityBeforeQuantityChange <"The alias to represent the quantity or notional amount in terms of number of units (i.e. ignoring the currency or units denomination) before a quantity change primitive.">
 	Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity -> amount
@@ -434,5 +458,6 @@ isEvent Reset <"The qualification of a reset event from the fact that the only p
 isEvent Termination <"The qualification of a termination event from the fact that (i) the intent is Termination when specified, (ii) the only primitive is the quantityChange and there is only one such primitive involved, the (iii) the remaining quantity is null, and (iv) the contract state has the value 'terminated'.">
 	Event -> intent when present = IntentEnum.Termination
 	and Event -> primitive -> quantityChange single exists
-//	and quantityAfterQuantityChange = 0
-	and Event -> primitive -> quantityChange -> after -> contract -> state = StateEnum.Terminated
+	or quantityAfterQuantityChange = 0.0
+	and ( Event -> primitive -> quantityChange -> after -> contract -> state = StateEnum.Terminated
+		or Event -> primitive -> quantityChange -> after -> contractReference -> state = StateEnum.Terminated )

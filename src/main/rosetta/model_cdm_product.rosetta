@@ -264,7 +264,7 @@ class InterestRatePayout calculation FixedAmount, FloatingAmount <"The interest 
 	payerReceiver PayerReceiver (1..1);
 	quantity ContractualQuantity (0..1) <"The quantity can be expressed in different formats, depending upon the product, e.g. notional amount for credit and interest rate products, quantity for some of the equity products. The CDM uses the generic term quantity rather than notional amount.">;
 	interestRate InterestRate (0..1) <"The interest rate can be a floating rate, a fixed rate of an inflation rate.">;
-	dayCountFraction DayCountFractionEnum (0..1) <"The day count fraction.">;
+	dayCountFraction DayCountFractionEnum (0..1) scheme "dayCountFractionScheme" <"The day count fraction.">;
 		[synonym FpML value dayCountFraction pathExpression "calculationPeriodAmount.calculation"]
 		[synonym FpML value dayCountFraction pathExpression "periodicPayment.fixedAmountCalculation"]
 		[synonym FpML value dayCountFraction pathExpression "periodicPayment.floatingAmountCalculation"]
@@ -478,16 +478,24 @@ class Payout <"The payout can be specified through a number of combinations, e.g
 	creditDefaultPayout CreditDefaultPayout (0..1);
 	cashflow Cashflow (0..*) <"A payment between the parties to the trade. For interest rate products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the initialPayment element and the singlePayment element of the fee leg.">;
 		[synonym FpML value additionalPayment pathExpression "trade.swap"]
+		[synonym FpML value additionalPayment pathExpression "swap"]
 		[synonym FpML value initialPayment pathExpression "trade.creditDefaultSwap.feeLeg"]
+		[synonym FpML value initialPayment pathExpression "creditDefaultSwap.feeLeg"]
 		[synonym FpML value singlePayment pathExpression "trade.creditDefaultSwap.feeLeg"]
+		[synonym FpML value singlePayment pathExpression "creditDefaultSwap.feeLeg"]
 		[synonym FpML value premium pathExpression "trade.swaption"]
+		[synonym FpML value premium pathExpression "swaption"]
 		[synonym FpML value premium pathExpression "trade.creditDefaultSwapOption"]
+		[synonym FpML value premium pathExpression "creditDefaultSwapOption"]
 		[synonym FpML value premium pathExpression "trade.bondOption"]
+		[synonym FpML value premium pathExpression "bondOption"]
 	optionPayout OptionPayout (0..*);
 		[synonym FpML value swaption pathExpression "trade"]
 		[synonym FpML value swaption]
 		[synonym FpML value creditDefaultSwapOption pathExpression "trade"]
+		[synonym FpML value creditDefaultSwapOption]
 		[synonym FpML value bondOption pathExpression "trade"]
+		[synonym FpML value bondOption]
 }
 
 data rule FpML_cd_26_28 <"This data rule corresponds to two FpML validation rules, as the singlePayment and the firstPayment have been represented through the same Payout/cashflow attribute. It has also been adjusted to take into consideration the fact that credit derivatives (i) might not have an effective date, while in some other cases the payment date is either (ii) absent, or (iii) specified as a relative date (e.g. to the trade date). FpML validation rule cd-26 - If feeLeg/singlePayment/adjustablePaymentDate exists, then feeLeg/singlePayment/adjustablePaymentDate must be after generalTerms/effectiveDate/unadjustedDate. FpML validation rule cd-28 - If feeLeg/periodicPayment/firstPaymentDate exists, then feeLeg/periodicPayment/firstPaymentDate must be after generalTerms/effectiveDate/unadjustedDate.">
