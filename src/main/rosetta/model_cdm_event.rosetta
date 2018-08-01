@@ -176,12 +176,11 @@ class Execution
 	party Party (0..*) <"The party reference is optional because positioned as part of the Event class when the execution is specified as part of such context.">;
 }
 
-class TradeHeader
+class GrossCashflow extends CashflowBase
 {
-	identifier PartyContractIdentifier (1..*) <"The identifier(s) associated with the execution.">;
-		[synonym FpML value partyTradeIdentifier]
-	tradeDate date (1..1) anchor <"The trade/execution date.">;
-		[synonym FpML value tradeDate]
+	cashflowAmount Money (1..1) <"The currency amount of the payment.">;
+	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">;
+		[synonym Rosetta_Workbench value cashflowType] // set cashflowType.premium when synonym premium exists]
 }
 
 data rule EventTimestamp_ExpireTime <"The expire time should be greater than the creation time.">
@@ -309,6 +308,14 @@ class TimeZone <"The time alongside with the timezone location information. This
 		[synonym Rosetta_Workbench value time]
 	location string (0..1) scheme "timezoneLocationScheme" <"FpML specifies the timezoneLocationScheme by reference to the Time Zone Database (a.k.a. tz database) maintained by IANA, the Internet Assigned Numbers Authority.">;
 		[synonym Rosetta_Workbench value location]
+}
+
+class TradeHeader
+{
+	identifier PartyContractIdentifier (1..*) <"The identifier(s) associated with the execution.">;
+		[synonym FpML value partyTradeIdentifier]
+	tradeDate date (1..1) anchor <"The trade/execution date.">;
+		[synonym FpML value tradeDate]
 }
 
 isEvent Allocation <"The qualification of allocation event from the fact that (i) the intent is Allocation when specified, (ii) the only primitive is the allocation, (iii) the sum of quantities/notional before = after, and (iv) there is a single contractualProduct before (ensured through cardinality). Note: it is accepted that an allocation can result in a single contract.">
