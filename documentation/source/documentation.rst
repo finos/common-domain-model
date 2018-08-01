@@ -375,6 +375,20 @@ The alias syntax is straightforward: ``alias <name> <Rosetta expression>``.
 
 The alias name needs to be unique across the product and event qualifications, the classes and the aliases, and validation logic is in place to enforce this. The naming convention is to have one CamelCased word, instead of a composite name as for the Rosetta rules, with implied meaning.
 
+The below snippet presents an exemple of such alias and its use as part of an event qualification.
+
+.. code-block:: Java
+
+ alias contractBeforeQuantityChange
+	  Event -> primitive -> quantityChange -> before -> contract
+	  or Event -> primitive -> quantityChange -> before -> contractReference
+
+ isEvent Compression <"The qualification of a compression event from the fact that (i) the intent is Compression when specified, (ii) the quantity change primitive exists, (iii) and there are multiple contracts (or contract references) specified in the before state.">
+	 Event -> intent when present = IntentEnum.Compression
+	 and Event -> primitive -> quantityChange exists
+	 and contractBeforeQuantityChange multiple exists
+
+
 Mapping Artefacts
 -----------------
 
@@ -750,7 +764,7 @@ The Rosetta ``Contract`` class includes a ``contractState`` attribute whose purp
 
  class Contract <"A class to specify a contract object, which can be invoked either within the context of an event, or independently from it. It corresponds to the FpML Trade, although restricted to execution and post-execution contexts. Attributes also applicable to pre-execution (a.k.a. pre-trade view in FpML) contexts have been positioned as part of the ContractualProduct class.">
  {
-    contractIdentifier PartyContractIdentifier (1..*) <"The contract reference identifier(s) allocated by the parties involved in the contract.">;
+   contractIdentifier PartyContractIdentifier (1..*) <"The contract reference identifier(s) allocated by the parties involved in the contract.">;
       [synonym FpML value partyTradeIdentifier pathExpression "trade.tradeHeader"]
       [synonym Rosetta_Workbench value partyTradeIdentifier pathExpression "tradeHeader"]
    tradeDate DateInstances (1..1) <"The trade date. This is the date the trade was originally executed. In the case of a novation, the novated part of the trade should be reported (by both the remaining party and the transferee) using a trade date corresponding to the date the novation was agreed. The remaining part of a trade should be reported (by both the transferor and the remaining party) using a trade date corresponding to the original execution date.">;
@@ -800,24 +814,24 @@ The ``Payout`` class provides some provide some appropriate insight with respect
   class Payout <"The payout can be specified through a number of combinations, e.g. by associating several interest rate payouts to specify an interest rate swap, or a credit default and an interest rate payout to specify a credit default swap. The implied product is inferred by the isProduct CDM artefact.">
   {
   	  interestRatePayout InterestRatePayout (0..*);
-  		    [synonym FpML value swapStream pathExpression "trade.swap"]
-  		    [synonym Rosetta_Workbench value swapStream pathExpression "contract.swap"]
-  		    [synonym FpML value swapStream pathExpression "trade.swaption.swap"]
-  		    [synonym Rosetta_Workbench value swapStream pathExpression "contract.swaption.swap"]
-  		    [synonym FpML value feeLeg pathExpression "trade.creditDefaultSwap"]
-  		    [synonym Rosetta_Workbench value feeLeg pathExpression "contract.creditDefaultSwap"]
-  		    [synonym FpML value feeLeg pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
-  		    [synonym FpML value generalTerms pathExpression "trade.creditDefaultSwap"]
-  		    [synonym FpML value generalTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
+  		  [synonym FpML value swapStream pathExpression "trade.swap"]
+  		  [synonym Rosetta_Workbench value swapStream pathExpression "contract.swap"]
+  		  [synonym FpML value swapStream pathExpression "trade.swaption.swap"]
+  		  [synonym Rosetta_Workbench value swapStream pathExpression "contract.swaption.swap"]
+  		  [synonym FpML value feeLeg pathExpression "trade.creditDefaultSwap"]
+  		  [synonym Rosetta_Workbench value feeLeg pathExpression "contract.creditDefaultSwap"]
+  		  [synonym FpML value feeLeg pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
+  		  [synonym FpML value generalTerms pathExpression "trade.creditDefaultSwap"]
+  		  [synonym FpML value generalTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
   	  creditDefaultPayout CreditDefaultPayout (0..1);
   	  cashflow Payment (0..*) <"A payment between the parties to the trade. For interest rate products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the initialPayment element and the singlePayment element of the fee leg.">;
-  		    [synonym FpML value additionalPayment pathExpression "trade.swap"]
-  		    [synonym FpML value initialPayment pathExpression "trade.creditDefaultSwap.feeLeg"]
-  		    [synonym FpML value singlePayment pathExpression "trade.creditDefaultSwap.feeLeg"]
-  		    [synonym FpML value premium pathExpression "trade.swaption"]
-  		    [synonym Rosetta_Workbench value premium pathExpression "contract.swaption"]
-  		    [synonym FpML value premium pathExpression "trade.creditDefaultSwapOption"]
-  		    [synonym FpML value premium pathExpression "trade.bondOption"]
+  		  [synonym FpML value additionalPayment pathExpression "trade.swap"]
+  		  [synonym FpML value initialPayment pathExpression "trade.creditDefaultSwap.feeLeg"]
+  		  [synonym FpML value singlePayment pathExpression "trade.creditDefaultSwap.feeLeg"]
+  		  [synonym FpML value premium pathExpression "trade.swaption"]
+  		  [synonym Rosetta_Workbench value premium pathExpression "contract.swaption"]
+  		  [synonym FpML value premium pathExpression "trade.creditDefaultSwapOption"]
+  		  [synonym FpML value premium pathExpression "trade.bondOption"]
   	  optionPayout OptionPayout (0..*);
   }
 
@@ -829,14 +843,14 @@ The absence of synonym entry for the  ``creditDefaultPayout`` attribute is due t
  {
 	  generalTerms GeneralTerms (1..1) <"This element contains all the data that appears in the section entitled '1. General Terms' in the 2003 ISDA Credit Derivatives Confirmation, except for the effectiveDate, terminationDate and dateAdjustments elements, which have been positioned as part of the InterestRatePayout class.">;
   	protectionTerms ProtectionTerms (1..1) <"The credit protection terms.">;
-		    [synonym FpML value protectionTerms pathExpression "trade.creditDefaultSwap"]
-		    [synonym FpML value protectionTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
+		  [synonym FpML value protectionTerms pathExpression "trade.creditDefaultSwap"]
+		  [synonym FpML value protectionTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
   	cashSettlementTerms CashSettlementTerms (0..1);
-		    [synonym FpML value cashSettlementTerms pathExpression "trade.creditDefaultSwap"]
-		    [synonym FpML value cashSettlementTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
+		  [synonym FpML value cashSettlementTerms pathExpression "trade.creditDefaultSwap"]
+		  [synonym FpML value cashSettlementTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
   	physicalSettlementTerms PhysicalSettlementTerms (0..1);
-		    [synonym FpML value physicalSettlementTerms pathExpression "trade.creditDefaultSwap"]
-		    [synonym FpML value physicalSettlementTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
+		  [synonym FpML value physicalSettlementTerms pathExpression "trade.creditDefaultSwap"]
+		  [synonym FpML value physicalSettlementTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
 	  transactedPrice TransactedPrice (0..1) <"The qualification of the price at which the contract has been transacted, in terms of market fixed rate, initial points, market price and/or quotation style. In FpML, those attributes are positioned as part of the fee leg.">;
  }
 
@@ -861,16 +875,16 @@ Listed Products as Underlyers of Derivative Products
 
 Listed products have some (or all) of their economic terms abstracted through a **product identifier** and publicly disseminated by a central venue. As a result, fungibility applies as a function of this product identifier. Hence, the approach of qualifying a product from its economic terms is not applicable to such listed products.
 
-The ``ListedProduct`` class provides a **choice between the respective listed product representations**.  As part of the CDM V1.0 only two of such products have been specified: bonds and convertible bonds.
+The ``ListedProduct`` class provides a **choice between the respective listed product representations**.  As part of the current CDM version, only two of such products have been specified: bonds and convertible bonds.
 
 .. code-block:: Java
 
  class ListedProduct one of <"Product which terms are abstracted through a product identifier and are then publicly available through a central venue.">
  {
    bond Bond (0..1);
-		   [synonym FpML value bond pathExpression "trade.bondOption"]
+		 [synonym FpML value bond pathExpression "trade.bondOption"]
    convertibleBond ConvertibleBond (0..1);
-		   [synonym FpML value convertibleBond pathExpression "trade.bondOption"]
+		 [synonym FpML value convertibleBond pathExpression "trade.bondOption"]
  }
 
 A **two-levels class inheritance structure** has been specified to provide for a scalable implementation:
@@ -881,12 +895,12 @@ A **two-levels class inheritance structure** has been specified to provide for a
 
   abstract class ListedHeader <"An abstract class to holds the attributes that are common across listed products.">
   {
-    	id string (0..1);
-      		[synonym FpML value id]
-    	productTaxonomy ProductTaxonomy (1..*) <"The product taxonomy value(s) associated with a product.">;
-    	productIdentifier ProductIdentifier (1..*) <"There can be several identifiers associated with a given product.">;
-    	description string (1..1) <"The product name.">;
-      		[synonym FpML value description]
+    id string (0..1);
+    	[synonym FpML value id]
+    productTaxonomy ProductTaxonomy (1..*) <"The product taxonomy value(s) associated with a product.">;
+    productIdentifier ProductIdentifier (1..*) <"There can be several identifiers associated with a given product.">;
+    description string (1..1) <"The product name.">;
+    	[synonym FpML value description]
   }
 
 * Leveraging the FpML approach for underlyer components, a ``FixedIncomeSecurity`` and an ``EquityAsset`` abstract class then provide the commmon attributes for those respective type of instruments.
@@ -895,13 +909,13 @@ A **two-levels class inheritance structure** has been specified to provide for a
 
    class FixedIncomeSecurity extends ListedHeader <"A fixed income security. In FpML, it corresponds to the FixedIncomeSecurityContent.model.">
    {
-    	 issuer Party (0..1) reference <"FpML implements this element as an href into the party information. Rosetta restricts the type of party that can issue a product to a legal entity. FpML provides the ability to specify the issuer name, but this is deemed insufficient in the context of Rosetta at a time when the LEI is available and of paramount importance to identify entities.">;
-        		[synonym FpML value issuerPartyReference]
-       seniority CreditSeniorityEnum (0..1) <"The repayment precedence of a debt instrument, as specified by a set of enumerated values.  FpML specifies that creditSeniorityTradingScheme (specified in Rosetta through the CreditSeniorityTradingEnum) overrides creditSeniorityScheme (specified in Rosetta through the CreditSeniorityEnum) when the underlyer defines the reference obligation used in a single name credit default swap trade.">;
-        		[synonym FpML value seniority]
-       couponType CouponTypeEnum (0..1) <"Specifies if the bond has a variable coupon, step-up/down coupon or a zero-coupon.">;
-      		  [synonym FpML value couponType]
-       ...
+    	issuer Party (0..1) reference <"FpML implements this element as an href into the party information. Rosetta restricts the type of party that can issue a product to a legal entity. FpML provides the ability to specify the issuer name, but this is deemed insufficient in the context of Rosetta at a time when the LEI is available and of paramount importance to identify entities.">;
+      	[synonym FpML value issuerPartyReference]
+      seniority CreditSeniorityEnum (0..1) <"The repayment precedence of a debt instrument, as specified by a set of enumerated values.  FpML specifies that creditSeniorityTradingScheme (specified in Rosetta through the CreditSeniorityTradingEnum) overrides creditSeniorityScheme (specified in Rosetta through the CreditSeniorityEnum) when the underlyer defines the reference obligation used in a single name credit default swap trade.">;
+      	[synonym FpML value seniority]
+      couponType CouponTypeEnum (0..1) <"Specifies if the bond has a variable coupon, step-up/down coupon or a zero-coupon.">;
+        [synonym FpML value couponType]
+      (...)
    }
 
 Loans and Mortgages as Underlyers of Derivative Products
@@ -922,7 +936,7 @@ The CDM implementation closely reflects the FpML standard, and the approach here
 		    [synonym FpML value borrowerReference]
 	   lien string (0..1) scheme "lienScheme" <"Specifies the seniority level of the lien.">;
 		    [synonym FpML value lien]
-	  ...
+	   (...)
   }
 
 .. code-block:: Java
@@ -936,7 +950,7 @@ The CDM implementation closely reflects the FpML standard, and the approach here
   	  	[synonym FpML value sector]
   	 tranche string (0..1) <"The mortgage obligation tranche that is subject to the derivative transaction.">;
   	  	[synonym FpML value tranche]
-     ...
+     (...)
   }
 
 Event Model
@@ -950,69 +964,73 @@ The CDM event model is based upon the same high-level principles as the product 
 Baseline event modelling features
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Two classes act as foundational blocks for the Rosetta event model: the ``EventBase`` abstract class and the ``Event`` root class. **Note**: if the further developments confirm the unique event structure, those two classes may well be collapsed, as such inheritance structure would have no value.
+The ``Event`` class carries the following set of information:
 
-* The ``EventBase`` abstract class includes five set of information:
-
-  * **Messaging information**: ``messageId``, ``sentBy``, ``sentTo`` and ``copyTo``. This information is optional, as possibly not applicable in a context such as blockchain. It corresponds to some of the components of the FpML *MessageHeader.model*.
-  * **Timestamp information**: ``creationTimestamp`` and ``expiryTimestamp``. In FpML, this information is also positioned as part of the *MessageHeader.model*.
-  * **Event identification** information: the ``identifier``, alongside an optional ``version`` and ``issuer``. As a departure from FpML, which makes use of an event identifier construct (the *Correlation* which is distinct from the one associated with the trade (which itself comes in different variation: *PartyTradeIdentifier*, with the *TradeId* and the *VersionedTradeId* as sub-components of it), the CDM approach consists in using a common identifier component across products and events.
-  * **Time dimension** information, through the ``eventDate`` and ``effectiveDate``;
-  * **Action qualification**, to specify whether the event is a new one, a correction or a cancellation of a prior one.
+* **Messaging information**: ``messageId``, ``sentBy``, ``sentTo`` and ``copyTo``. This information is optional, as possibly not applicable in a context such as blockchain. It corresponds to some of the components of the FpML *MessageHeader.model*.
+* **Timestamp information**: ``creationTimestamp`` and ``expiryTimestamp``. In FpML, this information is also positioned as part of the *MessageHeader.model*.
+* **Event identification** information: the ``identifier``, alongside an optional ``version`` and ``issuer``. As a departure from FpML, which makes use of an event identifier construct (the *Correlation* which is distinct from the one associated with the trade (which itself comes in different variation: *PartyTradeIdentifier*, with the *TradeId* and the *VersionedTradeId* as sub-components of it), the CDM approach consists in using a common identifier component across products and events.
 
   .. code-block:: Java
 
-   abstract class EventBase <"The event base abstract class.">
+   class Identifier
    {
-  	  messageInformation MessageInformation (0..1);
-  	  timeStamp EventTimeStamp (1..1);
-  		    [synonym Rosetta_Workbench value timeStamp]
-  	  eventIdentifier Identifier (1..1);
-  		    [synonym Rosetta_Workbench value eventIdentifier]
-  	  eventDate date (1..1);
-  		    [synonym Rosetta_Workbench value eventDate]
-  	  effectiveDate date (0..1);
-  		    [synonym Rosetta_Workbench value effectiveDate]
-  	  action ActionEnum (1..1) <"Specifies whether the event is a new, a correction or a cancellation.">;
-  		    [synonym FpML value isCorrection
-  			     set action to ActionEnum.new when False,
-  			     set action to ActionEnum.correct when True]
-   }
+	   issuer string (0..1) reference scheme "issuerIdScheme" <"The reference to the party that assigns the trade identifier.">;
+		   [synonym Rosetta_Workbench value issuer]
+	   identifierValue IdentifierValue (1..1);
+	   version int (0..1);
+		   [synonym FpML value version]
+		   [synonym Rosetta_Workbench value version]
+		   [synonym FpML value version pathExpression "versionedTradeId"]
+		   [synonym Rosetta_Workbench value version pathExpression "versionedTradeId"]
+    }
 
-* ``Event`` also has five components, all optional except for the primitive events component:
-
-  * **Intent qualification**, in the form of a set of enumerated values, such as ``allocation``, ``earlyTermination``, ``partialTermination``, etc.
-  * **Party information**.
-  * **Lineage information**, in the form of a class that provides the ability to reference an unbouded set of contracts or events, as shown by the below code snippet:
+* **Time dimension** information, through the ``eventDate`` and ``effectiveDate``, with this latter being optional as not applicable to certain events (e.g. observations).
+* **Action qualification**, to specify whether the event is a new one, a correction or a cancellation of a prior one.
+* **Intent qualification**, in the form of a set of enumerated values, such as ``allocation``, ``earlyTermination``, ``partialTermination``, etc.  This intent is used as part of the event qualification, in order to disambiguate events which features are shared across lifecycle events. As an example, a reduction in a trade quantity/notional could apply to a correction event or a partial termination (although the timing of such event could also be used to qualify the proper event).
+* **Party information**, which is optional because not applicable to certain events (e.g. most of the observation events).
+* **Lineage information**, in the form of a class that provides the ability to reference an unbounded set of contracts or events, as shown by the below code snippet:
 
   .. code-block:: Java
 
    class Lineage
    {
-	      contractReference Identifier (0..*) scheme "correlationIdScheme";
-		        [synonym Rosetta_Workbench value contractReference]
-	      eventReference Identifier (0..*);
-		        [synonym Rosetta_Workbench value eventReference]
+	   contractReference Identifier (0..*) scheme "correlationIdScheme";
+		    [synonym Rosetta_Workbench value contractReference]
+	   eventReference Identifier (0..*);
+		    [synonym Rosetta_Workbench value eventReference]
    }
 
-  * **Primitive events**: the CDM composite approach uses the primitive events as its building blocks. Those primitive events are detailed in the next section of the documentation.
-  * **Function call**: an example of such a function call is the interpolation function that would be associated with a **derived observation** event that assembles two observed values (say, a 3 months and a 6 months rate observation) to provide a derived one (say, a 5 months observation). As part of the CDM V1.0 this function call as been specified as a mere string element. It will be appropriately specified once such implementation is developed, some of which consisting in the machine readable implementation of the ISDA Definitions (see next Interest Calculation section).
+* **Primitive events**: the CDM composite approach uses the primitive events as its building blocks. Those primitive events are detailed in the next section of the documentation.
+* **Function call**: an example of such a function call is the interpolation function that would be associated with a **derived observation** event that assembles two observed values (say, a 3 months and a 6 months rate observation) to provide a derived one (say, a 5 months observation). As part of the current CDM version this function call as been specified as a mere string element. It will be appropriately specified once such implementation is developed, some of which consisting in the machine readable implementation of the ISDA Definitions (see next Interest Calculation section).
 
   .. code-block:: Java
 
    class Event extends EventBase
    {
 	    intent IntentEnum (0..1);
-		      [synonym Rosetta_Workbench value intent]
+		    [synonym Rosetta_Workbench value intent]
 	    party Party (0..*);
-		      [synonym Rosetta_Workbench value party]
+		    [synonym Rosetta_Workbench value party]
 	    lineage Lineage (0..1);
-		      [synonym Rosetta_Workbench value lineage]
+		    [synonym Rosetta_Workbench value lineage]
 	    primitive PrimitiveEvent (1..1);
-		      [synonym Rosetta_Workbench value primitive]
+		    [synonym Rosetta_Workbench value primitive]
 	    functionCall string (0..1);
-		      [synonym Rosetta_Workbench value functionCall]
+		    [synonym Rosetta_Workbench value functionCall]
     }
+* **EventEffect** corresponds to the set of operational and positional effects associated with a lifecycle event. This information is generated by the CDM and takes the form of a set of pointers to the relevant objects that are associated with a lifecycle event. The candidate objects are the classes that have an associated ``rosettaKey`` or ``rosettaKeyValue``. At present, those are the ``Contract``, ``Payment``, ``ContractOrListedProduct`` and ``EconomicTerms``. The ``rosettaKey`` is also associated with the ``Event`` so that a query of the ``EventEffect`` instantiated objects can provide a link to the respective event events. Events such as observations do not have an event effect, hence the optional cardinality.
+
+  .. code-block:: Java
+
+   class EventEffect <"The set of operational and positional effects associated with a lifecycle event.">
+   {
+	   referenceContract Contract (0..*) rosettaKey <"A pointer to the contract to which the event effect(s) apply. This reference is optional to address the case where an event with candidate event effect(s) would only have associated referenceContract.">;
+	   referenceEvent Event (1..1) rosettaKey <"A pointer to the event to which the event effect(s) apply.">;
+	   product ContractOrListedProduct (0..*) rosettaKey <"A pointer to the products effect(s), an example of such being the outcome of an option physical exercise.">;
+	   payment Payment (0..*) rosettaKey <"A pointer to the payment effect(s).">;
+	   reset ResetPrimitive (0..*) rosettaKey <"A pointer to the reset effect(s).">;
+   }
+
 
 Primitive events
 ^^^^^^^^^^^^^^^^
@@ -1021,53 +1039,47 @@ CDM primitive events are the building block components used to specify business 
 
 .. code-block:: Java
 
-  class PrimitiveEvent <"The set of primitive events. The purpose of this class it to provide clarity with respect to the event qualification logic.">
-  {
-    newTrade NewTrade (0..*) <"The new trade primitive is unbounded to address the case of events such as portfolio compressions, which could result in multiple new trades.">;
-      [synonym Rosetta_Workbench value newTrade]
-    quantityChange QuantityChange (0..*);
-      [synonym Rosetta_Workbench value quantityChange]
-    partyChange PartyChange (0..*);
-      [synonym Rosetta_Workbench value partyChange]
-    allocation AllocationPrimitive (0..*);
-      [synonym Rosetta_Workbench value allocation]
-    otherTermsChange OtherTermsChange (0..1);
-      [synonym Rosetta_Workbench value otherTermsChange]
-    exercise ExercisePrimitive (0..1);
-      [synonym Rosetta_Workbench value exercise]
-    observation ObservationPrimitive (0..*);
-      [synonym Rosetta_Workbench value observation]
-    reset ResetPrimitive (0..*);
-      [synonym Rosetta_Workbench value reset]
-    payment Payment (0..*);
-      [synonym Rosetta_Workbench value payment]
-      [synonym Rosetta_Workbench value cashflow]
-   }
+ class PrimitiveEvent <"The set of primitive events. The purpose of this class it to provide clarity with respect to the event qualification logic.">
+ {
+  	newTrade NewTradePrimitive (0..*) <"The new trade primitive is unbounded to address the case of events such as portfolio compressions, which could result in multiple new trades.">;
+  		[synonym Rosetta_Workbench value newTrade]
+	  quantityChange QuantityChangePrimitive (0..*);
+		  [synonym Rosetta_Workbench value quantityChange]
+	  allocation AllocationPrimitive (0..*);
+	  	[synonym Rosetta_Workbench value allocation]
+	  termsChange TermsChangePrimitive (0..1);
+	  	[synonym Rosetta_Workbench value otherTermsChange]
+	  exercise ExercisePrimitive (0..1);
+	  	[synonym Rosetta_Workbench value exercise]
+	  observation ObservationPrimitive (0..*);
+	  	[synonym Rosetta_Workbench value observation]
+	  reset ResetPrimitive (0..*);
+	  	[synonym Rosetta_Workbench value reset]
+	  payment Payment (0..*);
+	  	[synonym Rosetta_Workbench value payment]
+  }
 
 Event qualification from primitive events and intent qualification
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-Similar to the product modelling approach, the event qualification is inferred from the primitive events. One distinction with the product approach is that the ``intent`` qualification is also deemed necessary to complement such primitive event information in certain cases.
+Similar to the product modelling approach, the event qualification is inferred from the primitive events.
 
-An example of such is the **partial termination event**, which is deemed as needed such intent qualification in order to be disambiguated from a **correction event**:
+One distinction with the product approach is that the ``intent`` qualification is also deemed necessary to complement such primitive event information in certain cases. To this effect, the Rosetta event qualification syntax provides the ability to specify that the intent must have a specified value *when present*, as illustrated by the below snippet.
 
 .. code-block:: Java
 
-  isEvent PartialTermination <"The qualification of a full termination event from the fact that (i) the only primitive is the quantityChange, (ii) the intent is a full termination when such intent is specified, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
-	   if Event -> intent exists
-	   then
-		   Event -> intent = IntentEnum.partialTermination
-		   and Event -> primitive -> quantityChange only exists
-	   else
-		   Event -> primitive -> quantityChange only exists
-	   and NotionalAmount_Decrease, NotionalAmount_Remaining apply
+ isEvent Termination <"The qualification of a termination event from the fact that (i) the intent is Termination when specified, (ii) the only primitive is the quantityChange and there is only one such primitive involved, the (iii) the remaining quantity is null, and (iv) the contract state has the value 'terminated'.">
+   Event -> intent when present = IntentEnum.Termination
+   and Event -> primitive -> quantityChange single exists
+   or quantityAfterQuantityChange = 0.0
+   and ( Event -> primitive -> quantityChange -> after -> contract -> state = StateEnum.Terminated
+   or Event -> primitive -> quantityChange -> after -> contractReference -> state = StateEnum.Terminated )
 
-A further example would be the need for disambiguation between a **portfolio rebalancing event** and an **asset servicing event** as applying to a total return swap.
 
 Interest Calculation
 --------------------
 
-CDM V1.0 implements the **Fixed Amount** and **Floating Amount** ISDA 2006 Definitions, alongside with two day count fractions: **30E/360** and **ACT/365.FIXED**.
+The current CDM version implements the **Fixed Amount** and **Floating Amount** ISDA 2006 Definitions, alongside with two day count fractions: **30E/360** and **ACT/365.FIXED**.
 
 Fixed Amount and Floating Amount Definitions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1110,7 +1122,7 @@ The CDM syntax to express the Fixed Amount and Floating Amount is similar in str
 Day Count Fractions: 30E/360 and ACT/365.FIXED
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-CDM V1.0 incorporates two day acount fractions calculations which are quite representative of the set of day count fractions that are specified as part of the ISDA 2006 Definitions: while the **30E/360** definition specifies the actual computation in quite details as a result of the use of a 360 days year and a 30 maximum days month, the **ACT/365.FIXED** is much simpler and relies upon a computation of the number of days in a period which is not specified as part of the syntax because not involving any specific logic.
+The current CDM version incorporates two day count fractions calculations which are quite representative of the set of day count fractions that are specified as part of the ISDA 2006 Definitions: while the **30E/360** definition specifies the actual computation in quite details as a result of the use of a 360 days year and a 30 maximum days month, the **ACT/365.FIXED** is much simpler and relies upon a computation of the number of days in a period which is not specified as part of the syntax because not involving any specific logic.
 
 .. code-block:: Java
 
@@ -1146,7 +1158,7 @@ CDM V1.0 incorporates two day acount fractions calculations which are quite repr
 Reference Data Model
 --------------------
 
-CDM V1.0 only integrates the reference data components that are specifically needed to model the in-scope products, events and interest calculation components.
+CDM only integrates the reference data components that are specifically needed to model the in-scope products, events and interest calculation components.
 
 This translate into the representation of the **party**, with two alternate representations, modeled as attributes: the **legal entity** and the **natural person**.  Indeed, a number of product constructs, such as those applicable to credit default swaps, make use of a a legal entity representation.
 
