@@ -204,7 +204,7 @@ choice rule CreditDefaultPayout_choice <"Choice rule to represent an FpML choice
 	for CreditDefaultPayout optional choice between
 	cashSettlementTerms and physicalSettlementTerms
 
-class EconomicTerms rosettaKey <"This class represents the full set of product economics: the payout component, as well as the legal optional provisions which have valuation implications. A rosettaKey hash is associated to the contractual product economic terms for the purpose of supporting hash-based reconciliations.">
+class EconomicTerms rosettaKey rosettaKeyValue <"This class represents the full set of product economics: the payout component, as well as the legal optional provisions which have valuation implications. A rosettaKey hash is associated to the contractual product economic terms for the purpose of supporting hash-based reconciliations.">
 {
 	payout Payout (1..1) <"The payout specification, which can combine several payout terms, e.g. an interest rate and a credit default payout in the case of a credit default swap.">;
 	earlyTerminationProvision EarlyTerminationProvision (0..1) <"Parameters specifying provisions relating to the optional and mandatory early termination of a swap transaction.">;
@@ -632,6 +632,7 @@ isProduct InterestRate_IRSwap_FixedFloat_PlainVanilla <"This data rule doesn't r
 	and EconomicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step is absent // Not specified in the ISDA taxonomy
 	and EconomicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepParameters is absent // Not specified in the ISDA taxonomy
 	and EconomicTerms -> payout -> interestRatePayout -> stubPeriod is absent  // Not specified in the ISDA taxonomy
+	and EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> stubPeriodType is absent // Not specified in the ISDA taxonomy
 	/*
  	* TODO - Cannot compare the below because in FpML the period associated with the reset frequency is of type PeriodExtendedEnum, which includes 'T'
 	* Need to adjust the implementation once a proper implementation approach has been firmed out
@@ -685,7 +686,8 @@ isProduct InterestRate_IRSwap_FixedFloat
 		or EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier <>
 		EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> indexTenor -> periodMultiplier
 		or EconomicTerms -> payout -> interestRatePayout -> compoundingMethod exists
-		or EconomicTerms -> payout -> interestRatePayout -> stubPeriod exists )
+		or EconomicTerms -> payout -> interestRatePayout -> stubPeriod exists
+		or EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> stubPeriodType exists )
 
 isProduct InterestRate_IRSwap_FixedFixed
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFixed]
