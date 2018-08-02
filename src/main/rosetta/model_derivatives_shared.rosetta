@@ -821,14 +821,25 @@ class Payment extends CashflowBase rosettaKey <"A class for defining payments, a
 	paymentType PaymentTypeEnum (0..1);
 		[synonym Rosetta_Workbench value paymentType]
 	grossCashflow GrossCashflow (0..*) <"The gross cashflow components from which the payment would be derived when corresponding to a netted amount across those components.">;
+		[synonym Rosetta_Workbench value grossCashflow]
 	paymentStatus PaymentStatusEnum (0..1) <"The payment status, e.g. Instructed, Settled.">;
+		[synonym Rosetta_Workbench value paymentStatus]
 	settlementReference string (0..1) <"The settlement reference, when applicable.">;
+		[synonym Rosetta_Workbench value settlementReference]
 }
 
 data rule Payment_paymentflowAmount <"FpML specifies paymentAmount as a NonNegativeMoney type. The direction is indeed implied by the payer/receiver attribute.">
 	when Payment -> paymentAmount exists
 	then Payment -> paymentAmount -> amount >= 0.0
 
+/*
+ * TODO - Adjust data rule syntax to provide the ability to compare across individual items that are part of a list
+ * The below is currently failing because [item, item] <> item
+ */
+//data rule Payment_grossCashflow <"The gross cashflow components must have the same currency as the payment amount.">
+//	when Payment -> grossCashflow exists
+//	then Payment -> grossCashflow -> cashflowAmount -> currency = Payment -> paymentAmount -> currency
+	
 class PaymentDetail
 	[synonym FpML value PaymentDetail]
 {
