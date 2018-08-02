@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+== Copyright (c) 2002-2017 All rights reserved. 
+== Financial Products Markup Language is subject to the FpML public license. 
+== A copy of this license is available at http://www.fpml.org/license/license.html
+-->
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+            xmlns="http://www.fpml.org/FpML-5/pretrade"
+            targetNamespace="http://www.fpml.org/FpML-5/pretrade" ecore:documentRoot="FpML" ecore:nsPrefix="pre"
+            ecore:package="org.fpml.pretrade" version="$Revision: 12900 $" elementFormDefault="qualified"
+            attributeFormDefault="unqualified">
+  <xsd:include schemaLocation="fpml-shared-5-10.xsd" />
+  <xsd:include schemaLocation="fpml-doc-5-10.xsd" />
+  <xsd:complexType name="ComponentProduct">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Definition of an underlying product which is part of a package. A full product definition of the component may be provided elsewhere within the document, in this case the product definition should be referred to by specifying productDefinitionsReference. In the case when the component is not defined within the product definitions document, product id should be provided.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:choice minOccurs="0">
+        <xsd:element name="productId" type="ProductId" />
+        <xsd:element name="productDefinitionReference" type="ProductReference" />
+      </xsd:choice>
+      <xsd:choice minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>For cross-asset packages it may be necessary to use either PayerReceiver.model or BuyerSeller.model whichever is logically applicable to the component product. For example, a bond will require BuyerSeller.model but a swap will require PayerReceiver.model.</xsd:documentation>
+        </xsd:annotation>
+        <xsd:group minOccurs="0" ref="PayerReceiver.model" />
+        <xsd:group minOccurs="0" ref="BuyerSeller.model" />
+      </xsd:choice>
+      <xsd:element name="hedgeRiskWeight" type="xsd:double" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Risk weight is applicable to packages with RiskNeutral hedge type. For example, a risk weight of 1.0 on each leg would means that the quantities are calculated such that the risk of both legs is equal.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attribute name="componentId" type="xsd:ID" use="required" />
+  </xsd:complexType>
+  <xsd:complexType name="ComponentTradeSideReference">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Reference to a component of the package that defines the package trade side.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="Reference">
+        <xsd:attribute name="href" type="xsd:IDREF" use="required" ecore:reference="ComponentProduct" />
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="HedgeType">
+    <xsd:simpleContent>
+      <xsd:extension base="NonEmptyScheme">
+        <xsd:attribute name="hedgeTypeScheme" type="NonEmptyURI" default="http://www.fpml.org/coding-scheme/hedge-type">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">The identifier scheme used with this hedgeType. A unique URI to determine the type of hedging.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:attribute>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="PackageName">
+    <xsd:simpleContent>
+      <xsd:extension base="NonEmptyScheme">
+        <xsd:attribute name="packageNameScheme" type="NonEmptyURI">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">A unique URI to determine the source system providing the package name.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:attribute>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="ProductConventions">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">ProductConventions can be used to specify conventions enforced by a trading platform.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="maximumQuotePrecisionDecimal" type="xsd:int" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Maximum precision in decimal places for providing quotes.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="minContractClipSize" type="xsd:double" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Minimum size of a contract, when a given contract is traded, its size must be a multiple of this value.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="measureType" type="AssetMeasureType" minOccurs="0">
+<!-- <xsd:element name="quoteType" type="xsd:string">-->
+<!-- this must be an enum of some sort -->
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Name of the economic value that serves as a single quote value during negotiation and will be used to determine best bid/offer.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="quoteUnits" type="PriceQuoteUnits" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Units in which quote values are measured.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="ProductDefinition">
+    <xsd:sequence>
+      <xsd:element name="description" type="String" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Optional "user-friendly" name for the product used for annotation purposes</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="conventions" type="ProductConventions" minOccurs="0" />
+      <xsd:choice minOccurs="0">
+        <xsd:element name="package" type="StandardPackage">
+          <xsd:annotation>
+            <xsd:documentation>Definition of a standard package that consists out of several products</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element ref="product">
+          <xsd:annotation>
+            <xsd:documentation>FpML product definition</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+      </xsd:choice>
+      <xsd:element ref="tradeSideReference" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>If this definition is for a single product, tradeSideReference can be of type tradeSideRelativeToSwapStream and refer to the swapStream id that determines the trade side. If this definition is for a standard package, tradeSideReference can be of type tradeSideRelativeToComponent which refers to the component product that determines the trade side.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID" />
+  </xsd:complexType>
+  <xsd:complexType name="ProductDefinitionsHeader">
+    <xsd:sequence>
+      <xsd:element name="platformDate" type="xsd:date" minOccurs="0" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="StandardPackage">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A standard package is a type of strategy which consists of several single instruments, also known as underlying instruments. All underlying instruments must be also specified in the product definition, so that the can be referred to by their identifier.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="productId" type="ProductId" minOccurs="0" maxOccurs="unbounded" />
+      <xsd:element name="packageName" type="PackageName" minOccurs="0" />
+      <xsd:element name="hedgeType" type="HedgeType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Hedged type defines how quantities on each component product are calculated. If hedge type is DeltaNeutral, component products must have HedgeRiskWeights defined.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="component" type="ComponentProduct" minOccurs="0" maxOccurs="unbounded" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="SwapStreamSideReference">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Reference to a swapStream of the swap that defines the trade side.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="Reference">
+        <xsd:attribute name="href" type="xsd:IDREF" use="required" ecore:reference="SwapStream" />
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:element name="tradeSideReference" type="Reference" abstract="true">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">An abstract element used as a place holder for the substituting trade side reference depending on product type.</xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+  <xsd:element name="tradeSideRelativeToComponent" type="ComponentTradeSideReference" substitutionGroup="tradeSideReference">
+    <xsd:annotation>
+      <xsd:documentation>Refer to the component product defined within standard package definition where this field is defined.</xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+  <xsd:element name="tradeSideRelativeToSwapStream" type="SwapStreamSideReference" substitutionGroup="tradeSideReference">
+    <xsd:annotation>
+      <xsd:documentation>Refer to the swap stream defined within the product definition where this field is defined.</xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+  <xsd:complexType name="RequestProductDefinitions">
+    <xsd:complexContent>
+      <xsd:extension base="CorrectableRequestMessage">
+        <xsd:sequence>
+          <xsd:element name="productDefinitionsHeader" type="ProductDefinitionsHeader" minOccurs="0" />
+          <xsd:choice>
+            <xsd:sequence>
+              <xsd:element name="definition" type="ProductDefinition" maxOccurs="unbounded" />
+              <xsd:element name="queryProduct" type="QueryProduct" minOccurs="0">
+                <xsd:annotation>
+                  <xsd:documentation>A type representing a portfolio obtained by querying the set of trades held in a repository. It contains trades matching the intersection of all criteria specified using one or more queryParameters or trades matching the union of two or more child queryPortfolios.</xsd:documentation>
+                </xsd:annotation>
+              </xsd:element>
+            </xsd:sequence>
+            <xsd:element name="queryProduct" type="QueryProduct">
+              <xsd:annotation>
+                <xsd:documentation>A type representing a portfolio obtained by querying the set of trades held in a repository. It contains trades matching the intersection of all criteria specified using one or more queryParameters or trades matching the union of two or more child queryPortfolios.</xsd:documentation>
+              </xsd:annotation>
+            </xsd:element>
+          </xsd:choice>
+          <xsd:group ref="PartiesAndAccounts.model" minOccurs="0" />
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="RequestProductDefinitionsRetracted">
+    <xsd:complexContent>
+      <xsd:extension base="NonCorrectableRequestMessage">
+        <xsd:sequence>
+          <xsd:element name="productDefinitionsHeader" type="ProductDefinitionsHeader" minOccurs="0" />
+          <xsd:choice>
+            <xsd:sequence>
+              <xsd:element name="definition" type="ProductDefinition" maxOccurs="unbounded" />
+              <xsd:element name="queryProduct" type="QueryProduct" minOccurs="0">
+                <xsd:annotation>
+                  <xsd:documentation>A type representing a portfolio obtained by querying the set of trades held in a repository. It contains trades matching the intersection of all criteria specified using one or more queryParameters or trades matching the union of two or more child queryPortfolios.</xsd:documentation>
+                </xsd:annotation>
+              </xsd:element>
+            </xsd:sequence>
+            <xsd:element name="queryProduct" type="QueryProduct">
+              <xsd:annotation>
+                <xsd:documentation>A type representing a portfolio obtained by querying the set of trades held in a repository. It contains trades matching the intersection of all criteria specified using one or more queryParameters or trades matching the union of two or more child queryPortfolios.</xsd:documentation>
+              </xsd:annotation>
+            </xsd:element>
+          </xsd:choice>
+          <xsd:group ref="PartiesAndAccounts.model" minOccurs="0" />
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="ProductDefinitionsReport">
+    <xsd:complexContent>
+      <xsd:extension base="ResponseMessage">
+        <xsd:sequence>
+          <xsd:element name="productDefinitionsHeader" type="ProductDefinitionsHeader" minOccurs="0" />
+          <xsd:choice>
+            <xsd:sequence>
+              <xsd:element name="definition" type="ProductDefinition" maxOccurs="unbounded" />
+              <xsd:element name="queryProduct" type="QueryProduct" minOccurs="0">
+                <xsd:annotation>
+                  <xsd:documentation>A type representing a portfolio obtained by querying the set of trades held in a repository. It contains trades matching the intersection of all criteria specified using one or more queryParameters or trades matching the union of two or more child queryPortfolios.</xsd:documentation>
+                </xsd:annotation>
+              </xsd:element>
+            </xsd:sequence>
+            <xsd:element name="queryProduct" type="QueryProduct">
+              <xsd:annotation>
+                <xsd:documentation>A type representing a portfolio obtained by querying the set of trades held in a repository. It contains trades matching the intersection of all criteria specified using one or more queryParameters or trades matching the union of two or more child queryPortfolios.</xsd:documentation>
+              </xsd:annotation>
+            </xsd:element>
+          </xsd:choice>
+          <xsd:group ref="PartiesAndAccounts.model" minOccurs="0" />
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:element name="requestProductDefinitions" type="RequestProductDefinitions" />
+  <xsd:element name="requestProductDefinitionsRetracted" type="RequestProductDefinitionsRetracted" />
+  <xsd:element name="productDefinitionsReport" type="ProductDefinitionsReport" />
+  <xsd:element name="productDefinitionsException" type="Exception" />
+  <xsd:element name="productDefinitionsAcknowledgement" type="Acknowledgement" />
+<!-- <xsd:complexType name="ProductDefinitions">
+        <xsd:complexContent>
+            <xsd:extension base="Document">
+                <xsd:sequence>
+                    <xsd:element name="productDefinitionsHeader" type="ProductDefinitionsHeader"/>
+                    <xsd:element name="definition" maxOccurs="unbounded" type="ProductDefinition"/>
+                    <xsd:group create="PartiesAndAccounts.model" minOccurs="0"/>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:element name="productDefinitionsDocument" type="ProductDefinitions"/>-->
+</xsd:schema>
+
