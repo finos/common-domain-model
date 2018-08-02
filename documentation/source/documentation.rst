@@ -94,15 +94,15 @@ The CDM supports the concept of **abstract classes**, which cannot be instantiat
  abstract class ListedHeader <"An abstract class to holds the attributes that are common across listed products.">
  {
   id string (0..1) anchor;
-   [synonym FpML value id]
+    [synonym FpML value id]
   productTaxonomy ProductTaxonomy (1..*) <"The product taxonomy value(s) associated with a product.">;
   productIdentifier ProductIdentifier (1..*) <"There can be several identifiers associated with a given product.">;
   description string (1..1) <"The product name.">;
-   [synonym FpML value description]
+    [synonym FpML value description]
   currency string (0..1) scheme "currencyScheme" <"The denomination currency of the instrument.">;
-   [synonym FpML value currency]
+    [synonym FpML value currency]
   clearanceSystem string (0..1) scheme "clearanceSystemScheme" <"Identification of the clearance system associated with the transaction exchange.">;
-   [synonym FpML value clearanceSystem]
+    [synonym FpML value clearanceSystem]
  }
 
 The Rosetta convention is that class names start with a capital letter. Class names need to be unique across the model, including with respect to rule names. Both those are controlled by the Rosetta grammar.
@@ -140,25 +140,25 @@ The CDM provides the ability to associate a set of **qualifiers** to the attribu
 
   The below CDM snippet provides a good illustration as to how those 3 qualifiers are implemented, with the ``anchor`` qualifier being associated to the ``id`` attribute of the ``Party`` class, while the ``reference`` is associated to the ``partyReference`` attribute of the ``PartyAndAccountReference`` class.  The values associated with the *partyIdScheme* being not specified by FpML, this scheme is associated as such with the ``partyId`` attribute.  (As detailed in the Enumerations section below, the schemes which values are specified by FpML are positioned as CDM enumerations.)
 
- .. code-block:: Java
+.. code-block:: Java
 
   class Party <"The party class.">
-	 [synonym FpML value Party]
+    [synonym FpML value Party]
   {
-	 id string (0..1) anchor;
-	  [synonym FpML value id]
-	 partyId string (1..*) scheme "partyIdScheme" <"The identifier associated with a party, e.g. the 20 digits LEI code.">;
-	  [synonym FpML value partyId]
-	 legalEntity LegalEntity (0..1);
-	 naturalPerson NaturalPerson (0..*);
+   id string (0..1) anchor;
+     [synonym FpML value id]
+   partyId string (1..*) scheme "partyIdScheme" <"The identifier associated with a party, e.g.  the 20 digits LEI code.">;
+     [synonym FpML value partyId]
+   legalEntity LegalEntity (0..1);
+   naturalPerson NaturalPerson (0..*);
   }
 
   class PartyAndAccountReference <"This class corresponds to the FpML PartyAndAccountReferences.model.">
   {
-	 partyReference string (1..1) reference;
-	  [synonym FpML value partyReference]
-	 accountReference string (0..1) reference;
-	  [synonym FpML value accountReference]
+   partyReference string (1..1) reference;
+     [synonym FpML value partyReference]
+   accountReference string (0..1) reference;
+     [synonym FpML value accountReference]
   }
 
 * The ``calculation`` qualifier represents the outcome of the CDM interest accrual calculation. It is currently associated with two attributes: ``cashflowCalculation`` in the ``Cashflow`` class, and ``callFunction`` in the ``computedAmount`` class. (Note: The intent is to deprecate this qualifier in the near future, and to instead create a ``calculation`` type.)
@@ -169,8 +169,8 @@ The CDM provides the ability to associate a set of **qualifiers** to the attribu
 
   class ContractualProduct <"The contractual product class is meant to be used across the entire pre-execution, execution and (as part of the Contract) post-execution lifecycle contexts.">
   {
- 	  productIdentification ProductIdentification (0..1);
- 	  productTaxonomy ProductTaxonomy (0..*) <"The product taxonomy value(s) associated with a contractual product.">;
+    productIdentification ProductIdentification (0..1);
+    productTaxonomy ProductTaxonomy (0..*) <"The product taxonomy value(s) associated with a  contractual product.">;
     economicTerms EconomicTerms (1..1);
   }
 
@@ -180,24 +180,24 @@ The CDM provides the ability to associate a set of **qualifiers** to the attribu
 
   class EventEffect <"The set of operational and positional effects associated with a lifecycle event.">
   {
- 	  referenceContract Contract (0..*) rosettaKey <"A pointer to the contract to which the event effect(s) apply. This reference is optional to address the case where an event with candidate event effect(s) would only have associated referenceContract.">;
- 	  referenceEvent Event (1..1) rosettaKey <"A pointer to the event to which the event effect(s) apply.">;
- 	  product ContractOrListedProduct (0..*) rosettaKey <"A pointer to the products effect(s), an example of such being the outcome of an option physical exercise.">;
- 	  payment Payment (0..*) rosettaKey <"A pointer to the payment effect(s).">;
- 	  reset ResetPrimitive (0..*) rosettaKey <"A pointer to the reset effect(s).">;
+    referenceContract Contract (0..*) rosettaKey <"A pointer to the contract to which the event effect(s) apply. This reference is optional to address the case where an event with candidate event effect(s) would only have associated referenceContract.">;
+    referenceEvent Event (1..1) rosettaKey <"A pointer to the event to which the event effect(s) apply.">;
+    product ContractOrListedProduct (0..*) rosettaKey <"A pointer to the products effect(s), an example of such being the outcome of an option physical exercise.">;
+    payment Payment (0..*) rosettaKey <"A pointer to the payment effect(s).">;
+    reset ResetPrimitive (0..*) rosettaKey <"A pointer to the reset effect(s).">;
   }
 
   class Contract rosettaKey <"A class to specify a contract object, which can be invoked either within the context of an event, or independently from it. It corresponds to the FpML Trade, although restricted to execution and post-execution contexts. Attributes also applicable to pre-execution (a.k.a. pre-trade view in FpML) contexts have been positioned as part of the ContractualProduct class.">
   {
     id string (0..1) anchor;
-     [synonym FpML value id]
+      [synonym FpML value id]
     contractIdentifier PartyContractIdentifier (1..*) <"The contract reference identifier(s) allocated by the parties involved in the contract.">;
-     [synonym FpML value partyTradeIdentifier pathExpression "trade.tradeHeader"]
-  	 [synonym FpML value partyTradeIdentifier pathExpression "tradeHeader"]
+      [synonym FpML value partyTradeIdentifier pathExpression "trade.tradeHeader"]
+      [synonym FpML value partyTradeIdentifier pathExpression "tradeHeader"]
     (...)
     state StateEnum (0..1) <"The state qualification of a contractual product.">;
-     [synonym Rosetta_Workbench value state]
-  }
+      [synonym Rosetta_Workbench value state]
+   }
 
 * The ``rosettaKeyValue`` is a variation of the ``RosettaKey`` which associated hash function doesn't include any of those qualifiers that are associated with the attributes.  The reasoning is that some of those qualifiers are automatically generated by algorithm (typically, the anchors and references associated with XML documents) and would then result in differences between two instance documents, even if those documents would have the same actual values.
 
@@ -214,12 +214,12 @@ The reason for supporting those two implementations is that there is a need for 
  }
 
  class ContractIdentifier extends Identifier <"A class defining a trade identifier issued by the indicated party. The CDM doesn't extends the base class PartyAndAccountReference because of the choice logic with the issuer element.">
-  [synonym FpML value TradeIdentifier]
+   [synonym FpML value TradeIdentifier]
  {
    partyReference string (0..1) reference <"Reference to a party.">;
-	  [synonym FpML value partyReference]
-	 accountReference string (0..1) reference <"Reference to an account.">;
-	  [synonym FpML value accountReference]
+     [synonym FpML value partyReference]
+   accountReference string (0..1) reference <"Reference to an account.">;
+     [synonym FpML value accountReference]
  }
 
 Enumerations
@@ -242,14 +242,14 @@ Similar to the class, the enumeration is delineated by brackets ``{`` ``}``.
 .. code-block:: Java
 
  enum CouponTypeEnum <"The enumerated values to specify if the bond has a variable coupon, step-up/down coupon or a zero-coupon.">
-  [synonym FpML value couponTypeScheme]
+   [synonym FpML value couponTypeScheme]
  {
   Fixed <"Bond has fixed rate coupon.">
-   [synonym FpML value "Fixed"],
+    [synonym FpML value "Fixed"],
   Float <"Bond has floating rate coupon.">
-   [synonym FpML value "Float"],
+    [synonym FpML value "Float"],
   Structured <"Bond has structured coupon.">
-   [synonym FpML value "Struct"]
+    [synonym FpML value "Struct"]
  }
 
 Enumeration Values
@@ -270,13 +270,13 @@ In order to handle the integration of FpML scheme values such as the *dayCountFr
 .. code-block:: Java
 
  enum DayCountFractionEnum <"The enumerated values to specify the day count fraction.">
-  [synonym FpML value dayCountFractionScheme]
+   [synonym FpML value dayCountFractionScheme]
  {
   (...)
   ACT_360 displayName "ACT/360" <"Per 2006 ISDA Definitions, Section 4.16. Day Count Fraction, paragraph (e) or Annex to the 2000 ISDA Definitions (June 2000 Version), Section 4.16. Day Count Fraction, paragraph (d).">
-   [synonym FpML value "ACT/360"],
+    [synonym FpML value "ACT/360"],
   ACT_ACT_ISDA displayName "ACT/ACT.ISDA" <"Per 2006 ISDA Definitions, Section 4.16. Day Count Fraction, paragraph (b) or Annex to the 2000 ISDA Definitions (June 2000 Version), Section 4.16. Day Count Fraction, paragraph (b). Note that going from FpML 2.0 Recommendation to the FpML 3.0 Trial Recommendation the code in FpML 2.0 'ACT/365.ISDA' became 'ACT/ACT.ISDA'.">
-   [synonym FpML value "ACT/ACT.ISDA"],
+    [synonym FpML value "ACT/ACT.ISDA"],
   (...)
  }
 
@@ -288,12 +288,12 @@ The **synonym syntax** associated with enumeration values differs in two respect
  .. code-block:: Java
 
   enum TimeInForceEnum <"The enumeration values to specify the period of time during which an order remains in effect.">
-	 [synonym FIX value TimeInForce tag 59]
+    [synonym FIX value TimeInForce tag 59]
   {
    Day <"Day (or session)">
-    [synonym FIX value "0" definition "0 = Day (or session)"],
+     [synonym FIX value "0" definition "0 = Day (or session)"],
    GoodTillCancel <"Good Till Cancel (GTC)">
-    [synonym FIX value "1" definition "1 = Good Till Cancel (GTC)"],
+     [synonym FIX value "1" definition "1 = Good Till Cancel (GTC)"],
    (...)
   }
 
@@ -313,19 +313,19 @@ Choice rules only apply within the context of a class, and the naming convention
 .. code-block:: Java
 
  class ContractIdentifier extends Identifier <"A class defining a trade identifier issued by the indicated party. The CDM doesn't extends the base class PartyAndAccountReference because of the choice logic with the issuer element.">
-	[synonym FpML value TradeIdentifier]
+   [synonym FpML value TradeIdentifier]
  {
   id string (0..1);
-	 [synonym FpML value id]
-	partyReference string (0..1) reference <"Reference to a party.">;
-	 [synonym FpML value partyReference]
-	accountReference string (0..1) reference <"Reference to an account.">;
-	 [synonym FpML value accountReference]
+    [synonym FpML value id]
+  partyReference string (0..1) reference <"Reference to a party.">;
+    [synonym FpML value partyReference]
+  accountReference string (0..1) reference <"Reference to an account.">;
+    [synonym FpML value accountReference]
  }
 
  choice rule ContractIdentifier_choice <"Choice rule to represent an FpML choice construct.">
-	for ContractIdentifier required choice between
-	issuer and partyReference
+  for ContractIdentifier required choice between
+  issuer and partyReference
 
 The choice constraint can either be **required** (implying that exactly one of the attributes needs to be present) or **optional** (implying that at most one of the attributes needs to be present).
 
@@ -348,12 +348,12 @@ In the case where all the attributes of a given class are subject to a choice lo
 .. code-block:: Java
 
   class BondOptionStrike one of <"A class to specify the strike of a bond or convertible bond option.">
-   [synonym FpML value BondOptionStrike]
+    [synonym FpML value BondOptionStrike]
   {
    referenceSwapCurve ReferenceSwapCurve (0..1) <"The strike of an option when expressed by reference to a swap curve. (Typically the case for a convertible bond option.)">;
-    [synonym FpML value referenceSwapCurve]
+     [synonym FpML value referenceSwapCurve]
    price OptionStrike (0..1);
-    [synonym FpML value price]
+     [synonym FpML value price]
   }
 
 Aliases
@@ -379,13 +379,13 @@ The below snippet presents an exemple of such alias and its use as part of an ev
 .. code-block:: Java
 
  alias contractBeforeQuantityChange
-  Event -> primitive -> quantityChange -> before -> contract
-	or Event -> primitive -> quantityChange -> before -> contractReference
+   Event -> primitive -> quantityChange -> before -> contract
+  or Event -> primitive -> quantityChange -> before -> contractReference
 
  isEvent Compression <"The qualification of a compression event from the fact that (i) the intent is Compression when specified, (ii) the quantity change primitive exists, (iii) and there are multiple contracts (or contract references) specified in the before state.">
-  Event -> intent when present = IntentEnum.Compression
-  and Event -> primitive -> quantityChange exists
-  and contractBeforeQuantityChange multiple exists
+   Event -> intent when present = IntentEnum.Compression
+   and Event -> primitive -> quantityChange exists
+   and contractBeforeQuantityChange multiple exists
 
 
 Mapping Artefacts
@@ -430,18 +430,18 @@ A further set of attributes can be associated with a synonym, to address specifi
  .. code-block:: Java
 
   class CalculationPeriodDates <"A class defining the parameters used to generate the calculation period dates schedule, including the specification of any initial or final stub calculation periods. A calculation perod schedule consists of an optional initial stub calculation period, one or more regular calculation periods and an optional final stub calculation period. In the absence of any initial or final stub calculation periods, the regular part of the calculation period schedule is assumed to be between the effective date and the termination date. No implicit stubs are allowed, i.e. stubs must be explicitly specified using an appropriate combination of firstPeriodStateDate, firstRegularPeriodStartDate and lastRegularPeriodEndDate..">
-	 [synonym FpML value CalculationPeriodDates]
+    [synonym FpML value CalculationPeriodDates]
   {
    id string (0..1) anchor;
-    [synonym FpML value id pathExpression "calculationPeriodDates"]
+     [synonym FpML value id pathExpression "calculationPeriodDates"]
    effectiveDate AdjustableDate (0..1) <"The first day of the term of the trade. This day may be subject to adjustment in accordance with a business day convention.">;
-    [synonym FpML value effectiveDate pathExpression "calculationPeriodDates"]
-    [synonym FpML value effectiveDate]
+     [synonym FpML value effectiveDate pathExpression "calculationPeriodDates"]
+     [synonym FpML value effectiveDate]
    relativeEffectiveDate AdjustedRelativeDateOffset (0..1) <"Defines the effective date.">;
-    [synonym FpML value relativeEffectiveDate pathExpression "calculationPeriodDates"]
+     [synonym FpML value relativeEffectiveDate pathExpression "calculationPeriodDates"]
    terminationDate AdjustableDate (0..1) <"The last day of the terms of the trade. This date may be subject to adjustments in accordance with the business day convention.">;
-    [synonym FpML value terminationDate pathExpression "calculationPeriodDates"]
-    [synonym FpML value scheduledTerminationDate]
+     [synonym FpML value terminationDate pathExpression "calculationPeriodDates"]
+     [synonym FpML value scheduledTerminationDate]
    (...)
   }
 
@@ -470,19 +470,19 @@ The mapping logic associated with the below ``action`` attribute provides a good
  {
   messageInformation MessageInformation (0..1);
   timestamp EventTimestamp (1..1);
-   [synonym Rosetta_Workbench value timestamp]
+    [synonym Rosetta_Workbench value timestamp]
   eventIdentifier Identifier (1..1);
-   [synonym Rosetta_Workbench value eventIdentifier]
+    [synonym Rosetta_Workbench value eventIdentifier]
   eventDate date (1..1);
-   [synonym Rosetta_Workbench value eventDate]
+    [synonym Rosetta_Workbench value eventDate]
   effectiveDate date (0..1);
-   [synonym Rosetta_Workbench value effectiveDate]
+    [synonym Rosetta_Workbench value effectiveDate]
   action ActionEnum (1..1) <"Specifies whether the event is a new, a correction or a cancellation.">;
-   [synonym FpML value isCorrection
-     set action to ActionEnum.New when False,
-     set action to ActionEnum.Correct when True]
+    [synonym FpML value isCorrection
+      set action to ActionEnum.New when False,
+      set action to ActionEnum.Correct when True]
   intent IntentEnum (0..1);
-   [synonym Rosetta_Workbench value intent]
+    [synonym Rosetta_Workbench value intent]
   (...)
  }
 
@@ -504,19 +504,19 @@ As an example, the ``FpML_ird_61`` data rule implements the **FpML ird validatio
 .. code-block:: Java
 
  class NotionalSchedule <"A class specifying defining the notional amount or notional amount schedule associated with a contractual product. The notional schedule will be captured explicitly, specifying the dates that the notional changes and the outstanding notional amount that applies from that date. A parametric representation of the rules defining the notional step schedule can optionally be included.">
-  [synonym FpML value Notional]
+   [synonym FpML value Notional]
  {
   id string (0..1);
-   [synonym FpML value id]
+    [synonym FpML value id]
   notionalStepSchedule NonNegativeAmountSchedule (1..1) <"The notional amount or notional amount schedule expressed as explicit outstanding notional amounts and dates. In the case of a schedule, the step dates may be subject to adjustments in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">;
-   [synonym FpML value notionalStepSchedule]
+    [synonym FpML value notionalStepSchedule]
   notionalStepParameters NotionalStepRule (0..1) <"A parametric representation of the notional step schedule, i.e. parameters used to generate the notional schedule.">;
-   [synonym FpML value notionalStepParameters]
+    [synonym FpML value notionalStepParameters]
  }
 
  data rule FpML_ird_61 <"FpML validation rule ird-61 - Context: NonNegativeSchedule (complex type). If step does not exist, then initialValue must not be equal to 0.">
-  when NotionalSchedule -> notionalStepSchedule -> step is absent
-  then NotionalSchedule -> notionalStepSchedule -> initialValue <> 0.0
+   when NotionalSchedule -> notionalStepSchedule -> step is absent
+   then NotionalSchedule -> notionalStepSchedule -> initialValue <> 0.0
 
 (**Note**: the above ``0.0`` notation is meant to denote the fact that the ``initialValue`` attribute is of type ``number``.)
 
@@ -535,7 +535,7 @@ Another variation example of this naming convention is ``CalculationPeriodFreque
 
  data rule CalculationPeriodFrequency_rollConvention_M_Y <"FpML validation rule ird-57 - Context: CalculationPeriodFrequency. [period eq ('M', 'Y')] not(rollConvention = ('NONE', 'SFE', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT','SUN')).">
   when CalculationPeriodFrequency -> period = PeriodExtendedEnum.M or CalculationPeriodFrequency -> period = PeriodExtendedEnum.Y
- 	then CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.NONE
+  then CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.NONE
    or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.SFE
    or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.MON
    or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.TUE
@@ -547,7 +547,7 @@ Another variation example of this naming convention is ``CalculationPeriodFreque
 
  data rule CalculationPeriodFrequency_rollConvention_W <"FpML validation rule ird-58 - Context: CalculationPeriodFrequency (complex type). When the period is 'W', the rollConvention must be a week day, 'SFE' or 'NONE'.">
   when CalculationPeriodFrequency -> period = PeriodExtendedEnum.W
- 	then CalculationPeriodFrequency -> rollConvention = RollConventionEnum.NONE
+  then CalculationPeriodFrequency -> rollConvention = RollConventionEnum.NONE
    or CalculationPeriodFrequency -> rollConvention = RollConventionEnum.SFE
    or CalculationPeriodFrequency -> rollConvention = RollConventionEnum.MON
    or CalculationPeriodFrequency -> rollConvention = RollConventionEnum.TUE
@@ -589,7 +589,7 @@ Here are a set of relevant examples of this data rule syntax:
   data rule CalculationPeriodDates_firstPeriodStartDate_stubPeriodType <"FpML specifies that the firstRegularPeriodStartDate must only be specified if there is an initial stub calculation period.">
    when CalculationPeriodDates -> stubPeriodType is absent
     or ( CalculationPeriodDates -> stubPeriodType <> StubPeriodTypeEnum.ShortInitial
-   	and CalculationPeriodDates -> stubPeriodType <> StubPeriodTypeEnum.LongInitial )
+    and CalculationPeriodDates -> stubPeriodType <> StubPeriodTypeEnum.LongInitial )
    then CalculationPeriodDates -> firstRegularPeriodStartDate must be absent
 
 *   ``FpML_cd_7`` makes use of parentheses for the purpose of supporting nested assertions.
@@ -628,7 +628,7 @@ The CDM makes use of the ISDA taxonomy V2.0 leaf level to qualify the event.  Th
 .. code-block:: Java
 
  isProduct InterestRate_IRSwap_FixedFloat
-  [synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFloat]
+   [synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFloat]
   EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate exists
   and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate exists
 
@@ -764,12 +764,12 @@ The Rosetta ``Contract`` class includes a ``contractState`` attribute whose purp
  class Contract <"A class to specify a contract object, which can be invoked either within the context of an event, or independently from it. It corresponds to the FpML Trade, although restricted to execution and post-execution contexts. Attributes also applicable to pre-execution (a.k.a. pre-trade view in FpML) contexts have been positioned as part of the ContractualProduct class.">
  {
   contractIdentifier PartyContractIdentifier (1..*) <"The contract reference identifier(s) allocated by the parties involved in the contract.">;
-   [synonym FpML value partyTradeIdentifier pathExpression "trade.tradeHeader"]
-   [synonym Rosetta_Workbench value partyTradeIdentifier pathExpression "tradeHeader"]
+    [synonym FpML value partyTradeIdentifier pathExpression "trade.tradeHeader"]
+    [synonym Rosetta_Workbench value partyTradeIdentifier pathExpression "tradeHeader"]
   tradeDate DateInstances (1..1) <"The trade date. This is the date the trade was originally executed. In the case of a novation, the novated part of the trade should be reported (by both the remaining party and the transferee) using a trade date corresponding to the date the novation was agreed. The remaining part of a trade should be reported (by both the transferor and the remaining party) using a trade date corresponding to the original execution date.">;
   clearedDate date (0..1) <"If the trade was cleared (novated) through a central counterparty clearing service, this represents the date the trade was cleared (transferred to the central counterparty).">;
-   [synonym FpML value clearedDate pathExpression "trade.tradeHeader"]
-   [synonym Rosetta_Workbench value clearedDate pathExpression "tradeHeader"]
+    [synonym FpML value clearedDate pathExpression "trade.tradeHeader"]
+    [synonym Rosetta_Workbench value clearedDate pathExpression "tradeHeader"]
   contractualProduct ContractualProduct (1..1) <"The contractual product information that is associated with the contract. The corresponding FpML construct is the product abstract element and the associated substitution group.">;
   (...)
  }
@@ -799,12 +799,12 @@ The CDM ``EconomicTerms`` class ands the underlying ``Payout`` class represent a
  class EconomicTerms <"This class represents the full set of product economics: the payout component, as well as the legal optional provisions which have valuation implications.">
  {
   payout Payout (1..1) <"The payout specification, which can combine several payout terms, e.g. an interest rate and a credit default payout in the case of a credit default swap.">;
-	earlyTerminationProvision EarlyTerminationProvision (0..1) <"Parameters specifying provisions relating to the optional and mandatory early termination of a swap transaction.">;
-	 [synonym FpML value earlyTerminationProvision pathExpression "trade.swap"]
-	cancelableProvision CancelableProvision (0..1) <"A provision that allows the specification of an embedded option within a swap giving the buyer of the option the right to terminate the swap, in whole or in part, on the early termination date.">;
-	 [synonym FpML value cancelableProvision pathExpression "trade.swap"]
-	 extendibleProvision ExtendibleProvision (0..1) <"A provision that allows the specification of an embedded option with a swap giving the buyer of the option the right to extend the swap, in whole or in part, to the extended termination date.">;
-  }
+  earlyTerminationProvision EarlyTerminationProvision (0..1) <"Parameters specifying provisions relating to the optional and mandatory early termination of a swap transaction.">;
+    [synonym FpML value earlyTerminationProvision pathExpression "trade.swap"]
+  cancelableProvision CancelableProvision (0..1) <"A provision that allows the specification of an embedded option within a swap giving the buyer of the option the right to terminate the swap, in whole or in part, on the early termination date.">;
+    [synonym FpML value cancelableProvision pathExpression "trade.swap"]
+  extendibleProvision ExtendibleProvision (0..1) <"A provision that allows the specification of an embedded option with a swap giving the buyer of the option the right to extend the swap, in whole or in part, to the extended termination date.">;
+ }
 
 The ``Payout`` class provides some provide some appropriate insight with respect to the correspondance between an FpML product and its CDM representation, through the FpML synonyms and associated path expressions.  As an example, one can see that the FpML *feeLeg* is represented through the CDM ``interestRatePayout``, while the FpML *singlePayment* and *initialPayment* are both represented through the CDM ``cashflow``.
 
@@ -813,24 +813,24 @@ The ``Payout`` class provides some provide some appropriate insight with respect
  class Payout <"The payout can be specified through a number of combinations, e.g. by associating several interest rate payouts to specify an interest rate swap, or a credit default and an interest rate payout to specify a credit default swap. The implied product is inferred by the isProduct CDM artefact.">
  {
   interestRatePayout InterestRatePayout (0..*);
-   [synonym FpML value swapStream pathExpression "trade.swap"]
-   [synonym Rosetta_Workbench value swapStream pathExpression "contract.swap"]
-   [synonym FpML value swapStream pathExpression "trade.swaption.swap"]
-   [synonym Rosetta_Workbench value swapStream pathExpression "contract.swaption.swap"]
-   [synonym FpML value feeLeg pathExpression "trade.creditDefaultSwap"]
-   [synonym Rosetta_Workbench value feeLeg pathExpression "contract.creditDefaultSwap"]
-   [synonym FpML value feeLeg pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
-   [synonym FpML value generalTerms pathExpression "trade.creditDefaultSwap"]
-   [synonym FpML value generalTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
+    [synonym FpML value swapStream pathExpression "trade.swap"]
+    [synonym Rosetta_Workbench value swapStream pathExpression "contract.swap"]
+    [synonym FpML value swapStream pathExpression "trade.swaption.swap"]
+    [synonym Rosetta_Workbench value swapStream pathExpression "contract.swaption.swap"]
+    [synonym FpML value feeLeg pathExpression "trade.creditDefaultSwap"]
+    [synonym Rosetta_Workbench value feeLeg pathExpression "contract.creditDefaultSwap"]
+    [synonym FpML value feeLeg pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
+    [synonym FpML value generalTerms pathExpression "trade.creditDefaultSwap"]
+    [synonym FpML value generalTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
   creditDefaultPayout CreditDefaultPayout (0..1);
   cashflow Payment (0..*) <"A payment between the parties to the trade. For interest rate products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the initialPayment element and the singlePayment element of the fee leg.">;
-   [synonym FpML value additionalPayment pathExpression "trade.swap"]
-   [synonym FpML value initialPayment pathExpression "trade.creditDefaultSwap.feeLeg"]
-   [synonym FpML value singlePayment pathExpression "trade.creditDefaultSwap.feeLeg"]
-   [synonym FpML value premium pathExpression "trade.swaption"]
-   [synonym Rosetta_Workbench value premium pathExpression "contract.swaption"]
-   [synonym FpML value premium pathExpression "trade.creditDefaultSwapOption"]
-   [synonym FpML value premium pathExpression "trade.bondOption"]
+    [synonym FpML value additionalPayment pathExpression "trade.swap"]
+    [synonym FpML value initialPayment pathExpression "trade.creditDefaultSwap.feeLeg"]
+    [synonym FpML value singlePayment pathExpression "trade.creditDefaultSwap.feeLeg"]
+    [synonym FpML value premium pathExpression "trade.swaption"]
+    [synonym Rosetta_Workbench value premium pathExpression "contract.swaption"]
+    [synonym FpML value premium pathExpression "trade.creditDefaultSwapOption"]
+    [synonym FpML value premium pathExpression "trade.bondOption"]
   optionPayout OptionPayout (0..*);
  }
 
@@ -842,15 +842,14 @@ The absence of synonym entry for the  ``creditDefaultPayout`` attribute is due t
  {
   generalTerms GeneralTerms (1..1) <"This element contains all the data that appears in the section entitled '1. General Terms' in the 2003 ISDA Credit Derivatives Confirmation, except for the effectiveDate, terminationDate and dateAdjustments elements, which have been positioned as part of the InterestRatePayout class.">;
   protectionTerms ProtectionTerms (1..1) <"The credit protection terms.">;
-	 [synonym FpML value protectionTerms pathExpression "trade.creditDefaultSwap"]
-	 [synonym FpML value protectionTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
+    [synonym FpML value protectionTerms pathExpression "trade.creditDefaultSwap"]
+    [synonym FpML value protectionTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
   cashSettlementTerms CashSettlementTerms (0..1);
-	 [synonym FpML value cashSettlementTerms pathExpression "trade.creditDefaultSwap"]
-	 [synonym FpML value cashSettlementTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
+    [synonym FpML value cashSettlementTerms pathExpression "trade.creditDefaultSwap"]
+    [synonym FpML value cashSettlementTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
   physicalSettlementTerms PhysicalSettlementTerms (0..1);
-	 [synonym FpML value physicalSettlementTerms pathExpression "trade.creditDefaultSwap"]
-	 [synonym FpML value physicalSettlementTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
-	transactedPrice TransactedPrice (0..1) <"The qualification of the price at which the contract has been transacted, in terms of market fixed rate, initial points, market price and/or quotation style. In FpML, those attributes are positioned as part of the fee leg.">;
+    [synonym FpML value physicalSettlementTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
+  transactedPrice TransactedPrice (0..1) <"The qualification of the price at which the contract has been transacted, in terms of market fixed rate, initial points, market price and/or quotation style. In FpML, those attributes are positioned as part of the fee leg.">;
  }
 
 Infering the product qualification from its economic terms
@@ -863,7 +862,7 @@ The CDM makes use of the ISDA taxonomy V2.0 leaf level to qualify the product.  
 .. code-block:: Java
 
  isProduct InterestRate_InflationSwap_FixedFloat_ZeroCoupon
-   [synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation]
+    [synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation]
    EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate exists
    and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate exists
    and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
@@ -881,9 +880,9 @@ The ``ListedProduct`` class provides a **choice between the respective listed pr
  class ListedProduct one of <"Product which terms are abstracted through a product identifier and are then publicly available through a central venue.">
  {
   bond Bond (0..1);
-	 [synonym FpML value bond pathExpression "trade.bondOption"]
+    [synonym FpML value bond pathExpression "trade.bondOption"]
   convertibleBond ConvertibleBond (0..1);
-	 [synonym FpML value convertibleBond pathExpression "trade.bondOption"]
+    [synonym FpML value convertibleBond pathExpression "trade.bondOption"]
  }
 
 A **two-levels class inheritance structure** has been specified to provide for a scalable implementation:
@@ -895,11 +894,11 @@ A **two-levels class inheritance structure** has been specified to provide for a
   abstract class ListedHeader <"An abstract class to holds the attributes that are common across listed products.">
   {
    id string (0..1);
-    [synonym FpML value id]
+     [synonym FpML value id]
    productTaxonomy ProductTaxonomy (1..*) <"The product taxonomy value(s) associated with a product.">;
    productIdentifier ProductIdentifier (1..*) <"There can be several identifiers associated with a given product.">;
    description string (1..1) <"The product name.">;
-    [synonym FpML value description]
+     [synonym FpML value description]
   }
 
 * Leveraging the FpML approach for underlyer components, a ``FixedIncomeSecurity`` and an ``EquityAsset`` abstract class then provide the commmon attributes for those respective type of instruments.
@@ -909,11 +908,11 @@ A **two-levels class inheritance structure** has been specified to provide for a
    class FixedIncomeSecurity extends ListedHeader <"A fixed income security. In FpML, it corresponds to the FixedIncomeSecurityContent.model.">
    {
     issuer Party (0..1) reference <"FpML implements this element as an href into the party information. Rosetta restricts the type of party that can issue a product to a legal entity. FpML provides the ability to specify the issuer name, but this is deemed insufficient in the context of Rosetta at a time when the LEI is available and of paramount importance to identify entities.">;
-     [synonym FpML value issuerPartyReference]
+      [synonym FpML value issuerPartyReference]
     seniority CreditSeniorityEnum (0..1) <"The repayment precedence of a debt instrument, as specified by a set of enumerated values.  FpML specifies that creditSeniorityTradingScheme (specified in Rosetta through the CreditSeniorityTradingEnum) overrides creditSeniorityScheme (specified in Rosetta through the CreditSeniorityEnum) when the underlyer defines the reference obligation used in a single name credit default swap trade.">;
-     [synonym FpML value seniority]
+      [synonym FpML value seniority]
     couponType CouponTypeEnum (0..1) <"Specifies if the bond has a variable coupon, step-up/down coupon or a zero-coupon.">;
-     [synonym FpML value couponType]
+      [synonym FpML value couponType]
     (...)
    }
 
@@ -927,28 +926,28 @@ The CDM implementation closely reflects the FpML standard, and the approach here
 .. code-block:: Java
 
  class Loan extends IdentifiedAsset
-  [synonym FpML value Loan]
+   [synonym FpML value Loan]
  {
   borrower LegalEntity (0..*) <"Specifies the borrower. There can be more than one borrower. It is meant to be used in the event that there is no Bloomberg Id or the Secured List isn't applicable.">;
-   [synonym FpML value borrower]
+    [synonym FpML value borrower]
   borrowerReference string (0..*) reference;
-   [synonym FpML value borrowerReference]
+    [synonym FpML value borrowerReference]
   lien string (0..1) scheme "lienScheme" <"Specifies the seniority level of the lien.">;
-   [synonym FpML value lien]
+    [synonym FpML value lien]
   (...)
  }
 
 .. code-block:: Java
 
   class Mortgage extends FixedIncomeSecurity
-   [synonym FpML value Mortgage]
+    [synonym FpML value Mortgage]
   {
    pool AssetPool (0..1) <"The mortgage pool that is underneath the mortgage obligation.">;
-    [synonym FpML value pool]
+     [synonym FpML value pool]
    sector MortgageSectorEnum (0..1) <"The sector classification of the mortgage obligation.">;
-    [synonym FpML value sector]
+     [synonym FpML value sector]
    tranche string (0..1) <"The mortgage obligation tranche that is subject to the derivative transaction.">;
-    [synonym FpML value tranche]
+     [synonym FpML value tranche]
    (...)
   }
 
@@ -969,19 +968,19 @@ The ``Event`` class carries the following set of information:
 * **Timestamp information**: ``creationTimestamp`` and ``expiryTimestamp``. In FpML, this information is also positioned as part of the *MessageHeader.model*.
 * **Event identification** information: the ``identifier``, alongside an optional ``version`` and ``issuer``. As a departure from FpML, which makes use of an event identifier construct (the *Correlation* which is distinct from the one associated with the trade (which itself comes in different variation: *PartyTradeIdentifier*, with the *TradeId* and the *VersionedTradeId* as sub-components of it), the CDM approach consists in using a common identifier component across products and events.
 
-  .. code-block:: Java
+ .. code-block:: Java
 
-   class Identifier
-   {
-	  issuer string (0..1) reference scheme "issuerIdScheme" <"The reference to the party that assigns the trade identifier.">;
-		 [synonym Rosetta_Workbench value issuer]
-	  identifierValue IdentifierValue (1..1);
-	  version int (0..1);
-		 [synonym FpML value version]
-		 [synonym Rosetta_Workbench value version]
-		 [synonym FpML value version pathExpression "versionedTradeId"]
-		 [synonym Rosetta_Workbench value version pathExpression "versionedTradeId"]
-    }
+  class Identifier
+  {
+   issuer string (0..1) reference scheme "issuerIdScheme" <"The reference to the party that assigns the trade identifier.">;
+     [synonym Rosetta_Workbench value issuer]
+   identifierValue IdentifierValue (1..1);
+   version int (0..1);
+     [synonym FpML value version]
+     [synonym Rosetta_Workbench value version]
+     [synonym FpML value version pathExpression "versionedTradeId"]
+     [synonym Rosetta_Workbench value version pathExpression "versionedTradeId"]
+  }
 
 * **Time dimension** information, through the ``eventDate`` and ``effectiveDate``, with this latter being optional as not applicable to certain events (e.g. observations).
 * **Action qualification**, to specify whether the event is a new one, a correction or a cancellation of a prior one.
@@ -989,47 +988,47 @@ The ``Event`` class carries the following set of information:
 * **Party information**, which is optional because not applicable to certain events (e.g. most of the observation events).
 * **Lineage information**, in the form of a class that provides the ability to reference an unbounded set of contracts or events, as shown by the below code snippet:
 
-  .. code-block:: Java
+ .. code-block:: Java
 
   class Lineage
   {
-	 contractReference Identifier (0..*) scheme "correlationIdScheme";
-	  [synonym Rosetta_Workbench value contractReference]
-	 eventReference Identifier (0..*);
-	  [synonym Rosetta_Workbench value eventReference]
+   contractReference Identifier (0..*) scheme "correlationIdScheme";
+     [synonym Rosetta_Workbench value contractReference]
+   eventReference Identifier (0..*);
+     [synonym Rosetta_Workbench value eventReference]
   }
 
 * **Primitive events**: the CDM composite approach uses the primitive events as its building blocks. Those primitive events are detailed in the next section of the documentation.
 * **Function call**: an example of such a function call is the interpolation function that would be associated with a **derived observation** event that assembles two observed values (say, a 3 months and a 6 months rate observation) to provide a derived one (say, a 5 months observation). As part of the current CDM version this function call as been specified as a mere string element. It will be appropriately specified once such implementation is developed, some of which consisting in the machine readable implementation of the ISDA Definitions (see next Interest Calculation section).
 
-  .. code-block:: Java
+ .. code-block:: Java
 
    class Event extends EventBase
    {
-	  intent IntentEnum (0..1);
-		 [synonym Rosetta_Workbench value intent]
-	  party Party (0..*);
-		 [synonym Rosetta_Workbench value party]
-	  lineage Lineage (0..1);
-		 [synonym Rosetta_Workbench value lineage]
-	  primitive PrimitiveEvent (1..1);
-		 [synonym Rosetta_Workbench value primitive]
-	  functionCall string (0..1);
-		 [synonym Rosetta_Workbench value functionCall]
+    intent IntentEnum (0..1);
+      [synonym Rosetta_Workbench value intent]
+    party Party (0..*);
+      [synonym Rosetta_Workbench value party]
+    lineage Lineage (0..1);
+      [synonym Rosetta_Workbench value lineage]
+    primitive PrimitiveEvent (1..1);
+      [synonym Rosetta_Workbench value primitive]
+    functionCall string (0..1);
+      [synonym Rosetta_Workbench value functionCall]
    }
 
 * **EventEffect** corresponds to the set of operational and positional effects associated with a lifecycle event. This information is generated by the CDM and takes the form of a set of pointers to the relevant objects that are associated with a lifecycle event. The candidate objects are the classes that have an associated ``rosettaKey`` or ``rosettaKeyValue``. At present, those are the ``Contract``, ``Payment``, ``ContractOrListedProduct`` and ``EconomicTerms``. The ``rosettaKey`` is also associated with the ``Event`` so that a query of the ``EventEffect`` instantiated objects can provide a link to the respective event events. Events such as observations do not have an event effect, hence the optional cardinality.
 
-  .. code-block:: Java
+ .. code-block:: Java
 
-   class EventEffect <"The set of operational and positional effects associated with a lifecycle event.">
-   {
-	  referenceContract Contract (0..*) rosettaKey <"A pointer to the contract to which the event effect(s) apply. This reference is optional to address the case where an event with candidate event effect(s) would only have associated referenceContract.">;
-	  referenceEvent Event (1..1) rosettaKey <"A pointer to the event to which the event effect(s) apply.">;
-	  product ContractOrListedProduct (0..*) rosettaKey <"A pointer to the products effect(s), an example of such being the outcome of an option physical exercise.">;
-	  payment Payment (0..*) rosettaKey <"A pointer to the payment effect(s).">;
-	  reset ResetPrimitive (0..*) rosettaKey <"A pointer to the reset effect(s).">;
-   }
+  class EventEffect <"The set of operational and positional effects associated with a lifecycle event.">
+  {
+   referenceContract Contract (0..*) rosettaKey <"A pointer to the contract to which the event effect(s) apply. This reference is optional to address the case where an event with candidate event effect(s) would only have associated referenceContract.">;
+   referenceEvent Event (1..1) rosettaKey <"A pointer to the event to which the event effect(s) apply.">;
+   product ContractOrListedProduct (0..*) rosettaKey <"A pointer to the products effect(s), an example of such being the outcome of an option physical exercise.">;
+   payment Payment (0..*) rosettaKey <"A pointer to the payment effect(s).">;
+   reset ResetPrimitive (0..*) rosettaKey <"A pointer to the reset effect(s).">;
+  }
 
 
 Primitive events
@@ -1042,21 +1041,21 @@ CDM primitive events are the building block components used to specify business 
  class PrimitiveEvent <"The set of primitive events. The purpose of this class it to provide clarity with respect to the event qualification logic.">
  {
   newTrade NewTradePrimitive (0..*) <"The new trade primitive is unbounded to address the case of events such as portfolio compressions, which could result in multiple new trades.">;
-   [synonym Rosetta_Workbench value newTrade]
+    [synonym Rosetta_Workbench value newTrade]
   quantityChange QuantityChangePrimitive (0..*);
-   [synonym Rosetta_Workbench value quantityChange]
+    [synonym Rosetta_Workbench value quantityChange]
   allocation AllocationPrimitive (0..*);
-	 [synonym Rosetta_Workbench value allocation]
-	termsChange TermsChangePrimitive (0..1);
-	 [synonym Rosetta_Workbench value otherTermsChange]
+    [synonym Rosetta_Workbench value allocation]
+  termsChange TermsChangePrimitive (0..1);
+    [synonym Rosetta_Workbench value otherTermsChange]
   exercise ExercisePrimitive (0..1);
-   [synonym Rosetta_Workbench value exercise]
+    [synonym Rosetta_Workbench value exercise]
   observation ObservationPrimitive (0..*);
-   [synonym Rosetta_Workbench value observation]
-	reset ResetPrimitive (0..*);
-	 [synonym Rosetta_Workbench value reset]
-	payment Payment (0..*);
-	 [synonym Rosetta_Workbench value payment]
+    [synonym Rosetta_Workbench value observation]
+  reset ResetPrimitive (0..*);
+    [synonym Rosetta_Workbench value reset]
+  payment Payment (0..*);
+    [synonym Rosetta_Workbench value payment]
   }
 
 Event qualification from primitive events and intent qualification
@@ -1091,14 +1090,14 @@ The CDM syntax to express the Fixed Amount and Floating Amount is similar in str
  calculation FixedAmount <"2006 ISDA Definition Article 5 Section 5.1. Calculation of a Fixed Amount: The Fixed Amount payable by a party on a Payment Date will be: (a) if an amount is specified for the Swap Transaction as the Fixed Amount payable by that party for that Payment Date or for the related Calculation Period, that amount; or (b) if an amount is not specified for the Swap Transaction as the Fixed Amount payable by that party for that Payment Date or for the related Calculation Period, an amount calculated on a formula basis for that Payment Date or for the related Calculation Period as follows: Fixed Amount = Calculation Amount × Fixed Rate × Day Count Fraction.">
  {
   fixedAmount number: calculationAmount * rate * dayCountFraction
- 	currencyAmount CurrencyEnum: currencyAmount
+  currencyAmount CurrencyEnum: currencyAmount
  }
 
  arguments FixedAmount <"The set of arguments to calculate the FixedAmount.">
  {
   calculationAmount: is InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
- 	currencyAmount: is InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> currency
- 	rate: is InterestRatePayout -> interestRate -> fixedRate -> initialValue
+  currencyAmount: is InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> currency
+  rate: is InterestRatePayout -> interestRate -> fixedRate -> initialValue
   dayCountFraction: is InterestRatePayout -> dayCountFraction
  }
 
@@ -1143,17 +1142,17 @@ The current CDM version incorporates two day count fractions calculations which 
   endDay : is Min( period -> endDate -> day, 30 )
  }
 
- .. code-block:: Java
+.. code-block:: Java
 
-  calculation DayCountFractionEnum.ACT_365_FIXED <"'2006 ISDA Definition Article 4 section 4.16(d): If'Actual/365 (Fixed)', 'Act/365 (Fixed)', 'A/365 (Fixed)' or 'A/365F' is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 365.">
-  {
-	 number : daysInPeriod / 365
-  }
+ calculation DayCountFractionEnum.ACT_365_FIXED <"'2006 ISDA Definition Article 4 section 4.16(d): If'Actual/365 (Fixed)', 'Act/365 (Fixed)', 'A/365 (Fixed)' or 'A/365F' is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 365.">
+ {
+   number : daysInPeriod / 365
+ }
 
-  arguments DayCountFractionEnum.ACT_365_FIXED
-  {
+ arguments DayCountFractionEnum.ACT_365_FIXED
+ {
    daysInPeriod : is DaysInPeriod( InterestRatePayout -> calculationPeriodDates ) -> days
-  }
+ }
 
 Reference Data Model
 --------------------
@@ -1167,10 +1166,10 @@ It is expected that this CDM reference data representation will be further expan
 .. code-block:: Java
 
  class Party <"The party class.">
-  [synonym FpML value Party]
+   [synonym FpML value Party]
  {
   id string (0..1) anchor;
-   [synonym FpML value id]
+    [synonym FpML value id]
   partyId string (1..1) scheme "partyIdScheme" <"The identifier associated with a party, e.g. the 20 digits LEI code.">;
     [synonym FpML value partyId]
     [synonym Rosetta_Workbench value partyId]
@@ -1185,28 +1184,28 @@ It is expected that this CDM reference data representation will be further expan
  class LegalEntity <"A class to represent the attributes that are specific to a legal entity.">
  {
   id string (0..1);
-   [synonym FpML value id]
+    [synonym FpML value id]
   entityId string (0..1) scheme "entityIdScheme" <"A legal entity identifier (e.g. RED entity code).">;
-   [synonym FpML value entityId]
+    [synonym FpML value entityId]
   name string (1..1) scheme "entityNameScheme" <"The legal entity name.">;
-   [synonym FpML value partyName]
-   [synonym FpML value entityName]
+    [synonym FpML value partyName]
+    [synonym FpML value entityName]
  }
 
  class NaturalPerson <"A class to represent the attributes that are specific to a natural person.">
  {
-	 honorific string (0..1) <"An honorific title, such as Mr., Ms., Dr. etc.">;
-	  [synonym FpML value honorific]
-	 firstName string (1..1) <"The natural person's first name. It is optional in FpML.">;
-	  [synonym FpML value firstName]
-	 middleName string (0..*);
-	  [synonym FpML value firstName]
-   initial string (0..*);
-	  [synonym FpML value initial]
-   surname string (1..1) <"The natural person's surname. It is optional in FpML.">;
-	  [synonym FpML value surname]
-   suffix string (0..1) <"Name suffix, such as Jr., III, etc.">;
-	  [synonym FpML value suffix]
-   dateOfBirth date (1..1) <"The natural person's date of birth.">;
-	  [synonym FpML value dateOfBirth]
+  honorific string (0..1) <"An honorific title, such as Mr., Ms., Dr. etc.">;
+    [synonym FpML value honorific]
+  firstName string (1..1) <"The natural person's first name. It is optional in FpML.">;
+    [synonym FpML value firstName]
+  middleName string (0..*);
+    [synonym FpML value firstName]
+  initial string (0..*);
+    [synonym FpML value initial]
+  surname string (1..1) <"The natural person's surname. It is optional in FpML.">;
+    [synonym FpML value surname]
+  suffix string (0..1) <"Name suffix, such as Jr., III, etc.">;
+    [synonym FpML value suffix]
+  dateOfBirth date (1..1) <"The natural person's date of birth.">;
+    [synonym FpML value dateOfBirth]
  }
