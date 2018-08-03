@@ -30,6 +30,9 @@ public class RosettaKeyPathFilter implements BiPredicate<Class<?>, List<String>>
         this.requiredPathElements = requiredPathElements;
     }
 
+    /**
+     * @return true to indicate that hierarchicalPath contain required elements, or if there are no required elements for class
+     */
     @Override
     public boolean test(Class<?> forClass, List<String> hierarchicalPathElements) {
         return Optional.ofNullable(requiredPathElements.get(forClass))
