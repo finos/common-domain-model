@@ -1,6 +1,6 @@
 package org.isda.cdm.filter;
 
-import org.isda.cdm.Contract;
+import org.isda.cdm.ContractOrContractReference;
 import org.isda.cdm.Execution;
 import org.junit.jupiter.api.Test;
 
@@ -15,14 +15,14 @@ class RosettaKeyPathFilterTest {
 
     @Test
     void shouldPassBecauseContainsRequiredPathElements() {
-        assertThat(unit.test(Contract.class, Arrays.asList("primitive", "quantityChange", "before", "contract")), is(true));
-        assertThat(unit.test(Contract.class, Arrays.asList("primitive", "exercise", "before", "contract")), is(true));
-        assertThat(unit.test(Contract.class, Arrays.asList("primitive", "termsChange", "before", "contract")), is(true));
+        assertThat(unit.test(ContractOrContractReference.class, Arrays.asList("primitive", "quantityChange", "before", "contract")), is(true));
+        assertThat(unit.test(ContractOrContractReference.class, Arrays.asList("primitive", "exercise", "before", "contract")), is(true));
+        assertThat(unit.test(ContractOrContractReference.class, Arrays.asList("primitive", "termsChange", "before", "contract")), is(true));
     }
 
     @Test
     void shouldFailBecauseDoesNotContainRequiredPathElements() {
-        assertThat(unit.test(Contract.class, Arrays.asList("primitive", "newTrade", "contract")), is(false));
+        assertThat(unit.test(ContractOrContractReference.class, Arrays.asList("primitive", "newTrade", "contract")), is(false));
     }
 
     @Test
