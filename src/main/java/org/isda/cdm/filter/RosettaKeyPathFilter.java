@@ -40,4 +40,8 @@ public class RosettaKeyPathFilter implements BiPredicate<Class<?>, List<String>>
                 .map(hierarchicalPathElements::containsAll)
                 .orElse(true);
     }
+
+    Map<Class<?>, List<String>> getUnderlyingMap() {
+        return requiredPathElements;
+    }
 }

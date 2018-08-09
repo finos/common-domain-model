@@ -1,13 +1,25 @@
 package org.isda.cdm.filter;
 
+import com.regnosys.rosetta.common.inspect.PathType;
+import com.regnosys.rosetta.common.inspect.PathTypeNode;
+import com.regnosys.rosetta.common.inspect.RosettaNodeInspector;
 import org.isda.cdm.ContractOrContractReference;
+import org.isda.cdm.Event;
 import org.isda.cdm.Execution;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static com.regnosys.rosetta.common.inspect.RosettaNodeInspector.RootVisitor;
+import static com.regnosys.rosetta.common.inspect.RosettaNodeInspector.Visitor;
 
 class RosettaKeyPathFilterTest {
 
@@ -29,4 +41,36 @@ class RosettaKeyPathFilterTest {
     void shouldPassBecauseNoRequiredElementsForClass() {
         assertThat(unit.test(Execution.class, Arrays.asList("primitive", "allocation", "before")), is(true));
     }
+
+    @Test
+    void shouldFindKnownFilterResults() {
+        List<PathType> filteredPaths = new LinkedList<>();
+
+        // inspect all class types, collecting the paths that are filtered out
+        RosettaNodeInspector<PathType> rosettaNodeInspector = new RosettaNodeInspector<>();
+        rosettaNodeInspector.inspect(
+                new PathTypeNode(PathType.root(Event.class)),
+                getCollectFilteredPathVisitor(filteredPaths),
+                RootVisitor.NO_OP_ROOT_VISITOR);
+
+        assertThat(filteredPaths, hasSize(3));
+        assertThat(filteredPaths.stream().map(Object::toString).collect(Collectors.toList()),
+                   hasItems("Event -> primitive -> quantityChange -> before",
+                            "Event -> primitive -> termsChange -> before",
+                            "Event -> primitive -> exercise -> before"));
+    }
+
+    private Visitor<PathType> getCollectFilteredPathVisitor(List<PathType> capture) {
+        return (n) -> {
+                Class<?> forClass = n.get().getType();
+                List<String> path = n.get().getPath();
+                if(Optional.ofNullable(RosettaKeyPathFilter.EVENT_EFFECT_ROSETTA_KEY_PATH_FILTER.getUnderlyingMap()
+                        .get(forClass))
+                        .map(path::containsAll)
+                        .orElse(false)) {
+                    capture.add(n.get());
+                }
+            };
+    }
+
 }
