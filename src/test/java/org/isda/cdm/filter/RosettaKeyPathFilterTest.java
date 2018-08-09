@@ -18,7 +18,6 @@ import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static com.regnosys.rosetta.common.inspect.RosettaNodeInspector.RootVisitor;
 import static com.regnosys.rosetta.common.inspect.RosettaNodeInspector.Visitor;
 
 class RosettaKeyPathFilterTest {
@@ -48,10 +47,9 @@ class RosettaKeyPathFilterTest {
 
         // inspect all class types, collecting the paths that are filtered out
         RosettaNodeInspector<PathType> rosettaNodeInspector = new RosettaNodeInspector<>();
-        rosettaNodeInspector.inspect(
-                new PathTypeNode(PathType.root(Event.class)),
-                getCollectFilteredPathVisitor(filteredPaths),
-                RootVisitor.NO_OP_ROOT_VISITOR);
+        Visitor<PathType> collectFilteredPathVisitor = getCollectFilteredPathVisitor(filteredPaths);
+        Visitor<PathType> noOpRootVisitor = (node) -> {};
+        rosettaNodeInspector.inspect(new PathTypeNode(PathType.root(Event.class)), collectFilteredPathVisitor, noOpRootVisitor);
 
         assertThat(filteredPaths, hasSize(3));
         assertThat(filteredPaths.stream().map(Object::toString).collect(Collectors.toList()),
