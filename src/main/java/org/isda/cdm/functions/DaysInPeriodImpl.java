@@ -7,8 +7,9 @@ import com.rosetta.model.lib.records.Date;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
-public class DaysInPeriodImpl {
-	
+public class DaysInPeriodImpl implements DaysInPeriod {
+
+	@Override
 	public CalculationResult execute(org.isda.cdm.CalculationPeriodDates calculationPeriodDates) {
 		return execute(calculationPeriodDates, LocalDate.now());
 	}
