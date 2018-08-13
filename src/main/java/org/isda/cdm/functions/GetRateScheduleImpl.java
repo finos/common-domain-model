@@ -6,7 +6,7 @@ import  org.isda.cdm.functions.GetRateSchedule.CalculationResult;
 import java.math.BigDecimal;
 import java.util.List;
 
-public class GetRateScheduleImpl {
+public class GetRateScheduleImpl implements GetRateSchedule {
 
 	public CalculationResult execute(org.isda.cdm.FloatingRateCalculation floatingRateCalculation) {
 		List<SpreadSchedule> spreadSchedules = floatingRateCalculation.getSpreadSchedule();

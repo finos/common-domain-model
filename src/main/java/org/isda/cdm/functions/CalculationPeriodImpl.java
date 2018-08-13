@@ -12,8 +12,9 @@ import static org.isda.cdm.functions.CdmToStrataMapper.getRollConvention;
 
 import java.time.LocalDate;
 
-public class CalculationPeriodImpl {
+public class CalculationPeriodImpl implements CalculationPeriod {
 
+	@Override
 	public CalculationResult execute(CalculationPeriodDates calculationPeriodDates) {
 		return execute(calculationPeriodDates, LocalDate.now());
 	}

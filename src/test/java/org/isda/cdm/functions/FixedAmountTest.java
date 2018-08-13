@@ -61,7 +61,7 @@ class FixedAmountTest {
                         .build())
                 .build();
 
-        FixedAmount.CalculationResult fixedAmount = new FixedAmount().calculate(interestRatePayout);
+        FixedAmount.CalculationResult fixedAmount = new FixedAmount(new CalculationPeriodImpl(), new DaysInPeriodImpl()).calculate(interestRatePayout);
 
         assertThat(fixedAmount.getFixedAmount(), is(new BigDecimal("750000.0000")));
         assertThat(fixedAmount.getCurrencyAmount(), is("EUR"));
