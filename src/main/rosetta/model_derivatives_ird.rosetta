@@ -56,19 +56,19 @@ class CalculationPeriod <"A class defining the parameters used in the calculatio
 
 choice rule CalculationPeriod_choice1 <"Choice rule to represent an FpML choice construct.">
 	for CalculationPeriod required choice between
-		notionalAmount and fxLinkedNotionalAmount
+	notionalAmount and fxLinkedNotionalAmount
 
 choice rule CalculationPeriod_choice2 <"Choice rule to represent an FpML choice construct.">
 	for CalculationPeriod required choice between
-		floatingRateDefinition and fixedRate
+	floatingRateDefinition and fixedRate
 
-data rule FpML_ird_30 <"FpML validation rule ird-30 - Context: CalculationPeriod (complex type). unadjustedStartDate exists or adjustedStartDate exists.">
-	when CalculationPeriod exists
-	then (CalculationPeriod -> unadjustedStartDate or CalculationPeriod -> adjustedStartDate) exists
+choice rule CalculationPeriod_choice3 <"FpML validation rule ird-30 - Context: CalculationPeriod (complex type). unadjustedStartDate exists or adjustedStartDate exists.">
+	for CalculationPeriod required choice between
+	adjustedStartDate and unadjustedStartDate
 
-data rule FpML_ird_31 <"FpML validation rule ird-31 - Context: CalculationPeriod (complex type). unadjustedEndDate exists or adjustedEndDate exists.">
-	when CalculationPeriod exists
-	then (CalculationPeriod -> unadjustedEndDate or CalculationPeriod -> adjustedEndDate) exists
+choice rule CalculationPeriod_choice4 <"FpML validation rule ird-31 - Context: CalculationPeriod (complex type). unadjustedEndDate exists or adjustedEndDate exists.">
+	for CalculationPeriod required choice between
+	adjustedEndDate and unadjustedEndDate
 
 data rule CalculationPeriod_calculationPeriodNumberOfDays <"FpML specifies calculationPeriodNumberOfDays as a positive integer.">
 	when PaymentCalculationPeriod -> calculationPeriod -> calculationPeriodNumberOfDays exists
@@ -110,28 +110,6 @@ choice rule CalculationPeriodDates_choice1 <"Choice rule to represent an FpML ch
 choice rule CalculationPeriodDates_choice2 <"Choice rule to represent an FpML choice construct.  The choice rule has been made optional as credit derivative products might not have a specified scheduled termination date.">
 	for CalculationPeriodDates optional choice between
 	terminationDate and relativeTerminationDate
-
-data rule CalculationPeriodDates_calculationPeriodDatesAdjustments <"FpML specifies a required calculationPeriodDatesAdjustments element as part of the CalculationPeriodDates. As standardised CDS don't have such business day adjustment provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
-	when Payout -> interestRatePayout count = 2
-	and Payout -> interestRatePayout -> calculationPeriodDates exists
-	then Payout -> interestRatePayout -> calculationPeriodDates -> calculationPeriodDatesAdjustments exists
-
-data rule CalculationPeriodDates_calculationPeriodFrequency <"FpML specifies a required calculationPeriodFrequency element as part of the CalculationPeriodDates. As standardised CDS don't have such calculationPeriodFrequency provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
-	when Payout -> interestRatePayout count = 2
-	and Payout -> interestRatePayout -> calculationPeriodDates exists
-	then Payout -> interestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency exists
-
-data rule FirstRegularPeriodStartDate_initialStub <"FpML specifies that the firstRegularPeriodStartDate must only be specified if there is an initial stub calculation period. In practice, this is the key element as part of the initial stub specification.">
-	when InterestRatePayout -> calculationPeriodDates -> firstRegularPeriodStartDate exists
-	then ( InterestRatePayout -> calculationPeriodDates -> stubPeriodType = StubPeriodTypeEnum.ShortInitial 
-		or InterestRatePayout -> calculationPeriodDates -> stubPeriodType = StubPeriodTypeEnum.LongInitial
-		or InterestRatePayout -> stubPeriod -> initialStub exists )
-		
-data rule LastRegularPeriodEndDate_finalStub <"FpML specifies that the lastRegularPeriodEndDate must only be specified if there is a final stub calculation period. In practice, this is the key element as part of the final stub specification.">
-	when InterestRatePayout -> calculationPeriodDates -> lastRegularPeriodEndDate exists
-	then ( InterestRatePayout -> calculationPeriodDates -> stubPeriodType = StubPeriodTypeEnum.ShortFinal
-		or InterestRatePayout -> calculationPeriodDates -> stubPeriodType = StubPeriodTypeEnum.LongFinal
-		or InterestRatePayout -> stubPeriod -> finalStub exists )
 
 data rule FpML_ird_14 <"FpML validation rule ird-14 & cd-5 - If effectiveDate exists and if terminationDate exists, then terminationDate/unadjustedDate must be after effectiveDate/unadjustedDate.">
 	when CalculationPeriodDates -> effectiveDate exists 
@@ -762,9 +740,9 @@ data rule ResetFrequency_notWeekly <"FpML specifies that the weeklyRollConventio
 data rule ResetDates_interestRateSwap <"The cardinality of the ResetDates attributes has been relaxed with respect to the FpML implementation to accommodate the credit default swap initial and final fixing dates. The purpose of this data rule is to apply the FpMl data constraints when the product is an interest rate swap.">
 	when Payout -> interestRatePayout count = 2
 	then Payout -> interestRatePayout -> resetDates -> calculationPeriodDatesReference exists
-	and Payout -> interestRatePayout -> resetDates -> fixingDates exists
-	and Payout -> interestRatePayout -> resetDates -> resetFrequency exists
-	and Payout -> interestRatePayout -> resetDates -> resetDatesAdjustments exists
+		and Payout -> interestRatePayout -> resetDates -> fixingDates exists
+		and Payout -> interestRatePayout -> resetDates -> resetFrequency exists
+		and Payout -> interestRatePayout -> resetDates -> resetDatesAdjustments exists
 	
 
 class SettlementProvision <"A class defining the specification of settlement terms, occurring when the settlement currency is different to the notional currency of the trade.">
