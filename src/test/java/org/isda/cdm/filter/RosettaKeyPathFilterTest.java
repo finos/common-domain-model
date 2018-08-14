@@ -1,8 +1,8 @@
 package org.isda.cdm.filter;
 
-import com.regnosys.rosetta.common.inspect.PathType;
-import com.regnosys.rosetta.common.inspect.PathTypeNode;
-import com.regnosys.rosetta.common.inspect.RosettaNodeInspector;
+import com.regnosys.rosetta.common.inspection.PathType;
+import com.regnosys.rosetta.common.inspection.PathTypeNode;
+import com.regnosys.rosetta.common.inspection.RosettaNodeInspector;
 import org.isda.cdm.ContractOrContractReference;
 import org.isda.cdm.Event;
 import org.isda.cdm.Execution;
@@ -18,7 +18,7 @@ import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static com.regnosys.rosetta.common.inspect.RosettaNodeInspector.Visitor;
+import static com.regnosys.rosetta.common.inspection.RosettaNodeInspector.Visitor;
 
 class RosettaKeyPathFilterTest {
 
