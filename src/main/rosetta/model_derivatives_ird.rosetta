@@ -735,15 +735,7 @@ data rule ResetFrequency_weekly <"FpML specifies that the weeklyRollConvention m
 
 data rule ResetFrequency_notWeekly <"FpML specifies that the weeklyRollConvention must be specified as part of the reset frequency if and only if the reset frequency is defined as weekly.  This data rule is focused on the latter part of the assertion.">
 	when ResetDates -> resetFrequency -> period <> PeriodExtendedEnum.W
-	then ResetDates -> resetFrequency -> weeklyRollConvention is absent
-
-data rule ResetDates_interestRateSwap <"The cardinality of the ResetDates attributes has been relaxed with respect to the FpML implementation to accommodate the credit default swap initial and final fixing dates. The purpose of this data rule is to apply the FpMl data constraints when the product is an interest rate swap.">
-	when Payout -> interestRatePayout count = 2
-	then Payout -> interestRatePayout -> resetDates -> calculationPeriodDatesReference exists
-		and Payout -> interestRatePayout -> resetDates -> fixingDates exists
-		and Payout -> interestRatePayout -> resetDates -> resetFrequency exists
-		and Payout -> interestRatePayout -> resetDates -> resetDatesAdjustments exists
-	
+	then ResetDates -> resetFrequency -> weeklyRollConvention is absent	
 
 class SettlementProvision <"A class defining the specification of settlement terms, occurring when the settlement currency is different to the notional currency of the trade.">
 	[synonym FpML value SettlementProvision]
@@ -753,12 +745,6 @@ class SettlementProvision <"A class defining the specification of settlement ter
 	nonDeliverableSettlement NonDeliverableSettlement (0..1) <"The specification of the non-deliverable settlement provision.">;
 		[synonym FpML value nonDeliverableSettlement]
 }
-
-data rule SettlementProvision_settlementCurrency <"FpML specifies that the SettlementProvision exists when the settlement currency is different to the notional currency of the trade.">
-	when InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> settlementCurrency <>  InterestRatePayout -> quantity -> notionalAmount -> currency
-		or InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> settlementCurrency <> InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> currency
-		or InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> settlementCurrency <> InterestRatePayout -> quantity -> fxLinkedNotional -> varyingNotionalCurrency
-	then InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> nonDeliverableSettlement exists
 
 class StubCalculationPeriodAmount <"A class defining how the initial or final stub calculation period amounts is calculated. For example, the rate to be applied to the initial or final stub calculation period may be the linear interpolation of two different tenors for the floating rate index specified in the calculation period amount component, e.g. A two month stub period may used the linear interpolation of a one month and three month floating rate. The different rate tenors would be specified in this component. Note that a maximum of two rate tenors can be specified. If a stub period uses a single index tenor and this is the same as that specified in the calculation period amount component then the initial stub or final stub component, as the case may be, must not be included.">
 	[synonym FpML value StubCalculationPeriodAmount]
@@ -770,19 +756,6 @@ class StubCalculationPeriodAmount <"A class defining how the initial or final st
 	finalStub StubValue (0..1) <"Specifies how the final stub amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating tenors may be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3. Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.">;
 		[synonym FpML value finalStub]
 }
-
-data rule InitialStub_FinalStub <"Data rule to represent the FpML nested XML construct as part of StubCalculationPeriodAmount.">
-	when InterestRatePayout -> stubPeriod exists
-	then InterestRatePayout -> stubPeriod -> initialStub exists
-		or InterestRatePayout -> stubPeriod -> finalStub exists
-		
-data rule FpML_ird_23 <"FpML validation rule ird-23 - If the initialStub exists, the calculationPeriodDates element referenced by the @href attribute of stubCalculationPeriodAmount/calculationPeriodDatesReference contains firstRegularPeriodStartDate.">
-	when InterestRatePayout -> stubPeriod -> initialStub exists
-	then InterestRatePayout -> calculationPeriodDates -> firstRegularPeriodStartDate exists
-
-data rule FpML_ird_24 <"FpML validation rule ird-24 - The finalStub exists if and only if the calculationPeriodDates element referenced by calculationPeriodDates/@href contains a lastRegularPeriodEndDate.">
-	when InterestRatePayout -> stubPeriod -> finalStub exists
-	then InterestRatePayout -> calculationPeriodDates -> lastRegularPeriodEndDate exists
 
 class ValuationPostponement <"Specifies how long to wait to get a quote from a settlement rate option upon a price source disruption.">
 	[synonym FpML value ValuationPostponement]

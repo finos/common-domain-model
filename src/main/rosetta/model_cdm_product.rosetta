@@ -400,10 +400,29 @@ data rule FpML_ird_8 <"FpML validation rule ird-8 - The @href attribute of payer
 	then InterestRatePayout -> payerReceiver -> payerPartyReference <> InterestRatePayout -> payerReceiver -> receiverPartyReference
 		or InterestRatePayout -> payerReceiver -> payerAccountReference <> InterestRatePayout -> payerReceiver -> receiverAccountReference
 
+data rule FpML_ird_23 <"FpML validation rule ird-23 - If the initialStub exists, the calculationPeriodDates element referenced by the @href attribute of stubCalculationPeriodAmount/calculationPeriodDatesReference contains firstRegularPeriodStartDate.">
+	when InterestRatePayout -> stubPeriod -> initialStub exists
+	then InterestRatePayout -> calculationPeriodDates -> firstRegularPeriodStartDate exists
+
+data rule FpML_ird_24 <"FpML validation rule ird-24 - The finalStub exists if and only if the calculationPeriodDates element referenced by calculationPeriodDates/@href contains a lastRegularPeriodEndDate.">
+	when InterestRatePayout -> stubPeriod -> finalStub exists
+	then InterestRatePayout -> calculationPeriodDates -> lastRegularPeriodEndDate exists
+
+data rule InitialStub_FinalStub <"Data rule to represent the FpML nested XML construct as part of StubCalculationPeriodAmount.">
+	when InterestRatePayout -> stubPeriod exists
+	then InterestRatePayout -> stubPeriod -> initialStub exists
+		or InterestRatePayout -> stubPeriod -> finalStub exists
+
 data rule FinalStub_lastRegularPaymentDate <"FpML specifies that lastRegularPaymentDate must only be included if there is a final stub. As part of the CDM, this data rule has been adjusted to specify that it only applies to interest rate swaps, as the credit derivatives products can have a specified lastRegularPaymentDate while the stub is typically not applicable to those.">
 	when InterestRatePayout -> paymentDates -> lastRegularPaymentDate exists
 		and InterestRatePayout -> stubPeriod -> finalStub exists
 	then InterestRatePayout count = 2
+
+data rule SettlementProvision_settlementCurrency <"FpML specifies that the SettlementProvision exists when the settlement currency is different to the notional currency of the trade.">
+	when InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> nonDeliverableSettlement exists
+	then InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> settlementCurrency <>  InterestRatePayout -> quantity -> notionalAmount -> currency
+		or InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> settlementCurrency <> InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> currency
+		or InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> settlementCurrency <> InterestRatePayout -> quantity -> fxLinkedNotional -> varyingNotionalCurrency
 
 /*
  * TODO - Need for an associated logic that will parse the respective legs of the swap, as this is not made explicit at present as part of the syntax
@@ -436,9 +455,9 @@ data rule CalculationPeriodDates_firstCompoundingPeriodEndDate <"FpML specifies 
 
 data rule FirstRegularPeriodStartDate_initialStub <"FpML specifies that the firstRegularPeriodStartDate must only be specified if there is an initial stub calculation period. In practice, this is the key element as part of the initial stub specification.">
 	when InterestRatePayout -> calculationPeriodDates -> firstRegularPeriodStartDate exists
-	then ( InterestRatePayout -> calculationPeriodDates -> stubPeriodType = StubPeriodTypeEnum.ShortInitial 
+	then InterestRatePayout -> calculationPeriodDates -> stubPeriodType = StubPeriodTypeEnum.ShortInitial 
 		or InterestRatePayout -> calculationPeriodDates -> stubPeriodType = StubPeriodTypeEnum.LongInitial
-		or InterestRatePayout -> stubPeriod -> initialStub exists )
+		or InterestRatePayout -> stubPeriod -> initialStub exists
 		
 data rule LastRegularPeriodEndDate_finalStub <"FpML specifies that the lastRegularPeriodEndDate must only be specified if there is a final stub calculation period. In practice, this is the key element as part of the final stub specification.">
 	when InterestRatePayout -> calculationPeriodDates -> lastRegularPeriodEndDate exists
@@ -623,6 +642,13 @@ data rule CalculationPeriodDates_calculationPeriodFrequency <"FpML specifies a r
 	when Payout -> interestRatePayout count = 2
 		and Payout -> interestRatePayout -> calculationPeriodDates exists
 	then Payout -> interestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency exists
+
+data rule ResetDates_interestRateSwap <"The cardinality of the ResetDates attributes has been relaxed with respect to the FpML implementation to accommodate the credit default swap initial and final fixing dates. The purpose of this data rule is to apply the FpMl data constraints when the product is an interest rate swap.">
+	when Payout -> interestRatePayout count = 2
+	then Payout -> interestRatePayout -> resetDates -> calculationPeriodDatesReference exists
+		and Payout -> interestRatePayout -> resetDates -> fixingDates exists
+		and Payout -> interestRatePayout -> resetDates -> resetFrequency exists
+		and Payout -> interestRatePayout -> resetDates -> resetDatesAdjustments exists
 
 class Product one of
 {
