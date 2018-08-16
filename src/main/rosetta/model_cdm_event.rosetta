@@ -381,10 +381,10 @@ isEvent Novation <"The qualification of a novation event from the fact that (i) 
 		or Event -> primitive -> quantityChange -> after -> contractReference -> state = StateEnum.Novated
 	and Event -> primitive -> newTrade -> contract -> contractIdentifier <> Event -> primitive -> quantityChange -> before -> contract -> contractIdentifier
 	and Event -> eventDate = Event -> primitive -> newTrade -> contract -> tradeDate -> date
-	and Event -> effectiveDate = NovatedContractEffectiveDate
+	and Event -> effectiveDate = novatedContractEffectiveDate
 //	and originalContractParties <> newContractParties
 
-alias NovatedContractEffectiveDate
+alias novatedContractEffectiveDate
 	Event -> primitive -> newTrade -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> date
 	or Event -> primitive -> newTrade -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate
 	or Event -> primitive -> newTrade -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
@@ -411,12 +411,12 @@ isEvent PartialNovation <"The qualification of a novation event from the fact th
 	and Event -> primitive -> newTrade exists
 	and Event -> primitive -> newTrade -> contract -> contractIdentifier <> Event -> primitive -> quantityChange -> before -> contract -> contractIdentifier
 	and Event -> eventDate = Event -> primitive -> newTrade -> contract -> tradeDate -> date
-	and Event -> effectiveDate = NovatedContractEffectiveDate
+	and Event -> effectiveDate = novatedContractEffectiveDate
 	and quantityBeforeQuantityChange > quantityAfterQuantityChange
 	and quantityAfterQuantityChange > 0.0
 //	and originalContractParties <> newContractParties
 
-data rule NovationFee <"Logic to specify that if a payment is qualified as a novation fee, it must have lineage into multiple contracts and one single event (the novation event).">
+data rule Novation_fee <"Logic to specify that if a payment is qualified as a novation fee, it must have lineage into multiple contracts and one single event (the novation event).">
 	when Event -> primitive -> payment -> paymentType = PaymentTypeEnum.NovationFee
 	then Event -> lineage -> contractReference multiple exists
 		and Event -> lineage -> eventReference single exists
