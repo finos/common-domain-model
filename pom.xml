@@ -5,19 +5,21 @@
     <artifactId>cdm</artifactId>
     <name>cdm</name>
     <packaging>jar</packaging>
+    <url>https://www.rosetta-model.org</url>
     <version>0.0.0.master</version>
-    <url>http://maven.apache.org</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <xtext-version>2.13.0</xtext-version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <rosetta.common.version>0.0.0.master</rosetta.common.version>
+        <rosetta.workbench.version>0.0.0.master</rosetta.workbench.version>
+        <xtext.version>2.13.0</xtext.version>
         <junit.jupiter.version>5.2.0</junit.jupiter.version>
         <junit.platform.version>1.2.0</junit.platform.version>
-        <guava.version>22.0</guava.version>
-        <com.regnosys.rosetta.version>0.0.0.master</com.regnosys.rosetta.version>
-        <rosetta.regnosys.common.version>0.0.0.master</rosetta.regnosys.common.version>
+        <opengamma.strata.version>1.7.0</opengamma.strata.version>
+        <hamcrest.version>2.0.0.0</hamcrest.version>
+        <google.guava.version>22.0</google.guava.version>
     </properties>
 
     <build>
@@ -133,7 +135,7 @@
             <plugin>
                 <groupId>org.eclipse.xtext</groupId>
                 <artifactId>xtext-maven-plugin</artifactId>
-                <version>${xtext-version}</version>
+                <version>${xtext.version}</version>
                 <executions>
                     <execution>
                         <phase>generate-sources</phase>
@@ -158,12 +160,12 @@
                     <dependency>
                         <groupId>com.regnosys.rosetta</groupId>
                         <artifactId>com.regnosys.rosetta</artifactId>
-                        <version>${com.regnosys.rosetta.version}</version>
+                        <version>${rosetta.workbench.version}</version>
                     </dependency>
                     <dependency>
                         <groupId>com.regnosys.rosetta</groupId>
                         <artifactId>com.regnosys.rosetta.lib</artifactId>
-                        <version>${com.regnosys.rosetta.version}</version>
+                        <version>${rosetta.workbench.version}</version>
                     </dependency>
                     <dependency>
                         <groupId>org.apache.maven</groupId>
@@ -259,21 +261,73 @@
         </plugins>
     </build>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>22.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.regnosys.rosetta</groupId>
+                <artifactId>com.regnosys.rosetta.lib</artifactId>
+                <version>${rosetta.workbench.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.regnosys</groupId>
+                <artifactId>rosetta-common</artifactId>
+                <version>${rosetta.common.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.opengamma.strata</groupId>
+                <artifactId>strata-basics</artifactId>
+                <version>${opengamma.strata.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.checkerframework</groupId>
+                        <artifactId>checker-compat-qual</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.platform</groupId>
+                <artifactId>junit-platform-launcher</artifactId>
+                <version>${junit.platform.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-engine</artifactId>
+                <version>${junit.jupiter.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-api</artifactId>
+                <version>${junit.jupiter.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.hamcrest</groupId>
+                <artifactId>java-hamcrest</artifactId>
+                <version>${hamcrest.version}</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>com.regnosys.rosetta</groupId>
             <artifactId>com.regnosys.rosetta.lib</artifactId>
-            <version>${com.regnosys.rosetta.version}</version>
         </dependency>
         <dependency>
             <groupId>com.regnosys</groupId>
             <artifactId>rosetta-common</artifactId>
-            <version>${rosetta.regnosys.common.version}</version>
         </dependency>
         <dependency>
             <groupId>com.opengamma.strata</groupId>
             <artifactId>strata-basics</artifactId>
-            <version>1.7.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.checkerframework</groupId>
@@ -281,31 +335,21 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
-        <!-- Test dependencies-->
         <dependency>
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-launcher</artifactId>
-            <version>${junit.platform.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>${junit.jupiter.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>${junit.jupiter.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>java-hamcrest</artifactId>
-            <version>2.0.0.0</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 
