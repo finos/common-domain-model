@@ -52,10 +52,10 @@ class RosettaKeyPathFilterTest {
         rosettaNodeInspector.inspect(PathTypeNode.root(Event.class), collectFilteredPathVisitor, noOpRootVisitor);
 
         assertThat(filteredPaths, hasSize(3));
-        assertThat(filteredPaths.stream().map(Object::toString).collect(Collectors.toList()),
-                   hasItems("Event -> primitive -> quantityChange -> before",
-                            "Event -> primitive -> termsChange -> before",
-                            "Event -> primitive -> exercise -> before"));
+        assertThat(filteredPaths.stream().map(PathObject::fullPath).collect(Collectors.toList()),
+                   hasItems("Event.primitive.quantityChange.before",
+                            "Event.primitive.termsChange.before",
+                            "Event.primitive.exercise.before"));
     }
 
     private Visitor<PathObject<Class<?>>> getCollectFilteredPathVisitor(List<PathObject<Class<?>>> capture) {
