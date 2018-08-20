@@ -1,6 +1,6 @@
 package org.isda.cdm.filter;
 
-import com.regnosys.rosetta.common.inspection.PathType;
+import com.regnosys.rosetta.common.inspection.PathObject;
 import com.regnosys.rosetta.common.inspection.PathTypeNode;
 import com.regnosys.rosetta.common.inspection.RosettaNodeInspector;
 import org.isda.cdm.ContractOrContractReference;
@@ -43,13 +43,13 @@ class RosettaKeyPathFilterTest {
 
     @Test
     void shouldFindKnownFilterResults() {
-        List<PathType> filteredPaths = new LinkedList<>();
+        List<PathObject<Class<?>>> filteredPaths = new LinkedList<>();
 
         // inspect all class types, collecting the paths that are filtered out
-        RosettaNodeInspector<PathType> rosettaNodeInspector = new RosettaNodeInspector<>();
-        Visitor<PathType> collectFilteredPathVisitor = getCollectFilteredPathVisitor(filteredPaths);
-        Visitor<PathType> noOpRootVisitor = (node) -> {};
-        rosettaNodeInspector.inspect(new PathTypeNode(PathType.root(Event.class)), collectFilteredPathVisitor, noOpRootVisitor);
+        RosettaNodeInspector<PathObject<Class<?>>> rosettaNodeInspector = new RosettaNodeInspector<>();
+        Visitor<PathObject<Class<?>>> collectFilteredPathVisitor = getCollectFilteredPathVisitor(filteredPaths);
+        Visitor<PathObject<Class<?>>> noOpRootVisitor = (node) -> {};
+        rosettaNodeInspector.inspect(PathTypeNode.root(Event.class), collectFilteredPathVisitor, noOpRootVisitor);
 
         assertThat(filteredPaths, hasSize(3));
         assertThat(filteredPaths.stream().map(Object::toString).collect(Collectors.toList()),
@@ -58,9 +58,9 @@ class RosettaKeyPathFilterTest {
                             "Event -> primitive -> exercise -> before"));
     }
 
-    private Visitor<PathType> getCollectFilteredPathVisitor(List<PathType> capture) {
+    private Visitor<PathObject<Class<?>>> getCollectFilteredPathVisitor(List<PathObject<Class<?>>> capture) {
         return (n) -> {
-                Class<?> forClass = n.get().getType();
+                Class<?> forClass = n.get().getObject();
                 List<String> path = n.get().getPath();
                 if(Optional.ofNullable(RosettaKeyPathFilter.EVENT_EFFECT_ROSETTA_KEY_PATH_FILTER.getUnderlyingMap()
                         .get(forClass))
