@@ -3,6 +3,7 @@ package org.isda.cdm.filter;
 import com.regnosys.rosetta.common.inspection.PathObject;
 import com.regnosys.rosetta.common.inspection.PathTypeNode;
 import com.regnosys.rosetta.common.inspection.RosettaNodeInspector;
+import com.regnosys.rosetta.common.util.HierarchicalPath;
 import org.isda.cdm.ContractOrContractReference;
 import org.isda.cdm.Event;
 import org.isda.cdm.Execution;
@@ -48,14 +49,15 @@ class RosettaKeyPathFilterTest {
         // inspect all class types, collecting the paths that are filtered out
         RosettaNodeInspector<PathObject<Class<?>>> rosettaNodeInspector = new RosettaNodeInspector<>();
         Visitor<PathObject<Class<?>>> collectFilteredPathVisitor = getCollectFilteredPathVisitor(filteredPaths);
-        Visitor<PathObject<Class<?>>> noOpRootVisitor = (node) -> {};
-        rosettaNodeInspector.inspect(PathTypeNode.root(Event.class), collectFilteredPathVisitor, noOpRootVisitor);
+        rosettaNodeInspector.inspect(PathTypeNode.root(Event.class), collectFilteredPathVisitor);
 
         assertThat(filteredPaths, hasSize(3));
-        assertThat(filteredPaths.stream().map(PathObject::fullPath).collect(Collectors.toList()),
-                   hasItems("Event.primitive.quantityChange.before",
-                            "Event.primitive.termsChange.before",
-                            "Event.primitive.exercise.before"));
+        assertThat(filteredPaths.stream()
+                        .map(o -> o.getHierarchicalPath().map(HierarchicalPath::buildPath).orElse(""))
+                        .collect(Collectors.toList()),
+                   hasItems("primitive.quantityChange.before",
+                            "primitive.termsChange.before",
+                            "primitive.exercise.before"));
     }
 
     private Visitor<PathObject<Class<?>>> getCollectFilteredPathVisitor(List<PathObject<Class<?>>> capture) {
