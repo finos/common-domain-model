@@ -2,19 +2,17 @@
 
 The ISDA Common Domain Model
 ============================
-The ISDA Common Domain Model (ISDA CDM|trade|)  is an initiative that ISDA has spearheaded to produce a common, robust, digital blueprint for how derivatives are traded and managed across their lifecycle. ISDA is proposing, in a machine-readable format, to build a standard digital representation of products, events and actions that occur during the life of a derivatives trade. It is based on the design principles specified as part of ISDA’s October 2017 `CDM concept paper <https://www.isda.org/a/gVKDE/CDM-FINAL.pdf>`_ for a product scope limited to simple interest and credit derivative products and an agreed sample of business events.
+The ISDA Common Domain Model is an initiative that ISDA has spearheaded to produce a common, robust, digital blueprint for how derivatives are traded and managed across their lifecycle. It is based on the design principles specified as part of ISDA’s October 2017 `CDM concept paper <https://www.isda.org/a/gVKDE/CDM-FINAL.pdf>`_ for a product scope limited to simple interest and credit derivative products and an agreed sample of business events.
 
-ISDA anticipates that establishing a common set of data and processing standards that participants can access will include the following benefits:
+ISDA anticipates that establishing such digital data and processing standards will lead to the following benefits:
 
-* Reduce the current need for continual reconciliations to address mismatches caused by variations in how each firm records trade lifecycle events.
-* Enable consistency in regulatory compliance and reporting.
-* Accelerate greater automation and efficiency in the derivatives market.
-* Provide a common foundation for new technologies like distributed ledger, cloud and smart contracts to facilitate data consistency.
+* Reduce the current need for continual reconciliations to address mismatches caused by variations in how each firm records trade lifecycle events;
+* Enable consistency in regulatory compliance and reporting;
+* Accelerate greater automation and efficiency in the derivatives market;
+* Provide a common foundation for new technologies like distributed ledger, cloud and smart contracts to facilitate data consistency;
 * Facilitate interoperability across firms and platforms.
 
 A high-level presentation of the ISDA CDM and additional information is available on the ISDA website (`www.isda.org <http://www.isda.org/>`_) and particularly with the referred `Short Video <https://www.isda.org/2017/11/30/what-is-the-isda-cdm/>`_.
-
-The remainder of this document goes into details of the structure and design of the CDM.
 
 The Rosetta Workbench
 =====================
@@ -130,8 +128,7 @@ Logic - ``boolean``
 
 Date and Time - ``date`` - ``dateTime`` - ``time``
 
-Calculation - ``calculation``
-  The ``calculation`` qualifier represents the outcome of the CDM interest accrual calculation. It is currently associated with two attributes: ``cashflowCalculation`` in the ``Cashflow`` class, and ``callFunction`` in the ``computedAmount`` class.
+Calculation - ``calculation`` (The ``calculation`` qualifier represents the outcome of the CDM interest accrual calculation. It is currently associated with two attributes: ``cashflowCalculation`` in the ``Cashflow`` class, and ``callFunction`` in the ``computedAmount`` class.)
 
 Product and event qualification - ``productType`` - ``eventType``
 
@@ -332,7 +329,7 @@ While most of the choice rules have two attributes, there is no limit to the num
 
 Members of a choice rule need to have their lower cardinality set to 0, something which is enforced by a validation rule.
 
-``one of`` syntax as a complement to the choice rule
+One of syntax as a complement to the choice rule
 """"""""""""""""""""""""""""""""""""""""""""""""""""
 
 In the case where all the attributes of a given class are subject to a choice logic, Rosetta provides the ability to qualify the class information with the ``one of`` qualifier. This feature is illustrated by the ``BondOptionStrike`` class.
@@ -1176,7 +1173,7 @@ One distinction with the product approach is that the ``intent`` qualification i
 Interest Calculation
 --------------------
 
-The current CDM version implements the **Fixed Amount** and **Floating Amount** ISDA 2006 Definitions, alongside with two day count fractions: **30E/360** and **ACT/365.FIXED**.
+The current CDM version implements the **Fixed Amount** and **Floating Amount** ISDA 2006 Definitions, alongside with some of the day count fractions.
 
 Fixed Amount and Floating Amount Definitions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1216,10 +1213,10 @@ The CDM syntax to express the Fixed Amount and Floating Amount is similar in str
    dayCountFraction: is InterestRatePayout -> dayCountFraction
  }
 
-Day Count Fractions: 30E/360 and ACT/365.FIXED
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Day Count Fractions
+^^^^^^^^^^^^^^^^^^^
 
-The current CDM version incorporates two day count fractions calculations which are quite representative of the set of day count fractions that are specified as part of the ISDA 2006 Definitions: while the **30E/360** definition specifies the actual computation in quite details as a result of the use of a 360 days year and a 30 maximum days month, the **ACT/365.FIXED** is much simpler and relies upon a computation of the number of days in a period which is not specified as part of the syntax because not involving any specific logic.
+The current CDM version incorporates day count fractions calculations which are quite representative of the set of day count fractions that are specified as part of the ISDA 2006 Definitions.  Among those are the 30E/360 and the ACT/365.FIXED day count fractions. While the **30E/360** definition specifies the actual computation in quite details as a result of the use of a 360 days year and a 30 maximum days month, the **ACT/365.FIXED** is much simpler and relies upon a computation of the number of days in a period which is not specified as part of the syntax because not involving any specific logic.
 
 .. code-block:: Java
 
