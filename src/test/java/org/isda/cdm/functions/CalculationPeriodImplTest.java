@@ -15,7 +15,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class CalculationPeriodImplTest {
 
-    private final CalculationPeriodImpl unit = new CalculationPeriodImpl();
     private final CalculationPeriodDates calculationPeriodDates = CalculationPeriodDates.builder()
             .setEffectiveDate(DateInstances.builder()
             			.setAdjustableDate(AdjustableDate.builder()
@@ -49,21 +48,25 @@ class CalculationPeriodImplTest {
 
     @Test
     void shouldReturnStartAndEndDateOfFirstPeriod() {
-        CalculationPeriod.CalculationResult usingStartDate = unit.execute(calculationPeriodDates, LocalDate.of(2018, 1, 3));
+        CalculationPeriod usingStartDatePeriodCalculator = new CalculationPeriodImpl(LocalDate.of(2018, 1, 3));
+        CalculationPeriod.CalculationResult usingStartDate = usingStartDatePeriodCalculator.execute(calculationPeriodDates);
 
         assertThat(usingStartDate.getStartDate(), is(new DateImpl(3, 1, 2018)));
         assertThat(usingStartDate.getEndDate(), is(new DateImpl(3, 4, 2018)));
 
-        CalculationPeriod.CalculationResult usingAnyDate = unit.execute(calculationPeriodDates, LocalDate.of(2018, 2, 14));
-        CalculationPeriod.CalculationResult usingEndDate = unit.execute(calculationPeriodDates, LocalDate.of(2018, 3, 31));
+        CalculationPeriod usingAnyDatePeriodCalculator = new CalculationPeriodImpl(LocalDate.of(2018, 2, 14));
+        CalculationPeriod.CalculationResult usingAnyDate = usingAnyDatePeriodCalculator.execute(calculationPeriodDates);
 
-        // TODO: once equals and hashcode for Result objects in place, compare objects directly (no need to compare fields)
-        assertThat(usingStartDate.getStartDate(), allOf(is(usingAnyDate.getStartDate()), is(usingEndDate.getStartDate())));
-        assertThat(usingStartDate.getEndDate(), allOf(is(usingAnyDate.getEndDate()), is(usingEndDate.getEndDate())));
+        CalculationPeriod usingEndDatePeriodCalculator = new CalculationPeriodImpl(LocalDate.of(2018, 3, 31));
+        CalculationPeriod.CalculationResult usingEndDate = usingEndDatePeriodCalculator.execute(calculationPeriodDates);
+
+        assertThat(usingStartDate, allOf(is(usingAnyDate), is(usingEndDate)));
     }
 
     @Test
     void shouldThrowWhenRollConventionNotTerminationDay() {
+        CalculationPeriod unit = new CalculationPeriodImpl(LocalDate.of(2018, 4, 23));
+
         CalculationPeriodFrequency frequency = calculationPeriodDates.getCalculationPeriodFrequency().toBuilder()
                 .setRollConvention(RollConventionEnum._1)
                 .build();
@@ -72,13 +75,8 @@ class CalculationPeriodImplTest {
                 .setCalculationPeriodFrequency(frequency)
                 .build();
 
-        Executable result = () -> unit.execute(calculationPeriodDates, LocalDate.of(2018, 4, 23));
+        Executable result = () -> unit.execute(calculationPeriodDates);
 
         assertThrows(ScheduleException.class, result, "Date '2018-01-03' does not match roll convention 'Day1' when starting to roll forwards");
     }
-
-
-
-
-
 }
