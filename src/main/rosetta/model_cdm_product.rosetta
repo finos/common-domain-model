@@ -1,6 +1,6 @@
 namespace "org.isda.cdm"
 
-class Contract <"A class to specify a contract object, which can be invoked either within the context of an event, or independently from it. It corresponds to the FpML Trade, although restricted to execution and post-execution contexts. Attributes also applicable to pre-execution (a.k.a. pre-trade view in FpML) contexts have been positioned as part of the ContractualProduct class.">
+class Contract rosettaKey <"A class to specify a contract object, which can be invoked either within the context of an event, or independently from it. It corresponds to the FpML Trade, although restricted to execution and post-execution contexts. Attributes also applicable to pre-execution (a.k.a. pre-trade view in FpML) contexts have been positioned as part of the ContractualProduct class.">
 {
 	id string (0..1) anchor;
 		[synonym FpML value id]
@@ -93,6 +93,13 @@ data rule Restructuring_physicalSettlementMatrix <"The below multiple holder obl
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring exists
 	then Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleHolderObligation exists
 
+/*
+ * TODO - The mortgage underlyer qualification needs to be confirmed for the 3 below data rules.
+ * Initial feedback from Ffion: We would need to review all the possible ISDA Standard Terms but for example the CDSonMBS is only used in the case of a single name I believe. 
+ * Indices have a different standard term and as I understand it the standard terms wouldn’t be referenced in complex trades. 
+ * I think we would need to rely on the mortgage underlyer in those cases.
+ * As part of this, we should confirm whether it is relevant to rely upon the type of broker confirmation.
+ */
 data rule AdditionalFixedPayments_mortgages <"The below set of additional fixed payment provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap.">
 	when ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> mortgage exists
 		or Contract -> documentation -> brokerConfirmation -> brokerConfirmationType = BrokerConfirmationTypeEnum.CDSonMBS

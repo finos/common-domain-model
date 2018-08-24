@@ -54,7 +54,7 @@ class ComputedAmount <"A class to specify the outcome of a computed amount, for 
 	currency string (0..1) scheme "currencyScheme";
 }
 
-class ContractOrContractReference rosettaKey one of
+class ContractOrContractReference one of
 {
 	contract Contract (0..*);
 		[synonym Rosetta_Workbench value contract]
@@ -62,7 +62,7 @@ class ContractOrContractReference rosettaKey one of
 		[synonym Rosetta_Workbench value contractReference]
 }
 
-class ContractOrListedProduct rosettaKey one of
+class ContractOrListedProduct one of
 {
 	contractState ContractOrContractReference (0..1);
 		[synonym Rosetta_Workbench value contractState]
@@ -70,7 +70,7 @@ class ContractOrListedProduct rosettaKey one of
 		[synonym Rosetta_Workbench value listedProduct]
 }
 
-class ContractReference extends ContractIdentifier
+class ContractReference extends ContractIdentifier rosettaKey
 {
 	state StateEnum (0..1) <"The state qualification of a contractual product.">;
 		[synonym Rosetta_Workbench value state]
@@ -114,11 +114,12 @@ class Event rosettaKey
 
 class EventEffect <"The set of operational and positional effects associated with a lifecycle event.">
 {
-	referenceContract ContractOrContractReference (0..*) rosettaKey <"A pointer to the contract to which the event effect(s) apply. This reference is optional to address the case where an event with candidate event effect(s) would only have associated referenceContract.">;
+	referenceContract ContractOrContractReference (0..*) rosettaKey <"A pointer to the contract (or reference contract) to which the event effect(s) apply.">;
 	referenceEvent Event (1..1) rosettaKey <"A pointer to the event to which the event effect(s) apply.">;
-	product ContractOrListedProduct (0..*) rosettaKey <"A pointer to the products effect(s), an example of such being the outcome of an option physical exercise.">;
-	payment Payment (0..*) rosettaKey <"A pointer to the payment effect(s).">;
-	reset ResetPrimitive (0..*) rosettaKey <"A pointer to the reset effect(s).">;
+	contract Contract (0..*) rosettaKey <"A pointer to the contract effect(s), an example of such being the outcome of a new trade, swaption exercise or novation event.">;
+	contractReference ContractReference (0..*) rosettaKey <"A pointer to the contract reference effect(s), an example of such being the outcome of a novation or compression event, in which the after state have associated contract references which refer to the before state.">;
+	listedProduct ListedProduct (0..*) rosettaKey <"A pointer to the listed product effect(s), an example of such being the outcome of the physical exercise of a bond option.">;
+	payment Payment (0..*) rosettaKey <"A pointer to the payment effect(s), an example of such being the outcome of an option cash exercise.">;
 }
 
 class EventTestBundle <"A class which combines several events for testing purposes.">
