@@ -1,7 +1,9 @@
 package org.isda.cdm.filter;
 
 import com.google.common.collect.ImmutableMap;
-import org.isda.cdm.ContractOrContractReference;
+
+import org.isda.cdm.Contract;
+import org.isda.cdm.ContractReference;
 
 import java.util.Arrays;
 import java.util.List;
@@ -15,14 +17,14 @@ import java.util.function.BiPredicate;
 public class RosettaKeyPathFilter implements BiPredicate<Class<?>, List<String>> {
 
     /**
-     * Filter RosettaKey classes to be used in EventEffects based on their path.
-     * E.g. the rosettaKey on the ContractOrContractReference object at path
-     * "primitive -> quantityChange -> before -> contract" would be added to eventEffects, however the
-     * path "primitive -> newTrade -> contract" would be filtered out
+     * Filter RosettaKey classes to be used in EventEffects based upon the following logic:
+     * - rosettaKey values associated with Contract or ContractReference instantiations in the 'before' path are associated with eventEffect/referenceContract
+     * - other Contract or ContractReference instantiations are associated with eventEffect/contract
      */
     public static final RosettaKeyPathFilter EVENT_EFFECT_ROSETTA_KEY_PATH_FILTER =
             new RosettaKeyPathFilter(ImmutableMap.<Class<?>, List<String>>builder()
-                    .put(ContractOrContractReference.class, Arrays.asList("primitive", "before"))
+            			.put(Contract.class, Arrays.asList("primitive", "before"))
+            			.put(ContractReference.class, Arrays.asList("primitive", "before"))
                     .build());
 
     private final Map<Class<?>, List<String>> requiredPathElements;
