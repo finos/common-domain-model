@@ -39,7 +39,6 @@ class Contract <"A class to specify a contract object, which can be invoked eith
 data rule DeliverableObligations_physicalSettlementMatrix <"The below set of credit deliverable obligation provisions are specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that those provisions cannot be omitted if the Physical Settlement Matrix governs the terms of the contract.">
 	when ( Contract -> documentation -> contractualMatrix -> matrixType <> MatrixTypeEnum.CreditDerivativesPhysicalSettlementMatrix
 		or Contract -> documentation -> contractualMatrix -> matrixType is absent )
-		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms exists
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations exists
 	then ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> notSubordinated
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> specifiedCurrency
@@ -66,8 +65,8 @@ data rule Obligations_physicalSettlementMatrix <"The below set of obligation of 
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations exists
 	then ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notSubordinated
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notSovereignLender
-		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notDomesticLaw	
-		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notDomesticIssuance	
+		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notDomesticLaw
+		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notDomesticIssuance
 	) exists
 	and (
 		Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> fullFaithAndCreditObLiability
@@ -191,7 +190,7 @@ data rule FpML_cd_24 <"FpML validation rule cd-24 - If the condition LongForm is
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
 	then ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> creditEventNotice
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations
-		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout ->generalTerms -> referenceInformation -> referencePrice 
+		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout ->generalTerms -> referenceInformation -> referencePrice
 	) exists
 
 data rule FpML_cd_25 <"FpML validation rule cd-25 - If the condition LongForm is true, and if physicalSettlementTerms exists, then physicalSettlementTerms must contain settlementCurrency, physicalSettlementPeriod, escrow and deliverableObligations/accruedInterest.">
@@ -448,13 +447,17 @@ data rule FpML_ird_7_1 <"FpML validation rule ird-7 1/2 - The existence of compo
  		and InterestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier
  	then ( InterestRatePayout -> compoundingMethod is absent or InterestRatePayout -> compoundingMethod = CompoundingMethodEnum.None )
 
-data rule FpML_ird_7_2 <"FpML validation rule ird-7 2/2 - The existence of compoundingMethod is required when the calculation period and payment frequencies differ.">
- 	when InterestRatePayout count = 2
- 		and ( ( InterestRatePayout -> paymentDates -> paymentFrequency -> period <> InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> period
- 		and InterestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier <> InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier )
- 		or ( InterestRatePayout -> paymentDates -> paymentFrequency -> period <> InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> period
- 		or InterestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier <> InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier) )
- 	then InterestRatePayout -> compoundingMethod exists
+/*
+ * TODO - Take a closer look into the InterestRatePayout count = 2 which doesn't seem to work as it creates
+ * issues for cds trades such as cdm-cds-ref-ob
+ */
+//data rule FpML_ird_7_2 <"FpML validation rule ird-7 2/2 - The existence of compoundingMethod is required when the calculation period and payment frequencies differ.">
+// 	when InterestRatePayout count = 2
+// 		and ( InterestRatePayout -> paymentDates -> paymentFrequency -> period <> InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> period
+// 		and InterestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier <> InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier )
+// 		or InterestRatePayout -> paymentDates -> paymentFrequency -> period <> InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> period
+// 		or InterestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier <> InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier
+// 	then InterestRatePayout -> compoundingMethod exists
 
 data rule FpML_ird_9 <"FpML validation rule ird-9 - If calculationPeriodAmount/calculation/compoundingMethod exists, then resetDates must exist.">
 	when InterestRatePayout -> compoundingMethod exists
@@ -471,10 +474,10 @@ data rule CalculationPeriodDates_firstCompoundingPeriodEndDate <"FpML specifies 
 
 data rule FirstRegularPeriodStartDate_initialStub <"FpML specifies that the firstRegularPeriodStartDate must only be specified if there is an initial stub calculation period. In practice, this is the key element as part of the initial stub specification.">
 	when InterestRatePayout -> calculationPeriodDates -> firstRegularPeriodStartDate exists
-	then InterestRatePayout -> calculationPeriodDates -> stubPeriodType = StubPeriodTypeEnum.ShortInitial 
+	then InterestRatePayout -> calculationPeriodDates -> stubPeriodType = StubPeriodTypeEnum.ShortInitial
 		or InterestRatePayout -> calculationPeriodDates -> stubPeriodType = StubPeriodTypeEnum.LongInitial
 		or InterestRatePayout -> stubPeriod -> initialStub exists
-		
+
 data rule LastRegularPeriodEndDate_finalStub <"FpML specifies that the lastRegularPeriodEndDate must only be specified if there is a final stub calculation period. In practice, this is the key element as part of the final stub specification.">
 	when InterestRatePayout -> calculationPeriodDates -> lastRegularPeriodEndDate exists
 	then InterestRatePayout -> calculationPeriodDates -> stubPeriodType = StubPeriodTypeEnum.ShortFinal
@@ -825,7 +828,7 @@ isProduct InterestRate_IRSwap_FixedFloat
 		EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> indexTenor -> periodMultiplier
 		or EconomicTerms -> payout -> interestRatePayout -> compoundingMethod exists
 		or EconomicTerms -> payout -> interestRatePayout -> stubPeriod exists
-		or EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> stubPeriodType exists 
+		or EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> stubPeriodType exists
 		or EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> settlementProvision exists )
 
 isProduct InterestRate_IRSwap_FixedFixed
