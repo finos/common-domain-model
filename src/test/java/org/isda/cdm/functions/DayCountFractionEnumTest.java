@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -16,57 +17,52 @@ import static org.mockito.Mockito.when;
 
 public class DayCountFractionEnumTest {
 
-	@Test
-	void shouldCalculatePeriod1yFor30e360() {
+    @Test
+	void shouldCalculateDcfForAct360BetweenDates22Mar18To22Jun18() {
 		BigDecimal result = calculate(
-				LocalDate.of(2019, 1, 28),
-				LocalDate.of(2020, 1, 28),
-				org.isda.cdm.DayCountFractionEnum._30E_360);
+				LocalDate.of(2018, 3, 22),
+				LocalDate.of(2018, 6, 22),
+				92,
+				org.isda.cdm.DayCountFractionEnum.ACT_360);
 
-		assertThat("Unexpected calculated period", result, is(BigDecimal.valueOf(1)));
+        BigDecimal roundedResult = result.setScale(5, RoundingMode.HALF_UP);
+        assertThat("Unexpected calculated ACT/360 DCF", roundedResult, is(BigDecimal.valueOf(0.25556)));
 	}
 
 	@Test
-	void shouldCalculatePeriodFor30e360WithRoundedDownStartDate() {
+	void shouldCalculateDcfForAct360BetweenDates29Dec17To29Mar18() {
 		BigDecimal result = calculate(
-				LocalDate.of(2019, 1, 31),
-				LocalDate.of(2020, 1, 30),
-				org.isda.cdm.DayCountFractionEnum._30E_360);
+				LocalDate.of(2017, 12, 29),
+				LocalDate.of(2018, 3, 29),
+				90,
+				org.isda.cdm.DayCountFractionEnum.ACT_360);
 
-		assertThat("Unexpected calculated period", result, is(BigDecimal.valueOf(1)));
+		assertThat("Unexpected calculated ACT/360 DCF", result, is(BigDecimal.valueOf(0.25)));
 	}
 
 	@Test
-	void shouldCalculatePeriodFor30e360WithRoundedDownEndDate() {
+	void shouldCalculateDcfFor30360BetweenDates20Oct17To20Apr18() {
 		BigDecimal result = calculate(
-				LocalDate.of(2019, 1, 30),
-				LocalDate.of(2020, 1, 31),
-				org.isda.cdm.DayCountFractionEnum._30E_360);
+				LocalDate.of(2017, 10, 20),
+				LocalDate.of(2018, 4, 20),
+				180,
+				org.isda.cdm.DayCountFractionEnum._30_360);
 
-		assertThat("Unexpected calculated period", result, is(BigDecimal.valueOf(1)));
+		assertThat("Unexpected calculated 30/360 DCF", result, is(BigDecimal.valueOf(0.5)));
 	}
 
 	@Test
-	void shouldCalculatePeriod6mFor30e360() {
+	void shouldCalculateDcfFor30360BetweenDates30Jan17To30Jan18() {
 		BigDecimal result = calculate(
-				LocalDate.of(2018, 1, 1),
-				LocalDate.of(2018, 7, 1),
-				org.isda.cdm.DayCountFractionEnum._30E_360);
+				LocalDate.of(2017, 1, 30),
+				LocalDate.of(2018, 1, 30),
+				360,
+				org.isda.cdm.DayCountFractionEnum._30_360);
 
-		assertThat("Unexpected calculated period", result, is(BigDecimal.valueOf(0.5)));
+		assertThat("Unexpected calculated 30/360 DCF", result, is(BigDecimal.valueOf(1)));
 	}
 
-	@Test
-	void shouldCalculatePeriod36daysFor30e360() {
-		BigDecimal result = calculate(
-				LocalDate.of(2018, 1, 1),
-				LocalDate.of(2018, 2, 7),
-				org.isda.cdm.DayCountFractionEnum._30E_360);
-
-		assertThat("Unexpected calculated period", result, is(BigDecimal.valueOf(0.1)));
-	}
-
-	private BigDecimal calculate(LocalDate startDate, LocalDate endDate, org.isda.cdm.DayCountFractionEnum dcf) {
+	private BigDecimal calculate(LocalDate startDate, LocalDate endDate, int days, org.isda.cdm.DayCountFractionEnum dcf) {
 		CalculationPeriod.CalculationResult calculationPeriodResult = Mockito.mock(CalculationPeriod.CalculationResult.class);
 		when(calculationPeriodResult.getStartDate()).thenReturn(new DateImpl(startDate));
 		when(calculationPeriodResult.getEndDate()).thenReturn(new DateImpl(endDate));
@@ -74,10 +70,15 @@ public class DayCountFractionEnumTest {
 		CalculationPeriod calculationPeriod = Mockito.mock(CalculationPeriod.class);
 		when(calculationPeriod.execute(any())).thenReturn(calculationPeriodResult);
 
-		DaysInPeriod daysInPeriod = Mockito.mock(DaysInPeriod.class);
+        DaysInPeriod.CalculationResult daysInPeriodResult = Mockito.mock(DaysInPeriod.CalculationResult.class);
+        when(daysInPeriodResult.getDays()).thenReturn(days);
+
+        DaysInPeriod daysInPeriod = Mockito.mock(DaysInPeriod.class);
+        when(daysInPeriod.execute(any())).thenReturn(daysInPeriodResult);
+
 		InterestRatePayout interestRatePayout = Mockito.mock(InterestRatePayout.class);
 
-		DayCountFractionEnum unit = new DayCountFractionEnum(calculationPeriod, daysInPeriod);
+		DayCountFractionEnum unit = new DayCountFractionEnum(daysInPeriod, calculationPeriod);
 		return unit.calculate(interestRatePayout, dcf);
 
 	}
