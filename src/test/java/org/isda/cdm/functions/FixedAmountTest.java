@@ -12,6 +12,8 @@ import static org.hamcrest.core.Is.is;
 
 class FixedAmountTest {
 
+    private static final LocalDate REFERENCE_DATE = LocalDate.of(2018, 8, 22);
+
     @Test
     void shouldCalculate() {
         InterestRatePayout interestRatePayout = InterestRatePayout.builder()
@@ -61,7 +63,8 @@ class FixedAmountTest {
                         .build())
                 .build();
 
-        FixedAmount.CalculationResult fixedAmount = new FixedAmount(new CalculationPeriodImpl(), new DaysInPeriodImpl()).calculate(interestRatePayout);
+        FixedAmount.CalculationResult fixedAmount = new FixedAmount(new DaysInPeriodImpl(REFERENCE_DATE),
+                new CalculationPeriodImpl(REFERENCE_DATE)).calculate(interestRatePayout);
 
         assertThat(fixedAmount.getFixedAmount(), is(new BigDecimal("750000.0000")));
         assertThat(fixedAmount.getCurrencyAmount(), is("EUR"));
