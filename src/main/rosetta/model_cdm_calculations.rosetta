@@ -90,6 +90,27 @@ arguments DayCountFractionEnum._30E_360 <"The arguments to calculate the 30E/360
 	endDay : is Min( period -> endDate -> day, 30 )
 }
 
+/**************************
+ * DayCountFraction 30/360
+ */
+
+calculation DayCountFractionEnum._30_360 <"Per 2006 ISDA Definitions, Section 4.16. Day Count Fraction, paragraph (f) or Annex to the 2000 ISDA Definitions (June 2000 Version), Section 4.16. Day Count Fraction, paragraph (e).">
+{
+	number: (360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
+}
+
+arguments DayCountFractionEnum._30_360 <"The arguments to calculate the 30/360 day count fraction. Per 2006 ISDA Definitions, Section 4.16. Day Count Fraction, paragraph (f) or Annex to the 2000 ISDA Definitions (June 2000 Version), Section 4.16. Day Count Fraction, paragraph (e).">
+{
+	alias period CalculationPeriod( InterestRatePayout -> calculationPeriodDates )
+
+	endYear : is period -> endDate -> year
+	startYear : is period -> startDate -> year
+	endMonth : is period -> endDate -> month
+	startMonth : is period -> startDate -> month
+	startDay : is Min( period -> startDate -> day, 30 )
+	endDay : is if period -> startDate -> day > 29 then Min( period -> endDate -> day, 30 ) else period -> endDate -> day
+}
+
 function CalculationPeriod( calculationPeriodDates CalculationPeriodDates ) <"2006 ISDA Definition Section 4.13. 'Calculation Period' means, in respect of a Swap Transaction and a party, each period from, and including, one Period End Date of that party to, but excluding, the next following applicable Period End Date during the Term of the Swap Transaction, except that (a) the initial Calculation Period for the party will commence on, and include, the Effective Date and (b) the final Calculation Period for the party will end on, but exclude, the Termination Date.">
 {
 	startDate date;
