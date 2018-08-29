@@ -1,7 +1,7 @@
 package org.isda.cdm.functions;
 
 import org.isda.cdm.CalculationPeriodDates;
-import org.isda.cdm.functions.DaysInPeriod.CalculationResult;
+
 import com.rosetta.model.lib.records.Date;
 
 import java.time.LocalDate;
@@ -9,13 +9,19 @@ import java.time.temporal.ChronoUnit;
 
 public class DaysInPeriodImpl implements DaysInPeriod {
 
-	@Override
-	public CalculationResult execute(org.isda.cdm.CalculationPeriodDates calculationPeriodDates) {
-		return execute(calculationPeriodDates, LocalDate.now());
+	private LocalDate referenceDate;
+
+	public DaysInPeriodImpl(LocalDate referenceDate) {
+		this.referenceDate = referenceDate;
 	}
 
-	public CalculationResult execute(CalculationPeriodDates calculationPeriodDates, LocalDate referenceDate) {
-		CalculationPeriod.CalculationResult execute = new CalculationPeriodImpl().execute(calculationPeriodDates, referenceDate);
+	@Override
+	public CalculationResult execute(org.isda.cdm.CalculationPeriodDates calculationPeriodDates) {
+		return execute(calculationPeriodDates, referenceDate);
+	}
+
+	private CalculationResult execute(CalculationPeriodDates calculationPeriodDates, LocalDate referenceDate) {
+		CalculationPeriod.CalculationResult execute = new CalculationPeriodImpl(referenceDate).execute(calculationPeriodDates);
 		long days = ChronoUnit.DAYS.between(toLocalDate(execute.getStartDate()), toLocalDate(execute.getEndDate()));
 		return new CalculationResult().setDays((int) days);
 	}

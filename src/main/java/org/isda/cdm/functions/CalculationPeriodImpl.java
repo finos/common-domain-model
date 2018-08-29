@@ -4,7 +4,6 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.schedule.*;
 import org.isda.cdm.CalculationPeriodDates;
-import org.isda.cdm.functions.CalculationPeriod.CalculationResult;
 import com.rosetta.model.lib.records.DateImpl;
 
 import static org.isda.cdm.functions.CdmToStrataMapper.getFrequency;
@@ -14,12 +13,18 @@ import java.time.LocalDate;
 
 public class CalculationPeriodImpl implements CalculationPeriod {
 
-	@Override
-	public CalculationResult execute(CalculationPeriodDates calculationPeriodDates) {
-		return execute(calculationPeriodDates, LocalDate.now());
+	private final LocalDate referenceDate;
+
+	public CalculationPeriodImpl(LocalDate referenceDate) {
+		this.referenceDate = referenceDate;
 	}
 
-	CalculationResult execute(CalculationPeriodDates calculationPeriodDates, LocalDate referenceDate) {
+	@Override
+	public CalculationResult execute(CalculationPeriodDates calculationPeriodDates) {
+		return execute(calculationPeriodDates, referenceDate);
+	}
+
+	private CalculationResult execute(CalculationPeriodDates calculationPeriodDates, LocalDate referenceDate) {
 		PeriodicSchedule periodicSchedule = PeriodicSchedule.of(
 				calculationPeriodDates.getEffectiveDate().getAdjustableDate().getUnadjustedDate(),
 				calculationPeriodDates.getTerminationDate().getUnadjustedDate(),
@@ -31,7 +36,7 @@ public class CalculationPeriodImpl implements CalculationPeriod {
 		Schedule schedule = periodicSchedule.createSchedule(ReferenceData.minimal());
 
 		SchedulePeriod targetPeriod = schedule.getPeriods().stream()
-				.filter(period -> period.getStartDate().compareTo(referenceDate) == 0 || period.getStartDate().isBefore(referenceDate))
+				.filter(period -> !(referenceDate.isBefore(period.getStartDate())) && referenceDate.isBefore(period.getEndDate()))
 				.findFirst()
 				.orElseThrow(() -> new IllegalArgumentException("Date " + referenceDate.toString() + "not within schedule"));
 
