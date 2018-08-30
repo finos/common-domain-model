@@ -16,6 +16,7 @@ import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.isda.cdm.filter.EventEffectPathFilter.*;
 
 class EventEffectPathFilterTest {
 
@@ -70,12 +71,17 @@ class EventEffectPathFilterTest {
     }
 
     @Test
-    void shouldPassBecauseNoRequiredElementsForClass() {
+    void shouldFilterPathsForPayment() {
         HierarchicalPath paymentPath = HierarchicalPath.valueOf("eventEffect.payment");
 
         assertThat(EventEffectPathFilter.test(paymentPath, Payment.class, HierarchicalPath.valueOf("primitive.payment")), is(true));
     }
 
+    /**
+     * As the EventEffectPathFilter refers to specific paths, if the model changes, then the filter would not work.
+     *
+     * This test will fail if the rosettaKey paths used in the EventEffectPathFilter change.
+     */
     @Test
     void shouldFindKnownEffectedContractPaths() {
         List<PathObject<Class<?>>> filteredPaths = new LinkedList<>();
@@ -104,4 +110,34 @@ class EventEffectPathFilterTest {
         };
     }
 
+    /**
+     * As the EventEffectPathFilter refers to specific paths, if the model changes, then the filter would not work.
+     *
+     * This test will fail if the eventEffect paths used in the EventEffectPathFilter change.
+     */
+    @Test
+    void shouldFindKnownEventEffectPaths() {
+        List<String> eventEffectPaths = new LinkedList<>();
+
+        // inspect all class types, collecting the paths that are filtered out
+        RosettaNodeInspector<PathObject<Class<?>>> rosettaNodeInspector = new RosettaNodeInspector<>();
+        Visitor<PathObject<Class<?>>> collectFilteredPathVisitor = getCollectEventEffectPathsVisitor(eventEffectPaths);
+        rosettaNodeInspector.inspect(PathTypeNode.root(Event.class), collectFilteredPathVisitor);
+
+        assertThat(eventEffectPaths,
+                hasItems(EFFECTED_CONTRACT_PATH.getPath().buildPath(),
+                        EFFECTED_CONTRACT_REFERENCE_PATH.getPath().buildPath(),
+                        CONTRACT_PATH.getPath().buildPath(),
+                        CONTRACT_REFERENCE_PATH.getPath().buildPath()));
+        assertThat(eventEffectPaths, hasSize(7));
+    }
+
+    private Visitor<PathObject<Class<?>>> getCollectEventEffectPathsVisitor(List<String> capture) {
+        return (n) -> {
+            n.get().getParent().ifPresent(parent -> {
+                if (EventEffect.class.isAssignableFrom(parent.getObject()))
+                    capture.add(n.get().getHierarchicalPath().map(HierarchicalPath::buildPath).orElse(""));
+            });
+        };
+    }
 }
