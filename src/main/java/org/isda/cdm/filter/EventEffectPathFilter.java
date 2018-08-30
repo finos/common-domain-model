@@ -46,7 +46,7 @@ public class EventEffectPathFilter {
         private final HierarchicalPath path;
         private final Class<?> clazz;
 
-        public PathClass(HierarchicalPath path, Class<?> clazz) {
+        PathClass(HierarchicalPath path, Class<?> clazz) {
             this.path = path;
             this.clazz = clazz;
         }

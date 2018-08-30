@@ -133,11 +133,9 @@ class EventEffectPathFilterTest {
     }
 
     private Visitor<PathObject<Class<?>>> getCollectEventEffectPathsVisitor(List<String> capture) {
-        return (n) -> {
-            n.get().getParent().ifPresent(parent -> {
-                if (EventEffect.class.isAssignableFrom(parent.getObject()))
-                    capture.add(n.get().getHierarchicalPath().map(HierarchicalPath::buildPath).orElse(""));
-            });
-        };
+        return (n) -> n.get().getParent().ifPresent(parent -> {
+            if (EventEffect.class.isAssignableFrom(parent.getObject()))
+                capture.add(n.get().getHierarchicalPath().map(HierarchicalPath::buildPath).orElse(""));
+        });
     }
 }
