@@ -17,10 +17,6 @@ class Cashflow extends CashflowBase <"A class to specify a cashflow, i.e. the ou
 {
 	cashflowAmount Money (1..1) <"The currency amount of the payment.">;
 	cashflowDate AdjustableOrAdjustedOrRelativeDate (0..1);
-		/*
-		 * TODO - Position calculation as an attribute type
-		 * Also apply to the change to the Computed Amount class
-		 */
 	cashflowCalculation calculation (0..1) <"The computation arguments used to compute the cashflow, when applicable.">;
 		[synonym Rosetta_Workbench value cashflowCalculation]
 	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">;
@@ -191,6 +187,12 @@ data rule EventTimestamp_ExpireTime <"The expire time should be greater than the
 	when EventTimestamp -> expiryTimestamp exists
 	then EventTimestamp -> expiryTimestamp > EventTimestamp -> creationTimestamp
 
+class Inception <"The primitive event for the inception of a new contract between parties. It is expected that this primitive will be adjusted or deprecated once the CDM scope is extended to the pre-execution space.">
+{
+	before ContractOrContractReference (0..0) <"The (0..0) cardinality reflects the fact that that is no contract in the before state of an inception primitive.">;
+	after ContractOrContractReference (1..1);
+}
+
 class InterestRateCurve
 {
 	floatingRateIndex FloatingRateIndexEnum (1..1) scheme "floatingRateIndexScheme";
@@ -218,15 +220,11 @@ class MessageInformation <"This class corresponds to the messaging components of
 	copyTo string (0..*) scheme "messageAddressScheme" <"A unique identifier (within the specified coding scheme) giving the details of some party to whom a copy of this message will be sent for reference.">;
 }
 
-/*
- * TODO - The NewTrade primitive should inherit the ContractState class
- * The ingestion doesn't currently supports this inheritance, which needs to be understood/adjusted
- */
 class NewTradePrimitive one of <"The primitive event to represent a new trade.">
 {
 	contract Contract (0..1);
 		[synonym Rosetta_Workbench value contract]
-	contractReference ContractIdentifier (0..*);
+	contractReference ContractIdentifier (0..1);
 		[synonym Rosetta_Workbench value contractReference]
 }
 
@@ -262,6 +260,7 @@ class PrimitiveEvent <"The set of primitive events. The purpose of this class it
 {
 	newTrade NewTradePrimitive (0..*) <"The new trade primitive is unbounded to address the case of events such as portfolio compressions, which could result in multiple new trades.">;
 		[synonym Rosetta_Workbench value newTrade]
+	inception Inception (0..*);
 	quantityChange QuantityChangePrimitive (0..*);
 		[synonym Rosetta_Workbench value quantityChange]
 	allocation AllocationPrimitive (0..*);
@@ -276,6 +275,7 @@ class PrimitiveEvent <"The set of primitive events. The purpose of this class it
 		[synonym Rosetta_Workbench value reset]
 	payment Payment (0..*);
 		[synonym Rosetta_Workbench value payment]
+	transfer Transfer (0..*);
 }
 
 class QuantityChangePrimitive <"The primitive event to represent a change in quantity or notional.">
@@ -321,6 +321,20 @@ class TradeHeader
 	tradeDate date (1..1) anchor <"The trade/execution date.">;
 		[synonym FpML value tradeDate]
 }
+
+class Transfer one of <"The primitive event for the transfer of cash, securities or physical asset between parties.">
+{
+	payerReceiver PayerReceiver (1..1);
+	transferDate AdjustableOrAdjustedOrRelativeDate (0..1) <"The transfer date is optional as it might not be known at the point in time when the transfer is initially specified.">;
+	transferCalculation calculation (0..1) <"The computation arguments used to compute the transfer, when applicable.">;
+	amount Money (0..1) <"The currency amount, applicable to a cash transfer.">;
+	quantity Quantity (1..1) <"The quantity amount, applicable to a transfer of securities or physical asset.">;
+}
+
+choice rule Transfer_choice <"The transfer applies to either a cash amount or a quantity of securities or physical asset.">
+	for Transfer required choice between
+	amount and quantity
+
 
 isEvent Allocation <"The qualification of allocation event from the fact that (i) the intent is Allocation when specified, (ii) the only primitive is the allocation, (iii) the sum of quantities/notional before = after, and (iv) there is a single contractualProduct before (ensured through cardinality). Note: it is accepted that an allocation can result in a single contract.">
 	Event -> intent when present = IntentEnum.Allocation
