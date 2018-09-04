@@ -147,7 +147,6 @@ class Execution
 
 class GrossCashflow extends CashflowBase
 {
-	lineage Lineage (0..1);
 	cashflowAmount Money (1..1) <"The currency amount of the payment.">;
 		[synonym Rosetta_Workbench value cashflowAmount]
 	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">;
@@ -162,7 +161,9 @@ data rule EventTimestamp_ExpireTime <"The expire time should be greater than the
 class Inception <"The primitive event for the inception of a new contract between parties. It is expected that this primitive will be adjusted or deprecated once the CDM scope is extended to the pre-execution space.">
 {
 	before ContractOrContractReference (0..0) <"The (0..0) cardinality reflects the fact that that is no contract in the before state of an inception primitive.">;
+		[synonym Rosetta_Workbench value before]
 	after ContractOrContractReference (1..1);
+		[synonym Rosetta_Workbench value after]
 }
 
 class InterestRateCurve
@@ -233,6 +234,7 @@ class PrimitiveEvent <"The set of primitive events. The purpose of this class it
 	newTrade NewTradePrimitive (0..*) <"The new trade primitive is unbounded to address the case of events such as portfolio compressions, which could result in multiple new trades.">;
 		[synonym Rosetta_Workbench value newTrade]
 	inception Inception (0..*);
+		[synonym Rosetta_Workbench value inception]
 	quantityChange QuantityChangePrimitive (0..*);
 		[synonym Rosetta_Workbench value quantityChange]
 	allocation AllocationPrimitive (0..*);
@@ -248,6 +250,7 @@ class PrimitiveEvent <"The set of primitive events. The purpose of this class it
 	payment Payment (0..*);
 		[synonym Rosetta_Workbench value payment]
 	transfer Transfer (0..*);
+		[synonym Rosetta_Workbench value transfer]
 }
 
 class QuantityChangePrimitive <"The primitive event to represent a change in quantity or notional.">
@@ -303,13 +306,21 @@ class Transfer <"The primitive event for the transfer of cash, securities or phy
 {
 	payerReceiver PayerReceiver (1..1);
 	transferDate AdjustableOrAdjustedOrRelativeDate (0..1) <"The transfer date is optional as it might not be known at the point in time when the transfer is initially specified.">;
+		[synonym Rosetta_Workbench value transferDate]
 	amount Money (0..1) <"The currency amount, applicable to a cash transfer.">;
+		[synonym Rosetta_Workbench value amount]
 	quantity Quantity (0..1) <"The quantity amount, applicable to a transfer of securities or physical asset.">;
+		[synonym Rosetta_Workbench value quantity]
 	asset Asset (0..1) <"The asset that is being transfered, when applicable.">;
-	grossCashflow GrossCashflow (0..*) reference rosettaKey <"The gross cashflow components from which the payment would be derived when corresponding to a netted amount across those components. This gross cashflow component can have references to the payout component that generated such cashflow, to be used in the case where this reference information is contained in the same instance document.">;
+		[synonym Rosetta_Workbench value asset]
+	grossCashflow GrossCashflow (0..*) reference rosettaKey <"The gross cashflow components from which the payment would be derived when corresponding to a netted amount across those components. This gross cashflow component can have references to the payout component that generated such cashflow, to be used in the case where this reference information is contained in the same instance document. The rosettaKey is also available for CDM implementers who want to reference the rosettaKeuValue artefacts that are associated to the respective payout classes.">;
+		[synonym Rosetta_Workbench value grossCashflow]
 	transferCalculation calculation (0..1) <"The calculation used to compute the transfer, when applicable.">;	
+		[synonym Rosetta_Workbench value transferCalculation]
 	transferStatus PaymentStatusEnum (0..1) <"The transfer status, e.g. Instructed, Settled.">;
+		[synonym Rosetta_Workbench value transferStatus]
 	settlementReference string (0..1) <"The settlement reference, when applicable.">;
+		[synonym Rosetta_Workbench value settlementReference]
 }
 
 choice rule Transfer_choice <"The transfer applies to either a cash amount or a quantity of securities or physical asset.">
@@ -368,6 +379,13 @@ isEvent DerivedObservation <"The qualification of a derived observation event fr
 isEvent Exercise <"The qualification of a full termination event from the fact that (i) the intent is Exercise when specified, (ii) the only primitive is the quantityChange.">
 	Event -> intent when present = IntentEnum.Exercise
 	and Event -> primitive -> exercise only exists
+
+/*
+ * TODO - Need to firm out the naming of the business event associated with the inception primitive
+ */
+isEvent NewTradeBusinessEvent
+	Event -> intent when present = IntentEnum.NewTrade
+	and Event -> primitive -> inception only exists
 
 isEvent NewTradeEvent <"The qualification of a new trade event from the fact that (i) the intent is NewTrade when specified, and (ii) the only primitive is the newTrade.">
 	Event -> intent when present = IntentEnum.NewTrade
@@ -457,6 +475,29 @@ alias quantityAfterQuantityChange <"The alias to represent the quantity or notio
 	or Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> fxLinkedNotional -> initialValue
 	or Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> notionalAmount -> amount
 	or Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount -> amount
+
+
+
+/*
+ * TODO - Need to firm out the naming of the business events associated with the transfer primitive
+ * The 1st below qualification is a higher level one than the latter ones
+ */
+ 
+isEvent TransferBusinessEvent
+	Event -> primitive -> transfer only exists
+ 
+isEvent PaymentBusinessEvent
+	Event -> primitive -> transfer only exists
+	and Event -> primitive -> transfer -> amount exists
+	and Event -> primitive -> transfer -> quantity is absent
+
+isEvent SecurityTransferBusinessEvent
+	Event -> primitive -> transfer only exists
+	and Event -> primitive -> transfer -> asset -> listedProduct exists
+
+isEvent CommodityTransferBusinessEvent
+	Event -> primitive -> transfer only exists
+	and Event -> primitive -> transfer -> asset -> commodity exists
 
 isEvent Payment <"The qualification of a payment event from the fact that the only primitive is the payment.">
 	Event -> primitive -> payment only exists
