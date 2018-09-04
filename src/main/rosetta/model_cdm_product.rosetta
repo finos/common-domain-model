@@ -1,5 +1,35 @@
 namespace "org.isda.cdm"
 
+class Cashflow extends CashflowBase rosettaKeyValue <"A class to specify a cashflow, i.e. the outcome of either of computation (e.g. interest accrual) or some assessment of some sort (e.g. a fee). The cashflow can then be turned into a payment, artefact to be used as the input to a payment system or the outcome of it.">
+{
+	cashflowAmount Money (1..1) <"The currency amount of the payment.">;
+	cashflowDate AdjustableOrAdjustedOrRelativeDate (0..1);
+	cashflowCalculation calculation (0..1) <"The computation arguments used to compute the cashflow, when applicable.">;
+		[synonym Rosetta_Workbench value cashflowCalculation]
+	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">;
+		[synonym Rosetta_Workbench value cashflowType] // set cashflowType.premium when synonym premium exists]
+		/*
+	  	 * TODO - Enable mapping syntax to map to the premium qualification
+	 	 */
+}
+
+data rule Cashflow_cashflowAmount <"The cashflow amount should be a positive number, as the cashflow direction is indeed implied by the payer/receiver attribute.">
+	when Cashflow -> cashflowAmount exists
+	then Cashflow -> cashflowAmount -> amount >= 0.0
+
+class CashflowBase <"A class to represent the attributes to be shared by the Cashflow and Payment classes.">
+{
+	id string (0..1) anchor;
+		[synonym FpML value id]
+	payerReceiver PayerReceiver (1..1);
+	discountFactor number (0..1) <"The value representing the discount factor used to calculate the present value of the cash flow.">;
+		[synonym FpML value discountFactor]
+	presentValueAmount Money (0..1) <"The amount representing the present value of the forecast payment.">;
+		[synonym FpML value presentValueAmount]
+	premiumExpression PremiumExpression (0..1) <"FpML specifies the Premium.model group for representing the option premium when expressed in a way other than an amount.">;
+	paymentDiscounting PaymentDiscounting (0..1) <"FpML specifies the FpML PaymentDiscounting.model group for representing the discounting elements that can be associated with a payment.">;
+}
+
 class Contract rosettaKey <"A class to specify a contract object, which can be invoked either within the context of an event, or independently from it. It corresponds to the FpML Trade, although restricted to execution and post-execution contexts. Attributes also applicable to pre-execution (a.k.a. pre-trade view in FpML) contexts have been positioned as part of the ContractualProduct class.">
 {
 	id string (0..1) anchor;
@@ -256,7 +286,7 @@ class CrossCurrencyTerms
  * TODO - Need to cross-reference the 2014 credit definitions when relevant.
  * (FpML schema has not been updated to reflect those definitions.)
  */
-class CreditDefaultPayout <"The credit default payout specification terms.">
+class CreditDefaultPayout rosettaKeyValue <"The credit default payout specification terms.">
 {
 	id string (0..1) anchor;
 		[synonym FpML value id pathExpression "trade.creditDefaultSwap"]
@@ -350,7 +380,7 @@ class InterestRate one of
 		[synonym FpML value inflationRateCalculation pathExpression "calculationPeriodAmount.calculation"]
 }
 
-class InterestRatePayout calculation FixedAmount, FloatingAmount <"The interest rate payout specification terms.">
+class InterestRatePayout calculation FixedAmount, FloatingAmount rosettaKeyValue <"The interest rate payout specification terms.">
 {
 	id string (0..1) anchor;
 		[synonym FpML value id]
@@ -514,7 +544,7 @@ class OptionExercise <"A class to represent the applicable terms to qualify an o
  * TODO - Below is a current applicability of the synonym syntax simplification by having
  * [synonym FpML, Rosetta_Workbench value optionType]
  */
-class OptionPayout <"The option payout specification terms.">
+class OptionPayout rosettaKeyValue <"The option payout specification terms.">
 {
 	id string (0..1) anchor;
 		[synonym FpML value id]
@@ -607,7 +637,7 @@ class Payout <"The payout can be specified through a number of combinations, e.g
 		[synonym FpML value generalTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap" set interestRatePayout when Payout -> optionPayout -> underlyer -> contractualProduct is absent]
 		[synonym FpML value generalTerms pathExpression "creditDefaultSwapOption.creditDefaultSwap" set interestRatePayout when Payout -> optionPayout -> underlyer -> contractualProduct is absent]
 	creditDefaultPayout CreditDefaultPayout (0..1);
-	cashflow Cashflow (0..*) <"A payment between the parties to the trade. For interest rate products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the initialPayment element and the singlePayment element of the fee leg.">;
+	cashflow Cashflow (0..*) <"A cashflow between the parties to the trade. For interest rate products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the initialPayment element and the singlePayment element of the fee leg.">;
 		[synonym FpML value additionalPayment pathExpression "trade.swap"]
 		[synonym FpML value additionalPayment pathExpression "swap"]
 		[synonym FpML value initialPayment pathExpression "trade.creditDefaultSwap.feeLeg"]

@@ -13,36 +13,6 @@ class AllocationPrimitive <"The primitive event to represent a split/allocation 
 		[synonym Rosetta_Workbench value after]
 }
 
-class Cashflow extends CashflowBase <"A class to specify a cashflow, i.e. the outcome of either of computation (e.g. interest accrual) or some assessment of some sort (e.g. a fee). The cashflow can then be turned into a payment, artefact to be used as the input to a payment system or the outcome of it.">
-{
-	cashflowAmount Money (1..1) <"The currency amount of the payment.">;
-	cashflowDate AdjustableOrAdjustedOrRelativeDate (0..1);
-	cashflowCalculation calculation (0..1) <"The computation arguments used to compute the cashflow, when applicable.">;
-		[synonym Rosetta_Workbench value cashflowCalculation]
-	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">;
-		[synonym Rosetta_Workbench value cashflowType] // set cashflowType.premium when synonym premium exists]
-		/*
-	  	 * TODO - Enable mapping syntax to map to the premium qualification
-	 	 */
-}
-
-data rule Cashflow_cashflowAmount <"The cashflow amount should be a positive number, as the cashflow direction is indeed implied by the payer/receiver attribute.">
-	when Cashflow -> cashflowAmount exists
-	then Cashflow -> cashflowAmount -> amount >= 0.0
-
-class CashflowBase <"A class to represent the attributes to be shared by the Cashflow and Payment classes.">
-{
-	id string (0..1) anchor;
-		[synonym FpML value id]
-	payerReceiver PayerReceiver (1..1);
-	discountFactor number (0..1) <"The value representing the discount factor used to calculate the present value of the cash flow.">;
-		[synonym FpML value discountFactor]
-	presentValueAmount Money (0..1) <"The amount representing the present value of the forecast payment.">;
-		[synonym FpML value presentValueAmount]
-	premiumExpression PremiumExpression (0..1) <"FpML specifies the Premium.model group for representing the option premium when expressed in a way other than an amount.">;
-	paymentDiscounting PaymentDiscounting (0..1) <"FpML specifies the FpML PaymentDiscounting.model group for representing the discounting elements that can be associated with a payment.">;
-}
-
 class ComputedAmount <"A class to specify the outcome of a computed amount, for testing purposes.">
 {
 	callFunction calculation (1..1);
@@ -182,6 +152,7 @@ class GrossCashflow extends CashflowBase
 		[synonym Rosetta_Workbench value cashflowAmount]
 	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">;
 		[synonym Rosetta_Workbench value cashflowType] // set cashflowType.premium when synonym premium exists]
+	cashflowCalculation calculation (0..1) <"The calculation used to compute the gross cashflow, when applicable.">;
 }
 
 data rule EventTimestamp_ExpireTime <"The expire time should be greater than the creation time.">
@@ -295,7 +266,12 @@ class ResetPrimitive rosettaKey <"The primitive event to represent a reset.">
 		[synonym Rosetta_Workbench value date]
 	resetValue number (1..1) <"The reset value">;
 		[synonym Rosetta_Workbench value resetValue]
-	cashflow Cashflow (1..*);
+	/*
+	 * Question to the CDM Group - Should the reset primitive have an associated cashflow, or just have the rate reset value?
+	 * The latter seems more appropriate, but needs to be confirmed by current operational workflows.
+	 * If it has the cashflow, it should also have the associated calculation.
+	 */
+	cashflow Cashflow (1..1) <"The cashflow resulting from the reset event.">;
 		[synonym Rosetta_Workbench value cashflow]
 }
 
@@ -330,11 +306,8 @@ class Transfer <"The primitive event for the transfer of cash, securities or phy
 	amount Money (0..1) <"The currency amount, applicable to a cash transfer.">;
 	quantity Quantity (0..1) <"The quantity amount, applicable to a transfer of securities or physical asset.">;
 	asset Asset (0..1) <"The asset that is being transfered, when applicable.">;
-	grossCashflow GrossCashflow (0..*) reference <"The gross cashflow components from which the payment would be derived when corresponding to a netted amount across those components. This gross cashflow component can have references to the payout component that generated such cashflow.">;
-	/*
-	 * Need to confirm whether we have a use case for this cashflow calculation
-	 */
-	transferCalculation calculation (0..1) <"The computation arguments used to compute the transfer, when applicable.">;	
+	grossCashflow GrossCashflow (0..*) reference rosettaKey <"The gross cashflow components from which the payment would be derived when corresponding to a netted amount across those components. This gross cashflow component can have references to the payout component that generated such cashflow, to be used in the case where this reference information is contained in the same instance document.">;
+	transferCalculation calculation (0..1) <"The calculation used to compute the transfer, when applicable.">;	
 	transferStatus PaymentStatusEnum (0..1) <"The transfer status, e.g. Instructed, Settled.">;
 	settlementReference string (0..1) <"The settlement reference, when applicable.">;
 }
