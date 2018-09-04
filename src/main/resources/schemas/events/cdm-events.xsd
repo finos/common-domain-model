@@ -63,7 +63,7 @@
         <xsd:restriction base="xsd:token">
             <xsd:enumeration value="disputed"/>
             <xsd:enumeration value="instructed"/>
-            <xsd:enumeration value="pending"/>    
+            <xsd:enumeration value="pending"/>
             <xsd:enumeration value="settled"/>
         </xsd:restriction>
     </xsd:simpleType>
@@ -74,6 +74,23 @@
             <xsd:enumeration value="interest"/>
             <xsd:enumeration value="novationFee"/>
             <xsd:enumeration value="premium"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="TransferStatusEnum">
+        <xsd:restriction base="xsd:token">
+            <xsd:enumeration value="disputed"/>
+            <xsd:enumeration value="instructed"/>
+            <xsd:enumeration value="pending"/>
+            <xsd:enumeration value="settled"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="UnitEnum">
+        <xsd:restriction base="xsd:token">
+            <xsd:enumeration value="MWh"/>
+            <xsd:enumeration value="MMBTU"/>
+            <xsd:enumeration value="BBL"/>
+            <xsd:enumeration value="GAL"/>
+            <xsd:enumeration value="BSH"/>
         </xsd:restriction>
     </xsd:simpleType>
     <!-- Complex Types -->
@@ -91,6 +108,11 @@
         <xsd:sequence>
             <xsd:element name="before" type="Execution"/>
             <xsd:element name="after" type="AllocationOutcome"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="Asset">
+        <xsd:sequence>
+            <xsd:element name="listedProduct" type="ListedProduct" minOccurs="0"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="Cashflow">
@@ -232,17 +254,25 @@
     </xsd:complexType>
     <xsd:complexType name="GrossCashflow">
         <xsd:sequence>
-            <xsd:sequence>
-                <xsd:element name="cashflowAmount" type="fpml:Money"/>
-                <xsd:group ref="fpml:PayerReceiver.model"/>
-            </xsd:sequence>
+            <xsd:element name="lineage" type="Lineage" minOccurs="0"/>
+            <xsd:element name="cashflowAmount" type="fpml:Money"/>
+            <xsd:group ref="fpml:PayerReceiver.model"/>
         </xsd:sequence>
+        <xsd:attribute name="href" type="xsd:IDREF"/>
     </xsd:complexType>
     <xsd:complexType name="Identifier">
         <xsd:sequence>
             <xsd:element name="issuer" type="fpml:PartyReference" minOccurs="0"/>
             <xsd:element name="identifier" type="xsd:string"/>
             <xsd:element name="version" type="xsd:integer" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="Inception">
+        <xsd:sequence>
+            <xsd:element name="before" type="ContractOrContractReference" minOccurs="0"
+                maxOccurs="0"/>
+            <xsd:element name="after" type="ContractOrContractReference" minOccurs="1" maxOccurs="1"
+            />
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="InterestRateCurve">
@@ -317,6 +347,7 @@
             <xsd:element name="allocation" type="AllocationPrimitive" minOccurs="0" maxOccurs="1"/>
             <xsd:element name="exercise" type="ExercisePrimitive" minOccurs="0"
                 maxOccurs="unbounded"/>
+            <xsd:element name="inception" type="Inception" minOccurs="0" maxOccurs="unbounded"/>
             <xsd:element name="newTrade" type="NewTrade" minOccurs="0" maxOccurs="unbounded"/>
             <xsd:element name="observation" type="ObservationPrimitive" minOccurs="0"
                 maxOccurs="unbounded"/>
@@ -324,6 +355,13 @@
             <xsd:element name="quantityChange" type="QuantityChange" minOccurs="0"
                 maxOccurs="unbounded"/>
             <xsd:element name="reset" type="ResetPrimitive" minOccurs="0" maxOccurs="1"/>
+            <xsd:element name="transfer" type="Transfer" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="Quantity">
+        <xsd:sequence>
+            <xsd:element name="amount" type="xsd:decimal"/>
+            <xsd:element name="unit" type="UnitEnum"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="QuantityChange">
@@ -338,6 +376,28 @@
             <xsd:element name="date" type="xsd:date"/>
             <xsd:element name="resetValue" type="xsd:decimal"/>
             <xsd:element name="cashflow" type="Cashflow" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="Transfer">
+        <xsd:sequence>
+            <xsd:group ref="fpml:PayerReceiver.model"/>
+            <xsd:element name="transferDate" type="fpml:AdjustableOrRelativeDate" minOccurs="0"/>
+            <xsd:sequence>
+                <xsd:choice>
+                    <xsd:sequence>
+                        <xsd:element name="amount" type="fpml:Money"/>
+                        <xsd:element name="grossCashflow" type="GrossCashflow" minOccurs="0"
+                            maxOccurs="unbounded"/>
+                    </xsd:sequence>
+                    <xsd:sequence>
+                        <xsd:element name="quantity" type="Quantity"/>
+                        <xsd:element name="asset" type="Asset"/>
+                    </xsd:sequence>
+                </xsd:choice>
+            </xsd:sequence>
+            <xsd:element name="transferCalculation" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="transferStatus" type="TransferStatusEnum" minOccurs="0"/>
+            <xsd:element name="settlementReference" type="xsd:string" minOccurs="0"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="TimeZone">

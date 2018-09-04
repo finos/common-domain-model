@@ -177,6 +177,7 @@ class Execution
 
 class GrossCashflow extends CashflowBase
 {
+	lineage Lineage (0..1);
 	cashflowAmount Money (1..1) <"The currency amount of the payment.">;
 		[synonym Rosetta_Workbench value cashflowAmount]
 	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">;
@@ -201,7 +202,7 @@ class InterestRateCurve
 		[synonym Rosetta_Workbench value tenor]
 }
 
-class Lineage
+class Lineage <"The class to provide lineage information across transactions.">
 {
 	contractReference Identifier (0..*) scheme "correlationIdScheme";
 		[synonym Rosetta_Workbench value contractReference]
@@ -322,19 +323,29 @@ class TradeHeader
 		[synonym FpML value tradeDate]
 }
 
-class Transfer one of <"The primitive event for the transfer of cash, securities or physical asset between parties.">
+class Transfer <"The primitive event for the transfer of cash, securities or physical asset between parties.">
 {
 	payerReceiver PayerReceiver (1..1);
 	transferDate AdjustableOrAdjustedOrRelativeDate (0..1) <"The transfer date is optional as it might not be known at the point in time when the transfer is initially specified.">;
-	transferCalculation calculation (0..1) <"The computation arguments used to compute the transfer, when applicable.">;
 	amount Money (0..1) <"The currency amount, applicable to a cash transfer.">;
-	quantity Quantity (1..1) <"The quantity amount, applicable to a transfer of securities or physical asset.">;
+	quantity Quantity (0..1) <"The quantity amount, applicable to a transfer of securities or physical asset.">;
+	asset Asset (0..1) <"The asset that is being transfered, when applicable.">;
+	grossCashflow GrossCashflow (0..*) reference <"The gross cashflow components from which the payment would be derived when corresponding to a netted amount across those components. This gross cashflow component can have references to the payout component that generated such cashflow.">;
+	/*
+	 * Need to confirm whether we have a use case for this cashflow calculation
+	 */
+	transferCalculation calculation (0..1) <"The computation arguments used to compute the transfer, when applicable.">;	
+	transferStatus PaymentStatusEnum (0..1) <"The transfer status, e.g. Instructed, Settled.">;
+	settlementReference string (0..1) <"The settlement reference, when applicable.">;
 }
 
 choice rule Transfer_choice <"The transfer applies to either a cash amount or a quantity of securities or physical asset.">
 	for Transfer required choice between
 	amount and quantity
 
+data rule Transfer_asset <"The transfered quantity must be associated with an asset qualification.">
+	when Transfer -> quantity exists
+	then Transfer -> asset exists
 
 isEvent Allocation <"The qualification of allocation event from the fact that (i) the intent is Allocation when specified, (ii) the only primitive is the allocation, (iii) the sum of quantities/notional before = after, and (iv) there is a single contractualProduct before (ensured through cardinality). Note: it is accepted that an allocation can result in a single contract.">
 	Event -> intent when present = IntentEnum.Allocation
