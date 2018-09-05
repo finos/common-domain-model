@@ -147,11 +147,13 @@ class Execution
 
 class GrossCashflow extends CashflowBase
 {
+	payoutLineage PayoutLineage (0..1);
 	cashflowAmount Money (1..1) <"The currency amount of the payment.">;
 		[synonym Rosetta_Workbench value cashflowAmount]
 	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">;
 		[synonym Rosetta_Workbench value cashflowType] // set cashflowType.premium when synonym premium exists]
 	cashflowCalculation calculation (0..1) <"The calculation used to compute the gross cashflow, when applicable.">;
+		[synonym Rosetta_Workbench value cashflowCalculation] 
 }
 
 data rule EventTimestamp_ExpireTime <"The expire time should be greater than the creation time.">
@@ -229,6 +231,16 @@ data rule ObservationSource_content <"ObservationSource should not be empty, alt
 		or ObservationSource -> curve exists
 		or ObservationSource -> informationSource exists
 
+class PayoutLineage one of <"A class to provide lineage into the Payout components through one of two ways: either by making use of references existing in the originating document, or by making use of the rosettaKeyValue associated with the relevant CDM payout class. The former has the benefit of not necessitating an associated implementation, but implies that the identifying value associated with the payout components are either generated in a repeatable manner across instance documents (when the payment and trade reference information exist across distinct documents) or that all information exists within one single instance document. The latter approach has the benefit of being agnostic to how the originating document(s) is constructed, but requires an associated implementation to assign the rosettaKey values to the relevant attributes.">
+{
+	payoutReference string (0..1) reference <"The reference to the payout component from which the gross cashflow is derived, to be used in the case where this reference information is contained in the same instance document or is generated in a repeatable manner (e.g. hash function that doesn't make use of transient data points) when associated with a distinct instance document.">;
+		[synonym Rosetta_Workbench value payoutReference]
+	interestRatePayout InterestRatePayout (0..1) rosettaKey;
+	creditDefaultPayout CreditDefaultPayout (0..1) rosettaKey;
+	cashflow Cashflow (0..1) rosettaKey;
+	optionPayout OptionPayout (0..1) rosettaKey;
+}
+
 class PrimitiveEvent <"The set of primitive events. The purpose of this class it to provide clarity with respect to the event qualification logic.">
 {
 	newTrade NewTradePrimitive (0..*) <"The new trade primitive is unbounded to address the case of events such as portfolio compressions, which could result in multiple new trades.">;
@@ -274,7 +286,7 @@ class ResetPrimitive rosettaKey <"The primitive event to represent a reset.">
 	 * The latter seems more appropriate, but needs to be confirmed by current operational workflows.
 	 * If it has the cashflow, it should also have the associated calculation.
 	 */
-	cashflow Cashflow (1..1) <"The cashflow resulting from the reset event.">;
+	cashflow Cashflow (0..1) <"The cashflow resulting from the reset event.">; // The cardinality has been relaxed until the above question is settled
 		[synonym Rosetta_Workbench value cashflow]
 }
 
@@ -313,7 +325,7 @@ class Transfer <"The primitive event for the transfer of cash, securities or phy
 		[synonym Rosetta_Workbench value quantity]
 	asset Asset (0..1) <"The asset that is being transfered, when applicable.">;
 		[synonym Rosetta_Workbench value asset]
-	grossCashflow GrossCashflow (0..*) reference rosettaKey <"The gross cashflow components from which the payment would be derived when corresponding to a netted amount across those components. This gross cashflow component can have references to the payout component that generated such cashflow, to be used in the case where this reference information is contained in the same instance document. The rosettaKey is also available for CDM implementers who want to reference the rosettaKeuValue artefacts that are associated to the respective payout classes.">;
+	grossCashflow GrossCashflow (0..*) <"The gross cashflow components from which the payment is derived when corresponding to a netted amount across those components. The rosettaKey is available for CDM implementers who want to reference the rosettaKeuValue artefacts that are associated to the respective payout classes.">;
 		[synonym Rosetta_Workbench value grossCashflow]
 	transferCalculation calculation (0..1) <"The calculation used to compute the transfer, when applicable.">;	
 		[synonym Rosetta_Workbench value transferCalculation]
@@ -476,15 +488,13 @@ alias quantityAfterQuantityChange <"The alias to represent the quantity or notio
 	or Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> notionalAmount -> amount
 	or Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount -> amount
 
-
-
 /*
  * TODO - Need to firm out the naming of the business events associated with the transfer primitive
  * The 1st below qualification is a higher level one than the latter ones
  */
  
-isEvent TransferBusinessEvent
-	Event -> primitive -> transfer only exists
+//isEvent TransferBusinessEvent
+//	Event -> primitive -> transfer only exists
  
 isEvent PaymentBusinessEvent
 	Event -> primitive -> transfer only exists
