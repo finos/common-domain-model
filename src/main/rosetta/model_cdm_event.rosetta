@@ -316,7 +316,8 @@ class TradeHeader
 
 class Transfer <"The primitive event for the transfer of cash, securities or physical asset between parties.">
 {
-	payerReceiver PayerReceiver (1..1);
+	payerReceiver PayerReceiver (0..1) <"The payer and receiver party information, to be associated with the transfer of cash.">;
+	transferorTransferee TransferorTransferee (0..1) <"The transferor and transferee party information, to be associated with the transfer of securities or physical assets.">;
 	transferDate AdjustableOrAdjustedOrRelativeDate (0..1) <"The transfer date is optional as it might not be known at the point in time when the transfer is initially specified.">;
 		[synonym Rosetta_Workbench value transferDate]
 	amount Money (0..1) <"The currency amount, applicable to a cash transfer.">;
@@ -335,13 +336,30 @@ class Transfer <"The primitive event for the transfer of cash, securities or phy
 		[synonym Rosetta_Workbench value settlementReference]
 }
 
-choice rule Transfer_choice <"The transfer applies to either a cash amount or a quantity of securities or physical asset.">
+class TransferorTransferee <"A class mimicking the PayerReceiver, which is itself derived from the FpML PayerReceiver.model, to represent the transferee and transferor party information in relation to the transfer of securities or other non-cash assets.">
+{
+	transferorPartyReference string (1..1) reference <"A reference to the party responsible for making the payments defined by this structure.">;
+		[synonym Rosetta_Workbench value transferorPartyReference]
+	transferorAccountReference string (0..1) reference <"A reference to the account responsible for making the payments defined by this structure.">;
+		[synonym Rosetta_Workbench value transferorAccountReference]
+	transfereePartyReference string (1..1) reference <"A reference to the party that receives the payments corresponding to this structure.">;
+		[synonym Rosetta_Workbench value transfereePartyReference]
+	transfereeAccountReference string (0..1) reference <"A reference to the account that receives the payments corresponding to this structure.">;
+		[synonym Rosetta_Workbench value transfereeAccountReference]
+}
+
+choice rule Transfer_choice1 <"The transfer party information is represented by either the payer/receiver or the transferor/transferee CDM representation.">
+	for Transfer required choice between
+	payerReceiver and transferorTransferee
+
+choice rule Transfer_choice2 <"The transfer applies to either a cash amount or a quantity of securities or physical asset.">
 	for Transfer required choice between
 	amount and quantity
 
-data rule Transfer_asset <"The transfered quantity must be associated with an asset qualification.">
-	when Transfer -> quantity exists
-	then Transfer -> asset exists
+data rule Transfer_transferorTransferee <"The transfered quantity must be associated with an asset qualification.">
+	when Transfer -> transferorTransferee exists
+	then Transfer -> quantity exists
+	and Transfer -> asset exists
 
 isEvent Allocation <"The qualification of allocation event from the fact that (i) the intent is Allocation when specified, (ii) the only primitive is the allocation, (iii) the sum of quantities/notional before = after, and (iv) there is a single contractualProduct before (ensured through cardinality). Note: it is accepted that an allocation can result in a single contract.">
 	Event -> intent when present = IntentEnum.Allocation
@@ -490,22 +508,18 @@ alias quantityAfterQuantityChange <"The alias to represent the quantity or notio
 
 /*
  * TODO - Need to firm out the naming of the business events associated with the transfer primitive
- * The 1st below qualification is a higher level one than the latter ones
  */
- 
-//isEvent TransferBusinessEvent
-//	Event -> primitive -> transfer only exists
  
 isEvent PaymentBusinessEvent
 	Event -> primitive -> transfer only exists
 	and Event -> primitive -> transfer -> amount exists
 	and Event -> primitive -> transfer -> quantity is absent
 
-isEvent SecurityTransferBusinessEvent
+isEvent SecurityTransfer
 	Event -> primitive -> transfer only exists
 	and Event -> primitive -> transfer -> asset -> listedProduct exists
 
-isEvent CommodityTransferBusinessEvent
+isEvent CommodityTransfer
 	Event -> primitive -> transfer only exists
 	and Event -> primitive -> transfer -> asset -> commodity exists
 
