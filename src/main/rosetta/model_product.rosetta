@@ -4,9 +4,11 @@ abstract class ListedHeader <"An abstract class to holds the attributes that are
 {
 	id string (0..1) anchor;
 		[synonym FpML value id]
-	productTaxonomy ProductTaxonomy (1..*) <"The product taxonomy value(s) associated with a product.">;
-	productIdentifier ProductIdentifier (1..*) <"There can be several identifiers associated with a given product.">;
-	description string (1..1) <"The product name.">;
+	productIdentifier ProductIdentifier (1..*) scheme "instrumentIdScheme" <"The product identifier. There can be several identifiers associated with a given product.">;
+		[synonym FpML value productId]
+		[synonym FpML value instrumentId]
+	productTaxonomy ProductTaxonomy (0..*) <"The product taxonomy value(s) associated with a product.">;
+	description string (1..1) <"The product description.">;
 		[synonym FpML value description]
 	currency string (0..1) scheme "currencyScheme" <"The denomination currency of the instrument.">;
 		[synonym FpML value currency]
@@ -18,6 +20,7 @@ class ListedProduct rosettaKey one of <"Product which terms are abstracted throu
 {
 	bond Bond (0..1);
 		[synonym FpML value bond]
+		[synonym Rosetta_Workbench value bond]
 	convertibleBond ConvertibleBond (0..1);
 		[synonym FpML value convertibleBond]
 }
@@ -27,6 +30,7 @@ class ProductIdentifier <"The product identifier, composed of an identifier and 
 	productId string (1..1) scheme "instrumentIdScheme" <"The product identifier.">;
 		[synonym FpML value productId]
 		[synonym FpML value instrumentId]
+	productIdSource ProductIdSourceEnum (0..1) <"The product identifier source.">; 
 }
 
 class ProductTaxonomy <"The product taxonomy, which is composed of a taxonomy value and a taxonomy source.">

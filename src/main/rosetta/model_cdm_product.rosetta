@@ -1,5 +1,35 @@
 namespace "org.isda.cdm"
 
+class Cashflow extends CashflowBase rosettaKeyValue <"A class to specify a cashflow, i.e. the outcome of either of computation (e.g. interest accrual) or some assessment of some sort (e.g. a fee). The cashflow can then be turned into a payment, artefact to be used as the input to a payment system or the outcome of it.">
+{
+	cashflowAmount Money (1..1) <"The currency amount of the payment.">;
+	cashflowDate AdjustableOrAdjustedOrRelativeDate (0..1);
+	cashflowCalculation calculation (0..1) <"The computation arguments used to compute the cashflow, when applicable.">;
+		[synonym Rosetta_Workbench value cashflowCalculation]
+	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">;
+		[synonym Rosetta_Workbench value cashflowType] // set cashflowType.premium when synonym premium exists]
+		/*
+	  	 * TODO - Enable mapping syntax to map to the premium qualification
+	 	 */
+}
+
+data rule Cashflow_cashflowAmount <"The cashflow amount should be a positive number, as the cashflow direction is indeed implied by the payer/receiver attribute.">
+	when Cashflow -> cashflowAmount exists
+	then Cashflow -> cashflowAmount -> amount >= 0.0
+
+class CashflowBase <"A class to represent the attributes to be shared by the Cashflow and Payment classes.">
+{
+	id string (0..1) anchor;
+		[synonym FpML value id]
+	payerReceiver PayerReceiver (1..1);
+	discountFactor number (0..1) <"The value representing the discount factor used to calculate the present value of the cash flow.">;
+		[synonym FpML value discountFactor]
+	presentValueAmount Money (0..1) <"The amount representing the present value of the forecast payment.">;
+		[synonym FpML value presentValueAmount]
+	premiumExpression PremiumExpression (0..1) <"FpML specifies the Premium.model group for representing the option premium when expressed in a way other than an amount.">;
+	paymentDiscounting PaymentDiscounting (0..1) <"FpML specifies the FpML PaymentDiscounting.model group for representing the discounting elements that can be associated with a payment.">;
+}
+
 class Contract rosettaKey <"A class to specify a contract object, which can be invoked either within the context of an event, or independently from it. It corresponds to the FpML Trade, although restricted to execution and post-execution contexts. Attributes also applicable to pre-execution (a.k.a. pre-trade view in FpML) contexts have been positioned as part of the ContractualProduct class.">
 {
 	id string (0..1) anchor;
@@ -256,8 +286,12 @@ class CrossCurrencyTerms
  * TODO - Need to cross-reference the 2014 credit definitions when relevant.
  * (FpML schema has not been updated to reflect those definitions.)
  */
-class CreditDefaultPayout <"The credit default payout specification terms.">
+class CreditDefaultPayout rosettaKeyValue <"The credit default payout specification terms.">
 {
+	id string (0..1) anchor;
+		[synonym FpML value id pathExpression "trade.creditDefaultSwap"]
+		[synonym FpML value generalTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
+		[synonym FpML value generalTerms pathExpression "creditDefaultSwap"]
 	generalTerms GeneralTerms (1..1) <"This element contains all the data that appears in the section entitled '1. General Terms' in the 2003 ISDA Credit Derivatives Confirmation, except for the effectiveDate, terminationDate and dateAdjustments elements, which have been positioned as part of the InterestRatePayout class.">;
 		[synonym FpML value generalTerms pathExpression "trade.creditDefaultSwap"]
 		[synonym FpML value generalTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
@@ -346,7 +380,7 @@ class InterestRate one of
 		[synonym FpML value inflationRateCalculation pathExpression "calculationPeriodAmount.calculation"]
 }
 
-class InterestRatePayout calculation FixedAmount, FloatingAmount <"The interest rate payout specification terms.">
+class InterestRatePayout calculation FixedAmount, FloatingAmount rosettaKeyValue <"The interest rate payout specification terms.">
 {
 	id string (0..1) anchor;
 		[synonym FpML value id]
@@ -510,8 +544,10 @@ class OptionExercise <"A class to represent the applicable terms to qualify an o
  * TODO - Below is a current applicability of the synonym syntax simplification by having
  * [synonym FpML, Rosetta_Workbench value optionType]
  */
-class OptionPayout <"The option payout specification terms.">
+class OptionPayout rosettaKeyValue <"The option payout specification terms.">
 {
+	id string (0..1) anchor;
+		[synonym FpML value id]
 	buyerSeller BuyerSeller (1..1);
 	optionType OptionTypeEnum (0..1) <"The type of option transaction. From a usage standpoint, put/call is the default option type, while payer/receiver indicator is used for options on index credit default swaps, consistently with the industry practice. Straddle is used for the case of straddle strategy, that combine a call and a put with the same strike.">;
 		[synonym FpML value optionType]
@@ -585,7 +621,7 @@ data rule PaymentDates_paymentFrequency <"FpML specifies a required paymentFrequ
 		and Payout -> interestRatePayout -> paymentDates exists
 	then Payout -> interestRatePayout -> paymentDates -> paymentFrequency exists
 
-class Payout <"The payout can be specified through a number of combinations, e.g. by associating several interest rate payouts to specify an interest rate swap, or a credit default and an interest rate payout to specify a credit default swap. The implied product is inferred by the isProduct CDM artefact.">
+class Payout <"The payout can be specified through a number of combinations, e.g. by associating several interest rate payouts to specify an interest rate swap, or a credit default and an interest rate payout to specify a credit default swap. The implied product is inferred by the isProduct CDM artefact. Each of the payout classes have an associated rosettaKeyValue which can be referenced by implementers as part of their grossCahflow attribute in the Transfer class, but establishing a lineage between this computed cashflow and the originating payout, when applicable.">
 {
 	interestRatePayout InterestRatePayout (0..*);
 		[synonym FpML value swapStream pathExpression "trade.swap" set interestRatePayout when Payout -> optionPayout -> underlyer -> contractualProduct is absent]
@@ -601,7 +637,7 @@ class Payout <"The payout can be specified through a number of combinations, e.g
 		[synonym FpML value generalTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap" set interestRatePayout when Payout -> optionPayout -> underlyer -> contractualProduct is absent]
 		[synonym FpML value generalTerms pathExpression "creditDefaultSwapOption.creditDefaultSwap" set interestRatePayout when Payout -> optionPayout -> underlyer -> contractualProduct is absent]
 	creditDefaultPayout CreditDefaultPayout (0..1);
-	cashflow Cashflow (0..*) <"A payment between the parties to the trade. For interest rate products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the initialPayment element and the singlePayment element of the fee leg.">;
+	cashflow Cashflow (0..*) <"A cashflow between the parties to the trade. For interest rate products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the initialPayment element and the singlePayment element of the fee leg.">;
 		[synonym FpML value additionalPayment pathExpression "trade.swap"]
 		[synonym FpML value additionalPayment pathExpression "swap"]
 		[synonym FpML value initialPayment pathExpression "trade.creditDefaultSwap.feeLeg"]
@@ -711,8 +747,9 @@ class ProductIdentification <"A class to combine the CDM product qualifier with 
 class Quantity
 {
 	amount number (1..1);
-	unitOfMeasure UnitOfMeasureEnum (0..1);
-	timeUnit TimeUnitEnum (0..1);
+		[synonym Rosetta_Workbench value amount]
+	unit UnitEnum (0..1) <"The unit of measure, applicable to physical assets.">;
+		[synonym Rosetta_Workbench value unit]	
 }
 
 class StubPeriod <"A class defining how the initial or final stub calculation period amounts is calculated. For example, the rate to be applied to the initial or final stub calculation period may be the linear interpolation of two different tenors for the floating rate index specified in the calculation period amount component, e.g. A two month stub period may used the linear interpolation of a one month and three month floating rate. The different rate tenors would be specified in this component. Note that a maximum of two rate tenors can be specified. If a stub period uses a single index tenor and this is the same as that specified in the calculation period amount component then the initial stub or final stub component, as the case may be, must not be included.">

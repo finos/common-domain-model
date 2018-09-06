@@ -13,40 +13,6 @@ class AllocationPrimitive <"The primitive event to represent a split/allocation 
 		[synonym Rosetta_Workbench value after]
 }
 
-class Cashflow extends CashflowBase <"A class to specify a cashflow, i.e. the outcome of either of computation (e.g. interest accrual) or some assessment of some sort (e.g. a fee). The cashflow can then be turned into a payment, artefact to be used as the input to a payment system or the outcome of it.">
-{
-	cashflowAmount Money (1..1) <"The currency amount of the payment.">;
-	cashflowDate AdjustableOrAdjustedOrRelativeDate (0..1);
-		/*
-		 * TODO - Position calculation as an attribute type
-		 * Also apply to the change to the Computed Amount class
-		 */
-	cashflowCalculation calculation (0..1) <"The computation arguments used to compute the cashflow, when applicable.">;
-		[synonym Rosetta_Workbench value cashflowCalculation]
-	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">;
-		[synonym Rosetta_Workbench value cashflowType] // set cashflowType.premium when synonym premium exists]
-		/*
-	  	 * TODO - Enable mapping syntax to map to the premium qualification
-	 	 */
-}
-
-data rule Cashflow_cashflowAmount <"The cashflow amount should be a positive number, as the cashflow direction is indeed implied by the payer/receiver attribute.">
-	when Cashflow -> cashflowAmount exists
-	then Cashflow -> cashflowAmount -> amount >= 0.0
-
-class CashflowBase <"A class to represent the attributes to be shared by the Cashflow and Payment classes.">
-{
-	id string (0..1) anchor;
-		[synonym FpML value id]
-	payerReceiver PayerReceiver (1..1);
-	discountFactor number (0..1) <"The value representing the discount factor used to calculate the present value of the cash flow.">;
-		[synonym FpML value discountFactor]
-	presentValueAmount Money (0..1) <"The amount representing the present value of the forecast payment.">;
-		[synonym FpML value presentValueAmount]
-	premiumExpression PremiumExpression (0..1) <"FpML specifies the Premium.model group for representing the option premium when expressed in a way other than an amount.">;
-	paymentDiscounting PaymentDiscounting (0..1) <"FpML specifies the FpML PaymentDiscounting.model group for representing the discounting elements that can be associated with a payment.">;
-}
-
 class ComputedAmount <"A class to specify the outcome of a computed amount, for testing purposes.">
 {
 	callFunction calculation (1..1);
@@ -60,14 +26,6 @@ class ContractOrContractReference one of
 		[synonym Rosetta_Workbench value contract]
 	contractReference ContractReference (0..*);
 		[synonym Rosetta_Workbench value contractReference]
-}
-
-class ContractOrListedProduct one of
-{
-	contractState ContractOrContractReference (0..1);
-		[synonym Rosetta_Workbench value contractState]
-	listedProduct ListedProduct (0..1);
-		[synonym Rosetta_Workbench value listedProduct]
 }
 
 class ContractReference extends ContractIdentifier rosettaKey
@@ -147,15 +105,32 @@ class ExecutionReference
 	state StateEnum (1..1);
 		[synonym Rosetta_Workbench value state]
 }
-
-class ExerciseOutcome extends ContractOrListedProduct one of
+/*
+ * TODO - Need to further work on this construct, particularly as it relates to the positioning of the quantity attribute
+ */
+class ExerciseOutcome extends ContractOrContractReference <"The exercise outcome could combine several contracts (partial exercise of a swaption), a contract and a listed product (partial exercise of a bond option), a contract and a cashflow (partial exercise of a cash settling option), etc.">
 {
-	payment Payment (0..1);
+	listedProduct ListedProduct (0..1);
+		[synonym Rosetta_Workbench value listedProduct]
+	commodity Commodity (0..1);
+	cashflow Cashflow (0..1);
 		[synonym Rosetta_Workbench value payment]
+	quantity Quantity (0..1) <"The quantity amount associated with a commodity or listed product.">;
+		[synonym Rosetta_Workbench value quantity]
 }
 
-class ExercisePrimitive
+/*
+ * TODO - Add data rules in relation to the fullExercise attribute
+ */
+
+class ExercisePrimitive <"This primitive leverages the FpML OptionExercise construct, except for the exerciseTiming which is deemed as associated to a request for exercise that is meant to take place, as opposed to the actual exercise event.">
 {
+	exerciseDate date (0..1);
+		[synonym Rosetta_Workbench value exerciseDate]
+	exerciseTime time (0..1);
+		[synonym Rosetta_Workbench value exerciseTime]
+	fullExercise boolean (1..1);
+		[synonym Rosetta_Workbench value fullExercise]
 	before ContractOrContractReference (1..1);
 		[synonym Rosetta_Workbench value before]
 	after ExerciseOutcome (1..1);
@@ -181,15 +156,26 @@ class Execution
 
 class GrossCashflow extends CashflowBase
 {
+	payoutLineage PayoutLineage (0..1);
 	cashflowAmount Money (1..1) <"The currency amount of the payment.">;
 		[synonym Rosetta_Workbench value cashflowAmount]
 	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">;
 		[synonym Rosetta_Workbench value cashflowType] // set cashflowType.premium when synonym premium exists]
+	cashflowCalculation calculation (0..1) <"The calculation used to compute the gross cashflow, when applicable.">;
+		[synonym Rosetta_Workbench value cashflowCalculation] 
 }
 
 data rule EventTimestamp_ExpireTime <"The expire time should be greater than the creation time.">
 	when EventTimestamp -> expiryTimestamp exists
 	then EventTimestamp -> expiryTimestamp > EventTimestamp -> creationTimestamp
+
+class Inception <"The primitive event for the inception of a new contract between parties. It is expected that this primitive will be adjusted or deprecated once the CDM scope is extended to the pre-execution space.">
+{
+	before ContractOrContractReference (0..0) <"The (0..0) cardinality reflects the fact that that is no contract in the before state of an inception primitive.">;
+		[synonym Rosetta_Workbench value before]
+	after ContractOrContractReference (1..1);
+		[synonym Rosetta_Workbench value after]
+}
 
 class InterestRateCurve
 {
@@ -199,7 +185,7 @@ class InterestRateCurve
 		[synonym Rosetta_Workbench value tenor]
 }
 
-class Lineage
+class Lineage <"The class to provide lineage information across transactions.">
 {
 	contractReference Identifier (0..*) scheme "correlationIdScheme";
 		[synonym Rosetta_Workbench value contractReference]
@@ -218,15 +204,11 @@ class MessageInformation <"This class corresponds to the messaging components of
 	copyTo string (0..*) scheme "messageAddressScheme" <"A unique identifier (within the specified coding scheme) giving the details of some party to whom a copy of this message will be sent for reference.">;
 }
 
-/*
- * TODO - The NewTrade primitive should inherit the ContractState class
- * The ingestion doesn't currently supports this inheritance, which needs to be understood/adjusted
- */
 class NewTradePrimitive one of <"The primitive event to represent a new trade.">
 {
 	contract Contract (0..1);
 		[synonym Rosetta_Workbench value contract]
-	contractReference ContractIdentifier (0..*);
+	contractReference ContractIdentifier (0..1);
 		[synonym Rosetta_Workbench value contractReference]
 }
 
@@ -258,10 +240,22 @@ data rule ObservationSource_content <"ObservationSource should not be empty, alt
 		or ObservationSource -> curve exists
 		or ObservationSource -> informationSource exists
 
+class PayoutLineage one of <"A class to provide lineage into the Payout components through one of two ways: either by making use of references existing in the originating document, or by making use of the rosettaKeyValue associated with the relevant CDM payout class. The former has the benefit of not necessitating an associated implementation, but implies that the identifying value associated with the payout components are either generated in a repeatable manner across instance documents (when the payment and trade reference information exist across distinct documents) or that all information exists within one single instance document. The latter approach has the benefit of being agnostic to how the originating document(s) is constructed, but requires an associated implementation to assign the rosettaKey values to the relevant attributes.">
+{
+	payoutReference string (0..1) reference <"The reference to the payout component from which the gross cashflow is derived, to be used in the case where this reference information is contained in the same instance document or is generated in a repeatable manner (e.g. hash function that doesn't make use of transient data points) when associated with a distinct instance document.">;
+		[synonym Rosetta_Workbench value payoutReference]
+	interestRatePayout InterestRatePayout (0..1) rosettaKey;
+	creditDefaultPayout CreditDefaultPayout (0..1) rosettaKey;
+	cashflow Cashflow (0..1) rosettaKey;
+	optionPayout OptionPayout (0..1) rosettaKey;
+}
+
 class PrimitiveEvent <"The set of primitive events. The purpose of this class it to provide clarity with respect to the event qualification logic.">
 {
 	newTrade NewTradePrimitive (0..*) <"The new trade primitive is unbounded to address the case of events such as portfolio compressions, which could result in multiple new trades.">;
 		[synonym Rosetta_Workbench value newTrade]
+	inception Inception (0..*);
+		[synonym Rosetta_Workbench value inception]
 	quantityChange QuantityChangePrimitive (0..*);
 		[synonym Rosetta_Workbench value quantityChange]
 	allocation AllocationPrimitive (0..*);
@@ -276,6 +270,8 @@ class PrimitiveEvent <"The set of primitive events. The purpose of this class it
 		[synonym Rosetta_Workbench value reset]
 	payment Payment (0..*);
 		[synonym Rosetta_Workbench value payment]
+	transfer Transfer (0..*);
+		[synonym Rosetta_Workbench value transfer]
 }
 
 class QuantityChangePrimitive <"The primitive event to represent a change in quantity or notional.">
@@ -294,7 +290,12 @@ class ResetPrimitive rosettaKey <"The primitive event to represent a reset.">
 		[synonym Rosetta_Workbench value date]
 	resetValue number (1..1) <"The reset value">;
 		[synonym Rosetta_Workbench value resetValue]
-	cashflow Cashflow (1..*);
+	/*
+	 * Question to the CDM Group - Should the reset primitive have an associated cashflow, or just have the rate reset value?
+	 * The latter seems more appropriate, but needs to be confirmed by current operational workflows.
+	 * If it has the cashflow, it should also have the associated calculation.
+	 */
+	cashflow Cashflow (0..1) <"The cashflow resulting from the reset event.">; // The cardinality has been relaxed until the above question is settled
 		[synonym Rosetta_Workbench value cashflow]
 }
 
@@ -320,6 +321,53 @@ class TradeHeader
 		[synonym FpML value partyTradeIdentifier]
 	tradeDate date (1..1) anchor <"The trade/execution date.">;
 		[synonym FpML value tradeDate]
+}
+
+class Transfer <"The primitive event for the transfer of cash, securities or physical asset between parties.">
+{
+	payerReceiver PayerReceiver (0..1) <"The payer and receiver party information, to be associated with the transfer of cash.">;
+	transferorTransferee TransferorTransferee (0..1) <"The transferor and transferee party information, to be associated with the transfer of securities or physical assets.">;
+	transferDate AdjustableOrAdjustedOrRelativeDate (0..1) <"The transfer date is optional as it might not be known at the point in time when the transfer is initially specified.">;
+		[synonym Rosetta_Workbench value transferDate]
+	amount Money (0..1) <"The currency amount, applicable to a cash transfer.">;
+		[synonym Rosetta_Workbench value amount]
+	quantity Quantity (0..1) <"The quantity amount, applicable to a transfer of securities or physical asset.">;
+		[synonym Rosetta_Workbench value quantity]
+	asset Asset (0..1) <"The asset that is being transfered, when applicable.">;
+		[synonym Rosetta_Workbench value asset]
+	grossCashflow GrossCashflow (0..*) <"The gross cashflow components from which the payment is derived when corresponding to a netted amount across those components. The rosettaKey is available for CDM implementers who want to reference the rosettaKeuValue artefacts that are associated to the respective payout classes.">;
+		[synonym Rosetta_Workbench value grossCashflow]
+	transferCalculation calculation (0..1) <"The calculation used to compute the transfer, when applicable.">;	
+		[synonym Rosetta_Workbench value transferCalculation]
+	transferStatus PaymentStatusEnum (0..1) <"The transfer status, e.g. Instructed, Settled.">;
+		[synonym Rosetta_Workbench value transferStatus]
+	settlementReference string (0..1) <"The settlement reference, when applicable.">;
+		[synonym Rosetta_Workbench value settlementReference]
+}
+
+choice rule Transfer_choice1 <"The transfer party information is represented by either the payer/receiver or the transferor/transferee CDM representation.">
+	for Transfer required choice between
+	payerReceiver and transferorTransferee
+
+choice rule Transfer_choice2 <"The transfer applies to either a cash amount or a quantity of securities or physical asset.">
+	for Transfer required choice between
+	amount and quantity
+
+data rule Transfer_transferorTransferee <"The transfered quantity must be associated with an asset qualification.">
+	when Transfer -> transferorTransferee exists
+	then Transfer -> quantity exists
+	and Transfer -> asset exists
+
+class TransferorTransferee <"A class mimicking the PayerReceiver, which is itself derived from the FpML PayerReceiver.model, to represent the transferee and transferor party information in relation to the transfer of securities or other non-cash assets.">
+{
+	transferorPartyReference string (1..1) reference <"A reference to the party responsible for making the payments defined by this structure.">;
+		[synonym Rosetta_Workbench value transferorPartyReference]
+	transferorAccountReference string (0..1) reference <"A reference to the account responsible for making the payments defined by this structure.">;
+		[synonym Rosetta_Workbench value transferorAccountReference]
+	transfereePartyReference string (1..1) reference <"A reference to the party that receives the payments corresponding to this structure.">;
+		[synonym Rosetta_Workbench value transfereePartyReference]
+	transfereeAccountReference string (0..1) reference <"A reference to the account that receives the payments corresponding to this structure.">;
+		[synonym Rosetta_Workbench value transfereeAccountReference]
 }
 
 isEvent Allocation <"The qualification of allocation event from the fact that (i) the intent is Allocation when specified, (ii) the only primitive is the allocation, (iii) the sum of quantities/notional before = after, and (iv) there is a single contractualProduct before (ensured through cardinality). Note: it is accepted that an allocation can result in a single contract.">
@@ -370,6 +418,13 @@ isEvent DerivedObservation <"The qualification of a derived observation event fr
 isEvent Exercise <"The qualification of a full termination event from the fact that (i) the intent is Exercise when specified, (ii) the only primitive is the quantityChange.">
 	Event -> intent when present = IntentEnum.Exercise
 	and Event -> primitive -> exercise only exists
+
+/*
+ * TODO - Need to firm out the naming of the business event associated with the inception primitive
+ */
+isEvent NewTradeBusinessEvent
+	Event -> intent when present = IntentEnum.NewTrade
+	and Event -> primitive -> inception only exists
 
 isEvent NewTradeEvent <"The qualification of a new trade event from the fact that (i) the intent is NewTrade when specified, and (ii) the only primitive is the newTrade.">
 	Event -> intent when present = IntentEnum.NewTrade
@@ -459,6 +514,23 @@ alias quantityAfterQuantityChange <"The alias to represent the quantity or notio
 	or Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> fxLinkedNotional -> initialValue
 	or Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> notionalAmount -> amount
 	or Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount -> amount
+
+/*
+ * TODO - Need to firm out the naming of the business events associated with the transfer primitive
+ */
+ 
+isEvent PaymentBusinessEvent
+	Event -> primitive -> transfer only exists
+	and Event -> primitive -> transfer -> amount exists
+	and Event -> primitive -> transfer -> quantity is absent
+
+isEvent SecurityTransfer
+	Event -> primitive -> transfer only exists
+	and Event -> primitive -> transfer -> asset -> listedProduct exists
+
+isEvent CommodityTransfer
+	Event -> primitive -> transfer only exists
+	and Event -> primitive -> transfer -> asset -> commodity exists
 
 isEvent Payment <"The qualification of a payment event from the fact that the only primitive is the payment.">
 	Event -> primitive -> payment only exists
