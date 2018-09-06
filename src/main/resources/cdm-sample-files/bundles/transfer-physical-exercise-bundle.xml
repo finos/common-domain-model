@@ -6,7 +6,7 @@
     xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
     xmlns:co="http://www.regnosys.com/extension-1-10/confirmation">
     <!-- This bundle combines a phsyically settling bond option, an exercise event and a security
-        transfer of the exercised bond -->
+        and cash transfer in relation to the exercised bond -->
     <co:event>
         <!-- Inception of the new bond option -->
         <co:timestamp>
@@ -137,7 +137,7 @@
             <co:creationTimestamp>2018-06-19T10:30:15.0</co:creationTimestamp>
         </co:timestamp>
         <co:eventIdentifier>
-            <co:identifier>res-789456</co:identifier>
+            <co:identifier>ex-789456</co:identifier>
             <co:version>1</co:version>
         </co:eventIdentifier>
         <co:eventDate>2018-06-19</co:eventDate>
@@ -157,6 +157,9 @@
         </co:lineage>
         <co:primitive>
             <co:exercise>
+                <co:exerciseDate>2018-06-19</co:exerciseDate>
+                <co:exerciseTime>10:25:00</co:exerciseTime>
+                <co:fullExercise>true</co:fullExercise>
                 <co:before>
                     <co:contract>
                         <tradeHeader>
@@ -267,12 +270,23 @@
                             <instrumentId instrumentIdScheme="CUSIP">17275R103</instrumentId>
                         </co:bond>
                     </co:listedProduct>
+                    <co:payment>
+                        <payerPartyReference href="party6"/>
+                        <receiverPartyReference href="party5"/>
+                        <paymentAmount>
+                            <currency>JPY</currency>
+                            <amount>9970000000</amount>
+                        </paymentAmount>
+                    </co:payment>
+                    <co:quantity>
+                        <co:amount>200</co:amount>
+                    </co:quantity>
                 </co:after>
             </co:exercise>
         </co:primitive>
     </co:event>
     <co:event>
-        <!-- Transfer event that is made of 2 transfer primitives, 1 per currency -->
+        <!-- Transfer event that has a cash and a security component -->
         <co:timestamp>
             <co:creationTimestamp>2018-06-20T14:26:00.0</co:creationTimestamp>
         </co:timestamp>
@@ -291,7 +305,7 @@
         <!-- Lineage into the exercise event -->
         <co:lineage>
             <co:eventReference>
-                <co:identifier>res-789456</co:identifier>
+                <co:identifier>ex-789456</co:identifier>
                 <co:version>1</co:version>
             </co:eventReference>
         </co:lineage>
@@ -321,6 +335,26 @@
                         </co:bond>
                     </co:listedProduct>
                 </co:asset>
+            </co:transfer>
+            <!-- The bond cash settlement -->
+            <co:transfer>
+                <payerPartyReference href="party6"/>
+                <receiverPartyReference href="party5"/>
+                <co:transferDate>
+                    <adjustableDate>
+                        <unadjustedDate>2018-06-20</unadjustedDate>
+                        <dateAdjustments>
+                            <businessDayConvention>MODFOLLOWING</businessDayConvention>
+                            <businessCenters>
+                                <businessCenter>JPTO</businessCenter>
+                            </businessCenters>
+                        </dateAdjustments>
+                    </adjustableDate>
+                </co:transferDate>
+                <co:amount>
+                    <currency>JPY</currency>
+                    <amount>9970000000</amount>
+                </co:amount>
             </co:transfer>
         </co:primitive>
     </co:event>

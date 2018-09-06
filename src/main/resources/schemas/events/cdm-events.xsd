@@ -144,8 +144,8 @@
     <xsd:complexType name="ContractOrContractReference">
         <xsd:sequence maxOccurs="unbounded">
             <xsd:choice>
-                <xsd:element name="contractReference" type="ContractReference"/>
-                <xsd:element name="contract" type="Contract"/>
+                <xsd:element name="contractReference" type="ContractReference" minOccurs="0"/>
+                <xsd:element name="contract" type="Contract" minOccurs="0"/>
             </xsd:choice>
         </xsd:sequence>
     </xsd:complexType>
@@ -197,27 +197,6 @@
             </xsd:choice>
         </xsd:sequence>
     </xsd:complexType>
-    <xsd:complexType name="Execution">
-        <xsd:sequence>
-            <xsd:element name="tradeHeader" type="fpml:TradeHeader"/>
-            <xsd:element name="contractualProduct" type="ContractualProduct"/>
-        </xsd:sequence>
-    </xsd:complexType>
-    <xsd:complexType name="ExerciseOutcome">
-        <xsd:sequence>
-            <xsd:choice>
-                <xsd:element name="contractState" type="ContractOrContractReference"/>
-                <xsd:element name="listedProduct" type="ListedProduct"/>
-                <xsd:element name="payment" type="Payment"/>
-            </xsd:choice>
-        </xsd:sequence>
-    </xsd:complexType>
-    <xsd:complexType name="ExercisePrimitive">
-        <xsd:sequence>
-            <xsd:element name="before" type="ContractOrContractReference"/>
-            <xsd:element name="after" type="ExerciseOutcome"/>
-        </xsd:sequence>
-    </xsd:complexType>
     <xsd:complexType name="Event">
         <xsd:complexContent>
             <xsd:extension base="EventBase">
@@ -250,6 +229,32 @@
         <xsd:sequence>
             <xsd:element name="creationTimestamp" type="xsd:dateTime"/>
             <xsd:element name="expiryTimestamp" type="xsd:dateTime" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="Execution">
+        <xsd:sequence>
+            <xsd:element name="tradeHeader" type="fpml:TradeHeader"/>
+            <xsd:element name="contractualProduct" type="ContractualProduct"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="ExerciseOutcome">
+        <xsd:complexContent>
+            <xsd:extension base="ContractOrContractReference">
+                <xsd:sequence>
+                    <xsd:element name="listedProduct" type="ListedProduct" minOccurs="0"/>
+                    <xsd:element name="payment" type="Payment" minOccurs="0"/>
+                    <xsd:element name="quantity" type="Quantity" minOccurs="0"/>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:complexType name="ExercisePrimitive">
+        <xsd:sequence>
+            <xsd:element name="exerciseDate" type="xsd:date" minOccurs="0"/>
+            <xsd:element name="exerciseTime" type="xsd:time" minOccurs="0"/>
+            <xsd:element name="fullExercise" type="xsd:boolean"/>
+            <xsd:element name="before" type="ContractOrContractReference"/>
+            <xsd:element name="after" type="ExerciseOutcome"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="GrossCashflow">

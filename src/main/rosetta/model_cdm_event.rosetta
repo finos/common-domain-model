@@ -28,14 +28,6 @@ class ContractOrContractReference one of
 		[synonym Rosetta_Workbench value contractReference]
 }
 
-class ContractOrListedProduct one of
-{
-	contractState ContractOrContractReference (0..1);
-		[synonym Rosetta_Workbench value contractState]
-	listedProduct ListedProduct (0..1);
-		[synonym Rosetta_Workbench value listedProduct]
-}
-
 class ContractReference extends ContractIdentifier rosettaKey
 {
 	state StateEnum (0..1) <"The state qualification of a contractual product.">;
@@ -113,15 +105,32 @@ class ExecutionReference
 	state StateEnum (1..1);
 		[synonym Rosetta_Workbench value state]
 }
-
-class ExerciseOutcome extends ContractOrListedProduct one of
+/*
+ * TODO - Need to further work on this construct, particularly as it relates to the positioning of the quantity attribute
+ */
+class ExerciseOutcome extends ContractOrContractReference <"The exercise outcome could combine several contracts (partial exercise of a swaption), a contract and a listed product (partial exercise of a bond option), a contract and a cashflow (partial exercise of a cash settling option), etc.">
 {
-	payment Payment (0..1);
+	listedProduct ListedProduct (0..1);
+		[synonym Rosetta_Workbench value listedProduct]
+	commodity Commodity (0..1);
+	cashflow Cashflow (0..1);
 		[synonym Rosetta_Workbench value payment]
+	quantity Quantity (0..1) <"The quantity amount associated with a commodity or listed product.">;
+		[synonym Rosetta_Workbench value quantity]
 }
 
-class ExercisePrimitive
+/*
+ * TODO - Add data rules in relation to the fullExercise attribute
+ */
+
+class ExercisePrimitive <"This primitive leverages the FpML OptionExercise construct, except for the exerciseTiming which is deemed as associated to a request for exercise that is meant to take place, as opposed to the actual exercise event.">
 {
+	exerciseDate date (0..1);
+		[synonym Rosetta_Workbench value exerciseDate]
+	exerciseTime time (0..1);
+		[synonym Rosetta_Workbench value exerciseTime]
+	fullExercise boolean (1..1);
+		[synonym Rosetta_Workbench value fullExercise]
 	before ContractOrContractReference (1..1);
 		[synonym Rosetta_Workbench value before]
 	after ExerciseOutcome (1..1);
@@ -336,18 +345,6 @@ class Transfer <"The primitive event for the transfer of cash, securities or phy
 		[synonym Rosetta_Workbench value settlementReference]
 }
 
-class TransferorTransferee <"A class mimicking the PayerReceiver, which is itself derived from the FpML PayerReceiver.model, to represent the transferee and transferor party information in relation to the transfer of securities or other non-cash assets.">
-{
-	transferorPartyReference string (1..1) reference <"A reference to the party responsible for making the payments defined by this structure.">;
-		[synonym Rosetta_Workbench value transferorPartyReference]
-	transferorAccountReference string (0..1) reference <"A reference to the account responsible for making the payments defined by this structure.">;
-		[synonym Rosetta_Workbench value transferorAccountReference]
-	transfereePartyReference string (1..1) reference <"A reference to the party that receives the payments corresponding to this structure.">;
-		[synonym Rosetta_Workbench value transfereePartyReference]
-	transfereeAccountReference string (0..1) reference <"A reference to the account that receives the payments corresponding to this structure.">;
-		[synonym Rosetta_Workbench value transfereeAccountReference]
-}
-
 choice rule Transfer_choice1 <"The transfer party information is represented by either the payer/receiver or the transferor/transferee CDM representation.">
 	for Transfer required choice between
 	payerReceiver and transferorTransferee
@@ -360,6 +357,18 @@ data rule Transfer_transferorTransferee <"The transfered quantity must be associ
 	when Transfer -> transferorTransferee exists
 	then Transfer -> quantity exists
 	and Transfer -> asset exists
+
+class TransferorTransferee <"A class mimicking the PayerReceiver, which is itself derived from the FpML PayerReceiver.model, to represent the transferee and transferor party information in relation to the transfer of securities or other non-cash assets.">
+{
+	transferorPartyReference string (1..1) reference <"A reference to the party responsible for making the payments defined by this structure.">;
+		[synonym Rosetta_Workbench value transferorPartyReference]
+	transferorAccountReference string (0..1) reference <"A reference to the account responsible for making the payments defined by this structure.">;
+		[synonym Rosetta_Workbench value transferorAccountReference]
+	transfereePartyReference string (1..1) reference <"A reference to the party that receives the payments corresponding to this structure.">;
+		[synonym Rosetta_Workbench value transfereePartyReference]
+	transfereeAccountReference string (0..1) reference <"A reference to the account that receives the payments corresponding to this structure.">;
+		[synonym Rosetta_Workbench value transfereeAccountReference]
+}
 
 isEvent Allocation <"The qualification of allocation event from the fact that (i) the intent is Allocation when specified, (ii) the only primitive is the allocation, (iii) the sum of quantities/notional before = after, and (iv) there is a single contractualProduct before (ensured through cardinality). Note: it is accepted that an allocation can result in a single contract.">
 	Event -> intent when present = IntentEnum.Allocation
