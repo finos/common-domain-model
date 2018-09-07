@@ -106,19 +106,18 @@ class ExecutionReference
 	state StateEnum (1..1);
 		[synonym Rosetta_Workbench value state]
 }
-/*
- * TODO - Need to further work on this construct, particularly as it relates to the positioning of the quantity attribute
- */
-class ExerciseOutcome extends ContractOrContractReference <"The exercise outcome could combine several contracts (partial exercise of a swaption), a contract and a listed product (partial exercise of a bond option), a contract and a cashflow (partial exercise of a cash settling option), etc.">
+
+class ExerciseOutcome extends ContractOrContractReference <"The exercise outcome could combine a contract and a physical or cash exercise.">
 {
-	listedProduct ListedProduct (0..1);
-		[synonym Rosetta_Workbench value listedProduct]
-	commodity Commodity (0..1);
-	cashflow Cashflow (0..1);
-		[synonym Rosetta_Workbench value payment]
-	quantity Quantity (0..1) <"The quantity amount associated with a commodity or listed product.">;
-		[synonym Rosetta_Workbench value quantity]
+	physicalExercise PhysicalExercise (0..1);
+		[synonym Rosetta_Workbench value physicalExercise]
+	cashExercise Cashflow (0..1);
+		[synonym Rosetta_Workbench value cashExercise]
 }
+
+choice rule ExerciseOutcome_choice <"A option exercise results in either a physical or a cash exercise.">
+	for ExerciseOutcome required choice between
+	physicalExercise and cashExercise
 
 /*
  * TODO - Add data rules in relation to the fullExercise attribute
@@ -138,6 +137,9 @@ class ExercisePrimitive <"This primitive leverages the FpML OptionExercise const
 		[synonym Rosetta_Workbench value after]
 }
 
+data rule ExercisePrimitive_fullExercise <"A full exercise should not result in ">
+	when ExercisePrimitive -> fullExercise = True
+	then ExercisePrimitive -> after -> contract -> state = StateEnum.Exercised
 /*
  * TODO - Having the tradeHeader attribute as part of the execution is a work-around the fact that 
  * the tradeDate and the identifier are mapped through the FpML synonym while the tradeHeader is part of the Wosetta_Workbench.
@@ -250,6 +252,25 @@ class PayoutLineage one of <"A class to provide lineage into the Payout componen
 	cashflow Cashflow (0..1) rosettaKey;
 	optionPayout OptionPayout (0..1) rosettaKey;
 }
+
+class PhysicalExercise extends ContractOrContractReference <"The physical exercise could combine several contracts (partial exercise of a swaption) or a contract and a listed product (partial exercise of a bond option).">
+{
+	listedProduct ListedProduct (0..1);
+		[synonym Rosetta_Workbench value listedProduct]
+	commodity Commodity (0..1);
+	quantity Quantity (0..1) <"The quantity amount associated the asset that is physically settled.">;
+		[synonym Rosetta_Workbench value quantity]
+	cashflow Cashflow (0..1) <"The cashflow component of the physical exercise.">;
+		[synonym Rosetta_Workbench value cashflow]
+}
+
+choice rule PhysicalExercise_choice <"This choice rule will be adjusted as a function of the further types of assets that are be associated with options.">
+	for PhysicalExercise required choice between
+	listedProduct and commodity
+
+data rule PhysicalExercise_quantity <"The quantity attribute must be associated with the ohysical exercise of a listed product or commodity.">
+	when ( PhysicalExercise -> commodity or PhysicalExercise -> listedProduct ) exists
+	then PhysicalExercise -> quantity exists
 
 class PrimitiveEvent <"The set of primitive events. The purpose of this class it to provide clarity with respect to the event qualification logic.">
 {
