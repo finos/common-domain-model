@@ -71,6 +71,7 @@
             <xsd:enumeration value="brokerageCommission"/>
             <xsd:enumeration value="fee"/>
             <xsd:enumeration value="interest"/>
+            <xsd:enumeration value="NetInterest"/>
             <xsd:enumeration value="novationFee"/>
             <xsd:enumeration value="premium"/>
         </xsd:restriction>
@@ -82,6 +83,16 @@
             <xsd:enumeration value="pending"/>
             <xsd:enumeration value="settled"/>
         </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="TransferTypeEnum">
+        <xsd:union memberTypes="PaymentTypeEnum">
+            <xsd:simpleType>
+                <xsd:restriction base="xsd:token">
+                    <xsd:enumeration value="SecuritySettlement"/>
+                    <xsd:enumeration value="SecurityTransfer"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+        </xsd:union>
     </xsd:simpleType>
     <xsd:simpleType name="UnitEnum">
         <xsd:restriction base="xsd:token">
@@ -408,6 +419,7 @@
         <xsd:sequence>
             <xsd:group ref="fpml:PayerReceiver.model"/>
             <xsd:element name="transferDate" type="fpml:AdjustableOrRelativeDate" minOccurs="0"/>
+            <xsd:element name="transferType" minOccurs="0"/>
             <xsd:sequence>
                 <xsd:choice>
                     <xsd:sequence>
