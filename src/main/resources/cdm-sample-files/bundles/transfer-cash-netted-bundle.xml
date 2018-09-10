@@ -6,7 +6,7 @@
     xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
     xmlns:co="http://www.regnosys.com/extension-1-10/confirmation">
     <!-- This bundle combines an IRS contract, followed by an observation event, 
-    a reset event and a payment event which is made of 2 transfers, one per currency -->
+    a reset event and a payment event which is made of 2 transfer primitives, one per currency -->
     <co:event>
         <!-- Inception of the new IRS contract -->
         <co:timestamp>
@@ -38,6 +38,8 @@
                             <tradeDate>2018-02-20</tradeDate>
                         </tradeHeader>
                         <swap>
+                            <!-- The swapstream identifiers are used to provide lineage for the
+                                gross cashflow components -->
                             <swapStream id="sw1234">
                                 <payerPartyReference href="party1"/>
                                 <receiverPartyReference href="party2"/>
@@ -211,15 +213,18 @@
         </co:primitive>
     </co:event>
     <co:event>
-        <!-- Observation event -->
+        <!-- As this is a zero coupon swap, the payment will reference all the observation events
+            that will have taken place throughout the life of the swap For the sake of simplicity,
+            only the first two observation and reset events are represented here -->
+        <!-- Observation event #1 -->
         <co:timestamp>
-            <co:creationTimestamp>2019-11-18T08:08:48.0</co:creationTimestamp>
+            <co:creationTimestamp>2018-05-22T08:08:48.0</co:creationTimestamp>
         </co:timestamp>
         <co:eventIdentifier>
-            <co:identifier>obs-123456</co:identifier>
+            <co:identifier>obs-1</co:identifier>
             <co:version>1</co:version>
         </co:eventIdentifier>
-        <co:eventDate>2019-11-18</co:eventDate>
+        <co:eventDate>2018-05-22</co:eventDate>
         <co:isCorrection>false</co:isCorrection>
         <co:primitive>
             <co:observation>
@@ -239,7 +244,7 @@
                     </co:informationSource>
                 </co:source>
                 <co:observation>2.125</co:observation>
-                <co:date>2019-11-18</co:date>
+                <co:date>2018-05-22</co:date>
                 <co:time>
                     <co:time>07:00:00</co:time>
                     <co:location timezoneLocationScheme="http://www.fpml.org/coding-scheme/external/tzdatabase">UTC</co:location>
@@ -248,15 +253,15 @@
         </co:primitive>
     </co:event>
     <co:event>
-        <!-- Reset event -->
+        <!-- Reset event #1 -->
         <co:timestamp>
-            <co:creationTimestamp>2019-12-20T10:30:15.0</co:creationTimestamp>
+            <co:creationTimestamp>2018-05-22T10:30:15.0</co:creationTimestamp>
         </co:timestamp>
         <co:eventIdentifier>
-            <co:identifier>res-789456</co:identifier>
+            <co:identifier>res-1</co:identifier>
             <co:version>1</co:version>
         </co:eventIdentifier>
-        <co:eventDate>2019-11-20</co:eventDate>
+        <co:eventDate>2018-05-22</co:eventDate>
         <co:isCorrection>false</co:isCorrection>
         <party id="party3">
             <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso17442">Party 1</partyId>
@@ -264,26 +269,99 @@
         <party id="party4">
             <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso17442">Party 2</partyId>
         </party>
-        <!-- Lineage into the contract inception and the observation event -->
+        <!-- Lineage into the contract inception and the 1st observation event -->
         <co:lineage>
             <co:contractReference>
                 <co:issuer href="party3"/>
                 <co:identifier>IRS858TH30</co:identifier>
             </co:contractReference>
             <co:eventReference>
-                <co:identifier>obs-123456</co:identifier>
+                <co:identifier>obs-1</co:identifier>
                 <co:version>1</co:version>
             </co:eventReference>
         </co:lineage>
         <co:primitive>
             <co:reset>
-                <co:date>2019-11-20</co:date>
+                <co:date>2018-05-22</co:date>
                 <co:resetValue>2.125</co:resetValue>
             </co:reset>
         </co:primitive>
     </co:event>
     <co:event>
-        <!-- Payment lifecycle event that is made of 2 transfer primitives, 1 per currency -->
+        <!-- Observation event #2 -->
+        <co:timestamp>
+            <co:creationTimestamp>2018-08-22T08:08:48.0</co:creationTimestamp>
+        </co:timestamp>
+        <co:eventIdentifier>
+            <co:identifier>obs-2</co:identifier>
+            <co:version>1</co:version>
+        </co:eventIdentifier>
+        <co:eventDate>2018-08-22</co:eventDate>
+        <co:isCorrection>false</co:isCorrection>
+        <co:primitive>
+            <co:observation>
+                <co:source>
+                    <co:curve>
+                        <co:interestRateCurve>
+                            <co:floatingRateIndex>GBP-LIBOR-ISDA</co:floatingRateIndex>
+                            <co:tenor>
+                                <periodMultiplier>3</periodMultiplier>
+                                <period>M</period>
+                            </co:tenor>
+                        </co:interestRateCurve>
+                    </co:curve>
+                    <co:informationSource>
+                        <rateSource>Bloomberg</rateSource>
+                        <rateSourcePage>pagetbd</rateSourcePage>
+                    </co:informationSource>
+                </co:source>
+                <co:observation>2.375</co:observation>
+                <co:date>2018-08-22</co:date>
+                <co:time>
+                    <co:time>07:00:00</co:time>
+                    <co:location timezoneLocationScheme="http://www.fpml.org/coding-scheme/external/tzdatabase">UTC</co:location>
+                </co:time>
+            </co:observation>
+        </co:primitive>
+    </co:event>
+    <co:event>
+        <!-- Reset event #2 -->
+        <co:timestamp>
+            <co:creationTimestamp>2018-08-22T10:30:15.0</co:creationTimestamp>
+        </co:timestamp>
+        <co:eventIdentifier>
+            <co:identifier>res-2</co:identifier>
+            <co:version>1</co:version>
+        </co:eventIdentifier>
+        <co:eventDate>2018-08-22</co:eventDate>
+        <co:isCorrection>false</co:isCorrection>
+        <party id="party5">
+            <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso17442">Party 1</partyId>
+        </party>
+        <party id="party6">
+            <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso17442">Party 2</partyId>
+        </party>
+        <!-- Lineage into the contract inception and the 2nd observation event -->
+        <co:lineage>
+            <co:contractReference>
+                <co:issuer href="party5"/>
+                <co:identifier>IRS858TH30</co:identifier>
+            </co:contractReference>
+            <co:eventReference>
+                <co:identifier>obs-2</co:identifier>
+                <co:version>1</co:version>
+            </co:eventReference>
+        </co:lineage>
+        <co:primitive>
+            <co:reset>
+                <co:date>2018-05-22</co:date>
+                <co:resetValue>2.125</co:resetValue>
+            </co:reset>
+        </co:primitive>
+    </co:event>
+    <co:event>
+        <!-- Payment lifecycle event that takes place at the termination of the zero coupon swaps
+            and is made of 2 transfer primitives, 1 per currency -->
         <co:timestamp>
             <co:creationTimestamp>2020-02-22T14:26:00.0</co:creationTimestamp>
         </co:timestamp>
@@ -293,28 +371,32 @@
         </co:eventIdentifier>
         <co:eventDate>2020-02-22</co:eventDate>
         <co:isCorrection>false</co:isCorrection>
-        <party id="party5">
+        <party id="party7">
             <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso17442">Party 1</partyId>
         </party>
-        <party id="party6">
+        <party id="party8">
             <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso17442">Party 2</partyId>
         </party>
-        <!-- Lineage into the contract inception & the reset event -->
+        <!-- Lineage into the contract inception & the 2 reset events -->
         <co:lineage>
             <co:contractReference>
-                <co:issuer href="party5"/>
+                <co:issuer href="party7"/>
                 <co:identifier>IRS858TH30</co:identifier>
             </co:contractReference>
             <co:eventReference>
-                <co:identifier>res-789456</co:identifier>
+                <co:identifier>res-1</co:identifier>
+                <co:version>1</co:version>
+            </co:eventReference>
+            <co:eventReference>
+                <co:identifier>res-2</co:identifier>
                 <co:version>1</co:version>
             </co:eventReference>
         </co:lineage>
         <co:primitive>
             <!-- The transfer of the net cashflows on contract termination date -->
             <co:transfer>
-                <payerPartyReference href="party5"/>
-                <receiverPartyReference href="party6"/>
+                <payerPartyReference href="party7"/>
+                <receiverPartyReference href="party8"/>
                 <co:transferDate>
                     <adjustableDate>
                         <unadjustedDate>2020-02-24</unadjustedDate>
@@ -337,8 +419,8 @@
                         <currency>GBP</currency>
                         <amount>6000.00</amount>
                     </co:cashflowAmount>
-                    <payerPartyReference href="party5"/>
-                    <receiverPartyReference href="party6"/>
+                    <payerPartyReference href="party7"/>
+                    <receiverPartyReference href="party8"/>
                     <!-- The reference to the FixedAmount vs. FloatingAmount calculation can also be used for
                     lineage purposes -->
                     <co:cashflowCalculation>FixedAmount</co:cashflowCalculation>
@@ -350,8 +432,8 @@
                         <currency>GBP</currency>
                         <amount>5431.25</amount>
                     </co:cashflowAmount>
-                    <payerPartyReference href="party6"/>
-                    <receiverPartyReference href="party5"/>
+                    <payerPartyReference href="party8"/>
+                    <receiverPartyReference href="party7"/>
                     <co:cashflowCalculation>FloatingAmount</co:cashflowCalculation>
                 </co:grossCashflow>
                 <co:transferStatus>instructed</co:transferStatus>
