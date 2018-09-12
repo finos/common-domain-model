@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<co:event xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.regnosys.com/extension-1-10/confirmation ../../schemas/events/cdm-events.xsd"
+    xmlns:fpml-annotation="http://www.fpml.org/annotation"
+    xmlns="http://www.fpml.org/FpML-5/confirmation" xmlns:dsig="http://www.w3.org/2000/09/xmldsig#"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:co="http://www.regnosys.com/extension-1-10/confirmation">
+    <co:timestamp>
+        <co:creationTimestamp>2020-02-22T14:26:00.0</co:creationTimestamp>
+    </co:timestamp>
+    <co:eventIdentifier>
+        <co:identifier>trs-456123</co:identifier>
+        <co:version>1</co:version>
+    </co:eventIdentifier>
+    <co:eventDate>2020-02-22</co:eventDate>
+    <co:isCorrection>false</co:isCorrection>
+    <party id="party1">
+        <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso17442">Party 1</partyId>
+    </party>
+    <party id="party2">
+        <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso17442">Party 2</partyId>
+    </party>
+    <!-- Lineage into the contract & the reset event (not represented here) -->
+    <co:lineage>
+        <co:contractReference>
+            <co:issuer href="party1"/>
+            <co:identifier>IRS858TH30</co:identifier>
+        </co:contractReference>
+        <co:eventReference>
+            <co:identifier>res-789456</co:identifier>
+            <co:version>1</co:version>
+        </co:eventReference>
+    </co:lineage>
+    <co:primitive>
+        <!-- This transfer corresponds to the net cashflow among the two interest rate legs of an
+            IRS, with grosscashflow breakdown.  The lineage into those cashflows is not provided as
+            part of this sample document between the xml id/href only works within the context of
+            one instance document, while the rosettaKey implementation is not in place as part of
+            the Rosetta Workbench at this point in time. -->
+        <co:transfer>
+            <payerPartyReference href="party1"/>
+            <receiverPartyReference href="party1"/>
+            <co:transferDate>
+                <adjustableDate>
+                    <unadjustedDate>2020-02-24</unadjustedDate>
+                    <dateAdjustments>
+                        <businessDayConvention>MODFOLLOWING</businessDayConvention>
+                        <businessCenters>
+                            <businessCenter>GBLO</businessCenter>
+                        </businessCenters>
+                    </dateAdjustments>
+                </adjustableDate>
+            </co:transferDate>
+            <co:transferType>netInterest</co:transferType>
+            <co:amount>
+                <currency>GBP</currency>
+                <amount>568.75</amount>
+            </co:amount>
+            <co:grossCashflow>
+                <co:cashflowAmount>
+                    <currency>GBP</currency>
+                    <amount>6000.00</amount>
+                </co:cashflowAmount>
+                <payerPartyReference href="party1"/>
+                <receiverPartyReference href="party2"/>
+                <co:cashflowCalculation>FixedAmount</co:cashflowCalculation>
+            </co:grossCashflow>
+            <co:grossCashflow>
+                <co:cashflowAmount>
+                    <currency>GBP</currency>
+                    <amount>5431.25</amount>
+                </co:cashflowAmount>
+                <payerPartyReference href="party2"/>
+                <receiverPartyReference href="party1"/>
+                <co:cashflowCalculation>FloatingAmount</co:cashflowCalculation>
+            </co:grossCashflow>
+            <co:transferStatus>instructed</co:transferStatus>
+        </co:transfer>
+    </co:primitive>
+</co:event>

@@ -79,6 +79,7 @@ class EventEffect <"The set of operational and positional effects associated wit
 	contractReference ContractReference (0..*) rosettaKey <"A pointer to the contract reference effect(s), an example of such being the outcome of a novation or compression event.">;
     listedProduct ListedProduct (0..*) rosettaKey <"A pointer to the listed product effect(s), an example of such being the outcome of the physical exercise of a bond option.">;
 	payment Payment (0..*) rosettaKey <"A pointer to the payment effect(s), an example of such being the outcome of an option cash exercise.">;
+	transfer Transfer (0..*) rosettaKey <"A pointer to the transfer effect(s), either a cash, security or other asset.">;
 }
 
 class EventTestBundle <"A class which combines several events for testing purposes.">
@@ -105,19 +106,18 @@ class ExecutionReference
 	state StateEnum (1..1);
 		[synonym Rosetta_Workbench value state]
 }
-/*
- * TODO - Need to further work on this construct, particularly as it relates to the positioning of the quantity attribute
- */
-class ExerciseOutcome extends ContractOrContractReference <"The exercise outcome could combine several contracts (partial exercise of a swaption), a contract and a listed product (partial exercise of a bond option), a contract and a cashflow (partial exercise of a cash settling option), etc.">
+
+class ExerciseOutcome extends ContractOrContractReference <"The exercise outcome could combine a contract and a physical or cash exercise.">
 {
-	listedProduct ListedProduct (0..1);
-		[synonym Rosetta_Workbench value listedProduct]
-	commodity Commodity (0..1);
-	cashflow Cashflow (0..1);
-		[synonym Rosetta_Workbench value payment]
-	quantity Quantity (0..1) <"The quantity amount associated with a commodity or listed product.">;
-		[synonym Rosetta_Workbench value quantity]
+	physicalExercise PhysicalExercise (0..1);
+		[synonym Rosetta_Workbench value physicalExercise]
+	cashExercise Cashflow (0..1);
+		[synonym Rosetta_Workbench value cashExercise]
 }
+
+choice rule ExerciseOutcome_choice <"A option exercise results in either a physical or a cash exercise.">
+	for ExerciseOutcome required choice between
+	physicalExercise and cashExercise
 
 /*
  * TODO - Add data rules in relation to the fullExercise attribute
@@ -137,6 +137,9 @@ class ExercisePrimitive <"This primitive leverages the FpML OptionExercise const
 		[synonym Rosetta_Workbench value after]
 }
 
+data rule ExercisePrimitive_fullExercise <"A full exercise should not result in ">
+	when ExercisePrimitive -> fullExercise = True
+	then ExercisePrimitive -> after -> contract -> state = StateEnum.Exercised
 /*
  * TODO - Having the tradeHeader attribute as part of the execution is a work-around the fact that 
  * the tradeDate and the identifier are mapped through the FpML synonym while the tradeHeader is part of the Wosetta_Workbench.
@@ -250,6 +253,25 @@ class PayoutLineage one of <"A class to provide lineage into the Payout componen
 	optionPayout OptionPayout (0..1) rosettaKey;
 }
 
+class PhysicalExercise extends ContractOrContractReference <"The physical exercise could combine several contracts (partial exercise of a swaption) or a contract and a listed product (partial exercise of a bond option).">
+{
+	listedProduct ListedProduct (0..1);
+		[synonym Rosetta_Workbench value listedProduct]
+	commodity Commodity (0..1);
+	quantity Quantity (0..1) <"The quantity amount associated the asset that is physically settled.">;
+		[synonym Rosetta_Workbench value quantity]
+	cashflow Cashflow (0..1) <"The cashflow component of the physical exercise.">;
+		[synonym Rosetta_Workbench value cashflow]
+}
+
+choice rule PhysicalExercise_choice <"This choice rule will be adjusted as a function of the further types of assets that are be associated with options.">
+	for PhysicalExercise required choice between
+	listedProduct and commodity
+
+data rule PhysicalExercise_quantity <"The quantity attribute must be associated with the ohysical exercise of a listed product or commodity.">
+	when ( PhysicalExercise -> commodity or PhysicalExercise -> listedProduct ) exists
+	then PhysicalExercise -> quantity exists
+
 class PrimitiveEvent <"The set of primitive events. The purpose of this class it to provide clarity with respect to the event qualification logic.">
 {
 	newTrade NewTradePrimitive (0..*) <"The new trade primitive is unbounded to address the case of events such as portfolio compressions, which could result in multiple new trades.">;
@@ -323,7 +345,7 @@ class TradeHeader
 		[synonym FpML value tradeDate]
 }
 
-class Transfer <"The primitive event for the transfer of cash, securities or physical asset between parties.">
+class Transfer rosettaKey <"The primitive event for the transfer of cash, securities or physical asset between parties.">
 {
 	payerReceiver PayerReceiver (0..1) <"The payer and receiver party information, to be associated with the transfer of cash.">;
 	transferorTransferee TransferorTransferee (0..1) <"The transferor and transferee party information, to be associated with the transfer of securities or physical assets.">;
@@ -339,6 +361,8 @@ class Transfer <"The primitive event for the transfer of cash, securities or phy
 		[synonym Rosetta_Workbench value grossCashflow]
 	transferCalculation calculation (0..1) <"The calculation used to compute the transfer, when applicable.">;	
 		[synonym Rosetta_Workbench value transferCalculation]
+	transferType TransferTypeEnum (0..1) <"The qualification of the type of transfer. It extends the CashflowTypeEnum because a transfer can involve cashflows.">;
+		[synonym Rosetta_Workbench value transferType]
 	transferStatus TransferStatusEnum (0..1) <"The transfer status, e.g. Instructed, Settled.">;
 		[synonym Rosetta_Workbench value transferStatus]
 	settlementReference string (0..1) <"The settlement reference, when applicable.">;
@@ -519,7 +543,7 @@ alias quantityAfterQuantityChange <"The alias to represent the quantity or notio
  * TODO - Need to firm out the naming of the business events associated with the transfer primitive
  */
  
-isEvent PaymentBusinessEvent
+isEvent PaymentBusinessEvent // Or do we call this business event cash transfer, for consistency with security transfer?
 	Event -> primitive -> transfer only exists
 	and Event -> primitive -> transfer -> amount exists
 	and Event -> primitive -> transfer -> quantity is absent
@@ -527,6 +551,13 @@ isEvent PaymentBusinessEvent
 isEvent SecurityTransfer
 	Event -> primitive -> transfer only exists
 	and Event -> primitive -> transfer -> asset -> listedProduct exists
+	and Event -> primitive -> transfer -> amount is absent
+
+isEvent SecuritySettlement
+	Event -> primitive -> transfer only exists
+	and Event -> primitive -> transfer -> asset -> listedProduct exists
+	and Event -> primitive -> transfer -> amount exists
+	and  Event -> primitive -> transfer -> quantity exists
 
 isEvent CommodityTransfer
 	Event -> primitive -> transfer only exists
