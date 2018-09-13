@@ -349,33 +349,33 @@ class TradeHeader
 class Transfer
 {
 	transferorTransferee TransferorTransferee (1..1);
-	asset Asset (1..1);
+	asset Asset (1..1) <"The asset that is being transfered: cashflow, security, commodity, ...">;
 	settlementDate AdjustableOrAdjustedOrRelativeDate (0..1);
 		[synonym Rosetta_Workbench value transferDate]
-	transferCalculation calculation (0..1) <"The calculation used to compute the transfer, when applicable.">;	
+	transferCalculation calculation (0..1) <"The calculation used to compute the transfer, when applicable. An example of such is the FixedAmount or FloatingAmount calculation.">;	
 		[synonym Rosetta_Workbench value transferCalculation]
-	type TransferTypeEnum (0..1) <"The qualification of the type of transfer. It extends the CashflowTypeEnum because a transfer can involve cashflows.">;
+	type TransferTypeEnum (0..1) <"The qualification of the type of transfer, e.g. fee, interest, security settlement.">;
 		[synonym Rosetta_Workbench value transferType]
 	status TransferStatusEnum (0..1) <"The transfer status, e.g. Instructed, Settled.">;
 		[synonym Rosetta_Workbench value transferStatus]
 	settlementReference string (0..1) <"The settlement reference, when applicable.">;
 		[synonym Rosetta_Workbench value settlementReference]
-	component TransferComponent (0..*);
+	component TransferComponent (0..*) <"Breakdown information about a transfer, when made of distinct components. An example of such is the net IRS interest accrual, with then two instances of the component attribute to provide information about the accrual of the respective legs.">;
 		[synonym Rosetta_Workbench value grossCashflow]
 }
 
-class TransferComponent
+class TransferComponent <"A class to specify the breakdown information about a transfer, when made of several components.">
 {
 	transferorTransferee TransferorTransferee (1..1);
 	payoutLineage PayoutLineage (0..1) <"The lineage into the Payout components that might be associated with each of the gross cashflow elements.">;
-	asset Asset (1..1);
+	asset Asset (1..1) <"The asset is the same as the Transfer component, while the associated quantity/amount is expected to differ.">;
 	type TransferTypeEnum (0..1);
 		[synonym Rosetta_Workbench value transferType]
-	transferCalculation calculation (0..1);
+	transferCalculation calculation (0..1) <"The calculation used to compute the transfer component, when applicable.">;	
 		[synonym Rosetta_Workbench value cashflowCalculation]
 }
 
-class TransferorTransferee <"A class mimicking the PayerReceiver, which is itself derived from the FpML PayerReceiver.model, to represent the transferee and transferor party information in relation to the transfer of securities or other non-cash assets.">
+class TransferorTransferee <"A class mimicking the PayerReceiver, which is itself derived from the FpML PayerReceiver.model, to represent the transferee and transferor party information in relation to the transfer of assets.">
 {
 	transferorPartyReference string (1..1) reference <"A reference to the party responsible for making the payments defined by this structure.">;
 		[synonym FpML value payerPartyReference]
