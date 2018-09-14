@@ -17,7 +17,8 @@ class ComputedAmount <"A class to specify the outcome of a computed amount, for 
 {
 	callFunction calculation (1..1);
 	amount number (1..1);
-	currency string (0..1) scheme "currencyScheme";
+	currency string (0..1) scheme;
+		[synonym Rosetta_Workbench value currency meta currencyScheme]
 }
 
 class ContractOrContractReference one of
@@ -38,7 +39,9 @@ class Curve one of
 {
 	interestRateCurve InterestRateCurve (0..1);
 		[synonym Rosetta_Workbench value interestRateCurve]
-	commodityCurve CommodityReferencePriceEnum (0..1) scheme "commodityReferencePriceScheme"; // This is just an illustrative alternative curve instance, which implementation needs to be refined and confirmed
+	commodityCurve CommodityReferencePriceEnum (0..1) scheme; // This is just an illustrative alternative curve instance, which implementation needs to be refined and confirmed
+		[synonym Rosetta_Workbench value commodityCurve meta commodityReferencePriceScheme]
+
 }
 
 class Event rosettaKey
@@ -182,29 +185,29 @@ class Inception <"The primitive event for the inception of a new contract betwee
 
 class InterestRateCurve
 {
-	floatingRateIndex FloatingRateIndexEnum (1..1) scheme "floatingRateIndexScheme";
-		[synonym Rosetta_Workbench value floatingRateIndex]
+	floatingRateIndex FloatingRateIndexEnum (1..1) scheme;
+		[synonym Rosetta_Workbench value floatingRateIndex meta floatingRateIndexScheme]
 	tenor Period (1..1);
 		[synonym Rosetta_Workbench value tenor]
 }
 
 class Lineage <"The class to provide lineage information across transactions.">
 {
-	contractReference Identifier (0..*) scheme "correlationIdScheme";
-		[synonym Rosetta_Workbench value contractReference]
+	contractReference Identifier (0..*) scheme;
+		[synonym Rosetta_Workbench value contractReference meta correlationIdScheme]
 	eventReference Identifier (0..*);
 		[synonym Rosetta_Workbench value eventReference]
 }
 
 class MessageInformation <"This class corresponds to the messaging components of the FpML MessageHeader.model.">
 {
-	messageId string (1..1) scheme "messageIdScheme" <"A unique identifier assigned to the message.">;
-		[synonym Rosetta_Workbench value messageId pathExpression "messageInformation"]
-	sentBy string (0..1) scheme "messageAddressScheme" <"The identifier for the originator of a message instance.">;
-		[synonym Rosetta_Workbench value sentBy pathExpression "messageInformation"]
-	sentTo string (0..1) scheme "messageAddressScheme" <"The identifier for the recipient of a message instance.">;
-		[synonym Rosetta_Workbench value sentTo pathExpression "messageInformation"]
-	copyTo string (0..*) scheme "messageAddressScheme" <"A unique identifier (within the specified coding scheme) giving the details of some party to whom a copy of this message will be sent for reference.">;
+	messageId string (1..1) scheme <"A unique identifier assigned to the message.">;
+		[synonym Rosetta_Workbench value messageId pathExpression "messageInformation" meta messageIdScheme]
+	sentBy string (0..1) scheme <"The identifier for the originator of a message instance.">;
+		[synonym Rosetta_Workbench value sentBy pathExpression "messageInformation" meta messageAddressScheme]
+	sentTo string (0..1) scheme <"The identifier for the recipient of a message instance.">;
+		[synonym Rosetta_Workbench value sentTo pathExpression "messageInformation" meta messageAddressScheme]
+	copyTo string (0..*) scheme  <"A unique identifier (within the specified coding scheme) giving the details of some party to whom a copy of this message will be sent for reference.">;
 }
 
 class NewTradePrimitive one of <"The primitive event to represent a new trade.">
@@ -333,16 +336,16 @@ class TimeZone <"The time alongside with the timezone location information. This
 {
 	time time (1..1) <"The observation time.">;
 		[synonym Rosetta_Workbench value time]
-	location string (0..1) scheme "timezoneLocationScheme" <"FpML specifies the timezoneLocationScheme by reference to the Time Zone Database (a.k.a. tz database) maintained by IANA, the Internet Assigned Numbers Authority.">;
-		[synonym Rosetta_Workbench value location]
+	location string (0..1) scheme <"FpML specifies the timezoneLocationScheme by reference to the Time Zone Database (a.k.a. tz database) maintained by IANA, the Internet Assigned Numbers Authority.">;
+		[synonym Rosetta_Workbench value location meta timezoneLocationScheme]
 }
 
 class TradeHeader
 {
 	identifier PartyContractIdentifier (1..*) <"The identifier(s) associated with the execution.">;
 		[synonym FpML value partyTradeIdentifier]
-	tradeDate date (1..1) anchor <"The trade/execution date.">;
-		[synonym FpML value tradeDate]
+	tradeDate date (1..1) id <"The trade/execution date.">;
+		[synonym FpML value tradeDate meta id]
 }
 
 class Transfer rosettaKey <"The primitive event for the transfer of cash, securities or physical asset between parties.">

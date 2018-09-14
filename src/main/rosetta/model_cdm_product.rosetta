@@ -19,8 +19,8 @@ data rule Cashflow_cashflowAmount <"The cashflow amount should be a positive num
 
 class CashflowBase <"A class to represent the attributes to be shared by the Cashflow and Payment classes.">
 {
-	id string (0..1) anchor;
-		[synonym FpML value id]
+	id;
+		[synonym FpML meta id]
 	payerReceiver PayerReceiver (1..1);
 	discountFactor number (0..1) <"The value representing the discount factor used to calculate the present value of the cash flow.">;
 		[synonym FpML value discountFactor]
@@ -32,8 +32,8 @@ class CashflowBase <"A class to represent the attributes to be shared by the Cas
 
 class Contract rosettaKey <"A class to specify a contract object, which can be invoked either within the context of an event, or independently from it. It corresponds to the FpML Trade, although restricted to execution and post-execution contexts. Attributes also applicable to pre-execution (a.k.a. pre-trade view in FpML) contexts have been positioned as part of the ContractualProduct class.">
 {
-	id string (0..1) anchor;
-		[synonym FpML value id]
+	id;
+		[synonym FpML meta id]
 	contractIdentifier PartyContractIdentifier (1..*) <"The contract reference identifier(s) allocated by the parties involved in the contract.">;
 		[synonym FpML value partyTradeIdentifier pathExpression "trade.tradeHeader"]
 		[synonym FpML value partyTradeIdentifier pathExpression "tradeHeader"]
@@ -51,8 +51,8 @@ class Contract rosettaKey <"A class to specify a contract object, which can be i
 	documentation Documentation (0..1) <"Defines the definitions that govern the document and should include the year and type of definitions referenced, along with any relevant documentation (such as master agreement) and the date it was signed.">;
 		[synonym FpML value documentation pathExpression "trade"]
 		[synonym FpML value documentation]
-	governingLaw GoverningLawEnum (0..1) scheme "governingLawScheme" <"Identification of the law governing the transaction.">;
-		[synonym FpML value governingLaw pathExpression "trade"]
+	governingLaw GoverningLawEnum (0..1) scheme <"Identification of the law governing the transaction.">;
+		[synonym FpML value governingLaw pathExpression "trade" meta governingLawScheme]
 		[synonym FpML value governingLaw]
 	party Party (0..*) <"The parties to the contract. The cardinality is optional to address the case where the contract object is part of an event record, in which case the party is specified as part of that object. In that respect, the CDM approach is distinct from FpML, where party information is specified as part of a wrapper alongside the trade object.">;
 		[synonym FpML value party]
@@ -288,10 +288,10 @@ class CrossCurrencyTerms
  */
 class CreditDefaultPayout rosettaKeyValue <"The credit default payout specification terms.">
 {
-	id string (0..1) anchor;
-		[synonym FpML value id pathExpression "trade.creditDefaultSwap"]
-		[synonym FpML value id pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
-		[synonym FpML value id pathExpression "creditDefaultSwap"]
+	id;
+		[synonym FpML meta id pathExpression "trade.creditDefaultSwap"]
+		[synonym FpML meta id pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
+		[synonym FpML meta id pathExpression "creditDefaultSwap"]
 	generalTerms GeneralTerms (1..1) <"This element contains all the data that appears in the section entitled '1. General Terms' in the 2003 ISDA Credit Derivatives Confirmation, except for the effectiveDate, terminationDate and dateAdjustments elements, which have been positioned as part of the InterestRatePayout class.">;
 		[synonym FpML value generalTerms pathExpression "trade.creditDefaultSwap"]
 		[synonym FpML value generalTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
@@ -348,8 +348,8 @@ class GeneralTerms <"A class specifying the general terms of the credit default 
 		[synonym FpML value indexReferenceInformation]
 	basketReferenceInformation BasketReferenceInformation (0..1) <"This attribute contains all the terms relevant to defining the Credit Default Swap Basket.">;
 		[synonym FpML value basketReferenceInformation]
-	additionalTerm string (0..*) scheme "additionalTermScheme" <"This attribute is used for representing information contained in the Additional Terms field of the 2003 Master Credit Derivatives confirm.">;
-		[synonym FpML value additionalTerm]
+	additionalTerm string (0..*) scheme <"This attribute is used for representing information contained in the Additional Terms field of the 2003 Master Credit Derivatives confirm.">;
+		[synonym FpML value additionalTerm meta additionalTermScheme]
 	substitution boolean (0..1) <"Value of this attribute set to 'true' indicates that substitution is applicable.">;
 		[synonym FpML value substitution] // set substitution to False when absent]
 		[synonym Rosetta_Workbench value substitution]
@@ -382,15 +382,15 @@ class InterestRate one of
 
 class InterestRatePayout calculation FixedAmount, FloatingAmount rosettaKeyValue <"The interest rate payout specification terms.">
 {
-	id string (0..1) anchor;
-		[synonym FpML value id]
+	id;
+		[synonym FpML meta id]
 	payerReceiver PayerReceiver (1..1);
 	quantity ContractualQuantity (0..1) <"The quantity can be expressed in different formats, depending upon the product, e.g. notional amount for credit and interest rate products, quantity for some of the equity products. The CDM uses the generic term quantity rather than notional amount.">;
 	interestRate InterestRate (0..1) <"The interest rate can be a floating rate, a fixed rate of an inflation rate.">;
-	dayCountFraction DayCountFractionEnum (0..1) scheme "dayCountFractionScheme" <"The day count fraction.">;
-		[synonym FpML value dayCountFraction pathExpression "calculationPeriodAmount.calculation"]
-		[synonym FpML value dayCountFraction pathExpression "periodicPayment.fixedAmountCalculation"]
-		[synonym FpML value dayCountFraction pathExpression "periodicPayment.floatingAmountCalculation"]
+	dayCountFraction DayCountFractionEnum (0..1) scheme <"The day count fraction.">;
+		[synonym FpML value dayCountFraction pathExpression "calculationPeriodAmount.calculation" meta dayCountFractionScheme]
+		[synonym FpML value dayCountFraction pathExpression "periodicPayment.fixedAmountCalculation" meta dayCountFractionScheme]
+		[synonym FpML value dayCountFraction pathExpression "periodicPayment.floatingAmountCalculation" meta dayCountFractionScheme]
 	discounting Discounting (0..1) <"The parameters specifying any discounting conventions that may apply. This element must only be included if discounting applies.">;
 		[synonym FpML value discounting pathExpression "calculationPeriodAmount.calculation"]
 	compoundingMethod CompoundingMethodEnum (0..1) <"If one or more calculation period contributes to a single payment amount this element specifies whether compounding is applicable and, if so, what compounding method is to be used. This element must only be included when more than one calculation period contributes to a single payment amount.">;
@@ -518,8 +518,8 @@ data rule LastRegularPeriodEndDate_finalStub <"FpML specifies that the lastRegul
 class NotionalSchedule <"A class specifying defining the notional amount or notional amount schedule associated with a contractual product. The notional schedule will be captured explicitly, specifying the dates that the notional changes and the outstanding notional amount that applies from that date. A parametric representation of the rules defining the notional step schedule can optionally be included.">
 	[synonym FpML value Notional]
 {
-	id string (0..1) anchor;
-		[synonym FpML value id]
+	id;
+		[synonym FpML meta id]
 	notionalStepSchedule NonNegativeAmountSchedule (1..1) <"The notional amount or notional amount schedule expressed as explicit outstanding notional amounts and dates. In the case of a schedule, the step dates may be subject to adjustments in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">;
 		[synonym FpML value notionalStepSchedule]
 	notionalStepParameters NotionalStepRule (0..1) <"A parametric representation of the notional step schedule, i.e. parameters used to generate the notional schedule.">;
@@ -546,8 +546,8 @@ class OptionExercise <"A class to represent the applicable terms to qualify an o
  */
 class OptionPayout rosettaKeyValue <"The option payout specification terms.">
 {
-	id string (0..1) anchor;
-		[synonym FpML value id]
+	id;
+		[synonym FpML meta id]
 	buyerSeller BuyerSeller (1..1);
 	optionType OptionTypeEnum (0..1) <"The type of option transaction. From a usage standpoint, put/call is the default option type, while payer/receiver indicator is used for options on index credit default swaps, consistently with the industry practice. Straddle is used for the case of straddle strategy, that combine a call and a put with the same strike.">;
 		[synonym FpML value optionType]
@@ -562,8 +562,8 @@ class OptionPayout rosettaKeyValue <"The option payout specification terms.">
 
 class PaymentDates <"The payment dates schedule. As a difference from the FpML PaymentDate, this class incorporates the CDS paymentDelay element, and the following reference elements have been omitted, because deemed of no relevant usage by the ISDA CDM Group: calculationPeriodDatesReference, resetDatesReference, ValuationDatesReference.">
 {
-	id string (0..1) anchor;
-		[synonym FpML value id pathExpression "paymentDates"]
+	id;
+		[synonym FpML meta id pathExpression "paymentDates"]
 	calculationPeriodDatesReference string (0..1) reference <"A pointer style reference to the associated calculation period dates component defined elsewhere in the document.">;
 		[synonym FpML value calculationPeriodDatesReference pathExpression "paymentDates"]
 	resetDatesReference string (0..1) reference <"A pointer style reference to the associated reset dates component defined elsewhere in the document.">;
@@ -706,42 +706,42 @@ class Product one of
 class ProductIdentification <"A class to combine the CDM product qualifier with other product qualifiers, such as the FpML ones. While the CDM product qualifier is derived by the CDM from the product payout features, the other product identification elements are assigned by some external sources and correspond to values specified by other data representation protocols.">
 {
 	productQualifier productType (0..1) <"The CDM product qualifier, which corresponds to the outcome of the isProduct qualification logic. This value is derived by the CDM from the product payout features.">;
-	primaryAssetClass AssetClassEnum (0..1) scheme "assetClassScheme" <"A classification of the most important risk class of the trade. FpML defines a simple asset class categorisation using a coding scheme.">;
-		[synonym FpML value primaryAssetClass pathExpression "trade.swap"]
-		[synonym FpML value primaryAssetClass pathExpression "swap"]
-		[synonym FpML value primaryAssetClass pathExpression "trade.creditDefaultSwap"]
-		[synonym FpML value primaryAssetClass pathExpression "creditDefaultSwap"]
-		[synonym Rosetta_Workbench value primaryAssetClass pathExpression "trade.swaption"]
-		[synonym Rosetta_Workbench value primaryAssetClass pathExpression "swaption"]
-		[synonym Rosetta_Workbench value primaryAssetClass pathExpression "trade.swaption.swap"]
-		[synonym Rosetta_Workbench value primaryAssetClass pathExpression "swaption.swap"]
-	secondaryAssetClass AssetClassEnum (0..*) scheme "assetClassScheme" <"A classification of additional risk classes of the trade, if any. FpML defines a simple asset class categorisation using a coding scheme.">;
-		[synonym FpML value secondaryAssetClass pathExpression "trade.swap"]
-		[synonym FpML value secondaryAssetClass pathExpression "swap"]
-		[synonym FpML value secondaryAssetClass pathExpression "trade.creditDefaultSwap"]
-		[synonym FpML value secondaryAssetClass pathExpression "creditDefaultSwap"]
-		[synonym Rosetta_Workbench value secondaryAssetClass pathExpression "trade.swaption"]
-		[synonym Rosetta_Workbench value secondaryAssetClass pathExpression "swaption"]
-		[synonym Rosetta_Workbench value secondaryAssetClass pathExpression "trade.swaption.swap"]
-		[synonym Rosetta_Workbench value secondaryAssetClass pathExpression "swaption.swap"]
-	productType string (0..*) scheme "productTypeScheme" <"A classification of the type of product. FpML defines a simple product categorisation using a coding scheme.">;
-		[synonym FpML value productType pathExpression "trade.swap"]
-		[synonym FpML value productType pathExpression "swap"]
-		[synonym FpML value productType pathExpression "trade.creditDefaultSwap"]
-		[synonym FpML value productType pathExpression "creditDefaultSwap"]
-		[synonym Rosetta_Workbench value productType pathExpression "trade.swaption"]
-		[synonym Rosetta_Workbench value productType pathExpression "swaption"]
-		[synonym Rosetta_Workbench value productType pathExpression "trade.swaption.swap"]
-		[synonym Rosetta_Workbench value productType pathExpression "swaption.swap"]
-	productId string (0..*) scheme "productIdScheme" <"A product reference identifier. The product Id is an identifier that describes the key economic characteristics of the trade type, with the exception of concepts such as size (notional, quantity, number of units) and price (fixed rate, strike, etc.) that are negotiated for each transaction. It can be used to hold identifiers such as the 'UPI' (universal product identifier) required by certain regulatory reporting rules. It can also be used to hold identifiers of benchmark products or product temnplates used by certain trading systems or facilities. FpML does not define the domain values associated with this element. Note that the domain values for this element are not strictly an enumerated list.">;
-		[synonym FpML value productId pathExpression "trade.swap"]
-		[synonym FpML value productId pathExpression "swap"]
-		[synonym FpML value productId pathExpression "trade.creditDefaultSwap"]
-		[synonym FpML value productId pathExpression "creditDefaultSwap"]
-		[synonym Rosetta_Workbench value productType pathExpression "trade.swaption"]
-		[synonym Rosetta_Workbench value productType pathExpression "swaption"]
-		[synonym Rosetta_Workbench value productType pathExpression "trade.swaption.swap"]
-		[synonym Rosetta_Workbench value productType pathExpression "swaption.swap"]
+	primaryAssetClass AssetClassEnum (0..1) scheme <"A classification of the most important risk class of the trade. FpML defines a simple asset class categorisation using a coding scheme.">;
+		[synonym FpML value primaryAssetClass pathExpression "trade.swap" meta assetClassScheme]
+		[synonym FpML value primaryAssetClass pathExpression "swap" meta assetClassScheme]
+		[synonym FpML value primaryAssetClass pathExpression "trade.creditDefaultSwap" meta assetClassScheme]
+		[synonym FpML value primaryAssetClass pathExpression "creditDefaultSwap" meta assetClassScheme]
+		[synonym Rosetta_Workbench value primaryAssetClass pathExpression "trade.swaption" meta assetClassScheme]
+		[synonym Rosetta_Workbench value primaryAssetClass pathExpression "swaption" meta assetClassScheme]
+		[synonym Rosetta_Workbench value primaryAssetClass pathExpression "trade.swaption.swap" meta assetClassScheme]
+		[synonym Rosetta_Workbench value primaryAssetClass pathExpression "swaption.swap" meta assetClassScheme]
+	secondaryAssetClass AssetClassEnum (0..*) scheme <"A classification of additional risk classes of the trade, if any. FpML defines a simple asset class categorisation using a coding scheme.">;
+		[synonym FpML value secondaryAssetClass pathExpression "trade.swap" meta assetClassScheme]
+		[synonym FpML value secondaryAssetClass pathExpression "swap" meta assetClassScheme]
+		[synonym FpML value secondaryAssetClass pathExpression "trade.creditDefaultSwap" meta assetClassScheme]
+		[synonym FpML value secondaryAssetClass pathExpression "creditDefaultSwap" meta assetClassScheme]
+		[synonym Rosetta_Workbench value secondaryAssetClass pathExpression "trade.swaption" meta assetClassScheme]
+		[synonym Rosetta_Workbench value secondaryAssetClass pathExpression "swaption" meta assetClassScheme]
+		[synonym Rosetta_Workbench value secondaryAssetClass pathExpression "trade.swaption.swap" meta assetClassScheme]
+		[synonym Rosetta_Workbench value secondaryAssetClass pathExpression "swaption.swap" meta assetClassScheme]
+	productType string (0..*) scheme <"A classification of the type of product. FpML defines a simple product categorisation using a coding scheme.">;
+		[synonym FpML value productType pathExpression "trade.swap" meta productTypeScheme]
+		[synonym FpML value productType pathExpression "swap" meta productTypeScheme]
+		[synonym FpML value productType pathExpression "trade.creditDefaultSwap" meta productTypeScheme]
+		[synonym FpML value productType pathExpression "creditDefaultSwap" meta productTypeScheme]
+		[synonym Rosetta_Workbench value productType pathExpression "trade.swaption" meta productTypeScheme]
+		[synonym Rosetta_Workbench value productType pathExpression "swaption" meta productTypeScheme]
+		[synonym Rosetta_Workbench value productType pathExpression "trade.swaption.swap" meta productTypeScheme]
+		[synonym Rosetta_Workbench value productType pathExpression "swaption.swap" meta productTypeScheme]
+	productId string (0..*) scheme <"A product reference identifier. The product Id is an identifier that describes the key economic characteristics of the trade type, with the exception of concepts such as size (notional, quantity, number of units) and price (fixed rate, strike, etc.) that are negotiated for each transaction. It can be used to hold identifiers such as the 'UPI' (universal product identifier) required by certain regulatory reporting rules. It can also be used to hold identifiers of benchmark products or product temnplates used by certain trading systems or facilities. FpML does not define the domain values associated with this element. Note that the domain values for this element are not strictly an enumerated list.">;
+		[synonym FpML value productId pathExpression "trade.swap" meta productIdScheme]
+		[synonym FpML value productId pathExpression "swap" meta productIdScheme]
+		[synonym FpML value productId pathExpression "trade.creditDefaultSwap" meta productIdScheme]
+		[synonym FpML value productId pathExpression "creditDefaultSwap" meta productIdScheme]
+		[synonym Rosetta_Workbench value productType pathExpression "trade.swaption" meta productIdScheme]
+		[synonym Rosetta_Workbench value productType pathExpression "swaption" meta productIdScheme]
+		[synonym Rosetta_Workbench value productType pathExpression "trade.swaption.swap" meta productIdScheme]
+		[synonym Rosetta_Workbench value productType pathExpression "swaption.swap" meta productIdScheme]
 }
 
 class Quantity
@@ -756,7 +756,7 @@ class StubPeriod <"A class defining how the initial or final stub calculation pe
 	[synonym FpML value StubCalculationPeriodAmount]
 {
 	calculationPeriodDatesReference string (1..1) reference <"A pointer style reference to the associated calculation period dates component defined elsewhere in the document.">;
-		[synonym FpML value calculationPeriodDatesReference]
+		[synonym FpML value calculationPeriodDatesReference meta href]
 	initialStub StubValue (0..1) <"Specifies how the initial stub amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating tenors may be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3. Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.">;
 		[synonym FpML value initialStub]
 	finalStub StubValue (0..1) <"Specifies how the final stub amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating tenors may be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3. Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.">;

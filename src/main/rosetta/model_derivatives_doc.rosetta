@@ -38,8 +38,8 @@ class ContractIdentifierExtended extends ContractIdentifier <"A class defining a
 
 class Identifier
 {
-	issuer string (0..1) reference scheme "issuerIdScheme" <"The reference to the party that assigns the trade identifier.">;
-		[synonym Rosetta_Workbench value issuer]
+	issuer string (0..1) reference, scheme <"The reference to the party that assigns the trade identifier.">;
+		[synonym Rosetta_Workbench value issuer meta href, issuerIdScheme]
 	identifierValue IdentifierValue (1..1); 
 	version int (0..1);
 		[synonym FpML value version]
@@ -50,22 +50,22 @@ class Identifier
 
 class IdentifierValue <"A class to associate an id to an identifier value, to support constructs such as the FpML tradeIdentifier.">
 {
-	id string (0..1) anchor;
-		[synonym FpML value id pathExpression "tradeId"]
-	identifier string (1..1) scheme "tradeIdScheme";
-		[synonym FpML value tradeId]
-		[synonym FpML value tradeId pathExpression "versionedTradeId"]
-		[synonym Rosetta_Workbench value identifier pathExpression "versionedTradeId"]
-		[synonym Rosetta_Workbench value identifier]
+	id;
+		[synonym FpML meta id pathExpression "tradeId"]
+	identifier string (1..1) scheme;
+		[synonym FpML value tradeId meta tradeIdScheme]
+		[synonym FpML value tradeId pathExpression "versionedTradeId" meta tradeIdScheme]
+		[synonym Rosetta_Workbench value identifier pathExpression "versionedTradeId" meta tradeIdScheme]
+		[synonym Rosetta_Workbench value identifier meta tradeIdScheme]
 }
 
 class LinkId <"The class to represent link identifiers.">
 	[synonym FpML value LinkId]
 {
-	id string (0..1) anchor;
-		[synonym FpML value id pathExpression "linkId"]
-	linkId string (1..1) scheme "linkIdScheme";
-		[synonym FpML value linkId]
+	id;
+		[synonym FpML meta id pathExpression "linkId"]
+	linkId string (1..1) scheme;
+		[synonym FpML value linkId meta linkIdScheme]
 }
 
 class PackageInformation <"A class defining additional information that may be recorded alongside a transaction package.">
@@ -89,6 +89,8 @@ class PackageInformation <"A class defining additional information that may be r
 class PartyContractIdentifier extends ContractIdentifier <"A class defining one or more identifiers allocated to the trade by a party. A link identifier allows the trade to be associated with other related trades, e.g. trades forming part of a larger structured transaction. It is expected that for external communication of trade there will be only one tradeId sent in the document per party.">
 	[synonym FpML value PartyTradeIdentifier]
 {
+	id;
+		[synonym FpML meta id]	
 	linkId LinkId (0..*) <"A link identifier allowing the trade to be associated with other related trades, e.g. the linkId may contain a tradeId for an associated trade or several related trades may be given the same linkId. FpML does not define the domain values associated with this element. Note that the domain values for this element are not strictly an enumerated list.">;
 	allocationTradeId ContractIdentifier (0..*) <"The trade id of the allocated trade. This is used by the block trade to reference the allocated trade.">;
 		[synonym FpML value allocationTradeId]
@@ -98,6 +100,7 @@ class PartyContractIdentifier extends ContractIdentifier <"A class defining one 
 		[synonym FpML value blockTradeId]
 	originatingTradeId ContractIdentifier (0..*) <"The trade id of the trade(s) upon which this was based, for example the ID of the trade that was submitted for clearing if this is a cleared trade, or of the original trade if this was novated or cancelled and rebooked, or the list of trades that were netted or compressed together in the case of a compression event. The originatingEvent will explain why the trade was created; the existence and number of originatingTradeId elements should correspond to the originatingEvent, and they should be interpreted using that field. If the trade is inside a business event structure (such as a novation or a compression event) this element should not be populated; instead the event should be used to represent the other trades.">;
 		[synonym FpML value originatingTradeId]
+
 }
 
 choice rule PartyContractIdentifier_choice <"Choice rule to represent an FpML choice construct.">

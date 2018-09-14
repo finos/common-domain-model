@@ -43,8 +43,8 @@ class Bond extends FixedIncomeSecurity <"FpML specifies this complex type as an 
 		[synonym FpML value faceAmount]
 	paymentFrequency Period (0..1) <"Specifies the frequency at which the bond pays, e.g. 6M.">;
 		[synonym FpML value paymentFrequency]
-	dayCountFraction DayCountFractionEnum (0..1) scheme "dayCountFractionScheme" <"The day count basis for the bond.">;
-		[synonym FpML value dayCountFraction]
+	dayCountFraction DayCountFractionEnum (0..1) scheme <"The day count basis for the bond.">;
+		[synonym FpML value dayCountFraction meta dayCountFractionScheme]
 }
 
 class Commodity <"A class describing a commodity asset.">
@@ -103,10 +103,10 @@ class FixedIncomeSecurity extends ListedHeader <"A fixed income security. In FpM
 		[synonym FpML value issuerName]
 	issuerReference string (0..1) reference <"The issuer, when specified by reference to a party specified somewhere else in the instance document.">;
 		[synonym FpML value issuerPartyReference]
-	seniority CreditSeniorityEnum (0..1) scheme "creditSeniorityScheme" <"The repayment precedence of a debt instrument, as specified by a set of enumerated values. FpML specifies that creditSeniorityTradingScheme (specified in the CDM through the CreditSeniorityTradingEnum) overrides creditSeniorityScheme (specified in the CDM through the CreditSeniorityEnum) when the underlyer defines the reference obligation used in a single name credit default swap trade.">;
-		[synonym FpML value seniority]
-	couponType CouponTypeEnum (0..1) scheme "couponTypeScheme" <"Specifies if the bond has a variable coupon, step-up/down coupon or a zero-coupon.">;
-		[synonym FpML value couponType]
+	seniority CreditSeniorityEnum (0..1) scheme <"The repayment precedence of a debt instrument, as specified by a set of enumerated values. FpML specifies that creditSeniorityTradingScheme (specified in the CDM through the CreditSeniorityTradingEnum) overrides creditSeniorityScheme (specified in the CDM through the CreditSeniorityEnum) when the underlyer defines the reference obligation used in a single name credit default swap trade.">;
+		[synonym FpML value seniority meta creditSeniorityScheme]
+	couponType CouponTypeEnum (0..1) scheme <"Specifies if the bond has a variable coupon, step-up/down coupon or a zero-coupon.">;
+		[synonym FpML value couponType meta couponTypeScheme]
 	couponRate number (0..1) <"Specifies the coupon rate (expressed in percentage) of a fixed income security or convertible bond.">;
 		[synonym FpML value couponRate]
 	maturity date (0..1) <"The date when the principal amount of a security becomes due and payable.">;
@@ -123,10 +123,10 @@ choice rule FixedIncomeSecurity_choice <"Choice rule to represent an FpML choice
 class IdentifiedAsset <"A generic class describing an identified asset.">
 	[synonym FpML value IdentifiedAsset]
 {
-	id string (0..1) anchor;
-		[synonym FpML value id]
-	instrumentIdentifier string (1..*) scheme "instrumentIdScheme" <"Identification of the underlying asset, using public and/or private identifiers.">	;
-		[synonym FpML value instrumentId]
+	id;
+		[synonym FpML meta id]
+	instrumentIdentifier string (1..*) scheme <"Identification of the underlying asset, using public and/or private identifiers.">	;
+		[synonym FpML value instrumentId meta instrumentIdScheme]
 	description string (0..1) <"Long name of the underlying asset.">;
 		[synonym FpML value descrption]
 }
@@ -139,17 +139,17 @@ class Loan extends IdentifiedAsset
 		[synonym FpML value borrower]
 	borrowerReference string (0..*) reference;
 		[synonym FpML value borrowerReference]
-	lien string (0..1) scheme "lienScheme" <"Specifies the seniority level of the lien.">;
-		[synonym FpML value lien]
-	facilityType string (0..1) scheme "facilityTypeScheme" <"The type of loan facility (letter of credit, revolving, ...).">;
-		[synonym FpML value facilityType]
+	lien string (0..1) scheme <"Specifies the seniority level of the lien.">;
+		[synonym FpML value lien meta lienScheme]
+	facilityType string (0..1) scheme <"The type of loan facility (letter of credit, revolving, ...).">;
+		[synonym FpML value facilityType meta facilityTypeScheme]
 	maturity date (0..1) <"The date when the principal amount of the loan becomes due and payable.">;
 		[synonym FpML value maturity]
 		[synonym FIX value maturityDate]
 	creditAgreementDate date (0..1) <"The credit agreement date is the closing date (the date where the agreement has been signed) for the loans in the credit agreement. Funding of the facilities occurs on (or sometimes a little after) the Credit Agreement date. This underlyer attribute is used to help identify which of the company's outstanding loans are being referenced by knowing to which credit agreement it belongs. ISDA Standards Terms Supplement term: Date of Original Credit Agreement.">;
 		[synonym FpML value creditAgreementDate]
-	tranche string (0..1) scheme "loanTrancheScheme" <"The loan tranche that is subject to the derivative transaction. It will typically be referenced as the Bloomberg tranche number. ISDA Standards Terms Supplement term: Bloomberg Tranche Number.">;
-		[synonym FpML value tranche]
+	tranche string (0..1) scheme <"The loan tranche that is subject to the derivative transaction. It will typically be referenced as the Bloomberg tranche number. ISDA Standards Terms Supplement term: Bloomberg Tranche Number.">;
+		[synonym FpML value tranche meta loanTrancheScheme]
 }
 
 class Mortgage extends FixedIncomeSecurity
@@ -161,14 +161,14 @@ class Mortgage extends FixedIncomeSecurity
 		[synonym FpML value insurerReference]
 	paymentFrequency Period (0..1) <"Specifies the frequency at which the mortgage pays, e.g. 6M.">;
 		[synonym FpML value paymentFrequency]
-	dayCountFraction DayCountFractionEnum (0..1) scheme "dayCountFractionScheme" <"The day count basis for the mortgage.">;
-		[synonym FpML value dayCountFraction]
+	dayCountFraction DayCountFractionEnum (0..1) scheme <"The day count basis for the mortgage.">;
+		[synonym FpML value dayCountFraction meta dayCountFractionScheme]
 	originalPrincipalAmount number (0..1) <"The initial issued amount of the mortgage obligation.">;
 		[synonym FpML value originalPrincipalAmount]
 	pool AssetPool (0..1) <"The mortgage pool that is underneath the mortgage obligation.">;
 		[synonym FpML value pool]
-	sector MortgageSectorEnum (0..1) scheme "mortgageSectorScheme" <"The sector classification of the mortgage obligation.">;
-		[synonym FpML value sector]
+	sector MortgageSectorEnum (0..1) scheme <"The sector classification of the mortgage obligation.">;
+		[synonym FpML value sector meta mortgageSectorScheme]
 	tranche string (0..1) <"The mortgage obligation tranche that is subject to the derivative transaction.">;
 		[synonym FpML value tranche]
 }

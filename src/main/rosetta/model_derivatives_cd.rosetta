@@ -20,18 +20,18 @@ class AdditionalFixedPayments <"A class to specify the events that will give ris
 
 class BasketName <"The basket name, with an optional set of basket Id. Corresponds to a sub-construct of the FpML BasketIdentifier.model.">
 {
-	basketName string (1..1) scheme "basketNameScheme" <"The name of the basket expressed as a free format string. FpML does not define usage rules for this element.">;
-		[synonym FpML value basketName]
-	basketId string (0..*) scheme "basketIdScheme" <"A CDS basket identifier.">;
-		[synonym FpML value basketId]
+	basketName string (1..1) scheme <"The name of the basket expressed as a free format string. FpML does not define usage rules for this element.">;
+		[synonym FpML value basketName meta basketNameScheme]
+	basketId string (0..*) scheme <"A CDS basket identifier.">;
+		[synonym FpML value basketId meta basketIdScheme]
 }
 
 class BasketReferenceInformation <"CDS Basket Reference Information.">
 	[synonym FpML value BasketReferenceInformation]
 {
 	basketName BasketName (0..1) <"This attribute corresponds to the FpML combination of a basket name and a basket Id, as a component of the BasketIdentifier.model.">;
-	basketId string (0..*) scheme "basketIdScheme" <"A CDS basket identifier.">;
-		[synonym FpML value basketId]
+	basketId string (0..*) scheme <"A CDS basket identifier.">;
+		[synonym FpML value basketId meta basketIdScheme]
 	referencePool ReferencePool (1..1) <"This element contains all the reference pool items to define the reference entity and reference obligation(s) in the basket.">;
 		[synonym FpML value referencePool]
 	nthToDefault int (0..1) <"N th reference obligation to default triggers payout.">;
@@ -64,10 +64,10 @@ class CalculationAmount extends Money
 class CashSettlementTerms <"In FpML, PhysicalSettlementTerms and CashSettlementTerms extend SettlementTerms. In the CDM, this extension paradigm has not been used because SettlementTerms class has been used for purposes related to securities transactions, while it is not used as such in the FpML standard (i.e. only as an abstract construct.">
 	[synonym FpML value CashSettlementTerms]
 {
-	id string (0..1) anchor;
-		[synonym FpML value id]
-	settlementCurrency string (0..1) scheme "currencyScheme" <"ISDA 2003 Term: Settlement Currency.">;
-		[synonym FpML value settlementCurrency]
+	id;
+		[synonym FpML meta id]
+	settlementCurrency string (0..1) scheme <"ISDA 2003 Term: Settlement Currency.">;
+		[synonym FpML value settlementCurrency meta currencyScheme]
 	valuationDate ValuationDate (0..1) <"The number of business days after conditions to settlement have been satisfied when the calculation agent obtains a price quotation on the Reference Obligation for purposes of cash settlement. There may be one or more valuation dates. This is typically specified if the cash settlement amount is not a fixed amount. ISDA 2003 Term: Valuation Date.">;
 		[synonym FpML value valuationDate]
 	valuationTime BusinessCenterTime (0..1) <"The time of day in the specified business center when the calculation agent seeks quotations for an amount of the reference obligation for purposes of cash settlement. ISDA 2003 Term: Valuation Time.">;
@@ -224,18 +224,18 @@ class IndexReferenceInformation <"A class defining a Credit Default Swap Index."
 {
 	id string (0..1);
 		[synonym FpML value id]
-	indexName string (0..1) scheme "indexNameScheme" <"The name of the index expressed as a free format string with an associated scheme.">;
-		[synonym FpML value indexName]
-	indexId string (0..*) scheme "indexIdScheme" <"A CDS index identifier (e.g. RED pair code).">;
-		[synonym FpML value indexId]
+	indexName string (0..1) scheme <"The name of the index expressed as a free format string with an associated scheme.">;
+		[synonym FpML value indexName meta indexNameScheme]
+	indexId string (0..*) scheme <"A CDS index identifier (e.g. RED pair code).">;
+		[synonym FpML value indexId meta indexIdScheme]
 	indexSeries int (0..1) <"A CDS index series identifier, e.g. 1, 2, 3 etc.">;
 		[synonym FpML value indexSeries]
 	indexAnnexVersion int (0..1) <"A CDS index series version identifier, e.g. 1, 2, 3 etc.">;
 		[synonym FpML value indexAnnexVersion]
 	indexAnnexDate date (0..1) <"A CDS index series annex date.">;
 		[synonym FpML value indexAnnexDate]
-	indexAnnexSource IndexAnnexSourceEnum (0..1) scheme "indexAnnexSourceScheme" <"A CDS index series annex source.">;
-		[synonym FpML value indexAnnexSource]
+	indexAnnexSource IndexAnnexSourceEnum (0..1) scheme <"A CDS index series annex source.">;
+		[synonym FpML value indexAnnexSource meta indexAnnexSourceScheme]
 	excludedReferenceEntity LegalEntity (0..*) <"Excluded reference entity.">;
 		[synonym FpML value excludedReferenceEntity]
 	tranche Tranche (0..1) <"This element contains CDS tranche terms.">;
@@ -292,8 +292,8 @@ class NotDomesticCurrency <"A class to specify the ISDA 2003 Term: Not Domestic 
 {
 	applicable boolean (1..1) <"Indicates whether the Not Domestic Currency provision is applicable.">;
 		[synonym FpML value applicable]
-	currency string (0..1) scheme "currencyScheme" <"An explicit specification of the domestic currency">;
-		[synonym FpML value currency]
+	currency string (0..1) scheme <"An explicit specification of the domestic currency">;
+		[synonym FpML value currency meta currencyScheme]
 }
 
 class Obligations <"A class to specify the underlying obligations of the reference entity on which protection is purchased or sold through the Credit Default Swap.">
@@ -327,8 +327,8 @@ class Obligations <"A class to specify the underlying obligations of the referen
 		[synonym FpML value excluded]
 	othReferenceEntityObligations string (0..1) <"This element is used to specify any other obligations of a reference entity in both obligations and deliverable obligations. The obligations can be specified free-form. ISDA 2003 Term: Other Obligations of a Reference Entity.">;
 		[synonym FpML value othReferenceEntityObligations]
-	designatedPriority string (0..1) scheme "lienScheme" <"Applies to Loan CDS, to indicate what lien level is appropriate for a deliverable obligation. Applies to European Loan CDS, to indicate the Ranking of the obligation. Example: a 2nd lien Loan CDS would imply that the deliverable obligations are 1st or 2nd lien loans.">;
-		[synonym FpML value designatedPriority]
+	designatedPriority string (0..1) scheme <"Applies to Loan CDS, to indicate what lien level is appropriate for a deliverable obligation. Applies to European Loan CDS, to indicate the Ranking of the obligation. Example: a 2nd lien Loan CDS would imply that the deliverable obligations are 1st or 2nd lien loans.">;
+		[synonym FpML value designatedPriority meta lienScheme]
 	cashSettlementOnly boolean (0..1) <"An obligation and deliverable obligation characteristic. Defined in the ISDA published Standard Terms Supplement for use with CDS Transactions on Leveraged Loans. ISDA 2003 Term: Cash Settlement Only.">;
 		[synonym FpML value cashSettlementOnly]
 	deliveryOfCommitments boolean (0..1) <"An obligation and deliverable obligation characteristic. Defined in the ISDA published Standard Terms Supplement for use with CDS Transactions on Leveraged Loans. ISDA 2003 Term: Delivery of Commitments.">;
@@ -348,8 +348,8 @@ class OptionStrike one of <"A class to specify the option strike.">
 		[synonym FpML value spread]
 	price number (0..1) <"The strike of a credit default swap option or credit swaption when expressed as in reference to the price of the underlying obligation(s) or index.">;
 		[synonym FpML value strikePrice pathExpression "price"]
-	currency string (0..1) scheme "currencyScheme" <"The currency in which an amount is denominated.">;
-		[synonym FpML value currency pathExpression "price"]
+	currency string (0..1) scheme <"The currency in which an amount is denominated.">;
+		[synonym FpML value currency pathExpression "price" meta currencyScheme]
 	percentage number (0..1) <"The price or level expressed as a percentage of the forward starting spot price.">;
 		[synonym FpML value strikePercentage pathExpression "price"]
 	strikeReference string (0..1) reference <"The strike of an option on a credit default swap when expressed in reference to the spread of the underlying swap (typical practice in the case of credit single name swaps).">;
@@ -395,8 +395,8 @@ class PhysicalSettlementTerms <"In FpML, PhysicalSettlementTerms and CashSettlem
 {
 	id string (0..1);
 		[synonym FpML value id]
-	settlementCurrency string (0..1) scheme "currencyScheme" <"ISDA 2003 Term: Settlement Currency.">;
-		[synonym FpML value settlementCurrency]
+	settlementCurrency string (0..1) scheme <"ISDA 2003 Term: Settlement Currency.">;
+		[synonym FpML value settlementCurrency meta currencyScheme]
 	physicalSettlementPeriod PhysicalSettlementPeriod (0..1) <"The number of business days used in the determination of the physical settlement date. The physical settlement date is this number of business days after all applicable conditions to settlement are satisfied. If a number of business days is not specified fallback provisions apply for determining the number of business days. If Section 8.5/8.6 of the 1999/2003 ISDA Definitions are to apply the businessDaysNotSpecified element should be included. If a specified number of business days are to apply these should be specified in the businessDays element. If Section 8.5/8.6 of the 1999/2003 ISDA Definitions are to apply but capped at a maximum number of business days then the maximum number should be specified in the maximumBusinessDays element. ISDA 2003 Term: Physical Settlement Period.">;
 		[synonym FpML value physicalSettlementPeriod]
 	deliverableObligations DeliverableObligations (0..1) <"This element contains all the ISDA terms relevant to defining the deliverable obligations.">;
@@ -487,8 +487,8 @@ class ReferencePair
 		[synonym FpML value referenceObligation]
 	noReferenceObligation boolean (0..1) <"Used to indicate that there is no Reference Obligation associated with this Credit Default Swap and that there will never be one.">;
 		[synonym FpML value noReferenceObligation]
-	entityType EntityTypeEnum (1..1) scheme "entityTypeScheme" <"Defines the reference entity types corresponding to a list of types in the ISDA First to Default documentation.">;
-		[synonym FpML value entityType]
+	entityType EntityTypeEnum (1..1) scheme <"Defines the reference entity types corresponding to a list of types in the ISDA First to Default documentation.">;
+		[synonym FpML value entityType meta entityTypeScheme]
 }
 
 choice rule ReferencePair_choice <"Choice rule to represent an FpML choice construct.">
@@ -518,8 +518,8 @@ class ReferencePoolItem <"This type contains all the constituent weight and refe
 class SettledEntityMatrix <"A class to specify the Relevant Settled Entity Matrix.">
 	[synonym FpML value SettledEntityMatrix]
 {
-	matrixSource SettledEntityMatrixSourceEnum (1..1) scheme "settledEntityMatrixSourceScheme" <"Relevant settled entity matrix source.">;
-		[synonym FpML value matrixSource]
+	matrixSource SettledEntityMatrixSourceEnum (1..1) scheme <"Relevant settled entity matrix source.">;
+		[synonym FpML value matrixSource meta settledEntityMatrixSourceScheme]
 	publicationDate date (0..1) <"Specifies the publication date of the applicable version of the matrix. When this element is omitted, the Standard Terms Supplement defines rules for which version of the matrix is applicable.">;
 		[synonym FpML value publicationDate]
 }
@@ -540,8 +540,8 @@ class SpecifiedCurrency
 {
 	applicable boolean (1..1) <"Indicates whether the specified currency provision is applicable.">;
 		[synonym FpML value applicable]
-	currency string (0..1) scheme "currencyScheme" <"The currency in which an amount is denominated.">;
-		[synonym FpML value currency]
+	currency string (0..1) scheme <"The currency in which an amount is denominated.">;
+		[synonym FpML value currency meta currencyScheme]
 }
 
 class Tranche <"The class to represent a CDS Tranche.">
