@@ -143,6 +143,7 @@ class ExercisePrimitive <"This primitive leverages the FpML OptionExercise const
 data rule ExercisePrimitive_fullExercise <"A full exercise should not result in ">
 	when ExercisePrimitive -> fullExercise = True
 	then ExercisePrimitive -> after -> contract -> state = StateEnum.Exercised
+
 /*
  * TODO - Having the tradeHeader attribute as part of the execution is a work-around the fact that 
  * the tradeDate and the identifier are mapped through the FpML synonym while the tradeHeader is part of the Wosetta_Workbench.
@@ -350,51 +351,100 @@ class TradeHeader
 
 class Transfer rosettaKey <"The primitive event for the transfer of cash, securities or physical asset between parties.">
 {
-	payerReceiver PayerReceiver (0..1) <"The payer and receiver party information, to be associated with the transfer of cash.">;
-	transferorTransferee TransferorTransferee (0..1) <"The transferor and transferee party information, to be associated with the transfer of securities or physical assets.">;
-	transferDate AdjustableOrAdjustedOrRelativeDate (0..1) <"The transfer date is optional as it might not be known at the point in time when the transfer is initially specified.">;
+	transferorTransferee TransferorTransferee (1..1);
+	asset Asset (1..1) <"The asset that is being transfered: cashflow, security, commodity, ...">;
+	settlementDate AdjustableOrAdjustedOrRelativeDate (0..1);
 		[synonym Rosetta_Workbench value transferDate]
-	amount Money (0..1) <"The currency amount, applicable to a cash transfer.">;
-		[synonym Rosetta_Workbench value amount]
-	quantity Quantity (0..1) <"The quantity amount, applicable to a transfer of securities or physical asset.">;
-		[synonym Rosetta_Workbench value quantity]
-	asset Asset (0..1) <"The asset that is being transfered, when applicable.">;
-		[synonym Rosetta_Workbench value asset]
-	grossCashflow GrossCashflow (0..*) <"The gross cashflow components from which the payment is derived when corresponding to a transfer originating from multiple cashflow components, such as the netting of multiple payout components when in the same currency and on the same date.">;
+	transferCalculation calculation (0..1) <"The calculation used to compute the transfer, when applicable. An example of such is the FixedAmount or FloatingAmount calculation.">;	
+		[synonym Rosetta_Workbench value transferCalculation]
+	type TransferTypeEnum (0..1) <"The qualification of the type of transfer, e.g. fee, interest, security settlement.">;
+		[synonym Rosetta_Workbench value transferType]
+	status TransferStatusEnum (0..1) <"The transfer status, e.g. Instructed, Settled.">;
+		[synonym Rosetta_Workbench value transferStatus]
+	settlementReference string (0..1) <"The settlement reference, when applicable.">;
+		[synonym Rosetta_Workbench value settlementReference]
+	component TransferComponent (0..*) <"Breakdown information about a transfer, when made of distinct components. An example of such is the net IRS interest accrual, with then two instances of the component attribute to provide information about the accrual of the respective legs.">;
 		[synonym Rosetta_Workbench value grossCashflow]
+}
+
+class TransferComponent <"A class to specify the breakdown information about a transfer, when made of several components.">
+{
+	transferorTransferee TransferorTransferee (1..1);
+	payoutLineage PayoutLineage (0..1) <"The lineage into the Payout components that might be associated with each of the gross cashflow elements.">;
+	asset Asset (1..1) <"The asset is the same as the Transfer component, while the associated quantity/amount is expected to differ.">;
+	type TransferTypeEnum (0..1);
+		[synonym Rosetta_Workbench value transferType]
+	transferCalculation calculation (0..1) <"The calculation used to compute the transfer component, when applicable.">;	
+		[synonym Rosetta_Workbench value cashflowCalculation]
+}
+
+class TransferorTransferee <"A class mimicking the PayerReceiver, which is itself derived from the FpML PayerReceiver.model, to represent the transferee and transferor party information in relation to the transfer of assets.">
+{
+	transferorPartyReference string (1..1) reference <"A reference to the party responsible for making the payments defined by this structure.">;
+		[synonym FpML value payerPartyReference]
+	transferorAccountReference string (0..1) reference <"A reference to the account responsible for making the payments defined by this structure.">;
+		[synonym FpML value payerAccountReference]
+	transfereePartyReference string (1..1) reference <"A reference to the party that receives the payments corresponding to this structure.">;
+		[synonym FpML value receiverPartyReference]
+	transfereeAccountReference string (0..1) reference <"A reference to the account that receives the payments corresponding to this structure.">;
+		[synonym FpML value receiverAccountReference]
+}
+
+/**********************************************************************
+ * Inheritance model alternative for asset-specific transfer primitives
+ */
+ 
+class TransferBase
+{
+	settlementDate AdjustableOrAdjustedOrRelativeDate (0..1); // Do we also need the ability to specify the date on which the transfer is instructed?
 	transferCalculation calculation (0..1) <"The calculation used to compute the transfer, when applicable.">;	
 		[synonym Rosetta_Workbench value transferCalculation]
-	transferType TransferTypeEnum (0..1) <"The qualification of the type of transfer. It extends the CashflowTypeEnum because a transfer can involve cashflows.">;
+	type TransferTypeEnum (0..1) <"The qualification of the type of transfer. It extends the CashflowTypeEnum because a transfer can involve cashflows.">;
 		[synonym Rosetta_Workbench value transferType]
-	transferStatus TransferStatusEnum (0..1) <"The transfer status, e.g. Instructed, Settled.">;
+	status TransferStatusEnum (0..1) <"The transfer status, e.g. Instructed, Settled.">;
 		[synonym Rosetta_Workbench value transferStatus]
 	settlementReference string (0..1) <"The settlement reference, when applicable.">;
 		[synonym Rosetta_Workbench value settlementReference]
 }
 
-choice rule Transfer_choice1 <"The transfer party information is represented by either the payer/receiver or the transferor/transferee CDM representation.">
-	for Transfer required choice between
-	payerReceiver and transferorTransferee
-
-choice rule Transfer_choice2 <"The transfer applies to either a cash amount or a quantity of securities or physical asset.">
-	for Transfer required choice between
-	amount and quantity
-
-data rule Transfer_transferorTransferee <"The transfered quantity must be associated with an asset qualification.">
-	when Transfer -> transferorTransferee exists
-	then Transfer -> quantity exists
-	and Transfer -> asset exists
-
-class TransferorTransferee <"A class mimicking the PayerReceiver, which is itself derived from the FpML PayerReceiver.model, to represent the transferee and transferor party information in relation to the transfer of securities or other non-cash assets.">
+class CashTransfer extends TransferBase
 {
-	transferorPartyReference string (1..1) reference <"A reference to the party responsible for making the payments defined by this structure.">;
-		[synonym Rosetta_Workbench value transferorPartyReference]
-	transferorAccountReference string (0..1) reference <"A reference to the account responsible for making the payments defined by this structure.">;
-		[synonym Rosetta_Workbench value transferorAccountReference]
-	transfereePartyReference string (1..1) reference <"A reference to the party that receives the payments corresponding to this structure.">;
-		[synonym Rosetta_Workbench value transfereePartyReference]
-	transfereeAccountReference string (0..1) reference <"A reference to the account that receives the payments corresponding to this structure.">;
-		[synonym Rosetta_Workbench value transfereeAccountReference]
+	payerReceiver PayerReceiver (1..1) <"The payer and receiver party information, to be associated with the transfer of cash.">;
+	amount Money (1..1) <"The currency amount, applicable to a cash transfer.">;
+		[synonym Rosetta_Workbench value amount]
+	component CashTransferComponent (0..*);
+}
+
+class SecurityTransfer extends TransferBase
+{
+	transferorTransferee TransferorTransferee (1..1);
+	security ProductIdentifier (1..*);
+	quantity number (1..1);
+}
+
+class CommodityTransfer extends TransferBase
+{
+	transferorTransferee TransferorTransferee (1..1);
+	commodity Commodity (1..1);
+	quantity number (1..1);
+	unit UnitEnum (1..1) <"The unit of measure, applicable to physical assets.">;
+		[synonym Rosetta_Workbench value unit]
+	timeUnit TimeUnitEnum (0..1);
+}
+
+class CashTransferComponent extends TransferComponentBase
+{
+	amount Money (1..1) <"The currency amount of the payment.">;
+		[synonym Rosetta_Workbench value cashflowAmount]
+	type CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">;
+		[synonym Rosetta_Workbench value cashflowType] // set cashflowType.premium when synonym premium exists]
+	cashflowCalculation calculation (0..1) <"The calculation used to compute the gross cashflow, when applicable.">;
+		[synonym Rosetta_Workbench value cashflowCalculation] 
+}
+
+class TransferComponentBase
+{
+	payoutLineage PayoutLineage (0..1) <"The lineage into the Payout components that might be associated with each of the gross cashflow elements.">;
 }
 
 isEvent Allocation <"The qualification of allocation event from the fact that (i) the intent is Allocation when specified, (ii) the only primitive is the allocation, (iii) the sum of quantities/notional before = after, and (iv) there is a single contractualProduct before (ensured through cardinality). Note: it is accepted that an allocation can result in a single contract.">
@@ -548,21 +598,19 @@ alias quantityAfterQuantityChange <"The alias to represent the quantity or notio
  
 isEvent PaymentBusinessEvent // Or do we call this business event cash transfer, for consistency with security transfer?
 	Event -> primitive -> transfer only exists
-	and Event -> primitive -> transfer -> amount exists
-	and Event -> primitive -> transfer -> quantity is absent
+	and Event -> primitive -> transfer -> asset -> cashflow exists
+	and Event -> primitive -> transfer -> asset -> security is absent
 
-isEvent SecurityTransfer
+isEvent SecurityTransferEvent // The event suffix is transitional
 	Event -> primitive -> transfer only exists
-	and Event -> primitive -> transfer -> asset -> listedProduct exists
-	and Event -> primitive -> transfer -> amount is absent
+	and Event -> primitive -> transfer -> asset -> security exists
+	and Event -> primitive -> transfer -> asset -> cashflow is absent
 
 isEvent SecuritySettlement
-	Event -> primitive -> transfer only exists
-	and Event -> primitive -> transfer -> asset -> listedProduct exists
-	and Event -> primitive -> transfer -> amount exists
-	and  Event -> primitive -> transfer -> quantity exists
-
-isEvent CommodityTransfer
+	Event -> primitive -> transfer -> asset -> cashflow exists
+	and Event -> primitive -> transfer -> asset -> security exists
+	
+isEvent CommodityTransferEvent
 	Event -> primitive -> transfer only exists
 	and Event -> primitive -> transfer -> asset -> commodity exists
 
