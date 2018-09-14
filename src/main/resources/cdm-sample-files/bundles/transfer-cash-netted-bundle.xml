@@ -26,7 +26,7 @@
         <co:primitive>
             <co:inception>
                 <co:after>
-                    <co:contract>
+                    <co:contract id="c-56789">
                         <tradeHeader>
                             <partyTradeIdentifier>
                                 <partyReference href="party1"/>
@@ -212,7 +212,7 @@
             </co:inception>
         </co:primitive>
     </co:event>
-    <co:event>
+    <co:event id="o-1234">
         <!-- As this is a zero coupon swap, the payment will reference all the observation events
             that will have taken place throughout the life of the swap. 
             For the sake of simplicity, only the first two observation and reset events are represented here -->
@@ -252,7 +252,7 @@
             </co:observation>
         </co:primitive>
     </co:event>
-    <co:event>
+    <co:event id="r-1234">
         <!-- Reset event #1 -->
         <co:timestamp>
             <co:creationTimestamp>2018-05-22T10:30:15.0</co:creationTimestamp>
@@ -271,14 +271,8 @@
         </party>
         <!-- Lineage into the contract inception and the 1st observation event -->
         <co:lineage>
-            <co:contractReference>
-                <co:issuer href="party3"/>
-                <co:identifier>IRS858TH30</co:identifier>
-            </co:contractReference>
-            <co:eventReference>
-                <co:identifier>obs-1</co:identifier>
-                <co:version>1</co:version>
-            </co:eventReference>
+            <co:contractReference href="c-56789"/> 
+            <co:eventReference href="o-1234"/>
         </co:lineage>
         <co:primitive>
             <co:reset>
@@ -287,7 +281,7 @@
             </co:reset>
         </co:primitive>
     </co:event>
-    <co:event>
+    <co:event id="o-5678">
         <!-- Observation event #2 -->
         <co:timestamp>
             <co:creationTimestamp>2018-08-22T08:08:48.0</co:creationTimestamp>
@@ -324,7 +318,7 @@
             </co:observation>
         </co:primitive>
     </co:event>
-    <co:event>
+    <co:event id="r-5678">
         <!-- Reset event #2 -->
         <co:timestamp>
             <co:creationTimestamp>2018-08-22T10:30:15.0</co:creationTimestamp>
@@ -343,14 +337,8 @@
         </party>
         <!-- Lineage into the contract inception and the 2nd observation event -->
         <co:lineage>
-            <co:contractReference>
-                <co:issuer href="party5"/>
-                <co:identifier>IRS858TH30</co:identifier>
-            </co:contractReference>
-            <co:eventReference>
-                <co:identifier>obs-2</co:identifier>
-                <co:version>1</co:version>
-            </co:eventReference>
+            <co:contractReference href="c-56789"/>
+            <co:eventReference href="o-5678"/>
         </co:lineage>
         <co:primitive>
             <co:reset>
@@ -379,18 +367,9 @@
         </party>
         <!-- Lineage into the contract inception & the 2 reset events -->
         <co:lineage>
-            <co:contractReference>
-                <co:issuer href="party7"/>
-                <co:identifier>IRS858TH30</co:identifier>
-            </co:contractReference>
-            <co:eventReference>
-                <co:identifier>res-1</co:identifier>
-                <co:version>1</co:version>
-            </co:eventReference>
-            <co:eventReference>
-                <co:identifier>res-2</co:identifier>
-                <co:version>1</co:version>
-            </co:eventReference>
+            <co:contractReference href="c-56789"/>
+            <co:eventReference href="r-1234"/>
+            <co:eventReference href="r-5678"/>
         </co:lineage>
         <co:primitive>
             <!-- The transfer of the net cashflows on contract termination date -->
@@ -398,23 +377,18 @@
                 <payerPartyReference href="party7"/>
                 <receiverPartyReference href="party8"/>
                 <co:transferDate>
-                    <adjustableDate>
-                        <unadjustedDate>2020-02-24</unadjustedDate>
-                        <dateAdjustments>
-                            <businessDayConvention>MODFOLLOWING</businessDayConvention>
-                            <businessCenters>
-                                <businessCenter>GBLO</businessCenter>
-                            </businessCenters>
-                        </dateAdjustments>
-                    </adjustableDate>
+                    <adjustedDate>2020-02-24</adjustedDate>
                 </co:transferDate>
                 <co:amount>
                     <currency>GBP</currency>
                     <amount>568.75</amount>
                 </co:amount>
                 <co:grossCashflow>
-                    <!-- Payout lineage into the swap's fixed rate. -->
-                    <co:payoutReference href="sw1234"/>
+                    <!-- Payout lineage into the swap contract and its fixed leg. -->
+                    <co:lineage>
+                        <co:contractReference href="c-56789"/>
+                        <co:interestRatePayoutReference href="sw1234"/>
+                    </co:lineage>
                     <co:cashflowAmount>
                         <currency>GBP</currency>
                         <amount>6000.00</amount>
@@ -426,8 +400,13 @@
                     <co:cashflowCalculation>FixedAmount</co:cashflowCalculation>
                 </co:grossCashflow>
                 <co:grossCashflow>
-                    <!-- Payout lineage into the swap's floating rate. -->
-                    <co:payoutReference href="sw2345"/>
+                    <!-- Payout lineage into the swap contract, its floating leg and the 2 reset events. -->
+                    <co:lineage>
+                        <co:contractReference href="c-56789"/>
+                        <co:eventReference href="r-1234"/>
+                        <co:eventReference href="r-5678"/>
+                        <co:interestRatePayoutReference href="sw2345"/>
+                    </co:lineage>
                     <co:cashflowAmount>
                         <currency>GBP</currency>
                         <amount>5431.25</amount>
