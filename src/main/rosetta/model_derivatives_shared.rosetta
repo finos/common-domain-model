@@ -21,7 +21,7 @@ class AdjustableDate <"A class for defining a date that shall be subject to adju
 		[synonym FpML value dateAdjustments pathExpression "adjustableDate"]
 		[synonym FpML value dateAdjustments pathExpression "paymentDate"]
 	dateAdjustmentsReference string (0..1) reference <"A pointer style reference to date adjustments defined elsewhere in the document.">;
-		[synonym FpML value dateAdjustmentsReference]
+		[synonym FpML value dateAdjustmentsReference meta href]
 	adjustedDate date (0..1) id <"The date once the adjustment has been performed. (Note that this date may change if the business center holidays change).">;
 		[synonym FpML value adjustedDate meta id]
 		[synonym FpML value adjustedDate pathExpression "paymentDate" meta id]
@@ -209,7 +209,7 @@ class BusinessCenters <"A class for defining business day calendar used in deter
 		[synonym FpML value businessCenter meta businessCenterScheme]
 		[synonym FpML value businessCenter pathExpression "businessCenters" meta businessCenterScheme]
 	businessCentersReference string (0..1) reference <"A pointer style reference to a set of financial business centers defined elsewhere in the document. This set of business centers is used to determine whether a particular day is a business day or not.">;
-		[synonym FpML value businessCentersReference]
+		[synonym FpML value businessCentersReference meta href]
 }
 
 choice rule BusinessCenters_choice <"The CDM embeds as part of the BusinessCenters class the ability to reference business center(s).">
@@ -247,7 +247,7 @@ class BusinessDayAdjustments <"A class defining the business day convention and 
 class BuyerSeller <"This class corresponds to the FpML BuyerSeller.model construct.">
 {
 	buyerPartyReference string (1..1) reference <"A reference to the party that buys this instrument, i.e. pays for this instrument and receives the rights defined by it. See 2000 ISDA definitions Article 11.1 (b). In the case of FRAs this the fixed rate payer.">;
-		[synonym FpML value buyerPartyReference]
+		[synonym FpML value buyerPartyReference meta href]
 	buyerAccountReference string (0..1) reference <"A reference to the account that buys this instrument.">;
 	sellerPartyReference string (1..1) reference <"A reference to the party that sells ('writes') this instrument, i.e. that grants the rights defined by this instrument and in return receives a payment for it. See 2000 ISDA definitions Article 11.1 (a). In the case of FRAs this is the floating rate payer.">;
 		[synonym FpML value sellerPartyReference]
@@ -258,10 +258,10 @@ class CalculationAgent <"A class defining the ISDA calculation agent responsible
 	[synonym FpML value CalculationAgent]
 {
 	calculationAgentPartyReference string (0..*) reference <"In FpML, a pointer style reference to a party identifier defined elsewhere in the document. The party referenced is the ISDA Calculation Agent for the trade. If more than one party is referenced then the parties are assumed to be co-calculation agents, i.e. they have joint responsibility.">;
-		[synonym FpML value calculationAgentPartyReference pathExpression "trade.calculationAgent"]
-		[synonym FpML value calculationAgentPartyReference pathExpression "calculationAgent"]
-		[synonym FpML value calculationAgentPartyReference pathExpression "trade.swaption.calculationAgent"]
-		[synonym FpML value calculationAgentPartyReference pathExpression "swaption.calculationAgent"]
+		[synonym FpML value calculationAgentPartyReference pathExpression "trade.calculationAgent" meta href]
+		[synonym FpML value calculationAgentPartyReference pathExpression "calculationAgent" meta href]
+		[synonym FpML value calculationAgentPartyReference pathExpression "trade.swaption.calculationAgent" meta href]
+		[synonym FpML value calculationAgentPartyReference pathExpression "swaption.calculationAgent" meta href]
 	calculationAgentParty CalculationAgentPartyEnum (0..1) <"The ISDA calculation agent responsible for performing duties as defined in the applicable product definitions. For example, the Calculation Agent may be defined as being the Non-exercising Party.">;
 		[synonym FpML value calculationAgentParty pathExpression "trade.calculationAgent"]
 		[synonym FpML value calculationAgentParty pathExpression "calculationAgent"]
@@ -453,7 +453,7 @@ class ExerciseFee extends BuyerSeller <"A class defining the fee payable on exer
 	[synonym FpML value ExerciseFee]
 {
 	notionalReference string (1..1) reference <"A pointer style reference to the associated notional schedule defined elsewhere in the document.">;
-		[synonym FpML value notionalReference]
+		[synonym FpML value notionalReference meta href]
 	feeAmount number (0..1) <"The amount of fee to be paid on exercise. The fee currency is that of the referenced notional.">;
 		[synonym FpML value feeAmount]
 	feeRate number (0..1) <"A fee represented as a percentage of some referenced notional. A percentage of 5% would be represented as 0.05.">;
@@ -472,7 +472,7 @@ class ExerciseFeeSchedule extends PayerReceiver <"A class to define a fee or sch
 	[synonym FpML value ExerciseFeeSchedule]
 {
 	notionalReference string (1..1) reference <"A pointer style reference to the associated notional schedule defined elsewhere in the document.">;
-		[synonym FpML value notionalReference]
+		[synonym FpML value notionalReference meta href]
 	feeAmountSchedule AmountSchedule (0..1) <"The exercise fee amount schedule. The fees are expressed as currency amounts. The currency of the fee is assumed to be that of the notional schedule referenced.">;
 		[synonym FpML value feeAmountSchedule]
 	feeRateSchedule Schedule (0..1) <"The exercise free rate schedule. The fees are expressed as percentage rates of the notional being exercised. The currency of the fee is assumed to be that of the notional schedule referenced.">;
@@ -489,9 +489,9 @@ class ExerciseNotice <"A class defining to whom and where notice of execution sh
 	[synonym FpML value ExerciseNotice]
 {
 	partyReference string (1..1) reference <"The party referenced has allocated the trade identifier.">;
-		[synonym FpML value partyReference]
+		[synonym FpML value partyReference meta href]
 	exerciseNoticePartyReference string (0..1) reference <"The party referenced is the party to which notice of exercise should be given by the buyer.">;
-		[synonym FpML value exerciseNoticePartyReference]
+		[synonym FpML value exerciseNoticePartyReference meta href]
 	businessCenter BusinessCenterEnum (1..1) scheme <"The business center.">;
 		[synonym FpML value businessCenter meta businessCenterScheme]
 }
@@ -767,7 +767,7 @@ class OptionPhysicalSettlement
 	clearedPhysicalSettlement boolean (1..1) <"Specifies whether the swap resulting from physical settlement of the swaption transaction will clear through a clearing house. The meaning of Cleared Physical Settlement is defined in the 2006 ISDA Definitions, Section 15.2 (published in Supplement number 28).">;
 		[synonym FpML value clearedPhysicalSettlement]
 	predeterminedClearingOrganizationPartyReference string (0..1) reference <"A reference to the clearing organisation (CCP, DCO) to which the trade should be cleared.">;
-		[synonym FpML value predeterminedClearingOrganizationPartyReference]
+		[synonym FpML value predeterminedClearingOrganizationPartyReference meta href]
 }
 
 class OtherAgreement <"A class for defining the an agreement executed between parties.">
@@ -787,7 +787,7 @@ class PartialExercise <"A class defining partial exercise. As defined in the 200
 	[synonym FpML value PartialExercise]
 {
 	notionaReference string (1..1) reference <"A pointer style reference to the associated notional schedule defined elsewhere in the document. This element has been made optional as part of its integration in the OptionBaseExtended, because not required for the options on securities.">;
-		[synonym FpML value notionalReference]
+		[synonym FpML value notionalReference meta href]
 	integralMultipleAmount number (0..1) <"A notional amount which restricts the amount of notional that can be exercised when partial exercise or multiple exercise is applicable. The integral multiple amount defines a lower limit of notional that can be exercised and also defines a unit multiple of notional that can be exercised, i.e. only integer multiples of this amount can be exercised.">;
 		[synonym FpML value integralMultipleAmount]
 	minimumNotionalAmount number (0..1) <"The minimum notional amount that can be exercised on a given exercise date. See multipleExercise.">;
@@ -807,15 +807,15 @@ data rule MinimumNumberOfOptions_minimumNumberOfOptions <"FpML MultipleExercise 
 class PayerReceiver <"A class to represent the FpML PayerReceiver.model.">
 {
 	payerPartyReference string (1..1) reference <"A reference to the party responsible for making the payments defined by this structure.">;
-		[synonym FpML value payerPartyReference]
+		[synonym FpML value payerPartyReference meta href]
 		[synonym FpML value buyerPartyReference maps 2]
 	payerAccountReference string (0..1) reference <"A reference to the account responsible for making the payments defined by this structure.">;
-		[synonym FpML value payerAccountReference]
+		[synonym FpML value payerAccountReference meta href]
 	receiverPartyReference string (1..1) reference <"A reference to the party that receives the payments corresponding to this structure.">;
-		[synonym FpML value receiverPartyReference]
+		[synonym FpML value receiverPartyReference meta href]
 		[synonym FpML value sellerPartyReference maps 2]
 	receiverAccountReference string (0..1) reference <"A reference to the account that receives the payments corresponding to this structure.">;
-		[synonym FpML value receiverAccountReference]
+		[synonym FpML value receiverAccountReference meta href]
 }
 
 class Payment extends CashflowBase rosettaKey <"A class for defining payments, an artefact to be used as the input to a payment system or the outcome of it, and is to be distinguished from a cashflow, which is the raw outcome of a calculation or some other assessment. Rosetta extends the FpML Payment type for the purpose of supporting premium payment, by adding the premiumExpression and the paymentDiscounting attributes.">
@@ -946,7 +946,7 @@ class RateObservation <"A class defining parameters associated with an individua
 	observationWeight int (1..1) <"The number of days weighting to be associated with the rate observation, i.e. the number of days such rate is in effect. This is applicable in the case of a weighted average method of calculation where more than one reset date is established for a single calculation period.">;
 		[synonym FpML value observationWeight]
 	rateReference string (0..1) reference <"A pointer style reference to a floating rate component defined as part of a stub calculation period amount component. It is only required when it is necessary to distinguish two rate observations for the same fixing date which could occur when linear interpolation of two different rates occurs for a stub calculation period.">;
-		[synonym FpML value rateReference]
+		[synonym FpML value rateReference meta href]
 	forecastRate number (0..1) <"The value representing the forecast rate used to calculate the forecast future value of the accrual period.A value of 1% should be represented as 0.01.">;
 		[synonym FpML value forecastRate]
 	treatedForecastRate number (0..1) <"The value representing the forecast rate after applying rate treatment rules. A value of 1% should be represented as 0.01.">;
@@ -970,13 +970,13 @@ class RelatedParty
 	[synonym FpML value RelatedParty]
 {
 	partyReference string (1..1) reference <"Reference to a party.">;
-		[synonym FpML value partyReference]
+		[synonym FpML value partyReference meta href]
 	accountReference string (0..1) reference <"Reference to an account.">;
-		[synonym FpML value accountReference]
+		[synonym FpML value accountReference meta href]
 	role PartyRoleEnum (1..1) <"The category of the relationship. The related party performs the role specified in this field for the base party. For example, if the role is ,Guarantor,, the related party acts as a guarantor for the base party.">;
 		[synonym FpML value role]
 	/*
-	 * The type element has not been specified at this point, because the associated values of 'all positions' vs. 'some positions' seem to be of limited usefulness
+	 * The type element has not been specified at this poihrefnt, because the associated values of 'all positions' vs. 'some positions' seem to be of limited usefulness
 	 * We should look to confirm the applicability with FpML experts
 	 */
 }
@@ -1002,9 +1002,9 @@ class RelativeDateOffset extends Offset <"A class defining a date (referred to a
 	businessCenters BusinessCenters (0..1);
 		[synonym FpML value businessCenters]
 	businessCentersReference string (0..1) reference <"A pointer style reference to a set of financial business centers defined elsewhere in the document. This set of business centers is used to determine whether a particular day is a business day or not.">;
-		[synonym FpML value businessCentersReference]
+		[synonym FpML value businessCentersReference meta href]
 	dateRelativeTo string (0..1) reference <"Specifies the anchor as an href attribute. The href attribute value is a pointer style reference to the element or component elsewhere in the document where the anchor date is defined.">;
-		[synonym FpML value dateRelativeTo]
+		[synonym FpML value dateRelativeTo meta href]
 	adjustedDate date (0..1) <"The date once the adjustment has been performed. (Note that this date may change if the business center holidays change).">;
 		[synonym FpML value adjustedDate]
 }

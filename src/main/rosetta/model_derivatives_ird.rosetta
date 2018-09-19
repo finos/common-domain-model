@@ -244,14 +244,14 @@ class DateRelativeToCalculationPeriodDates <"A class to provide the ability to p
 	[synonym FpML value DateRelativeToCalculationPeriodDates]
 {
 	calculationPeriodDatesReference string (1..*) reference <"A set of href pointers to calculation period dates defined somewhere else in the document.">;
-		[synonym FpML value calculationPeriodDatesReference]
+		[synonym FpML value calculationPeriodDatesReference meta href]
 }
 
 class DateRelativeToPaymentDates <"A class to provide the ability to point to multiple payment nodes in the document through the unbounded paymentDatesReference.">
 	[synonym FpML value DateRelativeToPaymentDates]
 {
 	paymentDatesReference string (1..*) reference <"A set of href pointers to payment dates defined somewhere else in the document.">;
-		[synonym FpML value paymentDatesReference]
+		[synonym FpML value paymentDatesReference meta href]
 }
 
 class Discounting <"A class defining discounting information. The 2000 ISDA definitions, section 8.4. discounting (related to the calculation of a discounted fixed amount or floating amount) apply. This type must only be included if discounting applies.">
@@ -406,9 +406,9 @@ class FinalCalculationPeriodDateAdjustment <"A class to define business date con
 	[synonym FpML value FinalCalculationPeriodDateAdjustment]
 {
 	relevantUnderlyingDateReference string (1..1) reference <"Reference to the unadjusted cancellation effective dates.">;
-		[synonym FpML value relevantUnderlyingDateReference]
+		[synonym FpML value relevantUnderlyingDateReference meta href]
 	swapStreamReference string (1..1) reference <"Reference to the leg, where date adjustments may apply.">;
-		[synonym FpML value swapStreamReference]
+		[synonym FpML value swapStreamReference meta href]
 	businessDayConvention BusinessDayConventionEnum (1..1) <"Override business date convention. This takes precedence over leg level information.">;
 		[synonym FpML value businessDayConvention]
 }
@@ -442,7 +442,7 @@ class FxFixingDate extends Offset <"A class that is extending the Offset structu
 	businessCenters BusinessCenters (0..1);
 		[synonym FpML value businessCenters]
 	businessCentersReference string (0..1) reference <"A pointer style reference to a set of financial business centers defined elsewhere in the document. This set of business centers is used to determine whether a particular day is a business day or not.">;
-		[synonym FpML value businessCentersReference]
+		[synonym FpML value businessCentersReference meta href]
 	dateRelativeToPaymentDates DateRelativeToPaymentDates (0..1) <"The payment date references on which settlements in non-deliverable currency are due and will then have to be converted according to the terms specified through the other parts of the nonDeliverableSettlement structure.">;
 		[synonym FpML value dateRelativeToPaymentDates]
 	dateRelativeToCalculationPeriodDates DateRelativeToCalculationPeriodDates (0..1) <"The calculation period references on which settlements in non-deliverable currency are due and will then have to be converted according to the terms specified through the other parts of the nonDeliverableSettlement structure. Implemented for Brazilian-CDI swaps where it will refer to the termination date of the appropriate leg.">;
@@ -474,7 +474,7 @@ class FxLinkedNotionalSchedule <"A class to describe a notional schedule where e
 	[synonym FpML value FxLinkedNotionalSchedule pathExpression "fxLinkedNotionalSchedule"]
 {
 	constantNotionalScheduleReference string (1..1) reference <"A pointer style reference to the associated constant notional schedule defined elsewhere in the document which contains the currency amounts which will be converted into the varying notional currency amounts using the spot currency exchange rate.">;
-		[synonym FpML value constantNotionalScheduleReference]
+		[synonym FpML value constantNotionalScheduleReference meta href]
 	initialValue number (0..1) <"The initial currency amount for the varying notional. This may be omitted for a forward starting swap if the FX-linked notional value is not known at deal inception.">;
 		[synonym FpML value initialValue]
 	varyingNotionalCurrency string (1..1) scheme <"The currency of the varying notional amount, i.e. the notional amount being determined periodically based on observation of a spot currency exchange rate.">;
@@ -563,7 +563,7 @@ class NotionalStepRule <"A class defining a parametric representation for the no
 	[synonym FpML value NotionalStepRule]
 {
 	calculationPeriodDatesReference string (1..1) reference <"A pointer style reference to the associated calculation period dates component defined elsewhere in the document.">;
-		[synonym FpML value calculationPeriodDatesReference]
+		[synonym FpML value calculationPeriodDatesReference meta href]
 	stepFrequency Frequency (1..1) <"The frequency at which the notional step changes occur. This frequency must be an integer multiple of the stream calculation period frequency.">;
 		[synonym FpML value stepFrequency]
 	firstNotionalStepDate date (1..1) <"Effective date of the first change in notional (i.e. a calculation period start date).">;
@@ -709,7 +709,7 @@ class ResetDates <"A class defining the parameters used to generate the reset da
 	id;
 		[synonym FpML meta id pathExpression "resetDates"]
 	calculationPeriodDatesReference string (0..1) reference <"A pointer style reference to the associated calculation period dates component defined elsewhere in the document.">;
-		[synonym FpML value calculationPeriodDatesReference pathExpression "resetDates"]
+		[synonym FpML value calculationPeriodDatesReference pathExpression "resetDates" meta href]
 	resetRelativeTo ResetRelativeToEnum (0..1) <"Specifies whether the reset dates are determined with respect to each adjusted calculation period start date or adjusted calculation period end date.  If the reset frequency is specified as daily this element must not be included.">;
 		[synonym FpML value resetRelativeTo pathExpression "resetDates"]
 	initialFixingDate InitialFixingDate (0..1) <"The initial fixing date.">;
@@ -750,7 +750,7 @@ class StubCalculationPeriodAmount <"A class defining how the initial or final st
 	[synonym FpML value StubCalculationPeriodAmount]
 {
 	calculationPeriodDatesReference string (1..1) reference <"A pointer style reference to the associated calculation period dates component defined elsewhere in the document.">;
-		[synonym FpML value calculationPeriodDatesReference]
+		[synonym FpML value calculationPeriodDatesReference meta href]
 	initialStub StubValue (0..1) <"Specifies how the initial stub amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating tenors may be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3. Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.">;
 		[synonym FpML value initialStub]
 	finalStub StubValue (0..1) <"Specifies how the final stub amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating tenors may be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3. Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.">;
