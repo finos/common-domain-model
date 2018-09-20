@@ -43,6 +43,8 @@ class Curve one of
 
 class Event rosettaKey
 {
+	id string (0..1) anchor;
+		[synonym Rosetta_Workbench value id]
 	messageInformation MessageInformation (0..1);
 	timestamp EventTimestamp (1..1);
 		[synonym Rosetta_Workbench value timestamp]
@@ -125,9 +127,9 @@ choice rule ExerciseOutcome_choice <"A option exercise results in either a physi
 
 class ExercisePrimitive <"This primitive leverages the FpML OptionExercise construct, except for the exerciseTiming which is deemed as associated to a request for exercise that is meant to take place, as opposed to the actual exercise event.">
 {
-	exerciseDate date (0..1);
+	exerciseDate AdjustableOrAdjustedDate (0..1);
 		[synonym Rosetta_Workbench value exerciseDate]
-	exerciseTime time (0..1);
+	exerciseTime BusinessCenterTime (0..1);
 		[synonym Rosetta_Workbench value exerciseTime]
 	fullExercise boolean (1..1);
 		[synonym Rosetta_Workbench value fullExercise]
@@ -160,7 +162,7 @@ class Execution
 
 class GrossCashflow extends CashflowBase
 {
-	payoutLineage PayoutLineage (0..1) <"The lineage into the Payout components that might be associated with each of the gross cashflow elements.">;
+	lineage Lineage (0..1) <"The lineage into the Payout components that might be associated with each of the gross cashflow elements.">;
 	cashflowAmount Money (1..1) <"The currency amount of the payment.">;
 		[synonym Rosetta_Workbench value cashflowAmount]
 	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">;
@@ -191,10 +193,18 @@ class InterestRateCurve
 
 class Lineage <"The class to provide lineage information across transactions.">
 {
-	contractReference Identifier (0..*) scheme "correlationIdScheme";
+	contractReference string (0..*) reference; // Implementation to be adjusted to be of type Contract in order to accommodate a rosettaKey
 		[synonym Rosetta_Workbench value contractReference]
-	eventReference Identifier (0..*);
+	eventReference string (0..*) reference; // Implementation to be adjusted to be of type Event in order to accommodate a rosettaKey
 		[synonym Rosetta_Workbench value eventReference]
+	cashflowReference string (0..*) reference; // Implementation to be adjusted to be of type Cashflow in order to accommodate a rosettaKey
+		[synonym Rosetta_Workbench value cashflowReference]
+	creditDefaultReference string (0..*) reference; // Implementation to be adjusted to be of type creditDefaultPayout in order to accommodate a rosettaKey
+		[synonym Rosetta_Workbench value creditDefaultReference]
+	interestRatePayoutReference string (0..*) reference; // Implementation to be adjusted to be of type InterestRatePayout in order to accommodate a rosettaKey
+		[synonym Rosetta_Workbench value interestRatePayoutReference]
+	optionPayoutReference string (0..*) reference; // Implementation to be adjusted to be of type optionPayout in order to accommodate a rosettaKey
+		[synonym Rosetta_Workbench value optionPayoutReference]	
 }
 
 class MessageInformation <"This class corresponds to the messaging components of the FpML MessageHeader.model.">
@@ -243,16 +253,6 @@ data rule ObservationSource_content <"ObservationSource should not be empty, alt
 	then ( ObservationSource -> curve and ObservationSource -> informationSource ) exists
 		or ObservationSource -> curve exists
 		or ObservationSource -> informationSource exists
-
-class PayoutLineage one of <"A class to provide lineage into the Payout components through one of two ways: either by making use of references existing in the originating document, or by making use of the rosettaKeyValue associated with the relevant CDM payout class. The former has the benefit of not necessitating an associated implementation, but implies that the identifying value associated with the payout components are either generated in a repeatable manner across instance documents (when the payment and trade reference information exist across distinct documents) or that all information exists within one single instance document. The latter approach has the benefit of being agnostic to how the originating document(s) is constructed, but requires an associated implementation to assign the rosettaKey values to the relevant attributes.">
-{
-	payoutReference string (0..1) reference <"The reference to the payout component from which the gross cashflow is derived, to be used in the case where this reference information is contained in the same instance document or is generated in a repeatable manner (e.g. hash function that doesn't make use of transient data points) when associated with a distinct instance document.">;
-		[synonym Rosetta_Workbench value payoutReference]
-	interestRatePayout InterestRatePayout (0..1) rosettaKey;
-	creditDefaultPayout CreditDefaultPayout (0..1) rosettaKey;
-	cashflow Cashflow (0..1) rosettaKey;
-	optionPayout OptionPayout (0..1) rosettaKey;
-}
 
 class PhysicalExercise extends ContractOrContractReference <"The physical exercise could combine several contracts (partial exercise of a swaption) or a contract and a listed product (partial exercise of a bond option).">
 {
@@ -350,7 +350,7 @@ class Transfer rosettaKey <"The primitive event for the transfer of cash, securi
 {
 	transferorTransferee TransferorTransferee (1..1);
 	asset Asset (1..1) <"The asset that is being transfered: cashflow, security, commodity, ...">;
-	settlementDate AdjustableOrAdjustedOrRelativeDate (0..1);
+	settlementDate AdjustableOrAdjustedDate (0..1);
 		[synonym Rosetta_Workbench value transferDate]
 	transferCalculation calculation (0..1) <"The calculation used to compute the transfer, when applicable. An example of such is the FixedAmount or FloatingAmount calculation.">;	
 		[synonym Rosetta_Workbench value transferCalculation]
@@ -367,7 +367,8 @@ class Transfer rosettaKey <"The primitive event for the transfer of cash, securi
 class TransferComponent <"A class to specify the breakdown information about a transfer, when made of several components.">
 {
 	transferorTransferee TransferorTransferee (1..1);
-	payoutLineage PayoutLineage (0..1) <"The lineage into the Payout components that might be associated with each of the gross cashflow elements.">;
+	lineage Lineage (0..1) <"The lineage into the Payout components that might be associated with each of the gross cashflow elements.">;
+		[synonym Rosetta_Workbench value lineage]
 	asset Asset (1..1) <"The asset is the same as the Transfer component, while the associated quantity/amount is expected to differ.">;
 	type TransferTypeEnum (0..1);
 		[synonym Rosetta_Workbench value transferType]
@@ -441,7 +442,7 @@ class CashTransferComponent extends TransferComponentBase
 
 class TransferComponentBase
 {
-	payoutLineage PayoutLineage (0..1) <"The lineage into the Payout components that might be associated with each of the gross cashflow elements.">;
+	lineage Lineage (0..1) <"The lineage into the Payout components that might be associated with each of the gross cashflow elements.">;
 }
 
 isEvent Allocation <"The qualification of allocation event from the fact that (i) the intent is Allocation when specified, (ii) the only primitive is the allocation, (iii) the sum of quantities/notional before = after, and (iv) there is a single contractualProduct before (ensured through cardinality). Note: it is accepted that an allocation can result in a single contract.">

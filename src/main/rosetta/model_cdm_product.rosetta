@@ -33,7 +33,9 @@ class CashflowBase <"A class to represent the attributes to be shared by the Cas
 class Contract rosettaKey <"A class to specify a contract object, which can be invoked either within the context of an event, or independently from it. It corresponds to the FpML Trade, although restricted to execution and post-execution contexts. Attributes also applicable to pre-execution (a.k.a. pre-trade view in FpML) contexts have been positioned as part of the ContractualProduct class.">
 {
 	id string (0..1) anchor;
-		[synonym FpML value id]
+		[synonym FpML value id pathExpression "trade.tradeHeader"]
+		[synonym FpML value id pathExpression "tradeHeader"]
+		[synonym Rosetta_Workbench value id]
 	contractIdentifier PartyContractIdentifier (1..*) <"The contract reference identifier(s) allocated by the parties involved in the contract.">;
 		[synonym FpML value partyTradeIdentifier pathExpression "trade.tradeHeader"]
 		[synonym FpML value partyTradeIdentifier pathExpression "tradeHeader"]
@@ -753,7 +755,7 @@ class Quantity
 	amount number (1..1);
 		[synonym Rosetta_Workbench value amount]
 	unit UnitEnum (0..1) <"The unit of measure, applicable to physical assets.">;
-		[synonym Rosetta_Workbench value unit]	
+		[synonym Rosetta_Workbench value unit]
 }
 
 class StubPeriod <"A class defining how the initial or final stub calculation period amounts is calculated. For example, the rate to be applied to the initial or final stub calculation period may be the linear interpolation of two different tenors for the floating rate index specified in the calculation period amount component, e.g. A two month stub period may used the linear interpolation of a one month and three month floating rate. The different rate tenors would be specified in this component. Note that a maximum of two rate tenors can be specified. If a stub period uses a single index tenor and this is the same as that specified in the calculation period amount component then the initial stub or final stub component, as the case may be, must not be included.">
@@ -822,7 +824,8 @@ isProduct InterestRate_IRSwap_FixedFloat_PlainVanilla <"This data rule doesn't r
 		EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> indexTenor -> periodMultiplier
 	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period <> PeriodExtendedEnum.T
 	and EconomicTerms -> payout -> interestRatePayout -> compoundingMethod is absent
-	and Vanilla_AnnualPaymentDifferentResetFrequency, Vanilla_SemiAnnualPayment_QuarterlyReset, Vanilla_QuarterlyPayment_MonthlyReset apply
+	// TODO comment out data rules that should only apply to qualification (and not be applied as part of general validation)
+//	and Vanilla_AnnualPaymentDifferentResetFrequency, Vanilla_SemiAnnualPayment_QuarterlyReset, Vanilla_QuarterlyPayment_MonthlyReset apply
 
 /*
  * TODO Address the below data rule
@@ -831,23 +834,26 @@ isProduct InterestRate_IRSwap_FixedFloat_PlainVanilla <"This data rule doesn't r
 //	when EconomicTerms -> payout -> interestRatePayout -> resetDates exists
 //	then EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier
 
-data rule Vanilla_AnnualPaymentDifferentResetFrequency <"One of the provision to qualify a plain vanilla swap according to the ISDA Taxonomy V2.0 is that when the payment frequency is annual, the reset frequency is semi-annual or quarterly.">
-	when EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.Y
-	then EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period = PeriodExtendedEnum.M
-	and ( EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 6
-		or EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 3 )
+// TODO comment out data rules that should only apply to qualification (and not be applied as part of general validation)
+//data rule Vanilla_AnnualPaymentDifferentResetFrequency <"One of the provision to qualify a plain vanilla swap according to the ISDA Taxonomy V2.0 is that when the payment frequency is annual, the reset frequency is semi-annual or quarterly.">
+//	when EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.Y
+//	then EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period = PeriodExtendedEnum.M
+//	and ( EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 6
+//		or EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 3 )
 
-data rule Vanilla_SemiAnnualPayment_QuarterlyReset <"One of the provision to qualify a plain vanilla swap according to the ISDA Taxonomy V2.0 is that when the payment frequency is semi-annual, the reset frequency is quarterly.">
-	when EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.M
-		and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 6
-	then EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period = PeriodExtendedEnum.M
-		and EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 3
+// TODO comment out data rules that should only apply to qualification (and not be applied as part of general validation)
+//data rule Vanilla_SemiAnnualPayment_QuarterlyReset <"One of the provision to qualify a plain vanilla swap according to the ISDA Taxonomy V2.0 is that when the payment frequency is semi-annual, the reset frequency is quarterly.">
+//	when EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.M
+//		and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 6
+//	then EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period = PeriodExtendedEnum.M
+//		and EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 3
 
-data rule Vanilla_QuarterlyPayment_MonthlyReset <"One of the provision to qualify a plain vanilla swap according to the ISDA Taxonomy V2.0 is that when the payment frequency is quarterly, the reset frequency is monthly.">
-	when EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.M
-		and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 6
-	then EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period = PeriodExtendedEnum.M
-		and EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 3
+// TODO comment out data rules that should only apply to qualification (and not be applied as part of general validation)
+//data rule Vanilla_QuarterlyPayment_MonthlyReset <"One of the provision to qualify a plain vanilla swap according to the ISDA Taxonomy V2.0 is that when the payment frequency is quarterly, the reset frequency is monthly.">
+//	when EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.M
+//		and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 6
+//	then EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period = PeriodExtendedEnum.M
+//		and EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 3
 
 isProduct InterestRate_IRSwap_FixedFloat
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFloat]

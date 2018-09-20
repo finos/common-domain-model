@@ -134,6 +134,13 @@
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
+    <xsd:complexType name="CashflowReference">
+        <xsd:complexContent>
+            <xsd:extension base="fpml:Reference">
+                <xsd:attribute name="href" type="xsd:IDREF" use="required"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
     <xsd:complexType name="CommodityReferencePrice">
         <xsd:simpleContent>
             <xsd:extension base="fpml:Scheme">
@@ -164,6 +171,13 @@
                 <xsd:element name="listedProduct" type="ListedProduct"/>
             </xsd:choice>
         </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="ContractLineage">
+        <xsd:complexContent>
+            <xsd:extension base="fpml:Reference">
+                <xsd:attribute name="href" type="xsd:IDREF" use="required"/>
+            </xsd:extension>
+        </xsd:complexContent>
     </xsd:complexType>
     <xsd:complexType name="ContractReference">
         <xsd:complexContent>
@@ -197,6 +211,13 @@
             </xsd:choice>
         </xsd:sequence>
     </xsd:complexType>
+    <xsd:complexType name="CreditDefaultPayoutReference">
+        <xsd:complexContent>
+            <xsd:extension base="fpml:Reference">
+                <xsd:attribute name="href" type="xsd:IDREF" use="required"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
     <xsd:complexType name="Curve">
         <xsd:sequence>
             <xsd:choice>
@@ -227,11 +248,19 @@
             <xsd:element name="effectiveDate" type="xsd:date" minOccurs="0"/>
             <xsd:element name="isCorrection" type="xsd:boolean"/>
         </xsd:sequence>
+        <xsd:attribute name="id" type="xsd:ID" />
     </xsd:complexType>
     <xsd:complexType name="EventPackage">
         <xsd:sequence>
             <xsd:element name="event" type="Event" minOccurs="2" maxOccurs="unbounded"/>
         </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="EventReference">
+        <xsd:complexContent>
+            <xsd:extension base="fpml:Reference">
+                <xsd:attribute name="href" type="xsd:IDREF" use="required"/>
+            </xsd:extension>
+        </xsd:complexContent>
     </xsd:complexType>
     <xsd:complexType name="EventTimestamp">
         <xsd:sequence>
@@ -257,8 +286,8 @@
     </xsd:complexType>
     <xsd:complexType name="ExercisePrimitive">
         <xsd:sequence>
-            <xsd:element name="exerciseDate" type="xsd:date" minOccurs="0"/>
-            <xsd:element name="exerciseTime" type="xsd:time" minOccurs="0"/>
+            <xsd:element name="exerciseDate" type="fpml:AdjustableOrAdjustedDate" minOccurs="0"/>
+            <xsd:element name="exerciseTime" type="fpml:BusinessCenterTime" minOccurs="0"/>
             <xsd:element name="fullExercise" type="xsd:boolean"/>
             <xsd:element name="before" type="ContractOrContractReference"/>
             <xsd:element name="after" type="ExerciseOutcome"/>
@@ -266,19 +295,12 @@
     </xsd:complexType>
     <xsd:complexType name="GrossCashflow">
         <xsd:sequence>
-            <xsd:element name="payoutReference" type="PayoutReference" minOccurs="0"/>
+            <xsd:element name="lineage" type="Lineage" minOccurs="0"/>
             <xsd:element name="cashflowAmount" type="fpml:Money"/>
             <xsd:group ref="fpml:PayerReceiver.model"/>
             <xsd:element name="cashflowCalculation" type="xsd:string" minOccurs="0"/>
         </xsd:sequence>
         <xsd:attribute name="href" type="xsd:IDREF"/>
-    </xsd:complexType>
-    <xsd:complexType name="PayoutReference">
-        <xsd:complexContent>
-            <xsd:extension base="fpml:Reference">
-                <xsd:attribute name="href" type="xsd:IDREF" use="required"/>
-            </xsd:extension>
-        </xsd:complexContent>
     </xsd:complexType>
     <xsd:complexType name="Identifier">
         <xsd:sequence>
@@ -301,12 +323,21 @@
             <xsd:element name="tenor" type="fpml:Period"/>
         </xsd:sequence>
     </xsd:complexType>
+    <xsd:complexType name="InterestRatePayoutReference">
+        <xsd:complexContent>
+            <xsd:extension base="fpml:Reference">
+                <xsd:attribute name="href" type="xsd:IDREF" use="required"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
     <xsd:complexType name="Lineage">
         <xsd:sequence>
-            <xsd:element name="contractReference" type="Identifier" minOccurs="0"
-                maxOccurs="unbounded"/>
-            <xsd:element name="eventReference" type="Identifier" minOccurs="0" maxOccurs="unbounded"
-            />
+            <xsd:element name="contractReference" type="ContractLineage" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="eventReference" type="EventReference" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="cashflowReference" type="CashflowReference" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="creditDefaultPayoutReference" type="CreditDefaultPayoutReference" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="interestRatePayoutReference" type="InterestRatePayoutReference" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="optionPayoutReference" type="OptionPayoutReference" minOccurs="0" maxOccurs="unbounded"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="ListedProduct">
@@ -348,6 +379,13 @@
             <xsd:element name="curve" type="Curve"/>
             <xsd:element name="informationSource" type="fpml:InformationSource" minOccurs="0"/>
         </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="OptionPayoutReference">
+        <xsd:complexContent>
+            <xsd:extension base="fpml:Reference">
+                <xsd:attribute name="href" type="xsd:IDREF" use="required"/>
+            </xsd:extension>
+        </xsd:complexContent>
     </xsd:complexType>
     <xsd:complexType name="Payment">
         <xsd:complexContent>
@@ -418,7 +456,7 @@
     <xsd:complexType name="Transfer">
         <xsd:sequence>
             <xsd:group ref="fpml:PayerReceiver.model"/>
-            <xsd:element name="transferDate" type="fpml:AdjustableOrRelativeDate" minOccurs="0"/>
+            <xsd:element name="transferDate" type="fpml:AdjustableOrAdjustedDate" minOccurs="0"/>
             <xsd:element name="transferType" minOccurs="0"/>
             <xsd:sequence>
                 <xsd:choice>
