@@ -43,9 +43,26 @@ The **Rosetta Workbench** corresponds to the toolset that supports the CDM, thro
 * The **ingestion service**, which transforms events and trades expressed using alternative data representations into JSON documents that conform to the CDM. At present, the ingested trades confirm to the version 5.10 of the FpML standard, and the events are originated using a custom data representation.
 * The **code generators**, which are used to produce the executable code projections that are part of the model repository. Those code generators are developed using the same open source software component as the grammar, and access to those is not required for CDM usage purposes.
 
-Those worbench components are presented in the below picture, the further one being the milestoned CDM 1.0 version of the model. Once further version of the CDM will be released, this icon will be repositioned as a generic access to those respective versions.
+Those workbench components are presented in the below picture.
 
 .. figure:: rosetta-home.png
+
+The CDM Components
+==================
+
+The below **ISDA CDM Components Diagram** lays out the three set of CDM application components:
+
+* The **Rosetta Workbench** corresponds to the 'under the hood' components with respect to the CDM: the Rosetta grammar and the Rosetta code generators, which together form the Rosetta DSL, and the associated test infrastructure and Rosetta portal, which have been developed through bespoke code.
+* The **ISDA CDM Distribution** is made available to participants as part of the download available from the Rosetta Portal and is subject to the ISDA CDM licence.  The most crucial components of this ISDA CDM Distribution are the following:
+
+  * The **Model Definition**, which corresponds to the actual Rosetta model, as expressed by the Rosetta syntax and which components are further detailed as part of the CDM Modelling Artefacts section of this documentation.
+  * The **Model Code Projection**, currently available as Java and JSON.  As the Rosetta syntax represents not just data components but also logic, the JSON representation has a quite limited scope and usefulness, and might be deprecated at some future point.
+  * While the two above components represent the essence of the model and are meant to be used as such by implementers, the **Default Apps** correspond to default implementations which can either be used as such, or be disabled or extended by those participants.  An example of such would be the rosettaKey implementation, which uses the default Java hash code function, but which might be deemed as inappropriate by some participants and hence be replaced by some alternative implementation.
+
+* **CDM Implementations** by service providers. It is expected that a rich eco-system of such licensed application components that are based upon the CDM will develop over time. REGnosys is just the first to have taken the initiative to develop an offering of solutions, which purpose is to assist market participants in making use of the CDM.  ISDA doesn't endorse any of of those application components.
+
+
+.. figure:: cdm-components-diagram.png
 
 CDM Modelling Artefacts
 =======================
