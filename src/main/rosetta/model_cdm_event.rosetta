@@ -44,7 +44,7 @@ class Curve one of
 
 }
 
-class Event rosettaKey
+class Event
 {
 	id;
 		[synonym Rosetta_Workbench meta id]
@@ -75,11 +75,10 @@ class Event rosettaKey
 	eventEffect EventEffect (0..1) <"The set of effects associated with the lifecycle event, i.e. generated cashflows, contracts (from, say, novation events), listed products (from, say, a bond option exercise event)  values and more.  Those are represented through a set of rosettaKey references.">;
 }
 
-class EventEffect <"The set of operational and positional effects associated with a lifecycle event, alongside the reference to the event (the effectedEvent) and the contract(s) or contract reference(s) that is subject to the event (and is positioned in the before state of the event primitive).">
+class EventEffect <"The set of operational and positional effects associated with a lifecycle event, alongside the reference to the contract reference(s) that is subject to the event (and is positioned in the before state of the event primitive).">
 {
 	effectedContract Contract (0..*) rosettaKey <"A pointer to the contract(s) to which the event effect(s) apply, i.e. in the before event state.">;
 	effectedContractReference ContractReference (0..*) rosettaKey <"A pointer to the reference contract(s) to which the event effect(s) apply, i.e. in the before event state.">;
-    effectedEvent Event (1..1) rosettaKey <"A pointer to the event to which the event effect(s) apply.">;
 	contract Contract (0..*) rosettaKey <"A pointer to the contract effect(s), an example of such being the outcome of a new trade, swaption exercise or novation event.">;
 	contractReference ContractReference (0..*) rosettaKey <"A pointer to the contract reference effect(s), an example of such being the outcome of a novation or compression event.">;
     listedProduct ListedProduct (0..*) rosettaKey <"A pointer to the listed product effect(s), an example of such being the outcome of the physical exercise of a bond option.">;
@@ -221,14 +220,6 @@ class MessageInformation <"This class corresponds to the messaging components of
 	copyTo string (0..*) scheme  <"A unique identifier (within the specified coding scheme) giving the details of some party to whom a copy of this message will be sent for reference.">;
 }
 
-class NewTradePrimitive one of <"The primitive event to represent a new trade.">
-{
-	contract Contract (0..1);
-		[synonym Rosetta_Workbench value contract]
-	contractReference ContractIdentifier (0..1);
-		[synonym Rosetta_Workbench value contractReference]
-}
-
 class ObservationPrimitive <"The primitive event to represent an observation.">
 {
 	source ObservationSource (1..1) <"The observation source.">;
@@ -278,8 +269,6 @@ data rule PhysicalExercise_quantity <"The quantity attribute must be associated 
 
 class PrimitiveEvent <"The set of primitive events. The purpose of this class it to provide clarity with respect to the event qualification logic.">
 {
-	newTrade NewTradePrimitive (0..*) <"The new trade primitive is unbounded to address the case of events such as portfolio compressions, which could result in multiple new trades.">;
-		[synonym Rosetta_Workbench value newTrade]
 	inception Inception (0..*);
 		[synonym Rosetta_Workbench value inception]
 	quantityChange QuantityChangePrimitive (0..*);
@@ -310,7 +299,7 @@ class QuantityChangePrimitive <"The primitive event to represent a change in qua
 		[synonym Rosetta_Workbench value change]
 }
 
-class ResetPrimitive rosettaKey <"The primitive event to represent a reset.">
+class ResetPrimitive <"The primitive event to represent a reset.">
 {
 	date date (1..1) <"The reset date">;
 		[synonym Rosetta_Workbench value date]
@@ -497,33 +486,26 @@ isEvent Exercise <"The qualification of a full termination event from the fact t
 	Event -> intent when present = IntentEnum.Exercise
 	and Event -> primitive -> exercise only exists
 
-/*
- * TODO - Need to firm out the naming of the business event associated with the inception primitive
- */
-isEvent NewTradeBusinessEvent
+isEvent NewTrade
 	Event -> intent when present = IntentEnum.NewTrade
 	and Event -> primitive -> inception only exists
 
-isEvent NewTradeEvent <"The qualification of a new trade event from the fact that (i) the intent is NewTrade when specified, and (ii) the only primitive is the newTrade.">
-	Event -> intent when present = IntentEnum.NewTrade
-	and Event -> primitive -> newTrade only exists
-
-isEvent Novation <"The qualification of a novation event from the fact that (i) the intent is PartialNovation when specified, (ii) the primitives quantityChange and newTrade exist, (iii) the contract in the quantityChange/after node has a Novated state, (iv) the stepped-in contract has a different contract identifier than the novated contract, (v) the stepped-in contract has the novation event date and the novation event effective date, and (vi) the contract counterparties have changed.">
+isEvent Novation <"The qualification of a novation event from the fact that (i) the intent is PartialNovation when specified, (ii) the primitives quantityChange and inception exist, (iii) the contract in the quantityChange/after node has a Novated state, (iv) the stepped-in contract has a different contract identifier than the novated contract, (v) the stepped-in contract has the novation event date and the novation event effective date, and (vi) the contract counterparties have changed.">
 	Event -> intent when present = IntentEnum.Novation
 	and Event -> primitive -> quantityChange exists
-	and Event -> primitive -> newTrade exists
+	and Event -> primitive -> inception exists
 	and quantityAfterQuantityChange = 0.0
 	and Event -> primitive -> quantityChange -> after -> contract -> state = StateEnum.Novated
 		or Event -> primitive -> quantityChange -> after -> contractReference -> state = StateEnum.Novated
-	and Event -> primitive -> newTrade -> contract -> contractIdentifier <> Event -> primitive -> quantityChange -> before -> contract -> contractIdentifier
-	and Event -> eventDate = Event -> primitive -> newTrade -> contract -> tradeDate -> date
+	and Event -> primitive -> inception -> after -> contract -> contractIdentifier <> Event -> primitive -> quantityChange -> before -> contract -> contractIdentifier
+	and Event -> eventDate = Event -> primitive -> inception -> after -> contract -> tradeDate -> date
 	and Event -> effectiveDate = novatedContractEffectiveDate
 //	and originalContractParties <> newContractParties
 
 alias novatedContractEffectiveDate
-	Event -> primitive -> newTrade -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> date
-	or Event -> primitive -> newTrade -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate
-	or Event -> primitive -> newTrade -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
+	Event -> primitive -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> date
+	or Event -> primitive -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate
+	or Event -> primitive -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
 
 alias originalContractParties
 	( Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> buyerPartyReference
@@ -534,19 +516,22 @@ alias originalContractParties
 		and Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> buyerSeller -> sellerPartyReference	)
 
 alias newContractParties
-	( Event -> primitive -> newTrade -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> buyerPartyReference
-		and 	Event -> primitive -> newTrade -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> sellerPartyReference )
-	or ( Event -> primitive -> newTrade -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver -> payerPartyReference
-		and Event -> primitive -> newTrade -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver -> receiverPartyReference )
-	or ( Event -> primitive -> newTrade -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> buyerSeller -> buyerPartyReference
-		and Event -> primitive -> newTrade -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> buyerSeller -> sellerPartyReference	)
+	( Event -> primitive -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> buyerPartyReference
+		and 	Event -> primitive -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> sellerPartyReference )
+	or ( Event -> primitive -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver -> payerPartyReference
+		and Event -> primitive -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver -> receiverPartyReference )
+	or ( Event -> primitive -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> buyerSeller -> buyerPartyReference
+		and Event -> primitive -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> buyerSeller -> sellerPartyReference	)
 
-isEvent PartialNovation <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and newTrade exist, (iii) the contract quantity/notional has decreased as part of the quantityChange primitive, while (iv) there is a remaining quantity/notional, (v) the stepped-in contract has a different contract identifier than the original contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
+isEvent Observation <"The qualification of an observation event from the fact that (i) the only primitive is the observation, and (ii) that there is only a single instance of such observation.">
+	Event -> primitive -> observation only single exists
+
+isEvent PartialNovation <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and inception exist, (iii) the contract quantity/notional has decreased as part of the quantityChange primitive, while (iv) there is a remaining quantity/notional, (v) the stepped-in contract has a different contract identifier than the original contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
 	Event -> intent when present = IntentEnum.PartialNovation
 	and Event -> primitive -> quantityChange exists
-	and Event -> primitive -> newTrade exists
-	and Event -> primitive -> newTrade -> contract -> contractIdentifier <> Event -> primitive -> quantityChange -> before -> contract -> contractIdentifier
-	and Event -> eventDate = Event -> primitive -> newTrade -> contract -> tradeDate -> date
+	and Event -> primitive -> inception exists
+	and Event -> primitive -> inception -> after -> contract -> contractIdentifier <> Event -> primitive -> quantityChange -> before -> contract -> contractIdentifier
+	and Event -> eventDate = Event -> primitive -> inception -> after -> contract -> tradeDate -> date
 	and Event -> effectiveDate = novatedContractEffectiveDate
 	and quantityBeforeQuantityChange > quantityAfterQuantityChange
 	and quantityAfterQuantityChange > 0.0
@@ -557,14 +542,11 @@ data rule Novation_fee <"Logic to specify that if a payment is qualified as a no
 	then Event -> lineage -> contractReference multiple exists
 		and Event -> lineage -> eventReference single exists
 
-isEvent Observation <"The qualification of an observation event from the fact that (i) the only primitive is the observation, and (ii) that there is only a single instance of such observation.">
-	Event -> primitive -> observation only single exists
-
 isEvent PartialTermination <"The qualification of a partial termination event from the fact that (i) the intent is Partial Termination when specified, (ii) the only primitive is the quantityChange and there is only one such primitive involved, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
 	Event -> intent when present = IntentEnum.PartialTermination
 	and Event -> primitive -> quantityChange only exists
 	or ( Event -> primitive -> quantityChange and Event -> primitive -> payment ) exists
-		and Event -> primitive -> newTrade is absent
+		and Event -> primitive -> inception is absent
 	/*
 	 * TODO - Need to decide with the CDM Group if the event representation should provide the ability to reference a contract
 	 * If this is the case, we should adjust the logic across events so that if the contract reference is used instead of the contract terms, then the intent should be specified

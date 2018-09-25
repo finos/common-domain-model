@@ -130,7 +130,7 @@ class EventEffectPathFilterTest {
                         EFFECTED_CONTRACT_REFERENCE_PATH.getPath().buildPath(),
                         CONTRACT_PATH.getPath().buildPath(),
                         CONTRACT_REFERENCE_PATH.getPath().buildPath()));
-        assertThat(eventEffectPaths, hasSize(8));
+        assertThat(eventEffectPaths, hasSize(7));
     }
 
     private Visitor<PathObject<Class<?>>> getCollectEventEffectPathsVisitor(List<String> capture) {
