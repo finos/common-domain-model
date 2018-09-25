@@ -26,8 +26,8 @@ class BondReference <"Reference to a bond underlyer to represent an asset swap o
 class CalculationPeriod <"A class defining the parameters used in the calculation of a fixed or floating rate calculation period amount. This class forms part of cashflows representation of a swap stream.">
 	[synonym FpML value CalculationPeriod]
 {
-	id string (0..1) anchor;
-		[synonym FpML value id]
+	id;
+		[synonym FpML meta id]
 	unadjustedStartDate date (0..1) <"The calculation start date, unadjusted.">;
 		[synonym FpML value unadjustedStartDate]
 	unadjustedEndDate date (0..1) <"The calculation end date, unadjusted.">;
@@ -77,8 +77,8 @@ data rule CalculationPeriod_calculationPeriodNumberOfDays <"FpML specifies calcu
 class CalculationPeriodDates <"A class defining the parameters used to generate the calculation period dates schedule, including the specification of any initial or final stub calculation periods. A calculation perod schedule consists of an optional initial stub calculation period, one or more regular calculation periods and an optional final stub calculation period. In the absence of any initial or final stub calculation periods, the regular part of the calculation period schedule is assumed to be between the effective date and the termination date. No implicit stubs are allowed, i.e. stubs must be explicitly specified using an appropriate combination of firstPeriodStateDate, firstRegularPeriodStartDate and lastRegularPeriodEndDate..">
 	[synonym FpML value CalculationPeriodDates]
 {
-	id string (0..1) anchor;
-		[synonym FpML value id pathExpression "calculationPeriodDates"]
+	id;
+		[synonym FpML meta id pathExpression "calculationPeriodDates"]
 	effectiveDate DateInstances (0..1) <"The first day of the term of the trade. This day may be subject to adjustment in accordance with a business day convention. The effective date is specified through the DateInstances class so that in the case of a novation the novated part of the trade be reported (by both the remaining party and the transferee) using the date on which the novation was effective. The remaining part of a trade is to be reported (by both the transferor and the remaining party) using the date corresponding to the original effective date of that trade.">;
 	relativeEffectiveDate AdjustedRelativeDateOffset (0..1) <"Defines the effective date.">;
 		[synonym FpML value relativeEffectiveDate pathExpression "calculationPeriodDates"]
@@ -101,6 +101,8 @@ class CalculationPeriodDates <"A class defining the parameters used to generate 
 	stubPeriodType StubPeriodTypeEnum (0..1) <"Method to allocate any irregular period remaining after regular periods have been allocated between the effective and termination date.">;
 		[synonym FpML value stubPeriodType pathExpression "calculationPeriodDates"]
 	calculationPeriodFrequency CalculationPeriodFrequency (0..1) <"The frequency at which calculation period end dates occur with the regular part of the calculation period schedule and their roll date convention.">;
+		[synonym FpML value calculationPeriodFrequency pathExpression "calculationPeriodDates"]
+		[synonym FpML value periodicPayment]
 }
 
 choice rule CalculationPeriodDates_choice1 <"Choice rule to represent an FpML choice construct. The choice rule has been made optional as credit derivative products might not have a specified effective date.">
@@ -177,8 +179,8 @@ class CancelableProvisionAdjustedDates <"A class to define the adjusted dates fo
 class CancellationEvent <"The adjusted dates for a specific cancellation date, including the adjusted exercise date and adjusted termination date.">
 	[synonym FpML value CancellationEvent]
 {
-	id string (0..1) anchor;
-		[synonym FpML value id]
+	id;
+		[synonym FpML meta id]
 	adjustedExerciseDate date (1..1) <"The date on which option exercise takes place. This date should already be adjusted for any applicable business day convention.">;
 		[synonym FpML value adjustedExerciseDate]
 	adjustedEarlyTerminationDate date (1..1) <"The early termination date that is applicable if an early termination provision is exercised. This date should already be adjusted for any applicable business day convention.">;
@@ -201,8 +203,8 @@ class CashPriceMethod <"A type defining the parameters necessary for each of the
 {
 	cashSettlementReferenceBanks CashSettlementReferenceBanks (0..1) <"A container for a set of reference institutions. These reference institutions may be called upon to provide rate quotations as part of the method to determine the applicable cash settlement amount. If institutions are not specified, it is assumed that reference institutions will be agreed between the parties on the exercise date, or in the case of swap transaction to which mandatory early termination is applicable, the cash settlement valuation date.">;
 		[synonym FpML value cashSettlementReferenceBanks]
-	cashSettlementCurrency string (1..1) scheme "currencyScheme" <"The currency in which the cash settlement amount will be calculated and settled.">;
-		[synonym FpML value cashSettlementCurrency]
+	cashSettlementCurrency string (1..1) scheme <"The currency in which the cash settlement amount will be calculated and settled.">;
+		[synonym FpML value cashSettlementCurrency meta currencyScheme]
 	quotationRateType QuotationRateTypeEnum (1..1) <"Which rate quote is to be observed, either Bid, Mid, Offer or Exercising Party Pays. The meaning of Exercising Party Pays is defined in the 2000 ISDA Definitions, Section 17.2. Certain Definitions Relating to Cash Settlement, paragraph (j).">;
 		[synonym FpML value quotationRateType]
 }
@@ -215,8 +217,8 @@ choice rule OptionCashSettlement_choice <"Choice rule to represent an FpML choic
 class CashSettlementPaymentDate <"A class defining the cash settlement payment date(s) as either a set of explicit dates, together with applicable adjustments, or as a date relative to some other (anchor) date, or as any date in a range of contiguous business days.">
 	[synonym FpML value CashSettlementPaymentDate]
 {
-	id string (0..1) anchor;
-		[synonym FpML value id]
+	id;
+		[synonym FpML meta id]
 	adjustableDates AdjustableDates (0..1) <"A series of dates that shall be subject to adjustment if they would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">;
 		[synonym FpML value adjustableDates]
 	relativeDate RelativeDateOffset (0..1) <"A date specified as some offset to another date (the anchor date).">;
@@ -234,8 +236,8 @@ class CrossCurrencyMethod <"A class to represent the cash settlement method defi
 {
 	cashSettlementReferenceBanks CashSettlementReferenceBanks (0..*) <"A container for a set of institutions that may be called upon to provide rate quotations as part of the method to determine the applicable cash settlement amount. If institutions are not specified, it is assumed that reference institutions will be agreed between the parties on the exercise date, or in the case of swap transaction to which mandatory early termination is applicable, the cash settlement valuation date.">;
 		[synonym FpML value cashSettlementReferenceBanks]
-	cashSettlementCurrency string (1..2) scheme "currencyScheme" <"The currency, or currencies, in which the cash settlement amount(s) will be calculated and settled. While the order in which the currencies are stated is unimportant, the cash settlement currency or currencies must correspond to one or both of the constituent currencies of the swap transaction.">;
-		[synonym FpML value cashSettlementCurrency]
+	cashSettlementCurrency string (1..2) scheme <"The currency, or currencies, in which the cash settlement amount(s) will be calculated and settled. While the order in which the currencies are stated is unimportant, the cash settlement currency or currencies must correspond to one or both of the constituent currencies of the swap transaction.">;
+		[synonym FpML value cashSettlementCurrency meta currencyScheme]
 	quotationRateType QuotationRateTypeEnum (1..1) <"Which rate quote is to be observed, either Bid, Mid, Offer or Exercising Party Pays. The meaning of Exercising Party Pays is defined in the 2000 ISDA Definitions, Section 17.2. Certain Definitions Relating to Cash Settlement, paragraph (j).">;
 		[synonym FpML value quotationRateType]
 }
@@ -244,14 +246,14 @@ class DateRelativeToCalculationPeriodDates <"A class to provide the ability to p
 	[synonym FpML value DateRelativeToCalculationPeriodDates]
 {
 	calculationPeriodDatesReference string (1..*) reference <"A set of href pointers to calculation period dates defined somewhere else in the document.">;
-		[synonym FpML value calculationPeriodDatesReference]
+		[synonym FpML value calculationPeriodDatesReference meta href]
 }
 
 class DateRelativeToPaymentDates <"A class to provide the ability to point to multiple payment nodes in the document through the unbounded paymentDatesReference.">
 	[synonym FpML value DateRelativeToPaymentDates]
 {
 	paymentDatesReference string (1..*) reference <"A set of href pointers to payment dates defined somewhere else in the document.">;
-		[synonym FpML value paymentDatesReference]
+		[synonym FpML value paymentDatesReference meta href]
 }
 
 class Discounting <"A class defining discounting information. The 2000 ISDA definitions, section 8.4. discounting (related to the calculation of a discounted fixed amount or floating amount) apply. This type must only be included if discounting applies.">
@@ -261,8 +263,8 @@ class Discounting <"A class defining discounting information. The 2000 ISDA defi
 		[synonym FpML value discountingType]
 	discountRate number (0..1) <"A discount rate, expressed as a decimal, to be used in the calculation of a discounted amount. A discount amount of 5% would be represented as 0.05.">;
 		[synonym FpML value discountRate]
-	discountRateDayCountFraction DayCountFractionEnum (0..1) scheme "dayCountFractionScheme" <"A discount day count fraction to be used in the calculation of a discounted amount.">;
-		[synonym FpML value discountRateDayCountFraction]
+	discountRateDayCountFraction DayCountFractionEnum (0..1) scheme <"A discount day count fraction to be used in the calculation of a discounted amount.">;
+		[synonym FpML value discountRateDayCountFraction meta dayCountFractionScheme]
 }
 
 data rule Discounting_discountRate <"In FpML discountingRate and discountRateDayCountFraction are part of an optional node, with discountingRate as the required element as part of that node.">
@@ -272,8 +274,8 @@ data rule Discounting_discountRate <"In FpML discountingRate and discountRateDay
 class EarlyTerminationEvent <"A class to define the adjusted dates associated with an early termination provision.">
 	[synonym FpML value EarlyTerminationEvent]
 {
-	id string (0..1) anchor;
-		[synonym FpML value id]
+	id;
+		[synonym FpML meta id]
 	adjustedExerciseDate date (1..1) <"The date on which option exercise takes place. This date should already be adjusted for any applicable business day convention.">;
 		[synonym FpML value adjustedExerciseDate]
 	adjustedEarlyTerminationDate date (1..1) <"The early termination date that is applicable if an early termination provision is exercised. This date should already be adjusted for any applicable business day convention.">;
@@ -301,8 +303,8 @@ data rule FpML_ird_41 <"FpML validation rule ird-41 - AdjustedCashSettlementValu
 class EarlyTerminationProvision <"A class defining an early termination provision for a swap. This early termination is at fair value, i.e. on termination the fair value of the product must be settled between the parties.">
 	[synonym FpML value EarlyTerminationProvision]
 {
-	id string (0..1) anchor;
-		[synonym FpML value id]
+	id;
+		[synonym FpML meta id]
 	mandatoryEarlyTermination MandatoryEarlyTermination (0..1) <"A mandatory early termination provision to terminate the swap at fair value.">;
 		[synonym FpML value mandatoryEarlyProvision]
 	mandatoryEarlyTerminationDateTenor Period (0..1) <"Period after trade date of the mandatory early termination date.">;
@@ -321,8 +323,8 @@ data rule EarlyTerminationProvision_mandatoryEarlyTermination <"The FpML Mandato
 class ExerciseEvent <"A class defining the adjusted dates associated with a particular exercise event.">
 	[synonym FpML value ExerciseEvent]
 {
-	id string (0..1) anchor;
-		[synonym FpML value id]
+	id;
+		[synonym FpML meta id]
 	adjustedExerciseDate date (1..1) <"The date on which the option exercise takes place. This date should already be adjusted for any applicable business day convention.">;
 		[synonym FpML value adjustedExerciseDate]
 	adjustedRelevantSwapEffectiveDate date (1..1) <"The effective date of the underlying swap associated with a given exercise date. This date should already be adjusted for any applicable business day convention.">;
@@ -338,8 +340,8 @@ class ExerciseEvent <"A class defining the adjusted dates associated with a part
 class ExercisePeriod <"This defines the time interval to the start of the exercise period, i.e. the earliest exercise date, and the frequency of subsequent exercise dates (if any).">
 	[synonym FpML value ExercisePeriod]
 {
-	id string (0..1) anchor;
-		[synonym FpML value id]
+	id;
+		[synonym FpML meta id]
 	earliestExerciseDateTenor Period (1..1) <"The time interval to the first (and possibly only) exercise date in the exercise period.">;
 		[synonym FpML value earliestExerciseDateTenor]
 	exerciseFrequency Period (0..1) <"The frequency of subsequent exercise dates in the exercise period following the earliest exercise date. An interval of 1 day should be used to indicate an American style exercise period.">;
@@ -377,8 +379,8 @@ class ExtendibleProvisionAdjustedDates <"A class defining the adjusted dates ass
 class ExtensionEvent <"A class to define the adjusted dates associated with an individual extension event.">
 	[synonym FpML value ExtensionEvent]
 {
-	id string (0..1) anchor;
-		[synonym FpML value id]
+	id;
+		[synonym FpML meta id]
 	adjustedExerciseDate date (1..1) <"The date on which option exercise takes place. This date should already be adjusted for any applicable business day convention.">;
 		[synonym FpML value adjustedExerciseDate]
 	adjustedExtendedTerminationDate date (1..1) <"The termination date if an extendible provision is exercised. This date should already be adjusted for any applicable business day convention.">;
@@ -394,10 +396,10 @@ class FallbackReferencePrice <"The method, prioritised by the order it is listed
 {
 	valuationPostponement ValuationPostponement (0..1) <"Specifies how long to wait to get a quote from a settlement rate option upon a price source disruption.">;
 		[synonym FpML value valuationPostponement]
-	fallBackSettlementRateOption SettlementRateOptionEnum (0..*) scheme "settlementRateOptionScheme" <"This settlement rate option will be used in its place.">;
-		[synonym FpML value fallBackSettlementRateOption]
+	fallBackSettlementRateOption SettlementRateOptionEnum (0..*) scheme <"This settlement rate option will be used in its place.">;
+		[synonym FpML value fallBackSettlementRateOption meta settlementRateOptionScheme]
 	fallbackSurveyValuationPostponement boolean (0..1) <"Request rate quotes from the market. This element is set as type Empty in FpML. When present, the FpML synonym is mapped to a value True in the CDM.">;
-		[synonym FpML value fallbackSurveyValuationPostponement set fallbackSurveyValuationPostponement to True]
+		[synonym FpML value fallbackSurveyValuationPostponement set to True]
 	calculationAgenDetermination CalculationAgent (0..1) <"The calculation agent will decide the rate.">;
 		[synonym FpML value calculationAgenDetermination]
 }
@@ -406,9 +408,9 @@ class FinalCalculationPeriodDateAdjustment <"A class to define business date con
 	[synonym FpML value FinalCalculationPeriodDateAdjustment]
 {
 	relevantUnderlyingDateReference string (1..1) reference <"Reference to the unadjusted cancellation effective dates.">;
-		[synonym FpML value relevantUnderlyingDateReference]
+		[synonym FpML value relevantUnderlyingDateReference meta href]
 	swapStreamReference string (1..1) reference <"Reference to the leg, where date adjustments may apply.">;
-		[synonym FpML value swapStreamReference]
+		[synonym FpML value swapStreamReference meta href]
 	businessDayConvention BusinessDayConventionEnum (1..1) <"Override business date convention. This takes precedence over leg level information.">;
 		[synonym FpML value businessDayConvention]
 }
@@ -442,7 +444,7 @@ class FxFixingDate extends Offset <"A class that is extending the Offset structu
 	businessCenters BusinessCenters (0..1);
 		[synonym FpML value businessCenters]
 	businessCentersReference string (0..1) reference <"A pointer style reference to a set of financial business centers defined elsewhere in the document. This set of business centers is used to determine whether a particular day is a business day or not.">;
-		[synonym FpML value businessCentersReference]
+		[synonym FpML value businessCentersReference meta href]
 	dateRelativeToPaymentDates DateRelativeToPaymentDates (0..1) <"The payment date references on which settlements in non-deliverable currency are due and will then have to be converted according to the terms specified through the other parts of the nonDeliverableSettlement structure.">;
 		[synonym FpML value dateRelativeToPaymentDates]
 	dateRelativeToCalculationPeriodDates DateRelativeToCalculationPeriodDates (0..1) <"The calculation period references on which settlements in non-deliverable currency are due and will then have to be converted according to the terms specified through the other parts of the nonDeliverableSettlement structure. Implemented for Brazilian-CDI swaps where it will refer to the termination date of the appropriate leg.">;
@@ -474,11 +476,11 @@ class FxLinkedNotionalSchedule <"A class to describe a notional schedule where e
 	[synonym FpML value FxLinkedNotionalSchedule pathExpression "fxLinkedNotionalSchedule"]
 {
 	constantNotionalScheduleReference string (1..1) reference <"A pointer style reference to the associated constant notional schedule defined elsewhere in the document which contains the currency amounts which will be converted into the varying notional currency amounts using the spot currency exchange rate.">;
-		[synonym FpML value constantNotionalScheduleReference]
+		[synonym FpML value constantNotionalScheduleReference meta href]
 	initialValue number (0..1) <"The initial currency amount for the varying notional. This may be omitted for a forward starting swap if the FX-linked notional value is not known at deal inception.">;
 		[synonym FpML value initialValue]
-	varyingNotionalCurrency string (1..1) scheme "currencyScheme" <"The currency of the varying notional amount, i.e. the notional amount being determined periodically based on observation of a spot currency exchange rate.">;
-		[synonym FpML value varyingNotionalCurrency]
+	varyingNotionalCurrency string (1..1) scheme <"The currency of the varying notional amount, i.e. the notional amount being determined periodically based on observation of a spot currency exchange rate.">;
+		[synonym FpML value varyingNotionalCurrency meta currencyScheme]
 	varyingNotionalFixingDates RelativeDateOffset (1..1) <"The dates on which spot currency exchange rates are observed for purposes of determining the varying notional currency amount that will apply to a calculation period.">;
 		[synonym FpML value varyingNotionalFixingDates]
 	fxSpotRateSource FxSpotRateSource (1..1) <"The information source and time at which the spot currency exchange rate will be observed.">;
@@ -493,12 +495,12 @@ class InflationRateCalculation extends FloatingRateCalculation <"A class definin
 {
 	inflationLag Offset (1..1) <"An off-setting period from the payment date which determines the reference period for which the inflation index is observed.">;
 		[synonym FpML value inflationLag]
-	indexSource string (1..1) scheme "rateSourcePageScheme" <"The reference source such as Reuters or Bloomberg. FpML specifies indexSource to be of type rateSourcePageScheme, but without specifying actual values.">;
-		[synonym FpML value indexSource]
-	mainPublication string (1..1) scheme "mainPublicationScheme" <"The current main publication source such as relevant web site or a government body. FpML specifies mainPublication to be of type mainPublicationSource, but without specifying actual values.">;
-		[synonym FpML value mainPublication]
-	interpolationMethod InterpolationMethodEnum (1..1) scheme "interpolationMethodScheme" <"The method used when calculating the Inflation Index Level from multiple points. The most common is Linear.">;
-		[synonym FpML value interpolationMethod]
+	indexSource string (1..1) scheme <"The reference source such as Reuters or Bloomberg. FpML specifies indexSource to be of type rateSourcePageScheme, but without specifying actual values.">;
+		[synonym FpML value indexSource meta rateSourcePageScheme]
+	mainPublication string (1..1) scheme <"The current main publication source such as relevant web site or a government body. FpML specifies mainPublication to be of type mainPublicationSource, but without specifying actual values.">;
+		[synonym FpML value mainPublication meta mainPublicationScheme]
+	interpolationMethod InterpolationMethodEnum (1..1) scheme <"The method used when calculating the Inflation Index Level from multiple points. The most common is Linear.">;
+		[synonym FpML value interpolationMethod meta interpolationMethodScheme]
 	initialIndexLevel number (0..1) <"Initial known index level for the first calculation period.">;
 		[synonym FpML value initialIndexLevel]
 	fallbackBondApplicable boolean (1..1) <"The applicability of a fallback bond as defined in the 2006 ISDA Inflation Derivatives Definitions, sections 1.3 and 1.8.">;
@@ -508,8 +510,8 @@ class InflationRateCalculation extends FloatingRateCalculation <"A class definin
 class MandatoryEarlyTermination <"A class to define an early termination provision for which exercise is mandatory.">
 	[synonym FpML value MandatoryEarlyTermination]
 {
-	id string (0..1) anchor;
-		[synonym FpML value id]
+	id;
+		[synonym FpML meta id]
 	mandatoryEarlyTerminationDate AdjustableDate (1..1) <"The early termination date associated with a mandatory early termination of a swap.">;
 		[synonym FpML value mandatoryEarlyTerminationDate]
 	calculationAgent CalculationAgent (1..1) <"The ISDA Calculation Agent responsible for performing duties associated with an optional early termination.">;
@@ -543,14 +545,14 @@ data rule FpML_ird_44 <"FpML validation rule ird-44 - AdjustedEarlyTerminationDa
 class NonDeliverableSettlement <"A class defining the parameters used when the reference currency of the swapStream is non-deliverable.">
 	[synonym FpML value NonDeliverableSettlement]
 {
-	referenceCurrency string (1..1) scheme "currencyScheme" <"The currency in which the swap stream is denominated.">;
-		[synonym FpML value referenceCurrency]
+	referenceCurrency string (1..1) scheme <"The currency in which the swap stream is denominated.">;
+		[synonym FpML value referenceCurrency meta currencyScheme]
 	fxFixingDate FxFixingDate (0..1) <"The date, when expressed as a relative date, on which the currency rate will be determined for the purpose of specifying the amount in deliverable currency.">;
 		[synonym FpML value fxFixingDate]
 	fxFixingSchedule AdjustableDates (0..1) <"The date, when expressed as a schedule of date(s), on which the currency rate will be determined for the purpose of specifying the amount in deliverable currency.">;
 		[synonym FpML value fxFixingSchedule]
-	settlementRateOption SettlementRateOptionEnum (1..1) scheme "settlementRateOptionScheme" <"The rate source for the conversion to the settlement currency. This source is specified through a scheme that reflects the terms of the Annex A to the 1998 FX and Currency Option Definitions.">;
-		[synonym FpML value settlementRateOption]
+	settlementRateOption SettlementRateOptionEnum (1..1) scheme <"The rate source for the conversion to the settlement currency. This source is specified through a scheme that reflects the terms of the Annex A to the 1998 FX and Currency Option Definitions.">;
+		[synonym FpML value settlementRateOption meta settlementRateOptionScheme]
 	priceSourceDisruption PriceSourceDisruption (0..1) <"An attribute defining the parameters to get a new quote when a settlement rate option is disrupted.">;
 		[synonym FpML value priceSourceDisruption]
 }
@@ -563,7 +565,7 @@ class NotionalStepRule <"A class defining a parametric representation for the no
 	[synonym FpML value NotionalStepRule]
 {
 	calculationPeriodDatesReference string (1..1) reference <"A pointer style reference to the associated calculation period dates component defined elsewhere in the document.">;
-		[synonym FpML value calculationPeriodDatesReference]
+		[synonym FpML value calculationPeriodDatesReference meta href]
 	stepFrequency Frequency (1..1) <"The frequency at which the notional step changes occur. This frequency must be an integer multiple of the stream calculation period frequency.">;
 		[synonym FpML value stepFrequency]
 	firstNotionalStepDate date (1..1) <"Effective date of the first change in notional (i.e. a calculation period start date).">;
@@ -625,8 +627,8 @@ class OptionalEarlyTerminationAdjustedDates <"A class defining the adjusted date
 class OptionCashSettlement <"A class to define the cash settlement terms for a product where cash settlement is applicable.">
 	[synonym FpML value CashSettlement]
 {
-	id string (0..1) anchor;
-		[synonym FpML value id]
+	id;
+		[synonym FpML meta id]
 	cashSettlementValuationTime BusinessCenterTime (0..1) <"The time of the cash settlement valuation date when the cash settlement amount will be determined according to the cash settlement method if the parties have not otherwise been able to agree the cash settlement amount.">;
 		[synonym FpML value cashSettlementValuationTime]
 	cashSettlementValuationDate RelativeDateOffset (0..1) <"The date on which the cash settlement amount will be determined according to the cash settlement method if the parties have not otherwise been able to agree the cash settlement amount.">;
@@ -652,8 +654,8 @@ class OptionCashSettlement <"A class to define the cash settlement terms for a p
 class PaymentCalculationPeriod <"A class defining the adjusted payment date and associated calculation period parameters required to calculate the actual or projected payment amount. This class forms part of the cashflow representation of a swap stream.">
 	[synonym FpML value PaymentCalculationPeriod]
 {
-	id string (0..1) anchor;
-		[synonym FpML value id]
+	id;
+		[synonym FpML meta id]
 	unadjustedPaymentDate date (0..1) <"The unadjusted payment date.">;
 		[synonym FpML value unadjustedPaymentDate]
 	adjustedPaymentDate date (0..1) <"The adjusted payment date. This date should already be adjusted for any applicable business day convention. This component is not intended for use in trade confirmation but may be specified to allow the fee structure to also serve as a cashflow type component.">;
@@ -689,8 +691,8 @@ class PriceSourceDisruption <"A class defining the parameters used to get a pric
 class PrincipalExchange <"A class defining a principal exchange amount and adjusted exchange date. The class forms part of the cashflow representation of a swap stream.">
 	[synonym FpML value PrincipalExchange]
 {
-	id string (0..1) anchor;
-		[synonym FpML value id]
+	id;
+		[synonym FpML meta id]
 	unadjustedPrincipalExchangeDate date (0..1) <"The non adjusted principal exchange date.">;
 		[synonym FpML value unadjustedPrincipalExchangeDate]
 	adjustedPrincipalExchangeDate date (0..1) <"The adjusted principal exchange date. This date should already be adjusted for any applicable business day convention.">;
@@ -706,10 +708,10 @@ class PrincipalExchange <"A class defining a principal exchange amount and adjus
 class ResetDates <"A class defining the parameters used to generate the reset dates schedule and associated fixing dates. The reset dates are determined relative to the calculation period schedule dates.">
 	[synonym FpML value ResetDates]
 {
-	id string (0..1) anchor;
-		[synonym FpML value id pathExpression "resetDates"]
+	id;
+		[synonym FpML meta id pathExpression "resetDates"]
 	calculationPeriodDatesReference string (0..1) reference <"A pointer style reference to the associated calculation period dates component defined elsewhere in the document.">;
-		[synonym FpML value calculationPeriodDatesReference pathExpression "resetDates"]
+		[synonym FpML value calculationPeriodDatesReference pathExpression "resetDates" meta href]
 	resetRelativeTo ResetRelativeToEnum (0..1) <"Specifies whether the reset dates are determined with respect to each adjusted calculation period start date or adjusted calculation period end date.  If the reset frequency is specified as daily this element must not be included.">;
 		[synonym FpML value resetRelativeTo pathExpression "resetDates"]
 	initialFixingDate InitialFixingDate (0..1) <"The initial fixing date.">;
@@ -740,8 +742,8 @@ data rule ResetFrequency_notWeekly <"FpML specifies that the weeklyRollConventio
 class SettlementProvision <"A class defining the specification of settlement terms, occurring when the settlement currency is different to the notional currency of the trade.">
 	[synonym FpML value SettlementProvision]
 {
-	settlementCurrency string (1..1) scheme "currencyScheme" <"The currency that stream settles in (to support swaps that settle in a currency different from the notional currency).">;
-		[synonym FpML value settlementCurrency]
+	settlementCurrency string (1..1) scheme <"The currency that stream settles in (to support swaps that settle in a currency different from the notional currency).">;
+		[synonym FpML value settlementCurrency meta currencyScheme]
 	nonDeliverableSettlement NonDeliverableSettlement (0..1) <"The specification of the non-deliverable settlement provision.">;
 		[synonym FpML value nonDeliverableSettlement]
 }
@@ -750,7 +752,7 @@ class StubCalculationPeriodAmount <"A class defining how the initial or final st
 	[synonym FpML value StubCalculationPeriodAmount]
 {
 	calculationPeriodDatesReference string (1..1) reference <"A pointer style reference to the associated calculation period dates component defined elsewhere in the document.">;
-		[synonym FpML value calculationPeriodDatesReference]
+		[synonym FpML value calculationPeriodDatesReference meta href]
 	initialStub StubValue (0..1) <"Specifies how the initial stub amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating tenors may be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3. Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.">;
 		[synonym FpML value initialStub]
 	finalStub StubValue (0..1) <"Specifies how the final stub amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating tenors may be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3. Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.">;

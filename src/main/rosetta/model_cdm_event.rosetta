@@ -17,7 +17,8 @@ class ComputedAmount <"A class to specify the outcome of a computed amount, for 
 {
 	callFunction calculation (1..1);
 	amount number (1..1);
-	currency string (0..1) scheme "currencyScheme";
+	currency string (0..1) scheme;
+		[synonym Rosetta_Workbench value currency meta currencyScheme]
 }
 
 class ContractOrContractReference one of
@@ -38,13 +39,15 @@ class Curve one of
 {
 	interestRateCurve InterestRateCurve (0..1);
 		[synonym Rosetta_Workbench value interestRateCurve]
-	commodityCurve CommodityReferencePriceEnum (0..1) scheme "commodityReferencePriceScheme"; // This is just an illustrative alternative curve instance, which implementation needs to be refined and confirmed
+	commodityCurve CommodityReferencePriceEnum (0..1) scheme; // This is just an illustrative alternative curve instance, which implementation needs to be refined and confirmed
+		[synonym Rosetta_Workbench value commodityCurve meta commodityReferencePriceScheme]
+
 }
 
 class Event
 {
-	id string (0..1) anchor;
-		[synonym Rosetta_Workbench value id]
+	id;
+		[synonym Rosetta_Workbench meta id]
 	messageInformation MessageInformation (0..1);
 	timestamp EventTimestamp (1..1);
 		[synonym Rosetta_Workbench value timestamp]
@@ -57,8 +60,8 @@ class Event
 		[synonym Rosetta_Workbench value effectiveDate]
 	action ActionEnum (1..1) <"Specifies whether the event is a new, a correction or a cancellation.">;
 		[synonym FpML value isCorrection
-			set action to ActionEnum.New when False,
-			set action to ActionEnum.Correct when True]
+			set to ActionEnum.New when "isCorrection" = False,
+			set to ActionEnum.Correct when "isCorrection" = True]
 	intent IntentEnum (0..1);
 		[synonym Rosetta_Workbench value intent]
 	party Party (0..*) <"The specification of the event parties. This attribute is optional, as not applicable to certain events (e.g. most of the observations).">;
@@ -184,8 +187,8 @@ class Inception <"The primitive event for the inception of a new contract betwee
 
 class InterestRateCurve
 {
-	floatingRateIndex FloatingRateIndexEnum (1..1) scheme "floatingRateIndexScheme";
-		[synonym Rosetta_Workbench value floatingRateIndex]
+	floatingRateIndex FloatingRateIndexEnum (1..1) scheme;
+		[synonym Rosetta_Workbench value floatingRateIndex meta floatingRateIndexScheme]
 	tenor Period (1..1);
 		[synonym Rosetta_Workbench value tenor]
 }
@@ -193,28 +196,28 @@ class InterestRateCurve
 class Lineage <"The class to provide lineage information across transactions.">
 {
 	contractReference string (0..*) reference; // Implementation to be adjusted to be of type Contract in order to accommodate a rosettaKey
-		[synonym Rosetta_Workbench value contractReference]
+		[synonym Rosetta_Workbench value contractReference meta href]
 	eventReference string (0..*) reference; // Implementation to be adjusted to be of type Event in order to accommodate a rosettaKey
-		[synonym Rosetta_Workbench value eventReference]
+		[synonym Rosetta_Workbench value eventReference meta href]
 	cashflowReference string (0..*) reference; // Implementation to be adjusted to be of type Cashflow in order to accommodate a rosettaKey
-		[synonym Rosetta_Workbench value cashflowReference]
+		[synonym Rosetta_Workbench value cashflowReference meta href]
 	creditDefaultReference string (0..*) reference; // Implementation to be adjusted to be of type creditDefaultPayout in order to accommodate a rosettaKey
-		[synonym Rosetta_Workbench value creditDefaultReference]
+		[synonym Rosetta_Workbench value creditDefaultReference meta href]
 	interestRatePayoutReference string (0..*) reference; // Implementation to be adjusted to be of type InterestRatePayout in order to accommodate a rosettaKey
-		[synonym Rosetta_Workbench value interestRatePayoutReference]
+		[synonym Rosetta_Workbench value interestRatePayoutReference meta href]
 	optionPayoutReference string (0..*) reference; // Implementation to be adjusted to be of type optionPayout in order to accommodate a rosettaKey
-		[synonym Rosetta_Workbench value optionPayoutReference]	
+		[synonym Rosetta_Workbench value optionPayoutReference meta href]
 }
 
 class MessageInformation <"This class corresponds to the messaging components of the FpML MessageHeader.model.">
 {
-	messageId string (1..1) scheme "messageIdScheme" <"A unique identifier assigned to the message.">;
-		[synonym Rosetta_Workbench value messageId pathExpression "messageInformation"]
-	sentBy string (0..1) scheme "messageAddressScheme" <"The identifier for the originator of a message instance.">;
-		[synonym Rosetta_Workbench value sentBy pathExpression "messageInformation"]
-	sentTo string (0..1) scheme "messageAddressScheme" <"The identifier for the recipient of a message instance.">;
-		[synonym Rosetta_Workbench value sentTo pathExpression "messageInformation"]
-	copyTo string (0..*) scheme "messageAddressScheme" <"A unique identifier (within the specified coding scheme) giving the details of some party to whom a copy of this message will be sent for reference.">;
+	messageId string (1..1) scheme <"A unique identifier assigned to the message.">;
+		[synonym Rosetta_Workbench value messageId pathExpression "messageInformation" meta messageIdScheme]
+	sentBy string (0..1) scheme <"The identifier for the originator of a message instance.">;
+		[synonym Rosetta_Workbench value sentBy pathExpression "messageInformation" meta messageAddressScheme]
+	sentTo string (0..1) scheme <"The identifier for the recipient of a message instance.">;
+		[synonym Rosetta_Workbench value sentTo pathExpression "messageInformation" meta messageAddressScheme]
+	copyTo string (0..*) scheme  <"A unique identifier (within the specified coding scheme) giving the details of some party to whom a copy of this message will be sent for reference.">;
 }
 
 class ObservationPrimitive <"The primitive event to represent an observation.">
@@ -323,16 +326,16 @@ class TimeZone <"The time alongside with the timezone location information. This
 {
 	time time (1..1) <"The observation time.">;
 		[synonym Rosetta_Workbench value time]
-	location string (0..1) scheme "timezoneLocationScheme" <"FpML specifies the timezoneLocationScheme by reference to the Time Zone Database (a.k.a. tz database) maintained by IANA, the Internet Assigned Numbers Authority.">;
-		[synonym Rosetta_Workbench value location]
+	location string (0..1) scheme <"FpML specifies the timezoneLocationScheme by reference to the Time Zone Database (a.k.a. tz database) maintained by IANA, the Internet Assigned Numbers Authority.">;
+		[synonym Rosetta_Workbench value location meta timezoneLocationScheme]
 }
 
 class TradeHeader
 {
 	identifier PartyContractIdentifier (1..*) <"The identifier(s) associated with the execution.">;
 		[synonym FpML value partyTradeIdentifier]
-	tradeDate date (1..1) anchor <"The trade/execution date.">;
-		[synonym FpML value tradeDate]
+	tradeDate date (1..1) id <"The trade/execution date.">;
+		[synonym FpML value tradeDate meta id]
 }
 
 class Transfer rosettaKey <"The primitive event for the transfer of cash, securities or physical asset between parties.">
@@ -368,13 +371,13 @@ class TransferComponent <"A class to specify the breakdown information about a t
 class TransferorTransferee <"A class mimicking the PayerReceiver, which is itself derived from the FpML PayerReceiver.model, to represent the transferee and transferor party information in relation to the transfer of assets.">
 {
 	transferorPartyReference string (1..1) reference <"A reference to the party responsible for making the payments defined by this structure.">;
-		[synonym FpML value payerPartyReference]
+		[synonym FpML value payerPartyReference meta href]
 	transferorAccountReference string (0..1) reference <"A reference to the account responsible for making the payments defined by this structure.">;
-		[synonym FpML value payerAccountReference]
+		[synonym FpML value payerAccountReference meta href]
 	transfereePartyReference string (1..1) reference <"A reference to the party that receives the payments corresponding to this structure.">;
-		[synonym FpML value receiverPartyReference]
+		[synonym FpML value receiverPartyReference meta href]
 	transfereeAccountReference string (0..1) reference <"A reference to the account that receives the payments corresponding to this structure.">;
-		[synonym FpML value receiverAccountReference]
+		[synonym FpML value receiverAccountReference meta href]
 }
 
 /**********************************************************************

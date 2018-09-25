@@ -29,8 +29,8 @@ class AveragingPeriod <"Period over which an average value is taken.">
 		[synonym FpML value averagingDateTimes]
 	averagingObservations AveragingObservationList (0..1) <"A weighted list of averaging observation date and times.">;
 		[synonym FpML value averagingObservations]
-	marketDisruption MarketDisruptionEnum (0..1) scheme "marketDisruptionScheme" <"The market disruption event as defined by ISDA 2002 Definitions.">;
-		[synonym FpML value marketDisruption]
+	marketDisruption MarketDisruptionEnum (0..1) scheme <"The market disruption event as defined by ISDA 2002 Definitions.">;
+		[synonym FpML value marketDisruption meta marketDisruptionScheme]
 }
 
 choice rule AveragingPeriod_choice <"Choice rule to represent an FpML choice construct between unweighted and weighted averaging date and times.">
@@ -78,8 +78,8 @@ class Composite <"Specifies the conditions to be applied for converting into a r
 class CreditEvents
 	[synonym FpML value CreditEvents]
 {
-	id string (0..1) anchor;
-		[synonym FpML value id]
+	id;
+		[synonym FpML meta id]
 	bankruptcy boolean (0..1) <"A credit event. The reference entity has been dissolved or has become insolvent. It also covers events that may be a precursor to insolvency such as instigation of bankruptcy or insolvency proceedings. Sovereign trades are not subject to Bankruptcy as 'technically' a Sovereign cannot become bankrupt. ISDA 2003 Term: Bankruptcy.">;
 		[synonym FpML value bankruptcy]
 	failureToPay FailureToPay (0..1) <"A credit event. This credit event triggers, after the expiration of any applicable grace period, if the reference entity fails to make due payments in an aggregate amount of not less than the payment requirement on one or more obligations (e.g. a missed coupon payment). ISDA 2003 Term: Failure to Pay.">;
@@ -137,8 +137,8 @@ class FailureToPay
 class FeaturePayment <"Payment made following trigger occurrence.">
 	[synonym FpML value FeaturePayment]
 {
-	id string (0..1) anchor;
-		[synonym FpML value id]
+	id;
+		[synonym FpML meta id]
 	payerReceiver PayerReceiver (1..1) <"This attribute doesn't exist as part of the FpML construct, which makes use of the PayerReceiver.model group.">;
 		[synonym FpML value payerReceiver]
 	levelPercentage number (0..1) <"The trigger level percentage.">;
@@ -147,8 +147,8 @@ class FeaturePayment <"Payment made following trigger occurrence.">
 		[synonym FpML value amount]
 	time TimeTypeEnum (0..1) <"The feature payment time.">;
 		[synonym FpML value time]
-	currency string (0..1) scheme "currencyScheme" <"The currency in which an amount is denominated.">;
-		[synonym FpML value currency]
+	currency string (0..1) scheme <"The currency in which an amount is denominated.">;
+		[synonym FpML value currency meta currencyScheme]
 	featurePaymentDate AdjustableOrAdjustedDate (0..1) <"The feature payment date.">;
 		[synonym FpML value featurePaymentDate]
 }
@@ -164,8 +164,8 @@ data rule FeaturePayment_amount <"The amount attribute is specified in FpML as n
 class FxFeature <"A type for defining FX Features.">
 	[synonym FpML value FxFeature]
 {
-	referenceCurrency string (1..1) anchor scheme "currencyScheme" <"Specifies the reference currency of the trade.">;
-		[synonym FpML value referenceCurrency]
+	referenceCurrency string (1..1) id, scheme <"Specifies the reference currency of the trade.">;
+		[synonym FpML value referenceCurrency meta id, currencyScheme]
 	composite Composite (0..1) <"If 'Composite' is specified as the Settlement Type in the relevant Transaction Supplement, an amount in the Settlement Currency, determined by the Calculation Agent as being equal to the number of Options exercised or deemed exercised, multiplied by: (Settlement Price – Strike Price) / (Strike Price – Settlement Price) x Multiplier provided that if the above is equal to a negative amount the Option Cash Settlement Amount shall be deemed to be zero.">;
 		[synonym FpML value composite]
 	/*
@@ -203,17 +203,17 @@ class NotifyingParty
 	[synonym FpML value NotifyingParty]
 {
 	buyerPartyReference string (1..1) reference;
-		[synonym FpML value buyerPartyReference]
+		[synonym FpML value buyerPartyReference meta href]
 	sellerPartyReference string (0..1) reference;
-		[synonym FpML value sellerPartyReference]
+		[synonym FpML value sellerPartyReference meta href]
 }
 
 class OptionDenomination <"Class which corresponds to the FpML OptionDenomination.model group.">
 {
 	optionEntitlement number (1..1) <"The number of units of underlyer per option comprised in the option transaction.">;
 		[synonym FpML value optionEntitlement]
-	entitlementCurrency string (0..1) scheme "currencyScheme";
-		[synonym FpML value entitlementCurrency]
+	entitlementCurrency string (0..1) scheme;
+		[synonym FpML value entitlementCurrency meta currencyScheme]
 	numberOfOptions number (0..1) <"The number of options comprised in the option transaction.">;
 		[synonym FpML value numberOfOptions]
 }
@@ -251,8 +251,8 @@ class OptionSettlement <"The option settlement terms, i.e. the settlement type (
 		[synonym FpML value settlementDate]
 	settlementAmount Money (0..1) <"The Settlement Amount, when known in advance.">;
 		[synonym FpML value settlementAmount]
-	settlementCurrency string (0..1) scheme "currencyScheme" <"Settlement Currency for use where the Settlement Amount cannot be known in advance">;
-		[synonym FpML value settlementCurrency]
+	settlementCurrency string (0..1) scheme <"Settlement Currency for use where the Settlement Amount cannot be known in advance">;
+		[synonym FpML value settlementCurrency meta currencyScheme]
 	cashSettlementTerms OptionCashSettlement (0..1) <"Specifies the parameters associated with the cash settlement procedure.">;
 		[synonym FpML value cashSettlement]
 	physicalSettlementTerms OptionPhysicalSettlement (0..1) <"Specifies the physical settlement terms which apply to the transaction.">;
@@ -298,7 +298,7 @@ class PassThroughItem <"Class to represent a single pass through payment.">
 	payerReceiver PayerReceiver (1..1) <"This attribute doesn't exists in the FpML construct, which makes use of the PayerReceiver.model group.">;
 // TODO - To be developed	
 //	underlyer Underlyer (1..1) reference <"This attribute is specified in FpML as a reference to the underlyer whose payments are being passed through. In the CDM, it is specified as this actual underlyer.">;
-//		[synonym FpML value underlyerReference]
+//		[synonym FpML value underlyerReference meta href]
 	passThroughPercentage number (1..1) <"Percentage of payments from the underlyer which are passed through.">;
 		[synonym FpML value passThroughPercentage]
 }
@@ -339,8 +339,8 @@ class Restructuring
 {
 	applicable boolean (1..1) <"Indicates whether the restructuring provision is applicable.">;
 		[synonym FpML value applicable]
-	restructuringType RestructuringEnum (0..1) scheme "restructuringScheme" <"Specifies the type of restructuring that is applicable.">;
-		[synonym FpML value restructuringType]
+	restructuringType RestructuringEnum (0..1) scheme <"Specifies the type of restructuring that is applicable.">;
+		[synonym FpML value restructuringType meta restructuringScheme]
 	multipleHolderObligation boolean (0..1) <"In relation to a restructuring credit event, unless multiple holder obligation is not specified restructurings are limited to multiple holder obligations. A multiple holder obligation means an obligation that is held by more than three holders that are not affiliates of each other and where at least two thirds of the holders must agree to the event that constitutes the restructuring credit event. ISDA 2003 Term: Multiple Holder Obligation.">;
 		[synonym FpML value multipleHolderObligation]
 	multipleCreditEventNotices boolean (0..1) <"Presence of this element and value set to 'true' indicates that Section 3.9 of the 2003 Credit Derivatives Definitions shall apply. Absence of this element indicates that Section 3.9 shall not apply. NOTE: Not allowed under ISDA Credit 1999.">;
@@ -374,7 +374,7 @@ class Trigger <"Trigger point at which feature is effective.">
 	creditEvents CreditEvents (0..1);
 		[synonym FpML value creditEvents]
 	creditEventsReference string (0..1) reference;
-		[synonym FpML value creditEventsReference]
+		[synonym FpML value creditEventsReference meta href]
 	triggerType TriggerTypeEnum (0..1) <"The Triggering condition.">;
 		[synonym FpML value triggerType]
 	triggerTimeType TriggerTimeTypeEnum (0..1) <"The valuation time type of knock condition.">;
