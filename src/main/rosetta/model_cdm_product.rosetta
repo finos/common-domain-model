@@ -692,8 +692,9 @@ data rule CalculationPeriodDates_calculationPeriodFrequency <"FpML specifies a r
 		and Payout -> interestRatePayout -> calculationPeriodDates exists
 	then Payout -> interestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency exists
 
-data rule ResetDates_interestRateSwap <"The cardinality of the ResetDates attributes has been relaxed with respect to the FpML implementation to accommodate the credit default swap initial and final fixing dates. The purpose of this data rule is to apply the FpMl data constraints when the product is an interest rate swap.">
-	when Payout -> interestRatePayout count = 2
+data rule ResetDates_interestRateSwap <"The cardinality of the ResetDates attributes has been relaxed with respect to the FpML implementation to accommodate the credit default swap initial and final fixing dates. The purpose of this data rule is to apply the FpML data constraints when the product is an interest rate swap.">
+	when Payout -> interestRatePayout count = 2 
+		and Payout -> interestRatePayout -> resetDates exists
 	then Payout -> interestRatePayout -> resetDates -> calculationPeriodDatesReference exists
 		and Payout -> interestRatePayout -> resetDates -> fixingDates exists
 		and Payout -> interestRatePayout -> resetDates -> resetFrequency exists
@@ -891,6 +892,14 @@ isProduct InterestRate_CrossCurrency_FixedFloat
 	[synonym ISDA_Taxonomy_v1 value InterestRate_CrossCurrency_FixedFloat]
 	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate count = 1
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate count = 1
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate is absent
+	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges exists
+	and EconomicTerms -> payout -> optionPayout is absent
+	
+isProduct InterestRate_CrossCurrency_FixedFixed
+	[synonym ISDA_Taxonomy_v1 value InterestRate_CrossCurrency_FixedFixed]
+	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate count = 2
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges exists
 	and EconomicTerms -> payout -> optionPayout is absent
