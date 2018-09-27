@@ -25,6 +25,7 @@ class ContractOrContractReference one of
 {
 	contract Contract (0..*);
 		[synonym Rosetta_Workbench value contract]
+		[synonym DTCC value trade pathExpression "FpML"]
 	contractReference ContractReference (0..*);
 		[synonym Rosetta_Workbench value contractReference]
 }
@@ -49,8 +50,10 @@ class Event
 	id;
 		[synonym Rosetta_Workbench meta id]
 	messageInformation MessageInformation (0..1);
+		[synonym DTCC value header pathExpression "Body.OTC_Matching.Trade.FpML"]
 	timestamp EventTimestamp (1..1);
 		[synonym Rosetta_Workbench value timestamp]
+		[synonym DTCC value header pathExpression "Body.OTC_Matching.Trade.FpML"]
 	eventIdentifier Identifier (1..1);
 		[synonym Rosetta_Workbench value eventIdentifier]
 	eventQualifier eventType (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic. This value is derived by the CDM from the event features.">;
@@ -66,10 +69,12 @@ class Event
 		[synonym Rosetta_Workbench value intent]
 	party Party (0..*) <"The specification of the event parties. This attribute is optional, as not applicable to certain events (e.g. most of the observations).">;
 		[synonym FpML value party]
+		[synonym DTCC value party pathExpression "Body.OTC_Matching.Trade.FpML"]
 	lineage Lineage (0..1);
 		[synonym Rosetta_Workbench value lineage]
 	primitive PrimitiveEvent (1..1);
 		[synonym Rosetta_Workbench value primitive]
+		[synonym DTCC value Body]
 	functionCall string (0..1) <"This is placeholder concept for a function call into a calculation that will return an outcome. This concept needs to be further firmed out.">;
 		[synonym Rosetta_Workbench value functionCall]
 	eventEffect EventEffect (0..1) <"The set of effects associated with the lifecycle event, i.e. generated cashflows, contracts (from, say, novation events), listed products (from, say, a bond option exercise event)  values and more.  Those are represented through a set of rosettaKey references.">;
@@ -183,6 +188,7 @@ class Inception <"The primitive event for the inception of a new contract betwee
 		[synonym Rosetta_Workbench value before]
 	after ContractOrContractReference (1..1);
 		[synonym Rosetta_Workbench value after]
+		[synonym DTCC value Trade]
 }
 
 class InterestRateCurve
@@ -213,10 +219,13 @@ class MessageInformation <"This class corresponds to the messaging components of
 {
 	messageId string (1..1) scheme <"A unique identifier assigned to the message.">;
 		[synonym Rosetta_Workbench value messageId pathExpression "messageInformation" meta messageIdScheme]
+		[synonym DTCC value messageId meta messageIdScheme]
 	sentBy string (0..1) scheme <"The identifier for the originator of a message instance.">;
 		[synonym Rosetta_Workbench value sentBy pathExpression "messageInformation" meta messageAddressScheme]
+		[synonym DTCC value sentBy]
 	sentTo string (0..1) scheme <"The identifier for the recipient of a message instance.">;
 		[synonym Rosetta_Workbench value sentTo pathExpression "messageInformation" meta messageAddressScheme]
+		[synonym DTCC value sendTo]
 	copyTo string (0..*) scheme  <"A unique identifier (within the specified coding scheme) giving the details of some party to whom a copy of this message will be sent for reference.">;
 }
 
@@ -271,6 +280,7 @@ class PrimitiveEvent <"The set of primitive events. The purpose of this class it
 {
 	inception Inception (0..*);
 		[synonym Rosetta_Workbench value inception]
+		[synonym DTCC value OTC_Matching]
 	quantityChange QuantityChangePrimitive (0..*);
 		[synonym Rosetta_Workbench value quantityChange]
 	allocation AllocationPrimitive (0..*);
