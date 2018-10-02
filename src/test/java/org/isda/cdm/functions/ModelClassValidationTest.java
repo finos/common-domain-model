@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.isda.cdm.Contract;
 import org.isda.cdm.PartyRole;
 import org.isda.cdm.PartyRoleEnum;
-import org.isda.cdm.StateEnum;
 import org.isda.cdm.meta.ContractMeta;
 import org.junit.jupiter.api.Test;
 
@@ -29,8 +28,7 @@ public class ModelClassValidationTest {
 
 		ValidationResult<Contract> result = new ContractMeta().validator().validate(contract);
 		assertEquals(
-				  "contractIdentifier - Expected cardinality lower bound of [1] found [0]; "
-				+ "tradeDate - Expected cardinality lower bound of [1] found [0]; "
+				"tradeDate - Expected cardinality lower bound of [1] found [0]; "
 				+ "contractualProduct - Expected cardinality lower bound of [1] found [0]",
 				result.getFailureReason().orElse("No error message"));
 	}
