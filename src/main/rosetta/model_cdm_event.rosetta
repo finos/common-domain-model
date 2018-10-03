@@ -25,7 +25,8 @@ class ContractOrContractReference one of
 {
 	contract Contract (0..*);
 		[synonym Rosetta_Workbench value contract]
-		[synonym DTCC value trade pathExpression "Body.OTC_Matching.Trade.FpML"]
+		[synonym DTCC_Trade value trade pathExpression "Body.OTC_Matching.Trade.FpML", "Body.OTC_Matching.Assignment"]
+		[synonym DTCC_Trade value Exercise pathExpression "Body.OTC_Matching"]
 	contractReference ContractReference (0..*);
 		[synonym Rosetta_Workbench value contractReference]
 }
@@ -50,10 +51,10 @@ class Event
 	id (0..1);
 		[synonym Rosetta_Workbench meta id]
 	messageInformation MessageInformation (0..1);
-		[synonym DTCC value header pathExpression "Body.OTC_Matching.Trade.FpML"]
+		[synonym DTCC_Trade value header pathExpression "Body.OTC_Matching.Trade.FpML"]
 	timestamp EventTimestamp (1..1);
 		[synonym Rosetta_Workbench value timestamp]
-		[synonym DTCC value header pathExpression "Body.OTC_Matching.Trade.FpML"]
+		[synonym DTCC_Trade value header pathExpression "Body.OTC_Matching.Trade.FpML"]
 	eventIdentifier Identifier (1..1);
 		[synonym Rosetta_Workbench value eventIdentifier]
 	eventQualifier eventType (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic. This value is derived by the CDM from the event features.">;
@@ -69,7 +70,7 @@ class Event
 		[synonym Rosetta_Workbench value intent]
 	party Party (0..*) <"The specification of the event parties. This attribute is optional, as not applicable to certain events (e.g. most of the observations).">;
 		[synonym FpML value party]
-		[synonym DTCC value party pathExpression "Body.OTC_Matching.Trade.FpML"]
+		[synonym DTCC_Trade value party pathExpression "Body.OTC_Matching.Trade.FpML", "Body.OTC_Matching.Termination", "Body.OTC_Matching.Assignment", "Body.OTC_Matching.Exercise"]
 	lineage Lineage (0..1);
 		[synonym Rosetta_Workbench value lineage]
 	primitive PrimitiveEvent (1..1);
@@ -103,6 +104,7 @@ class EventTimestamp <"This class corresponds to the timestamp components of the
 	creationTimestamp dateTime (1..1) <"The date and time (on the source system) when this event was created.">;
 		[synonym FpML value creationTimestamp pathExpression "header"]
 		[synonym Rosetta_Workbench value creationTimestamp]
+		[synonym DTCC_Trade value creationTimestamp]
 	expiryTimestamp dateTime (0..1) <"The date and time (on the source system) when this event will be considered expired.">;
 		[synonym FpML value expiryTimestamp]
 }
@@ -217,13 +219,13 @@ class MessageInformation <"This class corresponds to the messaging components of
 {
 	messageId string (1..1) scheme <"A unique identifier assigned to the message.">;
 		[synonym Rosetta_Workbench value messageId pathExpression "messageInformation" meta messageIdScheme]
-		[synonym DTCC value messageId meta messageIdScheme]
+		[synonym DTCC_Trade value messageId meta messageIdScheme]
 	sentBy string (0..1) scheme <"The identifier for the originator of a message instance.">;
 		[synonym Rosetta_Workbench value sentBy pathExpression "messageInformation" meta messageAddressScheme]
-		[synonym DTCC value sentBy]
+		[synonym DTCC_Trade value sentBy]
 	sentTo string (0..1) scheme <"The identifier for the recipient of a message instance.">;
 		[synonym Rosetta_Workbench value sentTo pathExpression "messageInformation" meta messageAddressScheme]
-		[synonym DTCC value sendTo]
+		[synonym DTCC_Trade value sendTo]
 	copyTo string (0..*) scheme  <"A unique identifier (within the specified coding scheme) giving the details of some party to whom a copy of this message will be sent for reference.">;
 }
 
