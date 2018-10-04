@@ -25,8 +25,6 @@ class ContractOrContractReference one of
 {
 	contract Contract (0..*);
 		[synonym Rosetta_Workbench value contract]
-		//[synonym DTCC_PostTrade value trade pathExpression "Body.OTC_Matching.Trade.FpML", "Body.OTC_Matching.Assignment"]
-		//[synonym DTCC_PostTrade value Exercise pathExpression "Body.OTC_Matching"]
 	contractReference ContractReference (0..*);
 		[synonym Rosetta_Workbench value contractReference]
 }
@@ -63,14 +61,14 @@ class Event
 	effectiveDate date (0..1);
 		[synonym Rosetta_Workbench value effectiveDate]
 	action ActionEnum (1..1) <"Specifies whether the event is a new, a correction or a cancellation.">;
-		[synonym FpML value isCorrection
+		[synonym FpML, DTCC_PostTrade value isCorrection
 			set to ActionEnum.New when "isCorrection" = False,
 			set to ActionEnum.Correct when "isCorrection" = True]
 	intent IntentEnum (0..1);
 		[synonym Rosetta_Workbench value intent]
 	party Party (0..*) <"The specification of the event parties. This attribute is optional, as not applicable to certain events (e.g. most of the observations).">;
-		[synonym FpML value party]
-		//[synonym DTCC_PostTrade value party pathExpression "Body.OTC_Matching.Trade.FpML", "Body.OTC_Matching.Termination", "Body.OTC_Matching.Assignment", "Body.OTC_Matching.Exercise"]
+		[synonym FpML, DTCC_PostTrade value party]
+		[synonym DTCC_PostTrade value party pathExpression "Body.OTC_Matching.Trade.FpML", "Body.OTC_Matching.Termination", "Body.OTC_Matching.Assignment", "Body.OTC_Matching.Exercise"]
 		[synonym DTCC_PostTrade value party pathExpression "Body.OTC_Matching.Trade.FpML"]
 	lineage Lineage (0..1);
 		[synonym Rosetta_Workbench value lineage]
@@ -107,7 +105,7 @@ class EventTimestamp <"This class corresponds to the timestamp components of the
 		[synonym Rosetta_Workbench value creationTimestamp]
 		[synonym DTCC_PostTrade value creationTimestamp]
 	expiryTimestamp dateTime (0..1) <"The date and time (on the source system) when this event will be considered expired.">;
-		[synonym FpML value expiryTimestamp]
+		[synonym FpML, DTCC_PostTrade value expiryTimestamp]
 }
 
 class ExecutionReference
@@ -344,9 +342,9 @@ class TimeZone <"The time alongside with the timezone location information. This
 class TradeHeader
 {
 	identifier PartyContractIdentifier (1..*) <"The identifier(s) associated with the execution.">;
-		[synonym FpML value partyTradeIdentifier]
+		[synonym FpML, DTCC_PostTrade value partyTradeIdentifier]
 	tradeDate date (1..1) id <"The trade/execution date.">;
-		[synonym FpML value tradeDate meta id]
+		[synonym FpML, DTCC_PostTrade value tradeDate meta id]
 }
 
 class Transfer rosettaKey <"The primitive event for the transfer of cash, securities or physical asset between parties.">
@@ -382,13 +380,13 @@ class TransferComponent <"A class to specify the breakdown information about a t
 class TransferorTransferee <"A class mimicking the PayerReceiver, which is itself derived from the FpML PayerReceiver.model, to represent the transferee and transferor party information in relation to the transfer of assets.">
 {
 	transferorPartyReference string (1..1) reference <"A reference to the party responsible for making the payments defined by this structure.">;
-		[synonym FpML value payerPartyReference meta href]
+		[synonym FpML, DTCC_PostTrade value payerPartyReference meta href]
 	transferorAccountReference string (0..1) reference <"A reference to the account responsible for making the payments defined by this structure.">;
-		[synonym FpML value payerAccountReference meta href]
+		[synonym FpML, DTCC_PostTrade value payerAccountReference meta href]
 	transfereePartyReference string (1..1) reference <"A reference to the party that receives the payments corresponding to this structure.">;
-		[synonym FpML value receiverPartyReference meta href]
+		[synonym FpML, DTCC_PostTrade value receiverPartyReference meta href]
 	transfereeAccountReference string (0..1) reference <"A reference to the account that receives the payments corresponding to this structure.">;
-		[synonym FpML value receiverAccountReference meta href]
+		[synonym FpML, DTCC_PostTrade value receiverAccountReference meta href]
 }
 
 /**********************************************************************
