@@ -81,7 +81,7 @@ class EventEffect <"The set of operational and positional effects associated wit
 	effectedContractReference ContractReference (0..*) rosettaKey <"A pointer to the reference contract(s) to which the event effect(s) apply, i.e. in the before event state.">;
 	contract Contract (0..*) rosettaKey <"A pointer to the contract effect(s), an example of such being the outcome of a new trade, swaption exercise or novation event.">;
 	contractReference ContractReference (0..*) rosettaKey <"A pointer to the contract reference effect(s), an example of such being the outcome of a novation or compression event.">;
-    listedProduct ListedProduct (0..*) rosettaKey <"A pointer to the listed product effect(s), an example of such being the outcome of the physical exercise of a bond option.">;
+    security ProductIdentifier (0..*) rosettaKey <"A pointer to the listed product effect(s), an example of such being the outcome of the physical exercise of a bond option.">;
 	payment Payment (0..*) rosettaKey <"A pointer to the payment effect(s), an example of such being the outcome of an option cash exercise.">;
 	transfer Transfer (0..*) rosettaKey <"A pointer to the transfer effect(s), either a cash, security or other asset.">;
 }
@@ -248,11 +248,12 @@ data rule ObservationSource_content <"ObservationSource should not be empty, alt
 		or ObservationSource -> curve exists
 		or ObservationSource -> informationSource exists
 
-class PhysicalExercise extends ContractOrContractReference <"The physical exercise could combine several contracts (partial exercise of a swaption) or a contract and a listed product (partial exercise of a bond option).">
+class PhysicalExercise extends ContractOrContractReference <"The physical exercise could combine several contracts (partial exercise of a swaption) or a contract and a bond or convertible bond (partial exercise of a bond option).">
 {
-	listedProduct ListedProduct (0..1);
-		[synonym Rosetta_Workbench value listedProduct]
-	commodity Commodity (0..1);
+	bond ProductIdentifier (0..1);
+		[synonym Rosetta_Workbench value bond]
+	convertibleBond ProductIdentifier (0..1);
+		[synonym Rosetta_Workbench value convertibleBond]
 	quantity Quantity (0..1) <"The quantity amount associated the asset that is physically settled.">;
 		[synonym Rosetta_Workbench value quantity]
 	cashflow Cashflow (0..1) <"The cashflow component of the physical exercise.">;
@@ -261,10 +262,10 @@ class PhysicalExercise extends ContractOrContractReference <"The physical exerci
 
 choice rule PhysicalExercise_choice <"This choice rule will be adjusted as a function of the further types of assets that are be associated with options.">
 	for PhysicalExercise required choice between
-	listedProduct and commodity
+	bond and convertibleBond
 
-data rule PhysicalExercise_quantity <"The quantity attribute must be associated with the ohysical exercise of a listed product or commodity.">
-	when ( PhysicalExercise -> commodity or PhysicalExercise -> listedProduct ) exists
+data rule PhysicalExercise_quantity <"The quantity attribute must be associated with the physical exercise of a security or commodity.">
+	when ( PhysicalExercise -> bond or PhysicalExercise -> convertibleBond) exists
 	then PhysicalExercise -> quantity exists
 
 class PrimitiveEvent <"The set of primitive events. The purpose of this class it to provide clarity with respect to the event qualification logic.">
