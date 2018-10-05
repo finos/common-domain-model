@@ -51,7 +51,7 @@ class Event
 	messageInformation MessageInformation (0..1);
 	timestamp EventTimestamp (1..1);
 		[synonym Rosetta_Workbench value timestamp]
-	eventIdentifier Identifier (1..1);
+	eventIdentifier Identifier (1..1) <"The contract identifier, which has 3 components: an actual identifier, an issuer and a version number. One and only one identifier can be associated with a lifecycle event.">;
 		[synonym Rosetta_Workbench value eventIdentifier]
 	eventQualifier eventType (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic. This value is derived by the CDM from the event features.">;
 	eventDate date (1..1);
@@ -179,9 +179,12 @@ data rule EventTimestamp_ExpireTime <"The expire time should be greater than the
 
 class Inception <"The primitive event for the inception of a new contract between parties. It is expected that this primitive will be adjusted or deprecated once the CDM scope is extended to the pre-execution space.">
 {
-	before ContractOrContractReference (0..0) <"The (0..0) cardinality reflects the fact that that is no contract in the before state of an inception primitive.">;
+	before Contract (0..0) <"The (0..0) cardinality reflects the fact that there is no contract in the before state of an inception primitive. As noted in the definition associated with the class, this is expected to change once the CDM scope is extended to the pre-execution space.">;
 		[synonym Rosetta_Workbench value before]
-	after ContractOrContractReference (1..1);
+	/*
+	 * Need to add the rosettaKey entry
+	 */
+	after Contract (1..1) reference <"The after state corresponds to the new contract between the parties. Depending upon the implementation approach, this contract can either be explicitly stated, or referenced via either a CDM rosettaKey or a reference that originates externally from the CDM.">;
 		[synonym Rosetta_Workbench value after]
 }
 
@@ -201,7 +204,7 @@ class Lineage <"The class to provide lineage information across transactions.">
 		[synonym Rosetta_Workbench value eventReference meta href]
 	cashflowReference string (0..*) reference; // Implementation to be adjusted to be of type Cashflow in order to accommodate a rosettaKey
 		[synonym Rosetta_Workbench value cashflowReference meta href]
-	creditDefaultReference string (0..*) reference; // Implementation to be adjusted to be of type creditDefaultPayout in order to accommodate a rosettaKey
+	creditDefaultPayoutReference string (0..*) reference; // Implementation to be adjusted to be of type creditDefaultPayout in order to accommodate a rosettaKey
 		[synonym Rosetta_Workbench value creditDefaultReference meta href]
 	interestRatePayoutReference string (0..*) reference; // Implementation to be adjusted to be of type InterestRatePayout in order to accommodate a rosettaKey
 		[synonym Rosetta_Workbench value interestRatePayoutReference meta href]
@@ -498,15 +501,15 @@ isEvent Novation <"The qualification of a novation event from the fact that (i) 
 	and quantityAfterQuantityChange = 0.0
 	and Event -> primitive -> quantityChange -> after -> contract -> state = StateEnum.Novated
 		or Event -> primitive -> quantityChange -> after -> contractReference -> state = StateEnum.Novated
-	and Event -> primitive -> inception -> after -> contract -> contractIdentifier <> Event -> primitive -> quantityChange -> before -> contract -> contractIdentifier
-	and Event -> eventDate = Event -> primitive -> inception -> after -> contract -> tradeDate -> date
+	and Event -> primitive -> inception -> after -> contractIdentifier <> Event -> primitive -> quantityChange -> before -> contract -> contractIdentifier
+	and Event -> eventDate = Event -> primitive -> inception -> after -> tradeDate -> date
 	and Event -> effectiveDate = novatedContractEffectiveDate
 //	and originalContractParties <> newContractParties
 
 alias novatedContractEffectiveDate
-	Event -> primitive -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> date
-	or Event -> primitive -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate
-	or Event -> primitive -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
+	Event -> primitive -> inception -> after -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> date
+	or Event -> primitive -> inception -> after -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate
+	or Event -> primitive -> inception -> after -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
 
 alias originalContractParties
 	( Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> buyerPartyReference
@@ -517,12 +520,12 @@ alias originalContractParties
 		and Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> buyerSeller -> sellerPartyReference	)
 
 alias newContractParties
-	( Event -> primitive -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> buyerPartyReference
-		and 	Event -> primitive -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> sellerPartyReference )
-	or ( Event -> primitive -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver -> payerPartyReference
-		and Event -> primitive -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver -> receiverPartyReference )
-	or ( Event -> primitive -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> buyerSeller -> buyerPartyReference
-		and Event -> primitive -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> buyerSeller -> sellerPartyReference	)
+	( Event -> primitive -> inception -> after -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> buyerPartyReference
+		and 	Event -> primitive -> inception -> after -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> sellerPartyReference )
+	or ( Event -> primitive -> inception -> after -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver -> payerPartyReference
+		and Event -> primitive -> inception -> after -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver -> receiverPartyReference )
+	or ( Event -> primitive -> inception -> after -> contractualProduct -> economicTerms -> payout -> optionPayout -> buyerSeller -> buyerPartyReference
+		and Event -> primitive -> inception -> after -> contractualProduct -> economicTerms -> payout -> optionPayout -> buyerSeller -> sellerPartyReference	)
 
 isEvent Observation <"The qualification of an observation event from the fact that (i) the only primitive is the observation, and (ii) that there is only a single instance of such observation.">
 	Event -> primitive -> observation only single exists
@@ -531,8 +534,8 @@ isEvent PartialNovation <"The qualification of a novation event from the fact th
 	Event -> intent when present = IntentEnum.PartialNovation
 	and Event -> primitive -> quantityChange exists
 	and Event -> primitive -> inception exists
-	and Event -> primitive -> inception -> after -> contract -> contractIdentifier <> Event -> primitive -> quantityChange -> before -> contract -> contractIdentifier
-	and Event -> eventDate = Event -> primitive -> inception -> after -> contract -> tradeDate -> date
+	and Event -> primitive -> inception -> after -> contractIdentifier <> Event -> primitive -> quantityChange -> before -> contract -> contractIdentifier
+	and Event -> eventDate = Event -> primitive -> inception -> after -> tradeDate -> date
 	and Event -> effectiveDate = novatedContractEffectiveDate
 	and quantityBeforeQuantityChange > quantityAfterQuantityChange
 	and quantityAfterQuantityChange > 0.0
