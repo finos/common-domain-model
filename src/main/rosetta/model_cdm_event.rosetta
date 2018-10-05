@@ -25,6 +25,8 @@ class ContractOrContractReference one of
 {
 	contract Contract (0..*);
 		[synonym Rosetta_Workbench value contract]
+		[synonym DTCC_PostTrade value trade pathExpression "FpML"]
+		[synonym DTCC_PostTrade value TradeMsg]
 	contractReference ContractReference (0..*);
 		[synonym Rosetta_Workbench value contractReference]
 }
@@ -50,20 +52,26 @@ class Event
 		[synonym Rosetta_Workbench meta id]
 	messageInformation MessageInformation (0..1);
 		[synonym DTCC_PostTrade value header pathExpression "Body.OTC_Matching.Trade.FpML"]
+		[synonym DTCC_PostTrade value RouteInfo pathExpression "Header.OTC_RM.Delivery"]
 	timestamp EventTimestamp (1..1);
 		[synonym Rosetta_Workbench value timestamp]
 		[synonym DTCC_PostTrade value header pathExpression "Body.OTC_Matching.Trade.FpML"]
 	eventIdentifier Identifier (1..1);
 		[synonym Rosetta_Workbench value eventIdentifier]
+		[synonym DTCC_PostTrade value TradeMsg pathExpression "Header.OTC_RM.Manifest"]
 	eventQualifier eventType (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic. This value is derived by the CDM from the event features.">;
 	eventDate date (1..1);
 		[synonym Rosetta_Workbench value eventDate]
 	effectiveDate date (0..1);
 		[synonym Rosetta_Workbench value effectiveDate]
 	action ActionEnum (1..1) <"Specifies whether the event is a new, a correction or a cancellation.">;
-		[synonym FpML, DTCC_PostTrade value isCorrection
+		[synonym FpML value isCorrection
 			set to ActionEnum.New when "isCorrection" = False,
 			set to ActionEnum.Correct when "isCorrection" = True]
+		[synonym DTCC_PostTrade value Activity pathExpression "Header.OTC_RM.Manifest.TradeMsg"
+			set to ActionEnum.New when "Header.OTC_RM.Manifest.TradeMsg.Activity" = "New",
+			set to ActionEnum.Correct when "Header.OTC_RM.Manifest.TradeMsg.Activity" = "Modify",
+			set to ActionEnum.Cancel when "Header.OTC_RM.Manifest.TradeMsg.Activity" = "Cancel"]
 	intent IntentEnum (0..1);
 		[synonym Rosetta_Workbench value intent]
 	party Party (0..*) <"The specification of the event parties. This attribute is optional, as not applicable to certain events (e.g. most of the observations).">;
@@ -188,7 +196,9 @@ class Inception <"The primitive event for the inception of a new contract betwee
 		[synonym Rosetta_Workbench value before]
 	after ContractOrContractReference (1..1);
 		[synonym Rosetta_Workbench value after]
-		[synonym DTCC_PostTrade value trade pathExpression "Body.OTC_Matching.Trade.FpML"]
+		// Requires conditional mapping based on OTC_RM_11-0.TransTypeDataType
+		[synonym DTCC_PostTrade value Trade pathExpression "Body.OTC_Matching"]
+		[synonym DTCC_PostTrade value Manifest pathExpression "Header.OTC_RM"]
 }
 
 class InterestRateCurve
@@ -222,10 +232,10 @@ class MessageInformation <"This class corresponds to the messaging components of
 		[synonym DTCC_PostTrade value messageId meta messageIdScheme]
 	sentBy string (0..1) scheme <"The identifier for the originator of a message instance.">;
 		[synonym Rosetta_Workbench value sentBy pathExpression "messageInformation" meta messageAddressScheme]
-		[synonym DTCC_PostTrade value sentBy]
+		[synonym DTCC_PostTrade value From]
 	sentTo string (0..1) scheme <"The identifier for the recipient of a message instance.">;
 		[synonym Rosetta_Workbench value sentTo pathExpression "messageInformation" meta messageAddressScheme]
-		[synonym DTCC_PostTrade value sendTo]
+		[synonym DTCC_PostTrade value To]
 	copyTo string (0..*) scheme  <"A unique identifier (within the specified coding scheme) giving the details of some party to whom a copy of this message will be sent for reference.">;
 }
 
