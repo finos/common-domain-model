@@ -36,7 +36,7 @@ class Contract rosettaKey <"A class to specify a contract object, which can be i
 		[synonym FpML, DTCC_PostTrade meta id pathExpression "trade.tradeHeader"]
 		[synonym FpML, DTCC_PostTrade meta id pathExpression "tradeHeader"]
 		[synonym Rosetta_Workbench meta id]
-	contractIdentifier Identifier (0..*);
+	contractIdentifier Identifier (1..*) <"The contract identifier, which has 3 components: an actual identifier, an issuer and a version number. There can be several contract identifier, an example of such being a contract is reportable to both the CFTC and ESMA and then has an associated USI (Unique Swap Identifier) UTI (Unique Trade Identifier).">;
 	/*
 	 * To be deprecated once the contractIdentifier approach has been vetted
 	 */
@@ -712,7 +712,10 @@ data rule ResetDates_interestRateSwap <"The cardinality of the ResetDates attrib
 class Product one of
 {
 	contractualProduct ContractualProduct (0..1);
-	listedProduct ListedProduct (0..1);
+	bond ProductIdentifier (0..1);
+		[synonym FpML value bond]
+	convertibleBond ProductIdentifier (0..1);
+		[synonym FpML value convertibleBond]
 }
 
 class ProductIdentification <"A class to combine the CDM product qualifier with other product qualifiers, such as the FpML ones. While the CDM product qualifier is derived by the CDM from the product payout features, the other product identification elements are assigned by some external sources and correspond to values specified by other data representation protocols.">
@@ -992,8 +995,8 @@ isProduct InterestRate_Option_Swaption
 
 isProduct InterestRate_Option_DebtOption
 	[synonym ISDA_Taxonomy_v1 value InterestRate_DebtOption]
-	EconomicTerms -> payout -> optionPayout -> underlyer -> listedProduct -> bond exists
-		or EconomicTerms -> payout -> optionPayout -> underlyer -> listedProduct -> convertibleBond exists
+	EconomicTerms -> payout -> optionPayout -> underlyer -> bond exists
+		or EconomicTerms -> payout -> optionPayout -> underlyer -> convertibleBond exists
 
 /*
  * QUESTION TO CDM GROUP
