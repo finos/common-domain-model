@@ -91,14 +91,13 @@ class EventEffectPathFilterTest {
         Visitor<PathObject<Class<?>>> collectFilteredPathVisitor = getCollectEffectedContractPathsVisitor(filteredPaths);
         rosettaNodeInspector.inspect(PathTypeNode.root(Event.class), collectFilteredPathVisitor);
 
-        assertThat(filteredPaths, hasSize(4));
+        assertThat(filteredPaths, hasSize(3));
         assertThat(filteredPaths.stream()
                         .map(o -> o.getHierarchicalPath().map(HierarchicalPath::buildPath).orElse(""))
                         .collect(Collectors.toList()),
                    hasItems("primitive.quantityChange.before",
                             "primitive.termsChange.before",
-                            "primitive.exercise.before",
-        					   "primitive.inception.before"));
+                            "primitive.exercise.before"));
     }
 
     private Visitor<PathObject<Class<?>>> getCollectEffectedContractPathsVisitor(List<PathObject<Class<?>>> capture) {
