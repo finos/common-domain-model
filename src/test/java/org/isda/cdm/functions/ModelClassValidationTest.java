@@ -28,7 +28,8 @@ public class ModelClassValidationTest {
 
 		ValidationResult<Contract> result = new ContractMeta().validator().validate(contract);
 		assertEquals(
-				"tradeDate - Expected cardinality lower bound of [1] found [0]; "
+				"contractIdentifier - Expected cardinality lower bound of [1] found [0]; "
+				+ "tradeDate - Expected cardinality lower bound of [1] found [0]; "
 				+ "contractualProduct - Expected cardinality lower bound of [1] found [0]",
 				result.getFailureReason().orElse("No error message"));
 	}
