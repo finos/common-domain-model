@@ -20,16 +20,35 @@ steps:
     commands:
       - cf_export RELEASE_NAME=${{GLOBAL_RELEASE_VERSION}}.${{CF_BRANCH_TAG_NORMALIZED}}
 
-  Build:
+  Build Normal:
     title: Maven build
     image: r.cfcr.io/regnosysops/regnosys/mvn-docker-build:latest
     working_directory: ./
+    when:
+      condition:
+        all:
+          isNotRelease: "${{TAG_REPO}} == false"
     commands:
       - rm -rf /codefresh/volume/.m2/com/regnosys
       - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.workbench.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.common.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -U -s /settings.xml clean deploy
+
+  Build Release:
+    title: Maven build for release
+    image: r.cfcr.io/regnosysops/regnosys/mvn-docker-build:latest
+    working_directory: ./
+    when:
+      condition:
+        all:
+          isRelease: "${{TAG_REPO}}"
+    commands:
+      - rm -rf /codefresh/volume/.m2/com/regnosys
+      - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.workbench.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.common.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - mvn -s /settings.xml clean deploy -P full
 
   TagRepo:
     title: Tag git repo with release name
