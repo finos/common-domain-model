@@ -50,7 +50,6 @@ class Curve one of
 		[synonym Rosetta_Workbench value interestRateCurve]
 	commodityCurve CommodityReferencePriceEnum (0..1) scheme; // This is just an illustrative alternative curve instance, which implementation needs to be refined and confirmed
 		[synonym Rosetta_Workbench value commodityCurve meta commodityReferencePriceScheme]
-
 }
 
 class Event
@@ -123,6 +122,17 @@ class EventTimestamp <"This class corresponds to the timestamp components of the
 		[synonym FpML, DTCC_PostTrade_11_0 value expiryTimestamp]
 }
 
+class Execution
+{
+	identifier Identifier (1..*) <"The identifier(s) associated with the execution.">;
+		[synonym Rosetta_Workbench value identifier]
+	tradeDate date (1..1) id <"The trade/execution date.">;
+		[synonym Rosetta_Workbench value tradeDate meta id]
+	contractualProduct ContractualProduct (1..1);
+		[synonym Rosetta_Workbench value contractualProduct]
+	party Party (0..*) <"The party reference is optional because positioned as part of the Event class when the execution is specified as part of such context.">;
+}
+
 class ExecutionReference
 {
 	executionReference Identifier (1..1);
@@ -165,23 +175,6 @@ data rule ExercisePrimitive_fullExercise <"A full exercise should not result in 
 	when ExercisePrimitive -> fullExercise = True
 	then ExercisePrimitive -> after -> contract -> state = StateEnum.Exercised
 
-/*
- * TODO - Having the tradeHeader attribute as part of the execution is a work-around the fact that 
- * the tradeDate and the identifier are mapped through the FpML synonym while the tradeHeader is part of the Wosetta_Workbench.
- * It appears that to make it work we would need to have the ability to qualify the path expression to be in a distinct namespace.
- * The syntax could be [synonym FpML value partyTradeIdentifier pathExpression synonym Rosetta_Workbench "tradeHeader"], with absence of
- * further synonym meaning that there is no distinct namespace for the path expression.  (Should we be thinking about the case where
- * severeal nodes are part of the pathExpression, which cross distinct namespaces?)
- */
-class Execution
-{
-	tradeHeader TradeHeader (1..1);
-		[synonym Rosetta_Workbench value tradeHeader]
-	contractualProduct ContractualProduct (1..1);
-		[synonym Rosetta_Workbench value contractualProduct]
-	party Party (0..*) <"The party reference is optional because positioned as part of the Event class when the execution is specified as part of such context.">;
-}
-
 class GrossCashflow extends CashflowBase
 {
 	lineage Lineage (0..1) <"The lineage into the Payout components that might be associated with each of the gross cashflow elements.">;
@@ -190,7 +183,7 @@ class GrossCashflow extends CashflowBase
 	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">;
 		[synonym Rosetta_Workbench value cashflowType] // set cashflowType.premium when synonym premium exists]
 	cashflowCalculation calculation (0..1) <"The calculation used to compute the gross cashflow, when applicable.">;
-		[synonym Rosetta_Workbench value cashflowCalculation] 
+		[synonym Rosetta_Workbench value cashflowCalculation]
 }
 
 data rule EventTimestamp_ExpireTime <"The expire time should be greater than the creation time.">
@@ -360,21 +353,13 @@ class TimeZone <"The time alongside with the timezone location information. This
 		[synonym Rosetta_Workbench value location meta timezoneLocationScheme]
 }
 
-class TradeHeader
-{
-	identifier PartyContractIdentifier (1..*) <"The identifier(s) associated with the execution.">;
-		[synonym FpML, DTCC_PostTrade_11_0 value partyTradeIdentifier]
-	tradeDate date (1..1) id <"The trade/execution date.">;
-		[synonym FpML, DTCC_PostTrade_11_0 value tradeDate meta id]
-}
-
 class Transfer rosettaKey <"The primitive event for the transfer of cash, securities or physical asset between parties.">
 {
 	transferorTransferee TransferorTransferee (1..1);
 	asset Asset (1..1) <"The asset that is being transfered: cashflow, security, commodity, ...">;
 	settlementDate AdjustableOrAdjustedDate (0..1);
 		[synonym Rosetta_Workbench value transferDate]
-	transferCalculation calculation (0..1) <"The calculation used to compute the transfer, when applicable. An example of such is the FixedAmount or FloatingAmount calculation.">;	
+	transferCalculation calculation (0..1) <"The calculation used to compute the transfer, when applicable. An example of such is the FixedAmount or FloatingAmount calculation.">;
 		[synonym Rosetta_Workbench value transferCalculation]
 	type TransferTypeEnum (0..1) <"The qualification of the type of transfer, e.g. fee, interest, security settlement.">;
 		[synonym Rosetta_Workbench value transferType]
@@ -394,7 +379,7 @@ class TransferComponent <"A class to specify the breakdown information about a t
 	asset Asset (1..1) <"The asset is the same as the Transfer component, while the associated quantity/amount is expected to differ.">;
 	type TransferTypeEnum (0..1);
 		[synonym Rosetta_Workbench value transferType]
-	transferCalculation calculation (0..1) <"The calculation used to compute the transfer component, when applicable.">;	
+	transferCalculation calculation (0..1) <"The calculation used to compute the transfer component, when applicable.">;
 		[synonym Rosetta_Workbench value cashflowCalculation]
 }
 
@@ -413,11 +398,11 @@ class TransferorTransferee <"A class mimicking the PayerReceiver, which is itsel
 /**********************************************************************
  * Inheritance model alternative for asset-specific transfer primitives
  */
- 
+
 class TransferBase
 {
 	settlementDate AdjustableOrAdjustedOrRelativeDate (0..1); // Do we also need the ability to specify the date on which the transfer is instructed?
-	transferCalculation calculation (0..1) <"The calculation used to compute the transfer, when applicable.">;	
+	transferCalculation calculation (0..1) <"The calculation used to compute the transfer, when applicable.">;
 		[synonym Rosetta_Workbench value transferCalculation]
 	type TransferTypeEnum (0..1) <"The qualification of the type of transfer. It extends the CashflowTypeEnum because a transfer can involve cashflows.">;
 		[synonym Rosetta_Workbench value transferType]
@@ -459,7 +444,7 @@ class CashTransferComponent extends TransferComponentBase
 	type CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">;
 		[synonym Rosetta_Workbench value cashflowType] // set cashflowType.premium when synonym premium exists]
 	cashflowCalculation calculation (0..1) <"The calculation used to compute the gross cashflow, when applicable.">;
-		[synonym Rosetta_Workbench value cashflowCalculation] 
+		[synonym Rosetta_Workbench value cashflowCalculation]
 }
 
 class TransferComponentBase
@@ -581,7 +566,7 @@ isEvent PartialTermination <"The qualification of a partial termination event fr
 	 * TODO - Need to decide with the CDM Group if the event representation should provide the ability to reference a contract
 	 * If this is the case, we should adjust the logic across events so that if the contract reference is used instead of the contract terms, then the intent should be specified
 	 * If used as such, the below logic create an ambiguity with the partial novation.
-	 */	
+	 */
 //	or ( quantityBeforeQuantityChange > quantityAfterQuantityChange
 //		and quantityAfterQuantityChange > 0.0 )
 
@@ -608,7 +593,7 @@ alias quantityAfterQuantityChange <"The alias to represent the quantity or notio
 /*
  * TODO - Need to firm out the naming of the business events associated with the transfer primitive
  */
- 
+
 isEvent PaymentBusinessEvent // Or do we call this business event cash transfer, for consistency with security transfer?
 	Event -> primitive -> transfer only exists
 	and Event -> primitive -> transfer -> asset -> cash exists
@@ -622,7 +607,7 @@ isEvent SecurityTransferEvent // The event suffix is transitional
 isEvent SecuritySettlement
 	Event -> primitive -> transfer -> asset -> cash exists
 	and Event -> primitive -> transfer -> asset -> security exists
-	
+
 isEvent CommodityTransferEvent
 	Event -> primitive -> transfer only exists
 	and Event -> primitive -> transfer -> asset -> commodity exists

@@ -30,18 +30,12 @@ data rule TradeIdentifier_account <"FpML specifies a choice between issuer and [
 	when ContractIdentifier -> partyReference is absent
 	then ContractIdentifier -> accountReference is absent
 
-class ContractIdentifierExtended extends ContractIdentifier <"A class defining a trade identifier with a reference to the party that this trade is associated with.">
-	[synonym FpML value TradeIdentifierExtended]
-{
-	associatedPartyReference string (1..1) reference;
-		[synonym FpML, DTCC_PostTrade_11_0 value associatedParty meta href]
-}
-
 class Identifier extends IdentifierValue
 {
 	issuer string (1..1) scheme, reference <"The identifier issuer, specified by reference to a party specified as part of the transaction.">;
 		[synonym FpML value partyReference pathExpression "trade.tradeHeader.partyTradeIdentifier" meta href]
 		[synonym FpML value partyReference pathExpression "tradeHeader.partyTradeIdentifier" meta href]
+		[synonym FpML value partyReference meta href]
 		[synonym FpML value issuer pathExpression "trade.tradeHeader.partyTradeIdentifier" meta issuerIdScheme]
 		[synonym FpML value issuer pathExpression "tradeHeader.partyTradeIdentifier" meta issuerIdScheme]
 		[synonym FpML value issuer meta issuerIdScheme] // To be deprecated once we deprecate the contractReference
@@ -55,7 +49,7 @@ class Identifier extends IdentifierValue
 		[synonym FpML value version pathExpression "tradeHeader.partyTradeIdentifier.versionedTradeId"]
 		[synonym Rosetta_Workbench value version]
 		[synonym FpML value version] // To be deprecated once we deprecate the contractReference
-		[synonym FpML value version pathExpression "versionedTradeId"] // To be deprecated once we deprecate the contractReference
+		[synonym FpML value version pathExpression "versionedTradeId"]
 }
 
 class IdentifierValue <"A class to associate an id to an identifier value, to support constructs such as the FpML tradeIdentifier.">
@@ -70,20 +64,7 @@ class IdentifierValue <"A class to associate an id to an identifier value, to su
 		[synonym FpML value tradeId pathExpression "tradeHeader.partyTradeIdentifier.versionedTradeId" meta tradeIdScheme]
 		[synonym Rosetta_Workbench value identifier]
 		[synonym FpML value tradeId meta tradeIdScheme] // To be deprecated once we deprecate the contractReference
-		[synonym FpML value tradeId pathExpression "versionedTradeId" meta tradeIdScheme] // To be deprecated once we deprecate the contractReference
-		// Conditional mapping required? tradeIdScheme=“EventProcessingId” / tradeIdScheme=“TradeRefNbr”
-		[synonym DTCC_PostTrade_11_0 value tradeId pathExpression "Submitter.partyTradeIdentifier" maps 2 meta tradeIdScheme]
-		// Conditional mapping required? tradeIdScheme=“EventProcessingId” / tradeIdScheme=“TradeRefNbr”
-		[synonym DTCC_PostTrade_11_0 value USITradeId pathExpression "USI" maps 2 meta tradeIdScheme]
-}
-
-class LinkId <"The class to represent link identifiers.">
-	[synonym FpML value LinkId]
-{
-	id (0..1);
-		[synonym FpML, DTCC_PostTrade_11_0 meta id pathExpression "linkId"]
-	linkId string (1..1) scheme;
-		[synonym FpML, DTCC_PostTrade_11_0 value linkId meta linkIdScheme]
+		[synonym FpML value tradeId pathExpression "versionedTradeId" meta tradeIdScheme]
 }
 
 class PackageInformation <"A class defining additional information that may be recorded alongside a transaction package.">
@@ -103,27 +84,6 @@ class PackageInformation <"A class defining additional information that may be r
  * Only some of the attributes have been incorporated at this point, as some seem questionable (e.g. executionDateTime, which should be associated to the relevant execution event).
  */
 }
-
-class PartyContractIdentifier extends ContractIdentifier <"A class defining one or more identifiers allocated to the trade by a party. A link identifier allows the trade to be associated with other related trades, e.g. trades forming part of a larger structured transaction. It is expected that for external communication of trade there will be only one tradeId sent in the document per party.">
-	[synonym FpML value PartyTradeIdentifier]
-{
-//	id (0..1);
-//		[synonym FpML, DTCC_PostTrade_11_0 meta id]
-	linkId LinkId (0..*) <"A link identifier allowing the trade to be associated with other related trades, e.g. the linkId may contain a tradeId for an associated trade or several related trades may be given the same linkId. FpML does not define the domain values associated with this element. Note that the domain values for this element are not strictly an enumerated list.">;
-	allocationTradeId ContractIdentifier (0..*) <"The trade id of the allocated trade. This is used by the block trade to reference the allocated trade.">;
-		[synonym FpML, DTCC_PostTrade_11_0 value allocationTradeId]
-	resultingTradeId ContractIdentifierExtended (0..*) <"The trade id of a resulting trade (beta or gamma trade) that resulted from this trade during a clearing or similar operation (e.g. prime brokerage).">;
-		[synonym FpML, DTCC_PostTrade_11_0 value resultingTradeId]
-	blockTradeId ContractIdentifier (0..1) <"The trade id of the block trade. This is used by each one of the allocated trades to reference the block trade. This element can also represent the trade id of the parent trade for N-level allocations. In the case, this element is only used to model N-level allocations in which the trade acts as block and allocated trade at the same time. This basically means the ability to allocate a block trade to multiple allocation trades, and then allocate these in turn to other allocation trades (and so on if desired).">;
-		[synonym FpML, DTCC_PostTrade_11_0 value blockTradeId]
-	originatingTradeId ContractIdentifier (0..*) <"The trade id of the trade(s) upon which this was based, for example the ID of the trade that was submitted for clearing if this is a cleared trade, or of the original trade if this was novated or cancelled and rebooked, or the list of trades that were netted or compressed together in the case of a compression event. The originatingEvent will explain why the trade was created; the existence and number of originatingTradeId elements should correspond to the originatingEvent, and they should be interpreted using that field. If the trade is inside a business event structure (such as a novation or a compression event) this element should not be populated; instead the event should be used to represent the other trades.">;
-		[synonym FpML, DTCC_PostTrade_11_0 value originatingTradeId]
-
-}
-
-choice rule PartyContractIdentifier_choice <"Choice rule to represent an FpML choice construct.">
-	for PartyContractIdentifier optional choice between
-	allocationTradeId and resultingTradeId
 
 data rule VersionedTradeId_version <"FpML specifies the version as a non-negative integer.">
 	when Identifier -> version exists
@@ -146,4 +106,3 @@ class PercentageRule <"A class defining a content model for a calculation rule d
 	notionalAmountReference string (1..1) reference <"A reference to the notional amount.">;
 		[synonym FpML, DTCC_PostTrade_11_0 value notionalAmountReference meta href]
 }
-	
