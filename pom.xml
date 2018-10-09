@@ -23,6 +23,114 @@
 		<guava.version>26.0-jre</guava.version>
 	</properties>
 
+	<profiles>
+		<profile>
+			<id>full</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-resources-plugin</artifactId>
+						<version>3.1.0</version>
+						<executions>
+							<execution>
+								<id>copy-documentation</id>
+								<phase>validate</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${project.build.directory}/documentation-build</outputDirectory>
+									<resources>
+										<resource>
+											<directory>${basedir}/documentation/source</directory>
+											<excludes>
+												<exclude>conf.py</exclude>
+											</excludes>
+											<filtering>false</filtering>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
+							<execution>
+								<id>amend-documentation-version</id>
+								<phase>validate</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${project.build.directory}/documentation-build</outputDirectory>
+									<resources>
+										<resource>
+											<directory>${basedir}/documentation/source</directory>
+											<includes>
+												<include>conf.py</include>
+											</includes>
+											<filtering>true</filtering>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>kr.motd.maven</groupId>
+						<artifactId>sphinx-maven-plugin</artifactId>
+						<version>2.2.2</version>
+						<configuration>
+							<sourceDirectory>${project.build.directory}/documentation-build</sourceDirectory>
+							<outputDirectory>${project.build.directory}/classes/cdm/modeldoc</outputDirectory>
+						</configuration>
+						<executions>
+							<execution>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>generate</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<version>3.0.0</version>
+						<executions>
+							<execution>
+								<id>attach-javadocs</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>javadoc</goal>
+								</goals>
+								<configuration>
+									<reportOutputDirectory>${project.build.directory}/classes/cdm</reportOutputDirectory>
+									<doclet>nl.talsmasoftware.umldoclet.UMLDoclet</doclet>
+									<docletArtifact>
+										<groupId>nl.talsmasoftware</groupId>
+										<artifactId>umldoclet</artifactId>
+										<version>1.0.17</version>
+									</docletArtifact>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-source-plugin</artifactId>
+						<version>3.0.1</version>
+						<executions>
+							<execution>
+								<id>attach-sources</id>
+								<phase>package</phase>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
 	<build>
 		<plugins>
 			<plugin>
@@ -70,44 +178,6 @@
 									<includes>
 										<include>*.rosetta</include>
 									</includes>
-								</resource>
-							</resources>
-						</configuration>
-					</execution>
-					<execution>
-						<id>copy-documentation</id>
-						<phase>validate</phase>
-						<goals>
-							<goal>copy-resources</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>${project.build.directory}/documentation-build</outputDirectory>
-							<resources>
-								<resource>
-									<directory>${basedir}/documentation/source</directory>
-									<excludes>
-										<exclude>conf.py</exclude>
-									</excludes>
-									<filtering>false</filtering>
-								</resource>
-							</resources>
-						</configuration>
-					</execution>
-					<execution>
-						<id>amend-documentation-version</id>
-						<phase>validate</phase>
-						<goals>
-							<goal>copy-resources</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>${project.build.directory}/documentation-build</outputDirectory>
-							<resources>
-								<resource>
-									<directory>${basedir}/documentation/source</directory>
-									<includes>
-										<include>conf.py</include>
-									</includes>
-									<filtering>true</filtering>
 								</resource>
 							</resources>
 						</configuration>
@@ -207,60 +277,6 @@
 						<version>${junit.platform.version}</version>
 					</dependency>
 				</dependencies>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.0.0</version>
-				<executions>
-					<execution>
-						<id>attach-javadocs</id>
-						<phase>prepare-package</phase>
-						<goals>
-							<goal>javadoc</goal>
-						</goals>
-						<configuration>
-							<reportOutputDirectory>${project.build.directory}/classes/cdm</reportOutputDirectory>
-							<doclet>nl.talsmasoftware.umldoclet.UMLDoclet</doclet>
-							<docletArtifact>
-								<groupId>nl.talsmasoftware</groupId>
-								<artifactId>umldoclet</artifactId>
-								<version>1.0.17</version>
-							</docletArtifact>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>kr.motd.maven</groupId>
-				<artifactId>sphinx-maven-plugin</artifactId>
-				<version>2.2.2</version>
-				<configuration>
-					<sourceDirectory>${project.build.directory}/documentation-build</sourceDirectory>
-					<outputDirectory>${project.build.directory}/classes/cdm/modeldoc</outputDirectory>
-				</configuration>
-				<executions>
-					<execution>
-						<phase>prepare-package</phase>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<version>3.0.1</version>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<phase>package</phase>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 	</build>
