@@ -255,15 +255,15 @@ class ContractualQuantity
 		[synonym FpML value notionalReference meta href]
 	quantity Quantity (0..1);
 	notionalAmount Money (0..1) <"When applied to Credit default Swaps, this is the notional amount of protection coverage. ISDA 2003 Term: Floating Rate Payer Calculation Amount">;
-		[synonym FpML value initialValue path "calculationPeriodAmount.calculation" set when "calculationPeriodAmount.calculation.notionalSchedule.notionalStepSchedule.step" is absent]
+		[synonym FpML value initialValue path "calculationPeriodAmount.calculation" /*set when "calculationPeriodAmount.calculation.notionalSchedule.notionalStepSchedule.step" is absent*/]
 		[synonym FpML value calculationAmount path "periodicPayment.fixedAmountCalculation"]
 		[synonym FpML value calculationAmount path "periodicPayment.floatingAmountCalculation"]
 		[synonym Rosetta_Workbench value notionalAmount]
 		[synonym FpML value notionalAmount]
 	notionalSchedule NotionalSchedule (0..1);
-		[synonym FpML value notionalSchedule path "calculationPeriodAmount.calculation" set when "calculationPeriodAmount.calculation.notionalSchedule.notionalStepSchedule.step" exists]
+		[synonym FpML value notionalSchedule path "calculationPeriodAmount.calculation" /*set when "calculationPeriodAmount.calculation.notionalSchedule.notionalStepSchedule.step" exists*/]
 	fxLinkedNotional FxLinkedNotionalSchedule (0..1);
-		[synonym FpML value fxLinkedNotionalSchedule path "calculationPeriodAmount.calculation" set when "calculationPeriodAmount.calculation.fxLinkedNotionalSchedule.initialValue" exists]
+		[synonym FpML value fxLinkedNotionalSchedule path "calculationPeriodAmount.calculation" /*set when "calculationPeriodAmount.calculation.fxLinkedNotionalSchedule.initialValue" exists*/]
 	futureValueNotional FutureValueAmount (0..1);
 	 	[synonym FpML value futureValueNotional path "calculationPeriodAmount.calculation"]
 }
@@ -631,18 +631,12 @@ data rule PaymentDates_paymentFrequency <"FpML specifies a required paymentFrequ
 class Payout <"The payout can be specified through a number of combinations, e.g. by associating several interest rate payouts to specify an interest rate swap, or a credit default and an interest rate payout to specify a credit default swap. The implied product is inferred by the isProduct CDM artefact. Each of the payout classes have an associated rosettaKeyValue which can be referenced by implementers as part of their grossCahflow attribute in the Transfer class, but establishing a lineage between this computed cashflow and the originating payout, when applicable.">
 {
 	interestRatePayout InterestRatePayout (0..*);
-		[synonym FpML value swapStream path "trade.swap" /*set when "Payout -> optionPayout -> underlyer -> contractualProduct" is absent*/]
-		[synonym FpML value swapStream path "swap" /*set when "Payout -> optionPayout -> underlyer -> contractualProduct" is absent*/]
-		[synonym FpML value swapStream path "trade.swaption.swap"]
-		[synonym FpML value swapStream path "swaption.swap"]
+		[synonym FpML value swapStream path "trade.swap" ]
+		[synonym FpML value swapStream path "swap"]
 		[synonym FpML value feeLeg path "trade.creditDefaultSwap"]
 		[synonym FpML value feeLeg path "creditDefaultSwap"]
-		[synonym FpML value feeLeg path "trade.creditDefaultSwapOption.creditDefaultSwap" /*set when "Payout -> optionPayout -> underlyer -> contractualProduct" is absent*/]
-		[synonym FpML value feeLeg path "creditDefaultSwapOption.creditDefaultSwap" /*set when "Payout -> optionPayout -> underlyer -> contractualProduct" is absent*/]
 		[synonym FpML value generalTerms path "trade.creditDefaultSwap"]
 		[synonym FpML value generalTerms path "creditDefaultSwap"]
-		[synonym FpML value generalTerms path "trade.creditDefaultSwapOption.creditDefaultSwap" /*set when "Payout -> optionPayout -> underlyer -> contractualProduct" is absent*/]
-		[synonym FpML value generalTerms path "creditDefaultSwapOption.creditDefaultSwap" /*set when "Payout -> optionPayout -> underlyer -> contractualProduct" is absent*/]
 	creditDefaultPayout CreditDefaultPayout (0..1);
 	cashflow Cashflow (0..*) <"A cashflow between the parties to the trade. For interest rate products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the initialPayment element and the singlePayment element of the fee leg.">;
 		[synonym FpML value additionalPayment path "trade.swap"]
