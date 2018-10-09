@@ -37,12 +37,6 @@ class Contract rosettaKey <"A class to specify a contract object, which can be i
 		[synonym FpML, DTCC_PostTrade_11_0 meta id pathExpression "tradeHeader"]
 		[synonym Rosetta_Workbench meta id]
 	contractIdentifier Identifier (1..*) <"The contract identifier, which has 3 components: an actual identifier, an issuer and a version number. There can be several contract identifier, an example of such being a contract is reportable to both the CFTC and ESMA and then has an associated USI (Unique Swap Identifier) UTI (Unique Trade Identifier).">;
-	/*
-	 * To be deprecated once the contractIdentifier approach has been vetted
-	 */
-//	contractId PartyContractIdentifier (1..*) <"The contract reference identifier(s) allocated by the parties involved in the contract.">;
-//		[synonym FpML, DTCC_PostTrade_11_0 value partyTradeIdentifier pathExpression "trade.tradeHeader"]
-//		[synonym FpML, DTCC_PostTrade_11_0 value partyTradeIdentifier pathExpression "tradeHeader"]
 	tradeDate DateInstances (1..1) <"The trade date. This is the date on which the trade was originally executed. The trade date is specified through the DateInstances class so that in the case of a novation the novated part of the trade be reported (by both the remaining party and the transferee) using the date on which the novation was agreed on. The remaining part of a trade is to be reported (by both the transferor and the remaining party) using a trade date corresponding to the original execution date.">;
 	clearedDate date (0..1) <"If the trade was cleared (novated) through a central counterparty clearing service, this represents the date the trade was cleared (transferred to the central counterparty).">;
 		[synonym FpML, DTCC_PostTrade_11_0 value clearedDate pathExpression "trade.tradeHeader"]
@@ -568,7 +562,7 @@ class OptionPayout rosettaKey <"The option payout specification terms.">
 	quantity ContractualQuantity (0..1) <"The option notional amount. The CDM uses the generic term quantity rather than notional amount. The number of options is specified as part of the denomination attribute.">;
 	exerciseTerms OptionExercise (1..1) <"The terms for exercising the option, which include the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">;
 	underlyer Product (1..1) <"The option underlyer. The implementation is restricted to contractual underlyers as part of the initial CDM phase.">;
-		
+
 }
 
 class PaymentDates <"The payment dates schedule. As a difference from the FpML PaymentDate, this class incorporates the CDS paymentDelay element, and the following reference elements have been omitted, because deemed of no relevant usage by the ISDA CDM Group: calculationPeriodDatesReference, resetDatesReference, ValuationDatesReference.">
@@ -702,7 +696,7 @@ data rule CalculationPeriodDates_calculationPeriodFrequency <"FpML specifies a r
 	then Payout -> interestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency exists
 
 data rule ResetDates_interestRateSwap <"The cardinality of the ResetDates attributes has been relaxed with respect to the FpML implementation to accommodate the credit default swap initial and final fixing dates. The purpose of this data rule is to apply the FpML data constraints when the product is an interest rate swap.">
-	when Payout -> interestRatePayout count = 2 
+	when Payout -> interestRatePayout count = 2
 		and Payout -> interestRatePayout -> resetDates exists
 	then Payout -> interestRatePayout -> resetDates -> calculationPeriodDatesReference exists
 		and Payout -> interestRatePayout -> resetDates -> fixingDates exists
@@ -908,7 +902,7 @@ isProduct InterestRate_CrossCurrency_FixedFloat
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges exists
 	and EconomicTerms -> payout -> optionPayout is absent
-	
+
 isProduct InterestRate_CrossCurrency_FixedFixed
 	[synonym ISDA_Taxonomy_v1 value InterestRate_CrossCurrency_FixedFixed]
 	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate count = 2
