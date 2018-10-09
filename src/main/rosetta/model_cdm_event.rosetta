@@ -21,6 +21,15 @@ class ComputedAmount <"A class to specify the outcome of a computed amount, for 
 		[synonym Rosetta_Workbench value currency meta currencyScheme]
 }
 
+class ContractEvent <"A class to specify a contract when corresponding to the before or after state of a lifecycle event.">
+{
+	contract Contract (1..1);
+		[synonym Rosetta_Workbench value trade]
+        [synonym DTCC_PostTrade_11_0 value trade pathExpression "FpML"]
+        [synonym DTCC_PostTrade_11_0 value TradeMsg]
+
+}
+
 class ContractOrContractReference one of
 {
 	contract Contract (0..*);
@@ -41,7 +50,6 @@ class Curve one of
 		[synonym Rosetta_Workbench value interestRateCurve]
 	commodityCurve CommodityReferencePriceEnum (0..1) scheme; // This is just an illustrative alternative curve instance, which implementation needs to be refined and confirmed
 		[synonym Rosetta_Workbench value commodityCurve meta commodityReferencePriceScheme]
-
 }
 
 class Event
@@ -49,10 +57,14 @@ class Event
 	id (0..1);
 		[synonym Rosetta_Workbench meta id]
 	messageInformation MessageInformation (0..1);
+		[synonym DTCC_PostTrade_11_0 value header pathExpression "Body.OTC_Matching.Trade.FpML"]
+		[synonym DTCC_PostTrade_11_0 value RouteInfo pathExpression "Header.OTC_RM.Delivery"]
 	timestamp EventTimestamp (1..1);
 		[synonym Rosetta_Workbench value timestamp]
-	eventIdentifier Identifier (1..1);
+		[synonym DTCC_PostTrade_11_0 value header pathExpression "Body.OTC_Matching.Trade.FpML"]
+    eventIdentifier Identifier (1..1) <"The contract identifier, which has 3 components: an actual identifier, an issuer and a version number. One and only one identifier can be associated with a lifecycle event.">;
 		[synonym Rosetta_Workbench value eventIdentifier]
+		[synonym DTCC_PostTrade_11_0 value TradeMsg pathExpression "Header.OTC_RM.Manifest"]
 	eventQualifier eventType (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic. This value is derived by the CDM from the event features.">;
 	eventDate date (1..1);
 		[synonym Rosetta_Workbench value eventDate]
@@ -62,10 +74,16 @@ class Event
 		[synonym FpML value isCorrection
 			set to ActionEnum.New when "isCorrection" = False,
 			set to ActionEnum.Correct when "isCorrection" = True]
+		[synonym DTCC_PostTrade_11_0 value Activity pathExpression "Header.OTC_RM.Manifest.TradeMsg"
+			set to ActionEnum.New when "Header.OTC_RM.Manifest.TradeMsg.Activity" = "New",
+			set to ActionEnum.Correct when "Header.OTC_RM.Manifest.TradeMsg.Activity" = "Modify",
+			set to ActionEnum.Cancel when "Header.OTC_RM.Manifest.TradeMsg.Activity" = "Cancel"]
 	intent IntentEnum (0..1);
 		[synonym Rosetta_Workbench value intent]
 	party Party (0..*) <"The specification of the event parties. This attribute is optional, as not applicable to certain events (e.g. most of the observations).">;
-		[synonym FpML value party]
+		[synonym FpML, DTCC_PostTrade_11_0 value party]
+		[synonym DTCC_PostTrade_11_0 value party pathExpression "Body.OTC_Matching.Trade.FpML", "Body.OTC_Matching.Termination", "Body.OTC_Matching.Assignment", "Body.OTC_Matching.Exercise"]
+		[synonym DTCC_PostTrade_11_0 value party pathExpression "Body.OTC_Matching.Trade.FpML"]
 	lineage Lineage (0..1);
 		[synonym Rosetta_Workbench value lineage]
 	primitive PrimitiveEvent (1..1);
@@ -81,7 +99,7 @@ class EventEffect <"The set of operational and positional effects associated wit
 	effectedContractReference ContractReference (0..*) rosettaKey <"A pointer to the reference contract(s) to which the event effect(s) apply, i.e. in the before event state.">;
 	contract Contract (0..*) rosettaKey <"A pointer to the contract effect(s), an example of such being the outcome of a new trade, swaption exercise or novation event.">;
 	contractReference ContractReference (0..*) rosettaKey <"A pointer to the contract reference effect(s), an example of such being the outcome of a novation or compression event.">;
-    listedProduct ListedProduct (0..*) rosettaKey <"A pointer to the listed product effect(s), an example of such being the outcome of the physical exercise of a bond option.">;
+    security ProductIdentifier (0..*) rosettaKey <"A pointer to the listed product effect(s), an example of such being the outcome of the physical exercise of a bond option.">;
 	payment Payment (0..*) rosettaKey <"A pointer to the payment effect(s), an example of such being the outcome of an option cash exercise.">;
 	transfer Transfer (0..*) rosettaKey <"A pointer to the transfer effect(s), either a cash, security or other asset.">;
 }
@@ -99,8 +117,20 @@ class EventTimestamp <"This class corresponds to the timestamp components of the
 	creationTimestamp dateTime (1..1) <"The date and time (on the source system) when this event was created.">;
 		[synonym FpML value creationTimestamp path "header"]
 		[synonym Rosetta_Workbench value creationTimestamp]
+		[synonym DTCC_PostTrade_11_0 value creationTimestamp]
 	expiryTimestamp dateTime (0..1) <"The date and time (on the source system) when this event will be considered expired.">;
-		[synonym FpML value expiryTimestamp]
+		[synonym FpML, DTCC_PostTrade_11_0 value expiryTimestamp]
+}
+
+class Execution
+{
+	identifier Identifier (1..*) <"The identifier(s) associated with the execution.">;
+		[synonym Rosetta_Workbench value identifier]
+	tradeDate date (1..1) id <"The trade/execution date.">;
+		[synonym Rosetta_Workbench value tradeDate meta id]
+	contractualProduct ContractualProduct (1..1);
+		[synonym Rosetta_Workbench value contractualProduct]
+	party Party (0..*) <"The party reference is optional because positioned as part of the Event class when the execution is specified as part of such context.">;
 }
 
 class ExecutionReference
@@ -145,23 +175,6 @@ data rule ExercisePrimitive_fullExercise <"A full exercise should not result in 
 	when ExercisePrimitive -> fullExercise = True
 	then ExercisePrimitive -> after -> contract -> state = StateEnum.Exercised
 
-/*
- * TODO - Having the tradeHeader attribute as part of the execution is a work-around the fact that 
- * the tradeDate and the identifier are mapped through the FpML synonym while the tradeHeader is part of the Wosetta_Workbench.
- * It appears that to make it work we would need to have the ability to qualify the path expression to be in a distinct namespace.
- * The syntax could be [synonym FpML value partyTradeIdentifier path synonym Rosetta_Workbench "tradeHeader"], with absence of
- * further synonym meaning that there is no distinct namespace for the path expression.  (Should we be thinking about the case where
- * severeal nodes are part of the path, which cross distinct namespaces?)
- */
-class Execution
-{
-	tradeHeader TradeHeader (1..1);
-		[synonym Rosetta_Workbench value tradeHeader]
-	contractualProduct ContractualProduct (1..1);
-		[synonym Rosetta_Workbench value contractualProduct]
-	party Party (0..*) <"The party reference is optional because positioned as part of the Event class when the execution is specified as part of such context.">;
-}
-
 class GrossCashflow extends CashflowBase
 {
 	lineage Lineage (0..1) <"The lineage into the Payout components that might be associated with each of the gross cashflow elements.">;
@@ -170,7 +183,7 @@ class GrossCashflow extends CashflowBase
 	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">;
 		[synonym Rosetta_Workbench value cashflowType] // set cashflowType.premium when synonym premium exists]
 	cashflowCalculation calculation (0..1) <"The calculation used to compute the gross cashflow, when applicable.">;
-		[synonym Rosetta_Workbench value cashflowCalculation] 
+		[synonym Rosetta_Workbench value cashflowCalculation]
 }
 
 data rule EventTimestamp_ExpireTime <"The expire time should be greater than the creation time.">
@@ -179,10 +192,16 @@ data rule EventTimestamp_ExpireTime <"The expire time should be greater than the
 
 class Inception <"The primitive event for the inception of a new contract between parties. It is expected that this primitive will be adjusted or deprecated once the CDM scope is extended to the pre-execution space.">
 {
-	before ContractOrContractReference (0..0) <"The (0..0) cardinality reflects the fact that that is no contract in the before state of an inception primitive.">;
+	before ContractEvent (0..0) <"The (0..0) cardinality reflects the fact that there is no contract in the before state of an inception primitive. As noted in the definition associated with the class, this is expected to change once the CDM scope is extended to the pre-execution space.">;
 		[synonym Rosetta_Workbench value before]
-	after ContractOrContractReference (1..1);
+	/*
+	 * Need to add the rosettaKey entry
+	 */
+	after ContractEvent (1..1) reference <"The after state corresponds to the new contract between the parties. Depending upon the implementation approach, this contract can either be explicitly stated, or referenced via either a CDM rosettaKey or a reference that originates externally from the CDM.">;
 		[synonym Rosetta_Workbench value after]
+		// Requires conditional mapping based on OTC_RM_11-0.TransTypeDataType
+		[synonym DTCC_PostTrade_11_0 value Trade pathExpression "Body.OTC_Matching"]
+		[synonym DTCC_PostTrade_11_0 value Manifest pathExpression "Header.OTC_RM"]
 }
 
 class InterestRateCurve
@@ -201,7 +220,7 @@ class Lineage <"The class to provide lineage information across transactions.">
 		[synonym Rosetta_Workbench value eventReference meta href]
 	cashflowReference string (0..*) reference; // Implementation to be adjusted to be of type Cashflow in order to accommodate a rosettaKey
 		[synonym Rosetta_Workbench value cashflowReference meta href]
-	creditDefaultReference string (0..*) reference; // Implementation to be adjusted to be of type creditDefaultPayout in order to accommodate a rosettaKey
+	creditDefaultPayoutReference string (0..*) reference; // Implementation to be adjusted to be of type creditDefaultPayout in order to accommodate a rosettaKey
 		[synonym Rosetta_Workbench value creditDefaultReference meta href]
 	interestRatePayoutReference string (0..*) reference; // Implementation to be adjusted to be of type InterestRatePayout in order to accommodate a rosettaKey
 		[synonym Rosetta_Workbench value interestRatePayoutReference meta href]
@@ -213,10 +232,13 @@ class MessageInformation <"This class corresponds to the messaging components of
 {
 	messageId string (1..1) scheme <"A unique identifier assigned to the message.">;
 		[synonym Rosetta_Workbench value messageId path "messageInformation" meta messageIdScheme]
+		[synonym DTCC_PostTrade_11_0 value messageId meta messageIdScheme]
 	sentBy string (0..1) scheme <"The identifier for the originator of a message instance.">;
 		[synonym Rosetta_Workbench value sentBy path "messageInformation" meta messageAddressScheme]
+		[synonym DTCC_PostTrade_11_0 value From]
 	sentTo string (0..1) scheme <"The identifier for the recipient of a message instance.">;
 		[synonym Rosetta_Workbench value sentTo path "messageInformation" meta messageAddressScheme]
+		[synonym DTCC_PostTrade_11_0 value To]
 	copyTo string (0..*) scheme  <"A unique identifier (within the specified coding scheme) giving the details of some party to whom a copy of this message will be sent for reference.">;
 }
 
@@ -248,11 +270,12 @@ data rule ObservationSource_content <"ObservationSource should not be empty, alt
 		or ObservationSource -> curve exists
 		or ObservationSource -> informationSource exists
 
-class PhysicalExercise extends ContractOrContractReference <"The physical exercise could combine several contracts (partial exercise of a swaption) or a contract and a listed product (partial exercise of a bond option).">
+class PhysicalExercise extends ContractOrContractReference <"The physical exercise could combine several contracts (partial exercise of a swaption) or a contract and a bond or convertible bond (partial exercise of a fixed income option).">
 {
-	listedProduct ListedProduct (0..1);
-		[synonym Rosetta_Workbench value listedProduct]
-	commodity Commodity (0..1);
+	bond ProductIdentifier (0..1);
+		[synonym Rosetta_Workbench value bond]
+	convertibleBond ProductIdentifier (0..1);
+		[synonym Rosetta_Workbench value convertibleBond]
 	quantity Quantity (0..1) <"The quantity amount associated the asset that is physically settled.">;
 		[synonym Rosetta_Workbench value quantity]
 	cashflow Cashflow (0..1) <"The cashflow component of the physical exercise.">;
@@ -261,10 +284,10 @@ class PhysicalExercise extends ContractOrContractReference <"The physical exerci
 
 choice rule PhysicalExercise_choice <"This choice rule will be adjusted as a function of the further types of assets that are be associated with options.">
 	for PhysicalExercise required choice between
-	listedProduct and commodity
+	bond and convertibleBond
 
-data rule PhysicalExercise_quantity <"The quantity attribute must be associated with the ohysical exercise of a listed product or commodity.">
-	when ( PhysicalExercise -> commodity or PhysicalExercise -> listedProduct ) exists
+data rule PhysicalExercise_quantity <"The quantity attribute must be associated with the physical exercise of a security or commodity.">
+	when ( PhysicalExercise -> bond or PhysicalExercise -> convertibleBond) exists
 	then PhysicalExercise -> quantity exists
 
 class PrimitiveEvent <"The set of primitive events. The purpose of this class it to provide clarity with respect to the event qualification logic.">
@@ -330,21 +353,13 @@ class TimeZone <"The time alongside with the timezone location information. This
 		[synonym Rosetta_Workbench value location meta timezoneLocationScheme]
 }
 
-class TradeHeader
-{
-	identifier PartyContractIdentifier (1..*) <"The identifier(s) associated with the execution.">;
-		[synonym FpML value partyTradeIdentifier]
-	tradeDate date (1..1) id <"The trade/execution date.">;
-		[synonym FpML value tradeDate meta id]
-}
-
 class Transfer rosettaKey <"The primitive event for the transfer of cash, securities or physical asset between parties.">
 {
 	transferorTransferee TransferorTransferee (1..1);
 	asset Asset (1..1) <"The asset that is being transfered: cashflow, security, commodity, ...">;
 	settlementDate AdjustableOrAdjustedDate (0..1);
 		[synonym Rosetta_Workbench value transferDate]
-	transferCalculation calculation (0..1) <"The calculation used to compute the transfer, when applicable. An example of such is the FixedAmount or FloatingAmount calculation.">;	
+	transferCalculation calculation (0..1) <"The calculation used to compute the transfer, when applicable. An example of such is the FixedAmount or FloatingAmount calculation.">;
 		[synonym Rosetta_Workbench value transferCalculation]
 	type TransferTypeEnum (0..1) <"The qualification of the type of transfer, e.g. fee, interest, security settlement.">;
 		[synonym Rosetta_Workbench value transferType]
@@ -364,30 +379,30 @@ class TransferComponent <"A class to specify the breakdown information about a t
 	asset Asset (1..1) <"The asset is the same as the Transfer component, while the associated quantity/amount is expected to differ.">;
 	type TransferTypeEnum (0..1);
 		[synonym Rosetta_Workbench value transferType]
-	transferCalculation calculation (0..1) <"The calculation used to compute the transfer component, when applicable.">;	
+	transferCalculation calculation (0..1) <"The calculation used to compute the transfer component, when applicable.">;
 		[synonym Rosetta_Workbench value cashflowCalculation]
 }
 
 class TransferorTransferee <"A class mimicking the PayerReceiver, which is itself derived from the FpML PayerReceiver.model, to represent the transferee and transferor party information in relation to the transfer of assets.">
 {
 	transferorPartyReference string (1..1) reference <"A reference to the party responsible for making the payments defined by this structure.">;
-		[synonym FpML value payerPartyReference meta href]
+		[synonym FpML, DTCC_PostTrade_11_0 value payerPartyReference meta href]
 	transferorAccountReference string (0..1) reference <"A reference to the account responsible for making the payments defined by this structure.">;
-		[synonym FpML value payerAccountReference meta href]
+		[synonym FpML, DTCC_PostTrade_11_0 value payerAccountReference meta href]
 	transfereePartyReference string (1..1) reference <"A reference to the party that receives the payments corresponding to this structure.">;
-		[synonym FpML value receiverPartyReference meta href]
+		[synonym FpML, DTCC_PostTrade_11_0 value receiverPartyReference meta href]
 	transfereeAccountReference string (0..1) reference <"A reference to the account that receives the payments corresponding to this structure.">;
-		[synonym FpML value receiverAccountReference meta href]
+		[synonym FpML, DTCC_PostTrade_11_0 value receiverAccountReference meta href]
 }
 
 /**********************************************************************
  * Inheritance model alternative for asset-specific transfer primitives
  */
- 
+
 class TransferBase
 {
 	settlementDate AdjustableOrAdjustedOrRelativeDate (0..1); // Do we also need the ability to specify the date on which the transfer is instructed?
-	transferCalculation calculation (0..1) <"The calculation used to compute the transfer, when applicable.">;	
+	transferCalculation calculation (0..1) <"The calculation used to compute the transfer, when applicable.">;
 		[synonym Rosetta_Workbench value transferCalculation]
 	type TransferTypeEnum (0..1) <"The qualification of the type of transfer. It extends the CashflowTypeEnum because a transfer can involve cashflows.">;
 		[synonym Rosetta_Workbench value transferType]
@@ -429,7 +444,7 @@ class CashTransferComponent extends TransferComponentBase
 	type CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">;
 		[synonym Rosetta_Workbench value cashflowType] // set cashflowType.premium when synonym premium exists]
 	cashflowCalculation calculation (0..1) <"The calculation used to compute the gross cashflow, when applicable.">;
-		[synonym Rosetta_Workbench value cashflowCalculation] 
+		[synonym Rosetta_Workbench value cashflowCalculation]
 }
 
 class TransferComponentBase
@@ -551,7 +566,7 @@ isEvent PartialTermination <"The qualification of a partial termination event fr
 	 * TODO - Need to decide with the CDM Group if the event representation should provide the ability to reference a contract
 	 * If this is the case, we should adjust the logic across events so that if the contract reference is used instead of the contract terms, then the intent should be specified
 	 * If used as such, the below logic create an ambiguity with the partial novation.
-	 */	
+	 */
 //	or ( quantityBeforeQuantityChange > quantityAfterQuantityChange
 //		and quantityAfterQuantityChange > 0.0 )
 
@@ -578,21 +593,21 @@ alias quantityAfterQuantityChange <"The alias to represent the quantity or notio
 /*
  * TODO - Need to firm out the naming of the business events associated with the transfer primitive
  */
- 
+
 isEvent PaymentBusinessEvent // Or do we call this business event cash transfer, for consistency with security transfer?
 	Event -> primitive -> transfer only exists
-	and Event -> primitive -> transfer -> asset -> cashflow exists
+	and Event -> primitive -> transfer -> asset -> cash exists
 	and Event -> primitive -> transfer -> asset -> security is absent
 
 isEvent SecurityTransferEvent // The event suffix is transitional
 	Event -> primitive -> transfer only exists
 	and Event -> primitive -> transfer -> asset -> security exists
-	and Event -> primitive -> transfer -> asset -> cashflow is absent
+	and Event -> primitive -> transfer -> asset -> cash is absent
 
 isEvent SecuritySettlement
-	Event -> primitive -> transfer -> asset -> cashflow exists
+	Event -> primitive -> transfer -> asset -> cash exists
 	and Event -> primitive -> transfer -> asset -> security exists
-	
+
 isEvent CommodityTransferEvent
 	Event -> primitive -> transfer only exists
 	and Event -> primitive -> transfer -> asset -> commodity exists
