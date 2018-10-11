@@ -10,16 +10,16 @@ class CalculationAgentModel <"This class corresponds to the FpML CalculationAgen
 	calculationAgentBusinessCenter BusinessCenterEnum (0..1) <"The city in which the office through which ISDA Calculation Agent is acting for purposes of the transaction is located. The short-form confirm for a trade that is executed under a Sovereign or Asia-Pacific Master Confirmation Agreement (MCA), does not need to specify the Calculation Agent. However, the confirm does need to specify the Calculation Agent city. This is due to the fact that the MCA sets the value for Calculation Agent but does not set the value for Calculation Agent city.">;
 		[synonym FpML_5_10 value calculationAgentBusinessCenter pathExpression "trade"]
 		[synonym Rosetta_Workbench value calculationAgentBusinessCenter]
-		[synonym DTCC_PostTrade_11_0 value calculationAgentBusinessCenter pathExpression "Body.OTC_Matching.Trade.FpML.trade"]
+		[synonym DTCC_11_0 value calculationAgentBusinessCenter pathExpression "Body.OTC_Matching.Trade.FpML.trade"]
 }
 
 class ContractIdentifier extends Identifier <"A class defining a trade identifier issued by the indicated party. The CDM doesn't extends the base class PartyAndAccountReference because of the choice logic with the issuer element.">
 	[synonym FpML_5_10 value TradeIdentifier]
 {
 	partyReference string (0..1) reference <"Reference to a party.">;
-		[synonym FpML_5_10, DTCC_PostTrade_11_0 value partyReference meta href]
+		[synonym FpML_5_10, DTCC_11_0 value partyReference meta href]
 	accountReference string (0..1) reference <"Reference to an account.">;
-		[synonym FpML_5_10, DTCC_PostTrade_11_0 value accountReference meta href]
+		[synonym FpML_5_10, DTCC_11_0 value accountReference meta href]
 }
 
 choice rule ContractIdentifier_choice <"Choice rule to represent an FpML choice construct.">
@@ -41,10 +41,10 @@ class Identifier extends IdentifierValue
 		[synonym FpML_5_10 value issuer meta issuerIdScheme] // To be deprecated once we deprecate the contractReference
 		[synonym Rosetta_Workbench value issuer meta href]
 		// Conditional mapping required? tradeIdScheme=“EventProcessingId” / tradeIdScheme=“TradeRefNbr”
-		[synonym DTCC_PostTrade_11_0 value partyReference pathExpression "Submitter.partyTradeIdentifier" maps 2 meta href]
-		[synonym DTCC_PostTrade_11_0 value partyReference pathExpression "ContraTradeId.partyTradeIdentifier" maps 2 meta href]
+		[synonym DTCC_11_0 value partyReference pathExpression "Submitter.partyTradeIdentifier" maps 2 meta href]
+		[synonym DTCC_11_0 value partyReference pathExpression "ContraTradeId.partyTradeIdentifier" maps 2 meta href]
 		// Conditional mapping required? tradeIdScheme=“EventProcessingId” / tradeIdScheme=“TradeRefNbr”
-		[synonym DTCC_PostTrade_11_0 value USIIssuer pathExpression "USI" maps 2 meta issuerIdScheme]
+		[synonym DTCC_11_0 value USIIssuer pathExpression "USI" maps 2 meta issuerIdScheme]
 	version int (1..1) <"The identifier version, which is specified as an integer and is meant to be incremented each time the transaction terms (whether contract or event) change.">;
 		[synonym FpML_5_10 value version pathExpression "trade.tradeHeader.partyTradeIdentifier.versionedTradeId"]
 		[synonym FpML_5_10 value version pathExpression "tradeHeader.partyTradeIdentifier.versionedTradeId"]
@@ -67,25 +67,25 @@ class IdentifierValue <"A class to associate an id to an identifier value, to su
 		[synonym FpML_5_10 value tradeId meta tradeIdScheme] // To be deprecated once we deprecate the contractReference
 		[synonym FpML_5_10 value tradeId pathExpression "versionedTradeId" meta tradeIdScheme]
         // Conditional mapping required? tradeIdScheme=“EventProcessingId” / tradeIdScheme=“TradeRefNbr”
-        [synonym DTCC_PostTrade_11_0 value tradeId pathExpression "Submitter.partyTradeIdentifier" maps 2 meta tradeIdScheme]
-        [synonym DTCC_PostTrade_11_0 value tradeId pathExpression "ContraTradeId.partyTradeIdentifier" maps 2 meta tradeIdScheme]
+        [synonym DTCC_11_0 value tradeId pathExpression "Submitter.partyTradeIdentifier" maps 2 meta tradeIdScheme]
+        [synonym DTCC_11_0 value tradeId pathExpression "ContraTradeId.partyTradeIdentifier" maps 2 meta tradeIdScheme]
         // Conditional mapping required? tradeIdScheme=“EventProcessingId” / tradeIdScheme=“TradeRefNbr”
-        [synonym DTCC_PostTrade_11_0 value USITradeId pathExpression "USI" maps 2 meta tradeIdScheme]
+        [synonym DTCC_11_0 value USITradeId pathExpression "USI" maps 2 meta tradeIdScheme]
 }
 
 class PackageInformation <"A class defining additional information that may be recorded alongside a transaction package.">
 	[synonym FpML_5_10 value PackageInformation]
 {
 	relatedParty RelatedParty (0..*) <"This may be used to identify one or more parties that perform a role as part of the transaction.">;
-		[synonym FpML_5_10, DTCC_PostTrade_11_0 value relatedParty]
+		[synonym FpML_5_10, DTCC_11_0 value relatedParty]
 	category CategoryEnum (0..*);
-		[synonym FpML_5_10, DTCC_PostTrade_11_0 value category]
+		[synonym FpML_5_10, DTCC_11_0 value category]
 	/*
 	 * Why should the below be specifically associated with package transactions?
 	 * It seems to also be relevant in the context of single trades
 	 */
 	intentToAllocate boolean (0..1) <"specifies whether the transaction package is anticipated to be allocated.">;
-		[synonym FpML_5_10, DTCC_PostTrade_11_0 value intentToAllocate]
+		[synonym FpML_5_10, DTCC_11_0 value intentToAllocate]
 /*
  * Only some of the attributes have been incorporated at this point, as some seem questionable (e.g. executionDateTime, which should be associated to the relevant execution event).
  */
@@ -99,16 +99,16 @@ class PartyContractInformation <"A class defining party-specific additional info
 	[synonym FpML_5_10 value PartyTradeInformation]
 {
 	partyReference string (1..1) reference <"The reference to the party that owns this party contract information or, in the case of shared trades information, the reference that originated such information.">;
-		[synonym FpML_5_10, DTCC_PostTrade_11_0 value partyReference meta href]
+		[synonym FpML_5_10, DTCC_11_0 value partyReference meta href]
 	naturalPersonRole NaturalPersonRole (0..*) <"The role(s) that natural person(s) may have in relation to the contract.">;
-		[synonym FpML_5_10, DTCC_PostTrade_11_0 value relatedPerson]
+		[synonym FpML_5_10, DTCC_11_0 value relatedPerson]
 }
 
 class PercentageRule <"A class defining a content model for a calculation rule defined as percentage of the notional amount.">
 	[synonym FpML_5_10 value PercentageRule]
 {
 	paymentPercent number (1..1) <"A percentage of the notional amount.">;
-		[synonym FpML_5_10, DTCC_PostTrade_11_0 value paymentPercent]
+		[synonym FpML_5_10, DTCC_11_0 value paymentPercent]
 	notionalAmountReference string (1..1) reference <"A reference to the notional amount.">;
-		[synonym FpML_5_10, DTCC_PostTrade_11_0 value notionalAmountReference meta href]
+		[synonym FpML_5_10, DTCC_11_0 value notionalAmountReference meta href]
 }
