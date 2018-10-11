@@ -482,17 +482,13 @@ data rule FpML_ird_7_1 <"FpML validation rule ird-7 1/2 - The existence of compo
  		and InterestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier
  	then ( InterestRatePayout -> compoundingMethod is absent or InterestRatePayout -> compoundingMethod = CompoundingMethodEnum.None )
 
-/*
- * TODO - Take a closer look into the InterestRatePayout count = 2 which doesn't seem to work as it creates
- * issues for cds trades such as cdm-cds-ref-ob
- */
-//data rule FpML_ird_7_2 <"FpML validation rule ird-7 2/2 - The existence of compoundingMethod is required when the calculation period and payment frequencies differ.">
-// 	when InterestRatePayout count = 2
-// 		and ( InterestRatePayout -> paymentDates -> paymentFrequency -> period <> InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> period
-// 		and InterestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier <> InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier )
-// 		or InterestRatePayout -> paymentDates -> paymentFrequency -> period <> InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> period
-// 		or InterestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier <> InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier
-// 	then InterestRatePayout -> compoundingMethod exists
+data rule FpML_ird_7_2 <"FpML validation rule ird-7 2/2 - The existence of compoundingMethod is required when the calculation period and payment frequencies differ.">
+ 	when InterestRatePayout count = 2
+ 		and ( InterestRatePayout -> paymentDates -> paymentFrequency -> period <> InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> period
+ 		and InterestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier <> InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier )
+ 		or InterestRatePayout -> paymentDates -> paymentFrequency -> period <> InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> period
+ 		or InterestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier <> InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier
+ 	then InterestRatePayout -> compoundingMethod exists
 
 data rule FpML_ird_9 <"FpML validation rule ird-9 - If calculationPeriodAmount/calculation/compoundingMethod exists, then resetDates must exist.">
 	when InterestRatePayout -> compoundingMethod exists
