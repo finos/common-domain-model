@@ -13,32 +13,50 @@ class AllocationPrimitive <"The primitive event to represent a split/allocation 
 		[synonym Rosetta_Workbench value after]
 }
 
-class CashTransferComponent extends TransferBase
+class CashTransferBreakdown extends TransferBreakdown
+{
+	payerReceiver PayerReceiver (1..1) <"The payer and receiver party information.">;
+	amount Money (1..1) <"The currency amount of the payment.">;
+		[synonym Rosetta_Workbench value amount]
+	transferType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">;
+		[synonym Rosetta_Workbench value type]
+}
+
+class CashTransferComponent extends TransferBase <"">
 {
 	payerReceiver PayerReceiver (1..1) <"The payer and receiver party information.">;
 	amount Money (1..1) <"The currency amount.">;
 		[synonym Rosetta_Workbench value amount]
+	transferType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">;
+		[synonym Rosetta_Workbench value transferType]	
 	breakdown CashTransferBreakdown (0..*) <"The cash transfer breakdown, when the transfer corresponds to a net amount across several components which breakdown is deemed relevant (e.g. the net cash transfer related to several contracts, or to the net proceeds across several payout components).">;
+		[synonym Rosetta_Workbench value breakdown]
 }
 
-class CashTransferBreakdown extends TransferLineage
+/*
+ * TODO - The commodity transfer component and its associated breakdown should be deemed as sample implementations,
+ * which need to be confirmed through relevant user stories and use cases
+ */
+class ComnmodityTransferBreakdown extends TransferBreakdown
 {
-	amount Money (1..1) <"The currency amount of the payment.">;
-		[synonym Rosetta_Workbench value cashflowAmount]
-	type CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">;
-		[synonym Rosetta_Workbench value cashflowType] // set cashflowType.premium when synonym premium exists]
-	cashflowCalculation calculation (0..1) <"The calculation used to compute the gross cashflow, when applicable.">;
-		[synonym Rosetta_Workbench value cashflowCalculation]
+	transferorTransferee TransferorTransferee (1..1) <"The transferee and transferor party information.">;
+	commodity Commodity (1..1);
+	quantity number (1..1);
+		[synonym Rosetta_Workbench value quantity]
+	unit UnitEnum (1..1) <"The unit of measure, applicable to physical assets.">;
+	timeUnit TimeUnitEnum (0..1);
 }
 
 class CommodityTransferComponent extends TransferBase
 {
-	transferorTransferee TransferorTransferee (1..1);
+	transferorTransferee TransferorTransferee (1..1) <"The transferee and transferor party information.">;
 	commodity Commodity (1..1);
 	quantity number (1..1);
+		[synonym Rosetta_Workbench value quantity]
 	unit UnitEnum (1..1) <"The unit of measure, applicable to physical assets.">;
-		[synonym Rosetta_Workbench value unit]
 	timeUnit TimeUnitEnum (0..1);
+	breakdown ComnmodityTransferBreakdown (0..*) <"The security transfer breakdown, when the transfer corresponds to a net transfer across several components which breakdown is deemed relevant (e.g. the net security transfer related to several contracts).">;
+		[synonym Rosetta_Workbench value breakdown]
 }
 
 class ComputedAmount <"A class to specify the outcome of a computed amount, for testing purposes.">
@@ -299,9 +317,9 @@ data rule ObservationSource_content <"ObservationSource should not be empty, alt
 
 class PhysicalExercise extends ContractOrContractReference <"The physical exercise could combine several contracts (partial exercise of a swaption) or a contract and a bond or convertible bond (partial exercise of a fixed income option).">
 {
-	bond ProductIdentifier (0..1);
+	bond Bond (0..1);
 		[synonym Rosetta_Workbench value bond]
-	convertibleBond ProductIdentifier (0..1);
+	convertibleBond ConvertibleBond (0..1);
 		[synonym Rosetta_Workbench value convertibleBond]
 	quantity Quantity (0..1) <"The quantity amount associated the asset that is physically settled.">;
 		[synonym Rosetta_Workbench value quantity]
@@ -364,11 +382,24 @@ class ResetPrimitive <"The primitive event to represent a reset.">
 		[synonym Rosetta_Workbench value cashflow]
 }
 
+class SecurityTransferBreakdown 
+{
+	transferorTransferee TransferorTransferee (1..1) <"The transferee and transferor party information.">;
+	security Security (1..*) <"The security(ies) that is being transfered">;
+		[synonym Rosetta_Workbench value security]
+	quantity number (1..1);
+		[synonym Rosetta_Workbench value quantity]
+}
+
 class SecurityTransferComponent extends TransferBase
 {
-	transferorTransferee TransferorTransferee (1..1);
-	security ProductIdentifier (1..*);
+	transferorTransferee TransferorTransferee (1..1) <"The transferee and transferor party information.">;
+	security Security (1..1) <"The security that is being transfered">;
+		[synonym Rosetta_Workbench value security]
 	quantity number (1..1);
+		[synonym Rosetta_Workbench value quantity]
+	breakdown SecurityTransferBreakdown (0..*) <"The security transfer breakdown, when the transfer corresponds to a net transfer across several components which breakdown is deemed relevant (e.g. the net security transfer related to several contracts).">;
+		[synonym Rosetta_Workbench value breakdown]
 }
 
 class TermsChangePrimitive <"The primitive event to represent change(s) to the contractual terms.">
@@ -387,16 +418,19 @@ class TimeZone <"The time alongside with the timezone location information. This
 		[synonym Rosetta_Workbench value location meta timezoneLocationScheme]
 }
 
-class Transfer <"A class to specify the transfer primitive by providing the ability to combine a ">
+class Transfer <"A class to specify the transfer primitive by providing the ability to combine a set of transfer components which are specialised by asset class.">
 {
-	type TransferTypeEnum  (0..1) <"The qualification of the type of transfer, e.g. fee, interest, principal exchange...">;
+	transferType TransferTypeEnum (0..1) <"The qualification of the type of transfer when associated with multiple components, e.g. a DvP settlement.">;
 		[synonym Rosetta_Workbench value transferType]
 	settlementDate AdjustableOrAdjustedOrRelativeDate (1..1);
-	cashTransfer CashTransferComponent (0..1);
-	securityTransfer SecurityTransferComponent (0..1);
-	commodityTransfer CommodityTransferComponent (0..1);
-	status TransferStatusEnum (0..1) <"The transfer status, e.g. Instructed, Settled.">;
-		[synonym Rosetta_Workbench value transferStatus]
+		[synonym Rosetta_Workbench value settlementDate]
+	cashTransfer CashTransferComponent (0..*) <"The cash transfer component of the transfer. In the case where several currencies are involved in the transfer, several components should be used, as the component supports one single currency amount.">;
+		[synonym Rosetta_Workbench value cashTransfer]
+	securityTransfer SecurityTransferComponent (0..*) <"The security transfer component of the transfer. In the case where several securities are involved in the transfer, several components should be used, as the component supports one single security.">;
+		[synonym Rosetta_Workbench value securityTransfer]
+	commodityTransfer CommodityTransferComponent (0..*);
+	status TransferStatusEnum (0..1) <"The transfer status, e.g. Instructed, Settled...">;
+		[synonym Rosetta_Workbench value status]
 	settlementReference string (0..1) <"The settlement reference, when applicable.">;
 		[synonym Rosetta_Workbench value settlementReference]
 }	
@@ -405,6 +439,12 @@ class TransferBase
 {
 	transferCalculation calculation (0..1) <"The calculation used to compute the transfer, when applicable.">;
 		[synonym Rosetta_Workbench value transferCalculation]
+}
+
+class TransferBreakdown extends TransferBase
+{
+	lineage Lineage (0..1) <"The lineage into the transfer components that might be associated with each of the transfer components.">;
+		[synonym Rosetta_Workbench value lineage]
 }
 
 class TransferorTransferee <"A class mimicking the PayerReceiver, which is itself derived from the FpML PayerReceiver.model, to represent the transferee and transferor party information in relation to the transfer of security or commodities.">
@@ -417,11 +457,6 @@ class TransferorTransferee <"A class mimicking the PayerReceiver, which is itsel
 		[synonym FpML, DTCC_PostTrade_11_0 value receiverPartyReference meta href]
 	transfereeAccountReference string (0..1) reference <"A reference to the account that receives the payments corresponding to this structure.">;
 		[synonym FpML, DTCC_PostTrade_11_0 value receiverAccountReference meta href]
-}
-
-class TransferLineage
-{
-	lineage Lineage (0..1) <"The lineage into the transfer components that might be associated with each of the transfer components.">;
 }
 
 /*********************
@@ -566,31 +601,28 @@ alias quantityAfterQuantityChange <"The alias to represent the quantity or notio
 	or Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> notionalAmount -> amount
 	or Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount -> amount
 
-/*
- * TODO - Need to firm out the naming of the business events associated with the transfer primitive
- */
-
-isEvent CashTransfer
+isEvent CashTransfer <"The qualification of a cash transfer from the fact that the only component is a cashTransfer.">
 	Event -> primitive -> transfer only exists
 	and Event -> primitive -> transfer -> cashTransfer exists
 	and Event -> primitive -> transfer -> securityTransfer is absent
 	and Event -> primitive -> transfer -> commodityTransfer is absent
-
-isEvent SecurityTransfer
-	Event -> primitive -> transfer only exists
-	and Event -> primitive -> transfer -> securityTransfer exists
-	and Event -> primitive -> transfer -> cashTransfer is absent
-	and Event -> primitive -> transfer -> commodityTransfer is absent
-
-isEvent SecuritySettlement
-	Event -> primitive -> transfer -> cashTransfer exists
-	and Event -> primitive -> transfer -> securityTransfer exists
 
 isEvent Payment <"The qualification of a payment event from the fact that the only primitive is the payment.">
 	Event -> primitive -> payment only exists
 
 isEvent Reset <"The qualification of a reset event from the fact that the only primitive is the reset.">
 	Event -> primitive -> reset only exists
+
+isEvent SecurityTransfer <"The qualification of a security transfer from the fact that the only component is a securityTransfer.">
+	Event -> primitive -> transfer only exists
+	and Event -> primitive -> transfer -> securityTransfer exists
+	and Event -> primitive -> transfer -> cashTransfer is absent
+	and Event -> primitive -> transfer -> commodityTransfer is absent
+
+isEvent SecuritySettlement <"The qualification of a security settlement from the fact that it is composed of a cashTransfer component and a securityTransfer component.">
+	Event -> primitive -> transfer -> cashTransfer exists
+	and Event -> primitive -> transfer -> securityTransfer exists
+	and Event -> primitive -> transfer -> commodityTransfer is absent
 
 isEvent Termination <"The qualification of a termination event from the fact that (i) the intent is Termination when specified, (ii) the only primitive is the quantityChange and there is only one such primitive involved, the (iii) the remaining quantity is null, and (iv) the contract state has the value 'terminated'.">
 	Event -> intent when present = IntentEnum.Termination
