@@ -1,15 +1,5 @@
 namespace "org.isda.cdm"
 
-
-class Asset one of
-{
-	cash Money (0..1);
-		[synonym Rosetta_Workbench value cashflowAmount]
-		[synonym Rosetta_Workbench value amount]
-	security SecuritySet (0..1);
-	commodity CommoditySet (0..1);
-}
-
 class AssetPool <"Characterises the asset pool behind an asset backed bond.">
 	[synonym FpML_5_10 value AssetPool]
 {
@@ -27,7 +17,12 @@ data rule AssetPool_effectiveDate <"The effectiveDate associated to the version 
  	when AssetPool -> version is absent
  	then AssetPool -> effectiveDate is absent
 
-class Commodity <"A class describing a commodity asset.">
+class Bond extends IdentifiedProduct <"A class to specify a bond as having a product identifier. As a difference with FpML, the CDM specifies the bond only with this product identifier attribute. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
+{
+
+}
+
+class Commodity <"A class to specify a commodity asset.">
 	[synonym FpML_5_10 value Commodity]
 {
 	/*
@@ -65,7 +60,17 @@ data rule FpML_cd_44_basketPercentage <"FpML validation rule cd-44 - All referen
 	when ReferencePool -> referencePoolItem -> constituentWeight -> basketPercentage exists
 	then ReferencePool -> referencePoolItem -> constituentWeight -> openUnits is absent
 
-class Loan extends ProductIdentifier <"">
+class ConvertibleBond extends IdentifiedProduct <"A class to specify a convertible bond as having a product identifier. As a difference with FpML, the CDM specifies the convertible bond only with this product identifier attribute. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
+{
+
+}
+
+abstract class IdentifiedProduct <"An abstract class to specify a product which terms are abstracted through reference data.">
+{
+	productIdentifier ProductIdentifier (1..1);
+}
+
+class Loan extends IdentifiedProduct
 	[synonym FpML_5_10 value Loan]
 {
 	borrower LegalEntity (0..*) <"Specifies the borrower. There can be more than one borrower. It is meant to be used in the event that there is no Bloomberg Id or the Secured List isn't applicable.">;
@@ -80,7 +85,7 @@ class Loan extends ProductIdentifier <"">
 		[synonym FpML_5_10, DTCC_PostTrade_11_0 value tranche meta loanTrancheScheme]
 }
 
-class Mortgage extends ProductIdentifier <"">
+class Mortgage extends ProductIdentifier
 	[synonym FpML_5_10 value Mortgage]
 {
 	pool AssetPool (0..1) <"The mortgage pool that is underneath the mortgage obligation.">;
@@ -91,11 +96,12 @@ class Mortgage extends ProductIdentifier <"">
 		[synonym FpML_5_10, DTCC_PostTrade_11_0 value tranche]
 }
 
-class ProductIdentifier rosettaKey <"The product identifier, composed of an identifier and a source.">
+class ProductIdentifier rosettaKey <"The product identifier, composed of an identifier, a source and a product taxonomy. The source is optional because it can be specified through the scheme that is associated with the identifier. As FpML doesn't specify a scheme as part of the standard, that scheme cannot be mapped to the CDM ProductIdSourceEnum.">
 {
 	id (0..1);
 		[synonym FpML_5_10, DTCC_PostTrade_11_0 meta id]
 	identifier string (1..1) scheme <"The identifier.">;
+		[synonym FpML_5_10, Rosetta_Workbench, DTCC_PostTrade_11_0 value instrumentId meta instrumentIdScheme]
 		[synonym FpML_5_10, DTCC_PostTrade_11_0 value instrumentId meta instrumentIdScheme]
 		[synonym Rosetta_Workbench value security pathExpression "asset" meta instrumentIdScheme]
 		[synonym Rosetta_Workbench value instrumentId meta instrumentIdScheme]
@@ -110,9 +116,10 @@ class ProductTaxonomy <"The product taxonomy, which is composed of a taxonomy va
 	taxonomySource TaxonomySourceEnum (1..1) <"The taxonomy source.">;
 }
 
-class SecuritySet
+class Security one of
 {
-	security ProductIdentifier (1..*);
-	quantity number (1..1);
-		[synonym Rosetta_Workbench value amount pathExpression "quantity"]
-}	
+	bond Bond (0..1);
+		[synonym Rosetta_Workbench value bond]
+	convertibleBond ConvertibleBond (0..1);
+		[synonym Rosetta_Workbench value convertibleBond]
+}
