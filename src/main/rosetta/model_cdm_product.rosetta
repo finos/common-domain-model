@@ -300,15 +300,15 @@ class CreditDefaultPayout rosettaKey <"The credit default payout specification t
 		[synonym FpML_5_10, DTCC_PostTrade_11_0 value generalTerms pathExpression "trade.creditDefaultSwap"]
 		[synonym FpML_5_10, DTCC_PostTrade_11_0 value generalTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
 		[synonym FpML_5_10, DTCC_PostTrade_11_0 value generalTerms pathExpression "creditDefaultSwap"]
-	protectionTerms ProtectionTerms (1..1) <"The credit protection terms.">;
+	protectionTerms ProtectionTerms (1..*) <"The credit protection terms.">;
 		[synonym FpML_5_10, DTCC_PostTrade_11_0 value protectionTerms pathExpression "trade.creditDefaultSwap"]
 		[synonym FpML_5_10, DTCC_PostTrade_11_0 value protectionTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
 		[synonym FpML_5_10, DTCC_PostTrade_11_0 value protectionTerms pathExpression "creditDefaultSwap"]
-	cashSettlementTerms CashSettlementTerms (0..1);
+	cashSettlementTerms CashSettlementTerms (0..*);
 		[synonym FpML_5_10, DTCC_PostTrade_11_0 value cashSettlementTerms pathExpression "trade.creditDefaultSwap"]
 		[synonym FpML_5_10, DTCC_PostTrade_11_0 value cashSettlementTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
 		[synonym FpML_5_10, DTCC_PostTrade_11_0 value cashSettlementTerms pathExpression "creditDefaultSwap"]
-	physicalSettlementTerms PhysicalSettlementTerms (0..1);
+	physicalSettlementTerms PhysicalSettlementTerms (0..*);
 		[synonym FpML_5_10, DTCC_PostTrade_11_0 value physicalSettlementTerms pathExpression "trade.creditDefaultSwap"]
 		[synonym FpML_5_10, DTCC_PostTrade_11_0 value physicalSettlementTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
 		[synonym FpML_5_10, DTCC_PostTrade_11_0 value physicalSettlementTerms pathExpression "creditDefaultSwap"]
@@ -562,7 +562,6 @@ class OptionPayout rosettaKey <"The option payout specification terms.">
 	quantity ContractualQuantity (0..1) <"The option notional amount. The CDM uses the generic term quantity rather than notional amount. The number of options is specified as part of the denomination attribute.">;
 	exerciseTerms OptionExercise (1..1) <"The terms for exercising the option, which include the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">;
 	underlyer Product (1..1) <"The option underlyer. The implementation is restricted to contractual underlyers as part of the initial CDM phase.">;
-
 }
 
 class PaymentDates <"The payment dates schedule. As a difference from the FpML PaymentDate, this class incorporates the CDS paymentDelay element, and the following reference elements have been omitted, because deemed of no relevant usage by the ISDA CDM Group: calculationPeriodDatesReference, resetDatesReference, ValuationDatesReference.">
@@ -794,6 +793,10 @@ data rule TransactedPrice_marketPrice <"FpML specifies that  marketFixedRate and
 	when Payout -> creditDefaultPayout -> generalTerms -> indexReferenceInformation is absent
 	then Payout -> creditDefaultPayout -> transactedPrice -> marketFixedRate is absent
 		and Payout -> creditDefaultPayout -> transactedPrice -> marketPrice is absent
+
+/***********************
+ * Product Qualification
+ */
 
 isProduct InterestRate_IRSwap_Basis
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Basis]
