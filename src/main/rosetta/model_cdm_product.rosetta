@@ -33,39 +33,41 @@ class CashflowBase <"A class to represent the attributes to be shared by the Cas
 class Contract rosettaKey <"A class to specify a contract object, which can be invoked either within the context of an event, or independently from it. It corresponds to the FpML Trade, although restricted to execution and post-execution contexts. Attributes also applicable to pre-execution (a.k.a. pre-trade view in FpML) contexts have been positioned as part of the ContractualProduct class.">
 {
 	id (0..1);
-		[synonym FpML_5_10, DTCC_11_0 meta id pathExpression "trade.tradeHeader"]
-		[synonym FpML_5_10, DTCC_11_0 meta id pathExpression "tradeHeader"]
-		[synonym Rosetta_Workbench meta id]
+		[synonym FpML_5_10, DTCC_11_0 meta id path "trade.tradeHeader"]
+		[synonym FpML_5_10, DTCC_11_0 meta id path "tradeHeader"]
+		[synonym FpML_5_10, DTCC_11_0, Rosetta_Workbench meta id]
 	contractIdentifier Identifier (1..*) <"The contract identifier, which has 3 components: an actual identifier, an issuer and a version number. There can be several contract identifier, an example of such being a contract is reportable to both the CFTC and ESMA and then has an associated USI (Unique Swap Identifier) UTI (Unique Trade Identifier).">;
+		[synonym FpML_5_10, DTCC_11_0 value partyTradeIdentifier path "trade.tradeHeader"]
+		[synonym FpML_5_10, DTCC_11_0 value partyTradeIdentifier path "tradeHeader"]
+		[synonym DTCC_11_0 value partyTradeIdentifier path "Submitter"]
+		[synonym DTCC_11_0 value partyTradeIdentifier path "ContraTradeId"]
+		[synonym DTCC_11_0 value USI]
+		[synonym FpML_5_10 value versionedTradeId]
 	tradeDate DateInstances (1..1) <"The trade date. This is the date on which the trade was originally executed. The trade date is specified through the DateInstances class so that in the case of a novation the novated part of the trade be reported (by both the remaining party and the transferee) using the date on which the novation was agreed on. The remaining part of a trade is to be reported (by both the transferor and the remaining party) using a trade date corresponding to the original execution date.">;
 	clearedDate date (0..1) <"If the trade was cleared (novated) through a central counterparty clearing service, this represents the date the trade was cleared (transferred to the central counterparty).">;
-		[synonym FpML_5_10, DTCC_11_0 value clearedDate pathExpression "trade.tradeHeader"]
-		[synonym FpML_5_10, DTCC_11_0 value clearedDate pathExpression "tradeHeader"]
+		[synonym FpML_5_10, DTCC_11_0 value clearedDate path "trade.tradeHeader"]
+		[synonym FpML_5_10, DTCC_11_0 value clearedDate path "tradeHeader"]
 	contractualProduct ContractualProduct (1..1) <"The contractual product information that is associated with the contract. The corresponding FpML construct is the product abstract element and the associated substitution group.">;
 	otherPartyPayment Payment (0..*) <"Other fees or additional payments associated with the contract, e.g. broker commissions, where one or more of the parties involved are not principal parties involved in the contract.">;
-		[synonym FpML_5_10, DTCC_11_0 value otherPartyPayment pathExpression "trade"]
+		[synonym FpML_5_10, DTCC_11_0 value otherPartyPayment path "trade"]
 		[synonym FpML_5_10, DTCC_11_0 value otherPartyPayment]
 	collateral Collateral (0..1) <"Defines the collateral obligations of a party.">;
-		[synonym FpML_5_10, DTCC_11_0 value collateral pathExpression "trade"]
+		[synonym FpML_5_10, DTCC_11_0 value collateral path "trade"]
 		[synonym FpML_5_10, DTCC_11_0 value collateral]
 	documentation Documentation (0..1) <"Defines the definitions that govern the document and should include the year and type of definitions referenced, along with any relevant documentation (such as master agreement) and the date it was signed.">;
-		[synonym FpML_5_10, DTCC_11_0 value documentation pathExpression "trade"]
+		[synonym FpML_5_10, DTCC_11_0 value documentation path "trade"]
 		[synonym FpML_5_10, DTCC_11_0 value documentation]
 	governingLaw GoverningLawEnum (0..1) scheme <"Identification of the law governing the transaction.">;
-		[synonym FpML_5_10, DTCC_11_0 value governingLaw pathExpression "trade" meta governingLawScheme]
+		[synonym FpML_5_10, DTCC_11_0 value governingLaw path "trade" meta governingLawScheme]
 		[synonym FpML_5_10, DTCC_11_0 value governingLaw]
 	party Party (0..*) <"The parties to the contract. The cardinality is optional to address the case where the contract object is part of an event record, in which case the party is specified as part of that object. In that respect, the CDM approach is distinct from FpML, where party information is specified as part of a wrapper alongside the trade object.">;
 		[synonym FpML_5_10, DTCC_11_0 value party]
 	account Account (0..*) <"Optional account information.">;
 		[synonym FpML_5_10, DTCC_11_0 value account]
 	partyRole PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the contract, further to the principal parties (i.e payer/receive or buyer/seller) to it.">;
-		/*[synonym FpML_5_10, DTCC_11_0 value determiningParty pathExpression "trade"]
-		[synonym FpML_5_10, DTCC_11_0 value barrierDeterminationAgent pathExpression "trade"]
-		[synonym FpML_5_10, DTCC_11_0 value hedgingParty pathExpression "trade"]
-		[synonym FpML_5_10, DTCC_11_0 value brokerPartyReference pathExpression "trade"]*/
 	calculationAgent CalculationAgent (0..1) <"The ISDA calculation agent responsible for performing duties as defined in the applicable product definitions.">;
 	partyContractInformation PartyContractInformation (0..*) <"Additional contract information that may be provided by each involved party.">;
-		[synonym FpML_5_10, DTCC_11_0 value partyTradeInformation pathExpression "trade.tradeHeader"]
+		[synonym FpML_5_10, DTCC_11_0 value partyTradeInformation path "trade.tradeHeader"]
 	state StateEnum (0..1) <"The state qualification of a contractual product.">;
 		[synonym Rosetta_Workbench value state]
 }
@@ -253,17 +255,17 @@ class ContractualQuantity
 		[synonym FpML_5_10, DTCC_11_0 value notionalReference meta href]
 	quantity Quantity (0..1);
 	notionalAmount Money (0..1) <"When applied to Credit default Swaps, this is the notional amount of protection coverage. ISDA 2003 Term: Floating Rate Payer Calculation Amount">;
-		[synonym FpML_5_10, DTCC_11_0 value initialValue pathExpression "calculationPeriodAmount.calculation" set when "calculationPeriodAmount.calculation.notionalSchedule.notionalStepSchedule.step" is absent]
-		[synonym FpML_5_10, DTCC_11_0 value calculationAmount pathExpression "periodicPayment.fixedAmountCalculation"]
-		[synonym FpML_5_10, DTCC_11_0 value calculationAmount pathExpression "periodicPayment.floatingAmountCalculation"]
+		[synonym FpML_5_10, DTCC_11_0 value initialValue path "calculationPeriodAmount.calculation" /*set when "calculationPeriodAmount.calculation.notionalSchedule.notionalStepSchedule.step" is absent*/]
+		[synonym FpML_5_10, DTCC_11_0 value calculationAmount path "periodicPayment.fixedAmountCalculation"]
+		[synonym FpML_5_10, DTCC_11_0 value calculationAmount path "periodicPayment.floatingAmountCalculation"]
 		[synonym Rosetta_Workbench value notionalAmount]
 		[synonym FpML_5_10, DTCC_11_0 value notionalAmount]
 	notionalSchedule NotionalSchedule (0..1);
-		[synonym FpML_5_10, DTCC_11_0 value notionalSchedule pathExpression "calculationPeriodAmount.calculation" set when "calculationPeriodAmount.calculation.notionalSchedule.notionalStepSchedule.step" exists]
+		[synonym FpML_5_10, DTCC_11_0 value notionalSchedule path "calculationPeriodAmount.calculation" /*set when "calculationPeriodAmount.calculation.notionalSchedule.notionalStepSchedule.step" exists*/]
 	fxLinkedNotional FxLinkedNotionalSchedule (0..1);
-		[synonym FpML_5_10, DTCC_11_0 value fxLinkedNotionalSchedule pathExpression "calculationPeriodAmount.calculation" set when "calculationPeriodAmount.calculation.fxLinkedNotionalSchedule.initialValue" exists]
+		[synonym FpML_5_10, DTCC_11_0 value fxLinkedNotionalSchedule path "calculationPeriodAmount.calculation" /*set when "calculationPeriodAmount.calculation.fxLinkedNotionalSchedule.initialValue" exists*/]
 	futureValueNotional FutureValueAmount (0..1);
-	 	[synonym FpML_5_10, DTCC_11_0 value futureValueNotional pathExpression "calculationPeriodAmount.calculation"]
+	 	[synonym FpML_5_10, DTCC_11_0 value futureValueNotional path "calculationPeriodAmount.calculation"]
 }
 
 choice rule ContractualQuantity_choice <"The below set of notional values are exclusive, while some of those could be associated with the futureValueNotional.">
@@ -293,25 +295,25 @@ class CrossCurrencyTerms
 class CreditDefaultPayout rosettaKey <"The credit default payout specification terms.">
 {
 	id (0..1);
-		[synonym FpML_5_10, DTCC_11_0 meta id pathExpression "trade.creditDefaultSwap"]
-		[synonym FpML_5_10, DTCC_11_0 meta id pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
-		[synonym FpML_5_10, DTCC_11_0 meta id pathExpression "creditDefaultSwap"]
+		[synonym FpML_5_10, DTCC_11_0 meta id path "trade.creditDefaultSwap"]
+		[synonym FpML_5_10, DTCC_11_0 meta id path "trade.creditDefaultSwapOption.creditDefaultSwap"]
+		[synonym FpML_5_10, DTCC_11_0 meta id path "creditDefaultSwap"]
 	generalTerms GeneralTerms (1..1) <"This element contains all the data that appears in the section entitled '1. General Terms' in the 2003 ISDA Credit Derivatives Confirmation, except for the effectiveDate, terminationDate and dateAdjustments elements, which have been positioned as part of the InterestRatePayout class.">;
-		[synonym FpML_5_10, DTCC_11_0 value generalTerms pathExpression "trade.creditDefaultSwap"]
-		[synonym FpML_5_10, DTCC_11_0 value generalTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
-		[synonym FpML_5_10, DTCC_11_0 value generalTerms pathExpression "creditDefaultSwap"]
+		[synonym FpML_5_10, DTCC_11_0 value generalTerms path "trade.creditDefaultSwap"]
+		[synonym FpML_5_10, DTCC_11_0 value generalTerms path "trade.creditDefaultSwapOption.creditDefaultSwap"]
+		[synonym FpML_5_10, DTCC_11_0 value generalTerms path "creditDefaultSwap"]
 	protectionTerms ProtectionTerms (1..*) <"The credit protection terms.">;
-		[synonym FpML_5_10, DTCC_11_0 value protectionTerms pathExpression "trade.creditDefaultSwap"]
-		[synonym FpML_5_10, DTCC_11_0 value protectionTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
-		[synonym FpML_5_10, DTCC_11_0 value protectionTerms pathExpression "creditDefaultSwap"]
+		[synonym FpML_5_10, DTCC_11_0 value protectionTerms path "trade.creditDefaultSwap"]
+		[synonym FpML_5_10, DTCC_11_0 value protectionTerms path "trade.creditDefaultSwapOption.creditDefaultSwap"]
+		[synonym FpML_5_10, DTCC_11_0 value protectionTerms path "creditDefaultSwap"]
 	cashSettlementTerms CashSettlementTerms (0..*);
-		[synonym FpML_5_10, DTCC_11_0 value cashSettlementTerms pathExpression "trade.creditDefaultSwap"]
-		[synonym FpML_5_10, DTCC_11_0 value cashSettlementTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
-		[synonym FpML_5_10, DTCC_11_0 value cashSettlementTerms pathExpression "creditDefaultSwap"]
+		[synonym FpML_5_10, DTCC_11_0 value cashSettlementTerms path "trade.creditDefaultSwap"]
+		[synonym FpML_5_10, DTCC_11_0 value cashSettlementTerms path "trade.creditDefaultSwapOption.creditDefaultSwap"]
+		[synonym FpML_5_10, DTCC_11_0 value cashSettlementTerms path "creditDefaultSwap"]
 	physicalSettlementTerms PhysicalSettlementTerms (0..*);
-		[synonym FpML_5_10, DTCC_11_0 value physicalSettlementTerms pathExpression "trade.creditDefaultSwap"]
-		[synonym FpML_5_10, DTCC_11_0 value physicalSettlementTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
-		[synonym FpML_5_10, DTCC_11_0 value physicalSettlementTerms pathExpression "creditDefaultSwap"]
+		[synonym FpML_5_10, DTCC_11_0 value physicalSettlementTerms path "trade.creditDefaultSwap"]
+		[synonym FpML_5_10, DTCC_11_0 value physicalSettlementTerms path "trade.creditDefaultSwapOption.creditDefaultSwap"]
+		[synonym FpML_5_10, DTCC_11_0 value physicalSettlementTerms path "creditDefaultSwap"]
 	transactedPrice TransactedPrice (0..1) <"The qualification of the price at which the contract has been transacted, in terms of market fixed rate, initial points, market price and/or quotation style. In FpML, those attributes are positioned as part of the fee leg.">;
 }
 
@@ -335,9 +337,9 @@ class EconomicTerms rosettaKeyValue <"This class represents the full set of prod
 {
 	payout Payout (1..1) <"The payout specification, which can combine several payout terms, e.g. an interest rate and a credit default payout in the case of a credit default swap.">;
 	earlyTerminationProvision EarlyTerminationProvision (0..1) <"Parameters specifying provisions relating to the optional and mandatory early termination of a swap transaction.">;
-		[synonym FpML_5_10, DTCC_11_0 value earlyTerminationProvision pathExpression "trade.swap"]
+		[synonym FpML_5_10, DTCC_11_0 value earlyTerminationProvision path "trade.swap"]
 	cancelableProvision CancelableProvision (0..1) <"A provision that allows the specification of an embedded option within a swap giving the buyer of the option the right to terminate the swap, in whole or in part, on the early termination date.">;
-		[synonym FpML_5_10, DTCC_11_0 value cancelableProvision pathExpression "trade.swap"]
+		[synonym FpML_5_10, DTCC_11_0 value cancelableProvision path "trade.swap"]
 	extendibleProvision ExtendibleProvision (0..1) <"A provision that allows the specification of an embedded option with a swap giving the buyer of the option the right to extend the swap, in whole or in part, to the extended termination date.">;
 }
 
@@ -378,10 +380,10 @@ class InterestRate one of
 {
 	fixedRate Schedule (0..1) <"The fixed rate or fixed rate schedule expressed as explicit fixed rates and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">;
 	floatingRate FloatingRateCalculation (0..1) <"A floating rate calculation definition.">;
-		[synonym FpML_5_10, DTCC_11_0 value floatingRateCalculation pathExpression "calculationPeriodAmount.calculation"]
-		[synonym FpML_5_10, DTCC_11_0 value floatingRate pathExpression "periodicPayment.floatingAmountCalculation"]
+		[synonym FpML_5_10, DTCC_11_0 value floatingRateCalculation path "calculationPeriodAmount.calculation"]
+		[synonym FpML_5_10, DTCC_11_0 value floatingRate path "periodicPayment.floatingAmountCalculation"]
 	inflationRate InflationRateCalculation (0..1) <"An inflation rate calculation definition.">;
-		[synonym FpML_5_10, DTCC_11_0 value inflationRateCalculation pathExpression "calculationPeriodAmount.calculation"]
+		[synonym FpML_5_10, DTCC_11_0 value inflationRateCalculation path "calculationPeriodAmount.calculation"]
 }
 
 class InterestRatePayout calculation FixedAmount, FloatingAmount rosettaKey <"The interest rate payout specification terms.">
@@ -392,13 +394,13 @@ class InterestRatePayout calculation FixedAmount, FloatingAmount rosettaKey <"Th
 	quantity ContractualQuantity (0..1) <"The quantity can be expressed in different formats, depending upon the product, e.g. notional amount for credit and interest rate products, quantity for some of the equity products. The CDM uses the generic term quantity rather than notional amount.">;
 	interestRate InterestRate (0..1) <"The interest rate can be a floating rate, a fixed rate of an inflation rate.">;
 	dayCountFraction DayCountFractionEnum (0..1) scheme <"The day count fraction.">;
-		[synonym FpML_5_10, DTCC_11_0 value dayCountFraction pathExpression "calculationPeriodAmount.calculation" meta dayCountFractionScheme]
-		[synonym FpML_5_10, DTCC_11_0 value dayCountFraction pathExpression "periodicPayment.fixedAmountCalculation" meta dayCountFractionScheme]
-		[synonym FpML_5_10, DTCC_11_0 value dayCountFraction pathExpression "periodicPayment.floatingAmountCalculation" meta dayCountFractionScheme]
+		[synonym FpML_5_10, DTCC_11_0 value dayCountFraction path "calculationPeriodAmount.calculation" meta dayCountFractionScheme]
+		[synonym FpML_5_10, DTCC_11_0 value dayCountFraction path "periodicPayment.fixedAmountCalculation" meta dayCountFractionScheme]
+		[synonym FpML_5_10, DTCC_11_0 value dayCountFraction path "periodicPayment.floatingAmountCalculation" meta dayCountFractionScheme]
 	discounting Discounting (0..1) <"The parameters specifying any discounting conventions that may apply. This element must only be included if discounting applies.">;
-		[synonym FpML_5_10, DTCC_11_0 value discounting pathExpression "calculationPeriodAmount.calculation"]
+		[synonym FpML_5_10, DTCC_11_0 value discounting path "calculationPeriodAmount.calculation"]
 	compoundingMethod CompoundingMethodEnum (0..1) <"If one or more calculation period contributes to a single payment amount this element specifies whether compounding is applicable and, if so, what compounding method is to be used. This element must only be included when more than one calculation period contributes to a single payment amount.">;
-		[synonym FpML_5_10, DTCC_11_0 value compoundingMethod pathExpression "calculationPeriodAmount.calculation"]
+		[synonym FpML_5_10, DTCC_11_0 value compoundingMethod path "calculationPeriodAmount.calculation"]
 	calculationPeriodDates CalculationPeriodDates (1..1) <"The calculation period dates schedule.">;
 	paymentDates PaymentDates (0..1) <"The payment dates schedule.">;
 	resetDates ResetDates (0..1) <"The reset dates schedule. The reset dates schedule only applies for a floating rate stream.">;
@@ -567,28 +569,28 @@ class OptionPayout rosettaKey <"The option payout specification terms.">
 class PaymentDates <"The payment dates schedule. As a difference from the FpML PaymentDate, this class incorporates the CDS paymentDelay element, and the following reference elements have been omitted, because deemed of no relevant usage by the ISDA CDM Group: calculationPeriodDatesReference, resetDatesReference, ValuationDatesReference.">
 {
 	id (0..1);
-		[synonym FpML_5_10, DTCC_11_0 meta id pathExpression "paymentDates"]
+		[synonym FpML_5_10, DTCC_11_0 meta id path "paymentDates"]
 	calculationPeriodDatesReference string (0..1) reference <"A pointer style reference to the associated calculation period dates component defined elsewhere in the document.">;
-		[synonym FpML_5_10, DTCC_11_0 value calculationPeriodDatesReference pathExpression "paymentDates" meta href]
+		[synonym FpML_5_10, DTCC_11_0 value calculationPeriodDatesReference path "paymentDates" meta href]
 	resetDatesReference string (0..1) reference <"A pointer style reference to the associated reset dates component defined elsewhere in the document.">;
-		[synonym FpML_5_10, DTCC_11_0 value resetDatesReference pathExpression "paymentDates" meta href]
+		[synonym FpML_5_10, DTCC_11_0 value resetDatesReference path "paymentDates" meta href]
 	valuationDatesReference string (0..1) reference <"A pointer style reference to the associated valuation dates component defined elsewhere in the document. Implemented for Brazilian-CDI Swaps where it will refer to the settlemementProvision/nonDeliverableSettlement/fxFixingDate structure.">;
-		[synonym FpML_5_10, DTCC_11_0 value valuationDatesReference pathExpression "paymentDates" meta href]
+		[synonym FpML_5_10, DTCC_11_0 value valuationDatesReference path "paymentDates" meta href]
 	paymentFrequency Frequency (0..1) <"The frequency at which regular payment dates occur. If the payment frequency is equal to the frequency defined in the calculation period dates component then one calculation period contributes to each payment amount. If the payment frequency is less frequent than the frequency defined in the calculation period dates component then more than one calculation period will contribute to the payment amount. A payment frequency more frequent than the calculation period frequency or one that is not a multiple of the calculation period frequency is invalid. If the payment frequency is of value T (term), the period is defined by the effectiveDate and the terminationDate.">;
-		[synonym FpML_5_10, DTCC_11_0 value paymentFrequency pathExpression "paymentDates"]
-		[synonym FpML_5_10, DTCC_11_0 value paymentFrequency pathExpression "periodicPayment"]
+		[synonym FpML_5_10, DTCC_11_0 value paymentFrequency path "paymentDates"]
+		[synonym FpML_5_10, DTCC_11_0 value paymentFrequency path "periodicPayment"]
 	firstPaymentDate date (0..1) <"The first unadjusted payment date. This day may be subject to adjustment in accordance with any business day convention specified in paymentDatesAdjustments. This element must only be included if there is an initial stub. This date will normally correspond to an unadjusted calculation period start or end date. This is true even if early or delayed payment is specified to be applicable since the actual first payment date will be the specified number of days before or after the applicable adjusted calculation period start or end date with the resulting payment date then being adjusted in accordance with any business day convention specified in paymentDatesAdjustments.">;
-		[synonym FpML_5_10, DTCC_11_0 value firstPaymentDate pathExpression "paymentDates"]
-		[synonym FpML_5_10, DTCC_11_0 value firstPaymentDate pathExpression "periodicPayment"]
+		[synonym FpML_5_10, DTCC_11_0 value firstPaymentDate path "paymentDates"]
+		[synonym FpML_5_10, DTCC_11_0 value firstPaymentDate path "periodicPayment"]
 	lastRegularPaymentDate date (0..1) <"The last regular unadjusted payment date. This day may be subject to adjustment in accordance with any business day convention specified in paymentDatesAdjustments. In the case of interest rate swaps, this element must only be included if there is a final stub. All calculation periods after this date contribute to the final payment. The final payment is made relative to the final set of calculation periods or the final reset date as the case may be. This date will normally correspond to an unadjusted calculation period start or end date. This is true even if early or delayed payment is specified to be applicable since the actual last regular payment date will be the specified number of days before or after the applicable adjusted calculation period start or end date with the resulting payment date then being adjusted in accordance with any business day convention specified in paymentDatesAdjustments.">;
-		[synonym FpML_5_10, DTCC_11_0 value lastRegularPaymentDate pathExpression "paymentDates"]
-		[synonym FpML_5_10, DTCC_11_0 value lastRegularPaymentDate pathExpression "periodicPayment"]
+		[synonym FpML_5_10, DTCC_11_0 value lastRegularPaymentDate path "paymentDates"]
+		[synonym FpML_5_10, DTCC_11_0 value lastRegularPaymentDate path "periodicPayment"]
 	payRelativeTo PayRelativeToEnum (0..1) <"Specifies whether the payments occur relative to each adjusted calculation period start date, adjusted calculation period end date or each reset date. The reset date is applicable in the case of certain euro (former French Franc) floating rate indices. Calculation period start date means relative to the start of the first calculation period contributing to a given payment. Similarly, calculation period end date means the end of the last calculation period contributing to a given payment. The valuation date is applicable for Brazilian-CDI swaps.">;
-		[synonym FpML_5_10, DTCC_11_0 value payRelativeTo pathExpression "paymentDates"]
+		[synonym FpML_5_10, DTCC_11_0 value payRelativeTo path "paymentDates"]
 	paymentDaysOffset Offset (0..1) <"If early payment or delayed payment is required, specifies the number of days offset that the payment occurs relative to what would otherwise be the unadjusted payment date. The offset can be specified in terms of either calendar or business days. Even in the case of a calendar days offset, the resulting payment date, adjusted for the specified calendar days offset, will still be adjusted in accordance with the specified payment dates adjustments. This element should only be included if early or delayed payment is applicable, i.e. if the periodMultiplier element value is not equal to zero. An early payment would be indicated by a negative periodMultiplier element value and a delayed payment (or payment lag) would be indicated by a positive periodMultiplier element value.">;
-		[synonym FpML_5_10, DTCC_11_0 value paymentDaysOffset pathExpression "paymentDates"]
+		[synonym FpML_5_10, DTCC_11_0 value paymentDaysOffset path "paymentDates"]
 	paymentDatesAdjustments BusinessDayAdjustments (0..1) <"The business day convention to apply to each payment date if it would otherwise fall on a day that is not a business day in the specified financial business centers.">;
-		[synonym FpML_5_10, DTCC_11_0 value paymentDatesAdjustments pathExpression "paymentDates"]
+		[synonym FpML_5_10, DTCC_11_0 value paymentDatesAdjustments path "paymentDates"]
 	paymentDelay boolean (0..1) <"Applicable to CDS on MBS to specify whether payment delays are applicable to the fixed Amount. RMBS typically have a payment delay of 5 days between the coupon date of the reference obligation and the payment date of the synthetic swap. CMBS do not, on the other hand, with both payment dates being on the 25th of each month.">;
 /*
  * TODO - In order not to introduce optional boolean attributes, the below mapping syntax needs to be supported
@@ -628,38 +630,32 @@ data rule PaymentDates_paymentFrequency <"FpML specifies a required paymentFrequ
 class Payout <"The payout can be specified through a number of combinations, e.g. by associating several interest rate payouts to specify an interest rate swap, or a credit default and an interest rate payout to specify a credit default swap. The implied product is inferred by the isProduct CDM artefact. Each of the payout classes have an associated rosettaKeyValue which can be referenced by implementers as part of their grossCahflow attribute in the Transfer class, but establishing a lineage between this computed cashflow and the originating payout, when applicable.">
 {
 	interestRatePayout InterestRatePayout (0..*);
-		[synonym FpML_5_10, DTCC_11_0 value swapStream pathExpression "trade.swap" /*set when "Payout -> optionPayout -> underlyer -> contractualProduct" is absent*/]
-		[synonym FpML_5_10, DTCC_11_0 value swapStream pathExpression "swap" /*set when "Payout -> optionPayout -> underlyer -> contractualProduct" is absent*/]
-		[synonym FpML_5_10, DTCC_11_0 value swapStream pathExpression "trade.swaption.swap"]
-		[synonym FpML_5_10, DTCC_11_0 value swapStream pathExpression "swaption.swap"]
-		[synonym FpML_5_10, DTCC_11_0 value feeLeg pathExpression "trade.creditDefaultSwap"]
-		[synonym FpML_5_10, DTCC_11_0 value feeLeg pathExpression "creditDefaultSwap"]
-		[synonym FpML_5_10, DTCC_11_0 value feeLeg pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap" /*set when "Payout -> optionPayout -> underlyer -> contractualProduct" is absent*/]
-		[synonym FpML_5_10, DTCC_11_0 value feeLeg pathExpression "creditDefaultSwapOption.creditDefaultSwap" /*set when "Payout -> optionPayout -> underlyer -> contractualProduct" is absent*/]
-		[synonym FpML_5_10, DTCC_11_0 value generalTerms pathExpression "trade.creditDefaultSwap"]
-		[synonym FpML_5_10, DTCC_11_0 value generalTerms pathExpression "creditDefaultSwap"]
-		[synonym FpML_5_10, DTCC_11_0 value generalTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap" /*set when "Payout -> optionPayout -> underlyer -> contractualProduct" is absent*/]
-		[synonym FpML_5_10, DTCC_11_0 value generalTerms pathExpression "creditDefaultSwapOption.creditDefaultSwap" /*set when "Payout -> optionPayout -> underlyer -> contractualProduct" is absent*/]
+		[synonym FpML_5_10, DTCC_11_0 value swapStream path "trade.swap" ]
+		[synonym FpML_5_10, DTCC_11_0 value swapStream path "swap"]
+		[synonym FpML_5_10, DTCC_11_0 value feeLeg path "trade.creditDefaultSwap", generalTerms path "trade.creditDefaultSwap"]
+		[synonym FpML_5_10, DTCC_11_0 value feeLeg path "creditDefaultSwap", generalTerms path "creditDefaultSwap"]
+		//[synonym FpML_5_10, DTCC_11_0 value generalTerms path "trade.creditDefaultSwap"]
+		//[synonym FpML_5_10, DTCC_11_0 value generalTerms path "creditDefaultSwap"]
 	creditDefaultPayout CreditDefaultPayout (0..1);
 	cashflow Cashflow (0..*) <"A cashflow between the parties to the trade. For interest rate products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the initialPayment element and the singlePayment element of the fee leg.">;
-		[synonym FpML_5_10, DTCC_11_0 value additionalPayment pathExpression "trade.swap"]
-		[synonym FpML_5_10, DTCC_11_0 value additionalPayment pathExpression "swap"]
-		[synonym FpML_5_10, DTCC_11_0 value initialPayment pathExpression "trade.creditDefaultSwap.feeLeg"]
-		[synonym FpML_5_10, DTCC_11_0 value initialPayment pathExpression "creditDefaultSwap.feeLeg"]
-		[synonym FpML_5_10, DTCC_11_0 value singlePayment pathExpression "trade.creditDefaultSwap.feeLeg"]
-		[synonym FpML_5_10, DTCC_11_0 value singlePayment pathExpression "creditDefaultSwap.feeLeg"]
-		[synonym FpML_5_10, DTCC_11_0 value premium pathExpression "trade.swaption"]
-		[synonym FpML_5_10, DTCC_11_0 value premium pathExpression "swaption"]
-		[synonym FpML_5_10, DTCC_11_0 value premium pathExpression "trade.creditDefaultSwapOption"]
-		[synonym FpML_5_10, DTCC_11_0 value premium pathExpression "creditDefaultSwapOption"]
-		[synonym FpML_5_10, DTCC_11_0 value premium pathExpression "trade.bondOption"]
-		[synonym FpML_5_10, DTCC_11_0 value premium pathExpression "bondOption"]
+		[synonym FpML_5_10, DTCC_11_0 value additionalPayment path "trade.swap"]
+		[synonym FpML_5_10, DTCC_11_0 value additionalPayment path "swap"]
+		[synonym FpML_5_10, DTCC_11_0 value initialPayment path "trade.creditDefaultSwap.feeLeg"]
+		[synonym FpML_5_10, DTCC_11_0 value initialPayment path "creditDefaultSwap.feeLeg"]
+		[synonym FpML_5_10, DTCC_11_0 value singlePayment path "trade.creditDefaultSwap.feeLeg"]
+		[synonym FpML_5_10, DTCC_11_0 value singlePayment path "creditDefaultSwap.feeLeg"]
+		[synonym FpML_5_10, DTCC_11_0 value premium path "trade.swaption"]
+		[synonym FpML_5_10, DTCC_11_0 value premium path "swaption"]
+		[synonym FpML_5_10, DTCC_11_0 value premium path "trade.creditDefaultSwapOption"]
+		[synonym FpML_5_10, DTCC_11_0 value premium path "creditDefaultSwapOption"]
+		[synonym FpML_5_10, DTCC_11_0 value premium path "trade.bondOption"]
+		[synonym FpML_5_10, DTCC_11_0 value premium path "bondOption"]
 	optionPayout OptionPayout (0..*);
-		[synonym FpML_5_10, DTCC_11_0 value swaption pathExpression "trade"]
+		[synonym FpML_5_10, DTCC_11_0 value swaption path "trade"]
 		[synonym FpML_5_10, DTCC_11_0 value swaption]
-		[synonym FpML_5_10, DTCC_11_0 value creditDefaultSwapOption pathExpression "trade"]
+		[synonym FpML_5_10, DTCC_11_0 value creditDefaultSwapOption path "trade"]
 		[synonym FpML_5_10, DTCC_11_0 value creditDefaultSwapOption]
-		[synonym FpML_5_10, DTCC_11_0 value bondOption pathExpression "trade"]
+		[synonym FpML_5_10, DTCC_11_0 value bondOption path "trade"]
 		[synonym FpML_5_10, DTCC_11_0 value bondOption]
 }
 
@@ -715,42 +711,42 @@ class ProductIdentification <"A class to combine the CDM product qualifier with 
 {
 	productQualifier productType (0..1) <"The CDM product qualifier, which corresponds to the outcome of the isProduct qualification logic. This value is derived by the CDM from the product payout features.">;
 	primaryAssetClass AssetClassEnum (0..1) scheme <"A classification of the most important risk class of the trade. FpML defines a simple asset class categorisation using a coding scheme.">;
-		[synonym FpML_5_10, DTCC_11_0 value primaryAssetClass pathExpression "trade.swap" meta assetClassScheme]
-		[synonym FpML_5_10, DTCC_11_0 value primaryAssetClass pathExpression "swap" meta assetClassScheme]
-		[synonym FpML_5_10, DTCC_11_0 value primaryAssetClass pathExpression "trade.creditDefaultSwap" meta assetClassScheme]
-		[synonym FpML_5_10, DTCC_11_0 value primaryAssetClass pathExpression "creditDefaultSwap" meta assetClassScheme]
-		[synonym Rosetta_Workbench value primaryAssetClass pathExpression "trade.swaption" meta assetClassScheme]
-		[synonym Rosetta_Workbench value primaryAssetClass pathExpression "swaption" meta assetClassScheme]
-		[synonym Rosetta_Workbench value primaryAssetClass pathExpression "trade.swaption.swap" meta assetClassScheme]
-		[synonym Rosetta_Workbench value primaryAssetClass pathExpression "swaption.swap" meta assetClassScheme]
+		[synonym FpML_5_10, DTCC_11_0 value primaryAssetClass path "trade.swap" meta assetClassScheme]
+		[synonym FpML_5_10, DTCC_11_0 value primaryAssetClass path "swap" meta assetClassScheme]
+		[synonym FpML_5_10, DTCC_11_0 value primaryAssetClass path "trade.creditDefaultSwap" meta assetClassScheme]
+		[synonym FpML_5_10, DTCC_11_0 value primaryAssetClass path "creditDefaultSwap" meta assetClassScheme]
+		[synonym Rosetta_Workbench value primaryAssetClass path "trade.swaption" meta assetClassScheme]
+		[synonym Rosetta_Workbench value primaryAssetClass path "swaption" meta assetClassScheme]
+		[synonym Rosetta_Workbench value primaryAssetClass path "trade.swaption.swap" meta assetClassScheme]
+		[synonym Rosetta_Workbench value primaryAssetClass path "swaption.swap" meta assetClassScheme]
 	secondaryAssetClass AssetClassEnum (0..*) scheme <"A classification of additional risk classes of the trade, if any. FpML defines a simple asset class categorisation using a coding scheme.">;
-		[synonym FpML_5_10, DTCC_11_0 value secondaryAssetClass pathExpression "trade.swap" meta assetClassScheme]
-		[synonym FpML_5_10, DTCC_11_0 value secondaryAssetClass pathExpression "swap" meta assetClassScheme]
-		[synonym FpML_5_10, DTCC_11_0 value secondaryAssetClass pathExpression "trade.creditDefaultSwap" meta assetClassScheme]
-		[synonym FpML_5_10, DTCC_11_0 value secondaryAssetClass pathExpression "creditDefaultSwap" meta assetClassScheme]
-		[synonym Rosetta_Workbench value secondaryAssetClass pathExpression "trade.swaption" meta assetClassScheme]
-		[synonym Rosetta_Workbench value secondaryAssetClass pathExpression "swaption" meta assetClassScheme]
-		[synonym Rosetta_Workbench value secondaryAssetClass pathExpression "trade.swaption.swap" meta assetClassScheme]
-		[synonym Rosetta_Workbench value secondaryAssetClass pathExpression "swaption.swap" meta assetClassScheme]
+		[synonym FpML_5_10, DTCC_11_0 value secondaryAssetClass path "trade.swap" meta assetClassScheme]
+		[synonym FpML_5_10, DTCC_11_0 value secondaryAssetClass path "swap" meta assetClassScheme]
+		[synonym FpML_5_10, DTCC_11_0 value secondaryAssetClass path "trade.creditDefaultSwap" meta assetClassScheme]
+		[synonym FpML_5_10, DTCC_11_0 value secondaryAssetClass path "creditDefaultSwap" meta assetClassScheme]
+		[synonym Rosetta_Workbench value secondaryAssetClass path "trade.swaption" meta assetClassScheme]
+		[synonym Rosetta_Workbench value secondaryAssetClass path "swaption" meta assetClassScheme]
+		[synonym Rosetta_Workbench value secondaryAssetClass path "trade.swaption.swap" meta assetClassScheme]
+		[synonym Rosetta_Workbench value secondaryAssetClass path "swaption.swap" meta assetClassScheme]
 	productType string (0..*) scheme <"A classification of the type of product. FpML defines a simple product categorisation using a coding scheme.">;
-		[synonym FpML_5_10 value productType pathExpression "trade.swap" meta productTypeScheme]
-		[synonym FpML_5_10 value productType pathExpression "swap" meta productTypeScheme]
-		[synonym FpML_5_10 value productType pathExpression "trade.creditDefaultSwap" meta productTypeScheme]
-		[synonym FpML_5_10 value productType pathExpression "creditDefaultSwap" meta productTypeScheme]
-		[synonym Rosetta_Workbench value productType pathExpression "trade.swaption" meta productTypeScheme]
-		[synonym Rosetta_Workbench value productType pathExpression "swaption" meta productTypeScheme]
-		[synonym Rosetta_Workbench value productType pathExpression "trade.swaption.swap" meta productTypeScheme]
-		[synonym Rosetta_Workbench value productType pathExpression "swaption.swap" meta productTypeScheme]
+		[synonym FpML_5_10 value productType path "trade.swap" meta productTypeScheme]
+		[synonym FpML_5_10 value productType path "swap" meta productTypeScheme]
+		[synonym FpML_5_10 value productType path "trade.creditDefaultSwap" meta productTypeScheme]
+		[synonym FpML_5_10 value productType path "creditDefaultSwap" meta productTypeScheme]
+		[synonym Rosetta_Workbench value productType path "trade.swaption" meta productTypeScheme]
+		[synonym Rosetta_Workbench value productType path "swaption" meta productTypeScheme]
+		[synonym Rosetta_Workbench value productType path "trade.swaption.swap" meta productTypeScheme]
+		[synonym Rosetta_Workbench value productType path "swaption.swap" meta productTypeScheme]
 		[synonym DTCC_11_0 value ProductType]
 	productId string (0..*) scheme <"A product reference identifier. The product Id is an identifier that describes the key economic characteristics of the trade type, with the exception of concepts such as size (notional, quantity, number of units) and price (fixed rate, strike, etc.) that are negotiated for each transaction. It can be used to hold identifiers such as the 'UPI' (universal product identifier) required by certain regulatory reporting rules. It can also be used to hold identifiers of benchmark products or product temnplates used by certain trading systems or facilities. FpML does not define the domain values associated with this element. Note that the domain values for this element are not strictly an enumerated list.">;
-		[synonym FpML_5_10, DTCC_11_0 value productId pathExpression "trade.swap" meta productIdScheme]
-		[synonym FpML_5_10, DTCC_11_0 value productId pathExpression "swap" meta productIdScheme]
-		[synonym FpML_5_10, DTCC_11_0 value productId pathExpression "trade.creditDefaultSwap" meta productIdScheme]
-		[synonym FpML_5_10, DTCC_11_0 value productId pathExpression "creditDefaultSwap" meta productIdScheme]
-		[synonym Rosetta_Workbench value productType pathExpression "trade.swaption" meta productIdScheme]
-		[synonym Rosetta_Workbench value productType pathExpression "swaption" meta productIdScheme]
-		[synonym Rosetta_Workbench value productType pathExpression "trade.swaption.swap" meta productIdScheme]
-		[synonym Rosetta_Workbench value productType pathExpression "swaption.swap" meta productIdScheme]
+		[synonym FpML_5_10, DTCC_11_0 value productId path "trade.swap" meta productIdScheme]
+		[synonym FpML_5_10, DTCC_11_0 value productId path "swap" meta productIdScheme]
+		[synonym FpML_5_10, DTCC_11_0 value productId path "trade.creditDefaultSwap" meta productIdScheme]
+		[synonym FpML_5_10, DTCC_11_0 value productId path "creditDefaultSwap" meta productIdScheme]
+		[synonym Rosetta_Workbench value productType path "trade.swaption" meta productIdScheme]
+		[synonym Rosetta_Workbench value productType path "swaption" meta productIdScheme]
+		[synonym Rosetta_Workbench value productType path "trade.swaption.swap" meta productIdScheme]
+		[synonym Rosetta_Workbench value productType path "swaption.swap" meta productIdScheme]
 }
 
 class Quantity
@@ -780,13 +776,13 @@ class StubPeriod <"A class defining how the initial or final stub calculation pe
 class TransactedPrice <"A class to represent the transacted price attributes that are positioned as part of the FpML FeeLeg.">
 {
 	marketFixedRate number (0..1) <"An optional element that only has meaning in a credit index trade. This element contains the credit spread ('fair value') at which the trade was executed. Unlike the fixedRate of an index, the marketFixedRate varies over the life of the index depending on market conditions. The marketFixedRate is the price of the index as quoted by trading desks.">;
-		[synonym FpML_5_10, DTCC_11_0 value marketFixedRate pathExpression "feeLeg"]
+		[synonym FpML_5_10, DTCC_11_0 value marketFixedRate path "feeLeg"]
 	initialPoints number (0..1) <"An optional element that contains the up-front points expressed as a percentage of the notional. An initialPoints value of 5% would be represented as 0.05. The initialPoints element is an alternative to marketFixedRate in quoting the traded level of a trade. When initialPoints is used, the traded level is the sum of fixedRate and initialPoints. The initialPoints is one of the items that are factored into the initialPayment calculation and is payable by the Buyer to the Seller. Note that initialPoints and marketFixedRate may both be present in the same document when both implied values are desired.">;
-		[synonym FpML_5_10, DTCC_11_0 value initialPoints pathExpression "feeLeg"]
+		[synonym FpML_5_10, DTCC_11_0 value initialPoints path "feeLeg"]
 	marketPrice number (0..1) <"An optional element that only has meaning in a credit index trade. This element contains the price at which the trade was executed and is used instead of marketFixedRate on credit trades on certain indicies which are quoted using a price rather than a spread.">;
-		[synonym FpML_5_10, DTCC_11_0 value marketPrice pathExpression "feeLeg"]
+		[synonym FpML_5_10, DTCC_11_0 value marketPrice path "feeLeg"]
 	quotationStyle QuotationStyleEnum (0..1) <"An optional element that contains the up-front points expressed as a percentage of the notional. An initialPoints value of 5% would be represented as 0.05. The initialPoints element is an alternative to marketFixedRate in quoting the traded level of a trade. When initialPoints is used, the traded level is the sum of fixedRate and initialPoints. The initialPoints is one of the items that are factored into the initialPayment calculation and is payable by the Buyer to the Seller. Note that initialPoints and marketFixedRate may both be present in the same document when both implied values are desired.">;
-		[synonym FpML_5_10, DTCC_11_0 value quotationStyle pathExpression "feeLeg"]
+		[synonym FpML_5_10, DTCC_11_0 value quotationStyle path "feeLeg"]
 }
 
 data rule TransactedPrice_marketPrice <"FpML specifies that  marketFixedRate and marketPrice only have meaning in a credit index trade">
