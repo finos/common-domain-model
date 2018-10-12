@@ -1,14 +1,18 @@
 namespace "org.isda.cdm"
 
-class AllocationOutcome <"Class to specify the allocated contracts or contract references, alongside the state qualification of the execution.">
+class AllocationOutcome <"A class to specify the allocated outcome as the combination of an execution which state is specified as 'Allocated' and a contract or set of contract(s). (The allocation to one single contract is deemed appropriate.)">
 {
-	execution Execution (1..1) <"The execution is specified as part of the AllocationOutcome so that its state">;
+	execution Execution (1..1);
 	contract Contract (1..*);
 }
 
+data rule AllocationOutcome_execution <"The allocation outcome must result in execution state of 'Allocated'.">
+	when AllocationOutcome exists
+	then AllocationOutcome -> execution -> state = StateEnum.Allocated
+
 class AllocationPrimitive <"The primitive event to represent a split/allocation of a contractual product or a contract.">
 {
-	before Execution (1..1);
+	before ExecutionState (1..1);
 		[synonym Rosetta_Workbench value before]
 	after AllocationOutcome (1..1);
 		[synonym Rosetta_Workbench value after]
@@ -68,7 +72,7 @@ class ComputedAmount <"A class to specify the outcome of a computed amount, for 
 		[synonym Rosetta_Workbench value currency meta currencyScheme]
 }
 
-class ContractEvent <"A class to specify a contract when corresponding to the before or after state of a lifecycle event.">
+class ContractState <"A class to specify a contract instantiation with respect to the before and/or after state of lifecycle events.">
 {
 	contract Contract (1..1);
 		[synonym Rosetta_Workbench value trade]
@@ -181,6 +185,12 @@ choice rule ExerciseOutcome_choice <"A option exercise results in either a physi
 	for ExerciseOutcome required choice between
 	physicalExercise and cashExercise
 
+class ExecutionState <"A class to specify an execution instantiation with respect to the before and/or after state of lifecycle events.">
+{
+	execution Execution (1..1);
+		[synonym Rosetta_Workbench value execution]
+}
+
 /*
  * TODO - Add data rules in relation to the fullExercise attribute
  */
@@ -193,7 +203,7 @@ class ExercisePrimitive <"This primitive leverages the FpML OptionExercise const
 		[synonym Rosetta_Workbench value exerciseTime]
 	fullExercise boolean (1..1);
 		[synonym Rosetta_Workbench value fullExercise]
-	before ContractEvent (1..1);
+	before ContractState (1..1);
 		[synonym Rosetta_Workbench value before]
 	after ExerciseOutcome (1..1);
 		[synonym Rosetta_Workbench value after]
@@ -220,12 +230,12 @@ data rule EventTimestamp_ExpireTime <"The expire time should be greater than the
 
 class Inception <"The primitive event for the inception of a new contract between parties. It is expected that this primitive will be adjusted or deprecated once the CDM scope is extended to the pre-execution space.">
 {
-	before ContractEvent (0..0) <"The (0..0) cardinality reflects the fact that there is no contract in the before state of an inception primitive. As noted in the definition associated with the class, this is expected to change once the CDM scope is extended to the pre-execution space.">;
+	before ContractState (0..0) <"The (0..0) cardinality reflects the fact that there is no contract in the before state of an inception primitive. As noted in the definition associated with the class, this is expected to change once the CDM scope is extended to the pre-execution space.">;
 		[synonym Rosetta_Workbench value before]
 	/*
 	 * Need to add the rosettaKey entry
 	 */
-	after ContractEvent (1..1) reference <"The after state corresponds to the new contract between the parties. Depending upon the implementation approach, this contract can either be explicitly stated, or referenced via either a CDM rosettaKey or a reference that originates externally from the CDM.">;
+	after ContractState (1..1) reference <"The after state corresponds to the new contract between the parties. Depending upon the implementation approach, this contract can either be explicitly stated, or referenced via either a CDM rosettaKey or a reference that originates externally from the CDM.">;
 		[synonym Rosetta_Workbench value after]
 		// Requires conditional mapping based on OTC_RM_11-0.TransTypeDataType
 		[synonym DTCC_PostTrade_11_0 value Trade path "Body.OTC_Matching"]
@@ -335,9 +345,9 @@ class PrimitiveEvent <"The set of primitive events. The purpose of this class it
 
 class QuantityChangePrimitive <"The primitive event to represent a change in quantity or notional.">
 {
-	before ContractEvent (1..1);
+	before ContractState (1..1);
 		[synonym Rosetta_Workbench value before]
-	after ContractEvent (1..1);
+	after ContractState (1..1);
 		[synonym Rosetta_Workbench value after]
 	change ContractualQuantity (1..*);
 		[synonym Rosetta_Workbench value change]
@@ -380,9 +390,9 @@ class SecurityTransferComponent extends TransferBase
 
 class TermsChangePrimitive <"The primitive event to represent change(s) to the contractual terms.">
 {
-	before ContractEvent (1..1);
+	before ContractState (1..1);
 		[synonym Rosetta_Workbench value before]
-	after ContractEvent (1..1);
+	after ContractState (1..1);
 		[synonym Rosetta_Workbench value after]
 }
 
@@ -449,14 +459,14 @@ isEvent Allocation <"The qualification of allocation event from the fact that (i
 //	and quantityBeforeAllocation = quantityAfterAllocation
 
 alias quantityBeforeAllocation <"The alias to represent the quantity or notional amount associated to a pre-allocation contractual product in terms of number of units (i.e. ignoring the currency or units denomination).">
-	Event -> primitive -> allocation -> before -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity -> amount
-	or Event -> primitive -> allocation -> before -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount
-	or Event -> primitive -> allocation -> before -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
-	or Event -> primitive -> allocation -> before -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step -> stepValue
-	or Event -> primitive -> allocation -> before -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepParameters -> notionalStepAmount
-	or Event -> primitive -> allocation -> before -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> fxLinkedNotional -> initialValue
-	or Event -> primitive -> allocation -> before -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> notionalAmount -> amount
-	or Event -> primitive -> allocation -> before -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount -> amount
+	Event -> primitive -> allocation -> before -> execution -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity -> amount
+	or Event -> primitive -> allocation -> before -> execution -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount
+	or Event -> primitive -> allocation -> before -> execution -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
+	or Event -> primitive -> allocation -> before -> execution -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step -> stepValue
+	or Event -> primitive -> allocation -> before -> execution -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepParameters -> notionalStepAmount
+	or Event -> primitive -> allocation -> before -> execution -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> fxLinkedNotional -> initialValue
+	or Event -> primitive -> allocation -> before -> execution -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> notionalAmount -> amount
+	or Event -> primitive -> allocation -> before -> execution -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount -> amount
 
 alias quantityAfterAllocation <"The alias to represent the quantity or notional amount associated to allocated contract(s) in terms of number of units (i.e. ignoring the currency or units denomination).">
 	Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity -> amount

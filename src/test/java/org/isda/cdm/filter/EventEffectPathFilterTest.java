@@ -80,7 +80,7 @@ class EventEffectPathFilterTest {
         return (n) -> {
             Class<?> forClass = n.get().getObject();
             List<String> inspectedPath = n.get().getPath();
-            if(ContractEvent.class.isAssignableFrom(forClass) && inspectedPath.containsAll(EventEffectPathFilter.EFFECTED_CONTRACT_REQUIRED_PATHS)) {
+            if(ContractState.class.isAssignableFrom(forClass) && inspectedPath.containsAll(EventEffectPathFilter.EFFECTED_CONTRACT_REQUIRED_PATHS)) {
                 capture.add(n.get());
             }
         };
