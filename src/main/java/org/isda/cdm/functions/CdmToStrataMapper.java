@@ -19,7 +19,7 @@ class CdmToStrataMapper {
             String field = calculationPeriodDates.getCalculationPeriodFrequency().getRollConvention().name();
             RosettaSynonym[] synonyms = RollConventionEnum.class.getField(field).getAnnotationsByType(RosettaSynonym.class);
             String rollConventionName = Arrays.stream(synonyms)
-                    .filter(synonym -> synonym.source().equals("FpML"))
+                    .filter(synonym -> synonym.source().equals("FpML_5_10"))
                     .findFirst()
                     .map(RosettaSynonym::value)
                     .orElseThrow(() -> new CdmToStrataMapperException("No FpML synonym found for [" + field + "]"));
