@@ -34,18 +34,6 @@ class EventEffectPathFilterTest {
     }
 
     @Test
-    void shouldFilterPathsForEffectedContractReference() {
-        HierarchicalPath effectedContractReferencePath = HierarchicalPath.valueOf("eventEffect.effectedContractReference");
-
-        assertThat(EventEffectPathFilter.test(effectedContractReferencePath, ContractReference.class, HierarchicalPath.valueOf("primitive.exercise.before.contractReference")), is(true));
-        assertThat(EventEffectPathFilter.test(effectedContractReferencePath, ContractReference.class, HierarchicalPath.valueOf("primitive.exercise.after.contractReference")), is(false));
-        assertThat(EventEffectPathFilter.test(effectedContractReferencePath, ContractReference.class, HierarchicalPath.valueOf("primitive.termsChange.before.contractReference")), is(true));
-        assertThat(EventEffectPathFilter.test(effectedContractReferencePath, ContractReference.class, HierarchicalPath.valueOf("primitive.termsChange.after.contractReference")), is(false));
-        assertThat(EventEffectPathFilter.test(effectedContractReferencePath, ContractReference.class, HierarchicalPath.valueOf("primitive.quantityChange.before.contractReference")), is(true));
-        assertThat(EventEffectPathFilter.test(effectedContractReferencePath, ContractReference.class, HierarchicalPath.valueOf("primitive.quantityChange.after.contractReference")), is(false));
-    }
-
-    @Test
     void shouldFilterPathsForContract() {
         HierarchicalPath contractPath = HierarchicalPath.valueOf("eventEffect.contract");
 
@@ -56,18 +44,6 @@ class EventEffectPathFilterTest {
         assertThat(EventEffectPathFilter.test(contractPath, Contract.class, HierarchicalPath.valueOf("primitive.termsChange.after.contract")), is(true));
         assertThat(EventEffectPathFilter.test(contractPath, Contract.class, HierarchicalPath.valueOf("primitive.quantityChange.before.contract")), is(false));
         assertThat(EventEffectPathFilter.test(contractPath, Contract.class, HierarchicalPath.valueOf("primitive.quantityChange.after.contract")), is(true));
-    }
-
-    @Test
-    void shouldFilterPathsForContractReference() {
-        HierarchicalPath contractReferencePath = HierarchicalPath.valueOf("eventEffect.contractReference");
-
-        assertThat(EventEffectPathFilter.test(contractReferencePath, ContractReference.class, HierarchicalPath.valueOf("primitive.exercise.before.contractReference")), is(false));
-        assertThat(EventEffectPathFilter.test(contractReferencePath, ContractReference.class, HierarchicalPath.valueOf("primitive.exercise.after.contractReference")), is(true));
-        assertThat(EventEffectPathFilter.test(contractReferencePath, ContractReference.class, HierarchicalPath.valueOf("primitive.termsChange.before.contractReference")), is(false));
-        assertThat(EventEffectPathFilter.test(contractReferencePath, ContractReference.class, HierarchicalPath.valueOf("primitive.termsChange.after.contractReference")), is(true));
-        assertThat(EventEffectPathFilter.test(contractReferencePath, ContractReference.class, HierarchicalPath.valueOf("primitive.quantityChange.before.contractReference")), is(false));
-        assertThat(EventEffectPathFilter.test(contractReferencePath, ContractReference.class, HierarchicalPath.valueOf("primitive.quantityChange.after.contractReference")), is(true));
     }
 
     @Test
@@ -104,7 +80,7 @@ class EventEffectPathFilterTest {
         return (n) -> {
             Class<?> forClass = n.get().getObject();
             List<String> inspectedPath = n.get().getPath();
-            if(ContractOrContractReference.class.isAssignableFrom(forClass) && inspectedPath.containsAll(EventEffectPathFilter.EFFECTED_CONTRACT_REQUIRED_PATHS)) {
+            if(ContractEvent.class.isAssignableFrom(forClass) && inspectedPath.containsAll(EventEffectPathFilter.EFFECTED_CONTRACT_REQUIRED_PATHS)) {
                 capture.add(n.get());
             }
         };
@@ -126,9 +102,7 @@ class EventEffectPathFilterTest {
 
         assertThat(eventEffectPaths,
                 hasItems(EFFECTED_CONTRACT_PATH.getPath().buildPath(),
-                        EFFECTED_CONTRACT_REFERENCE_PATH.getPath().buildPath(),
-                        CONTRACT_PATH.getPath().buildPath(),
-                        CONTRACT_REFERENCE_PATH.getPath().buildPath()));
+                        CONTRACT_PATH.getPath().buildPath()));
         assertThat(eventEffectPaths, hasSize(7));
     }
 

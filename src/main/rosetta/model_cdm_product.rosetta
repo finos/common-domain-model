@@ -128,7 +128,7 @@ data rule Restructuring_physicalSettlementMatrix <"The below multiple holder obl
  * TODO - Confirm the set of Contractual Terms Supplements that qualify mortgage products
  */
 data rule AdditionalFixedPayments_mortgages <"The below set of additional fixed payment provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlyer is a mortgage index.">
-	when ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> mortgage exists
+	when ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> mortgageBackedsecurity exists
 		or Contract -> documentation -> contractualTermsSupplement -> type = ContractualSupplementEnum.CDSonMBS )
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents exists
 	then ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> additionalFixedPayments -> interestShortfallReimbursement
@@ -137,7 +137,7 @@ data rule AdditionalFixedPayments_mortgages <"The below set of additional fixed 
 	) exists
 
 data rule FloatingAmountEvents_mortgages <"The below set of floating amount events provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlyer is a mortgage index.">
-	when ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> mortgage exists
+	when ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> mortgageBackedsecurity exists
 		or Contract -> documentation -> contractualTermsSupplement -> type = ContractualSupplementEnum.CDSonMBS )
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents exists
 	then ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> failureToPayPrincipal
@@ -146,7 +146,7 @@ data rule FloatingAmountEvents_mortgages <"The below set of floating amount even
 	) exists
 
 data rule CreditEvents_mortgages <"The below set of credit events provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlyer is a mortgage index.">
-	when ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> mortgage exists
+	when ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> mortgageBackedsecurity exists
 		or Contract -> documentation -> contractualTermsSupplement -> type = ContractualSupplementEnum.CDSonMBS )
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents exists
 	then ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> failureToPayPrincipal
@@ -286,10 +286,6 @@ class CrossCurrencyTerms
 		[synonym FpML_5_10, DTCC_PostTrade_11_0 value settlementProvision]
 }
 
-/*
- * TODO - Need to cross-reference the 2014 credit definitions when relevant.
- * (FpML schema has not been updated to reflect those definitions.)
- */
 class CreditDefaultPayout rosettaKey <"The credit default payout specification terms.">
 {
 	id (0..1);
@@ -702,13 +698,16 @@ data rule ResetDates_interestRateSwap <"The cardinality of the ResetDates attrib
 		and Payout -> interestRatePayout -> resetDates -> resetFrequency exists
 		and Payout -> interestRatePayout -> resetDates -> resetDatesAdjustments exists
 
-class Product one of
+class Product one of <"A class to represent a financial product. With respect to contractual products, which class provides the ability to specify either a post-execution 'view' of contract (the Contract class) or the pre-execution contractual product (the ContractualProduct class). This class is used as part of the option exercise representation, which makes use of the contract attribute fir supporting the swaption use case, with the exercise into a swap.">
 {
+	contract Contract (0..1);
 	contractualProduct ContractualProduct (0..1);
-	bond ProductIdentifier (0..1);
+	bond Bond (0..1);
 		[synonym FpML_5_10, DTCC_PostTrade_11_0 value bond]
-	convertibleBond ProductIdentifier (0..1);
+	convertibleBond ConvertibleBond (0..1);
 		[synonym FpML_5_10, DTCC_PostTrade_11_0 value convertibleBond]
+	mortgageBackedSecurity MortgageBackedSecurity (0..1);
+	loan Loan (0..1);	
 }
 
 class ProductIdentification <"A class to combine the CDM product qualifier with other product qualifiers, such as the FpML ones. While the CDM product qualifier is derived by the CDM from the product payout features, the other product identification elements are assigned by some external sources and correspond to values specified by other data representation protocols.">
