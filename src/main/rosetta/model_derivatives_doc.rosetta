@@ -3,14 +3,14 @@ namespace "org.isda.cdm"
 class CalculationAgentModel <"This class corresponds to the FpML CalculationAgent.model.">
 {
 	calculationAgent CalculationAgent (0..1) <"The ISDA calculation agent responsible for performing duties as defined in the applicable product definitions.">;
-		[synonym FpML_5_10 value calculationAgent pathExpression "trade"]
+		[synonym FpML_5_10 value calculationAgent path "trade"]
 		[synonym Rosetta_Workbench value calculationAgent]
-		[synonym FpML_5_10 value calculationAgent pathExpression "trade.swaption"]
-		[synonym FpML_5_10 value calculationAgent pathExpression "swaption"]
+		[synonym FpML_5_10 value calculationAgent path "trade.swaption"]
+		[synonym FpML_5_10 value calculationAgent path "swaption"]
 	calculationAgentBusinessCenter BusinessCenterEnum (0..1) <"The city in which the office through which ISDA Calculation Agent is acting for purposes of the transaction is located. The short-form confirm for a trade that is executed under a Sovereign or Asia-Pacific Master Confirmation Agreement (MCA), does not need to specify the Calculation Agent. However, the confirm does need to specify the Calculation Agent city. This is due to the fact that the MCA sets the value for Calculation Agent but does not set the value for Calculation Agent city.">;
-		[synonym FpML_5_10 value calculationAgentBusinessCenter pathExpression "trade"]
+		[synonym FpML_5_10 value calculationAgentBusinessCenter path "trade"]
 		[synonym Rosetta_Workbench value calculationAgentBusinessCenter]
-		[synonym DTCC_PostTrade_11_0 value calculationAgentBusinessCenter pathExpression "Body.OTC_Matching.Trade.FpML.trade"]
+		[synonym DTCC_PostTrade_11_0 value calculationAgentBusinessCenter path "Body.OTC_Matching.Trade.FpML.trade"]
 }
 
 class ContractIdentifier extends Identifier <"A class defining a trade identifier issued by the indicated party. The CDM doesn't extends the base class PartyAndAccountReference because of the choice logic with the issuer element.">
@@ -33,43 +33,42 @@ data rule TradeIdentifier_account <"FpML specifies a choice between issuer and [
 class Identifier extends IdentifierValue
 {
 	issuer string (1..1) scheme, reference <"The identifier issuer, specified by reference to a party specified as part of the transaction.">;
-		[synonym FpML_5_10 value partyReference pathExpression "trade.tradeHeader.partyTradeIdentifier" meta href]
-		[synonym FpML_5_10 value partyReference pathExpression "tradeHeader.partyTradeIdentifier" meta href]
-		[synonym FpML_5_10 value partyReference meta href]
-		[synonym FpML_5_10 value issuer pathExpression "trade.tradeHeader.partyTradeIdentifier" meta issuerIdScheme]
-		[synonym FpML_5_10 value issuer pathExpression "tradeHeader.partyTradeIdentifier" meta issuerIdScheme]
-		[synonym FpML_5_10 value issuer meta issuerIdScheme] // To be deprecated once we deprecate the contractReference
-		[synonym Rosetta_Workbench value issuer meta href]
+		[synonym FpML_5_10, DTCC_PostTrade_11_0 value partyReference meta scheme, href]
+		[synonym FpML_5_10, DTCC_PostTrade_11_0 value partyReference meta scheme, href]
+		[synonym FpML_5_10, DTCC_PostTrade_11_0 value issuer meta issuerIdScheme, href]
+		[synonym FpML_5_10, DTCC_PostTrade_11_0 value issuer meta issuerIdScheme, href]
+		//[synonym FpML_5_10 value issuer meta issuerIdScheme] // To be deprecated once we deprecate the contractReference
+		//[synonym Rosetta_Workbench value issuer meta href]
 		// Conditional mapping required? tradeIdScheme=“EventProcessingId” / tradeIdScheme=“TradeRefNbr”
-		[synonym DTCC_PostTrade_11_0 value partyReference pathExpression "Submitter.partyTradeIdentifier" maps 2 meta href]
-		[synonym DTCC_PostTrade_11_0 value partyReference pathExpression "ContraTradeId.partyTradeIdentifier" maps 2 meta href]
+		[synonym DTCC_PostTrade_11_0 value partyReference maps 2 meta href]
+		[synonym DTCC_PostTrade_11_0 value partyReference maps 2 meta href]
 		// Conditional mapping required? tradeIdScheme=“EventProcessingId” / tradeIdScheme=“TradeRefNbr”
-		[synonym DTCC_PostTrade_11_0 value USIIssuer pathExpression "USI" maps 2 meta issuerIdScheme]
+		[synonym DTCC_PostTrade_11_0 value USIIssuer maps 2 meta issuerIdScheme]
 	version int (1..1) <"The identifier version, which is specified as an integer and is meant to be incremented each time the transaction terms (whether contract or event) change.">;
-		[synonym FpML_5_10 value version pathExpression "trade.tradeHeader.partyTradeIdentifier.versionedTradeId"]
-		[synonym FpML_5_10 value version pathExpression "tradeHeader.partyTradeIdentifier.versionedTradeId"]
-		[synonym Rosetta_Workbench value version]
-		[synonym FpML_5_10 value version] // To be deprecated once we deprecate the contractReference
-		[synonym FpML_5_10 value version pathExpression "versionedTradeId"]
+		[synonym FpML_5_10 value version path "versionedTradeId"]
+		[synonym FpML_5_10 value version path "versionedTradeId"]
+		//[synonym Rosetta_Workbench value version]
+		//[synonym FpML_5_10 value version] // To be deprecated once we deprecate the contractReference
+		[synonym FpML_5_10 value version]
 }
 
 class IdentifierValue <"A class to associate an id to an identifier value, to support constructs such as the FpML tradeIdentifier.">
 {
 	id (0..1);
-		[synonym FpML_5_10 meta id pathExpression "trade.tradeHeader.partyTradeIdentifier"]
-		[synonym FpML_5_10 meta id pathExpression "trade.tradeHeader.partyTradeIdentifier.versionedTradeId.tradeId"]
+		[synonym FpML_5_10 meta id]
+		[synonym FpML_5_10 meta id path "versionedTradeId.tradeId"]
 	identifier string (1..1) scheme;
-		[synonym FpML_5_10 value tradeId pathExpression "trade.tradeHeader.partyTradeIdentifier" meta tradeIdScheme]
-		[synonym FpML_5_10 value tradeId pathExpression "tradeHeader.partyTradeIdentifier" meta tradeIdScheme]
-		[synonym FpML_5_10 value tradeId pathExpression "trade.tradeHeader.partyTradeIdentifier.versionedTradeId" meta tradeIdScheme]
-		[synonym FpML_5_10 value tradeId pathExpression "tradeHeader.partyTradeIdentifier.versionedTradeId" meta tradeIdScheme]
+		[synonym FpML_5_10 value tradeId meta tradeIdScheme]
+		[synonym FpML_5_10 value tradeId meta tradeIdScheme]
+		[synonym FpML_5_10 value tradeId path "versionedTradeId" meta tradeIdScheme]
+		[synonym FpML_5_10 value tradeId path "versionedTradeId" meta tradeIdScheme]
 		[synonym Rosetta_Workbench value identifier]
 		[synonym FpML_5_10 value tradeId meta tradeIdScheme] // To be deprecated once we deprecate the contractReference
-		[synonym FpML_5_10 value tradeId pathExpression "versionedTradeId" meta tradeIdScheme]
+		[synonym FpML_5_10 value tradeId path "versionedTradeId" meta tradeIdScheme]
         // Conditional mapping required? tradeIdScheme=“EventProcessingId” / tradeIdScheme=“TradeRefNbr”
-        [synonym DTCC_PostTrade_11_0 value tradeId pathExpression "Submitter.partyTradeIdentifier" maps 2 meta tradeIdScheme]
+        [synonym DTCC_PostTrade_11_0 value tradeId maps 2 meta tradeIdScheme]
         // Conditional mapping required? tradeIdScheme=“EventProcessingId” / tradeIdScheme=“TradeRefNbr”
-        [synonym DTCC_PostTrade_11_0 value USITradeId pathExpression "USI" maps 2 meta tradeIdScheme]
+        [synonym DTCC_PostTrade_11_0 value USITradeId maps 2 meta tradeIdScheme]
 }
 
 class PackageInformation <"A class defining additional information that may be recorded alongside a transaction package.">
