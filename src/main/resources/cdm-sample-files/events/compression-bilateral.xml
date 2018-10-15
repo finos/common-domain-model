@@ -17,6 +17,7 @@
     <co:effectiveDate>2018-05-25</co:effectiveDate>
     <co:isCorrection>false</co:isCorrection>
     <co:intent>compression</co:intent>
+    <!-- 2 contracts are being compressed, resulting in 1 partial termination, 1 termination, 1 new contract and 1 cash transfer -->
     <party id="p1">
         <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external">Party1</partyId>
     </party>
@@ -27,7 +28,6 @@
         <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external">CompressionUtility</partyId>
     </party>
     <co:primitive>
-        <!-- A new contract -->
         <co:inception>
             <co:after>
                 <co:trade>
@@ -117,20 +117,10 @@
                 </co:notionalAmount>
             </co:change>
         </co:quantityChange>
-        <!-- This 2nd contract is referenced in the before, explictly stated in the after, and
-            partially terminated -->
+        <!-- This 2nd contract is partially terminated -->
         <co:quantityChange>
             <co:before>
-                <co:contractReference>
-                    <partyReference href="p1"/>
-                    <versionedTradeId>
-                        <tradeId tradeIdScheme="http://www.fpml.org/coding-scheme/external/uti">CDX45RTD</tradeId>
-                        <version>1</version>
-                    </versionedTradeId>
-                </co:contractReference>
-            </co:before>
-            <co:after>
-                <co:contract>
+                <co:trade>
                     <tradeHeader>
                         <partyTradeIdentifier>
                             <partyReference href="p1"/>
@@ -180,7 +170,60 @@
                             <masterConfirmationDate>2004-10-11</masterConfirmationDate>
                         </masterConfirmation>
                     </documentation>
-                </co:contract>
+                </co:trade>
+            </co:before>
+            <co:after>
+                <co:trade>
+                    <tradeHeader>
+                        <partyTradeIdentifier>
+                            <partyReference href="p1"/>
+                            <versionedTradeId>
+                                <tradeId tradeIdScheme="http://www.fpml.org/coding-scheme/external/uti">CDX45RTD</tradeId>
+                                <version>2</version>
+                            </versionedTradeId>
+                        </partyTradeIdentifier>
+                        <tradeDate>2010-11-03</tradeDate>
+                    </tradeHeader>
+                    <creditDefaultSwap>
+                        <generalTerms>
+                            <scheduledTerminationDate>
+                                <unadjustedDate>2021-03-20</unadjustedDate>
+                            </scheduledTerminationDate>
+                            <buyerPartyReference href="p1"/>
+                            <sellerPartyReference href="p2"/>
+                            <indexReferenceInformation>
+                                <indexName>Dow Jones iTraxx Europe Consumers Series 2 Version 1</indexName>
+                                <indexSeries>2</indexSeries>
+                                <indexAnnexVersion>1</indexAnnexVersion>
+                                <excludedReferenceEntity>
+                                    <entityName>TESCO PLC</entityName>
+                                </excludedReferenceEntity>
+                            </indexReferenceInformation>
+                        </generalTerms>
+                        <feeLeg>
+                            <initialPayment>
+                                <payerPartyReference href="p1"/>
+                                <receiverPartyReference href="p2"/>
+                                <paymentAmount>
+                                    <currency>EUR</currency>
+                                    <amount>17000</amount>
+                                </paymentAmount>
+                            </initialPayment>
+                        </feeLeg>
+                        <protectionTerms>
+                            <calculationAmount>
+                                <currency>USD</currency>
+                                <amount>10000000</amount>
+                            </calculationAmount>
+                        </protectionTerms>
+                    </creditDefaultSwap>
+                    <documentation>
+                        <masterConfirmation>
+                            <masterConfirmationType>DJ.iTraxx.Europe</masterConfirmationType>
+                            <masterConfirmationDate>2004-10-11</masterConfirmationDate>
+                        </masterConfirmation>
+                    </documentation>
+                </co:trade>
             </co:after>
             <co:change>
                 <co:notionalAmount>
