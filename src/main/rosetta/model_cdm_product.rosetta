@@ -30,8 +30,7 @@ class CashflowBase <"A class to represent the attributes to be shared by the Cas
 class Contract rosettaKey <"A class to specify a contract object, which can be invoked either within the context of an event, or independently from it. It corresponds to the FpML Trade, although restricted to execution and post-execution contexts. Attributes also applicable to pre-execution (a.k.a. pre-trade view in FpML) contexts have been positioned as part of the ContractualProduct class.">
 {
 	id (0..1);
-		[synonym FpML_5_10, DTCC_PostTrade_11_0 meta id path "trade.tradeHeader"]
-		[synonym FpML_5_10, DTCC_PostTrade_11_0 meta id path "tradeHeader"]
+		[synonym FpML_5_10, DTCC_PostTrade_11_0 meta id path "trade"]
 		[synonym FpML_5_10, DTCC_PostTrade_11_0, Rosetta_Workbench meta id]
 	contractIdentifier Identifier (1..*) <"The contract identifier, which has 3 components: an actual identifier, an issuer and a version number. There can be several contract identifier, an example of such being a contract is reportable to both the CFTC and ESMA and then has an associated USI (Unique Swap Identifier) UTI (Unique Trade Identifier).">;
 		[synonym FpML_5_10, DTCC_PostTrade_11_0 value partyTradeIdentifier path "trade.tradeHeader"]
@@ -294,23 +293,23 @@ class CreditDefaultPayout rosettaKey <"The credit default payout specification t
 {
 	id (0..1);
 		[synonym FpML_5_10, DTCC_PostTrade_11_0 meta id path "trade.creditDefaultSwap"]
-		[synonym FpML_5_10, DTCC_PostTrade_11_0 meta id path "trade.creditDefaultSwapOption.creditDefaultSwap"]
+//		[synonym FpML_5_10, DTCC_PostTrade_11_0 meta id path "trade.creditDefaultSwapOption.creditDefaultSwap"]
 		[synonym FpML_5_10, DTCC_PostTrade_11_0 meta id path "creditDefaultSwap"]
 	generalTerms GeneralTerms (1..1) <"This element contains all the data that appears in the section entitled '1. General Terms' in the 2003 ISDA Credit Derivatives Confirmation, except for the effectiveDate, terminationDate and dateAdjustments elements, which have been positioned as part of the InterestRatePayout class.">;
 		[synonym FpML_5_10, DTCC_PostTrade_11_0 value generalTerms path "trade.creditDefaultSwap"]
-		[synonym FpML_5_10, DTCC_PostTrade_11_0 value generalTerms path "trade.creditDefaultSwapOption.creditDefaultSwap"]
+//		[synonym FpML_5_10, DTCC_PostTrade_11_0 value generalTerms path "trade.creditDefaultSwapOption.creditDefaultSwap"]
 		[synonym FpML_5_10, DTCC_PostTrade_11_0 value generalTerms path "creditDefaultSwap"]
 	protectionTerms ProtectionTerms (1..*) <"The credit protection terms.">;
 		[synonym FpML_5_10, DTCC_PostTrade_11_0 value protectionTerms path "trade.creditDefaultSwap"]
-		[synonym FpML_5_10, DTCC_PostTrade_11_0 value protectionTerms path "trade.creditDefaultSwapOption.creditDefaultSwap"]
+//		[synonym FpML_5_10, DTCC_PostTrade_11_0 value protectionTerms path "trade.creditDefaultSwapOption.creditDefaultSwap"]
 		[synonym FpML_5_10, DTCC_PostTrade_11_0 value protectionTerms path "creditDefaultSwap"]
 	cashSettlementTerms CashSettlementTerms (0..*);
 		[synonym FpML_5_10, DTCC_PostTrade_11_0 value cashSettlementTerms path "trade.creditDefaultSwap"]
-		[synonym FpML_5_10, DTCC_PostTrade_11_0 value cashSettlementTerms path "trade.creditDefaultSwapOption.creditDefaultSwap"]
+//		[synonym FpML_5_10, DTCC_PostTrade_11_0 value cashSettlementTerms path "trade.creditDefaultSwapOption.creditDefaultSwap"]
 		[synonym FpML_5_10, DTCC_PostTrade_11_0 value cashSettlementTerms path "creditDefaultSwap"]
 	physicalSettlementTerms PhysicalSettlementTerms (0..*);
 		[synonym FpML_5_10, DTCC_PostTrade_11_0 value physicalSettlementTerms path "trade.creditDefaultSwap"]
-		[synonym FpML_5_10, DTCC_PostTrade_11_0 value physicalSettlementTerms path "trade.creditDefaultSwapOption.creditDefaultSwap"]
+//		[synonym FpML_5_10, DTCC_PostTrade_11_0 value physicalSettlementTerms path "trade.creditDefaultSwapOption.creditDefaultSwap"]
 		[synonym FpML_5_10, DTCC_PostTrade_11_0 value physicalSettlementTerms path "creditDefaultSwap"]
 	transactedPrice TransactedPrice (0..1) <"The qualification of the price at which the contract has been transacted, in terms of market fixed rate, initial points, market price and/or quotation style. In FpML, those attributes are positioned as part of the fee leg.">;
 }
@@ -695,10 +694,13 @@ data rule ResetDates_interestRateSwap <"The cardinality of the ResetDates attrib
 		and Payout -> interestRatePayout -> resetDates -> resetFrequency exists
 		and Payout -> interestRatePayout -> resetDates -> resetDatesAdjustments exists
 
-class Product one of <"A class to represent a financial product. With respect to contractual products, which class provides the ability to specify either a post-execution 'view' of contract (the Contract class) or the pre-execution contractual product (the ContractualProduct class). This class is used as part of the option exercise representation, which makes use of the contract attribute fir supporting the swaption use case, with the exercise into a swap.">
+class Product one of <"A class to represent a financial product. With respect to contractual products, which class provides the ability to specify either a post-execution 'view' of contract (the Contract class) or the pre-execution contractual product (the ContractualProduct class). This class is used as part of the option exercise representation, which makes use of the contract attribute for supporting the swaption use case, with the exercise into a swap.">
 {
 	contract Contract (0..1);
+		[synonym FpML_5_10 value foo]
 	contractualProduct ContractualProduct (0..1);
+		[synonym FpML_5_10 value creditDefaultSwap]// set when "trade.creditDefaultSwapOption" exists]
+		[synonym FpML_5_10 value swap]// set when "trade.swaption" exists]
 	bond Bond (0..1);
 		[synonym FpML_5_10, DTCC_PostTrade_11_0 value bond]
 	convertibleBond ConvertibleBond (0..1);
