@@ -18,18 +18,11 @@ class AdditionalFixedPayments <"A class to specify the events that will give ris
 		[synonym FpML_5_10, DTCC_PostTrade_11_0 value writedownReimbursement]
 }
 
-class BasketName <"The basket name, with an optional set of basket Id. Corresponds to a sub-construct of the FpML BasketIdentifier.model.">
-{
-	basketName string (1..1) scheme <"The name of the basket expressed as a free format string. FpML does not define usage rules for this element.">;
-		[synonym FpML_5_10, DTCC_PostTrade_11_0 value basketName meta basketNameScheme]
-	basketId string (0..*) scheme <"A CDS basket identifier.">;
-		[synonym FpML_5_10, DTCC_PostTrade_11_0 value basketId meta basketIdScheme]
-}
-
 class BasketReferenceInformation <"CDS Basket Reference Information.">
 	[synonym FpML_5_10 value BasketReferenceInformation]
 {
-	basketName BasketName (0..1) <"This attribute corresponds to the FpML combination of a basket name and a basket Id, as a component of the BasketIdentifier.model.">;
+	basketName string (0..1) scheme <"The name of the basket expressed as a free format string. FpML does not define usage rules for this element.">;
+		[synonym FpML_5_10, DTCC_PostTrade_11_0 value basketName meta basketNameScheme]
 	basketId string (0..*) scheme <"A CDS basket identifier.">;
 		[synonym FpML_5_10, DTCC_PostTrade_11_0 value basketId meta basketIdScheme]
 	referencePool ReferencePool (1..1) <"This element contains all the reference pool items to define the reference entity and reference obligation(s) in the basket.">;
@@ -53,6 +46,11 @@ data rule BasketReferenceInformation_nthToDefault <"As part of the branch of the
 data rule BasketReferenceInformation_nthToDefault_mthToDefault <"FpML validation rule cd-39 - Context: BasketReferenceInformation (complex type). If nthToDefault exists, and if mthToDefault exists, then nthToDefault must be less than mthToDefault.">
 	when (BasketReferenceInformation -> nthToDefault and BasketReferenceInformation -> mthToDefault) exists
 	then BasketReferenceInformation -> nthToDefault < BasketReferenceInformation -> mthToDefault
+
+data rule BasketReferenceInformation_nameOrId <"The asketReferenceInformation requires either a basket name or a basket identifier.">
+	when GeneralTerms -> basketReferenceInformation exists
+	then GeneralTerms -> basketReferenceInformation -> basketName exists
+		or GeneralTerms -> basketReferenceInformation -> basketId exists
 
 class CalculationAmount extends Money
 	[synonym FpML_5_10 value CalculationAmount]

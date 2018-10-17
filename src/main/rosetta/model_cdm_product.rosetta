@@ -507,18 +507,6 @@ data rule CalculationPeriodDates_firstCompoundingPeriodEndDate <"FpML specifies 
 		or InterestRatePayout -> compoundingMethod = CompoundingMethodEnum.None
 	then InterestRatePayout -> calculationPeriodDates -> firstCompoundingPeriodEndDate is absent
 
-data rule FirstRegularPeriodStartDate_initialStub <"FpML specifies that the firstRegularPeriodStartDate must only be specified if there is an initial stub calculation period. In practice, this is the key element as part of the initial stub specification.">
-	when InterestRatePayout -> calculationPeriodDates -> firstRegularPeriodStartDate exists
-	then InterestRatePayout -> calculationPeriodDates -> stubPeriodType = StubPeriodTypeEnum.ShortInitial
-		or InterestRatePayout -> calculationPeriodDates -> stubPeriodType = StubPeriodTypeEnum.LongInitial
-		or InterestRatePayout -> stubPeriod -> initialStub exists
-
-data rule LastRegularPeriodEndDate_finalStub <"FpML specifies that the lastRegularPeriodEndDate must only be specified if there is a final stub calculation period. In practice, this is the key element as part of the final stub specification.">
-	when InterestRatePayout -> calculationPeriodDates -> lastRegularPeriodEndDate exists
-	then InterestRatePayout -> calculationPeriodDates -> stubPeriodType = StubPeriodTypeEnum.ShortFinal
-		or InterestRatePayout -> calculationPeriodDates -> stubPeriodType = StubPeriodTypeEnum.LongFinal
-		or InterestRatePayout -> stubPeriod -> finalStub exists
-
 class NotionalSchedule <"A class specifying defining the notional amount or notional amount schedule associated with a contractual product. The notional schedule will be captured explicitly, specifying the dates that the notional changes and the outstanding notional amount that applies from that date. A parametric representation of the rules defining the notional step schedule can optionally be included.">
 	[synonym FpML_5_10 value Notional]
 {
