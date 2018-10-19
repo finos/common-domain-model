@@ -62,6 +62,7 @@ class CommodityTransferComponent extends TransferBase
 		[synonym Rosetta_Workbench value quantity]
 	unit UnitEnum (1..1) <"The unit of measure, applicable to physical assets.">;
 	timeUnit TimeUnitEnum (0..1);
+	assetTransferType AssetTransferTypeEnum (0..1) <"The type of transfer, e.g. Free of Payment.">;
 	breakdown ComnmodityTransferBreakdown (0..*) <"The security transfer breakdown, when the transfer corresponds to a net transfer across several components which breakdown is deemed relevant (e.g. the net security transfer related to several contracts).">;
 		[synonym Rosetta_Workbench value breakdown]
 }
@@ -125,6 +126,8 @@ class Event
 		[synonym DTCC_PostTrade_11_0 value party path "Body.OTC_Matching.Assignment"]
 		[synonym DTCC_PostTrade_11_0 value party path "Body.OTC_Matching.Exercise"]
 		[synonym DTCC_PostTrade_11_0 value party path "Body.OTC_Matching.Trade.FpML"]
+	account Account (0..*) <"Optional account information that could be associated to the event.">;
+		[synonym FpML_5_10, DTCC_PostTrade_11_0 value account]	
 	lineage Lineage (0..1);
 		[synonym Rosetta_Workbench value lineage]
 	primitive PrimitiveEvent (1..1);
@@ -388,6 +391,8 @@ class SecurityTransferComponent extends TransferBase
 		[synonym Rosetta_Workbench value security]
 	quantity number (1..1);
 		[synonym Rosetta_Workbench value quantity]
+	assetTransferType AssetTransferTypeEnum (0..1) <"The type of transfer, e.g. Free of Payment.">;
+		[synonym Rosetta_Workbench value assetTransferType]	
 	breakdown SecurityTransferBreakdown (0..*) <"The security transfer breakdown, when the transfer corresponds to a net transfer across several components which breakdown is deemed relevant (e.g. the net security transfer related to several contracts).">;
 		[synonym Rosetta_Workbench value breakdown]
 }
@@ -592,6 +597,12 @@ isEvent CashTransfer <"The qualification of a cash transfer from the fact that t
 	and Event -> primitive -> transfer -> securityTransfer is absent
 	and Event -> primitive -> transfer -> commodityTransfer is absent
 
+isEvent CashAndSecurityTransfer <"The qualification of a security settlement from the fact that (i) it is composed of a cashTransfer component and a securityTransfer component, and (ii) the cash and security move in the same direction.">
+	Event -> primitive -> transfer -> cashTransfer exists
+	and Event -> primitive -> transfer -> securityTransfer exists
+	and Event -> primitive -> transfer -> cashTransfer -> payerReceiver -> payerPartyReference = Event -> primitive -> transfer -> securityTransfer -> transferorTransferee -> transferorPartyReference
+	and Event -> primitive -> transfer -> commodityTransfer is absent
+
 isEvent Payment <"The qualification of a payment event from the fact that the only primitive is the payment.">
 	Event -> primitive -> payment only exists
 
@@ -604,9 +615,10 @@ isEvent SecurityTransfer <"The qualification of a security transfer from the fac
 	and Event -> primitive -> transfer -> cashTransfer is absent
 	and Event -> primitive -> transfer -> commodityTransfer is absent
 
-isEvent SecuritySettlement <"The qualification of a security settlement from the fact that it is composed of a cashTransfer component and a securityTransfer component.">
+isEvent SecuritySettlement <"The qualification of a security settlement from the fact that (i) it is composed of a cashTransfer component and a securityTransfer component, and (ii) the cash and security move in opposite directions.">
 	Event -> primitive -> transfer -> cashTransfer exists
 	and Event -> primitive -> transfer -> securityTransfer exists
+	and Event -> primitive -> transfer -> cashTransfer -> payerReceiver -> payerPartyReference = Event -> primitive -> transfer -> securityTransfer -> transferorTransferee -> transfereePartyReference
 	and Event -> primitive -> transfer -> commodityTransfer is absent
 
 isEvent Termination <"The qualification of a termination event from the fact that (i) the intent is Termination when specified, (ii) the only primitive is the quantityChange and there is only one such primitive involved, the (iii) the remaining quantity is null, and (iv) the contract state has the value 'terminated'.">
