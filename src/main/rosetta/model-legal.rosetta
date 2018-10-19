@@ -1,0 +1,67 @@
+namespace "org.isda.cdm"
+
+
+class LegalDocument extends LegalDocumentBase one of <"A class describing the legal document.">
+	[synonym FpML_5_10 value LegalDocument]
+{
+
+}
+
+abstract class LegalDocumentBase
+{
+	documentHeader LegalDocumentHeader (1..1) <"The legal document header.">;
+		[synonym FpML_5_10 value documentHeader]
+	documentType LegalDocumentType (1..1) <"The type of legal document, identified via a set of distinct attributes, e.g. ISDA 2013 Standard Credit Support Annex English Law.">;
+		[synonym FpML_5_10 value documentType]
+}
+
+class LegalDocumentHeader
+	[synonym FpML_5_10 value LegalDocumentHeader]
+{
+	partyRole PartyRole (1..*) <"The roles of the parties to the document.">;
+		[synonym FpML_5_10 value partyRoles]
+	agreementDate date (1..1) <"The date on which the legal document has been agreed between the parties.">;
+		[synonym FpML_5_10 value agreementDate]
+	effectiveDate date (1..1) <"The date on which the agreement is effective. It is expected that it will most often correspond to the agreement date, although there could be situations where the parties will explictly agree on a distinct effective date.">;
+		[synonym FpML_5_10 value effectiveDate]
+	identifier Identifier (0..*) <"The legal document identifier. Several identifiers can be specified.">;
+		[synonym FpML_5_10 value partyDocumentIdentifier]
+	amendedDocument string (1..1) reference <"The reference to the document that is amended by this legal document.">;
+		[synonym FpML_5_10 value amendedDocument]
+	documentHistory LegalDocumentHistory (0..1) <"The legal document history.">;
+		[synonym FpML_5_10 value documentHistory]
+}
+
+class LegalDocumentHistory <"A class to represent the legal document history as a list of document identities.">
+	[synonym FpML_5_10 value LegalDocumentHistory]
+{
+	documentIdentity LegalDocumentIdentity (1..*);
+		[synonym FpML_5_10 value documentIdentity]
+}
+
+class LegalDocumentIdentity <"A class to specify the legal document identity">
+	[synonym FpML_5_10 value LegalDocumentIdentity]
+{
+	id string (0..1) id;
+		[synonym FpML_5_10 value id]
+	partyReference string (2..*) reference <"The parties to the legal document.">;
+		[synonym FpML_5_10 value partyReference]
+	documentType LegalDocumentType (1..1) <"The recognisable attributes of the particular legal document.">;
+		[synonym FpML_5_10 value documentType]
+	agreementDate date (1..1) <"The date on which the legal document has been agreed between the parties.">;
+		[synonym FpML_5_10 value documentType]
+	identifier Identifier (0..*) <"The legal document identifier. Several identifiers can be specified.">;
+		[synonym FpML_5_10 value partyDocumentIdentifier]
+}
+
+class LegalDocumentType <"A class to specify the type of legal document.">
+	[synonym FpML_5_10 value LegalDocumentType]
+{
+	name LegalDocumentNameEnum (1..1) <"The legal document name.">;
+		[synonym FpML_5_10 value name]
+	publisher LegalDocumentPublisherEnum (1..1) <"The legal document publisher.">;
+		[synonym FpML_5_10 value publisher]
+	documentStyle LegalDocumentStyleEnum (0..1) <"The legal document reference style, e.g. English Law, New York Law or Japanese Law.">;
+		[synonym FpML_5_10 value style]
+	
+}
