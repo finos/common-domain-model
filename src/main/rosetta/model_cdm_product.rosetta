@@ -7,10 +7,7 @@ class Cashflow extends CashflowBase <"A class to specify a cashflow, i.e. the ou
 	cashflowCalculation calculation (0..1) <"The computation arguments used to compute the cashflow, when applicable.">;
 		[synonym Rosetta_Workbench value cashflowCalculation]
 	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, e.g. brokerage fee, premium, upfront fee etc. Particularly relevant when it cannot be inferred directly through lineage.">;
-		[synonym Rosetta_Workbench value cashflowType] // set cashflowType.premium when synonym premium exists]
-		/*
-	  	 * TODO - Enable mapping syntax to map to the premium qualification
-	 	 */
+		[synonym FpML_5_10 value paymentType set to CashflowTypeEnum.Premium when "swaption.premium" exists]
 }
 
 data rule Cashflow_cashflowAmount <"The cashflow amount should be a positive number, as the cashflow direction is indeed implied by the payer/receiver attribute.">
@@ -33,8 +30,7 @@ class CashflowBase <"A class to represent the attributes to be shared by the Cas
 class Contract rosettaKey <"A class to specify a contract object, which can be invoked either within the context of an event, or independently from it. It corresponds to the FpML Trade, although restricted to execution and post-execution contexts. Attributes also applicable to pre-execution (a.k.a. pre-trade view in FpML) contexts have been positioned as part of the ContractualProduct class.">
 {
 	id (0..1);
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 meta id path "trade.tradeHeader"]
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 meta id path "tradeHeader"]
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 meta id path "trade"]
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, Rosetta_Workbench meta id]
 	contractIdentifier Identifier (1..*) <"The contract identifier, which has 3 components: an actual identifier, an issuer and a version number. There can be several contract identifier, an example of such being a contract is reportable to both the CFTC and ESMA and then has an associated USI (Unique Swap Identifier) UTI (Unique Trade Identifier).">;
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value partyTradeIdentifier path "trade.tradeHeader"]
@@ -72,7 +68,7 @@ class Contract rosettaKey <"A class to specify a contract object, which can be i
 		[synonym Rosetta_Workbench value state]
 }
 
-data rule DeliverableObligations_physicalSettlementMatrix <"The below set of credit deliverable obligation provisions are specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that those provisions cannot be omitted if the Physical Settlement Matrix governs the terms of the contract.">
+data rule DeliverableObligations_physicalSettlementMatrix <"The below set of credit deliverable obligation provisions are specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that those provisions cannot be omitted if the Credit Derivatives Physical Settlement Matrix doesn't governs the terms of the contract.">
 	when ( Contract -> documentation -> contractualMatrix -> matrixType <> MatrixTypeEnum.CreditDerivativesPhysicalSettlementMatrix
 		or Contract -> documentation -> contractualMatrix -> matrixType is absent )
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations exists
@@ -130,7 +126,7 @@ data rule Restructuring_physicalSettlementMatrix <"The below multiple holder obl
  * TODO - Confirm the set of Contractual Terms Supplements that qualify mortgage products
  */
 data rule AdditionalFixedPayments_mortgages <"The below set of additional fixed payment provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlyer is a mortgage index.">
-	when ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> mortgage exists
+	when ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> mortgageBackedSecurity exists
 		or Contract -> documentation -> contractualTermsSupplement -> type = ContractualSupplementEnum.CDSonMBS )
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents exists
 	then ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> additionalFixedPayments -> interestShortfallReimbursement
@@ -139,7 +135,7 @@ data rule AdditionalFixedPayments_mortgages <"The below set of additional fixed 
 	) exists
 
 data rule FloatingAmountEvents_mortgages <"The below set of floating amount events provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlyer is a mortgage index.">
-	when ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> mortgage exists
+	when ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> mortgageBackedSecurity exists
 		or Contract -> documentation -> contractualTermsSupplement -> type = ContractualSupplementEnum.CDSonMBS )
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents exists
 	then ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> failureToPayPrincipal
@@ -148,7 +144,7 @@ data rule FloatingAmountEvents_mortgages <"The below set of floating amount even
 	) exists
 
 data rule CreditEvents_mortgages <"The below set of credit events provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlyer is a mortgage index.">
-	when ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> mortgage exists
+	when ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> mortgageBackedSecurity exists
 		or Contract -> documentation -> contractualTermsSupplement -> type = ContractualSupplementEnum.CDSonMBS )
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents exists
 	then ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> failureToPayPrincipal
@@ -181,11 +177,13 @@ data rule Contract_clearedDate <"If the cleared date exists, it needs to be on o
 data rule FpML_cd_1 <"FpML validation rule cd-1 - If referenceInformation exists, tradeDate must be before effectiveDate/unadjustedDate.">
 	when Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
 	then Contract -> tradeDate -> date < Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
+		or Contract -> tradeDate -> date < Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate
 
 data rule FpML_cd_7 <"FpML validation rule cd-7 - If condition LongForm is true, then effectiveDate/dateAdjustments exists.">
 	when ( Contract -> documentation -> masterConfirmation and Contract -> documentation -> contractualMatrix ) is absent
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
 	then Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> dateAdjustments exists
+		or Contract -> tradeDate -> date < Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate
 
 data rule FpML_cd_8 <"FpML validation rule cd-8 - If condition LongForm is true, and if scheduledTerminationDate exists then scheduledTerminationDate/dateAdjustments exists.">
 	when ( Contract -> documentation -> masterConfirmation and Contract -> documentation -> contractualMatrix ) is absent
@@ -288,32 +286,27 @@ class CrossCurrencyTerms
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value settlementProvision]
 }
 
-/*
- * TODO - Need to cross-reference the 2014 credit definitions when relevant.
- * (FpML schema has not been updated to reflect those definitions.)
- */
 class CreditDefaultPayout rosettaKey <"The credit default payout specification terms.">
 {
 	id (0..1);
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 meta id path "trade.creditDefaultSwap"]
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 meta id path "trade.creditDefaultSwapOption.creditDefaultSwap"]
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 meta id path "creditDefaultSwap"]
 	generalTerms GeneralTerms (1..1) <"This element contains all the data that appears in the section entitled '1. General Terms' in the 2003 ISDA Credit Derivatives Confirmation, except for the effectiveDate, terminationDate and dateAdjustments elements, which have been positioned as part of the InterestRatePayout class.">;
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value generalTerms path "trade.creditDefaultSwap"]
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value generalTerms path "trade.creditDefaultSwapOption.creditDefaultSwap"]
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value generalTerms path "creditDefaultSwap"]
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value generalTerms]
 	protectionTerms ProtectionTerms (1..*) <"The credit protection terms.">;
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value protectionTerms path "trade.creditDefaultSwap"]
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value protectionTerms path "trade.creditDefaultSwapOption.creditDefaultSwap"]
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value protectionTerms path "creditDefaultSwap"]
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value protectionTerms]
 	cashSettlementTerms CashSettlementTerms (0..*);
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value cashSettlementTerms path "trade.creditDefaultSwap"]
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value cashSettlementTerms path "trade.creditDefaultSwapOption.creditDefaultSwap"]
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value cashSettlementTerms path "creditDefaultSwap"]
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value cashSettlementTerms]
 	physicalSettlementTerms PhysicalSettlementTerms (0..*);
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value physicalSettlementTerms path "trade.creditDefaultSwap"]
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value physicalSettlementTerms path "trade.creditDefaultSwapOption.creditDefaultSwap"]
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value physicalSettlementTerms path "creditDefaultSwap"]
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value physicalSettlementTerms]
 	transactedPrice TransactedPrice (0..1) <"The qualification of the price at which the contract has been transacted, in terms of market fixed rate, initial points, market price and/or quotation style. In FpML, those attributes are positioned as part of the fee leg.">;
 }
 
@@ -341,6 +334,7 @@ class EconomicTerms rosettaKeyValue <"This class represents the full set of prod
 	cancelableProvision CancelableProvision (0..1) <"A provision that allows the specification of an embedded option within a swap giving the buyer of the option the right to terminate the swap, in whole or in part, on the early termination date.">;
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value cancelableProvision path "trade.swap"]
 	extendibleProvision ExtendibleProvision (0..1) <"A provision that allows the specification of an embedded option with a swap giving the buyer of the option the right to extend the swap, in whole or in part, to the extended termination date.">;
+		[synonym FpML_5_10, DTCC_PostTrade_11_0 value extendibleProvision path "trade.swap"]
 }
 
 class GeneralTerms <"A class specifying the general terms of the credit default payout, and corresponding to some the data that appears in the section entitled '1. General Terms' in the 2003 ISDA Credit Derivatives Confirmation. It corresponds to the FpML GeneralTerms complex type, minus the effectiveDate, terminationDate and dateAdjustments elements, which have been positioned as part of the InterestRatePayout class.">
@@ -509,18 +503,6 @@ data rule CalculationPeriodDates_firstCompoundingPeriodEndDate <"FpML specifies 
 		or InterestRatePayout -> compoundingMethod = CompoundingMethodEnum.None
 	then InterestRatePayout -> calculationPeriodDates -> firstCompoundingPeriodEndDate is absent
 
-data rule FirstRegularPeriodStartDate_initialStub <"FpML specifies that the firstRegularPeriodStartDate must only be specified if there is an initial stub calculation period. In practice, this is the key element as part of the initial stub specification.">
-	when InterestRatePayout -> calculationPeriodDates -> firstRegularPeriodStartDate exists
-	then InterestRatePayout -> calculationPeriodDates -> stubPeriodType = StubPeriodTypeEnum.ShortInitial
-		or InterestRatePayout -> calculationPeriodDates -> stubPeriodType = StubPeriodTypeEnum.LongInitial
-		or InterestRatePayout -> stubPeriod -> initialStub exists
-
-data rule LastRegularPeriodEndDate_finalStub <"FpML specifies that the lastRegularPeriodEndDate must only be specified if there is a final stub calculation period. In practice, this is the key element as part of the final stub specification.">
-	when InterestRatePayout -> calculationPeriodDates -> lastRegularPeriodEndDate exists
-	then InterestRatePayout -> calculationPeriodDates -> stubPeriodType = StubPeriodTypeEnum.ShortFinal
-		or InterestRatePayout -> calculationPeriodDates -> stubPeriodType = StubPeriodTypeEnum.LongFinal
-		or InterestRatePayout -> stubPeriod -> finalStub exists
-
 class NotionalSchedule <"A class specifying defining the notional amount or notional amount schedule associated with a contractual product. The notional schedule will be captured explicitly, specifying the dates that the notional changes and the outstanding notional amount that applies from that date. A parametric representation of the rules defining the notional step schedule can optionally be included.">
 	[synonym FpML_5_10 value Notional]
 {
@@ -632,18 +614,20 @@ class Payout <"The payout can be specified through a number of combinations, e.g
 	interestRatePayout InterestRatePayout (0..*);
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value swapStream path "trade.swap" ]
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value swapStream path "swap"]
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value swapStream]
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value feeLeg path "trade.creditDefaultSwap", generalTerms path "trade.creditDefaultSwap"]
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value feeLeg path "creditDefaultSwap", generalTerms path "creditDefaultSwap"]
-		//[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value generalTerms path "trade.creditDefaultSwap"]
-		//[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value generalTerms path "creditDefaultSwap"]
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value feeLeg, generalTerms]
 	creditDefaultPayout CreditDefaultPayout (0..1);
 	cashflow Cashflow (0..*) <"A cashflow between the parties to the trade. For interest rate products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the initialPayment element and the singlePayment element of the fee leg.">;
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value additionalPayment path "trade.swap"]
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value additionalPayment path "swap"]
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value additionalPayment]
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value initialPayment path "trade.creditDefaultSwap.feeLeg"]
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value initialPayment path "creditDefaultSwap.feeLeg"]
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value singlePayment path "trade.creditDefaultSwap.feeLeg"]
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value singlePayment path "creditDefaultSwap.feeLeg"]
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value singlePayment]
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value premium path "trade.swaption"]
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value premium path "swaption"]
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value premium path "trade.creditDefaultSwapOption"]
@@ -698,55 +682,58 @@ data rule ResetDates_interestRateSwap <"The cardinality of the ResetDates attrib
 		and Payout -> interestRatePayout -> resetDates -> resetFrequency exists
 		and Payout -> interestRatePayout -> resetDates -> resetDatesAdjustments exists
 
-class Product one of
+class Product one of <"A class to represent a financial product. With respect to contractual products, which class provides the ability to specify either a post-execution 'view' of contract (the Contract class) or the pre-execution contractual product (the ContractualProduct class). This class is used as part of the option exercise representation, which makes use of the contract attribute for supporting the swaption use case, with the exercise into a swap.">
 {
+	contract Contract (0..1);
+		[synonym FpML_5_10 value contract]
 	contractualProduct ContractualProduct (0..1);
-	bond ProductIdentifier (0..1);
+		[synonym FpML_5_10 value creditDefaultSwap]
+		[synonym FpML_5_10 value swap]
+	bond Bond (0..1);
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value bond]
-	convertibleBond ProductIdentifier (0..1);
+	convertibleBond ConvertibleBond (0..1);
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value convertibleBond]
+	mortgageBackedSecurity MortgageBackedSecurity (0..1);
+	loan Loan (0..1);
 }
 
 class ProductIdentification <"A class to combine the CDM product qualifier with other product qualifiers, such as the FpML ones. While the CDM product qualifier is derived by the CDM from the product payout features, the other product identification elements are assigned by some external sources and correspond to values specified by other data representation protocols.">
 {
 	productQualifier productType (0..1) <"The CDM product qualifier, which corresponds to the outcome of the isProduct qualification logic. This value is derived by the CDM from the product payout features.">;
 	primaryAssetClass AssetClassEnum (0..1) scheme <"A classification of the most important risk class of the trade. FpML defines a simple asset class categorisation using a coding scheme.">;
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value primaryAssetClass path "trade.swap" meta assetClassScheme]
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value primaryAssetClass path "swap" meta assetClassScheme]
+		[synonym FpML_5_10 value primaryAssetClass path "trade.swap" meta assetClassScheme]
+		[synonym FpML_5_10 value primaryAssetClass path "swap" meta assetClassScheme]
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value primaryAssetClass path "trade.creditDefaultSwap" meta assetClassScheme]
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value primaryAssetClass path "creditDefaultSwap" meta assetClassScheme]
-		[synonym Rosetta_Workbench value primaryAssetClass path "trade.swaption" meta assetClassScheme]
-		[synonym Rosetta_Workbench value primaryAssetClass path "swaption" meta assetClassScheme]
-		[synonym Rosetta_Workbench value primaryAssetClass path "trade.swaption.swap" meta assetClassScheme]
-		[synonym Rosetta_Workbench value primaryAssetClass path "swaption.swap" meta assetClassScheme]
+		[synonym FpML_5_10 value primaryAssetClass path "trade.swaption" meta assetClassScheme]
+		[synonym FpML_5_10 value primaryAssetClass path "swaption" meta assetClassScheme]
+		[synonym FpML_5_10 value primaryAssetClass meta assetClassScheme]
 	secondaryAssetClass AssetClassEnum (0..*) scheme <"A classification of additional risk classes of the trade, if any. FpML defines a simple asset class categorisation using a coding scheme.">;
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value secondaryAssetClass path "trade.swap" meta assetClassScheme]
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value secondaryAssetClass path "swap" meta assetClassScheme]
+		[synonym FpML_5_10 value secondaryAssetClass path "trade.swap" meta assetClassScheme]
+		[synonym FpML_5_10 value secondaryAssetClass path "swap" meta assetClassScheme]
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value secondaryAssetClass path "trade.creditDefaultSwap" meta assetClassScheme]
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value secondaryAssetClass path "creditDefaultSwap" meta assetClassScheme]
-		[synonym Rosetta_Workbench value secondaryAssetClass path "trade.swaption" meta assetClassScheme]
-		[synonym Rosetta_Workbench value secondaryAssetClass path "swaption" meta assetClassScheme]
-		[synonym Rosetta_Workbench value secondaryAssetClass path "trade.swaption.swap" meta assetClassScheme]
-		[synonym Rosetta_Workbench value secondaryAssetClass path "swaption.swap" meta assetClassScheme]
+		[synonym FpML_5_10 value secondaryAssetClass path "trade.swaption" meta assetClassScheme]
+		[synonym FpML_5_10 value secondaryAssetClass path "swaption" meta assetClassScheme]
 	productType string (0..*) scheme <"A classification of the type of product. FpML defines a simple product categorisation using a coding scheme.">;
 		[synonym FpML_5_10 value productType path "trade.swap" meta productTypeScheme]
 		[synonym FpML_5_10 value productType path "swap" meta productTypeScheme]
 		[synonym FpML_5_10 value productType path "trade.creditDefaultSwap" meta productTypeScheme]
 		[synonym FpML_5_10 value productType path "creditDefaultSwap" meta productTypeScheme]
-		[synonym Rosetta_Workbench value productType path "trade.swaption" meta productTypeScheme]
-		[synonym Rosetta_Workbench value productType path "swaption" meta productTypeScheme]
-		[synonym Rosetta_Workbench value productType path "trade.swaption.swap" meta productTypeScheme]
-		[synonym Rosetta_Workbench value productType path "swaption.swap" meta productTypeScheme]
+		[synonym FpML_5_10 value productType path "trade.swaption" meta productTypeScheme]
+		[synonym FpML_5_10 value productType path "swaption" meta productTypeScheme]
+		[synonym FpML_5_10 value productType path "trade.swaption.swap" meta productTypeScheme]
+		[synonym FpML_5_10 value productType path "swaption.swap" meta productTypeScheme]
 		[synonym DTCC_11_0, DTCC_9_0 value ProductType]
 	productId string (0..*) scheme <"A product reference identifier. The product Id is an identifier that describes the key economic characteristics of the trade type, with the exception of concepts such as size (notional, quantity, number of units) and price (fixed rate, strike, etc.) that are negotiated for each transaction. It can be used to hold identifiers such as the 'UPI' (universal product identifier) required by certain regulatory reporting rules. It can also be used to hold identifiers of benchmark products or product temnplates used by certain trading systems or facilities. FpML does not define the domain values associated with this element. Note that the domain values for this element are not strictly an enumerated list.">;
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value productId path "trade.swap" meta productIdScheme]
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value productId path "swap" meta productIdScheme]
+		[synonym FpML_5_10 value productId path "trade.swap" meta productIdScheme]
+		[synonym FpML_5_10 value productId path "swap" meta productIdScheme]
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value productId path "trade.creditDefaultSwap" meta productIdScheme]
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value productId path "creditDefaultSwap" meta productIdScheme]
-		[synonym Rosetta_Workbench value productType path "trade.swaption" meta productIdScheme]
-		[synonym Rosetta_Workbench value productType path "swaption" meta productIdScheme]
-		[synonym Rosetta_Workbench value productType path "trade.swaption.swap" meta productIdScheme]
-		[synonym Rosetta_Workbench value productType path "swaption.swap" meta productIdScheme]
+		[synonym FpML_5_10 value productId path "trade.swaption" meta productIdScheme]
+		[synonym FpML_5_10 value productId path "swaption" meta productIdScheme]
+		[synonym FpML_5_10 value productId path "trade.swaption.swap" meta productIdScheme]
+		[synonym FpML_5_10 value productId path "swaption.swap" meta productIdScheme]
 }
 
 class Quantity

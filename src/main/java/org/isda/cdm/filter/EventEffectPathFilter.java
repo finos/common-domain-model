@@ -3,8 +3,6 @@ package org.isda.cdm.filter;
 import com.google.common.collect.ImmutableMap;
 import com.regnosys.rosetta.common.util.HierarchicalPath;
 import org.isda.cdm.Contract;
-import org.isda.cdm.ContractReference;
-
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -14,9 +12,7 @@ import java.util.function.Predicate;
 public class EventEffectPathFilter {
 
     static final PathClass EFFECTED_CONTRACT_PATH = new PathClass(HierarchicalPath.valueOf("eventEffect.effectedContract"), Contract.class);
-    static final PathClass EFFECTED_CONTRACT_REFERENCE_PATH = new PathClass(HierarchicalPath.valueOf("eventEffect.effectedContractReference"), ContractReference.class);
     static final PathClass CONTRACT_PATH = new PathClass(HierarchicalPath.valueOf("eventEffect.contract"), Contract.class);
-    static final PathClass CONTRACT_REFERENCE_PATH = new PathClass(HierarchicalPath.valueOf("eventEffect.contractReference"), ContractReference.class);
 
     static final List<String> EFFECTED_CONTRACT_REQUIRED_PATHS = Arrays.asList("primitive", "before");
 
@@ -25,9 +21,7 @@ public class EventEffectPathFilter {
      */
     private static final Map<PathClass, Predicate<HierarchicalPath>> PATH_FILTERS = ImmutableMap.<PathClass, Predicate<HierarchicalPath>>builder()
             .put(EFFECTED_CONTRACT_PATH, (rosettaKeyPath) -> rosettaKeyPath.allElementPaths().containsAll(EFFECTED_CONTRACT_REQUIRED_PATHS))
-            .put(EFFECTED_CONTRACT_REFERENCE_PATH, (rosettaKeyPath) -> rosettaKeyPath.allElementPaths().containsAll(EFFECTED_CONTRACT_REQUIRED_PATHS))
             .put(CONTRACT_PATH, (rosettaKeyPath) -> !rosettaKeyPath.allElementPaths().containsAll(EFFECTED_CONTRACT_REQUIRED_PATHS))
-            .put(CONTRACT_REFERENCE_PATH, (rosettaKeyPath) -> !rosettaKeyPath.allElementPaths().containsAll(EFFECTED_CONTRACT_REQUIRED_PATHS))
             .build();
 
     /**
