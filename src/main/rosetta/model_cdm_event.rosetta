@@ -158,10 +158,11 @@ class EventTestBundle <"A class which combines several events for testing purpos
 
 class EventTimestamp <"This class corresponds to the timestamp components of the FpML MessageHeader.model. These would be applicable even if the event is communicated through a mean other than messaging (e.g. blockchain).">
 {
-	creationTimestamp dateTime (1..1) <"The date and time (on the source system) when this event was created.">;
+	//TODO - Changed this to be zonedDateTime. CME events use zoned times which are legal in FpML.
+	creationTimestamp zonedDateTime (1..1) <"The date and time (on the source system) when this event was created.">;
 		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value creationTimestamp path "header"]
 		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0 value creationTimestamp]
-	expiryTimestamp dateTime (0..1) <"The date and time (on the source system) when this event will be considered expired.">;
+	expiryTimestamp zonedDateTime (0..1) <"The date and time (on the source system) when this event will be considered expired.">;
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value expiryTimestamp]
 }
 
@@ -283,10 +284,10 @@ class MessageInformation <"This class corresponds to the messaging components of
 		[synonym Rosetta_Workbench value sentBy path "messageInformation" meta messageAddressScheme]
 		[synonym DTCC_11_0, DTCC_9_0 value From]
 		[synonym CME_ClearedConfirm_1_17 value sentBy meta messageAddressScheme]
-	sentTo string (0..1) scheme <"The identifier for the recipient of a message instance.">;
+	sentTo string (0..*) scheme <"The identifier(s) for the recipient(s) of a message instance.">;
 		[synonym Rosetta_Workbench value sentTo path "messageInformation" meta messageAddressScheme]
+		[synonym CME_ClearedConfirm_1_17 value sendTo meta messageAddressScheme]
 		[synonym DTCC_11_0, DTCC_9_0 value To]
-		// TODO Hugo has a fix for this. [synonym CME_ClearedConfirm_1_17 value sentTo set when "messageAddressScheme.cme_exchange_id" = "CME" meta messageAddressScheme]
 	copyTo string (0..*) scheme  <"A unique identifier (within the specified coding scheme) giving the details of some party to whom a copy of this message will be sent for reference.">;
 }
 

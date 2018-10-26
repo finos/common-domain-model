@@ -33,12 +33,14 @@ class Contract rosettaKey <"A class to specify a contract object, which can be i
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id path "trade"]
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, Rosetta_Workbench meta id]
 	contractIdentifier Identifier (1..*) <"The contract identifier, which has 3 components: an actual identifier, an issuer and a version number. There can be several contract identifier, an example of such being a contract is reportable to both the CFTC and ESMA and then has an associated USI (Unique Swap Identifier) UTI (Unique Trade Identifier).">;
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value partyTradeIdentifier path "trade.tradeHeader"]
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value partyTradeIdentifier path "tradeHeader"]
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value partyTradeIdentifier path "trade.tradeHeader"]
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value partyTradeIdentifier path "tradeHeader"]
 		[synonym DTCC_11_0, DTCC_9_0 value partyTradeIdentifier path "Submitter"]
 		[synonym DTCC_11_0, DTCC_9_0 value partyTradeIdentifier path "ContraTradeId"]
 		[synonym DTCC_11_0, DTCC_9_0 value USI]
 		[synonym FpML_5_10 value versionedTradeId]
+		[synonym CME_ClearedConfirm_1_17 value  partyTradeIdentifier path "trade.tradeHeader"]
+		[synonym CME_ClearedConfirm_1_17 value  universalSwapIdentifier path "trade.tradeHeader"]
 	tradeDate DateInstances (1..1) <"The trade date. This is the date on which the trade was originally executed. The trade date is specified through the DateInstances class so that in the case of a novation the novated part of the trade be reported (by both the remaining party and the transferee) using the date on which the novation was agreed on. The remaining part of a trade is to be reported (by both the transferor and the remaining party) using a trade date corresponding to the original execution date.">;
 	clearedDate date (0..1) <"If the trade was cleared (novated) through a central counterparty clearing service, this represents the date the trade was cleared (transferred to the central counterparty).">;
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value clearedDate path "trade.tradeHeader"]
@@ -63,9 +65,45 @@ class Contract rosettaKey <"A class to specify a contract object, which can be i
 	partyRole PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the contract, further to the principal parties (i.e payer/receive or buyer/seller) to it.">;
 	calculationAgent CalculationAgent (0..1) <"The ISDA calculation agent responsible for performing duties as defined in the applicable product definitions.">;
 	partyContractInformation PartyContractInformation (0..*) <"Additional contract information that may be provided by each involved party.">;
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value partyTradeInformation path "trade.tradeHeader"]
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value partyTradeInformation path "trade.tradeHeader"]
+		[synonym CME_ClearedConfirm_1_17 value partyTradeInformation path "trade.tradeHeader"]
+		
 	state StateEnum (0..1) <"The state qualification of a contractual product.">;
 		[synonym Rosetta_Workbench value state]
+		
+	applicableCreditLimit ApplicableCreditLimit (0..*) <"Clearing credit limit">;
+		[synonym CME_ClearedConfirm_1_17 value limitApplicable path "trade.tradeHeader.creditLimitInformation"]
+	
+}
+
+class ApplicableCreditLimit <"Credit limit Utilisation information"> {
+	level string (0..1) scheme <"Standard code to indicate which type of credit line is being referred to - i.e. IM, DV01, PV01, CS01, Notional, Clip Size, Notional, maximumOrderQuantity">;
+		[synonym CME_ClearedConfirm_1_17 value level meta creditLimitLevelScheme]
+	limitType LimitTypeEnum (0..1) scheme <"Standard code to indicate which type of credit line is being referred to - i.e. IM, DV01, PV01, CS01, Notional, Clip Size, Notional, maximumOrderQuantity">;
+		[synonym CME_ClearedConfirm_1_17 value limitType meta creditLimitTypeScheme]
+	limitAmount number (0..1) <"The total limit available for the limit level and limit type">;
+		[synonym CME_ClearedConfirm_1_17 value limitAmount]
+	amountUtilized number (0..1) <"The limit utilised by all the cleared trades for the limit level and limit type">;
+		[synonym CME_ClearedConfirm_1_17 value amountUtilized]
+	amountRemaining number (0..1) <"The limit remaining for the limit level and limit type. This does not take into account any pending trades">;
+		[synonym CME_ClearedConfirm_1_17 value amountRemaining]
+	limitImpactDueToTrade number (0..1) <"The limit utilised by this specific trade">;
+		[synonym CME_ClearedConfirm_1_17 value limitImpactDueToTrade]
+	currency string (0..1) <"Credit limit currency">;
+		[synonym CME_ClearedConfirm_1_17 value currency meta currencyScheme]
+}
+
+enum LimitTypeEnum {
+	CS01 <"The type of credit line expressed in CS01. The sensitivity with respect to changes in the CDS spread.">
+		[synonym CME_ClearedConfirm_1_17 value "CS01"],
+	DV01 <"The type of credit line expressed in DV01. The dollar value of a one basis point decrease in interest rates. It shows the change in a bond's price compared to a decrease in the bond's yield.">
+		[synonym CME_ClearedConfirm_1_17 value "DV01"],
+	IM <"The type of credit line expressed in IM value.">
+		[synonym CME_ClearedConfirm_1_17 value "IM"],
+	Notional <"The type of credit line expressed in Notional amount.">
+		[synonym CME_ClearedConfirm_1_17 value "Notional"],
+	PV01 <"The type of credit line expressed in PV01. The value of a one dollar or one basis point annuity.">
+		[synonym CME_ClearedConfirm_1_17 value "PV01"]
 }
 
 data rule DeliverableObligations_physicalSettlementMatrix <"The below set of credit deliverable obligation provisions are specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that those provisions cannot be omitted if the Credit Derivatives Physical Settlement Matrix doesn't governs the terms of the contract.">
