@@ -7,7 +7,8 @@ class Cashflow extends CashflowBase <"A class to specify a cashflow, i.e. the ou
 	cashflowCalculation calculation (0..1) <"The computation arguments used to compute the cashflow, when applicable.">;
 		[synonym Rosetta_Workbench value cashflowCalculation]
 	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, e.g. brokerage fee, premium, upfront fee etc. Particularly relevant when it cannot be inferred directly through lineage.">;
-		[synonym FpML_5_10 value paymentType set to CashflowTypeEnum.Premium when "swaption.premium" exists]
+		//[synonym FpML_5_10 value paymentType path "swaption.premium"]
+		[synonym FpML_5_10 set to CashflowTypeEnum.Premium when "swaption.premium" exists]
 }
 
 data rule Cashflow_cashflowAmount <"The cashflow amount should be a positive number, as the cashflow direction is indeed implied by the payer/receiver attribute.">
@@ -538,7 +539,7 @@ class OptionPayout rosettaKey <"The option payout specification terms.">
 	buyerSeller BuyerSeller (1..1);
 	optionType OptionTypeEnum (0..1) <"The type of option transaction. From a usage standpoint, put/call is the default option type, while payer/receiver indicator is used for options on index credit default swaps, consistently with the industry practice. Straddle is used for the case of straddle strategy, that combine a call and a put with the same strike.">;
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value optionType]
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value swaptionStraddle set to OptionTypeEnum.Straddle when "swaptionStraddle" = True]
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 set to OptionTypeEnum.Straddle when "swaptionStraddle" = True]
 	feature OptionFeature (0..1) <"The option feature, such as quanto, Asian, barrier, knock.">;
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value feature]
 	denomination OptionDenomination (0..1) <"The denomination qualifies the number of units of underlyer per option and the number of options comprised in the option transaction. FpML represents this information as part of the OptionDenomination.model.">;
