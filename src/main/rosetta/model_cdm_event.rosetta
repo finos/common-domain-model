@@ -101,9 +101,10 @@ class Event
 	timestamp EventTimestamp (1..1);
 		[synonym Rosetta_Workbench value timestamp]
 		[synonym DTCC_11_0, DTCC_9_0 value FpML path "Body.OTC_Matching.Trade"]
-    eventIdentifier Identifier (1..1) <"The contract identifier, which has 3 components: an actual identifier, an issuer and a version number. One and only one identifier can be associated with a lifecycle event.">;
+    eventIdentifier Identifier (1..*) <"The contract identifier, which has 3 components: an actual identifier, an issuer and a version number. One and only one identifier can be associated with a lifecycle event.">;
 		[synonym Rosetta_Workbench value eventIdentifier]
 		[synonym DTCC_11_0, DTCC_9_0 value partyTradeIdentifier path "Header.OTC_RM.Manifest.TradeMsg.Submitter"]
+		[synonym DTCC_11_0, DTCC_9_0 value partyTradeIdentifier path "Header.OTC_RM.Manifest.TradeMsg.ContraTradeId"]
 	eventQualifier eventType (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic. This value is derived by the CDM from the event features.">;
 	eventDate date (1..1);
 		[synonym Rosetta_Workbench value eventDate]
@@ -238,9 +239,7 @@ class Inception <"The primitive event for the inception of a new contract betwee
 	 */
 	after ContractState (1..1) reference <"The after state corresponds to the new contract between the parties. Depending upon the implementation approach, this contract can either be explicitly stated, or referenced via either a CDM rosettaKey or a reference that originates externally from the CDM.">;
 		[synonym Rosetta_Workbench value after]
-		// Requires conditional mapping based on OTC_RM_11-0.TransTypeDataType
-		[synonym DTCC_11_0, DTCC_9_0 value Trade path "Body.OTC_Matching"]
-		[synonym DTCC_11_0, DTCC_9_0 value Manifest path "Header.OTC_RM"]
+		[synonym DTCC_11_0, DTCC_9_0 value Trade path "Body.OTC_Matching", Manifest path "Header.OTC_RM"] 
 }
 
 class InterestRateCurve
