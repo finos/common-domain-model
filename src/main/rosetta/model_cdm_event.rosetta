@@ -37,7 +37,7 @@ class CashTransferComponent extends TransferBase <"">
 	transferType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">;
 		[synonym Rosetta_Workbench value transferType]	
 	breakdown CashTransferBreakdown (0..*) <"The cash transfer breakdown, when the transfer corresponds to a net amount across several components which breakdown is deemed relevant (e.g. the net cash transfer related to several contracts, or to the net proceeds across several payout components).">;
-		[synonym Rosetta_Workbench value breakdown]
+		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0 value breakdown]
 }
 
 /*
@@ -95,16 +95,16 @@ class Curve one of
 class CustomisedWorkflowGroup
 {
 	workflowGroupName string (0..1);
-		[synonym DTCC_11_0 value href path "Body.OTC_Matching.WorkflowData.partyReference"]
+		[synonym DTCC_11_0, DTCC_9_0 value href path "Body.OTC_Matching.WorkflowData.partyReference"]
 		//[synonym DTCC_11_0 set to "RouteHist.Route" when path = "Header.OTC_RM.Delivery.RouteHist.Route"]
 	customisedWorflow CustomisedWorkflow (0..*);
-		[synonym DTCC_11_0 value PartyWorkflowFields path "Body.OTC_Matching.WorkflowData"]
-		[synonym DTCC_11_0 value Route path "Header.OTC_RM.Delivery.RouteHist"]
-		[synonym DTCC_11_0 value Manifest path "Header.OTC_RM"]
-		[synonym DTCC_11_0 value TradeMsg path "Header.OTC_RM.Manifest"]
-		[synonym DTCC_11_0 value WarehouseState path "Body.OTC_Matching"]
-		[synonym DTCC_11_0 value OTC_Matching path "Body"]
-		[synonym DTCC_11_0 value FpML path "Body.OTC_Matching.Trade"]
+		[synonym DTCC_11_0, DTCC_9_0 value PartyWorkflowFields path "Body.OTC_Matching.WorkflowData"]
+		[synonym DTCC_11_0, DTCC_9_0 value Route path "Header.OTC_RM.Delivery.RouteHist"]
+		[synonym DTCC_11_0, DTCC_9_0 value Manifest path "Header.OTC_RM"]
+		[synonym DTCC_11_0, DTCC_9_0 value TradeMsg path "Header.OTC_RM.Manifest"]
+		[synonym DTCC_11_0, DTCC_9_0 value WarehouseState path "Body.OTC_Matching"]
+		[synonym DTCC_11_0, DTCC_9_0 value OTC_Matching path "Body"]
+		[synonym DTCC_11_0, DTCC_9_0 value FpML path "Body.OTC_Matching.Trade"]
 }
 
 class CustomisedWorkflow
@@ -112,14 +112,14 @@ class CustomisedWorkflow
 	workflowItem string (0..1);
 		//[synonym DTCC_11_0 set to "comment" when path = "Body.OTC_Matching.WorkflowData.PartyWorkflowFields.comment"]
 	workflowValue string (1..*);
-		[synonym DTCC_11_0 value comment, superId, deskId, eTradeId, designatedParty, brokerName, branchLocation]
-		[synonym DTCC_11_0 value ReceiveTime, ReleaseTime, RouteAddress]
-		[synonym DTCC_11_0 value MsgId]
-		[synonym DTCC_11_0 value WarehouseStatus, WarehousePositionType]
-		[synonym DTCC_11_0 value TransType, Status]
-		[synonym DTCC_11_0 value Status]
-		[synonym DTCC_11_0 value sendTo path "header", sentBy path "header", version]
-		[synonym DTCC_11_0 value midMarketPriceType path "midMarketPrice", amount path "midMarketPrice"]
+		[synonym DTCC_11_0, DTCC_9_0 value comment, superId, deskId, eTradeId, designatedParty, brokerName, branchLocation]
+		[synonym DTCC_11_0, DTCC_9_0 value ReceiveTime, ReleaseTime, RouteAddress]
+		[synonym DTCC_11_0, DTCC_9_0 value MsgId]
+		[synonym DTCC_11_0, DTCC_9_0 value WarehouseStatus, WarehousePositionType]
+		[synonym DTCC_11_0, DTCC_9_0 value TransType, Status]
+		[synonym DTCC_11_0, DTCC_9_0 value Status]
+		[synonym DTCC_11_0, DTCC_9_0 value sendTo path "header", sentBy path "header", version]
+		[synonym DTCC_11_0, DTCC_9_0 value midMarketPriceType path "midMarketPrice", amount path "midMarketPrice"]
 }
 
 class Event
@@ -136,6 +136,7 @@ class Event
 		[synonym Rosetta_Workbench value eventIdentifier]
 		[synonym DTCC_11_0, DTCC_9_0 value partyTradeIdentifier path "Header.OTC_RM.Manifest.TradeMsg.Submitter"]
 		[synonym DTCC_11_0, DTCC_9_0 value partyTradeIdentifier path "Header.OTC_RM.Manifest.TradeMsg.ContraTradeId"]
+		[synonym DTCC_11_0, DTCC_9_0 value partyTradeIdentifier path "Header.OTC_RM.Manifest.TradeMsg.YourTradeId"]
 	eventQualifier eventType (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic. This value is derived by the CDM from the event features.">;
 	eventDate date (1..1);
 		[synonym Rosetta_Workbench value eventDate]
@@ -271,6 +272,8 @@ class Inception <"The primitive event for the inception of a new contract betwee
 	 */
 	after ContractState (1..1) reference <"The after state corresponds to the new contract between the parties. Depending upon the implementation approach, this contract can either be explicitly stated, or referenced via either a CDM rosettaKey or a reference that originates externally from the CDM.">;
 		[synonym Rosetta_Workbench value after]
+		// Requires conditional mapping based on OTC_RM_11-0.TransTypeDataType
+		//[synonym DTCC_11_0, DTCC_9_0 value Trade path "Body.OTC_Matching", ReportingData path "Body.OTC_Matching", Manifest path "Header.OTC_RM" set when "Header.OTC_RM.Manifest.TradeMsg.TransType" = "Trade"] 
 		[synonym DTCC_11_0, DTCC_9_0 value Trade path "Body.OTC_Matching", ReportingData path "Body.OTC_Matching", Manifest path "Header.OTC_RM"] 
 }
 
@@ -381,7 +384,7 @@ class PrimitiveEvent <"The set of primitive events. The purpose of this class it
 		[synonym DTCC_11_0, DTCC_9_0 value todo]
 	transfer Transfer (0..*);
 		[synonym Rosetta_Workbench value transfer]
-		[synonym DTCC_11_0, DTCC_9_0 value todo]
+		[synonym DTCC_11_0, DTCC_9_0 value FpML path "Body.OTC_Matching.Payment"]
 }
 
 class QuantityChangePrimitive <"The primitive event to represent a change in quantity or notional.">
@@ -455,6 +458,7 @@ class Transfer rosettaKey <"A class to specify the transfer primitive by providi
 		[synonym Rosetta_Workbench value settlementDate]
 	cashTransfer CashTransferComponent (0..*) <"The cash transfer component of the transfer. In the case where several currencies are involved in the transfer, several components should be used, as the component supports one single currency amount.">;
 		[synonym Rosetta_Workbench value cashTransfer]
+		[synonym DTCC_11_0, DTCC_9_0 value payment]
 	securityTransfer SecurityTransferComponent (0..*) <"The security transfer component of the transfer. In the case where several securities are involved in the transfer, several components should be used, as the component supports one single security.">;
 		[synonym Rosetta_Workbench value securityTransfer]
 	commodityTransfer CommodityTransferComponent (0..*);
