@@ -92,36 +92,6 @@ class Curve one of
 		[synonym Rosetta_Workbench value commodityCurve meta commodityReferencePriceScheme]
 }
 
-class CustomisedWorkflowGroup
-{
-	workflowGroupName string (0..1);
-		[synonym DTCC_11_0, DTCC_9_0 value href path "Body.OTC_Matching.WorkflowData.partyReference"]
-		//[synonym DTCC_11_0 set to "RouteHist.Route" when path = "Header.OTC_RM.Delivery.RouteHist.Route"]
-	customisedWorflow CustomisedWorkflow (0..*);
-		[synonym DTCC_11_0, DTCC_9_0 value PartyWorkflowFields path "Body.OTC_Matching.WorkflowData"]
-		[synonym DTCC_11_0, DTCC_9_0 value Route path "Header.OTC_RM.Delivery.RouteHist"]
-		[synonym DTCC_11_0, DTCC_9_0 value Manifest path "Header.OTC_RM"]
-		[synonym DTCC_11_0, DTCC_9_0 value TradeMsg path "Header.OTC_RM.Manifest"]
-		[synonym DTCC_11_0, DTCC_9_0 value WarehouseState path "Body.OTC_Matching"]
-		[synonym DTCC_11_0, DTCC_9_0 value OTC_Matching path "Body"]
-		[synonym DTCC_11_0, DTCC_9_0 value FpML path "Body.OTC_Matching.Trade"]
-}
-
-class CustomisedWorkflow
-{
-	workflowItem string (0..1);
-		//[synonym DTCC_11_0 set to "comment" when path = "Body.OTC_Matching.WorkflowData.PartyWorkflowFields.comment"]
-	workflowValue string (1..*);
-		[synonym DTCC_11_0, DTCC_9_0 value comment, superId, deskId, eTradeId, designatedParty, brokerName, branchLocation]
-		[synonym DTCC_11_0, DTCC_9_0 value ReceiveTime, ReleaseTime, RouteAddress]
-		[synonym DTCC_11_0, DTCC_9_0 value MsgId]
-		[synonym DTCC_11_0, DTCC_9_0 value WarehouseStatus, WarehousePositionType]
-		[synonym DTCC_11_0, DTCC_9_0 value TransType, Status]
-		[synonym DTCC_11_0, DTCC_9_0 value Status]
-		[synonym DTCC_11_0, DTCC_9_0 value sendTo path "header", sentBy path "header", version]
-		[synonym DTCC_11_0, DTCC_9_0 value midMarketPriceType path "midMarketPrice", amount path "midMarketPrice"]
-}
-
 class Event
 {
 	id (0..1);
@@ -132,7 +102,7 @@ class Event
 	timestamp EventTimestamp (1..1);
 		[synonym Rosetta_Workbench value timestamp]
 		[synonym DTCC_11_0, DTCC_9_0 value FpML path "Body.OTC_Matching.Trade"]
-    eventIdentifier Identifier (1..*) <"The contract identifier, which has 3 components: an actual identifier, an issuer and a version number. One and only one identifier can be associated with a lifecycle event.">;
+    eventIdentifier Identifier (1..1) <"The contract identifier, which has 3 components: an actual identifier, an issuer and a version number. One and only one identifier can be associated with a lifecycle event.">;
 		[synonym Rosetta_Workbench value eventIdentifier]
 		[synonym DTCC_11_0, DTCC_9_0 value partyTradeIdentifier path "Header.OTC_RM.Manifest.TradeMsg.Submitter"]
 		[synonym DTCC_11_0, DTCC_9_0 value partyTradeIdentifier path "Header.OTC_RM.Manifest.TradeMsg.ContraTradeId"]
@@ -162,7 +132,6 @@ class Event
 	functionCall string (0..1) <"This is placeholder concept for a function call into a calculation that will return an outcome. This concept needs to be further firmed out.">;
 		[synonym Rosetta_Workbench value functionCall]
 	eventEffect EventEffect (0..1) <"The set of effects associated with the lifecycle event, i.e. generated cashflows, contracts (from, say, novation events), listed products (from, say, a bond option exercise event)  values and more. Those are represented through a set of rosettaKey references. This attribute is optional in order to provide implementers with the ability not to make use of this feature.">;
-	customisedWorflowGroup CustomisedWorkflowGroup (0..*);
 }
 
 class EventEffect <"The set of operational and positional effects associated with a lifecycle event, alongside the reference to the contract reference(s) that is subject to the event (and is positioned in the before state of the event primitive).">
