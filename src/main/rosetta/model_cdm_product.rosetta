@@ -7,7 +7,8 @@ class Cashflow extends CashflowBase <"A class to specify a cashflow, i.e. the ou
 	cashflowCalculation calculation (0..1) <"The computation arguments used to compute the cashflow, when applicable.">;
 		[synonym Rosetta_Workbench value cashflowCalculation]
 	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, e.g. brokerage fee, premium, upfront fee etc. Particularly relevant when it cannot be inferred directly through lineage.">;
-		[synonym FpML_5_10 value paymentType set to CashflowTypeEnum.Premium when "swaption.premium" exists]
+		//[synonym FpML_5_10 value paymentType path "swaption.premium"]
+		[synonym FpML_5_10 set to CashflowTypeEnum.Premium when "swaption.premium" exists]
 }
 
 data rule Cashflow_cashflowAmount <"The cashflow amount should be a positive number, as the cashflow direction is indeed implied by the payer/receiver attribute.">
@@ -30,34 +31,36 @@ class CashflowBase <"A class to represent the attributes to be shared by the Cas
 class Contract rosettaKey <"A class to specify a contract object, which can be invoked either within the context of an event, or independently from it. It corresponds to the FpML Trade, although restricted to execution and post-execution contexts. Attributes also applicable to pre-execution (a.k.a. pre-trade view in FpML) contexts have been positioned as part of the ContractualProduct class.">
 {
 	id (0..1);
-		[synonym FpML_5_10, CME_Submission,  DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id path "trade"]
-		[synonym FpML_5_10, CME_Submission,  DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, Rosetta_Workbench meta id]
+		[synonym FpML_5_10, CME_Submission, CME_ClearedConfirm_1_17 meta id path "trade"]
+		[synonym FpML_5_10, CME_Submission, CME_ClearedConfirm_1_17 Rosetta_Workbench meta id]
 	contractIdentifier Identifier (1..*) <"The contract identifier, which has 3 components: an actual identifier, an issuer and a version number. There can be several contract identifier, an example of such being a contract is reportable to both the CFTC and ESMA and then has an associated USI (Unique Swap Identifier) UTI (Unique Trade Identifier).">;
-		[synonym FpML_5_10, CME_Submission,  DTCC_11_0, DTCC_9_0 value partyTradeIdentifier path "trade.tradeHeader"]
-		[synonym FpML_5_10, CME_Submission,  DTCC_11_0, DTCC_9_0 value partyTradeIdentifier path "tradeHeader"]
+		[synonym FpML_5_10, CME_Submission, DTCC_11_0, DTCC_9_0 value partyTradeIdentifier path "trade.tradeHeader"]
+		[synonym FpML_5_10, CME_Submission value partyTradeIdentifier path "tradeHeader"]
 		[synonym DTCC_11_0, DTCC_9_0 value partyTradeIdentifier path "Submitter"]
 		[synonym DTCC_11_0, DTCC_9_0 value partyTradeIdentifier path "ContraTradeId"]
 		[synonym DTCC_11_0, DTCC_9_0 value USI]
+		[synonym DTCC_11_0, DTCC_9_0 value OriginatingUSI]
+		[synonym DTCC_11_0, DTCC_9_0 value UTI]
 		[synonym FpML_5_10 value versionedTradeId]
 		[synonym CME_ClearedConfirm_1_17 value  partyTradeIdentifier path "trade.tradeHeader"]
 		[synonym CME_ClearedConfirm_1_17 value  universalSwapIdentifier path "trade.tradeHeader"]
 	tradeDate DateInstances (1..1) <"The trade date. This is the date on which the trade was originally executed. The trade date is specified through the DateInstances class so that in the case of a novation the novated part of the trade be reported (by both the remaining party and the transferee) using the date on which the novation was agreed on. The remaining part of a trade is to be reported (by both the transferor and the remaining party) using a trade date corresponding to the original execution date.">;
 	clearedDate date (0..1) <"If the trade was cleared (novated) through a central counterparty clearing service, this represents the date the trade was cleared (transferred to the central counterparty).">;
-		[synonym FpML_5_10, CME_Submission,  DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value clearedDate path "trade.tradeHeader"]
-		[synonym FpML_5_10, CME_Submission,  DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value clearedDate path "tradeHeader"]
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_Submission, CME_ClearedConfirm_1_17 value clearedDate path "trade.tradeHeader"]
+		[synonym FpML_5_10, CME_Submission, CME_ClearedConfirm_1_17 value clearedDate path "tradeHeader"]
 	contractualProduct ContractualProduct (1..1) <"The contractual product information that is associated with the contract. The corresponding FpML construct is the product abstract element and the associated substitution group.">;
 	otherPartyPayment Payment (0..*) <"Other fees or additional payments associated with the contract, e.g. broker commissions, where one or more of the parties involved are not principal parties involved in the contract.">;
-		[synonym FpML_5_10, CME_Submission,  DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value otherPartyPayment path "trade"]
-		[synonym FpML_5_10, CME_Submission,  DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value otherPartyPayment]
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_Submission, CME_ClearedConfirm_1_17 value otherPartyPayment path "trade"]
+		[synonym FpML_5_10, CME_Submission, CME_ClearedConfirm_1_17 value otherPartyPayment]
 	collateral Collateral (0..1) <"Defines the collateral obligations of a party.">;
-		[synonym FpML_5_10, CME_Submission,  DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value collateral path "trade"]
-		[synonym FpML_5_10, CME_Submission,  DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value collateral]
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_Submission, CME_ClearedConfirm_1_17 value collateral path "trade"]
+		[synonym FpML_5_10, CME_Submission, CME_ClearedConfirm_1_17 value collateral]
 	documentation Documentation (0..1) <"Defines the definitions that govern the document and should include the year and type of definitions referenced, along with any relevant documentation (such as master agreement) and the date it was signed.">;
-		[synonym FpML_5_10, CME_Submission,  DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value documentation path "trade"]
-		[synonym FpML_5_10, CME_Submission,  DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value documentation]
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_Submission, CME_ClearedConfirm_1_17 value documentation path "trade"]
+		[synonym FpML_5_10, CME_Submission, CME_ClearedConfirm_1_17 value documentation]
 	governingLaw GoverningLawEnum (0..1) scheme <"Identification of the law governing the transaction.">;
-		[synonym FpML_5_10, CME_Submission,  DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value governingLaw path "trade" meta governingLawScheme]
-		[synonym FpML_5_10, CME_Submission,  DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value governingLaw]
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_Submission, CME_ClearedConfirm_1_17 value governingLaw path "trade" meta governingLawScheme]
+		[synonym FpML_5_10, CME_Submission, CME_ClearedConfirm_1_17 value governingLaw]
 	party Party (0..*) <"The parties to the contract. The cardinality is optional to address the case where the contract object is part of an event record, in which case the party is specified as part of that object. In that respect, the CDM approach is distinct from FpML, where party information is specified as part of a wrapper alongside the trade object.">;
 		[synonym FpML_5_10, CME_Submission,  DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value party]
 	account Account (0..*) <"Optional account information.">;
@@ -72,7 +75,7 @@ class Contract rosettaKey <"A class to specify a contract object, which can be i
 		[synonym CME_ClearedConfirm_1_17 value status path "trade.tradeHeader"]
 	applicableCreditLimit ApplicableCreditLimit (0..*) <"Clearing credit limit">;
 		[synonym CME_ClearedConfirm_1_17 value limitApplicable path "trade.tradeHeader.creditLimitInformation"]
-	
+
 }
 
 class ApplicableCreditLimit <"Credit limit Utilisation information"> {
@@ -575,8 +578,8 @@ class OptionPayout rosettaKey <"The option payout specification terms.">
 		[synonym FpML_5_10, CME_Submission,  DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 	buyerSeller BuyerSeller (1..1);
 	optionType OptionTypeEnum (0..1) <"The type of option transaction. From a usage standpoint, put/call is the default option type, while payer/receiver indicator is used for options on index credit default swaps, consistently with the industry practice. Straddle is used for the case of straddle strategy, that combine a call and a put with the same strike.">;
-		[synonym FpML_5_10, CME_Submission,  DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value optionType]
-		[synonym FpML_5_10, CME_Submission,  DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value swaptionStraddle set to OptionTypeEnum.Straddle when "swaptionStraddle" = True]
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_Submission, CME_ClearedConfirm_1_17 value optionType]
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_Submission, CME_ClearedConfirm_1_17 set to OptionTypeEnum.Straddle when "swaptionStraddle" = True]
 	feature OptionFeature (0..1) <"The option feature, such as quanto, Asian, barrier, knock.">;
 		[synonym FpML_5_10, CME_Submission,  DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value feature]
 	denomination OptionDenomination (0..1) <"The denomination qualifies the number of units of underlyer per option and the number of options comprised in the option transaction. FpML represents this information as part of the OptionDenomination.model.">;
@@ -722,10 +725,10 @@ data rule ResetDates_interestRateSwap <"The cardinality of the ResetDates attrib
 class Product one of <"A class to represent a financial product. With respect to contractual products, which class provides the ability to specify either a post-execution 'view' of contract (the Contract class) or the pre-execution contractual product (the ContractualProduct class). This class is used as part of the option exercise representation, which makes use of the contract attribute for supporting the swaption use case, with the exercise into a swap.">
 {
 	contract Contract (0..1);
-		[synonym FpML_5_10 value contract]
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0  value contract]
 	contractualProduct ContractualProduct (0..1);
-		[synonym FpML_5_10 value creditDefaultSwap]
-		[synonym FpML_5_10 value swap]
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value creditDefaultSwap]
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0  value swap]
 	bond Bond (0..1);
 		[synonym FpML_5_10, CME_Submission,  DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value bond]
 	convertibleBond ConvertibleBond (0..1);
