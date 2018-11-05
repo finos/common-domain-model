@@ -33,8 +33,8 @@ data rule TradeIdentifier_account <"FpML specifies a choice between issuer and [
 class Identifier extends IdentifierValue
 {
 	issuer string (1..1) scheme, reference <"The identifier issuer, specified by reference to a party specified as part of the transaction.">;
-		[synonym FpML_5_10, CME_Submission, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value partyReference meta scheme, href]
-		[synonym FpML_5_10, CME_Submission, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value issuer meta issuerIdScheme, href]
+		[synonym FpML_5_10, CME_Submission, DTCC_11_0, DTCC_9_0 value partyReference meta scheme, href]
+		[synonym FpML_5_10, CME_Submission, DTCC_11_0, DTCC_9_0 value issuer meta issuerIdScheme, href]
 		//[synonym FpML_5_10 value issuer meta issuerIdScheme] // To be deprecated once we deprecate the contractReference
 		//[synonym Rosetta_Workbench value issuer meta href]
 		// Conditional mapping required? tradeIdScheme=“EventProcessingId” / tradeIdScheme=“TradeRefNbr”
@@ -42,6 +42,9 @@ class Identifier extends IdentifierValue
 		// Conditional mapping required? tradeIdScheme=“EventProcessingId” / tradeIdScheme=“TradeRefNbr”
 		[synonym DTCC_11_0, DTCC_9_0 value USIIssuer maps 2 meta issuerIdScheme]
 		[synonym DTCC_11_0, DTCC_9_0 value UTIIssuer meta issuerIdScheme]
+		//TODO - Add conditional mapping support for duplicating this field when sibling IdentifierValue.identifier exists. see https://trello.com/c/VV1UtOhZ for details.
+        	[synonym CME_ClearedConfirm_1_17 value partyReference path "trade.tradeHeader.partyTradeIdentifier" maps 2 meta scheme, href]
+        	[synonym CME_ClearedConfirm_1_17 value issuer  path "trade.tradeHeader.universalSwapIdentifier" meta issuerIdScheme]
 	version int (1..1) <"The identifier version, which is specified as an integer and is meant to be incremented each time the transaction terms (whether contract or event) change.">;
 		[synonym FpML_5_10 value version path "versionedTradeId"]
 		//[synonym Rosetta_Workbench value version]
@@ -55,8 +58,7 @@ class IdentifierValue <"A class to associate an id to an identifier value, to su
 		[synonym FpML_5_10, CME_Submission meta id]
 		[synonym FpML_5_10, CME_Submission meta id path "versionedTradeId.tradeId"]
 	identifier string (1..1) scheme;
-		[synonym FpML_5_10, CME_ClearedConfirm_1_17, CME_Submission value tradeId meta tradeIdScheme]
-		[synonym CME_ClearedConfirm_1_17 value usi meta usiScheme]
+		[synonym FpML_5_10, CME_Submission value tradeId meta tradeIdScheme]
 		[synonym FpML_5_10 value tradeId path "versionedTradeId" meta tradeIdScheme]
 		[synonym Rosetta_Workbench value identifier]
 		[synonym FpML_5_10 value tradeId meta tradeIdScheme] // To be deprecated once we deprecate the contractReference
@@ -67,6 +69,8 @@ class IdentifierValue <"A class to associate an id to an identifier value, to su
         // Conditional mapping: tradeIdScheme=“EventProcessingId” / tradeIdScheme=“TradeRefNbr”
         [synonym DTCC_11_0, DTCC_9_0 value USITradeId meta tradeIdScheme]
         [synonym DTCC_11_0, DTCC_9_0 value UTITradeId meta tradeIdScheme]
+        	[synonym CME_ClearedConfirm_1_17 value tradeId path "trade.tradeHeader.partyTradeIdentifier" meta tradeIdScheme]
+        	[synonym CME_ClearedConfirm_1_17 value usi  path "trade.tradeHeader.universalSwapIdentifier" meta usiScheme]
 }
 
 class PackageInformation <"A class defining additional information that may be recorded alongside a transaction package.">
