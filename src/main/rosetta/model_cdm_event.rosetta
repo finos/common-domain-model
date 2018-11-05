@@ -37,7 +37,7 @@ class CashTransferComponent extends TransferBase <"">
 	transferType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">;
 		[synonym Rosetta_Workbench value transferType]	
 	breakdown CashTransferBreakdown (0..*) <"The cash transfer breakdown, when the transfer corresponds to a net amount across several components which breakdown is deemed relevant (e.g. the net cash transfer related to several contracts, or to the net proceeds across several payout components).">;
-		[synonym Rosetta_Workbench value breakdown]
+		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0 value breakdown]
 }
 
 /*
@@ -79,8 +79,9 @@ class ContractState <"A class to specify a contract instantiation with respect t
 {
 	contract Contract (1..1);
         [synonym Rosetta_Workbench value trade]
-        [synonym DTCC_PostTrade_11_0 value trade path "FpML"]
-        [synonym DTCC_PostTrade_11_0 value TradeMsg]
+        [synonym DTCC_11_0, DTCC_9_0 value FpML]
+        [synonym DTCC_11_0, DTCC_9_0 value TradeMsg]
+        [synonym DTCC_11_0, DTCC_9_0 value ReportingJurisdiction path "ReportingHeader"]
 }
 
 class Curve one of
@@ -96,38 +97,34 @@ class Event
 	id (0..1);
 		[synonym Rosetta_Workbench meta id]
 	messageInformation MessageInformation (0..1);
-		[synonym DTCC_PostTrade_11_0 value header path "Body.OTC_Matching.Trade.FpML"]
-		[synonym DTCC_PostTrade_11_0 value RouteInfo path "Header.OTC_RM.Delivery"]
+		[synonym DTCC_11_0, DTCC_9_0 value FpML path "Body.OTC_Matching.Trade"]
+		[synonym DTCC_11_0, DTCC_9_0 value RouteInfo path "Header.OTC_RM.Delivery"]
 	timestamp EventTimestamp (1..1);
 		[synonym Rosetta_Workbench value timestamp]
-		[synonym DTCC_PostTrade_11_0 value header path "Body.OTC_Matching.Trade.FpML"]
+		[synonym DTCC_11_0, DTCC_9_0 value FpML path "Body.OTC_Matching.Trade"]
     eventIdentifier Identifier (1..1) <"The contract identifier, which has 3 components: an actual identifier, an issuer and a version number. One and only one identifier can be associated with a lifecycle event.">;
 		[synonym Rosetta_Workbench value eventIdentifier]
-		[synonym DTCC_PostTrade_11_0 value TradeMsg path "Header.OTC_RM.Manifest"]
+		[synonym DTCC_11_0, DTCC_9_0 value partyTradeIdentifier path "Header.OTC_RM.Manifest.TradeMsg.Submitter"]
+		[synonym DTCC_11_0, DTCC_9_0 value partyTradeIdentifier path "Header.OTC_RM.Manifest.TradeMsg.ContraTradeId"]
+		[synonym DTCC_11_0, DTCC_9_0 value partyTradeIdentifier path "Header.OTC_RM.Manifest.TradeMsg.YourTradeId"]
 	eventQualifier eventType (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic. This value is derived by the CDM from the event features.">;
 	eventDate date (1..1);
 		[synonym Rosetta_Workbench value eventDate]
 	effectiveDate date (0..1);
 		[synonym Rosetta_Workbench value effectiveDate]
 	action ActionEnum (1..1) <"Specifies whether the event is a new, a correction or a cancellation.">;
-		[synonym FpML_5_10 value isCorrection
+		[synonym FpML_5_10 
 			set to ActionEnum.New when "isCorrection" = False,
 			set to ActionEnum.Correct when "isCorrection" = True]
-		[synonym DTCC_PostTrade_11_0 value Activity path "Header.OTC_RM.Manifest.TradeMsg"
-			set to ActionEnum.New when "Header.OTC_RM.Manifest.TradeMsg.Activity" = "New",
-			set to ActionEnum.Correct when "Header.OTC_RM.Manifest.TradeMsg.Activity" = "Modify",
-			set to ActionEnum.Cancel when "Header.OTC_RM.Manifest.TradeMsg.Activity" = "Cancel"]
+		[synonym DTCC_11_0, DTCC_9_0 value Activity path "Header.OTC_RM.Manifest.TradeMsg"]
+		[synonym DTCC_11_0, DTCC_9_0 value Activity path "Body.OTC_Matching"]
 	intent IntentEnum (0..1);
 		[synonym Rosetta_Workbench value intent]
 	party Party (0..*) <"The specification of the event parties. This attribute is optional, as not applicable to certain events (e.g. most of the observations).">;
-		[synonym FpML_5_10, DTCC_PostTrade_11_0 value party]
-		[synonym DTCC_PostTrade_11_0 value party path "Body.OTC_Matching.Trade.FpML" ]
-		[synonym DTCC_PostTrade_11_0 value party path "Body.OTC_Matching.Termination"]
-		[synonym DTCC_PostTrade_11_0 value party path "Body.OTC_Matching.Assignment"]
-		[synonym DTCC_PostTrade_11_0 value party path "Body.OTC_Matching.Exercise"]
-		[synonym DTCC_PostTrade_11_0 value party path "Body.OTC_Matching.Trade.FpML"]
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value party]
+		[synonym DTCC_11_0, DTCC_9_0 value party path "Body.OTC_Matching.Trade.FpML" ]
 	account Account (0..*) <"Optional account information that could be associated to the event.">;
-		[synonym FpML_5_10, DTCC_PostTrade_11_0 value account]	
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value account]
 	lineage Lineage (0..1);
 		[synonym Rosetta_Workbench value lineage]
 	primitive PrimitiveEvent (1..1);
@@ -157,17 +154,18 @@ class EventTestBundle <"A class which combines several events for testing purpos
 class EventTimestamp <"This class corresponds to the timestamp components of the FpML MessageHeader.model. These would be applicable even if the event is communicated through a mean other than messaging (e.g. blockchain).">
 {
 	creationTimestamp dateTime (1..1) <"The date and time (on the source system) when this event was created.">;
-		[synonym FpML_5_10 value creationTimestamp path "header"]
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value creationTimestamp path "header"]
 		[synonym Rosetta_Workbench value creationTimestamp]
-		[synonym DTCC_PostTrade_11_0 value creationTimestamp]
 	expiryTimestamp dateTime (0..1) <"The date and time (on the source system) when this event will be considered expired.">;
-		[synonym FpML_5_10, DTCC_PostTrade_11_0 value expiryTimestamp]
+		[synonym FpML_5_10 value expiryTimestamp]
 }
 
 class Execution rosettaKey
 {
 	identifier Identifier (1..*) <"The identifier(s) associated with the execution.">;
 		[synonym Rosetta_Workbench value identifier]
+		// TODO condition mapping should handle unmapped fields
+		[synonym DTCC_11_0, DTCC_9_0 value partyTradeIdentifier path "Submitter"]
 	tradeDate date (1..1) id <"The trade/execution date.">;
 		[synonym Rosetta_Workbench value tradeDate meta id]
 	contractualProduct ContractualProduct (1..1);
@@ -244,8 +242,8 @@ class Inception <"The primitive event for the inception of a new contract betwee
 	after ContractState (1..1) reference <"The after state corresponds to the new contract between the parties. Depending upon the implementation approach, this contract can either be explicitly stated, or referenced via either a CDM rosettaKey or a reference that originates externally from the CDM.">;
 		[synonym Rosetta_Workbench value after]
 		// Requires conditional mapping based on OTC_RM_11-0.TransTypeDataType
-		[synonym DTCC_PostTrade_11_0 value Trade path "Body.OTC_Matching"]
-		[synonym DTCC_PostTrade_11_0 value Manifest path "Header.OTC_RM"]
+		//[synonym DTCC_11_0, DTCC_9_0 value Trade path "Body.OTC_Matching", ReportingData path "Body.OTC_Matching", Manifest path "Header.OTC_RM" set when "Header.OTC_RM.Manifest.TradeMsg.TransType" = "Trade"] 
+		[synonym DTCC_11_0, DTCC_9_0 value Trade path "Body.OTC_Matching", ReportingData path "Body.OTC_Matching", Manifest path "Header.OTC_RM"] 
 }
 
 class InterestRateCurve
@@ -276,13 +274,13 @@ class MessageInformation <"This class corresponds to the messaging components of
 {
 	messageId string (1..1) scheme <"A unique identifier assigned to the message.">;
 		[synonym Rosetta_Workbench value messageId path "messageInformation" meta messageIdScheme]
-		[synonym DTCC_PostTrade_11_0 value messageId meta messageIdScheme]
+		[synonym DTCC_11_0, DTCC_9_0 value messageId path "header" meta messageIdScheme]
 	sentBy string (0..1) scheme <"The identifier for the originator of a message instance.">;
 		[synonym Rosetta_Workbench value sentBy path "messageInformation" meta messageAddressScheme]
-		[synonym DTCC_PostTrade_11_0 value From]
+		[synonym DTCC_11_0, DTCC_9_0 value From]
 	sentTo string (0..1) scheme <"The identifier for the recipient of a message instance.">;
 		[synonym Rosetta_Workbench value sentTo path "messageInformation" meta messageAddressScheme]
-		[synonym DTCC_PostTrade_11_0 value To]
+		[synonym DTCC_11_0, DTCC_9_0 value To]
 	copyTo string (0..*) scheme  <"A unique identifier (within the specified coding scheme) giving the details of some party to whom a copy of this message will be sent for reference.">;
 }
 
@@ -334,20 +332,28 @@ class PrimitiveEvent <"The set of primitive events. The purpose of this class it
 		[synonym Rosetta_Workbench value inception]
 	quantityChange QuantityChangePrimitive (0..*);
 		[synonym Rosetta_Workbench value quantityChange]
+		[synonym DTCC_11_0, DTCC_9_0 value todo]
 	allocation AllocationPrimitive (0..*);
 		[synonym Rosetta_Workbench value allocation]
+		[synonym DTCC_11_0, DTCC_9_0 value todo]
 	termsChange TermsChangePrimitive (0..1);
 		[synonym Rosetta_Workbench value otherTermsChange]
+		[synonym DTCC_11_0, DTCC_9_0 value todo]
 	exercise ExercisePrimitive (0..1);
 		[synonym Rosetta_Workbench value exercise]
+		[synonym DTCC_11_0, DTCC_9_0 value todo]
 	observation ObservationPrimitive (0..*);
 		[synonym Rosetta_Workbench value observation]
+		[synonym DTCC_11_0, DTCC_9_0 value todo]
 	reset ResetPrimitive (0..*);
 		[synonym Rosetta_Workbench value reset]
+		[synonym DTCC_11_0, DTCC_9_0 value todo]
 	payment Payment (0..*);
 		[synonym Rosetta_Workbench value payment]
+		[synonym DTCC_11_0, DTCC_9_0 value todo]
 	transfer Transfer (0..*);
 		[synonym Rosetta_Workbench value transfer]
+		[synonym DTCC_11_0, DTCC_9_0 value FpML path "Body.OTC_Matching.Payment"]
 }
 
 class QuantityChangePrimitive <"The primitive event to represent a change in quantity or notional.">
@@ -392,7 +398,7 @@ class SecurityTransferComponent extends TransferBase
 	quantity number (1..1);
 		[synonym Rosetta_Workbench value quantity]
 	assetTransferType AssetTransferTypeEnum (0..1) <"The type of transfer, e.g. Free of Payment.">;
-		[synonym Rosetta_Workbench value assetTransferType]	
+		[synonym Rosetta_Workbench value assetTransferType]
 	breakdown SecurityTransferBreakdown (0..*) <"The security transfer breakdown, when the transfer corresponds to a net transfer across several components which breakdown is deemed relevant (e.g. the net security transfer related to several contracts).">;
 		[synonym Rosetta_Workbench value breakdown]
 }
@@ -421,6 +427,7 @@ class Transfer rosettaKey <"A class to specify the transfer primitive by providi
 		[synonym Rosetta_Workbench value settlementDate]
 	cashTransfer CashTransferComponent (0..*) <"The cash transfer component of the transfer. In the case where several currencies are involved in the transfer, several components should be used, as the component supports one single currency amount.">;
 		[synonym Rosetta_Workbench value cashTransfer]
+		[synonym DTCC_11_0, DTCC_9_0 value payment]
 	securityTransfer SecurityTransferComponent (0..*) <"The security transfer component of the transfer. In the case where several securities are involved in the transfer, several components should be used, as the component supports one single security.">;
 		[synonym Rosetta_Workbench value securityTransfer]
 	commodityTransfer CommodityTransferComponent (0..*);
@@ -445,13 +452,13 @@ class TransferBreakdown extends TransferBase
 class TransferorTransferee <"A class mimicking the PayerReceiver, which is itself derived from the FpML PayerReceiver.model, to represent the transferee and transferor party information in relation to the transfer of security or commodities.">
 {
 	transferorPartyReference string (1..1) reference <"A reference to the party responsible for making the payments defined by this structure.">;
-		[synonym FpML_5_10, DTCC_PostTrade_11_0 value payerPartyReference meta href]
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value payerPartyReference meta href]
 	transferorAccountReference string (0..1) reference <"A reference to the account responsible for making the payments defined by this structure.">;
-		[synonym FpML_5_10, DTCC_PostTrade_11_0 value payerAccountReference meta href]
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value payerAccountReference meta href]
 	transfereePartyReference string (1..1) reference <"A reference to the party that receives the payments corresponding to this structure.">;
-		[synonym FpML_5_10, DTCC_PostTrade_11_0 value receiverPartyReference meta href]
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value receiverPartyReference meta href]
 	transfereeAccountReference string (0..1) reference <"A reference to the account that receives the payments corresponding to this structure.">;
-		[synonym FpML_5_10, DTCC_PostTrade_11_0 value receiverAccountReference meta href]
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value receiverAccountReference meta href]
 }
 
 /*********************
