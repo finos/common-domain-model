@@ -34,8 +34,10 @@ class CashTransferComponent extends TransferBase <"">
 	payerReceiver PayerReceiver (1..1) <"The payer and receiver party information.">;
 	amount Money (1..1) <"The currency amount.">;
 		[synonym Rosetta_Workbench value amount]
+		[synonym DTCC_11_0, DTCC_9_0 value notional path "calculationDetails.calculationElements", paymentAmount]
 	transferType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">;
-		[synonym Rosetta_Workbench value transferType]	
+		[synonym Rosetta_Workbench value transferType]
+		[synonym DTCC_11_0, DTCC_9_0 value cashflowType path "calculationDetails.grossCashflow" meta cashflowTypeScheme]	
 	breakdown CashTransferBreakdown (0..*) <"The cash transfer breakdown, when the transfer corresponds to a net amount across several components which breakdown is deemed relevant (e.g. the net cash transfer related to several contracts, or to the net proceeds across several payout components).">;
 		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0 value breakdown]
 }
@@ -105,6 +107,7 @@ class CustomisedWorkflowGroup
 		[synonym DTCC_11_0, DTCC_9_0 value WarehouseState path "Body.OTC_Matching"]
 		[synonym DTCC_11_0, DTCC_9_0 value OTC_Matching path "Body"]
 		[synonym DTCC_11_0, DTCC_9_0 value FpML path "Body.OTC_Matching.Trade"]
+		[synonym DTCC_11_0, DTCC_9_0 value FpML path "Body.OTC_Matching.Payment"]
 }
 
 class CustomisedWorkflow
@@ -132,11 +135,14 @@ class Event
 	timestamp EventTimestamp (1..1);
 		[synonym Rosetta_Workbench value timestamp]
 		[synonym DTCC_11_0, DTCC_9_0 value FpML path "Body.OTC_Matching.Trade"]
+		[synonym DTCC_11_0, DTCC_9_0 value FpML path "Body.OTC_Matching.Payment"]
     eventIdentifier Identifier (1..*) <"The contract identifier, which has 3 components: an actual identifier, an issuer and a version number. One and only one identifier can be associated with a lifecycle event.">;
 		[synonym Rosetta_Workbench value eventIdentifier]
 		[synonym DTCC_11_0, DTCC_9_0 value partyTradeIdentifier path "Header.OTC_RM.Manifest.TradeMsg.Submitter"]
 		[synonym DTCC_11_0, DTCC_9_0 value partyTradeIdentifier path "Header.OTC_RM.Manifest.TradeMsg.ContraTradeId"]
-		[synonym DTCC_11_0, DTCC_9_0 value partyTradeIdentifier path "Header.OTC_RM.Manifest.TradeMsg.YourTradeId"]
+		[synonym DTCC_11_0, DTCC_9_0 value partyTradeIdentifier path "Header.OTC_RM.Manifest.TradeMsg.YourTradeId"] 
+		[synonym DTCC_11_0, DTCC_9_0 value FpML path "Body.OTC_Matching.Payment"] 
+		[synonym DTCC_11_0, DTCC_9_0 value partyTradeIdentifier path "Body.OTC_Matching.Payment.FpML.tradeIdentifyingItems"] 
 	eventQualifier eventType (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic. This value is derived by the CDM from the event features.">;
 	eventDate date (1..1);
 		[synonym Rosetta_Workbench value eventDate]
@@ -274,7 +280,7 @@ class Inception <"The primitive event for the inception of a new contract betwee
 		[synonym Rosetta_Workbench value after]
 		// Requires conditional mapping based on OTC_RM_11-0.TransTypeDataType
 		//[synonym DTCC_11_0, DTCC_9_0 value Trade path "Body.OTC_Matching", ReportingData path "Body.OTC_Matching", Manifest path "Header.OTC_RM" set when "Header.OTC_RM.Manifest.TradeMsg.TransType" = "Trade"] 
-		[synonym DTCC_11_0, DTCC_9_0 value Trade path "Body.OTC_Matching", ReportingData path "Body.OTC_Matching", Manifest path "Header.OTC_RM"] 
+		[synonym DTCC_11_0, DTCC_9_0 value Trade path "Body.OTC_Matching", ReportingData path "Body.OTC_Matching", Manifest path "Header.OTC_RM", Payment path "Body.OTC_Matching"] 
 }
 
 class InterestRateCurve
@@ -319,10 +325,12 @@ class ObservationPrimitive <"The primitive event to represent an observation.">
 {
 	source ObservationSource (1..1) <"The observation source.">;
 		[synonym Rosetta_Workbench value source]
+		[synonym DTCC_11_0, DTCC_9_0 value source]
 	observation number (1..1) <"The observation value.">;
 		[synonym Rosetta_Workbench value observation]
 	date date (1..1) <"The observation date.">;
 		[synonym Rosetta_Workbench value date]
+		[synonym DTCC_11_0, DTCC_9_0 value observationDate]
 	time TimeZone (0..1) <"The observation time, with a possible indication of the timezone dimension.">;
 		[synonym Rosetta_Workbench value time]
 	side QuotationSideEnum (0..1) <"The side (bid/mid/ask) of the observation, when applicable.">;
@@ -375,7 +383,7 @@ class PrimitiveEvent <"The set of primitive events. The purpose of this class it
 		[synonym DTCC_11_0, DTCC_9_0 value todo]
 	observation ObservationPrimitive (0..*);
 		[synonym Rosetta_Workbench value observation]
-		[synonym DTCC_11_0, DTCC_9_0 value todo]
+		[synonym DTCC_11_0, DTCC_9_0 value observationElements path "Body.OTC_Matching.Payment.FpML.payment.calculationDetails"]
 	reset ResetPrimitive (0..*);
 		[synonym Rosetta_Workbench value reset]
 		[synonym DTCC_11_0, DTCC_9_0 value todo]

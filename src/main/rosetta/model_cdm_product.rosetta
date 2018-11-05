@@ -261,8 +261,10 @@ class ContractualQuantity
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value calculationAmount path "periodicPayment.floatingAmountCalculation"]
 		[synonym Rosetta_Workbench value notionalAmount]
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value notionalAmount]
+		[synonym DTCC_11_0, DTCC_9_0 value calculationElements]
 	notionalSchedule NotionalSchedule (0..1);
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value notionalSchedule path "calculationPeriodAmount.calculation" /*set when "calculationPeriodAmount.calculation.notionalSchedule.notionalStepSchedule.step" exists*/]
+		[synonym DTCC_11_0, DTCC_9_0 value calculationElements]
 	fxLinkedNotional FxLinkedNotionalSchedule (0..1);
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value fxLinkedNotionalSchedule path "calculationPeriodAmount.calculation" /*set when "calculationPeriodAmount.calculation.fxLinkedNotionalSchedule.initialValue" exists*/]
 	futureValueNotional FutureValueAmount (0..1);
@@ -394,6 +396,7 @@ class InterestRatePayout calculation FixedAmount, FloatingAmount rosettaKey <"Th
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value dayCountFraction path "calculationPeriodAmount.calculation" meta dayCountFractionScheme]
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value dayCountFraction path "periodicPayment.fixedAmountCalculation" meta dayCountFractionScheme]
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value dayCountFraction path "periodicPayment.floatingAmountCalculation" meta dayCountFractionScheme]
+		[synonym DTCC_11_0, DTCC_9_0 value dayCountFraction path "calculationElements.calculationPeriod" meta dayCountFractionScheme]
 	discounting Discounting (0..1) <"The parameters specifying any discounting conventions that may apply. This element must only be included if discounting applies.">;
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value discounting path "calculationPeriodAmount.calculation"]
 	compoundingMethod CompoundingMethodEnum (0..1) <"If one or more calculation period contributes to a single payment amount this element specifies whether compounding is applicable and, if so, what compounding method is to be used. This element must only be included when more than one calculation period contributes to a single payment amount.">;
@@ -513,6 +516,7 @@ class NotionalSchedule <"A class specifying defining the notional amount or noti
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 meta id]
 	notionalStepSchedule NonNegativeAmountSchedule (1..1) <"The notional amount or notional amount schedule expressed as explicit outstanding notional amounts and dates. In the case of a schedule, the step dates may be subject to adjustments in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">;
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value notionalStepSchedule]
+		[synonym DTCC_11_0, DTCC_9_0 value notional]
 	notionalStepParameters NotionalStepRule (0..1) <"A parametric representation of the notional step schedule, i.e. parameters used to generate the notional schedule.">;
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value notionalStepParameters]
 }
@@ -621,6 +625,7 @@ class Payout <"The payout can be specified through a number of combinations, e.g
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value feeLeg path "trade.creditDefaultSwap", generalTerms path "trade.creditDefaultSwap"]
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value feeLeg path "creditDefaultSwap", generalTerms path "creditDefaultSwap"]
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value feeLeg, generalTerms]
+		[synonym DTCC_11_0, DTCC_9_0 value calculationDetails path "payment"]
 	creditDefaultPayout CreditDefaultPayout (0..1);
 	cashflow Cashflow (0..*) <"A cashflow between the parties to the trade. For interest rate products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the initialPayment element and the singlePayment element of the fee leg.">;
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value additionalPayment path "trade.swap"]
@@ -737,6 +742,7 @@ class ProductIdentification <"A class to combine the CDM product qualifier with 
 		[synonym FpML_5_10 value productId path "swaption" meta productIdScheme]
 		[synonym FpML_5_10 value productId path "trade.swaption.swap" meta productIdScheme]
 		[synonym FpML_5_10 value productId path "swaption.swap" meta productIdScheme]
+		[synonym DTCC_11_0, DTCC_9_0 value instrumentId path "payment.calculationDetails.calculationElements.underlyer.index" meta instrumentIdScheme]
 }
 
 class Quantity
