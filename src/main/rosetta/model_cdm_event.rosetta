@@ -99,9 +99,11 @@ class Event
 	messageInformation MessageInformation (0..1);
 		[synonym DTCC_11_0, DTCC_9_0 value FpML path "Body.OTC_Matching.Trade"]
 		[synonym DTCC_11_0, DTCC_9_0 value RouteInfo path "Header.OTC_RM.Delivery"]
+		[synonym CME_ClearedConfirm_1_17 value header path "clearingConfirmed"]
 	timestamp EventTimestamp (1..1);
 		[synonym Rosetta_Workbench value timestamp]
 		[synonym DTCC_11_0, DTCC_9_0 value FpML path "Body.OTC_Matching.Trade"]
+		[synonym CME_ClearedConfirm_1_17 value clearingConfirmed]
     eventIdentifier Identifier (1..1) <"The contract identifier, which has 3 components: an actual identifier, an issuer and a version number. One and only one identifier can be associated with a lifecycle event.">;
 		[synonym Rosetta_Workbench value eventIdentifier]
 		[synonym DTCC_11_0, DTCC_9_0 value partyTradeIdentifier path "Header.OTC_RM.Manifest.TradeMsg.Submitter"]
@@ -113,22 +115,25 @@ class Event
 	effectiveDate date (0..1);
 		[synonym Rosetta_Workbench value effectiveDate]
 	action ActionEnum (1..1) <"Specifies whether the event is a new, a correction or a cancellation.">;
-		[synonym FpML_5_10 
+		[synonym FpML_5_10
 			set to ActionEnum.New when "isCorrection" = False,
 			set to ActionEnum.Correct when "isCorrection" = True]
 		[synonym DTCC_11_0, DTCC_9_0 value Activity path "Header.OTC_RM.Manifest.TradeMsg"]
 		[synonym DTCC_11_0, DTCC_9_0 value Activity path "Body.OTC_Matching"]
 	intent IntentEnum (0..1);
 		[synonym Rosetta_Workbench value intent]
+		[synonym CME_ClearedConfirm_1_17 set to IntentEnum.Clearing when "clearingConfirmed" exists]
 	party Party (0..*) <"The specification of the event parties. This attribute is optional, as not applicable to certain events (e.g. most of the observations).">;
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value party]
+		[synonym FpML_5_10, CME_Submission, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value party]
 		[synonym DTCC_11_0, DTCC_9_0 value party path "Body.OTC_Matching.Trade.FpML" ]
 	account Account (0..*) <"Optional account information that could be associated to the event.">;
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value account]
+		[synonym FpML_5_10, CME_Submission, DTCC_11_0, DTCC_9_0 value account]
+		[synonym CME_ClearedConfirm_1_17 value account path "clearingConfirmed"]
 	lineage Lineage (0..1);
 		[synonym Rosetta_Workbench value lineage]
 	primitive PrimitiveEvent (1..1);
 		[synonym Rosetta_Workbench value primitive]
+		[synonym CME_Submission value TrdCaptRpt]
 	functionCall string (0..1) <"This is placeholder concept for a function call into a calculation that will return an outcome. This concept needs to be further firmed out.">;
 		[synonym Rosetta_Workbench value functionCall]
 	eventEffect EventEffect (0..1) <"The set of effects associated with the lifecycle event, i.e. generated cashflows, contracts (from, say, novation events), listed products (from, say, a bond option exercise event)  values and more. Those are represented through a set of rosettaKey references. This attribute is optional in order to provide implementers with the ability not to make use of this feature.">;
@@ -153,11 +158,12 @@ class EventTestBundle <"A class which combines several events for testing purpos
 
 class EventTimestamp <"This class corresponds to the timestamp components of the FpML MessageHeader.model. These would be applicable even if the event is communicated through a mean other than messaging (e.g. blockchain).">
 {
+	//TODO - Changed this to be zonedDateTime. CME events use zoned times which are legal in FpML.
 	creationTimestamp dateTime (1..1) <"The date and time (on the source system) when this event was created.">;
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value creationTimestamp path "header"]
 		[synonym Rosetta_Workbench value creationTimestamp]
 	expiryTimestamp dateTime (0..1) <"The date and time (on the source system) when this event will be considered expired.">;
-		[synonym FpML_5_10 value expiryTimestamp]
+		[synonym FpML_5_10, CME_Submission value expiryTimestamp]
 }
 
 class Execution rosettaKey
@@ -242,8 +248,10 @@ class Inception <"The primitive event for the inception of a new contract betwee
 	after ContractState (1..1) reference <"The after state corresponds to the new contract between the parties. Depending upon the implementation approach, this contract can either be explicitly stated, or referenced via either a CDM rosettaKey or a reference that originates externally from the CDM.">;
 		[synonym Rosetta_Workbench value after]
 		// Requires conditional mapping based on OTC_RM_11-0.TransTypeDataType
-		//[synonym DTCC_11_0, DTCC_9_0 value Trade path "Body.OTC_Matching", ReportingData path "Body.OTC_Matching", Manifest path "Header.OTC_RM" set when "Header.OTC_RM.Manifest.TradeMsg.TransType" = "Trade"] 
-		[synonym DTCC_11_0, DTCC_9_0 value Trade path "Body.OTC_Matching", ReportingData path "Body.OTC_Matching", Manifest path "Header.OTC_RM"] 
+		//[synonym DTCC_11_0, DTCC_9_0 value Trade path "Body.OTC_Matching", ReportingData path "Body.OTC_Matching", Manifest path "Header.OTC_RM" set when "Header.OTC_RM.Manifest.TradeMsg.TransType" = "Trade"]
+		[synonym DTCC_11_0, DTCC_9_0 value Trade path "Body.OTC_Matching", ReportingData path "Body.OTC_Matching", Manifest path "Header.OTC_RM"]
+		[synonym CME_ClearedConfirm_1_17 value clearingConfirmed]
+		[synonym CME_Submission value trade]
 }
 
 class InterestRateCurve
@@ -275,11 +283,14 @@ class MessageInformation <"This class corresponds to the messaging components of
 	messageId string (1..1) scheme <"A unique identifier assigned to the message.">;
 		[synonym Rosetta_Workbench value messageId path "messageInformation" meta messageIdScheme]
 		[synonym DTCC_11_0, DTCC_9_0 value messageId path "header" meta messageIdScheme]
+		[synonym CME_ClearedConfirm_1_17 value messageId meta messageIdScheme]
 	sentBy string (0..1) scheme <"The identifier for the originator of a message instance.">;
 		[synonym Rosetta_Workbench value sentBy path "messageInformation" meta messageAddressScheme]
 		[synonym DTCC_11_0, DTCC_9_0 value From]
-	sentTo string (0..1) scheme <"The identifier for the recipient of a message instance.">;
+		[synonym CME_ClearedConfirm_1_17 value sentBy meta messageAddressScheme]
+	sentTo string (0..*) scheme <"The identifier(s) for the recipient(s) of a message instance.">;
 		[synonym Rosetta_Workbench value sentTo path "messageInformation" meta messageAddressScheme]
+		[synonym CME_ClearedConfirm_1_17 value sendTo meta messageAddressScheme]
 		[synonym DTCC_11_0, DTCC_9_0 value To]
 	copyTo string (0..*) scheme  <"A unique identifier (within the specified coding scheme) giving the details of some party to whom a copy of this message will be sent for reference.">;
 }
@@ -330,29 +341,39 @@ class PrimitiveEvent <"The set of primitive events. The purpose of this class it
 {
 	inception Inception (0..*);
 		[synonym Rosetta_Workbench value inception]
+		[synonym CME_Submission value FpML path "Instrmt.SecXML"]
 	quantityChange QuantityChangePrimitive (0..*);
 		[synonym Rosetta_Workbench value quantityChange]
-		[synonym DTCC_11_0, DTCC_9_0 value todo]
+		// TODO - remove this synonym. See trello card: https://trello.com/c/zuFjHRzq
+		[synonym DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_Submission value todo] 
 	allocation AllocationPrimitive (0..*);
 		[synonym Rosetta_Workbench value allocation]
-		[synonym DTCC_11_0, DTCC_9_0 value todo]
+		// TODO - remove this synonym. See trello card: https://trello.com/c/zuFjHRzq
+		[synonym DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_Submission value todo]
 	termsChange TermsChangePrimitive (0..1);
 		[synonym Rosetta_Workbench value otherTermsChange]
-		[synonym DTCC_11_0, DTCC_9_0 value todo]
+		// TODO - remove this synonym. See trello card: https://trello.com/c/zuFjHRzq
+		[synonym DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_Submission value todo]
 	exercise ExercisePrimitive (0..1);
 		[synonym Rosetta_Workbench value exercise]
-		[synonym DTCC_11_0, DTCC_9_0 value todo]
+		// TODO - remove this synonym. See trello card: https://trello.com/c/zuFjHRzq
+		[synonym DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_Submission value todo]
 	observation ObservationPrimitive (0..*);
 		[synonym Rosetta_Workbench value observation]
-		[synonym DTCC_11_0, DTCC_9_0 value todo]
+		// TODO - remove this synonym. See trello card: https://trello.com/c/zuFjHRzq
+		[synonym DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_Submission value todo]
 	reset ResetPrimitive (0..*);
 		[synonym Rosetta_Workbench value reset]
-		[synonym DTCC_11_0, DTCC_9_0 value todo]
+		// TODO - remove this synonym. See trello card: https://trello.com/c/zuFjHRzq
+		[synonym DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_Submission value todo]
 	payment Payment (0..*);
 		[synonym Rosetta_Workbench value payment]
-		[synonym DTCC_11_0, DTCC_9_0 value todo]
+		// TODO - remove this synonym. See trello card: https://trello.com/c/zuFjHRzq
+		[synonym DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_Submission value todo]
 	transfer Transfer (0..*);
 		[synonym Rosetta_Workbench value transfer]
+		// TODO - remove this synonym. See trello card: https://trello.com/c/zuFjHRzq
+		[synonym CME_ClearedConfirm_1_17, CME_Submission value todo]
 		[synonym DTCC_11_0, DTCC_9_0 value FpML path "Body.OTC_Matching.Payment"]
 }
 
@@ -452,13 +473,13 @@ class TransferBreakdown extends TransferBase
 class TransferorTransferee <"A class mimicking the PayerReceiver, which is itself derived from the FpML PayerReceiver.model, to represent the transferee and transferor party information in relation to the transfer of security or commodities.">
 {
 	transferorPartyReference string (1..1) reference <"A reference to the party responsible for making the payments defined by this structure.">;
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value payerPartyReference meta href]
+		[synonym FpML_5_10, CME_Submission, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value payerPartyReference meta href]
 	transferorAccountReference string (0..1) reference <"A reference to the account responsible for making the payments defined by this structure.">;
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value payerAccountReference meta href]
+		[synonym FpML_5_10, CME_Submission, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value payerAccountReference meta href]
 	transfereePartyReference string (1..1) reference <"A reference to the party that receives the payments corresponding to this structure.">;
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value receiverPartyReference meta href]
+		[synonym FpML_5_10, CME_Submission, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value receiverPartyReference meta href]
 	transfereeAccountReference string (0..1) reference <"A reference to the account that receives the payments corresponding to this structure.">;
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value receiverAccountReference meta href]
+		[synonym FpML_5_10, CME_Submission, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value receiverAccountReference meta href]
 }
 
 /*********************
