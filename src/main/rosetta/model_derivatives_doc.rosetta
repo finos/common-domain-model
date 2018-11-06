@@ -40,10 +40,18 @@ class Identifier extends IdentifierValue
 		//[synonym FpML_5_10 value issuer meta issuerIdScheme] // To be deprecated once we deprecate the contractReference
 		//[synonym Rosetta_Workbench value issuer meta href]
 		// Conditional mapping required? tradeIdScheme=“EventProcessingId” / tradeIdScheme=“TradeRefNbr”
-		[synonym DTCC_11_0, DTCC_9_0 value partyReference maps 2 meta href]
+//		[synonym DTCC_11_0, DTCC_9_0 value partyReference maps 2 meta href]
+		[synonym DTCC_11_0, DTCC_9_0 value partyReference path "Header.OTC_RM.Manifest.TradeMsg.Submitter.partyTradeIdentifier" maps 2 meta href]
+		[synonym DTCC_11_0, DTCC_9_0 value partyReference path "Header.OTC_RM.Manifest.TradeMsg.ContraTradeId.partyTradeIdentifier" maps 2 meta href]
+		[synonym DTCC_11_0, DTCC_9_0 value partyReference path "Submitter.partyTradeIdentifier" maps 2 meta href]
+		[synonym DTCC_11_0, DTCC_9_0 value partyReference path "ContraTradeId.partyTradeIdentifier" maps 2 meta href]
+		[synonym DTCC_11_0, DTCC_9_0 value partyReference path "YourTradeId.partyTradeIdentifier" meta tradeIdScheme]
+		[synonym DTCC_11_0, DTCC_9_0 value partyReference path "trade.tradeHeader.partyTradeIdentifier" meta href]
+		[synonym DTCC_11_0, DTCC_9_0 value partyReference path "tradeIdentifyingItems.partyTradeIdentifier" meta tradeIdScheme]
 		// Conditional mapping required? tradeIdScheme=“EventProcessingId” / tradeIdScheme=“TradeRefNbr”
-		[synonym DTCC_11_0, DTCC_9_0 value USIIssuer maps 2 meta issuerIdScheme]
-		[synonym DTCC_11_0, DTCC_9_0 value UTIIssuer meta issuerIdScheme]
+		[synonym DTCC_11_0, DTCC_9_0 value USIIssuer path "USI" meta issuerIdScheme]
+		[synonym DTCC_11_0, DTCC_9_0 value USIIssuer path "OriginatingUSI" meta issuerIdScheme]
+		[synonym DTCC_11_0, DTCC_9_0 value UTIIssuer path "UTI" meta issuerIdScheme]
 	version int (1..1) <"The identifier version, which is specified as an integer and is meant to be incremented each time the transaction terms (whether contract or event) change.">;
 		[synonym FpML_5_10 value version path "versionedTradeId"]
 		[synonym FpML_5_10 value version path "versionedTradeId"]
@@ -57,7 +65,7 @@ class IdentifierValue <"A class to associate an id to an identifier value, to su
 	id (0..1);
 		[synonym FpML_5_10 meta id]
 		[synonym FpML_5_10 meta id path "versionedTradeId.tradeId"]
-	identifier string (1..*) scheme;
+	identifier string (1..1) scheme;
 		[synonym FpML_5_10 value tradeId meta tradeIdScheme]
 		[synonym FpML_5_10 value tradeId meta tradeIdScheme]
 		[synonym FpML_5_10 value tradeId path "versionedTradeId" meta tradeIdScheme]
@@ -65,12 +73,19 @@ class IdentifierValue <"A class to associate an id to an identifier value, to su
 		[synonym Rosetta_Workbench value identifier]
 		[synonym FpML_5_10 value tradeId meta tradeIdScheme] // To be deprecated once we deprecate the contractReference
 		[synonym FpML_5_10 value tradeId path "versionedTradeId" meta tradeIdScheme]
-        [synonym DTCC_11_0, DTCC_9_0 value tradeId maps 2 meta tradeIdScheme]
 //        [synonym DTCC_11_0 value tradeId set when rosettaPath = Event -> primitive -> inception -> after -> contract and "tradeId.tradeIdScheme" = "TradeRefNbr",
 //        									set when rosettaPath = Event -> eventIdentifier and "tradeId.tradeIdScheme" = "EventProcessingId" meta tradeIdScheme]
+		[synonym DTCC_11_0, DTCC_9_0 value tradeId path "Header.OTC_RM.Manifest.TradeMsg.Submitter.partyTradeIdentifier" maps 2 meta tradeIdScheme]
+		[synonym DTCC_11_0, DTCC_9_0 value tradeId path "Header.OTC_RM.Manifest.TradeMsg.ContraTradeId.partyTradeIdentifier" maps 2 meta tradeIdScheme]
+		[synonym DTCC_11_0, DTCC_9_0 value tradeId path "Submitter.partyTradeIdentifier" maps 2 meta tradeIdScheme]
+		[synonym DTCC_11_0, DTCC_9_0 value tradeId path "ContraTradeId.partyTradeIdentifier" maps 2 meta tradeIdScheme]
+		[synonym DTCC_11_0, DTCC_9_0 value tradeId path "YourTradeId.partyTradeIdentifier" meta tradeIdScheme]
+		[synonym DTCC_11_0, DTCC_9_0 value tradeId path "tradeIdentifyingItems.partyTradeIdentifier" meta tradeIdScheme]
+		//[synonym DTCC_11_0, DTCC_9_0 value tradeId path "trade.tradeHeader.partyTradeIdentifier" meta tradeIdScheme]
         // Conditional mapping: tradeIdScheme=“EventProcessingId” / tradeIdScheme=“TradeRefNbr”
-        [synonym DTCC_11_0, DTCC_9_0 value USITradeId meta tradeIdScheme]
-        [synonym DTCC_11_0, DTCC_9_0 value UTITradeId meta tradeIdScheme]
+        [synonym DTCC_11_0, DTCC_9_0 value USITradeId path "USI" meta tradeIdScheme]
+        [synonym DTCC_11_0, DTCC_9_0 value USITradeId path "OriginatingUSI" meta tradeIdScheme]
+        [synonym DTCC_11_0, DTCC_9_0 value UTITradeId path "UTI" meta tradeIdScheme]
         [synonym DTCC_11_0, DTCC_9_0 value identifier path "payment" meta paymentIdScheme]
 }
 
