@@ -1,18 +1,28 @@
 namespace "org.isda.cdm"
 
-
-class LegalDocument extends LegalDocumentBase one of <"A class describing the legal document.">
-	[synonym FpML_5_10 value LegalDocument]
+class DocumentIdentity extends LegalDocumentIdentity
 {
-
+	documentAmendment LegalDocumentAmendment (0..*) <"A class to specify a document identity, which combines the legal document identity and a possible set of amendments.">;
+		[synonym FpML_5_10 value documentAmendment]
 }
 
-abstract class LegalDocumentBase
+class LegalDocument <"A class describing the legal document.">
+	[synonym FpML_5_10 value LegalDocument]
 {
 	documentHeader LegalDocumentHeader (1..1) <"The legal document header.">;
 		[synonym FpML_5_10 value documentHeader]
 	documentType LegalDocumentType (1..1) <"The type of legal document, identified via a set of distinct attributes, e.g. ISDA 2013 Standard Credit Support Annex English Law.">;
 		[synonym FpML_5_10 value documentType]
+	party Party (2..*) <"The parties associated with the legal document. While the FpML provides an optional cardinality and the ability to specify an account as a result of the use of the PartyAndAccounts.model for consistency purposes with the trade representation, the CDM specify a minimal cardinality of 2 and does not provides the ability to specify an account.">;
+		[synonym FpML_5_10 value party]
+}
+
+class LegalDocumentAmendment <"A legal document amendment, which can be specified by either referencing a legal document that is described elsewhere in the XML file, or by specifying the identity of that amended document.">
+{
+	agreementDate date (1..1) <"The date on which the legal document has been agreed between the parties.">;
+		[synonym FpML_5_10 value agreementDate]
+	documentIdentifier Identifier (0..*) <"The legal document identifier. Several identifiers can be specified.">;
+		[synonym FpML_5_10 value partyDocumentIdentifier]
 }
 
 class LegalDocumentHeader
@@ -22,7 +32,7 @@ class LegalDocumentHeader
 		[synonym FpML_5_10 value partyRoles]
 	agreementDate date (1..1) <"The date on which the legal document has been agreed between the parties.">;
 		[synonym FpML_5_10 value agreementDate]
-	effectiveDate date (1..1) <"The date on which the agreement is effective. It is expected that it will most often correspond to the agreement date, although there could be situations where the parties will explictly agree on a distinct effective date.">;
+	effectiveDate date (1..1) <"The date on which the agreement is effective. It is expected that it will most often correspond to the agreement date, although there could be situations where the parties will explicitly agree on a distinct effective date.">;
 		[synonym FpML_5_10 value effectiveDate]
 	identifier Identifier (0..*) <"The legal document identifier. Several identifiers can be specified.">;
 		[synonym FpML_5_10 value partyDocumentIdentifier]
@@ -35,16 +45,16 @@ class LegalDocumentHeader
 class LegalDocumentHistory <"A class to represent the legal document history as a list of document identities.">
 	[synonym FpML_5_10 value LegalDocumentHistory]
 {
-	documentIdentity LegalDocumentIdentity (1..*);
+	documentIdentity DocumentIdentity (1..*);
 		[synonym FpML_5_10 value documentIdentity]
 }
 
-class LegalDocumentIdentity <"A class to specify the legal document identity">
+abstract class LegalDocumentIdentity <"A class to specify the legal document identity">
 	[synonym FpML_5_10 value LegalDocumentIdentity]
 {
 	id string (0..1) id;
 		[synonym FpML_5_10 value id]
-	partyReference string (2..*) reference <"The parties to the legal document.">;
+	partyReference string (1..*) reference <"The parties to the legal document.">;
 		[synonym FpML_5_10 value partyReference]
 	documentType LegalDocumentType (1..1) <"The recognisable attributes of the particular legal document.">;
 		[synonym FpML_5_10 value documentType]
@@ -54,15 +64,26 @@ class LegalDocumentIdentity <"A class to specify the legal document identity">
 		[synonym FpML_5_10 value partyDocumentIdentifier]
 }
 
-class LegalDocumentType <"A class to specify the type of legal document.">
+class LegalDocumentType <"A class to specify the type of legal document, which is extended by each legal document instance.">
 	[synonym FpML_5_10 value LegalDocumentType]
 {
 	name LegalDocumentNameEnum (1..1) <"The legal document name.">;
 		[synonym FpML_5_10 value name]
 	publisher LegalDocumentPublisherEnum (1..1) <"The legal document publisher.">;
 		[synonym FpML_5_10 value publisher]
-	// Need to adjust the grammar for the style	
-//	style LegalDocumentStyleEnum (0..1) <"The legal document reference style, e.g. English Law, New York Law or Japanese Law.">;
-//		[synonym FpML_5_10 value style]
-	
+	style LegalDocumentStyleEnum (0..1) <"The legal document reference style, e.g. English Law, New York Law or Japanese Law.">;
+		[synonym FpML_5_10 value style]
+	version string (0..1) <"In the case where successive definitions of the legal document have been developed, the identification of the specific definition. This is typically (but not necessarily) done by referencing the year, e.g. 2013 in the case of the ISDA 2013 Standard Credit Support Annex.">;
+		[synonym FpML_5_10 value version]
+}
+
+class PartyDocumentIdentifier <"A class defining a legal document identifier issued by the indicated party.">
+	[synonym FpML_5_10 value PartyDocumentIdentifier]
+{
+	id string (0..1) id;
+		[synonym FpML_5_10 value id]
+	partyReference string (1..1) <"Reference to the party ">;
+		[synonym FpML_5_10 value partyReference]
+	documentIdentifier Identifier (1..*) <"While FpML specifies the document identifier with a value and an associated scheme, the CDM makes use of the Identifier, which has an explicit issuer. The issuer of this identifier is not necessarily the same as the party reference">;
+		[synonym FpML_5_10 value documentId]
 }
