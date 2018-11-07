@@ -94,16 +94,24 @@ class Curve one of
 		[synonym Rosetta_Workbench value commodityCurve meta commodityReferencePriceScheme]
 }
 
-class CustomisedWorkflowItem <"A class to specify a non-standardised workflow data in a generic form.">
+class CustomisedWorkflow <"A class to specify a non-standardised workflow data in a generic form.">
 {
-	workflowName string (1..1) <"Workflow item name">;
+	itemName string (1..1) <"Workflow item name">;
 		[synonym DTCC_11_0, DTCC_9_0 set to "comment" when path = "PartyWorkflowFields.comment",
+									set to "superId" when path = "PartyWorkflowFields.superId",
+									set to "deskId" when path = "PartyWorkflowFields.deskId",
+									set to "eTradeId" when path = "PartyWorkflowFields.eTradeId",
 									set to "designatedParty" when path = "PartyWorkflowFields.designatedParty",
-									set to "superId" when path = "PartyWorkflowFields.superId"]
-	workflowValue string (1..1) <"Workflow item value">;
+									set to "brokerName" when path = "PartyWorkflowFields.brokerName",
+									set to "branchLocation" when path = "PartyWorkflowFields.branchLocation"]
+	itemValue string (1..1) <"Workflow item value">;
 		[synonym DTCC_11_0, DTCC_9_0 value comment path "PartyWorkflowFields",
+										  superId path "PartyWorkflowFields",
+										  deskId path "PartyWorkflowFields",
+										  eTradeId path "PartyWorkflowFields",
 										  designatedParty path "PartyWorkflowFields",
-										  superId path "PartyWorkflowFields"]
+										  brokerName path "PartyWorkflowFields",
+										  branchLocation path "PartyWorkflowFields"]
 }
 
 class Event
@@ -292,9 +300,9 @@ class Lineage <"The class to provide lineage information across transactions.">
 
 class MatchedEvent extends Event <"A class to represent the outcome of trade processing utilities which match life cycle events across multiple counterparties, resulting in single event with multiple sets of party data.  One use case would be DTCC ITW where life cycle events from two counterparties are matched resulting in a single event.">
 {
-	partyCustomisedWorkflow PartyCustomisedWorkflow (0..*) <"Party-related, non-standardised workflow data.">;
+	partyCustomisedWorkflow PartyCustomisedWorkflow (0..*) <"Non-standardised workflow data related to a party.">;
 		[synonym DTCC_11_0, DTCC_9_0 value WorkflowData path "Body.OTC_Matching"]
-	partySubmittedIdentifier PartySubmittedIdentifier (0..*) <"Party-related identifiers.">;
+	partySubmittedIdentifier PartySubmittedIdentifier (0..*) <"Contract identifiers, and event identifiers, related to a party.">;
 		[synonym DTCC_11_0, DTCC_9_0 value partyTradeIdentifier path "Header.OTC_RM.Manifest.TradeMsg.Submitter"]
 		[synonym DTCC_11_0, DTCC_9_0 value partyTradeIdentifier path "Header.OTC_RM.Manifest.TradeMsg.ContraTradeId"]
 }
@@ -350,7 +358,7 @@ class PartyCustomisedWorkflow <"A class to specify a party-related, non-standard
 {
 	partyReference string (1..1) reference <"Reference to a party.">;
 		[synonym DTCC_11_0, DTCC_9_0 value partyReference meta href]
-	customisedWorkflow CustomisedWorkflowItem (1..*) <"Non-standardised data in a generic form.">;
+	customisedWorkflow CustomisedWorkflow (1..*) <"Non-standardised data in a generic form.">;
 }
 
 class PartySubmittedIdentifier <"A class to specify a party-related identifiers.">
