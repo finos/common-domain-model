@@ -94,16 +94,16 @@ class Curve one of
 		[synonym Rosetta_Workbench value commodityCurve meta commodityReferencePriceScheme]
 }
 
-class CustomisedWorkflow
+class CustomisedWorkflowItem <"A class to specify a non-standardised workflow data in a generic form.">
 {
-	workflowItem string (1..1);
-		[synonym DTCC_11_0, DTCC_9_0 set to "comment" when path = "Body.OTC_Matching.WorkflowData.PartyWorkflowFields.comment",
-									set to "designatedParty" when path = "Body.OTC_Matching.WorkflowData.PartyWorkflowFields.designatedParty",
-									set to "superId" when path = "Body.OTC_Matching.WorkflowData.PartyWorkflowFields.superId"]
-	workflowValue string (1..1);
-		[synonym DTCC_11_0, DTCC_9_0 value comment path "Body.OTC_Matching.WorkflowData.PartyWorkflowFields",
-										  designatedParty path "Body.OTC_Matching.WorkflowData.PartyWorkflowFields",
-										  superId path "Body.OTC_Matching.WorkflowData.PartyWorkflowFields"]
+	workflowName string (1..1) <"Workflow item name">;
+		[synonym DTCC_11_0, DTCC_9_0 set to "comment" when path = "PartyWorkflowFields.comment",
+									set to "designatedParty" when path = "PartyWorkflowFields.designatedParty",
+									set to "superId" when path = "PartyWorkflowFields.superId"]
+	workflowValue string (1..1) <"Workflow item value">;
+		[synonym DTCC_11_0, DTCC_9_0 value comment path "PartyWorkflowFields",
+										  designatedParty path "PartyWorkflowFields",
+										  superId path "PartyWorkflowFields"]
 }
 
 class Event
@@ -119,7 +119,7 @@ class Event
 		[synonym DTCC_11_0, DTCC_9_0 value FpML path "Body.OTC_Matching.Trade"]
 		[synonym DTCC_11_0, DTCC_9_0 value FpML path "Body.OTC_Matching.Payment"]
         [synonym CME_ClearedConfirm_1_17 value clearingConfirmed]
-    eventIdentifier Identifier (1..*) <"The contract identifier, which has 3 components: an actual identifier, an issuer and a version number. One and only one identifier can be associated with a lifecycle event.">;
+    eventIdentifier Identifier (1..1) <"The event identifier, which has 3 components: an actual identifier, an issuer and a version number. One and only one identifier can be associated with a lifecycle event.">;
 		[synonym Rosetta_Workbench value eventIdentifier]
 	eventQualifier eventType (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic. This value is derived by the CDM from the event features.">;
 	eventDate date (1..1);
@@ -290,8 +290,13 @@ class Lineage <"The class to provide lineage information across transactions.">
 		[synonym Rosetta_Workbench value optionPayoutReference meta href]
 }
 
-class MatchedEvent extends Event {
-	customisedWorflow CustomisedWorkflow (0..*);
+class MatchedEvent extends Event <"A class to represent the outcome of trade processing utilities which match life cycle events across multiple counterparties, resulting in single event with multiple sets of party data.  One use case would be DTCC ITW where life cycle events from two counterparties are matched resulting in a single event.">
+{
+	partyCustomisedWorkflow PartyCustomisedWorkflow (0..*) <"Party-related, non-standardised workflow data.">;
+		[synonym DTCC_11_0, DTCC_9_0 value WorkflowData path "Body.OTC_Matching"]
+	partySubmittedIdentifier PartySubmittedIdentifier (0..*) <"Party-related identifiers.">;
+		[synonym DTCC_11_0, DTCC_9_0 value partyTradeIdentifier path "Header.OTC_RM.Manifest.TradeMsg.Submitter"]
+		[synonym DTCC_11_0, DTCC_9_0 value partyTradeIdentifier path "Header.OTC_RM.Manifest.TradeMsg.ContraTradeId"]
 }
 
 class MessageInformation <"This class corresponds to the messaging components of the FpML MessageHeader.model.">
@@ -340,6 +345,24 @@ data rule ObservationSource_content <"ObservationSource should not be empty, alt
 	then ( ObservationSource -> curve and ObservationSource -> informationSource ) exists
 		or ObservationSource -> curve exists
 		or ObservationSource -> informationSource exists
+
+class PartyCustomisedWorkflow <"A class to specify a party-related, non-standardised data in a generic form.">
+{
+	partyReference string (1..1) reference <"Reference to a party.">;
+		[synonym DTCC_11_0, DTCC_9_0 value partyReference meta href]
+	customisedWorkflow CustomisedWorkflowItem (1..*) <"Non-standardised data in a generic form.">;
+}
+
+class PartySubmittedIdentifier <"A class to specify a party-related identifiers.">
+{
+	partyReference string (1..1) reference <"Reference to a party.">;
+		[synonym DTCC_11_0, DTCC_9_0 value partyReference meta href]
+//	role PartyRoleEnum (1..1) <"The party role.">;
+//		[synonym DTCC_11_0, DTCC_9_0 set to PartyRoleEnum.ReportingParty when path = "Submitter.partyTradeIdentifier"]
+//		[synonym DTCC_11_0, DTCC_9_0 set to PartyRoleEnum.Counterparty when path = "ContraTradeId.partyTradeIdentifier"]
+	contractIdentifiers Identifier (0..*) <"The contract identifier, which has 3 components: an actual identifier, an issuer and a version number. There can be several contract identifier, an example of such being a contract is reportable to both the CFTC and ESMA and then has an associated USI (Unique Swap Identifier) UTI (Unique Trade Identifier).">;
+	eventIdentifiers Identifier (0..*) <"The event identifier, which has 3 components: an actual identifier, an issuer and a version number. One and only one identifier can be associated with a lifecycle event.">;
+}
 
 class PhysicalExercise <"The physical exercise results into a financial product which is represented through the Product class, with an associated quantity and cashflow (e.g. a physical exercise of a bond option will result into a bond with a cash proceed which will be a function of the option strike price).">
 {
