@@ -27,7 +27,8 @@ class AdjustableDate <"A class for defining a date that shall be subject to adju
 		[synonym FpML_5_10, CME_Submission, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value adjustedDate path "paymentDate" meta id]
 		[synonym FpML_5_10, CME_Submission, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value adjustedDate path "adjustableDate" meta id]
 		[synonym FpML_5_10, CME_Submission, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value adjustedDate path "paymentDate.adjustableDate" meta id]
-}
+		[synonym DTCC_11_0, DTCC_9_0 value adjustedStartDate path "calculationPeriod"]
+		[synonym DTCC_11_0, DTCC_9_0 value adjustedEndDate]}
 
 choice rule AdjustableDate_choice <"Choice rule to represent an FpML choice construct.">
 	for AdjustableDate optional choice between
@@ -378,6 +379,7 @@ class DateInstances <"A class to provide for the ability to specify a date along
 	adjustableDate AdjustableDate (0..1) <"Specification of the current date when expressed as an adjustable date, such as the effective date.">;
 		[synonym FpML_5_10, CME_Submission, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value effectiveDate path "calculationPeriodDates"]
 		[synonym FpML_5_10, CME_Submission, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value effectiveDate]
+		[synonym DTCC_11_0, DTCC_9_0 value calculationElements]
 	priorDateInstance PriorDateInstance (0..*) <"Specification of the prior date instance, when applicable, alongside with the ability to associate a contract reference to that date.">;
 		[synonym FpML_5_10, CME_Submission, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value priorDateInstance] // Temporary kludge to avoid mapping ambiguity with the contractIdentifier
 }
@@ -715,7 +717,8 @@ class NonNegativeAmountSchedule extends NonNegativeSchedule <"A class defining a
 	[synonym FpML_5_10 value NonNegativeAmountSchedule]
 {
 	currency string (1..1) scheme <"The currency in which an amount is denominated.">;
-		[synonym FpML_5_10, CME_Submission, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value currency meta currencyScheme]
+		[synonym FpML_5_10, CME_Submission, CME_ClearedConfirm_1_17 value currency meta currencyScheme]
+		[synonym DTCC_11_0, DTCC_9_0 value currency maps 2 meta currencyScheme]
 }
 
 class NonNegativeSchedule <"A class defining a schedule of non-negative rates or amounts in terms of an initial value and then a series of step date and value pairs. On each step date the rate or amount changes to the new step value. The series of step date and value pairs are optional. If not specified, this implies that the initial value remains unchanged over time.">
@@ -725,6 +728,7 @@ class NonNegativeSchedule <"A class defining a schedule of non-negative rates or
 		[synonym FpML_5_10, CME_Submission, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 	initialValue number (1..1) <"The non-negative initial rate or amount, as the case may be. An initial rate of 5% would be represented as 0.05.">;
 		[synonym FpML_5_10, CME_Submission, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value initialValue]
+		[synonym DTCC_11_0, DTCC_9_0 value amount maps 2]
 	step NonNegativeStep (0..*) <"The schedule of step date and non-negative value pairs. On each step date the associated step value becomes effective. A list of steps may be ordered in the document by ascending step date. An FpML document containing an unordered list of steps is still regarded as a conformant document.">;
 		[synonym FpML_5_10, CME_Submission, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value step]
 }
@@ -1079,6 +1083,7 @@ class Schedule <"A class defining a schedule of rates or amounts in terms of an 
 		[synonym FpML_5_10, CME_Submission, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value initialValue path "calculationPeriodAmount.calculation.fixedRateSchedule"]
 		[synonym FpML_5_10, CME_Submission, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value initialValue path "calculationPeriodAmount.calculation.floatingRateCalculation"]
 		[synonym FpML_5_10, CME_Submission, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value fixedRate path "periodicPayment.fixedAmountCalculation"]
+		[synonym DTCC_11_0, DTCC_9_0 value initialValue path "calculationElements.underlyer.fixedRate"]
 	step Step (0..*) <"The schedule of step date and value pairs. On each step date the associated step value becomes effective A list of steps may be ordered in the document by ascending step date. An FpML document containing an unordered list of steps is still regarded as a conformant document.">;
 		[synonym FpML_5_10, CME_Submission, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value step path "calculationPeriodAmount.calculation.fixedRateSchedule"]
 		[synonym FpML_5_10, CME_Submission, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value step]
