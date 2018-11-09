@@ -20,6 +20,26 @@ class AllocationPrimitive <"The primitive event to represent a split/allocation 
 		[synonym Rosetta_Workbench value after]
 }
 
+// TODO - This is the initial iteration to cleared trade info that is subject to change.
+class ApplicableCreditLimit <"A class to specify the credit limit in relation to pre-execution and post-execution workflows."> 
+{
+	// TODO - We need to get a better understanding of what the level is.
+	level string (0..1) scheme;
+		[synonym CME_ClearedConfirm_1_17 value level meta creditLimitLevelScheme]
+	limitType LimitTypeEnum (0..1) scheme <"Standard code to indicate which type of credit line is being referred to - i.e. IM, DV01, PV01, CS01, Notional, Clip Size, Notional, maximumOrderQuantity">;
+		[synonym CME_ClearedConfirm_1_17 value limitType meta creditLimitTypeScheme]
+	limitAmount number (0..1) <"The total limit available for the limit level and limit type">;
+		[synonym CME_ClearedConfirm_1_17 value limitAmount]
+	amountUtilized number (0..1) <"The limit utilised by all the cleared trades for the limit level and limit type">;
+		[synonym CME_ClearedConfirm_1_17 value amountUtilized]
+	amountRemaining number (0..1) <"The limit remaining for the limit level and limit type. This does not take into account any pending trades">;
+		[synonym CME_ClearedConfirm_1_17 value amountRemaining]
+	limitImpactDueToTrade number (0..1) <"The limit utilised by this specific trade">;
+		[synonym CME_ClearedConfirm_1_17 value limitImpactDueToTrade]
+	currency string (0..1) scheme <"Credit limit currency">;
+		[synonym CME_ClearedConfirm_1_17 value currency meta currencyScheme]
+}
+
 class CashTransferBreakdown extends TransferBreakdown
 {
 	payerReceiver PayerReceiver (1..1) <"The payer and receiver party information.">;
@@ -154,6 +174,11 @@ class Event
 	primitive PrimitiveEvent (1..1);
 		[synonym Rosetta_Workbench value primitive]
 		[synonym CME_Submission value TrdCaptRpt]
+	/*
+	 * Temporarily positioned at the Event class level.  Will be moved to the relevant set of primitives once those have been firmed out.
+	 */
+	applicableCreditLimit ApplicableCreditLimit (0..*) <"The credit limit that can be applicable to certain transaction.">;
+		[synonym CME_ClearedConfirm_1_17 value limitApplicable path "clearingConfirmed.trade.tradeHeader.creditLimitInformation"]
 	functionCall string (0..1) <"This is placeholder concept for a function call into a calculation that will return an outcome. This concept needs to be further firmed out.">;
 		[synonym Rosetta_Workbench value functionCall]
 	eventEffect EventEffect (0..1) <"The set of effects associated with the lifecycle event, i.e. generated cashflows, contracts (from, say, novation events), listed products (from, say, a bond option exercise event)  values and more. Those are represented through a set of rosettaKey references. This attribute is optional in order to provide implementers with the ability not to make use of this feature.">;
@@ -636,18 +661,15 @@ data rule Novation_fee <"Logic to specify that if a payment is qualified as a no
 	then Event -> lineage -> contractReference multiple exists
 		and Event -> lineage -> eventReference single exists
 
+/*
+ * TODO - The below logic doesn't work.  Hugo to look into it.
+ */
 isEvent PartialTermination <"The qualification of a partial termination event from the fact that (i) the intent is Partial Termination when specified, (ii) the only primitive is the quantityChange and there is only one such primitive involved, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
 	Event -> intent when present = IntentEnum.PartialTermination
-	and Event -> primitive -> quantityChange only exists
-	or ( Event -> primitive -> quantityChange and Event -> primitive -> payment ) exists
-		and Event -> primitive -> inception is absent
-	/*
-	 * TODO - Need to decide with the CDM Group if the event representation should provide the ability to reference a contract
-	 * If this is the case, we should adjust the logic across events so that if the contract reference is used instead of the contract terms, then the intent should be specified
-	 * If used as such, the below logic create an ambiguity with the partial novation.
-	 */
-//	or ( quantityBeforeQuantityChange > quantityAfterQuantityChange
-//		and quantityAfterQuantityChange > 0.0 )
+	and ( Event -> primitive -> quantityChange only exists
+		or ( Event -> primitive -> quantityChange and Event -> primitive -> payment ) exists )
+	and quantityBeforeQuantityChange > quantityAfterQuantityChange
+	and quantityAfterQuantityChange > 0.0
 
 alias quantityBeforeQuantityChange <"The alias to represent the quantity or notional amount in terms of number of units (i.e. ignoring the currency or units denomination) before a quantity change primitive.">
 	Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity -> amount
