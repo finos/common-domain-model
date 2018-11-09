@@ -8,7 +8,7 @@ class Cashflow extends CashflowBase <"A class to specify a cashflow, i.e. the ou
 		[synonym Rosetta_Workbench value cashflowCalculation]
 	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, e.g. brokerage fee, premium, upfront fee etc. Particularly relevant when it cannot be inferred directly through lineage.">;
 		//[synonym FpML_5_10 value paymentType path "swaption.premium"]
-		[synonym FpML_5_10 set to CashflowTypeEnum.Premium when "swaption.premium" exists]
+		[synonym FpML_5_10 set to CashflowTypeEnum.Premium when path="swaption.premium"]
 }
 
 data rule Cashflow_cashflowAmount <"The cashflow amount should be a positive number, as the cashflow direction is indeed implied by the payer/receiver attribute.">
@@ -41,7 +41,6 @@ class Contract rosettaKey <"A class to specify a contract object, which can be i
 		[synonym DTCC_11_0, DTCC_9_0 value USI]
 		[synonym DTCC_11_0, DTCC_9_0 value OriginatingUSI]
 		[synonym DTCC_11_0, DTCC_9_0 value UTI]
-		[synonym FpML_5_10 value versionedTradeId]
 	tradeDate DateInstances (1..1) <"The trade date. This is the date on which the trade was originally executed. The trade date is specified through the DateInstances class so that in the case of a novation the novated part of the trade be reported (by both the remaining party and the transferee) using the date on which the novation was agreed on. The remaining part of a trade is to be reported (by both the transferor and the remaining party) using a trade date corresponding to the original execution date.">;
 	clearedDate date (0..1) <"If the trade was cleared (novated) through a central counterparty clearing service, this represents the date the trade was cleared (transferred to the central counterparty).">;
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_Submission, CME_ClearedConfirm_1_17 value clearedDate path "trade.tradeHeader"]
@@ -71,41 +70,6 @@ class Contract rosettaKey <"A class to specify a contract object, which can be i
 	state StateEnum (0..1) <"The state qualification of a contractual product.">;
 		[synonym Rosetta_Workbench value state]
 		[synonym CME_ClearedConfirm_1_17 value status path "trade.tradeHeader"]
-	applicableCreditLimit ApplicableCreditLimit (0..*) <"Clearing credit limit">;
-		[synonym CME_ClearedConfirm_1_17 value limitApplicable path "trade.tradeHeader.creditLimitInformation"]
-
-}
-
-// TODO - This is the initial iteration to cleared trade info that is subject to change.
-class ApplicableCreditLimit <"Credit limit Utilisation information"> {
-	// TODO - We need to get a better understanding of what the level is.
-	level string (0..1) scheme;
-		[synonym CME_ClearedConfirm_1_17 value level meta creditLimitLevelScheme]
-	limitType LimitTypeEnum (0..1) scheme <"Standard code to indicate which type of credit line is being referred to - i.e. IM, DV01, PV01, CS01, Notional, Clip Size, Notional, maximumOrderQuantity">;
-		[synonym CME_ClearedConfirm_1_17 value limitType meta creditLimitTypeScheme]
-	limitAmount number (0..1) <"The total limit available for the limit level and limit type">;
-		[synonym CME_ClearedConfirm_1_17 value limitAmount]
-	amountUtilized number (0..1) <"The limit utilised by all the cleared trades for the limit level and limit type">;
-		[synonym CME_ClearedConfirm_1_17 value amountUtilized]
-	amountRemaining number (0..1) <"The limit remaining for the limit level and limit type. This does not take into account any pending trades">;
-		[synonym CME_ClearedConfirm_1_17 value amountRemaining]
-	limitImpactDueToTrade number (0..1) <"The limit utilised by this specific trade">;
-		[synonym CME_ClearedConfirm_1_17 value limitImpactDueToTrade]
-	currency string (0..1) scheme <"Credit limit currency">;
-		[synonym CME_ClearedConfirm_1_17 value currency meta currencyScheme]
-}
-
-enum LimitTypeEnum {
-	CS01 <"The type of credit line expressed in CS01. The sensitivity with respect to changes in the CDS spread.">
-		[synonym CME_ClearedConfirm_1_17 value "CS01"],
-	DV01 <"The type of credit line expressed in DV01. The dollar value of a one basis point decrease in interest rates. It shows the change in a bond's price compared to a decrease in the bond's yield.">
-		[synonym CME_ClearedConfirm_1_17 value "DV01"],
-	InitialMargin <"The type of credit line expressed in IM value.">
-		[synonym CME_ClearedConfirm_1_17 value "IM"],
-	Notional <"The type of credit line expressed in Notional amount.">
-		[synonym CME_ClearedConfirm_1_17 value "Notional"],
-	PV01 <"The type of credit line expressed in PV01. The value of a one dollar or one basis point annuity.">
-		[synonym CME_ClearedConfirm_1_17 value "PV01"]
 }
 
 data rule DeliverableObligations_physicalSettlementMatrix <"The below set of credit deliverable obligation provisions are specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that those provisions cannot be omitted if the Credit Derivatives Physical Settlement Matrix doesn't governs the terms of the contract.">
