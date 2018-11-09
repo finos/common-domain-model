@@ -1,5 +1,36 @@
 namespace "org.isda.cdm"
 
+class AssignedIdentifier <"A class to specify and actual identifier and its associated version.">
+{
+	identifier string (1..1) scheme;
+		[synonym FpML_5_10, CME_Submission value tradeId meta tradeIdScheme]
+		[synonym FpML_5_10 value tradeId path "versionedTradeId" meta tradeIdScheme]
+		[synonym Rosetta_Workbench value identifier]
+        [synonym DTCC_11_0, DTCC_9_0 value tradeId maps 2 meta tradeIdScheme]
+//        [synonym DTCC_11_0 value tradeId set when rosettaPath = Event -> primitive -> inception -> after -> contract and "tradeId.tradeIdScheme" = "TradeRefNbr",
+//        									set when rosettaPath = Event -> eventIdentifier and "tradeId.tradeIdScheme" = "EventProcessingId" meta tradeIdScheme]
+        // Conditional mapping: tradeIdScheme=“EventProcessingId” / tradeIdScheme=“TradeRefNbr”
+        [synonym DTCC_11_0, DTCC_9_0 value USITradeId meta tradeIdScheme]
+        [synonym DTCC_11_0, DTCC_9_0 value UTITradeId meta tradeIdScheme]
+        	[synonym CME_ClearedConfirm_1_17 value tradeId path "trade.tradeHeader.partyTradeIdentifier" meta tradeIdScheme]
+        	[synonym CME_ClearedConfirm_1_17 value usi  path "trade.tradeHeader.universalSwapIdentifier" meta usiScheme]
+     version int (0..1) <"The identifier version, which is specified as an integer and is meant to be incremented each time the transaction terms (whether contract or event) change. This version is made option to support the use case where the identifier is referenced without the version. The constraint that a contract and a lifecycle event need to have an associated version is enforced through data rules.">;
+		[synonym FpML_5_10 value version path "versionedTradeId"]
+		[synonym FpML_5_10 value version]
+}
+
+data rule AssignedIdentifier_version <"FpML specifies the version as a non-negative integer.">
+	when AssignedIdentifier -> version exists
+	then AssignedIdentifier -> version >= 0
+
+data rule Contract_version <"The identifier version is required for contracts.">
+	when Contract exists
+	then Contract -> contractIdentifier -> assignedIdentifier -> version exists
+
+data rule Event_version <"The identifier version is required for lifecycle events.">
+	when Event exists
+	then Event -> eventIdentifier -> assignedIdentifier -> version exists
+
 class CalculationAgentModel <"This class corresponds to the FpML CalculationAgent.model.">
 {
 	calculationAgent CalculationAgent (0..1) <"The ISDA calculation agent responsible for performing duties as defined in the applicable product definitions.">;
@@ -30,13 +61,14 @@ data rule TradeIdentifier_account <"FpML specifies a choice between issuer and [
 	when ContractIdentifier -> partyReference is absent
 	then ContractIdentifier -> accountReference is absent
 
-class Identifier extends IdentifierValue
+class Identifier <"A class to specify a generic identifier, applicable to contract and lifecycle events.">
 {
+	id (0..1);
+		[synonym FpML_5_10, CME_Submission meta id]
+		[synonym FpML_5_10, CME_Submission meta id path "versionedTradeId.tradeId"]
 	issuer string (1..1) scheme, reference <"The identifier issuer, specified by reference to a party specified as part of the transaction.">;
 		[synonym FpML_5_10, CME_Submission, DTCC_11_0, DTCC_9_0 value partyReference meta scheme, href]
 		[synonym FpML_5_10, CME_Submission, DTCC_11_0, DTCC_9_0 value issuer meta issuerIdScheme, href]
-		//[synonym FpML_5_10 value issuer meta issuerIdScheme] // To be deprecated once we deprecate the contractReference
-		//[synonym Rosetta_Workbench value issuer meta href]
 		// Conditional mapping required? tradeIdScheme=“EventProcessingId” / tradeIdScheme=“TradeRefNbr”
 		[synonym DTCC_11_0, DTCC_9_0 value partyReference maps 2 meta href]
 		[synonym DTCC_11_0, DTCC_9_0 value USIIssuer path "USI" meta issuerIdScheme]
@@ -45,34 +77,7 @@ class Identifier extends IdentifierValue
 		//TODO - Add conditional mapping support for duplicating this field when sibling IdentifierValue.identifier exists. see https://trello.com/c/VV1UtOhZ for details.
         [synonym CME_ClearedConfirm_1_17 value partyReference path "trade.tradeHeader.partyTradeIdentifier" maps 2 meta scheme, href]
         [synonym CME_ClearedConfirm_1_17 value issuer  path "trade.tradeHeader.universalSwapIdentifier" meta issuerIdScheme]
-	version int (1..1) <"The identifier version, which is specified as an integer and is meant to be incremented each time the transaction terms (whether contract or event) change.">;
-		[synonym FpML_5_10 value version path "versionedTradeId"]
-		//[synonym Rosetta_Workbench value version]
-		//[synonym FpML_5_10 value version] // To be deprecated once we deprecate the contractReference
-		[synonym FpML_5_10 value version]
-}
-
-class IdentifierValue <"A class to associate an id to an identifier value, to support constructs such as the FpML tradeIdentifier.">
-{
-	id (0..1);
-		[synonym FpML_5_10, CME_Submission meta id]
-		[synonym FpML_5_10, CME_Submission meta id path "versionedTradeId.tradeId"]
-	identifier string (1..1) scheme;
-		[synonym FpML_5_10, CME_Submission value tradeId meta tradeIdScheme]
-		[synonym FpML_5_10 value tradeId path "versionedTradeId" meta tradeIdScheme]
-		[synonym Rosetta_Workbench value identifier]
-		[synonym FpML_5_10 value tradeId meta tradeIdScheme] // To be deprecated once we deprecate the contractReference
-		[synonym FpML_5_10 value tradeId path "versionedTradeId" meta tradeIdScheme]
-//        [synonym DTCC_11_0 value tradeId set when rosettaPath = Event -> primitive -> inception -> after -> contract and "tradeId.tradeIdScheme" = "TradeRefNbr",
-//        									set when rosettaPath = Event -> eventIdentifier and "tradeId.tradeIdScheme" = "EventProcessingId" meta tradeIdScheme]
-		[synonym DTCC_11_0, DTCC_9_0 value tradeId maps 2 meta tradeIdScheme]
-		// Conditional mapping: tradeIdScheme=“EventProcessingId” / tradeIdScheme=“TradeRefNbr”
-        [synonym DTCC_11_0, DTCC_9_0 value USITradeId path "USI" meta tradeIdScheme]
-        [synonym DTCC_11_0, DTCC_9_0 value USITradeId path "OriginatingUSI" meta tradeIdScheme]
-        [synonym DTCC_11_0, DTCC_9_0 value UTITradeId path "UTI" meta tradeIdScheme]
-        [synonym DTCC_11_0, DTCC_9_0 value identifier path "payment" meta paymentIdScheme]
-        [synonym CME_ClearedConfirm_1_17 value tradeId path "trade.tradeHeader.partyTradeIdentifier" meta tradeIdScheme]
-        [synonym CME_ClearedConfirm_1_17 value usi  path "trade.tradeHeader.universalSwapIdentifier" meta usiScheme]
+    assignedIdentifier AssignedIdentifier (1..*) <"This level of indirection between the issuer and the identifier and its version provides the ability to associate multiple identifiers to one issuer, consistently with the FpML PartyTradeIdentifier.">;
 }
 
 class PackageInformation <"A class defining additional information that may be recorded alongside a transaction package.">
@@ -92,11 +97,6 @@ class PackageInformation <"A class defining additional information that may be r
  * Only some of the attributes have been incorporated at this point, as some seem questionable (e.g. executionDateTime, which should be associated to the relevant execution event).
  */
 }
-
-data rule VersionedTradeId_version <"FpML specifies the version as a non-negative integer.">
-	when Identifier -> version exists
-	then Identifier -> version >= 0
-
 class PartyContractInformation <"A class defining party-specific additional information that may be recorded with respect to a contract.">
 	[synonym FpML_5_10 value PartyTradeInformation]
 {
