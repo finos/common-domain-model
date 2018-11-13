@@ -22,10 +22,25 @@
             <xsd:enumeration value="cancel"/>
         </xsd:restriction>
     </xsd:simpleType>
+    <xsd:simpleType name="AssetTransferTypeEnum">
+        <xsd:restriction base="xsd:token">
+            <xsd:enumeration value="FreeOfPayment"/>
+        </xsd:restriction>
+    </xsd:simpleType>
     <xsd:simpleType name="CashflowCalculationEnum">
         <xsd:restriction base="xsd:token">
             <xsd:enumeration value="FixedAmount"/>
             <xsd:enumeration value="FloatingAmount"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="ClearingStatusEnum">
+        <xsd:restriction base="xsd:token">
+            <xsd:enumeration value="Accepted"/>
+            <xsd:enumeration value="Alleged"/>
+            <xsd:enumeration value="Amended"/>
+            <xsd:enumeration value="Cleared"/>
+            <xsd:enumeration value="Rejected"/>
+            <xsd:enumeration value="Terminated"/>
         </xsd:restriction>
     </xsd:simpleType>
     <xsd:simpleType name="ContractStateEnum">
@@ -53,6 +68,12 @@
             <xsd:enumeration value="termination"/>
         </xsd:restriction>
     </xsd:simpleType>
+    <xsd:simpleType name="OriginatingEventEnum">
+        <xsd:restriction base="xsd:token">
+            <xsd:enumeration value="Exercise"/>
+            <xsd:enumeration value="NewTrade"/>
+        </xsd:restriction>
+    </xsd:simpleType>
     <xsd:simpleType name="PartyIdSourceEnum">
         <xsd:restriction base="xsd:token">
             <xsd:enumeration value="LEI"/>
@@ -74,11 +95,6 @@
             <xsd:enumeration value="netInterest"/>
             <xsd:enumeration value="novationFee"/>
             <xsd:enumeration value="premium"/>
-        </xsd:restriction>
-    </xsd:simpleType>
-    <xsd:simpleType name="AssetTransferTypeEnum">
-        <xsd:restriction base="xsd:token">
-            <xsd:enumeration value="FreeOfPayment"/>
         </xsd:restriction>
     </xsd:simpleType>
     <xsd:simpleType name="TransferStatusEnum">
@@ -327,8 +343,8 @@
     </xsd:complexType>
     <xsd:complexType name="Inception">
         <xsd:sequence>
-            <xsd:element name="before" type="ContractState" minOccurs="0" maxOccurs="0"/>
-            <xsd:element name="after" type="ContractState" minOccurs="1" maxOccurs="1"/>
+            <xsd:element name="before" type="PretInceptionState" minOccurs="0" maxOccurs="1"/>
+            <xsd:element name="after" type="PostInceptionState" minOccurs="1" maxOccurs="2"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="InterestRateCurve">
@@ -410,6 +426,25 @@
             <xsd:element name="quantity" type="Quantity" minOccurs="0"/>
             <xsd:element name="cashflow" type="Cashflow" minOccurs="0"/>
         </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="PostInceptionState">
+        <xsd:complexContent>
+            <xsd:extension base="ContractState">
+                <xsd:sequence>
+                    <xsd:element name="clearingStatus" type="ClearingStatusEnum"/>
+                    <xsd:element name="creditLimitInformation" type="fpml:CreditLimitInformation"/>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:complexType name="PretInceptionState">
+        <xsd:complexContent>
+            <xsd:extension base="ContractState">
+                <xsd:sequence>
+                    <xsd:element name="originatingEvent" type="OriginatingEventEnum"/>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
     </xsd:complexType>
     <xsd:complexType name="Primitive">
         <xsd:sequence>
