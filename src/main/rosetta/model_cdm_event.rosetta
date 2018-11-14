@@ -20,26 +20,6 @@ class AllocationPrimitive <"The primitive event to represent a split/allocation 
 		[synonym Rosetta_Workbench value after]
 }
 
-// TODO - This is the initial iteration to cleared trade info that is subject to change.
-class ApplicableCreditLimit <"A class to specify the credit limit in relation to pre-execution and post-execution workflows."> 
-{
-	// TODO - We need to get a better understanding of what the level is.
-	level string (0..1) scheme;
-		[synonym CME_ClearedConfirm_1_17 value level meta creditLimitLevelScheme]
-	limitType LimitTypeEnum (0..1) scheme <"Standard code to indicate which type of credit line is being referred to - i.e. IM, DV01, PV01, CS01, Notional, Clip Size, Notional, maximumOrderQuantity">;
-		[synonym CME_ClearedConfirm_1_17 value limitType meta creditLimitTypeScheme]
-	limitAmount number (0..1) <"The total limit available for the limit level and limit type">;
-		[synonym CME_ClearedConfirm_1_17 value limitAmount]
-	amountUtilized number (0..1) <"The limit utilised by all the cleared trades for the limit level and limit type">;
-		[synonym CME_ClearedConfirm_1_17 value amountUtilized]
-	amountRemaining number (0..1) <"The limit remaining for the limit level and limit type. This does not take into account any pending trades">;
-		[synonym CME_ClearedConfirm_1_17 value amountRemaining]
-	limitImpactDueToTrade number (0..1) <"The limit utilised by this specific trade">;
-		[synonym CME_ClearedConfirm_1_17 value limitImpactDueToTrade]
-	currency string (0..1) scheme <"Credit limit currency">;
-		[synonym CME_ClearedConfirm_1_17 value currency meta currencyScheme]
-}
-
 class CashTransferBreakdown extends TransferBreakdown
 {
 	payerReceiver PayerReceiver (1..1) <"The payer and receiver party information.">;
@@ -106,6 +86,49 @@ class ContractState <"A class to specify a contract instantiation with respect t
         [synonym DTCC_11_0, DTCC_9_0 value ReportingJurisdiction path "ReportingHeader"]
 }
 
+class CreditLimit
+	[synonym FpML_5_10 value CreditLimit]
+{
+	limitId string (0..1) scheme;
+		[synonym FpML_5_10 value limitId meta creditLimitIdScheme]
+	applicableProduct ProductIdentification (0..1) <"Further to the FpML standard, the CDM ProductIdentification provides the ability to associate a CDM qualified product.">;
+	currency string (0..1) scheme;
+		[synonym FpML_5_10 value currency meta currencyScheme]
+	tenor Period (0..1) <"The maximum allowed tenor for a trade under this limit. When this structure is used as part of a suspendCredit message, this tenor imposes a temporary tenor limit on allowed trade types.">;
+		[synonym FpML_5_10 value tenor]
+	limitApplicable LimitApplicable (0..*);
+		[synonym FpML_5_10 value limitApplicable]
+	expirationDateTime dateTime (0..1) <"The CDM naming include the time suffix because the FpML element is actually of type dateTime.">;
+		[synonym FpML_5_10 value expirationDate]	
+}
+
+class CreditLimitInformation <"A class to represent the credit limit utilization information.">
+	[synonym CME_ClearedConfirm_1_17 value CreditLimitInformation]
+{
+	limitApplicable LimitApplicableExtended (1..*);
+		[synonym CME_ClearedConfirm_1_17, Rosetta_Workbench value limitApplicable]
+} 
+
+class CreditLimitUtilisation <"Credit limit utilisation breakdown by executed trades and pending orders.">
+	[synonym FpML_5_10 value CreditLimitUtilization]
+{
+	executed CreditLimitUtilisationPosition (0..1) <"Credit limit utilisation attributable to executed trades.">;
+		[synonym FpML_5_10 value executed]
+	pending CreditLimitUtilisationPosition (0..1) <"Credit limit utilisation attributable to pending unexecuted orders.">;
+		[synonym FpML_5_10 value pending]
+}
+
+class CreditLimitUtilisationPosition
+	[synonym FpML_5_10 value CreditLimitUtilizationPosition]
+{
+	shortPosition number (0..1) <"Credit limit utilisation attributable to short positions.">;
+		[synonym FpML_5_10 value short]
+	longPosition number (0..1) <"Credit limit utilisation attributable to long positions.">;
+		[synonym FpML_5_10 value long]
+	global number (0..1) <"Global credit limit utilisation amount, agnostic of long/short position direction.">;
+		[synonym FpML_5_10 value global]
+}
+
 class Curve one of
 {
 	interestRateCurve InterestRateCurve (0..1);
@@ -139,14 +162,16 @@ class Event
 	id (0..1);
 		[synonym Rosetta_Workbench meta id]
 	messageInformation MessageInformation (0..1);
-		[synonym DTCC_11_0, DTCC_9_0 value FpML path "Body.OTC_Matching.Trade"]
+		[synonym DTCC_11_0 value FpML path "Body.OTC_Matching.Trade"]
 		[synonym DTCC_11_0, DTCC_9_0 value RouteInfo path "Header.OTC_RM.Delivery"]
 		[synonym CME_ClearedConfirm_1_17 value header path "clearingConfirmed"]
-	timestamp EventTimestamp (1..1);
+	timestamp EventTimestamp (1..*) <"The set of timestamp(s) associated with the event as a collection of [dateTime, qualifier].">;
 		[synonym Rosetta_Workbench value timestamp]
-		[synonym DTCC_11_0, DTCC_9_0 value FpML path "Body.OTC_Matching.Trade"]
-		[synonym DTCC_11_0, DTCC_9_0 value FpML path "Body.OTC_Matching.Payment"]
-        [synonym CME_ClearedConfirm_1_17 value clearingConfirmed]
+		[synonym DTCC_11_0 value header path "Body.OTC_Matching.Trade.FpML"]
+		[synonym DTCC_11_0 value RouteHist path "Header.OTC_RM.Delivery"]
+		[synonym DTCC_9_0 value header path "Body.OTC_Matching.Payment.FpML"]
+        [synonym CME_ClearedConfirm_1_17 value timestamps path "clearingConfirmed.trade.tradeHeader"]
+        [synonym CME_ClearedConfirm_1_17 value header path "clearingConfirmed"]
     eventIdentifier Identifier (1..1) <"The event identifier, which has 3 components: an actual identifier, an issuer and a version number. One and only one identifier can be associated with a lifecycle event.">;
 		[synonym Rosetta_Workbench value eventIdentifier]
 	eventQualifier eventType (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic. This value is derived by the CDM from the event features.">;
@@ -174,11 +199,6 @@ class Event
 	primitive PrimitiveEvent (1..1);
 		[synonym Rosetta_Workbench value primitive]
 		[synonym CME_SubmissionIRS_1_0 value TrdCaptRpt]
-	/*
-	 * Temporarily positioned at the Event class level.  Will be moved to the relevant set of primitives once those have been firmed out.
-	 */
-	applicableCreditLimit ApplicableCreditLimit (0..*) <"The credit limit that can be applicable to certain transaction.">;
-		[synonym CME_ClearedConfirm_1_17 value limitApplicable path "clearingConfirmed.trade.tradeHeader.creditLimitInformation"]
 	functionCall string (0..1) <"This is placeholder concept for a function call into a calculation that will return an outcome. This concept needs to be further firmed out.">;
 		[synonym Rosetta_Workbench value functionCall]
 	eventEffect EventEffect (0..1) <"The set of effects associated with the lifecycle event, i.e. generated cashflows, contracts (from, say, novation events), listed products (from, say, a bond option exercise event)  values and more. Those are represented through a set of rosettaKey references. This attribute is optional in order to provide implementers with the ability not to make use of this feature.">;
@@ -201,14 +221,20 @@ class EventTestBundle <"A class which combines several events for testing purpos
 		[synonym Rosetta_Workbench value computedAmount]
 }
 
-class EventTimestamp <"This class corresponds to the timestamp components of the FpML MessageHeader.model. These would be applicable even if the event is communicated through a mean other than messaging (e.g. blockchain).">
+class EventTimestamp <"A class to represent the various set of timestamps that can be associated with lifecycle events, as a collection of [dateTime, qualifier]">
 {
-	//TODO - Changed this to be zonedDateTime. CME events use zoned times which are legal in FpML.
-	creationTimestamp dateTime (1..1) <"The date and time (on the source system) when this event was created.">;
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value creationTimestamp path "header"]
-		[synonym Rosetta_Workbench value creationTimestamp]
-	expiryTimestamp dateTime (0..1) <"The date and time (on the source system) when this event will be considered expired.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0 value expiryTimestamp]
+	dateTime zonedDateTime (1..1);
+		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value creationTimestamp]
+		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value expiryTimestamp]
+		[synonym DTCC_11_0, DTCC_9_0 value ReceiveTime path "Route"]
+		[synonym DTCC_11_0, DTCC_9_0 value ReleaseTime path "Route"]
+		[synonym CME_ClearedConfirm_1_17 value submittedForClearing]
+	qualification EventTimeStampQualificationEnum (1..1);
+		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 set to EventTimeStampQualificationEnum.eventCreated when "creationTimestamp" exists]
+		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 set to EventTimeStampQualificationEnum.eventExpired when "expiryTimestamp" exists]
+		[synonym CME_ClearedConfirm_1_17, Rosetta_Workbench set to EventTimeStampQualificationEnum.submittedForClearing when "submittedForClearing" exists]
+		[synonym DTCC_11_0, DTCC_9_0 set to EventTimeStampQualificationEnum.eventReceived when "Route.ReceiveTime" exists]
+		[synonym DTCC_11_0, DTCC_9_0 set to EventTimeStampQualificationEnum.eventProcessed when "Route.ReleaseTime" exists]
 }
 
 class Execution rosettaKey
@@ -279,24 +305,20 @@ class GrossCashflow extends CashflowBase
 		[synonym Rosetta_Workbench value cashflowCalculation]
 }
 
-data rule EventTimestamp_ExpireTime <"The expire time should be greater than the creation time.">
-	when EventTimestamp -> expiryTimestamp exists
-	then EventTimestamp -> expiryTimestamp > EventTimestamp -> creationTimestamp
-
 class Inception <"The primitive event for the inception of a new contract between parties. It is expected that this primitive will be adjusted or deprecated once the CDM scope is extended to the pre-execution space.">
 {
-	before ContractState (0..0) <"The (0..0) cardinality reflects the fact that there is no contract in the before state of an inception primitive. As noted in the definition associated with the class, this is expected to change once the CDM scope is extended to the pre-execution space.">;
+	before PriorInceptionState (0..1) <"In the context where the CDM is focused on post-execution lifecycle events, it is expected that the clearing event is the only case where the prior contract will be stated, as corresponding to the alpha bilateral trade that is presented to clearing.">;
 		[synonym Rosetta_Workbench value before]
+		[synonym CME_SubmissionIRS_1_0 value trade]
 	/*
 	 * Need to add the rosettaKey entry
 	 */
-	after ContractState (1..1) reference <"The after state corresponds to the new contract between the parties. Depending upon the implementation approach, this contract can either be explicitly stated, or referenced via either a CDM rosettaKey or a reference that originates externally from the CDM.">;
+	after PostInceptionState (1..2) reference <"The after state corresponds to the new contract between the parties. Depending upon the implementation approach, this contract can either be explicitly stated, or referenced via either a CDM rosettaKey or a reference that originates externally from the CDM. The cardinality is set to (1..2) to support the clearing event, with the beta and gamma cleared trades.">;
 		[synonym Rosetta_Workbench value after]
 		// Requires conditional mapping based on OTC_RM_11-0.TransTypeDataType
 		//[synonym DTCC_11_0, DTCC_9_0 value Trade path "Body.OTC_Matching", ReportingData path "Body.OTC_Matching", Manifest path "Header.OTC_RM" set when "Header.OTC_RM.Manifest.TradeMsg.TransType" = "Trade"]
 		[synonym DTCC_11_0, DTCC_9_0 value Trade path "Body.OTC_Matching", ReportingData path "Body.OTC_Matching", Manifest path "Header.OTC_RM"]
 		[synonym CME_ClearedConfirm_1_17 value clearingConfirmed]
-		[synonym CME_SubmissionIRS_1_0 value trade]
 }
 
 class InterestRateCurve
@@ -305,6 +327,41 @@ class InterestRateCurve
 		[synonym Rosetta_Workbench value floatingRateIndex meta floatingRateIndexScheme]
 	tenor Period (1..1);
 		[synonym Rosetta_Workbench value tenor]
+}
+
+class LimitApplicable
+	[synonym FpML_5_10 value LimitApplicable]
+{
+	limitType CreditLimitTypeEnum (0..1) scheme <"Standard code to indicate which type of credit line is being referred to - i.e. IM, DV01, PV01, CS01, Notional, Clip Size, Notional, maximumOrderQuantity.">;
+		[synonym FpML_5_10, CME_ClearedConfirm_1_17, Rosetta_Workbench value limitType meta creditLimitTypeScheme]
+	clipSize int (0..1) <"This element is required in FpML, optional in CDM for the purpose of accommodating the CME data representation while making reference to the FpML one.">;
+		[synonym FpML_5_10 value clipSize]
+	amountUtilized number (0..1) <"The limit utilised by all the cleared trades for the limit level and limit type. While the attribute is of type integer in FpML and the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">;
+		[synonym FpML_5_10, CME_ClearedConfirm_1_17, Rosetta_Workbench value amountUtilized]
+	utilization CreditLimitUtilisation (0..1);
+		[synonym FpML_5_10 value utilization]
+	amountRemaining number (0..1) <"The limit remaining for the limit level and limit type. This does not take into account any pending trades. While the attribute is of type integer in FpML and the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">;
+		[synonym FpML_5_10, CME_ClearedConfirm_1_17, Rosetta_Workbench value amountRemaining]
+	currency string (0..1) scheme;
+		[synonym FpML_5_10, CME_ClearedConfirm_1_17, Rosetta_Workbench value currency meta currencyScheme]
+	velocity Velocity (0..1);
+		[synonym FpML_5_10 value velocity]
+}
+
+choice rule LimitApplicable_choice <"Choice rule to represent an FpML choice construct.">
+ 	for LimitApplicable optional choice between
+	amountUtilized and utilization
+
+class LimitApplicableExtended extends LimitApplicable <"A class to represent the CDM attributes that are not part of the FpML standard. Once broader usage is confirmed, it is expected that those two classes can be collapsed.">
+	[synonym CME_ClearedConfirm_1_17 value CreditLimitInformation]
+{
+	// TODO - We need to get a better understanding of what the level is.
+	level string (0..1) scheme;
+		[synonym CME_ClearedConfirm_1_17, Rosetta_Workbench value level meta creditLimitLevelScheme]
+	limitAmount number (0..1) <"The total limit available for the limit level and limit type. While the attribute is of type integer in the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">;
+		[synonym CME_ClearedConfirm_1_17, Rosetta_Workbench value limitAmount]
+	limitImpactDueToTrade number (0..1) <"The limit utilised by this specific trade. While the attribute is of type integer in the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">;
+		[synonym CME_ClearedConfirm_1_17, Rosetta_Workbench value limitImpactDueToTrade]
 }
 
 class Lineage <"The class to provide lineage information across transactions.">
@@ -390,9 +447,6 @@ class PartySubmittedIdentifier <"A class to specify a party-related identifiers.
 {
 	partyReference string (1..1) reference <"Reference to a party.">;
 		[synonym DTCC_11_0, DTCC_9_0 value partyReference meta href]
-//	role PartyRoleEnum (1..1) <"The party role.">;
-//		[synonym DTCC_11_0, DTCC_9_0 set to PartyRoleEnum.ReportingParty when path = "Submitter.partyTradeIdentifier"]
-//		[synonym DTCC_11_0, DTCC_9_0 set to PartyRoleEnum.Counterparty when path = "ContraTradeId.partyTradeIdentifier"]
 	contractIdentifiers Identifier (0..*) <"The contract identifier, which has 3 components: an actual identifier, an issuer and a version number. There can be several contract identifier, an example of such being a contract is reportable to both the CFTC and ESMA and then has an associated USI (Unique Swap Identifier) UTI (Unique Trade Identifier).">;
 	eventIdentifiers Identifier (0..*) <"The event identifier, which has 3 components: an actual identifier, an issuer and a version number. One and only one identifier can be associated with a lifecycle event.">;
 }
@@ -410,6 +464,16 @@ class PhysicalExercise <"The physical exercise results into a financial product 
 data rule PhysicalExercise_quantity <"The quantity attribute should only be associated with non-contractual products, as it is then expressed as part of the contractual terms.">
 	when ( PhysicalExercise -> product -> contractualProduct or PhysicalExercise -> product -> contract) exists
 	then PhysicalExercise -> quantity is absent
+
+class PostInceptionState extends ContractState
+{
+	clearingStatus ClearingStatusEnum (0..1);
+		[synonym Rosetta_Workbench value clearingStatus]
+		[synonym CME_ClearedConfirm_1_17 value status]
+	creditLimitInformation CreditLimitInformation (0..1) <"Credit limit utilization information">;
+		[synonym CME_ClearedConfirm_1_17 value creditLimitInformation path "trade.tradeHeader"]
+		[synonym Rosetta_Workbench value creditLimitInformation]
+}
 
 class PrimitiveEvent <"The set of primitive events. The purpose of this class it to provide clarity with respect to the event qualification logic.">
 {
@@ -450,6 +514,13 @@ class PrimitiveEvent <"The set of primitive events. The purpose of this class it
 		// TODO - remove this synonym. See trello card: https://trello.com/c/zuFjHRzq
 		[synonym CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value todo]
 		[synonym DTCC_11_0, DTCC_9_0 value FpML path "Body.OTC_Matching.Payment"]
+}
+
+class PriorInceptionState extends ContractState <"A class to specify the before state applicable to the inception primitive, with the ability to qualify the event that gave way to the alpha trade that is submitted for clearing.">
+{
+	originatingEvent OriginatingEventEnum (0..1) <"This attribute is applicable to the clearing event use case, to provide the ability to specify whether the trade that is presented to clearing results from a lifecycle event such as the exercise of a swaption.">;
+		[synonym CME_ClearedConfirm_1_17 value originatingEvent]
+		[synonym Rosetta_Workbench value originatingEvent]
 }
 
 class QuantityChangePrimitive <"The primitive event to represent a change in quantity or notional.">
@@ -557,6 +628,13 @@ class TransferorTransferee <"A class mimicking the PayerReceiver, which is itsel
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value receiverAccountReference meta href]
 }
 
+class Velocity
+	[synonym FpML_5_10 value Velocity]
+{
+	periodMultiplier int (0..1);
+	period PeriodTimeEnum (0..1);
+}
+
 /*********************
  * Event Qualification
  */
@@ -590,13 +668,19 @@ alias quantityAfterAllocation <"The alias to represent the quantity or notional 
 	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> notionalAmount -> amount
 	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount -> amount
 
+/*
+ * TODO - This event qualification is not working at present
+ * Let's debug it once we confirm the approach with the clearing event
+ */
+isEvent Clearing
+	Event -> intent when present = IntentEnum.Clearing
+	and Event -> primitive -> inception count = 2
+	and Event -> primitive -> quantityChange exists
+
 isEvent Compression <"The qualification of a compression event from the fact that (i) the intent is Compression when specified, (ii) the quantity change primitive exists, (iii) and there are multiple contracts (or contract references) specified in the before state.">
 	Event -> intent when present = IntentEnum.Compression
 	and Event -> primitive -> quantityChange exists
 	and Event -> primitive -> quantityChange -> before -> contract multiple exists
-
-alias contractAfterQuantityChange
-	Event -> primitive -> quantityChange -> after -> contract
 
 isEvent DerivedObservation <"The qualification of a derived observation event from the fact that (i) the only primitive is the observation, (ii) there are multiple instances of such observations, and (iii) there is an associated call function to compute, say, an interpolation.">
 	Event -> primitive -> observation only multiple exists
@@ -610,7 +694,7 @@ isEvent NewTrade
 	Event -> intent when present = IntentEnum.NewTrade
 	and Event -> primitive -> inception only exists
 
-isEvent Novation <"The qualification of a novation event from the fact that (i) the intent is PartialNovation when specified, (ii) the primitives quantityChange and inception exist, (iii) the contract in the quantityChange/after node has a Novated state, (iv) the stepped-in contract has a different contract identifier than the novated contract, (v) the stepped-in contract has the novation event date and the novation event effective date, and (vi) the contract counterparties have changed.">
+isEvent Novation <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and inception exist, (iii) the contract in the quantityChange/after node has a Novated state, (iv) the stepped-in contract has a different contract identifier than the novated contract, (v) the stepped-in contract has the novation event date and the novation event effective date, and (vi) the contract counterparties have changed.">
 	Event -> intent when present = IntentEnum.Novation
 	and Event -> primitive -> quantityChange exists
 	and Event -> primitive -> inception exists

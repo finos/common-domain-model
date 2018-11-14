@@ -54,7 +54,30 @@ enum CashflowTypeEnum <"The qualification of the type of cash flows associated w
 	PrincipalExchange <"A cash flow which amount typically corresponds to the notional of the contract and that is exchanged between the parties on trade inception and reverted back when the contract is terminated.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "PrincipleExchange"],
 	TerminationFee <"A cash flow associated with a termination lifecycle event.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "TerminationFee"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "TerminationFee"],
+	UpfrontFee <"An upfront cashflow associated to the swap to adjust for a difference between the swap price and the current market price.">
+		[synonym CME_ClearedConfirm_1_17 value "UPFRONT_FEE"]
+}
+
+enum ClearingStatusEnum <"The enumeration values to specify the clearing status of a trade.">
+	[synonym CME_ClearedConfirm_1_17 value StatusEnum]
+{
+	Accepted <"The alpha trade has been accepted for clearing.">
+		[synonym CME_ClearedConfirm_1_17, Rosetta_Workbench value "Accepted"],
+	Alleged <"The alpha trade has been alleged for clearing.">
+		[synonym CME_ClearedConfirm_1_17 value "ALLEGED"]
+		[synonym Rosetta_Workbench value "Alleged"],
+	Amended <"The cleared trade has been amended.">
+		[synonym CME_ClearedConfirm_1_17 value "AMENDED"]
+		[synonym Rosetta_Workbench value "Amended"],
+	Cleared <"The alpha trade has been cleared.">
+		[synonym CME_ClearedConfirm_1_17 value "CLEARED"]
+		[synonym Rosetta_Workbench value "Cleared"],
+	Rejected <"The alpha trade has been rejected.">
+		[synonym CME_ClearedConfirm_1_17, Rosetta_Workbench value "Rejected"],
+	Terminated <"The cleared trade has been terminated.">
+		[synonym CME_ClearedConfirm_1_17 value "TERMINATED"]
+		[synonym Rosetta_Workbench value "Terminated"]
 }
 
 enum CommodityReferencePriceEnum <"The enumeration values to specify the Commodity Reference Prices specified in the Annex to the 2005 ISDA Commodity Definitions.">
@@ -136,19 +159,30 @@ enum CommodityReferencePriceEnum <"The enumeration values to specify the Commodi
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "WHEAT RED SPRING-MGE"]
 }
 
-enum LimitTypeEnum <"The enumeration values to qualify the type of credit limits.">
-	[synonym CME_ClearedConfirm_1_17 value creditLimitTypeScheme]
+enum CreditLimitTypeEnum <"The enumeration values to qualify the type of credit limits.">
+	[synonym FpML_5_10, CME_ClearedConfirm_1_17 value creditLimitTypeScheme]
 {
 	CS01 <"The type of credit line expressed in CS01. The sensitivity with respect to changes in the CDS spread.">
-		[synonym CME_ClearedConfirm_1_17 value "CS01"],
+		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value "CS01"],
 	DV01 <"The type of credit line expressed in DV01. The dollar value of a one basis point decrease in interest rates. It shows the change in a bond's price compared to a decrease in the bond's yield.">
-		[synonym CME_ClearedConfirm_1_17 value "DV01"],
+		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value "DV01"],
 	InitialMargin <"The type of credit line expressed in IM value.">
-		[synonym CME_ClearedConfirm_1_17 value "IM"],
+		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value "IM"],
 	Notional <"The type of credit line expressed in Notional amount.">
-		[synonym CME_ClearedConfirm_1_17 value "Notional"],
+		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value "Notional"],
 	PV01 <"The type of credit line expressed in PV01. The value of a one dollar or one basis point annuity.">
-		[synonym CME_ClearedConfirm_1_17 value "PV01"]
+		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value "PV01"]
+}
+
+enum EventTimeStampQualificationEnum <"The enumeration values to qualify the time stamps that can be associated with a lifecycle event.">
+{
+	cleared <"The date and time on which the trade associated with the clearing event was cleared.">,
+	clearingConfirmed <"The date and time on which the trade associated with the clearing event was confirmed as cleared.">,
+	eventCreated <"The date and time on which the event was created.">,
+	eventExpired <"The date and time on which the event will be considered expired.">,
+	eventProcessed  <"The date and time on which the event was processed.">,
+	eventReceived  <"The date and time on which the event was received.">,
+	submittedForClearing <"The date and time on which the event was submitted for clearing.">
 }
 
 enum IntentEnum <"The enumeration values to qualify the intent associated with a transaction event.">
@@ -182,10 +216,56 @@ enum IntentEnum <"The enumeration values to qualify the intent associated with a
 	Clearing
 }
 
-enum PaymentTypeEnum extends CashflowTypeEnum <"The qualification of the type of payment.">
+enum OriginatingEventEnum <"The enumeration values to specify the originating event that gave way to trade that is submitted for clearing, e.g. a swaption exercise event .">
+	[synonym CME_ClearedConfirm_1_17 value OriginatingEventEnum]
+{
+	Amendment <"The alpha trade presented to clearing results from a trade amendment.">
+		[synonym CME_ClearedConfirm_1_17 value "TRADE_AMEND"],
+	Compression <"The alpha trade presented to clearing results from a compression event.">
+		[synonym CME_ClearedConfirm_1_17 value "RESIDUAL_TRADE"],
+	Exercise <"The alpha trade presented to clearing results from an exercise event.">
+		[synonym CME_ClearedConfirm_1_17 value "EXERCISE"]
+		[synonym Rosetta_Workbench value "Exercise"],
+	NewTrade <"The alpha trade presented to clearing results from a new trade event.">
+		[synonym CME_ClearedConfirm_1_17 value "NEW_TRADE"]
+		[synonym Rosetta_Workbench value "NewTrade"],
+	Novation <"The alpha trade presented to clearing results from a novation event.">
+		[synonym CME_ClearedConfirm_1_17 value "ASSIGNMENT"],
+	PartialExercise <"The alpha trade presented to clearing results from a partial exercise event.">
+		[synonym CME_ClearedConfirm_1_17 value "PARTIAL_EXERCISE"],
+	PartialNovation <"The alpha trade presented to clearing results from a partial novation event.">
+		[synonym CME_ClearedConfirm_1_17 value "NOVATION"],
+	Transfer <"The alpha trade presented to clearing results from another CCP.">
+		[synonym CME_ClearedConfirm_1_17 value "TRANSFER"]
+}
+
+enum PaymentStatusEnum <"The enumeration values to specify the payment status.">
+{
+	Disputed <"The payment is disputed.">
+		[synonym Rosetta_Workbench value "disputed"],
+	Instructed <"The payment has been instructed.">
+		[synonym Rosetta_Workbench value "instructed"],
+	Pending <"The payment is pending instruction.">
+		[synonym Rosetta_Workbench value "pending"],
+	Settled <"The payment has been settled.">
+		[synonym Rosetta_Workbench value "settled"]
+}
+
+enum PaymentTypeEnum extends CashflowTypeEnum <"The enumeration values to specify the type of payment.">
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentTypeScheme]
 {
 	NetCashflow
+}
+
+enum PeriodTimeEnum <"The enumeration values to specify a time period containing additional values such as Term.">
+	[synonym FpML_5_10 value PeriodTimeEnum]
+{
+	Hour <"Period measured in hours.">
+		[synonym FpML_5_10 value "Hour"],
+	Minute <"Period measured in minutes.">
+		[synonym FpML_5_10 value "Minute"],
+	Second <"Period measured in seconds.">
+		[synonym FpML_5_10 value "Second"]
 }
 
 enum QuantityTypeEnum <"The enumeration values to qualify the type of quantity.">
@@ -206,18 +286,6 @@ enum SettlementTypeEnum <"The enumeration values to specify how the option is to
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "Election"],
 	CashOrPhysical <"Allow use of either Cash or Physical settlement without prior Election.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "CashOrPhysical"]
-}
-
-enum PaymentStatusEnum <"The enumeration values to specify the payment status.">
-{
-	Disputed <"The payment is disputed.">
-		[synonym Rosetta_Workbench value "disputed"],
-	Instructed <"The payment has been instructed.">
-		[synonym Rosetta_Workbench value "instructed"],
-	Pending <"The payment is pending instruction.">
-		[synonym Rosetta_Workbench value "pending"],
-	Settled <"The payment has been settled.">
-		[synonym Rosetta_Workbench value "settled"]
 }
 
 enum TimeUnitEnum <"The enumeration values to qualify the allowed units of time.">
