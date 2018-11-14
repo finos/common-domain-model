@@ -246,6 +246,25 @@
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
+    <xsd:complexType name="CreditLimitInformation">
+        <xsd:sequence>
+            <xsd:element name="limitApplicable" type="LimitApplicable" maxOccurs="unbounded"
+            />
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="CreditLimitLevel">
+        <xsd:simpleContent>
+            <xsd:extension base="Scheme">
+                <xsd:attribute name="creditLimitLevelScheme" type="xsd:anyURI">
+                    <xsd:annotation>
+                        <xsd:documentation xml:lang="en">The identifier scheme used with this credit
+                            Limit Level. A unique URI to determine the node at which the credit
+                            limit information is represented</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
     <xsd:complexType name="Curve">
         <xsd:sequence>
             <xsd:choice>
@@ -294,6 +313,7 @@
         <xsd:sequence>
             <xsd:element name="creationTimestamp" type="xsd:dateTime"/>
             <xsd:element name="expiryTimestamp" type="xsd:dateTime" minOccurs="0"/>
+            <xsd:element name="submittedForClearing" type="xsd:dateTime" minOccurs="0"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="Execution">
@@ -343,7 +363,7 @@
     </xsd:complexType>
     <xsd:complexType name="Inception">
         <xsd:sequence>
-            <xsd:element name="before" type="PretInceptionState" minOccurs="0" maxOccurs="1"/>
+            <xsd:element name="before" type="PreInceptionState" minOccurs="0" maxOccurs="1"/>
             <xsd:element name="after" type="PostInceptionState" minOccurs="1" maxOccurs="2"/>
         </xsd:sequence>
     </xsd:complexType>
@@ -359,6 +379,24 @@
                 <xsd:attribute name="href" type="xsd:IDREF" use="required"/>
             </xsd:extension>
         </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:complexType name="LimitApplicable">
+        <xsd:sequence>
+            <xsd:element name="level" type="CreditLimitLevel" minOccurs="0" maxOccurs="1"/>
+            <xsd:element name="limitType" type="LimitType" minOccurs="0"> </xsd:element>
+            <xsd:element name="limitAmount" type="xsd:integer" minOccurs="0" maxOccurs="1"/>
+            <xsd:element name="amountUtilized" type="xsd:integer" minOccurs="0"/>
+            <xsd:element name="amountRemaining" type="xsd:integer" minOccurs="0"/>
+            <xsd:element name="limitImpactDueToTrade" type="xsd:integer" minOccurs="0" maxOccurs="1"/>
+            <xsd:element name="currency" type="fpml:Currency" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="LimitType">
+        <xsd:simpleContent>
+            <xsd:extension base="Scheme">
+                <xsd:attribute name="creditLimitTypeScheme" type="xsd:anyURI" default="http://www.fpml.org/coding-scheme/credit-limit-type"/>
+            </xsd:extension>
+        </xsd:simpleContent>
     </xsd:complexType>
     <xsd:complexType name="Lineage">
         <xsd:sequence>
@@ -431,13 +469,13 @@
         <xsd:complexContent>
             <xsd:extension base="ContractState">
                 <xsd:sequence>
-                    <xsd:element name="clearingStatus" type="ClearingStatusEnum"/>
-                    <xsd:element name="creditLimitInformation" type="fpml:CreditLimitInformation"/>
+                    <xsd:element name="clearingStatus" type="ClearingStatusEnum" minOccurs="0"/>
+                    <xsd:element name="creditLimitInformation" type="CreditLimitInformation" minOccurs="0"/>
                 </xsd:sequence>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
-    <xsd:complexType name="PretInceptionState">
+    <xsd:complexType name="PreInceptionState">
         <xsd:complexContent>
             <xsd:extension base="ContractState">
                 <xsd:sequence>
@@ -490,6 +528,15 @@
             <xsd:element name="cashflow" type="Cashflow" minOccurs="0"/>
         </xsd:sequence>
     </xsd:complexType>
+    <xsd:simpleType name="Scheme">
+        <xsd:annotation>
+            <xsd:documentation xml:lang="en">The base class for all types which define coding
+                schemes.</xsd:documentation>
+        </xsd:annotation>
+        <xsd:restriction base="xsd:normalizedString">
+            <xsd:maxLength value="255"/>
+        </xsd:restriction>
+    </xsd:simpleType>
     <xsd:complexType name="Security">
         <xsd:sequence>
             <xsd:choice>
