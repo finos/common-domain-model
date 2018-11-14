@@ -86,33 +86,28 @@ class ContractState <"A class to specify a contract instantiation with respect t
         [synonym DTCC_11_0, DTCC_9_0 value ReportingJurisdiction path "ReportingHeader"]
 }
 
-
-class CreditLimit <"A class to specify the credit limit in relation to pre-execution and post-execution workflows. This class combines FpML and CME components.">
+class CreditLimit
+	[synonym FpML_5_10 value CreditLimit]
 {
-	// TODO - We need to get a better understanding of what the level is.
-	level string (0..1) scheme;
-		[synonym CME_ClearedConfirm_1_17 value level meta creditLimitLevelScheme]
-	limitType CreditLimitTypeEnum (0..1) scheme <"Standard code to indicate which type of credit line is being referred to - i.e. IM, DV01, PV01, CS01, Notional, Clip Size, Notional, maximumOrderQuantity.">;
-		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value limitType meta creditLimitTypeScheme]
-	clipSize int (0..1);
-		[synonym FpML_5_10 value clipSize]
-	limitAmount int (0..1) <"The total limit available for the limit level and limit type.">;
-		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value limitAmount]
-	amountUtilised int (0..1) <"The limit utilised by all the cleared trades for the limit level and limit type.">;
-		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value amountUtilized]
-	utilisation CreditLimitUtilisation (0..1);
-		[synonym FpML_5_10 value utilization]
-	amountRemaining int (0..1) <"The limit remaining for the limit level and limit type. This does not take into account any pending trades.">;
-		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value amountRemaining]
-	limitImpactDueToTrade int (0..1) <"The limit utilised by this specific trade.">;
-		[synonym CME_ClearedConfirm_1_17 value limitImpactDueToTrade]
-	currency string (0..1) scheme <"The credit limit currency.">;
-		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value currency meta currencyScheme]
+	limitId string (0..1) scheme;
+		[synonym FpML_5_10 value limitId meta creditLimitIdScheme]
+	applicableProduct ProductIdentification (0..1) <"Further to the FpML standard, the CDM ProductIdentification provides the ability to associate a CDM qualified product.">;
+	currency string (0..1) scheme;
+		[synonym FpML_5_10 value currency meta currencyScheme]
+	tenor Period (0..1) <"The maximum allowed tenor for a trade under this limit. When this structure is used as part of a suspendCredit message, this tenor imposes a temporary tenor limit on allowed trade types.">;
+		[synonym FpML_5_10 value tenor]
+	limitApplicable LimitApplicable (0..*);
+		[synonym FpML_5_10 value limitApplicable]
+	expirationDateTime dateTime (0..1) <"The CDM naming include the time suffix because the FpML element is actually of type dateTime.">;
+		[synonym FpML_5_10 value expirationDate]	
 }
 
-choice rule CreditLimit_choice <"Choice rule to represent an FpML choice construct.">
- 	for CreditLimit optional choice between
-	amountUtilised and utilisation
+class CreditLimitInformation <"A class to represent the credit limit utilization information.">
+	[synonym CME_ClearedConfirm_1_17 value CreditLimitInformation]
+{
+	limitApplicable LimitApplicableExtended (1..*);
+		[synonym CME_ClearedConfirm_1_17 value limitApplicable]
+} 
 
 class CreditLimitUtilisation <"Credit limit utilisation breakdown by executed trades and pending orders.">
 	[synonym FpML_5_10 value CreditLimitUtilization]
@@ -330,6 +325,41 @@ class InterestRateCurve
 		[synonym Rosetta_Workbench value tenor]
 }
 
+class LimitApplicable
+	[synonym FpML_5_10 value LimitApplicable]
+{
+	limitType CreditLimitTypeEnum (0..1) scheme <"Standard code to indicate which type of credit line is being referred to - i.e. IM, DV01, PV01, CS01, Notional, Clip Size, Notional, maximumOrderQuantity.">;
+		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value limitType meta creditLimitTypeScheme]
+	clipSize int (0..1);
+		[synonym FpML_5_10 value clipSize]
+	amountUtilized number (0..1) <"The limit utilised by all the cleared trades for the limit level and limit type. While the attribute is of type integer in FpML and the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">;
+		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value amountUtilized]
+	utilization CreditLimitUtilisation (0..1);
+		[synonym FpML_5_10 value utilization]
+	amountRemaining number (0..1) <"The limit remaining for the limit level and limit type. This does not take into account any pending trades. While the attribute is of type integer in FpML and the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">;
+		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value amountRemaining]
+	currency string (0..1) scheme;
+		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value currency meta currencyScheme]
+	velocity Velocity (0..1);
+		[synonym FpML_5_10 value velocity]
+}
+
+choice rule LimitApplicable_choice <"Choice rule to represent an FpML choice construct.">
+ 	for LimitApplicable optional choice between
+	amountUtilized and utilization
+
+class LimitApplicableExtended extends LimitApplicable <"A class to represent the CDM attributes that are not part of the FpML standard. Once broader usage is confirmed, it is expected that those two classes can be collapsed.">
+	[synonym CME_ClearedConfirm_1_17 value CreditLimitInformation]
+{
+	// TODO - We need to get a better understanding of what the level is.
+	level string (0..1) scheme;
+		[synonym CME_ClearedConfirm_1_17 value level meta creditLimitLevelScheme]
+	limitAmount number (0..1) <"The total limit available for the limit level and limit type. While the attribute is of type integer in the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">;
+		[synonym CME_ClearedConfirm_1_17 value limitAmount]
+	limitImpactDueToTrade number (0..1) <"The limit utilised by this specific trade. While the attribute is of type integer in the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">;
+		[synonym CME_ClearedConfirm_1_17 value limitImpactDueToTrade]
+}
+
 class Lineage <"The class to provide lineage information across transactions.">
 {
 	contractReference string (0..*) reference; // Implementation to be adjusted to be of type Contract in order to accommodate a rosettaKey
@@ -477,8 +507,8 @@ class PostInceptionState extends ContractState
 	clearingStatus ClearingStatusEnum (0..1);
 		[synonym Rosetta_Workbench value clearingStatus]
 		[synonym CME_ClearedConfirm_1_17 value status]
-	applicableCreditLimit CreditLimit (0..*) <"The credit limit that can be applicable to certain transactions.">;
-		[synonym CME_ClearedConfirm_1_17 value limitApplicable path "trade.tradeHeader.creditLimitInformation"]
+	creditLimitInformation CreditLimitInformation (0..1) <"Credit limit utilization information">;
+		[synonym CME_ClearedConfirm_1_17 value creditLimitInformation path "trade.tradeHeader"]
 }
 
 class PriorInceptionState extends ContractState <"A class to specify the before state applicable to the inception primitive, with the ability to qualify the event that gave way to the alpha trade that is submitted for clearing.">
@@ -486,7 +516,6 @@ class PriorInceptionState extends ContractState <"A class to specify the before 
 	originatingEvent OriginatingEventEnum (0..1) <"This attribute is applicable to the clearing event use case, to provide the ability to specify whether the trade that is presented to clearing results from a lifecycle event such as the exercise of a swaption.">;
 		[synonym CME_ClearedConfirm_1_17 value originatingEvent]
 		[synonym Rosetta_Workbench value originatingEvent]
-	creditLimitInformation CreditLimit (0..*) <"The credit limit that has been used as part of the transaction.">;
 }
 
 class QuantityChangePrimitive <"The primitive event to represent a change in quantity or notional.">
@@ -592,6 +621,13 @@ class TransferorTransferee <"A class mimicking the PayerReceiver, which is itsel
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value receiverPartyReference meta href]
 	transfereeAccountReference string (0..1) reference <"A reference to the account that receives the payments corresponding to this structure.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value receiverAccountReference meta href]
+}
+
+class Velocity
+	[synonym FpML_5_10 value Velocity]
+{
+	periodMultiplier int (0..1);
+	period PeriodTimeEnum (0..1);
 }
 
 /*********************
