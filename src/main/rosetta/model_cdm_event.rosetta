@@ -140,21 +140,21 @@ class Curve one of
 class CustomisedWorkflow <"In its initial iteration, this class is meant to support the DTCC TIW workflow information.">
 {
 	itemName string (1..1) <"In this initial iteration, this corresponds to the DTCC TIW element name.">;
-		[synonym DTCC_11_0, DTCC_9_0 set to "comment" when path = "PartyWorkflowFields.comment",
-									set to "superId" when path = "PartyWorkflowFields.superId",
-									set to "deskId" when path = "PartyWorkflowFields.deskId",
-									set to "eTradeId" when path = "PartyWorkflowFields.eTradeId",
-									set to "designatedParty" when path = "PartyWorkflowFields.designatedParty",
-									set to "brokerName" when path = "PartyWorkflowFields.brokerName",
-									set to "branchLocation" when path = "PartyWorkflowFields.branchLocation"]
+		[synonym DTCC_11_0, DTCC_9_0 set to "comment" when path = "PartyWorkflowFields.comment"]
+		[synonym DTCC_11_0, DTCC_9_0 set to "superId" when path = "PartyWorkflowFields.superId"]
+		[synonym DTCC_11_0, DTCC_9_0 set to "deskId" when path = "PartyWorkflowFields.deskId"]
+		[synonym DTCC_11_0, DTCC_9_0 set to "eTradeId" when path = "PartyWorkflowFields.eTradeId"]
+		[synonym DTCC_11_0, DTCC_9_0 set to "designatedParty" when path = "PartyWorkflowFields.designatedParty"]
+		[synonym DTCC_11_0, DTCC_9_0 set to "brokerName" when path = "PartyWorkflowFields.brokerName"]
+		[synonym DTCC_11_0, DTCC_9_0 set to "branchLocation" when path = "PartyWorkflowFields.branchLocation"]
 	itemValue string (1..1) <"In this initial iteration, this corresponds to the DTCC value.">;
-		[synonym DTCC_11_0, DTCC_9_0 value comment path "PartyWorkflowFields",
-										  superId path "PartyWorkflowFields",
-										  deskId path "PartyWorkflowFields",
-										  eTradeId path "PartyWorkflowFields",
-										  designatedParty path "PartyWorkflowFields",
-										  brokerName path "PartyWorkflowFields",
-										  branchLocation path "PartyWorkflowFields"]
+		[synonym DTCC_11_0, DTCC_9_0 value comment path "PartyWorkflowFields"]
+		[synonym DTCC_11_0, DTCC_9_0 value superId path "PartyWorkflowFields"]
+		[synonym DTCC_11_0, DTCC_9_0 value deskId path "PartyWorkflowFields"]
+		[synonym DTCC_11_0, DTCC_9_0 value eTradeId path "PartyWorkflowFields"]
+		[synonym DTCC_11_0, DTCC_9_0 value designatedParty path "PartyWorkflowFields"]
+		[synonym DTCC_11_0, DTCC_9_0 value brokerName path "PartyWorkflowFields"]
+		[synonym DTCC_11_0, DTCC_9_0 value branchLocation path "PartyWorkflowFields"]
 }
 
 class Event
@@ -172,8 +172,12 @@ class Event
 		[synonym DTCC_9_0 value header path "Body.OTC_Matching.Payment.FpML"]
         [synonym CME_ClearedConfirm_1_17 value timestamps path "clearingConfirmed.trade.tradeHeader"]
         [synonym CME_ClearedConfirm_1_17 value header path "clearingConfirmed"]
-    eventIdentifier Identifier (1..1) <"The event identifier, which has 3 components: an actual identifier, an issuer and a version number. One and only one identifier can be associated with a lifecycle event.">;
+    eventIdentifier Identifier (1..*) <"The event identifier, which has 3 components: an actual identifier, an issuer and a version number. One and only one identifier can be associated with a lifecycle event.">;
 		[synonym Rosetta_Workbench value eventIdentifier]
+		[synonym DTCC_11_0, DTCC_9_0 value Submitter path "Header.OTC_RM.Manifest.TradeMsg"]
+		[synonym DTCC_11_0, DTCC_9_0 value ContraTradeId path "Header.OTC_RM.Manifest.TradeMsg"] 
+		[synonym DTCC_11_0, DTCC_9_0 value YourTradeId path "Header.OTC_RM.Manifest.TradeMsg"]
+		[synonym DTCC_11_0, DTCC_9_0 value tradeIdentifyingItems path "Header.OTC_RM.Manifest.TradeMsg"]
 	eventQualifier eventType (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic. This value is derived by the CDM from the event features.">;
 	eventDate date (1..1);
 		[synonym Rosetta_Workbench value eventDate]
@@ -384,9 +388,6 @@ class MatchedEvent extends Event <"A class to represent the outcome of trade pro
 {
 	partyCustomisedWorkflow PartyCustomisedWorkflow (0..*) <"Non-standardised workflow data related to a party.">;
 		[synonym DTCC_11_0, DTCC_9_0 value WorkflowData path "Body.OTC_Matching"]
-	partySubmittedIdentifier PartySubmittedIdentifier (0..*) <"Contract identifiers, and event identifiers, related to a party.">;
-		[synonym DTCC_11_0, DTCC_9_0 value partyTradeIdentifier path "Header.OTC_RM.Manifest.TradeMsg.Submitter"]
-		[synonym DTCC_11_0, DTCC_9_0 value partyTradeIdentifier path "Header.OTC_RM.Manifest.TradeMsg.ContraTradeId"]
 }
 
 class MessageInformation <"This class corresponds to the messaging components of the FpML MessageHeader.model.">
@@ -441,14 +442,6 @@ class PartyCustomisedWorkflow <"A class to specify a party-related, non-standard
 	partyReference string (1..1) reference <"Reference to a party.">;
 		[synonym DTCC_11_0, DTCC_9_0 value partyReference meta href]
 	customisedWorkflow CustomisedWorkflow (1..*) <"Non-standardised data in a generic form.">;
-}
-
-class PartySubmittedIdentifier <"A class to specify a party-related identifiers.">
-{
-	partyReference string (1..1) reference <"Reference to a party.">;
-		[synonym DTCC_11_0, DTCC_9_0 value partyReference meta href]
-	contractIdentifiers Identifier (0..*) <"The contract identifier, which has 3 components: an actual identifier, an issuer and a version number. There can be several contract identifier, an example of such being a contract is reportable to both the CFTC and ESMA and then has an associated USI (Unique Swap Identifier) UTI (Unique Trade Identifier).">;
-	eventIdentifiers Identifier (0..*) <"The event identifier, which has 3 components: an actual identifier, an issuer and a version number. One and only one identifier can be associated with a lifecycle event.">;
 }
 
 class PhysicalExercise <"The physical exercise results into a financial product which is represented through the Product class, with an associated quantity and cashflow (e.g. a physical exercise of a bond option will result into a bond with a cash proceed which will be a function of the option strike price).">
