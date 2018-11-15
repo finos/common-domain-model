@@ -7,6 +7,22 @@ class ApplicableRegime <"A class to specify the regulatory regime applicable to 
 	simmException SimmException (1..1) <"The specified exception to the ISDA Standard Initial Margin Model.">;
 }
 
+class MultipleDebtTypes <"A class to specify the ability to specify multiple credit debt types alongside a conditional 'any' or 'all' qualifier.">
+{
+	condition QuantifierEnum (1..1) <"An enumerated attribute, to qualify whether All or Any debt type applies.">;
+		[synonym FpML_5_10 value condition]
+	debtType string (2..*) scheme <"At least two debt types much be specified.">;
+		[synonym FpML_5_10 value debtType meta debtTypeScheme]
+}
+
+class MultipleCreditNotations <"A class to specify the specify multiple credit notations alongside a conditional 'any' or 'all' qualifier.">
+{
+	condition QuantifierEnum (1..1) <"An enumerated element, to qualify whether All or Any credit notation applies.">;
+		[synonym FpML_5_10 value condition]
+	creditNotation string (2..*) scheme <"At least two credit notations much be specified.">;
+		[synonym FpML_5_10 value debtType meta creditNotation]
+}
+
 class CounterpartyRegime <"The regulatory regime(s) applicable to the respective parties to certain legal agreements, such as the Standard CSA 2018.">
 {
 	partyReference string (1..1) reference <"A reference to the party when acting as a secured party in application of the ISDA CSA.">;
@@ -16,30 +32,30 @@ class CounterpartyRegime <"The regulatory regime(s) applicable to the respective
 class CreditNotation <"A class to specify the credit notation as the combination of agency, notation, scale and debt type qualifications.">
 	[synonym FpML_5_10 value CreditNotation]
 {
-	agency CreditRatingAgencyEnum (1..1) <"The credit agency to which the other variables (notation, scale, debt type) refer to.">;
-		[synonym FpML_5_10 value agency]
+	agency CreditRatingAgencyEnum (1..1) scheme <"The credit agency to which the other variables (notation, scale, debt type) refer to.">;
+		[synonym FpML_5_10 value agency meta creditRatingAgencyScheme]
 	notation string (1..1) scheme <"The credit rating notation. As it varies among credit rating agencies, FpML doesn't specify a default scheme.">;
-		[synonym FpML_5_10 value notation]
+		[synonym FpML_5_10 value notation meta creditRatingNotationScheme]
 	scale string (0..1) scheme <"The credit rating scale, with a typical distinction between short term, long term. FpML doesn't specify a default scheme.">;
-		[synonym FpML_5_10 value scale]
-	debt CreditRatingDebt (0..1) <"The credit rating debt type (e.g. long term, high yield, deposits, ...) associated with the credit rating notation and scale. When several debt types are specified, 'any' or 'all' may be applicable.">;
+		[synonym FpML_5_10 value scale meta creditRatingScaleScheme]
+	debt CreditRatingDebt (0..1) <"The credit rating debt type (e.g. long term, high yield, deposits, ...) associated with the credit rating notation and scale.">;
 		[synonym FpML_5_10 value debt]
 }
 
-class CreditNotations <"A class to specify the ability specify multiple credit notations.">
+class CreditNotations one of <"The credit rating notation higher level construct, which provides the ability to specify multiple rating notations.">
 	[synonym FpML_5_10 value CreditNotations]
 {
 	creditNotation CreditNotation (1..1) <"This attribute is specified when only one credit notation is determined.">;
 		[synonym FpML_5_10 value creditNotation]
+	creditNotations MultipleCreditNotations (2..*) <"This attribute provides the ability to specify several credit notations, alongside an 'any' or 'all' or all condition.">;
 }
 
-class CreditRatingDebt <"The credit rating debt type(s) associated with the credit rating notation and scale. When several debt types are specified, 'any' or 'all' may be applicable.">
+class CreditRatingDebt one of <"The credit rating debt type(s) associated with the credit rating notation and scale. When several debt types are specified, they must be qualified through an 'any' or 'all'.">
 	[synonym FpML_5_10 value CreditRatingDebt]
 {
 	debtType string (0..1) scheme <"This attribute is to be specified when only one debt type is specified. FpML doesn't specify values in relation to the associated scheme.">;
-		[synonym FpML_5_10 value debtType]
-	condition QuantifierEnum (0..1) <"An enumerated attribute, to qualify whether All or Any debt type applies.">;
-		[synonym FpML_5_10 value condition]
+		[synonym FpML_5_10 value debtType meta debtTypeScheme]
+	debtTypes MultipleDebtTypes (0..1) <"This attribute provides the ability to specify several debt types, alongside an 'any' or 'all' or all condition. As an example, Baa1 rating is required for any long term debt and deposit.">;
 }
 
 class CustodyArrangement <"A class to specify the Custody Arrangement as a reference to two parties: the party that designates a custody agent, and that custody agent.">
@@ -83,25 +99,49 @@ class GeneralPrinciples <"A class to specify the GeneralPrinciples applicable to
 	substitutedRegime SubstitutedRegime (0..*) <"The set of substituted regulatory regimes that can be specified for a party. Notwithstanding that a regulatory regime is specified as not applicable in the Regime clauses and that no initial margin amounts will be calculated for such regime under this agreement, the parties agree that, with respect to a party, Regime for the purposes of the definition of Regulatory Event and the proviso in the definition of ISDA SIMM will include such Regime if it is specified as a Substituted Regime for that party as part of this provision.">;
 }
 
+class IndependentAmountEligibleCollateral <"A class to specify the eligible collateral for initial margin purposes.">
+	[synonym FpML_5_10 value IndependentAmountEligibleCollateral]
+{
+	partyReference string (0..1) reference <"A reference to the chargor/pledgor party.">;
+		[synonym FpML_5_10 value partyReference]
+	eligibleCollateral EligibleCollateral (0..*) <"The eligible collateral assets.">;
+		[synonym FpML_5_10 value eligibleCollateral]
+	independentAmountEligibility	IndependentAmountEligibilityEnum (0..1) scheme <"The terms when no collateral assets are specified.">;
+		[synonym FpML_5_10 value independentAmountEligibility meta independentAmountEligibilityScheme]
+	fxHaircut number (0..1) <"The ISDA 2018 CSA specifies the FX haircut with respect to each party's posting obligation to be equal to 8% if the eligible collateral is denominated in a currency that is distinct from the Termination Currency specified with respect to the Secured Party, and 0% if the same.">;
+	terminationCurrency TerminationCurrency (0..*);
+}
+
+choice rule IndependentAmountEligibleCollateral_choice <"The independentAmountEligibility attribute provides alternative terms to specifying eligible collateral.">
+	for IndependentAmountEligibleCollateral required choice between
+	eligibleCollateral and independentAmountEligibility
+
+/*
+ * To develop once the eligibible collateral is hooked.
+ */
+//data rule IndependentAmountEligibleCollateral_fxHaircut <"The ISDA 2018 CSA specifies the FX haircut with respect to each party's posting obligation to be equal to 8% if the eligible collateral is denominated in a currency that is distinct from the Termination Currency specified with respect to the Secured Party, and 0% if the same.">
+//	when LegalDocument -> standardCsaIM2018EnglishLaw exists
+//		or LegalDocument -> standardCsaIM2018EnglishLaw exists
+//	then LegalDocument -> standardCsaIM2018EnglishLaw -> 
+
 class InitialMarginCalculationAgent one of <"A class to specify the initial margin calculation amount according to the ISDA 2018 CSA for Initial Margin, either as a reference to one of the parties to the agreement, or the party making the collateral demand / Secured Party.">
 {
 	partyReference string (0..1) reference <"A reference to one of the two parties to the CSA.">;
 	designatedParty InitialAmountCalculationAgentEnum (0..1) <"The party when specified as a function of its role. The ISDA 2018 CSA for Initial Margin specifies that the calculation can be 'the party making the demand for purposes of Paragraphs 3, 4(d) and 5 and the Secured Party for the purposes of Paragraph 4(e)'.">;
 }
 
-class LegalDocument extends LegalDocumentBase one of <"A class to specify the set of elections and variables associated to a legal document.">
+class LegalDocument extends LegalDocumentBase one of <"A class to specify the elections and variables associated to a legal document.">
 	[synonym FpML_5_10 value LegalDocument]
 {
-	standardCsaIM2018EnglishLaw StandardCsaIM2018EnglishLaw (0..1) <"The set of elections and variables specified in Paragraph 13 of the ISDA 2018 Credit Support Annex for Initial Margin, English Law.">;
-	standardCsaIM2018NewYorkLaw StandardCsaIM2018NewYorkLaw (0..1) <"The set of elections and variables specified in Paragraph 13 of the ISDA 2018 Credit Support Annex for Initial Margin, New York Law.">;
+	standardCsaIM2018EnglishLaw StandardCsaIM2018EnglishLaw (0..1) <"The elections and variables specified in Paragraph 13 of the ISDA 2018 Credit Support Annex for Initial Margin, English Law.">;
+	standardCsaIM2018NewYorkLaw StandardCsaIM2018NewYorkLaw (0..1) <"The elections and variables specified in Paragraph 13 of the ISDA 2018 Credit Support Annex for Initial Margin, New York Law.">;
 }
 
-class LegalDocumentBase <"A class describing the legal document.">
-	[synonym FpML_5_10 value LegalDocument]
+class LegalDocumentBase <"A class describing the legal document. The purpose of this abstract class is to provide the ability to associate a 'one of' feature to the LegalDocument class as a way to enforce a systematic choice between its attributes.">
 {
-	documentHeader LegalDocumentHeader (1..1) <"The legal document header.">;
+	documentHeader LegalDocumentHeader (1..1) <"The legal document header, which specify the party roles, the dates, the identifier and the document history.">;
 		[synonym FpML_5_10 value documentHeader]
-	documentType LegalDocumentType (1..1) <"The type of legal document, identified via a set of distinct attributes, e.g. ISDA 2013 Standard Credit Support Annex English Law.">;
+	documentType LegalDocumentType (1..1) <"The type of legal document, identified via a set of distinct attributes: name, publisher, governing law and version, e.g. ISDA 2013 Standard Credit Support Annex English Law.">;
 		[synonym FpML_5_10 value documentType]
 	party Party (2..*) <"The parties associated with the legal document. While the FpML provides an optional cardinality and the ability to specify an account as a result of the use of the PartyAndAccounts.model for consistency purposes with the trade representation, the CDM specify a minimal cardinality of 2 and does not provides the ability to specify an account.">;
 		[synonym FpML_5_10 value party]
@@ -139,7 +179,7 @@ class LegalDocumentHistory <"A class to represent the legal document history as 
 		[synonym FpML_5_10 value documentIdentity]
 }
 
-abstract class LegalDocumentIdentity <"A class to specify the legal document identity">
+abstract class LegalDocumentIdentity <"A class to specify the legal document identity.">
 	[synonym FpML_5_10 value LegalDocumentIdentity]
 {
 	id string (0..1) id;
@@ -159,12 +199,15 @@ class LegalDocumentType <"A class to specify the type of legal document, which i
 {
 	name LegalDocumentNameEnum (1..1) <"The legal document name.">;
 		[synonym FpML_5_10 value name]
+		[synonym AcadiaSoft_25 value documentName]
 	publisher LegalDocumentPublisherEnum (1..1) <"The legal document publisher.">;
-		[synonym FpML_5_10 value publisher]
-	style LegalDocumentStyleEnum (0..1) <"The legal document reference style, e.g. English Law, New York Law or Japanese Law.">;
+		[synonym FpML_5_10, AcadiaSoft_25 value publisher]
+	governingLaw LegalDocumentStyleEnum (0..1) <"The legal document reference style, e.g. English Law, New York Law or Japanese Law.">;
 		[synonym FpML_5_10 value style]
+		[synonym AcadiaSoft_25 value governingLaw]
 	version string (0..1) <"In the case where successive definitions of the legal document have been developed, the identification of the specific definition. This is typically (but not necessarily) done by referencing the year, e.g. 2013 in the case of the ISDA 2013 Standard Credit Support Annex.">;
 		[synonym FpML_5_10 value version]
+		[synonym AcadiaSoft_25 value csaVersion]
 }
 
 class OneWayProvisions <"A class to specify the One Way Provisions applicable to the ISDA 2018 CSA, paragraph 13, General Principles, provision (aa).">
@@ -178,10 +221,10 @@ class PartyDocumentIdentifier <"A class defining a legal document identifier iss
 {
 	id string (0..1) id;
 		[synonym FpML_5_10 value id]
-	partyReference string (1..1) <"Reference to the party ">;
+	partyReference string (1..1) <"Reference to the party that issued the document identifier">;
 		[synonym FpML_5_10 value partyReference]
-	documentIdentifier Identifier (1..*) <"While FpML specifies the document identifier with a value and an associated scheme, the CDM makes use of the Identifier, which has an explicit issuer. The issuer of this identifier is not necessarily the same as the party reference">;
-		[synonym FpML_5_10 value documentId]
+	documentIdentifier Identifier (1..*) scheme <"While FpML specifies the document identifier with a value and an associated scheme, the CDM makes use of the Identifier, which has an explicit issuer. The issuer of this identifier is not necessarily the same as the party reference">;
+		[synonym FpML_5_10 value documentId meta legalDocumentIdScheme]
 }
 
 class SimmException one of <"A class to specify the SIMM exception to the regulatory regime clause of the ISDA 2018 CSA as either a normalised value specified as part of an enumeration or a customised value specified of type string.">
@@ -190,7 +233,7 @@ class SimmException one of <"A class to specify the SIMM exception to the regula
 	customisedException string (0..1) <"The Standard Initial Margin Model exception when specified as a customised value by the party.">;
 }
 
-class StandardCsaIM2018EnglishLaw <"A class to specify the ISDA 2018 Credit Support Annex for Initial Margin, English Law.">
+abstract class StandardCsaIM2018 <"An abstract class to specify the provisions that are common among the respective governing laws.">
 {
 	regime CounterpartyRegime (1..*) <"The Regime Table provision, which specifies the regulatory regime(s) applicable to each of the parties to the CSA in their capacity as Secured Party, with one set of values per counterparty. As specified in the CSA, the applicability of a regime shall not be construed as a representation, admission or acknowledgement that either party is actually regulated under such regime.">;
 	generalPrinciples GeneralPrinciples (1..1) <"The General Principles applicable to the 2018 ISDA CSA.">;
@@ -200,19 +243,19 @@ class StandardCsaIM2018EnglishLaw <"A class to specify the ISDA 2018 Credit Supp
 	custodyArrangement CustodyArrangement (0..2) <"The custodian in respect to each party as the Chargor. This attribute is optional as the parties may not specify such custodians as part of the CSA.">;
 }
 
-data rule StandardCsaIM2018EnglishLaw_baseCurrency <"The ISDA 2018 CSA specifies that the base currency should either be USD or EUR.">
-	when LegalDocument -> standardCsaIM2018EnglishLaw exists
-	then LegalDocument -> standardCsaIM2018EnglishLaw -> baseCurrency = "USD"
-		or LegalDocument -> standardCsaIM2018EnglishLaw -> baseCurrency = "EUR"
-
-class StandardCsaIM2018NewYorkLaw <"A class to specify the ISDA 2018 Credit Support Annex for Initial Margin, New York Law.">
+class StandardCsaIM2018EnglishLaw extends StandardCsaIM2018 <"A class to specify the ISDA 2018 Credit Support Annex for Initial Margin, English Law.">
 {
-	regime CounterpartyRegime (2..2) <"The Regime Table provision, which specifies the regulatory regime(s) applicable to each of the 2 parties to the CSA in their capacity as Secured Party, with one set of values per counterparty. As specified in the CSA, the applicability of a regime shall not be construed as a representation, admission or acknowledgement that either party is actually regulated under such regime.">;
-	generalPrinciples GeneralPrinciples (1..1) <"The General Principles applicable to the 2018 ISDA CSA.">;
-	baseCurrency string (1..1) scheme <"The currency specified as such.">;
-	marginApproach MarginApproachEnum (1..1) <"The Margin Approach applicable to the CSA.">;
-	calculationAgent InitialMarginCalculationAgent (1..1) <"The initial margin designated calculation agent.">;
-	custodyArrangement CustodyArrangement (0..2) <"The custodian in respect to each party as the Pledgor. This attribute is optional as the parties may not specify such custodians as part of the CSA.">;
+	
+}
+
+//data rule StandardCsaIM2018_baseCurrency <"The ISDA 2018 CSA specifies that the base currency should either be USD or EUR.">
+//	when LegalDocument -> standardCsaIM2018EnglishLaw exists
+//	then LegalDocument -> standardCsaIM2018EnglishLaw -> baseCurrency = "USD"
+//		or LegalDocument -> standardCsaIM2018EnglishLaw -> baseCurrency = "EUR"
+
+class StandardCsaIM2018NewYorkLaw extends StandardCsaIM2018 <"A class to specify the ISDA 2018 Credit Support Annex for Initial Margin, New York Law.">
+{
+	
 }
 
 data rule StandardCsaIM2018NewYorkLaw_baseCurrency <"The ISDA 2018 CSA specifies that the base currency should either be USD or EUR.">
@@ -224,4 +267,10 @@ class SubstitutedRegime <"A class to specify the Substituted Regime as part of t
 {
 	partyReference string (1..1) reference <"A reference to the party to which the Substituted Regime clause applies.">;
 	regime RegulatoryRegimeEnum (1..*) <"The set of regulatory regimes that are qualified as Substituted Regime.">;
+}
+
+class TerminationCurrency
+{
+	partyReference string (1..1) reference <"A reference to the party to which the Substituted Regime clause applies.">;
+	currency string (1..1) scheme;
 }
