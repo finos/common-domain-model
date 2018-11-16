@@ -35,7 +35,7 @@ class CashTransferComponent extends TransferBase <"">
 	amount Money (1..1) <"The currency amount.">;
 		[synonym Rosetta_Workbench value amount]
 		[synonym DTCC_11_0, DTCC_9_0 value notional path "calculationDetails.calculationElements", paymentAmount]
-	transferType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">;
+	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">;
 		[synonym Rosetta_Workbench value transferType]
 		[synonym DTCC_11_0, DTCC_9_0 value cashflowType path "calculationDetails.grossCashflow" meta cashflowTypeScheme]
 	breakdown CashTransferBreakdown (0..*) <"The cash transfer breakdown, when the transfer corresponds to a net amount across several components which breakdown is deemed relevant (e.g. the net cash transfer related to several contracts, or to the net proceeds across several payout components).">;
@@ -82,7 +82,7 @@ class ContractState <"A class to specify a contract instantiation with respect t
 	contract Contract (1..1);
         [synonym Rosetta_Workbench value trade]
         [synonym DTCC_11_0, DTCC_9_0 value FpML]
-        [synonym DTCC_11_0, DTCC_9_0 value TradeMsg]
+//        [synonym DTCC_11_0, DTCC_9_0 value TradeMsg]
         [synonym DTCC_11_0, DTCC_9_0 value ReportingJurisdiction path "ReportingHeader"]
 }
 
@@ -164,11 +164,12 @@ class Event
 	messageInformation MessageInformation (0..1);
 		[synonym DTCC_11_0 value FpML path "Body.OTC_Matching.Trade"]
 		[synonym DTCC_11_0, DTCC_9_0 value RouteInfo path "Header.OTC_RM.Delivery"]
+		[synonym DTCC_9_0 value Manifest path "Header.OTC_RM"]
 		[synonym CME_ClearedConfirm_1_17 value header path "clearingConfirmed"]
 	timestamp EventTimestamp (1..*) <"The set of timestamp(s) associated with the event as a collection of [dateTime, qualifier].">;
 		[synonym Rosetta_Workbench value timestamp]
 		[synonym DTCC_11_0 value header path "Body.OTC_Matching.Trade.FpML"]
-		[synonym DTCC_11_0 value RouteHist path "Header.OTC_RM.Delivery"]
+		[synonym DTCC_11_0, DTCC_9_0 value RouteHist path "Header.OTC_RM.Delivery"]
 		[synonym DTCC_9_0 value header path "Body.OTC_Matching.Payment.FpML"]
         [synonym CME_ClearedConfirm_1_17 value timestamps path "clearingConfirmed.trade.tradeHeader"]
         [synonym CME_ClearedConfirm_1_17 value header path "clearingConfirmed"]
@@ -395,6 +396,7 @@ class MessageInformation <"This class corresponds to the messaging components of
 		[synonym Rosetta_Workbench value messageId path "messageInformation" meta messageIdScheme]
 		[synonym DTCC_11_0, DTCC_9_0 value messageId path "header" meta messageIdScheme]
 		[synonym CME_ClearedConfirm_1_17 value messageId meta messageIdScheme]
+		[synonym DTCC_9_0 value MsgId]
 	sentBy string (0..1) scheme <"The identifier for the originator of a message instance.">;
 		[synonym Rosetta_Workbench value sentBy path "messageInformation" meta messageAddressScheme]
 		[synonym DTCC_11_0, DTCC_9_0 value From]
@@ -410,7 +412,7 @@ class ObservationPrimitive <"The primitive event to represent an observation.">
 {
 	source ObservationSource (1..1) <"The observation source.">;
 		[synonym Rosetta_Workbench value source]
-		[synonym DTCC_11_0, DTCC_9_0 value source]
+//		[synonym DTCC_11_0, DTCC_9_0 value source]
 	observation number (1..1) <"The observation value.">;
 		[synonym Rosetta_Workbench value observation]
 	date date (1..1) <"The observation date.">;
@@ -498,7 +500,7 @@ class PrimitiveEvent <"The set of primitive events. The purpose of this class it
 		[synonym DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value todo]
 	observation ObservationPrimitive (0..*);
 		[synonym Rosetta_Workbench value observation]
-		[synonym DTCC_11_0, DTCC_9_0 value observationElements path "Body.OTC_Matching.Payment.FpML.payment.calculationDetails"]
+//		[synonym DTCC_11_0, DTCC_9_0 value observationElements path "Body.OTC_Matching.Payment.FpML.payment.calculationDetails"]
 		// TODO - remove this synonym. See trello card: https://trello.com/c/zuFjHRzq
 		[synonym CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value todo]
 	reset ResetPrimitive (0..*);
@@ -564,7 +566,7 @@ class SecurityTransferComponent extends TransferBase
 		[synonym Rosetta_Workbench value security]
 	quantity number (1..1);
 		[synonym Rosetta_Workbench value quantity]
-	assetTransferType AssetTransferTypeEnum (0..1) <"The type of transfer, e.g. Free of Payment.">;
+	assetTransferType AssetTransferTypeEnum (0..1); // The relevance of this attribute and the associated values need to be confirmed"
 		[synonym Rosetta_Workbench value assetTransferType]
 	breakdown SecurityTransferBreakdown (0..*) <"The security transfer breakdown, when the transfer corresponds to a net transfer across several components which breakdown is deemed relevant (e.g. the net security transfer related to several contracts).">;
 		[synonym Rosetta_Workbench value breakdown]
@@ -588,8 +590,11 @@ class TimeZone <"The time alongside with the timezone location information. This
 
 class Transfer rosettaKey <"A class to specify the transfer primitive by providing the ability to combine a set of transfer components which are specialised by asset class.">
 {
-	transferType TransferTypeEnum (0..1) <"The qualification of the type of transfer when associated with multiple components, e.g. a DvP settlement.">;
+	identifier string (0..1) scheme <"The identifier which might be associated with the transfer.">;
+		[synonym DTCC_11_0, DTCC_9_0 value identifier path "payment" meta paymentIdScheme]
+	settlementType TransferSettlementEnum (0..1) <"The qualification as to how the transfer will settle, e.g. a DvP settlement.">;
 		[synonym Rosetta_Workbench value transferType]
+		[synonym DTCC_11_0, DTCC_9_0 value SettlementType path "PaymentDetails"]
 	settlementDate AdjustableOrAdjustedOrRelativeDate (1..1);
 		[synonym Rosetta_Workbench value settlementDate]
 	cashTransfer CashTransferComponent (0..*) <"The cash transfer component of the transfer. In the case where several currencies are involved in the transfer, several components should be used, as the component supports one single currency amount.">;
@@ -746,7 +751,7 @@ data rule Novation_fee <"Logic to specify that if a payment is qualified as a no
 		and Event -> lineage -> eventReference single exists
 
 /*
- * TODO - The below logic doesn't work.  Hugo to look into it.
+ * TODO - The below logic doesn't work
  */
 isEvent PartialTermination <"The qualification of a partial termination event from the fact that (i) the intent is Partial Termination when specified, (ii) the only primitive is the quantityChange and there is only one such primitive involved, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
 	Event -> intent when present = IntentEnum.PartialTermination
@@ -810,3 +815,7 @@ isEvent Termination <"The qualification of a termination event from the fact tha
 	and Event -> primitive -> quantityChange single exists
 	or quantityAfterQuantityChange = 0.0
 	and Event -> primitive -> quantityChange -> after -> contract -> state = StateEnum.Terminated
+
+//isEvent TradeRepositorySubmission
+//	Event -> primitive -> inception exists
+//	and MatchedEvent -> account exists
