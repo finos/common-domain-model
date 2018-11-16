@@ -34,7 +34,7 @@ class CashTransferComponent extends TransferBase <"">
 	payerReceiver PayerReceiver (1..1) <"The payer and receiver party information.">;
 	amount Money (1..1) <"The currency amount.">;
 		[synonym Rosetta_Workbench value amount]
-		[synonym DTCC_11_0, DTCC_9_0 value notional path "calculationDetails.calculationElements", paymentAmount]
+		[synonym DTCC_11_0, DTCC_9_0 value paymentAmount]
 	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">;
 		[synonym Rosetta_Workbench value transferType]
 		[synonym DTCC_11_0, DTCC_9_0 value cashflowType path "calculationDetails.grossCashflow" meta cashflowTypeScheme]
@@ -81,9 +81,7 @@ class ContractState <"A class to specify a contract instantiation with respect t
 {
 	contract Contract (1..1);
         [synonym Rosetta_Workbench value trade]
-        [synonym DTCC_11_0, DTCC_9_0 value FpML]
-//        [synonym DTCC_11_0, DTCC_9_0 value TradeMsg]
-        [synonym DTCC_11_0, DTCC_9_0 value ReportingJurisdiction path "ReportingHeader"]
+        [synonym DTCC_11_0, DTCC_9_0 value FpML path "Trade"]
 }
 
 class CreditLimit
@@ -320,11 +318,8 @@ class Inception <"The primitive event for the inception of a new contract betwee
 	 */
 	after PostInceptionState (1..2) reference <"The after state corresponds to the new contract between the parties. Depending upon the implementation approach, this contract can either be explicitly stated, or referenced via either a CDM rosettaKey or a reference that originates externally from the CDM. The cardinality is set to (1..2) to support the clearing event, with the beta and gamma cleared trades.">;
 		[synonym Rosetta_Workbench value after]
-		// Requires conditional mapping based on OTC_RM_11-0.TransTypeDataType
-		//[synonym DTCC_11_0, DTCC_9_0 value Trade path "Body.OTC_Matching", ReportingData path "Body.OTC_Matching", Manifest path "Header.OTC_RM" set when "Header.OTC_RM.Manifest.TradeMsg.TransType" = "Trade"]
-		[synonym DTCC_11_0, DTCC_9_0 value Trade path "Body.OTC_Matching"]//, ReportingData path "Body.OTC_Matching", Manifest path "Header.OTC_RM"]
+		[synonym DTCC_11_0, DTCC_9_0 value OTC_Matching path "Body"]
 		[synonym CME_ClearedConfirm_1_17 value clearingConfirmed]
-	tradeWarehouseWorkflow TradeWareHouseWorkflow (0..1) <"Information related to trade warehouse workflow">;
 }
 
 class InterestRateCurve
@@ -469,6 +464,7 @@ class PostInceptionState extends ContractState
 	creditLimitInformation CreditLimitInformation (0..1) <"Credit limit utilization information">;
 		[synonym CME_ClearedConfirm_1_17 value creditLimitInformation path "trade.tradeHeader"]
 		[synonym Rosetta_Workbench value creditLimitInformation]
+	tradeWarehouseWorkflow TradeWareHouseWorkflow (0..1) <"Information related to trade warehouse workflow">;
 }
 
 class PrimitiveEvent <"The set of primitive events. The purpose of this class it to provide clarity with respect to the event qualification logic.">
@@ -509,8 +505,7 @@ class PrimitiveEvent <"The set of primitive events. The purpose of this class it
 		[synonym Rosetta_Workbench value transfer]
 		// TODO - remove this synonym. See trello card: https://trello.com/c/zuFjHRzq
 		[synonym CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value todo]
-		[synonym DTCC_11_0, DTCC_9_0 value FpML path "Body.OTC_Matching.Payment"]
-		[synonym DTCC_11_0, DTCC_9_0 value PaymentDetails path "Body.OTC_Matching.Payment"]
+		[synonym DTCC_11_0, DTCC_9_0 value Payment path "Body.OTC_Matching"]
 }
 
 class PriorInceptionState extends ContractState <"A class to specify the before state applicable to the inception primitive, with the ability to qualify the event that gave way to the alpha trade that is submitted for clearing.">
@@ -586,23 +581,25 @@ class TimeZone <"The time alongside with the timezone location information. This
 class TradeWareHouseWorkflow
 {
 	warehouseIdentity WarehouseIdentityEnum (1..1);
+		[synonym DTCC_11_0, DTCC_9_0 value WarehousePositionType path "WarehouseState"]
 	warehouseStatus WarehouseStatusEnum (1..1);
+		[synonym DTCC_11_0, DTCC_9_0 value WarehouseStatus path "WarehouseState"]
 	partyCustomisedWorkflow PartyCustomisedWorkflow (0..*) <"Non-standardised workflow data related to a party.">;
-		[synonym DTCC_11_0, DTCC_9_0 value WorkflowData path "Body.OTC_Matching"]
+		[synonym DTCC_11_0, DTCC_9_0 value WorkflowData]
 }
 
 class Transfer rosettaKey <"A class to specify the transfer primitive by providing the ability to combine a set of transfer components which are specialised by asset class.">
 {
 	identifier string (0..1) scheme <"The identifier which might be associated with the transfer.">;
-		[synonym DTCC_11_0, DTCC_9_0 value tradeCashflowsId meta tradeCashflowsIdScheme]
+		[synonym DTCC_11_0, DTCC_9_0 value tradeCashflowsId path "FpML" meta tradeCashflowsIdScheme]
 	settlementType TransferSettlementEnum (0..1) <"The qualification as to how the transfer will settle, e.g. a DvP settlement.">;
 		[synonym Rosetta_Workbench value transferType]
-		[synonym DTCC_11_0, DTCC_9_0 value SettlementType]
+		[synonym DTCC_11_0, DTCC_9_0 value SettlementType path "PaymentDetails"]
 	settlementDate AdjustableOrAdjustedOrRelativeDate (1..1);
-		[synonym Rosetta_Workbench value settlementDate]
+		[synonym Rosetta_Workbench value settlementDate path "FpML"]
 	cashTransfer CashTransferComponent (0..*) <"The cash transfer component of the transfer. In the case where several currencies are involved in the transfer, several components should be used, as the component supports one single currency amount.">;
 		[synonym Rosetta_Workbench value cashTransfer]
-		[synonym DTCC_11_0, DTCC_9_0 value payment]
+		[synonym DTCC_11_0, DTCC_9_0 value payment path "FpML"]
 	securityTransfer SecurityTransferComponent (0..*) <"The security transfer component of the transfer. In the case where several securities are involved in the transfer, several components should be used, as the component supports one single security.">;
 		[synonym Rosetta_Workbench value securityTransfer]
 	commodityTransfer CommodityTransferComponent (0..*);
@@ -823,4 +820,4 @@ isEvent Termination <"The qualification of a termination event from the fact tha
 
 isEvent TradeRepositorySubmission
 	Event -> primitive -> inception exists
-	and Event -> primitive -> inception -> tradeWarehouseWorkflow exists
+	and Event -> primitive -> inception -> after -> tradeWarehouseWorkflow exists
