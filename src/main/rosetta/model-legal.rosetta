@@ -7,7 +7,7 @@ class ApplicableRegime <"A class to specify the regulatory regime applicable to 
 	simmException SimmException (1..1) <"The specified exception to the ISDA Standard Initial Margin Model.">;
 }
 
-abstract class CreditSupportAnnexInitialMargin2018 <"An abstract class to specify the provisions that are common among the respective governing laws.">
+abstract class CsaInitialMargin2018 <"An abstract class to specify the provisions that are common among the respective governing laws.">
 {
 	regime Regime (1..2) <"The Regime Table provision as specified by the ISDA 2018 CSA for Initial Margin, Paragraph 13 Regime Table provision, which determines the regulatory regime(s) applicable to each of the parties to the CSA in their capacity as Secured Party, with one set of values per counterparty. As specified in the CSA, the applicability of a regime shall not be construed as a representation, admission or acknowledgement that either party is actually regulated under such regime.">;
 	oneWayProvisions OneWayProvisions (1..1) <"The determination of whether the One Way Provisions are applicable (true) or not applicable (false) as specified by ISDA 2018 CSA for Initial Margin, Paragraph 13 (aa).">;
@@ -19,28 +19,27 @@ abstract class CreditSupportAnnexInitialMargin2018 <"An abstract class to specif
 	baseCurrency string (1..1) scheme <"The base currency as specified by the ISDA 2018 CSA for Initial Margin, Paragraph 13 (a).">;
 	marginApproach MarginApproachEnum (1..1) <"The Margin Approach applicable to the CSA, as specified by the ISDA 2018 CSA for Initial Margin, Paragraph 13 (c) (i).">;
 	calculationAgent InitialMarginCalculationAgent (1..1) <"The initial margin designated calculation agent, as specified by the ISDA 2018 CSA for Initial Margin, Paragraph 13 (c) (ii).">;
+}
+
+class CsaInitialMargin2018EnglishLaw extends CsaInitialMargin2018 <"A class to specify the provisions that are specific to the English Law version of the ISDA 2018 Credit Support Annex for Initial Margin.">
+{
 	custodyArrangement CustodyArrangement (0..2) <"The custodian in respect to each party as the Pledgor/Chargor, as specified by the ISDA 2018 CSA for Initial Margin, Paragraph 13 (m). This attribute is optional as the parties may not specify such custodians as part of the CSA.">;	
 }
 
-class CreditSupportAnnexInitialMargin2018EnglishLaw extends CreditSupportAnnexInitialMargin2018 <"A class to specify the provisions that are specific to the English Law version of the ISDA 2018 Credit Support Annex for Initial Margin.">
-{
-	
-}
-
 data rule CreditSupportAnnexInitialMargin2018EnglishLaw_baseCurrency <"The ISDA 2018 CSA for Initial Margin English Law specifies that the base currency should either be USD or EUR.">
-	when LegalDocument -> creditSupportAnnexInitialMargin2018EnglishLaw exists
-	then LegalDocument -> creditSupportAnnexInitialMargin2018EnglishLaw -> baseCurrency = "USD"
-		or LegalDocument -> creditSupportAnnexInitialMargin2018EnglishLaw -> baseCurrency = "EUR"
+	when LegalDocument -> csaInitialMargin2018EnglishLaw exists
+	then LegalDocument -> csaInitialMargin2018EnglishLaw -> baseCurrency = "USD"
+		or LegalDocument -> csaInitialMargin2018EnglishLaw -> baseCurrency = "EUR"
 
-class CreditSupportAnnexInitialMargin2018NewYorkLaw extends CreditSupportAnnexInitialMargin2018 <"A class to specify the provisions that are specific to the New York Law version of the ISDA 2018 Credit Support Annex for Initial Margin.">
+class CsaInitialMargin2018NewYorkLaw extends CsaInitialMargin2018 <"A class to specify the provisions that are specific to the New York Law version of the ISDA 2018 Credit Support Annex for Initial Margin.">
 {
-	
+	custodyArrangement CustodyArrangement (0..2) <"The custodian in respect to each party as the Pledgor/Chargor, as specified by the ISDA 2018 CSA for Initial Margin, Paragraph 13 (m). This attribute is optional as the parties may not specify such custodians as part of the CSA.">;	
 }
 
 data rule CreditSupportAnnexInitialMargin2018NewYorkLaw_baseCurrency <"The ISDA 2018 CSA for Initial Margin New York Law specifies that the base currency should either be USD or EUR.">
-	when LegalDocument -> creditSupportAnnexInitialMargin2018NewYorkLaw exists
-	then LegalDocument -> creditSupportAnnexInitialMargin2018NewYorkLaw -> baseCurrency = "USD"
-		or LegalDocument -> creditSupportAnnexInitialMargin2018NewYorkLaw -> baseCurrency = "EUR"
+	when LegalDocument -> csaInitialMargin2018NewYorkLaw exists
+	then LegalDocument -> csaInitialMargin2018NewYorkLaw -> baseCurrency = "USD"
+		or LegalDocument -> csaInitialMargin2018NewYorkLaw -> baseCurrency = "EUR"
 
 class MultipleDebtTypes <"A class to specify the ability to specify multiple credit debt types alongside a conditional 'any' or 'all' qualifier.">
 {
@@ -147,9 +146,9 @@ choice rule IndependentAmountEligibleCollateral_choice <"The independentAmountEl
 	eligibleCollateral and independentAmountEligibility
 
 data rule IndependentAmountEligibleCollateral_fxHaircut <"The ISDA 2018 CSA specifies the FX haircut with respect to each party's posting obligation to be equal to 8% if the eligible collateral is denominated in a currency that is distinct from the Termination Currency specified with respect to the Secured Party, and 0% if the same.">
-	when CreditSupportAnnexInitialMargin2018 -> eligibleCollateral -> fxHaircut exists
-	then CreditSupportAnnexInitialMargin2018 -> eligibleCollateral -> fxHaircut = 0.08
-	or CreditSupportAnnexInitialMargin2018 -> eligibleCollateral -> fxHaircut = 0.0
+	when CsaInitialMargin2018 -> eligibleCollateral -> fxHaircut exists
+	then CsaInitialMargin2018 -> eligibleCollateral -> fxHaircut = 0.08
+	or CsaInitialMargin2018 -> eligibleCollateral -> fxHaircut = 0.0
 
 class InitialMarginCalculationAgent one of <"A class to specify the initial margin calculation amount according to the ISDA 2018 CSA for Initial Margin, either as a reference to one of the parties to the agreement, or the party making the collateral demand / Secured Party.">
 {
@@ -160,8 +159,8 @@ class InitialMarginCalculationAgent one of <"A class to specify the initial marg
 class LegalDocument extends LegalDocumentBase one of <"A class to specify the elections and variables associated to a legal document.">
 	[synonym FpML_5_10 value LegalDocument]
 {
-	creditSupportAnnexInitialMargin2018EnglishLaw CreditSupportAnnexInitialMargin2018EnglishLaw (0..1) <"The elections and variables specified in Paragraph 13 of the ISDA 2018 Credit Support Annex for Initial Margin, English Law.">;
-	creditSupportAnnexInitialMargin2018NewYorkLaw CreditSupportAnnexInitialMargin2018NewYorkLaw (0..1) <"The elections and variables specified in Paragraph 13 of the ISDA 2018 Credit Support Annex for Initial Margin, New York Law.">;
+	csaInitialMargin2018EnglishLaw CsaInitialMargin2018EnglishLaw (0..1) <"The elections and variables specified in Paragraph 13 of the ISDA 2018 Credit Support Annex for Initial Margin, English Law.">;
+	csaInitialMargin2018NewYorkLaw CsaInitialMargin2018NewYorkLaw (0..1) <"The elections and variables specified in Paragraph 13 of the ISDA 2018 Credit Support Annex for Initial Margin, New York Law.">;
 }
 
 class LegalDocumentBase <"A class describing the legal document. The purpose of this abstract class is to provide the ability to associate a 'one of' feature to the LegalDocument class as a way to enforce a systematic choice between its attributes.">
@@ -278,9 +277,9 @@ data rule SimmCalculationCurrency_baseCurrency <"When the SIMM calculation curre
 	then SimmCalculationCurrency -> currency is absent
 
 data rule SimmCalculationCurrency_otherCurrency <"When the SIMM calculation currency is specified as distinct from the CSA base currency the currency attribute should be specified and be different from the CSA Base Currency.">
-	when CreditSupportAnnexInitialMargin2018 -> method -> calculationCurrency -> baseCurrency = False
-	then CreditSupportAnnexInitialMargin2018 -> method -> calculationCurrency -> currency exists
-	and CreditSupportAnnexInitialMargin2018 -> method -> calculationCurrency -> currency <> CreditSupportAnnexInitialMargin2018 -> baseCurrency
+	when CsaInitialMargin2018 -> method -> calculationCurrency -> baseCurrency = False
+	then CsaInitialMargin2018 -> method -> calculationCurrency -> currency exists
+	and CsaInitialMargin2018 -> method -> calculationCurrency -> currency <> CsaInitialMargin2018 -> baseCurrency
 
 class SimmException one of <"A class to specify the SIMM exception to the regulatory regime clause of the ISDA 2018 CSA for Initial Margin as either a normalised value specified as part of an enumeration or a customised value specified of type string.">
 {
