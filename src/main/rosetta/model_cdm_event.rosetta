@@ -317,12 +317,12 @@ class GrossCashflow extends CashflowBase
 
 class Inception <"The primitive event for the inception of a new contract between parties. It is expected that this primitive will be adjusted or deprecated once the CDM scope is extended to the pre-execution space.">
 {
-	before PriorInceptionState (0..1) <"In the context where the CDM is focused on post-execution lifecycle events, it is expected that the clearing event is the only case where the prior contract will be stated, as corresponding to the alpha bilateral trade that is presented to clearing.">;
+	before ContractState (0..0) <"The (0..0) cardinality reflects the fact that there is no contract in the before state of an inception primitive. As noted in the definition associated with the class, this is expected to change once the CDM scope is extended to the pre-execution space.">;
 		[synonym Rosetta_Workbench value before]
 	/*
 	 * Need to add the rosettaKey entry
 	 */
-	after PostInceptionState (1..2) reference <"The after state corresponds to the new contract between the parties. Depending upon the implementation approach, this contract can either be explicitly stated, or referenced via either a CDM rosettaKey or a reference that originates externally from the CDM. The cardinality is set to (1..2) to support the clearing event, with the beta and gamma cleared trades.">;
+	after PostInceptionState (1..1) reference <"The after state corresponds to the new contract between the parties. Depending upon the implementation approach, this contract can either be explicitly stated, or referenced via either a CDM rosettaKey or a reference that originates externally from the CDM.">;
 		[synonym Rosetta_Workbench value after]
 		// Requires conditional mapping based on OTC_RM_11-0.TransTypeDataType
 		//[synonym DTCC_11_0, DTCC_9_0 value Trade path "Body.OTC_Matching", ReportingData path "Body.OTC_Matching", Manifest path "Header.OTC_RM" set when "Header.OTC_RM.Manifest.TradeMsg.TransType" = "Trade"]
@@ -517,11 +517,6 @@ class PrimitiveEvent <"The set of primitive events. The purpose of this class it
 		[synonym Rosetta_Workbench value transfer]
 		// TODO - remove this synonym. See trello card: https://trello.com/c/zuFjHRzq
 		[synonym CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value todo]
-}
-
-class PriorInceptionState extends ContractState <"A class to specify the before state applicable to the inception primitive, with the ability to qualify the event that gave way to the alpha trade that is submitted for clearing.">
-{
-	
 }
 
 class QuantityChangePrimitive <"The primitive event to represent a change in quantity or notional.">
