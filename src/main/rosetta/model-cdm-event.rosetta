@@ -83,6 +83,7 @@ class ContractState <"A class to specify a contract instantiation with respect t
         [synonym DTCC_11_0, DTCC_9_0 value FpML path "Trade"]
         [synonym DTCC_11_0, DTCC_9_0 value TradeMsg path "Manifest"]
         [synonym DTCC_11_0, DTCC_9_0 value ReportingJurisdiction path "ReportingData.ReportingHeader"]
+        [synonym CME_SubmissionIRS_1_0 value FpML path "Instrmt.SecXML"]
 }
 
 class CreditLimit
@@ -98,7 +99,7 @@ class CreditLimit
 	limitApplicable LimitApplicable (0..*);
 		[synonym FpML_5_10 value limitApplicable]
 	expirationDateTime dateTime (0..1) <"The CDM naming include the time suffix because the FpML element is actually of type dateTime.">;
-		[synonym FpML_5_10 value expirationDate]	
+		[synonym FpML_5_10 value expirationDate]
 }
 
 class CreditLimitInformation <"A class to represent the credit limit utilization information.">
@@ -106,7 +107,7 @@ class CreditLimitInformation <"A class to represent the credit limit utilization
 {
 	limitApplicable LimitApplicableExtended (1..*);
 		[synonym CME_ClearedConfirm_1_17, Rosetta_Workbench value limitApplicable]
-} 
+}
 
 class CreditLimitUtilisation <"Credit limit utilisation breakdown by executed trades and pending orders.">
 	[synonym FpML_5_10 value CreditLimitUtilization]
@@ -172,10 +173,12 @@ class Event
 		[synonym DTCC_9_0 value header path "Body.OTC_Matching.Payment.FpML"]
         [synonym CME_ClearedConfirm_1_17 value timestamps path "clearingConfirmed.trade.tradeHeader"]
         [synonym CME_ClearedConfirm_1_17 value header path "clearingConfirmed"]
+        [synonym CME_SubmissionIRS_1_0 value TrdCaptRpt]
+        [synonym CME_SubmissionIRS_1_0 value Hdr path "TrdCaptRpt"]
     eventIdentifier Identifier (1..*) <"The event identifier, which has 3 components: an actual identifier, an issuer and a version number. One and only one identifier can be associated with a lifecycle event.">;
 		[synonym Rosetta_Workbench value eventIdentifier]
 		[synonym DTCC_11_0, DTCC_9_0 value Submitter path "Header.OTC_RM.Manifest.TradeMsg"]
-		[synonym DTCC_11_0, DTCC_9_0 value ContraTradeId path "Header.OTC_RM.Manifest.TradeMsg"] 
+		[synonym DTCC_11_0, DTCC_9_0 value ContraTradeId path "Header.OTC_RM.Manifest.TradeMsg"]
 		[synonym DTCC_11_0, DTCC_9_0 value YourTradeId path "Header.OTC_RM.Manifest.TradeMsg"]
 		[synonym DTCC_11_0, DTCC_9_0 value tradeIdentifyingItems path "Header.OTC_RM.Manifest.TradeMsg"]
 	eventQualifier eventType (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic. This value is derived by the CDM from the event features.">;
@@ -188,6 +191,8 @@ class Event
 			set to ActionEnum.New when "isCorrection" = False,
 			set to ActionEnum.Correct when "isCorrection" = True]
 		[synonym DTCC_11_0, DTCC_9_0 value Activity path "Header.OTC_RM.Manifest.TradeMsg"]
+		[synonym DTCC_11_0, DTCC_9_0 value Activity path "Body.OTC_Matching"]
+		[synonym CME_SubmissionIRS_1_0 value TransTyp path "TrdCaptRpt"]
 	intent IntentEnum (0..1);
 		[synonym Rosetta_Workbench value intent]
 		[synonym CME_ClearedConfirm_1_17 set to IntentEnum.Clearing when "clearingConfirmed" exists]
@@ -201,7 +206,6 @@ class Event
 		[synonym Rosetta_Workbench value lineage]
 	primitive PrimitiveEvent (1..1);
 		[synonym Rosetta_Workbench value primitive]
-		[synonym CME_SubmissionIRS_1_0 value TrdCaptRpt]
 	functionCall string (0..1) <"This is placeholder concept for a function call into a calculation that will return an outcome. This concept needs to be further firmed out.">;
 		[synonym Rosetta_Workbench value functionCall]
 	eventEffect EventEffect (0..1) <"The set of effects associated with the lifecycle event, i.e. generated cashflows, contracts (from, say, novation events), listed products (from, say, a bond option exercise event)  values and more. Those are represented through a set of rosettaKey references. This attribute is optional in order to provide implementers with the ability not to make use of this feature.">;
@@ -226,18 +230,21 @@ class EventTestBundle <"A class which combines several events for testing purpos
 
 class EventTimestamp <"A class to represent the various set of timestamps that can be associated with lifecycle events, as a collection of [dateTime, qualifier]">
 {
-	dateTime zonedDateTime (1..1);
+	dateTime zonedDateTime (1..1) <"The CDM specifies that the zoned date time is to be expressed in accordance with ISO 8601, either as UTC as an an offset to UTC.">;
 		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value creationTimestamp]
 		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value expiryTimestamp]
 		[synonym DTCC_11_0, DTCC_9_0 value ReceiveTime path "Route"]
 		[synonym DTCC_11_0, DTCC_9_0 value ReleaseTime path "Route"]
 		[synonym CME_ClearedConfirm_1_17 value submittedForClearing]
+		[synonym CME_SubmissionIRS_1_0 value TxnTm, Snt]
 	qualification EventTimeStampQualificationEnum (1..1);
 		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 set to EventTimeStampQualificationEnum.eventCreated when "creationTimestamp" exists]
 		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 set to EventTimeStampQualificationEnum.eventExpired when "expiryTimestamp" exists]
 		[synonym CME_ClearedConfirm_1_17, Rosetta_Workbench set to EventTimeStampQualificationEnum.submittedForClearing when "submittedForClearing" exists]
-		[synonym DTCC_11_0, DTCC_9_0 set to EventTimeStampQualificationEnum.eventReceived when path = "Route.ReceiveTime"]
-		[synonym DTCC_11_0, DTCC_9_0 set to EventTimeStampQualificationEnum.eventProcessed when path = "Route.ReleaseTime"]
+		[synonym DTCC_11_0, DTCC_9_0 set to EventTimeStampQualificationEnum.eventReceived when "Route.ReceiveTime" exists]
+		[synonym DTCC_11_0, DTCC_9_0 set to EventTimeStampQualificationEnum.eventProcessed when "Route.ReleaseTime" exists]
+		[synonym CME_SubmissionIRS_1_0 set to EventTimeStampQualificationEnum.executed when "TxnTm" exists ]
+		[synonym CME_SubmissionIRS_1_0 set to EventTimeStampQualificationEnum.eventSent when "Snt" exists ]
 }
 
 class Execution rosettaKey
@@ -310,16 +317,17 @@ class GrossCashflow extends CashflowBase
 
 class Inception <"The primitive event for the inception of a new contract between parties. It is expected that this primitive will be adjusted or deprecated once the CDM scope is extended to the pre-execution space.">
 {
-	before PriorInceptionState (0..1) <"In the context where the CDM is focused on post-execution lifecycle events, it is expected that the clearing event is the only case where the prior contract will be stated, as corresponding to the alpha bilateral trade that is presented to clearing.">;
+	before ContractState (0..0) <"The (0..0) cardinality reflects the fact that there is no contract in the before state of an inception primitive. As noted in the definition associated with the class, this is expected to change once the CDM scope is extended to the pre-execution space.">;
 		[synonym Rosetta_Workbench value before]
-		[synonym CME_SubmissionIRS_1_0 value trade]
 	/*
 	 * Need to add the rosettaKey entry
 	 */
-	after PostInceptionState (1..2) reference <"The after state corresponds to the new contract between the parties. Depending upon the implementation approach, this contract can either be explicitly stated, or referenced via either a CDM rosettaKey or a reference that originates externally from the CDM. The cardinality is set to (1..2) to support the clearing event, with the beta and gamma cleared trades.">;
+	after PostInceptionState (1..1) reference <"The after state corresponds to the new contract between the parties. Depending upon the implementation approach, this contract can either be explicitly stated, or referenced via either a CDM rosettaKey or a reference that originates externally from the CDM.">;
 		[synonym Rosetta_Workbench value after]
 		[synonym DTCC_11_0, DTCC_9_0 value OTC_Matching path "Body", OTC_RM path "Header"]
 		[synonym CME_ClearedConfirm_1_17 value clearingConfirmed]
+		[synonym CME_SubmissionIRS_1_0 value TrdCaptRpt]
+		[synonym CME_SubmissionIRS_1_0 value RegTrdID path "TrdCaptRpt"]
 }
 
 class InterestRateCurve
@@ -458,9 +466,14 @@ data rule PhysicalExercise_quantity <"The quantity attribute should only be asso
 
 class PostInceptionState extends ContractState
 {
+	originatingEvent OriginatingEventEnum (0..1) <"The qualification by the clearing facility of whether the cleared trade results from a trade presented for clearing by market participants (in which case it is qualified as a 'New Trade') or whether it results from a process that is internal to the CCP, in which case this process will be qualified accordingly (e.g. Transfer, Novation, Compression, ...).">;
+		[synonym CME_ClearedConfirm_1_17 value originatingEvent path "trade.tradeHeader"]
+		[synonym Rosetta_Workbench value originatingEvent]
+		[synonym CME_SubmissionIRS_1_0 value Evnt]
 	clearingStatus ClearingStatusEnum (0..1);
 		[synonym Rosetta_Workbench value clearingStatus]
 		[synonym CME_ClearedConfirm_1_17 value status]
+		[synonym CME_SubmissionIRS_1_0 value TrdRptStat]
 	creditLimitInformation CreditLimitInformation (0..1) <"Credit limit utilization information">;
 		[synonym CME_ClearedConfirm_1_17 value creditLimitInformation path "trade.tradeHeader"]
 		[synonym Rosetta_Workbench value creditLimitInformation]
@@ -471,7 +484,6 @@ class PrimitiveEvent <"The set of primitive events. The purpose of this class it
 {
 	inception Inception (0..*);
 		[synonym Rosetta_Workbench value inception]
-		[synonym CME_SubmissionIRS_1_0 value FpML path "Instrmt.SecXML"]
 	quantityChange QuantityChangePrimitive (0..*);
 		[synonym Rosetta_Workbench value quantityChange]
 		// TODO - remove this synonym. See trello card: https://trello.com/c/zuFjHRzq
@@ -540,7 +552,7 @@ class ResetPrimitive <"The primitive event to represent a reset.">
 		[synonym Rosetta_Workbench value cashflow]
 }
 
-class SecurityTransferBreakdown 
+class SecurityTransferBreakdown
 {
 	transferorTransferee TransferorTransferee (1..1) <"The transferee and transferor party information.">;
 	security Security (1..*) <"The security(ies) that is being transfered">;
@@ -607,7 +619,7 @@ class Transfer rosettaKey <"A class to specify the transfer primitive by providi
 		[synonym Rosetta_Workbench value status]
 	settlementReference string (0..1) <"The settlement reference, when applicable.">;
 		[synonym Rosetta_Workbench value settlementReference]
-}	
+}
 
 class TransferBase
 {

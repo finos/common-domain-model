@@ -3,11 +3,14 @@ namespace "org.isda.cdm"
 enum ActionEnum <"The enumeration values to specify the actions associated with transactions.">
 {
 	New
-		[synonym DTCC_11_0, DTCC_9_0 value "New"],
+		[synonym DTCC_11_0, DTCC_9_0 value "New"]
+		[synonym CME_SubmissionIRS_1_0 value "0"],
 	Correct
-		[synonym DTCC_11_0, DTCC_9_0 value "Modify"],
+		[synonym DTCC_11_0, DTCC_9_0 value "Modify"]
+		[synonym CME_SubmissionIRS_1_0 value "2"],
 	Cancel
 		[synonym DTCC_11_0, DTCC_9_0 value "Disable"]
+		[synonym CME_SubmissionIRS_1_0 value "1"]
 }
 
 enum AssetTransferTypeEnum <"The qualification of the type of asset transfer.">
@@ -69,11 +72,17 @@ enum ClearingStatusEnum <"The enumeration values to specify the clearing status 
 	Amended <"The cleared trade has been amended.">
 		[synonym CME_ClearedConfirm_1_17 value "AMENDED"]
 		[synonym Rosetta_Workbench value "Amended"],
+	Cancelled <"The clearing submission has been cancelled.">
+		[synonym CME_SubmissionIRS_1_0 value "2"],
 	Cleared <"The alpha trade has been cleared.">
 		[synonym CME_ClearedConfirm_1_17 value "CLEARED"]
-		[synonym Rosetta_Workbench value "Cleared"],
+		[synonym Rosetta_Workbench value "Cleared"]
+		[synonym CME_SubmissionIRS_1_0 value "0"],
+	Pending <"The clearing submission is pending.">
+		[synonym CME_SubmissionIRS_1_0 value "101"],
 	Rejected <"The alpha trade has been rejected.">
-		[synonym CME_ClearedConfirm_1_17, Rosetta_Workbench value "Rejected"],
+		[synonym CME_ClearedConfirm_1_17, Rosetta_Workbench value "Rejected"]
+		[synonym CME_SubmissionIRS_1_0 value "1"],
 	Terminated <"The cleared trade has been terminated.">
 		[synonym CME_ClearedConfirm_1_17 value "TERMINATED"]
 		[synonym Rosetta_Workbench value "Terminated"]
@@ -181,6 +190,8 @@ enum EventTimeStampQualificationEnum <"The enumeration values to qualify the tim
 	eventExpired <"The date and time on which the event will be considered expired.">,
 	eventProcessed  <"The date and time on which the event was processed.">,
 	eventReceived  <"The date and time on which the event was received.">,
+	eventSent  <"The date and time on which the event was sent.">,
+	executed <"The time on which the trade has been executed.">,
 	submittedForClearing <"The date and time on which the event was submitted for clearing.">
 }
 
@@ -215,26 +226,31 @@ enum IntentEnum <"The enumeration values to qualify the intent associated with a
 	Clearing
 }
 
-enum OriginatingEventEnum <"The enumeration values to specify the originating event that gave way to trade that is submitted for clearing, e.g. a swaption exercise event .">
+enum OriginatingEventEnum <"The enumeration values to specify the originating event that gave way to the trade.">
 	[synonym CME_ClearedConfirm_1_17 value OriginatingEventEnum]
 {
-	Amendment <"The alpha trade presented to clearing results from a trade amendment.">
+	Allocation <"The trade results from an allocation event.">
+		[synonym CME_SubmissionIRS_1_0 value "1"],
+	Amendment <"The trade results from a trade amendment.">
 		[synonym CME_ClearedConfirm_1_17 value "TRADE_AMEND"],
-	Compression <"The alpha trade presented to clearing results from a compression event.">
+	Compression <"The trade results from a compression event.">
 		[synonym CME_ClearedConfirm_1_17 value "RESIDUAL_TRADE"],
-	Exercise <"The alpha trade presented to clearing results from an exercise event.">
+	Exercise <"The trade results from an exercise event.">
 		[synonym CME_ClearedConfirm_1_17 value "EXERCISE"]
 		[synonym Rosetta_Workbench value "Exercise"],
-	NewTrade <"The alpha trade presented to clearing results from a new trade event.">
+	Clearing <"The trade results from a clearing event.">
+		[synonym CME_SubmissionIRS_1_0 value "2"],
+	NewTrade <"The trade results from a new trade event.">
 		[synonym CME_ClearedConfirm_1_17 value "NEW_TRADE"]
-		[synonym Rosetta_Workbench value "NewTrade"],
-	Novation <"The alpha trade presented to clearing results from a novation event.">
+		[synonym Rosetta_Workbench value "NewTrade"]
+		[synonym CME_SubmissionIRS_1_0 value "0"],
+	Novation <"The trade presented results from a novation event.">
 		[synonym CME_ClearedConfirm_1_17 value "ASSIGNMENT"],
-	PartialExercise <"The alpha trade presented to clearing results from a partial exercise event.">
+	PartialExercise <"The trade results from a partial exercise event.">
 		[synonym CME_ClearedConfirm_1_17 value "PARTIAL_EXERCISE"],
-	PartialNovation <"The alpha trade presented to clearing results from a partial novation event.">
+	PartialNovation <"The trade results from a partial novation event.">
 		[synonym CME_ClearedConfirm_1_17 value "NOVATION"],
-	Transfer <"The alpha trade presented to clearing results from another CCP.">
+	Transfer <"The trade results from a transfer.">
 		[synonym CME_ClearedConfirm_1_17 value "TRANSFER"]
 }
 
