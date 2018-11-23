@@ -84,6 +84,11 @@ class ContractState <"A class to specify a contract instantiation with respect t
         [synonym DTCC_11_0, DTCC_9_0 value TradeMsg path "Manifest"]
         [synonym DTCC_11_0, DTCC_9_0 value ReportingJurisdiction path "ReportingData.ReportingHeader"]
         [synonym CME_SubmissionIRS_1_0 value FpML path "Instrmt.SecXML"]
+    	clearingStatus ClearingStatusEnum (0..1);
+		[synonym Rosetta_Workbench value clearingStatus]
+		[synonym CME_ClearedConfirm_1_17 value status path "trade.tradeHeader"]
+		[synonym CME_SubmissionIRS_1_0 value TrdRptStat]
+//		[synonym CME_SubmissionIRS_1_0 set to ClearingStatusEnum.Submitted when "RptTyp" = 0 and "TrdRptStat" is absent]
 }
 
 class CreditLimit
@@ -193,7 +198,6 @@ class Event
 		[synonym CME_SubmissionIRS_1_0 value TransTyp path "TrdCaptRpt"]
 	intent IntentEnum (0..1);
 		[synonym Rosetta_Workbench value intent]
-		[synonym CME_ClearedConfirm_1_17 set to IntentEnum.Clearing when "clearingConfirmed" exists]
 	party Party (0..*) <"The specification of the event parties. This attribute is optional, as not applicable to certain events (e.g. most of the observations).">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value party]
 		[synonym DTCC_11_0, DTCC_9_0 value party path "Body.OTC_Matching.Trade.FpML" ]
@@ -416,7 +420,6 @@ class ObservationPrimitive <"The primitive event to represent an observation.">
 {
 	source ObservationSource (1..1) <"The observation source.">;
 		[synonym Rosetta_Workbench value source]
-//		[synonym DTCC_11_0, DTCC_9_0 value source]
 	observation number (1..1) <"The observation value.">;
 		[synonym Rosetta_Workbench value observation]
 	date date (1..1) <"The observation date.">;
@@ -469,10 +472,6 @@ class PostInceptionState extends ContractState
 		[synonym CME_ClearedConfirm_1_17 value originatingEvent path "trade.tradeHeader"]
 		[synonym Rosetta_Workbench value originatingEvent]
 		[synonym CME_SubmissionIRS_1_0 value Evnt path "RegTrdID"]
-	clearingStatus ClearingStatusEnum (0..1);
-		[synonym Rosetta_Workbench value clearingStatus]
-		[synonym CME_ClearedConfirm_1_17 value status]
-		[synonym CME_SubmissionIRS_1_0 value TrdRptStat]
 	creditLimitInformation CreditLimitInformation (0..1) <"Credit limit utilization information">;
 		[synonym CME_ClearedConfirm_1_17 value creditLimitInformation path "trade.tradeHeader"]
 		[synonym Rosetta_Workbench value creditLimitInformation]
@@ -501,7 +500,6 @@ class PrimitiveEvent <"The set of primitive events. The purpose of this class it
 		[synonym DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value todo]
 	observation ObservationPrimitive (0..*);
 		[synonym Rosetta_Workbench value observation]
-//		[synonym DTCC_11_0, DTCC_9_0 value observationElements path "Body.OTC_Matching.Payment.FpML.payment.calculationDetails"]
 		// TODO - remove this synonym. See trello card: https://trello.com/c/zuFjHRzq
 		[synonym CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value todo]
 	reset ResetPrimitive (0..*);
@@ -517,13 +515,6 @@ class PrimitiveEvent <"The set of primitive events. The purpose of this class it
 		// TODO - remove this synonym. See trello card: https://trello.com/c/zuFjHRzq
 		[synonym CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value todo]
 		[synonym DTCC_11_0, DTCC_9_0 value Payment path "Body.OTC_Matching"]
-}
-
-class PriorInceptionState extends ContractState <"A class to specify the before state applicable to the inception primitive, with the ability to qualify the event that gave way to the alpha trade that is submitted for clearing.">
-{
-	originatingEvent OriginatingEventEnum (0..1) <"This attribute is applicable to the clearing event use case, to provide the ability to specify whether the trade that is presented to clearing results from a lifecycle event such as the exercise of a swaption.">;
-		[synonym CME_ClearedConfirm_1_17 value originatingEvent]
-		[synonym Rosetta_Workbench value originatingEvent]
 }
 
 class QuantityChangePrimitive <"The primitive event to represent a change in quantity or notional.">
@@ -687,13 +678,24 @@ alias quantityAfterAllocation <"The alias to represent the quantity or notional 
 	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount -> amount
 
 /*
- * TODO - This event qualification is not working at present
- * Let's debug it once we confirm the approach with the clearing event
+ * With respect to a submission it probably not appropriate to use the Qty change primitive
+ * Le't first settle the level of granularity at which we want to decompose the clearing events
+ * This one is driven by the FIXML RptTyp values
  */
-isEvent Clearing
-	Event -> intent when present = IntentEnum.Clearing
-	and Event -> primitive -> inception count = 2
-	and Event -> primitive -> quantityChange exists
+isEvent ClearingSubmission <"The submission of an alpha trade to a CCP.">
+	Event -> primitive -> quantityChange exists
+	and Event -> primitive -> quantityChange -> after -> clearingStatus = ClearingStatusEnum.Submitted
+	and quantityAfterQuantityChange = 0.0
+
+isEvent ClearingAcceptance <"The acceptance of an alpha trade by a CCP.">
+	Event -> primitive -> quantityChange exists
+	and Event -> primitive -> quantityChange -> after -> clearingStatus = ClearingStatusEnum.Accepted
+	and quantityAfterQuantityChange = 0.0
+
+isEvent ClearingNotification <"The notification by the CCP to the clearing members with respect to the status of a cleared trade.">
+	Event -> primitive -> inception only exists
+	and Event -> primitive -> inception -> after -> clearingStatus = ClearingStatusEnum.Cleared
+		or Event -> primitive -> inception -> after -> clearingStatus = ClearingStatusEnum.Terminated
 
 isEvent Compression <"The qualification of a compression event from the fact that (i) the intent is Compression when specified, (ii) the quantity change primitive exists, (iii) and there are multiple contracts (or contract references) specified in the before state.">
 	Event -> intent when present = IntentEnum.Compression
@@ -711,6 +713,7 @@ isEvent Exercise <"The qualification of a full termination event from the fact t
 isEvent NewTrade
 	Event -> intent when present = IntentEnum.NewTrade
 	and Event -> primitive -> inception only exists
+	and Event -> primitive -> inception -> after -> clearingStatus is absent
 
 isEvent Novation <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and inception exist, (iii) the contract in the quantityChange/after node has a Novated state, (iv) the stepped-in contract has a different contract identifier than the novated contract, (v) the stepped-in contract has the novation event date and the novation event effective date, and (vi) the contract counterparties have changed.">
 	Event -> intent when present = IntentEnum.Novation
@@ -828,6 +831,7 @@ isEvent Termination <"The qualification of a termination event from the fact tha
 	and Event -> primitive -> quantityChange single exists
 	or quantityAfterQuantityChange = 0.0
 	and Event -> primitive -> quantityChange -> after -> contract -> state = StateEnum.Terminated
+	and Event -> primitive -> quantityChange -> after -> clearingStatus is absent
 
 isEvent TradeRepositorySubmission
 	Event -> primitive -> inception exists
