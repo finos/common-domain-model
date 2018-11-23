@@ -86,7 +86,7 @@ class ContractState <"A class to specify a contract instantiation with respect t
         [synonym CME_SubmissionIRS_1_0 value FpML path "Instrmt.SecXML"]
     	clearingStatus ClearingStatusEnum (0..1);
 		[synonym Rosetta_Workbench value clearingStatus]
-		[synonym CME_ClearedConfirm_1_17 value status]
+		[synonym CME_ClearedConfirm_1_17 value status path "trade.tradeHeader"]
 		[synonym CME_SubmissionIRS_1_0 value TrdRptStat]
 }
 
@@ -420,7 +420,6 @@ class ObservationPrimitive <"The primitive event to represent an observation.">
 {
 	source ObservationSource (1..1) <"The observation source.">;
 		[synonym Rosetta_Workbench value source]
-//		[synonym DTCC_11_0, DTCC_9_0 value source]
 	observation number (1..1) <"The observation value.">;
 		[synonym Rosetta_Workbench value observation]
 	date date (1..1) <"The observation date.">;
@@ -501,7 +500,6 @@ class PrimitiveEvent <"The set of primitive events. The purpose of this class it
 		[synonym DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value todo]
 	observation ObservationPrimitive (0..*);
 		[synonym Rosetta_Workbench value observation]
-//		[synonym DTCC_11_0, DTCC_9_0 value observationElements path "Body.OTC_Matching.Payment.FpML.payment.calculationDetails"]
 		// TODO - remove this synonym. See trello card: https://trello.com/c/zuFjHRzq
 		[synonym CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value todo]
 	reset ResetPrimitive (0..*);
@@ -690,6 +688,7 @@ isEvent ClearingAcceptance
 isEvent ClearingNotification
 	Event -> primitive -> inception only exists
 	and Event -> primitive -> inception -> after -> clearingStatus = ClearingStatusEnum.Cleared
+		or Event -> primitive -> inception -> after -> clearingStatus = ClearingStatusEnum.Terminated
 
 isEvent Compression <"The qualification of a compression event from the fact that (i) the intent is Compression when specified, (ii) the quantity change primitive exists, (iii) and there are multiple contracts (or contract references) specified in the before state.">
 	Event -> intent when present = IntentEnum.Compression
