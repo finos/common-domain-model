@@ -178,8 +178,6 @@ class Event
 		[synonym DTCC_9_0 value header path "Body.OTC_Matching.Payment.FpML"]
         [synonym CME_ClearedConfirm_1_17 value timestamps path "clearingConfirmed.trade.tradeHeader"]
         [synonym CME_ClearedConfirm_1_17 value header path "clearingConfirmed"]
-        [synonym CME_SubmissionIRS_1_0 value TrdCaptRpt]
-        [synonym CME_SubmissionIRS_1_0 value Hdr path "TrdCaptRpt"]
     eventIdentifier Identifier (1..*) <"The event identifier, which has 3 components: an actual identifier, an issuer and a version number. One and only one identifier can be associated with a lifecycle event.">;
 		[synonym Rosetta_Workbench value eventIdentifier]
 		[synonym DTCC_11_0, DTCC_9_0 value Submitter path "Header.OTC_RM.Manifest.TradeMsg"]
@@ -240,15 +238,17 @@ class EventTimestamp <"A class to represent the various set of timestamps that c
 		[synonym DTCC_11_0, DTCC_9_0 value ReceiveTime path "Route"]
 		[synonym DTCC_11_0, DTCC_9_0 value ReleaseTime path "Route"]
 		[synonym CME_ClearedConfirm_1_17 value submittedForClearing]
-		[synonym CME_SubmissionIRS_1_0 value TxnTm, Snt]
+		[synonym CME_SubmissionIRS_1_0 value TxnTm path "TrdCaptRpt"] 
+		[synonym CME_SubmissionIRS_1_0 value Snt path "TrdCaptRpt.Hdr"]
 	qualification EventTimeStampQualificationEnum (1..1);
+		//TODO should the non cme synonyms be replaced with path expressions
 		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 set to EventTimeStampQualificationEnum.eventCreated when "creationTimestamp" exists]
 		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 set to EventTimeStampQualificationEnum.eventExpired when "expiryTimestamp" exists]
 		[synonym CME_ClearedConfirm_1_17, Rosetta_Workbench set to EventTimeStampQualificationEnum.submittedForClearing when "submittedForClearing" exists]
 		[synonym DTCC_11_0, DTCC_9_0 set to EventTimeStampQualificationEnum.eventReceived when "Route.ReceiveTime" exists]
 		[synonym DTCC_11_0, DTCC_9_0 set to EventTimeStampQualificationEnum.eventProcessed when "Route.ReleaseTime" exists]
-		[synonym CME_SubmissionIRS_1_0 set to EventTimeStampQualificationEnum.executed when "TxnTm" exists ]
-		[synonym CME_SubmissionIRS_1_0 set to EventTimeStampQualificationEnum.eventSent when "Snt" exists ]
+		[synonym CME_SubmissionIRS_1_0 set to EventTimeStampQualificationEnum.executed when path= "TrdCaptRpt.TxnTm"]
+		[synonym CME_SubmissionIRS_1_0 set to EventTimeStampQualificationEnum.eventSent when  path = "TrdCaptRpt.Hdr.Snt"] //should be path expresion?
 }
 
 class Execution rosettaKey
@@ -331,7 +331,6 @@ class Inception <"The primitive event for the inception of a new contract betwee
 		[synonym DTCC_11_0, DTCC_9_0 value OTC_Matching path "Body", OTC_RM path "Header"]
 		[synonym CME_ClearedConfirm_1_17 value clearingConfirmed]
 		[synonym CME_SubmissionIRS_1_0 value TrdCaptRpt]
-		[synonym CME_SubmissionIRS_1_0 value RegTrdID path "TrdCaptRpt"]
 }
 
 class InterestRateCurve
@@ -472,7 +471,7 @@ class PostInceptionState extends ContractState
 	originatingEvent OriginatingEventEnum (0..1) <"The qualification by the clearing facility of whether the cleared trade results from a trade presented for clearing by market participants (in which case it is qualified as a 'New Trade') or whether it results from a process that is internal to the CCP, in which case this process will be qualified accordingly (e.g. Transfer, Novation, Compression, ...).">;
 		[synonym CME_ClearedConfirm_1_17 value originatingEvent path "trade.tradeHeader"]
 		[synonym Rosetta_Workbench value originatingEvent]
-		[synonym CME_SubmissionIRS_1_0 value Evnt]
+		[synonym CME_SubmissionIRS_1_0 value Evnt path "RegTrdID"]
 	creditLimitInformation CreditLimitInformation (0..1) <"Credit limit utilization information">;
 		[synonym CME_ClearedConfirm_1_17 value creditLimitInformation path "trade.tradeHeader"]
 		[synonym Rosetta_Workbench value creditLimitInformation]
