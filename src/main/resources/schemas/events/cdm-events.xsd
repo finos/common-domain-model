@@ -22,10 +22,25 @@
             <xsd:enumeration value="cancel"/>
         </xsd:restriction>
     </xsd:simpleType>
+    <xsd:simpleType name="AssetTransferTypeEnum">
+        <xsd:restriction base="xsd:token">
+            <xsd:enumeration value="FreeOfPayment"/>
+        </xsd:restriction>
+    </xsd:simpleType>
     <xsd:simpleType name="CashflowCalculationEnum">
         <xsd:restriction base="xsd:token">
             <xsd:enumeration value="FixedAmount"/>
             <xsd:enumeration value="FloatingAmount"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="ClearingStatusEnum">
+        <xsd:restriction base="xsd:token">
+            <xsd:enumeration value="Accepted"/>
+            <xsd:enumeration value="Alleged"/>
+            <xsd:enumeration value="Amended"/>
+            <xsd:enumeration value="Cleared"/>
+            <xsd:enumeration value="Rejected"/>
+            <xsd:enumeration value="Terminated"/>
         </xsd:restriction>
     </xsd:simpleType>
     <xsd:simpleType name="ContractStateEnum">
@@ -51,6 +66,12 @@
             <xsd:enumeration value="portfolioCompression"/>
             <xsd:enumeration value="renegotiation"/>
             <xsd:enumeration value="termination"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="OriginatingEventEnum">
+        <xsd:restriction base="xsd:token">
+            <xsd:enumeration value="Exercise"/>
+            <xsd:enumeration value="NewTrade"/>
         </xsd:restriction>
     </xsd:simpleType>
     <xsd:simpleType name="PartyIdSourceEnum">
@@ -86,7 +107,9 @@
     </xsd:simpleType>
     <xsd:simpleType name="TransferTypeEnum">
         <xsd:restriction base="xsd:token">
+            <xsd:enumeration value="DeliveryVersusDelivery"/>
             <xsd:enumeration value="DeliveryVersusPayment"/>
+            <xsd:enumeration value="PaymentVersusPayment"/>
         </xsd:restriction>
     </xsd:simpleType>
     <xsd:simpleType name="UnitEnum">
@@ -100,18 +123,14 @@
     </xsd:simpleType>
     <!-- Complex Types -->
     <xsd:complexType name="AllocationOutcome">
-        <xsd:complexContent>
-            <xsd:extension base="ContractOrContractReference">
-                <xsd:sequence>
-                    <xsd:element name="executionReference" type="Identifier"/>
-                    <xsd:element name="state" type="ContractStateEnum"/>
-                </xsd:sequence>
-            </xsd:extension>
-        </xsd:complexContent>
+        <xsd:sequence>
+            <xsd:element name="execution" type="Execution"/>
+            <xsd:element name="trade" type="fpml:Trade" maxOccurs="unbounded"/>
+        </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="AllocationPrimitive">
         <xsd:sequence>
-            <xsd:element name="before" type="Execution"/>
+            <xsd:element name="before" type="ExecutionState"/>
             <xsd:element name="after" type="AllocationOutcome"/>
         </xsd:sequence>
     </xsd:complexType>
@@ -179,18 +198,6 @@
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
-    <xsd:complexType name="ContractNew">
-        <xsd:sequence>
-            <xsd:element name="trade" type="fpml:Trade"/>
-        </xsd:sequence>
-    </xsd:complexType>
-    <xsd:complexType name="ContractOrContractReference">
-        <xsd:choice>
-            <xsd:element name="contractReference" type="ContractReference" minOccurs="0"
-                maxOccurs="unbounded"/>
-            <xsd:element name="contract" type="Contract" minOccurs="0" maxOccurs="unbounded"/>
-        </xsd:choice>
-    </xsd:complexType>
     <xsd:complexType name="ContractLineage">
         <xsd:complexContent>
             <xsd:extension base="fpml:Reference">
@@ -207,6 +214,12 @@
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
+    <xsd:complexType name="ContractState">
+        <xsd:sequence>
+            <xsd:element name="trade" type="TradeState"/>
+            <xsd:element name="clearingStatus" type="ClearingStatusEnum" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
     <xsd:complexType name="ContractualProduct">
         <xsd:sequence>
             <xsd:element ref="fpml:product"/>
@@ -222,14 +235,6 @@
             </xsd:choice>
         </xsd:sequence>
     </xsd:complexType>
-    <xsd:complexType name="ContractualProductOrContract">
-        <xsd:sequence>
-            <xsd:choice>
-                <xsd:element name="execution" type="Execution"/>
-                <xsd:element name="contractState" type="ContractOrContractReference"/>
-            </xsd:choice>
-        </xsd:sequence>
-    </xsd:complexType>
     <xsd:complexType name="ConvertibleBond">
         <xsd:sequence>
             <xsd:element name="instrumentId" type="fpml:InstrumentId" minOccurs="0"/>
@@ -241,6 +246,25 @@
                 <xsd:attribute name="href" type="xsd:IDREF" use="required"/>
             </xsd:extension>
         </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:complexType name="CreditLimitInformation">
+        <xsd:sequence>
+            <xsd:element name="limitApplicable" type="LimitApplicable" maxOccurs="unbounded"
+            />
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="CreditLimitLevel">
+        <xsd:simpleContent>
+            <xsd:extension base="Scheme">
+                <xsd:attribute name="creditLimitLevelScheme" type="xsd:anyURI">
+                    <xsd:annotation>
+                        <xsd:documentation xml:lang="en">The identifier scheme used with this credit
+                            Limit Level. A unique URI to determine the node at which the credit
+                            limit information is represented</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:simpleContent>
     </xsd:complexType>
     <xsd:complexType name="Curve">
         <xsd:sequence>
@@ -290,6 +314,7 @@
         <xsd:sequence>
             <xsd:element name="creationTimestamp" type="xsd:dateTime"/>
             <xsd:element name="expiryTimestamp" type="xsd:dateTime" minOccurs="0"/>
+            <xsd:element name="submittedForClearing" type="xsd:dateTime" minOccurs="0"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="Execution">
@@ -297,24 +322,27 @@
             <xsd:element name="identifier" type="fpml:PartyTradeIdentifier"/>
             <xsd:element name="tradeDate" type="xsd:date"/>
             <xsd:element name="contractualProduct" type="ContractualProduct"/>
+            <xsd:element name="state" type="ContractStateEnum" minOccurs="0"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="ExerciseOutcome">
-        <xsd:complexContent>
-            <xsd:extension base="ContractOrContractReference">
-                <xsd:sequence>
-                    <xsd:element name="physicalExercise" type="PhysicalExercise" minOccurs="0"/>
-                    <xsd:element name="cashExercise" type="Cashflow" minOccurs="0"/>
-                </xsd:sequence>
-            </xsd:extension>
-        </xsd:complexContent>
+        <xsd:sequence>
+            <xsd:element name="contract" type="Contract"/>
+            <xsd:element name="physicalExercise" type="PhysicalExercise" minOccurs="0"/>
+            <xsd:element name="cashExercise" type="Cashflow" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="ExecutionState">
+        <xsd:sequence>
+            <xsd:element name="execution" type="Execution"/>
+        </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="ExercisePrimitive">
         <xsd:sequence>
             <xsd:element name="exerciseDate" type="fpml:AdjustableOrAdjustedDate" minOccurs="0"/>
             <xsd:element name="exerciseTime" type="fpml:BusinessCenterTime" minOccurs="0"/>
             <xsd:element name="fullExercise" type="xsd:boolean"/>
-            <xsd:element name="before" type="ContractOrContractReference"/>
+            <xsd:element name="before" type="ContractState"/>
             <xsd:element name="after" type="ExerciseOutcome"/>
         </xsd:sequence>
     </xsd:complexType>
@@ -336,8 +364,8 @@
     </xsd:complexType>
     <xsd:complexType name="Inception">
         <xsd:sequence>
-            <xsd:element name="before" type="ContractNew" minOccurs="0" maxOccurs="0"/>
-            <xsd:element name="after" type="ContractNew" minOccurs="1" maxOccurs="1"/>
+            <xsd:element name="before" type="ContractState" minOccurs="0" maxOccurs="0"/>
+            <xsd:element name="after" type="PostInceptionState" minOccurs="1" maxOccurs="1"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="InterestRateCurve">
@@ -352,6 +380,24 @@
                 <xsd:attribute name="href" type="xsd:IDREF" use="required"/>
             </xsd:extension>
         </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:complexType name="LimitApplicable">
+        <xsd:sequence>
+            <xsd:element name="level" type="CreditLimitLevel" minOccurs="0" maxOccurs="1"/>
+            <xsd:element name="limitType" type="LimitType" minOccurs="0"> </xsd:element>
+            <xsd:element name="limitAmount" type="xsd:integer" minOccurs="0" maxOccurs="1"/>
+            <xsd:element name="amountUtilized" type="xsd:integer" minOccurs="0"/>
+            <xsd:element name="amountRemaining" type="xsd:integer" minOccurs="0"/>
+            <xsd:element name="limitImpactDueToTrade" type="xsd:integer" minOccurs="0" maxOccurs="1"/>
+            <xsd:element name="currency" type="fpml:Currency" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="LimitType">
+        <xsd:simpleContent>
+            <xsd:extension base="Scheme">
+                <xsd:attribute name="creditLimitTypeScheme" type="xsd:anyURI" default="http://www.fpml.org/coding-scheme/credit-limit-type"/>
+            </xsd:extension>
+        </xsd:simpleContent>
     </xsd:complexType>
     <xsd:complexType name="Lineage">
         <xsd:sequence>
@@ -414,13 +460,18 @@
         </xsd:complexContent>
     </xsd:complexType>
     <xsd:complexType name="PhysicalExercise">
+        <xsd:sequence>
+            <xsd:element name="product" type="Product"/>
+            <xsd:element name="quantity" type="Quantity" minOccurs="0"/>
+            <xsd:element name="cashflow" type="Cashflow" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="PostInceptionState">
         <xsd:complexContent>
-            <xsd:extension base="ContractOrContractReference">
+            <xsd:extension base="ContractState">
                 <xsd:sequence>
-                    <xsd:element name="bond" type="Bond" minOccurs="0"/>
-                    <xsd:element name="convertibleBond" type="ConvertibleBond" minOccurs="0"/>
-                    <xsd:element name="quantity" type="Quantity" minOccurs="0"/>
-                    <xsd:element name="cashflow" type="Cashflow" minOccurs="0"/>
+                    <xsd:element name="creditLimitInformation" type="CreditLimitInformation" minOccurs="0"/>
+                    <xsd:element name="originatingEvent" type="OriginatingEventEnum" minOccurs="0"/>
                 </xsd:sequence>
             </xsd:extension>
         </xsd:complexContent>
@@ -440,6 +491,15 @@
             <xsd:element name="transfer" type="Transfer" minOccurs="0" maxOccurs="unbounded"/>
         </xsd:sequence>
     </xsd:complexType>
+    <xsd:complexType name="Product">
+        <xsd:sequence>
+            <xsd:choice>
+                <xsd:element name="contract" type="Contract"/>
+                <xsd:element name="bond" type="Bond"/>
+                <xsd:element name="convertibleBond"/>
+            </xsd:choice>
+        </xsd:sequence>
+    </xsd:complexType>
     <xsd:complexType name="Quantity">
         <xsd:sequence>
             <xsd:element name="amount" type="xsd:decimal"/>
@@ -448,8 +508,8 @@
     </xsd:complexType>
     <xsd:complexType name="QuantityChange">
         <xsd:sequence>
-            <xsd:element name="before" type="ContractOrContractReference"/>
-            <xsd:element name="after" type="ContractOrContractReference"/>
+            <xsd:element name="before" type="ContractState"/>
+            <xsd:element name="after" type="ContractState"/>
             <xsd:element name="change" type="ContractualQuantity" maxOccurs="unbounded"/>
         </xsd:sequence>
     </xsd:complexType>
@@ -460,6 +520,15 @@
             <xsd:element name="cashflow" type="Cashflow" minOccurs="0"/>
         </xsd:sequence>
     </xsd:complexType>
+    <xsd:simpleType name="Scheme">
+        <xsd:annotation>
+            <xsd:documentation xml:lang="en">The base class for all types which define coding
+                schemes.</xsd:documentation>
+        </xsd:annotation>
+        <xsd:restriction base="xsd:normalizedString">
+            <xsd:maxLength value="255"/>
+        </xsd:restriction>
+    </xsd:simpleType>
     <xsd:complexType name="Security">
         <xsd:sequence>
             <xsd:choice>
@@ -484,6 +553,7 @@
             <xsd:group ref="fpml:PayerReceiver.model"/>
             <xsd:element name="security" type="Security"/>
             <xsd:element name="quantity" type="xsd:decimal"/>
+            <xsd:element name="assetTransferType" type="AssetTransferTypeEnum" minOccurs="0"/>
             <xsd:element name="breakdown" type="SecurityTransferBreakdown" minOccurs="0"
                 maxOccurs="unbounded"/>
         </xsd:sequence>
@@ -493,6 +563,15 @@
             <xsd:element name="time" type="xsd:time"/>
             <xsd:element name="location" type="fpml:TimezoneLocation"/>
         </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="TradeState">
+        <xsd:complexContent>
+            <xsd:extension base="fpml:Trade">
+                <xsd:sequence>
+                    <xsd:element name="state" type="ContractStateEnum" minOccurs="0"/>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
     </xsd:complexType>
     <xsd:complexType name="Transfer">
         <xsd:sequence>
