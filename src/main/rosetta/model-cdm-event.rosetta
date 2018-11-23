@@ -88,6 +88,7 @@ class ContractState <"A class to specify a contract instantiation with respect t
 		[synonym Rosetta_Workbench value clearingStatus]
 		[synonym CME_ClearedConfirm_1_17 value status path "trade.tradeHeader"]
 		[synonym CME_SubmissionIRS_1_0 value TrdRptStat]
+//		[synonym CME_SubmissionIRS_1_0 set to ClearingStatusEnum.Submitted when "RptTyp" = 0 and "TrdRptStat" is absent]
 }
 
 class CreditLimit
@@ -678,14 +679,21 @@ alias quantityAfterAllocation <"The alias to represent the quantity or notional 
 	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount -> amount
 
 /*
- * A clearing submission wouldn't have an unknown outcome
+ * With respect to a submission it probably not appropriate to use the Qty change primitive
+ * Le't first settle the level of granularity at which we want to decompose the clearing events
+ * This one is driven by the FIXML RptTyp values
  */
-isEvent ClearingAcceptance
+isEvent ClearingSubmission <"The submission of an alpha trade to a CCP.">
+	Event -> primitive -> quantityChange exists
+	and Event -> primitive -> quantityChange -> after -> clearingStatus = ClearingStatusEnum.Submitted
+	and quantityAfterQuantityChange = 0.0
+
+isEvent ClearingAcceptance <"The acceptance of an alpha trade by a CCP.">
 	Event -> primitive -> quantityChange exists
 	and Event -> primitive -> quantityChange -> after -> clearingStatus = ClearingStatusEnum.Accepted
 	and quantityAfterQuantityChange = 0.0
 
-isEvent ClearingNotification
+isEvent ClearingNotification <"The notification by the CCP to the clearing members with respect to the status of a cleared trade.">
 	Event -> primitive -> inception only exists
 	and Event -> primitive -> inception -> after -> clearingStatus = ClearingStatusEnum.Cleared
 		or Event -> primitive -> inception -> after -> clearingStatus = ClearingStatusEnum.Terminated
