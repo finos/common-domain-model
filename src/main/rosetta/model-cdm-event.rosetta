@@ -677,25 +677,26 @@ alias quantityAfterAllocation <"The alias to represent the quantity or notional 
 	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> notionalAmount -> amount
 	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount -> amount
 
-/*
- * With respect to a submission it probably not appropriate to use the Qty change primitive
- * Le't first settle the level of granularity at which we want to decompose the clearing events
- * This one is driven by the FIXML RptTyp values
- */
-isEvent ClearingSubmission <"The submission of an alpha trade to a CCP.">
-	Event -> primitive -> quantityChange exists
-	and Event -> primitive -> quantityChange -> after -> clearingStatus = ClearingStatusEnum.Submitted
-	and quantityAfterQuantityChange = 0.0
-
-isEvent ClearingAcceptance <"The acceptance of an alpha trade by a CCP.">
+isEvent ClearingAcceptance <"The acceptance of an alpha trade submission by a CCP.">
 	Event -> primitive -> quantityChange exists
 	and Event -> primitive -> quantityChange -> after -> clearingStatus = ClearingStatusEnum.Accepted
 	and quantityAfterQuantityChange = 0.0
+
+isEvent ClearingRejection <"The rejection of of an alpha trade submission by a CCP.">
+	Event -> primitive -> quantityChange exists
+	and Event -> primitive -> quantityChange -> after -> clearingStatus = ClearingStatusEnum.Rejected
+	and quantityBeforeQuantityChange = quantityAfterQuantityChange
 
 isEvent ClearingNotification <"The notification by the CCP to the clearing members with respect to the status of a cleared trade.">
 	Event -> primitive -> inception only exists
 	and Event -> primitive -> inception -> after -> clearingStatus = ClearingStatusEnum.Cleared
 		or Event -> primitive -> inception -> after -> clearingStatus = ClearingStatusEnum.Terminated
+
+/*
+ * workflow rule ClearingProcess
+ *	ClearingAcceptance precedes ClearingNotification
+ *  Contract rosettaKey lineage
+ */
 
 isEvent Compression <"The qualification of a compression event from the fact that (i) the intent is Compression when specified, (ii) the quantity change primitive exists, (iii) and there are multiple contracts (or contract references) specified in the before state.">
 	Event -> intent when present = IntentEnum.Compression
