@@ -39,7 +39,7 @@ steps:
 
   BuildRelease:
     title: Maven build for release
-    fail_fast: false    
+    fail_fast: false
     image: r.cfcr.io/regnosysops/regnosys/mvn-docker-build:java-11
     working_directory: ./
     when:
@@ -53,6 +53,7 @@ steps:
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.common.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -s /settings.xml clean deploy -P full
 
+
   NotifySlackOnFail:
     title: Trigger Slack dev channel notification if master build failed
     image: codefresh/cli
@@ -60,10 +61,10 @@ steps:
       branch:
         only:
           - codefresh_slack_yml
-    condition:
-      any:
-        buildNormalFailed: steps.BuildNormal.result == 'error'
-        buildReleaseFailed: steps.BuildRelease.result == 'error'
+      condition:
+        any:
+          buildNormalFailed: steps.BuildNormal.result == 'error'
+          buildReleaseFailed: steps.BuildRelease.result == 'error'
     commands:
       - export SAFE_COMMIT_AUTHOR='${{CF_COMMIT_AUTHOR}}'
       - export COMMIT_AUTHOR=${SAFE_COMMIT_AUTHOR:-MissingAuthor}
