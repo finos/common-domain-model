@@ -217,8 +217,7 @@ class EventEffect <"The set of operational and positional effects associated wit
 {
 	effectedContract Contract (0..*) rosettaKey <"A pointer to the contract(s) to which the event effect(s) apply, i.e. in the before event state.">;
 	contract Contract (0..*) rosettaKey <"A pointer to the contract effect(s), an example of such being the outcome of a new trade, swaption exercise or novation event.">;
-    productIdentifier ProductIdentifier (0..*) rosettaKey <"A pointer to the listed product effect(s), an example of such being the outcome of the physical exercise of a bond option.">;
-	payment Payment (0..*) rosettaKey <"A pointer to the payment effect(s), an example of such being the outcome of an option cash exercise.">;
+    productIdentifier ProductIdentifier (0..*) rosettaKey <"A pointer to the product identifier effect(s), an example of such being the outcome of the physical exercise of a bond option.">;
 	transfer Transfer (0..*) rosettaKey <"A pointer to the transfer effect(s), either a cash, security or other asset.">;
 }
 
@@ -506,10 +505,6 @@ class PrimitiveEvent <"The set of primitive events. The purpose of this class it
 		[synonym Rosetta_Workbench value reset]
 		// TODO - remove this synonym. See trello card: https://trello.com/c/zuFjHRzq
 		[synonym DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value todo]
-	payment Payment (0..*);
-		[synonym Rosetta_Workbench value payment]
-		// TODO - remove this synonym. See trello card: https://trello.com/c/zuFjHRzq
-		[synonym DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value todo]
 	transfer Transfer (0..*);
 		[synonym Rosetta_Workbench value transfer]
 		// TODO - remove this synonym. See trello card: https://trello.com/c/zuFjHRzq
@@ -526,6 +521,14 @@ class QuantityChangePrimitive <"The primitive event to represent a change in qua
 	change ContractualQuantity (1..*);
 		[synonym Rosetta_Workbench value change]
 }
+
+/*
+ * TODO - Consider extending the data rule syntax to support the below data rule https://trello.com/c/1ZRsJbzN
+ */
+//data rule QuantityChangePrimitive_change <"The change value should be equal to the difference between the respective quantities.">_
+//	when Event -> primitive -> quantityChange exists
+//	then Event -> primitive -> quantityChange -> change = (quantityAfterQuantityChange - quantityBeforeQuantityChange)
+
 
 class ResetPrimitive <"The primitive event to represent a reset.">
 {
@@ -762,18 +765,15 @@ isEvent PartialNovation <"The qualification of a novation event from the fact th
 	and quantityAfterQuantityChange > 0.0
 //	and originalContractParties <> newContractParties
 
-data rule Novation_fee <"Logic to specify that if a payment is qualified as a novation fee, it must have lineage into multiple contracts and one single event (the novation event).">
-	when Event -> primitive -> payment -> paymentType = PaymentTypeEnum.NovationFee
+data rule Novation_fee <"Logic to specify that if a cash transfer is qualified as a novation fee, it must have lineage into multiple contracts and one single event (the novation event).">
+	when Event -> primitive -> transfer -> cashTransfer -> cashflowType = CashflowTypeEnum.NovationFee
 	then Event -> lineage -> contractReference multiple exists
 		and Event -> lineage -> eventReference single exists
 
-/*
- * TODO - The below logic doesn't work
- */
-isEvent PartialTermination <"The qualification of a partial termination event from the fact that (i) the intent is Partial Termination when specified, (ii) the only primitive is the quantityChange and there is only one such primitive involved, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
+isEvent PartialTermination <"The qualification of a partial termination event from the fact that (i) the intent is Partial Termination when specified, (ii) the associated primitives are the quantityChange and the cash transfer, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
 	Event -> intent when present = IntentEnum.PartialTermination
-	and ( Event -> primitive -> quantityChange only exists
-		or ( Event -> primitive -> quantityChange and Event -> primitive -> payment ) exists )
+	and Event -> primitive -> quantityChange only exists
+		or ( Event -> primitive -> quantityChange and Event -> primitive -> transfer -> cashTransfer ) exists
 	and quantityBeforeQuantityChange > quantityAfterQuantityChange
 	and quantityAfterQuantityChange > 0.0
 
@@ -797,6 +797,14 @@ alias quantityAfterQuantityChange <"The alias to represent the quantity or notio
 	or Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> notionalAmount -> amount
 	or Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount -> amount
 
+alias changedQuantity
+	Event -> primitive -> quantityChange -> change -> quantity -> amount
+	or Event -> primitive -> quantityChange -> change -> notionalAmount -> amount
+	or Event -> primitive -> quantityChange -> change -> notionalSchedule -> notionalStepSchedule -> initialValue
+	or Event -> primitive -> quantityChange -> change -> notionalSchedule -> notionalStepSchedule -> step -> stepValue
+	or Event -> primitive -> quantityChange -> change -> notionalSchedule -> notionalStepParameters -> notionalStepAmount
+	or Event -> primitive -> quantityChange -> change -> fxLinkedNotional -> initialValue
+
 isEvent CashTransfer <"The qualification of a cash transfer from the fact that the only component is a cashTransfer.">
 	Event -> primitive -> transfer only exists
 	and Event -> primitive -> transfer -> cashTransfer exists
@@ -809,8 +817,8 @@ isEvent CashAndSecurityTransfer <"The qualification of a security settlement fro
 	and Event -> primitive -> transfer -> cashTransfer -> payerReceiver -> payerPartyReference = Event -> primitive -> transfer -> securityTransfer -> transferorTransferee -> transferorPartyReference
 	and Event -> primitive -> transfer -> commodityTransfer is absent
 
-isEvent Payment <"The qualification of a payment event from the fact that the only primitive is the payment.">
-	Event -> primitive -> payment only exists
+isEvent Payment <"The qualification of a payment event from the fact that the only primitive is the cash transfer.">
+	Event -> primitive -> transfer -> cashTransfer only exists
 
 isEvent Reset <"The qualification of a reset event from the fact that the only primitive is the reset.">
 	Event -> primitive -> reset only exists
