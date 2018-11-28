@@ -11,28 +11,41 @@
     <co:eventIdentifier>
         <co:issuer href="p1"/>
         <co:identifier>nov-fee-12345</co:identifier>
-         <co:version>1</co:version>
+        <co:version>1</co:version>
     </co:eventIdentifier>
     <co:eventDate>2018-03-20</co:eventDate>
     <co:isCorrection>false</co:isCorrection>
+    <!-- The CDM specifies that the payment associated with a novation lifecycle event should be
+        handled as a distinct event in order to preserve the anonymity of the cashflow with respect
+        to the remaining party. -->
     <party id="p1">
         <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso17442">Party1</partyId>
     </party>
     <party id="p2">
         <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso17442">Party2</partyId>
     </party>
-    <party id="p3">
-        <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso17442">Party3</partyId>
+    <party id="c1">
+        <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso17442">DummyContract</partyId>
     </party>
+    <party id="c2">
+        <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso17442">DummyContract</partyId>
+    </party>
+    <party id="e1">
+        <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso17442">DummyEvent</partyId>
+    </party>
+    <!-- The below is a dummy reference into the novated contracts and the novation event, for the purpose of not failing
+        the CDM data rule Novation_fee which specifies that for a payment to be qualified as a
+        novation fee there is a need for lineage from that payment into the novated contract.  This
+        lineage could exists as part of a bundle, but not as part of a self-standing xml cash transfer
+        event. -->
+    <co:lineage>
+        <co:contractReference href="c1"/>
+        <co:contractReference href="c2"/>
+        <co:eventReference href="e1"/>
+    </co:lineage>
     <co:primitive>
-        <co:payment>
-            <payerPartyReference href="p2"/>
-            <receiverPartyReference href="p3"/>
-            <paymentAmount>
-                <currency>USD</currency>
-                <amount>74000.00</amount>
-            </paymentAmount>
-            <paymentDate>
+        <co:transfer>
+            <co:settlementDate>
                 <unadjustedDate>2018-03-28</unadjustedDate>
                 <dateAdjustments>
                     <businessDayConvention>MODFOLLOWING</businessDayConvention>
@@ -40,9 +53,17 @@
                         <businessCenter>USNY</businessCenter>
                     </businessCenters>
                 </dateAdjustments>
-            </paymentDate>
-            <!-- The payment is qualified as a novation fee -->
-            <co:paymentType>novationFee</co:paymentType>
-        </co:payment>
+            </co:settlementDate>
+            <co:cashTransfer>
+                <payerPartyReference href="p2"/>
+                <receiverPartyReference href="p1"/>
+                <co:amount>
+                    <currency>USD</currency>
+                    <amount>74000.00</amount>
+                </co:amount>
+                <!-- The payment is qualified as a novation fee -->
+                <co:transferType>novationFee</co:transferType>
+            </co:cashTransfer>
+        </co:transfer>
     </co:primitive>
 </co:event>

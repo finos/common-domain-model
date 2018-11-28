@@ -17,27 +17,28 @@
     Bank A - USD Account opened in Depositary D (via sub depositary) : 98742
     Bank A - Security Account opened in Depositary D : USD-96385
  
-    Settlement Instructions Depositary D for the FX Operation :
+    Settlement Instructions Depositary D for the Fx Operation :
     Depositary D – GBP Account : 46289
     Depositary D – USD Account : 200015
  
     Settlement Instructions Counterparty Bank B
     Bank B – USD Account opened in Depositary S: 369726
-    Bank B – GBP Account opened in Depositary S: 123456
     Bank B – Security Account opened in Depositary S: BONY-00025
  
     Event NewTrade BuyShares with FX
+    
+    ***The FX settlement***
  
     Transfer:
     - Transfer Type: Payment Versus Payment
     · Cash Transfer: - GBP 166,820
       o Payer: Bank A - GBP Account opened in Depositary D: 12345
-      o Receiver: Depositary D – GBP Account: 46289 
+      o Receiver: Depositary D – GBP Account: 46289
     · Cash Transfer: + USD 220,000
       o Payer: Depositary D – USD Account: 200015
       o Receiver: Bank A - USD Account opened in Depositary D (via sub): 98742
  
-    NOTE: The below transfer is represented as part of the transfer-security-settlement-with-account sample transaction
+    ***The security settlement***
  
     - Transfer Type: Delivery Versus Payment
     · Security Transfer
@@ -95,19 +96,14 @@
         <accountBeneficiary href="party2"/>
         <servicingParty href="party4"/>
     </account>
-    <!-- Bank B – GBP Account opened in Depositary S: 123456 -->
-    <account id="act5">
-        <accountId>369726</accountId>
-        <accountBeneficiary href="party2"/>
-        <servicingParty href="party4"/>
-    </account>
     <!-- Bank B - Security Account opened in Depositary S: BONY-00025 -->
-    <account id="act6">
+    <account id="act5">
         <accountId>BONY-00025</accountId>
         <accountBeneficiary href="party2"/>
         <servicingParty href="party4"/>
     </account>  
     <co:primitive>
+        <!-- The FX settlement -->
         <co:transfer>
             <co:transferType>PaymentVersusPayment</co:transferType>
             <co:settlementDate>
@@ -136,12 +132,49 @@
                 <payerPartyReference href="party2"/>
                 <payerAccountReference href="act1"/>
                 <receiverPartyReference href="party1"/>
-                 <receiverAccountReference href="act3"/>
+                <receiverAccountReference href="act3"/>
                 <co:amount>
                     <currency>GBP</currency>
                     <amount>166820</amount>
                 </co:amount>
             </co:cashTransfer>
+        </co:transfer>
+        <!-- The security settlement -->
+        <co:transfer>
+            <co:transferType>DeliveryVersusPayment</co:transferType>
+            <co:settlementDate>
+                <unadjustedDate>2018-10-19</unadjustedDate>
+                <dateAdjustments>
+                    <businessDayConvention>MODFOLLOWING</businessDayConvention>
+                    <businessCenters>
+                        <businessCenter>USNY</businessCenter>
+                    </businessCenters>
+                </dateAdjustments>
+            </co:settlementDate>
+            <!-- The cash transfer -->
+            <co:cashTransfer>
+                <payerPartyReference href="party1"/>
+                <payerAccountReference href="act2"/>
+                <receiverPartyReference href="party2"/>
+                <receiverAccountReference href="act4"/>
+                <co:amount>
+                    <currency>USD</currency>
+                    <amount>220000</amount>
+                </co:amount>
+            </co:cashTransfer>
+            <!-- The security transfer -->
+            <co:securityTransfer>
+                <payerPartyReference href="party2"/>
+                <payerAccountReference href="act3"/>
+                <receiverPartyReference href="party1"/>
+                <receiverAccountReference href="act5"/>
+                <co:security>
+                    <co:bond>
+                        <instrumentId instrumentIdScheme="ISIN">US0897535645742</instrumentId>
+                    </co:bond>
+                </co:security>
+                <co:quantity>1000</co:quantity>
+            </co:securityTransfer>
         </co:transfer>
     </co:primitive>
 </co:event>

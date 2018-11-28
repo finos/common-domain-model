@@ -84,7 +84,7 @@ class ContractState <"A class to specify a contract instantiation with respect t
         [synonym DTCC_11_0, DTCC_9_0 value TradeMsg path "Manifest"]
         [synonym DTCC_11_0, DTCC_9_0 value ReportingJurisdiction path "ReportingData.ReportingHeader"]
         [synonym CME_SubmissionIRS_1_0 value FpML path "Instrmt.SecXML"]
-    	clearingStatus ClearingStatusEnum (0..1);
+    clearingStatus ClearingStatusEnum (0..1);
 		[synonym Rosetta_Workbench value clearingStatus]
 		[synonym CME_ClearedConfirm_1_17 value status path "trade.tradeHeader"]
 		[synonym CME_SubmissionIRS_1_0 value TrdRptStat]
@@ -678,6 +678,18 @@ alias quantityAfterAllocation <"The alias to represent the quantity or notional 
 	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> notionalAmount -> amount
 	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount -> amount
 
+isEvent CashTransfer <"The qualification of a cash transfer from the fact that the only component is a cashTransfer.">
+	Event -> primitive -> transfer only exists
+	and Event -> primitive -> transfer -> cashTransfer exists
+	and Event -> primitive -> transfer -> securityTransfer is absent
+	and Event -> primitive -> transfer -> commodityTransfer is absent
+
+isEvent CashAndSecurityTransfer <"The qualification of a security settlement from the fact that (i) it is composed of a cashTransfer component and a securityTransfer component, and (ii) the cash and security move in the same direction.">
+	Event -> primitive -> transfer -> cashTransfer exists
+	and Event -> primitive -> transfer -> securityTransfer exists
+	and Event -> primitive -> transfer -> cashTransfer -> payerReceiver -> payerPartyReference = Event -> primitive -> transfer -> securityTransfer -> transferorTransferee -> transferorPartyReference
+	and Event -> primitive -> transfer -> commodityTransfer is absent
+
 isEvent ClearingAcceptance <"The acceptance of an alpha trade submission by a CCP.">
 	Event -> primitive -> quantityChange exists
 	and Event -> primitive -> quantityChange -> after -> clearingStatus = ClearingStatusEnum.Accepted
@@ -712,6 +724,9 @@ isEvent Exercise <"The qualification of a full termination event from the fact t
 	Event -> intent when present = IntentEnum.Exercise
 	and Event -> primitive -> exercise only exists
 
+isEvent MultipleTransfers <"The qualification an event that combines multiple transfers from the fact that multiple transfer primitives exist.">
+	Event -> primitive -> transfer multiple exists
+
 isEvent NewTrade
 	Event -> intent when present = IntentEnum.NewTrade
 	and Event -> primitive -> inception only exists
@@ -735,7 +750,7 @@ alias novatedContractEffectiveDate
 
 alias originalContractParties
 	( Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> buyerPartyReference
-		and 	Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> sellerPartyReference )
+		and Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> sellerPartyReference )
 	or ( Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver -> payerPartyReference
 		and Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver -> receiverPartyReference )
 	or ( Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> buyerSeller -> buyerPartyReference
@@ -743,7 +758,7 @@ alias originalContractParties
 
 alias newContractParties
 	( Event -> primitive -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> buyerPartyReference
-		and 	Event -> primitive -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> sellerPartyReference )
+		and Event -> primitive -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> sellerPartyReference )
 	or ( Event -> primitive -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver -> payerPartyReference
 		and Event -> primitive -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver -> receiverPartyReference )
 	or ( Event -> primitive -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> buyerSeller -> buyerPartyReference
@@ -802,18 +817,6 @@ alias changedQuantity
 	or Event -> primitive -> quantityChange -> change -> notionalSchedule -> notionalStepSchedule -> step -> stepValue
 	or Event -> primitive -> quantityChange -> change -> notionalSchedule -> notionalStepParameters -> notionalStepAmount
 	or Event -> primitive -> quantityChange -> change -> fxLinkedNotional -> initialValue
-
-isEvent CashTransfer <"The qualification of a cash transfer from the fact that the only component is a cashTransfer.">
-	Event -> primitive -> transfer only exists
-	and Event -> primitive -> transfer -> cashTransfer exists
-	and Event -> primitive -> transfer -> securityTransfer is absent
-	and Event -> primitive -> transfer -> commodityTransfer is absent
-
-isEvent CashAndSecurityTransfer <"The qualification of a security settlement from the fact that (i) it is composed of a cashTransfer component and a securityTransfer component, and (ii) the cash and security move in the same direction.">
-	Event -> primitive -> transfer -> cashTransfer exists
-	and Event -> primitive -> transfer -> securityTransfer exists
-	and Event -> primitive -> transfer -> cashTransfer -> payerReceiver -> payerPartyReference = Event -> primitive -> transfer -> securityTransfer -> transferorTransferee -> transferorPartyReference
-	and Event -> primitive -> transfer -> commodityTransfer is absent
 
 isEvent Payment <"The qualification of a payment event from the fact that the only primitive is the cash transfer.">
 	Event -> primitive -> transfer -> cashTransfer only exists
