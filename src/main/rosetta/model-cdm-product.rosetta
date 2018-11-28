@@ -1,7 +1,16 @@
 namespace "org.isda.cdm"
 
-class Cashflow extends CashflowBase <"A class to specify a cashflow, i.e. the outcome of either of computation (e.g. interest accrual) or some assessment of some sort (e.g. a fee). The cashflow can then be turned into a payment, artefact to be used as the input to a payment system or the outcome of it.">
+class Cashflow <"A class to specify a cashflow, i.e. the outcome of either of computation (e.g. interest accrual) or some assessment of some sort (e.g. a fee). The cashflow can then be turned into a payment, artefact to be used as the input to a payment system or the outcome of it.">
 {
+	id (0..1);
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
+	payerReceiver PayerReceiver (1..1);
+	discountFactor number (0..1) <"The value representing the discount factor used to calculate the present value of the cash flow.">;
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value discountFactor]
+	presentValueAmount Money (0..1) <"The amount representing the present value of the forecast payment.">;
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value presentValueAmount]
+	premiumExpression PremiumExpression (0..1) <"FpML specifies the Premium.model group for representing the option premium when expressed in a way other than an amount.">;
+	paymentDiscounting PaymentDiscounting (0..1) <"FpML specifies the FpML PaymentDiscounting.model group for representing the discounting elements that can be associated with a payment.">;
 	cashflowAmount Money (1..1) <"The currency amount of the payment.">;
 	cashflowDate AdjustableOrAdjustedOrRelativeDate (0..1);
 	cashflowCalculation calculation (0..1) <"The computation arguments used to compute the cashflow, when applicable.">;
@@ -14,19 +23,6 @@ class Cashflow extends CashflowBase <"A class to specify a cashflow, i.e. the ou
 data rule Cashflow_cashflowAmount <"The cashflow amount should be a positive number, as the cashflow direction is indeed implied by the payer/receiver attribute.">
 	when Cashflow -> cashflowAmount exists
 	then Cashflow -> cashflowAmount -> amount >= 0.0
-
-class CashflowBase <"A class to represent the attributes to be shared by the Cashflow and Payment classes.">
-{
-	id (0..1);
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
-	payerReceiver PayerReceiver (1..1);
-	discountFactor number (0..1) <"The value representing the discount factor used to calculate the present value of the cash flow.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value discountFactor]
-	presentValueAmount Money (0..1) <"The amount representing the present value of the forecast payment.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value presentValueAmount]
-	premiumExpression PremiumExpression (0..1) <"FpML specifies the Premium.model group for representing the option premium when expressed in a way other than an amount.">;
-	paymentDiscounting PaymentDiscounting (0..1) <"FpML specifies the FpML PaymentDiscounting.model group for representing the discounting elements that can be associated with a payment.">;
-}
 
 class Contract rosettaKey <"A class to specify a contract object, which can be invoked either within the context of an event, or independently from it. It corresponds to the FpML Trade, although restricted to execution and post-execution contexts. Attributes also applicable to pre-execution (a.k.a. pre-trade view in FpML) contexts have been positioned as part of the ContractualProduct class.">
 {
