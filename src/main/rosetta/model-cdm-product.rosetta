@@ -7,8 +7,7 @@ class Cashflow extends CashflowBase <"A class to specify a cashflow, i.e. the ou
 	cashflowCalculation calculation (0..1) <"The computation arguments used to compute the cashflow, when applicable.">;
 		[synonym Rosetta_Workbench value cashflowCalculation]
 	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, e.g. brokerage fee, premium, upfront fee etc. Particularly relevant when it cannot be inferred directly through lineage.">;
-		//[synonym FpML_5_10 value paymentType path "swaption.premium"]
-		[synonym FpML_5_10 set to CashflowTypeEnum.Premium when path="swaption.premium"]
+		[synonym FpML_5_10  value paymentType]
 		[synonym CME_ClearedConfirm_1_17 value paymentType]
 }
 
@@ -51,9 +50,6 @@ class Contract rosettaKey <"A class to specify a contract object, which can be i
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value clearedDate path "trade.tradeHeader"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value clearedDate path "tradeHeader"]
 	contractualProduct ContractualProduct (1..1) <"The contractual product information that is associated with the contract. The corresponding FpML construct is the product abstract element and the associated substitution group.">;
-	otherPartyPayment Payment (0..*) <"Other fees or additional payments associated with the contract, e.g. broker commissions, where one or more of the parties involved are not principal parties involved in the contract.">;
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value otherPartyPayment path "trade"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value otherPartyPayment]
 	collateral Collateral (0..1) <"Defines the collateral obligations of a party.">;
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value collateral path "trade"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value collateral]
@@ -628,7 +624,7 @@ class Payout <"The payout can be specified through a number of combinations, e.g
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value feeLeg, generalTerms]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value capFloorStream path "trade.capFloor"]
 	creditDefaultPayout CreditDefaultPayout (0..1);
-	cashflow Cashflow (0..*) <"A cashflow between the parties to the trade. For interest rate products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the initialPayment element and the singlePayment element of the fee leg.">;
+	cashflow Cashflow (0..*) <"A cashflow between the parties to the trade. For interest rate products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the FpML initialPayment element and the singlePayment element of the fee leg. For option products, which corresponds to the FpML premium element.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value additionalPayment path "trade.swap"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value additionalPayment path "swap"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value additionalPayment]
@@ -644,6 +640,8 @@ class Payout <"The payout can be specified through a number of combinations, e.g
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value premium path "trade.bondOption"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value premium path "bondOption"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value premium path "trade.capFloor", additionalPayment path "trade.capFloor"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value otherPartyPayment path "trade"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value otherPartyPayment]
 	optionPayout OptionPayout (0..*);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value swaption path "trade"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value swaption]
@@ -993,24 +991,3 @@ isProduct InterestRate_CapFloor
 	[synonym ISDA_Taxonomy_v1 value InterestRate_CapFloor]
 	EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> capRateSchedule exists
 	or EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> floorRateSchedule exists
-
-
-isProduct InterestRate_InflationCapFloor_FixedFloat_YearOnYear
-	[synonym ISDA_Taxonomy_v1 value InterestRate_CapFloor]
-	( EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate -> capRateSchedule
-		or EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate -> floorRateSchedule ) exists
-	and 	EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
-	and 	EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.Y
-		
-isProduct InterestRate_InflationCapFloor_Basis_ZeroCoupon
-	[synonym ISDA_Taxonomy_v1 value InterestRate_CapFloor]
-	( EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate -> capRateSchedule 
-		or EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate -> floorRateSchedule ) exists
-	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
-	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.T
-
-
-/*
- * QUESTION TO CDM GROUP
- * TODO - How do we identify specify the CDS products, in the absence of normalised scheme values?
- */
