@@ -152,6 +152,8 @@ class CustomisedWorkflow <"In its initial iteration, this class is meant to supp
 		[synonym DTCC_11_0, DTCC_9_0 set to "designatedParty" when path = "PartyWorkflowFields.designatedParty"]
 		[synonym DTCC_11_0, DTCC_9_0 set to "brokerName" when path = "PartyWorkflowFields.brokerName"]
 		[synonym DTCC_11_0, DTCC_9_0 set to "branchLocation" when path = "PartyWorkflowFields.branchLocation"]
+		[synonym DTCC_11_0, DTCC_9_0 set to "midMarketPriceType" when path = "PartyWorkflowFields.midMarketPrice.midMarketPriceType"]
+		[synonym DTCC_11_0, DTCC_9_0 set to "amount" when path = "PartyWorkflowFields.midMarketPrice.amount"]
 	itemValue string (1..1) <"In this initial iteration, this corresponds to the DTCC value.">;
 		[synonym DTCC_11_0, DTCC_9_0 value comment path "PartyWorkflowFields"]
 		[synonym DTCC_11_0, DTCC_9_0 value superId path "PartyWorkflowFields"]
@@ -160,6 +162,8 @@ class CustomisedWorkflow <"In its initial iteration, this class is meant to supp
 		[synonym DTCC_11_0, DTCC_9_0 value designatedParty path "PartyWorkflowFields"]
 		[synonym DTCC_11_0, DTCC_9_0 value brokerName path "PartyWorkflowFields"]
 		[synonym DTCC_11_0, DTCC_9_0 value branchLocation path "PartyWorkflowFields"]
+		[synonym DTCC_11_0, DTCC_9_0 value midMarketPriceType path "PartyWorkflowFields.midMarketPrice"]
+		[synonym DTCC_11_0, DTCC_9_0 value amount path "PartyWorkflowFields.midMarketPrice"]
 }
 
 class Event
@@ -168,6 +172,7 @@ class Event
 		[synonym Rosetta_Workbench meta id]
 	messageInformation MessageInformation (0..1);
 		[synonym DTCC_11_0, DTCC_9_0 value FpML path "Body.OTC_Matching.Trade"]
+		[synonym DTCC_11_0, DTCC_9_0 value FpML path "Body.OTC_Matching.Payment"]
 		[synonym DTCC_11_0, DTCC_9_0 value RouteInfo path "Header.OTC_RM.Delivery"]
 		[synonym DTCC_11_0, DTCC_9_0 value Manifest path "Header.OTC_RM"]
 		[synonym CME_ClearedConfirm_1_17 value header path "clearingConfirmed"]
@@ -235,7 +240,6 @@ class EventTimestamp <"A class to represent the various set of timestamps that c
 		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value creationTimestamp]
 		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value expiryTimestamp]
 		[synonym DTCC_11_0, DTCC_9_0 value ReceiveTime path "Route"]
-		[synonym DTCC_11_0, DTCC_9_0 value ReleaseTime path "Route"]
 		[synonym CME_ClearedConfirm_1_17 value submittedForClearing]
 		[synonym CME_SubmissionIRS_1_0 value TxnTm path "TrdCaptRpt"]
 		[synonym CME_SubmissionIRS_1_0 value Snt path "TrdCaptRpt.Hdr"]
@@ -243,10 +247,8 @@ class EventTimestamp <"A class to represent the various set of timestamps that c
 		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 set to EventTimeStampQualificationEnum.eventCreated when "creationTimestamp" exists]
 		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 set to EventTimeStampQualificationEnum.eventExpired when "expiryTimestamp" exists]
 		[synonym CME_ClearedConfirm_1_17, Rosetta_Workbench set to EventTimeStampQualificationEnum.submittedForClearing when "submittedForClearing" exists]
-		[synonym DTCC_11_0, DTCC_9_0 set to EventTimeStampQualificationEnum.eventReceived when "Route.ReceiveTime" exists]
-		[synonym DTCC_11_0, DTCC_9_0 set to EventTimeStampQualificationEnum.eventProcessed when "Route.ReleaseTime" exists]
+		[synonym DTCC_11_0, DTCC_9_0 set to EventTimeStampQualificationEnum.eventSubmitted when "Route.ReceiveTime" exists]
 		[synonym CME_SubmissionIRS_1_0 set to EventTimeStampQualificationEnum.executed when path= "TrdCaptRpt.TxnTm"]
-		[synonym CME_SubmissionIRS_1_0 set to EventTimeStampQualificationEnum.eventSent when  path = "TrdCaptRpt.Hdr.Snt"] //should be path expresion?
 }
 
 class Execution rosettaKey
@@ -401,7 +403,6 @@ class MessageInformation <"This class corresponds to the messaging components of
 		[synonym Rosetta_Workbench value messageId path "messageInformation" meta messageIdScheme]
 		[synonym DTCC_11_0, DTCC_9_0 value messageId path "header" meta messageIdScheme]
 		[synonym CME_ClearedConfirm_1_17 value messageId meta messageIdScheme]
-		[synonym DTCC_9_0 value MsgId]
 	sentBy string (0..1) scheme <"The identifier for the originator of a message instance.">;
 		[synonym Rosetta_Workbench value sentBy path "messageInformation" meta messageAddressScheme]
 		[synonym DTCC_11_0, DTCC_9_0 value From]
