@@ -167,15 +167,15 @@ class Event
 	id (0..1);
 		[synonym Rosetta_Workbench meta id]
 	messageInformation MessageInformation (0..1);
-		[synonym DTCC_11_0 value FpML path "Body.OTC_Matching.Trade"]
+		[synonym DTCC_11_0, DTCC_9_0 value FpML path "Body.OTC_Matching.Trade"]
 		[synonym DTCC_11_0, DTCC_9_0 value RouteInfo path "Header.OTC_RM.Delivery"]
-		[synonym DTCC_9_0 value Manifest path "Header.OTC_RM"]
+		[synonym DTCC_11_0, DTCC_9_0 value Manifest path "Header.OTC_RM"]
 		[synonym CME_ClearedConfirm_1_17 value header path "clearingConfirmed"]
 	timestamp EventTimestamp (1..*) <"The set of timestamp(s) associated with the event as a collection of [dateTime, qualifier].">;
 		[synonym Rosetta_Workbench value timestamp]
-		[synonym DTCC_11_0 value header path "Body.OTC_Matching.Trade.FpML"]
+		[synonym DTCC_11_0, DTCC_9_0 value header path "Body.OTC_Matching.Trade.FpML"]
 		[synonym DTCC_11_0, DTCC_9_0 value RouteHist path "Header.OTC_RM.Delivery"]
-		[synonym DTCC_9_0 value header path "Body.OTC_Matching.Payment.FpML"]
+		[synonym DTCC_11_0, DTCC_9_0 value header path "Body.OTC_Matching.Payment.FpML"]
         [synonym CME_ClearedConfirm_1_17 value timestamps path "clearingConfirmed.trade.tradeHeader"]
         [synonym CME_ClearedConfirm_1_17 value header path "clearingConfirmed"]
     eventIdentifier Identifier (1..*) <"The event identifier, which has 3 components: an actual identifier, an issuer and a version number. One and only one identifier can be associated with a lifecycle event.">;
@@ -198,8 +198,9 @@ class Event
 	intent IntentEnum (0..1);
 		[synonym Rosetta_Workbench value intent]
 	party Party (0..*) <"The specification of the event parties. This attribute is optional, as not applicable to certain events (e.g. most of the observations).">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value party]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value party]
 		[synonym DTCC_11_0, DTCC_9_0 value party path "Body.OTC_Matching.Trade.FpML" ]
+		[synonym DTCC_11_0, DTCC_9_0 value party path "Body.OTC_Matching.Payment.FpML" ]
 	account Account (0..*) <"Optional account information that could be associated to the event.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0 value account]
 		[synonym CME_ClearedConfirm_1_17 value account path "clearingConfirmed"]
@@ -607,9 +608,19 @@ class Transfer rosettaKey <"A class to specify the transfer primitive by providi
 class TransferBase
 {
 	identifier string (0..1) scheme <"The identifier that can be associated with each of the transfer components">;
-		[synonym DTCC_9_0 value identifier meta paymentIdScheme]
-	transferCalculation calculation (0..1) <"The calculation used to compute the transfer, when applicable.">;
+		[synonym DTCC_11_0, DTCC_9_0 value identifier meta paymentIdScheme]
+	transferCalculation TransferCalculation (0..1) <"The calculation details underlying the transfer amount, when applicable.">;
+		[synonym DTCC_11_0, DTCC_9_0 value calculationDetails]
+}
+
+class TransferCalculation <"">
+{
+	period CalculationPeriodBase (0..1 ) <"The period adjusted start and end dates.">;
+		[synonym DTCC_11_0, DTCC_9_0 value calculationPeriod path "calculationElements"]
+	contract string (0..1) <"The contract used as an input to the calculation.">; // To be replaced with the rosettaKey once the implemented is extended
+	calculationOutcome calculation (0..1) <"The calculation outcome.">;
 		[synonym Rosetta_Workbench value transferCalculation]
+	
 }
 
 class TransferBreakdown extends TransferBase

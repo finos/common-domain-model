@@ -5,24 +5,26 @@ class Cashflow <"A class to specify a cashflow, i.e. the outcome of either of co
 	id (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 	payerReceiver PayerReceiver (1..1);
-	discountFactor number (0..1) <"The value representing the discount factor used to calculate the present value of the cash flow.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value discountFactor]
-	presentValueAmount Money (0..1) <"The amount representing the present value of the forecast payment.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value presentValueAmount]
-	premiumExpression PremiumExpression (0..1) <"FpML specifies the Premium.model group for representing the option premium when expressed in a way other than an amount.">;
+
 	paymentDiscounting PaymentDiscounting (0..1) <"FpML specifies the FpML PaymentDiscounting.model group for representing the discounting elements that can be associated with a payment.">;
 	cashflowAmount Money (1..1) <"The currency amount of the payment.">;
+		premiumExpression PremiumExpression (0..1) <"FpML specifies the Premium.model group for representing the option premium when expressed in a way other than an amount.">;
 	cashflowDate AdjustableOrAdjustedOrRelativeDate (0..1);
 	cashflowCalculation calculation (0..1) <"The computation arguments used to compute the cashflow, when applicable.">;
 		[synonym Rosetta_Workbench value cashflowCalculation]
 	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, e.g. brokerage fee, premium, upfront fee etc. Particularly relevant when it cannot be inferred directly through lineage.">;
 		[synonym FpML_5_10  value paymentType]
 		[synonym CME_ClearedConfirm_1_17 value paymentType]
+		discountFactor number (0..1) <"The value representing the discount factor used to calculate the present value of the cashflow.">;
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value discountFactor]
+	presentValueAmount Money (0..1) <"The amount representing the present value of the forecast payment.">;
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value presentValueAmount]
 }
 
 data rule Cashflow_cashflowAmount <"The cashflow amount should be a positive number, as the cashflow direction is indeed implied by the payer/receiver attribute.">
 	when Cashflow -> cashflowAmount exists
 	then Cashflow -> cashflowAmount -> amount >= 0.0
+
 
 class Contract rosettaKey <"A class to specify a contract object, which can be invoked either within the context of an event, or independently from it. It corresponds to the FpML Trade, although restricted to execution and post-execution contexts. Attributes also applicable to pre-execution (a.k.a. pre-trade view in FpML) contexts have been positioned as part of the ContractualProduct class.">
 {
