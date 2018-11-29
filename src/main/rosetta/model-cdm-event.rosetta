@@ -152,6 +152,8 @@ class CustomisedWorkflow <"In its initial iteration, this class is meant to supp
 		[synonym DTCC_11_0, DTCC_9_0 set to "designatedParty" when path = "PartyWorkflowFields.designatedParty"]
 		[synonym DTCC_11_0, DTCC_9_0 set to "brokerName" when path = "PartyWorkflowFields.brokerName"]
 		[synonym DTCC_11_0, DTCC_9_0 set to "branchLocation" when path = "PartyWorkflowFields.branchLocation"]
+		[synonym DTCC_11_0, DTCC_9_0 set to "midMarketPriceType" when path = "PartyWorkflowFields.midMarketPrice.midMarketPriceType"]
+		[synonym DTCC_11_0, DTCC_9_0 set to "amount" when path = "PartyWorkflowFields.midMarketPrice.amount"]
 	itemValue string (1..1) <"In this initial iteration, this corresponds to the DTCC value.">;
 		[synonym DTCC_11_0, DTCC_9_0 value comment path "PartyWorkflowFields"]
 		[synonym DTCC_11_0, DTCC_9_0 value superId path "PartyWorkflowFields"]
@@ -160,6 +162,8 @@ class CustomisedWorkflow <"In its initial iteration, this class is meant to supp
 		[synonym DTCC_11_0, DTCC_9_0 value designatedParty path "PartyWorkflowFields"]
 		[synonym DTCC_11_0, DTCC_9_0 value brokerName path "PartyWorkflowFields"]
 		[synonym DTCC_11_0, DTCC_9_0 value branchLocation path "PartyWorkflowFields"]
+		[synonym DTCC_11_0, DTCC_9_0 value midMarketPriceType path "PartyWorkflowFields.midMarketPrice"]
+		[synonym DTCC_11_0, DTCC_9_0 value amount path "PartyWorkflowFields.midMarketPrice"]
 }
 
 class Event
@@ -167,15 +171,16 @@ class Event
 	id (0..1);
 		[synonym Rosetta_Workbench meta id]
 	messageInformation MessageInformation (0..1);
-		[synonym DTCC_11_0 value FpML path "Body.OTC_Matching.Trade"]
+		[synonym DTCC_11_0, DTCC_9_0 value FpML path "Body.OTC_Matching.Trade"]
+		[synonym DTCC_11_0, DTCC_9_0 value FpML path "Body.OTC_Matching.Payment"]
 		[synonym DTCC_11_0, DTCC_9_0 value RouteInfo path "Header.OTC_RM.Delivery"]
-		[synonym DTCC_9_0 value Manifest path "Header.OTC_RM"]
+		[synonym DTCC_11_0, DTCC_9_0 value Manifest path "Header.OTC_RM"]
 		[synonym CME_ClearedConfirm_1_17 value header path "clearingConfirmed"]
 	timestamp EventTimestamp (1..*) <"The set of timestamp(s) associated with the event as a collection of [dateTime, qualifier].">;
 		[synonym Rosetta_Workbench value timestamp]
-		[synonym DTCC_11_0 value header path "Body.OTC_Matching.Trade.FpML"]
+		[synonym DTCC_11_0, DTCC_9_0 value header path "Body.OTC_Matching.Trade.FpML"]
 		[synonym DTCC_11_0, DTCC_9_0 value RouteHist path "Header.OTC_RM.Delivery"]
-		[synonym DTCC_9_0 value header path "Body.OTC_Matching.Payment.FpML"]
+		[synonym DTCC_11_0, DTCC_9_0 value header path "Body.OTC_Matching.Payment.FpML"]
         [synonym CME_ClearedConfirm_1_17 value timestamps path "clearingConfirmed.trade.tradeHeader"]
         [synonym CME_ClearedConfirm_1_17 value header path "clearingConfirmed"]
     eventIdentifier Identifier (1..*) <"The event identifier, which has 3 components: an actual identifier, an issuer and a version number. One and only one identifier can be associated with a lifecycle event.">;
@@ -198,8 +203,9 @@ class Event
 	intent IntentEnum (0..1);
 		[synonym Rosetta_Workbench value intent]
 	party Party (0..*) <"The specification of the event parties. This attribute is optional, as not applicable to certain events (e.g. most of the observations).">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value party]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value party]
 		[synonym DTCC_11_0, DTCC_9_0 value party path "Body.OTC_Matching.Trade.FpML" ]
+		[synonym DTCC_11_0, DTCC_9_0 value party path "Body.OTC_Matching.Payment.FpML" ]
 	account Account (0..*) <"Optional account information that could be associated to the event.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0 value account]
 		[synonym CME_ClearedConfirm_1_17 value account path "clearingConfirmed"]
@@ -234,7 +240,6 @@ class EventTimestamp <"A class to represent the various set of timestamps that c
 		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value creationTimestamp]
 		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value expiryTimestamp]
 		[synonym DTCC_11_0, DTCC_9_0 value ReceiveTime path "Route"]
-		[synonym DTCC_11_0, DTCC_9_0 value ReleaseTime path "Route"]
 		[synonym CME_ClearedConfirm_1_17 value submittedForClearing]
 		[synonym CME_SubmissionIRS_1_0 value TxnTm path "TrdCaptRpt"]
 		[synonym CME_SubmissionIRS_1_0 value Snt path "TrdCaptRpt.Hdr"]
@@ -242,10 +247,8 @@ class EventTimestamp <"A class to represent the various set of timestamps that c
 		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 set to EventTimeStampQualificationEnum.eventCreated when "creationTimestamp" exists]
 		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 set to EventTimeStampQualificationEnum.eventExpired when "expiryTimestamp" exists]
 		[synonym CME_ClearedConfirm_1_17, Rosetta_Workbench set to EventTimeStampQualificationEnum.submittedForClearing when "submittedForClearing" exists]
-		[synonym DTCC_11_0, DTCC_9_0 set to EventTimeStampQualificationEnum.eventReceived when "Route.ReceiveTime" exists]
-		[synonym DTCC_11_0, DTCC_9_0 set to EventTimeStampQualificationEnum.eventProcessed when "Route.ReleaseTime" exists]
+		[synonym DTCC_11_0, DTCC_9_0 set to EventTimeStampQualificationEnum.eventSubmitted when "Route.ReceiveTime" exists]
 		[synonym CME_SubmissionIRS_1_0 set to EventTimeStampQualificationEnum.executed when path= "TrdCaptRpt.TxnTm"]
-		[synonym CME_SubmissionIRS_1_0 set to EventTimeStampQualificationEnum.eventSent when  path = "TrdCaptRpt.Hdr.Snt"] //should be path expresion?
 }
 
 class Execution rosettaKey
@@ -304,16 +307,16 @@ data rule ExercisePrimitive_fullExercise <"A full exercise should not result in 
 	when ExercisePrimitive -> fullExercise = True
 	then ExercisePrimitive -> after -> contract -> state = StateEnum.Exercised
 
-class GrossCashflow extends CashflowBase
-{
-	lineage Lineage (0..1) <"The lineage into the Payout components that might be associated with each of the gross cashflow elements.">;
-	cashflowAmount Money (1..1) <"The currency amount of the payment.">;
-		[synonym Rosetta_Workbench value cashflowAmount]
-	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">;
-		[synonym Rosetta_Workbench value cashflowType] // set cashflowType.premium when synonym premium exists]
-	cashflowCalculation calculation (0..1) <"The calculation used to compute the gross cashflow, when applicable.">;
-		[synonym Rosetta_Workbench value cashflowCalculation]
-}
+//class GrossCashflow extends CashflowBase
+//{
+//	lineage Lineage (0..1) <"The lineage into the Payout components that might be associated with each of the gross cashflow elements.">;
+//	cashflowAmount Money (1..1) <"The currency amount of the payment.">;
+//		[synonym Rosetta_Workbench value cashflowAmount]
+//	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">;
+//		[synonym Rosetta_Workbench value cashflowType] // set cashflowType.premium when synonym premium exists]
+//	cashflowCalculation calculation (0..1) <"The calculation used to compute the gross cashflow, when applicable.">;
+//		[synonym Rosetta_Workbench value cashflowCalculation]
+//}
 
 class Inception <"The primitive event for the inception of a new contract between parties. It is expected that this primitive will be adjusted or deprecated once the CDM scope is extended to the pre-execution space.">
 {
@@ -324,7 +327,7 @@ class Inception <"The primitive event for the inception of a new contract betwee
 	 */
 	after PostInceptionState (1..1) reference <"The after state corresponds to the new contract between the parties. Depending upon the implementation approach, this contract can either be explicitly stated, or referenced via either a CDM rosettaKey or a reference that originates externally from the CDM.">;
 		[synonym Rosetta_Workbench value after]
-		[synonym DTCC_11_0, DTCC_9_0 value OTC_Matching path "Body", OTC_RM path "Header"]
+		[synonym DTCC_11_0 value OTC_Matching path "Body", OTC_RM path "Header"]
 		[synonym CME_ClearedConfirm_1_17 value clearingConfirmed]
 		[synonym CME_SubmissionIRS_1_0 value TrdCaptRpt]
 }
@@ -400,7 +403,6 @@ class MessageInformation <"This class corresponds to the messaging components of
 		[synonym Rosetta_Workbench value messageId path "messageInformation" meta messageIdScheme]
 		[synonym DTCC_11_0, DTCC_9_0 value messageId path "header" meta messageIdScheme]
 		[synonym CME_ClearedConfirm_1_17 value messageId meta messageIdScheme]
-		[synonym DTCC_9_0 value MsgId]
 	sentBy string (0..1) scheme <"The identifier for the originator of a message instance.">;
 		[synonym Rosetta_Workbench value sentBy path "messageInformation" meta messageAddressScheme]
 		[synonym DTCC_11_0, DTCC_9_0 value From]
@@ -607,8 +609,17 @@ class Transfer rosettaKey <"A class to specify the transfer primitive by providi
 class TransferBase
 {
 	identifier string (0..1) scheme <"The identifier that can be associated with each of the transfer components">;
-		[synonym DTCC_9_0 value identifier meta paymentIdScheme]
-	transferCalculation calculation (0..1) <"The calculation used to compute the transfer, when applicable.">;
+		[synonym DTCC_11_0, DTCC_9_0 value identifier meta paymentIdScheme]
+	transferCalculation TransferCalculation (0..1) <"The calculation details underlying the transfer amount, when applicable.">;
+		[synonym DTCC_11_0, DTCC_9_0 value calculationDetails]
+}
+
+class TransferCalculation <"">
+{
+	period CalculationPeriodBase (0..1 ) <"The period adjusted start and end dates.">;
+		[synonym DTCC_11_0, DTCC_9_0 value calculationPeriod path "calculationElements"]
+	lineage Lineage (0..1) <"The lineage into the components used for the calculation.">; 
+	calculationOutcome calculation (0..1) <"The calculation outcome.">;
 		[synonym Rosetta_Workbench value transferCalculation]
 }
 
@@ -670,11 +681,19 @@ alias quantityAfterAllocation <"The alias to represent the quantity or notional 
 	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> notionalAmount -> amount
 	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount -> amount
 
+/*
+ * Temporary event qualification until such time that we firm out the proper qualification and the way to infer it
+ */
+isEvent CashflowCalculationNotification 
+	Event -> primitive -> transfer only exists
+	and Event -> messageInformation -> sentBy = "DTCC"
+
 isEvent CashTransfer <"The qualification of a cash transfer from the fact that the only component is a cashTransfer.">
 	Event -> primitive -> transfer only exists
 	and Event -> primitive -> transfer -> cashTransfer exists
 	and Event -> primitive -> transfer -> securityTransfer is absent
 	and Event -> primitive -> transfer -> commodityTransfer is absent
+	and Event -> messageInformation -> sentBy <> "DTCC" // This is a kludge related to the CashflowCalculationNotification qualification
 
 isEvent CashAndSecurityTransfer <"The qualification of a security settlement from the fact that (i) it is composed of a cashTransfer component and a securityTransfer component, and (ii) the cash and security move in the same direction.">
 	Event -> primitive -> transfer -> cashTransfer exists
@@ -723,6 +742,7 @@ isEvent NewTrade
 	Event -> intent when present = IntentEnum.NewTrade
 	and Event -> primitive -> inception only exists
 	and Event -> primitive -> inception -> after -> clearingStatus is absent
+	and Event -> primitive -> inception -> after -> tradeWarehouseWorkflow is absent
 
 isEvent Novation <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and inception exist, (iii) the contract in the quantityChange/after node has a Novated state, (iv) the stepped-in contract has a different contract identifier than the novated contract, (v) the stepped-in contract has the novation event date and the novation event effective date, and (vi) the contract counterparties have changed.">
 	Event -> intent when present = IntentEnum.Novation
@@ -835,6 +855,9 @@ isEvent Termination <"The qualification of a termination event from the fact tha
 	and Event -> primitive -> quantityChange -> after -> contract -> state = StateEnum.Terminated
 	and Event -> primitive -> quantityChange -> after -> clearingStatus is absent
 
-isEvent TradeRepositorySubmission
+/*
+ * Qualification to be confirmed
+ */
+isEvent TradeWarehousePositionNotification
 	Event -> primitive -> inception exists
 	and Event -> primitive -> inception -> after -> tradeWarehouseWorkflow exists
