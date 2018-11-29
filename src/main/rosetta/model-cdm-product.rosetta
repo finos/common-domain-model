@@ -13,9 +13,8 @@ class Cashflow <"A class to specify a cashflow, i.e. the outcome of either of co
 	cashflowCalculation calculation (0..1) <"The computation arguments used to compute the cashflow, when applicable.">;
 		[synonym Rosetta_Workbench value cashflowCalculation]
 	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, e.g. brokerage fee, premium, upfront fee etc. Particularly relevant when it cannot be inferred directly through lineage.">;
-		[synonym FpML_5_10  value paymentType]
-		[synonym CME_ClearedConfirm_1_17 value paymentType]
-		discountFactor number (0..1) <"The value representing the discount factor used to calculate the present value of the cashflow.">;
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentType]
+	discountFactor number (0..1) <"The value representing the discount factor used to calculate the present value of the cashflow.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value discountFactor]
 	presentValueAmount Money (0..1) <"The amount representing the present value of the forecast payment.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value presentValueAmount]
@@ -942,8 +941,8 @@ isProduct InterestRate_InflationSwap_FixedFloat_YearOn_Year
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 	and EconomicTerms -> payout -> optionPayout is absent
-	and 	EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
-	and 	EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.Y
+	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
+	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.Y
 
 isProduct InterestRate_InflationSwap_FixedFloat_ZeroCoupon
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation]
@@ -962,8 +961,8 @@ isProduct InterestRate_InflationSwap_Basis_YearOn_Year
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 	and EconomicTerms -> payout -> optionPayout is absent
-	and 	EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
-	and 	EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.Y
+	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
+	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.Y
 
 isProduct InterestRate_InflationSwap_Basis_ZeroCoupon
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation]
@@ -978,7 +977,7 @@ isProduct InterestRate_InflationSwap_Basis_ZeroCoupon
 isProduct InterestRate_Option_Swaption
 	[synonym ISDA_Taxonomy_v1 value InterestRate_Option_Swaption]
 	EconomicTerms -> payout -> optionPayout exists
-	and EconomicTerms -> payout -> optionPayout -> underlyer -> contractualProduct -> economicTerms -> payout -> interestRatePayout exists
+	and EconomicTerms -> payout -> optionPayout -> underlyer -> contractualProduct -> economicTerms -> payout -> interestRatePayout count = 2
 
 isProduct InterestRate_Option_DebtOption
 	[synonym ISDA_Taxonomy_v1 value InterestRate_DebtOption]

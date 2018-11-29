@@ -327,7 +327,7 @@ class Inception <"The primitive event for the inception of a new contract betwee
 	 */
 	after PostInceptionState (1..1) reference <"The after state corresponds to the new contract between the parties. Depending upon the implementation approach, this contract can either be explicitly stated, or referenced via either a CDM rosettaKey or a reference that originates externally from the CDM.">;
 		[synonym Rosetta_Workbench value after]
-		[synonym DTCC_11_0, DTCC_9_0 value OTC_Matching path "Body", OTC_RM path "Header"]
+		[synonym DTCC_11_0 value OTC_Matching path "Body", OTC_RM path "Header"]
 		[synonym CME_ClearedConfirm_1_17 value clearingConfirmed]
 		[synonym CME_SubmissionIRS_1_0 value TrdCaptRpt]
 }
@@ -618,10 +618,9 @@ class TransferCalculation <"">
 {
 	period CalculationPeriodBase (0..1 ) <"The period adjusted start and end dates.">;
 		[synonym DTCC_11_0, DTCC_9_0 value calculationPeriod path "calculationElements"]
-	contract string (0..1) <"The contract used as an input to the calculation.">; // To be replaced with the rosettaKey once the implemented is extended
+	lineage Lineage (0..1) <"The lineage into the components used for the calculation.">; 
 	calculationOutcome calculation (0..1) <"The calculation outcome.">;
 		[synonym Rosetta_Workbench value transferCalculation]
-	
 }
 
 class TransferBreakdown extends TransferBase
@@ -682,11 +681,19 @@ alias quantityAfterAllocation <"The alias to represent the quantity or notional 
 	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> notionalAmount -> amount
 	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount -> amount
 
+/*
+ * Temporary event qualification until such time that we firm out the proper qualification and the way to infer it
+ */
+isEvent CashflowCalculationNotification 
+	Event -> primitive -> transfer only exists
+	and Event -> messageInformation -> sentBy = "DTCC"
+
 isEvent CashTransfer <"The qualification of a cash transfer from the fact that the only component is a cashTransfer.">
 	Event -> primitive -> transfer only exists
 	and Event -> primitive -> transfer -> cashTransfer exists
 	and Event -> primitive -> transfer -> securityTransfer is absent
 	and Event -> primitive -> transfer -> commodityTransfer is absent
+	and Event -> messageInformation -> sentBy <> "DTCC" // This is a kludge related to the CashflowCalculationNotification qualification
 
 isEvent CashAndSecurityTransfer <"The qualification of a security settlement from the fact that (i) it is composed of a cashTransfer component and a securityTransfer component, and (ii) the cash and security move in the same direction.">
 	Event -> primitive -> transfer -> cashTransfer exists
@@ -735,6 +742,7 @@ isEvent NewTrade
 	Event -> intent when present = IntentEnum.NewTrade
 	and Event -> primitive -> inception only exists
 	and Event -> primitive -> inception -> after -> clearingStatus is absent
+	and Event -> primitive -> inception -> after -> tradeWarehouseWorkflow is absent
 
 isEvent Novation <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and inception exist, (iii) the contract in the quantityChange/after node has a Novated state, (iv) the stepped-in contract has a different contract identifier than the novated contract, (v) the stepped-in contract has the novation event date and the novation event effective date, and (vi) the contract counterparties have changed.">
 	Event -> intent when present = IntentEnum.Novation
@@ -847,6 +855,9 @@ isEvent Termination <"The qualification of a termination event from the fact tha
 	and Event -> primitive -> quantityChange -> after -> contract -> state = StateEnum.Terminated
 	and Event -> primitive -> quantityChange -> after -> clearingStatus is absent
 
-isEvent TradeRepositorySubmission
+/*
+ * Qualification to be confirmed
+ */
+isEvent TradeWarehousePositionNotification
 	Event -> primitive -> inception exists
 	and Event -> primitive -> inception -> after -> tradeWarehouseWorkflow exists
