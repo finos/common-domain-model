@@ -104,7 +104,7 @@ class EventEffectPathFilterTest {
         assertThat(eventEffectPaths,
                 hasItems(EFFECTED_CONTRACT_PATH.getPath().buildPath(),
                         CONTRACT_PATH.getPath().buildPath()));
-        assertThat(eventEffectPaths, hasSize(5));
+        assertThat(eventEffectPaths, hasSize(4));
     }
 
     private Visitor<PathObject<Class<?>>> getCollectEventEffectPathsVisitor(List<String> capture) {
