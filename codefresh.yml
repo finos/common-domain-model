@@ -76,6 +76,16 @@ steps:
       - echo After substitution author is $COMMIT_AUTHOR and commit msg is $COMMIT_MESSAGE and repo is $REPO_NAME
       - codefresh run slack-notifier -v REPO_NAME="${REPO_NAME}" -v COMMIT_AUTHOR="${COMMIT_AUTHOR}" -v COMMIT_MESSAGE="${COMMIT_MESSAGE}"  --detach
 
+  FailPipeline:
+    title: Fail pipeline if the Maven build failed
+    image: codefresh/cli
+    when:
+      condition:
+        any:
+          normalBuildFailure: steps.BuildNormal.resuult == 'failure'
+          releaseBuildFailure: steps.BuildRelease.result == 'failure'
+    commands:
+      - exit 1
 
   TagRepo:
     title: Tag git repo with release name
