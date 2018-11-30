@@ -1,7 +1,7 @@
 package org.isda.cdm.postprocessors.rosettaKey;
 
 import com.google.common.collect.ImmutableMap;
-import com.regnosys.rosetta.common.hash.HashFunction;
+import com.rosetta.model.lib.HashFunction;
 
 import java.util.Map;
 import java.util.function.BinaryOperator;
