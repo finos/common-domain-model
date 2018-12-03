@@ -469,9 +469,9 @@ data rule InitialStub_FinalStub <"Data rule to represent the FpML nested XML con
 		or InterestRatePayout -> stubPeriod -> finalStub exists
 
 data rule FinalStub_lastRegularPaymentDate <"FpML specifies that lastRegularPaymentDate must only be included if there is a final stub. As part of the CDM, this data rule has been adjusted to specify that it only applies to interest rate swaps, as the credit derivatives products can have a specified lastRegularPaymentDate while the stub is typically not applicable to those.">
-	when InterestRatePayout -> paymentDates -> lastRegularPaymentDate exists
-		and InterestRatePayout -> stubPeriod -> finalStub exists
-	then InterestRatePayout count = 2
+	when Payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate exists
+		and Payout -> interestRatePayout -> stubPeriod -> finalStub exists
+	then Payout -> interestRatePayout count = 2
 
 data rule SettlementProvision_settlementCurrency <"FpML specifies that the SettlementProvision exists when the settlement currency is different to the notional currency of the trade.">
 	when InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> nonDeliverableSettlement exists
