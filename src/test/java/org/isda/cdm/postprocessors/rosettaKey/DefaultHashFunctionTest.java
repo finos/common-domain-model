@@ -20,6 +20,15 @@ class DefaultHashFunctionTest {
                 .addNaturalPersonBuilder(NaturalPerson.builder()
                         .setId("test-id-3"))
                 .build();
+
+        Integer result = party.externalHash(new DefaultHashFunction());
+
+        assertThat(result, is(1760868472));
+    }
+
+    @Test
+    void shouldHandleEmptyObject() {
+        Party party = Party.builder().build();
         Integer result = party.externalHash(new DefaultHashFunction());
 
         assertThat(result, is(0));
