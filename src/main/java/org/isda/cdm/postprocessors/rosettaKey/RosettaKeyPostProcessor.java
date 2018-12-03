@@ -17,6 +17,11 @@ public class RosettaKeyPostProcessor implements PostProcessor {
 
     @Override
     public <T extends RosettaModelObject> T process(Class<T> rosettaType, T instance) {
+        /*
+            1. Find objects that are rosettaKeys
+            2. on those objects, call externalHashcode()
+            3. stamp onto object
+         */
         return instance;
     }
 
