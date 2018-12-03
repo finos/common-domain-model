@@ -30,7 +30,8 @@
         <co:exercise>
             <co:fullExercise>true</co:fullExercise>
             <co:before>
-                <co:contract>
+                <!-- This is the swaption in the before state -->
+                <co:trade>
                     <tradeHeader>
                         <partyTradeIdentifier>
                             <partyReference href="PartyA"/>
@@ -70,7 +71,7 @@
                             <paymentType>PREMIUM</paymentType>
                         </premium>
                         <europeanExercise>
-                            <expirationDate id="exerciseDate">
+                            <expirationDate>
                                 <adjustableDate>
                                     <unadjustedDate>2018-04-09</unadjustedDate>
                                     <dateAdjustments>
@@ -293,33 +294,85 @@
                             </swapStream>
                         </swap>
                     </swaption>
-                </co:contract>
+                </co:trade>
             </co:before>
             <co:after>
-                <!-- The reference to the swaption, which is in an 'exercised' state and a version 2
+                <!-- The swaption, which is in an 'exercised' state and a version 2
                 -->
-                <co:contractReference>
-                    <partyReference href="PartyA"/>
-                    <versionedTradeId>
-                        <tradeId tradeIdScheme="http://www.partyA.com/swaps/trade-id">56ERT7RHWE4</tradeId>
-                        <version>2</version>
-                    </versionedTradeId>
-                    <co:state>exercised</co:state>
-                </co:contractReference>
-                <!-- The swap, resulting from the swaption physical exercise -->
-                <co:physicalExercise>
-                    <co:contract>
-                        <tradeHeader>
-                            <partyTradeIdentifier>
-                                <partyReference href="PartyA"/>
-                                <versionedTradeId>
-                                    <tradeId tradeIdScheme="http://www.partyA.com/swaps/trade-id">56ERT7RHWE4</tradeId>
-                                    <!-- The exercised swap has a version 1 -->
-                                    <version>1</version>
-                                </versionedTradeId>
-                            </partyTradeIdentifier>
-                            <tradeDate id="gut545r">2019-04-11</tradeDate>
-                        </tradeHeader>
+                <co:contract>
+                    <tradeHeader>
+                        <partyTradeIdentifier>
+                            <partyReference href="PartyA"/>
+                            <versionedTradeId>
+                                <tradeId tradeIdScheme="http://www.party1.com/swaps/trade-id">56ERT7RHWE4</tradeId>
+                                <version>1</version>
+                            </versionedTradeId>
+                        </partyTradeIdentifier>
+                        <tradeDate id="tradeDate-a">2018-04-06</tradeDate>
+                    </tradeHeader>
+                    <swaption>
+                        <primaryAssetClass>InterestRate</primaryAssetClass>
+                        <productType productTypeScheme="http://www.fpml.org/coding-scheme/external/product-classification/iso10962">HRXXXX</productType>
+                        <productType productTypeScheme="http://www.dtcc.com/coding-scheme/external/product-classification/emir-contract-type">ST</productType>
+                        <productType productTypeScheme="http://www.dtcc.com/coding-scheme/external/underlying-id/maturity-date">2019-04-11</productType>
+                        <productId productIdScheme="http://www.dtcc.com/coding-scheme/external/GTR-Product-Id">InterestRate_Option_Swaption</productId>
+                        <buyerPartyReference href="PartyA"/>
+                        <sellerPartyReference href="PartyB"/>
+                        <premium id="AP20180411EUR-a">
+                            <payerPartyReference href="PartyA"/>
+                            <receiverPartyReference href="PartyB"/>
+                            <paymentAmount>
+                                <currency>EUR</currency>
+                                <amount>333000.00</amount>
+                            </paymentAmount>
+                            <paymentDate>
+                                <unadjustedDate>2018-04-11</unadjustedDate>
+                                <dateAdjustments>
+                                    <businessDayConvention>MODFOLLOWING</businessDayConvention>
+                                    <businessCenters>
+                                        <businessCenter>GBLO</businessCenter>
+                                        <businessCenter>EUTA</businessCenter>
+                                    </businessCenters>
+                                </dateAdjustments>
+                                <adjustedDate>2019-04-11</adjustedDate>
+                            </paymentDate>
+                            <paymentType>PREMIUM</paymentType>
+                        </premium>
+                        <europeanExercise>
+                            <expirationDate>
+                                <adjustableDate>
+                                    <unadjustedDate>2018-04-09</unadjustedDate>
+                                    <dateAdjustments>
+                                        <businessDayConvention>FOLLOWING</businessDayConvention>
+                                        <businessCenters>
+                                            <businessCenter>GBLO</businessCenter>
+                                            <businessCenter>EUTA</businessCenter>
+                                        </businessCenters>
+                                    </dateAdjustments>
+                                </adjustableDate>
+                            </expirationDate>
+                            <earliestExerciseTime>
+                                <hourMinuteTime>09:00:00</hourMinuteTime>
+                                <businessCenter>BEBR</businessCenter>
+                            </earliestExerciseTime>
+                            <expirationTime>
+                                <hourMinuteTime>11:00:00</hourMinuteTime>
+                                <businessCenter>BEBR</businessCenter>
+                            </expirationTime>
+                        </europeanExercise>
+                        <exerciseProcedure>
+                            <manualExercise>
+                                <fallbackExercise>true</fallbackExercise>
+                            </manualExercise>
+                            <followUpConfirmation>false</followUpConfirmation>
+                        </exerciseProcedure>
+                        <calculationAgent>
+                            <calculationAgentPartyReference href="PartyA"/>
+                        </calculationAgent>
+                        <physicalSettlement>
+                            <clearedPhysicalSettlement>true</clearedPhysicalSettlement>
+                        </physicalSettlement>
+                        <swaptionStraddle>false</swaptionStraddle>
                         <swap>
                             <primaryAssetClass>InterestRate</primaryAssetClass>
                             <productType productTypeScheme="http://www.fpml.org/coding-scheme/external/product-classification/iso10962">HRXXXX</productType>
@@ -329,7 +382,7 @@
                             <swapStream>
                                 <payerPartyReference href="PartyB"/>
                                 <receiverPartyReference href="PartyA"/>
-                                <calculationPeriodDates id="guz6p5g">
+                                <calculationPeriodDates id="d0e458-a">
                                     <effectiveDate>
                                         <unadjustedDate>2019-04-11</unadjustedDate>
                                         <dateAdjustments>
@@ -362,7 +415,7 @@
                                     </calculationPeriodFrequency>
                                 </calculationPeriodDates>
                                 <paymentDates>
-                                    <calculationPeriodDatesReference href="guz6p5g"/>
+                                    <calculationPeriodDatesReference href="d0e458-a"/>
                                     <paymentFrequency>
                                         <periodMultiplier>1</periodMultiplier>
                                         <period>Y</period>
@@ -405,7 +458,7 @@
                             <swapStream>
                                 <payerPartyReference href="PartyA"/>
                                 <receiverPartyReference href="PartyB"/>
-                                <calculationPeriodDates id="khr64y">
+                                <calculationPeriodDates id="d0e687-a">
                                     <effectiveDate>
                                         <unadjustedDate>2019-04-11</unadjustedDate>
                                         <dateAdjustments>
@@ -438,7 +491,7 @@
                                     </calculationPeriodFrequency>
                                 </calculationPeriodDates>
                                 <paymentDates>
-                                    <calculationPeriodDatesReference href="khr64y"/>
+                                    <calculationPeriodDatesReference href="d0e687-a"/>
                                     <paymentFrequency>
                                         <periodMultiplier>3</periodMultiplier>
                                         <period>M</period>
@@ -452,8 +505,8 @@
                                         </businessCenters>
                                     </paymentDatesAdjustments>
                                 </paymentDates>
-                                <resetDates id="e8546g">
-                                    <calculationPeriodDatesReference href="khr64y"/>
+                                <resetDates id="d0e862-a">
+                                    <calculationPeriodDatesReference href="d0e687-a"/>
                                     <resetRelativeTo>CalculationPeriodStartDate</resetRelativeTo>
                                     <fixingDates>
                                         <periodMultiplier>-2</periodMultiplier>
@@ -463,7 +516,7 @@
                                         <businessCenters>
                                             <businessCenter>EUTA</businessCenter>
                                         </businessCenters>
-                                        <dateRelativeTo href="e8546g"/>
+                                        <dateRelativeTo href="d0e862-a"/>
                                     </fixingDates>
                                     <resetFrequency>
                                         <periodMultiplier>3</periodMultiplier>
@@ -491,7 +544,7 @@
                                                 <period>M</period>
                                             </indexTenor>
                                         </floatingRateCalculation>
-                                        <dayCountFraction/>
+                                        <dayCountFraction>ACT/360</dayCountFraction>
                                         <compoundingMethod>None</compoundingMethod>
                                     </calculation>
                                 </calculationPeriodAmount>
@@ -508,7 +561,213 @@
                                 </settlementProvision>
                             </swapStream>
                         </swap>
-                    </co:contract>
+                    </swaption>
+                </co:contract>
+                <!-- The swap, resulting from the swaption physical exercise -->
+                <co:physicalExercise>
+                    <co:product>
+                        <co:contract>
+                            <tradeHeader>
+                                <partyTradeIdentifier>
+                                    <partyReference href="PartyA"/>
+                                    <versionedTradeId>
+                                        <tradeId tradeIdScheme="http://www.partyA.com/swaps/trade-id">56ERT7RHWE4</tradeId>
+                                        <!-- The exercised swap has a version 1 -->
+                                        <version>1</version>
+                                    </versionedTradeId>
+                                </partyTradeIdentifier>
+                                <tradeDate id="gut545r">2019-04-11</tradeDate>
+                            </tradeHeader>
+                            <swap>
+                                <primaryAssetClass>InterestRate</primaryAssetClass>
+                                <productType productTypeScheme="http://www.fpml.org/coding-scheme/external/product-classification/iso10962">HRXXXX</productType>
+                                <productType productTypeScheme="http://www.dtcc.com/coding-scheme/external/product-classification/emir-contract-type">ST</productType>
+                                <productType productTypeScheme="http://www.dtcc.com/coding-scheme/external/underlying-id/maturity-date">2020-04-14</productType>
+                                <productId productIdScheme="http://www.dtcc.com/coding-scheme/external/GTR-Product-Id">InterestRate_IRSwap_FixedFloat</productId>
+                                <swapStream>
+                                    <payerPartyReference href="PartyB"/>
+                                    <receiverPartyReference href="PartyA"/>
+                                    <calculationPeriodDates id="guz6p5g">
+                                        <effectiveDate>
+                                            <unadjustedDate>2019-04-11</unadjustedDate>
+                                            <dateAdjustments>
+                                                <businessDayConvention>MODFOLLOWING</businessDayConvention>
+                                                <businessCenters>
+                                                  <businessCenter>EUTA</businessCenter>
+                                                </businessCenters>
+                                            </dateAdjustments>
+                                        </effectiveDate>
+                                        <terminationDate>
+                                            <unadjustedDate>2020-04-11</unadjustedDate>
+                                            <dateAdjustments>
+                                                <businessDayConvention>MODFOLLOWING</businessDayConvention>
+                                                <businessCenters>
+                                                  <businessCenter>EUTA</businessCenter>
+                                                </businessCenters>
+                                            </dateAdjustments>
+                                            <adjustedDate>2020-04-14</adjustedDate>
+                                        </terminationDate>
+                                        <calculationPeriodDatesAdjustments>
+                                            <businessDayConvention>MODFOLLOWING</businessDayConvention>
+                                            <businessCenters>
+                                                <businessCenter>EUTA</businessCenter>
+                                            </businessCenters>
+                                        </calculationPeriodDatesAdjustments>
+                                        <calculationPeriodFrequency>
+                                            <periodMultiplier>1</periodMultiplier>
+                                            <period>Y</period>
+                                            <rollConvention>11</rollConvention>
+                                        </calculationPeriodFrequency>
+                                    </calculationPeriodDates>
+                                    <paymentDates>
+                                        <calculationPeriodDatesReference href="guz6p5g"/>
+                                        <paymentFrequency>
+                                            <periodMultiplier>1</periodMultiplier>
+                                            <period>Y</period>
+                                        </paymentFrequency>
+                                        <firstPaymentDate>2020-04-14</firstPaymentDate>
+                                        <payRelativeTo>CalculationPeriodEndDate</payRelativeTo>
+                                        <paymentDatesAdjustments>
+                                            <businessDayConvention>MODFOLLOWING</businessDayConvention>
+                                            <businessCenters>
+                                                <businessCenter>EUTA</businessCenter>
+                                            </businessCenters>
+                                        </paymentDatesAdjustments>
+                                    </paymentDates>
+                                    <calculationPeriodAmount>
+                                        <calculation>
+                                            <notionalSchedule>
+                                                <notionalStepSchedule>
+                                                  <initialValue>1800000000.00</initialValue>
+                                                  <currency>EUR</currency>
+                                                </notionalStepSchedule>
+                                            </notionalSchedule>
+                                            <fixedRateSchedule>
+                                                <initialValue>-0.00040000</initialValue>
+                                            </fixedRateSchedule>
+                                            <dayCountFraction>30/360</dayCountFraction>
+                                        </calculation>
+                                    </calculationPeriodAmount>
+                                    <principalExchanges>
+                                        <initialExchange>false</initialExchange>
+                                        <finalExchange>false</finalExchange>
+                                        <intermediateExchange>false</intermediateExchange>
+                                    </principalExchanges>
+                                    <cashflows>
+                                        <cashflowsMatchParameters>false</cashflowsMatchParameters>
+                                    </cashflows>
+                                    <settlementProvision>
+                                        <settlementCurrency>EUR</settlementCurrency>
+                                    </settlementProvision>
+                                </swapStream>
+                                <swapStream>
+                                    <payerPartyReference href="PartyA"/>
+                                    <receiverPartyReference href="PartyB"/>
+                                    <calculationPeriodDates id="khr64y">
+                                        <effectiveDate>
+                                            <unadjustedDate>2019-04-11</unadjustedDate>
+                                            <dateAdjustments>
+                                                <businessDayConvention>MODFOLLOWING</businessDayConvention>
+                                                <businessCenters>
+                                                  <businessCenter>EUTA</businessCenter>
+                                                </businessCenters>
+                                            </dateAdjustments>
+                                        </effectiveDate>
+                                        <terminationDate>
+                                            <unadjustedDate>2020-04-11</unadjustedDate>
+                                            <dateAdjustments>
+                                                <businessDayConvention>MODFOLLOWING</businessDayConvention>
+                                                <businessCenters>
+                                                  <businessCenter>EUTA</businessCenter>
+                                                </businessCenters>
+                                            </dateAdjustments>
+                                            <adjustedDate>2020-04-14</adjustedDate>
+                                        </terminationDate>
+                                        <calculationPeriodDatesAdjustments>
+                                            <businessDayConvention>MODFOLLOWING</businessDayConvention>
+                                            <businessCenters>
+                                                <businessCenter>EUTA</businessCenter>
+                                            </businessCenters>
+                                        </calculationPeriodDatesAdjustments>
+                                        <calculationPeriodFrequency>
+                                            <periodMultiplier>3</periodMultiplier>
+                                            <period>M</period>
+                                            <rollConvention>11</rollConvention>
+                                        </calculationPeriodFrequency>
+                                    </calculationPeriodDates>
+                                    <paymentDates>
+                                        <calculationPeriodDatesReference href="khr64y"/>
+                                        <paymentFrequency>
+                                            <periodMultiplier>3</periodMultiplier>
+                                            <period>M</period>
+                                        </paymentFrequency>
+                                        <firstPaymentDate>2019-07-11</firstPaymentDate>
+                                        <payRelativeTo>CalculationPeriodEndDate</payRelativeTo>
+                                        <paymentDatesAdjustments>
+                                            <businessDayConvention>MODFOLLOWING</businessDayConvention>
+                                            <businessCenters>
+                                                <businessCenter>EUTA</businessCenter>
+                                            </businessCenters>
+                                        </paymentDatesAdjustments>
+                                    </paymentDates>
+                                    <resetDates id="e8546g">
+                                        <calculationPeriodDatesReference href="khr64y"/>
+                                        <resetRelativeTo>CalculationPeriodStartDate</resetRelativeTo>
+                                        <fixingDates>
+                                            <periodMultiplier>-2</periodMultiplier>
+                                            <period>D</period>
+                                            <dayType>Business</dayType>
+                                            <businessDayConvention>NONE</businessDayConvention>
+                                            <businessCenters>
+                                                <businessCenter>EUTA</businessCenter>
+                                            </businessCenters>
+                                            <dateRelativeTo href="e8546g"/>
+                                        </fixingDates>
+                                        <resetFrequency>
+                                            <periodMultiplier>3</periodMultiplier>
+                                            <period>M</period>
+                                        </resetFrequency>
+                                        <resetDatesAdjustments>
+                                            <businessDayConvention>MODFOLLOWING</businessDayConvention>
+                                            <businessCenters>
+                                                <businessCenter>EUTA</businessCenter>
+                                            </businessCenters>
+                                        </resetDatesAdjustments>
+                                    </resetDates>
+                                    <calculationPeriodAmount>
+                                        <calculation>
+                                            <notionalSchedule>
+                                                <notionalStepSchedule>
+                                                  <initialValue>1800000000.00</initialValue>
+                                                  <currency>EUR</currency>
+                                                </notionalStepSchedule>
+                                            </notionalSchedule>
+                                            <floatingRateCalculation>
+                                                <floatingRateIndex floatingRateIndexScheme="http://www.fpml.org/coding-scheme/floating-rate-index">EUR-EURIBOR-Telerate</floatingRateIndex>
+                                                <indexTenor>
+                                                  <periodMultiplier>3</periodMultiplier>
+                                                  <period>M</period>
+                                                </indexTenor>
+                                            </floatingRateCalculation>
+                                            <dayCountFraction/>
+                                            <compoundingMethod>None</compoundingMethod>
+                                        </calculation>
+                                    </calculationPeriodAmount>
+                                    <principalExchanges>
+                                        <initialExchange>false</initialExchange>
+                                        <finalExchange>false</finalExchange>
+                                        <intermediateExchange>false</intermediateExchange>
+                                    </principalExchanges>
+                                    <cashflows>
+                                        <cashflowsMatchParameters>false</cashflowsMatchParameters>
+                                    </cashflows>
+                                    <settlementProvision>
+                                        <settlementCurrency>EUR</settlementCurrency>
+                                    </settlementProvision>
+                                </swapStream>
+                            </swap>
+                        </co:contract>
+                    </co:product>
                 </co:physicalExercise>
             </co:after>
         </co:exercise>
