@@ -20,7 +20,7 @@ class DefaultHashFunctionTest {
                 .addNaturalPersonBuilder(NaturalPerson.builder()
                         .setId("test-id-3"))
                 .build();
-        Integer result = party.generateHash(new DefaultHashFunction());
+        Integer result = party.externalHash(new DefaultHashFunction());
 
         assertThat(result, is(0));
     }
