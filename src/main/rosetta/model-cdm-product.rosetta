@@ -382,7 +382,7 @@ data rule BasketReferenceInformation_nameOrId <"The BasketReferenceInformation r
 	then GeneralTerms -> basketReferenceInformation -> basketName exists
 		or GeneralTerms -> basketReferenceInformation -> basketId exists
 
-class InterestRate one of
+class InterestRate <"The ability to combine several rates has been specified for the purpose of supporting the FRA product representation, which payout combines a fixed and a floating rate.">
 {
 	fixedRate Schedule (0..1) <"The fixed rate or fixed rate schedule expressed as explicit fixed rates and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">;
 	floatingRate FloatingRateCalculation (0..1) <"A floating rate calculation definition.">;
@@ -404,13 +404,15 @@ class InterestRatePayout calculation FixedAmount, FloatingAmount rosettaKey <"Th
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value dayCountFraction path "calculationPeriodAmount.calculation" meta dayCountFractionScheme]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value dayCountFraction path "periodicPayment.fixedAmountCalculation" meta dayCountFractionScheme]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value dayCountFraction path "periodicPayment.floatingAmountCalculation" meta dayCountFractionScheme]
-		[synonym DTCC_11_0, DTCC_9_0 value dayCountFraction path "calculationElements.calculationPeriod" meta dayCountFractionScheme]
+    	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value dayCountFraction]
     discounting Discounting (0..1) <"The parameters specifying any discounting conventions that may apply. This element must only be included if discounting applies.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value discounting path "calculationPeriodAmount.calculation"]
 	compoundingMethod CompoundingMethodEnum (0..1) <"If one or more calculation period contributes to a single payment amount this element specifies whether compounding is applicable and, if so, what compounding method is to be used. This element must only be included when more than one calculation period contributes to a single payment amount.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value compoundingMethod path "calculationPeriodAmount.calculation"]
 	calculationPeriodDates CalculationPeriodDates (1..1) <"The calculation period dates schedule.">;
 	paymentDates PaymentDates (0..1) <"The payment dates schedule.">;
+	paymentDate AdjustableDate (0..1) <"The payment date, where one specific date is specified, as for the FRA product.">;
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentDate]
 	resetDates ResetDates (0..1) <"The reset dates schedule. The reset dates schedule only applies for a floating rate stream.">;
 	cashflowRepresentation CashflowRepresentation (0..1) <"The cashflow representation of the swap stream.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value cashflows]
@@ -419,7 +421,13 @@ class InterestRatePayout calculation FixedAmount, FloatingAmount rosettaKey <"Th
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value stubCalculationPeriodAmount]
 	bondReference BondReference (0..1) <"Reference to a bond underlyer to represent an asset swap or Condition Precedent Bond.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value bondReference]
+	fraDiscounting FraDiscountingEnum (0..1) <"Specifies whether discounting applies to a FRA and, if so, what type.">;
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value fraDiscounting]
 }
+
+choice rule InterestRatePayout_choice <"The paymentDates attributes is applicable to interest rate payouts with periodic payments, while the paymentDate reflects the FpML FRA implementation where one specific date is specified.">
+	for InterestRatePayout optional choice between
+	paymentDates and paymentDate
 
 data rule InterestRatePayout_quantity <"When there an InterestRatePayout but no creditDefaultPayout nor optionPayout, the notional must be specified. The notional of a credit default swap is expressed as part of the protection terms.">
 	when Payout -> interestRatePayout exists
