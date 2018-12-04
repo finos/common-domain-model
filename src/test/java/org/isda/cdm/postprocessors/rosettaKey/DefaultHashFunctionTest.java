@@ -1,11 +1,15 @@
 package org.isda.cdm.postprocessors.rosettaKey;
 
+import org.isda.cdm.DayCountFractionEnum;
 import org.isda.cdm.LegalEntity;
 import org.isda.cdm.NaturalPerson;
 import org.isda.cdm.Party;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -92,6 +96,18 @@ class DefaultHashFunctionTest {
         assertTrue(A.externalHash(hashFunction).equals(B.externalHash(hashFunction)) &&
                 B.externalHash(hashFunction).equals(C.externalHash(hashFunction)) &&
                 A.externalHash(hashFunction).equals(C.externalHash(hashFunction)));
+    }
+
+    @Test
+    void shouldGenerateHashcodeForRosettaBasicTypes() {
+        assertThat(hashFunction.forBasicType(Integer.class, 10), is(10));
+        assertThat(hashFunction.forBasicType(String.class, "test-string"), is(-1666277972));
+        assertThat(hashFunction.forBasicType(LocalDate.class, LocalDate.of(2018, 12, 4)), is(4133636));
+        assertThat(hashFunction.forBasicType(LocalTime.class, LocalTime.of(11, 43)), is(-873820580));
+        assertThat(hashFunction.forBasicType(LocalDateTime.class, LocalDateTime.of(2018, 12, 4, 11, 43)), is(-875193000));
+        assertThat(hashFunction.forBasicType(BigDecimal.class, BigDecimal.valueOf(10L)), is(310));
+        assertThat(hashFunction.forBasicType(Boolean.class, true), is(1231));
+        assertThat(hashFunction.forBasicType(DayCountFractionEnum.class, DayCountFractionEnum.ACT_360), is(-443193120));
     }
 
 }
