@@ -15,7 +15,7 @@ class RosettaKeyPostProcessorTest {
         Contract contract = Contract.builder().setId("test-id").build();
         Contract result = postProcessor.process(Contract.class, contract);
 
-        assertThat(result.getRosettaKey(), is("b38f270a"));
+        assertThat(result.getRosettaKey(), is("5cacfb6"));
     }
 
 }
