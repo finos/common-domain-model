@@ -14,6 +14,10 @@ class Cashflow <"A class to specify a cashflow, i.e. the outcome of either of co
 		[synonym Rosetta_Workbench value cashflowCalculation]
 	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, e.g. brokerage fee, premium, upfront fee etc. Particularly relevant when it cannot be inferred directly through lineage.">;
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentType]
+		/*
+		 * TODO - The below mapping is not working - See https://trello.com/c/FnAsOBWq
+		 */
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 set to CashflowTypeEnum.Premium when "premium" exists]
 	discountFactor number (0..1) <"The value representing the discount factor used to calculate the present value of the cashflow.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value discountFactor]
 	presentValueAmount Money (0..1) <"The amount representing the present value of the forecast payment.">;
@@ -412,11 +416,6 @@ class InterestRatePayout calculation FixedAmount, FloatingAmount rosettaKey <"Th
 	crossCurrencyTerms CrossCurrencyTerms (0..1) <"The specification of the principle exchange and settlement provision terms.">;
 	stubPeriod StubPeriod (0..1) <"The stub calculation period amount parameters. This element must only be included if there is an initial or final stub calculation period. Even then, it must only be included if either the stub references a different floating rate tenor to the regular calculation periods, or if the stub is calculated as a linear interpolation of two different floating rate tenors, or if a specific stub rate or stub amount has been negotiated.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value stubCalculationPeriodAmount]
-/*
- * QUESTION TO CDM GROUP
- * TODO - Cannot locate an asset swap example in the FpML samples to test this provision
- * It would be good to get a sample trade from a member
- */
 	bondReference BondReference (0..1) <"Reference to a bond underlyer to represent an asset swap or Condition Precedent Bond.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value bondReference]
 }
@@ -529,10 +528,6 @@ class OptionExercise <"A class to represent the applicable terms to qualify an o
 	settlement OptionSettlement (0..1) <"The option settlement terms, such as cash vs. physical, the settlement date, the settlement currency and/or amount. FpML represents this information as part of the OptionSettlement.model.">;
 }
 
-/*
- * TODO - Below is a current applicability of the synonym syntax simplification by having
- * [synonym FpML_5_10, CME_SubmissionIRS_1_0, Rosetta_Workbench value optionType]
- */
 class OptionPayout rosettaKey <"The option payout specification terms.">
 {
 	id (0..1);
@@ -575,11 +570,7 @@ class PaymentDates <"The payment dates schedule. As a difference from the FpML P
 	paymentDatesAdjustments BusinessDayAdjustments (0..1) <"The business day convention to apply to each payment date if it would otherwise fall on a day that is not a business day in the specified financial business centers.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentDatesAdjustments path "paymentDates"]
 	paymentDelay boolean (0..1) <"Applicable to CDS on MBS to specify whether payment delays are applicable to the fixed Amount. RMBS typically have a payment delay of 5 days between the coupon date of the reference obligation and the payment date of the synthetic swap. CMBS do not, on the other hand, with both payment dates being on the 25th of each month.">;
-/*
- * TODO - In order not to introduce optional boolean attributes, the below mapping syntax needs to be supported
- */
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentDelay]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentDelay] // set paymentDelay to False when absent
 }
 
 choice rule PaymentDates_choice <"Choice rule to represent an FpML choice construct. The choice is made optional to take into consideration the fact that he PaymentDates class is used for the credit products, to specify the payment delay.">
