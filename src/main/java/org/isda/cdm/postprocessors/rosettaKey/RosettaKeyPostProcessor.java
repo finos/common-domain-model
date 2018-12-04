@@ -26,6 +26,10 @@ public class RosettaKeyPostProcessor<T> implements PostProcessor {
     private final HashFunction<T> hashFunction;
     private final HashToString<T> hashToString;
 
+    /**
+     * @param hashFunction to generate hashcodes for basic types in Rosetta
+     * @param hashToString to convert the representation of hashcode from {@link HashFunction} into {@link String}.
+     */
     public RosettaKeyPostProcessor(HashFunction<T> hashFunction, HashToString<T> hashToString) {
         this.hashFunction = hashFunction;
         this.hashToString = hashToString;
@@ -35,11 +39,13 @@ public class RosettaKeyPostProcessor<T> implements PostProcessor {
      * Takes a {@link RosettaModelObject}, searches for children that are {@link com.rosetta.model.lib.RosettaKey}s,
      * evaluates its hashcode and sets the rosettaKey attribute.
      *
-     * @param <T> The concrete model object type
+     * @param <R> The concrete model object type
+     * @param rosettaType
+     * @param instance
      * @return A new instance of the object input parameter, reflecting the effects of the post processor
      */
     @Override
-    public <T extends RosettaModelObject> T process(Class<T> rosettaType, T instance) {
+    public <R extends RosettaModelObject> R process(Class<R> rosettaType, R instance) {
         RosettaModelObjectBuilder<? extends RosettaModelObject> builder = instance.toBuilder();
         new RosettaNodeInspector<PathObject<Object>>().inspect(PathObjectNode.root(builder), visitor(), true);
         return rosettaType.cast(builder.build());
