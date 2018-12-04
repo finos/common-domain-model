@@ -48,9 +48,9 @@ class EventEffectPathFilterTest {
 
     @Test
     void shouldFilterPathsForPayment() {
-        HierarchicalPath paymentPath = HierarchicalPath.valueOf("eventEffect.payment");
+        HierarchicalPath paymentPath = HierarchicalPath.valueOf("eventEffect.transfer");
 
-        assertThat(EventEffectPathFilter.test(paymentPath, Payment.class, HierarchicalPath.valueOf("primitive.payment")), is(true));
+        assertThat(EventEffectPathFilter.test(paymentPath, Transfer.class, HierarchicalPath.valueOf("primitive.transfer")), is(true));
     }
 
     /**
@@ -104,7 +104,7 @@ class EventEffectPathFilterTest {
         assertThat(eventEffectPaths,
                 hasItems(EFFECTED_CONTRACT_PATH.getPath().buildPath(),
                         CONTRACT_PATH.getPath().buildPath()));
-        assertThat(eventEffectPaths, hasSize(5));
+        assertThat(eventEffectPaths, hasSize(4));
     }
 
     private Visitor<PathObject<Class<?>>> getCollectEventEffectPathsVisitor(List<String> capture) {

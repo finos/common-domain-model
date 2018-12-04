@@ -87,6 +87,7 @@ class AdjustableOrAdjustedOrRelativeDate <"This Rosetta class specifies the date
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value adjustedDate path "paymentDate" meta id]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value adjustedDate path "adjustableDate" meta id]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value adjustedPaymentDate meta id]
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value adjustedPaymentDate path "FpML"]
 	relativeDate RelativeDateOffset (0..1) <"A date specified as some offset to another date (the anchor date).">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value relativeDate]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value relativeDate path "paymentDate"]
@@ -105,6 +106,7 @@ class AdjustableOrRelativeDate <"A class giving the choice between defining a da
 	id (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 	adjustableDate AdjustableDate (0..1) <"A date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">;
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value adjustableDate]
 	relativeDate RelativeDateOffset (0..1) <"A date specified as some offset to another date (the anchor date).">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value relativeDate]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value relativeDate path "paymentDate"]
@@ -399,7 +401,7 @@ class DateList <"List of dates.">
 class DateTimeList <"List of dateTimes.">
 	[synonym FpML_5_10 value DateTimeList]
 {
-	dateTime zonedDateTime (1..*) <"The CDM specifies that the zoned date time is to be expressed in accordance with ISO 8601, either as UTC as an an offset to UTC.">;
+	dateTime zonedDateTime (1..*) <"The CDM specifies that the zoned date time is to be expressed in accordance with ISO 8601, either as UTC as an offset to UTC.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value dateTime]
 }
 
@@ -821,32 +823,6 @@ class PayerReceiver <"A class to represent the FpML PayerReceiver.model.">
 	receiverAccountReference string (0..1) reference <"A reference to the account that receives the payments corresponding to this structure.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value receiverAccountReference meta href]
 }
-
-class Payment extends CashflowBase rosettaKey <"A class for defining payments, an artefact to be used as the input to a payment system or the outcome of it, and is to be distinguished from a cashflow, which is the raw outcome of a calculation or some other assessment. Rosetta extends the FpML Payment type for the purpose of supporting premium payment, by adding the premiumExpression and the paymentDiscounting attributes.">
-{
-	paymentAmount Money (1..1) <"The currency amount of the payment.">;
-	paymentDate AdjustableOrAdjustedOrRelativeDate (0..1) <"The payment date. While FpML specifies this element to be of type AdjustableOrAdjustedDate, Rosetta uses the AdjustableOrAdjustedOrRelativeDate to accommodate the credit default swap option premium, which uses the relative date construct.">;
-	paymentType PaymentTypeEnum (0..1);
-		[synonym Rosetta_Workbench value paymentType]
-	grossCashflow GrossCashflow (0..*) <"The gross cashflow components from which the payment would be derived when corresponding to a netted amount across those components.">;
-		[synonym Rosetta_Workbench value grossCashflow]
-	paymentStatus PaymentStatusEnum (0..1) <"The payment status, e.g. Instructed, Settled.">;
-		[synonym Rosetta_Workbench value paymentStatus]
-	settlementReference string (0..1) <"The settlement reference, when applicable.">;
-		[synonym Rosetta_Workbench value settlementReference]
-}
-
-data rule Payment_paymentflowAmount <"FpML specifies paymentAmount as a NonNegativeMoney type. The direction is indeed implied by the payer/receiver attribute.">
-	when Payment -> paymentAmount exists
-	then Payment -> paymentAmount -> amount >= 0.0
-
-/*
- * TODO - Adjust data rule syntax to provide the ability to compare across individual items that are part of a list
- * The below is currently failing because [item, item] <> item
- */
-//data rule Payment_grossCashflow <"The gross cashflow components must have the same currency as the payment amount.">
-//	when Payment -> grossCashflow exists
-//	then Payment -> grossCashflow -> cashflowAmount -> currency = Payment -> paymentAmount -> currency
 	
 class PaymentDetail
 	[synonym FpML_5_10 value PaymentDetail]
@@ -921,7 +897,6 @@ class PriorDateInstance <"A class to specify the ability to specify a date along
 {
 	date date (1..1) <"The prior date instance. If the date has been expressed as an adjustable date as part of the DateInstances class, this date is also meant as an adjustable date.">;
 	contractReference Identifier (0..1) <"The contract identifier that can be associated to a prior date instance for lineage purposes.">;
-	// TODO condition mapping should handle unmapped fields
 	[synonym DTCC_11_0, DTCC_9_0 value partyTradeIdentifier path "Submitter"]
 }
 
@@ -981,10 +956,6 @@ class RelatedParty
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value accountReference meta href]
 	role PartyRoleEnum (1..1) <"The category of the relationship. The related party performs the role specified in this field for the base party. For example, if the role is ,Guarantor,, the related party acts as a guarantor for the base party.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value role]
-	/*
-	 * The type element has not been specified at this poihrefnt, because the associated values of 'all positions' vs. 'some positions' seem to be of limited usefulness
-	 * We should look to confirm the applicability with FpML experts
-	 */
 }
 
 class RelativeDates extends RelativeDateOffset <"A class describing a set of dates defined as relative to another set of dates.">
