@@ -386,8 +386,6 @@ class InterestRate <"The ability to combine several rates has been specified for
 {
 	fixedRate Schedule (0..1) <"The fixed rate or fixed rate schedule expressed as explicit fixed rates and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">;
 	floatingRate FloatingRateCalculation (0..1) <"A floating rate calculation definition.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value floatingRateCalculation path "calculationPeriodAmount.calculation"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value floatingRate path "periodicPayment.floatingAmountCalculation"]
 	inflationRate InflationRateCalculation (0..1) <"An inflation rate calculation definition.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value inflationRateCalculation path "calculationPeriodAmount.calculation"]
 }
@@ -423,6 +421,8 @@ class InterestRatePayout calculation FixedAmount, FloatingAmount rosettaKey <"Th
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value bondReference]
 	fraDiscounting FraDiscountingEnum (0..1) <"Specifies whether discounting applies to a FRA and, if so, what type.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value fraDiscounting]
+	calculationPeriodNumberOfDays number (0..1) <"The number of days from the adjusted effective date to the adjusted termination date calculated in accordance with the applicable day count fraction. This attribute is specified by FpML in relation to the FRAs.">;
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value calculationPeriodNumberOfDays]
 }
 
 choice rule InterestRatePayout_choice <"The paymentDates attributes is applicable to interest rate payouts with periodic payments, while the paymentDate reflects the FpML FRA implementation where one specific date is specified.">
@@ -856,6 +856,7 @@ isProduct InterestRate_IRSwap_FixedFloat
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFloat]
 	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate count = 1
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate count = 1
+	and EconomicTerms -> payout -> interestRatePayout -> buyerSeller is absent
 	and  EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 	and EconomicTerms -> payout -> optionPayout is absent
