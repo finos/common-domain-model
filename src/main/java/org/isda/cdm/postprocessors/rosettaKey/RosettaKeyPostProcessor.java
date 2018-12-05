@@ -1,7 +1,5 @@
 package org.isda.cdm.postprocessors.rosettaKey;
 
-
-
 import com.regnosys.rosetta.common.inspection.Node;
 import com.regnosys.rosetta.common.inspection.PathObject;
 import com.regnosys.rosetta.common.inspection.PathObjectNode;
