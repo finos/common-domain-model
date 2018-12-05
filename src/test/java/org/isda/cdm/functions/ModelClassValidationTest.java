@@ -1,14 +1,13 @@
 package org.isda.cdm.functions;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
+import com.rosetta.model.lib.validation.ValidationResult;
 import org.isda.cdm.Contract;
 import org.isda.cdm.PartyRole;
 import org.isda.cdm.PartyRoleEnum;
 import org.isda.cdm.meta.ContractMeta;
 import org.junit.jupiter.api.Test;
 
-import com.rosetta.model.lib.validation.ValidationResult;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ModelClassValidationTest {
 
@@ -28,9 +27,7 @@ public class ModelClassValidationTest {
 
 		ValidationResult<Contract> result = new ContractMeta().validator().validate(contract);
 		assertEquals(
-				"contractIdentifier - Expected cardinality lower bound of [1] found [0]; "
-				+ "tradeDate - Expected cardinality lower bound of [1] found [0]; "
-				+ "contractualProduct - Expected cardinality lower bound of [1] found [0]",
+				"contractIdentifier - Expected cardinality lower bound of [1] found [0]; tradeDate - Expected cardinality lower bound of [1] found [0]; contractualProduct - Expected cardinality lower bound of [1] found [0]; rosettaKey - Expected cardinality lower bound of [1] found [0]",
 				result.getFailureReason().orElse("No error message"));
 	}
 
