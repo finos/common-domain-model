@@ -69,8 +69,20 @@ class Contract rosettaKey <"A class to specify a contract object, which can be i
 	partyContractInformation PartyContractInformation (0..*) <"Additional contract information that may be provided by each involved party.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0 value partyTradeInformation path "trade.tradeHeader"]
 		[synonym CME_ClearedConfirm_1_17 value partyTradeInformation path "trade.tradeHeader"]
-	state StateEnum (0..1) <"The state qualification of a contractual product.">;
+	closedState ClosedState (0..1) <"The qualification of what led to the contract closure alongside with the dates on which this closure takes effect.">;
+		[synonym Rosetta_Workbench value closedState]
+}
+
+class ClosedState <"A class to qualify the closed state of an execution or a contract through the combination or a state (e.g. terminated, novated) and a set of dates: activity date, effective date and, when relevant, last payment date.">
+{
+	state ClosedStateEnum (1..1) <"The qualification of what gave way to the contract or execution closure, e.g. allocation, termination, ...">;
 		[synonym Rosetta_Workbench value state]
+	activityDate date (1..1) <"The activity date on which the closing state took place.">;
+		[synonym Rosetta_Workbench value activityDate]
+	effectiveDate date (1..1) <"The activity date on which the closing state took place.">;
+		[synonym Rosetta_Workbench value effectiveDate]
+	lastPaymentDate date (0..1) <"The activity date on which the closing state took place.">;
+		[synonym Rosetta_Workbench value lastPaymentDate]		
 }
 
 data rule DeliverableObligations_physicalSettlementMatrix <"The below set of credit deliverable obligation provisions are specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that those provisions cannot be omitted if the Credit Derivatives Physical Settlement Matrix doesn't governs the terms of the contract.">
