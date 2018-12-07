@@ -684,21 +684,15 @@ isEvent ClearingAcceptance <"The acceptance of an alpha trade submission by a CC
 	and Event -> primitive -> quantityChange -> after -> clearingStatus = ClearingStatusEnum.Accepted
 	and quantityAfterQuantityChange = 0.0
 
+isEvent ClearingConfirmation <"The clearing confirmation event.">
+	Event -> primitive -> inception only exists
+	and Event -> primitive -> inception -> after -> clearingStatus = ClearingStatusEnum.Cleared
+	and Event -> lineage -> contractReference exists
+
 isEvent ClearingRejection <"The rejection of of an alpha trade submission by a CCP.">
 	Event -> primitive -> quantityChange exists
 	and Event -> primitive -> quantityChange -> after -> clearingStatus = ClearingStatusEnum.Rejected
 	and quantityBeforeQuantityChange = quantityAfterQuantityChange
-
-isEvent ClearingNotification <"The notification by the CCP to the clearing members with respect to the status of a cleared trade.">
-	Event -> primitive -> inception only exists
-	and Event -> primitive -> inception -> after -> clearingStatus = ClearingStatusEnum.Cleared
-		or Event -> primitive -> inception -> after -> clearingStatus = ClearingStatusEnum.Terminated
-
-/*
- * workflow rule ClearingProcess
- *	ClearingAcceptance precedes ClearingNotification
- *  Contract rosettaKey lineage
- */
 
 isEvent Compression <"The qualification of a compression event from the fact that (i) the intent is Compression when specified, (ii) the quantity change primitive exists, (iii) and there are multiple contracts (or contract references) specified in the before state.">
 	Event -> intent when present = IntentEnum.Compression
@@ -719,6 +713,7 @@ isEvent Increase <"The qualification of a increase event from the fact that (i) 
 		or ( Event -> primitive -> quantityChange and Event -> primitive -> transfer -> cashTransfer ) exists )
 	and quantityBeforeQuantityChange < quantityAfterQuantityChange
 	and changedQuantity > 0.0
+	and Event -> primitive -> quantityChange -> after -> contract -> closedState is absent
 
 isEvent MultipleTransfers <"The qualification an event that combines multiple transfers from the fact that multiple transfer primitives exist.">
 	Event -> primitive -> transfer multiple exists
@@ -728,6 +723,7 @@ isEvent NewTrade
 	and Event -> primitive -> inception only exists
 	and Event -> primitive -> inception -> after -> clearingStatus is absent
 	and Event -> primitive -> inception -> after -> tradeWarehouseWorkflow is absent
+	and Event -> primitive -> quantityChange -> after -> contract -> closedState is absent
 
 isEvent Novation <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and inception exist, (iii) the remaining quantity = 0, (iv) the closedState of the contract is Novated, (v) the stepped-in contract has a different contract identifier than the novated contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
 	Event -> intent when present = IntentEnum.Novation
@@ -787,6 +783,7 @@ isEvent PartialTermination <"The qualification of a partial termination event fr
 	and quantityBeforeQuantityChange > quantityAfterQuantityChange
 	and quantityAfterQuantityChange > 0.0
 	and changedQuantity < 0.0
+	and Event -> primitive -> quantityChange -> after -> contract -> closedState is absent
 
 alias quantityBeforeQuantityChange <"The alias to represent the quantity or notional amount in terms of number of units (i.e. ignoring the currency or units denomination) before a quantity change primitive.">
 	Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity -> amount
@@ -847,3 +844,14 @@ isEvent Termination <"The qualification of a termination event from the fact tha
 isEvent TradeWarehousePositionNotification
 	Event -> primitive -> inception exists
 	and Event -> primitive -> inception -> after -> tradeWarehouseWorkflow exists
+	
+/****************
+ * Workflow rules
+ */
+	
+/*
+ * workflow rule ClearingProcess
+ *	ClearingAcceptance precedes ClearingNotification
+ *  Contract rosettaKey lineage
+ */
+	
