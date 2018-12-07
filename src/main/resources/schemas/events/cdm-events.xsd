@@ -53,7 +53,7 @@
             <xsd:enumeration value="Terminated"/>
         </xsd:restriction>
     </xsd:simpleType>
-    <xsd:simpleType name="ContractStateEnum">
+    <xsd:simpleType name="ClosedStateEnum">
         <xsd:restriction base="xsd:token">
             <xsd:enumeration value="allocated"/>
             <xsd:enumeration value="cancelled"/>
@@ -182,6 +182,14 @@
                 maxOccurs="unbounded"/>
         </xsd:sequence>
     </xsd:complexType>
+    <xsd:complexType name="ClosedState">
+        <xsd:sequence>
+            <xsd:element name="state" type="ClosedStateEnum"/>
+            <xsd:element name="activityDate" type="xsd:date"/>
+            <xsd:element name="effectiveDate" type="xsd:date" minOccurs="0"/>
+            <xsd:element name="lastPaymentDate" type="xsd:date" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
     <xsd:complexType name="CommodityReferencePrice">
         <xsd:simpleContent>
             <xsd:extension base="fpml:Scheme">
@@ -194,7 +202,7 @@
         <xsd:complexContent>
             <xsd:extension base="fpml:Trade">
                 <xsd:sequence>
-                    <xsd:element name="state" type="ContractStateEnum" minOccurs="0"/>
+                    <xsd:element name="closedState" type="ClosedState" minOccurs="0"/>
                 </xsd:sequence>
             </xsd:extension>
         </xsd:complexContent>
@@ -203,15 +211,6 @@
         <xsd:complexContent>
             <xsd:extension base="fpml:Reference">
                 <xsd:attribute name="href" type="xsd:IDREF" use="required"/>
-            </xsd:extension>
-        </xsd:complexContent>
-    </xsd:complexType>
-    <xsd:complexType name="ContractReference">
-        <xsd:complexContent>
-            <xsd:extension base="fpml:TradeIdentifier">
-                <xsd:sequence>
-                    <xsd:element name="state" type="ContractStateEnum" minOccurs="0"/>
-                </xsd:sequence>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
@@ -322,7 +321,7 @@
             <xsd:element name="identifier" type="fpml:PartyTradeIdentifier"/>
             <xsd:element name="tradeDate" type="xsd:date"/>
             <xsd:element name="contractualProduct" type="ContractualProduct"/>
-            <xsd:element name="state" type="ContractStateEnum" minOccurs="0"/>
+            <xsd:element name="closedState" type="ClosedState" minOccurs="0"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="ExerciseOutcome">
@@ -562,7 +561,7 @@
         <xsd:complexContent>
             <xsd:extension base="fpml:Trade">
                 <xsd:sequence>
-                    <xsd:element name="state" type="ContractStateEnum" minOccurs="0"/>
+                    <xsd:element name="closedState" type="ClosedState" minOccurs="0"/>
                 </xsd:sequence>
             </xsd:extension>
         </xsd:complexContent>

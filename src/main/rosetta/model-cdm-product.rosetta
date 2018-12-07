@@ -28,6 +28,17 @@ data rule Cashflow_cashflowAmount <"The cashflow amount should be a positive num
 	when Cashflow -> cashflowAmount exists
 	then Cashflow -> cashflowAmount -> amount >= 0.0
 
+class ClosedState <"A class to qualify the closed state of an execution or a contract through the combination or a state (e.g. terminated, novated) and a set of dates: activity date, effective date and, when relevant, last payment date.">
+{
+	state ClosedStateEnum (1..1) <"The qualification of what gave way to the contract or execution closure, e.g. allocation, termination, ...">;
+		[synonym Rosetta_Workbench value state]
+	activityDate date (1..1) <"The activity date on which the closing state took place.">;
+		[synonym Rosetta_Workbench value activityDate]
+	effectiveDate date (0..1) <"The effective date on which the closing state took place. This attribute is optional because the CDM leaves it to the implementer to decide when to specify that date. As an example, in the case of a cancellation, implementers might have distinct views as to whether to specify this effective date as the date of the original artefact.">;
+		[synonym Rosetta_Workbench value effectiveDate]
+	lastPaymentDate date (0..1) <"The date associated with the last payment in relation to the artefact (e.g. contract) to which this closed state applies. As an example, in the case of an early termination event, it would be the settlement date of the associated fee, if applicable.">;
+		[synonym Rosetta_Workbench value lastPaymentDate]		
+}
 
 class Contract rosettaKey <"A class to specify a contract object, which can be invoked either within the context of an event, or independently from it. It corresponds to the FpML Trade, although restricted to execution and post-execution contexts. Attributes also applicable to pre-execution (a.k.a. pre-trade view in FpML) contexts have been positioned as part of the ContractualProduct class.">
 {
@@ -71,18 +82,6 @@ class Contract rosettaKey <"A class to specify a contract object, which can be i
 		[synonym CME_ClearedConfirm_1_17 value partyTradeInformation path "trade.tradeHeader"]
 	closedState ClosedState (0..1) <"The qualification of what led to the contract closure alongside with the dates on which this closure takes effect.">;
 		[synonym Rosetta_Workbench value closedState]
-}
-
-class ClosedState <"A class to qualify the closed state of an execution or a contract through the combination or a state (e.g. terminated, novated) and a set of dates: activity date, effective date and, when relevant, last payment date.">
-{
-	state ClosedStateEnum (1..1) <"The qualification of what gave way to the contract or execution closure, e.g. allocation, termination, ...">;
-		[synonym Rosetta_Workbench value state]
-	activityDate date (1..1) <"The activity date on which the closing state took place.">;
-		[synonym Rosetta_Workbench value activityDate]
-	effectiveDate date (1..1) <"The activity date on which the closing state took place.">;
-		[synonym Rosetta_Workbench value effectiveDate]
-	lastPaymentDate date (0..1) <"The activity date on which the closing state took place.">;
-		[synonym Rosetta_Workbench value lastPaymentDate]		
 }
 
 data rule DeliverableObligations_physicalSettlementMatrix <"The below set of credit deliverable obligation provisions are specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that those provisions cannot be omitted if the Credit Derivatives Physical Settlement Matrix doesn't governs the terms of the contract.">
@@ -172,9 +171,6 @@ data rule CreditEvents_mortgages <"The below set of credit events provisions are
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> impliedWritedown
 	) exists
 
-/*
- * TODO - Once the partyRole will be mapped, need to test the below data rules to confirm that they work effectively
- */
 data rule Contract_hedgingParty <"FpML specifies that there cannot be more than 2 hedging parties.">
 	when Contract -> partyRole -> role = PartyRoleEnum.HedgingParty
 	then Contract -> partyRole -> role count <= 2
@@ -1001,7 +997,7 @@ isProduct InterestRate_Option_DebtOption
 isProduct InterestRate_CapFloor
 	[synonym ISDA_Taxonomy_v1 value InterestRate_CapFloor]
 	EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> capRateSchedule exists
-	or EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> floorRateSchedule exists
+		or EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> floorRateSchedule exists
 
 isProduct InterestRate_Fra
 	[synonym ISDA_Taxonomy_v1 value InterestRate_Fra]
