@@ -33,6 +33,16 @@
             <xsd:enumeration value="FloatingAmount"/>
         </xsd:restriction>
     </xsd:simpleType>
+    <xsd:simpleType name="CashflowTypeEnum">
+        <xsd:restriction base="xsd:token">
+            <xsd:enumeration value="brokerageCommission"/>
+            <xsd:enumeration value="fee"/>
+            <xsd:enumeration value="interest"/>
+            <xsd:enumeration value="netInterest"/>
+            <xsd:enumeration value="novationFee"/>
+            <xsd:enumeration value="premium"/>
+        </xsd:restriction>
+    </xsd:simpleType>
     <xsd:simpleType name="ClearingStatusEnum">
         <xsd:restriction base="xsd:token">
             <xsd:enumeration value="Accepted"/>
@@ -43,9 +53,10 @@
             <xsd:enumeration value="Terminated"/>
         </xsd:restriction>
     </xsd:simpleType>
-    <xsd:simpleType name="ContractStateEnum">
+    <xsd:simpleType name="ClosedStateEnum">
         <xsd:restriction base="xsd:token">
             <xsd:enumeration value="allocated"/>
+            <xsd:enumeration value="cancelled"/>
             <xsd:enumeration value="exercised"/>
             <xsd:enumeration value="novated"/>
             <xsd:enumeration value="terminated"/>
@@ -85,16 +96,6 @@
             <xsd:enumeration value="instructed"/>
             <xsd:enumeration value="pending"/>
             <xsd:enumeration value="settled"/>
-        </xsd:restriction>
-    </xsd:simpleType>
-    <xsd:simpleType name="PaymentTypeEnum">
-        <xsd:restriction base="xsd:token">
-            <xsd:enumeration value="brokerageCommission"/>
-            <xsd:enumeration value="fee"/>
-            <xsd:enumeration value="interest"/>
-            <xsd:enumeration value="netInterest"/>
-            <xsd:enumeration value="novationFee"/>
-            <xsd:enumeration value="premium"/>
         </xsd:restriction>
     </xsd:simpleType>
     <xsd:simpleType name="TransferStatusEnum">
@@ -168,7 +169,7 @@
             <xsd:group ref="fpml:PayerReceiver.model"/>
             <xsd:element name="amount" type="fpml:Money"/>
             <xsd:element name="transferCalculation" type="xsd:string" minOccurs="0"/>
-            <xsd:element name="transferType" type="PaymentTypeEnum" minOccurs="0"/>
+            <xsd:element name="cashflowType" type="CashflowTypeEnum" minOccurs="0"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="CashTransferComponent">
@@ -176,9 +177,17 @@
             <xsd:element name="transferCalculation" type="xsd:string" minOccurs="0"/>
             <xsd:group ref="fpml:PayerReceiver.model"/>
             <xsd:element name="amount" type="fpml:Money"/>
-            <xsd:element name="transferType" type="PaymentTypeEnum" minOccurs="0"/>
+            <xsd:element name="cashflowType" type="CashflowTypeEnum" minOccurs="0"/>
             <xsd:element name="breakdown" type="CashTransferBreakdown" minOccurs="0"
                 maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="ClosedState">
+        <xsd:sequence>
+            <xsd:element name="state" type="ClosedStateEnum"/>
+            <xsd:element name="activityDate" type="xsd:date"/>
+            <xsd:element name="effectiveDate" type="xsd:date" minOccurs="0"/>
+            <xsd:element name="lastPaymentDate" type="xsd:date" minOccurs="0"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="CommodityReferencePrice">
@@ -193,7 +202,7 @@
         <xsd:complexContent>
             <xsd:extension base="fpml:Trade">
                 <xsd:sequence>
-                    <xsd:element name="state" type="ContractStateEnum" minOccurs="0"/>
+                    <xsd:element name="closedState" type="ClosedState" minOccurs="0"/>
                 </xsd:sequence>
             </xsd:extension>
         </xsd:complexContent>
@@ -202,15 +211,6 @@
         <xsd:complexContent>
             <xsd:extension base="fpml:Reference">
                 <xsd:attribute name="href" type="xsd:IDREF" use="required"/>
-            </xsd:extension>
-        </xsd:complexContent>
-    </xsd:complexType>
-    <xsd:complexType name="ContractReference">
-        <xsd:complexContent>
-            <xsd:extension base="fpml:TradeIdentifier">
-                <xsd:sequence>
-                    <xsd:element name="state" type="ContractStateEnum" minOccurs="0"/>
-                </xsd:sequence>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
@@ -288,7 +288,12 @@
             <xsd:element name="eventIdentifier" type="Identifier"/>
             <xsd:element name="eventDate" type="xsd:date"/>
             <xsd:element name="effectiveDate" type="xsd:date" minOccurs="0"/>
+            <!-- We recognise that having those 2 below attributes side by side is not a proper
+                design.  It is just meant to be a practical approach to expose the event
+                cancellation by extending the FpML approach for event corrections.  What matters is
+                to have the proper design as part of the CDM. -->
             <xsd:element name="isCorrection" type="xsd:boolean"/>
+            <xsd:element name="isRetraction" type="xsd:boolean" minOccurs="0"/>
         </xsd:sequence>
         <xsd:attribute name="id" type="xsd:ID"/>
     </xsd:complexType>
@@ -316,7 +321,7 @@
             <xsd:element name="identifier" type="fpml:PartyTradeIdentifier"/>
             <xsd:element name="tradeDate" type="xsd:date"/>
             <xsd:element name="contractualProduct" type="ContractualProduct"/>
-            <xsd:element name="state" type="ContractStateEnum" minOccurs="0"/>
+            <xsd:element name="closedState" type="ClosedState" minOccurs="0"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="ExerciseOutcome">
@@ -444,7 +449,7 @@
         <xsd:complexContent>
             <xsd:extension base="fpml:Payment">
                 <xsd:sequence>
-                    <xsd:element name="paymentType" type="PaymentTypeEnum" minOccurs="0"/>
+                    <xsd:element name="cashflowType" type="CashflowTypeEnum" minOccurs="0"/>
                     <xsd:element name="grossCashflow" type="GrossCashflow" minOccurs="0"
                         maxOccurs="unbounded"/>
                     <xsd:element name="paymentStatus" type="PaymentStatusEnum" minOccurs="0"/>
@@ -533,7 +538,6 @@
             <xsd:group ref="fpml:PayerReceiver.model"/>
             <xsd:element name="amount" type="fpml:Money"/>
             <xsd:element name="transferCalculation" type="xsd:string" minOccurs="0"/>
-            <xsd:element name="type" type="PaymentTypeEnum" minOccurs="0"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="SecurityTransferComponent">
@@ -557,7 +561,7 @@
         <xsd:complexContent>
             <xsd:extension base="fpml:Trade">
                 <xsd:sequence>
-                    <xsd:element name="state" type="ContractStateEnum" minOccurs="0"/>
+                    <xsd:element name="closedState" type="ClosedState" minOccurs="0"/>
                 </xsd:sequence>
             </xsd:extension>
         </xsd:complexContent>
