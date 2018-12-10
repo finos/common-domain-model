@@ -100,24 +100,30 @@ CDM classes are objects that contain the granular data representation elements, 
 Syntax
 """"""
 
-The class is delineated by brackets ``{`` ``}``.
+The class content is delineated by brackets ``{`` ``}``.
 
-The CDM supports the concept of **abstract classes**, which cannot be instantiated as part of the generated executable code and are meant to be extended by other classes.  An example of such is the ``ListedHeader`` class, which contains the attributes that are common among listed products.
+The CDM supports the concept of **abstract classes**, which cannot be instantiated as part of the generated executable code and are meant to be extended by other classes.  An example of such is the ``IdentifiedProduct`` class, which acts as the baseline for the products which terms are abstracted through reference data and can be extended by the respective variations of such products, as illustrated by the ``Loan`` class.
 
 .. code-block:: Java
 
- abstract class ListedHeader <"An abstract class to holds the attributes that are common across listed products.">
+ abstract class IdentifiedProduct <"An abstract class to specify a product which terms are abstracted through reference data.">
  {
-  id string (0..1) anchor;
-    [synonym FpML value id]
-  productTaxonomy ProductTaxonomy (1..*) <"The product taxonomy value(s) associated with a product.">;
-  productIdentifier ProductIdentifier (1..*) <"There can be several identifiers associated with a given product.">;
-  description string (1..1) <"The product name.">;
-    [synonym FpML value description]
-  currency string (0..1) scheme "currencyScheme" <"The denomination currency of the instrument.">;
-    [synonym FpML value currency]
-  clearanceSystem string (0..1) scheme "clearanceSystemScheme" <"Identification of the clearance system associated with the transaction exchange.">;
-    [synonym FpML value clearanceSystem]
+	 productIdentifier ProductIdentifier (1..1);
+ }
+
+ class Loan extends IdentifiedProduct
+	 [synonym FpML_5_10 value Loan]
+ {
+	borrower LegalEntity (0..*) <"Specifies the borrower. There can be more than one borrower. It is meant to be used in the event that there is no Bloomberg Id or the Secured List isn't applicable.">;
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value borrower]
+	lien string (0..1) scheme <"Specifies the seniority level of the lien.">;
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value lien meta lienScheme]
+	facilityType string (0..1) scheme <"The type of loan facility (letter of credit, revolving, ...).">;
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value facilityType meta facilityTypeScheme]
+	creditAgreementDate date (0..1) <"The credit agreement date is the closing date (the date where the agreement has been signed) for the loans in the credit agreement. Funding of the facilities occurs on (or sometimes a little after) the Credit Agreement date. This underlyer attribute is used to help identify which of the company's outstanding loans are being referenced by knowing to which credit agreement it belongs. ISDA Standards Terms Supplement term: Date of Original Credit Agreement.">;
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value creditAgreementDate]
+	tranche string (0..1) scheme <"The loan tranche that is subject to the derivative transaction. It will typically be referenced as the Bloomberg tranche number. ISDA Standards Terms Supplement term: Bloomberg Tranche Number.">;
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value tranche meta loanTrancheScheme]
  }
 
 The Rosetta convention is that class names start with a capital letter. Class names need to be unique across the model, including with respect to rule names. Both those are controlled by the Rosetta grammar.
@@ -135,7 +141,7 @@ Syntax
 
 A Rosetta attribute can be specified either as a basic type, a class or an enumeration.
 
-The set of **basic types** available in Rosetta are:
+The set of **types** available in Rosetta are:
 
 Text - ``string``
 
@@ -143,7 +149,15 @@ Number - ``int`` - ``number``
 
 Logic - ``boolean``
 
-Date and Time - ``date`` - ``dateTime`` - ``time``
+Date and Time - ``date`` - ``time`` - ``zonedDateTime``
+
+As it relates to time zone adjustments, the CDM requires to specify time alongside with a time zone qualifier in one of two ways:
+
+* Through the ``zonedDateTime`` type, which needs to be expressed either as UTC or as an offset to UTC, as specified by the ISO 8601 standard.
+* Through the ``BusinessCenterTime`` class, where time is specified alongside a business center.  This is used to specify a time dimension in relation to a future event, e.g. the earliest or latest exercise time of an option.
+
+While there has been discussion as to whether the CDM should support dates which are specified as an offset to UTC with the ``Z`` suffix, no positive conclusion has been reached so far. The main reasons is that all dates which need a business date context are already being provided with the ability to specify an associated business center.
+
 
 Calculation - ``calculation`` (The ``calculation`` qualifier represents the outcome of the CDM interest accrual calculation. It is currently associated with two attributes: ``cashflowCalculation`` in the ``Cashflow`` class, and ``callFunction`` in the ``computedAmount`` class.)
 
@@ -151,61 +165,70 @@ Product and event qualification - ``productType`` - ``eventType``
 
 Rosetta syntax convention is for attribute names to be expressed in lower case, and a warning will be generated by the grammar if this is not the case. Attribute names need to be unique within the context of a class (and within the context of the base class, if a class extends another class), but can be duplicated across classes. The semi-column ``;`` acts as the terminal character for the attribute specification, with associated synonyms being positioned underneath that specification line.
 
-The CDM provides the ability to associate a set of **qualifiers** to the attributes: ``anchor``, ``reference``, ``scheme``, ``rosettaKey`` and ``rosettaKeyValues``.
+The CDM provides the ability to associate a set of qualifiers to the attributes: the ``id``, ``reference`` and ``scheme`` **metaTypes**, and the ``rosettaKey`` and ``rosettaKeyValues``.
 
-* The ``anchor`` and ``reference`` qualifiers represent the cross-referencing mechanism widely used in the XML space (and particularly as part of the FpML standard) as a way to provide data integrity within the context of an instance document.
+* The ``id`` and ``reference`` **metaTypes** replicate the cross-referencing mechanism widely used in the XML space (and particularly as part of the FpML standard) as a way to provide data integrity within the context of an instance document.
 
-* The ``scheme`` qualifier specifies scheme references.
+* The ``scheme`` qualifier specifies scheme references. The relevant scheme value is then specified alongside the synonym information.
 
-  The below CDM snippet provides a good illustration as to how those 3 qualifiers are implemented, with the ``anchor`` qualifier being associated to the ``id`` attribute of the ``Party`` class, while the ``reference`` is associated to the ``partyReference`` attribute of the ``PartyAndAccountReference`` class.  The values associated with the *partyIdScheme* being not specified by FpML, this scheme is associated as such with the ``partyId`` attribute.  (As detailed in the Enumerations section below, the schemes which values are specified by FpML are positioned as CDM enumerations.)
+  The below ``Party`` and r``ContractIdentifier`` classes provide a good illustration as to how **metaTypes** are implemented, with the ``id`` attribute being associated to the ``Party`` class, while the ``reference`` is associated to the ``partyReference`` attribute of the ``ContractIdentifier`` class.  The ``partyId`` has an associated ``scheme``, which ``partyIdScheme`` value is associated with the relevant synonym sources.
 
 .. code-block:: Java
 
-  class Party <"The party class.">
-    [synonym FpML value Party]
-  {
-   id string (0..1) anchor;
-     [synonym FpML value id]
-   partyId string (1..*) scheme "partyIdScheme" <"The identifier associated with a party, e.g.  the 20 digits LEI code.">;
-     [synonym FpML value partyId]
-   legalEntity LegalEntity (0..1);
-   naturalPerson NaturalPerson (0..*);
-  }
+ class Party <"The party class.">
+  [synonym FpML_5_10 value Party]
+ {
+  id (0..1);
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 meta id]
+   [synonym DTCC_11_0, DTCC_9_0 meta id maps 2]
+  partyId string (1..*) scheme <"The identifier associated with a party, e.g. the 20 digits LEI code.">;
+   [synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value partyId meta partyIdScheme]
+   [synonym DTCC_11_0, DTCC_9_0 value partyId maps 2 meta partyIdScheme]
+  legalEntity LegalEntity (0..1);
+  naturalPerson NaturalPerson (0..*);
+ }
 
-  class PartyAndAccountReference <"This class corresponds to the FpML PartyAndAccountReferences.model.">
-  {
-   partyReference string (1..1) reference;
-     [synonym FpML value partyReference]
-   accountReference string (0..1) reference;
-     [synonym FpML value accountReference]
-  }
+ class ContractIdentifier extends Identifier <"A class defining a trade identifier issued by the indicated party. The CDM doesn't extends the base class PartyAndAccountReference because of the choice logic with the issuer element.">
+  [synonym FpML_5_10 value TradeIdentifier]
+ {
+ 	partyReference string (0..1) reference <"Reference to a party.">;
+ 	 [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value partyReference meta href]
+ 	accountReference string (0..1) reference <"Reference to an account.">;
+ 	 [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value accountReference meta href]
+ }
 
-* The ``rosettaKey`` corresponds to a hash code generated by the CDM as part of the ``EventEffect`` features, which are further detailed below as part of the CDM Model section. In essence, the rosettaKey hash value associated with the relevant class (``Payment`` in the below snippet) is also associated with the corresponding attribute in the ``EventEffect`` class (in this case, the ``payment`` attribute).
+* The ``rosettaKey`` corresponds to a hash code generated by the CDM as part of the ``EventEffect`` features, which are further detailed below as part of the CDM Model section. In essence, the ``rosettaKey`` hash value associated with the relevant class (``Payment`` in the below snippet) is also associated with the corresponding attribute in the ``EventEffect`` class (in this case, the ``payment`` attribute).
 
  .. code-block:: Java
 
-  class EventEffect <"The set of operational and positional effects associated with a lifecycle event.">
-  {
-   effectedContract ContractOrContractReference (0..*) rosettaKey <"A pointer to the contract(s) (or reference contract(s)) to which the event effect(s) apply, i.e. in the before event state.">;
-   effectedEvent Event (1..1) rosettaKey <"A pointer to the event to which the event effect(s) apply.">;
-   contract ContractOrContractReference (0..*) rosettaKey <"A pointer to the contract (or contract reference) effect(s), an example of such being the outcome of a new trade, swaption exercise or novation event.">;
-   listedProduct ListedProduct (0..*) rosettaKey <"A pointer to the listed product effect(s), an example of such being the outcome of the physical exercise of a bond option.">;
-   payment Payment (0..*) rosettaKey <"A pointer to the payment effect(s), an example of such being the outcome of an option cash exercise.">;
-  }
+ class EventEffect <"The set of operational and positional effects associated with a lifecycle event, alongside the reference to the contract reference(s) that is subject to the event (and is positioned in the before state of the event primitive).">
+ {
+  effectedContract Contract (0..*) rosettaKey <"A pointer to the contract(s) to which the event effect(s) apply, i.e. in the before event state.">;
+  contract Contract (0..*) rosettaKey <"A pointer to the contract effect(s), an example of such being the outcome of a new trade, swaption exercise or novation event.">;
+  productIdentifier ProductIdentifier (0..*) rosettaKey <"A pointer to the product identifier effect(s), an example of such being the outcome of the physical exercise of a bond option.">;
+  transfer Transfer (0..*) rosettaKey <"A pointer to the transfer effect(s), either a cash, security or other asset.">;
+ }
 
-  class Payment extends CashflowBase rosettaKey <"A class for defining payments, an artefact to be used as the input to a payment system or the outcome of it, and is to be distinguished from a cashflow, which is the raw outcome of a calculation or some other assessment. Rosetta extends the FpML Payment type for the purpose of supporting premium payment, by adding the premiumExpression and the paymentDiscounting attributes.">
-  {
-	 paymentAmount Money (1..1) <"The currency amount of the payment.">;
-	 paymentDate AdjustableOrAdjustedOrRelativeDate (0..1) <"The payment date. While FpML specifies this element to be of type AdjustableOrAdjustedDate, Rosetta uses the AdjustableOrAdjustedOrRelativeDate to accommodate the credit default swap option premium, which uses the relative date construct.">;
-	 paymentType PaymentTypeEnum (0..1);
-		[synonym Rosetta_Workbench value paymentType]
-	 grossCashflow GrossCashflow (0..*) <"The gross cashflow components from which the payment would be derived when corresponding to a netted amount across those components.">;
-		[synonym Rosetta_Workbench value grossCashflow]
-	 paymentStatus PaymentStatusEnum (0..1) <"The payment status, e.g. Instructed, Settled.">;
-		[synonym Rosetta_Workbench value paymentStatus]
-	 settlementReference string (0..1) <"The settlement reference, when applicable.">;
-		[synonym Rosetta_Workbench value settlementReference]
-  }
+ class Transfer rosettaKey <"A class to specify the transfer primitive by providing the ability to combine a set of transfer components which are specialised by asset class.">
+ {
+	identifier string (0..1) scheme <"The identifier which might be associated with the transfer.">;
+	 [synonym DTCC_11_0, DTCC_9_0 value tradeCashflowsId path "FpML" meta tradeCashflowsIdScheme]
+	settlementType TransferSettlementEnum (0..1) <"The qualification as to how the transfer will settle, e.g. a DvP settlement.">;
+	 [synonym Rosetta_Workbench value transferType]
+	 [synonym DTCC_11_0, DTCC_9_0 value SettlementType path "PaymentDetails"]
+	settlementDate AdjustableOrAdjustedOrRelativeDate (1..1);
+	 [synonym Rosetta_Workbench value settlementDate]
+	cashTransfer CashTransferComponent (0..*) <"The cash transfer component of the transfer. In the case where several currencies are involved in the transfer, several components should be used, as the component supports one single currency amount.">;
+	 [synonym Rosetta_Workbench value cashTransfer]
+	 [synonym DTCC_11_0, DTCC_9_0 value payment path "FpML"]
+	securityTransfer SecurityTransferComponent (0..*) <"The security transfer component of the transfer. In the case where several securities are involved in the transfer, several components should be used, as the component supports one single security.">;
+	 [synonym Rosetta_Workbench value securityTransfer]
+	commodityTransfer CommodityTransferComponent (0..*);
+	status TransferStatusEnum (0..1) <"The transfer status, e.g. Instructed, Settled...">;
+	 [synonym Rosetta_Workbench value status]
+	settlementReference string (0..1) <"The settlement reference, when applicable.">;
+	 [synonym Rosetta_Workbench value settlementReference]
+ }
 
 * The ``rosettaKeyValue`` is a variation of the ``RosettaKey``, which associated hash function doesn't include any of those qualifiers that are associated with the attributes.  The reasoning is that some of those qualifiers are automatically generated by algorithm (typically, the anchors and references associated with XML documents) and would then result in differences between two instance documents, even if those documents would have the same actual values. The ``RosettaKeyValue`` is meant to be used for supporting the reconciliation of economic terms, and is hence associated with the ``EconomicTerms`` class.
 
