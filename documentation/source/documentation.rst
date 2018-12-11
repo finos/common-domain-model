@@ -16,7 +16,7 @@ A high-level presentation of the ISDA CDM and additional information is availabl
 
 The Rosetta Workbench
 =====================
-To tie the design choices made by the Working Group to how they manifest practically, we make reference to the Rosetta Workbench which we will refer to simply as Rosetta. It is useful to think of Rosetta as a set of tools to use when creating domain models. Much like how software engineers use programming languages and tools to create software.
+To tie the design choices made by the Working Group to how they manifest practically, we make reference to the Rosetta Workbench which we will refer to simply as Rosetta. It is useful to think of Rosetta as a set of tools to use when creating domain models.  Much like how software engineers use programming languages and tools to create software.
 
 Rosetta is a digital repository whose purpose is to consolidate market standards and practices into a cohesive model, from which executable code is automatically generated.
 
@@ -34,13 +34,13 @@ As illustrated by the above picture, Rosetta has two main components as it relat
 The **Model Repository** has two components:
 
 * The **legible model**, that expresses the data and associated logic using the Rosetta syntax.
-* The **projection of this model** into a variery of executable code representations (presently, JSON and Java).
+* The **projection of this model** into a variety of executable code representations (presently Java).
 
 The **Rosetta Workbench** corresponds to the toolset that supports the CDM, through 4 sets of functions:
 
 * The **grammar**, which is specified as part of a Domain Specific Language (DLS) component which has been developed using open source software. While the CDM syntax is based upon this grammar, access to this grammar is needed for using the CDM.
 * The **navigation tools**, which expose through a web portal a textual and a graphical interface into the CDM.
-* The **ingestion service**, which transforms events and trades expressed using alternative data representations into JSON documents that conform to the CDM. At present, the ingested trades confirm to the version 5.10 of the FpML standard, and the events are originated using a custom data representation.
+* The **ingestion service**, which transforms events and trades expressed using alternative data representations into JSON documents that conform to the CDM.  At present, the ingested trades confirm to the version 5.10 of the FpML standard, and the events are originated using a custom data representation.
 * The **code generators**, which are used to produce the executable code projections that are part of the model repository. Those code generators are developed using the same open source software component as the grammar, and access to those is not required for CDM usage purposes.
 
 Those workbench components are presented in the below picture.
@@ -252,7 +252,7 @@ Purpose
 
 Enumerations are the mechanism through which controlled values are specified at the attribute level. They are the container for the corresponding set of enumeration values.
 
-As mentioned in the preceding section, with respect to the FpML standard, the schemes which values are specified as part of the standard are represented through enumerations in the CDM, while schemes with no defined values are represented in the CDM as a type ``string``. In both cases, the scheme reference associated with the originating element is also associated to the relevant synonym sources, one of the CDM principles being that no originating information should be disregarded.
+As mentioned in the preceding section, with respect to the FpML standard, the schemes which values are specified as part of the standard are represented through enumerations in the CDM, while schemes with no defined values are represented in the CDM as a type ``string``.  In both cases, the scheme reference associated with the originating element is also associated to the relevant synonym sources, one of the CDM principles being that no originating information should be disregarded.
 
 Syntax
 """"""
@@ -307,7 +307,7 @@ In order to handle the integration of FpML scheme values such as the *dayCountFr
 
 The **synonym syntax** associated with enumeration values differs in two respects from the synonyms associated with other CDM artefacts:
 
-* The synonym value is of type ``string``, for the above reason related to the need to facilitate integration with executable code. (The alternative approach consisting in specifying the value as a compatible identifier alongside with a display name has been disregarded because it has been deemed not appropriate to create a 'code-friendly' value for the respective synonyms. A ``string`` type removes such need.)
+* The synonym value is of type ``string``, for the above reason related to the need to facilitate integration with executable code.  (The alternative approach consisting in specifying the value as a compatible identifier alongside with a display name has been disregarded because it has been deemed not appropriate to create a 'code-friendly' value for the respective synonyms.  A ``string`` type removes such need.)
 * Although this use case is not part of the current CDM scope, the ability to associate a definition to a synonym value has been enabled, the objective being to effectively support the FIX use cases where the synonym value is a letter or numerical code, which is then positioned as the prefix of the associated definition. Although not part of the CDM 1.0 scope, the ``TimeInForceEnum`` illustrates this approach:
 
 .. code-block:: Java
@@ -366,7 +366,7 @@ Members of a choice rule need to have their lower cardinality set to 0, somethin
 One of syntax as a complement to the choice rule
 """"""""""""""""""""""""""""""""""""""""""""""""
 
-In the case where all the attributes of a given class are subject to a choice logic, Rosetta provides the ability to qualify the class information with the ``one of`` qualifier. This feature is illustrated by the ``BondOptionStrike`` class.
+In the case where all the attributes of a given class are subject to a choice logic, Rosetta provides the ability to qualify the class information with the ``one of`` qualifier.  This feature is illustrated by the ``BondOptionStrike`` class.
 
 .. code-block:: Java
 
@@ -388,7 +388,7 @@ Purpose
 Two related considerations stand behind the introduction of aliases as part of the Rosetta syntax:
 
 * The recognition that model tree expressions can be cumbersome at time and hence may contradict the primary goals of clarity and legibility.
-* Aliases can be reused across the various modeling artefacts that make use of those, i.e. currently data rule, event and product qualification, calculation and projection rules (note that this latter artefact is not currently uased as part of the CDM).
+* Aliases can be reused across the various modelling artefacts that make use of those, i.e. currently data rule, event and product qualification, calculation and projection rules (note that this latter artefact is not currently used as part of the CDM).
 
 
 Syntax
@@ -396,7 +396,7 @@ Syntax
 
 The alias syntax is straightforward: ``alias <name> <Rosetta expression>``.
 
-The alias name needs to be unique across the product and event qualifications, the classes and the aliases, and validation logic is in place to enforce this. The naming convention is to have one CamelCased word, instead of a composite name as for the Rosetta rules, with implied meaning.
+The alias name needs to be unique across the product and event qualifications, the classes and the aliases, and validation logic is in place to enforce this.  The naming convention is to have one CamelCased word, instead of a composite name as for the Rosetta rules, with implied meaning.
 
 The below snippet presents an example of such alias and its use as part of an event qualification.
 
@@ -452,8 +452,8 @@ Syntax
 
 The baseline synonym syntax has two components:
 
-* The **source**, whose possible values are controlled by the grammar and which current values are listed above
-* The **value**, which is of type ``identifier``
+* The **source**, whose possible values are controlled by the grammar and which current values are listed above;
+* The **value**, which is of type ``identifier``.
 
 Example:
 
@@ -461,7 +461,7 @@ Example:
 
 A further set of attributes can be associated with a synonym, to address specific use cases:
 
-* A **path** which purpose is allows mapping in cases where the data is nested in different ways between the respective models. The ``Payout`` class is a good illustration of such cases:
+* A **path** which purpose is allows mapping in cases where the data is nested in different ways between the respective models.  The ``Payout`` class is a good illustration of such cases:
 
 .. code-block:: Java
 
@@ -522,7 +522,7 @@ A further set of attributes can be associated with a synonym, to address specifi
    [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value seller]
  }
 
-* A **definition** can be associated with the enumeration value synonyms, the purpose being to provide a more explicit reference to the FIX enumeration values, which are specified through a single digit or letter, which value is then positioned as a prefix to the associated definition. The only examples of such currently available in the model are associated with the enumeration ``InformationProviderEnum``:
+* A **definition** can be associated with the enumeration value synonyms, the purpose being to provide a more explicit reference to the FIX enumeration values, which are specified through a single digit or letter, which value is then positioned as a prefix to the associated definition.  The only examples of such currently available in the model are associated with the enumeration ``InformationProviderEnum``:
 
 .. code-block:: Java
 
@@ -592,7 +592,7 @@ Data rules are the primary channel through which data validation is enforced as 
 
 A good initial illustration of such role relates to how data constraints specified as part of the FpML documentation are expressed as part of those rules – and hence become part of the executable code case that is generated from the model.
 
-As an example, the ``FpML_ird_57`` data rule implements the **FpML ird validation rule #57**, which states that if the notional step schedule is absent, then the initial value of the notional schedule must not be null. While at present the FpML logic needs to be evaluated and transcribed into code by the relevant teams (with the implication that, more often than not, such logic is actually not enforced), its programmatic implementation is available alongside a legible view of it as part of Rosetta.
+As an example, the ``FpML_ird_57`` data rule implements the **FpML ird validation rule #57**, which states that if the notional step schedule is absent, then the initial value of the notional schedule must not be null.  While at present the FpML logic needs to be evaluated and transcribed into code by the relevant teams (with the implication that, more often than not, such logic is actually not enforced), its programmatic implementation is available alongside a legible view of it as part of Rosetta.
 
 .. code-block:: Java
 
@@ -668,14 +668,14 @@ Here are a set of relevant examples of this data rule syntax:
 Object Qualification Artefacts
 ------------------------------
 
-The CDM modelling approach consists in inferring the product and event qualification from their relevant attributes, rather than qualifying those upfront. As a result, the Rosetta syntax has been adjusted to meet this requirement, with slight variations in the implementation across those two use cases.
+The CDM modelling approach consists in inferring the product and event qualification from their relevant attributes, rather than qualifying those upfront.  As a result, the Rosetta syntax has been adjusted to meet this requirement, with slight variations in the implementation across those two use cases.
 
 The CDM Model section of this documentation details the positioning of those product and event qualification artefacts as part of the CDM and their representation as part of the associated object instantiations.
 
 Product Qualification
 ^^^^^^^^^^^^^^^^^^^^^
 
-18 interest rate derivative products have so been qualified as part of the CDM, in effect representing the full ISDA V2.0 scope. Credit derivatives have not yet been qualified because their ISDA taxonomy is based upon the underlying transaction type, instead of the product features as for the interest rate swaps. Follow-up is in progress with the ISDA Credit Group to evaluate whether an alternative product qualification could be developed that would leverage the approach adopted for interest rate derivatives.
+18 interest rate derivative products have so been qualified as part of the CDM, in effect representing the full ISDA V2.0 scope.  Credit derivatives have not yet been qualified because their ISDA taxonomy is based upon the underlying transaction type, instead of the product features as for the interest rate swaps.  Follow-up is in progress with the ISDA Credit Group to evaluate whether an alternative product qualification could be developed that would leverage the approach adopted for interest rate derivatives.
 
 Purpose
 """""""
@@ -716,9 +716,9 @@ Similar to the product qualification syntax, the purpose of the event qualifier 
 Syntax
 """"""
 
-The event qualification syntax is similar to the product and the alias, the difference being that it is possible to associate a set of data rules to a: ``isProduct <name> <Rosetta expression> <Data rule>``.
+The event qualification syntax is similar to the product and the alias, the difference being that it is possible to associate a set of data rules to it.
 
-The event name needs to be unique across the product and event qualifications, the classes and the aliases, and validation logic is in place to enforce this. The naming convention is to have one CamelCased word.
+The event name needs to be unique across the product and event qualifications, the classes and the aliases, and validation logic is in place to enforce this.  The naming convention is to have one CamelCased word.
 
 The ``Increase`` illustrates quite well how the syntax qualifies this event by requiring that five conditions be met:
 
@@ -849,7 +849,7 @@ The below sections detail the key features of this product implementation: contr
 Post-execution: the contract
 """"""""""""""""""""""""""""
 
-Contractual products are bilateral contracts between two parties, which terms are specified at trade inception and apply throughout the life of the contract. Contractual products are fungible only under specific terms (e.g. existence of a close-out netting agreement between the parties).
+Contractual products are bilateral contracts between two parties, which terms are specified at trade inception and apply throughout the life of the contract.  Contractual products are fungible only under specific terms (e.g. existence of a close-out netting agreement between the parties).
 
 The CDM ``Contract`` class incorporates all the elements that are part of the FpML *Trade* confirmation view, with the exception of the following elements: *tradeSummary*, *originatingPackage*, *allocations* and *approvals*.
 
@@ -914,13 +914,13 @@ The economic terms of the contract are positioned as part of the ``contractualPr
   economicTerms EconomicTerms (1..1);
  }
 
-In this respect, the CDM ``contract`` corresponds to the confirmation view of the FpML *trade*, while the ``contractualProduct`` corresponds to the pre-trade view of the FpML *trade*.  (The FpML *trade* term has not been used as part of the CDM because deemed ambiguous in this respect. Its use as part of the standard is largely due to an exclusive focus on post-execution activity in the initial stages of its development. Later adjustments in this respect would have been made difficult as a result of backward compatibility considerations.)
+In this respect, the CDM ``contract`` corresponds to the confirmation view of the FpML *trade*, while the ``contractualProduct`` corresponds to the pre-trade view of the FpML *trade*.  (The FpML *trade* term has not been used as part of the CDM because deemed ambiguous in this respect.  Its use as part of the standard is largely due to an exclusive focus on post-execution activity in the initial stages of its development. Later adjustments in this respect would have been made difficult as a result of backward compatibility considerations.)
 
 
 The economic terms
 """"""""""""""""""
 
-The CDM ``EconomicTerms`` class ands the underlying ``Payout`` class represent a significant departure from the FpML standard. While FpML qualifies the product through the *product* substitution group, CDM specifies the various set of possible economic terms as part of those afore mentioned ``economicTerms`` and ``payout`` classes. A contractual product will then consist in an assembling of such economic terms, from which the product qualification will be syntactically inferred.
+The CDM ``EconomicTerms`` class ands the underlying ``Payout`` class represent a significant departure from the FpML standard. While FpML qualifies the product through the *product* substitution group, CDM specifies the various set of possible economic terms as part of those afore mentioned ``economicTerms`` and ``payout`` classes.  A contractual product will then consist in an assembling of such economic terms, from which the product qualification will be syntactically inferred.
 
 .. code-block:: Java
 
@@ -978,28 +978,38 @@ The ``Payout`` class provides some provide some appropriate insight into the res
    [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value bondOption]
  }
 
-The absence of synonym entry for the  ``creditDefaultPayout`` attribute is due to the fact that the corresponding CDS constructs are positioned within the ``CreditDefaultPayout`` class:
+The absence of synonym entry for the ``creditDefaultPayout`` attribute is due to the fact that the corresponding CDS constructs are positioned within the ``CreditDefaultPayout`` class:
 
 .. code-block:: Java
 
- class CreditDefaultPayout <"The credit default payout specification terms.">
+ class CreditDefaultPayout rosettaKey <"The credit default payout specification terms.">
  {
+  id (0..1);
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id path "trade.creditDefaultSwap"]
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id path "creditDefaultSwap"]
   generalTerms GeneralTerms (1..1) <"This element contains all the data that appears in the section entitled '1. General Terms' in the 2003 ISDA Credit Derivatives Confirmation, except for the effectiveDate, terminationDate and dateAdjustments elements, which have been positioned as part of the InterestRatePayout class.">;
-  protectionTerms ProtectionTerms (1..1) <"The credit protection terms.">;
-    [synonym FpML value protectionTerms pathExpression "trade.creditDefaultSwap"]
-    [synonym FpML value protectionTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
-  cashSettlementTerms CashSettlementTerms (0..1);
-    [synonym FpML value cashSettlementTerms pathExpression "trade.creditDefaultSwap"]
-    [synonym FpML value cashSettlementTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
-  physicalSettlementTerms PhysicalSettlementTerms (0..1);
-    [synonym FpML value physicalSettlementTerms pathExpression "trade.creditDefaultSwapOption.creditDefaultSwap"]
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value generalTerms path "trade.creditDefaultSwap"]
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value generalTerms path "creditDefaultSwap"]
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value generalTerms]
+  protectionTerms ProtectionTerms (1..*) <"The credit protection terms.">;
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value protectionTerms path "trade.creditDefaultSwap"]
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value protectionTerms path "creditDefaultSwap"]
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value protectionTerms]
+  cashSettlementTerms CashSettlementTerms (0..*);
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value cashSettlementTerms path "trade.creditDefaultSwap"]
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value cashSettlementTerms path "creditDefaultSwap"]
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value cashSettlementTerms]
+  physicalSettlementTerms PhysicalSettlementTerms (0..*);
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value physicalSettlementTerms path "trade.creditDefaultSwap"]
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value physicalSettlementTerms path "creditDefaultSwap"]
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value physicalSettlementTerms]
   transactedPrice TransactedPrice (0..1) <"The qualification of the price at which the contract has been transacted, in terms of market fixed rate, initial points, market price and/or quotation style. In FpML, those attributes are positioned as part of the fee leg.">;
  }
 
-Infering the product qualification from its economic terms
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+Inferring the product qualification from its economic terms
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-The product qualification is inferred from the economic terms through a dedicated Rosetta syntax which navigate the CDM components, which has been detailed as part of the above CDM Modelling Artefacts section.
+The product qualification is inferred from the economic terms through a dedicated Rosetta syntax which navigates the CDM components.  This has been detailed as part of the above CDM Modelling Artefacts section.
 
 The qualification of a **zero coupon fixed float inflation swap** provides a good example of the set of logic that can be used for such purpose, and which combines boolean and qualified expressions.
 
@@ -1008,25 +1018,58 @@ The CDM makes use of the ISDA taxonomy V2.0 leaf level to qualify the product.  
 .. code-block:: Java
 
  isProduct InterestRate_InflationSwap_FixedFloat_ZeroCoupon
-    [synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation]
-   EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate exists
-   and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate exists
-   and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
-   and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.T
-
+  [synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation]
+  EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate count = 1
+  and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate count = 1
+  and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate is absent
+  and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
+  and EconomicTerms -> payout -> optionPayout is absent
+  and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
+  and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.T
 
 The product qualification is positioned as part of the ``ProductIdentification`` class, alongside the attributes currently used in FpML to specify the product: ``primaryAssetClass``, ``secondaryAssetClass``, ``productType`` and ``productId``.  This approach provides the ability to specify the credit derivatives products using this current approach until such time that an alternative approach to the transaction type is identified as a way to support a proper product qualification.
 
  .. code-block:: Java
 
-  class ProductIdentification <"A class to combine the CDM product qualifier with other product qualifiers, such as the FpML ones.">
-  {
-    productQualifier productType (0..1) <"The CDM product qualifier, which corresponds to the outcome of the isProduct qualification logic. This value is derived by the CDM from the product payout features.">;
-    primaryAssetClass AssetClassEnum (0..1) scheme "assetClassScheme" <"A classification of the most important risk class of the trade. FpML defines a simple asset class categorisation using a coding scheme.">;
-    secondaryAssetClass AssetClassEnum (0..*) scheme "assetClassScheme" <"A classification of additional risk classes of the trade, if any. FpML defines a simple asset class categorisation using a coding scheme.">;
-    productType string (0..*) scheme "productTypeScheme" <"A classification of the type of product. FpML defines a simple product categorisation using a coding scheme.">;
-    productId string (0..*) scheme "productIdScheme" <"A product reference identifier. The product Id is an identifier that describes the key economic characteristics of the trade type, with the exception of concepts such as size (notional, quantity, number of units) and price (fixed rate, strike, etc.) that are negotiated for each transaction. It can be used to hold identifiers such as the 'UPI' (universal product identifier) required by certain regulatory reporting rules. It can also be used to hold identifiers of benchmark products or product temnplates used by certain trading systems or facilities. FpML does not define the domain values associated with this element. Note that the domain values for this element are not strictly an enumerated list.">;
-  }
+ class ProductIdentification <"A class to combine the CDM product qualifier with other product qualifiers, such as the FpML ones. While the CDM product qualifier is derived by the CDM from the product payout features, the other product identification elements are assigned by some external sources and correspond to values specified by other data representation protocols.">
+ {
+  productQualifier productType (0..1) <"The CDM product qualifier, which corresponds to the outcome of the isProduct qualification logic. This value is derived by the CDM from the product payout features.">;
+  primaryAssetClass AssetClassEnum (0..1) scheme <"A classification of the most important risk class of the trade. FpML defines a simple asset class categorisation using a coding scheme.">;
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value primaryAssetClass path "trade.swap" meta assetClassScheme]
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value primaryAssetClass path "swap" meta assetClassScheme]
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value primaryAssetClass path "trade.creditDefaultSwap" meta assetClassScheme]
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value primaryAssetClass path "creditDefaultSwap" meta assetClassScheme]
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value primaryAssetClass path "trade.swaption" meta assetClassScheme]
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value primaryAssetClass path "swaption" meta assetClassScheme]
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value primaryAssetClass meta assetClassScheme]
+  secondaryAssetClass AssetClassEnum (0..*) scheme <"A classification of additional risk classes of the trade, if any. FpML defines a simple asset class categorisation using a coding scheme.">;
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value secondaryAssetClass path "trade.swap" meta assetClassScheme]
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value secondaryAssetClass path "swap" meta assetClassScheme]
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value secondaryAssetClass path "trade.creditDefaultSwap" meta assetClassScheme]
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value secondaryAssetClass path "creditDefaultSwap" meta assetClassScheme]
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value secondaryAssetClass path "trade.swaption" meta assetClassScheme]
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value secondaryAssetClass path "swaption" meta assetClassScheme]
+  productType string (0..*) scheme <"A classification of the type of product. FpML defines a simple product categorisation using a coding scheme.">;
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value productType path "trade.swap" meta productTypeScheme]
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value productType path "swap" meta productTypeScheme]
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value productType path "trade.creditDefaultSwap" meta productTypeScheme]
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value productType path "creditDefaultSwap" meta productTypeScheme]
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value productType path "trade.swaption" meta productTypeScheme]
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value productType path "swaption" meta productTypeScheme]
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value productType path "trade.swaption.swap" meta productTypeScheme]
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value productType path "swaption.swap" meta productTypeScheme]
+   [synonym DTCC_11_0, DTCC_9_0 value ProductType]
+  productId string (0..*) scheme <"A product reference identifier. The product Id is an identifier that describes the key economic characteristics of the trade type, with the exception of concepts such as size (notional, quantity, number of units) and price (fixed rate, strike, etc.) that are negotiated for each transaction. It can be used to hold identifiers such as the 'UPI' (universal product identifier) required by certain regulatory reporting rules. It can also be used to hold identifiers of benchmark products or product temnplates used by certain trading systems or facilities. FpML does not define the domain values associated with this element. Note that the domain values for this element are not strictly an enumerated list.">;
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value productId path "trade.swap" meta productIdScheme]
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value productId path "swap" meta productIdScheme]
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value productId path "trade.creditDefaultSwap" meta productIdScheme]
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value productId path "creditDefaultSwap" meta productIdScheme]
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value productId path "trade.swaption" meta productIdScheme]
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value productId path "swaption" meta productIdScheme]
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value productId path "trade.swaption.swap" meta productIdScheme]
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value productId path "swaption.swap" meta productIdScheme]
+   [synonym DTCC_11_0, DTCC_9_0 value instrumentId path "payment.calculationDetails.calculationElements.underlyer.index" meta instrumentIdScheme]
+ }
 
 This CDM product qualification is stamped onto the generated CDM objects and their JSON serialized representation, as shown as part of the below JSON snippet which includes both product identification information associated with an originating FpML document and product qualification generated by the CDM:
 
@@ -1047,29 +1090,45 @@ This CDM product qualification is stamped onto the generated CDM objects and the
   }
 
 
-Infering the event qualification from its features
-""""""""""""""""""""""""""""""""""""""""""""""""""
+Inferring the event qualification from its features
+"""""""""""""""""""""""""""""""""""""""""""""""""""
 
 The CDM lifecycle events are qualified as a function of the combination of their features and, when specified, the ``intent``. The associated syntax is specified as part of the above CDM Modelling Artefacts section.
 
 The event qualification is positioned as an attribute of the ``Event`` class:
 
- .. code-block:: Java
+.. code-block:: Java
 
-  class Event rosettaKey
-  {
-  	messageInformation MessageInformation (0..1);
-  	timestamp EventTimestamp (1..1);
-  		[synonym Rosetta_Workbench value timestamp]
-  	eventIdentifier Identifier (1..1);
-  		[synonym Rosetta_Workbench value eventIdentifier]
-  	eventQualifier eventType (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic. This value is derived by the CDM from the event features.">;
-  	(...)
-  }
+ class Event
+ {
+  id (0..1);
+   [synonym Rosetta_Workbench meta id]
+  messageInformation MessageInformation (0..1);
+   [synonym DTCC_11_0, DTCC_9_0 value FpML path "Body.OTC_Matching.Trade"]
+   [synonym DTCC_11_0, DTCC_9_0 value FpML path "Body.OTC_Matching.Payment"]
+   [synonym DTCC_11_0, DTCC_9_0 value RouteInfo path "Header.OTC_RM.Delivery"]
+   [synonym DTCC_11_0, DTCC_9_0 value Manifest path "Header.OTC_RM"]
+   [synonym CME_ClearedConfirm_1_17 value header path "clearingConfirmed"]
+  timestamp EventTimestamp (1..*) <"The set of timestamp(s) associated with the event as a collection of [dateTime, qualifier].">;
+   [synonym Rosetta_Workbench value timestamp]
+   [synonym DTCC_11_0, DTCC_9_0 value header path "Body.OTC_Matching.Trade.FpML"]
+   [synonym DTCC_11_0, DTCC_9_0 value Route path "Header.OTC_RM.Delivery.RouteHist"]
+   [synonym DTCC_11_0, DTCC_9_0 value header path "Body.OTC_Matching.Payment.FpML"]
+   [synonym CME_ClearedConfirm_1_17 value timestamps path "clearingConfirmed.trade.tradeHeader"]
+   [synonym CME_ClearedConfirm_1_17 value header path "clearingConfirmed"]
+  eventIdentifier Identifier (1..*) <"The event identifier, which has 3 components: an actual identifier, an issuer and a version number. One and only one identifier can be associated with a lifecycle event.">;
+   [synonym Rosetta_Workbench value eventIdentifier]
+   [synonym DTCC_11_0, DTCC_9_0 value Submitter path "Header.OTC_RM.Manifest.TradeMsg"]
+   [synonym DTCC_11_0, DTCC_9_0 value ContraTradeId path "Header.OTC_RM.Manifest.TradeMsg"]
+   [synonym DTCC_11_0, DTCC_9_0 value YourTradeId path "Header.OTC_RM.Manifest.TradeMsg"]
+   [synonym DTCC_11_0, DTCC_9_0 value tradeIdentifyingItems path "Header.OTC_RM.Manifest.TradeMsg"]
+  eventQualifier eventType (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic. This value is derived by the CDM from the event features.">;
+  (...)
+ }
 
 Like the product qualifier, the event qualification is stamped onto the generated CDM objects and their JSON serialized representation, as illustrated by the below JSON lifecycle event snippet:
 
- .. code-block:: Java
+.. code-block:: Java
 
   "eventDate": "2018-03-20",
   "eventEffect": {
@@ -1088,88 +1147,57 @@ Like the product qualifier, the event qualification is stamped onto the generate
    "sentTo": "49300JZDC6K840D7F79"
   },
 
-Listed Products as Underlyers of Derivative Products
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Derivative Products Underlyers
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Listed products have some (or all) of their economic terms abstracted through a **product identifier** and publicly disseminated by a central venue. As a result, fungibility applies as a function of this product identifier. Hence, the approach of qualifying a product from its economic terms is not applicable to such listed products.
+While the FpML specifies a number of underlyer product attributes as part of the contract representation, the CDM approach is to rather not to include any attribute that can be abstracted through reference data.  This is because specifying such information as part of the contract information leads to a risk or contradictory information, particularly for long-dated contracts.
 
-The ``ListedProduct`` class provides a **choice between the respective listed product representations**.  As part of the current CDM version, only two of such products have been specified: bonds and convertible bonds.
+As a result, the bond and convertible bond representation is limited to the product identifier.
+
+Follow-up is in progress with the ISDA CDM Credit Workstream to confirm the approach with respect to the loan and mortgage-backed security underlyers.
 
 .. code-block:: Java
 
- class ListedProduct one of <"Product which terms are abstracted through a product identifier and are then publicly available through a central venue.">
+ abstract class IdentifiedProduct <"An abstract class to specify a product which terms are abstracted through reference data.">
  {
-  bond Bond (0..1);
-    [synonym FpML value bond pathExpression "trade.bondOption"]
-  convertibleBond ConvertibleBond (0..1);
-    [synonym FpML value convertibleBond pathExpression "trade.bondOption"]
+  productIdentifier ProductIdentifier (1..1);
  }
 
-A **two-levels class inheritance structure** has been specified to provide for a scalable implementation:
-
-* All listed products inherit from a ``ListedHeader`` abstract class which contains a ``productTaxonomy``, ``productIdentifier`` and a ``description`` attribute.
-
- .. code-block:: Java
-
-  abstract class ListedHeader <"An abstract class to holds the attributes that are common across listed products.">
-  {
-   id string (0..1);
-     [synonym FpML value id]
-   productTaxonomy ProductTaxonomy (1..*) <"The product taxonomy value(s) associated with a product.">;
-   productIdentifier ProductIdentifier (1..*) <"There can be several identifiers associated with a given product.">;
-   description string (1..1) <"The product name.">;
-     [synonym FpML value description]
-  }
-
-* Leveraging the FpML approach for underlyer components, a ``FixedIncomeSecurity`` and an ``EquityAsset`` abstract class then provide the commmon attributes for those respective type of instruments.
-
- .. code-block:: Java
-
-   class FixedIncomeSecurity extends ListedHeader <"A fixed income security. In FpML, it corresponds to the FixedIncomeSecurityContent.model.">
-   {
-    issuer Party (0..1) reference <"FpML implements this element as an href into the party information. Rosetta restricts the type of party that can issue a product to a legal entity. FpML provides the ability to specify the issuer name, but this is deemed insufficient in the context of Rosetta at a time when the LEI is available and of paramount importance to identify entities.">;
-      [synonym FpML value issuerPartyReference]
-    seniority CreditSeniorityEnum (0..1) <"The repayment precedence of a debt instrument, as specified by a set of enumerated values.  FpML specifies that creditSeniorityTradingScheme (specified in Rosetta through the CreditSeniorityTradingEnum) overrides creditSeniorityScheme (specified in Rosetta through the CreditSeniorityEnum) when the underlyer defines the reference obligation used in a single name credit default swap trade.">;
-      [synonym FpML value seniority]
-    couponType CouponTypeEnum (0..1) <"Specifies if the bond has a variable coupon, step-up/down coupon or a zero-coupon.">;
-      [synonym FpML value couponType]
-    (...)
-   }
-
-Loans and Mortgages as Underlyers of Derivative Products
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Loans and mortgages are part of the CDM 1.0 as certain credit default swaps have such underlyers.
-
-The CDM implementation closely reflects the FpML standard, and the approach here has not been to infer the product from its economic terms. This approach could be revisited at a later point, once those products are fully represented as part of the CDM, i.e. not just as underlyer components.
-
-.. code-block:: Java
-
- class Loan extends IdentifiedAsset
-   [synonym FpML value Loan]
+ class Bond extends IdentifiedProduct <"A class to specify a bond as having a product identifier. As a difference with FpML, the CDM specifies the bond only with this product identifier attribute. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
  {
+
+ }
+
+ class ConvertibleBond extends IdentifiedProduct <"A class to specify a convertible bond as having a product identifier. As a difference with FpML, the CDM specifies the convertible bond only with this product identifier attribute. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
+ {
+
+ }
+
+ class Loan extends IdentifiedProduct
+  [synonym FpML_5_10 value Loan]
+{
   borrower LegalEntity (0..*) <"Specifies the borrower. There can be more than one borrower. It is meant to be used in the event that there is no Bloomberg Id or the Secured List isn't applicable.">;
-    [synonym FpML value borrower]
-  borrowerReference string (0..*) reference;
-    [synonym FpML value borrowerReference]
-  lien string (0..1) scheme "lienScheme" <"Specifies the seniority level of the lien.">;
-    [synonym FpML value lien]
-  (...)
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value borrower]
+  lien string (0..1) scheme <"Specifies the seniority level of the lien.">;
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value lien meta lienScheme]
+  facilityType string (0..1) scheme <"The type of loan facility (letter of credit, revolving, ...).">;
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value facilityType meta facilityTypeScheme]
+  creditAgreementDate date (0..1) <"The credit agreement date is the closing date (the date where the agreement has been signed) for the loans in the credit agreement. Funding of the facilities occurs on (or sometimes a little after) the Credit Agreement date. This underlyer attribute is used to help identify which of the company's outstanding loans are being referenced by knowing to which credit agreement it belongs. ISDA Standards Terms Supplement term: Date of Original Credit Agreement.">;
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value creditAgreementDate]
+  tranche string (0..1) scheme <"The loan tranche that is subject to the derivative transaction. It will typically be referenced as the Bloomberg tranche number. ISDA Standards Terms Supplement term: Bloomberg Tranche Number.">;
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value tranche meta loanTrancheScheme]
  }
 
-.. code-block:: Java
-
-  class Mortgage extends FixedIncomeSecurity
-    [synonym FpML value Mortgage]
-  {
-   pool AssetPool (0..1) <"The mortgage pool that is underneath the mortgage obligation.">;
-     [synonym FpML value pool]
-   sector MortgageSectorEnum (0..1) <"The sector classification of the mortgage obligation.">;
-     [synonym FpML value sector]
-   tranche string (0..1) <"The mortgage obligation tranche that is subject to the derivative transaction.">;
-     [synonym FpML value tranche]
-   (...)
-  }
+ class MortgageBackedSecurity extends ProductIdentifier
+  [synonym FpML_5_10 value Mortgage]
+ {
+  pool AssetPool (0..1) <"The mortgage pool that is underneath the mortgage obligation.">;
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value pool]
+  sector MortgageSectorEnum (0..1) scheme <"The sector classification of the mortgage obligation.">;
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value sector meta mortgageSectorScheme]
+  tranche string (0..1) <"The mortgage obligation tranche that is subject to the derivative transaction.">;
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value tranche]
+ }
 
 Event Model
 -----------
@@ -1185,7 +1213,43 @@ Baseline event modelling features
 The ``Event`` class carries the following set of information:
 
 * **Messaging information**: ``messageId``, ``sentBy``, ``sentTo`` and ``copyTo``. This information is optional, as possibly not applicable in a context such as blockchain. It corresponds to some of the components of the FpML *MessageHeader.model*.
-* **Timestamp information**: ``creationTimestamp`` and ``expiryTimestamp``. In FpML, this information is also positioned as part of the *MessageHeader.model*.
+* **Timestamp information**: the CDM has adopted a generic approach to representing timestamp information as part of the release 1.1.70, consisting of a ``dateTime`` and a ``qualification`` attributes, with this latter being specified through a set of enumerated values.  The rationale for such approach is that the experience of mapping the CME clearing and the DTCC trade matching and cashflow confirmation transactions to the CDM did reveal a diverse set of timestamps.  The expected benefits of this generic approach are twofold: (i) this allows for flexibility in a context where it would challenging to mandate which points in the process should have associated timestamps, while gathering all of those in one place in the model provides the opportunity for evaluation and rationalisation down the road.  That being said, the CDM Group has expressed concerns with combining timestamps which are deemed 'technical' with 'business' ones.  A further evaluation of this modelling approach will be undertaken at a later point.
+
+ .. code-block:: Java
+
+  class EventTimestamp <"A class to represent the various set of timestamps that can be associated with lifecycle events, as a collection of [dateTime, qualifier]">
+  {
+   dateTime zonedDateTime (1..1) <"The CDM specifies that the zoned date time is to be expressed in accordance with ISO 8601, either as UTC as an offset to UTC.">;
+    [synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value creationTimestamp]
+    [synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value expiryTimestamp]
+    [synonym DTCC_11_0, DTCC_9_0 value ReceiveTime]
+    [synonym CME_ClearedConfirm_1_17 value submittedForClearing]
+    [synonym CME_SubmissionIRS_1_0 value TxnTm path "TrdCaptRpt"]
+    [synonym CME_SubmissionIRS_1_0 value Snt path "TrdCaptRpt.Hdr"]
+   qualification EventTimeStampQualificationEnum (1..1);
+    [synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 set to EventTimeStampQualificationEnum.eventCreated when "creationTimestamp" exists]
+    [synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 set to EventTimeStampQualificationEnum.eventExpired when "expiryTimestamp" exists]
+    [synonym CME_ClearedConfirm_1_17, Rosetta_Workbench set to EventTimeStampQualificationEnum.submittedForClearing when "submittedForClearing" exists]
+    [synonym DTCC_11_0, DTCC_9_0 set to EventTimeStampQualificationEnum.eventSubmitted when "ReceiveTime" exists]
+    [synonym CME_SubmissionIRS_1_0 set to EventTimeStampQualificationEnum.executed when path= "TrdCaptRpt.TxnTm"]
+  }
+
+
+Below is JSON snippet of an instance representation of such approach:
+
+ .. code-block:: Java
+
+  "timestamp": [
+   {
+     "dateTime": "2007-10-31T18:08:40.335-05:00",
+     "qualification": "EVENT_SUBMITTED"
+   },
+   {
+     "dateTime": "2007-10-31T18:08:40.335-05:00",
+     "qualification": "EVENT_CREATED"
+   }
+
+
 * **Event identification** information: the ``identifier``, alongside an optional ``version`` and ``issuer``. As a departure from FpML, which makes use of an event identifier construct (the *Correlation* which is distinct from the one associated with the trade (which itself comes in different variation: *PartyTradeIdentifier*, with the *TradeId* and the *VersionedTradeId* as sub-components of it), the CDM approach consists in using a common identifier component across products and events.
 
  .. code-block:: Java
