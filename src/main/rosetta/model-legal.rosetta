@@ -89,8 +89,8 @@ class CreditRatingDebt one of <"The credit rating debt type(s) associated with t
 
 class CustodianDesignation <"A class to specify the custodian agent as a reference to two parties: the party that designates a custody agent, and that custody agent.">
 {
-	partyReference string (1..1) reference <"A reference to the party to which the custodian specification applies.">;
-	custodianReference string (1..1) reference <"A reference to the party that is designated as the custody agent.">;
+	partyReference Party (1..1) reference <"A reference to the party to which the custodian specification applies.">;
+	custodianReference Party (1..1) reference <"A reference to the party that is designated as the custody agent.">;
 }
 
 class CustodyArrangement <"A class to specify the Custody Arrangement as a reference to two parties: the party that designates a custody agent, and that custody agent.">
@@ -132,7 +132,7 @@ data rule EligibleCollateral_valuationPercentage <"The valuation percentage shou
 class IndependentAmountEligibleCollateral <"A class to specify the eligible collateral for initial margin purposes. Those features go beyond what is required for meeting the terms specified by the ISDA 2018 CSA for Initial Margin.">
 	[synonym FpML_5_10 value IndependentAmountEligibleCollateral]
 {
-	partyReference string (1..1) reference <"A reference to the party to the agreement to which the eligible collateral qualification applies to.">;
+	partyReference Party (1..1) reference <"A reference to the party to the agreement to which the eligible collateral qualification applies to.">;
 		[synonym FpML_5_10 value partyReference]
 	eligibleCollateral EligibleCollateral (0..*) <"The eligible collateral assets.">;
 		[synonym FpML_5_10 value eligibleCollateral]
@@ -153,7 +153,7 @@ data rule IndependentAmountEligibleCollateral_fxHaircut <"The ISDA 2018 CSA spec
 
 class InitialMarginCalculationAgent one of <"A class to specify the initial margin calculation amount according to the ISDA 2018 CSA for Initial Margin, either as a reference to one of the parties to the agreement, or the party making the collateral demand / Secured Party.">
 {
-	partyReference string (0..1) reference <"A reference to the party to the agreement when designated as the Calculation Agent.">;
+	partyReference Party (0..1) reference <"A reference to the party to the agreement when designated as the Calculation Agent.">;
 	designatedParty InitialAmountCalculationAgentEnum (0..1) <"The party when specified as a function of its role. The ISDA 2018 CSA for Initial Margin specifies that the calculation can be 'the party making the demand for purposes of Paragraphs 3, 4(d) and 5 and the Secured Party for the purposes of Paragraph 4(e)'.">;
 }
 
@@ -193,7 +193,7 @@ class LegalDocumentHeader
 		[synonym FpML_5_10 value effectiveDate]
 	identifier Identifier (0..*) <"The legal document identifier. Several identifiers can be specified.">;
 		[synonym FpML_5_10 value partyDocumentIdentifier]
-	amendedDocument string (1..1) reference <"The reference to the document that is amended by this legal document.">;
+	amendedDocument LegalDocument (1..1) reference <"The reference to the document that is amended by this legal document.">;
 		[synonym FpML_5_10 value amendedDocument]
 	documentHistory LegalDocumentHistory (0..1) <"The legal document history.">;
 		[synonym FpML_5_10 value documentHistory]
@@ -211,7 +211,7 @@ abstract class LegalDocumentIdentity <"A class to specify the legal document ide
 {
 	id string (0..1) id;
 		[synonym FpML_5_10 value id]
-	partyReference string (1..*) reference <"The parties to the legal document.">;
+	partyReference Party (1..*) reference <"The parties to the legal document.">;
 		[synonym FpML_5_10 value partyReference]
 	documentType LegalDocumentType (1..1) <"The recognisable attributes of the particular legal document.">;
 		[synonym FpML_5_10 value documentType]
@@ -246,7 +246,7 @@ class Method <"A class to specify the ISDA SIMM Method as specified by ISDA 2018
 class OneWayProvisions <"A class to specify the One Way Provisions applicable to the ISDA 2018 CSA for Initial Margin, paragraph 13, General Principles, provision (aa).">
 {
 	applicable boolean (1..1) <"The determination of whether the One Way Provisions are applicable (true) or not applicable (false).">;
-	postingPartyReference string (1..1) reference <"The posting Party for the purposes of One Way Provisions.">;
+	postingPartyReference Party (1..1) reference <"The posting Party for the purposes of One Way Provisions.">;
 }
 
 class PartyDocumentIdentifier <"A class defining a legal document identifier issued by the indicated party.">
@@ -262,13 +262,13 @@ class PartyDocumentIdentifier <"A class defining a legal document identifier iss
 
 class Regime <"The regulatory regime(s) applicable to the respective parties to certain legal agreements, such as the Standard CSA 2018 for Initial Margin.">
 {
-	partyReference string (1..1) reference <"A reference to the party when acting as a secured party in application of the ISDA CSA.">;
+	partyReference Party (1..1) reference <"A reference to the party when acting as a secured party in application of the ISDA CSA.">;
 	applicableRegime ApplicableRegime (1..*) <"The applicable regulatory regime(s), with one instantiated value per regulatory regime.">;
 }
 
 class SimmCalculationCurrency <"A class to specify the ISDA SIMM Calculation Currency as either the Base Currency or an alternative currency, in accordance with the ISDA 2018 CSA for Initial Margin, Paragraph 13, General Principles (ee) (3).">
 {
-	partyReference string (1..1) reference <"A reference to the party to the CSA agreement to which the SIMM Calculation Currency qualification applies.">;
+	partyReference Party (1..1) reference <"A reference to the party to the CSA agreement to which the SIMM Calculation Currency qualification applies.">;
 	baseCurrency boolean (1..1);
 	currency string (0..1) scheme;
 }
@@ -304,18 +304,18 @@ data rule SimmVersion_version2 <"The version attribute should be specified when 
 
 class SpecifiedSimmVersion <"A class to specify the ISDA SIMM version applicable to one of the parties to the CSA agreement that will then be the relevant version for that CSA.">
 {
-	partyReference string (1..1) reference <"A reference to the party to which the specified SIMM version applies.">;
+	partyReference Party (1..1) reference <"A reference to the party to which the specified SIMM version applies.">;
 	simmVersion string (1..1) <"The applicable ISDA SIMM version.">;
 }
 
 class SubstitutedRegime <"A class to specify the Substituted Regime in accordance with the ISDA 2018 CSA for Initial Margin, Paragraph 13, General Principles (ll).">
 {
-	partyReference string (1..1) reference <"A reference to the party to which the Substituted Regime clause applies.">;
+	partyReference Party (1..1) reference <"A reference to the party to which the Substituted Regime clause applies.">;
 	regime RegulatoryRegimeEnum (1..*) <"The set of regulatory regimes that are qualified as Substituted Regime.">;
 }
 
 class TerminationCurrency <"A class to specify the Termination Currency applicable to each of the parties to the CSA, as specified by the ISDA 2018 CSA for Initial Margin, Paragraph 13 Eligible Credit Support (IM) Schedule.">
 {
-	partyReference string (1..1) reference <"A reference to the party to which the Termination Currency determination applies.">;
+	partyReference Party (1..1) reference <"A reference to the party to which the Termination Currency determination applies.">;
 	currency string (1..1) scheme <"The specified Termination Currency.">;
 }

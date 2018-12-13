@@ -262,7 +262,7 @@ class ContractualProduct <"The contractual product class is meant to be used acr
 
 class ContractualQuantity
 {
-	notionalReference string (0..1) reference <"The notional amount when specified by reference to the notional specified somewhere else in the instance document.">;
+	notionalReference Money (0..1) reference <"The notional amount when specified by reference to the notional specified somewhere else in the instance document.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notionalReference meta href]
 	quantity Quantity (0..1);
 	notionalAmount Money (0..1) <"When applied to Credit default Swaps, this is the notional amount of protection coverage. ISDA 2003 Term: Floating Rate Payer Calculation Amount">;
@@ -565,11 +565,12 @@ class PaymentDates <"The payment dates schedule. As a difference from the FpML P
 {
 	id (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id path "paymentDates"]
-	calculationPeriodDatesReference string (0..1) reference <"A pointer style reference to the associated calculation period dates component defined elsewhere in the document.">;
+	calculationPeriodDatesReference CalculationPeriodDates (0..1) reference <"A pointer style reference to the associated calculation period dates component defined elsewhere in the document.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value calculationPeriodDatesReference path "paymentDates" meta href]
-	resetDatesReference string (0..1) reference <"A pointer style reference to the associated reset dates component defined elsewhere in the document.">;
+	resetDatesReference ResetDates (0..1) reference <"A pointer style reference to the associated reset dates component defined elsewhere in the document.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value resetDatesReference path "paymentDates" meta href]
-	valuationDatesReference string (0..1) reference <"A pointer style reference to the associated valuation dates component defined elsewhere in the document. Implemented for Brazilian-CDI Swaps where it will refer to the settlemementProvision/nonDeliverableSettlement/fxFixingDate structure.">;
+	//TODO probably wrong
+	valuationDatesReference FxFixingDate (0..1) reference <"A pointer style reference to the associated valuation dates component defined elsewhere in the document. Implemented for Brazilian-CDI Swaps where it will refer to the settlemementProvision/nonDeliverableSettlement/fxFixingDate structure.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value valuationDatesReference path "paymentDates" meta href]
 	paymentFrequency Frequency (0..1) <"The frequency at which regular payment dates occur. If the payment frequency is equal to the frequency defined in the calculation period dates component then one calculation period contributes to each payment amount. If the payment frequency is less frequent than the frequency defined in the calculation period dates component then more than one calculation period will contribute to the payment amount. A payment frequency more frequent than the calculation period frequency or one that is not a multiple of the calculation period frequency is invalid. If the payment frequency is of value T (term), the period is defined by the effectiveDate and the terminationDate.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentFrequency path "paymentDates"]
@@ -762,7 +763,7 @@ class Quantity
 class StubPeriod <"A class defining how the initial or final stub calculation period amounts is calculated. For example, the rate to be applied to the initial or final stub calculation period may be the linear interpolation of two different tenors for the floating rate index specified in the calculation period amount component, e.g. A two month stub period may used the linear interpolation of a one month and three month floating rate. The different rate tenors would be specified in this component. Note that a maximum of two rate tenors can be specified. If a stub period uses a single index tenor and this is the same as that specified in the calculation period amount component then the initial stub or final stub component, as the case may be, must not be included.">
 	[synonym FpML_5_10 value StubCalculationPeriodAmount]
 {
-	calculationPeriodDatesReference string (1..1) reference <"A pointer style reference to the associated calculation period dates component defined elsewhere in the document.">;
+	calculationPeriodDatesReference CalculationPeriodDates (1..1) reference <"A pointer style reference to the associated calculation period dates component defined elsewhere in the document.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value calculationPeriodDatesReference meta href]
 	initialStub StubValue (0..1) <"Specifies how the initial stub amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating tenors may be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3. Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value initialStub]
