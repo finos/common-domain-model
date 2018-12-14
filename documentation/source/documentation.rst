@@ -343,9 +343,9 @@ While most of the choice rules have two attributes, there is no limit to the num
 
 .. code-block:: Java
 
-class OptionCashSettlement
-{
-	id (0..1);
+ class OptionCashSettlement
+ {
+  id (0..1);
 	cashSettlementValuationTime BusinessCenterTime (0..1) ;
 	cashSettlementValuationDate RelativeDateOffset (0..1) ;
 	cashSettlementPaymentDate CashSettlementPaymentDate (0..1) ;
@@ -356,7 +356,7 @@ class OptionCashSettlement
 	parYieldCurveUnadjustedMethod YieldCurveMethod (0..1) ;
 	crossCurrencyMethod CrossCurrencyMethod (0..1) ;
 	collateralizedCashPriceMethod YieldCurveMethod (0..1) ;
-}
+ }
 
  choice rule OptionCashSettlement_choice
   for OptionCashSettlement optional choice between
@@ -466,10 +466,10 @@ A further set of attributes can be associated with a synonym, to address specifi
 
  class Payout
  {
-	interestRatePayout InterestRatePayout (0..*) ;
-	creditDefaultPayout CreditDefaultPayout (0..1) ;
-	cashflow Cashflow (0..*) ;
-	optionPayout OptionPayout (0..*);
+  interestRatePayout InterestRatePayout (0..*) ;
+  creditDefaultPayout CreditDefaultPayout (0..1) ;
+  cashflow Cashflow (0..*) ;
+  optionPayout OptionPayout (0..*);
  }
 
 * A **tag** or a **componentID** can be associated to a synonym value. In both cases, the purpose is to properly reflect the FIX standard, which makes use of those two artefacts. There are only two examples of such at present in the model, as a result of the scope focus on post-execution use cases and, hence, the limited reference to the FIX standard.
@@ -489,19 +489,19 @@ A further set of attributes can be associated with a synonym, to address specifi
 .. code-block:: Java
 
  enum InformationProviderEnum <"The enumerated values to specify the list of information providers.">
-	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value informationProviderScheme_2_1]
+  [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value informationProviderScheme_2_1]
  {
   (...)
-	Bloomberg <"Bloomberg LP.">
-	 [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "Bloomberg"]
-	 [synonym FIX value "0" definition "0 = Bloomberg"],
-	(...)
-	Other
-	 [synonym FIX value "99" definition "99 = Other"],
-	(...)
-	Telerate <"Telerate, Inc.">
-	 [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "Telerate"]
-	 [synonym FIX value "2" definition "2 = Telerate"]
+  Bloomberg <"Bloomberg LP.">
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "Bloomberg"]
+   [synonym FIX value "0" definition "0 = Bloomberg"],
+  (...)
+  Other
+   [synonym FIX value "99" definition "99 = Other"],
+  (...)
+  Telerate <"Telerate, Inc.">
+   [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "Telerate"]
+   [synonym FIX value "2" definition "2 = Telerate"]
  }
 
 Mapping Logic
@@ -560,27 +560,27 @@ As an example, the ``FpML_ird_57`` data rule implements the **FpML ird validatio
 
  class Frequency
  {
-	id (0..1) ;
-	periodMultiplier int (1..1) ;
-	period PeriodExtendedEnum (1..1) ;
+  id (0..1) ;
+  periodMultiplier int (1..1) ;
+  period PeriodExtendedEnum (1..1) ;
  }
 
  class CalculationPeriodFrequency extends Frequency
  {
-	rollConvention RollConventionEnum (1..1) ;
+  rollConvention RollConventionEnum (1..1) ;
  }
 
  data rule FpML_ird_57 <"FpML validation rule ird-57 - Context: CalculationPeriodFrequency. [period eq ('M', 'Y')] not(rollConvention = ('NONE', 'SFE', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT','SUN')).">
-	when CalculationPeriodFrequency -> period = PeriodExtendedEnum.M or CalculationPeriodFrequency -> period = PeriodExtendedEnum.Y
-	then CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.NONE
-	 or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.SFE
-	 or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.MON
-	 or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.TUE
-	 or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.WED
-	 or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.THU
-	 or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.FRI
-	 or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.SAT
-	 or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.SUN
+  when CalculationPeriodFrequency -> period = PeriodExtendedEnum.M or CalculationPeriodFrequency -> period = PeriodExtendedEnum.Y
+  then CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.NONE
+   or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.SFE
+   or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.MON
+   or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.TUE
+   or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.WED
+   or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.THU
+   or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.FRI
+   or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.SAT
+   or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.SUN
 
 Syntax
 """"""
@@ -825,20 +825,20 @@ The Rosetta ``Contract`` class includes a ``closedState`` attribute whose purpos
 
  class Contract rosettaKey
  {
-	id (0..1);
-	contractIdentifier Identifier (1..*) ;
-	tradeDate DateInstances (1..1) ;
-	clearedDate date (0..1) ;
-	contractualProduct ContractualProduct (1..1) ;
-	collateral Collateral (0..1) ;
-	documentation Documentation (0..1) ;
-	governingLaw GoverningLawEnum (0..1) scheme ;
-	party Party (0..*) ;
-	account Account (0..*) ;
-	partyRole PartyRole (0..*) ;
-	calculationAgent CalculationAgent (0..1) ;
-	partyContractInformation PartyContractInformation (0..*) ;
-	closedState ClosedState (0..1) ;
+  id (0..1);
+  contractIdentifier Identifier (1..*) ;
+  tradeDate DateInstances (1..1) ;
+  clearedDate date (0..1) ;
+  contractualProduct ContractualProduct (1..1) ;
+  collateral Collateral (0..1) ;
+  documentation Documentation (0..1) ;
+  governingLaw GoverningLawEnum (0..1) scheme ;
+  party Party (0..*) ;
+  account Account (0..*) ;
+  partyRole PartyRole (0..*) ;
+  calculationAgent CalculationAgent (0..1) ;
+  partyContractInformation PartyContractInformation (0..*) ;
+  closedState ClosedState (0..1) ;
  }
 
 The scope of the contract is limited to the post-execution lifecycle, as it involves legal entities and has a set of attributes which are only qualified at the execution and post-execution stage: trade date, calculation agent, documentation, governing law, etc.
@@ -968,14 +968,14 @@ The product qualification is positioned as part of the ``ProductIdentification``
 
  .. code-block:: Java
 
- class ProductIdentification
- {
- 	productQualifier productType (0..1) ;
- 	primaryAssetClass AssetClassEnum (0..1) scheme ;
- 	secondaryAssetClass AssetClassEnum (0..*) scheme ;
- 	productType string (0..*) scheme ;
- 	productId string (0..*) scheme ;
- }
+  class ProductIdentification
+  {
+   productQualifier productType (0..1) ;
+   primaryAssetClass AssetClassEnum (0..1) scheme ;
+   secondaryAssetClass AssetClassEnum (0..*) scheme ;
+   productType string (0..*) scheme ;
+   productId string (0..*) scheme ;
+  }
 
 This CDM product qualification is stamped onto the generated CDM objects and their JSON serialized representation, as shown as part of the below JSON snippet which includes both product identification information associated with an originating FpML document and product qualification generated by the CDM:
 
@@ -1073,18 +1073,18 @@ Follow-up is in progress with the ISDA CDM Credit Workstream to confirm the appr
 
  class Loan extends IdentifiedProduct
  {
- 	borrower LegalEntity (0..*) ;
- 	lien string (0..1) scheme ;
- 	facilityType string (0..1) scheme ;
- 	creditAgreementDate date (0..1) ;
- 	tranche string (0..1) scheme ;
+  borrower LegalEntity (0..*) ;
+  lien string (0..1) scheme ;
+  facilityType string (0..1) scheme ;
+  creditAgreementDate date (0..1) ;
+  tranche string (0..1) scheme ;
  }
 
  class MortgageBackedSecurity extends ProductIdentifier
  {
   pool AssetPool (0..1) ;
   sector MortgageSectorEnum (0..1) scheme ;
- 	tranche string (0..1) ;
+  tranche string (0..1) ;
  }
 
 Event Model
@@ -1102,21 +1102,21 @@ Baseline event modelling features
 
  class Event
  {
-	id (0..1) ;
-	messageInformation MessageInformation (0..1) ;
-	timestamp EventTimestamp (1..*) ;
+  id (0..1) ;
+  messageInformation MessageInformation (0..1) ;
+  timestamp EventTimestamp (1..*) ;
   eventIdentifier Identifier (1..*) ;
-	eventQualifier eventType (0..1) ;
-	eventDate date (1..1);
-	effectiveDate date (0..1) ;
-	action ActionEnum (1..1) ;
-	intent IntentEnum (0..1);
-	party Party (0..*) ;
-	account Account (0..*) ;
-	lineage Lineage (0..1) ;
-	primitive PrimitiveEvent (1..1) ;
-	functionCall string (0..1) ;
-	eventEffect EventEffect (0..1) ;
+  eventQualifier eventType (0..1) ;
+  eventDate date (1..1);
+  effectiveDate date (0..1) ;
+  action ActionEnum (1..1) ;
+  intent IntentEnum (0..1);
+  party Party (0..*) ;
+  account Account (0..*) ;
+  lineage Lineage (0..1) ;
+  primitive PrimitiveEvent (1..1) ;
+  functionCall string (0..1) ;
+  eventEffect EventEffect (0..1) ;
  }
 
 The ``Event`` class carries the following set of information:
@@ -1126,11 +1126,11 @@ The ``Event`` class carries the following set of information:
 
  .. code-block:: Java
 
- class EventTimestamp
- {
- 	dateTime zonedDateTime (1..1) ;
- 	qualification EventTimeStampQualificationEnum (1..1);
- }
+  class EventTimestamp
+  {
+   dateTime zonedDateTime (1..1) ;
+   qualification EventTimeStampQualificationEnum (1..1);
+  }
 
 Below is JSON snippet of an instance representation of such approach:
 
@@ -1153,8 +1153,8 @@ Below is JSON snippet of an instance representation of such approach:
 
   class Identifier
   {
- 	 id (0..1) ;
- 	 issuer string (1..1) scheme, reference ;
+   id (0..1) ;
+   issuer string (1..1) scheme, reference ;
    assignedIdentifier AssignedIdentifier (1..*) ;
   }
 
@@ -1167,15 +1167,15 @@ Below is JSON snippet of an instance representation of such approach:
 
  .. code-block:: Java
 
- class Lineage
- {
- 	contractReference Contract (0..*) rosettaKey reference ;
- 	eventReference Event (0..*) rosettaKey reference ;
- 	transferReference Transfer (0..*) rosettaKey reference ;
- 	creditDefaultPayoutReference CreditDefaultPayout (0..*) rosettaKey reference ;
- 	interestRatePayoutReference InterestRatePayout (0..*) rosettaKey reference ;
- 	optionPayoutReference OptionPayout (0..*) rosettaKey reference ;
- }
+  class Lineage
+  {
+   contractReference Contract (0..*) rosettaKey reference ;
+   eventReference Event (0..*) rosettaKey reference ;
+   transferReference Transfer (0..*) rosettaKey reference ;
+   creditDefaultPayoutReference CreditDefaultPayout (0..*) rosettaKey reference ;
+   interestRatePayoutReference InterestRatePayout (0..*) rosettaKey reference ;
+   optionPayoutReference OptionPayout (0..*) rosettaKey reference ;
+  }
 
 * **Primitive events**: the CDM composite approach uses the primitive events as its building blocks. Those primitive events are detailed in the next section of the documentation.
 * **Function call**: an example of such a function call is the interpolation function that would be associated with a **derived observation** event that assembles two observed values (say, a 3 months and a 6 months rate observation) to provide a derived one (say, a 5 months observation). As part of the current CDM version this function call as been specified as a mere string element. It will be appropriately specified once such implementation is developed, some of which consisting in the machine readable implementation of the ISDA Definitions (see next Interest Calculation section).
@@ -1185,10 +1185,10 @@ Below is JSON snippet of an instance representation of such approach:
 
   class EventEffect
   {
- 	 effectedContract Contract (0..*) rosettaKey ;
- 	 contract Contract (0..*) rosettaKey ;
+   effectedContract Contract (0..*) rosettaKey ;
+   contract Contract (0..*) rosettaKey ;
    productIdentifier ProductIdentifier (0..*) rosettaKey ;
- 	 transfer Transfer (0..*) rosettaKey ;
+   transfer Transfer (0..*) rosettaKey ;
   }
 
 In the below JSON snippet of a swaption cash exercise, we can see that the ``eventEffect`` hash value points to the ``rosettaKey`` entry that is associated with the cash transfer.
@@ -1239,14 +1239,14 @@ CDM primitive events are the building block components used to specify business 
 
  class PrimitiveEvent
  {
-	inception Inception (0..*);
-	quantityChange QuantityChangePrimitive (0..*);
-	allocation AllocationPrimitive (0..*);
-	termsChange TermsChangePrimitive (0..1);
-	exercise ExercisePrimitive (0..1);
-	observation ObservationPrimitive (0..*);
-	reset ResetPrimitive (0..*);
-	transfer Transfer (0..*);
+  inception Inception (0..*);
+  quantityChange QuantityChangePrimitive (0..*);
+  allocation AllocationPrimitive (0..*);
+  termsChange TermsChangePrimitive (0..1);
+  exercise ExercisePrimitive (0..1);
+  observation ObservationPrimitive (0..*);
+  reset ResetPrimitive (0..*);
+  transfer Transfer (0..*);
  }
 
 Event qualification from primitive events and intent qualification
@@ -1260,16 +1260,16 @@ One distinction with the product approach is that the ``intent`` qualification i
 
  isEvent Termination
   Event -> intent when present = IntentEnum.Termination
-	and Event -> primitive -> quantityChange single exists
-	and quantityAfterQuantityChange = 0.0
-	and Event -> primitive -> quantityChange -> after -> contract -> closedState -> state = ClosedStateEnum.Terminated
-	and Event -> primitive -> quantityChange -> after -> clearingStatus is absent
+  and Event -> primitive -> quantityChange single exists
+  and quantityAfterQuantityChange = 0.0
+  and Event -> primitive -> quantityChange -> after -> contract -> closedState -> state = ClosedStateEnum.Terminated
+  and Event -> primitive -> quantityChange -> after -> clearingStatus is absent
 
 
 Legal Agreements
 ----------------
 
-The Legal Agreements representation is a work-in-progress, which started in November 2018 with the initial aim of representing the ISDA Credit Support Annex Agreement. Once done, the goal will then be to extend the model in two directions: the collateral management processes, and a broader set of legal agreements.
+The Legal Agreements representation is a work-in-progress, which started in November 2018 with the initial aim of representing the ISDA Credit Support Annex Agreement.  Once done, the goal will then be to extend the model in two directions: the collateral management processes, and a broader set of legal agreements.
 
 The CDM model leverages some prior and current work:
 
@@ -1289,17 +1289,17 @@ The ``LegalDocument`` class is the entry point for the legal document representa
   identifier Identifier (0..*) ;
   amendedDocument string (1..1) ;
   documentHistory LegalDocumentHistory (0..1) ;
-	documentType LegalDocumentType (1..1) ;
-	party Party (2..*) ;
+  documentType LegalDocumentType (1..1) ;
+  party Party (2..*) ;
  }
 
  class LegalDocument extends LegalDocumentBase one of
  {
-	csaInitialMargin2018EnglishLaw CsaInitialMargin2018EnglishLaw (0..1) ;
-	csaInitialMargin2018NewYorkLaw CsaInitialMargin2018NewYorkLaw (0..1) ;
+  csaInitialMargin2018EnglishLaw CsaInitialMargin2018EnglishLaw (0..1) ;
+  csaInitialMargin2018NewYorkLaw CsaInitialMargin2018NewYorkLaw (0..1) ;
  }
 
- While the initial focus has been on representing the ISDA 2018 CSA for Initial margin, it was then decided to shift the focus onto the 2016 variation of that agreement, for the purpose of getting sample documents with which to confirm and test the implementation.  That work is expected to take place in early 2019. 
+While the initial focus has been on representing the ISDA 2018 CSA for Initial margin, it was then decided to shift the focus onto the 2016 variation of that agreement, for the purpose of getting sample documents with which to confirm and test the implementation.  That work is expected to take place in early 2019.
 
 Interest Calculation
 --------------------
@@ -1385,7 +1385,7 @@ Reference Data Model
 
 The CDM only integrates the reference data components that are specifically needed to model the in-scope products, events and interest calculation components.
 
-This translates into the representation of the **party**, with two alternate representations, modelled as attributes: the **legal entity** and the **natural person**.  The reason for making use of the class inheritance model, with Party as a the base type that would be extended by LegalEntity and NaturalPerson, is that the Rosetta model doesn't support downcasting, which was causing issues in some scenarios.
+This translates into the representation of the **party**, with two alternate representations, modelled as attributes: the **legal entity** and the **natural person**.  The reason for making use of the class inheritance model, with Party as a the base type that would be extended by LegalEntity and NaturalPerson, is that the Rosetta model doesn't support downcasting, which was causing issues in some scenarios. This will be further assess at some future point.
 
 It is expected that this CDM reference data representation will be further expanded once use cases for the model will be firmed out.
 
@@ -1405,19 +1405,19 @@ It is expected that this CDM reference data representation will be further expan
 
  class LegalEntity
  {
- 	id (0..1);
- 	entityId string (0..*) scheme ;
- 	name string (1..1) scheme ;
+  id (0..1);
+  entityId string (0..*) scheme ;
+  name string (1..1) scheme ;
  }
 
  class NaturalPerson
  {
-	id (0..1);
-	honorific string (0..1) ;
-	firstName string (1..1) ;
-	middleName string (0..*);
-	initial string (0..*);
-	surname string (1..1) ;
-	suffix string (0..1) ;
-	dateOfBirth date (0..1) ;
+  id (0..1);
+  honorific string (0..1) ;
+  firstName string (1..1) ;
+  middleName string (0..*);
+  initial string (0..*);
+  surname string (1..1) ;
+  suffix string (0..1) ;
+  dateOfBirth date (0..1) ;
  }
