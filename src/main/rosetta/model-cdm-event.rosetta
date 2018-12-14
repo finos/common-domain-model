@@ -153,6 +153,12 @@ class CustomisedWorkflow <"In its initial iteration, this class is meant to supp
 		[synonym DTCC_11_0, DTCC_9_0 set to "branchLocation" when path = "PartyWorkflowFields.branchLocation"]
 		[synonym DTCC_11_0, DTCC_9_0 set to "midMarketPriceType" when path = "PartyWorkflowFields.midMarketPrice.midMarketPriceType"]
 		[synonym DTCC_11_0, DTCC_9_0 set to "amount" when path = "PartyWorkflowFields.midMarketPrice.amount"]
+		[synonym CME_SubmissionIRS_1_0 set to "ClientOrderId" when path = "ClOrdID"]
+		[synonym CME_SubmissionIRS_1_0 set to "TradeOriginationSystem" when path = "InptSrc"]
+		[synonym CME_SubmissionIRS_1_0 set to "OriginatingTradeId" when path = "OrigTrdID"]
+		[synonym CME_SubmissionIRS_1_0 set to "ExecutionTime" when path = "TrdRegTS.Typ.1"]
+		[synonym CME_SubmissionIRS_1_0 set to "PartyType" when path = "Pty.R.24"]
+		[synonym CME_SubmissionIRS_1_0 set to "CustomCode" when path = "Pty.Src.D"]
 	itemValue string (1..1) <"In this initial iteration, this corresponds to the DTCC value.">;
 		[synonym DTCC_11_0, DTCC_9_0 value comment path "PartyWorkflowFields"]
 		[synonym DTCC_11_0, DTCC_9_0 value superId path "PartyWorkflowFields"]
@@ -163,6 +169,11 @@ class CustomisedWorkflow <"In its initial iteration, this class is meant to supp
 		[synonym DTCC_11_0, DTCC_9_0 value branchLocation path "PartyWorkflowFields"]
 		[synonym DTCC_11_0, DTCC_9_0 value midMarketPriceType path "PartyWorkflowFields.midMarketPrice"]
 		[synonym DTCC_11_0, DTCC_9_0 value amount path "PartyWorkflowFields.midMarketPrice"]
+		[synonym CME_SubmissionIRS_1_0 value ClOrdID]
+		[synonym CME_SubmissionIRS_1_0 value InptSrc]
+		[synonym CME_SubmissionIRS_1_0 value OrigTrdID]
+		[synonym CME_SubmissionIRS_1_0 set to "CustomerAccount" when path = "Pty.R.24"]
+		[synonym CME_SubmissionIRS_1_0 set to "True" when path = "Pty.Src.D"]
 }
 
 class Event
@@ -246,12 +257,15 @@ class EventTimestamp <"A class to represent the various set of timestamps that c
 		[synonym CME_ClearedConfirm_1_17 value submittedForClearing]
 		[synonym CME_SubmissionIRS_1_0 value TxnTm path "TrdCaptRpt"]
 		[synonym CME_SubmissionIRS_1_0 value Snt path "TrdCaptRpt.Hdr"]
+		[synonym CME_SubmissionIRS_1_0 value TS path "TrdCaptRpt.TrdRegTS"]
 	qualification EventTimeStampQualificationEnum (1..1);
-		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 set to EventTimeStampQualificationEnum.eventCreated when "creationTimestamp" exists]
-		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 set to EventTimeStampQualificationEnum.eventExpired when "expiryTimestamp" exists]
-		[synonym CME_ClearedConfirm_1_17, Rosetta_Workbench set to EventTimeStampQualificationEnum.submittedForClearing when "submittedForClearing" exists]
-		[synonym DTCC_11_0, DTCC_9_0 set to EventTimeStampQualificationEnum.eventSubmitted when "ReceiveTime" exists]
-		[synonym CME_SubmissionIRS_1_0 set to EventTimeStampQualificationEnum.executed when path= "TrdCaptRpt.TxnTm"]
+		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 set to EventTimeStampQualificationEnum.eventCreationTime when "creationTimestamp" exists]
+		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 set to EventTimeStampQualificationEnum.eventExpirationTime when "expiryTimestamp" exists]
+		[synonym CME_ClearedConfirm_1_17, Rosetta_Workbench set to EventTimeStampQualificationEnum.clearingSubmissionTime when "submittedForClearing" exists]
+		[synonym DTCC_11_0, DTCC_9_0 set to EventTimeStampQualificationEnum.eventSubmittedTime when "ReceiveTime" exists]
+		[synonym CME_SubmissionIRS_1_0 set to EventTimeStampQualificationEnum.transactionCreationTime when path = "TrdCaptRpt.TxnTm"]
+		[synonym CME_SubmissionIRS_1_0 set to EventTimeStampQualificationEnum.eventSentTime when path= "TrdCaptRpt.Hdr.Snt"]
+		[synonym CME_SubmissionIRS_1_0 set to EventTimeStampQualificationEnum.executionTime when path = "TrdCaptRpt.TrRegTS.1"]
 }
 
 class Execution rosettaKey
@@ -385,10 +399,12 @@ class MessageInformation <"This class corresponds to the messaging components of
 		[synonym Rosetta_Workbench value sentBy path "messageInformation" meta messageAddressScheme]
 		[synonym DTCC_11_0, DTCC_9_0 value From]
 		[synonym CME_ClearedConfirm_1_17 value sentBy meta messageAddressScheme]
+		[synonym CME_SubmissionIRS_1_0 value SID path "TrdCaptRpt.Hdr"]
 	sentTo string (0..*) scheme <"The identifier(s) for the recipient(s) of a message instance.">;
 		[synonym Rosetta_Workbench value sentTo path "messageInformation" meta messageAddressScheme]
 		[synonym CME_ClearedConfirm_1_17 value sendTo meta messageAddressScheme]
 		[synonym DTCC_11_0, DTCC_9_0 value To]
+		[synonym CME_SubmissionIRS_1_0 value TID path "TrdCaptRpt.Hdr"]
 	copyTo string (0..*) scheme  <"A unique identifier (within the specified coding scheme) giving the details of some party to whom a copy of this message will be sent for reference.">;
 }
 
@@ -423,10 +439,16 @@ data rule ObservationSource_content <"ObservationSource should not be empty, alt
 
 class PartyCustomisedWorkflow <"A class to specify a party-related, non-standardised data in a generic form.">
 {
-	partyReference string (1..1) reference <"Reference to a party.">;
+	partyReference string (0..1) reference <"Reference to the party to which the workflow pertains to.">;
 		[synonym DTCC_11_0, DTCC_9_0 value partyReference meta href]
+	partyName string (0..1) <"The party name to which the workflow pertains to.">;
+		[synonym CME_SubmissionIRS_1_0 value ID path "Pty"]
 	customisedWorkflow CustomisedWorkflow (1..*) <"Non-standardised data in a generic form.">;
 }
+
+choice rule PartyCustomisedWorkflow_choice <"The identification of the party to which the PartyCustomisedWorkflow pertains to can be done through either a party reference or the party name.">
+	for PartyCustomisedWorkflow required choice between
+	partyName and partyReference
 
 class PhysicalExercise <"The physical exercise results into a financial product which is represented through the Product class, with an associated quantity and cashflow (e.g. a physical exercise of a bond option will result into a bond with a cash proceed which will be a function of the option strike price).">
 {
@@ -448,10 +470,12 @@ class PostInceptionState extends ContractState
 		[synonym CME_ClearedConfirm_1_17 value originatingEvent path "trade.tradeHeader"]
 		[synonym Rosetta_Workbench value originatingEvent]
 		[synonym CME_SubmissionIRS_1_0 value Evnt path "RegTrdID"]
-	creditLimitInformation CreditLimitInformation (0..1) <"Credit limit utilization information">;
+	creditLimitInformation CreditLimitInformation (0..1) <"Credit limit utilization information.">;
 		[synonym CME_ClearedConfirm_1_17 value creditLimitInformation path "trade.tradeHeader"]
 		[synonym Rosetta_Workbench value creditLimitInformation]
-	tradeWarehouseWorkflow TradeWarehouseWorkflow (0..1) <"Information related to trade warehouse workflow">;
+	tradeWarehouseWorkflow TradeWarehouseWorkflow (0..1) <"Information related to trade warehouse workflow.">;
+	partyPreExecutionInformation PartyCustomisedWorkflow (0..*) <"Information related to the pre-execution workflow for each of the parties to the contract that is presented for clearing.">;
+		[synonym CME_SubmissionIRS_1_0 value RptSide]
 }
 
 class PrimitiveEvent <"The set of primitive events. The purpose of this class it to provide clarity with respect to the event qualification logic.">
