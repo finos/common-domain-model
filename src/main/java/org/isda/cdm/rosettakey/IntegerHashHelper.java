@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BinaryOperator;
@@ -27,6 +28,7 @@ public class IntegerHashHelper implements HashHelper<Integer> {
             .put(LocalDate.class, Object::hashCode)
             .put(LocalTime.class, Object::hashCode)
             .put(LocalDateTime.class, Object::hashCode)
+            .put(ZonedDateTime.class, Object::hashCode)
             .put(BigDecimal.class, Object::hashCode)
             .put(Boolean.class, Object::hashCode)
             .put(Enum.class, (Enum e) -> e.name().hashCode())
