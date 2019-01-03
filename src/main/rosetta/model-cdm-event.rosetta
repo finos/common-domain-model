@@ -156,7 +156,7 @@ class CustomisedWorkflow <"In its initial iteration, this class is meant to supp
 		[synonym CME_SubmissionIRS_1_0 set to "ClientOrderId" when path = "ClOrdID"]
 		[synonym CME_SubmissionIRS_1_0 set to "TradeOriginationSystem" when path = "InptSrc"]
 		[synonym CME_SubmissionIRS_1_0 set to "OriginatingTradeId" when path = "OrigTrdID"]
-		[synonym CME_SubmissionIRS_1_0 set to "ExecutionTime" when path = "TrdRegTS.Typ.1"]
+		[synonym CME_SubmissionIRS_1_0 set to "ExecutionTime" when path = "TrdRegTS.TS"]
 		[synonym CME_SubmissionIRS_1_0 set to "PartyType" when path = "Pty.R.24"]
 		[synonym CME_SubmissionIRS_1_0 set to "CustomCode" when path = "Pty.Src.D"]
 	itemValue string (1..1) <"In this initial iteration, this corresponds to the DTCC value.">;
@@ -172,6 +172,7 @@ class CustomisedWorkflow <"In its initial iteration, this class is meant to supp
 		[synonym CME_SubmissionIRS_1_0 value ClOrdID]
 		[synonym CME_SubmissionIRS_1_0 value InptSrc]
 		[synonym CME_SubmissionIRS_1_0 value OrigTrdID]
+		[synonym CME_SubmissionIRS_1_0 value TS path "TrdRegTS"]
 		[synonym CME_SubmissionIRS_1_0 set to "CustomerAccount" when path = "Pty.R.24"]
 		[synonym CME_SubmissionIRS_1_0 set to "True" when path = "Pty.Src.D"]
 }
@@ -265,7 +266,7 @@ class EventTimestamp <"A class to represent the various set of timestamps that c
 		[synonym DTCC_11_0, DTCC_9_0 set to EventTimeStampQualificationEnum.eventSubmittedTime when "ReceiveTime" exists]
 		[synonym CME_SubmissionIRS_1_0 set to EventTimeStampQualificationEnum.transactionCreationTime when path = "TrdCaptRpt.TxnTm"]
 		[synonym CME_SubmissionIRS_1_0 set to EventTimeStampQualificationEnum.eventSentTime when path= "TrdCaptRpt.Hdr.Snt"]
-		[synonym CME_SubmissionIRS_1_0 set to EventTimeStampQualificationEnum.executionTime when path = "TrdCaptRpt.TrRegTS.1"]
+		[synonym CME_SubmissionIRS_1_0 set to EventTimeStampQualificationEnum.executionTime when path = "TrdCaptRpt.TrRegTS.1"]// and "TrdCaptRpt.TrRegTS.1"]
 }
 
 class Execution rosettaKey
@@ -280,6 +281,15 @@ class Execution rosettaKey
 	party Party (0..*) <"The party reference is optional because positioned as part of the Event class when the execution is specified as part of such context.">;
 	closedState ClosedState (0..1) <"The qualification what led to the execution closure alongside with the dates on which this closure takes effect.">;
 		[synonym Rosetta_Workbench value closedState]
+}
+
+class ExecutionInformation <"A class to specify a set of execution-related information that can be associated with a contract: how the contract was executed, party-specific execution workflow information, ...  The identified usage for such information relates to the clearing process.">
+{
+	executionType ExecutionTypeEnum (0..1) <"Specifies how the trade was executed, e.g. via voice or electronically.">;
+		[synonym CME_SubmissionIRS_1_0 value VenuTyp]
+	executionVenue LegalEntity (0..1) <"The identity of the execution venue, when applicable.">;
+	partyExecutionWorkflow PartyCustomisedWorkflow (0..*) <"Information related to the execution workflow for each of the parties to the contract. This is relevant for the clearing event.">;
+		[synonym CME_SubmissionIRS_1_0 value RptSide]
 }
 
 class ExerciseOutcome <"The exercise outcome combines the option contract (which states would be 'Exercised' in case of a full exercise and which would have a reduced notional in case of partial exercise) and either a physical or partial exercise.">
@@ -469,13 +479,12 @@ class PostInceptionState extends ContractState
 	originatingEvent OriginatingEventEnum (0..1) <"The qualification by the clearing facility of whether the cleared trade results from a trade presented for clearing by market participants (in which case it is qualified as a 'New Trade') or whether it results from a process that is internal to the CCP, in which case this process will be qualified accordingly (e.g. Transfer, Novation, Compression, ...).">;
 		[synonym CME_ClearedConfirm_1_17 value originatingEvent path "trade.tradeHeader"]
 		[synonym Rosetta_Workbench value originatingEvent]
-		[synonym CME_SubmissionIRS_1_0 value Evnt path "RegTrdID"]
+//		[synonym CME_SubmissionIRS_1_0 value Evnt path "RegTrdID"]
 	creditLimitInformation CreditLimitInformation (0..1) <"Credit limit utilization information.">;
 		[synonym CME_ClearedConfirm_1_17 value creditLimitInformation path "trade.tradeHeader"]
 		[synonym Rosetta_Workbench value creditLimitInformation]
+	executionInformation ExecutionInformation (0..1) <"Execution information: type of execution, name of execution venue when applicable, party-specific execution workflow, ...">;
 	tradeWarehouseWorkflow TradeWarehouseWorkflow (0..1) <"Information related to trade warehouse workflow.">;
-	partyPreExecutionInformation PartyCustomisedWorkflow (0..*) <"Information related to the pre-execution workflow for each of the parties to the contract that is presented for clearing.">;
-		[synonym CME_SubmissionIRS_1_0 value RptSide]
 }
 
 class PrimitiveEvent <"The set of primitive events. The purpose of this class it to provide clarity with respect to the event qualification logic.">
