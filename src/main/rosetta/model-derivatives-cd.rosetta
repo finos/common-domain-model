@@ -346,7 +346,7 @@ class OptionStrike one of <"A class to specify the option strike.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value currency path "price" meta currencyScheme]
 	percentage number (0..1) <"The price or level expressed as a percentage of the forward starting spot price.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value strikePercentage path "price"]
-	strikeReference number (0..1) reference <"The strike of an option on a credit default swap when expressed in reference to the spread of the underlying swap (typical practice in the case of credit single name swaps).">;
+	strikeReference Schedule (0..1) reference <"The strike of an option on a credit default swap when expressed in reference to the spread of the underlying swap (typical practice in the case of credit single name swaps).">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value strikeReference meta href]
 	referenceSwapCurve ReferenceSwapCurve (0..1) <"The strike of an option when expressed by reference to a swap curve. (Typically the case for a convertible bond option.)">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value referenceSwapCurve]
@@ -502,9 +502,15 @@ class ReferencePoolItem <"This type contains all the constituent weight and refe
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value referencePair]
 	protectionTermsReference ProtectionTerms (0..1) reference <"Reference to the documentation terms applicable to this item.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value protectionTermsReference meta href]
-	settlementTermsReference CashSettlementTerms (0..1) reference <"Reference to the settlement terms applicable to this item.">;
+	cashSettlementTermsReference CashSettlementTerms (0..1) reference <"Reference to the cash settlement terms applicable to this item.">;
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value settlementTermsReference meta href]
+	physicalSettlementTermsReference PhysicalSettlementTerms (0..1) reference <"Reference to the physical settlement terms applicable to this item.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value settlementTermsReference meta href]
 }
+
+choice rule ReferencePoolItem_choice <"A choice rule between a reference to the cash or physical settlement terms.">
+	for ReferencePoolItem optional choice between
+	cashSettlementTermsReference and physicalSettlementTermsReference
 
 class SettledEntityMatrix <"A class to specify the Relevant Settled Entity Matrix.">
 	[synonym FpML_5_10 value SettledEntityMatrix]
