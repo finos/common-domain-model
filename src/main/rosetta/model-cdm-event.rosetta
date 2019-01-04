@@ -285,7 +285,7 @@ class ClearingWorkflow <"A class to specify the clearing workflow information: c
 		[synonym CME_SubmissionIRS_1_0 value RptTyp]
 		[synonym Rosetta_Workbench value clearingStatus]
 		[synonym CME_ClearedConfirm_1_17 value status path "trade.tradeHeader"]
-	clearingVenue string (1..1) <"The clearing venue identification.">;
+	clearingVenue string (0..1) <"The clearing venue identification.">;
 	 	[synonym CME_SubmissionIRS_1_0 value TSub path "Hdr"]
 	originatingEvent OriginatingEventEnum (0..1) <"The qualification by the clearing facility of whether the cleared trade results from a trade presented for clearing by market participants (in which case it is qualified as a 'New Trade') or whether it results from a process that is internal to the CCP, in which case this process will be qualified accordingly (e.g. Transfer, Novation, Compression, ...).">;
 		[synonym CME_ClearedConfirm_1_17 value originatingEvent path "trade.tradeHeader"]
@@ -718,6 +718,7 @@ isEvent CashAndSecurityTransfer <"The qualification of a security settlement fro
 isEvent ClearingAcceptance <"The acceptance of an alpha trade submission by a CCP.">
 	Event -> primitive -> inception exists
 	and Event -> primitive -> inception -> after -> clearingWorkflow -> clearingStatus = WorkflowEnum.Accepted
+	and Event -> primitive -> quantityChange exists
 	and quantityAfterQuantityChange = 0.0
 
 isEvent ClearingConfirmation <"The clearing confirmation event.">
@@ -728,7 +729,6 @@ isEvent ClearingConfirmation <"The clearing confirmation event.">
 isEvent ClearingRejection <"The rejection of of an alpha trade submission by a CCP.">
 	Event -> primitive -> inception exists
 	and Event -> primitive -> inception -> after -> clearingWorkflow -> clearingStatus = WorkflowEnum.Rejected
-	and quantityBeforeQuantityChange = quantityAfterQuantityChange
 
 isEvent ClearingSubmission
 	Event -> primitive -> inception only exists
@@ -873,7 +873,7 @@ isEvent SecuritySettlement <"The qualification of a security settlement from the
 
 isEvent Termination <"The qualification of a termination event from the fact that (i) the intent is Termination when specified, (ii) the only primitive is the quantityChange and there is only one such primitive involved, the (iii) the remaining quantity is null, and (iv) the closedState of the contract is Terminated.">
 	Event -> intent when present = IntentEnum.Termination
-	and Event -> primitive -> quantityChange single exists
+	and Event -> primitive -> quantityChange only exists
 	and quantityAfterQuantityChange = 0.0
 	and Event -> primitive -> quantityChange -> after -> contract -> closedState -> state = ClosedStateEnum.Terminated
 
