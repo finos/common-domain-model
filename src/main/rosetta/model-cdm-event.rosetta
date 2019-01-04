@@ -29,7 +29,7 @@ class CashTransferBreakdown extends TransferBreakdown
 		[synonym Rosetta_Workbench value cashflowType]
 }
 
-class CashTransferComponent extends TransferBase <"">
+class CashTransferComponent extends TransferBase
 {
 	payerReceiver PayerReceiver (1..1) <"The payer and receiver party information.">;
 	amount Money (1..1) <"The currency amount.">;
@@ -45,7 +45,7 @@ class CashTransferComponent extends TransferBase <"">
  * TODO - The commodity transfer component and its associated breakdown should be deemed as sample implementations,
  * which need to be confirmed through relevant user stories and use cases
  */
-class ComnmodityTransferBreakdown extends TransferBreakdown
+class CommodityTransferBreakdown extends TransferBreakdown
 {
 	transferorTransferee TransferorTransferee (1..1) <"The transferee and transferor party information.">;
 	commodity Commodity (1..1);
@@ -64,7 +64,7 @@ class CommodityTransferComponent extends TransferBase
 	unit UnitEnum (1..1) <"The unit of measure, applicable to physical assets.">;
 	timeUnit TimeUnitEnum (0..1);
 	assetTransferType AssetTransferTypeEnum (0..1) <"The type of transfer, e.g. Free of Payment.">;
-	breakdown ComnmodityTransferBreakdown (0..*) <"The security transfer breakdown, when the transfer corresponds to a net transfer across several components which breakdown is deemed relevant (e.g. the net security transfer related to several contracts).">;
+	breakdown CommodityTransferBreakdown (0..*) <"The security transfer breakdown, when the transfer corresponds to a net transfer across several components which breakdown is deemed relevant (e.g. the net security transfer related to several contracts).">;
 		[synonym Rosetta_Workbench value breakdown]
 }
 
@@ -156,9 +156,9 @@ class CustomisedWorkflow <"In its initial iteration, this class is meant to supp
 		[synonym CME_SubmissionIRS_1_0 set to "ClientOrderId" when path = "ClOrdID"]
 		[synonym CME_SubmissionIRS_1_0 set to "TradeOriginationSystem" when path = "InptSrc"]
 		[synonym CME_SubmissionIRS_1_0 set to "OriginatingTradeId" when path = "OrigTrdID"]
-		[synonym CME_SubmissionIRS_1_0 set to "ExecutionTime" when path = "TrdRegTS.TS"]
-		[synonym CME_SubmissionIRS_1_0 set to "PartyType" when path = "Pty.R.24"]
-		[synonym CME_SubmissionIRS_1_0 set to "CustomCode" when path = "Pty.Src.D"]
+		[synonym CME_SubmissionIRS_1_0 set to "ExecutionTime" when path = "TrdRegTS.TS"] // and "TrdRegTS.Typ" = 1] - TODO see Trello card https://trello.com/c/s8oLlroa
+		[synonym CME_SubmissionIRS_1_0 set to "PartyType" when path = "Pty.R"]
+		[synonym CME_SubmissionIRS_1_0 set to "PartyIdentifier" when path = "Pty.Src"]
 	itemValue string (1..1) <"In this initial iteration, this corresponds to the DTCC value.">;
 		[synonym DTCC_11_0, DTCC_9_0 value comment path "PartyWorkflowFields"]
 		[synonym DTCC_11_0, DTCC_9_0 value superId path "PartyWorkflowFields"]
@@ -173,8 +173,8 @@ class CustomisedWorkflow <"In its initial iteration, this class is meant to supp
 		[synonym CME_SubmissionIRS_1_0 value InptSrc]
 		[synonym CME_SubmissionIRS_1_0 value OrigTrdID]
 		[synonym CME_SubmissionIRS_1_0 value TS path "TrdRegTS"]
-		[synonym CME_SubmissionIRS_1_0 set to "CustomerAccount" when path = "Pty.R.24"]
-		[synonym CME_SubmissionIRS_1_0 set to "True" when path = "Pty.Src.D"]
+//		[synonym CME_SubmissionIRS_1_0 set to "Customer Account" when "Pty.R" = "24"] - TODO See Trello https://trello.com/c/tRmadKpT
+//		[synonym CME_SubmissionIRS_1_0 set to "Custom" when "Pty.Src" = "D"] - TODO See Trello https://trello.com/c/tRmadKpT
 }
 
 class Event rosettaKey
@@ -266,7 +266,7 @@ class EventTimestamp <"A class to represent the various set of timestamps that c
 		[synonym DTCC_11_0, DTCC_9_0 set to EventTimeStampQualificationEnum.eventSubmittedTime when "ReceiveTime" exists]
 		[synonym CME_SubmissionIRS_1_0 set to EventTimeStampQualificationEnum.transactionCreationTime when path = "TrdCaptRpt.TxnTm"]
 		[synonym CME_SubmissionIRS_1_0 set to EventTimeStampQualificationEnum.eventSentTime when path= "TrdCaptRpt.Hdr.Snt"]
-		[synonym CME_SubmissionIRS_1_0 set to EventTimeStampQualificationEnum.executionTime when path = "TrdCaptRpt.TrRegTS.1"]// and "TrdCaptRpt.TrRegTS.1"]
+		[synonym CME_SubmissionIRS_1_0 set to EventTimeStampQualificationEnum.executionTime when path = "TrdCaptRpt.TrRegTS.TS"]// and "TrdCaptRpt.TrRegTS.typ" = 1] - TODO see Trello card https://trello.com/c/s8oLlroa
 }
 
 class Execution rosettaKey
@@ -285,9 +285,13 @@ class Execution rosettaKey
 
 class ExecutionInformation <"A class to specify a set of execution-related information that can be associated with a contract: how the contract was executed, party-specific execution workflow information, ...  The identified usage for such information relates to the clearing process.">
 {
+	clearingStatus WorkflowEnum (1..1);
+		[synonym CME_SubmissionIRS_1_0 value RptTyp]
+	clearingVenue string (1..1);
+	 	[synonym CME_SubmissionIRS_1_0 value Ssub, Tsub path "Hdr"]
+	executionVenue LegalEntity (0..1);
 	executionType ExecutionTypeEnum (0..1) <"Specifies how the trade was executed, e.g. via voice or electronically.">;
 		[synonym CME_SubmissionIRS_1_0 value VenuTyp]
-	executionVenue LegalEntity (0..1) <"The identity of the execution venue, when applicable.">;
 	partyExecutionWorkflow PartyCustomisedWorkflow (0..*) <"Information related to the execution workflow for each of the parties to the contract. This is relevant for the clearing event.">;
 		[synonym CME_SubmissionIRS_1_0 value RptSide]
 }
@@ -479,11 +483,10 @@ class PostInceptionState extends ContractState
 	originatingEvent OriginatingEventEnum (0..1) <"The qualification by the clearing facility of whether the cleared trade results from a trade presented for clearing by market participants (in which case it is qualified as a 'New Trade') or whether it results from a process that is internal to the CCP, in which case this process will be qualified accordingly (e.g. Transfer, Novation, Compression, ...).">;
 		[synonym CME_ClearedConfirm_1_17 value originatingEvent path "trade.tradeHeader"]
 		[synonym Rosetta_Workbench value originatingEvent]
-//		[synonym CME_SubmissionIRS_1_0 value Evnt path "RegTrdID"]
 	creditLimitInformation CreditLimitInformation (0..1) <"Credit limit utilization information.">;
 		[synonym CME_ClearedConfirm_1_17 value creditLimitInformation path "trade.tradeHeader"]
 		[synonym Rosetta_Workbench value creditLimitInformation]
-	executionInformation ExecutionInformation (0..1) <"Execution information: type of execution, name of execution venue when applicable, party-specific execution workflow, ...">;
+	clearingWorkflow ExecutionInformation (0..1) <"Information related to clearing workflow: clearing venue, clear Execution information: type of execution, name of execution venue when applicable, party-specific execution workflow, ...">;
 	tradeWarehouseWorkflow TradeWarehouseWorkflow (0..1) <"Information related to trade warehouse workflow.">;
 }
 
@@ -586,14 +589,15 @@ class TimeZone <"The time alongside with the timezone location information. This
 		[synonym Rosetta_Workbench value location meta timezoneLocationScheme]
 }
 
-class TradeWarehouseWorkflow
+class TradeWarehouseWorkflow <"A class to specify trade warehouse workflow information: the identity of the trade warehouse, the contract status at the warehouse and party-specific workflow information.">
 {
 	warehouseIdentity WarehouseIdentityEnum (1..1);
 		[synonym DTCC_11_0, DTCC_9_0 value WarehousePositionType path "WarehouseState"]
-	warehouseStatus WarehouseStatusEnum (1..1);
+	warehouseStatus WorkflowEnum (1..1);
 		[synonym DTCC_11_0, DTCC_9_0 value WarehouseStatus path "WarehouseState"]
 	partyCustomisedWorkflow PartyCustomisedWorkflow (0..*) <"Non-standardised workflow data related to a party.">;
 		[synonym DTCC_11_0, DTCC_9_0 value WorkflowData]
+		[synonym CME_SubmissionIRS_1_0 value ignore]
 }
 
 class Transfer rosettaKey <"A class to specify the transfer primitive by providing the ability to combine a set of transfer components which are specialised by asset class.">
