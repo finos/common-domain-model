@@ -283,6 +283,9 @@ class ContractualQuantity
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value fxLinkedNotionalSchedule path "calculationPeriodAmount.calculation" /*set when "calculationPeriodAmount.calculation.fxLinkedNotionalSchedule.initialValue" exists*/]
 	futureValueNotional FutureValueAmount (0..1);
 	 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value futureValueNotional path "calculationPeriodAmount.calculation"]
+	/*
+	 * Possible need to add determinationMethod, for TRS purposes
+	 */
 }
 
 choice rule ContractualQuantity_choice <"The below set of notional values are exclusive, while some of those could be associated with the futureValueNotional.">
@@ -361,6 +364,9 @@ class EquityPayout rosettaKey <"The equity payout specification terms.">
 	id (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 	payerReceiver PayerReceiver (0..1);
+	calculationPeriodDates CalculationPeriodDates (1..1) <"The calculation period dates schedule.">;
+	underlyer Underlyer (1..1) <"Specifies the underlying component of the payout.">;
+		[synonym FpML_5_10 value underlyer]
 }
 
 class GeneralTerms <"A class specifying the general terms of the credit default payout, and corresponding to some the data that appears in the section entitled '1. General Terms' in the 2003 ISDA Credit Derivatives Confirmation. It corresponds to the FpML GeneralTerms complex type, minus the effectiveDate, terminationDate and dateAdjustments elements, which have been positioned as part of the InterestRatePayout class.">
@@ -642,6 +648,7 @@ class Payout <"The payout can be specified through a number of combinations, e.g
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value fra path "trade"]
 	creditDefaultPayout CreditDefaultPayout (0..1);
 	equityPayout EquityPayout (0..*);
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value ignore]
 	optionPayout OptionPayout (0..*);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value swaption path "trade"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value swaption]
@@ -649,7 +656,7 @@ class Payout <"The payout can be specified through a number of combinations, e.g
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value creditDefaultSwapOption]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value bondOption path "trade"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value bondOption]
-	cashflow Cashflow (0..*) <"A cashflow between the parties to the trade. For interest rate products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the FpML initialPayment element and the singlePayment element of the fee leg. For option products, which corresponds to the FpML premium element.">;
+	cashflow Cashflow (0..*) <"A cashflow between the parties to the trade. For interest rate and equity products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the FpML initialPayment element and the singlePayment element of the fee leg. For option products, which corresponds to the FpML premium element.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value additionalPayment path "trade.swap"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value additionalPayment path "swap"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value additionalPayment]
@@ -666,7 +673,9 @@ class Payout <"The payout can be specified through a number of combinations, e.g
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value premium path "bondOption"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value premium path "trade.capFloor", additionalPayment path "trade.capFloor"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value otherPartyPayment path "trade"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value otherPartyPayment]	
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value otherPartyPayment]
+	quantity ContractualQuantity (0..*); // WIP to position the notional/quantity at the contract level; unbounded cardinality is meant to address the x-ccy contracts, while optional cardinality is for transitional compatibility purposes with the current model
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value ignore]
 }
 
 data rule FpML_cd_26_28 <"This data rule corresponds to two FpML validation rules, as the singlePayment and the firstPayment have been represented through the same Payout/cashflow attribute. It has also been adjusted to take into consideration the fact that credit derivatives (i) might not have an effective date, while in some other cases the payment date is either (ii) absent, or (iii) specified as a relative date (e.g. to the trade date). FpML validation rule cd-26 - If feeLeg/singlePayment/adjustablePaymentDate exists, then feeLeg/singlePayment/adjustablePaymentDate must be after generalTerms/effectiveDate/unadjustedDate. FpML validation rule cd-28 - If feeLeg/periodicPayment/firstPaymentDate exists, then feeLeg/periodicPayment/firstPaymentDate must be after generalTerms/effectiveDate/unadjustedDate.">
@@ -708,7 +717,7 @@ data rule ResetDates_interestRateSwap <"The cardinality of the ResetDates attrib
 		and Payout -> interestRatePayout -> resetDates -> resetFrequency exists
 		and Payout -> interestRatePayout -> resetDates -> resetDatesAdjustments exists
 
-class Product one of <"A class to represent a financial product. With respect to contractual products, which class provides the ability to specify either a post-execution 'view' of contract (the Contract class) or the pre-execution contractual product (the ContractualProduct class). This class is used as part of the option exercise representation, which makes use of the contract attribute for supporting the swaption use case, with the exercise into a swap.">
+class Product one of <"A class to represent a financial product. With respect to contractual products, this class provides the ability to specify either a post-execution 'view' of contract (the Contract class) or the pre-execution contractual product (the ContractualProduct class). This class is used as part of the option exercise representation, which makes use of the contract attribute for supporting the swaption use case, with the exercise into a swap.">
 {
 	contract Contract (0..1);
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17  value contract]
@@ -719,8 +728,18 @@ class Product one of <"A class to represent a financial product. With respect to
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value bond]
 	convertibleBond ConvertibleBond (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value convertibleBond]
-	mortgageBackedSecurity MortgageBackedSecurity (0..1);
+	equity Equity (0..1);
+		[synonym FpML_5_10 value equity]
+	exchangeTradedFund ExchangeTradedFund (0..1);
+		[synonym FpML_5_10 value exchangeTradedFund]
+	index Index (0..1);
+		[synonym FpML_5_10 value index]
 	loan Loan (0..1);
+	mortgageBackedSecurity MortgageBackedSecurity (0..1);
+	mutualFund MutualFund (0..1);
+		[synonym FpML_5_10 value mutualFund]
+	warrant Warrant (0..1);
+		[synonym FpML_5_10 value warrant]
 }
 
 class ProductIdentification <"A class to combine the CDM product qualifier with other product qualifiers, such as the FpML ones. While the CDM product qualifier is derived by the CDM from the product payout features, the other product identification elements are assigned by some external sources and correspond to values specified by other data representation protocols.">
