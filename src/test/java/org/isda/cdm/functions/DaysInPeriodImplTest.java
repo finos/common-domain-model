@@ -3,8 +3,6 @@ package org.isda.cdm.functions;
 import org.isda.cdm.*;
 import org.junit.jupiter.api.Test;
 
-import com.rosetta.model.metafields.ReferenceWithMeta;
-
 import java.time.LocalDate;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -54,10 +52,8 @@ public class DaysInPeriodImplTest {
                         .setDateAdjustments(BusinessDayAdjustments.builder()
                                 .setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
                                 .setBusinessCenters(BusinessCenters.builder()
-                                	.setBusinessCentersReference(ReferenceWithMeta.<BusinessCenters>builder()
-                                    	.setReference("primaryBusinessCenters")
-                                    	.build())
-                                    .build())
+                                        .setBusinessCentersReference("primaryBusinessCenters")
+                                        .build())
                                 .build())
                         .build())
                 .setCalculationPeriodFrequency((CalculationPeriodFrequency) CalculationPeriodFrequency.builder()
@@ -68,9 +64,7 @@ public class DaysInPeriodImplTest {
                 .setCalculationPeriodDatesAdjustments(BusinessDayAdjustments.builder()
                         .setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
                         .setBusinessCenters(BusinessCenters.builder()
-                        		.setBusinessCentersReference(ReferenceWithMeta.<BusinessCenters>builder()
-                                		.setReference("primaryBusinessCenters")
-                                		.build())
+                                .setBusinessCentersReference("primaryBusinessCenters")
                                 .build())
                         .build())
                 .build();
