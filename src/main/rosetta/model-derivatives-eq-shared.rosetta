@@ -36,6 +36,14 @@ class DividendPaymentDate one of <"A class describing the date on which the divi
 		[synonym FpML_5_10 value adjustableDate]
 }
 
+class EquityPayoutValuation
+	[synonym FpML_5_10 value ReturnLegValuationPrice]
+{
+	netPrice ActualPrice (1..1) <"Specifies the price of the underlyer, net of commissions.">;
+		[synonym FpML_5_10 value netPrice path "initialPrice"] // Transitory mapping, until such time that we expend the set of pricing attributes
+	
+}
+
 class Return <"A type describing the dividend return conditions applicable to the equity payout.">
 	[synonym FpML_5_10 value Return]
 {
@@ -45,7 +53,14 @@ class Return <"A type describing the dividend return conditions applicable to th
 		[synonym FpML_5_10 value dividendConditions]
 }
 
-class EquityPayoutAmount
+/*
+ * Tentative WIP to reflect the 2011 terminology + work around the FpML LegAmount and ReturnSwapAmount components, which seem quite complex
+ * Also, the concept of referenceAmount seems central to the FpML build, but relies upon a referenceAmountScheme which is not specified by FpML
+ */
+class SettlementFeatures
 {
-	
+	cashSettlement boolean (0..1);
+		[synonym FpML_5_10 value cashSettlement]
+	settlementCurrency string (0..1) scheme;
+		[synonym FpML_5_10 value currency meta currencyScheme]
 }
