@@ -8,7 +8,7 @@ class Cashflow <"A class to specify a cashflow, i.e. the outcome of either of co
 
 	paymentDiscounting PaymentDiscounting (0..1) <"FpML specifies the FpML PaymentDiscounting.model group for representing the discounting elements that can be associated with a payment.">;
 	cashflowAmount Money (1..1) <"The currency amount of the payment.">;
-		premiumExpression PremiumExpression (0..1) <"FpML specifies the Premium.model group for representing the option premium when expressed in a way other than an amount.">;
+	premiumExpression PremiumExpression (0..1) <"FpML specifies the Premium.model group for representing the option premium when expressed in a way other than an amount.">;
 	cashflowDate AdjustableOrAdjustedOrRelativeDate (0..1);
 	cashflowCalculation calculation (0..1) <"The computation arguments used to compute the cashflow, when applicable.">;
 		[synonym Rosetta_Workbench value cashflowCalculation]
@@ -362,11 +362,17 @@ class EconomicTerms rosettaKeyValue <"This class represents the full set of prod
 class EquityPayout rosettaKey <"The equity payout specification terms.">
 {
 	id (0..1);
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
+		[synonym FpML_5_10 meta id]
 	payerReceiver PayerReceiver (0..1);
 	calculationPeriodDates CalculationPeriodDates (1..1) <"The calculation period dates schedule.">;
 	underlyer Underlyer (1..1) <"Specifies the underlying component of the payout.">;
 		[synonym FpML_5_10 value underlyer]
+	equityReturn Return (1..1) <"Specifies the conditions under which dividend affecting the underlyer will be paid to the receiver of the amounts.">;
+		[synonym FpML_5_10 value return]
+	settlementAmount EquityPayoutAmount (1..1) <"Specifies, in relation to each Payment Date, the amount to which the Payment Date relates.">; // The adjusted naming is made by reference to the 2001 Definitions, although I don't seem to find an actual definition of this term as such 
+		[synonym FpML_5_10 value amount]
+	notionalAdjustments NotionalAdjustmentEnum (1..1);
+		[synonym FpML_5_10 value notionalAdjustments]
 }
 
 class GeneralTerms <"A class specifying the general terms of the credit default payout, and corresponding to some the data that appears in the section entitled '1. General Terms' in the 2003 ISDA Credit Derivatives Confirmation. It corresponds to the FpML GeneralTerms complex type, minus the effectiveDate, terminationDate and dateAdjustments elements, which have been positioned as part of the InterestRatePayout class.">
@@ -718,6 +724,15 @@ data rule ResetDates_interestRateSwap <"The cardinality of the ResetDates attrib
 		and Payout -> interestRatePayout -> resetDates -> fixingDates exists
 		and Payout -> interestRatePayout -> resetDates -> resetFrequency exists
 		and Payout -> interestRatePayout -> resetDates -> resetDatesAdjustments exists
+
+/*
+ * TODO - Need to adjust the definition once we settle on the naming of the Equity and Interest Amounts  
+ */
+class PayoutAmount <"A class describing the amount that will paid or received on each of the payment dates. This class is used in the context of the total return swap products to define both the Equity Amount and the Interest Amount. As a difference from the FpML construct, this class doesn't incorporate the formula nor for encodedDescription attributes, which are viewed as not usable.">
+	[synonym FpML_5_10 value LegAmount]
+{
+	
+}
 
 class Product one of <"A class to represent a financial product. With respect to contractual products, this class provides the ability to specify either a post-execution 'view' of contract (the Contract class) or the pre-execution contractual product (the ContractualProduct class). This class is used as part of the option exercise representation, which makes use of the contract attribute for supporting the swaption use case, with the exercise into a swap.">
 {

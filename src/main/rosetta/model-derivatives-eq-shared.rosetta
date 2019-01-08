@@ -1,0 +1,51 @@
+namespace "org.isda.cdm"
+
+class DividendConditions <"A class describing the conditions governing the payment of dividends to the receiver of the equity return, with the exception of the dividend payout ratio, which is defined for each of the underlying components.">
+	[synonym FpML_5_10 value DividendConditions]
+{
+	dividendReinvestment boolean (0..1) <"Boolean element that defines whether the dividend will be reinvested or not.">;
+		[synonym FpML_5_10 value dividendReinvestment]
+	dividendEntitlement DividendEntitlementEnum (0..1) <"Defines the date on which the receiver of the equity return is entitled to the dividend.">;
+		[synonym FpML_5_10 value dividendEntitlement]
+	dividendAmount DividendAmountTypeEnum (0..1) <"Specifies whether the dividend is paid with respect to the Dividend Period.">;
+		[synonym FpML_5_10 value dividendAmount]
+	dividendPaymentDate DividendPaymentDate (0..1) <"Specifies when the dividend will be paid to the receiver of the equity return. Has the meaning as defined in the ISDA 2002 Equity Derivatives Definitions. Is not applicable in the case of a dividend reinvestment election.">;
+		[synonym FpML_5_10 value dividendPaymentDate]
+	/*
+	 * To be further developed
+	 */
+}
+
+class DividendDateReference <"A class to specify the dividend date by reference to another date, with the ability to apply and offset. This class doesn't exist in FpML and is meant to simplify the choice constraint associated with the DividendPaymentDate class.">
+{
+	dateReference DividendDateReferenceEnum (1..1) <"Specification of the dividend date using an enumeration, with values such as the pay date, the ex-date or the record date.">;
+		[synonym FpML_5_10 value dateReference]
+	paymentDateOffset Offset (0..1) <"Only to be used when SharePayment has been specified in the dividendDateReference element. The number of Currency Business Days following the day on which the Issuer of the Shares pays the relevant dividend to holders of record of the Shares.">;
+		[synonym FpML_5_10 value paymentDateOffset]
+}
+
+data rule DividendDateReference_paymentDateOffset <"FpML specifies that paymentDateOffset is only to be used when SharePayment has been specified in the dividendDateReference element.">
+	when DividendDateReference -> paymentDateOffset exists
+	then DividendDateReference -> dateReference = DividendDateReferenceEnum.SharePayment
+
+class DividendPaymentDate one of <"A class describing the date on which the dividend will be paid/received. This class is also used to specify the date on which the FX rate will be determined, when applicable.">
+	[synonym FpML_5_10 value DividendPaymentDate]
+{
+	dividendDateReference DividendDateReference (0..1);
+	adjustableDate AdjustableDate (0..1);
+		[synonym FpML_5_10 value adjustableDate]
+}
+
+class Return <"A type describing the dividend return conditions applicable to the equity payout.">
+	[synonym FpML_5_10 value Return]
+{
+	returnType ReturnTypeEnum (1..1) <"Specifies the type of return associated with the equity payout.">;
+		[synonym FpML_5_10 value returnType]
+	dividendConditions DividendConditions (0..1) <"Specifies the conditions governing the payment of the dividends to the receiver of the equity return, with the exception of the dividend payout ratio, which is defined for each of the underlying components.">;
+		[synonym FpML_5_10 value dividendConditions]
+}
+
+class EquityPayoutAmount
+{
+	
+}
