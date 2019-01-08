@@ -3,7 +3,7 @@ package org.isda.cdm.functions;
 import org.isda.cdm.*;
 import org.junit.jupiter.api.Test;
 
-import com.rosetta.model.metafields.ReferenceWithMeta;
+import com.rosetta.model.metafields.*;
 
 import java.time.LocalDate;
 
@@ -54,7 +54,7 @@ public class DaysInPeriodImplTest {
                         .setDateAdjustments(BusinessDayAdjustments.builder()
                                 .setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
                                 .setBusinessCenters(BusinessCenters.builder()
-                                	.setBusinessCentersReference(ReferenceWithMeta.<BusinessCenters>builder()
+                                	.setBusinessCentersReference(ReferenceWithMetaBusinessCenters.builder()
                                     	.setReference("primaryBusinessCenters")
                                     	.build())
                                     .build())
@@ -68,7 +68,7 @@ public class DaysInPeriodImplTest {
                 .setCalculationPeriodDatesAdjustments(BusinessDayAdjustments.builder()
                         .setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
                         .setBusinessCenters(BusinessCenters.builder()
-                        		.setBusinessCentersReference(ReferenceWithMeta.<BusinessCenters>builder()
+                        		.setBusinessCentersReference(ReferenceWithMetaBusinessCenters.builder()
                                 		.setReference("primaryBusinessCenters")
                                 		.build())
                                 .build())

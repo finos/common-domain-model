@@ -4,8 +4,7 @@ import org.isda.cdm.*;
 import org.isda.cdm.calculation.FixedAmount;
 import org.junit.jupiter.api.Test;
 
-import com.rosetta.model.metafields.FieldWithMeta;
-import com.rosetta.model.metafields.ReferenceWithMeta;
+import com.rosetta.model.metafields.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -23,7 +22,7 @@ class FixedAmountTest {
                 .setQuantity(ContractualQuantity.builder()
                         .setNotionalSchedule(NotionalSchedule.builder()
                                 .setNotionalStepSchedule((NonNegativeAmountSchedule) NonNegativeAmountSchedule.builder()
-                                        .setCurrency(FieldWithMeta.<String>builder().setValue("EUR").build())
+                                        .setCurrency(FieldWithMetaString.builder().setValue("EUR").build())
                                         .setInitialValue(BigDecimal.valueOf(50_000_000))
                                         .build())
                                 .build())
@@ -33,7 +32,7 @@ class FixedAmountTest {
                                 .setInitialValue(BigDecimal.valueOf(0.06))
                                 .build())
                         .build())
-                .setDayCountFraction(FieldWithMeta.<DayCountFractionEnum>builder().setValue(DayCountFractionEnum._30E_360).build())
+                .setDayCountFraction(FieldWithMetaDayCountFractionEnum.builder().setValue(DayCountFractionEnum._30E_360).build())
                 .setCalculationPeriodDates(CalculationPeriodDates.builder()
                         .setEffectiveDate(DateInstances.builder()
                                 .setAdjustableDate(AdjustableDate.builder()
@@ -48,7 +47,7 @@ class FixedAmountTest {
                                 .setDateAdjustments(BusinessDayAdjustments.builder()
                                         .setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
                                         .setBusinessCenters(BusinessCenters.builder()
-                                        		.setBusinessCentersReference(ReferenceWithMeta.<BusinessCenters>builder()
+                                        		.setBusinessCentersReference(ReferenceWithMetaBusinessCenters.builder()
                                                 		.setReference("primaryBusinessCenters")
                                                 		.build())
                                                 .build())
@@ -62,7 +61,7 @@ class FixedAmountTest {
                         .setCalculationPeriodDatesAdjustments(BusinessDayAdjustments.builder()
                                 .setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
                                 .setBusinessCenters(BusinessCenters.builder()
-                                		.setBusinessCentersReference(ReferenceWithMeta.<BusinessCenters>builder()
+                                		.setBusinessCentersReference(ReferenceWithMetaBusinessCenters.builder()
                                         		.setReference("primaryBusinessCenters")
                                         		.build())
                                         .build())
