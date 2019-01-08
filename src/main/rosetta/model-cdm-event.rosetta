@@ -29,7 +29,7 @@ class CashTransferBreakdown extends TransferBreakdown
 		[synonym Rosetta_Workbench value cashflowType]
 }
 
-class CashTransferComponent extends TransferBase <"">
+class CashTransferComponent extends TransferBase
 {
 	payerReceiver PayerReceiver (1..1) <"The payer and receiver party information.">;
 	amount Money (1..1) <"The currency amount.">;
@@ -45,7 +45,7 @@ class CashTransferComponent extends TransferBase <"">
  * TODO - The commodity transfer component and its associated breakdown should be deemed as sample implementations,
  * which need to be confirmed through relevant user stories and use cases
  */
-class ComnmodityTransferBreakdown extends TransferBreakdown
+class CommodityTransferBreakdown extends TransferBreakdown
 {
 	transferorTransferee TransferorTransferee (1..1) <"The transferee and transferor party information.">;
 	commodity Commodity (1..1);
@@ -64,7 +64,7 @@ class CommodityTransferComponent extends TransferBase
 	unit UnitEnum (1..1) <"The unit of measure, applicable to physical assets.">;
 	timeUnit TimeUnitEnum (0..1);
 	assetTransferType AssetTransferTypeEnum (0..1) <"The type of transfer, e.g. Free of Payment.">;
-	breakdown ComnmodityTransferBreakdown (0..*) <"The security transfer breakdown, when the transfer corresponds to a net transfer across several components which breakdown is deemed relevant (e.g. the net security transfer related to several contracts).">;
+	breakdown CommodityTransferBreakdown (0..*) <"The security transfer breakdown, when the transfer corresponds to a net transfer across several components which breakdown is deemed relevant (e.g. the net security transfer related to several contracts).">;
 		[synonym Rosetta_Workbench value breakdown]
 }
 
@@ -84,10 +84,6 @@ class ContractState <"A class to specify a contract instantiation with respect t
         [synonym DTCC_11_0, DTCC_9_0 value TradeMsg path "Manifest"]
         [synonym DTCC_11_0, DTCC_9_0 value ReportingJurisdiction path "ReportingData.ReportingHeader"]
         [synonym CME_SubmissionIRS_1_0 value FpML path "Instrmt.SecXML"]
-    clearingStatus ClearingStatusEnum (0..1);
-		[synonym Rosetta_Workbench value clearingStatus]
-		[synonym CME_ClearedConfirm_1_17 value status path "trade.tradeHeader"]
-		[synonym CME_SubmissionIRS_1_0 value TrdRptStat]
 }
 
 class CreditLimit
@@ -156,9 +152,9 @@ class CustomisedWorkflow <"In its initial iteration, this class is meant to supp
 		[synonym CME_SubmissionIRS_1_0 set to "ClientOrderId" when path = "ClOrdID"]
 		[synonym CME_SubmissionIRS_1_0 set to "TradeOriginationSystem" when path = "InptSrc"]
 		[synonym CME_SubmissionIRS_1_0 set to "OriginatingTradeId" when path = "OrigTrdID"]
-		[synonym CME_SubmissionIRS_1_0 set to "ExecutionTime" when path = "TrdRegTS.Typ.1"]
-		[synonym CME_SubmissionIRS_1_0 set to "PartyType" when path = "Pty.R.24"]
-		[synonym CME_SubmissionIRS_1_0 set to "CustomCode" when path = "Pty.Src.D"]
+		[synonym CME_SubmissionIRS_1_0 set to "ExecutionTime" when path = "TrdRegTS.TS"] // and "TrdRegTS.Typ" = 1] - TODO see Trello card https://trello.com/c/s8oLlroa
+		[synonym CME_SubmissionIRS_1_0 set to "PartyType" when path = "Pty.R"]
+		[synonym CME_SubmissionIRS_1_0 set to "PartyIdentifier" when path = "Pty.Src"]
 	itemValue string (1..1) <"In this initial iteration, this corresponds to the DTCC value.">;
 		[synonym DTCC_11_0, DTCC_9_0 value comment path "PartyWorkflowFields"]
 		[synonym DTCC_11_0, DTCC_9_0 value superId path "PartyWorkflowFields"]
@@ -172,8 +168,9 @@ class CustomisedWorkflow <"In its initial iteration, this class is meant to supp
 		[synonym CME_SubmissionIRS_1_0 value ClOrdID]
 		[synonym CME_SubmissionIRS_1_0 value InptSrc]
 		[synonym CME_SubmissionIRS_1_0 value OrigTrdID]
-		[synonym CME_SubmissionIRS_1_0 set to "CustomerAccount" when path = "Pty.R.24"]
-		[synonym CME_SubmissionIRS_1_0 set to "True" when path = "Pty.Src.D"]
+		[synonym CME_SubmissionIRS_1_0 value TS path "TrdRegTS"]
+//		[synonym CME_SubmissionIRS_1_0 set to "Customer Account" when "Pty.R" = "24"] - TODO See Trello https://trello.com/c/tRmadKpT
+//		[synonym CME_SubmissionIRS_1_0 set to "Custom" when "Pty.Src" = "D"] - TODO See Trello https://trello.com/c/tRmadKpT
 }
 
 class Event rosettaKey
@@ -265,7 +262,7 @@ class EventTimestamp <"A class to represent the various set of timestamps that c
 		[synonym DTCC_11_0, DTCC_9_0 set to EventTimeStampQualificationEnum.eventSubmittedTime when "ReceiveTime" exists]
 		[synonym CME_SubmissionIRS_1_0 set to EventTimeStampQualificationEnum.transactionCreationTime when path = "TrdCaptRpt.TxnTm"]
 		[synonym CME_SubmissionIRS_1_0 set to EventTimeStampQualificationEnum.eventSentTime when path= "TrdCaptRpt.Hdr.Snt"]
-		[synonym CME_SubmissionIRS_1_0 set to EventTimeStampQualificationEnum.executionTime when path = "TrdCaptRpt.TrRegTS.1"]
+		[synonym CME_SubmissionIRS_1_0 set to EventTimeStampQualificationEnum.executionTime when path = "TrdCaptRpt.TrRegTS.TS"]// and "TrdCaptRpt.TrRegTS.typ" = 1] - TODO see Trello card https://trello.com/c/s8oLlroa
 }
 
 class Execution rosettaKey
@@ -280,6 +277,25 @@ class Execution rosettaKey
 	party Party (0..*) <"The party reference is optional because positioned as part of the Event class when the execution is specified as part of such context.">;
 	closedState ClosedState (0..1) <"The qualification what led to the execution closure alongside with the dates on which this closure takes effect.">;
 		[synonym Rosetta_Workbench value closedState]
+}
+
+class ClearingWorkflow <"A class to specify the clearing workflow information: clearing status, clearing venue and (when applicable) execution venue identification, party-specific execution workflow information, ...">
+{
+	clearingStatus WorkflowEnum (1..1);
+		[synonym CME_SubmissionIRS_1_0 value RptTyp]
+		[synonym Rosetta_Workbench value clearingStatus]
+		[synonym CME_ClearedConfirm_1_17 value status path "trade.tradeHeader"]
+	clearingVenue string (0..1) <"The clearing venue identification.">;
+	 	[synonym CME_SubmissionIRS_1_0 value TSub path "Hdr"]
+	originatingEvent OriginatingEventEnum (0..1) <"The qualification by the clearing facility of whether the cleared trade results from a trade presented for clearing by market participants (in which case it is qualified as a 'New Trade') or whether it results from a process that is internal to the CCP, in which case this process will be qualified accordingly (e.g. Transfer, Novation, Compression, ...).">;
+		[synonym CME_ClearedConfirm_1_17 value originatingEvent path "trade.tradeHeader"]
+		[synonym Rosetta_Workbench value originatingEvent]
+	executionVenue string (0..1) <"The execution venue identification, when applicable.">;
+	 	[synonym CME_SubmissionIRS_1_0 value SSub path "Hdr"]
+	executionType ExecutionTypeEnum (0..1) <"Specifies how the trade was executed, e.g. via voice or electronically.">;
+		[synonym CME_SubmissionIRS_1_0 value VenuTyp]
+	partyExecutionWorkflow PartyCustomisedWorkflow (0..*) <"Information related to the execution workflow for each of the parties to the contract. This is relevant for the clearing event.">;
+		[synonym CME_SubmissionIRS_1_0 value RptSide]
 }
 
 class ExerciseOutcome <"The exercise outcome combines the option contract (which states would be 'Exercised' in case of a full exercise and which would have a reduced notional in case of partial exercise) and either a physical or partial exercise.">
@@ -466,16 +482,11 @@ data rule PhysicalExercise_quantity <"The quantity attribute should only be asso
 
 class PostInceptionState extends ContractState
 {
-	originatingEvent OriginatingEventEnum (0..1) <"The qualification by the clearing facility of whether the cleared trade results from a trade presented for clearing by market participants (in which case it is qualified as a 'New Trade') or whether it results from a process that is internal to the CCP, in which case this process will be qualified accordingly (e.g. Transfer, Novation, Compression, ...).">;
-		[synonym CME_ClearedConfirm_1_17 value originatingEvent path "trade.tradeHeader"]
-		[synonym Rosetta_Workbench value originatingEvent]
-		[synonym CME_SubmissionIRS_1_0 value Evnt path "RegTrdID"]
 	creditLimitInformation CreditLimitInformation (0..1) <"Credit limit utilization information.">;
 		[synonym CME_ClearedConfirm_1_17 value creditLimitInformation path "trade.tradeHeader"]
 		[synonym Rosetta_Workbench value creditLimitInformation]
+	clearingWorkflow ClearingWorkflow (0..1) <"Information related to clearing workflow: clearing venue, type of execution, name of execution venue when applicable, party-specific execution workflow, ...">;
 	tradeWarehouseWorkflow TradeWarehouseWorkflow (0..1) <"Information related to trade warehouse workflow.">;
-	partyPreExecutionInformation PartyCustomisedWorkflow (0..*) <"Information related to the pre-execution workflow for each of the parties to the contract that is presented for clearing.">;
-		[synonym CME_SubmissionIRS_1_0 value RptSide]
 }
 
 class PrimitiveEvent <"The set of primitive events. The purpose of this class it to provide clarity with respect to the event qualification logic.">
@@ -577,14 +588,15 @@ class TimeZone <"The time alongside with the timezone location information. This
 		[synonym Rosetta_Workbench value location meta timezoneLocationScheme]
 }
 
-class TradeWarehouseWorkflow
+class TradeWarehouseWorkflow <"A class to specify trade warehouse workflow information: the identity of the trade warehouse, the contract status at the warehouse and party-specific workflow information.">
 {
 	warehouseIdentity WarehouseIdentityEnum (1..1);
 		[synonym DTCC_11_0, DTCC_9_0 value WarehousePositionType path "WarehouseState"]
-	warehouseStatus WarehouseStatusEnum (1..1);
+	warehouseStatus WorkflowEnum (1..1);
 		[synonym DTCC_11_0, DTCC_9_0 value WarehouseStatus path "WarehouseState"]
 	partyCustomisedWorkflow PartyCustomisedWorkflow (0..*) <"Non-standardised workflow data related to a party.">;
 		[synonym DTCC_11_0, DTCC_9_0 value WorkflowData]
+		[synonym CME_SubmissionIRS_1_0 value ignore]
 }
 
 class Transfer rosettaKey <"A class to specify the transfer primitive by providing the ability to combine a set of transfer components which are specialised by asset class.">
@@ -704,19 +716,23 @@ isEvent CashAndSecurityTransfer <"The qualification of a security settlement fro
 	and Event -> primitive -> transfer -> commodityTransfer is absent
 
 isEvent ClearingAcceptance <"The acceptance of an alpha trade submission by a CCP.">
-	Event -> primitive -> quantityChange exists
-	and Event -> primitive -> quantityChange -> after -> clearingStatus = ClearingStatusEnum.Accepted
+	Event -> primitive -> inception exists
+	and Event -> primitive -> inception -> after -> clearingWorkflow -> clearingStatus = WorkflowEnum.Accepted
+	and Event -> primitive -> quantityChange exists
 	and quantityAfterQuantityChange = 0.0
 
 isEvent ClearingConfirmation <"The clearing confirmation event.">
 	Event -> primitive -> inception only exists
-	and Event -> primitive -> inception -> after -> clearingStatus = ClearingStatusEnum.Cleared
+	and Event -> primitive -> inception -> after -> clearingWorkflow -> clearingStatus = WorkflowEnum.Cleared
 	and Event -> lineage -> contractReference exists
 
 isEvent ClearingRejection <"The rejection of of an alpha trade submission by a CCP.">
-	Event -> primitive -> quantityChange exists
-	and Event -> primitive -> quantityChange -> after -> clearingStatus = ClearingStatusEnum.Rejected
-	and quantityBeforeQuantityChange = quantityAfterQuantityChange
+	Event -> primitive -> inception exists
+	and Event -> primitive -> inception -> after -> clearingWorkflow -> clearingStatus = WorkflowEnum.Rejected
+
+isEvent ClearingSubmission
+	Event -> primitive -> inception only exists
+	and Event -> primitive -> inception -> after -> clearingWorkflow -> clearingStatus = WorkflowEnum.Submitted
 
 isEvent Compression <"The qualification of a compression event from the fact that (i) the intent is Compression when specified, (ii) the quantity change primitive exists, (iii) and there are multiple contracts (or contract references) specified in the before state.">
 	Event -> intent when present = IntentEnum.Compression
@@ -745,8 +761,8 @@ isEvent MultipleTransfers <"The qualification an event that combines multiple tr
 isEvent NewTrade
 	Event -> intent when present = IntentEnum.NewTrade
 	and Event -> primitive -> inception only exists
-	and Event -> primitive -> inception -> after -> clearingStatus is absent
 	and Event -> primitive -> inception -> after -> tradeWarehouseWorkflow is absent
+	and Event -> primitive -> inception -> after -> clearingWorkflow is absent
 	and Event -> primitive -> quantityChange -> after -> contract -> closedState is absent
 
 isEvent Novation <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and inception exist, (iii) the remaining quantity = 0, (iv) the closedState of the contract is Novated, (v) the stepped-in contract has a different contract identifier than the novated contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
@@ -857,14 +873,10 @@ isEvent SecuritySettlement <"The qualification of a security settlement from the
 
 isEvent Termination <"The qualification of a termination event from the fact that (i) the intent is Termination when specified, (ii) the only primitive is the quantityChange and there is only one such primitive involved, the (iii) the remaining quantity is null, and (iv) the closedState of the contract is Terminated.">
 	Event -> intent when present = IntentEnum.Termination
-	and Event -> primitive -> quantityChange single exists
+	and Event -> primitive -> quantityChange only exists
 	and quantityAfterQuantityChange = 0.0
 	and Event -> primitive -> quantityChange -> after -> contract -> closedState -> state = ClosedStateEnum.Terminated
-	and Event -> primitive -> quantityChange -> after -> clearingStatus is absent
 
-/*
- * Qualification to be confirmed
- */
 isEvent TradeWarehousePositionNotification
 	Event -> primitive -> inception exists
 	and Event -> primitive -> inception -> after -> tradeWarehouseWorkflow exists

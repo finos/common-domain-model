@@ -50,7 +50,7 @@ public class IntegerHashHelper implements HashHelper<Integer> {
                 .orElseThrow(() -> new IllegalArgumentException("No hashcode handler for : " + aClass));
         return handler.apply(instance);
     }
-    
+
     @SuppressWarnings("unchecked")
     public <U> Integer forBasicType(U instance) {
     	Class<?> c = instance.getClass();
