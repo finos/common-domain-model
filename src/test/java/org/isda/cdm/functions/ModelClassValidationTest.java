@@ -1,6 +1,8 @@
 package org.isda.cdm.functions;
 
 import com.rosetta.model.lib.validation.ValidationResult;
+import com.rosetta.model.metafields.*;
+
 import org.isda.cdm.Contract;
 import org.isda.cdm.PartyRole;
 import org.isda.cdm.PartyRoleEnum;
@@ -16,11 +18,11 @@ public class ModelClassValidationTest {
 		Contract contract = 
 				Contract.builder()
 					.addPartyRole(PartyRole.builder()
-							.setPartyReference("party1")
+							.setPartyReference(ReferenceWithMetaParty.builder().setReference("party1").build())
 							.setRole(PartyRoleEnum.DETERMINING_PARTY)
 							.build())
 					.addPartyRole(PartyRole.builder()
-							.setPartyReference("party1")
+							.setPartyReference(ReferenceWithMetaParty.builder().setReference("party1").build())
 							.setRole(PartyRoleEnum.DETERMINING_PARTY)
 							.build())
 					.build();

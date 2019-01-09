@@ -81,7 +81,9 @@ class EventEffectPathFilterTest {
         return (n) -> {
             Class<?> forClass = n.get().getObject();
             List<String> inspectedPath = n.get().getPath();
-            if(ContractState.class.isAssignableFrom(forClass) && inspectedPath.containsAll(EventEffectPathFilter.EFFECTED_CONTRACT_REQUIRED_PATHS)) {
+            if(ContractState.class.isAssignableFrom(forClass) && inspectedPath.containsAll(EventEffectPathFilter.EFFECTED_CONTRACT_REQUIRED_PATHS) &&
+            		!inspectedPath.contains("lineage")) {
+            	//by passing through lineage you can loop around adding dozens of effects - possibly these should have been excluded earlier
                 capture.add(n.get());
             }
         };
@@ -104,13 +106,18 @@ class EventEffectPathFilterTest {
         assertThat(eventEffectPaths,
                 hasItems(EFFECTED_CONTRACT_PATH.getPath().buildPath(),
                         CONTRACT_PATH.getPath().buildPath()));
+        //TODO this should be a smaller number like 4
+        //discuss with Jim what the correct answer it
         assertThat(eventEffectPaths, hasSize(4));
     }
 
     private Visitor<PathObject<Class<?>>> getCollectEventEffectPathsVisitor(List<String> capture) {
-        return (n) -> n.get().getParent().ifPresent(parent -> {
-            if (EventEffect.class.isAssignableFrom(parent.getObject()))
-                capture.add(n.get().getHierarchicalPath().map(HierarchicalPath::buildPath).orElse(""));
-        });
+        return (n) -> {
+        	List<String> inspectedPath = n.get().getPath();
+        	n.get().getParent().ifPresent(parent -> {
+	            if (EventEffect.class.isAssignableFrom(parent.getObject()) && !inspectedPath.contains("lineage"))
+	                capture.add(n.get().getHierarchicalPath().map(HierarchicalPath::buildPath).orElse(""));
+        	});
+        };
     }
 }

@@ -41,7 +41,7 @@ class ClosedState <"A class to qualify the closed state of an execution or a con
 	effectiveDate date (0..1) <"The date on which the closing event contractually takes effect, when different from the activity date. When an explicit event effective date attribute is associated with the closing event, it will be that date. In the case of a cancellation event, it will be the date on which the cancelled event took place.">;
 		[synonym Rosetta_Workbench value effectiveDate]
 	lastPaymentDate date (0..1) <"The date associated with the last payment in relation to the artefact (e.g. contract) to which this closed state applies. As an example, in the case of an early termination event, it would be the settlement date of the associated fee, if applicable.">;
-		[synonym Rosetta_Workbench value lastPaymentDate]		
+		[synonym Rosetta_Workbench value lastPaymentDate]
 }
 
 class Contract rosettaKey <"A class to specify a contract object, which can be invoked either within the context of an event, or independently from it. It corresponds to the FpML Trade, although restricted to execution and post-execution contexts. Attributes also applicable to pre-execution (a.k.a. pre-trade view in FpML) contexts have been positioned as part of the ContractualProduct class.">
@@ -266,10 +266,8 @@ class ContractualProduct <"The contractual product class is meant to be used acr
 
 class ContractualQuantity
 {
-	notionalReference string (0..1) reference <"The notional amount when specified by reference to the notional specified somewhere else in the instance document.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notionalReference meta href]
 	quantity Quantity (0..1);
-	notionalAmount Money (0..1) <"When applied to Credit default Swaps, this is the notional amount of protection coverage. ISDA 2003 Term: Floating Rate Payer Calculation Amount">;
+	notionalAmount Money (0..1) reference <"When applied to Credit default Swaps, this is the notional amount of protection coverage. ISDA 2003 Term: Floating Rate Payer Calculation Amount">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value initialValue path "calculationPeriodAmount.calculation" /*set when "calculationPeriodAmount.calculation.notionalSchedule.notionalStepSchedule.step" is absent*/]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value calculationAmount path "periodicPayment.fixedAmountCalculation"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value calculationAmount path "periodicPayment.floatingAmountCalculation"]
@@ -277,6 +275,7 @@ class ContractualQuantity
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notionalAmount]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notional]
 		[synonym FpML_5_10 value notionalAmount path "trade.returnSwap.returnLeg.notional", notionalAmount path "trade.equitySwapTransactionSupplement.returnLeg.notional"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notionalReference meta href]
 	notionalSchedule NotionalSchedule (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notionalSchedule path "calculationPeriodAmount.calculation" /*set when "calculationPeriodAmount.calculation.notionalSchedule.notionalStepSchedule.step" exists*/]
 		[synonym DTCC_11_0, DTCC_9_0 value calculationElements]
@@ -568,7 +567,7 @@ class NotionalSchedule <"A class specifying defining the notional amount or noti
     notionalStepParameters NotionalStepRule (0..1) <"A parametric representation of the notional step schedule, i.e. parameters used to generate the notional schedule.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notionalStepParameters]
 }
- 
+
 class OptionExercise <"A class to represent the applicable terms to qualify an option exercise: the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">
 {
 	optionStyle OptionStyle (1..1) <"The option exercise can be of American style, Bermuda style or European style. The FpML implementation makes use of a substitution group.">;
@@ -599,11 +598,11 @@ class PaymentDates <"The payment dates schedule. As a difference from the FpML P
 {
 	id (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id path "paymentDates"]
-	calculationPeriodDatesReference string (0..1) reference <"A pointer style reference to the associated calculation period dates component defined elsewhere in the document.">;
+	calculationPeriodDatesReference CalculationPeriodDates (0..1) reference <"A pointer style reference to the associated calculation period dates component defined elsewhere in the document.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value calculationPeriodDatesReference path "paymentDates" meta href]
-	resetDatesReference string (0..1) reference <"A pointer style reference to the associated reset dates component defined elsewhere in the document.">;
+	resetDatesReference ResetDates (0..1) reference <"A pointer style reference to the associated reset dates component defined elsewhere in the document.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value resetDatesReference path "paymentDates" meta href]
-	valuationDatesReference string (0..1) reference <"A pointer style reference to the associated valuation dates component defined elsewhere in the document. Implemented for Brazilian-CDI Swaps where it will refer to the settlemementProvision/nonDeliverableSettlement/fxFixingDate structure.">;
+	valuationDatesReference FxFixingDate (0..1) reference <"A pointer style reference to the associated valuation dates component defined elsewhere in the document. Implemented for Brazilian-CDI Swaps where it will refer to the settlemementProvision/nonDeliverableSettlement/fxFixingDate structure.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value valuationDatesReference path "paymentDates" meta href]
 	paymentFrequency Frequency (0..1) <"The frequency at which regular payment dates occur. If the payment frequency is equal to the frequency defined in the calculation period dates component then one calculation period contributes to each payment amount. If the payment frequency is less frequent than the frequency defined in the calculation period dates component then more than one calculation period will contribute to the payment amount. A payment frequency more frequent than the calculation period frequency or one that is not a multiple of the calculation period frequency is invalid. If the payment frequency is of value T (term), the period is defined by the effectiveDate and the terminationDate.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentFrequency path "paymentDates"]
@@ -736,12 +735,12 @@ data rule ResetDates_interestRateSwap <"The cardinality of the ResetDates attrib
 		and Payout -> interestRatePayout -> resetDates -> resetDatesAdjustments exists
 
 /*
- * TODO - Need to adjust the definition once we settle on the naming of the Equity and Interest Amounts  
+ * TODO - Need to adjust the definition once we settle on the naming of the Equity and Interest Amounts
  */
 class PayoutAmount <"A class describing the amount that will paid or received on each of the payment dates. This class is used in the context of the total return swap products to define both the Equity Amount and the Interest Amount. As a difference from the FpML construct, this class doesn't incorporate the formula nor for encodedDescription attributes, which are viewed as not usable.">
 	[synonym FpML_5_10 value LegAmount]
 {
-	
+
 }
 
 class Product one of <"A class to represent a financial product. With respect to contractual products, this class provides the ability to specify either a post-execution 'view' of contract (the Contract class) or the pre-execution contractual product (the ContractualProduct class). This class is used as part of the option exercise representation, which makes use of the contract attribute for supporting the swaption use case, with the exercise into a swap.">
@@ -820,7 +819,7 @@ class Quantity
 class StubPeriod <"A class defining how the initial or final stub calculation period amounts is calculated. For example, the rate to be applied to the initial or final stub calculation period may be the linear interpolation of two different tenors for the floating rate index specified in the calculation period amount component, e.g. A two month stub period may used the linear interpolation of a one month and three month floating rate. The different rate tenors would be specified in this component. Note that a maximum of two rate tenors can be specified. If a stub period uses a single index tenor and this is the same as that specified in the calculation period amount component then the initial stub or final stub component, as the case may be, must not be included.">
 	[synonym FpML_5_10 value StubCalculationPeriodAmount]
 {
-	calculationPeriodDatesReference string (1..1) reference <"A pointer style reference to the associated calculation period dates component defined elsewhere in the document.">;
+	calculationPeriodDatesReference CalculationPeriodDates (1..1) reference <"A pointer style reference to the associated calculation period dates component defined elsewhere in the document.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value calculationPeriodDatesReference meta href]
 	initialStub StubValue (0..1) <"Specifies how the initial stub amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating tenors may be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3. Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value initialStub]
@@ -1062,4 +1061,4 @@ isProduct InterestRate_Fra
 	EconomicTerms -> payout -> interestRatePayout single exists
 	and EconomicTerms -> payout -> creditDefaultPayout is absent
 	and EconomicTerms -> payout -> cashflow is absent
-	and EconomicTerms -> payout -> interestRatePayout -> buyerSeller exists	
+	and EconomicTerms -> payout -> interestRatePayout -> buyerSeller exists
