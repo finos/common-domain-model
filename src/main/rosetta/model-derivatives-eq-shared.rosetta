@@ -1,5 +1,11 @@
 namespace "org.isda.cdm"
 
+class DeterminationMethod <"The purpose of this class is to be extended by the Price and EquityValuation classes.">
+{
+	determinationMethod DeterminationMethodEnum (0..1) <"Specifies the method according to which an amount or a date is determined.">;
+		[synonym FpML_5_10 value determinationMethod]
+}
+
 class DividendConditions <"A class describing the conditions governing the payment of dividends to the receiver of the equity return, with the exception of the dividend payout ratio, which is defined for each of the underlying components.">
 	[synonym FpML_5_10 value DividendConditions]
 {
@@ -36,12 +42,29 @@ class DividendPaymentDate one of <"A class describing the date on which the divi
 		[synonym FpML_5_10 value adjustableDate]
 }
 
-class EquityPayoutValuation
+class EquityPayoutValuationPrice extends DeterminationMethod
 	[synonym FpML_5_10 value ReturnLegValuationPrice]
 {
+	initialPrice Price (1..1) <"Specifies the initial reference price of the underlyer. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">;
+		[synonym FpML_5_10 value initialPrice path "rateOfReturn"]
+	valuationPriceInterim EquityValuation (0..1) <"Specifies the interim valuation price(s) of the underlyer. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">;
+		[synonym FpML_5_10 value valuationPriceInterim path "rateOfReturn"]
+	valuationPriceFinal EquityValuation (1..1) <"Specifies the final valuation price of the underlyer. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">;
+		[synonym FpML_5_10 value valuationPriceFinal path "rateOfReturn"]
+}
+
+class Price extends DeterminationMethod <"A class describing the strike price."> // TODO - Loook for further synergies with the option strike
+	[synonym FpML_5_10 value Price]
+{
+	grossPrice ActualPrice (0..1) <"Specifies the price of the underlyer, before commissions.">;
+		[synonym FpML_5_10 value grossPrice]
 	netPrice ActualPrice (1..1) <"Specifies the price of the underlyer, net of commissions.">;
-		[synonym FpML_5_10 value netPrice path "initialPrice"] // Transitory mapping, until such time that we expend the set of pricing attributes
-	
+		[synonym FpML_5_10 value netPrice]
+	accruedInterest number (0..1) <"Specifies the accrued interest that are part of the dirty price in the case of a fixed income security or a convertible bond. Expressed in percentage of the notional.">;
+		[synonym FpML_5_10 value accruedInterestPrice]
+	/*
+	 * FpML construct also includes other elements, such as the fxConversion
+	 */
 }
 
 class Return <"A type describing the dividend return conditions applicable to the equity payout.">
@@ -63,4 +86,19 @@ class SettlementFeatures
 		[synonym FpML_5_10 value cashSettlement]
 	settlementCurrency string (0..1) scheme;
 		[synonym FpML_5_10 value currency meta currencyScheme]
+}
+
+class EquityValuation <"A class for defining how and when an equity option  or equity swap is to be valued.">
+	[synonym FpML_5_10 value EquityValuation]
+{
+	determinationMethod DeterminationMethodEnum (0..1) <"Specifies the method according to which an amount or a date is determined.">;
+		[synonym FpML_5_10 value determinationMethod]
+	valuationDates AdjustableOrRelativeDates (0..1) <"The term 'Valuation Date' is assumed to have the meaning as defined in the ISDA 2002 Equity Derivatives Definitions. Cash Settlement Payment Date in accordance with the ISDA 2002 Equity Derivatives Definitions. SettlementCycle in accordance with the ISDA 2011 Equity Derivatives Definitions.">;
+		[synonym FpML_5_10 value valuationDates path "valuationRules"]
+	valuationDate AdjustableOrRelativeDate (0..1) <"The term 'Valuation Date' is assumed to have the meaning as defined in the ISDA 2002 Equity Derivatives Definitions. Cash Settlement Payment Date in accordance with the ISDA 2002 Equity Derivatives Definitions. SettlementCycle in accordance with the ISDA 2011 Equity Derivatives Definitions.">;
+		[synonym FpML_5_10 value valuationDate path "valuationRules"]
+	/*
+	 * The FpML construct has a a number of other attributes: valuation time, dividend valuation dates, fall-back provision, ...
+	 * Also, FpML extends Price while the current CDM approach is just to share the determinationMethod.  To be confirmed as a function of the use cases.
+	 */
 }

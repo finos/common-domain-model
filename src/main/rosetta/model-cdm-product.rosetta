@@ -276,6 +276,7 @@ class ContractualQuantity
 		[synonym Rosetta_Workbench value notionalAmount]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notionalAmount]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notional]
+		[synonym FpML_5_10 value notionalAmount path "trade.returnSwap.returnLeg.notional", notionalAmount path "trade.equitySwapTransactionSupplement.returnLeg.notional"]
 	notionalSchedule NotionalSchedule (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notionalSchedule path "calculationPeriodAmount.calculation" /*set when "calculationPeriodAmount.calculation.notionalSchedule.notionalStepSchedule.step" exists*/]
 		[synonym DTCC_11_0, DTCC_9_0 value calculationElements]
@@ -283,9 +284,10 @@ class ContractualQuantity
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value fxLinkedNotionalSchedule path "calculationPeriodAmount.calculation" /*set when "calculationPeriodAmount.calculation.fxLinkedNotionalSchedule.initialValue" exists*/]
 	futureValueNotional FutureValueAmount (0..1);
 	 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value futureValueNotional path "calculationPeriodAmount.calculation"]
-	/*
-	 * Possible need to add determinationMethod, for TRS purposes
-	 */
+	notionalReset boolean (0..1) <"Applicable to return swaps. Specifies whether the notional reset is applicable (true) or not applicable (false).">;
+		[synonym FpML_5_10 value notionalReset path "trade.returnSwap.returnLeg.rateOfReturn", notionalReset path "trade.equitySwapTransactionSupplement.returnLeg.rateOfReturn"]
+	notionalAdjustments NotionalAdjustmentEnum (0..1) <"Applicable to return swaps. Specifies the conditions that govern the adjustment to the number of units of the return swap, e.g. execution, portfolio rebalancing.">;
+		[synonym FpML_5_10 value notionalAdjustments path "trade.returnSwap.returnLeg", notionalAdjustments path "trade.equitySwapTransactionSupplement.returnLeg"]
 }
 
 choice rule ContractualQuantity_choice <"The below set of notional values are exclusive, while some of those could be associated with the futureValueNotional.">
@@ -299,6 +301,14 @@ data rule InterestRatePayout_futureValueNotional <"The BRL CDI future value noti
 data rule FutureValueNotional_terminationDate <"FpML states that the value date associated with the future value notional should match the adjusted termination date.">
 	when InterestRatePayout -> quantity -> futureValueNotional exists
 	then InterestRatePayout -> quantity -> futureValueNotional -> valueDate = InterestRatePayout -> calculationPeriodDates -> terminationDate -> adjustedDate
+
+data rule ContractualQuantity_notionalReset <"As the notionalReset attribute applies to return swaps, the equity payout needs to be present alongside it.">
+	when ContractualProduct -> economicTerms -> payout -> quantity -> notionalReset exists
+	then ContractualProduct -> economicTerms -> payout -> equityPayout exists
+
+data rule ContractualQuantity_notionalAdjustments <"As the notionalAdjustments attribute applies to return swaps, the equity payout needs to be present alongside it.">
+	when ContractualProduct -> economicTerms -> payout -> quantity -> notionalAdjustments exists
+	then ContractualProduct -> economicTerms -> payout -> equityPayout exists
 
 class CrossCurrencyTerms
 {
@@ -370,11 +380,9 @@ class EquityPayout rosettaKey <"The equity payout specification terms.">
 		[synonym FpML_5_10 value underlyer]
 	equityReturn Return (1..1) <"Specifies the conditions under which dividend affecting the underlyer will be paid to the receiver of the amounts.">;
 		[synonym FpML_5_10 value return]
-	pricing EquityPayoutValuation (1..1); //  Naming and structure to be worked on; naming meant to reflect the 2011 Definitions
-	settlementFeatures SettlementFeatures (1..1);  // Naming and structure to be worked on; naming meant to reflect the 2011 Definitions
+	pricing EquityPayoutValuationPrice (1..1);
+	settlementFeatures SettlementFeatures (1..1);
 		[synonym FpML_5_10 value amount]
-	notionalAdjustments NotionalAdjustmentEnum (1..1);
-		[synonym FpML_5_10 value notionalAdjustments]
 }
 
 class GeneralTerms <"A class specifying the general terms of the credit default payout, and corresponding to some the data that appears in the section entitled '1. General Terms' in the 2003 ISDA Credit Derivatives Confirmation. It corresponds to the FpML GeneralTerms complex type, minus the effectiveDate, terminationDate and dateAdjustments elements, which have been positioned as part of the InterestRatePayout class.">
@@ -685,7 +693,7 @@ class Payout <"The payout can be specified through a number of combinations, e.g
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value otherPartyPayment path "trade"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value otherPartyPayment]
 	quantity ContractualQuantity (0..*); // WIP to position the notional/quantity at the contract level; unbounded cardinality is meant to address the x-ccy contracts, while optional cardinality is for transitional compatibility purposes with the current model
-		[synonym FpML_5_10 value notional path "trade.returnSwap.returnLeg", notional path "trade.equitySwapTransactionSupplement.returnLeg"]
+//		[synonym FpML_5_10 value notional path "trade.returnSwap.returnLeg", notional path "trade.equitySwapTransactionSupplement.returnLeg"]
 }
 
 data rule FpML_cd_26_28 <"This data rule corresponds to two FpML validation rules, as the singlePayment and the firstPayment have been represented through the same Payout/cashflow attribute. It has also been adjusted to take into consideration the fact that credit derivatives (i) might not have an effective date, while in some other cases the payment date is either (ii) absent, or (iii) specified as a relative date (e.g. to the trade date). FpML validation rule cd-26 - If feeLeg/singlePayment/adjustablePaymentDate exists, then feeLeg/singlePayment/adjustablePaymentDate must be after generalTerms/effectiveDate/unadjustedDate. FpML validation rule cd-28 - If feeLeg/periodicPayment/firstPaymentDate exists, then feeLeg/periodicPayment/firstPaymentDate must be after generalTerms/effectiveDate/unadjustedDate.">
