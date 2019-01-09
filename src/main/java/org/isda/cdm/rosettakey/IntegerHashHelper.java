@@ -48,7 +48,15 @@ public class IntegerHashHelper implements HashHelper<Integer> {
         Class<?> aClass = instanceType.isEnum() ? Enum.class : instanceType;
         Function<U, Integer> handler = Optional.ofNullable((Function<U, Integer>) basicTypeHandler.get(aClass))
                 .orElseThrow(() -> new IllegalArgumentException("No hashcode handler for : " + aClass));
+        return handler.apply(instance);
+    }
 
+    @SuppressWarnings("unchecked")
+    public <U> Integer forBasicType(U instance) {
+    	Class<?> c = instance.getClass();
+        Class<?> aClass = c.isEnum() ? Enum.class : c;
+        Function<U, Integer> handler = Optional.ofNullable((Function<U, Integer>) basicTypeHandler.get(aClass))
+                .orElseThrow(() -> new IllegalArgumentException("No hashcode handler for : " + aClass));
         return handler.apply(instance);
     }
 

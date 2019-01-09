@@ -23,7 +23,7 @@ class AdjustableDate <"A class for defining a date that shall be subject to adju
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value dateAdjustments path "paymentDate.adjustableDate"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value dateAdjustments path "adjustableDate"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value dateAdjustments path "paymentDate"]
-	dateAdjustmentsReference string (0..1) reference <"A pointer style reference to date adjustments defined elsewhere in the document.">;
+	dateAdjustmentsReference BusinessDayAdjustments (0..1) reference <"A pointer style reference to date adjustments defined elsewhere in the document.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value dateAdjustmentsReference meta href]
 //		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value dateAdjustmentsReference path "scheduledTerminationDate" meta href]
 	adjustedDate date (0..1) id <"The date once the adjustment has been performed. (Note that this date may change if the business center holidays change).">;
@@ -216,7 +216,7 @@ class BusinessCenters <"A class for defining business day calendar used in deter
 	businessCenter BusinessCenterEnum (0..*) scheme <"A code identifying a business day calendar location. A business day calendar location is drawn from the list identified by the business day calendar location scheme.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value businessCenter meta businessCenterScheme]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value businessCenter path "businessCenters" meta businessCenterScheme]
-	businessCentersReference string (0..1) reference <"A pointer style reference to a set of financial business centers defined elsewhere in the document. This set of business centers is used to determine whether a particular day is a business day or not.">;
+	businessCentersReference BusinessCenters (0..1) reference <"A pointer style reference to a set of financial business centers defined elsewhere in the document. This set of business centers is used to determine whether a particular day is a business day or not.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value businessCentersReference meta href]
 }
 
@@ -254,20 +254,20 @@ class BusinessDayAdjustments <"A class defining the business day convention and 
 	
 class BuyerSeller <"This class corresponds to the FpML BuyerSeller.model construct.">
 {
-	buyerPartyReference string (1..1) reference <"A reference to the party that buys this instrument, i.e. pays for this instrument and receives the rights defined by it. See 2000 ISDA definitions Article 11.1 (b). In the case of FRAs this the fixed rate payer.">;
+	buyerPartyReference Party (1..1) reference <"A reference to the party that buys this instrument, i.e. pays for this instrument and receives the rights defined by it. See 2000 ISDA definitions Article 11.1 (b). In the case of FRAs this the fixed rate payer.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value buyerPartyReference meta href]
-	buyerAccountReference string (0..1) reference <"A reference to the account that buys this instrument.">;
+	buyerAccountReference Account (0..1) reference <"A reference to the account that buys this instrument.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value buyerAccountReference meta href]
-	sellerPartyReference string (1..1) reference <"A reference to the party that sells ('writes') this instrument, i.e. that grants the rights defined by this instrument and in return receives a payment for it. See 2000 ISDA definitions Article 11.1 (a). In the case of FRAs this is the floating rate payer.">;
+	sellerPartyReference Party (1..1) reference <"A reference to the party that sells ('writes') this instrument, i.e. that grants the rights defined by this instrument and in return receives a payment for it. See 2000 ISDA definitions Article 11.1 (a). In the case of FRAs this is the floating rate payer.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value sellerPartyReference meta href]
-	sellerAccountReference string (0..1) reference <"A reference to the account that sells this instrument.">;
+	sellerAccountReference Account (0..1) reference <"A reference to the account that sells this instrument.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value sellerAccountReference meta href]
 }
 
 class CalculationAgent <"A class defining the ISDA calculation agent responsible for performing duties as defined in the applicable product definitions.">
 	[synonym FpML_5_10 value CalculationAgent]
 {
-	calculationAgentPartyReference string (0..*) reference <"In FpML, a pointer style reference to a party identifier defined elsewhere in the document. The party referenced is the ISDA Calculation Agent for the trade. If more than one party is referenced then the parties are assumed to be co-calculation agents, i.e. they have joint responsibility.">;
+	calculationAgentPartyReference Party (0..*) reference <"In FpML, a pointer style reference to a party identifier defined elsewhere in the document. The party referenced is the ISDA Calculation Agent for the trade. If more than one party is referenced then the parties are assumed to be co-calculation agents, i.e. they have joint responsibility.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value calculationAgentPartyReference path "trade.calculationAgent" meta href]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value calculationAgentPartyReference path "calculationAgent" meta href]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value calculationAgentPartyReference path "trade.swaption.calculationAgent" meta href]
@@ -464,7 +464,7 @@ class EuropeanExercise <"A class defining the exercise period for a European sty
 class ExerciseFee extends BuyerSeller <"A class defining the fee payable on exercise of an option. This fee may be defined as an amount or a percentage of the notional exercised. As a difference with FpML, it extends the BuyerSeller class.">
 	[synonym FpML_5_10 value ExerciseFee]
 {
-	notionalReference string (1..1) reference <"A pointer style reference to the associated notional schedule defined elsewhere in the document.">;
+	notionalReference Money (1..1) reference <"A pointer style reference to the associated notional schedule defined elsewhere in the document.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notionalReference meta href]
 	feeAmount number (0..1) <"The amount of fee to be paid on exercise. The fee currency is that of the referenced notional.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value feeAmount]
@@ -483,7 +483,7 @@ choice rule ExerciseFee_choice <"Choice rule to represent an FpML choice constru
 class ExerciseFeeSchedule extends PayerReceiver <"A class to define a fee or schedule of fees to be payable on the exercise of an option. This fee may be defined as an amount or a percentage of the notional exercised. As a difference with FpML, it extends the BuyerSeller class.">
 	[synonym FpML_5_10 value ExerciseFeeSchedule]
 {
-	notionalReference string (1..1) reference <"A pointer style reference to the associated notional schedule defined elsewhere in the document.">;
+	notionalReference Money (1..1) reference <"A pointer style reference to the associated notional schedule defined elsewhere in the document.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notionalReference meta href]
 	feeAmountSchedule AmountSchedule (0..1) <"The exercise fee amount schedule. The fees are expressed as currency amounts. The currency of the fee is assumed to be that of the notional schedule referenced.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value feeAmountSchedule]
@@ -500,9 +500,9 @@ choice rule ExerciseFeeSchedule_choice <"Choice rule to represent an FpML choice
 class ExerciseNotice <"A class defining to whom and where notice of execution should be given. The partyReference refers to one of the principal parties of the trade. If present the exerciseNoticePartyReference refers to a party, other than the principal party, to whom notice should be given.">
 	[synonym FpML_5_10 value ExerciseNotice]
 {
-	partyReference string (1..1) reference <"The party referenced has allocated the trade identifier.">;
+	partyReference Party (1..1) reference <"The party referenced has allocated the trade identifier.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value partyReference meta href]
-	exerciseNoticePartyReference string (0..1) reference <"The party referenced is the party to which notice of exercise should be given by the buyer.">;
+	exerciseNoticePartyReference Party (0..1) reference <"The party referenced is the party to which notice of exercise should be given by the buyer.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value exerciseNoticePartyReference meta href]
 	businessCenter BusinessCenterEnum (1..1) scheme <"The business center.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value businessCenter meta businessCenterScheme]
@@ -783,7 +783,7 @@ class OptionPhysicalSettlement
 {
 	clearedPhysicalSettlement boolean (1..1) <"Specifies whether the swap resulting from physical settlement of the swaption transaction will clear through a clearing house. The meaning of Cleared Physical Settlement is defined in the 2006 ISDA Definitions, Section 15.2 (published in Supplement number 28).">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value clearedPhysicalSettlement]
-	predeterminedClearingOrganizationPartyReference string (0..1) reference <"A reference to the clearing organisation (CCP, DCO) to which the trade should be cleared.">;
+	predeterminedClearingOrganizationPartyReference Party (0..1) reference <"A reference to the clearing organisation (CCP, DCO) to which the trade should be cleared.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value predeterminedClearingOrganizationPartyReference meta href]
 }
 
@@ -803,7 +803,7 @@ class OtherAgreement <"A class for defining the an agreement executed between pa
 class PartialExercise <"A class defining partial exercise. As defined in the 2000 ISDA Definitions, Section 12.3 Partial Exercise, the buyer of the option may exercise all or less than all the notional amount of the underlying swap but may not be less than the minimum notional amount (if specified) and must be an integral multiple of the integral multiple amount if specified.">
 	[synonym FpML_5_10 value PartialExercise]
 {
-	notionaReference string (1..1) reference <"A pointer style reference to the associated notional schedule defined elsewhere in the document. This element has been made optional as part of its integration in the OptionBaseExtended, because not required for the options on securities.">;
+	notionaReference Money (1..1) reference <"A pointer style reference to the associated notional schedule defined elsewhere in the document. This element has been made optional as part of its integration in the OptionBaseExtended, because not required for the options on securities.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notionalReference meta href]
 	integralMultipleAmount number (0..1) <"A notional amount which restricts the amount of notional that can be exercised when partial exercise or multiple exercise is applicable. The integral multiple amount defines a lower limit of notional that can be exercised and also defines a unit multiple of notional that can be exercised, i.e. only integer multiples of this amount can be exercised.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value integralMultipleAmount]
@@ -823,18 +823,18 @@ data rule MinimumNumberOfOptions_minimumNumberOfOptions <"FpML MultipleExercise 
 
 class PayerReceiver <"A class to represent the FpML PayerReceiver.model.">
 {
-	payerPartyReference string (1..1) reference <"A reference to the party responsible for making the payments defined by this structure.">;
+	payerPartyReference Party (1..1) reference <"A reference to the party responsible for making the payments defined by this structure.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value payerPartyReference meta href]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value buyerPartyReference maps 2 meta href]
 //		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value href path "buyerPartyReference" maps 2 set when path = "creditDefaultSwap.generalTerms"]
-	payerAccountReference string (0..1) reference <"A reference to the account responsible for making the payments defined by this structure.">;
+	payerAccountReference Account (0..1) reference <"A reference to the account responsible for making the payments defined by this structure.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value payerAccountReference meta href]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value buyerAccountReference maps 2 meta href]
-	receiverPartyReference string (1..1) reference <"A reference to the party that receives the payments corresponding to this structure.">;
+	receiverPartyReference Party (1..1) reference <"A reference to the party that receives the payments corresponding to this structure.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value receiverPartyReference meta href]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value sellerPartyReference maps 2 meta href]
 //		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value href path "sellerPartyReference" maps 2 set when path = "creditDefaultSwap.generalTerms"]
-	receiverAccountReference string (0..1) reference <"A reference to the account that receives the payments corresponding to this structure.">;
+	receiverAccountReference Account (0..1) reference <"A reference to the account that receives the payments corresponding to this structure.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value receiverAccountReference meta href]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value sellerAccountReference maps 2 meta href]
 }
@@ -941,7 +941,7 @@ class RateObservation <"A class defining parameters associated with an individua
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value treatedRate]
 	observationWeight int (0..1) <"The number of days weighting to be associated with the rate observation, i.e. the number of days such rate is in effect. This is applicable in the case of a weighted average method of calculation where more than one reset date is established for a single calculation period.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value observationWeight]
-	rateReference string (0..1) reference <"A pointer style reference to a floating rate component defined as part of a stub calculation period amount component. It is only required when it is necessary to distinguish two rate observations for the same fixing date which could occur when linear interpolation of two different rates occurs for a stub calculation period.">;
+	rateReference RateObservation (0..1) reference <"A pointer style reference to a floating rate component defined as part of a stub calculation period amount component. It is only required when it is necessary to distinguish two rate observations for the same fixing date which could occur when linear interpolation of two different rates occurs for a stub calculation period.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value rateReference meta href]
 	forecastRate number (0..1) <"The value representing the forecast rate used to calculate the forecast future value of the accrual period.A value of 1% should be represented as 0.01.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value forecastRate]
@@ -965,9 +965,9 @@ class ReferenceBank <"A class to describe an institution (party) identified by m
 class RelatedParty
 	[synonym FpML_5_10 value RelatedParty]
 {
-	partyReference string (1..1) reference <"Reference to a party.">;
+	partyReference Party (1..1) reference <"Reference to a party.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value partyReference meta href]
-	accountReference string (0..1) reference <"Reference to an account.">;
+	accountReference Account (0..1) reference <"Reference to an account.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value accountReference meta href]
 	role PartyRoleEnum (1..1) <"The category of the relationship. The related party performs the role specified in this field for the base party. For example, if the role is ,Guarantor,, the related party acts as a guarantor for the base party.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value role]
@@ -993,9 +993,9 @@ class RelativeDateOffset extends Offset <"A class defining a date (referred to a
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value businessDayConvention]
 	businessCenters BusinessCenters (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value businessCenters]
-	businessCentersReference string (0..1) reference <"A pointer style reference to a set of financial business centers defined elsewhere in the document. This set of business centers is used to determine whether a particular day is a business day or not.">;
+	businessCentersReference BusinessCenters (0..1) reference <"A pointer style reference to a set of financial business centers defined elsewhere in the document. This set of business centers is used to determine whether a particular day is a business day or not.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value businessCentersReference meta href]
-	dateRelativeToReference string (0..1) reference <"Specifies the anchor as an href attribute. The href attribute value is a pointer style reference to the element or component elsewhere in the document where the anchor date is defined.">;
+	dateRelativeToReference date (0..1) reference <"Specifies the anchor as an href attribute. The href attribute value is a pointer style reference to the element or component elsewhere in the document where the anchor date is defined.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value dateRelativeTo meta href]
 	adjustedDate date (0..1) <"The date once the adjustment has been performed. (Note that this date may change if the business center holidays change).">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value adjustedDate]

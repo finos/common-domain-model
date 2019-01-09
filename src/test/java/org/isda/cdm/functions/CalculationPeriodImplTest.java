@@ -3,6 +3,8 @@ package org.isda.cdm.functions;
 import com.opengamma.strata.basics.schedule.ScheduleException;
 import org.isda.cdm.*;
 import com.rosetta.model.lib.records.DateImpl;
+import com.rosetta.model.metafields.*;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
@@ -29,7 +31,9 @@ class CalculationPeriodImplTest {
                     .setDateAdjustments(BusinessDayAdjustments.builder()
                             .setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
                             .setBusinessCenters(BusinessCenters.builder()
-                                    .setBusinessCentersReference("primaryBusinessCenters")
+                                    .setBusinessCentersReference(ReferenceWithMetaBusinessCenters.builder()
+                                    		.setReference("primaryBusinessCenters")
+                                    		.build())
                                     .build())
                             .build())
                     .build())
@@ -41,7 +45,9 @@ class CalculationPeriodImplTest {
             .setCalculationPeriodDatesAdjustments(BusinessDayAdjustments.builder()
                     .setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
                     .setBusinessCenters(BusinessCenters.builder()
-                            .setBusinessCentersReference("primaryBusinessCenters")
+                            .setBusinessCentersReference(ReferenceWithMetaBusinessCenters.builder()
+                            		.setReference("primaryBusinessCenters")
+                            		.build())
                             .build())
                     .build())
             .build();
