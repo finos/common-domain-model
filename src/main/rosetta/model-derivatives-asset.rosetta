@@ -1,5 +1,20 @@
 namespace "org.isda.cdm"
 
+class ActualPrice
+	[synonym FpML_5_10 value ActualPrice]
+{
+	currency string (0..1) scheme <"Specifies the currency associated with the net price. This element is not present if the price is expressed in percentage terms (as specified through the priceExpression element).">;
+		[synonym FpML_5_10 value currency meta currencyScheme]
+	amount number (1..1);
+		[synonym FpML_5_10 value amount]
+	priceExpression PriceExpressionEnum (1..1) <"Specifies whether the price is expressed in absolute or relative terms.">;
+		[synonym FpML_5_10 value priceExpression]
+}
+
+data rule ActualPrice_currency <"The currency attribute associated with the ActualPrice should not be specified when the price is expressed as percentage of notional.">
+	when ActualPrice -> priceExpression = PriceExpressionEnum.PercentageOfNotional
+	then ActualPrice -> currency is absent
+
 class AssetPool <"Characterises the asset pool behind an asset backed bond.">
 	[synonym FpML_5_10 value AssetPool]
 {
@@ -16,6 +31,11 @@ class AssetPool <"Characterises the asset pool behind an asset backed bond.">
 data rule AssetPool_effectiveDate <"The effectiveDate associated to the version should only exist if that latter exists.">
  	when AssetPool -> version is absent
  	then AssetPool -> effectiveDate is absent
+
+class Basket
+{
+	
+}
 
 class Bond extends IdentifiedProduct <"A class to specify a bond as having a product identifier. As a difference with FpML, the CDM specifies the bond only with this product identifier attribute. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
 {
@@ -65,9 +85,25 @@ class ConvertibleBond extends IdentifiedProduct <"A class to specify a convertib
 
 }
 
+class Equity extends IdentifiedProduct <"A class to specify an equity as having a product identifier. As a difference with FpML, the CDM specifies the equity only with this product identifier attribute. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
+{
+	
+}
+
+class ExchangeTradedFund extends IdentifiedProduct <"A class to specify an ETF as having a product identifier. As a difference with FpML, the CDM specifies the ETF only with this product identifier attribute. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
+{
+	
+}
+
 abstract class IdentifiedProduct <"An abstract class to specify a product which terms are abstracted through reference data.">
 {
 	productIdentifier ProductIdentifier (1..1);
+}
+
+
+class Index extends IdentifiedProduct <"A class to specify an index as having a product identifier. As a difference with FpML, the CDM specifies the index only with this product identifier attribute. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
+{
+	
 }
 
 class Loan extends IdentifiedProduct
@@ -96,15 +132,18 @@ class MortgageBackedSecurity extends ProductIdentifier
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value tranche]
 }
 
+class MutualFund extends IdentifiedProduct <"A class to specify a mutual fund as having a product identifier. As a difference with FpML, the CDM specifies the mutual fund only with this product identifier attribute. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
+{
+	
+}
+
 class ProductIdentifier rosettaKey <"The product identifier, composed of an identifier, a source and a product taxonomy. The source is optional because it can be specified through the scheme that is associated with the identifier. As FpML doesn't specify a scheme as part of the standard, that scheme cannot be mapped to the CDM ProductIdSourceEnum.">
 {
 	id (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 	identifier string (1..*) scheme <"The identifier.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, Rosetta_Workbench, DTCC_11_0, DTCC_9_0 value instrumentId meta instrumentIdScheme]
-//		[synonym Rosetta_Workbench value security path "asset" meta instrumentIdScheme]
 		[synonym Rosetta_Workbench value instrumentId meta instrumentIdScheme]
-		[synonym Rosetta_Workbench value convertibleBond meta instrumentIdScheme]
 	source ProductIdSourceEnum (0..1) <"The identifier source.">;
 	productTaxonomy ProductTaxonomy (0..*) <"The product taxonomy value(s) associated with a product.">;
 }
@@ -121,4 +160,26 @@ class Security one of
 		[synonym Rosetta_Workbench value bond]
 	convertibleBond ConvertibleBond (0..1);
 		[synonym Rosetta_Workbench value convertibleBond]
-}	
+	equity Equity (0..1);	
+}
+
+class SingleUnderlyer
+	[synonym FpML_5_10 value SingleUnderlyer]
+{
+	underlyingProduct Product (1..1) <"Specifies the underlying product. As a difference with FpML, and for the purpose of also supporting swaption and options on CDS through a generic construct, its scope also includes the contract and contractualProduct.">;
+}
+
+class Underlyer one of <"A class describing the whole set of possible underlyers: single underlyers or multiple underlyers, each of these having either security or index components.">
+	[synonym FpML_5_10 value Underlyer]
+{
+	singleUnderlyer SingleUnderlyer (0..1);
+		[synonym FpML_5_10 value singleUnderlyer]
+	basket Basket (0..1);
+		[synonym FpML_5_10 value basket]
+}
+
+class Warrant extends IdentifiedProduct <"A class to specify a warrant as having a product identifier. As a difference with FpML, the CDM specifies the warrant only with this product identifier attribute. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
+	[synonym FpML_5_10 value Warrant]
+{
+	
+}
