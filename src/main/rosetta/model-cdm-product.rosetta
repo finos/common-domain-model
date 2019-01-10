@@ -8,6 +8,8 @@ class Cashflow <"A class to specify a cashflow, i.e. the outcome of either of co
 
 	paymentDiscounting PaymentDiscounting (0..1) <"FpML specifies the FpML PaymentDiscounting.model group for representing the discounting elements that can be associated with a payment.">;
 	cashflowAmount Money (1..1) <"The currency amount of the payment.">;
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentAmount]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value fixedAmount]
 	premiumExpression PremiumExpression (0..1) <"FpML specifies the Premium.model group for representing the option premium when expressed in a way other than an amount.">;
 	cashflowDate AdjustableOrAdjustedOrRelativeDate (0..1);
 	cashflowCalculation calculation (0..1) <"The computation arguments used to compute the cashflow, when applicable.">;
@@ -692,7 +694,6 @@ class Payout <"The payout can be specified through a number of combinations, e.g
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value otherPartyPayment path "trade"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value otherPartyPayment]
 	quantity ContractualQuantity (0..*); // WIP to position the notional/quantity at the contract level; unbounded cardinality is meant to address the x-ccy contracts, while optional cardinality is for transitional compatibility purposes with the current model
-//		[synonym FpML_5_10 value notional path "trade.returnSwap.returnLeg", notional path "trade.equitySwapTransactionSupplement.returnLeg"]
 }
 
 data rule FpML_cd_26_28 <"This data rule corresponds to two FpML validation rules, as the singlePayment and the firstPayment have been represented through the same Payout/cashflow attribute. It has also been adjusted to take into consideration the fact that credit derivatives (i) might not have an effective date, while in some other cases the payment date is either (ii) absent, or (iii) specified as a relative date (e.g. to the trade date). FpML validation rule cd-26 - If feeLeg/singlePayment/adjustablePaymentDate exists, then feeLeg/singlePayment/adjustablePaymentDate must be after generalTerms/effectiveDate/unadjustedDate. FpML validation rule cd-28 - If feeLeg/periodicPayment/firstPaymentDate exists, then feeLeg/periodicPayment/firstPaymentDate must be after generalTerms/effectiveDate/unadjustedDate.">
