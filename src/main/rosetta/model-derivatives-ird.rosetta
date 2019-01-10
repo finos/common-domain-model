@@ -89,13 +89,16 @@ class CalculationPeriodDates <"A class defining the parameters used to generate 
 	terminationDate AdjustableDate (0..1) <"The last day of the terms of the trade. This date may be subject to adjustments in accordance with the business day convention.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value terminationDate path "calculationPeriodDates"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value scheduledTerminationDate]
+		[synonym FpML_5_10 value terminationDate path "interestLegCalculationPeriodDates", terminationDate]
 	relativeTerminationDate RelativeDateOffset (0..1) <"The term/maturity of the swap expressed as a relative offset from another date.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value relativeTerminationDate path "calculationPeriodDates"]
 	calculationPeriodDatesAdjustments BusinessDayAdjustments (0..1) <"The business day convention to apply to each calculation period end date if it would otherwise fall on a day which is not a business day in the specified business centers.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value calculationPeriodDatesAdjustments path "calculationPeriodDates"]
+		[synonym FpML_5_10 value calculationPeriodDatesAdjustments path "interestLegCalculationPeriodDates.interestLegPaymentDates.periodicDates"]
 	firstPeriodStartDate AdjustableDate (0..1) <"The start date of the calculation period if the date falls before the effective date. It must only be specified if it is not equal to the effective date. This date may be subject to adjustment in accordance with a business day convention.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value firstPeriodStartDate path "calculationPeriodDates"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value periodicPayment]
+		[synonym FpML_5_10 value calculationStartDate path "interestLegCalculationPeriodDates.interestLegPaymentDates.periodicDates"]
 	firstRegularPeriodStartDate date (0..1) <"The start date of the regular part of the calculation period schedule. It must only be specified if there is an initial stub calculation period. This day may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value firstRegularPeriodStartDate path "calculationPeriodDates"]
 	firstCompoundingPeriodEndDate date (0..1) <"The end date of the initial compounding period when compounding is applicable. It must only be specified when the compoundingMethod element is present and not equal to a value of None. This date may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">;
@@ -107,6 +110,7 @@ class CalculationPeriodDates <"A class defining the parameters used to generate 
 	calculationPeriodFrequency CalculationPeriodFrequency (0..1) <"The frequency at which calculation period end dates occur with the regular part of the calculation period schedule and their roll date convention.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value calculationPeriodFrequency path "calculationPeriodDates"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value periodicPayment]
+		[synonym FpML_5_10 value calculationPeriodFrequency path "interestLegCalculationPeriodDates.interestLegPaymentDates.periodicDates"]
 }
 
 choice rule CalculationPeriodDates_choice1 <"Choice rule to represent an FpML choice construct. The choice rule has been made optional as credit derivative products might not have a specified effective date.">
@@ -727,7 +731,7 @@ class ResetDates <"A class defining the parameters used to generate the reset da
 	rateCutOffDaysOffset Offset (0..1) <"Specifies the number of business days before the period end date when the rate cut-off date is assumed to apply. The financial business centers associated with determining the rate cut-off date are those specified in the reset dates adjustments. The rate cut-off number of days must be a negative integer (a value of zero would imply no rate cut off applies in which case the rateCutOffDaysOffset element should not be included). The relevant rate for each reset date in the period from, and including, a rate cut-off date to, but excluding, the next applicable period end date (or, in the case of the last calculation period, the termination date) will (solely for purposes of calculating the floating amount payable on the next applicable payment date) be deemed to be the relevant rate in effect on that rate cut-off date. For example, if rate cut-off days for a daily averaging deal is -2 business days, then the refix rate applied on (period end date - 2 days) will also be applied as the reset on (period end date - 1 day), i.e. the actual number of reset dates remains the same but from the rate cut-off date until the period end date, the same refix rate is applied. Note that in the case of several calculation periods contributing to a single payment, the rate cut-off is assumed only to apply to the final calculation period contributing to that payment. The day type associated with the offset must imply a business days offset.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value resetCutOffDaysOffset path "resetDates"]
 	resetFrequency ResetFrequency (0..1) <"The frequency at which the reset dates occur. In the case of a weekly reset frequency, also specifies the day of the week that the reset occurs. If the reset frequency is greater than the calculation period frequency then this implies that more than one reset is established for each calculation period and some form of rate averaging is applicable.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value resetFrequency path "resetDates"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value resetFrequency path "resetDates", resetFrequency path "interestLegCalculationPeriodDates.interestLegResetDates"]
 	resetDatesAdjustments BusinessDayAdjustments (0..1) <"The business day convention to apply to each reset date if it would otherwise fall on a day that is not a business day in the specified financial business centers.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value resetDatesAdjustments path "resetDates"]
 }
