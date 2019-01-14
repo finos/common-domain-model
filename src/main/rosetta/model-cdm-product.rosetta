@@ -450,8 +450,12 @@ class InterestRatePayout calculation FixedAmount, FloatingAmount rosettaKey <"Th
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value compoundingMethod path "calculationPeriodAmount.calculation"]
 	calculationPeriodDates CalculationPeriodDates (1..1) <"The calculation period dates schedule.">;
 	paymentDates PaymentDates (0..1) <"The payment dates schedule.">;
-	paymentDate AdjustableDate (0..1) <"The payment date, where one specific date is specified, as for the FRA product.">;
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentDates, periodicPayment]
+		[synonym FpML_5_10 value interestLegPaymentDates path "interestLegCalculationPeriodDates"]
+	paymentDate AdjustableDate (0..1) <"The payment date, where one date is specified, as for the FRA product.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentDate]
+	paymentDelay boolean (0..1) <"Applicable to CDS on MBS to specify whether payment delays are applicable to the fixed Amount. RMBS typically have a payment delay of 5 days between the coupon date of the reference obligation and the payment date of the synthetic swap. CMBS do not, on the other hand, with both payment dates being on the 25th of each month.">;
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentDelay]
 	resetDates ResetDates (0..1) <"The reset dates schedule. The reset dates schedule only applies for a floating rate stream.">;
 	cashflowRepresentation CashflowRepresentation (0..1) <"The cashflow representation of the swap stream.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value cashflows]
@@ -594,34 +598,30 @@ class OptionPayout rosettaKey <"The option payout specification terms.">
 	underlyer Product (1..1) <"The option underlyer. The implementation is restricted to contractual underlyers as part of the initial CDM phase.">;
 }
 
-class PaymentDates <"The payment dates schedule. As a difference from the FpML PaymentDate, this class incorporates the CDS paymentDelay element, and the following reference elements have been omitted, because deemed of no relevant usage by the ISDA CDM Group: calculationPeriodDatesReference, resetDatesReference, ValuationDatesReference.">
+class PaymentDates <"The payment dates schedule. As a difference from the FpML PaymentDate, the following reference elements have been omitted, because deemed of no relevant usage by the ISDA CDM Group: calculationPeriodDatesReference, resetDatesReference, ValuationDatesReference.">
 {
 	id (0..1);
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id path "paymentDates"]
-		[synonym FpML_5_10 meta id path "interestLegCalculationPeriodDates.interestLegPaymentDates"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
+		[synonym FpML_5_10 meta id path "interestLegCalculationPeriodDates"]
 	calculationPeriodDatesReference CalculationPeriodDates (0..1) reference <"A pointer style reference to the associated calculation period dates component defined elsewhere in the document.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value calculationPeriodDatesReference path "paymentDates" meta href]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value calculationPeriodDatesReference meta href]
 	resetDatesReference ResetDates (0..1) reference <"A pointer style reference to the associated reset dates component defined elsewhere in the document.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value resetDatesReference path "paymentDates" meta href]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value resetDatesReference meta href]
 	valuationDatesReference FxFixingDate (0..1) reference <"A pointer style reference to the associated valuation dates component defined elsewhere in the document. Implemented for Brazilian-CDI Swaps where it will refer to the settlemementProvision/nonDeliverableSettlement/fxFixingDate structure.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value valuationDatesReference path "paymentDates" meta href]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value valuationDatesReference meta href]
 	paymentFrequency Frequency (0..1) <"The frequency at which regular payment dates occur. If the payment frequency is equal to the frequency defined in the calculation period dates component then one calculation period contributes to each payment amount. If the payment frequency is less frequent than the frequency defined in the calculation period dates component then more than one calculation period will contribute to the payment amount. A payment frequency more frequent than the calculation period frequency or one that is not a multiple of the calculation period frequency is invalid. If the payment frequency is of value T (term), the period is defined by the effectiveDate and the terminationDate.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentFrequency path "paymentDates"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentFrequency path "periodicPayment"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentFrequency]
 	firstPaymentDate date (0..1) <"The first unadjusted payment date. This day may be subject to adjustment in accordance with any business day convention specified in paymentDatesAdjustments. This element must only be included if there is an initial stub. This date will normally correspond to an unadjusted calculation period start or end date. This is true even if early or delayed payment is specified to be applicable since the actual first payment date will be the specified number of days before or after the applicable adjusted calculation period start or end date with the resulting payment date then being adjusted in accordance with any business day convention specified in paymentDatesAdjustments.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value firstPaymentDate path "paymentDates"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value firstPaymentDate path "periodicPayment"]
-	lastRegularPaymentDate date (0..1) <"The last regular unadjusted payment date. This day may be subject to adjustment in accordance with any business day convention specified in paymentDatesAdjustments. In the case of interest rate swaps, this element must only be included if there is a final stub. All calculation periods after this date contribute to the final payment. The final payment is made relative to the final set of calculation periods or the final reset date as the case may be. This date will normally correspond to an unadjusted calculation period start or end date. This is true even if early or delayed payment is specified to be applicable since the actual last regular payment date will be the specified number of days before or after the applicable adjusted calculation period start or end date with the resulting payment date then being adjusted in accordance with any business day convention specified in paymentDatesAdjustments.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value lastRegularPaymentDate path "paymentDates"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value lastRegularPaymentDate path "periodicPayment"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value firstPaymentDate]
+	lastRegularPaymentDate AdjustableOrRelativeDate (0..1) <"The last regular unadjusted payment date. This day may be subject to adjustment in accordance with any business day convention specified in paymentDatesAdjustments. In the case of interest rate swaps, this element must only be included if there is a final stub. All calculation periods after this date contribute to the final payment. The final payment is made relative to the final set of calculation periods or the final reset date as the case may be. This date will normally correspond to an unadjusted calculation period start or end date. This is true even if early or delayed payment is specified to be applicable since the actual last regular payment date will be the specified number of days before or after the applicable adjusted calculation period start or end date with the resulting payment date then being adjusted in accordance with any business day convention specified in paymentDatesAdjustments.">;
+//		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value lastRegularPaymentDate]
+		[synonym FpML_5_10 value paymentDateFinal]
 	payRelativeTo PayRelativeToEnum (0..1) <"Specifies whether the payments occur relative to each adjusted calculation period start date, adjusted calculation period end date or each reset date. The reset date is applicable in the case of certain euro (former French Franc) floating rate indices. Calculation period start date means relative to the start of the first calculation period contributing to a given payment. Similarly, calculation period end date means the end of the last calculation period contributing to a given payment. The valuation date is applicable for Brazilian-CDI swaps.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value payRelativeTo path "paymentDates"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value payRelativeTo]
 	paymentDaysOffset Offset (0..1) <"If early payment or delayed payment is required, specifies the number of days offset that the payment occurs relative to what would otherwise be the unadjusted payment date. The offset can be specified in terms of either calendar or business days. Even in the case of a calendar days offset, the resulting payment date, adjusted for the specified calendar days offset, will still be adjusted in accordance with the specified payment dates adjustments. This element should only be included if early or delayed payment is applicable, i.e. if the periodMultiplier element value is not equal to zero. An early payment would be indicated by a negative periodMultiplier element value and a delayed payment (or payment lag) would be indicated by a positive periodMultiplier element value.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentDaysOffset path "paymentDates"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentDaysOffset]
 	paymentDatesAdjustments BusinessDayAdjustments (0..1) <"The business day convention to apply to each payment date if it would otherwise fall on a day that is not a business day in the specified financial business centers.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentDatesAdjustments path "paymentDates"]
-	paymentDelay boolean (0..1) <"Applicable to CDS on MBS to specify whether payment delays are applicable to the fixed Amount. RMBS typically have a payment delay of 5 days between the coupon date of the reference obligation and the payment date of the synthetic swap. CMBS do not, on the other hand, with both payment dates being on the 25th of each month.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentDelay]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentDatesAdjustments]
 	relativeDates RelativeDates (0..1) <"The payment dates when specified in relation to another date, e.g. the valuation dates in the case of an equity swap.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value relativeDates path "paymentDatesInterim"]
 }
@@ -633,7 +633,7 @@ choice rule PaymentDates_choice <"Choice rule to represent an FpML choice constr
 data rule FpML_ird_35_cd_31 <"FpML validation rule ird-35 & cd-31- If firstPaymentDate exists, and if lastRegularPaymentDate exists, then firstPaymentDate must be before lastRegularPaymentDate.">
 	when PaymentDates -> firstPaymentDate exists
 		and PaymentDates -> lastRegularPaymentDate exists
-	then PaymentDates -> firstPaymentDate < PaymentDates -> lastRegularPaymentDate
+	then PaymentDates -> firstPaymentDate < PaymentDates -> lastRegularPaymentDate -> adjustableDate -> unadjustedDate
 
 data rule PaymentDates_paymentDaysOffset <"FpML specifies that paymentDaysOffset should only be included if early or delayed payment is applicable, i.e. if the periodMultiplier element value is not equal to zero.">
 	when PaymentDates -> paymentDaysOffset exists
@@ -716,7 +716,7 @@ data rule FpML_cd_27 <"As the singlePayment and the initialPayment have been rep
 data rule FpML_cd_30 <"FpML validation rule cd-30 - If feeLeg/periodicPayment/lastRegularPaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/periodicPayment/lastRegularPaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
 	when (Payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate
 		and Payout -> interestRatePayout -> calculationPeriodDates -> terminationDate) exists
-	then Payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate < Payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> unadjustedDate
+	then Payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate -> adjustableDate -> unadjustedDate < Payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> unadjustedDate
 
 data rule CalculationPeriodDates_calculationPeriodDatesAdjustments <"FpML specifies a required calculationPeriodDatesAdjustments element as part of the CalculationPeriodDates. As standardised CDS don't have such business day adjustment provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
 	when Payout -> interestRatePayout count = 2

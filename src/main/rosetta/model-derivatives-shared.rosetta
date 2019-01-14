@@ -14,6 +14,7 @@ class AdjustableDate <"A class for defining a date that shall be subject to adju
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value firstPeriodStartDate]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value adjustablePaymentDate]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value adjustedTerminationDate]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value lastRegularPaymentDate]
 	dateAdjustments BusinessDayAdjustments (0..1) <"The business day convention and financial business centers used for adjusting the date if it would otherwise fall on a day that is not a business date in the specified business centers.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value dateAdjustments]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value dateAdjustments path "calculationPeriodDates.terminationDate"]
@@ -105,12 +106,13 @@ data rule AdjustableOrAdjustedOrRelativeDate_adjustedDate <"This data rule exten
 class AdjustableOrRelativeDate <"A class giving the choice between defining a date as an explicit date together with applicable adjustments or as relative to some other (anchor) date.">
 {
 	id (0..1);
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id path "lastRegularPaymentDate"]
 	adjustableDate AdjustableDate (0..1) <"A date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value adjustableDate]
+//		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value adjustableDate]
 	relativeDate RelativeDateOffset (0..1) <"A date specified as some offset to another date (the anchor date).">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value relativeDate]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value relativeDate path "paymentDate"]
+		[synonym FpML_5_10 value relativeDate path "paymentDateFinal"]
 }
 
 choice rule AdjustableOrRelativeDate_choice <"Choice rule to represent an FpML choice construct.">
@@ -385,8 +387,7 @@ class DateInstances <"A class to provide for the ability to specify a date along
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value tradeDate path "tradeHeader"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value adjustedEffectiveDate]
 	adjustableDate AdjustableDate (0..1) <"Specification of the current date when expressed as an adjustable date, such as the effective date.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value effectiveDate path "calculationPeriodDates"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value effectiveDate]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value effectiveDate path "calculationPeriodDates", effectiveDate]
 		[synonym FpML_5_10 value effectiveDate path "interestLegCalculationPeriodDates"]
 	priorDateInstance PriorDateInstance (0..*) <"Specification of the prior date instance, when applicable, alongside with the ability to associate a contract reference to that date.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value priorDateInstance] // Temporary kludge to avoid mapping ambiguity with the contractIdentifier
