@@ -282,7 +282,7 @@ class ContractualQuantity
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value fxLinkedNotionalSchedule path "calculationPeriodAmount.calculation" /*set when "calculationPeriodAmount.calculation.fxLinkedNotionalSchedule.initialValue" exists*/]
 	futureValueNotional FutureValueAmount (0..1);
 	 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value futureValueNotional path "calculationPeriodAmount.calculation"]
-	notionalReset boolean (0..1) <"Applicable to return swaps. Specifies whether the notional reset is applicable (true) or not applicable (false).">;
+	notionalReset boolean (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: 2.2.	Equity Notional Reset | Specifies whether the notional reset is applicable (true) or not applicable (false).">;
 		[synonym FpML_5_10 value notionalReset path "trade.returnSwap.returnLeg.rateOfReturn", notionalReset path "trade.equitySwapTransactionSupplement.returnLeg.rateOfReturn"]
 	notionalAdjustments NotionalAdjustmentEnum (0..1) <"Applicable to return swaps. Specifies the conditions that govern the adjustment to the number of units of the return swap, e.g. execution, portfolio rebalancing.">;
 		[synonym FpML_5_10 value notionalAdjustments path "trade.returnSwap.returnLeg", notionalAdjustments path "trade.equitySwapTransactionSupplement.returnLeg"]
@@ -303,7 +303,7 @@ data rule FutureValueNotional_terminationDate <"FpML states that the value date 
 data rule ContractualQuantity_notionalReset <"As the notionalReset attribute applies to return swaps, the equity payout needs to be present alongside it.">
 	when ContractualProduct -> economicTerms -> payout -> quantity -> notionalReset exists
 	then ContractualProduct -> economicTerms -> payout -> equityPayout exists
-
+	
 data rule ContractualQuantity_notionalAdjustments <"As the notionalAdjustments attribute applies to return swaps, the equity payout needs to be present alongside it.">
 	when ContractualProduct -> economicTerms -> payout -> quantity -> notionalAdjustments exists
 	then ContractualProduct -> economicTerms -> payout -> equityPayout exists
@@ -366,8 +366,12 @@ class EconomicTerms rosettaKeyValue <"This class represents the full set of prod
 	extendibleProvision ExtendibleProvision (0..1) <"A provision that allows the specification of an embedded option with a swap giving the buyer of the option the right to extend the swap, in whole or in part, to the extended termination date.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value extendibleProvision path "trade.swap"]
 	extraordinaryEvents ExtraordinaryEvents (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Extraordinary Events">;
-		[synonym FpML_5_10 value extraordinaryEvents]
+		[synonym FpML_5_10 value extraordinaryEvents path "trade.returnSwap"]
 }
+
+data rule EconomicTerms_extraordinaryEvents <"Extraordinary events provisions must be associated with an equity payout.">
+	when EconomicTerms -> extraordinaryEvents exists
+	then EconomicTerms -> payout -> equityPayout exists
 
 class EquityPayout rosettaKey <"The equity payout specification terms.">
 {
@@ -376,19 +380,36 @@ class EquityPayout rosettaKey <"The equity payout specification terms.">
 	payerReceiver PayerReceiver (0..1);
 	underlier Underlier (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Security">;
 		[synonym FpML_5_10 value underlyer]
-	equityReturn Return (1..1) <"Specifies the conditions under which dividend affecting the underlier will be paid to the receiver of the amounts.">;
-		[synonym FpML_5_10 value return]
-	pricing EquityPayoutValuationPrice (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Pricing">;
+	returnType ReturnTypeEnum (1..1) <"Specifies the type of return associated with the equity payout.">;
+		[synonym FpML_5_10 value returnType path "return"]
+	dividendReturnTerms DividendReturnTerms (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Dividend Obligations">;
+		[synonym FpML_5_10 value dividendConditions path "return"]
+	priceReturnTerms PriceReturnTerms (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Pricing">;
 	calculationPeriodDates CalculationPeriodDates (1..1) <"The calculation period dates schedule.">;
-	paymentDates PaymentDates (0..1) <"The payment dates schedule.">;
+	paymentDates PaymentDates (1..1) <"The payment dates schedule.">;
 		[synonym FpML_5_10 value paymentDates path "rateOfReturn"]
 	settlementFeatures SettlementFeatures (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Settlement">;
 		[synonym FpML_5_10 value amount]
 }
 
+data rule EquityPayout_dividendReturn <"An equity price return specifies price return terms, but no dividend terms.">
+	when EquityPayout -> returnType = ReturnTypeEnum.Price
+	then EquityPayout -> priceReturnTerms exists
+	and EquityPayout -> dividendReturnTerms is absent
+
+data rule EquityPayout_priceReturn <"An equity dividend return specifies dividend return terms, but no price terms.">
+	when EquityPayout -> returnType = ReturnTypeEnum.Dividend
+	then EquityPayout -> dividendReturnTerms exists
+	and EquityPayout -> priceReturnTerms is absent
+	
+data rule EquityPayout_totalReturn <"An equity total return specifies price return as well as dividend terms.">
+	when EquityPayout -> returnType = ReturnTypeEnum.Total
+	then EquityPayout -> priceReturnTerms exists
+	and EquityPayout -> dividendReturnTerms exists
+
+
 data rule EquityPayout_singleUnderlyer <"In the case of an equity payout with a single underlier, that underlier needs to be an equity product.">
-	when EquityPayout exists
-	and EquityPayout -> underlier -> singleUnderlyer exists
+	when EquityPayout -> underlier -> singleUnderlyer exists
 	then ( EquityPayout -> underlier -> singleUnderlyer -> underlyingProduct -> equity
 		or EquityPayout -> underlier -> singleUnderlyer -> underlyingProduct -> exchangeTradedFund
 		or EquityPayout -> underlier -> singleUnderlyer -> underlyingProduct -> mutualFund
@@ -752,15 +773,6 @@ data rule ResetDates_interestRateSwap <"The cardinality of the ResetDates attrib
 		and Payout -> interestRatePayout -> resetDates -> resetFrequency exists
 		and Payout -> interestRatePayout -> resetDates -> resetDatesAdjustments exists
 
-/*
- * TODO - Need to adjust the definition once we settle on the naming of the Equity and Interest Amounts
- */
-class PayoutAmount <"A class describing the amount that will paid or received on each of the payment dates. This class is used in the context of the total return swap products to define both the Equity Amount and the Interest Amount. As a difference from the FpML construct, this class doesn't incorporate the formula nor for encodedDescription attributes, which are viewed as not usable.">
-	[synonym FpML_5_10 value LegAmount]
-{
-
-}
-
 class Product one of <"A class to represent a financial product. With respect to contractual products, this class provides the ability to specify either a post-execution 'view' of contract (the Contract class) or the pre-execution contractual product (the ContractualProduct class). This class is used as part of the option exercise representation, which makes use of the contract attribute for supporting the swaption use case, with the exercise into a swap.">
 {
 	contract Contract (0..1);
@@ -874,7 +886,7 @@ data rule TransactedPrice_marketPrice <"FpML specifies that  marketFixedRate and
 isProduct EquitySwap_PriceReturnBasicPerformance_SingleName
 	[synonym ISDA_Taxonomy_v1 value EquitySwap_PriceReturnBasicPerformance_SingleName]
 	EconomicTerms -> payout -> interestRatePayout exists
-	and EconomicTerms -> payout -> equityPayout -> equityReturn -> returnType = ReturnTypeEnum.Price
+	and EconomicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum.Price
 	and ( EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlyer -> underlyingProduct -> equity
 		or EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlyer -> underlyingProduct -> exchangeTradedFund
 		or EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlyer -> underlyingProduct -> mutualFund

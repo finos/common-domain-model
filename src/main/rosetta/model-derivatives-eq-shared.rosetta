@@ -1,12 +1,49 @@
 namespace "org.isda.cdm"
 
+class AdditionalDisruptionEvents <"A type for defining the Additional Disruption Events.">
+	[synonym FpML_5_10 value AdditionalDisruptionEvents]
+{
+	changeInLaw boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Change in Law | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Change In Law | If true, then change in law is applicable.">;
+		[synonym FpML_5_10 value changeInLaw]
+	failureToDeliver boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Failure to Deliver | Where the underlying is shares and the transaction is physically settled, then, if true, a failure to deliver the shares on the settlement date will not be an event of default for the purposes of the master agreement.">;
+		[synonym FpML_5_10 value failureToDeliver]
+	insolvencyFiling boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Insolvency Filing | If true, then insolvency filing is applicable.">;
+		[synonym FpML_5_10 value insolvencyFiling]
+	hedgingDisruption boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Hedging Disruption | If true, then hedging disruption is applicable.">;
+		[synonym FpML_5_10 value hedgingDisruption]
+	increasedCostOfHedging boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Increased Cost of Hedging | If true, then increased cost of hedging is applicable.">;
+		[synonym FpML_5_10 value increasedCostOfHedging]
+	foreignOwnershipEvent boolean (0..1) <"If true, then foreign ownership event is applicable.">;
+		[synonym FpML_5_10 value foreignOwnershipEvent]
+	lossOfStockBorrow boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Loss of Stock Borrow | If true, then loss of stock borrow is applicable.">;
+		[synonym FpML_5_10 value lossOfStockBorrow]
+	maximumStockLoanRate number (0..1) <"Specifies the maximum stock loan rate for Loss of Stock Borrow. A percentage of 5% is represented as 0.05.">;
+		[synonym FpML_5_10 value maximumStockLoanRate]
+	increasedCostOfStockBorrow boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Increased Cost of Stock Borrow | If true, then increased cost of stock borrow is applicable.">;
+		[synonym FpML_5_10 value increasedCostOfStockBorrow]
+	initialStockLoanRate number (0..1) <"Specifies the initial stock loan rate for Increased Cost of Stock Borrow. A percentage of 5% is represented as 0.05.">;
+		[synonym FpML_5_10 value initialStockLoanRate]
+	determiningPartyReference Party (0..1) reference <"A reference to the party which determines additional disruption events.">;
+		[synonym FpML_5_10 value determiningPartyReference meta href]
+}
+
+data rule AdditionalDisruptionEvents_maximumStockLoanRate <"FpML specifies the maximumStockLoanRate as a RestrictedPercentage, meaning that its value is comprised between 0 and 1.">
+	when AdditionalDisruptionEvents -> maximumStockLoanRate exists
+	then AdditionalDisruptionEvents -> maximumStockLoanRate >= 0
+	and AdditionalDisruptionEvents -> maximumStockLoanRate <= 1
+
+data rule AdditionalDisruptionEvents_initialStockLoanRate <"FpML specifies the initialStockLoanRate as a RestrictedPercentage, meaning that its value is comprised between 0 and 1.">
+	when AdditionalDisruptionEvents -> initialStockLoanRate exists
+	then AdditionalDisruptionEvents ->initialStockLoanRate >= 0
+	and AdditionalDisruptionEvents -> initialStockLoanRate <= 1
+
 class DeterminationMethod <"The purpose of this class is to be extended by the Price and EquityValuation classes.">
 {
 	determinationMethod DeterminationMethodEnum (0..1) <"Specifies the method according to which an amount or a date is determined.">;
 		[synonym FpML_5_10 value determinationMethod]
 }
 
-class DividendConditions <"A class describing the conditions governing the payment of dividends to the receiver of the equity return, with the exception of the dividend payout ratio, which is defined for each of the underlying components.">
+class DividendReturnTerms <"A class describing the conditions governing the payment of dividends to the receiver of the equity return, with the exception of the dividend payout ratio, which is defined for each of the underlying components.">
 	[synonym FpML_5_10 value DividendConditions]
 {
 	dividendReinvestment boolean (0..1) <"Boolean element that defines whether the dividend will be reinvested or not.">;
@@ -17,10 +54,25 @@ class DividendConditions <"A class describing the conditions governing the payme
 		[synonym FpML_5_10 value dividendAmount]
 	dividendPaymentDate DividendPaymentDate (0..1) <"Specifies when the dividend will be paid to the receiver of the equity return. Has the meaning as defined in the ISDA 2002 Equity Derivatives Definitions. Is not applicable in the case of a dividend reinvestment election.">;
 		[synonym FpML_5_10 value dividendPaymentDate]
+	dividendPeriod DividendPeriodEnum (0..1) <"2002 ISDA Equity Derivatives Definitions: Dividend Period as either the First Period or the Second Period. | ">;
+		[synonym FpML_5_10 value dividendPeriod]
+	dividendPeriodEffectiveDate date (0..1) reference <"2002 ISDA Equity Derivatives Definitions: Dividend Period as such other period determined as provided in the related Confirmation. | ">;
+		[synonym FpML_5_10 value dividendPeriodEffectiveDate meta href]
+	dividendPeriodEndDate date (0..1) reference <"002 ISDA Equity Derivatives Definitions: Dividend Period as such other period determined as provided in the related Confirmation. |">;
+		[synonym FpML_5_10 value dividendPeriodEndDate meta href]
+	extraOrdinaryDividendsParty Party (0..1) reference <"Reference to the party which determines if dividends are extraordinary in relation to normal levels.">;
+		[synonym FpML_5_10 value extraOrdinaryDividends meta href]
+	excessDividendAmount DividendAmountTypeEnum (0..1) <"Determination of Gross Cash Dividend per Share.">;
+		[synonym FpML_5_10 value excessDividendAmount]
 	/*
-	 * To be further developed
+	 * More FpML provisions to be confirmed & specified
 	 */
 }
+
+data rule DividendReturnTerms_dividendPeriod <"FpML specifies a choice between dividendPeriod one one end, and dividendPeriodEffectiveDate and dividendPeriodEndDate on the other end.">
+	when DividendReturnTerms -> dividendPeriod exists
+	then ( DividendReturnTerms -> dividendPeriodEffectiveDate
+		and DividendReturnTerms -> dividendPeriodEndDate ) is absent
 
 class DividendDateReference <"A class to specify the dividend date by reference to another date, with the ability to apply and offset. This class doesn't exist in FpML and is meant to simplify the choice constraint associated with the DividendPaymentDate class.">
 {
@@ -42,21 +94,64 @@ class DividendPaymentDate one of <"A class describing the date on which the divi
 		[synonym FpML_5_10 value adjustableDate]
 }
 
-class EquityPayoutValuationPrice extends DeterminationMethod
+class PriceReturnTerms extends DeterminationMethod
 	[synonym FpML_5_10 value ReturnLegValuationPrice]
 {
 	initialPrice Price (1..1) <"Specifies the initial reference price of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">;
 		[synonym FpML_5_10 value initialPrice path "rateOfReturn"]
 	valuationPriceInterim EquityValuation (0..1) <"Specifies the interim valuation price(s) of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">;
 		[synonym FpML_5_10 value valuationPriceInterim path "rateOfReturn"]
-	valuationPriceFinal EquityValuation (1..1) <"Specifies the final valuation price of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">;
+	valuationPriceFinal EquityValuation (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Final Price | Specifies the final valuation price of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">;
 		[synonym FpML_5_10 value valuationPriceFinal path "rateOfReturn"]
 }
 
-class ExtraordinaryEvents
+class EquityCorporateEvents <"A class for defining the merger events and their treatment.">
+	[synonym FpML_5_10 value EquityCorporateEvents]
+{
+	shareForShare ShareExtraordinaryEventEnum (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Merger Event (S-F-S) shall occur if a Merger Event occurs and the consideration for the relevant Security consists solely of Combined Consideration. | The consideration paid for the original shares following the Merger Event consists wholly of new shares.">;
+		[synonym FpML_5_10 value shareForShare]
+	shareForOther ShareExtraordinaryEventEnum (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Merger Event (S-F-O) shall occur if a Merger Event occurs and the consideration for the relevant Security consists solely of Other Consideration. | The consideration paid for the original shares following the Merger Event consists wholly of cash/securities other than new shares.">;
+		[synonym FpML_5_10 value shareForOther]
+	shareForCombined ShareExtraordinaryEventEnum (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Merger Event (S-F-C) shall occur if a Merger Event occurs and the consideration for the relevant Security consists solely of Combined Consideration. | The consideration paid for the original shares following the Merger Event consists of both cash/securities and new shares.">;
+		[synonym FpML_5_10 value shareForCombined]
+}
+
+class ExtraordinaryEvents <"Where the underlying is shares, defines market events affecting the issuer of those shares that may require the terms of the transaction to be adjusted.">
 	[synonym FpML_5_10 value ExtraordinaryEvents]
 {
-	
+	mergerEvents EquityCorporateEvents (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Merger Event shall occur if a Merger occurs and the Merger Date is on or before the final Equity Valuation Date | Occurs when the underlying ceases to exist following a merger between the Issuer and another company.">;
+		[synonym FpML_5_10 value EquityCorporateEvents]
+	tenderOfferEvents EquityCorporateEvents (0..1) <"2002 ISDA Equity Derivatives Definitions: Tender Offers | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Tender Offer Event">;
+		[synonym FpML_5_10 value tenderOfferEvents]
+	compositionOfCombinedConsideration boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Composition of Combined Consideration | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Combined Consideration | If present and true, then composition of combined consideration is applicable.">;
+		[synonym FpML_5_10 value compositionOfCombinedConsideration]
+	indexAdjustmentEvents IndexAdjustmentEvents (0..1) <"2002 ISDA Equity Derivatives Definitions: Adjustments to Indices | ">;
+		[synonym FpML_5_10 value indexAdjustmentEvents]
+	additionalDisruptionEvents AdditionalDisruptionEvents (0..1) <"2002 ISDA Equity Derivatives Definitions: Additional Disruption Events | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Additional Disruption Events means each Additional Disruption Event specified in the Confirmation Side Letter. For the avoidance of doubt, each Additional Disruption Event shall be an Extraordinary Event.">;
+		[synonym FpML_5_10 value additionalDisruptionEvents]
+	failureToDeliver boolean (0..1) <"If true, failure to deliver is applicable.">;
+		[synonym FpML_5_10 value failureToDeliver]
+	representations Representations (0..1);
+		[synonym FpML_5_10 value representations]
+	nationalisationOrInsolvency NationalisationOrInsolvencyOrDelistingEventEnum (0..1) <"2002 ISDA Equity Derivatives Definitions: Nationalization and Insolvency | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Nationalization shall occur if all the Securities or all or substantially all the assets of an Issuer are nationalized, expropriated or are otherwise required to be transferred to any governmental agency, authority, entity or instrumentality thereof. Insolvency Filing means as defined in the Confirmation Side Letter.">;
+		[synonym FpML_5_10 value nationalisationOrInsolvency]
+	delisting NationalisationOrInsolvencyOrDelistingEventEnum (0..1) <"2002 ISDA Equity Derivatives Definitions: Delisting | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Delisting means Delisting (Broad Relisting) or Delisting (Narrow Relisting), as specified in the Relationship Supplement.">;
+		[synonym FpML_5_10 value delisting]	
+}
+
+choice rule ExtraordinaryEvents_choice <"Choice rule to represent an FpML choice construct.">
+	for ExtraordinaryEvents required choice between
+	additionalDisruptionEvents and failureToDeliver
+
+class IndexAdjustmentEvents <"Defines the specification of the consequences of Index Events as defined by the 2002 ISDA Equity Derivatives Definitions.">
+	[synonym FpML_5_10 value IndexAdjustmentEvents]
+{
+	indexModification IndexEventConsequenceEnum (1..1) <"Consequence of index modification.">;
+		[synonym FpML_5_10 value indexModification]
+	indexCancellation IndexEventConsequenceEnum (1..1) <"Consequence of index cancellation.">;
+		[synonym FpML_5_10 value indexCancellation]
+	indexDisruption IndexEventConsequenceEnum (1..1) <"Consequence of index disruption.">;
+		[synonym FpML_5_10 value indexDisruption]
 }
 
 class Price extends DeterminationMethod <"A class describing the strike price."> // TODO - Look for further synergies with the option strike
@@ -73,19 +168,19 @@ class Price extends DeterminationMethod <"A class describing the strike price.">
 	 */
 }
 
-class Return <"A type describing the dividend return conditions applicable to the equity payout.">
-	[synonym FpML_5_10 value Return]
+class Representations
+	[synonym FpML_5_10 value Representations]
 {
-	returnType ReturnTypeEnum (1..1) <"Specifies the type of return associated with the equity payout.">;
-		[synonym FpML_5_10 value returnType]
-	dividendConditions DividendConditions (0..1) <"Specifies the conditions governing the payment of the dividends to the receiver of the equity return, with the exception of the dividend payout ratio, which is defined for each of the underlying components.">;
-		[synonym FpML_5_10 value dividendConditions]
+	nonReliance boolean (1..1) <"If true, then non reliance is applicable.">;
+		[synonym FpML_5_10 value nonReliance]
+	agreementsRegardingHedging boolean (1..1) <"If true, then agreements regarding hedging are applicable.">;
+		[synonym FpML_5_10 value agreementsRegardingHedging]
+	indexDisclaimer boolean (1..1) <"If present and true, then index disclaimer is applicable.">;
+		[synonym FpML_5_10 value indexDisclaimer]
+	additionalAcknowledgements boolean (0..1) <"If true, then additional acknowledgements are applicable.">;
+		[synonym FpML_5_10 value additionalAcknowledgements]
 }
 
-/*
- * Tentative WIP to reflect the 2011 terminology + work around the FpML LegAmount and ReturnSwapAmount components, which seem quite complex
- * Also, the concept of referenceAmount seems central to the FpML build, but relies upon a referenceAmountScheme which is not specified by FpML
- */
 class SettlementFeatures
 {
 	cashSettlement boolean (0..1);
