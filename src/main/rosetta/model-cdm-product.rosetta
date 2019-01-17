@@ -883,10 +883,21 @@ data rule TransactedPrice_marketPrice <"FpML specifies that  marketFixedRate and
  * Product Qualification
  */
 
-isProduct EquitySwap_PriceReturnBasicPerformance_SingleName
+isProduct EquitySwap_PriceReturnBasicPerformance_SingleName <"The Price Return Basic Performance equity swap specified in the ISDA taxonomy V2.0 corresponds to the price and total return swaps.">
 	[synonym ISDA_Taxonomy_v1 value EquitySwap_PriceReturnBasicPerformance_SingleName]
 	EconomicTerms -> payout -> interestRatePayout exists
-	and EconomicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum.Price
+	and ( EconomicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum.Price
+		or EconomicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum.Total )
+	and ( EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> equity
+		or EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> exchangeTradedFund
+		or EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> mutualFund
+		or EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> warrant
+		) exists
+
+isProduct EquitySwap_ParameterReturnDividend_SingleName <"The Parameter Return Dividend equity swap specified in the ISDA taxonomy V2.0 corresponds to the dividend return swap.">
+	[synonym ISDA_Taxonomy_v1 value EquitySwap_ParameterReturnDividend_SingleName]
+	EconomicTerms -> payout -> interestRatePayout exists
+	and EconomicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum.Dividend
 	and ( EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> equity
 		or EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> exchangeTradedFund
 		or EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> mutualFund
@@ -901,21 +912,21 @@ isProduct InterestRate_IRSwap_Basis
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 	and EconomicTerms -> payout -> optionPayout is absent
 
-isProduct InterestRate_IRSwap_FixedFloat_PlainVanilla <"This data rule doesn't represent the ISDA Taxonomomy V2.0 clause according to which a plain vaniNo provision for early termination which uses an off-market valuation'">
+isProduct InterestRate_IRSwap_FixedFloat_PlainVanilla <"This product qualification doesn't represent the exact terms of the ISDA Taxonomomy V2.0 for the plain vanilla swaps, as some of those cannot be represented as part of the CDM syntax (e.g. the qualification that there is no provision for early termination which uses an off-market valuation), while some other are deemed missing in the ISDA taxonomy and have been added as part of the CDM (absence of cross-currency settlement provision, absence of fixed rate and notional step schedule, absence of stub). ">
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFloat]
 	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate count = 1
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate count = 1
 	and  EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
-	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> settlementProvision is absent // Not specified in the ISDA taxonomy
+	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> settlementProvision is absent
 	and EconomicTerms -> payout -> optionPayout is absent
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> spreadSchedule -> step is absent
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate -> step is absent // Not specified in the ISDA taxonomy
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate -> step is absent
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> floatingRateMultiplierSchedule is absent
-	and EconomicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step is absent // Not specified in the ISDA taxonomy
-	and EconomicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepParameters is absent // Not specified in the ISDA taxonomy
-	and EconomicTerms -> payout -> interestRatePayout -> stubPeriod is absent  // Not specified in the ISDA taxonomy
-	and EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> stubPeriodType is absent // Not specified in the ISDA taxonomy
+	and EconomicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step is absent
+	and EconomicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepParameters is absent
+	and EconomicTerms -> payout -> interestRatePayout -> stubPeriod is absent
+	and EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> stubPeriodType is absent
 	/*
  	* TODO - Cannot compare the below because in FpML the period associated with the reset frequency is of type PeriodExtendedEnum, which includes 'T'
 	* Need to adjust the implementation once a proper implementation approach has been firmed out
