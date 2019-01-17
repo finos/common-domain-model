@@ -203,7 +203,7 @@ data rule FpML_cd_7 <"FpML validation rule cd-7 - If condition LongForm is true,
 data rule FpML_cd_8 <"FpML validation rule cd-8 - If condition LongForm is true, and if scheduledTerminationDate exists then scheduledTerminationDate/dateAdjustments exists.">
 	when ( Contract -> documentation -> masterConfirmation and Contract -> documentation -> contractualMatrix ) is absent
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
-	then Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> dateAdjustments exists
+	then Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate -> dateAdjustments exists
 
 data rule FpML_cd_11 <"FpML validation rule cd-11 - If condition LongForm is true, and if condition ISDA2003 is true, then allGuarantees must exist.">
 	when ( Contract -> documentation -> masterConfirmation and Contract -> documentation -> contractualMatrix ) is absent
@@ -297,7 +297,7 @@ data rule InterestRatePayout_futureValueNotional <"The BRL CDI future value noti
 
 data rule FutureValueNotional_terminationDate <"FpML states that the value date associated with the future value notional should match the adjusted termination date.">
 	when InterestRatePayout -> quantity -> futureValueNotional exists
-	then InterestRatePayout -> quantity -> futureValueNotional -> valueDate = InterestRatePayout -> calculationPeriodDates -> terminationDate -> adjustedDate
+	then InterestRatePayout -> quantity -> futureValueNotional -> valueDate = InterestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate -> adjustedDate
 
 data rule ContractualQuantity_notionalReset <"As the notionalReset attribute applies to return swaps, the equity payout needs to be present alongside it.">
 	when ContractualProduct -> economicTerms -> payout -> quantity -> notionalReset exists
@@ -746,12 +746,12 @@ data rule FpML_cd_27 <"As the singlePayment and the initialPayment have been rep
 		and Payout -> interestRatePayout -> calculationPeriodDates -> terminationDate exists
 		and Payout -> cashflow -> cashflowDate exists
 		and Payout -> cashflow -> cashflowDate -> relativeDate is absent
-	then Payout -> cashflow -> cashflowDate -> unadjustedDate < Payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> unadjustedDate
+	then Payout -> cashflow -> cashflowDate -> unadjustedDate < Payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate -> unadjustedDate
 
 data rule FpML_cd_30 <"FpML validation rule cd-30 - If feeLeg/periodicPayment/lastRegularPaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/periodicPayment/lastRegularPaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
 	when (Payout -> interestRatePayout -> paymentDates -> lastPaymentDate -> lastRegularPaymentDate
 		and Payout -> interestRatePayout -> calculationPeriodDates -> terminationDate) exists
-	then Payout -> interestRatePayout -> paymentDates -> lastPaymentDate -> lastRegularPaymentDate < Payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> unadjustedDate
+	then Payout -> interestRatePayout -> paymentDates -> lastPaymentDate -> lastRegularPaymentDate < Payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate -> unadjustedDate
 
 data rule CalculationPeriodDates_calculationPeriodDatesAdjustments <"FpML specifies a required calculationPeriodDatesAdjustments element as part of the CalculationPeriodDates. As standardised CDS don't have such business day adjustment provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
 	when Payout -> interestRatePayout count = 2
