@@ -1082,7 +1082,7 @@ class Resource <"Describes the resource that contains the media representation o
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value url]
 }
 
-choice rule Resource_choice <"Choice rule to represent an FpML choice construct.  Note that FpML also provides the ability to have hexadecimalBinary or base64Binary, which have not been implemented in Rosetta until we see actual use cases.">
+choice rule Resource_choice <"Choice rule to represent an FpML choice construct. Note that FpML also provides the ability to have hexadecimalBinary or base64Binary, which have not been implemented in Rosetta until we see actual use cases.">
 	for Resource optional choice between
 	string and url
 
@@ -1123,6 +1123,28 @@ class Schedule <"A class defining a schedule of rates or amounts in terms of an 
 data rule FpML_ird_25 <"FpML validation rule ird-25 - If step does not exist, then initialValue must not be equal to 0.">
 	when Schedule -> step is absent
 	then Schedule -> initialValue <> 0.0
+
+class SettlementBase <"A base class to be extended by the SettlementTerms, CashSettlementTerms and PhysicalSettlementTerms classes.">
+{
+	id (0..1);
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
+	settlementCurrency string (0..1) scheme <"Settlement Currency for use where the Settlement Amount cannot be known in advance">;
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value settlementCurrency meta currencyScheme]
+}
+
+class SettlementTerms extends SettlementBase <"A class to specify the settlement terms. This class reflects the FpML OptionSettlement.model, although with no option reference.">
+{
+	settlementType SettlementTypeEnum (0..1) <"Whether the settlement will be cash, physical, by election, ...">;
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value settlementType]
+	settlementDate AdjustableOrRelativeDate (0..1);
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value settlementDate]
+	settlementAmount Money (0..1) <"The Settlement Amount, when known in advance.">;
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value settlementAmount]
+}
+
+choice rule SettlementTerms_choice <"The settlementCurrency attribute is to be specified when the settlement amount is not known in advance.">
+	for OptionSettlement optional choice between
+	settlementAmount and settlementCurrency
 
 class SettlementRateSource one of <"A class describing the method for obtaining a settlement rate.">
 	[synonym FpML_5_10 value SettlementRateSource]

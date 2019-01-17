@@ -242,28 +242,15 @@ class OptionFeature <"A class for defining option features.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value passThrough]
 }
 
-class OptionSettlement <"The option settlement terms, i.e. the settlement type (e.g. cash, physical, by election), the settlement date (when specified), the settlement amount (when specified) and the cash or physical settlement terms.">
-	[synonym FpML_5_10 value OptionSettlement]
+class OptionSettlement extends SettlementTerms <"The option settlement terms.">
 {
-	settlementType SettlementTypeEnum (0..1) <"Whether the option will be settled cash, physical, by election, ...">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value settlementType]
-	settlementDate AdjustableOrRelativeDate (0..1);
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value settlementDate]
-	settlementAmount Money (0..1) <"The Settlement Amount, when known in advance.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value settlementAmount]
-	settlementCurrency string (0..1) scheme <"Settlement Currency for use where the Settlement Amount cannot be known in advance">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value settlementCurrency meta currencyScheme]
 	cashSettlementTerms OptionCashSettlement (0..1) <"Specifies the parameters associated with the cash settlement procedure.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value cashSettlement]
 	physicalSettlementTerms OptionPhysicalSettlement (0..1) <"Specifies the physical settlement terms which apply to the transaction.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value physicalSettlement]
 }
 
-choice rule OptionSettlement_choice1 <"Choice rule to represent an FpML choice construct.">
-	for OptionSettlement optional choice between
-	settlementAmount and settlementCurrency
-
-choice rule OptionSettlement_choice2 <"The option settlement cannot combine physical and cash terms specification.">
+choice rule OptionSettlement_choice <"The option settlement cannot combine physical and cash terms specification.">
 	for OptionSettlement optional choice between
 	cashSettlementTerms and physicalSettlementTerms
 

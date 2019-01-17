@@ -5,7 +5,6 @@ class Cashflow <"A class to specify a cashflow, i.e. the outcome of either of co
 	id (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 	payerReceiver PayerReceiver (1..1);
-
 	paymentDiscounting PaymentDiscounting (0..1) <"FpML specifies the FpML PaymentDiscounting.model group for representing the discounting elements that can be associated with a payment.">;
 	cashflowAmount Money (1..1) <"The currency amount of the payment.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentAmount]
@@ -383,13 +382,12 @@ class EquityPayout rosettaKey <"The equity payout specification terms.">
 	returnType ReturnTypeEnum (1..1) <"Specifies the type of return associated with the equity payout.">;
 		[synonym FpML_5_10 value returnType path "return"]
 	dividendReturnTerms DividendReturnTerms (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Dividend Obligations">;
-		[synonym FpML_5_10 value dividendConditions path "return"]
+		[synonym FpML_5_10 value dividendConditions path "return", singleUnderlyer path "underlyer"]
 	priceReturnTerms PriceReturnTerms (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Pricing">;
 	calculationPeriodDates CalculationPeriodDates (1..1) <"The calculation period dates schedule.">;
 	paymentDates PaymentDates (1..1) <"The payment dates schedule.">;
 		[synonym FpML_5_10 value paymentDates path "rateOfReturn"]
-	settlementFeatures SettlementFeatures (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Settlement">;
-		[synonym FpML_5_10 value amount]
+	settlementTerms SettlementTerms (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Settlement | ">;
 }
 
 data rule EquityPayout_dividendReturn <"An equity price return specifies price return terms, but no dividend terms.">
@@ -826,6 +824,8 @@ class ProductIdentification <"A class to combine the CDM product qualifier with 
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value productType path "trade.swaption.swap" meta productTypeScheme]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value productType path "swaption.swap" meta productTypeScheme]
 		[synonym DTCC_11_0, DTCC_9_0 value ProductType]
+		[synonym FpML_5_10 value productType path "trade.returnSwap" meta productTypeScheme]
+		[synonym FpML_5_10 value productType path "trade.equitySwapTransactionSupplement" meta productTypeScheme]
 	productId string (0..*) scheme <"A product reference identifier. The product Id is an identifier that describes the key economic characteristics of the trade type, with the exception of concepts such as size (notional, quantity, number of units) and price (fixed rate, strike, etc.) that are negotiated for each transaction. It can be used to hold identifiers such as the 'UPI' (universal product identifier) required by certain regulatory reporting rules. It can also be used to hold identifiers of benchmark products or product temnplates used by certain trading systems or facilities. FpML does not define the domain values associated with this element. Note that the domain values for this element are not strictly an enumerated list.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value productId path "trade.swap" meta productIdScheme]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value productId path "swap" meta productIdScheme]
