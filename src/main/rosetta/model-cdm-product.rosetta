@@ -16,7 +16,7 @@ class Cashflow <"A class to specify a cashflow, i.e. the outcome of either of co
 		[synonym Rosetta_Workbench value cashflowCalculation]
 	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, e.g. brokerage fee, premium, upfront fee etc. Particularly relevant when it cannot be inferred directly through lineage.">;
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentType]
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 set to CashflowTypeEnum.Premium when path="premium"]
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 set to CashflowTypeEnum.Premium when path = "premium"]
 	discountFactor number (0..1) <"The value representing the discount factor used to calculate the present value of the cashflow.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value discountFactor]
 	presentValueAmount Money (0..1) <"The amount representing the present value of the forecast payment.">;
@@ -144,7 +144,7 @@ data rule Restructuring_physicalSettlementMatrix <"The below multiple holder obl
 /*
  * TODO - Confirm the set of Contractual Terms Supplements that qualify mortgage products
  */
-data rule AdditionalFixedPayments_mortgages <"The below set of additional fixed payment provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlyer is a mortgage index.">
+data rule AdditionalFixedPayments_mortgages <"The below set of additional fixed payment provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlier is a mortgage index.">
 	when ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> mortgageBackedSecurity exists
 		or Contract -> documentation -> contractualTermsSupplement -> type = ContractualSupplementEnum.CDSonMBS )
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents exists
@@ -153,7 +153,7 @@ data rule AdditionalFixedPayments_mortgages <"The below set of additional fixed 
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> additionalFixedPayments -> writedownReimbursement
 	) exists
 
-data rule FloatingAmountEvents_mortgages <"The below set of floating amount events provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlyer is a mortgage index.">
+data rule FloatingAmountEvents_mortgages <"The below set of floating amount events provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlier is a mortgage index.">
 	when ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> mortgageBackedSecurity exists
 		or Contract -> documentation -> contractualTermsSupplement -> type = ContractualSupplementEnum.CDSonMBS )
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents exists
@@ -162,7 +162,7 @@ data rule FloatingAmountEvents_mortgages <"The below set of floating amount even
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> impliedWritedown
 	) exists
 
-data rule CreditEvents_mortgages <"The below set of credit events provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlyer is a mortgage index.">
+data rule CreditEvents_mortgages <"The below set of credit events provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlier is a mortgage index.">
 	when ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> mortgageBackedSecurity exists
 		or Contract -> documentation -> contractualTermsSupplement -> type = ContractualSupplementEnum.CDSonMBS )
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents exists
@@ -282,7 +282,7 @@ class ContractualQuantity
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value fxLinkedNotionalSchedule path "calculationPeriodAmount.calculation" /*set when "calculationPeriodAmount.calculation.fxLinkedNotionalSchedule.initialValue" exists*/]
 	futureValueNotional FutureValueAmount (0..1);
 	 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value futureValueNotional path "calculationPeriodAmount.calculation"]
-	notionalReset boolean (0..1) <"Applicable to return swaps. Specifies whether the notional reset is applicable (true) or not applicable (false).">;
+	notionalReset boolean (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Equity Notional Reset | Specifies whether the notional reset is applicable (true) or not applicable (false).">;
 		[synonym FpML_5_10 value notionalReset path "trade.returnSwap.returnLeg.rateOfReturn", notionalReset path "trade.equitySwapTransactionSupplement.returnLeg.rateOfReturn"]
 	notionalAdjustments NotionalAdjustmentEnum (0..1) <"Applicable to return swaps. Specifies the conditions that govern the adjustment to the number of units of the return swap, e.g. execution, portfolio rebalancing.">;
 		[synonym FpML_5_10 value notionalAdjustments path "trade.returnSwap.returnLeg", notionalAdjustments path "trade.equitySwapTransactionSupplement.returnLeg"]
@@ -303,7 +303,7 @@ data rule FutureValueNotional_terminationDate <"FpML states that the value date 
 data rule ContractualQuantity_notionalReset <"As the notionalReset attribute applies to return swaps, the equity payout needs to be present alongside it.">
 	when ContractualProduct -> economicTerms -> payout -> quantity -> notionalReset exists
 	then ContractualProduct -> economicTerms -> payout -> equityPayout exists
-
+	
 data rule ContractualQuantity_notionalAdjustments <"As the notionalAdjustments attribute applies to return swaps, the equity payout needs to be present alongside it.">
 	when ContractualProduct -> economicTerms -> payout -> quantity -> notionalAdjustments exists
 	then ContractualProduct -> economicTerms -> payout -> equityPayout exists
@@ -365,29 +365,60 @@ class EconomicTerms rosettaKeyValue <"This class represents the full set of prod
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value cancelableProvision path "trade.swap"]
 	extendibleProvision ExtendibleProvision (0..1) <"A provision that allows the specification of an embedded option with a swap giving the buyer of the option the right to extend the swap, in whole or in part, to the extended termination date.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value extendibleProvision path "trade.swap"]
+	extraordinaryEvents ExtraordinaryEvents (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Extraordinary Events">;
+		[synonym FpML_5_10 value extraordinaryEvents path "trade.returnSwap"]
 }
+
+data rule EconomicTerms_extraordinaryEvents <"Extraordinary events provisions must be associated with an equity payout.">
+	when EconomicTerms -> extraordinaryEvents exists
+	then EconomicTerms -> payout -> equityPayout exists
 
 class EquityPayout rosettaKey <"The equity payout specification terms.">
 {
 	id (0..1);
 		[synonym FpML_5_10 meta id]
 	payerReceiver PayerReceiver (0..1);
-	underlyer Underlyer (1..1) <"Specifies the underlying component of the payout.">;
+	underlier Underlier (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Security">;
 		[synonym FpML_5_10 value underlyer]
-	equityReturn Return (1..1) <"Specifies the conditions under which dividend affecting the underlyer will be paid to the receiver of the amounts.">;
-		[synonym FpML_5_10 value return]
-	pricing EquityPayoutValuationPrice (1..1); // Corresponds to some of the rateOfReturn FpML construct; naming motivated to reflect what is understood of the 2011 Definitions
+	returnType ReturnTypeEnum (1..1) <"Specifies the type of return associated with the equity payout.">;
+		[synonym FpML_5_10 value returnType path "return"]
+	dividendReturnTerms DividendReturnTerms (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Dividend Obligations">;
+		[synonym FpML_5_10 value dividendConditions path "return"]
+	priceReturnTerms PriceReturnTerms (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Pricing">;
 	calculationPeriodDates CalculationPeriodDates (1..1) <"The calculation period dates schedule.">;
-	paymentDates PaymentDates (0..1) <"The payment dates schedule.">;
+	paymentDates PaymentDates (1..1) <"The payment dates schedule.">;
 		[synonym FpML_5_10 value paymentDates path "rateOfReturn"]
-	settlementFeatures SettlementFeatures (1..1);
+	settlementFeatures SettlementFeatures (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Settlement">;
 		[synonym FpML_5_10 value amount]
 }
+
+data rule EquityPayout_dividendReturn <"An equity price return specifies price return terms, but no dividend terms.">
+	when EquityPayout -> returnType = ReturnTypeEnum.Price
+	then EquityPayout -> priceReturnTerms exists
+	and EquityPayout -> dividendReturnTerms is absent
+
+data rule EquityPayout_priceReturn <"An equity dividend return specifies dividend return terms, but no price terms.">
+	when EquityPayout -> returnType = ReturnTypeEnum.Dividend
+	then EquityPayout -> dividendReturnTerms exists
+	and EquityPayout -> priceReturnTerms is absent
+	
+data rule EquityPayout_totalReturn <"An equity total return specifies price return as well as dividend terms.">
+	when EquityPayout -> returnType = ReturnTypeEnum.Total
+	then EquityPayout -> priceReturnTerms exists
+	and EquityPayout -> dividendReturnTerms exists
+
+
+data rule EquityPayout_singleUnderlier <"In the case of an equity payout with a single underlier, that underlier needs to be an equity product.">
+	when EquityPayout -> underlier -> singleUnderlier exists
+	then ( EquityPayout -> underlier -> singleUnderlier -> underlyingProduct -> equity
+		or EquityPayout -> underlier -> singleUnderlier -> underlyingProduct -> exchangeTradedFund
+		or EquityPayout -> underlier -> singleUnderlier -> underlyingProduct -> mutualFund
+		or EquityPayout -> underlier -> singleUnderlier -> underlyingProduct -> warrant ) exists
 
 class GeneralTerms <"A class specifying the general terms of the credit default payout, and corresponding to some the data that appears in the section entitled '1. General Terms' in the 2003 ISDA Credit Derivatives Confirmation. It corresponds to the FpML GeneralTerms complex type, minus the effectiveDate, terminationDate and dateAdjustments elements, which have been positioned as part of the InterestRatePayout class.">
 {
 	buyerSeller BuyerSeller (1..1);
-	dateAdjustments BusinessDayAdjustments (0..1) <"ISDA 2003 Terms: Business Day and Business Day Convention.">;
+	dateAdjustments BusinessDayAdjustments (0..1) <"ISDA Credit 2003 Definitions: Business Day and Business Day Convention.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value dateAdjustments]
 	referenceInformation ReferenceInformation (0..1) <"This attribute contains all the terms relevant to defining the reference entity and reference obligation(s).">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value referenceInformation]
@@ -462,7 +493,7 @@ class InterestRatePayout calculation FixedAmount, FloatingAmount rosettaKey <"Th
 	crossCurrencyTerms CrossCurrencyTerms (0..1) <"The specification of the principle exchange and settlement provision terms.">;
 	stubPeriod StubPeriod (0..1) <"The stub calculation period amount parameters. This element must only be included if there is an initial or final stub calculation period. Even then, it must only be included if either the stub references a different floating rate tenor to the regular calculation periods, or if the stub is calculated as a linear interpolation of two different floating rate tenors, or if a specific stub rate or stub amount has been negotiated.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value stubCalculationPeriodAmount]
-	bondReference BondReference (0..1) <"Reference to a bond underlyer to represent an asset swap or Condition Precedent Bond.">;
+	bondReference BondReference (0..1) <"Reference to a bond underlier to represent an asset swap or Condition Precedent Bond.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value bondReference]
 	fraDiscounting FraDiscountingEnum (0..1) <"Specifies whether discounting applies to a FRA and, if so, what type.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value fraDiscounting]
@@ -592,13 +623,14 @@ class OptionPayout rosettaKey <"The option payout specification terms.">
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 set to OptionTypeEnum.Straddle when "swaptionStraddle" = True]
 	feature OptionFeature (0..1) <"The option feature, such as quanto, Asian, barrier, knock.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value feature]
-	denomination OptionDenomination (0..1) <"The denomination qualifies the number of units of underlyer per option and the number of options comprised in the option transaction. FpML represents this information as part of the OptionDenomination.model.">;
+	denomination OptionDenomination (0..1) <"The denomination qualifies the number of units of underlier per option and the number of options comprised in the option transaction. FpML represents this information as part of the OptionDenomination.model.">;
 	quantity ContractualQuantity (0..1) <"The option notional amount. The CDM uses the generic term quantity rather than notional amount. The number of options is specified as part of the denomination attribute.">;
 	exerciseTerms OptionExercise (1..1) <"The terms for exercising the option, which include the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">;
-	underlyer Product (1..1) <"The option underlyer. The implementation is restricted to contractual underlyers as part of the initial CDM phase.">;
+	underlier Product (1..1) <"The option underlier. The implementation is restricted to contractual underliers as part of the initial CDM phase.">;
 }
 
-class PaymentDates <"The payment dates schedule. As a difference from the FpML PaymentDate, the following reference elements have been omitted, because deemed of no relevant usage by the ISDA CDM Group: calculationPeriodDatesReference, resetDatesReference, ValuationDatesReference.">
+class PaymentDates <"The payment dates schedule. Some adjustments from the FpML construct have been undertaken in order to make use of this class for the equity swaps: the lastPaymentDate can be specified in relation to another date, while the dateRelativeTo attribute has been added for similar purposes with respect to the interim payment dates. Also, while the CDM agreed on the idea to deprecate the calculationPeriodDatesReference, resetDatesReference and valuationDatesReference because deemed as irrelevant while not being used by market participants, those attributes were reverted back once it was realised that some participants were contributing sample transactions which actually had those attributes.">
+	[synonym FpML_5_10 value PaymentDates]
 {
 	id (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
@@ -607,8 +639,10 @@ class PaymentDates <"The payment dates schedule. As a difference from the FpML P
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value calculationPeriodDatesReference meta href]
 	resetDatesReference ResetDates (0..1) reference <"A pointer style reference to the associated reset dates component defined elsewhere in the document.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value resetDatesReference meta href]
-	valuationDatesReference FxFixingDate (0..1) reference <"A pointer style reference to the associated valuation dates component defined elsewhere in the document. Implemented for Brazilian-CDI Swaps where it will refer to the settlemementProvision/nonDeliverableSettlement/fxFixingDate structure.">;
+	valuationDatesReference date (0..1) reference <"A pointer style reference to the associated valuation dates component defined elsewhere in the document. Implemented for Brazilian-CDI Swaps where it will refer to the settlemementProvision/nonDeliverableSettlement/fxFixingDate structure.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value valuationDatesReference meta href]
+	dateRelativeTo date (0..1) reference <"The anchor date when the payment dates are specified by reference to a set of dates specified somewhere else in the instance document/transaction, e.g. the valuation dates as typically the case for equity swaps.  When this attribute is specified, the paymentDaysOffset and the paymentDatesAdjustments also need to specified.">;
+		[synonym FpML_5_10 value dateRelativeTo path "paymentDatesInterim.relativeDates" meta href]
 	paymentFrequency Frequency (0..1) <"The frequency at which regular payment dates occur. If the payment frequency is equal to the frequency defined in the calculation period dates component then one calculation period contributes to each payment amount. If the payment frequency is less frequent than the frequency defined in the calculation period dates component then more than one calculation period will contribute to the payment amount. A payment frequency more frequent than the calculation period frequency or one that is not a multiple of the calculation period frequency is invalid. If the payment frequency is of value T (term), the period is defined by the effectiveDate and the terminationDate.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentFrequency]
 	firstPaymentDate date (0..1) <"The first unadjusted payment date. This day may be subject to adjustment in accordance with any business day convention specified in paymentDatesAdjustments. This element must only be included if there is an initial stub. This date will normally correspond to an unadjusted calculation period start or end date. This is true even if early or delayed payment is specified to be applicable since the actual first payment date will be the specified number of days before or after the applicable adjusted calculation period start or end date with the resulting payment date then being adjusted in accordance with any business day convention specified in paymentDatesAdjustments.">;
@@ -618,15 +652,15 @@ class PaymentDates <"The payment dates schedule. As a difference from the FpML P
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value payRelativeTo]
 	paymentDaysOffset Offset (0..1) <"If early payment or delayed payment is required, specifies the number of days offset that the payment occurs relative to what would otherwise be the unadjusted payment date. The offset can be specified in terms of either calendar or business days. Even in the case of a calendar days offset, the resulting payment date, adjusted for the specified calendar days offset, will still be adjusted in accordance with the specified payment dates adjustments. This element should only be included if early or delayed payment is applicable, i.e. if the periodMultiplier element value is not equal to zero. An early payment would be indicated by a negative periodMultiplier element value and a delayed payment (or payment lag) would be indicated by a positive periodMultiplier element value.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentDaysOffset]
+		[synonym FpML_5_10 value relativeDates path "paymentDatesInterim"]
 	paymentDatesAdjustments BusinessDayAdjustments (0..1) <"The business day convention to apply to each payment date if it would otherwise fall on a day that is not a business day in the specified financial business centers.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentDatesAdjustments]
-	relativeDates RelativeDates (0..1) <"The payment dates when specified in relation to another date, e.g. the valuation dates in the case of an equity swap.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value relativeDates path "paymentDatesInterim"]
+		[synonym FpML_5_10 value relativeDates path "paymentDatesInterim"]
 }
 
 choice rule PaymentDates_choice <"Choice rule to represent an FpML choice construct. The choice is made optional to take into consideration the fact that he PaymentDates class is used for the credit products, to specify the payment delay.">
 	for PaymentDates optional choice between
-	calculationPeriodDatesReference and resetDatesReference and valuationDatesReference
+	calculationPeriodDatesReference and resetDatesReference and valuationDatesReference and dateRelativeTo
 
 data rule FpML_ird_35_cd_31 <"FpML validation rule ird-35 & cd-31- If firstPaymentDate exists, and if lastRegularPaymentDate exists, then firstPaymentDate must be before lastRegularPaymentDate.">
 	when PaymentDates -> firstPaymentDate exists
@@ -652,9 +686,14 @@ data rule PaymentDates_paymentFrequency <"FpML specifies a required paymentFrequ
 		and Payout -> interestRatePayout -> paymentDates exists
 	then Payout -> interestRatePayout -> paymentDates -> paymentFrequency exists
 
+data rule PaymentDates_dateRelativeTo <"When the payment dates are specified by reference to another date, the payment offset and the payment date adjustments also need to be specified.">
+	when PaymentDates -> dateRelativeTo exists
+	then ( PaymentDates -> paymentDaysOffset
+		and PaymentDates -> paymentDatesAdjustments ) exists
+
 class Payout <"The payout can be specified through a number of combinations, e.g. by associating several interest rate payouts to specify an interest rate swap, or a credit default and an interest rate payout to specify a credit default swap. The implied product is inferred by the isProduct CDM artefact. Each of the payout classes have an associated rosettaKeyValue which can be referenced by implementers as part of their grossCashflow attribute in the Transfer class, but establishing a lineage between this computed cashflow and the originating payout, when applicable.">
 {
-	interestRatePayout InterestRatePayout (0..*);
+	interestRatePayout InterestRatePayout (0..*) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Floating Obligations |">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value swapStream path "trade.swap" ]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value swapStream path "swap"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value swapStream]
@@ -667,7 +706,7 @@ class Payout <"The payout can be specified through a number of combinations, e.g
 	creditDefaultPayout CreditDefaultPayout (0..1);
 	equityPayout EquityPayout (0..*);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value returnLeg path "trade.returnSwap", returnLeg path "trade.equitySwapTransactionSupplement"]
-	optionPayout OptionPayout (0..*);
+	optionPayout OptionPayout (0..*) <"">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value swaption path "trade"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value swaption]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value creditDefaultSwapOption path "trade"]
@@ -734,15 +773,6 @@ data rule ResetDates_interestRateSwap <"The cardinality of the ResetDates attrib
 		and Payout -> interestRatePayout -> resetDates -> resetFrequency exists
 		and Payout -> interestRatePayout -> resetDates -> resetDatesAdjustments exists
 
-/*
- * TODO - Need to adjust the definition once we settle on the naming of the Equity and Interest Amounts
- */
-class PayoutAmount <"A class describing the amount that will paid or received on each of the payment dates. This class is used in the context of the total return swap products to define both the Equity Amount and the Interest Amount. As a difference from the FpML construct, this class doesn't incorporate the formula nor for encodedDescription attributes, which are viewed as not usable.">
-	[synonym FpML_5_10 value LegAmount]
-{
-
-}
-
 class Product one of <"A class to represent a financial product. With respect to contractual products, this class provides the ability to specify either a post-execution 'view' of contract (the Contract class) or the pre-execution contractual product (the ContractualProduct class). This class is used as part of the option exercise representation, which makes use of the contract attribute for supporting the swaption use case, with the exercise into a swap.">
 {
 	contract Contract (0..1);
@@ -805,7 +835,7 @@ class ProductIdentification <"A class to combine the CDM product qualifier with 
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value productId path "swaption" meta productIdScheme]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value productId path "trade.swaption.swap" meta productIdScheme]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value productId path "swaption.swap" meta productIdScheme]
-		[synonym DTCC_11_0, DTCC_9_0 value instrumentId path "payment.calculationDetails.calculationElements.underlyer.index" meta instrumentIdScheme]
+		[synonym DTCC_11_0, DTCC_9_0 value instrumentId path "payment.calculationDetails.calculationElements.underlier.index" meta instrumentIdScheme]
 }
 
 class Quantity
@@ -853,14 +883,25 @@ data rule TransactedPrice_marketPrice <"FpML specifies that  marketFixedRate and
  * Product Qualification
  */
 
-isProduct EquitySwap_PriceReturnBasicPerformance_SingleName
+isProduct EquitySwap_PriceReturnBasicPerformance_SingleName <"The Price Return Basic Performance equity swap specified in the ISDA taxonomy V2.0 corresponds to the price and total return swaps.">
 	[synonym ISDA_Taxonomy_v1 value EquitySwap_PriceReturnBasicPerformance_SingleName]
 	EconomicTerms -> payout -> interestRatePayout exists
-	and EconomicTerms -> payout -> equityPayout -> equityReturn -> returnType = ReturnTypeEnum.Price
-	and ( EconomicTerms -> payout -> equityPayout -> underlyer -> singleUnderlyer -> underlyingProduct -> equity
-		or EconomicTerms -> payout -> equityPayout -> underlyer -> singleUnderlyer -> underlyingProduct -> exchangeTradedFund
-		or EconomicTerms -> payout -> equityPayout -> underlyer -> singleUnderlyer -> underlyingProduct -> mutualFund
-		or EconomicTerms -> payout -> equityPayout -> underlyer -> singleUnderlyer -> underlyingProduct -> warrant
+	and ( EconomicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum.Price
+		or EconomicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum.Total )
+	and ( EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> equity
+		or EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> exchangeTradedFund
+		or EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> mutualFund
+		or EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> warrant
+		) exists
+
+isProduct EquitySwap_ParameterReturnDividend_SingleName <"The Parameter Return Dividend equity swap specified in the ISDA taxonomy V2.0 corresponds to the dividend return swap.">
+	[synonym ISDA_Taxonomy_v1 value EquitySwap_ParameterReturnDividend_SingleName]
+	EconomicTerms -> payout -> interestRatePayout exists
+	and EconomicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum.Dividend
+	and ( EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> equity
+		or EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> exchangeTradedFund
+		or EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> mutualFund
+		or EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> warrant
 		) exists
 
 isProduct InterestRate_IRSwap_Basis
@@ -871,21 +912,21 @@ isProduct InterestRate_IRSwap_Basis
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 	and EconomicTerms -> payout -> optionPayout is absent
 
-isProduct InterestRate_IRSwap_FixedFloat_PlainVanilla <"This data rule doesn't represent the ISDA Taxonomomy V2.0 clause according to which a plain vaniNo provision for early termination which uses an off-market valuation'">
+isProduct InterestRate_IRSwap_FixedFloat_PlainVanilla <"This product qualification doesn't represent the exact terms of the ISDA Taxonomomy V2.0 for the plain vanilla swaps, as some of those cannot be represented as part of the CDM syntax (e.g. the qualification that there is no provision for early termination which uses an off-market valuation), while some other are deemed missing in the ISDA taxonomy and have been added as part of the CDM (absence of cross-currency settlement provision, absence of fixed rate and notional step schedule, absence of stub). ">
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFloat]
 	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate count = 1
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate count = 1
 	and  EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
-	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> settlementProvision is absent // Not specified in the ISDA taxonomy
+	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> settlementProvision is absent
 	and EconomicTerms -> payout -> optionPayout is absent
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> spreadSchedule -> step is absent
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate -> step is absent // Not specified in the ISDA taxonomy
+	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate -> step is absent
 	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> floatingRateMultiplierSchedule is absent
-	and EconomicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step is absent // Not specified in the ISDA taxonomy
-	and EconomicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepParameters is absent // Not specified in the ISDA taxonomy
-	and EconomicTerms -> payout -> interestRatePayout -> stubPeriod is absent  // Not specified in the ISDA taxonomy
-	and EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> stubPeriodType is absent // Not specified in the ISDA taxonomy
+	and EconomicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step is absent
+	and EconomicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepParameters is absent
+	and EconomicTerms -> payout -> interestRatePayout -> stubPeriod is absent
+	and EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> stubPeriodType is absent
 	/*
  	* TODO - Cannot compare the below because in FpML the period associated with the reset frequency is of type PeriodExtendedEnum, which includes 'T'
 	* Need to adjust the implementation once a proper implementation approach has been firmed out
@@ -1054,12 +1095,12 @@ isProduct InterestRate_InflationSwap_Basis_ZeroCoupon
 isProduct InterestRate_Option_Swaption
 	[synonym ISDA_Taxonomy_v1 value InterestRate_Option_Swaption]
 	EconomicTerms -> payout -> optionPayout exists
-	and EconomicTerms -> payout -> optionPayout -> underlyer -> contractualProduct -> economicTerms -> payout -> interestRatePayout count = 2
+	and EconomicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> interestRatePayout count = 2
 
 isProduct InterestRate_Option_DebtOption
 	[synonym ISDA_Taxonomy_v1 value InterestRate_DebtOption]
-	EconomicTerms -> payout -> optionPayout -> underlyer -> bond exists
-		or EconomicTerms -> payout -> optionPayout -> underlyer -> convertibleBond exists
+	EconomicTerms -> payout -> optionPayout -> underlier -> bond exists
+		or EconomicTerms -> payout -> optionPayout -> underlier -> convertibleBond exists
 
 isProduct InterestRate_CapFloor
 	[synonym ISDA_Taxonomy_v1 value InterestRate_CapFloor]
