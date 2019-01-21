@@ -5,7 +5,6 @@ class Cashflow <"A class to specify a cashflow, i.e. the outcome of either of co
 	id (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 	payerReceiver PayerReceiver (1..1);
-
 	paymentDiscounting PaymentDiscounting (0..1) <"FpML specifies the FpML PaymentDiscounting.model group for representing the discounting elements that can be associated with a payment.">;
 	cashflowAmount Money (1..1) <"The currency amount of the payment.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentAmount]
@@ -204,7 +203,7 @@ data rule FpML_cd_7 <"FpML validation rule cd-7 - If condition LongForm is true,
 data rule FpML_cd_8 <"FpML validation rule cd-8 - If condition LongForm is true, and if scheduledTerminationDate exists then scheduledTerminationDate/dateAdjustments exists.">
 	when ( Contract -> documentation -> masterConfirmation and Contract -> documentation -> contractualMatrix ) is absent
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
-	then Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> dateAdjustments exists
+	then Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate -> dateAdjustments exists
 
 data rule FpML_cd_11 <"FpML validation rule cd-11 - If condition LongForm is true, and if condition ISDA2003 is true, then allGuarantees must exist.">
 	when ( Contract -> documentation -> masterConfirmation and Contract -> documentation -> contractualMatrix ) is absent
@@ -298,14 +297,14 @@ data rule InterestRatePayout_futureValueNotional <"The BRL CDI future value noti
 
 data rule FutureValueNotional_terminationDate <"FpML states that the value date associated with the future value notional should match the adjusted termination date.">
 	when InterestRatePayout -> quantity -> futureValueNotional exists
-	then InterestRatePayout -> quantity -> futureValueNotional -> valueDate = InterestRatePayout -> calculationPeriodDates -> terminationDate -> adjustedDate
+	then InterestRatePayout -> quantity -> futureValueNotional -> valueDate = InterestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate -> adjustedDate
 
 data rule ContractualQuantity_notionalReset <"As the notionalReset attribute applies to return swaps, the equity payout needs to be present alongside it.">
-	when ContractualProduct -> economicTerms -> payout -> quantity -> notionalReset exists
+	when ContractualProduct -> economicTerms -> quantity -> notionalReset exists
 	then ContractualProduct -> economicTerms -> payout -> equityPayout exists
 	
 data rule ContractualQuantity_notionalAdjustments <"As the notionalAdjustments attribute applies to return swaps, the equity payout needs to be present alongside it.">
-	when ContractualProduct -> economicTerms -> payout -> quantity -> notionalAdjustments exists
+	when ContractualProduct -> economicTerms -> quantity -> notionalAdjustments exists
 	then ContractualProduct -> economicTerms -> payout -> equityPayout exists
 
 class CrossCurrencyTerms
@@ -359,6 +358,7 @@ choice rule CreditDefaultPayout_choice <"Choice rule to represent an FpML choice
 class EconomicTerms rosettaKeyValue <"This class represents the full set of product economics: the payout component, as well as the legal optional provisions which have valuation implications. A rosettaKey hash is associated to the contractual product economic terms for the purpose of supporting hash-based reconciliations.">
 {
 	payout Payout (1..1) <"The payout specification, which can combine several payout terms, e.g. an interest rate and a credit default payout in the case of a credit default swap.">;
+	quantity ContractualQuantity (0..*); // WIP to position the notional/quantity at the contract level; unbounded cardinality is meant to address the x-ccy contracts, while optional cardinality is for transitional compatibility purposes with the current model
 	earlyTerminationProvision EarlyTerminationProvision (0..1) <"Parameters specifying provisions relating to the optional and mandatory early termination of a swap transaction.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value earlyTerminationProvision path "trade.swap", earlyTerminationProvision path "trade.capfloor"]
 	cancelableProvision CancelableProvision (0..1) <"A provision that allows the specification of an embedded option within a swap giving the buyer of the option the right to terminate the swap, in whole or in part, on the early termination date.">;
@@ -383,13 +383,12 @@ class EquityPayout rosettaKey <"The equity payout specification terms.">
 	returnType ReturnTypeEnum (1..1) <"Specifies the type of return associated with the equity payout.">;
 		[synonym FpML_5_10 value returnType path "return"]
 	dividendReturnTerms DividendReturnTerms (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Dividend Obligations">;
-		[synonym FpML_5_10 value dividendConditions path "return"]
+		[synonym FpML_5_10 value dividendConditions path "return", singleUnderlyer path "underlyer"]
 	priceReturnTerms PriceReturnTerms (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Pricing">;
 	calculationPeriodDates CalculationPeriodDates (1..1) <"The calculation period dates schedule.">;
 	paymentDates PaymentDates (1..1) <"The payment dates schedule.">;
 		[synonym FpML_5_10 value paymentDates path "rateOfReturn"]
-	settlementFeatures SettlementFeatures (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Settlement">;
-		[synonym FpML_5_10 value amount]
+	settlementTerms SettlementTerms (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Settlement | ">;
 }
 
 data rule EquityPayout_dividendReturn <"An equity price return specifies price return terms, but no dividend terms.">
@@ -731,7 +730,6 @@ class Payout <"The payout can be specified through a number of combinations, e.g
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value premium path "trade.capFloor", additionalPayment path "trade.capFloor"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value otherPartyPayment path "trade"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value otherPartyPayment]
-	quantity ContractualQuantity (0..*); // WIP to position the notional/quantity at the contract level; unbounded cardinality is meant to address the x-ccy contracts, while optional cardinality is for transitional compatibility purposes with the current model
 }
 
 data rule FpML_cd_26_28 <"This data rule corresponds to two FpML validation rules, as the singlePayment and the firstPayment have been represented through the same Payout/cashflow attribute. It has also been adjusted to take into consideration the fact that credit derivatives (i) might not have an effective date, while in some other cases the payment date is either (ii) absent, or (iii) specified as a relative date (e.g. to the trade date). FpML validation rule cd-26 - If feeLeg/singlePayment/adjustablePaymentDate exists, then feeLeg/singlePayment/adjustablePaymentDate must be after generalTerms/effectiveDate/unadjustedDate. FpML validation rule cd-28 - If feeLeg/periodicPayment/firstPaymentDate exists, then feeLeg/periodicPayment/firstPaymentDate must be after generalTerms/effectiveDate/unadjustedDate.">
@@ -748,12 +746,12 @@ data rule FpML_cd_27 <"As the singlePayment and the initialPayment have been rep
 		and Payout -> interestRatePayout -> calculationPeriodDates -> terminationDate exists
 		and Payout -> cashflow -> cashflowDate exists
 		and Payout -> cashflow -> cashflowDate -> relativeDate is absent
-	then Payout -> cashflow -> cashflowDate -> unadjustedDate < Payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> unadjustedDate
+	then Payout -> cashflow -> cashflowDate -> unadjustedDate < Payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate -> unadjustedDate
 
 data rule FpML_cd_30 <"FpML validation rule cd-30 - If feeLeg/periodicPayment/lastRegularPaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/periodicPayment/lastRegularPaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
 	when (Payout -> interestRatePayout -> paymentDates -> lastPaymentDate -> lastRegularPaymentDate
 		and Payout -> interestRatePayout -> calculationPeriodDates -> terminationDate) exists
-	then Payout -> interestRatePayout -> paymentDates -> lastPaymentDate -> lastRegularPaymentDate < Payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> unadjustedDate
+	then Payout -> interestRatePayout -> paymentDates -> lastPaymentDate -> lastRegularPaymentDate < Payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate -> unadjustedDate
 
 data rule CalculationPeriodDates_calculationPeriodDatesAdjustments <"FpML specifies a required calculationPeriodDatesAdjustments element as part of the CalculationPeriodDates. As standardised CDS don't have such business day adjustment provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
 	when Payout -> interestRatePayout count = 2
@@ -826,6 +824,8 @@ class ProductIdentification <"A class to combine the CDM product qualifier with 
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value productType path "trade.swaption.swap" meta productTypeScheme]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value productType path "swaption.swap" meta productTypeScheme]
 		[synonym DTCC_11_0, DTCC_9_0 value ProductType]
+		[synonym FpML_5_10 value productType path "trade.returnSwap" meta productTypeScheme]
+		[synonym FpML_5_10 value productType path "trade.equitySwapTransactionSupplement" meta productTypeScheme]
 	productId string (0..*) scheme <"A product reference identifier. The product Id is an identifier that describes the key economic characteristics of the trade type, with the exception of concepts such as size (notional, quantity, number of units) and price (fixed rate, strike, etc.) that are negotiated for each transaction. It can be used to hold identifiers such as the 'UPI' (universal product identifier) required by certain regulatory reporting rules. It can also be used to hold identifiers of benchmark products or product temnplates used by certain trading systems or facilities. FpML does not define the domain values associated with this element. Note that the domain values for this element are not strictly an enumerated list.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value productId path "trade.swap" meta productIdScheme]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value productId path "swap" meta productIdScheme]

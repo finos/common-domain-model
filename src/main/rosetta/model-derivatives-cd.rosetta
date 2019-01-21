@@ -54,13 +54,9 @@ class CalculationAmount extends Money
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value step]
 }
 
-class CashSettlementTerms <"In FpML, PhysicalSettlementTerms and CashSettlementTerms extend SettlementTerms. In the CDM, this extension paradigm has not been used because SettlementTerms class has been used for purposes related to securities transactions, while it is not used as such in the FpML standard (i.e. only as an abstract construct.">
+class CashSettlementTerms extends SettlementBase <"In FpML, PhysicalSettlementTerms and CashSettlementTerms extend SettlementTerms. In the CDM, this extension paradigm has not been used because SettlementTerms class has been used for purposes related to securities transactions, while it is not used as such in the FpML standard (i.e. only as an abstract construct.">
 	[synonym FpML_5_10 value CashSettlementTerms]
 {
-	id (0..1);
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
-	settlementCurrency string (0..1) scheme <"ISDA 2003 Term: Settlement Currency.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value settlementCurrency meta currencyScheme]
 	valuationDate ValuationDate (0..1) <"The number of business days after conditions to settlement have been satisfied when the calculation agent obtains a price quotation on the Reference Obligation for purposes of cash settlement. There may be one or more valuation dates. This is typically specified if the cash settlement amount is not a fixed amount. ISDA 2003 Term: Valuation Date.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value valuationDate]
 	valuationTime BusinessCenterTime (0..1) <"The time of day in the specified business center when the calculation agent seeks quotations for an amount of the reference obligation for purposes of cash settlement. ISDA 2003 Term: Valuation Time.">;
@@ -384,13 +380,9 @@ data rule PhysicalSettlementPeriod_maximumBusinessDays <"FpML specifies maximumB
 	when PhysicalSettlementPeriod -> maximumBusinessDays exists
 	then PhysicalSettlementPeriod -> maximumBusinessDays >= 0
 
-class PhysicalSettlementTerms <"In FpML, PhysicalSettlementTerms and CashSettlementTerms extend SettlementTerms.  In the CDM, this extension paradigm has not been used because SettlementTerms class has been used for purposes related to securities transactions, while it is not used as such in the FpML standard (i.e. only as an abstract construct.">
+class PhysicalSettlementTerms extends SettlementBase <"In FpML, PhysicalSettlementTerms and CashSettlementTerms extend SettlementTerms.  In the CDM, this extension paradigm has not been used because SettlementTerms class has been used for purposes related to securities transactions, while it is not used as such in the FpML standard (i.e. only as an abstract construct.">
 	[synonym FpML_5_10 value PhysicalSettlementTerms]
 {
-	id string (0..1);
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value id]
-	settlementCurrency string (0..1) scheme <"ISDA 2003 Term: Settlement Currency.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value settlementCurrency meta currencyScheme]
 	physicalSettlementPeriod PhysicalSettlementPeriod (0..1) <"The number of business days used in the determination of the physical settlement date. The physical settlement date is this number of business days after all applicable conditions to settlement are satisfied. If a number of business days is not specified fallback provisions apply for determining the number of business days. If Section 8.5/8.6 of the 1999/2003 ISDA Definitions are to apply the businessDaysNotSpecified element should be included. If a specified number of business days are to apply these should be specified in the businessDays element. If Section 8.5/8.6 of the 1999/2003 ISDA Definitions are to apply but capped at a maximum number of business days then the maximum number should be specified in the maximumBusinessDays element. ISDA 2003 Term: Physical Settlement Period.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value physicalSettlementPeriod]
 	deliverableObligations DeliverableObligations (0..1) <"This element contains all the ISDA terms relevant to defining the deliverable obligations.">;
