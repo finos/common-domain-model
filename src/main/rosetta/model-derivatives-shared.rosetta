@@ -108,8 +108,7 @@ class AdjustableOrRelativeDate <"A class giving the choice between defining a da
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 	adjustableDate AdjustableDate (0..1) <"A date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">;
 	relativeDate RelativeDateOffset (0..1) <"A date specified as some offset to another date (the anchor date).">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value relativeDate]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value relativeDate path "paymentDate"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value relativeDate, relativeDate path "paymentDate", relativeEffectiveDate]
 		[synonym FpML_5_10 value relativeDate path "paymentDateFinal"]
 }
 
@@ -435,6 +434,11 @@ class Documentation <"A class for defining the definitions that govern the docum
 choice rule Documentation_choice <"Choice rule to represent an FpML choice construct.">
 	for Documentation optional choice between
 	masterConfirmation and brokerConfirmation
+
+class EffectiveDate extends AdjustableOrRelativeDate <"A class to specify the contract's effective date, alongside the effective date that is associated with the novated contract in the case where the current contract was subject to a prior novation event. This class doesn't exist in FpML. There is a corresponding TradeDate class to specify the trade date.">
+{
+	priorDateInstance PriorDateInstance (0..*) <"In the case of a novated trade, this is the effective date that was associated with the trade that has been novated.">;
+}
 
 class EuropeanExercise <"A class defining the exercise period for a European style option together with any rules governing the notional amount of the underlying which can be exercised on any given exercise date and any associated exercise fees.">
 	[synonym FpML_5_10 value EuropeanExercise]
@@ -915,7 +919,8 @@ class PriorDateInstance <"A class to specify the ability to specify a date along
 {
 	date date (1..1) <"The prior date instance. If the date has been expressed as an adjustable date as part of the DateInstances class, this date is also meant as an adjustable date.">;
 	contractReference Identifier (0..1) <"The contract identifier that can be associated to a prior date instance for lineage purposes.">;
-	[synonym DTCC_11_0, DTCC_9_0 value partyTradeIdentifier path "Submitter"]
+		[synonym DTCC_11_0, DTCC_9_0 value partyTradeIdentifier path "Submitter"]
+		[synonym FpML_5_10 value ignore]
 }
 
 class QuotedCurrencyPair <"A class that describes the composition of a rate that has been quoted or is to be quoted. This includes the two currencies and the quotation relationship between the two currencies and is used as a building block throughout the FX specification.">
@@ -1002,8 +1007,7 @@ class RelativeDateOffset extends Offset <"A class defining a date (referred to a
 	dateRelativeTo date (0..1) reference <"Specifies the anchor as an href attribute. The href attribute value is a pointer style reference to the element or component elsewhere in the document where the anchor date is defined.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value dateRelativeTo meta href]
 	adjustedDate date (0..1) <"The date once the adjustment has been performed. (Note that this date may change if the business center holidays change).">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value adjustedDate]
-		
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value adjustedDate]		
 }
 
 class ResetFrequency extends Frequency <"A class defining the reset frequency. In the case of a weekly reset, also specifies the day of the week that the reset occurs. If the reset frequency is greater than the calculation period frequency the this implies that more or more reset dates is established for each calculation period and some form of rate averaging is applicable. The specific averaging method of calculation is specified in FloatingRateCalculation. In case the reset frequency is of value T (term), the period is defined by the swap/swapStream/calculationPerioDates/effectiveDate and the swap/swapStream/calculationPerioDates/terminationDate.">
@@ -1201,4 +1205,15 @@ class StubValue one of <"A type defining how a stub calculation period amount is
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value stubRate]
 	stubAmount Money (0..1) <"An actual amount to apply for the initial or final stub period may have been agreed between the two parties. If an actual stub amount has been agreed then it would be included in this component.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value stubAmount]
+}
+
+class TradeDate <"A class to specify the contract's trade date, alongside the trade date that is associated with the novated contract in the case where the current contract was subject to a prior novation event. This class doesn't exist in FpML. There is a corresponding EffectiveDate class to specify the effective date.">
+{
+	id (0..1);
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id path "trade.tradeHeader.tradeDate"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id path "tradeHeader.tradeDate"]
+	date date (1..1) <"The trade date associated with the contract. In the case of a novated trade, this date corresponds to the novation date.">;
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value tradeDate path "trade.tradeHeader"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value tradeDate path "tradeHeader"]
+	priorDateInstance PriorDateInstance (0..*) <"In the case of a novated trade, this is the trade date that was associated with the trade that has been novated.">;
 }

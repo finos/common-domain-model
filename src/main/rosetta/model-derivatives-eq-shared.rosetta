@@ -43,6 +43,16 @@ class DeterminationMethod <"The purpose of this class is to be extended by the P
 		[synonym FpML_5_10 value determinationMethod]
 }
 
+class DividendCurrency one of <"A class to specify the currency in which the dividends will be denominated, i.e. either in the dividend currency or in a currency specified as part of the contract.">
+{
+	currency string (0..1) scheme <"The specified currency in which the dividend is denominated.">;
+		[synonym FpML_5_10 value currency meta currencyScheme]
+	determinationMethod DeterminationMethodEnum (0..1) <"Specifies the method according to which the dividend is determined, e.g. the dividend currency.">;
+		[synonym FpML_5_10 value determinationMethod]
+	currencyReference string (0..1) reference <"Reference to a currency specified elsewhere in the document">;
+		[synonym FpML_5_10 value currencyReference meta href]
+}
+
 class DividendReturnTerms <"A class describing the conditions governing the payment of dividends to the receiver of the equity return, with the exception of the dividend payout ratio, which is defined for each of the underlying components.">
 	[synonym FpML_5_10 value DividendConditions]
 {
@@ -66,6 +76,8 @@ class DividendReturnTerms <"A class describing the conditions governing the paym
 		[synonym FpML_5_10 value extraOrdinaryDividends meta href]
 	excessDividendAmount DividendAmountTypeEnum (0..1) <"Determination of Gross Cash Dividend per Share.">;
 		[synonym FpML_5_10 value excessDividendAmount]
+	dividendCurrency DividendCurrency (0..1) <"Specifies the currency in which the dividend will be denominated, e.g. the dividend currency, or a specified currency. This class is not specified as such in FpML, which makes use of the CurrencyAndDeterminationMethod.model to specify such terms.">;
+	
 	/*
 	 * More FpML provisions to be confirmed & specified
 	 */
@@ -92,6 +104,7 @@ class DividendPaymentDate one of <"A class describing the date on which the divi
 	[synonym FpML_5_10 value DividendPaymentDate]
 {
 	dividendDateReference DividendDateReference (0..1);
+		[synonym FpML_5_10 value dividendDateReference]
 	adjustableDate AdjustableDate (0..1);
 		[synonym FpML_5_10 value adjustableDate]
 }
@@ -192,8 +205,12 @@ class EquityValuation <"A class for defining how and when an equity option or eq
 		[synonym FpML_5_10 value valuationDates path "valuationRules"]
 	valuationDate AdjustableOrRelativeDate (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Pricing Date">;
 		[synonym FpML_5_10 value valuationDate path "valuationRules"]
+	valuationTime BusinessCenterTime (0..1) <"The specific time of day at which the calculation agent values the underlying. The SpecificTime is the only case when the valuationTime (time + business center location – e.g. 10:00:00 USNY) should be provided. You should be able to provide just the valuationTime without valuationTimeType, which infer that this is a specific time.">;
+		[synonym FpML_5_10 value valuationTime path "valuationRules"]
+	valuationTimeType TimeTypeEnum (0..1) <"The time of day at which the calculation agent values the underlying, for example the official closing time of the exchange.">;
+		[synonym FpML_5_10 value valuationTimeType path "valuationRules"]
 	/*
-	 * The FpML construct has a a number of other attributes: valuation time, dividend valuation dates, fall-back provision, ...
+	 * The FpML construct has a a number of other attributes: dividend valuation dates, fall-back provision, ...
 	 * Also, FpML extends Price while the current CDM approach is just to share the determinationMethod.  To be confirmed as a function of the use cases.
 	 */
 }
