@@ -37,44 +37,34 @@ public class DaysInPeriodImplTest {
 
         assertNotNull(daysInPeriod);
         assertThat("Unexpected calculated daysInPeriod", daysInPeriod, is(90));
-    }
+    } 
 
     private CalculationPeriodDates getCalculationPeriodDates(LocalDate effectiveDate, LocalDate terminationDate, RollConventionEnum rollConvention) {
         return CalculationPeriodDates.builder()
-                .setEffectiveDate((EffectiveDate)(EffectiveDate.builder()
-            			.setAdjustableDate(AdjustableDate.builder()
-            					.setUnadjustedDate(LocalDate.of(2018, 1, 3))
-            					.setDateAdjustments(BusinessDayAdjustments.builder()
-            							.setBusinessDayConvention(BusinessDayConventionEnum.NONE)
-            							.build())
-            					.build())
-            			.build()))
-                .setTerminationDate(AdjustableOrRelativeDate.builder()
-                		.setAdjustableDate(AdjustableDate.builder()
-                				.setUnadjustedDate(terminationDate)
-                				.setDateAdjustments(BusinessDayAdjustments.builder()
-                						.setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
-                						.setBusinessCenters(BusinessCenters.builder()
-                								.setBusinessCentersReference(ReferenceWithMetaBusinessCenters.builder()
-                										.setReference("primaryBusinessCenters")
-                										.build())
-                								.build())
-                						.build())
-                				.build())
-                        .build())
-                .setCalculationPeriodFrequency((CalculationPeriodFrequency) CalculationPeriodFrequency.builder()
-                        .setRollConvention(rollConvention)
-                        .setPeriodMultiplier(1)
-                        .setPeriod(PeriodExtendedEnum.Y)
-                        .build())
-                .setCalculationPeriodDatesAdjustments(BusinessDayAdjustments.builder()
+                .setEffectiveDateBuilder(EffectiveDate.builder()
+					.setAdjustableDateBuilder(AdjustableDate.builder()
+						.setUnadjustedDate(effectiveDate)
+						.setDateAdjustmentsBuilder(BusinessDayAdjustments.builder()
+							.setBusinessDayConvention(BusinessDayConventionEnum.NONE))))
+                .setTerminationDateBuilder(AdjustableOrRelativeDate.builder()
+                	.setAdjustableDateBuilder(AdjustableDate.builder()
+                		.setUnadjustedDate(terminationDate)
+                		.setDateAdjustmentsBuilder(BusinessDayAdjustments.builder()
+                			.setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
+                				.setBusinessCentersBuilder(BusinessCenters.builder()
+                					.setBusinessCentersReferenceBuilder(ReferenceWithMetaBusinessCenters.builder()
+                						.setReference("primaryBusinessCenters"))))))
+                
+                .setCalculationPeriodFrequencyBuilder(CalculationPeriodFrequency.builder()
+                    .setRollConvention(rollConvention)
+                    .setPeriodMultiplier(1)
+                    .setPeriod(PeriodExtendedEnum.Y))
+                
+                .setCalculationPeriodDatesAdjustmentsBuilder(BusinessDayAdjustments.builder()
                         .setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
-                        .setBusinessCenters(BusinessCenters.builder()
-                        		.setBusinessCentersReference(ReferenceWithMetaBusinessCenters.builder()
-                                		.setReference("primaryBusinessCenters")
-                                		.build())
-                                .build())
-                        .build())
+                        .setBusinessCentersBuilder(BusinessCenters.builder()
+                        	.setBusinessCentersReferenceBuilder(ReferenceWithMetaBusinessCenters.builder()
+                                .setReference("primaryBusinessCenters"))))
                 .build();
     }
 }
