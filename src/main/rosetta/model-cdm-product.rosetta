@@ -292,7 +292,7 @@ choice rule ContractualQuantity_choice <"The below set of notional values are ex
 	quantity and notionalAmount and notionalSchedule and fxLinkedNotional
 
 data rule InterestRatePayout_futureValueNotional <"The BRL CDI future value notional only applies to a fixed Rate Schedule.">
-	when InterestRatePayout -> interestRate -> fixedRate is absent
+	when InterestRatePayout -> rateCalculation -> fixedRate is absent
 	then InterestRatePayout -> quantity -> futureValueNotional is absent
 
 data rule FutureValueNotional_terminationDate <"FpML states that the value date associated with the future value notional should match the adjusted termination date.">
@@ -452,7 +452,7 @@ data rule BasketReferenceInformation_nameOrId <"The BasketReferenceInformation r
 	then GeneralTerms -> basketReferenceInformation -> basketName exists
 		or GeneralTerms -> basketReferenceInformation -> basketId exists
 
-class InterestRate <"The ability to combine several rates has been specified for the purpose of supporting the FRA product representation, which payout combines a fixed and a floating rate.">
+class RateCalculation one of <"The ability to combine several rates has been specified for the purpose of supporting the FRA product representation, which payout combines a fixed and a floating rate.">
 {
 	fixedRate Schedule (0..1) <"The fixed rate or fixed rate schedule expressed as explicit fixed rates and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">;
 	floatingRate FloatingRateCalculation (0..1) <"A floating rate calculation definition.">;
@@ -465,9 +465,8 @@ class InterestRatePayout calculation FixedAmount, FloatingAmount rosettaKey <"Th
 	id (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 	payerReceiver PayerReceiver (0..1) <"The payer/seller paradigm applies to swap products, whether interest rate swaps or the fee leg of credit default swaps.">;
-	buyerSeller BuyerSeller (0..1) <"The buyer/seller paradigm applies to FRAs.">;
 	quantity ContractualQuantity (0..1) <"The quantity can be expressed in different formats, depending upon the product, e.g. notional amount for credit and interest rate products, quantity for some of the equity products. The CDM uses the generic term quantity rather than notional amount.">;
-	interestRate InterestRate (0..1) <"The interest rate can be a floating rate, a fixed rate of an inflation rate.">;
+	rateCalculation RateCalculation (0..1) <"The interest rate can be a floating rate, a fixed rate of an inflation rate.">;
 	dayCountFraction DayCountFractionEnum (0..1) scheme <"The day count fraction.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value dayCountFraction path "calculationPeriodAmount.calculation" meta dayCountFractionScheme]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value dayCountFraction path "periodicPayment.fixedAmountCalculation" meta dayCountFractionScheme]
@@ -494,8 +493,6 @@ class InterestRatePayout calculation FixedAmount, FloatingAmount rosettaKey <"Th
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value stubCalculationPeriodAmount]
 	bondReference BondReference (0..1) <"Reference to a bond underlier to represent an asset swap or Condition Precedent Bond.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value bondReference]
-	fraDiscounting FraDiscountingEnum (0..1) <"Specifies whether discounting applies to a FRA and, if so, what type.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value fraDiscounting]
 	calculationPeriodNumberOfDays number (0..1) <"The number of days from the adjusted effective date to the adjusted termination date calculated in accordance with the applicable day count fraction. This attribute is specified by FpML in relation to the FRAs.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value calculationPeriodNumberOfDays]
 }
@@ -524,8 +521,8 @@ data rule InterestRatePayout_paymentDates <"FpML specifies a required paymentDat
 
 data rule FpML_ird_1 <"FpML validation rule ird-1 - Reset dates must exist if and only if a floating rate or inflation rate exists.">
 	when InterestRatePayout -> resetDates exists
-	then ( InterestRatePayout -> interestRate -> floatingRate
-		or InterestRatePayout -> interestRate-> inflationRate
+	then ( InterestRatePayout -> rateCalculation -> floatingRate
+		or InterestRatePayout -> rateCalculation -> inflationRate
 	) exists
 
 data rule FpML_ird_6 <"FpML validation rule ird-6 - If paymentDates/firstPaymentDate exists, and if calculationPeriodDates/effectiveDate exists, then paymentDates/firstPaymentDate must be after calculationPeriodDates/effectiveDate/unadjustedDate.">
@@ -583,7 +580,7 @@ data rule FpML_ird_9 <"FpML validation rule ird-9 - If calculationPeriodAmount/c
 
 data rule FpML_ird_29 <"FpML validation rule ird-29 - If compoundingMethod exists, then fixedRateSchedule must not exist.">
 	when InterestRatePayout -> compoundingMethod exists
-	then InterestRatePayout -> interestRate -> fixedRate is absent
+	then InterestRatePayout -> rateCalculation -> fixedRate is absent
 
 data rule CalculationPeriodDates_firstCompoundingPeriodEndDate <"FpML specifies that the firstCompoundingPeriodEndDate must only be specified when the compounding method is specified and not equal to a value of None.">
 	when InterestRatePayout -> compoundingMethod is absent
@@ -907,23 +904,23 @@ isProduct EquitySwap_ParameterReturnDividend_SingleName <"The Parameter Return D
 
 isProduct InterestRate_IRSwap_Basis
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Basis]
-	EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate count = 2
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate is absent
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate is absent
+	EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> floatingRate count = 2
+	and EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> fixedRate is absent
+	and EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> inflationRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 	and EconomicTerms -> payout -> optionPayout is absent
 
 isProduct InterestRate_IRSwap_FixedFloat_PlainVanilla <"This product qualification doesn't represent the exact terms of the ISDA Taxonomomy V2.0 for the plain vanilla swaps, as some of those cannot be represented as part of the CDM syntax (e.g. the qualification that there is no provision for early termination which uses an off-market valuation), while some other are deemed missing in the ISDA taxonomy and have been added as part of the CDM (absence of cross-currency settlement provision, absence of fixed rate and notional step schedule, absence of stub). ">
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFloat]
-	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate count = 1
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate count = 1
-	and  EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate is absent
+	EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> fixedRate count = 1
+	and EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> floatingRate count = 1
+	and  EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> inflationRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> settlementProvision is absent
 	and EconomicTerms -> payout -> optionPayout is absent
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> spreadSchedule -> step is absent
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate -> step is absent
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> floatingRateMultiplierSchedule is absent
+	and EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> floatingRate -> spreadSchedule -> step is absent
+	and EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> fixedRate -> step is absent
+	and EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> floatingRate -> floatingRateMultiplierSchedule is absent
 	and EconomicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step is absent
 	and EconomicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepParameters is absent
 	and EconomicTerms -> payout -> interestRatePayout -> stubPeriod is absent
@@ -935,7 +932,7 @@ isProduct InterestRate_IRSwap_FixedFloat_PlainVanilla <"This product qualificati
 //	and EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period =
 //		EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> indexTenor -> period
 	and EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier =
-		EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> indexTenor -> periodMultiplier
+		EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> floatingRate -> indexTenor -> periodMultiplier
 	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period <> PeriodExtendedEnum.T
 	and EconomicTerms -> payout -> interestRatePayout -> compoundingMethod is absent
 	// TODO comment out data rules that should only apply to qualification (and not be applied as part of general validation)
@@ -971,20 +968,19 @@ isProduct InterestRate_IRSwap_FixedFloat_PlainVanilla <"This product qualificati
 
 isProduct InterestRate_IRSwap_FixedFloat
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFloat]
-	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate count = 1
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate count = 1
-	and EconomicTerms -> payout -> interestRatePayout -> buyerSeller is absent
-	and  EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate is absent
+	EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> fixedRate count = 1
+	and EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> floatingRate count = 1
+	and  EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> inflationRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 	and EconomicTerms -> payout -> optionPayout is absent
 	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period <> PeriodExtendedEnum.T
-	and ( EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> spreadSchedule -> step exists
+	and ( EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> floatingRate -> spreadSchedule -> step exists
 		or EconomicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step exists
 		or EconomicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepParameters exists
-		or EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> floatingRateMultiplierSchedule exists
-		or EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate -> step exists
+		or EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> floatingRate -> floatingRateMultiplierSchedule exists
+		or EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> fixedRate -> step exists
 		or EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier <>
-		EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> indexTenor -> periodMultiplier
+		EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> floatingRate -> indexTenor -> periodMultiplier
 		or EconomicTerms -> payout -> interestRatePayout -> compoundingMethod exists
 		or EconomicTerms -> payout -> interestRatePayout -> stubPeriod exists
 		or EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> stubPeriodType exists
@@ -992,41 +988,41 @@ isProduct InterestRate_IRSwap_FixedFloat
 
 isProduct InterestRate_IRSwap_FixedFixed
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFixed]
-	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate count = 2
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate is absent
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate is absent
+	EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> fixedRate count = 2
+	and EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> floatingRate is absent
+	and EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> inflationRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 	and EconomicTerms -> payout -> optionPayout is absent
 
 isProduct InterestRate_CrossCurrency_Basis
 	[synonym ISDA_Taxonomy_v1 value InterestRate_CrossCurrency_Basis]
-	EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate count = 2
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate is absent
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate is absent
+	EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> floatingRate count = 2
+	and EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> fixedRate is absent
+	and EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> inflationRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges exists
 	and EconomicTerms -> payout -> optionPayout is absent
 
 isProduct InterestRate_CrossCurrency_FixedFloat
 	[synonym ISDA_Taxonomy_v1 value InterestRate_CrossCurrency_FixedFloat]
-	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate count = 1
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate count = 1
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate is absent
+	EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> fixedRate count = 1
+	and EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> floatingRate count = 1
+	and EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> inflationRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges exists
 	and EconomicTerms -> payout -> optionPayout is absent
 
 isProduct InterestRate_CrossCurrency_FixedFixed
 	[synonym ISDA_Taxonomy_v1 value InterestRate_CrossCurrency_FixedFixed]
-	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate count = 2
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate is absent
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate is absent
+	EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> fixedRate count = 2
+	and EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> floatingRate is absent
+	and EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> inflationRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges exists
 	and EconomicTerms -> payout -> optionPayout is absent
 
 isProduct InterestRate_IRSwap_FixedFloat_ZeroCoupon
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFloat]
-	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate count = 1
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate count = 1
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate is absent
+	EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> fixedRate count = 1
+	and EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> floatingRate count = 1
+	and EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> inflationRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 	and EconomicTerms -> payout -> optionPayout is absent
 	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
@@ -1037,27 +1033,27 @@ isProduct InterestRate_IRSwap_FixedFloat_ZeroCoupon
  */
 isProduct InterestRate_IRSwap_FixedFloat_OIS
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFloat]
-	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate count = 1
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate count = 1
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate is absent
+	EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> fixedRate count = 1
+	and EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> floatingRate count = 1
+	and EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> inflationRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 	and EconomicTerms -> payout -> optionPayout is absent
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> floatingRateIndex = FloatingRateIndexEnum.AUD_AONIA_OIS_COMPOUND
+	and EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> floatingRate -> floatingRateIndex = FloatingRateIndexEnum.AUD_AONIA_OIS_COMPOUND
 
 isProduct InterestRate_IRSwap_Basis_OIS
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Basis]
-	EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate count = 2
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate is absent
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate is absent
+	EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> floatingRate count = 2
+	and EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> fixedRate is absent
+	and EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> inflationRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 	and EconomicTerms -> payout -> optionPayout is absent
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> floatingRateIndex = FloatingRateIndexEnum.AUD_AONIA_OIS_COMPOUND
+	and EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> floatingRate -> floatingRateIndex = FloatingRateIndexEnum.AUD_AONIA_OIS_COMPOUND
 
 isProduct InterestRate_InflationSwap_FixedFloat_YearOn_Year
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation]
-	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate count = 1
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate count = 1
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate is absent
+	EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> fixedRate count = 1
+	and EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> inflationRate count = 1
+	and EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> floatingRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 	and EconomicTerms -> payout -> optionPayout is absent
 	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
@@ -1065,9 +1061,9 @@ isProduct InterestRate_InflationSwap_FixedFloat_YearOn_Year
 
 isProduct InterestRate_InflationSwap_FixedFloat_ZeroCoupon
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation]
-	EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate count = 1
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate count = 1
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate is absent
+	EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> fixedRate count = 1
+	and EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> inflationRate count = 1
+	and EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> floatingRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 	and EconomicTerms -> payout -> optionPayout is absent
 	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
@@ -1075,9 +1071,9 @@ isProduct InterestRate_InflationSwap_FixedFloat_ZeroCoupon
 
 isProduct InterestRate_InflationSwap_Basis_YearOn_Year
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation]
-	EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate count = 1
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate count = 1
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate is absent
+	EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> floatingRate count = 1
+	and EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> inflationRate count = 1
+	and EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> fixedRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 	and EconomicTerms -> payout -> optionPayout is absent
 	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
@@ -1085,9 +1081,9 @@ isProduct InterestRate_InflationSwap_Basis_YearOn_Year
 
 isProduct InterestRate_InflationSwap_Basis_ZeroCoupon
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation]
-	EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate count = 1
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate count = 1
-	and EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate is absent
+	EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> floatingRate count = 1
+	and EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> inflationRate count = 1
+	and EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> fixedRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 	and EconomicTerms -> payout -> optionPayout is absent
 	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
@@ -1105,12 +1101,14 @@ isProduct InterestRate_Option_DebtOption
 
 isProduct InterestRate_CapFloor
 	[synonym ISDA_Taxonomy_v1 value InterestRate_CapFloor]
-	EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> capRateSchedule exists
-		or EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> floorRateSchedule exists
+	EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> floatingRate -> capRateSchedule exists
+		or EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> floatingRate -> floorRateSchedule exists
 
 isProduct InterestRate_Fra
 	[synonym ISDA_Taxonomy_v1 value InterestRate_Fra]
-	EconomicTerms -> payout -> interestRatePayout single exists
+	EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> floatingRate count = 2
 	and EconomicTerms -> payout -> creditDefaultPayout is absent
 	and EconomicTerms -> payout -> cashflow is absent
-	and EconomicTerms -> payout -> interestRatePayout -> buyerSeller exists
+	and EconomicTerms -> payout -> interestRatePayout -> discounting exists
+	and EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate =
+		EconomicTerms -> payout -> interestRatePayout -> paymentDate -> unadjustedDate  
