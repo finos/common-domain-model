@@ -452,7 +452,7 @@ data rule BasketReferenceInformation_nameOrId <"The BasketReferenceInformation r
 	then GeneralTerms -> basketReferenceInformation -> basketName exists
 		or GeneralTerms -> basketReferenceInformation -> basketId exists
 
-class RateCalculation one of <"The ability to combine several rates has been specified for the purpose of supporting the FRA product representation, which payout combines a fixed and a floating rate.">
+class RateCalculation <"The ability to combine several rate calculations as part of one payout is allowed for the purpose of supporting the FRA product representation, which payout combines a fixed and a floating rate.">
 {
 	fixedRate Schedule (0..1) <"The fixed rate or fixed rate schedule expressed as explicit fixed rates and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">;
 	floatingRate FloatingRateCalculation (0..1) <"A floating rate calculation definition.">;
@@ -465,8 +465,9 @@ class InterestRatePayout calculation FixedAmount, FloatingAmount rosettaKey <"Th
 	id (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 	payerReceiver PayerReceiver (0..1) <"The payer/seller paradigm applies to swap products, whether interest rate swaps or the fee leg of credit default swaps.">;
+	buyerSeller BuyerSeller (0..1) <"The buyer/seller paradigm applies to FRAs.">;
 	quantity ContractualQuantity (0..1) <"The quantity can be expressed in different formats, depending upon the product, e.g. notional amount for credit and interest rate products, quantity for some of the equity products. The CDM uses the generic term quantity rather than notional amount.">;
-	rateCalculation RateCalculation (0..1) <"The interest rate can be a floating rate, a fixed rate of an inflation rate.">;
+	rateCalculation RateCalculation (0..1) <"The rate calculation can be a floating rate, a fixed rate or an inflation rate.">;
 	dayCountFraction DayCountFractionEnum (0..1) scheme <"The day count fraction.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value dayCountFraction path "calculationPeriodAmount.calculation" meta dayCountFractionScheme]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value dayCountFraction path "periodicPayment.fixedAmountCalculation" meta dayCountFractionScheme]
@@ -475,6 +476,7 @@ class InterestRatePayout calculation FixedAmount, FloatingAmount rosettaKey <"Th
     	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value dayCountFraction path "interestCalculation" meta dayCountFractionScheme]
     discounting Discounting (0..1) <"The parameters specifying any discounting conventions that may apply. This element must only be included if discounting applies.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value discounting path "calculationPeriodAmount.calculation"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value fraDiscounting]
 	compoundingMethod CompoundingMethodEnum (0..1) <"If one or more calculation period contributes to a single payment amount this element specifies whether compounding is applicable and, if so, what compounding method is to be used. This element must only be included when more than one calculation period contributes to a single payment amount.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value compoundingMethod path "calculationPeriodAmount.calculation"]
 	calculationPeriodDates CalculationPeriodDates (1..1) <"The calculation period dates schedule.">;
@@ -493,8 +495,6 @@ class InterestRatePayout calculation FixedAmount, FloatingAmount rosettaKey <"Th
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value stubCalculationPeriodAmount]
 	bondReference BondReference (0..1) <"Reference to a bond underlier to represent an asset swap or Condition Precedent Bond.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value bondReference]
-	calculationPeriodNumberOfDays number (0..1) <"The number of days from the adjusted effective date to the adjusted termination date calculated in accordance with the applicable day count fraction. This attribute is specified by FpML in relation to the FRAs.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value calculationPeriodNumberOfDays]
 }
 
 choice rule InterestRatePayout_choice <"The paymentDates attributes is applicable to interest rate payouts with periodic payments, while the paymentDate reflects the FpML FRA implementation where one specific date is specified.">
@@ -625,18 +625,12 @@ class OptionPayout rosettaKey <"The option payout specification terms.">
 	underlier Product (1..1) <"The option underlier. The implementation is restricted to contractual underliers as part of the initial CDM phase.">;
 }
 
-class PaymentDates <"The payment dates schedule. Some adjustments from the FpML construct have been undertaken in order to make use of this class for the equity swaps: the lastPaymentDate can be specified in relation to another date, while the dateRelativeTo attribute has been added for similar purposes with respect to the interim payment dates. Also, while the CDM agreed on the idea to deprecate the calculationPeriodDatesReference, resetDatesReference and valuationDatesReference because deemed as irrelevant while not being used by market participants, those attributes were reverted back once it was realised that some participants were contributing sample transactions which actually had those attributes.">
+class PaymentDates <"The payment dates schedule. Some adjustments from the FpML construct have been undertaken in order to make use of this class for the equity swaps: the lastPaymentDate can be specified in relation to another date, while the dateRelativeTo attribute has been added for similar purposes with respect to the interim payment dates.">
 	[synonym FpML_5_10 value PaymentDates]
 {
 	id (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 		[synonym FpML_5_10 meta id path "interestLegCalculationPeriodDates"]
-	calculationPeriodDatesReference CalculationPeriodDates (0..1) reference <"A pointer style reference to the associated calculation period dates component defined elsewhere in the document.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value calculationPeriodDatesReference meta href]
-	resetDatesReference ResetDates (0..1) reference <"A pointer style reference to the associated reset dates component defined elsewhere in the document.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value resetDatesReference meta href]
-	valuationDatesReference date (0..1) reference <"A pointer style reference to the associated valuation dates component defined elsewhere in the document. Implemented for Brazilian-CDI Swaps where it will refer to the settlemementProvision/nonDeliverableSettlement/fxFixingDate structure.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value valuationDatesReference meta href]
 	dateRelativeTo date (0..1) reference <"The anchor date when the payment dates are specified by reference to a set of dates specified somewhere else in the instance document/transaction, e.g. the valuation dates as typically the case for equity swaps.  When this attribute is specified, the paymentDaysOffset and the paymentDatesAdjustments also need to specified.">;
 		[synonym FpML_5_10 value dateRelativeTo path "paymentDatesInterim.relativeDates" meta href]
 		[synonym FpML_5_10 value dateRelativeTo path "relativeDates" meta href]
@@ -654,10 +648,6 @@ class PaymentDates <"The payment dates schedule. Some adjustments from the FpML 
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentDatesAdjustments]
 		[synonym FpML_5_10 value relativeDates path "paymentDatesInterim"]
 }
-
-choice rule PaymentDates_choice <"Choice rule to represent an FpML choice construct. The choice is made optional to take into consideration the fact that he PaymentDates class is used for the credit products, to specify the payment delay.">
-	for PaymentDates optional choice between
-	calculationPeriodDatesReference and resetDatesReference and valuationDatesReference and dateRelativeTo
 
 data rule FpML_ird_35_cd_31 <"FpML validation rule ird-35 & cd-31- If firstPaymentDate exists, and if lastRegularPaymentDate exists, then firstPaymentDate must be before lastRegularPaymentDate.">
 	when PaymentDates -> firstPaymentDate exists
@@ -859,6 +849,7 @@ class StubPeriod <"A class defining how the initial or final stub calculation pe
  * QUESTION TO CDM GROUP
  * TODO - FpML sample credit trades don't include examples that specify those attributes
  * Would be great if we could confirm the actual usage though sample transactions
+ * See Trello card https://trello.com/c/VLtPwoek
  */
 class TransactedPrice <"A class to represent the transacted price attributes that are positioned as part of the FpML FeeLeg.">
 {
@@ -970,7 +961,7 @@ isProduct InterestRate_IRSwap_FixedFloat
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFloat]
 	EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> fixedRate count = 1
 	and EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> floatingRate count = 1
-	and  EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> inflationRate is absent
+	and EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> inflationRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 	and EconomicTerms -> payout -> optionPayout is absent
 	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period <> PeriodExtendedEnum.T
@@ -985,6 +976,8 @@ isProduct InterestRate_IRSwap_FixedFloat
 		or EconomicTerms -> payout -> interestRatePayout -> stubPeriod exists
 		or EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> stubPeriodType exists
 		or EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> settlementProvision exists )
+	and (EconomicTerms -> payout -> interestRatePayout -> paymentDates exists
+		or paymentDate <> effectiveDate )
 
 isProduct InterestRate_IRSwap_FixedFixed
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFixed]
@@ -1106,9 +1099,16 @@ isProduct InterestRate_CapFloor
 
 isProduct InterestRate_Fra
 	[synonym ISDA_Taxonomy_v1 value InterestRate_Fra]
-	EconomicTerms -> payout -> interestRatePayout -> rateCalculation -> floatingRate count = 2
+	EconomicTerms -> payout -> interestRatePayout exists
 	and EconomicTerms -> payout -> creditDefaultPayout is absent
 	and EconomicTerms -> payout -> cashflow is absent
 	and EconomicTerms -> payout -> interestRatePayout -> discounting exists
-	and EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate =
-		EconomicTerms -> payout -> interestRatePayout -> paymentDate -> unadjustedDate  
+	and effectiveDate = paymentDate
+
+alias effectiveDate // Scope limited to interestPayour until such time that we position it to the economicTerms level
+	EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate
+	or EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
+
+alias paymentDate // Scope limited to interestPayour until such time that we position it to the economicTerms level
+	EconomicTerms -> payout -> interestRatePayout -> paymentDate -> adjustedDate
+	or EconomicTerms -> payout -> interestRatePayout -> paymentDate -> unadjustedDate
