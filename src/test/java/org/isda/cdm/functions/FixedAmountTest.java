@@ -27,7 +27,7 @@ class FixedAmountTest {
                                         .build())
                                 .build())
                         .build())
-                .setRateCalculation(RateCalculation.builder()
+                .setRateSpecification(RateSpecification.builder()
                         .setFixedRate(Schedule.builder()
                                 .setInitialValue(BigDecimal.valueOf(0.06))
                                 .build())

@@ -10,7 +10,7 @@ arguments FixedAmount <"The set of arguments to calculate the FixedAmount.">
 {
 	calculationAmount: is InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
 	currencyAmount: is InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> currency
-	rate: is InterestRatePayout -> rateCalculation -> fixedRate -> initialValue
+	rate: is InterestRatePayout -> rateSpecification -> fixedRate -> initialValue
     dayCountFraction: is InterestRatePayout -> dayCountFraction
 }
 
@@ -31,12 +31,12 @@ arguments FloatingAmount <"The set of arguments to calculate the FloatingAmount.
 {
 	calculationAmount: is InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
 	currencyAmount: is InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> currency
-	floatingRate: is ResolveRateIndex( InterestRatePayout -> rateCalculation -> floatingRate -> floatingRateIndex ) -> rate
+	floatingRate: is ResolveRateIndex( InterestRatePayout -> rateSpecification -> floatingRate -> floatingRateIndex ) -> rate
 
 	/*
 	 * TODO: question to group: why can a float rate calculation node in FpML contain multiple rate schedules?
 	 */
-	spread: is GetRateSchedule( InterestRatePayout -> rateCalculation -> floatingRate ) -> schedule -> initialValue
+	spread: is GetRateSchedule( InterestRatePayout -> rateSpecification -> floatingRate ) -> schedule -> initialValue
 	dayCountFraction: is InterestRatePayout -> dayCountFraction
 }
 
@@ -117,7 +117,7 @@ function CalculationPeriod( calculationPeriodDates CalculationPeriodDates ) <"20
 	endDate date;
 }
 
-function GetRateSchedule( floatingRateCalculation FloatingRateCalculation )
+function GetRateSchedule( floatingRateCalculation FloatingRateSpecification )
 {
 	schedule SpreadSchedule;
 }
