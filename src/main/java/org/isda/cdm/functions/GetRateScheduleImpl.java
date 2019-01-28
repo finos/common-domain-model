@@ -8,7 +8,7 @@ import java.util.List;
 
 public class GetRateScheduleImpl implements GetRateSchedule {
 
-	public CalculationResult execute(org.isda.cdm.FloatingRateCalculation floatingRateCalculation) {
+	public CalculationResult execute(org.isda.cdm.FloatingRateSpecification floatingRateCalculation) {
 		List<SpreadSchedule> spreadSchedules = floatingRateCalculation.getSpreadSchedule();
 
 		if (spreadSchedules != null && !spreadSchedules.isEmpty()) {
