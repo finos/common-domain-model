@@ -337,10 +337,7 @@ class Inception <"The primitive event for the inception of a new contract betwee
 {
 	before ContractState (0..0) <"The (0..0) cardinality reflects the fact that there is no contract in the before state of an inception primitive. As noted in the definition associated with the class, this is expected to change once the CDM scope is extended to the pre-execution space.">;
 		[synonym Rosetta_Workbench value before]
-	/*
-	 * Need to add the rosettaKey entry
-	 */
-	after PostInceptionState (1..1) reference <"The after state corresponds to the new contract between the parties. Depending upon the implementation approach, this contract can either be explicitly stated, or referenced via either a CDM rosettaKey or a reference that originates externally from the CDM.">;
+	after PostInceptionState (1..1) <"The after state corresponds to the new contract between the parties.">;
 		[synonym Rosetta_Workbench value after]
 		[synonym DTCC_11_0 value OTC_RM path "Header"]
 		[synonym DTCC_11_0, DTCC_9_0 value OTC_Matching path "Body" set when "Header.OTC_RM.Manifest.TradeMsg.TransType" = "Trade"]
@@ -393,6 +390,7 @@ class LimitApplicableExtended extends LimitApplicable <"A class to represent the
 
 class Lineage <"The class to provide lineage information across transactions.">
 {
+	lineageQualifier LineageQualifierEnum (0..1) <"The lineage qualification, which is meant to provide insight into the object that is represented by the rosettaKey reference. The purpose of this qualifier can be illustrated by a novated trade and a cleared trade, which look very similar in the sense that they are both model through an inception primitive, with a lineage into, respectively, the novated trade and the alpha trade. Qualifiying the lineage as NovatedTrade and AlphaTrade hence provides further insight into those event components.">;
 	contractReference Contract (0..*) rosettaKey reference;
 	    [synonym Rosetta_Workbench value contractReference meta href]
 	eventReference Event (0..*) rosettaKey reference; 
@@ -407,7 +405,7 @@ class Lineage <"The class to provide lineage information across transactions.">
 		[synonym Rosetta_Workbench value optionPayoutReference meta href]
 }
 
-class MessageInformation <"This class corresponds to the messaging components of the FpML MessageHeader.model.">
+class MessageInformation <"This class corresponds to the components of the FpML MessageHeader.model.">
 {
 	messageId string (1..1) scheme <"A unique identifier assigned to the message.">;
 		[synonym Rosetta_Workbench value messageId path "messageInformation" meta messageIdScheme]
@@ -491,7 +489,7 @@ class PostInceptionState extends ContractState
 	tradeWarehouseWorkflow TradeWarehouseWorkflow (0..1) <"Information related to trade warehouse workflow.">;
 }
 
-class PrimitiveEvent <"The set of primitive events. The purpose of this class it to provide clarity with respect to the event qualification logic.">
+class PrimitiveEvent <"The set of primitive events.">
 {
 	inception Inception (0..*);
 		[synonym Rosetta_Workbench value inception]
@@ -630,7 +628,7 @@ class TransferBase
 		[synonym DTCC_11_0, DTCC_9_0 value calculationDetails]
 }
 
-class TransferCalculation <"">
+class TransferCalculation
 {
 	period CalculationPeriodBase (0..1 ) <"The period adjusted start and end dates.">;
 		[synonym DTCC_11_0, DTCC_9_0 value calculationPeriod path "calculationElements"]
@@ -717,25 +715,47 @@ isEvent CashAndSecurityTransfer <"The qualification of a security settlement fro
 	and Event -> primitive -> transfer -> cashTransfer -> payerReceiver -> payerPartyReference = Event -> primitive -> transfer -> securityTransfer -> transferorTransferee -> transferorPartyReference
 	and Event -> primitive -> transfer -> commodityTransfer is absent
 
-isEvent ClearingAcceptance <"The acceptance of an alpha trade submission by a CCP.">
-	Event -> primitive -> inception exists
-	and Event -> primitive -> inception -> after -> clearingWorkflow -> clearingStatus = WorkflowEnum.Accepted
-	and Event -> primitive -> quantityChange exists
-	and quantityAfterQuantityChange = 0.0
+//isEvent ClearingAcceptance <"The acceptance of an alpha trade submission by a CCP.">
+//	Event -> primitive -> inception exists
+//	and Event -> primitive -> inception -> after -> clearingWorkflow -> clearingStatus = WorkflowEnum.Accepted
+//	and Event -> primitive -> quantityChange exists
+//	and quantityAfterQuantityChange = 0.0
 
-isEvent ClearingConfirmation <"The clearing confirmation event.">
+// Alpha trade terminated, beta gamma initiated
+//isEvent ClearingConfirmation <"The clearing confirmation event.">
+//	Event -> primitive -> inception only exists
+//	and Event -> primitive -> inception -> after -> clearingWorkflow -> clearingStatus = WorkflowEnum.Cleared
+//	and Event -> lineage -> contractReference exists
+
+isEvent ClearingRejection <"The rejection of an alpha trade submission by a CCP.">
+	Event -> primitive -> inception exists
+	and Event -> primitive -> inception -> after -> clearingWorkflow -> clearingStatus = WorkflowEnum.Rejected
+
+isEvent ClearingSubmission <"The submission of a contract to a CCP.">
+	Event -> primitive -> inception only exists
+	and Event -> primitive -> inception -> after -> clearingWorkflow -> clearingStatus = WorkflowEnum.Submitted
+	and Event -> primitive -> inception -> after -> contract -> partyRole -> role = PartyRoleEnum.ClearingOrganization
+
+isEvent AlphaTradeTermination <"The termination by the CCP of the alpha trade that was admitted to clearing.">
+	Event -> primitive -> quantityChange only exists
+	and quantityAfterQuantityChange = 0.0
+	and Event -> primitive -> quantityChange -> before -> contract -> partyRole -> role = PartyRoleEnum.ClearingOrganization
+	and Event -> primitive -> quantityChange -> after -> contract -> partyRole -> role = PartyRoleEnum.ClearingOrganization
+
+isEvent ClearingNotification <"The notification by the CCP of, respectively, the beta and the gamma trades that result from the clearing process.">
 	Event -> primitive -> inception only exists
 	and Event -> primitive -> inception -> after -> clearingWorkflow -> clearingStatus = WorkflowEnum.Cleared
 	and Event -> lineage -> contractReference exists
 
-isEvent ClearingRejection <"The rejection of of an alpha trade submission by a CCP.">
-	Event -> primitive -> inception exists
-	and Event -> primitive -> inception -> after -> clearingWorkflow -> clearingStatus = WorkflowEnum.Rejected
-
-isEvent ClearingSubmission
-	Event -> primitive -> inception only exists
-	and Event -> primitive -> inception -> after -> clearingWorkflow -> clearingStatus = WorkflowEnum.Submitted
-
+//workflow rule ClearedContract
+	// Event -> count = 3
+	// and Event = AlphaTradeTermination count = 1
+	// and Event = ClearingNotification count = 2
+	// and economic terms are the same across the underlying contracts
+	// and contractId are distinct among the contracts
+	// and event date of alpha trade termination = trade date of the beta and gamma trades
+	// and CCP which is in the party role of the alpha trade is the same as the CCP which is counterparty to the beta and gamma trades
+	
 isEvent Compression <"The qualification of a compression event from the fact that (i) the intent is Compression when specified, (ii) the quantity change primitive exists, (iii) and there are multiple contracts (or contract references) specified in the before state.">
 	Event -> intent when present = IntentEnum.Compression
 	and Event -> primitive -> quantityChange exists
