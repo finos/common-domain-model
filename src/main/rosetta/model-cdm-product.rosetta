@@ -457,8 +457,6 @@ class InterestRatePayout calculation FixedAmount, FloatingAmount rosettaKey <"Th
 	id (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 	payerReceiver PayerReceiver (0..1) <"The payer/seller paradigm applies to swap products, whether interest rate swaps or the fee leg of credit default swaps.">;
-	buyerSeller BuyerSeller (0..1) <"The buyer/seller paradigm applies to FRAs.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value ignore set when "trade.fra" is absent]
 	quantity ContractualQuantity (0..1) <"The quantity can be expressed in different formats, depending upon the product, e.g. notional amount for credit and interest rate products, quantity for some of the equity products. The CDM uses the generic term quantity rather than notional amount.">;
 	rateSpecification RateSpecification (1..1) <"The rate specification: a floating rate, a fixed rate or an inflation rate.">;
 	dayCountFraction DayCountFractionEnum (0..1) scheme <"The day count fraction.">;
@@ -494,10 +492,10 @@ class InterestRatePayout calculation FixedAmount, FloatingAmount rosettaKey <"Th
 choice rule InterestRatePayout_choice1 <"The paymentDates attributes is applicable to interest rate payouts with periodic payments, while the paymentDate reflects the FpML FRA implementation where one specific date is specified.">
 	for InterestRatePayout optional choice between
 	paymentDates and paymentDate
-
-choice rule InterestRatePayout_choice2 <"The interest rate payout makes use of the buyer/seller (for FRAs) or the payer/receiver model.">
-	for InterestRatePayout required choice between
-	buyerSeller and payerReceiver
+	
+choice rule InterestRatePayout_choice2 <"An interest rate payout should have either a compounding or a discounting method.">
+	for InterestRatePayout optional choice between
+	discountingMethod and compoundingMethod
 
 data rule InterestRatePayout_quantity <"When there an InterestRatePayout but no creditDefaultPayout nor optionPayout, the notional must be specified. The notional of a credit default swap is expressed as part of the protection terms.">
 	when Payout -> interestRatePayout exists
