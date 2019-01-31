@@ -79,6 +79,18 @@
             <xsd:enumeration value="termination"/>
         </xsd:restriction>
     </xsd:simpleType>
+    <xsd:simpleType name="LineageQualifierEnum">
+        <xsd:restriction base="xsd:token">
+            <xsd:enumeration value="ClearingSubmission"/>
+            <xsd:enumeration value="NewContract"/>
+            <xsd:enumeration value="NovatedContract"/>
+            <xsd:enumeration value="PriorContractVersion"/>
+            <xsd:enumeration value="RelatedClearedContract"/>
+            <xsd:enumeration value="NovationEvent"/>
+            <xsd:enumeration value="ObservationEvent"/>
+            <xsd:enumeration value="ResetEvent"/>
+        </xsd:restriction>
+    </xsd:simpleType>
     <xsd:simpleType name="OriginatingEventEnum">
         <xsd:restriction base="xsd:token">
             <xsd:enumeration value="Exercise"/>
@@ -165,7 +177,7 @@
     <xsd:complexType name="CashTransferBreakdown">
         <xsd:sequence>
             <xsd:element name="transferCalculation" type="xsd:string" minOccurs="0"/>
-            <xsd:element name="lineage" type="Lineage" minOccurs="0"/>
+            <xsd:element name="lineage" type="Lineage" minOccurs="0" maxOccurs="unbounded"/>
             <xsd:group ref="fpml:PayerReceiver.model"/>
             <xsd:element name="amount" type="fpml:Money"/>
             <xsd:element name="transferCalculation" type="xsd:string" minOccurs="0"/>
@@ -249,14 +261,13 @@
     </xsd:complexType>
     <xsd:complexType name="CreditLimitInformation">
         <xsd:sequence>
-            <xsd:element name="limitApplicable" type="LimitApplicable" maxOccurs="unbounded"
-            />
+            <xsd:element name="limitApplicable" type="LimitApplicable" maxOccurs="unbounded"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="CreditLimitLevel">
         <xsd:simpleContent>
             <xsd:extension base="Scheme">
-                <xsd:attribute name="creditLimitLevelScheme" type="xsd:anyURI"/>             
+                <xsd:attribute name="creditLimitLevelScheme" type="xsd:anyURI"/>
             </xsd:extension>
         </xsd:simpleContent>
     </xsd:complexType>
@@ -274,7 +285,7 @@
                 <xsd:sequence>
                     <xsd:element name="intent" type="IntentEnum" minOccurs="0"/>
                     <xsd:group ref="fpml:PartiesAndAccounts.model" minOccurs="0"/>
-                    <xsd:element name="lineage" type="Lineage" minOccurs="0"/>
+                    <xsd:element name="lineage" type="Lineage" minOccurs="0" maxOccurs="unbounded"/>
                     <xsd:element name="primitive" type="Primitive"/>
                     <xsd:element name="functionCall" type="xsd:string" minOccurs="0"/>
                 </xsd:sequence>
@@ -294,7 +305,7 @@
                 to have the proper design as part of the CDM. -->
             <xsd:choice>
                 <xsd:element name="isCorrection" type="xsd:boolean" minOccurs="0"/>
-                <xsd:element name="isRetraction" type="xsd:boolean" minOccurs="0"/>                
+                <xsd:element name="isRetraction" type="xsd:boolean" minOccurs="0"/>
             </xsd:choice>
         </xsd:sequence>
         <xsd:attribute name="id" type="xsd:ID"/>
@@ -396,24 +407,27 @@
     <xsd:complexType name="LimitType">
         <xsd:simpleContent>
             <xsd:extension base="Scheme">
-                <xsd:attribute name="creditLimitTypeScheme" type="xsd:anyURI" default="http://www.fpml.org/coding-scheme/credit-limit-type"/>
+                <xsd:attribute name="creditLimitTypeScheme" type="xsd:anyURI"
+                    default="http://www.fpml.org/coding-scheme/credit-limit-type"/>
             </xsd:extension>
         </xsd:simpleContent>
     </xsd:complexType>
     <xsd:complexType name="Lineage">
         <xsd:sequence>
-            <xsd:element name="contractReference" type="ContractLineage" minOccurs="0"
-                maxOccurs="unbounded"/>
-            <xsd:element name="eventReference" type="EventReference" minOccurs="0"
-                maxOccurs="unbounded"/>
-            <xsd:element name="cashflowReference" type="CashflowReference" minOccurs="0"
-                maxOccurs="unbounded"/>
-            <xsd:element name="creditDefaultPayoutReference" type="CreditDefaultPayoutReference"
-                minOccurs="0" maxOccurs="unbounded"/>
-            <xsd:element name="interestRatePayoutReference" type="InterestRatePayoutReference"
-                minOccurs="0" maxOccurs="unbounded"/>
-            <xsd:element name="optionPayoutReference" type="OptionPayoutReference" minOccurs="0"
-                maxOccurs="unbounded"/>
+            <xsd:element name="lineageQualifier" type="LineageQualifierEnum" minOccurs="0"/>
+            <xsd:element name="lineageValue" type="LineageValue"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="LineageValue">
+        <xsd:sequence>
+            <xsd:choice>
+                <xsd:element name="contractReference" type="ContractLineage"/>
+                <xsd:element name="eventReference" type="EventReference"/>
+                <xsd:element name="cashflowReference" type="CashflowReference"/>
+                <xsd:element name="creditDefaultPayoutReference" type="CreditDefaultPayoutReference"/>
+                <xsd:element name="interestRatePayoutReference" type="InterestRatePayoutReference"/>
+                <xsd:element name="optionPayoutReference" type="OptionPayoutReference"/>
+            </xsd:choice>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="MessageInformation">
@@ -471,7 +485,8 @@
         <xsd:complexContent>
             <xsd:extension base="ContractState">
                 <xsd:sequence>
-                    <xsd:element name="creditLimitInformation" type="CreditLimitInformation" minOccurs="0"/>
+                    <xsd:element name="creditLimitInformation" type="CreditLimitInformation"
+                        minOccurs="0"/>
                     <xsd:element name="originatingEvent" type="OriginatingEventEnum" minOccurs="0"/>
                 </xsd:sequence>
             </xsd:extension>
