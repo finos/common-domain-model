@@ -5,8 +5,9 @@ import org.isda.cdm.functions.ToAdjustedDate.CalculationResult;
 
 import com.rosetta.model.lib.records.DateImpl;;
 
-public class ToAdjustedDateImpl {
-	
+public class ToAdjustedDateImpl implements ToAdjustedDate {
+
+	@Override
 	public CalculationResult execute(AdjustableOrRelativeDate terminationDate) {
         return new CalculationResult().setAdjustedDate(new DateImpl(terminationDate.getAdjustableDate().getAdjustedDate().getValue()));
 	}
