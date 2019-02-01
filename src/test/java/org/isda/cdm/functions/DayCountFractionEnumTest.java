@@ -64,19 +64,15 @@ public class DayCountFractionEnumTest {
 		CalculationPeriod.CalculationResult calculationPeriodResult = Mockito.mock(CalculationPeriod.CalculationResult.class);
 		when(calculationPeriodResult.getStartDate()).thenReturn(new DateImpl(startDate));
 		when(calculationPeriodResult.getEndDate()).thenReturn(new DateImpl(endDate));
-
+		when(calculationPeriodResult.getDaysInPeriod()).thenReturn(days);
 		CalculationPeriod calculationPeriod = Mockito.mock(CalculationPeriod.class);
 		when(calculationPeriod.execute(any())).thenReturn(calculationPeriodResult);
+		
+        InterestRatePayout interestRatePayout = Mockito.mock(InterestRatePayout.class);
+		ToAdjustedDate toAdjustedDate = Mockito.mock(ToAdjustedDate.class);
+		PeriodsInYear periodsInYear = Mockito.mock(PeriodsInYear.class);
 
-        DaysInPeriod.CalculationResult daysInPeriodResult = Mockito.mock(DaysInPeriod.CalculationResult.class);
-        when(daysInPeriodResult.getDays()).thenReturn(days);
-
-        DaysInPeriod daysInPeriod = Mockito.mock(DaysInPeriod.class);
-        when(daysInPeriod.execute(any())).thenReturn(daysInPeriodResult);
-
-		InterestRatePayout interestRatePayout = Mockito.mock(InterestRatePayout.class);
-
-		DayCountFractionEnum unit = new DayCountFractionEnum(daysInPeriod, calculationPeriod);
+		DayCountFractionEnum unit = new DayCountFractionEnum(calculationPeriod, toAdjustedDate, periodsInYear);
 		return unit.calculate(interestRatePayout, dcf);
 	}
 
@@ -87,11 +83,13 @@ public class DayCountFractionEnumTest {
 
         CalculationPeriod calculationPeriod = Mockito.mock(CalculationPeriod.class);
         when(calculationPeriod.execute(any())).thenReturn(calculationPeriodResult);
+        
+		ToAdjustedDate toAdjustedDate = Mockito.mock(ToAdjustedDate.class);
+		PeriodsInYear periodsInYear = Mockito.mock(PeriodsInYear.class);
+        
+		InterestRatePayout interestRatePayout = Mockito.mock(InterestRatePayout.class);
 
-        DaysInPeriod daysInPeriod = Mockito.mock(DaysInPeriod.class);
-        InterestRatePayout interestRatePayout = Mockito.mock(InterestRatePayout.class);
-
-        DayCountFractionEnum unit = new DayCountFractionEnum(daysInPeriod, calculationPeriod);
+		DayCountFractionEnum unit = new DayCountFractionEnum(calculationPeriod, toAdjustedDate, periodsInYear);
         return unit.calculate(interestRatePayout, dcf);
     }
 }
