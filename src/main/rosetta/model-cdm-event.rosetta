@@ -51,7 +51,7 @@ class ClearingWorkflow <"A class to specify the clearing workflow information: c
 	/*
 	 * Alternative is to represent the clearing venue as part of the partyRole + party
 	 */
-	clearingVenue string (1..1) <"The clearing venue identification.">;
+	clearingVenue string (0..1) <"The clearing venue identification. This attribute is optional because the CCP is the party to the contract in the case of a beta/gamma trade.">;
 	 	[synonym CME_SubmissionIRS_1_0 value TSub path "Hdr"]
 	/*
 	 * Alternative is not to map this CME element and handle this information through lineage
@@ -666,14 +666,14 @@ class TransferCalculation
 {
 	period CalculationPeriodBase (0..1 ) <"The period adjusted start and end dates.">;
 		[synonym DTCC_11_0, DTCC_9_0 value calculationPeriod path "calculationElements"]
-	lineage Lineage (0..1) <"The lineage into the components used for the calculation.">;
+	lineage Lineage (0..*) <"The lineage into the components used for the calculation.">;
 	calculationOutcome calculation (0..1) <"The calculation outcome.">;
 		[synonym Rosetta_Workbench value transferCalculation]
 }
 
 class TransferBreakdown extends TransferBase
 {
-	lineage Lineage (0..1) <"The lineage into the transfer components that might be associated with each of the transfer components.">;
+	lineage Lineage (0..*) <"The lineage into the transfer components that might be associated with each of the transfer components.">;
 		[synonym Rosetta_Workbench value lineage]
 }
 
@@ -753,10 +753,10 @@ isEvent ClearingRejection <"The rejection of an alpha trade submission by a CCP.
 	Event -> primitive -> inception exists
 	and Event -> primitive -> inception -> after -> clearingWorkflow -> clearingStatus = WorkflowEnum.Rejected
 
-isEvent ClearingSubmission <"The submission of a contract to a CCP.">
+isEvent CCP_Registration <"The registration of a contract to a CCP.">
 	Event -> primitive -> inception only exists
-	and Event -> primitive -> inception -> after -> clearingWorkflow -> clearingStatus = WorkflowEnum.Submitted
-//	and Event -> primitive -> inception -> after -> contract -> partyRole -> role = PartyRoleEnum.ClearingOrganization
+	and ( Event -> primitive -> inception -> after -> contract -> partyRole -> role = PartyRoleEnum.ClearingOrganization 
+		or Event -> primitive -> inception -> after -> clearingWorkflow -> clearingVenue exists)
 
 isEvent ClearingNotification <"The notification by the CCP of, respectively, the beta and the gamma trades that result from the clearing process.">
 	Event -> primitive -> inception only exists
@@ -842,9 +842,7 @@ isEvent PartialNovation <"The qualification of a novation event from the fact th
 
 data rule Novation_fee <"Logic to specify that if a cash transfer is qualified as a novation fee, it must have lineage into the novation contract, the contract resulting from the novation as well as the novation event.">
 	when Event -> primitive -> transfer -> cashTransfer -> cashflowType = CashflowTypeEnum.NovationFee
-	then Event -> lineage -> lineageQualifier = LineageQualifierEnum.NovatedContract
-	and Event -> lineage -> lineageQualifier = LineageQualifierEnum.NewContract
-	and Event -> lineage -> lineageQualifier = LineageQualifierEnum.NovationEvent
+	then Event -> lineage -> lineageQualifier = LineageQualifierEnum.NovationEvent
 
 isEvent PartialTermination <"The qualification of a partial termination event from the fact that (i) the intent is Partial Termination when specified, (ii) the associated primitives are the quantityChange and the cash transfer, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
 	Event -> intent when present = IntentEnum.PartialTermination

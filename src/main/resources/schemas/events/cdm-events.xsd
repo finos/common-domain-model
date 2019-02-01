@@ -86,6 +86,7 @@
             <xsd:enumeration value="NovatedContract"/>
             <xsd:enumeration value="PriorContractVersion"/>
             <xsd:enumeration value="RelatedClearedContract"/>
+            <xsd:enumeration value="ExerciseEvent"/>
             <xsd:enumeration value="NovationEvent"/>
             <xsd:enumeration value="ObservationEvent"/>
             <xsd:enumeration value="ResetEvent"/>
@@ -220,6 +221,17 @@
         </xsd:complexContent>
     </xsd:complexType>
     <xsd:complexType name="ContractLineage">
+        <xsd:sequence>
+            <xsd:element name="contractReference" type="ContractReference"/>
+            <xsd:element name="cashflowReference" type="CashflowReference" minOccurs="0"/>
+            <xsd:element name="creditDefaultPayoutReference" type="CreditDefaultPayoutReference"
+                minOccurs="0"/>
+            <xsd:element name="interestRatePayoutReference" type="InterestRatePayoutReference"
+                minOccurs="0"/>
+            <xsd:element name="optionPayoutReference" type="OptionPayoutReference" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="ContractReference">
         <xsd:complexContent>
             <xsd:extension base="fpml:Reference">
                 <xsd:attribute name="href" type="xsd:IDREF" use="required"/>
@@ -309,6 +321,12 @@
             </xsd:choice>
         </xsd:sequence>
         <xsd:attribute name="id" type="xsd:ID"/>
+    </xsd:complexType>
+    <xsd:complexType name="EventLineage">
+        <xsd:sequence>
+            <xsd:element name="eventReference" type="EventReference"/>
+            <xsd:element name="cashflowReference" type="CashflowReference" minOccurs="0"/>
+        </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="EventPackage">
         <xsd:sequence>
@@ -415,18 +433,9 @@
     <xsd:complexType name="Lineage">
         <xsd:sequence>
             <xsd:element name="lineageQualifier" type="LineageQualifierEnum" minOccurs="0"/>
-            <xsd:element name="lineageValue" type="LineageValue"/>
-        </xsd:sequence>
-    </xsd:complexType>
-    <xsd:complexType name="LineageValue">
-        <xsd:sequence>
             <xsd:choice>
-                <xsd:element name="contractReference" type="ContractLineage"/>
-                <xsd:element name="eventReference" type="EventReference"/>
-                <xsd:element name="cashflowReference" type="CashflowReference"/>
-                <xsd:element name="creditDefaultPayoutReference" type="CreditDefaultPayoutReference"/>
-                <xsd:element name="interestRatePayoutReference" type="InterestRatePayoutReference"/>
-                <xsd:element name="optionPayoutReference" type="OptionPayoutReference"/>
+                <xsd:element name="contractLineage" type="ContractLineage"/>
+                <xsd:element name="eventLineage" type="EventLineage"/>
             </xsd:choice>
         </xsd:sequence>
     </xsd:complexType>
