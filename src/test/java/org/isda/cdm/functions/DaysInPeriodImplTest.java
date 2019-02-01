@@ -20,7 +20,7 @@ public class DaysInPeriodImplTest {
 
         CalculationPeriodDates calculationPeriodDates = getCalculationPeriodDates(effectiveDate, terminationDate, RollConventionEnum._22);
 
-        Integer daysInPeriod = new DaysInPeriodImpl(effectiveDate).execute(calculationPeriodDates).getDays();
+        Integer daysInPeriod = new CalculationPeriodImpl(effectiveDate).execute(calculationPeriodDates).getDaysInPeriod();
 
         assertNotNull(daysInPeriod);
         assertThat("Unexpected calculated daysInPeriod", daysInPeriod, is(92));
@@ -33,7 +33,7 @@ public class DaysInPeriodImplTest {
 
         CalculationPeriodDates calculationPeriodDates = getCalculationPeriodDates(effectiveDate, terminationDate, RollConventionEnum._29);
 
-        Integer daysInPeriod = new DaysInPeriodImpl(effectiveDate).execute(calculationPeriodDates).getDays();
+        Integer daysInPeriod = new CalculationPeriodImpl(effectiveDate).execute(calculationPeriodDates).getDaysInPeriod();
 
         assertNotNull(daysInPeriod);
         assertThat("Unexpected calculated daysInPeriod", daysInPeriod, is(90));

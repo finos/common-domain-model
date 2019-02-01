@@ -1,7 +1,7 @@
 package org.isda.cdm.filter;
 
 import com.google.common.collect.ImmutableMap;
-import com.regnosys.rosetta.common.util.HierarchicalPath;
+import com.rosetta.model.lib.path.RosettaPath;
 import org.isda.cdm.Contract;
 import java.util.*;
 import java.util.function.Predicate;
@@ -11,15 +11,15 @@ import java.util.function.Predicate;
  */
 public class EventEffectPathFilter {
 
-    static final PathClass EFFECTED_CONTRACT_PATH = new PathClass(HierarchicalPath.valueOf("eventEffect.effectedContract"), Contract.class);
-    static final PathClass CONTRACT_PATH = new PathClass(HierarchicalPath.valueOf("eventEffect.contract"), Contract.class);
+    static final PathClass EFFECTED_CONTRACT_PATH = new PathClass(RosettaPath.valueOf("eventEffect.effectedContract"), Contract.class);
+    static final PathClass CONTRACT_PATH = new PathClass(RosettaPath.valueOf("eventEffect.contract"), Contract.class);
 
     static final List<String> EFFECTED_CONTRACT_REQUIRED_PATHS = Arrays.asList("primitive", "before");
 
     /**
      * Map containing predicates to determine whether a given rosettaKeyPath should be added to event effect path.
      */
-    private static final Map<PathClass, Predicate<HierarchicalPath>> PATH_FILTERS = ImmutableMap.<PathClass, Predicate<HierarchicalPath>>builder()
+    private static final Map<PathClass, Predicate<RosettaPath>> PATH_FILTERS = ImmutableMap.<PathClass, Predicate<RosettaPath>>builder()
             .put(EFFECTED_CONTRACT_PATH, (rosettaKeyPath) -> rosettaKeyPath.allElementPaths().containsAll(EFFECTED_CONTRACT_REQUIRED_PATHS))
             .put(CONTRACT_PATH, (rosettaKeyPath) -> !rosettaKeyPath.allElementPaths().containsAll(EFFECTED_CONTRACT_REQUIRED_PATHS))
             .build();
@@ -27,7 +27,7 @@ public class EventEffectPathFilter {
     /**
      * @return true to indicate that rosettaKey at the given rosettaKeyPath should be added to eventEffectsPath
      */
-    public static boolean test(HierarchicalPath eventEffectsPath, Class<?> forClass, HierarchicalPath rosettaKeyPath) {
+    public static boolean test(RosettaPath eventEffectsPath, Class<?> forClass, RosettaPath rosettaKeyPath) {
         return Optional.ofNullable(PATH_FILTERS.get(new PathClass(eventEffectsPath, forClass)))
                 .map(predicate -> predicate.test(rosettaKeyPath))
                 .orElse(true);
@@ -37,15 +37,15 @@ public class EventEffectPathFilter {
      * Stores path and class
      */
     static class PathClass {
-        private final HierarchicalPath path;
+        private final RosettaPath path;
         private final Class<?> clazz;
 
-        PathClass(HierarchicalPath path, Class<?> clazz) {
+        PathClass(RosettaPath path, Class<?> clazz) {
             this.path = path;
             this.clazz = clazz;
         }
 
-        public HierarchicalPath getPath() {
+        public RosettaPath getPath() {
             return path;
         }
 

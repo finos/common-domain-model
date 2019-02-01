@@ -4,12 +4,15 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.schedule.*;
 import org.isda.cdm.CalculationPeriodDates;
+
 import com.rosetta.model.lib.records.DateImpl;
 
 import static org.isda.cdm.functions.CdmToStrataMapper.getFrequency;
 import static org.isda.cdm.functions.CdmToStrataMapper.getRollConvention;
 
 import java.time.LocalDate;
+import java.time.chrono.IsoChronology;
+import java.time.temporal.ChronoUnit;
 
 public class CalculationPeriodImpl implements CalculationPeriod {
 
@@ -40,8 +43,18 @@ public class CalculationPeriodImpl implements CalculationPeriod {
 				.findFirst()
 				.orElseThrow(() -> new IllegalArgumentException("Date " + referenceDate.toString() + "not within schedule"));
 
+		int daysThatAreInLeapYear = 0;
+		for (LocalDate date = targetPeriod.getStartDate(); date.isBefore(targetPeriod.getEndDate()); date = date.plusDays(1)) {
+			if (IsoChronology.INSTANCE.isLeapYear(date.getYear())) {
+				daysThatAreInLeapYear++;
+			}
+		}
+		
 		return new CalculationResult()
 				.setStartDate(new DateImpl(targetPeriod.getStartDate()))
-				.setEndDate(new DateImpl(targetPeriod.getEndDate()));
+				.setEndDate(new DateImpl(targetPeriod.getEndDate()))
+				.setDaysInLeapYearPeriod(daysThatAreInLeapYear)
+				.setDaysInPeriod((int) ChronoUnit.DAYS.between(targetPeriod.getStartDate(), targetPeriod.getEndDate()));
 	}
+
 }

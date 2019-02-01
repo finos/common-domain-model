@@ -1,4 +1,5 @@
 namespace "org.isda.cdm"
+version "%project.version%"
 
 calculation FixedAmount <"2006 ISDA Definition Article 5 Section 5.1. Calculation of a Fixed Amount: The Fixed Amount payable by a party on a Payment Date will be: (a) if an amount is specified for the Swap Transaction as the Fixed Amount payable by that party for that Payment Date or for the related Calculation Period, that amount; or (b) if an amount is not specified for the Swap Transaction as the Fixed Amount payable by that party for that Payment Date or for the related Calculation Period, an amount calculated on a formula basis for that Payment Date or for the related Calculation Period as follows: Fixed Amount = Calculation Amount × Fixed Rate × Day Count Fraction.">
 {
@@ -13,7 +14,7 @@ arguments FixedAmount <"The set of arguments to calculate the FixedAmount.">
 	rate: is InterestRatePayout -> rateSpecification -> fixedRate -> initialValue
     dayCountFraction: is InterestRatePayout -> dayCountFraction
 }
-
+ 
 calculation FloatingAmount <"2006 ISDA Definition Article 6 Section 6.1. Calculation of a Floating Amount: Subject to the provisions of Section 6.4 (Negative Interest Rates), the Floating Amount payable by a party on a Payment Date will be: (a) if Compounding is not specified for the Swap Transaction or that party, an amount calculated on a formula basis for that Payment Date or for the related Calculation Period as follows: Floating Amount = Calculation Amount × Floating Rate + Spread × Floating Rate Day Count Fraction (b) if “Compounding” is specified to be applicable to the Swap Transaction or that party and 'Flat Compounding' is not specified, an amount equal to the sum of the Compounding Period Amounts for each of the Compounding Periods in the related Calculation Period; or (c) if 'Flat Compounding' is specified to be applicable to the Swap Transaction or that party, an amount equal to the sum of the Basic Compounding Period Amounts for each of the Compounding Periods in the related Calculation Period plus the sum of the Additional Compounding Period Amounts for each such Compounding Period.">
 {
 	/*
@@ -45,14 +46,14 @@ arguments FloatingAmount <"The set of arguments to calculate the FloatingAmount.
  * DayCountFraction Actual/365 (Fixed)
  */
 
-calculation DayCountFractionEnum.ACT_365_FIXED <"'2006 ISDA Definition Article 4 section 4.16(d): If'Actual/365 (Fixed)', 'Act/365 (Fixed)', 'A/365 (Fixed)' or 'A/365F' is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 365.">
+calculation DayCountFractionEnum.ACT_365_FIXED <"'2006 ISDA Definition Article 4 section 4.16(d): If'Actual/365 (Fixed)', 1'Act/365 (Fixed)', 'A/365 (Fixed)' or 'A/365F' is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 365.">
 {
 	number:  daysInPeriod / 365
 }
 
 arguments DayCountFractionEnum.ACT_365_FIXED <"The arguments to calculate the Actual/365 (Fixed) day count fraction.">
 {
-	daysInPeriod : is DaysInPeriod( InterestRatePayout -> calculationPeriodDates ) -> days
+	daysInPeriod : is CalculationPeriod( InterestRatePayout -> calculationPeriodDates ) -> daysInPeriod
 }
 
 /*****************************
@@ -66,7 +67,7 @@ calculation DayCountFractionEnum.ACT_360 <"'2006 ISDA Definition Article 4 secti
 
 arguments DayCountFractionEnum.ACT_360 <"The arguments to calculate the Actual/360 day count fraction.">
 {
-	daysInPeriod : is DaysInPeriod( InterestRatePayout -> calculationPeriodDates ) -> days
+	daysInPeriod : is CalculationPeriod( InterestRatePayout -> calculationPeriodDates ) -> daysInPeriod
 }
 
 /*************************
@@ -88,7 +89,7 @@ arguments DayCountFractionEnum._30_360 <"The arguments to calculate the 30E/360 
 	startMonth : is period -> startDate -> month
 	startDay : is Min( period -> startDate -> day, 30 )
 	endDay : is if period -> startDate -> day > 29 then Min( period -> endDate -> day, 30 ) else period -> endDate -> day
-}
+ }
 
 /**************************
  * DayCountFraction 30E/360
@@ -111,10 +112,118 @@ arguments DayCountFractionEnum._30E_360 <"The arguments to calculate the 30E/360
 	endDay : is Min( period -> endDate -> day, 30 )
 }
 
+  /**********************
+   * DayCountFraction 1/1
+   */
+  calculation DayCountFractionEnum._1_1
+  {
+  	number: 1
+  }
+
+  // TODO - When we do not need an arguments, then we should be able to omit it.
+  // Currently - the code generation will fail.
+  arguments DayCountFractionEnum._1_1
+  {
+		payout: is InterestRatePayout
+  }
+
+  /*********************************
+   * DayCountFraction 30E/360 (ISDA)
+   */
+
+  calculation DayCountFractionEnum._30E_360_ISDA
+  {
+  	number: (360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
+  }
+  
+  arguments DayCountFractionEnum._30E_360_ISDA
+  {	
+  	alias period CalculationPeriod( InterestRatePayout -> calculationPeriodDates )
+  	alias terminationDate ToAdjustedDate (InterestRatePayout -> calculationPeriodDates -> terminationDate)
+	alias startDateIsInLeapYear IsLeapYear(period -> startDate -> year)
+	alias endDateIsInLeapYear IsLeapYear(period -> endDate -> year)
+
+  	endYear    : is period -> endDate -> year
+  	startYear  : is period -> startDate -> year
+  	endMonth   : is period -> endDate -> month
+  	startMonth : is period -> startDate -> month
+  	
+  	startDay   : is if ( (startDateIsInLeapYear = False and period -> startDate -> month = 2 and period -> startDate -> day = 28)
+  				      or (startDateIsInLeapYear = True  and period -> startDate -> month = 2 and period -> startDate -> day = 29)
+  				      or (period -> startDate -> day = 31)) = True 
+  				    then 30 else period -> startDate -> day
+  	
+  	endDay     : is if ( (endDateIsInLeapYear = False and period -> endDate -> month = 2 and period -> endDate -> day = 28)
+  				      or (endDateIsInLeapYear = True  and period -> endDate -> month = 2 and period -> endDate -> day = 29)
+  			          or (period -> endDate -> day = 31)
+  				      or (period -> endDate = terminationDate -> adjustedDate)) = True 
+  				    then 30 else period -> endDate -> day
+    }
+
+  /***************************************
+   * DayCountFraction Actual/Actual (ISDA)
+   */ 
+
+  calculation DayCountFractionEnum.ACT_ACT_ISDA
+  {
+  	number: (daysInRegularPeriod) / 365 + daysInLeapYearPeriod / 366 
+  }
+
+  arguments DayCountFractionEnum.ACT_ACT_ISDA
+  {
+  	alias period CalculationPeriod( InterestRatePayout -> calculationPeriodDates )
+  	
+  	daysInLeapYearPeriod : is (period -> daysInLeapYearPeriod)
+  	daysInRegularPeriod : is (period -> daysInPeriod) - (period -> daysInLeapYearPeriod)
+  }
+
+
+  /***************************************
+   * DayCountFraction Actual/Actual (ICMA)
+   */
+
+calculation DayCountFractionEnum.ACT_ACT_ICMA
+{
+	// TODO support the log initial and final stubs
+//	number: daysInLongInitialPeriod / (daysInLongInitialRegularPeriod * periodsInYear) + 
+//			daysInPeriod / (daysInPeriod * periodsInYear) 
+//				+ (daysInLongFinalPeriod / (daysInLongFinalRegularPeriod * periodsInYear))
+	
+	number: daysInPeriod / (daysInPeriod * periodsInYear) 
+}
+
+arguments DayCountFractionEnum.ACT_ACT_ICMA
+{
+	alias period CalculationPeriod( InterestRatePayout -> calculationPeriodDates )
+	//alias initalPeriod LongInitialCalculationPeriod( InterestRatePayout -> calculationPeriodDates )
+	//alias finalPeriod LongFinalCalculationPeriod( InterestRatePayout -> calculationPeriodDates )
+	
+	//daysInLongInitialPeriod : is initalPeriod -> daysInPeriod
+	//daysInLongInitialRegularPeriod : is initalPeriod -> daysInRegularPeriod
+	//daysInLongFinalPeriod : is finalPeriod -> daysInPeriod
+	//daysInLongFinalRegularPeriod : is finalPeriod -> daysInRegularPeriod
+	daysInPeriod : is period -> daysInPeriod
+	periodsInYear : is PeriodsInYear( InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency) -> numberOfPeriods
+}
+
 function CalculationPeriod( calculationPeriodDates CalculationPeriodDates ) <"2006 ISDA Definition Section 4.13. 'Calculation Period' means, in respect of a Swap Transaction and a party, each period from, and including, one Period End Date of that party to, but excluding, the next following applicable Period End Date during the Term of the Swap Transaction, except that (a) the initial Calculation Period for the party will commence on, and include, the Effective Date and (b) the final Calculation Period for the party will end on, but exclude, the Termination Date.">
 {
 	startDate date;
 	endDate date;
+	daysInPeriod int;
+	daysInLeapYearPeriod int;
+	isInitialPeriod boolean;
+	isFinalPeriod boolean;
+}
+
+function LongInitialCalculationPeriod( calculationPeriodDates CalculationPeriodDates ) {
+	daysInPeriod int;
+	daysInRegularPeriod int;
+}
+
+function LongFinalCalculationPeriod( calculationPeriodDates CalculationPeriodDates ) {
+	daysInPeriod int;
+	daysInRegularPeriod int;
 }
 
 function GetRateSchedule( floatingRateCalculation FloatingRateSpecification )
@@ -127,7 +236,14 @@ function ResolveRateIndex( index FloatingRateIndexEnum ) <"The function to speci
 	rate number;
 }
 
-function DaysInPeriod( calculationPeriodDates CalculationPeriodDates )
+function ToAdjustedDate( terminationDate AdjustableOrRelativeDate )
 {
-	days int;
+	adjustedDate date;
 }
+
+function PeriodsInYear( frequency CalculationPeriodFrequency )
+{
+	numberOfPeriods int;
+}
+
+

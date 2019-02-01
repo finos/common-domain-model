@@ -3,7 +3,7 @@ package org.isda.cdm.filter;
 import com.regnosys.rosetta.common.inspection.PathObject;
 import com.regnosys.rosetta.common.inspection.PathTypeNode;
 import com.regnosys.rosetta.common.inspection.RosettaNodeInspector;
-import com.regnosys.rosetta.common.util.HierarchicalPath;
+import com.rosetta.model.lib.path.RosettaPath;
 import org.isda.cdm.*;
 import org.junit.jupiter.api.Test;
 
@@ -22,35 +22,35 @@ class EventEffectPathFilterTest {
 
     @Test
     void shouldFilterPathsForEffectedContract() {
-        HierarchicalPath effectedContractPath = HierarchicalPath.valueOf("eventEffect.effectedContract");
+        RosettaPath effectedContractPath = RosettaPath.valueOf("eventEffect.effectedContract");
 
-        assertThat(EventEffectPathFilter.test(effectedContractPath, Contract.class, HierarchicalPath.valueOf("primitive.newTrade.contract")), is(false));
-        assertThat(EventEffectPathFilter.test(effectedContractPath, Contract.class, HierarchicalPath.valueOf("primitive.exercise.before.contract")), is(true));
-        assertThat(EventEffectPathFilter.test(effectedContractPath, Contract.class, HierarchicalPath.valueOf("primitive.exercise.after.contract")), is(false));
-        assertThat(EventEffectPathFilter.test(effectedContractPath, Contract.class, HierarchicalPath.valueOf("primitive.termsChange.before.contract")), is(true));
-        assertThat(EventEffectPathFilter.test(effectedContractPath, Contract.class, HierarchicalPath.valueOf("primitive.termsChange.after.contract")), is(false));
-        assertThat(EventEffectPathFilter.test(effectedContractPath, Contract.class, HierarchicalPath.valueOf("primitive.quantityChange.before.contract")), is(true));
-        assertThat(EventEffectPathFilter.test(effectedContractPath, Contract.class, HierarchicalPath.valueOf("primitive.quantityChange.after.contract")), is(false));
+        assertThat(EventEffectPathFilter.test(effectedContractPath, Contract.class, RosettaPath.valueOf("primitive.newTrade.contract")), is(false));
+        assertThat(EventEffectPathFilter.test(effectedContractPath, Contract.class, RosettaPath.valueOf("primitive.exercise.before.contract")), is(true));
+        assertThat(EventEffectPathFilter.test(effectedContractPath, Contract.class, RosettaPath.valueOf("primitive.exercise.after.contract")), is(false));
+        assertThat(EventEffectPathFilter.test(effectedContractPath, Contract.class, RosettaPath.valueOf("primitive.termsChange.before.contract")), is(true));
+        assertThat(EventEffectPathFilter.test(effectedContractPath, Contract.class, RosettaPath.valueOf("primitive.termsChange.after.contract")), is(false));
+        assertThat(EventEffectPathFilter.test(effectedContractPath, Contract.class, RosettaPath.valueOf("primitive.quantityChange.before.contract")), is(true));
+        assertThat(EventEffectPathFilter.test(effectedContractPath, Contract.class, RosettaPath.valueOf("primitive.quantityChange.after.contract")), is(false));
     }
 
     @Test
     void shouldFilterPathsForContract() {
-        HierarchicalPath contractPath = HierarchicalPath.valueOf("eventEffect.contract");
+        RosettaPath contractPath = RosettaPath.valueOf("eventEffect.contract");
 
-        assertThat(EventEffectPathFilter.test(contractPath, Contract.class, HierarchicalPath.valueOf("primitive.newTrade.contract")), is(true));
-        assertThat(EventEffectPathFilter.test(contractPath, Contract.class, HierarchicalPath.valueOf("primitive.exercise.before.contract")), is(false));
-        assertThat(EventEffectPathFilter.test(contractPath, Contract.class, HierarchicalPath.valueOf("primitive.exercise.after.contract")), is(true));
-        assertThat(EventEffectPathFilter.test(contractPath, Contract.class, HierarchicalPath.valueOf("primitive.termsChange.before.contract")), is(false));
-        assertThat(EventEffectPathFilter.test(contractPath, Contract.class, HierarchicalPath.valueOf("primitive.termsChange.after.contract")), is(true));
-        assertThat(EventEffectPathFilter.test(contractPath, Contract.class, HierarchicalPath.valueOf("primitive.quantityChange.before.contract")), is(false));
-        assertThat(EventEffectPathFilter.test(contractPath, Contract.class, HierarchicalPath.valueOf("primitive.quantityChange.after.contract")), is(true));
+        assertThat(EventEffectPathFilter.test(contractPath, Contract.class, RosettaPath.valueOf("primitive.newTrade.contract")), is(true));
+        assertThat(EventEffectPathFilter.test(contractPath, Contract.class, RosettaPath.valueOf("primitive.exercise.before.contract")), is(false));
+        assertThat(EventEffectPathFilter.test(contractPath, Contract.class, RosettaPath.valueOf("primitive.exercise.after.contract")), is(true));
+        assertThat(EventEffectPathFilter.test(contractPath, Contract.class, RosettaPath.valueOf("primitive.termsChange.before.contract")), is(false));
+        assertThat(EventEffectPathFilter.test(contractPath, Contract.class, RosettaPath.valueOf("primitive.termsChange.after.contract")), is(true));
+        assertThat(EventEffectPathFilter.test(contractPath, Contract.class, RosettaPath.valueOf("primitive.quantityChange.before.contract")), is(false));
+        assertThat(EventEffectPathFilter.test(contractPath, Contract.class, RosettaPath.valueOf("primitive.quantityChange.after.contract")), is(true));
     }
 
     @Test
     void shouldFilterPathsForPayment() {
-        HierarchicalPath paymentPath = HierarchicalPath.valueOf("eventEffect.transfer");
+        RosettaPath paymentPath = RosettaPath.valueOf("eventEffect.transfer");
 
-        assertThat(EventEffectPathFilter.test(paymentPath, Transfer.class, HierarchicalPath.valueOf("primitive.transfer")), is(true));
+        assertThat(EventEffectPathFilter.test(paymentPath, Transfer.class, RosettaPath.valueOf("primitive.transfer")), is(true));
     }
 
     /**
@@ -69,7 +69,7 @@ class EventEffectPathFilterTest {
 
         assertThat(filteredPaths, hasSize(4));
         assertThat(filteredPaths.stream()
-                        .map(o -> o.getHierarchicalPath().map(HierarchicalPath::buildPath).orElse(""))
+                        .map(o -> o.getHierarchicalPath().map(RosettaPath::buildPath).orElse(""))
                         .collect(Collectors.toList()),
                    hasItems("primitive.quantityChange.before",
                 		   		"primitive.inception.before",
@@ -116,7 +116,7 @@ class EventEffectPathFilterTest {
         	List<String> inspectedPath = n.get().getPath();
         	n.get().getParent().ifPresent(parent -> {
 	            if (EventEffect.class.isAssignableFrom(parent.getObject()) && !inspectedPath.contains("lineage"))
-	                capture.add(n.get().getHierarchicalPath().map(HierarchicalPath::buildPath).orElse(""));
+	                capture.add(n.get().getHierarchicalPath().map(RosettaPath::buildPath).orElse(""));
         	});
         };
     }
