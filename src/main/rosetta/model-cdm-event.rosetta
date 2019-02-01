@@ -43,6 +43,38 @@ class CashTransferComponent extends TransferBase
 		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0 value breakdown]
 }
 
+class ClearingWorkflow <"A class to specify the clearing workflow information: clearing status, clearing venue and (when applicable) execution venue identification, party-specific execution workflow information, ...">
+{
+	clearingStatus WorkflowEnum (1..1);
+		[synonym CME_SubmissionIRS_1_0 value RptTyp]
+		[synonym Rosetta_Workbench value clearingStatus]
+		[synonym CME_ClearedConfirm_1_17 value status path "trade.tradeHeader"]
+	/*
+	 * Alternative is to represent the clearing venue as part of the partyRole + party
+	 */
+	clearingVenue string (0..1) <"The clearing venue identification. This attribute is optional because the CCP is the party to the contract in the case of a beta/gamma trade.">;
+	 	[synonym CME_SubmissionIRS_1_0 value TSub path "Hdr"]
+	/*
+	 * Alternative is not to map this CME element and handle this information through lineage
+	 */ 	
+	originatingEvent OriginatingEventEnum (0..1) <"The qualification by the clearing facility of whether the cleared trade results from a trade presented for clearing by market participants (in which case it is qualified as a 'New Trade') or whether it results from a process that is internal to the CCP, in which case this process will be qualified accordingly (e.g. Transfer, Novation, Compression, ...).">;
+		[synonym CME_ClearedConfirm_1_17 value originatingEvent path "trade.tradeHeader"]
+		[synonym Rosetta_Workbench value originatingEvent]
+	/*
+	 * Same as above: not map the element, and have lineage into the execution, which will have the associated information about the execution venue
+	 * Also, if the 
+	 */
+	executionVenue string (0..1) <"The execution venue identification, when applicable.">;
+	 	[synonym CME_SubmissionIRS_1_0 value SID path "Hdr"]
+	/*
+	 * Same as above
+	 */ 
+	executionType ExecutionTypeEnum (0..1) <"Specifies how the trade was executed, e.g. via voice or electronically.">;
+		[synonym CME_SubmissionIRS_1_0 value VenuTyp]
+	partyExecutionWorkflow PartyCustomisedWorkflow (0..*) <"Information related to the execution workflow for each of the parties to the contract. This is relevant for the clearing event.">;
+		[synonym CME_SubmissionIRS_1_0 value RptSide]
+}
+
 /*
  * TODO - The commodity transfer component and its associated breakdown should be deemed as sample implementations,
  * which need to be confirmed through relevant user stories and use cases
@@ -76,6 +108,22 @@ class ComputedAmount <"A class to specify the outcome of a computed amount, for 
 	amount number (1..1);
 	currency string (0..1) scheme;
 		[synonym Rosetta_Workbench value currency meta currencyScheme]
+}
+
+class ContractLineage <"The lineage into the contract object alongside with, optionally, the various payout components.">
+{
+	contractReference Contract (1..1) rosettaKey reference;
+	    [synonym Rosetta_Workbench value contractReference meta href]
+	cashflowReference Cashflow (0..*) rosettaKey reference;
+		[synonym Rosetta_Workbench value cashflowReference meta href] 
+	creditDefaultPayoutReference CreditDefaultPayout (0..*) rosettaKey reference;
+		[synonym Rosetta_Workbench value creditDefaultReference meta href]
+	interestRatePayoutReference InterestRatePayout (0..*) rosettaKey reference;
+		[synonym Rosetta_Workbench value interestRatePayoutReference meta href]
+	optionPayoutReference OptionPayout (0..*) rosettaKey reference;
+		[synonym Rosetta_Workbench value optionPayoutReference meta href]
+	equityPayoutReference EquityPayout (0..*) rosettaKey reference;
+		[synonym Rosetta_Workbench value equityPayoutReference meta href]	
 }
 
 class ContractState <"A class to specify a contract instantiation with respect to the before and/or after state of lifecycle events.">
@@ -222,7 +270,7 @@ class Event rosettaKey
 	account Account (0..*) <"Optional account information that could be associated to the event.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0 value account]
 		[synonym CME_ClearedConfirm_1_17 value account path "clearingConfirmed"]
-	lineage Lineage (0..1);
+	lineage Lineage (0..*);
 		[synonym Rosetta_Workbench value lineage]
 	primitive PrimitiveEvent (1..1);
 		[synonym Rosetta_Workbench value primitive]
@@ -237,6 +285,14 @@ class EventEffect <"The set of operational and positional effects associated wit
 	contract Contract (0..*) rosettaKey <"A pointer to the contract effect(s), an example of such being the outcome of a new trade, swaption exercise or novation event.">;
     productIdentifier ProductIdentifier (0..*) rosettaKey <"A pointer to the product identifier effect(s), an example of such being the outcome of the physical exercise of a bond option.">;
 	transfer Transfer (0..*) rosettaKey <"A pointer to the transfer effect(s), either a cash, security or other asset.">;
+}
+
+class EventLineage <"The lineage into the event object alongside with, optionally, the transfer component.">
+{
+	eventReference Event (1..1) rosettaKey reference; 
+		[synonym Rosetta_Workbench value eventReference meta href]
+	transferReference Transfer (0..*) rosettaKey reference;
+		[synonym Rosetta_Workbench value cashflowReference meta href] 
 }
 
 class EventTestBundle <"A class which combines several events for testing purposes.">
@@ -279,25 +335,6 @@ class Execution rosettaKey
 	party Party (0..*) <"The party reference is optional because positioned as part of the Event class when the execution is specified as part of such context.">;
 	closedState ClosedState (0..1) <"The qualification what led to the execution closure alongside with the dates on which this closure takes effect.">;
 		[synonym Rosetta_Workbench value closedState]
-}
-
-class ClearingWorkflow <"A class to specify the clearing workflow information: clearing status, clearing venue and (when applicable) execution venue identification, party-specific execution workflow information, ...">
-{
-	clearingStatus WorkflowEnum (1..1);
-		[synonym CME_SubmissionIRS_1_0 value RptTyp]
-		[synonym Rosetta_Workbench value clearingStatus]
-		[synonym CME_ClearedConfirm_1_17 value status path "trade.tradeHeader"]
-	clearingVenue string (0..1) <"The clearing venue identification.">;
-	 	[synonym CME_SubmissionIRS_1_0 value TSub path "Hdr"]
-	originatingEvent OriginatingEventEnum (0..1) <"The qualification by the clearing facility of whether the cleared trade results from a trade presented for clearing by market participants (in which case it is qualified as a 'New Trade') or whether it results from a process that is internal to the CCP, in which case this process will be qualified accordingly (e.g. Transfer, Novation, Compression, ...).">;
-		[synonym CME_ClearedConfirm_1_17 value originatingEvent path "trade.tradeHeader"]
-		[synonym Rosetta_Workbench value originatingEvent]
-	executionVenue string (0..1) <"The execution venue identification, when applicable.">;
-	 	[synonym CME_SubmissionIRS_1_0 value SID path "Hdr"]
-	executionType ExecutionTypeEnum (0..1) <"Specifies how the trade was executed, e.g. via voice or electronically.">;
-		[synonym CME_SubmissionIRS_1_0 value VenuTyp]
-	partyExecutionWorkflow PartyCustomisedWorkflow (0..*) <"Information related to the execution workflow for each of the parties to the contract. This is relevant for the clearing event.">;
-		[synonym CME_SubmissionIRS_1_0 value RptSide]
 }
 
 class ExerciseOutcome <"The exercise outcome combines the option contract (which states would be 'Exercised' in case of a full exercise and which would have a reduced notional in case of partial exercise) and either a physical or partial exercise.">
@@ -389,22 +426,19 @@ class LimitApplicableExtended extends LimitApplicable <"A class to represent the
 		[synonym CME_ClearedConfirm_1_17, Rosetta_Workbench value limitImpactDueToTrade]
 }
 
-class Lineage <"The class to provide lineage information across transactions.">
+class Lineage <"The class to provide lineage information across lifecycle events.">
 {
 	lineageQualifier LineageQualifierEnum (0..1) <"The lineage qualification, which is meant to provide insight into the object that is represented by the rosettaKey reference. The purpose of this qualifier can be illustrated by a novated trade and a cleared trade, which look very similar in the sense that they are both model through an inception primitive, with a lineage into, respectively, the novated trade and the alpha trade. Qualifiying the lineage as NovatedTrade and AlphaTrade hence provides further insight into those event components.">;
-	contractReference Contract (0..*) rosettaKey reference;
-	    [synonym Rosetta_Workbench value contractReference meta href]
-	eventReference Event (0..*) rosettaKey reference; 
-		[synonym Rosetta_Workbench value eventReference meta href]
-	cashflowReference Transfer (0..*) rosettaKey reference;
-		[synonym Rosetta_Workbench value cashflowReference meta href] 
-	creditDefaultPayoutReference CreditDefaultPayout (0..*) rosettaKey reference;
-		[synonym Rosetta_Workbench value creditDefaultReference meta href]
-	interestRatePayoutReference InterestRatePayout (0..*) rosettaKey reference;
-		[synonym Rosetta_Workbench value interestRatePayoutReference meta href]
-	optionPayoutReference OptionPayout (0..*) rosettaKey reference;
-		[synonym Rosetta_Workbench value optionPayoutReference meta href]
+		[synonym Rosetta_Workbench value lineageQualifier]
+	contractLineage ContractLineage (0..1);
+	    [synonym Rosetta_Workbench value contractLineage]
+	eventLineage EventLineage (0..1);
+	    [synonym Rosetta_Workbench value eventLineage]   
 }
+
+choice rule Lineage_choice <"The lineage class must have either a contract or an event lineage attribute.">
+	for Lineage required choice between
+	contractLineage and eventLineage
 
 class MessageInformation <"This class corresponds to the components of the FpML MessageHeader.model.">
 {
@@ -633,14 +667,14 @@ class TransferCalculation
 {
 	period CalculationPeriodBase (0..1 ) <"The period adjusted start and end dates.">;
 		[synonym DTCC_11_0, DTCC_9_0 value calculationPeriod path "calculationElements"]
-	lineage Lineage (0..1) <"The lineage into the components used for the calculation.">;
+	lineage Lineage (0..*) <"The lineage into the components used for the calculation.">;
 	calculationOutcome calculation (0..1) <"The calculation outcome.">;
 		[synonym Rosetta_Workbench value transferCalculation]
 }
 
 class TransferBreakdown extends TransferBase
 {
-	lineage Lineage (0..1) <"The lineage into the transfer components that might be associated with each of the transfer components.">;
+	lineage Lineage (0..*) <"The lineage into the transfer components that might be associated with each of the transfer components.">;
 		[synonym Rosetta_Workbench value lineage]
 }
 
@@ -716,46 +750,20 @@ isEvent CashAndSecurityTransfer <"The qualification of a security settlement fro
 	and Event -> primitive -> transfer -> cashTransfer -> payerReceiver -> payerPartyReference = Event -> primitive -> transfer -> securityTransfer -> transferorTransferee -> transferorPartyReference
 	and Event -> primitive -> transfer -> commodityTransfer is absent
 
-isEvent ClearingAcceptance <"The acceptance of an alpha trade submission by a CCP.">
-	Event -> primitive -> inception exists
-	and Event -> primitive -> inception -> after -> clearingWorkflow -> clearingStatus = WorkflowEnum.Accepted
-	and Event -> primitive -> quantityChange exists
-	and quantityAfterQuantityChange = 0.0
-
-// Alpha trade terminated, beta gamma initiated
-//isEvent ClearingConfirmation <"The clearing confirmation event.">
-//	Event -> primitive -> inception only exists
-//	and Event -> primitive -> inception -> after -> clearingWorkflow -> clearingStatus = WorkflowEnum.Cleared
-//	and Event -> lineage -> contractReference exists
-
 isEvent ClearingRejection <"The rejection of an alpha trade submission by a CCP.">
 	Event -> primitive -> inception exists
 	and Event -> primitive -> inception -> after -> clearingWorkflow -> clearingStatus = WorkflowEnum.Rejected
 
-isEvent ClearingSubmission <"The submission of a contract to a CCP.">
+isEvent CCP_Registration <"The registration of a contract to a CCP.">
 	Event -> primitive -> inception only exists
-	and Event -> primitive -> inception -> after -> clearingWorkflow -> clearingStatus = WorkflowEnum.Submitted
-//	and Event -> primitive -> inception -> after -> contract -> partyRole -> role = PartyRoleEnum.ClearingOrganization
-
-isEvent AlphaTradeTermination <"The termination by the CCP of the alpha trade that was admitted to clearing.">
-	Event -> primitive -> quantityChange only exists
-	and quantityAfterQuantityChange = 0.0
-	and Event -> primitive -> quantityChange -> before -> contract -> partyRole -> role = PartyRoleEnum.ClearingOrganization
-	and Event -> primitive -> quantityChange -> after -> contract -> partyRole -> role = PartyRoleEnum.ClearingOrganization
+	and ( Event -> primitive -> inception -> after -> contract -> partyRole -> role = PartyRoleEnum.ClearingOrganization 
+		or Event -> primitive -> inception -> after -> clearingWorkflow -> clearingVenue exists)
 
 isEvent ClearingNotification <"The notification by the CCP of, respectively, the beta and the gamma trades that result from the clearing process.">
 	Event -> primitive -> inception only exists
-	and Event -> primitive -> inception -> after -> clearingWorkflow -> clearingStatus = WorkflowEnum.Cleared
-	and Event -> lineage -> contractReference exists
-
-//workflow rule ClearedContract
-	// Event -> count = 3
-	// and Event = AlphaTradeTermination count = 1
-	// and Event = ClearingNotification count = 2
-	// and economic terms are the same across the underlying contracts
-	// and contractId are distinct among the contracts
-	// and event date of alpha trade termination = trade date of the beta and gamma trades
-	// and CCP which is in the party role of the alpha trade is the same as the CCP which is counterparty to the beta and gamma trades
+//	and Event -> primitive -> inception -> after -> clearingWorkflow -> clearingStatus = WorkflowEnum.Cleared
+	and Event -> lineage -> lineageQualifier = LineageQualifierEnum.ClearingSubmission
+	and Event -> lineage -> lineageQualifier = LineageQualifierEnum.RelatedClearedContract
 	
 isEvent Compression <"The qualification of a compression event from the fact that (i) the intent is Compression when specified, (ii) the quantity change primitive exists, (iii) and there are multiple contracts (or contract references) specified in the before state.">
 	Event -> intent when present = IntentEnum.Compression
@@ -833,10 +841,9 @@ isEvent PartialNovation <"The qualification of a novation event from the fact th
 	and quantityAfterQuantityChange > 0.0
 //	and originalContractParties <> newContractParties
 
-data rule Novation_fee <"Logic to specify that if a cash transfer is qualified as a novation fee, it must have lineage into multiple contracts and one single event (the novation event).">
+data rule Novation_fee <"Logic to specify that if a cash transfer is qualified as a novation fee, it must have lineage into the novation contract, the contract resulting from the novation as well as the novation event.">
 	when Event -> primitive -> transfer -> cashTransfer -> cashflowType = CashflowTypeEnum.NovationFee
-	then Event -> lineage -> contractReference multiple exists
-		and Event -> lineage -> eventReference single exists
+	then Event -> lineage -> lineageQualifier = LineageQualifierEnum.NovationEvent
 
 isEvent PartialTermination <"The qualification of a partial termination event from the fact that (i) the intent is Partial Termination when specified, (ii) the associated primitives are the quantityChange and the cash transfer, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
 	Event -> intent when present = IntentEnum.PartialTermination
@@ -907,9 +914,16 @@ isEvent TradeWarehousePositionNotification
  * Workflow rules
  */
 	
+
 /*
- * workflow rule ClearingProcess
- *	ClearingAcceptance precedes ClearingNotification
- *  Contract rosettaKey lineage
+  workflow rule ClearedContract
+    when Event is ClearingNotification
+    then [lineageValue when LineageQualifierEnum.ClearingSubmission] isEvent ClearingSubmission = True
+    and [lineageValue when LineageQualifierEnum.RelatedClearedContract] isEvent ClearingNotification = True
+    and economicTerms are the same across [this.contract] and [lineageValue when LineageQualifierEnum.ClearingSubmission] and [lineageValue when LineageQualifierEnum.RelatedClearedContract]
+  		except for payerReceiver or buyerSeller
+    and event date of alpha trade termination = trade date of the beta and gamma trades
+ 	and CCP which is in the party role of the alpha trade is the same as the CCP which is counterparty to the beta and gamma trades
+  
  */
-	
+

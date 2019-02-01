@@ -5,8 +5,8 @@
     xmlns="http://www.fpml.org/FpML-5/confirmation" xmlns:dsig="http://www.w3.org/2000/09/xmldsig#"
     xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
     xmlns:co="http://www.regnosys.com/extension-1-10/confirmation">
-    <!-- This bundle combines 2 IRS contracts with a similar schedule, followed by 1 observation a
-        reset event and a net cash transfer across those 2 swaps -->
+    <!-- This bundle combines 2 IRS contracts with a similar schedule, followed by 1 observation, 2
+        reset events and a net cash transfer across those 2 swaps -->
     <co:event>
         <!-- Inception of the 1st 5 years IRS -->
         <co:timestamp>
@@ -421,14 +421,14 @@
             <co:creationTimestamp>2019-12-18T09:09:34.0</co:creationTimestamp>
         </co:timestamp>
         <co:eventIdentifier>
-            <co:issuer href="party9"/>
+            <co:issuer href="party11"/>
             <co:identifier>obs-1</co:identifier>
             <co:version>1</co:version>
         </co:eventIdentifier>
         <co:eventDate>2019-12-18</co:eventDate>
         <co:isCorrection>false</co:isCorrection>
         <!-- The data service provider -->
-        <party id="party9">
+        <party id="party11">
             <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso17442">RT7505Y4UKLVTY6TRF67</partyId>
             <partyName>Party B</partyName>
         </party>
@@ -459,7 +459,7 @@
         </co:primitive>
     </co:event>
     <co:event id="res-1234">
-        <!-- Reset event -->
+        <!-- Reset event in relation to the 1st contract -->
         <co:timestamp>
             <co:creationTimestamp>2019-12-20T10:30:15.0</co:creationTimestamp>
         </co:timestamp>
@@ -476,11 +476,54 @@
         <party id="party6">
             <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso17442">Party 2</partyId>
         </party>
-        <!-- Lineage into the 2 contracts and the observation event -->
+        <!-- Lineage into the 1st contract and the observation event -->
         <co:lineage>
-            <co:contractReference href="c-1"/>
-            <co:contractReference href="c-2"/>
-            <co:eventReference href="o-1234"/>
+            <co:contractLineage>
+                <co:contractReference href="c-1"/>
+            </co:contractLineage>
+        </co:lineage>
+        <co:lineage>
+            <co:lineageQualifier>ObservationEvent</co:lineageQualifier>
+            <co:eventLineage>
+                <co:eventReference href="o-1234"/>
+            </co:eventLineage>
+        </co:lineage>
+        <co:primitive>
+            <co:reset>
+                <co:date>2019-12-20</co:date>
+                <co:resetValue>2.50</co:resetValue>
+            </co:reset>
+        </co:primitive>
+    </co:event>
+    <co:event id="res-5678">
+        <!-- Reset event in relation to the 2nd contract -->
+        <co:timestamp>
+            <co:creationTimestamp>2019-12-20T10:30:15.0</co:creationTimestamp>
+        </co:timestamp>
+        <co:eventIdentifier>
+            <co:issuer href="party8"/>
+            <co:identifier>res-2</co:identifier>
+            <co:version>1</co:version>
+        </co:eventIdentifier>
+        <co:eventDate>2019-12-20</co:eventDate>
+        <co:isCorrection>false</co:isCorrection>
+        <party id="party7">
+            <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso17442">Party 1</partyId>
+        </party>
+        <party id="party8">
+            <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso17442">Party 2</partyId>
+        </party>
+        <!-- Lineage into the 2nd contract and the observation event -->
+        <co:lineage>
+            <co:contractLineage>
+                <co:contractReference href="c-2"/>
+            </co:contractLineage>
+        </co:lineage>
+        <co:lineage>
+            <co:lineageQualifier>ObservationEvent</co:lineageQualifier>
+            <co:eventLineage>
+                <co:eventReference href="o-1234"/>
+            </co:eventLineage>
         </co:lineage>
         <co:primitive>
             <co:reset>
@@ -495,23 +538,40 @@
             <co:creationTimestamp>2020-02-22T14:26:00.0</co:creationTimestamp>
         </co:timestamp>
         <co:eventIdentifier>
-            <co:issuer href="party8"/>
+            <co:issuer href="party10"/>
             <co:identifier>trs-456123</co:identifier>
             <co:version>1</co:version>
         </co:eventIdentifier>
         <co:eventDate>2020-02-22</co:eventDate>
         <co:isCorrection>false</co:isCorrection>
-        <party id="party7">
+        <party id="party9">
             <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso17442">Party 1</partyId>
         </party>
-        <party id="party8">
+        <party id="party10">
             <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso17442">Party 2</partyId>
         </party>
-        <!-- Lineage into the contract inception & the 2 reset events -->
+        <!-- Lineage into the 2 contract & the 2 reset events -->
         <co:lineage>
-            <co:contractReference href="c-1"/>
-            <co:contractReference href="c-2"/>
-            <co:eventReference href="res-1234"/>
+            <co:contractLineage>
+                <co:contractReference href="c-1"/>
+            </co:contractLineage>
+        </co:lineage>
+        <co:lineage>
+            <co:contractLineage>
+                <co:contractReference href="c-2"/>
+            </co:contractLineage>
+        </co:lineage>
+        <co:lineage>
+            <co:lineageQualifier>ResetEvent</co:lineageQualifier>
+            <co:eventLineage>
+                <co:eventReference href="res-1234"/>
+            </co:eventLineage>
+        </co:lineage>
+        <co:lineage>
+            <co:lineageQualifier>ResetEvent</co:lineageQualifier>
+            <co:eventLineage>
+                <co:eventReference href="res-5678"/>
+            </co:eventLineage>
         </co:lineage>
         <co:primitive>
             <!-- The transfer of the net cashflow across the 2 contracts -->
@@ -520,8 +580,8 @@
                     <adjustedDate>2019-12-22</adjustedDate>
                 </co:settlementDate>
                 <co:cashTransfer>
-                    <payerPartyReference href="party7"/>
-                    <receiverPartyReference href="party8"/>
+                    <payerPartyReference href="party9"/>
+                    <receiverPartyReference href="party10"/>
                     <co:amount>
                         <currency>USD</currency>
                         <amount>90999.00</amount>
@@ -531,11 +591,13 @@
                         <co:transferCalculation>FixedAmount</co:transferCalculation>
                         <!-- Payout lineage into the 1st swap fix leg payment -->
                         <co:lineage>
-                            <co:contractReference href="c-1"/>
-                            <co:interestRatePayoutReference href="sw1-1"/>
+                            <co:contractLineage>
+                                <co:contractReference href="c-1"/>
+                                <co:interestRatePayoutReference href="sw1-1"/>
+                            </co:contractLineage>
                         </co:lineage>
-                        <payerPartyReference href="party7"/>
-                        <receiverPartyReference href="party8"/>
+                        <payerPartyReference href="party9"/>
+                        <receiverPartyReference href="party10"/>
                         <co:amount>
                             <currency>USD</currency>
                             <amount>758333.33</amount>
@@ -547,13 +609,25 @@
                         <!-- Payout lineage into the 1st swap float leg payment, the observation and the
                         reset event-->
                         <co:lineage>
-                            <co:contractReference href="c-1"/>
-                            <co:eventReference href="o-1234"/>
-                            <co:eventReference href="res-1234"/>
-                            <co:interestRatePayoutReference href="sw1-2"/>
+                            <co:contractLineage>
+                                <co:contractReference href="c-1"/>
+                                <co:interestRatePayoutReference href="sw1-2"/>
+                            </co:contractLineage>
                         </co:lineage>
-                        <payerPartyReference href="party8"/>
-                        <receiverPartyReference href="party7"/>
+                        <co:lineage>
+                            <co:lineageQualifier>ObservationEvent</co:lineageQualifier>
+                            <co:eventLineage>
+                                <co:eventReference href="o-1234"/>
+                            </co:eventLineage>
+                        </co:lineage>
+                        <co:lineage>
+                            <co:lineageQualifier>ResetEvent</co:lineageQualifier>
+                            <co:eventLineage>
+                                <co:eventReference href="res-1234"/>
+                            </co:eventLineage>
+                        </co:lineage>
+                        <payerPartyReference href="party10"/>
+                        <receiverPartyReference href="party9"/>
                         <co:amount>
                             <currency>USD</currency>
                             <amount>631944.44</amount>
@@ -565,11 +639,13 @@
                         <co:transferCalculation>FixedAmount</co:transferCalculation>
                         <!-- Payout lineage into the 2nd swap fix leg payment -->
                         <co:lineage>
-                            <co:contractReference href="c-2"/>
-                            <co:interestRatePayoutReference href="sw2-1"/>
+                            <co:contractLineage>
+                                <co:contractReference href="c-2"/>
+                                <co:interestRatePayoutReference href="sw2-1"/>
+                            </co:contractLineage>  
                         </co:lineage>
-                        <payerPartyReference href="party8"/>
-                        <receiverPartyReference href="party7"/>
+                        <payerPartyReference href="party10"/>
+                        <receiverPartyReference href="party9"/>
                         <co:amount>
                             <currency>USD</currency>
                             <amount>35388.893</amount>
@@ -582,13 +658,25 @@
                         <!-- Payout lineage into the 1st swap float leg payment, the observation and the
                         reset event-->
                         <co:lineage>
-                            <co:contractReference href="c-2"/>
-                            <co:eventReference href="o-1234"/>
-                            <co:eventReference href="res-1234"/>
-                            <co:interestRatePayoutReference href="sw2-2"/>
+                            <co:contractLineage>
+                                <co:contractReference href="c-2"/>
+                                <co:interestRatePayoutReference href="sw2-2"/>
+                            </co:contractLineage>
                         </co:lineage>
-                        <payerPartyReference href="party7"/>
-                        <receiverPartyReference href="party8"/>
+                        <co:lineage>
+                            <co:lineageQualifier>ObservationEvent</co:lineageQualifier>
+                            <co:eventLineage>
+                                <co:eventReference href="o-1234"/>
+                            </co:eventLineage>
+                        </co:lineage>
+                        <co:lineage>
+                            <co:lineageQualifier>ResetEvent</co:lineageQualifier>
+                            <co:eventLineage>
+                                <co:eventReference href="res-1234"/>
+                            </co:eventLineage>
+                        </co:lineage>
+                        <payerPartyReference href="party9"/>
+                        <receiverPartyReference href="party10"/>
                         <co:amount>
                             <currency>USD</currency>
                             <amount>126388.89</amount>
