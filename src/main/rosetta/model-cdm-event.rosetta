@@ -112,17 +112,17 @@ class ComputedAmount <"A class to specify the outcome of a computed amount, for 
 
 class ContractLineage <"The lineage into the contract object alongside with, optionally, the various payout components.">
 {
-	contractReference Contract (1..1) rosettaKey reference;
+	contractReference Contract (1..1) rosettaKey reference <"The CDM recommended usage is the rosettaKey, which corresponds to the hash value of the contract class which is positioned as the lineage source. The reference is meant to provide support for the ingestion of xml documents with id/href mechanisms.">;
 	    [synonym Rosetta_Workbench value contractReference meta href]
-	cashflowReference Cashflow (0..*) rosettaKey reference;
+	cashflowReference Cashflow (0..*) rosettaKey reference <"The pointer to the cashflow payout component. An expected typical usage is to provide lineage for the payment of, say, the option premium or the swap initial fee.">;
 		[synonym Rosetta_Workbench value cashflowReference meta href] 
-	creditDefaultPayoutReference CreditDefaultPayout (0..*) rosettaKey reference;
+	creditDefaultPayoutReference CreditDefaultPayout (0..*) rosettaKey reference <"The pointer to the credit default payout component.">;
 		[synonym Rosetta_Workbench value creditDefaultReference meta href]
-	interestRatePayoutReference InterestRatePayout (0..*) rosettaKey reference;
+	interestRatePayoutReference InterestRatePayout (0..*) rosettaKey reference <"The pointer to the interest rate payout component. An expected typical usage is to provide lineage for the payment of, say, an interest rate swap reset, with the ability to relate the gross cashflow amounts to the respective payout components.">;
 		[synonym Rosetta_Workbench value interestRatePayoutReference meta href]
-	optionPayoutReference OptionPayout (0..*) rosettaKey reference;
+	optionPayoutReference OptionPayout (0..*) rosettaKey reference <"The pointer to the option payout component.">;
 		[synonym Rosetta_Workbench value optionPayoutReference meta href]
-	equityPayoutReference EquityPayout (0..*) rosettaKey reference;
+	equityPayoutReference EquityPayout (0..*) rosettaKey reference <"The pointer to the equity payout component. An expected typical usage is to provide lineage for the payment of, say, an equity dividend.">;
 		[synonym Rosetta_Workbench value equityPayoutReference meta href]	
 }
 
@@ -289,9 +289,9 @@ class EventEffect <"The set of operational and positional effects associated wit
 
 class EventLineage <"The lineage into the event object alongside with, optionally, the transfer component.">
 {
-	eventReference Event (1..1) rosettaKey reference; 
+	eventReference Event (1..1) rosettaKey reference <"The CDM recommended usage is the rosettaKey, which corresponds to the hash value of the event class which is positioned as the lineage source. The reference is meant to provide support for the ingestion of xml documents with id/href mechanisms.">;
 		[synonym Rosetta_Workbench value eventReference meta href]
-	transferReference Transfer (0..*) rosettaKey reference;
+	transferReference Transfer (0..*) rosettaKey reference; // Usage needs to be confirmed
 		[synonym Rosetta_Workbench value cashflowReference meta href] 
 }
 
@@ -426,13 +426,13 @@ class LimitApplicableExtended extends LimitApplicable <"A class to represent the
 		[synonym CME_ClearedConfirm_1_17, Rosetta_Workbench value limitImpactDueToTrade]
 }
 
-class Lineage <"The class to provide lineage information across lifecycle events.">
+class Lineage <"The class to provide lineage information across lifecycle events, i.e. to provide a pointer or set of pointers into the event(s), contract(s) and, possibly, payout components that the event is dependent on. Those pointers are constituted by the rosettaKey, which corresponds to the hash value of the CDM class which is referred to. As an example, if an inception event is corrected, the correction event will have a lineage into the initial event, which takes the form of a rosettaKey into that initial inception event.">
 {
-	lineageQualifier LineageQualifierEnum (0..1) <"The lineage qualification, which is meant to provide insight into the object that is represented by the rosettaKey reference. The purpose of this qualifier can be illustrated by a novated trade and a cleared trade, which look very similar in the sense that they are both model through an inception primitive, with a lineage into, respectively, the novated trade and the alpha trade. Qualifiying the lineage as NovatedTrade and AlphaTrade hence provides further insight into those event components.">;
+	lineageQualifier LineageQualifierEnum (0..1) <"The lineage qualification, which is meant to provide insight into the object that is represented by the rosettaKey reference. The purpose of this qualifier can be illustrated by a novated trade and a cleared trade, which look very similar in the sense that they are both modelled through an inception primitive, with a lineage into, respectively, the novated trade and the alpha trade. Qualifiying the lineage as NovatedTrade and ClearingSubmission hence provides further insight into those event components.">;
 		[synonym Rosetta_Workbench value lineageQualifier]
-	contractLineage ContractLineage (0..1);
+	contractLineage ContractLineage (0..1) <"The contract lineage components, i.e. the contract and the various contract payouts. A typical usage example is the payment of an interest rate swap reset event, with the lineage into the contract as well as each of the respective legs for the gross cashflow components.">;
 	    [synonym Rosetta_Workbench value contractLineage]
-	eventLineage EventLineage (0..1);
+	eventLineage EventLineage (0..1) <"The event lineage components, i.e. the contract and the transfer.">;
 	    [synonym Rosetta_Workbench value eventLineage]   
 }
 
