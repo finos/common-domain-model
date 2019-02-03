@@ -63,7 +63,7 @@ class DividendReturnTerms <"A class describing the conditions governing the paym
 		[synonym FpML_5_10 value dividendReinvestment]
 	dividendEntitlement DividendEntitlementEnum (0..1) <"Defines the date on which the receiver of the equity return is entitled to the dividend.">;
 		[synonym FpML_5_10 value dividendEntitlement]
-	dividendAmount DividendAmountTypeEnum (0..1) <"Specifies whether the dividend is paid with respect to the Dividend Period.">;
+	dividendAmountType DividendAmountTypeEnum (0..1) <"Specifies whether the dividend is paid with respect to the Dividend Period.">;
 		[synonym FpML_5_10 value dividendAmount]
 	dividendPaymentDate DividendPaymentDate (0..1) <"Specifies when the dividend will be paid to the receiver of the equity return. Has the meaning as defined in the ISDA 2002 Equity Derivatives Definitions. Is not applicable in the case of a dividend reinvestment election.">;
 		[synonym FpML_5_10 value dividendPaymentDate]
@@ -73,7 +73,7 @@ class DividendReturnTerms <"A class describing the conditions governing the paym
 		[synonym FpML_5_10 value dividendPeriodEffectiveDate meta href]
 	dividendPeriodEndDate date (0..1) reference <"002 ISDA Equity Derivatives Definitions: Dividend Period as such other period determined as provided in the related Confirmation. |">;
 		[synonym FpML_5_10 value dividendPeriodEndDate meta href]
-	extraOrdinaryDividendsParty Party (0..1) reference <"Reference to the party which determines if dividends are extraordinary in relation to normal levels.">;
+	extraordinaryDividendsParty Party (0..1) reference <"Reference to the party which determines if dividends are extraordinary in relation to normal levels.">;
 		[synonym FpML_5_10 value extraOrdinaryDividends meta href]
 	excessDividendAmount DividendAmountTypeEnum (0..1) <"Determination of Gross Cash Dividend per Share.">;
 		[synonym FpML_5_10 value excessDividendAmount]
@@ -110,17 +110,6 @@ class DividendPaymentDate one of <"A class describing the date on which the divi
 		[synonym FpML_5_10 value adjustableDate]
 }
 
-class PriceReturnTerms extends DeterminationMethod
-	[synonym FpML_5_10 value ReturnLegValuationPrice]
-{
-	initialPrice Price (1..1) <"Specifies the initial reference price of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">;
-		[synonym FpML_5_10 value initialPrice path "rateOfReturn"]
-	valuationPriceInterim EquityValuation (0..1) <"Specifies the interim valuation price(s) of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">;
-		[synonym FpML_5_10 value valuationPriceInterim path "rateOfReturn"]
-	valuationPriceFinal EquityValuation (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Final Price | Specifies the final valuation price of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">;
-		[synonym FpML_5_10 value valuationPriceFinal path "rateOfReturn"]
-}
-
 class EquityCorporateEvents <"A class for defining the merger events and their treatment.">
 	[synonym FpML_5_10 value EquityCorporateEvents]
 {
@@ -130,6 +119,25 @@ class EquityCorporateEvents <"A class for defining the merger events and their t
 		[synonym FpML_5_10 value shareForOther]
 	shareForCombined ShareExtraordinaryEventEnum (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Merger Event (S-F-C) shall occur if a Merger Event occurs and the consideration for the relevant Security consists solely of Combined Consideration. | The consideration paid for the original shares following the Merger Event consists of both cash/securities and new shares.">;
 		[synonym FpML_5_10 value shareForCombined]
+}
+
+class EquityValuation <"A class for defining how and when an equity option or equity swap is to be valued.">
+	[synonym FpML_5_10 value EquityValuation]
+{
+	determinationMethod DeterminationMethodEnum (1..1) <"Specifies the method according to which an amount or a date is determined.">;
+		[synonym FpML_5_10 value determinationMethod]
+	valuationDates AdjustableOrRelativeDates (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Pricing Date">;
+		[synonym FpML_5_10 value valuationDates path "valuationRules"]
+	valuationDate AdjustableOrRelativeDate (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Pricing Date">;
+		[synonym FpML_5_10 value valuationDate path "valuationRules"]
+	valuationTime BusinessCenterTime (0..1) <"The specific time of day at which the calculation agent values the underlying. The SpecificTime is the only case when the valuationTime (time + business center location – e.g. 10:00:00 USNY) should be provided. You should be able to provide just the valuationTime without valuationTimeType, which infer that this is a specific time.">;
+		[synonym FpML_5_10 value valuationTime path "valuationRules"]
+	valuationTimeType TimeTypeEnum (0..1) <"The time of day at which the calculation agent values the underlying, for example the official closing time of the exchange.">;
+		[synonym FpML_5_10 value valuationTimeType path "valuationRules"]
+	/*
+	 * The FpML construct has a a number of other attributes: dividend valuation dates, fall-back provision, ...
+	 * Also, FpML extends Price while the current CDM approach is just to share the determinationMethod.  To be confirmed as a function of the use cases.
+	 */
 }
 
 class ExtraordinaryEvents <"Where the underlying is shares, defines market events affecting the issuer of those shares that may require the terms of the transaction to be adjusted.">
@@ -170,7 +178,7 @@ class IndexAdjustmentEvents <"Defines the specification of the consequences of I
 		[synonym FpML_5_10 value indexDisruption]
 }
 
-class Price extends DeterminationMethod <"A class describing the strike price."> // TODO - Look for further synergies with the option strike
+class Price <"A class describing the strike price."> // TODO - Look for further synergies with the option strike
 	[synonym FpML_5_10 value Price]
 {
 	grossPrice ActualPrice (0..1) <"Specifies the price of the underlier, before commissions.">;
@@ -184,6 +192,17 @@ class Price extends DeterminationMethod <"A class describing the strike price.">
 	 */
 }
 
+class PriceReturnTerms
+	[synonym FpML_5_10 value ReturnLegValuationPrice]
+{
+	initialPrice Price (1..1) <"Specifies the initial reference price of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">;
+		[synonym FpML_5_10 value initialPrice path "rateOfReturn"]
+	valuationPriceInterim EquityValuation (0..1) <"Specifies the interim valuation price(s) of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">;
+		[synonym FpML_5_10 value valuationPriceInterim path "rateOfReturn"]
+	valuationPriceFinal EquityValuation (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Final Price | Specifies the final valuation price of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">;
+		[synonym FpML_5_10 value valuationPriceFinal path "rateOfReturn"]
+}
+
 class Representations
 	[synonym FpML_5_10 value Representations]
 {
@@ -195,23 +214,4 @@ class Representations
 		[synonym FpML_5_10 value indexDisclaimer]
 	additionalAcknowledgements boolean (0..1) <"If true, then additional acknowledgements are applicable.">;
 		[synonym FpML_5_10 value additionalAcknowledgements]
-}
-
-class EquityValuation <"A class for defining how and when an equity option or equity swap is to be valued.">
-	[synonym FpML_5_10 value EquityValuation]
-{
-	determinationMethod DeterminationMethodEnum (0..1) <"Specifies the method according to which an amount or a date is determined.">;
-		[synonym FpML_5_10 value determinationMethod]
-	valuationDates AdjustableOrRelativeDates (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Pricing Date">;
-		[synonym FpML_5_10 value valuationDates path "valuationRules"]
-	valuationDate AdjustableOrRelativeDate (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Pricing Date">;
-		[synonym FpML_5_10 value valuationDate path "valuationRules"]
-	valuationTime BusinessCenterTime (0..1) <"The specific time of day at which the calculation agent values the underlying. The SpecificTime is the only case when the valuationTime (time + business center location – e.g. 10:00:00 USNY) should be provided. You should be able to provide just the valuationTime without valuationTimeType, which infer that this is a specific time.">;
-		[synonym FpML_5_10 value valuationTime path "valuationRules"]
-	valuationTimeType TimeTypeEnum (0..1) <"The time of day at which the calculation agent values the underlying, for example the official closing time of the exchange.">;
-		[synonym FpML_5_10 value valuationTimeType path "valuationRules"]
-	/*
-	 * The FpML construct has a a number of other attributes: dividend valuation dates, fall-back provision, ...
-	 * Also, FpML extends Price while the current CDM approach is just to share the determinationMethod.  To be confirmed as a function of the use cases.
-	 */
 }

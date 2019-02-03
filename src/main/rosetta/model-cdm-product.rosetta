@@ -71,7 +71,7 @@ class Contract rosettaKey <"A class to specify a contract object, which can be i
 	documentation Documentation (0..1) <"Defines the definitions that govern the document and should include the year and type of definitions referenced, along with any relevant documentation (such as master agreement) and the date it was signed.">;
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value documentation path "trade"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value documentation]
-	governingLaw GoverningLawEnum (0..1) scheme <"Identification of the law governing the transaction.">;
+	governingLaw GoverningLawEnum (0..1) scheme <"Identification of the law governing the contract.">;
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value governingLaw path "trade" meta governingLawScheme]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value governingLaw]
 	party Party (0..*) <"The parties to the contract. The cardinality is optional to address the case where the contract object is part of an event record, in which case the party is specified as part of that object. In that respect, the CDM approach is distinct from FpML, where party information is specified as part of a wrapper alongside the trade object.">;
@@ -671,9 +671,9 @@ data rule PaymentDates_dateRelativeTo <"When the payment dates are specified by 
 	then ( PaymentDates -> paymentDaysOffset
 		and PaymentDates -> paymentDatesAdjustments ) exists
 
-class Payout <"The payout can be specified through a number of combinations, e.g. by associating several interest rate payouts to specify an interest rate swap, or a credit default and an interest rate payout to specify a credit default swap. The implied product is inferred by the isProduct CDM artefact. Each of the payout classes have an associated rosettaKeyValue which can be referenced by implementers as part of their grossCashflow attribute in the Transfer class, but establishing a lineage between this computed cashflow and the originating payout, when applicable.">
+class Payout <"The class to represent the set of payouts that can be associated with a financial product. The payout can be specified through a number of combinations, e.g. by associating several interest rate payouts to specify an interest rate swap, or a credit default and an interest rate payout to specify a credit default swap. The implied product is inferred by the isProduct CDM artefact. Each of the payout attributes has an associated rosettaKeyValue which can be referenced by implementers as part of the Lineage class.">
 {
-	interestRatePayout InterestRatePayout (0..*) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Floating Obligations |">;
+	interestRatePayout InterestRatePayout (0..*) <"The interest rate payout, which can be applied to interest rate swaps and FRA (which both have two associated interest rate payouts), credit default swaps (to represent the fee leg when subject to period payments) and equity swaps (to represent the funding leg). 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Floating Obligations |">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value swapStream path "trade.swap" ]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value swapStream path "swap"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value swapStream]
@@ -683,17 +683,17 @@ class Payout <"The payout can be specified through a number of combinations, e.g
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value capFloorStream path "trade.capFloor"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value fra path "trade"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value interestLeg path "trade.returnSwap", interestLeg path "trade.equitySwapTransactionSupplement"]
-	creditDefaultPayout CreditDefaultPayout (0..1);
-	equityPayout EquityPayout (0..*);
+	creditDefaultPayout CreditDefaultPayout (0..1) <"The credit default payout.">;
+	equityPayout EquityPayout (0..*) <"The equity payout, whicn encompasses the equity price returns, dividend returns, volatility and variance return provisions.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value returnLeg path "trade.returnSwap", returnLeg path "trade.equitySwapTransactionSupplement"]
-	optionPayout OptionPayout (0..*) <"">;
+	optionPayout OptionPayout (0..*) <"The option payout.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value swaption path "trade"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value swaption]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value creditDefaultSwapOption path "trade"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value creditDefaultSwapOption]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value bondOption path "trade"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value bondOption]
-	cashflow Cashflow (0..*) <"A cashflow between the parties to the trade. For interest rate and equity products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the FpML initialPayment element and the singlePayment element of the fee leg. For option products, which corresponds to the FpML premium element.">;
+	cashflow Cashflow (0..*) <"A cashflow between the parties to the trade. For interest rate and equity products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the FpML initialPayment element and the singlePayment element of the fee leg. For option products, it represents the FpML premium element.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value additionalPayment path "trade.swap"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value additionalPayment path "swap"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value additionalPayment]
