@@ -29,9 +29,9 @@
         <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external">CCP C</partyId>
     </party>
     <co:primitive>
-        <co:inception>
+        <co:quantityChange>
             <!-- The alpha trade between client A and client B that is registered for clearing -->
-            <co:after>
+            <co:before>
                 <co:trade>
                     <tradeHeader>
                         <partyTradeIdentifier>
@@ -41,21 +41,14 @@
                                 <version>1</version>
                             </versionedTradeId>
                         </partyTradeIdentifier>
-                        <partyTradeInformation>
-                            <partyReference href="clientA"/>
-                            <relatedParty>
-                                <partyReference href="clearingVenue"/>
-                                <role>ClearingOrganization</role>
-                            </relatedParty>
-                        </partyTradeInformation>
                         <tradeDate>2018-10-31</tradeDate>
                     </tradeHeader>
                     <swap>
                         <productType>InterestRateSwap</productType>
-                        <swapStream id="floatingLeg-aa-alpha">
+                        <swapStream id="floatingLeg-alpha">
                             <payerPartyReference href="clientB"/>
                             <receiverPartyReference href="clientA"/>
-                            <calculationPeriodDates id="floatingLegCalcPeriodDates-aa-alpha">
+                            <calculationPeriodDates id="floatingLegCalcPeriodDates-alpha">
                                 <effectiveDate>
                                     <unadjustedDate>2018-11-02</unadjustedDate>
                                     <dateAdjustments>
@@ -85,9 +78,9 @@
                                     <rollConvention>2</rollConvention>
                                 </calculationPeriodFrequency>
                             </calculationPeriodDates>
-                            <paymentDates id="floatingLegPaymentDates-aa-alpha">
+                            <paymentDates id="floatingLegPaymentDates-alpha">
                                 <calculationPeriodDatesReference
-                                    href="floatingLegCalcPeriodDates-aa-alpha"/>
+                                    href="floatingLegCalcPeriodDates-alpha"/>
                                 <paymentFrequency>
                                     <periodMultiplier>3</periodMultiplier>
                                     <period>M</period>
@@ -101,9 +94,9 @@
                                     </businessCenters>
                                 </paymentDatesAdjustments>
                             </paymentDates>
-                            <resetDates id="floatingLegResetDates-aa-alpha">
+                            <resetDates id="floatingLegResetDates-alpha">
                                 <calculationPeriodDatesReference
-                                    href="floatingLegCalcPeriodDates-aa-alpha"/>
+                                    href="floatingLegCalcPeriodDates-alpha"/>
                                 <resetRelativeTo>CalculationPeriodStartDate</resetRelativeTo>
                                 <fixingDates>
                                     <periodMultiplier>-2</periodMultiplier>
@@ -113,7 +106,7 @@
                                     <businessCenters>
                                         <businessCenter>GBLO</businessCenter>
                                     </businessCenters>
-                                    <dateRelativeTo href="floatingLegResetDates-aa-alpha"/>
+                                    <dateRelativeTo href="floatingLegResetDates-alpha"/>
                                 </fixingDates>
                                 <resetFrequency>
                                     <periodMultiplier>3</periodMultiplier>
@@ -127,6 +120,192 @@
                                     </businessCenters>
                                 </resetDatesAdjustments>
                             </resetDates>
+                            <calculationPeriodAmount>
+                                <calculation>
+                                    <notionalSchedule>
+                                        <notionalStepSchedule>
+                                            <initialValue>50000000</initialValue>
+                                            <currency>USD</currency>
+                                        </notionalStepSchedule>
+                                    </notionalSchedule>
+                                    <floatingRateCalculation>
+                                        <floatingRateIndex>USD-LIBOR-BBA</floatingRateIndex>
+                                        <indexTenor>
+                                            <periodMultiplier>3</periodMultiplier>
+                                            <period>M</period>
+                                        </indexTenor>
+                                    </floatingRateCalculation>
+                                    <dayCountFraction>ACT/360</dayCountFraction>
+                                </calculation>
+                            </calculationPeriodAmount>
+                        </swapStream>
+                        <swapStream id="fixedLeg-alpha">
+                            <payerPartyReference href="clientA"/>
+                            <receiverPartyReference href="clientB"/>
+                            <calculationPeriodDates id="fixedLegCalcPeriodDates-alpha">
+                                <effectiveDate>
+                                    <unadjustedDate>2018-11-02</unadjustedDate>
+                                    <dateAdjustments>
+                                        <businessDayConvention>NONE</businessDayConvention>
+                                    </dateAdjustments>
+                                </effectiveDate>
+                                <terminationDate>
+                                    <unadjustedDate>2023-11-02</unadjustedDate>
+                                    <dateAdjustments>
+                                        <businessDayConvention>MODFOLLOWING</businessDayConvention>
+                                        <businessCenters>
+                                            <businessCenter>GBLO</businessCenter>
+                                            <businessCenter>USNY</businessCenter>
+                                        </businessCenters>
+                                    </dateAdjustments>
+                                </terminationDate>
+                                <calculationPeriodDatesAdjustments>
+                                    <businessDayConvention>MODFOLLOWING</businessDayConvention>
+                                    <businessCenters>
+                                        <businessCenter>GBLO</businessCenter>
+                                        <businessCenter>USNY</businessCenter>
+                                    </businessCenters>
+                                </calculationPeriodDatesAdjustments>
+                                <calculationPeriodFrequency>
+                                    <periodMultiplier>6</periodMultiplier>
+                                    <period>M</period>
+                                    <rollConvention>2</rollConvention>
+                                </calculationPeriodFrequency>
+                            </calculationPeriodDates>
+                            <paymentDates id="fixedLegPaymentDates-alpha">
+                                <calculationPeriodDatesReference
+                                    href="fixedLegCalcPeriodDates-alpha"/>
+                                <paymentFrequency>
+                                    <periodMultiplier>6</periodMultiplier>
+                                    <period>M</period>
+                                </paymentFrequency>
+                                <payRelativeTo>CalculationPeriodEndDate</payRelativeTo>
+                                <paymentDatesAdjustments>
+                                    <businessDayConvention>MODFOLLOWING</businessDayConvention>
+                                    <businessCenters>
+                                        <businessCenter>GBLO</businessCenter>
+                                        <businessCenter>USNY</businessCenter>
+                                    </businessCenters>
+                                </paymentDatesAdjustments>
+                            </paymentDates>
+                            <calculationPeriodAmount>
+                                <calculation>
+                                    <notionalSchedule>
+                                        <notionalStepSchedule>
+                                            <initialValue>50000000</initialValue>
+                                            <currency>USD</currency>
+                                        </notionalStepSchedule>
+                                    </notionalSchedule>
+                                    <fixedRateSchedule>
+                                        <initialValue>0.02781</initialValue>
+                                    </fixedRateSchedule>
+                                    <dayCountFraction>30/360</dayCountFraction>
+                                </calculation>
+                            </calculationPeriodAmount>
+                        </swapStream>
+                    </swap>
+                </co:trade>
+            </co:before>
+            <!-- The alpha trade is registered at the CCP, with 2 distinctive features: the CCP is
+                positioned as a party role to the trade, and the trade is terminated -->
+            <co:after>
+                <co:trade>
+                    <tradeHeader>
+                        <partyTradeIdentifier>
+                            <partyReference href="tradingVenue"/>
+                            <versionedTradeId>
+                                <tradeId tradeIdScheme="http://www.tradingvenue.com/trade-id">alphatrade123</tradeId>
+                                <version>1</version>
+                            </versionedTradeId>
+                        </partyTradeIdentifier>
+                        <!-- The CCP as a party role to the trade -->
+                        <partyTradeInformation>
+                            <partyReference href="clientA"/>
+                            <relatedParty>
+                                <partyReference href="clearingVenue"/>
+                                <role>ClearingOrganization</role>
+                            </relatedParty>
+                        </partyTradeInformation>
+                        <tradeDate>2018-10-31</tradeDate>
+                    </tradeHeader>
+                    <swap>
+                        <productType>InterestRateSwap</productType>
+                        <swapStream id="floatingLeg-registered">
+                            <payerPartyReference href="clientB"/>
+                            <receiverPartyReference href="clientA"/>
+                            <calculationPeriodDates id="floatingLegCalcPeriodDates-registered">
+                                <effectiveDate>
+                                    <unadjustedDate>2018-11-02</unadjustedDate>
+                                    <dateAdjustments>
+                                        <businessDayConvention>NONE</businessDayConvention>
+                                    </dateAdjustments>
+                                </effectiveDate>
+                                <terminationDate>
+                                    <unadjustedDate>2023-11-02</unadjustedDate>
+                                    <dateAdjustments>
+                                        <businessDayConvention>MODFOLLOWING</businessDayConvention>
+                                        <businessCenters>
+                                            <businessCenter>GBLO</businessCenter>
+                                            <businessCenter>USNY</businessCenter>
+                                        </businessCenters>
+                                    </dateAdjustments>
+                                </terminationDate>
+                                <calculationPeriodDatesAdjustments>
+                                    <businessDayConvention>MODFOLLOWING</businessDayConvention>
+                                    <businessCenters>
+                                        <businessCenter>GBLO</businessCenter>
+                                        <businessCenter>USNY</businessCenter>
+                                    </businessCenters>
+                                </calculationPeriodDatesAdjustments>
+                                <calculationPeriodFrequency>
+                                    <periodMultiplier>3</periodMultiplier>
+                                    <period>M</period>
+                                    <rollConvention>2</rollConvention>
+                                </calculationPeriodFrequency>
+                            </calculationPeriodDates>
+                            <paymentDates id="floatingLegPaymentDates-registered">
+                                <calculationPeriodDatesReference
+                                    href="floatingLegCalcPeriodDates-registered"/>
+                                <paymentFrequency>
+                                    <periodMultiplier>3</periodMultiplier>
+                                    <period>M</period>
+                                </paymentFrequency>
+                                <payRelativeTo>CalculationPeriodEndDate</payRelativeTo>
+                                <paymentDatesAdjustments>
+                                    <businessDayConvention>MODFOLLOWING</businessDayConvention>
+                                    <businessCenters>
+                                        <businessCenter>GBLO</businessCenter>
+                                        <businessCenter>USNY</businessCenter>
+                                    </businessCenters>
+                                </paymentDatesAdjustments>
+                            </paymentDates>
+                            <resetDates id="floatingLegResetDates-registered">
+                                <calculationPeriodDatesReference
+                                    href="floatingLegCalcPeriodDates-registered"/>
+                                <resetRelativeTo>CalculationPeriodStartDate</resetRelativeTo>
+                                <fixingDates>
+                                    <periodMultiplier>-2</periodMultiplier>
+                                    <period>D</period>
+                                    <dayType>Business</dayType>
+                                    <businessDayConvention>NONE</businessDayConvention>
+                                    <businessCenters>
+                                        <businessCenter>GBLO</businessCenter>
+                                    </businessCenters>
+                                    <dateRelativeTo href="floatingLegResetDates-registered"/>
+                                </fixingDates>
+                                <resetFrequency>
+                                    <periodMultiplier>3</periodMultiplier>
+                                    <period>M</period>
+                                </resetFrequency>
+                                <resetDatesAdjustments>
+                                    <businessDayConvention>MODFOLLOWING</businessDayConvention>
+                                    <businessCenters>
+                                        <businessCenter>GBLO</businessCenter>
+                                        <businessCenter>USNY</businessCenter>
+                                    </businessCenters>
+                                </resetDatesAdjustments>
+                            </resetDates>
+                            <!-- The notional = 0 -->
                             <calculationPeriodAmount>
                                 <calculation>
                                     <notionalSchedule>
@@ -146,10 +325,10 @@
                                 </calculation>
                             </calculationPeriodAmount>
                         </swapStream>
-                        <swapStream id="fixedLeg-aa-alpha">
+                        <swapStream id="fixedLeg-registered">
                             <payerPartyReference href="clientA"/>
                             <receiverPartyReference href="clientB"/>
-                            <calculationPeriodDates id="fixedLegCalcPeriodDates-aa-alpha">
+                            <calculationPeriodDates id="fixedLegCalcPeriodDates-registered">
                                 <effectiveDate>
                                     <unadjustedDate>2018-11-02</unadjustedDate>
                                     <dateAdjustments>
@@ -179,9 +358,9 @@
                                     <rollConvention>2</rollConvention>
                                 </calculationPeriodFrequency>
                             </calculationPeriodDates>
-                            <paymentDates id="fixedLegPaymentDates-aa-alpha">
+                            <paymentDates id="fixedLegPaymentDates-registered">
                                 <calculationPeriodDatesReference
-                                    href="fixedLegCalcPeriodDates-aa-alpha"/>
+                                    href="fixedLegCalcPeriodDates-registered"/>
                                 <paymentFrequency>
                                     <periodMultiplier>6</periodMultiplier>
                                     <period>M</period>
@@ -195,6 +374,7 @@
                                     </businessCenters>
                                 </paymentDatesAdjustments>
                             </paymentDates>
+                            <!-- The notional = 0 -->
                             <calculationPeriodAmount>
                                 <calculation>
                                     <notionalSchedule>
@@ -212,8 +392,13 @@
                         </swapStream>
                     </swap>
                 </co:trade>
-                <co:clearingStatus>Accepted</co:clearingStatus>
             </co:after>
-        </co:inception>
+            <co:change>
+                <co:notionalAmount>
+                    <currency>USD</currency>
+                    <amount>-500000000</amount>
+                </co:notionalAmount>
+            </co:change>
+        </co:quantityChange>
     </co:primitive>
 </co:event>
