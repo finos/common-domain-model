@@ -45,10 +45,6 @@ class CashTransferComponent extends TransferBase
 
 class ClearingWorkflow <"A class to specify the clearing workflow information: clearing status, clearing venue, party-specific execution workflow information, ...">
 {
-	clearingStatus WorkflowEnum (1..1);
-		[synonym CME_SubmissionIRS_1_0 value RptTyp]
-		[synonym Rosetta_Workbench value clearingStatus]
-		[synonym CME_ClearedConfirm_1_17 value status path "trade.tradeHeader"]
 	/*
 	 * One alternative is to represent the clearing venue as part of the partyRole + party, 
 	 * but CME mapping would be involved because requiring to create an id/href relationship
@@ -61,8 +57,6 @@ class ClearingWorkflow <"A class to specify the clearing workflow information: c
 	originatingEvent OriginatingEventEnum (0..1) <"The qualification by the clearing facility of whether the cleared trade results from a trade presented for clearing by market participants (in which case it is qualified as a 'New Trade') or whether it results from a process that is internal to the CCP, in which case this process will be qualified accordingly (e.g. Transfer, Novation, Compression, ...).">;
 		[synonym CME_ClearedConfirm_1_17 value originatingEvent path "trade.tradeHeader"]
 		[synonym Rosetta_Workbench value originatingEvent]
-	partyExecutionWorkflow PartyCustomisedWorkflow (0..*) <"Information related to the execution workflow for each of the parties to the contract. This is relevant for the clearing event.">;
-		[synonym CME_SubmissionIRS_1_0 value RptSide]
 }
 
 /*
@@ -142,7 +136,7 @@ class CreditLimit
 		[synonym FpML_5_10 value expirationDate]
 }
 
-class CreditLimitInformation <"A class to represent the credit limit utilization information.">
+class CreditLimitInformation <"A class to represent the credit limit utilisation information.">
 	[synonym CME_ClearedConfirm_1_17 value CreditLimitInformation]
 {
 	limitApplicable LimitApplicableExtended (1..*);
@@ -267,8 +261,7 @@ class Event rosettaKey
 	functionCall string (0..1) <"This is placeholder concept for a function call into a calculation that will return an outcome. This concept needs to be further firmed out.">;
 		[synonym Rosetta_Workbench value functionCall]
 	eventEffect EventEffect (0..1) <"The set of effects associated with the lifecycle event, i.e. generated cashflows, contracts (from, say, novation events), listed products (from, say, a bond option exercise event)  values and more. Those are represented through a set of rosettaKey references. This attribute is optional in order to provide implementers with the ability not to make use of this feature.">;
-	partyCustomisedWorkflow PartyCustomisedWorkflow (0..*) <"Information related to the execution workflow for each of the parties to the contract. This is relevant for the clearing event.">;
-		[synonym CME_SubmissionIRS_1_0 value RptSide path "TrdCaptRpt"]
+	eventWorkflow EventWorkflow (0..1);
 }
 
 class EventEffect <"The set of operational and positional effects associated with a lifecycle event, alongside the reference to the contract reference(s) that is subject to the event (and is positioned in the before state of the event primitive).">
@@ -313,6 +306,16 @@ class EventTimestamp <"A class to represent the various set of timestamps that c
 		[synonym CME_SubmissionIRS_1_0 set to EventTimeStampQualificationEnum.transactionCreationTime when path = "TrdCaptRpt.TxnTm"]
 		[synonym CME_SubmissionIRS_1_0 set to EventTimeStampQualificationEnum.eventSentTime when path= "TrdCaptRpt.Hdr.Snt"]
 		[synonym CME_SubmissionIRS_1_0 set to EventTimeStampQualificationEnum.executionTime when path= "TrdCaptRpt.TrdRegTS.TS" and "TrdCaptRpt.TrdRegTS.Typ" = 1]
+}
+
+class EventWorkflow <"A class to specify workflow information that is conceptually applicable to all lifecycle events.">
+{
+	workflowStatus WorkflowStatusEnum (0..1) <"The workflow status indicator, e.g. Accepted, Rejected, ...">;
+		[synonym CME_SubmissionIRS_1_0 value RptTyp path "TrdCaptRpt"]
+		[synonym Rosetta_Workbench value clearingStatus]
+		[synonym CME_ClearedConfirm_1_17 value status path "trade.tradeHeader"]
+	partyCustomisedWorkflow PartyCustomisedWorkflow (0..*) <"Workflow data that is specific to certain market participants and is expressed as part of the CDM in a very generic manner, which can be part-specific. The initial use cases have been derived from the CME clearing and the DTCC TIW submissions.">;
+		[synonym CME_SubmissionIRS_1_0 value RptSide path "TrdCaptRpt"]
 }
 
 class Execution rosettaKey
@@ -643,7 +646,7 @@ class TradeWarehouseWorkflow <"A class to specify trade warehouse workflow infor
 {
 	warehouseIdentity WarehouseIdentityEnum (1..1);
 		[synonym DTCC_11_0, DTCC_9_0 value WarehousePositionType path "WarehouseState"]
-	warehouseStatus WorkflowEnum (1..1);
+	warehouseStatus WorkflowStatusEnum (1..1);
 		[synonym DTCC_11_0, DTCC_9_0 value WarehouseStatus path "WarehouseState"]
 	partyCustomisedWorkflow PartyCustomisedWorkflow (0..*) <"Non-standardised workflow data related to a party.">;
 		[synonym DTCC_11_0, DTCC_9_0 value WorkflowData]
@@ -766,12 +769,6 @@ isEvent CashAndSecurityTransfer <"The qualification of a security settlement fro
 	and Event -> primitive -> transfer -> cashTransfer -> payerReceiver -> payerPartyReference = Event -> primitive -> transfer -> securityTransfer -> transferorTransferee -> transferorPartyReference
 	and Event -> primitive -> transfer -> commodityTransfer is absent
 
-isEvent ClearingRejection <"The rejection of an alpha trade submission by a CCP, which is qualified by the fact that the workflow status is rejected and the quantity after = quantity before.">
-	Event -> primitive -> quantityChange only exists
-//	and Event -> primitive -> quantityChange -> after -> clearingWorkflow -> clearingStatus = WorkflowEnum.Rejected
-	and Event -> primitive -> quantityChange -> after -> contract -> partyRole -> role = PartyRoleEnum.ClearingOrganization 
-	and quantityAfterQuantityChange = quantityBeforeQuantityChange
-
 isEvent CCP_Registration <"The registration of a contract to a CCP, which results in a termination of the alpha trade.">
 	Event -> primitive -> quantityChange only exists
 	and Event -> primitive -> quantityChange -> after -> contract -> partyRole -> role = PartyRoleEnum.ClearingOrganization
@@ -781,6 +778,12 @@ isEvent ClearingNotification <"The notification by the CCP of, respectively, the
 	Event -> primitive -> inception only exists
 	and Event -> lineage -> lineageQualifier = LineageQualifierEnum.ClearingRegistration
 	and Event -> lineage -> lineageQualifier = LineageQualifierEnum.ClearingNotification
+
+isEvent ClearingRejection <"The rejection of an alpha trade submission by a CCP, which is qualified by the fact that the workflow status is rejected and the quantity after = quantity before.">
+	Event -> primitive -> quantityChange only exists
+	and Event -> eventWorkflow -> workflowStatus = WorkflowStatusEnum.Rejected
+	and Event -> primitive -> quantityChange -> after -> contract -> partyRole -> role = PartyRoleEnum.ClearingOrganization 
+	and quantityAfterQuantityChange = quantityBeforeQuantityChange
 	
 isEvent Compression <"The qualification of a compression event from the fact that (i) the intent is Compression when specified, (ii) the quantity change primitive exists, (iii) and there are multiple contracts (or contract references) specified in the before state.">
 	Event -> intent when present = IntentEnum.Compression
