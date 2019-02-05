@@ -233,6 +233,7 @@ class Event rosettaKey
 	eventQualifier eventType (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic. This value is derived by the CDM from the event features.">;
 	eventDate date (1..1);
 		[synonym Rosetta_Workbench value eventDate]
+		[synonym CME_ClearedConfirm_1_17 value clearedDate path "clearingConfirmed.trade.tradeHeader" maps 2]
 	effectiveDate date (0..1);
 		[synonym Rosetta_Workbench value effectiveDate]
 	action ActionEnum (1..1) <"Specifies whether the event is a new, a correction or a cancellation.">;
@@ -261,7 +262,7 @@ class Event rosettaKey
 	functionCall string (0..1) <"This is placeholder concept for a function call into a calculation that will return an outcome. This concept needs to be further firmed out.">;
 		[synonym Rosetta_Workbench value functionCall]
 	eventEffect EventEffect (0..1) <"The set of effects associated with the lifecycle event, i.e. generated cashflows, contracts (from, say, novation events), listed products (from, say, a bond option exercise event)  values and more. Those are represented through a set of rosettaKey references. This attribute is optional in order to provide implementers with the ability not to make use of this feature.">;
-	eventWorkflow EventWorkflow (0..1);
+	eventWorkflow EventWorkflow (0..1) <"The event workflow information.">;
 }
 
 class EventEffect <"The set of operational and positional effects associated with a lifecycle event, alongside the reference to the contract reference(s) that is subject to the event (and is positioned in the before state of the event primitive).">
@@ -312,8 +313,8 @@ class EventWorkflow <"A class to specify workflow information that is conceptual
 {
 	workflowStatus WorkflowStatusEnum (0..1) <"The workflow status indicator, e.g. Accepted, Rejected, ...">;
 		[synonym CME_SubmissionIRS_1_0 value RptTyp path "TrdCaptRpt"]
-		[synonym Rosetta_Workbench value clearingStatus]
-		[synonym CME_ClearedConfirm_1_17 value status path "trade.tradeHeader"]
+		[synonym Rosetta_Workbench value clearingStatus path "primitive.inception.after"]
+		[synonym CME_ClearedConfirm_1_17 value status path "clearingConfirmed.trade.tradeHeader"]
 	partyCustomisedWorkflow PartyCustomisedWorkflow (0..*) <"Workflow data that is specific to certain market participants and is expressed as part of the CDM in a very generic manner, which can be part-specific. The initial use cases have been derived from the CME clearing and the DTCC TIW submissions.">;
 		[synonym CME_SubmissionIRS_1_0 value RptSide path "TrdCaptRpt"]
 }
@@ -814,6 +815,7 @@ isEvent NewTrade
 	and Event -> primitive -> inception only exists
 	and Event -> primitive -> inception -> after -> tradeWarehouseWorkflow is absent
 	and Event -> primitive -> quantityChange -> after -> contract -> closedState is absent
+	and Event -> primitive -> inception -> after -> contract -> clearedDate is absent
 
 isEvent Novation <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and inception exist, (iii) the remaining quantity = 0, (iv) the closedState of the contract is Novated, (v) the stepped-in contract has a different contract identifier than the novated contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
 	Event -> intent when present = IntentEnum.Novation
