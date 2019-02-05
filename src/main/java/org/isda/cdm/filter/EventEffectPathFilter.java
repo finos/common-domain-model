@@ -3,6 +3,7 @@ package org.isda.cdm.filter;
 import com.google.common.collect.ImmutableMap;
 import com.rosetta.model.lib.path.RosettaPath;
 import org.isda.cdm.Contract;
+import org.isda.cdm.Execution;
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -12,16 +13,21 @@ import java.util.function.Predicate;
 public class EventEffectPathFilter {
 
     static final PathClass EFFECTED_CONTRACT_PATH = new PathClass(RosettaPath.valueOf("eventEffect.effectedContract"), Contract.class);
+    static final PathClass EFFECTED_EXECUTION_PATH = new PathClass(RosettaPath.valueOf("eventEffect.effectedExecution"), Execution.class);
     static final PathClass CONTRACT_PATH = new PathClass(RosettaPath.valueOf("eventEffect.contract"), Contract.class);
+    static final PathClass EXECUTION_PATH = new PathClass(RosettaPath.valueOf("eventEffect.execution"), Execution.class);
 
     static final List<String> EFFECTED_CONTRACT_REQUIRED_PATHS = Arrays.asList("primitive", "before");
+    static final List<String> EFFECTED_EXECUTION_REQUIRED_PATHS = Arrays.asList("primitive", "before");
 
     /**
      * Map containing predicates to determine whether a given rosettaKeyPath should be added to event effect path.
      */
     private static final Map<PathClass, Predicate<RosettaPath>> PATH_FILTERS = ImmutableMap.<PathClass, Predicate<RosettaPath>>builder()
             .put(EFFECTED_CONTRACT_PATH, (rosettaKeyPath) -> rosettaKeyPath.allElementPaths().containsAll(EFFECTED_CONTRACT_REQUIRED_PATHS))
+            .put(EFFECTED_EXECUTION_PATH, (rosettaKeyPath) -> rosettaKeyPath.allElementPaths().containsAll(EFFECTED_EXECUTION_REQUIRED_PATHS))
             .put(CONTRACT_PATH, (rosettaKeyPath) -> !rosettaKeyPath.allElementPaths().containsAll(EFFECTED_CONTRACT_REQUIRED_PATHS))
+            .put(EXECUTION_PATH, (rosettaKeyPath) -> !rosettaKeyPath.allElementPaths().containsAll(EFFECTED_EXECUTION_REQUIRED_PATHS))
             .build();
 
     /**

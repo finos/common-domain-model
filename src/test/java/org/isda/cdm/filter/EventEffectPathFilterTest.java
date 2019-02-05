@@ -72,7 +72,7 @@ class EventEffectPathFilterTest {
                         .map(o -> o.getHierarchicalPath().map(RosettaPath::buildPath).orElse(""))
                         .collect(Collectors.toList()),
                    hasItems("primitive.quantityChange.before",
-                		   		"primitive.inception.before",
+                		   	"primitive.inception.before",
                             "primitive.termsChange.before",
                             "primitive.exercise.before"));
     }
