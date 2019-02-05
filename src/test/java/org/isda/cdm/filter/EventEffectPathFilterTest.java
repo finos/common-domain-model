@@ -47,6 +47,23 @@ class EventEffectPathFilterTest {
     }
 
     @Test
+    void shouldFilterPathsForEffectedExecution() {
+        RosettaPath effectedExecutionPath = RosettaPath.valueOf("eventEffect.effectedContract");
+
+        assertThat(EventEffectPathFilter.test(effectedExecutionPath, Contract.class, RosettaPath.valueOf("primitive.quantityChange.before.execution")), is(true));
+        assertThat(EventEffectPathFilter.test(effectedExecutionPath, Contract.class, RosettaPath.valueOf("primitive.quantityChange.after.execution")), is(false));
+    }
+
+    @Test
+    void shouldFilterPathsForExecution() {
+        RosettaPath executionPath = RosettaPath.valueOf("eventEffect.contract");
+
+        assertThat(EventEffectPathFilter.test(executionPath, Contract.class, RosettaPath.valueOf("primitive.quantityChange.before.execution")), is(false));
+        assertThat(EventEffectPathFilter.test(executionPath, Contract.class, RosettaPath.valueOf("primitive.quantityChange.after.execution")), is(true));
+    }
+
+
+    @Test
     void shouldFilterPathsForPayment() {
         RosettaPath paymentPath = RosettaPath.valueOf("eventEffect.transfer");
 
