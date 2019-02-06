@@ -34,7 +34,7 @@ class FixedAmountTest {
                         .build())
                 .setDayCountFraction(FieldWithMetaDayCountFractionEnum.builder().setValue(DayCountFractionEnum._30E_360).build())
                 .setCalculationPeriodDates(CalculationPeriodDates.builder()
-                        .setEffectiveDate((EffectiveDate)(EffectiveDate.builder()
+                        .setEffectiveDate((AdjustableOrRelativeDate.builder()
                     			.setAdjustableDate(AdjustableDate.builder()
                     					.setUnadjustedDate(LocalDate.of(2018, 1, 3))
                     					.setDateAdjustments(BusinessDayAdjustments.builder()
