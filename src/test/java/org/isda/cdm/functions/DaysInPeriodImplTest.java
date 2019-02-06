@@ -41,7 +41,7 @@ public class DaysInPeriodImplTest {
 
     private CalculationPeriodDates getCalculationPeriodDates(LocalDate effectiveDate, LocalDate terminationDate, RollConventionEnum rollConvention) {
         return CalculationPeriodDates.builder()
-                .setEffectiveDateBuilder(EffectiveDate.builder()
+                .setEffectiveDateBuilder(AdjustableOrRelativeDate.builder()
 					.setAdjustableDateBuilder(AdjustableDate.builder()
 						.setUnadjustedDate(effectiveDate)
 						.setDateAdjustmentsBuilder(BusinessDayAdjustments.builder()
