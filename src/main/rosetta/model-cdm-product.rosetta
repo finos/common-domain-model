@@ -87,6 +87,10 @@ class Contract rosettaKey <"A class to specify a contract object, which can be i
 		[synonym Rosetta_Workbench value closedState]
 }
 
+data rule Contract_version <"The identifier version is required for contracts.">
+	when Contract -> contractIdentifier -> assignedIdentifier -> identifier exists
+	then Contract -> contractIdentifier -> assignedIdentifier -> version exists
+
 data rule DeliverableObligations_physicalSettlementMatrix <"The below set of credit deliverable obligation provisions are specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that those provisions cannot be omitted if the Credit Derivatives Physical Settlement Matrix doesn't governs the terms of the contract.">
 	when ( Contract -> documentation -> contractualMatrix -> matrixType <> MatrixTypeEnum.CreditDerivativesPhysicalSettlementMatrix
 		or Contract -> documentation -> contractualMatrix -> matrixType is absent )
