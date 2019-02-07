@@ -47,6 +47,23 @@ class EventEffectPathFilterTest {
     }
 
     @Test
+    void shouldFilterPathsForEffectedExecution() {
+        RosettaPath effectedExecutionPath = RosettaPath.valueOf("eventEffect.effectedContract");
+
+        assertThat(EventEffectPathFilter.test(effectedExecutionPath, Contract.class, RosettaPath.valueOf("primitive.quantityChange.before.execution")), is(true));
+        assertThat(EventEffectPathFilter.test(effectedExecutionPath, Contract.class, RosettaPath.valueOf("primitive.quantityChange.after.execution")), is(false));
+    }
+
+    @Test
+    void shouldFilterPathsForExecution() {
+        RosettaPath executionPath = RosettaPath.valueOf("eventEffect.contract");
+
+        assertThat(EventEffectPathFilter.test(executionPath, Contract.class, RosettaPath.valueOf("primitive.quantityChange.before.execution")), is(false));
+        assertThat(EventEffectPathFilter.test(executionPath, Contract.class, RosettaPath.valueOf("primitive.quantityChange.after.execution")), is(true));
+    }
+
+
+    @Test
     void shouldFilterPathsForPayment() {
         RosettaPath paymentPath = RosettaPath.valueOf("eventEffect.transfer");
 
@@ -70,9 +87,10 @@ class EventEffectPathFilterTest {
         assertThat(filteredPaths, hasSize(4));
         assertThat(filteredPaths.stream()
                         .map(o -> o.getHierarchicalPath().map(RosettaPath::buildPath).orElse(""))
+                        .map(p -> p.substring(0, p.lastIndexOf("before") + 6))
                         .collect(Collectors.toList()),
                    hasItems("primitive.quantityChange.before",
-                		   		"primitive.inception.before",
+                		   	"primitive.inception.before",
                             "primitive.termsChange.before",
                             "primitive.exercise.before"));
     }
@@ -81,10 +99,12 @@ class EventEffectPathFilterTest {
         return (n) -> {
             Class<?> forClass = n.get().getObject();
             List<String> inspectedPath = n.get().getPath();
-            if(ContractState.class.isAssignableFrom(forClass) && inspectedPath.containsAll(EventEffectPathFilter.EFFECTED_CONTRACT_REQUIRED_PATHS) &&
-            		!inspectedPath.contains("lineage")) {
-            	//by passing through lineage you can loop around adding dozens of effects - possibly these should have been excluded earlier
-                capture.add(n.get());
+            if(Contract.class.isAssignableFrom(forClass) &&
+                    inspectedPath.containsAll(EventEffectPathFilter.EFFECTED_CONTRACT_REQUIRED_PATHS) &&
+            		!inspectedPath.contains("lineage") && // ignore lineage as it links to previous events
+                    !inspectedPath.contains("underlier")) // ignore underlier as it links to other contracts
+            {
+            	capture.add(n.get());
             }
         };
     }
@@ -105,10 +125,11 @@ class EventEffectPathFilterTest {
 
         assertThat(eventEffectPaths,
                 hasItems(EFFECTED_CONTRACT_PATH.getPath().buildPath(),
-                        CONTRACT_PATH.getPath().buildPath()));
-        //TODO this should be a smaller number like 4
-        //discuss with Jim what the correct answer it
-        assertThat(eventEffectPaths, hasSize(4));
+                         CONTRACT_PATH.getPath().buildPath(),
+                         EFFECTED_EXECUTION_PATH.getPath().buildPath(),
+                         EXECUTION_PATH.getPath().buildPath()));
+
+        assertThat(eventEffectPaths, hasSize(6));
     }
 
     private Visitor<PathObject<Class<?>>> getCollectEventEffectPathsVisitor(List<String> capture) {

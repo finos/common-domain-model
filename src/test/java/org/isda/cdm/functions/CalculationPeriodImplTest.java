@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class CalculationPeriodImplTest {
 
     private final CalculationPeriodDates calculationPeriodDates = CalculationPeriodDates.builder()
-            .setEffectiveDate((EffectiveDate)(EffectiveDate.builder()
+            .setEffectiveDate((AdjustableOrRelativeDate.builder()
         			.setAdjustableDate(AdjustableDate.builder()
         					.setUnadjustedDate(LocalDate.of(2018, 1, 3))
         					.setDateAdjustments(BusinessDayAdjustments.builder()
