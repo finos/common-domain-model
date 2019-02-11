@@ -285,14 +285,14 @@ class EventEffect <"The set of operational and positional effects associated wit
 	contract Contract (0..*) rosettaKey <"A pointer to the contract effect(s), an example of such being the outcome of a new trade, swaption exercise or novation event.">;
     execution Execution (0..*) rosettaKey <"A pointer to the execution effect(s), an example of such being a clearing submission event when taking place on the back of an execution.">;
     productIdentifier ProductIdentifier (0..*) rosettaKey <"A pointer to the product identifier effect(s), an example of such being the outcome of the physical exercise of a bond option.">;
-	transfer Transfer (0..*) rosettaKey <"A pointer to the transfer effect(s), either a cash, security or other asset.">;
+	transfer TransferPrimitive (0..*) rosettaKey <"A pointer to the transfer effect(s), either a cash, security or other asset.">;
 }
 
 class EventLineage <"The lineage into the event object alongside with, optionally, the transfer component.">
 {
 	eventReference Event (1..1) rosettaKey reference <"The CDM recommended usage is the rosettaKey, which corresponds to the hash value of the event class which is positioned as the lineage source. The reference is meant to provide support for the ingestion of xml documents with id/href mechanisms.">;
 		[synonym Rosetta_Workbench value eventReference meta href]
-	transferReference Transfer (0..*) rosettaKey reference; // Usage needs to be confirmed
+	transferReference TransferPrimitive (0..*) rosettaKey reference; // Usage needs to be confirmed
 		[synonym Rosetta_Workbench value cashflowReference meta href] 
 }
 
@@ -352,6 +352,7 @@ class Execution rosettaKey
 		[synonym CME_SubmissionIRS_1_0 value trade path "Instrmt.SecXML.FpML"]
 	party Party (0..*) <"The party reference is optional because positioned as part of the Event class when the execution is specified as part of such context.">;
 		[synonym CME_SubmissionIRS_1_0 value party path "Instrmt.SecXML.FpML"]
+	partyRole PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the execution, further to the principal parties (i.e payer/receive or buyer/seller) to it.">;
 	closedState ClosedState (0..1) <"The qualification what led to the execution closure alongside with the dates on which this closure takes effect.">;
 		[synonym Rosetta_Workbench value closedState]
 }
@@ -546,27 +547,27 @@ class PostInceptionState extends ContractState
 
 class PrimitiveEvent <"The set of primitive events.">
 {
-	inception Inception (0..*);
-		[synonym Rosetta_Workbench value inception]
-	quantityChange QuantityChangePrimitive (0..*);
-		[synonym Rosetta_Workbench value quantityChange]
-		[synonym DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value ignore]
 	allocation AllocationPrimitive (0..*);
 		[synonym Rosetta_Workbench value allocation]
 		[synonym DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value ignore]
-	termsChange TermsChangePrimitive (0..1);
-		[synonym Rosetta_Workbench value otherTermsChange]
-		[synonym DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value ignore]
 	exercise ExercisePrimitive (0..1);
 		[synonym Rosetta_Workbench value exercise]
-		[synonym DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value ignore]
+		[synonym DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value ignore]	
+	inception Inception (0..*);
+		[synonym Rosetta_Workbench value inception]
 	observation ObservationPrimitive (0..*);
 		[synonym Rosetta_Workbench value observation]
-		[synonym CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value ignore]
+		[synonym CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value ignore]	
+	quantityChange QuantityChangePrimitive (0..*);
+		[synonym Rosetta_Workbench value quantityChange]
+		[synonym DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value ignore]
 	reset ResetPrimitive (0..*);
 		[synonym Rosetta_Workbench value reset]
+		[synonym DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value ignore]	
+	termsChange TermsChangePrimitive (0..1);
+		[synonym Rosetta_Workbench value termsChange]
 		[synonym DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value ignore]
-	transfer Transfer (0..*);
+	transfer TransferPrimitive (0..*);
 		[synonym Rosetta_Workbench value transfer]
 		[synonym CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value ignore]
 		[synonym DTCC_11_0, DTCC_9_0 value Payment path "Body.OTC_Matching"]
@@ -628,11 +629,11 @@ class SecurityTransferComponent extends TransferBase
 		[synonym Rosetta_Workbench value breakdown]
 }
 
-class TermsChangePrimitive <"The primitive event to represent change(s) to the contractual terms.">
+class TermsChangePrimitive <"The primitive event to represent change(s) to the contractual terms and the clearing submission and acceptance process.">
 {
-	before ContractState (1..1);
+	before Trade (1..1);
 		[synonym Rosetta_Workbench value before]
-	after ContractState (1..1);
+	after Trade (1..1);
 		[synonym Rosetta_Workbench value after]
 }
 
@@ -644,11 +645,11 @@ class TimeZone <"The time alongside with the timezone location information. This
 		[synonym Rosetta_Workbench value location meta timezoneLocationScheme]
 }
 
-class Trade one of
+class Trade one of <"A class to represent the general trade concept, which can either be an execution or a contract. The execution consists essentially in the economic terms which are agreed between the parties. The contract will further qualify those with the legal entities (think of the allocation case, which execution state can involve the investment adviser rather not the actual funds) while not specify the master agreement or collateral terms which might be associated with the subsequent contract.">
 {
-    execution Execution (0..1);
+    execution Execution (0..1) <"The execution corresponds to economic terms that are agreed between parties, but which legal terms are not yet specified. The execution attribute applies to the post-execution scenario of a product that is subject to the clearing mandate and is then routed to the CCP as an execution.">;
     	[synonym CME_SubmissionIRS_1_0 value TrdCaptRpt set when "TrdCaptRpt.Hdr" exists]
-	contract Contract (1..1);
+	contract Contract (1..1) <"The contract differs from the execution by the fact that its legal terms are fully specified. This includes the legal entities that are associated to it as well as any associated legal agreement, e.g. master agreement, credit and collateral terms, ... ">;
         [synonym Rosetta_Workbench value trade]
         [synonym DTCC_11_0, DTCC_9_0 value FpML path "Trade"]
         [synonym DTCC_11_0, DTCC_9_0 value TradeMsg path "Manifest"]
@@ -668,7 +669,7 @@ class TradeWarehouseWorkflow <"A class to specify trade warehouse workflow infor
 		[synonym CME_SubmissionIRS_1_0 value ignore]
 }
 
-class Transfer rosettaKey <"A class to specify the transfer primitive by providing the ability to combine a set of transfer components which are specialised by asset class.">
+class TransferPrimitive rosettaKey <"A class to specify the transfer primitive by providing the ability to combine a set of transfer components which are specialised by asset class.">
 {
 	identifier string (0..1) scheme <"The identifier which might be associated with the transfer.">;
 		[synonym DTCC_11_0, DTCC_9_0 value tradeCashflowsId path "FpML" meta tradeCashflowsIdScheme]
@@ -785,9 +786,11 @@ isEvent CashAndSecurityTransfer <"The qualification of a security settlement fro
 	and Event -> primitive -> transfer -> commodityTransfer is absent
 
 isEvent CCP_Registration <"The registration of a contract to a CCP, which results in a termination of the alpha trade.">
-	Event -> primitive -> quantityChange only exists
-	and Event -> primitive -> quantityChange -> after -> contract -> partyRole -> role = PartyRoleEnum.ClearingOrganization
-	and quantityAfterQuantityChange = 0.0
+	Event -> primitive -> termsChange only exists
+	and ( Event -> primitive -> termsChange -> after -> contract -> partyRole -> role = PartyRoleEnum.ClearingOrganization
+		or Event -> primitive -> termsChange -> after -> execution -> partyRole -> role = PartyRoleEnum.ClearingOrganization )
+	and ( Event -> primitive -> termsChange -> after -> contract -> partyRole -> partyReference = Event -> primitive -> termsChange -> after -> contract -> contractIdentifier -> issuerReference
+		or Event -> primitive -> termsChange -> after -> execution -> partyRole -> partyReference = Event -> primitive -> termsChange -> after -> execution -> identifier -> issuerReference )
 
 isEvent ClearingNotification <"The notification by the CCP of, respectively, the beta and the gamma trades that result from the clearing process.">
 	Event -> primitive -> inception only exists

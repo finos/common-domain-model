@@ -67,7 +67,7 @@ class EventEffectPathFilterTest {
     void shouldFilterPathsForPayment() {
         RosettaPath paymentPath = RosettaPath.valueOf("eventEffect.transfer");
 
-        assertThat(EventEffectPathFilter.test(paymentPath, Transfer.class, RosettaPath.valueOf("primitive.transfer")), is(true));
+        assertThat(EventEffectPathFilter.test(paymentPath, TransferPrimitive.class, RosettaPath.valueOf("primitive.transfer")), is(true));
     }
 
     /**
