@@ -19,22 +19,14 @@ class AssignedIdentifier <"A class to specify and actual identifier and its asso
         	[synonym CME_ClearedConfirm_1_17 value tradeId meta tradeIdScheme]
         	[synonym CME_ClearedConfirm_1_17 value usi meta usiScheme]
         	[synonym CME_SubmissionIRS_1_0 value RptID path "TrdCaptRpt"]
-     version int (0..1) <"The identifier version, which is specified as an integer and is meant to be incremented each time the transaction terms (whether contract or event) change. This version is made option to support the use case where the identifier is referenced without the version. The constraint that a contract and a lifecycle event need to have an associated version is enforced through data rules.">;
+	version int (0..1) <"The identifier version, which is specified as an integer and is meant to be incremented each time the transaction terms (whether contract or event) change. This version is made option to support the use case where the identifier is referenced without the version. The constraint that a contract and a lifecycle event need to have an associated version is enforced through data rules.">;
 		[synonym FpML_5_10 value version path "versionedTradeId"]
 		[synonym FpML_5_10 value version]
 }
 
-data rule AssignedIdentifier_version <"FpML specifies the version as a non-negative integer.">
+data rule AssignedIdentifier_version <"The first version of the identifier should be = 1.">
 	when AssignedIdentifier -> version exists
-	then AssignedIdentifier -> version >= 0
-
-data rule Contract_version <"The identifier version is required for contracts.">
-	when Contract exists
-	then Contract -> contractIdentifier -> assignedIdentifier -> version exists
-
-data rule Event_version <"The identifier version is required for lifecycle events.">
-	when Event exists
-	then Event -> eventIdentifier -> assignedIdentifier -> version exists
+	then AssignedIdentifier -> version >= 1
 
 class CalculationAgentModel <"This class corresponds to the FpML CalculationAgent.model.">
 {
