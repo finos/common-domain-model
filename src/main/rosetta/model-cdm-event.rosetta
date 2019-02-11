@@ -268,6 +268,15 @@ class Event rosettaKey
 data rule Event_version <"The identifier version is required for lifecycle events.">
 	when Event -> eventIdentifier -> assignedIdentifier -> identifier exists
 	then Event -> eventIdentifier -> assignedIdentifier -> version exists
+	
+data rule Event_new <"The eventIdentifier version associated with a new event is equal to 1.">
+	when Event -> action = ActionEnum.New
+	then Event -> eventIdentifier -> assignedIdentifier -> version = 1
+
+data rule Event_correctCancel <"The eventIdentifier version associated with a correction or a cancellation is greater than 1.">
+	when ( Event -> action = ActionEnum.Correct
+		or Event -> action = ActionEnum.Cancel )
+	then Event -> eventIdentifier -> assignedIdentifier -> version > 1		
 
 class EventEffect <"The set of operational and positional effects associated with a lifecycle event, alongside the reference to the contract reference(s) that is subject to the event (and is positioned in the before state of the event primitive).">
 {
@@ -430,8 +439,7 @@ choice rule LimitApplicable_choice <"Choice rule to represent an FpML choice con
 class LimitApplicableExtended extends LimitApplicable <"A class to represent the CDM attributes that are not part of the FpML standard. Once broader usage is confirmed, it is expected that those two classes can be collapsed.">
 	[synonym CME_ClearedConfirm_1_17 value CreditLimitInformation]
 {
-	// TODO - We need to get a better understanding of what the level is.
-	level string (0..1) scheme;
+	limitLevel LimitLevelEnum (0..1) scheme <"The level at which the limit is set: customer business, proprietary business or account level. This attribute is specified as a string as part of the CME clearing confirmation specification.">;
 		[synonym CME_ClearedConfirm_1_17, Rosetta_Workbench value level meta creditLimitLevelScheme]
 	limitAmount number (0..1) <"The total limit available for the limit level and limit type. While the attribute is of type integer in the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">;
 		[synonym CME_ClearedConfirm_1_17, Rosetta_Workbench value limitAmount]
