@@ -96,6 +96,8 @@ class ComputedAmount <"A class to specify the outcome of a computed amount, for 
 
 class ContractLineage <"The lineage into the contract object alongside with, optionally, the various payout components.">
 {
+	contractLineageQualifier ContractLineageQualifierEnum (0..1) <"The lineage qualification, which is meant to provide insight into the object that is represented by the rosettaKey reference.">;
+		[synonym Rosetta_Workbench value contractLineageQualifier]
 	contractReference Contract (1..1) rosettaKey reference <"The CDM recommended usage is the rosettaKey, which corresponds to the hash value of the contract class which is positioned as the lineage source. The reference is meant to provide support for the ingestion of xml documents with id/href mechanisms.">;
 	    [synonym Rosetta_Workbench value contractReference meta href]
 	cashflowReference Cashflow (0..*) rosettaKey reference <"The pointer to the cashflow payout component. An expected typical usage is to provide lineage for the payment of, say, the option premium or the swap initial fee.">;
@@ -255,7 +257,7 @@ class Event rosettaKey
 	account Account (0..*) <"Optional account information that could be associated to the event.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0 value account]
 		[synonym CME_ClearedConfirm_1_17 value account path "clearingConfirmed"]
-	lineage Lineage (0..*);
+	lineage Lineage (0..1);
 		[synonym Rosetta_Workbench value lineage]
 	primitive PrimitiveEvent (1..1);
 		[synonym Rosetta_Workbench value primitive]
@@ -273,10 +275,11 @@ data rule Event_new <"The eventIdentifier version associated with a new event is
 	when Event -> action = ActionEnum.New
 	then Event -> eventIdentifier -> assignedIdentifier -> version = 1
 
-data rule Event_correctCancel <"The eventIdentifier version associated with a correction or a cancellation is greater than 1.">
+data rule Event_correctCancel <"The eventIdentifier version associated with a correction or a cancellation is greater than 1 and a lineage into a prior version of the event needs to exist.">
 	when ( Event -> action = ActionEnum.Correct
 		or Event -> action = ActionEnum.Cancel )
-	then Event -> eventIdentifier -> assignedIdentifier -> version > 1		
+	then Event -> eventIdentifier -> assignedIdentifier -> version > 1
+	and Event -> lineage -> eventLineage -> eventLineageQualifier = EventLineageQualifierEnum.PriorEventVersion
 
 class EventEffect <"The set of operational and positional effects associated with a lifecycle event, alongside the reference to the contract reference(s) that is subject to the event (and is positioned in the before state of the event primitive).">
 {
@@ -290,6 +293,8 @@ class EventEffect <"The set of operational and positional effects associated wit
 
 class EventLineage <"The lineage into the event object alongside with, optionally, the transfer component.">
 {
+	eventLineageQualifier EventLineageQualifierEnum (1..1) <"The lineage qualification, which is meant to provide insight into the object that is represented by the rosettaKey reference.">;
+		[synonym Rosetta_Workbench value eventLineageQualifier]
 	eventReference Event (1..1) rosettaKey reference <"The CDM recommended usage is the rosettaKey, which corresponds to the hash value of the event class which is positioned as the lineage source. The reference is meant to provide support for the ingestion of xml documents with id/href mechanisms.">;
 		[synonym Rosetta_Workbench value eventReference meta href]
 	transferReference TransferPrimitive (0..*) rosettaKey reference; // Usage needs to be confirmed
@@ -450,17 +455,11 @@ class LimitApplicableExtended extends LimitApplicable <"A class to represent the
 
 class Lineage <"The class to provide lineage information across lifecycle events, i.e. to provide a pointer or set of pointers into the event(s), contract(s) and, possibly, payout components that the event is dependent on. Those pointers are constituted by the rosettaKey, which corresponds to the hash value of the CDM class which is referred to. As an example, if an inception event is corrected, the correction event will have a lineage into the initial event, which takes the form of a rosettaKey into that initial inception event.">
 {
-	lineageQualifier LineageQualifierEnum (0..1) <"The lineage qualification, which is meant to provide insight into the object that is represented by the rosettaKey reference. The purpose of this qualifier can be illustrated by a novated trade and a cleared trade, which look very similar in the sense that they are both modelled through an inception primitive, with a lineage into, respectively, the novated trade and the alpha trade. Qualifiying the lineage as NovatedTrade and ClearingSubmission hence provides further insight into those event components.">;
-		[synonym Rosetta_Workbench value lineageQualifier]
-	contractLineage ContractLineage (0..1) <"The contract lineage components, i.e. the contract and the various contract payouts. A typical usage example is the payment of an interest rate swap reset event, with the lineage into the contract as well as each of the respective legs for the gross cashflow components.">;
+	contractLineage ContractLineage (0..*) <"The contract lineage components, i.e. the contract and the various contract payouts. A typical usage example is the payment of an interest rate swap reset event, with the lineage into the contract as well as each of the respective legs for the gross cashflow components.">;
 	    [synonym Rosetta_Workbench value contractLineage]
-	eventLineage EventLineage (0..1) <"The event lineage components, i.e. the contract and the transfer.">;
+	eventLineage EventLineage (0..*) <"The event lineage components, i.e. the contract and the transfer.">;
 	    [synonym Rosetta_Workbench value eventLineage]   
 }
-
-choice rule Lineage_choice <"The lineage class must have either a contract or an event lineage attribute.">
-	for Lineage required choice between
-	contractLineage and eventLineage
 
 class MessageInformation <"This class corresponds to the components of the FpML MessageHeader.model.">
 {
@@ -649,13 +648,15 @@ class Trade one of <"A class to represent the general trade concept, which can e
 {
     execution Execution (0..1) <"The execution corresponds to economic terms that are agreed between parties, but which legal terms are not yet specified. The execution attribute applies to the post-execution scenario of a product that is subject to the clearing mandate and is then routed to the CCP as an execution.">;
     	[synonym CME_SubmissionIRS_1_0 value TrdCaptRpt set when "TrdCaptRpt.Hdr" exists]
+    	[synonym Rosetta_Workbench value trade set when "trade.executionType" exists]
 	contract Contract (1..1) <"The contract differs from the execution by the fact that its legal terms are fully specified. This includes the legal entities that are associated to it as well as any associated legal agreement, e.g. master agreement, credit and collateral terms, ... ">;
-        [synonym Rosetta_Workbench value trade]
+//        [synonym Rosetta_Workbench value trade]
         [synonym DTCC_11_0, DTCC_9_0 value FpML path "Trade"]
         [synonym DTCC_11_0, DTCC_9_0 value TradeMsg path "Manifest"]
         [synonym DTCC_11_0, DTCC_9_0 value ReportingJurisdiction path "ReportingData.ReportingHeader"]
         [synonym CME_SubmissionIRS_1_0 value ignore]
-//		[synonym CME_SubmissionIRS_1_0 value TrdCaptRpt set when "TrdCaptRpt.Hdr" is absent]
+        [synonym Rosetta_Workbench value trade set when "trade.executionType" is absent]
+		[synonym CME_SubmissionIRS_1_0 value TrdCaptRpt set when "TrdCaptRpt.Hdr" is absent]
 }
 
 class TradeWarehouseWorkflow <"A class to specify trade warehouse workflow information: the identity of the trade warehouse, the contract status at the warehouse and party-specific workflow information.">
@@ -794,8 +795,8 @@ isEvent CCP_Registration <"The registration of a contract to a CCP, which result
 
 isEvent ClearingNotification <"The notification by the CCP of, respectively, the beta and the gamma trades that result from the clearing process.">
 	Event -> primitive -> inception only exists
-	and Event -> lineage -> lineageQualifier = LineageQualifierEnum.CCP_Registration
-	and Event -> lineage -> lineageQualifier = LineageQualifierEnum.ClearingNotification
+	and Event -> lineage -> eventLineage -> eventLineageQualifier = EventLineageQualifierEnum.CCP_Registration
+	and Event -> lineage -> eventLineage -> eventLineageQualifier = EventLineageQualifierEnum.ClearingNotification
 
 isEvent ClearingRejection <"The rejection of an alpha trade submission by a CCP, which is qualified by the fact that the workflow status is rejected and the quantity after = quantity before.">
 	Event -> primitive -> quantityChange only exists
@@ -881,7 +882,7 @@ isEvent PartialNovation <"The qualification of a novation event from the fact th
 
 data rule Novation_fee <"Logic to specify that if a cash transfer is qualified as a novation fee, it must have lineage into the novation contract, the contract resulting from the novation as well as the novation event.">
 	when Event -> primitive -> transfer -> cashTransfer -> cashflowType = CashflowTypeEnum.NovationFee
-	then Event -> lineage -> lineageQualifier = LineageQualifierEnum.NovationEvent
+	then Event -> lineage -> eventLineage -> eventLineageQualifier = EventLineageQualifierEnum.Novation
 
 isEvent PartialTermination <"The qualification of a partial termination event from the fact that (i) the intent is Partial Termination when specified, (ii) the associated primitives are the quantityChange and the cash transfer, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
 	Event -> intent when present = IntentEnum.PartialTermination
@@ -919,9 +920,6 @@ alias changedQuantity
 	and Event -> primitive -> quantityChange -> change -> notionalSchedule -> notionalStepSchedule -> step -> stepValue
 	and Event -> primitive -> quantityChange -> change -> notionalSchedule -> notionalStepParameters -> notionalStepAmount
 	and Event -> primitive -> quantityChange -> change -> fxLinkedNotional -> initialValue
-
-isEvent Payment <"The qualification of a payment event from the fact that the only primitive is the cash transfer.">
-	Event -> primitive -> transfer -> cashTransfer only exists
 
 isEvent Reset <"The qualification of a reset event from the fact that the only primitive is the reset.">
 	Event -> primitive -> reset only exists
