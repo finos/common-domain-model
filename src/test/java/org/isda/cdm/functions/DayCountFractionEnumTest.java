@@ -73,7 +73,7 @@ public class DayCountFractionEnumTest {
 		PeriodsInYear periodsInYear = Mockito.mock(PeriodsInYear.class);
 
 		DayCountFractionEnum unit = new DayCountFractionEnum(calculationPeriod, periodsInYear, toAdjustedDate);
-		return unit.calculate(interestRatePayout, dcf).getValue();
+		return unit.calculate(interestRatePayout, dcf);
 	}
 
     private BigDecimal calculate30360(LocalDate startDate, LocalDate endDate, org.isda.cdm.DayCountFractionEnum dcf) {
@@ -90,6 +90,6 @@ public class DayCountFractionEnumTest {
 		InterestRatePayout interestRatePayout = Mockito.mock(InterestRatePayout.class);
 
 		DayCountFractionEnum unit = new DayCountFractionEnum(calculationPeriod, periodsInYear, toAdjustedDate);
-        return unit.calculate(interestRatePayout, dcf).getValue();
+        return unit.calculate(interestRatePayout, dcf);
     }
 }
