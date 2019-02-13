@@ -62,12 +62,31 @@
             <xsd:enumeration value="terminated"/>
         </xsd:restriction>
     </xsd:simpleType>
+    <xsd:simpleType name="ContractLineageQualifierEnum">
+        <xsd:restriction base="xsd:token">
+            <xsd:enumeration value="PriorContractVersion"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="EventLineageQualifierEnum">
+        <xsd:restriction base="xsd:token">
+            <xsd:enumeration value="CashTransfer"/>
+            <xsd:enumeration value="CCP_Registration"/>
+            <xsd:enumeration value="ClearingNotification"/>
+            <xsd:enumeration value="Compression"/>
+            <xsd:enumeration value="Exercise"/>
+            <xsd:enumeration value="Increase"/>
+            <xsd:enumeration value="Novation"/>
+            <xsd:enumeration value="Observation"/>
+            <xsd:enumeration value="PriorEventVersion"/>
+            <xsd:enumeration value="Reset"/>
+            <xsd:enumeration value="Termination"/>
+        </xsd:restriction>
+    </xsd:simpleType>
     <xsd:simpleType name="ExecutionTypeEnum">
         <xsd:restriction base="xsd:token">
             <xsd:enumeration value="Electronic"/>
             <xsd:enumeration value="OffFacility"/>
             <xsd:enumeration value="Voice"/>
-            <xsd:enumeration value="Written"/>
         </xsd:restriction>
     </xsd:simpleType>
     <xsd:simpleType name="IntentEnum">
@@ -85,19 +104,6 @@
             <xsd:enumeration value="portfolioCompression"/>
             <xsd:enumeration value="renegotiation"/>
             <xsd:enumeration value="termination"/>
-        </xsd:restriction>
-    </xsd:simpleType>
-    <xsd:simpleType name="LineageQualifierEnum">
-        <xsd:restriction base="xsd:token">
-            <xsd:enumeration value="CCP_Registration"/>
-            <xsd:enumeration value="NewContract"/>
-            <xsd:enumeration value="NovatedContract"/>
-            <xsd:enumeration value="PriorContractVersion"/>
-            <xsd:enumeration value="ClearingNotification"/>
-            <xsd:enumeration value="ExerciseEvent"/>
-            <xsd:enumeration value="NovationEvent"/>
-            <xsd:enumeration value="ObservationEvent"/>
-            <xsd:enumeration value="ResetEvent"/>
         </xsd:restriction>
     </xsd:simpleType>
     <xsd:simpleType name="OriginatingEventEnum">
@@ -230,6 +236,8 @@
     </xsd:complexType>
     <xsd:complexType name="ContractLineage">
         <xsd:sequence>
+            <xsd:element name="contractLineageQualifier" type="ContractLineageQualifierEnum"
+                minOccurs="0"/>
             <xsd:element name="contractReference" type="ContractReference"/>
             <xsd:element name="cashflowReference" type="CashflowReference" minOccurs="0"/>
             <xsd:element name="creditDefaultPayoutReference" type="CreditDefaultPayoutReference"
@@ -305,7 +313,7 @@
                 <xsd:sequence>
                     <xsd:element name="intent" type="IntentEnum" minOccurs="0"/>
                     <xsd:group ref="fpml:PartiesAndAccounts.model" minOccurs="0"/>
-                    <xsd:element name="lineage" type="Lineage" minOccurs="0" maxOccurs="unbounded"/>
+                    <xsd:element name="lineage" type="Lineage" minOccurs="0"/>
                     <xsd:element name="primitive" type="Primitive"/>
                     <xsd:element name="functionCall" type="xsd:string" minOccurs="0"/>
                 </xsd:sequence>
@@ -332,6 +340,7 @@
     </xsd:complexType>
     <xsd:complexType name="EventLineage">
         <xsd:sequence>
+            <xsd:element name="eventLineageQualifier" type="EventLineageQualifierEnum"/>
             <xsd:element name="eventReference" type="EventReference"/>
             <xsd:element name="cashflowReference" type="CashflowReference" minOccurs="0"/>
         </xsd:sequence>
@@ -443,11 +452,8 @@
     </xsd:complexType>
     <xsd:complexType name="Lineage">
         <xsd:sequence>
-            <xsd:element name="lineageQualifier" type="LineageQualifierEnum" minOccurs="0"/>
-            <xsd:choice>
-                <xsd:element name="contractLineage" type="ContractLineage"/>
-                <xsd:element name="eventLineage" type="EventLineage"/>
-            </xsd:choice>
+            <xsd:element name="contractLineage" type="ContractLineage" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="eventLineage" type="EventLineage" minOccurs="0" maxOccurs="unbounded"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="MessageInformation">
@@ -524,6 +530,7 @@
                 maxOccurs="unbounded"/>
             <xsd:element name="reset" type="ResetPrimitive" minOccurs="0" maxOccurs="1"/>
             <xsd:element name="transfer" type="Transfer" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="termsChange" type="TermsChange" minOccurs="0" maxOccurs="unbounded"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="Product">
@@ -588,6 +595,12 @@
                 maxOccurs="unbounded"/>
         </xsd:sequence>
     </xsd:complexType>
+    <xsd:complexType name="TermsChange">
+        <xsd:sequence>
+            <xsd:element name="before" type="ContractState"/>
+            <xsd:element name="after" type="ContractState"/>
+        </xsd:sequence>
+    </xsd:complexType>
     <xsd:complexType name="TimeZone">
         <xsd:sequence>
             <xsd:element name="time" type="xsd:time"/>
@@ -599,6 +612,7 @@
             <xsd:extension base="fpml:Trade">
                 <xsd:sequence>
                     <xsd:element name="closedState" type="ClosedState" minOccurs="0"/>
+                    <xsd:element name="executionType" type="ExecutionTypeEnum" minOccurs="0"/>
                 </xsd:sequence>
             </xsd:extension>
         </xsd:complexContent>

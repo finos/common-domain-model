@@ -40,10 +40,9 @@
             <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external">Trading Venue XYZ</partyId>
         </party>
         <co:primitive>
-            <co:quantityChange>
+            <co:termsChange>
                 <!-- The alpha trade between client A and client B that is registered for clearing -->
                 <co:before>
-                    <!-- This id will be referenced by the beta and gamma trades -->
                     <co:trade>
                         <tradeHeader>
                             <partyTradeIdentifier>
@@ -219,7 +218,8 @@
                     </co:trade>
                 </co:before>
                 <!-- The alpha trade is registered at the CCP, with 2 distinctive features: the CCP is
-                positioned as a party role to the trade, and the trade is terminated -->
+                positioned as a party role to the trade, and the registration id has the same
+                partyId as that party role -->
                 <co:after>
                     <co:trade>
                         <tradeHeader>
@@ -227,6 +227,14 @@
                                 <partyReference href="tradingVenue-a"/>
                                 <versionedTradeId>
                                     <tradeId tradeIdScheme="http://www.tradingvenue.com/trade-id">alphatrade123</tradeId>
+                                    <version>1</version>
+                                </versionedTradeId>
+                            </partyTradeIdentifier>
+                            <!-- The registration Id at the CCP -->
+                            <partyTradeIdentifier>
+                                <partyReference href="clearingVenue-a"/>
+                                <versionedTradeId>
+                                    <tradeId tradeIdScheme="http://www.clearingvenue.com/registration-id">TR5FGR456</tradeId>
                                     <version>1</version>
                                 </versionedTradeId>
                             </partyTradeIdentifier>
@@ -405,13 +413,7 @@
                         </swap>
                     </co:trade>
                 </co:after>
-                <co:change>
-                    <co:notionalAmount>
-                        <currency>USD</currency>
-                        <amount>-100000000</amount>
-                    </co:notionalAmount>
-                </co:change>
-            </co:quantityChange>
+            </co:termsChange>
         </co:primitive>
     </co:event>
     <!-- This is the beta trade -->
@@ -442,16 +444,15 @@
             <accountId accountIdScheme="http://www.fpml.org/coding-scheme/external">Account B</accountId>
             <accountBeneficiary href="clientB-b"/>
         </account>
-        <!-- Lineage into the alpha trade -->
+        <!-- Lineage into the alpha trade registration at the CCP and the gamma trade clearing
+            notification -->
         <co:lineage>
-            <co:lineageQualifier>CCP_Registration</co:lineageQualifier>
             <co:eventLineage>
+                <co:eventLineageQualifier>CCP_Registration</co:eventLineageQualifier>
                 <co:eventReference href="registration"/>
             </co:eventLineage>
-        </co:lineage>
-        <co:lineage>
-            <co:lineageQualifier>ClearingNotification</co:lineageQualifier>
             <co:eventLineage>
+                <co:eventLineageQualifier>ClearingNotification</co:eventLineageQualifier>
                 <co:eventReference href="gamma"/>
             </co:eventLineage>
         </co:lineage>
@@ -687,7 +688,7 @@
             </co:inception>
         </co:primitive>
     </co:event>
-    <!-- This is the gamma notification -->
+    <!-- This is the gamma trade notification -->
     <co:event id="gamma">
         <co:timestamp>
             <co:creationTimestamp>2018-02-20T18:13:55.0</co:creationTimestamp>
@@ -715,16 +716,15 @@
             <accountId accountIdScheme="http://www.fpml.org/coding-scheme/external">Account A</accountId>
             <accountBeneficiary href="clientA-g"/>
         </account>
-        <!-- Lineage into the alpha trade -->
+        <!-- Lineage into the alpha trade registration at the CCP and the beta trade clearing
+            notification -->
         <co:lineage>
-            <co:lineageQualifier>CCP_Registration</co:lineageQualifier>
             <co:eventLineage>
+                <co:eventLineageQualifier>CCP_Registration</co:eventLineageQualifier>
                 <co:eventReference href="registration"/>
             </co:eventLineage>
-        </co:lineage>
-        <co:lineage>
-            <co:lineageQualifier>ClearingNotification</co:lineageQualifier>
             <co:eventLineage>
+                <co:eventLineageQualifier>ClearingNotification</co:eventLineageQualifier>
                 <co:eventReference href="beta"/>
             </co:eventLineage>
         </co:lineage>
