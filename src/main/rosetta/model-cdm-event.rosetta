@@ -329,42 +329,16 @@ class EventTimestamp <"A class to represent the various set of timestamps that c
 		[synonym CME_SubmissionIRS_1_0 set to EventTimeStampQualificationEnum.executionTime when path= "TrdCaptRpt.TrdRegTS.TS" and "TrdCaptRpt.TrdRegTS.Typ" = 1]
 }
 
-class EventWorkflow <"A class to specify workflow information that is conceptually applicable to all lifecycle events.">
+class EventWorkflow <"A class to specify workflow information, which is conceptually applicable to all lifecycle events.">
 {
 	workflowStatus WorkflowStatusEnum (0..1) <"The workflow status indicator, e.g. Accepted, Rejected, ...">;
 		[synonym CME_SubmissionIRS_1_0 value RptTyp path "TrdCaptRpt"]
 		[synonym Rosetta_Workbench value clearingStatus path "primitive.inception.after"]
 		[synonym CME_ClearedConfirm_1_17 value status path "clearingConfirmed.trade.tradeHeader"]
+	comment string (0..1) <"A comment field to be associated with the workflow, e.g. to specify why a transaction event was rejected by a party.">;
 	partyCustomisedWorkflow PartyCustomisedWorkflow (0..*) <"Workflow data that is specific to certain market participants and is expressed as part of the CDM in a very generic manner, which can be part-specific. The initial use cases have been derived from the CME clearing and the DTCC TIW submissions.">;
 		[synonym CME_SubmissionIRS_1_0 value RptSide path "TrdCaptRpt"]
 }
-
-class Execution rosettaKey
-{
-	executionType ExecutionTypeEnum (1..1) <"Specifies the type of execution, e.g. via voice, electronically...">;
-		[synonym Rosetta_Workbench value executionType]
-		[synonym CME_SubmissionIRS_1_0 value VenuTyp]
-	executionVenue LegalEntity (0..1) <"The execution venue identification, when applicable.">;
-	identifier Identifier (1..*) <"The identifier(s) associated with the execution.">;
-		[synonym Rosetta_Workbench value identifier]
-		[synonym DTCC_11_0, DTCC_9_0 value partyTradeIdentifier path "Submitter"]
-		[synonym CME_SubmissionIRS_1_0 value partyTradeIdentifier path "Instrmt.SecXML.FpML.trade.tradeHeader"]
-	tradeDate date (1..1) id <"The trade/execution date.">;
-		[synonym Rosetta_Workbench value tradeDate meta id]
-		[synonym CME_SubmissionIRS_1_0 value tradeDate path "Instrmt.SecXML.FpML.trade.tradeHeader" meta id]
-	contractualProduct ContractualProduct (1..1);
-		[synonym Rosetta_Workbench value contractualProduct]
-		[synonym CME_SubmissionIRS_1_0 value trade path "Instrmt.SecXML.FpML"]
-	party Party (0..*) <"The party reference is optional because positioned as part of the Event class when the execution is specified as part of such context.">;
-		[synonym CME_SubmissionIRS_1_0 value party path "Instrmt.SecXML.FpML"]
-	partyRole PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the execution, further to the principal parties (i.e payer/receive or buyer/seller) to it.">;
-	closedState ClosedState (0..1) <"The qualification what led to the execution closure alongside with the dates on which this closure takes effect.">;
-		[synonym Rosetta_Workbench value closedState]
-}
-
-data rule Execution_executionVenue <"When the execution type is set to 'Electronically', the execution venue must be specified.">
-	when Execution -> executionType = ExecutionTypeEnum.Electronic
-	then Execution -> executionVenue exists
 
 class ExerciseOutcome <"The exercise outcome combines the option contract (which states would be 'Exercised' in case of a full exercise and which would have a reduced notional in case of partial exercise) and either a physical or partial exercise.">
 {
@@ -647,16 +621,14 @@ class TimeZone <"The time alongside with the timezone location information. This
 class Trade one of <"A class to represent the general trade concept, which can either be an execution or a contract. The execution consists essentially in the economic terms which are agreed between the parties. The contract will further qualify those with the legal entities (think of the allocation case, which execution state can involve the investment adviser rather not the actual funds) while not specify the master agreement or collateral terms which might be associated with the subsequent contract.">
 {
     execution Execution (0..1) <"The execution corresponds to economic terms that are agreed between parties, but which legal terms are not yet specified. The execution attribute applies to the post-execution scenario of a product that is subject to the clearing mandate and is then routed to the CCP as an execution.">;
-    	[synonym CME_SubmissionIRS_1_0 value TrdCaptRpt set when "TrdCaptRpt.Hdr" exists]
-//    	[synonym Rosetta_Workbench value trade] set when "trade.executionType" exists
+    	[synonym CME_SubmissionIRS_1_0 value TrdCaptRpt set when "TrdCaptRpt.VenuTyp" exists]
+//    	[synonym Rosetta_Workbench value trade set when "trade.executionType" exists]
 	contract Contract (0..1) <"The contract differs from the execution by the fact that its legal terms are fully specified. This includes the legal entities that are associated to it as well as any associated legal agreement, e.g. master agreement, credit and collateral terms, ... ">;
         [synonym Rosetta_Workbench value trade]
         [synonym DTCC_11_0, DTCC_9_0 value FpML path "Trade"]
         [synonym DTCC_11_0, DTCC_9_0 value TradeMsg path "Manifest"]
         [synonym DTCC_11_0, DTCC_9_0 value ReportingJurisdiction path "ReportingData.ReportingHeader"]
-        [synonym CME_SubmissionIRS_1_0 value ignore]
-//        [synonym Rosetta_Workbench value trade] set when "trade.executionType" is absent
-		[synonym CME_SubmissionIRS_1_0 value TrdCaptRpt set when "TrdCaptRpt.Hdr" is absent]
+//        [synonym Rosetta_Workbench value trade set when "trade.executionType" is absent]
 }
 
 class TradeWarehouseWorkflow <"A class to specify trade warehouse workflow information: the identity of the trade warehouse, the contract status at the warehouse and party-specific workflow information.">
@@ -665,7 +637,7 @@ class TradeWarehouseWorkflow <"A class to specify trade warehouse workflow infor
 		[synonym DTCC_11_0, DTCC_9_0 value WarehousePositionType path "WarehouseState"]
 	warehouseStatus WorkflowStatusEnum (1..1);
 		[synonym DTCC_11_0, DTCC_9_0 value WarehouseStatus path "WarehouseState"]
-	partyCustomisedWorkflow PartyCustomisedWorkflow (0..*) <"Non-standardised workflow data related to a party.">;
+	partyCustomisedWorkflow PartyCustomisedWorkflow (0..*) <"Non-standardized workflow data related to a party.">;
 		[synonym DTCC_11_0, DTCC_9_0 value WorkflowData]
 		[synonym CME_SubmissionIRS_1_0 value ignore]
 }
@@ -786,7 +758,7 @@ isEvent CashAndSecurityTransfer <"The qualification of a security settlement fro
 	and Event -> primitive -> transfer -> cashTransfer -> payerReceiver -> payerPartyReference = Event -> primitive -> transfer -> securityTransfer -> transferorTransferee -> transferorPartyReference
 	and Event -> primitive -> transfer -> commodityTransfer is absent
 
-isEvent CCP_Registration <"The registration of a contract to a CCP, which results in a termination of the alpha trade.">
+isEvent CCP_Registration <"The registration of a contract to a CCP, which is qualified by the fact that (i) the CCP is positioned as a partyRole to the contract or execution, and (ii) it has assigned an identifier to the submission as a result of its acceptance.">
 	Event -> primitive -> termsChange only exists
 	and ( Event -> primitive -> termsChange -> after -> contract -> partyRole -> role = PartyRoleEnum.ClearingOrganization
 		or Event -> primitive -> termsChange -> after -> execution -> partyRole -> role = PartyRoleEnum.ClearingOrganization )
@@ -798,10 +770,10 @@ isEvent ClearingNotification <"The notification by the CCP of, respectively, the
 	and Event -> lineage -> eventLineage -> eventLineageQualifier = EventLineageQualifierEnum.CCP_Registration
 	and Event -> lineage -> eventLineage -> eventLineageQualifier = EventLineageQualifierEnum.ClearingNotification
 
-isEvent ClearingRejection <"The rejection of an alpha trade submission by a CCP, which is qualified by the fact that the workflow status is rejected and the quantity after = quantity before.">
-	Event -> primitive -> quantityChange only exists
+isEvent ClearingRejection <"The rejection of an alpha trade submission by a CCP, which is qualified by the fact that the workflow status is rejected.">
+	Event -> primitive -> termsChange only exists
 	and Event -> eventWorkflow -> workflowStatus = WorkflowStatusEnum.Rejected
-	and Event -> primitive -> quantityChange -> after -> contract -> partyRole -> role = PartyRoleEnum.ClearingOrganization 
+	and Event -> primitive -> termsChange -> after -> contract -> partyRole -> role = PartyRoleEnum.ClearingOrganization 
 	and quantityAfterQuantityChange = quantityBeforeQuantityChange
 	
 isEvent Compression <"The qualification of a compression event from the fact that (i) the intent is Compression when specified, (ii) the quantity change primitive exists, (iii) and there are multiple contracts (or contract references) specified in the before state.">
@@ -954,8 +926,8 @@ isEvent TradeWarehousePositionNotification
 workflow rule ClearedContract
     
     Event <beta> is ClearingNotification
-	relatedTo <alpha> by rosettaKey where Event -> lineage -> lineageQualifier = LineageQualifierEnum.ClearingRegistration
-    and relatedTo <gamma> by rosettaKey where Event -> lineage -> lineageQualifier = LineageQualifierEnum.ClearingNotification
+	relatedTo <alpha> by rosettaKey where Event -> lineage -> eventLineage -> eventlineageQualifier = EventLineageQualifierEnum.CCP_Registration
+    and relatedTo <gamma> by rosettaKey where Event -> lineage -> eventLineage -> eventlineageQualifier = EventLineageQualifierEnum.ClearingNotification
     
     constraint is economicTerms are the same except for payerReceiver or buyerSeller
     and event date of `alpha` = trade date of `beta` and `gamma`
