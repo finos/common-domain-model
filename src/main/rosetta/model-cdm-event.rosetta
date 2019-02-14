@@ -233,10 +233,10 @@ class Event rosettaKey
 		[synonym DTCC_11_0, DTCC_9_0 value YourTradeId path "Header.OTC_RM.Manifest.TradeMsg"]
 		[synonym DTCC_11_0, DTCC_9_0 value tradeIdentifyingItems path "Header.OTC_RM.Manifest.TradeMsg"]
 	eventQualifier eventType (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic. This value is derived by the CDM from the event features.">;
-	eventDate date (1..1);
+	eventDate date (1..1) <"The date on which the event is taking place. This is the equivalent of the trade date in the case of an execution or a contract.">;
 		[synonym Rosetta_Workbench value eventDate]
 		[synonym CME_ClearedConfirm_1_17 value clearedDate path "clearingConfirmed.trade.tradeHeader" maps 2]
-	effectiveDate date (0..1);
+	effectiveDate date (0..1) <"The date on which the event contractually takes effect, when different from the event date.">;
 		[synonym Rosetta_Workbench value effectiveDate]
 	action ActionEnum (1..1) <"Specifies whether the event is a new, a correction or a cancellation.">;
 		[synonym Rosetta_Workbench
@@ -248,7 +248,7 @@ class Event rosettaKey
 			set to ActionEnum.Correct when "isCorrection" = True]
 		[synonym DTCC_11_0, DTCC_9_0 value Activity path "Header.OTC_RM.Manifest.TradeMsg"]
 		[synonym CME_SubmissionIRS_1_0 value TransTyp path "TrdCaptRpt"]
-	intent IntentEnum (0..1);
+	intent IntentEnum (0..1) <"The intent attribute is meant to be specified when the event qualification cannot be programmatically inferred from the event features. As a result it is only associated with those primitives that can give way to such ambiguity, the quantityChange being one of those. An example of such is a reduction in the trade notional, which could be interpreted as either a trade correction (unless a maximum period of time post-event is specified as part of the qualification), a partial termination or a portfolio rebalancing in the case of an equity swap. On the other hand, an event such as the exercise is not expected to have an associated intent as there should not be ambiguity.">;
 		[synonym Rosetta_Workbench value intent]
 	party Party (0..*) <"The specification of the event parties. This attribute is optional, as not applicable to certain events (e.g. most of the observations).">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value party]
@@ -280,6 +280,15 @@ data rule Event_correctCancel <"The eventIdentifier version associated with a co
 		or Event -> action = ActionEnum.Cancel )
 	then Event -> eventIdentifier -> assignedIdentifier -> version > 1
 	and Event -> lineage -> eventLineage -> eventLineageQualifier = EventLineageQualifierEnum.PriorEventVersion
+
+data rule Event_intent <"The intent should only be associated with the primitives which use can lead to ambiguity with respect to the qualification of the event.">
+	when ( Event -> primitive -> allocation
+		or Event -> primitive -> exercise
+		or Event -> primitive -> inception
+		or Event -> primitive -> observation
+		or Event -> primitive -> reset
+		or Event -> primitive -> transfer ) exists
+	then Event -> intent is absent	
 
 class EventEffect <"The set of operational and positional effects associated with a lifecycle event, alongside the reference to the contract reference(s) that is subject to the event (and is positioned in the before state of the event primitive).">
 {
@@ -548,10 +557,10 @@ class PrimitiveEvent <"The set of primitive events.">
 
 class QuantityChangePrimitive <"The primitive event to represent a change in quantity or notional.">
 {
-	before Trade (1..1);
+	before Trade (1..1) <"The state of the trade (either an execution or a contract, before the event.">;
 		[synonym Rosetta_Workbench value before]
 		[synonym CME_SubmissionIRS_1_0 value ignore]
-	after Trade (1..1);
+	after Trade (1..1) <"The state of the trade (either an execution or a contract, as a follow-up from the event.">;
 		[synonym Rosetta_Workbench value after]
 	change ContractualQuantity (1..*);
 		[synonym Rosetta_Workbench value change]
@@ -628,6 +637,7 @@ class Trade one of <"A class to represent the general trade concept, which can e
         [synonym DTCC_11_0, DTCC_9_0 value FpML path "Trade"]
         [synonym DTCC_11_0, DTCC_9_0 value TradeMsg path "Manifest"]
         [synonym DTCC_11_0, DTCC_9_0 value ReportingJurisdiction path "ReportingData.ReportingHeader"]
+//        [synonym CME_SubmissionIRS_1_0 value TrdCaptRpt set when "TrdCaptRpt.VenuTyp" is absent]
 //        [synonym Rosetta_Workbench value trade set when "trade.executionType" is absent]
 }
 
@@ -710,8 +720,7 @@ class Velocity
  */
 
 isEvent Allocation <"The qualification of allocation event from the fact that (i) the intent is Allocation when specified, (ii) the only primitive is the allocation, (iii) the sum of quantities/notional before = after, and (iv) there is a single contractualProduct before (ensured through cardinality). Note: it is accepted that an allocation can result in a single contract.">
-	Event -> intent when present = IntentEnum.Allocation
-	and Event -> primitive -> allocation only exists
+	Event -> primitive -> allocation only exists
 	/*
 	 * TODO - The below syntax needs to be expanded to specify a summation
 	 * This could be specify as  quantityBeforeAllocation = sum(quantityAfterAllocation)
@@ -776,18 +785,16 @@ isEvent ClearingRejection <"The rejection of an alpha trade submission by a CCP,
 	and Event -> primitive -> termsChange -> after -> contract -> partyRole -> role = PartyRoleEnum.ClearingOrganization 
 	and quantityAfterQuantityChange = quantityBeforeQuantityChange
 	
-isEvent Compression <"The qualification of a compression event from the fact that (i) the intent is Compression when specified, (ii) the quantity change primitive exists, (iii) and there are multiple contracts (or contract references) specified in the before state.">
-	Event -> intent when present = IntentEnum.Compression
-	and Event -> primitive -> quantityChange exists
+isEvent Compression <"The qualification of a compression event from the fact that (i) the quantity change primitive exists, and (ii) there are multiple contracts (or contract references) specified in the before state.">
+	Event -> primitive -> quantityChange exists
 	and Event -> primitive -> quantityChange -> before -> contract multiple exists
 
 isEvent DerivedObservation <"The qualification of a derived observation event from the fact that (i) the only primitive is the observation, (ii) there are multiple instances of such observations, and (iii) there is an associated call function to compute, say, an interpolation.">
 	Event -> primitive -> observation only multiple exists
 	and Event -> functionCall exists
 
-isEvent Exercise <"The qualification of an exercise event from the fact that (i) the intent is Exercise when specified, (ii) the only primitive is the quantityChange, and (iii) the remaining quantity = 0, and (iv) the closedState of the contract is Terminated.">
-	Event -> intent when present = IntentEnum.Exercise
-	and Event -> primitive -> exercise only exists
+isEvent Exercise <"The qualification of an exercise event from the fact that (i) the only primitive is the exercise, and (ii) the remaining quantity = 0, and (iv) the closedState of the contract is Terminated.">
+	Event -> primitive -> exercise only exists
 
 isEvent Increase <"The qualification of a increase event from the fact that (i) the intent is Increase when specified, (ii) the associated primitives are the quantityChange and the cash transfer, the (iii) the quantity associated with the contract increases.">
 	Event -> intent when present = IntentEnum.Increase
@@ -801,15 +808,13 @@ isEvent MultipleTransfers <"The qualification an event that combines multiple tr
 	Event -> primitive -> transfer multiple exists
 
 isEvent NewTrade
-	Event -> intent when present = IntentEnum.NewTrade
-	and Event -> primitive -> inception only exists
+	Event -> primitive -> inception only exists
 	and Event -> primitive -> inception -> after -> tradeWarehouseWorkflow is absent
 	and Event -> primitive -> quantityChange -> after -> contract -> closedState is absent
 	and Event -> primitive -> inception -> after -> contract -> clearedDate is absent
 
 isEvent Novation <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and inception exist, (iii) the remaining quantity = 0, (iv) the closedState of the contract is Novated, (v) the stepped-in contract has a different contract identifier than the novated contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
-	Event -> intent when present = IntentEnum.Novation
-	and Event -> primitive -> quantityChange exists
+	Event -> primitive -> quantityChange exists
 	and Event -> primitive -> inception exists
 	and quantityAfterQuantityChange = 0.0
 	and Event -> primitive -> quantityChange -> after -> contract -> closedState -> state = ClosedStateEnum.Novated
@@ -842,8 +847,7 @@ isEvent Observation <"The qualification of an observation event from the fact th
 	Event -> primitive -> observation only single exists
 
 isEvent PartialNovation <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and inception exist, (iii) the contract quantity/notional has decreased as part of the quantityChange primitive, while (iv) there is a remaining quantity/notional, (v) the stepped-in contract has a different contract identifier than the original contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
-	Event -> intent when present = IntentEnum.PartialNovation
-	and Event -> primitive -> quantityChange exists
+	Event -> primitive -> quantityChange exists
 	and Event -> primitive -> inception exists
 	and Event -> primitive -> inception -> after -> contract -> contractIdentifier <> Event -> primitive -> quantityChange -> before -> contract -> contractIdentifier
 	and Event -> eventDate = Event -> primitive -> inception -> after -> contract -> tradeDate -> date
