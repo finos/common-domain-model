@@ -65,6 +65,7 @@ class Contract rosettaKey <"A class to specify a contract object, which can be i
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value clearedDate path "trade.tradeHeader"]
 		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value clearedDate path "tradeHeader"]
 	contractualProduct ContractualProduct (1..1) <"The contractual product information that is associated with the contract. The corresponding FpML construct is the product abstract element and the associated substitution group.">;
+		[synonym CME_SubmissionIRS_1_0 value trade path "Instrmt.SecXML.FpML"]
 	collateral Collateral (0..1) <"Defines the collateral obligations of a party.">;
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value collateral path "trade"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value collateral]
@@ -907,6 +908,21 @@ data rule TransactedPrice_marketPrice <"FpML specifies that  marketFixedRate and
 /***********************
  * Product Qualification
  */
+
+isProduct CreditDefaultSwap <"This product qualification is temporary until such time that the ISDA Credit Groups specifies a proper taxonomy for credit derivatives that is based upon economic terms.">
+	EconomicTerms -> payout -> creditDefaultPayout exists
+	and ( EconomicTerms -> payout -> interestRatePayout
+		or EconomicTerms -> payout -> cashflow ) exists
+	and EconomicTerms -> payout -> equityPayout is absent
+	and EconomicTerms -> payout -> optionPayout is absent
+	
+isProduct CreditDefaultSwaption <"This product qualification is temporary until such time that the ISDA Credit Groups specifies a proper taxonomy for credit derivatives that is based upon economic terms.">
+	EconomicTerms -> payout -> optionPayout exists
+	and EconomicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout exists
+	and ( EconomicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> interestRatePayout
+		or EconomicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> cashflow ) exists
+	and EconomicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> equityPayout is absent
+	and EconomicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> optionPayout is absent
 
 isProduct EquitySwap_PriceReturnBasicPerformance_SingleName <"The Price Return Basic Performance equity swap specified in the ISDA taxonomy V2.0 corresponds to the price and total return swaps.">
 	[synonym ISDA_Taxonomy_v1 value EquitySwap_PriceReturnBasicPerformance_SingleName]
