@@ -909,6 +909,21 @@ data rule TransactedPrice_marketPrice <"FpML specifies that  marketFixedRate and
  * Product Qualification
  */
 
+isProduct CreditDefaultSwap <"This product qualification is temporary until such time that the ISDA Credit Groups specifies a proper taxonomy for credit derivatives that is based upon economic terms.">
+	EconomicTerms -> payout -> creditDefaultPayout exists
+	and ( EconomicTerms -> payout -> interestRatePayout
+		or EconomicTerms -> payout -> cashflow ) exists
+	and EconomicTerms -> payout -> equityPayout is absent
+	and EconomicTerms -> payout -> optionPayout is absent
+	
+isProduct CreditDefaultSwaption <"This product qualification is temporary until such time that the ISDA Credit Groups specifies a proper taxonomy for credit derivatives that is based upon economic terms.">
+	EconomicTerms -> payout -> optionPayout exists
+	and EconomicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout exists
+	and ( EconomicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> interestRatePayout
+		or EconomicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> cashflow ) exists
+	and EconomicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> equityPayout is absent
+	and EconomicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> optionPayout is absent
+
 isProduct EquitySwap_PriceReturnBasicPerformance_SingleName <"The Price Return Basic Performance equity swap specified in the ISDA taxonomy V2.0 corresponds to the price and total return swaps.">
 	[synonym ISDA_Taxonomy_v1 value EquitySwap_PriceReturnBasicPerformance_SingleName]
 	EconomicTerms -> payout -> interestRatePayout exists

@@ -286,8 +286,7 @@ data rule Event_intent <"The intent should only be associated with the primitive
 		or Event -> primitive -> exercise
 		or Event -> primitive -> inception
 		or Event -> primitive -> observation
-		or Event -> primitive -> reset
-		or Event -> primitive -> transfer ) exists
+		or Event -> primitive -> reset ) exists
 	then Event -> intent is absent	
 
 class EventEffect <"The set of operational and positional effects associated with a lifecycle event, alongside the reference to the contract reference(s) that is subject to the event (and is positioned in the before state of the event primitive).">
@@ -767,14 +766,12 @@ isEvent CashAndSecurityTransfer <"The qualification of a security settlement fro
 	and Event -> primitive -> transfer -> cashTransfer -> payerReceiver -> payerPartyReference = Event -> primitive -> transfer -> securityTransfer -> transferorTransferee -> transferorPartyReference
 	and Event -> primitive -> transfer -> commodityTransfer is absent
 
-isEvent CCP_Registration <"The registration of a contract to a CCP, which is qualified by the fact that (i) the CCP is positioned as a partyRole to the contract or execution, and (ii) it has assigned an identifier to the submission as a result of its acceptance.">
+isEvent CCP_Registration <"The registration of a contract to a CCP, which is qualified by the fact that the CCP is positioned as a partyRole to the contract or execution.">
 	Event -> primitive -> termsChange only exists
 	and ( Event -> primitive -> termsChange -> after -> contract -> partyRole -> role = PartyRoleEnum.ClearingOrganization
 		or Event -> primitive -> termsChange -> after -> execution -> partyRole -> role = PartyRoleEnum.ClearingOrganization )
-	and ( Event -> primitive -> termsChange -> after -> contract -> partyRole -> partyReference = Event -> primitive -> termsChange -> after -> contract -> contractIdentifier -> issuerReference
-		or Event -> primitive -> termsChange -> after -> execution -> partyRole -> partyReference = Event -> primitive -> termsChange -> after -> execution -> identifier -> issuerReference )
 
-isEvent ClearingNotification <"The notification by the CCP of, respectively, the beta and the gamma trades that result from the clearing process.">
+isEvent ClearedTrade <"The cleared trade at the CCP.">
 	Event -> primitive -> inception only exists
 	and Event -> lineage -> eventLineage -> eventLineageQualifier = EventLineageQualifierEnum.CCP_Registration
 	and Event -> lineage -> eventLineage -> eventLineageQualifier = EventLineageQualifierEnum.ClearingNotification
