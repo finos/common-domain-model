@@ -226,13 +226,13 @@ class Event rosettaKey
 		[synonym DTCC_11_0, DTCC_9_0 value header path "Body.OTC_Matching.Payment.FpML"]
         [synonym CME_ClearedConfirm_1_17 value timestamps path "clearingConfirmed.trade.tradeHeader"]
         [synonym CME_ClearedConfirm_1_17 value header path "clearingConfirmed"]
-    eventIdentifier Identifier (1..*) <"The event identifier, which has 3 components: an actual identifier, an issuer and a version number. One and only one identifier can be associated with a lifecycle event.">;
+    eventIdentifier Identifier (1..*) <"The identifier(s) that uniquely identify a lifecycle event. The unbounded cardinality is meant to provide the ability to associate identifiers that are issued by distinct parties. As an example, each of the parties to the event may choose to associate their own identifiers to the event.">;
 		[synonym Rosetta_Workbench value eventIdentifier]
 		[synonym DTCC_11_0, DTCC_9_0 value Submitter path "Header.OTC_RM.Manifest.TradeMsg"]
 		[synonym DTCC_11_0, DTCC_9_0 value ContraTradeId path "Header.OTC_RM.Manifest.TradeMsg"]
 		[synonym DTCC_11_0, DTCC_9_0 value YourTradeId path "Header.OTC_RM.Manifest.TradeMsg"]
 		[synonym DTCC_11_0, DTCC_9_0 value tradeIdentifyingItems path "Header.OTC_RM.Manifest.TradeMsg"]
-	eventQualifier eventType (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic. This value is derived by the CDM from the event features.">;
+	eventQualifier eventType (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic (e.g. PartialTermination, ClearingSubmission, Novation, ...).">;
 	eventDate date (1..1) <"The date on which the event is taking place. This is the equivalent of the trade date in the case of an execution or a contract.">;
 		[synonym Rosetta_Workbench value eventDate]
 		[synonym CME_ClearedConfirm_1_17 value clearedDate path "clearingConfirmed.trade.tradeHeader" maps 2]
@@ -257,14 +257,14 @@ class Event rosettaKey
 	account Account (0..*) <"Optional account information that could be associated to the event.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0 value account]
 		[synonym CME_ClearedConfirm_1_17 value account path "clearingConfirmed"]
-	lineage Lineage (0..1);
+	lineage Lineage (0..1) <"The lineage attribute provides a linkage among lifecycle events through the rosettaKey hash value. One example is when a given lifecycle event is being corrected or cancelled. In such case, each subsequent event will have lineage into the prior version of that event. The second broad use case is when an event has a dependency upon either another event (e.g. the regular payment associated with a fix/float swap will have a lineage into the reset event, which will in turn have a lineage into the observation event for the floating rate and the contract) or a contract (e.g. the exercise of an option has a lineage into that option).">;
 		[synonym Rosetta_Workbench value lineage]
-	primitive PrimitiveEvent (1..1);
+	primitive PrimitiveEvent (1..1) <"The primitive (or set of primitives) associated with the event, such as quantityChange, transfer, ... Those primitives are specified through the PrimitiveEvent class.">;
 		[synonym Rosetta_Workbench value primitive]
 	functionCall string (0..1) <"This is placeholder concept for a function call into a calculation that will return an outcome. This concept needs to be further firmed out.">;
 		[synonym Rosetta_Workbench value functionCall]
 	eventEffect EventEffect (0..1) <"The set of effects associated with the lifecycle event, i.e. generated cashflows, contracts (from, say, novation events), listed products (from, say, a bond option exercise event)  values and more. Those are represented through a set of rosettaKey references. This attribute is optional in order to provide implementers with the ability not to make use of this feature.">;
-	eventWorkflow EventWorkflow (0..1) <"The event workflow information.">;
+	eventWorkflow EventWorkflow (0..1) <"The event workflow information, i.e. the workflow status, the associated comment and the partyCustomisedWorkflow which purpose is to provide the ability to associate custom workflow information to the CDM.">;
 }
 
 data rule Event_version <"The identifier version is required for lifecycle events.">
@@ -766,23 +766,24 @@ isEvent CashAndSecurityTransfer <"The qualification of a security settlement fro
 	and Event -> primitive -> transfer -> cashTransfer -> payerReceiver -> payerPartyReference = Event -> primitive -> transfer -> securityTransfer -> transferorTransferee -> transferorPartyReference
 	and Event -> primitive -> transfer -> commodityTransfer is absent
 
-isEvent CCP_Registration <"The registration of a contract to a CCP, which is qualified by the fact that the CCP is positioned as a partyRole to the contract or execution.">
-	Event -> primitive -> termsChange only exists
-	and ( Event -> primitive -> termsChange -> after -> contract -> partyRole -> role = PartyRoleEnum.ClearingOrganization
-		or Event -> primitive -> termsChange -> after -> execution -> partyRole -> role = PartyRoleEnum.ClearingOrganization )
-
 isEvent ClearedTrade <"The cleared trade at the CCP.">
 	Event -> primitive -> inception only exists
 	and Event -> lineage -> eventLineage -> eventLineageQualifier = EventLineageQualifierEnum.CCP_Registration
 	and Event -> lineage -> eventLineage -> eventLineageQualifier = EventLineageQualifierEnum.ClearingNotification
 
-isEvent ClearingRejection <"The rejection of an alpha trade submission by a CCP, which is qualified by the fact that the workflow status is rejected.">
+isEvent ClearingRejection <"The rejection of an alpha trade submission by a CCP, which is qualified by the fact that (i) termsChange is the only primitive, the workflow status is `rejected`, and (iii) the CCP is positioned as a partyRole to the execution or contract in the after state.">
 	Event -> primitive -> termsChange only exists
 	and Event -> eventWorkflow -> workflowStatus = WorkflowStatusEnum.Rejected
-	and Event -> primitive -> termsChange -> after -> contract -> partyRole -> role = PartyRoleEnum.ClearingOrganization 
+	and ( Event -> primitive -> termsChange -> after -> execution -> partyRole -> role = PartyRoleEnum.ClearingOrganization 
+		or Event -> primitive -> termsChange -> after -> contract -> partyRole -> role = PartyRoleEnum.ClearingOrganization )
 	and quantityAfterQuantityChange = quantityBeforeQuantityChange
+
+isEvent ClearingSubmission <"The submission of a contract to a CCP, which is qualified by the fact that (i) the termsChange is the only primitive, and (ii) the CCP is positioned as a partyRole to the execution or contract in the after state.">
+	Event -> primitive -> termsChange only exists
+	and ( Event -> primitive -> termsChange -> after -> contract -> partyRole -> role = PartyRoleEnum.ClearingOrganization
+		or Event -> primitive -> termsChange -> after -> execution -> partyRole -> role = PartyRoleEnum.ClearingOrganization )
 	
-isEvent Compression <"The qualification of a compression event from the fact that (i) the quantity change primitive exists, and (ii) there are multiple contracts (or contract references) specified in the before state.">
+isEvent Compression <"The qualification of a compression event from the fact that (i) the quantityChange primitive exists, and (ii) there are multiple contracts (or contract references) specified in the before state.">
 	Event -> primitive -> quantityChange exists
 	and Event -> primitive -> quantityChange -> before -> contract multiple exists
 
