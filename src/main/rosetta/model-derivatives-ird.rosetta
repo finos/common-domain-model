@@ -79,7 +79,7 @@ data rule CalculationPeriod_calculationPeriodNumberOfDays <"FpML specifies calcu
 	when PaymentCalculationPeriod -> calculationPeriod -> calculationPeriodNumberOfDays exists
 	then PaymentCalculationPeriod -> calculationPeriod -> calculationPeriodNumberOfDays >= 0
  
-class CalculationPeriodDates <"A class defining the parameters used to generate the calculation period dates schedule, including the specification of any initial or final stub calculation periods. A calculation period schedule consists of an optional initial stub calculation period, one or more regular calculation periods and an optional final stub calculation period. In the absence of any initial or final stub calculation periods, the regular part of the calculation period schedule is assumed to be between the effective date and the termination date. No implicit stubs are allowed, i.e. stubs must be explicitly specified using an appropriate combination of firstPeriodStartDate, firstRegularPeriodStartDate and lastRegularPeriodEndDate.">
+class CalculationPeriodDates <"A class for defining the parameters used to generate the calculation period dates schedule, including the specification of any initial or final stub calculation periods. A calculation period schedule consists of an optional initial stub calculation period, one or more regular calculation periods and an optional final stub calculation period. In the absence of any initial or final stub calculation periods, the regular part of the calculation period schedule is assumed to be between the effective date and the termination date. No implicit stubs are allowed, i.e. stubs must be explicitly specified using an appropriate combination of firstPeriodStartDate, firstRegularPeriodStartDate and lastRegularPeriodEndDate.">
 	[synonym FpML_5_10 value CalculationPeriodDates]
 {
 	id (0..1);
@@ -97,7 +97,7 @@ class CalculationPeriodDates <"A class defining the parameters used to generate 
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value relativeTerminationDate path "calculationPeriodDates"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint adjustedTerminationDate]
 		[synonym FpML_5_10 value terminationDate path "interestLegCalculationPeriodDates", terminationDate]
-	calculationPeriodDatesAdjustments BusinessDayAdjustments (0..1) <"The business day convention to apply to each calculation period end date if it would otherwise fall on a day which is not a business day in the specified business centers.">;
+	calculationPeriodDatesAdjustments BusinessDayAdjustments (0..1) <"The specification of the business day convention and financial business centers used for adjusting any calculation period date if it would otherwise fall on a day that is not a business day in the specified business center.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value calculationPeriodDatesAdjustments path "calculationPeriodDates"]
 		[synonym FpML_5_10 value calculationPeriodDatesAdjustments path "interestLegCalculationPeriodDates.interestLegPaymentDates.periodicDates"]
 	firstPeriodStartDate AdjustableDate (0..1) <"The start date of the calculation period. FpML specifies that for interest rate swaps this date must only be specified if it is not equal to the effective date. It is always specified in the case of equity swaps and credit default swaps with periodic payments. This date may be subject to adjustment in accordance with a business day convention.">;
@@ -440,11 +440,11 @@ data rule FloatingRateDefinition_FloatingRateMultiplier <"FpML specifies that th
 class FxFixingDate extends Offset <"A class that is extending the Offset structure for providing the ability to specify an FX fixing date as an offset to dates specified somewhere else in the document.">
 	[synonym FpML_5_10 value FxFixingDate]
 {
-	businessDayConvention BusinessDayConventionEnum (1..1) <"The convention for adjusting a date if it would otherwise fall on a day that is not a business day.">;
+	businessDayConvention BusinessDayConventionEnum (1..1) <"The convention for adjusting a date if it would otherwise fall on a day that is not a business day, as specified by an ISDA convention (e.g. Following, Precedent).">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value businessDayConvention]
 	businessCenters BusinessCenters (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value businessCenters]
-	businessCentersReference BusinessCenters (0..1) reference <"A pointer style reference to a set of financial business centers defined elsewhere in the document. This set of business centers is used to determine whether a particular day is a business day or not.">;
+	businessCentersReference BusinessCenters (0..1) reference <"A reference to a set of financial business centers defined elsewhere in the document. This set of business centers is used to determine whether a particular day is a business day or not.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value businessCentersReference meta href]
 	dateRelativeToPaymentDates DateRelativeToPaymentDates (0..1) <"The payment date references on which settlements in non-deliverable currency are due and will then have to be converted according to the terms specified through the other parts of the nonDeliverableSettlement structure.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value dateRelativeToPaymentDates]
@@ -694,7 +694,7 @@ class PriceSourceDisruption <"A class defining the parameters used to get a pric
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value fallbackReferencePrice]
 }
 
-class PrincipalExchange <"A class defining a principal exchange amount and adjusted exchange date. The class forms part of the cashflow representation of a swap stream.">
+class PrincipalExchange <"A class for defining a principal exchange amount and adjusted exchange date. This class forms part of the cashflow representation of a swap stream.">
 	[synonym FpML_5_10 value PrincipalExchange]
 {
 	id (0..1);

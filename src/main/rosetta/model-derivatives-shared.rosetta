@@ -208,20 +208,19 @@ class BrokerConfirmation <"Identifies the market sector in which the trade has b
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value brokerConfirmationType meta brokerConfirmationTypeScheme]
 }
 
-class BusinessCenters <"A class for defining business day calendar used in determining whether a day is a business day or not. A list of business day calendar locations may be ordered in the document alphabetically based on business day calendar location code. An FpML document containing an unordered business day calendar location list is still regarded as a conformant document. The CDM adjusts the FpML constructs by embedding the ability to reference the business center(s) as part of that class.">
-	[synonym FpML_5_10 value BusinessCenters]
+class BusinessCenters <"A class for specifying the business day calendar location used in determining whether a day is a business day or not, either by specifying this business center by reference to an enumerated list that is maintained by the FpML standard, or by reference to such specification when it exists elsewhere as part of the instance document. This class corresponds to the FpML BusinessCentersOrReference.model.">
 {
 	id (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id path "businessCenters"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
-	businessCenter BusinessCenterEnum (0..*) scheme <"A code identifying a business day calendar location. A business day calendar location is drawn from the list identified by the business day calendar location scheme.">;
+	businessCenter BusinessCenterEnum (0..*) scheme <"A code identifying one or several business day calendar location(s). The set of business day calendar locations are specified by the business day calendar location enumeration which is maintained by the FpML standard.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value businessCenter meta businessCenterScheme]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value businessCenter path "businessCenters" meta businessCenterScheme]
-	businessCentersReference BusinessCenters (0..1) reference <"A pointer style reference to a set of financial business centers defined elsewhere in the document. This set of business centers is used to determine whether a particular day is a business day or not.">;
+	businessCentersReference BusinessCenters (0..1) reference <"A reference to a financial business center location specified elsewhere in the instance document.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value businessCentersReference meta href]
 }
 
-choice rule BusinessCenters_choice <"The CDM embeds as part of the BusinessCenters class the ability to reference business center(s).">
+choice rule BusinessCenters_choice <"Choice rule to represent an FpML choice construct.">
 	for BusinessCenters required choice between
 	businessCenter and businessCentersReference
 
@@ -230,7 +229,7 @@ class BusinessCenterTime <"A class for defining a time with respect to a busines
 {
 	hourMinuteTime time (1..1) <"A time specified in hh:mm:ss format where the second component must be '00', e.g. 11am would be represented as 11:00:00.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value hourMinuteTime]
-	businessCenter BusinessCenterEnum (1..1) scheme <"A code identifying a business day calendar location. A business day calendar location is drawn from the list identified by the business day calendar location scheme.">;
+	businessCenter BusinessCenterEnum (1..1) scheme <"A code identifying a business day calendar location. A business day calendar location is drawn from the list identified by the business day calendar location enumeration.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value businessCenter meta businessCenterScheme]
 }
 
@@ -238,7 +237,7 @@ class BusinessCenterTime <"A class for defining a time with respect to a busines
 class BusinessDateRange extends DateRange <"A class defining a range of contiguous business days by defining an unadjusted first date, an unadjusted last date and a business day convention and business centers for adjusting the first and last dates if they would otherwise fall on a non business day in the specified business centers. The days between the first and last date must also be good business days in the specified centers to be counted in the range.">
 	[synonym FpML_5_10 value BusinessDateRange]
 {
-	businessDayConvention BusinessDayConventionEnum (1..1) <"The convention for adjusting a date if it would otherwise fall on a day that is not a business day.">;
+	businessDayConvention BusinessDayConventionEnum (1..1) <"The convention for adjusting a date if it would otherwise fall on a day that is not a business day, as specified by an ISDA convention (e.g. Following, Precedent).">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value businessDayConvention]
 	businessCenters BusinessCenters (0..1) <"The business center(s), specified either explicitly or by reference to those specified somewhere else in the instance document.">;
 }
@@ -290,7 +289,7 @@ choice rule CalculationAgent_choice <"Choice rule to represent an FpML choice co
 class CalculationPeriodFrequency extends Frequency <"A class to specify the frequency at which calculation period end dates occur within the regular part of the calculation period schedule and their roll date convention.">
 	[synonym FpML_5_10 value CalculationPeriodFrequency]
 {
-	rollConvention RollConventionEnum (1..1) <"Used in conjunction with a frequency and the regular period start date of a calculation period to determine the calculation period end date within the regular part of the calculation period.">;
+	rollConvention RollConventionEnum (1..1) <"The roll convention specifies the period term as part of a periodic schedule, i.e. the calculation period end date within the regular part of the calculation period. The value could be a rule, e.g. IMM Settlement Dates, which is the 3rd Wednesday of the month, or it could be a specific day of the month, such as the first day of the applicable month. It is used in conjunction with a frequency and the regular period start date of a calculation period.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value rollConvention]
 }
 
@@ -550,12 +549,12 @@ class FloatingRateSpecification extends FloatingRate <"A class to specify the fl
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value negativeInterestRateTreatment path "calculationPeriodAmount.calculation.floatingRateCalculation", negativeInterestRateTreatment path "periodicPayment.floatingAmountCalculation.floatingRate"]
 }
 
-class Frequency <"A class defining a time frequency, e.g. one day, three months. Used for specifying payment or calculation frequencies at which the value T (Term) is applicable.">
+class Frequency <"A class for defining a date frequency, e.g. one day, three months, through the combination of an integer value and a standardized period value that is specified as part of an enumeration.">
 	[synonym FpML_5_10 value Frequency]
 {
 	id (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
-	periodMultiplier int (1..1) <"A time period multiplier, e.g. 1, 2, or 3.  If the period value is T (Term) then period multiplier must contain the value 1.">;
+	periodMultiplier int (1..1) <"A time period multiplier, e.g. 1, 2, or 3. If the period value is T (Term) then period multiplier must contain the value 1.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value periodMultiplier]
 		[synonym FpML_5_10 value periodMultiplier path "paymentDatesInterim.relativeDates"]
 	period PeriodExtendedEnum (1..1) <"A time period, e.g. a day, week, month, year or term of the stream.">;
@@ -571,7 +570,7 @@ data rule Frequency_periodMultiplier <"FpML specifies periodMultiplier as a posi
 	when Frequency exists
 	then Frequency -> periodMultiplier >= 0
 
-class FutureValueAmount extends Money <"A type defining a currency amount as at a future value date.">
+class FutureValueAmount extends Money <"A class defining a currency amount as at a future value date.">
 	[synonym FpML_5_10 value FutureValueAmount]
 {
 	calculationPeriodNumberOfDays int (1..1) <"The number of days from the adjusted calculation period start date to the adjusted value date, calculated in accordance with the applicable day count fraction.">;
@@ -588,7 +587,7 @@ data rule FutureValueAmount_calculationPeriodNumberOfDays <"FpML specifies calcu
 	when FutureValueAmount exists
 	then FutureValueAmount -> calculationPeriodNumberOfDays >= 0
 
-class FxRate <"A type describing the rate of a currency conversion: pair of currency, quotation mode and exchange rate.">
+class FxRate <"A class describing the rate of a currency conversion: pair of currency, quotation mode and exchange rate.">
 	[synonym FpML_5_10 value FxRate]
 {
 	quotedCurrencyPair QuotedCurrencyPair (1..1) <"Defines the two currencies for an FX trade and the quotation relationship between the two currencies.">;
@@ -608,17 +607,17 @@ class FxSpotRateSource <"A class defining the rate source and fixing time for an
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value fixingTime]
 }
 
-class IndependentAmount extends PayerReceiver
+class IndependentAmount extends PayerReceiver <"A class specifying the Independent Amount as the combination of a payer/receiver, a payment amount, a payment date and an associated payment calculation rule.">
 	[synonym FpML_5_10 value IndependentAmount]
 {
-	paymentDetail PaymentDetail (1..*) <"A container element allowing a schedule of payments associated with the Independent Amount.">;
+	paymentDetail PaymentDetail (1..*) <"An attribute that specifies a payment as the combination of a payment amount, a payment date and an associated payment calculation rule.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentDetail]
 }
 
-class InformationSource <"A class defining the source for a piece of information (e.g. a rate refix or an FX fixing). The attribute names have been adjusted from FpML to address the fact that the information is not limited to rates.">
+class InformationSource <"A class defining the source for a piece of information (e.g. a rate fix or an FX fixing). The attribute names have been adjusted from FpML to address the fact that the information is not limited to rates.">
 	[synonym FpML_5_10 value InformationSource]
 {
-	sourceProvider InformationProviderEnum (1..1) scheme <"An information source for obtaining a market data point. For example Bloomberg, Reuters, Telerate etc.">;
+	sourceProvider InformationProviderEnum (1..1) scheme <"An information source for obtaining a market data point. For example Bloomberg, Reuters, Telerate, etc.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value rateSource meta informationProviderScheme]
 		[synonym FIX_5_0_SP2 value RateSource tag 1446]
 	sourcePage string (0..1) scheme <"A specific page for the source for obtaining a market data point. In FpML, this is specified as a scheme, rateSourcePageScheme, for which no coding Scheme or URI is specified.">;
@@ -966,7 +965,7 @@ data rule RelativeDates_periodSkip <"FpML specifies that, if present, the period
 class RelativeDateOffset extends Offset <"A class defining a date (referred to as the derived date) as a relative offset from another date (referred to as the anchor date). If the anchor date is itself an adjustable date then the offset is assumed to be calculated from the adjusted anchor date. A number of different scenarios can be supported, namely; 1) the derived date may simply be a number of calendar periods (days, weeks, months or years) preceding or following the anchor date; 2) the unadjusted derived date may be a number of calendar periods (days, weeks, months or years) preceding or following the anchor date with the resulting unadjusted derived date subject to adjustment in accordance with a specified business day convention, i.e. the derived date must fall on a good business day; 3) the derived date may be a number of business days preceding or following the anchor date. Note that the businessDayConvention specifies any required adjustment to the unadjusted derived date. A negative or positive value in the periodMultiplier indicates whether the unadjusted derived precedes or follows the anchor date. The businessDayConvention should contain a value NONE if the day type element contains a value of Business (since specifying a negative or positive business days offset would already guarantee that the derived date would fall on a good business day in the specified business centers).">
 	[synonym FpML_5_10 value RelativeDateOffset]
 {
-	businessDayConvention BusinessDayConventionEnum (1..1) <"The convention for adjusting a date if it would otherwise fall on a day that is not a business day.">;
+	businessDayConvention BusinessDayConventionEnum (1..1) <"The convention for adjusting a date if it would otherwise fall on a day that is not a business day, as specified by an ISDA convention (e.g. Following, Precedent).">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value businessDayConvention]
 		[synonym FpML_5_10 value businessDayConvention path "dateOffset"]
 	businessCenters BusinessCenters (0..1);
@@ -1019,7 +1018,7 @@ choice rule Resource_choice <"Choice rule to represent an FpML choice construct.
 	for Resource optional choice between
 	string and url
 
-class ResourceLength <"The class that indicates the length of the resource.">
+class ResourceLength <"A class to indicate the length of the resource.">
 	[synonym FpML_5_10 value ResourceLength]
 {
 	lengthUnit LengthUnitEnum (1..1) <"The length unit of the resource. For example, pages (pdf, text documents) or time (audio, video files).">;

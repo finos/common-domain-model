@@ -363,7 +363,7 @@ choice rule CreditDefaultPayout_choice <"Choice rule to represent an FpML choice
 
 class EconomicTerms rosettaKeyValue <"This class represents the full set of price-forming features associated with a contractual product: the payout component, the quantity, as well as the legal optional provisions which have valuation implications. A rosettaKeyValue is associated to the contractual product economic terms for the purpose of supporting hash-based reconciliations thanks to the fact that its computation doesn't include meta data, such as identifiers, references, schemes and other rosettaKey artefacts.">
 {
-	payout Payout (1..1) <"The payout specification, which can combine several payout terms, e.g. an interest rate and a credit default payout in the case of a credit default swap.">;
+	payout Payout (1..1) <"The payout specifies the future cashflow computation methodology which characterizes a financial product.">;
 	quantity ContractualQuantity (0..*); // WIP to position the notional/quantity at the contract level; unbounded cardinality is meant to address the x-ccy contracts, while optional cardinality is for transitional compatibility purposes with the current model
 	earlyTerminationProvision EarlyTerminationProvision (0..1) <"Parameters specifying provisions relating to the optional and mandatory early termination of a swap transaction.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value earlyTerminationProvision path "trade.swap", earlyTerminationProvision path "trade.capFloor"]
@@ -371,7 +371,7 @@ class EconomicTerms rosettaKeyValue <"This class represents the full set of pric
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value cancelableProvision path "trade.swap"]
 	extendibleProvision ExtendibleProvision (0..1) <"A provision that allows the specification of an embedded option with a swap giving the buyer of the option the right to extend the swap, in whole or in part, to the extended termination date.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value extendibleProvision path "trade.swap"]
-	extraordinaryEvents ExtraordinaryEvents (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Extraordinary Events">;
+	extraordinaryEvents ExtraordinaryEvents (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Extraordinary Events.">;
 		[synonym FpML_5_10 value extraordinaryEvents path "trade.returnSwap"]
 }
 
@@ -684,17 +684,17 @@ data rule PaymentDates_paymentDaysOffset <"FpML specifies that paymentDaysOffset
 	when PaymentDates -> paymentDaysOffset exists
 	then PaymentDates -> paymentDaysOffset -> periodMultiplier <> 0
 
-data rule PaymentDates_payRelativeTo <"FpML specifies a required payRelativeTo element as part of the PaymentDates. As standardised CDS don't have such payRelativeTo provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
+data rule PaymentDates_payRelativeTo <"FpML specifies a required payRelativeTo element as part of the PaymentDates. As standardized CDS don't have such payRelativeTo provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
 	when Payout -> interestRatePayout count = 2
 		and Payout -> interestRatePayout -> paymentDates exists
 	then Payout -> interestRatePayout -> paymentDates -> payRelativeTo exists
 
-data rule PaymentDates_paymentDatesAdjustments <"FpML specifies a required paymentDatesAdjustments element as part of the PaymentDates. As standardised CDS don't have such paymentDatesAdjustments provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
+data rule PaymentDates_paymentDatesAdjustments <"FpML specifies a required paymentDatesAdjustments element as part of the PaymentDates. As standardized CDS don't have such paymentDatesAdjustments provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
 	when Payout -> interestRatePayout count = 2
 		and Payout -> interestRatePayout -> paymentDates exists
 	then Payout -> interestRatePayout -> paymentDates -> paymentDatesAdjustments exists
 
-data rule PaymentDates_paymentFrequency <"FpML specifies a required paymentFrequency element as part of the PaymentDates. As standardised CDS may not have such paymentFrequency provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
+data rule PaymentDates_paymentFrequency <"FpML specifies a required paymentFrequency element as part of the PaymentDates. As standardized CDS may not have such paymentFrequency provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
 	when Payout -> interestRatePayout count = 2
 		and Payout -> interestRatePayout -> paymentDates exists
 	then Payout -> interestRatePayout -> paymentDates -> paymentFrequency exists
@@ -704,9 +704,9 @@ data rule PaymentDates_dateRelativeTo <"When the payment dates are specified by 
 	then ( PaymentDates -> paymentDaysOffset
 		and PaymentDates -> paymentDatesAdjustments ) exists
 
-class Payout <"The class to represent the set of payouts that can be associated with a financial product. The payout can be specified through a number of combinations, e.g. by associating several interest rate payouts to specify an interest rate swap, or a credit default and an interest rate payout to specify a credit default swap. The implied product is inferred by the isProduct CDM artefact. Each of the payout attributes has an associated rosettaKeyValue which can be referenced by implementers as part of the Lineage class.">
+class Payout <"A class to represent the set of future cashflow methodologies that can be associated for the purpose of specifying a financial product. Those future cashflow computation methodologies can be combined vary as a function of the underlying asset class (interest rate, equity, credit, ...) and the associated financial terms (option, cashflow). The payout class provide the ability to combine those methodologies for the purpose of specifying wide set of financial products.">
 {
-	interestRatePayout InterestRatePayout (0..*) <"The interest rate payout, which can be applied to interest rate swaps and FRA (which both have two associated interest rate payouts), credit default swaps (to represent the fee leg when subject to period payments) and equity swaps (to represent the funding leg). 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Floating Obligations |">;
+	interestRatePayout InterestRatePayout (0..*) <"The interest rate payout, which can be applied to interest rate swaps and FRA (which both have two associated interest rate payouts), credit default swaps (to represent the fee leg when subject to periodic payments) and equity swaps (to represent the funding leg). 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Floating Obligations.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value swapStream path "trade.swap" ]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value swapStream path "swap"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value swapStream]
