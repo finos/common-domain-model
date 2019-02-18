@@ -8,9 +8,6 @@ import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 import com.rosetta.model.lib.process.Processor;
 
-/**
- * Processor implementation that calls map function is the current path matches the expected path.
- */
 public abstract class MappingProcessor implements Processor {
 
     private final RosettaPath path;
@@ -38,9 +35,6 @@ public abstract class MappingProcessor implements Processor {
         return null;
     }
 
-    /**
-     * Perform custom mapping logic and updates resultant mapped value on builder object.
-     */
     protected abstract <R extends RosettaModelObject> void map(RosettaModelObjectBuilder<R> builder);
 
     RosettaPath getPath() {
