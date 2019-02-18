@@ -1,9 +1,9 @@
 namespace "org.isda.cdm"
 version "%project.version%"
 
-class AssignedIdentifier <"A class to specify and actual identifier and its associated version.">
+class AssignedIdentifier <"A class to specify the identifier value and its associated version.">
 {
-	identifier string (1..1) scheme;
+	identifier string (1..1) scheme <"The identifier value.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0 value tradeId meta tradeIdScheme]
 		[synonym FpML_5_10 value tradeId path "versionedTradeId" meta tradeIdScheme]
 		[synonym Rosetta_Workbench value identifier]
@@ -41,39 +41,22 @@ class CalculationAgentModel <"This class corresponds to the FpML CalculationAgen
 		[synonym DTCC_11_0, DTCC_9_0 value calculationAgentBusinessCenter path "Body.OTC_Matching.Trade.FpML.trade"]
 }
 
-class ContractIdentifier extends Identifier <"A class defining a trade identifier issued by the indicated party. The CDM doesn't extends the base class PartyAndAccountReference because of the choice logic with the issuer element.">
-	[synonym FpML_5_10 value TradeIdentifier]
-{
-	partyReference Party (0..1) reference <"Reference to a party.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value partyReference meta href]
-	accountReference Account (0..1) reference <"Reference to an account.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value accountReference meta href]
-}
-
-choice rule ContractIdentifier_choice <"Choice rule to represent an FpML choice construct.">
-	for ContractIdentifier required choice between
-	issuer and partyReference
-
-data rule TradeIdentifier_account <"FpML specifies a choice between issuer and [partyReference, accountReference].  The account element should be populated only alongside the party element.">
-	when ContractIdentifier -> partyReference is absent
-	then ContractIdentifier -> accountReference is absent
-
-class Identifier <"A class to specify a generic identifier, applicable to contract and lifecycle events.">
+class Identifier <"A class to specify a generic identifier, applicable to CDM artefacts such as executions, contracts and lifecycle events.">
 {
 	id (0..1);
 		[synonym FpML_5_10 meta id]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0 meta id path "versionedTradeId.tradeId"]
-	issuerReference Party (0..1) reference <"The identifier issuer, specified by reference to a party specified as part of the transaction.">;
+	issuerReference Party (0..1) reference <"The identifier issuer, when specified by reference to a party specified as part of the transaction.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0 value issuer meta href]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0 value partyReference meta href]
 		[synonym DTCC_11_0, DTCC_9_0 value partyReference path "partyTradeIdentifier" maps 2 meta href]
 		[synonym CME_ClearedConfirm_1_17 value partyReference meta href]
-	issuer string (0..1) scheme;
+	issuer string (0..1) scheme <"The identifier issuer, when specified explicitly alongside the identifier value (instead of being specified by reference to a party).">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0 value issuer meta issuerIdScheme]
 		[synonym DTCC_11_0, DTCC_9_0 value USIIssuer meta issuerIdScheme]
 		[synonym DTCC_11_0, DTCC_9_0 value UTIIssuer meta issuerIdScheme]
 		[synonym CME_ClearedConfirm_1_17 value issuer meta issuerIdScheme]
-    assignedIdentifier AssignedIdentifier (1..*) <"This level of indirection between the issuer and the identifier and its version provides the ability to associate multiple identifiers to one issuer, consistently with the FpML PartyTradeIdentifier.">;
+    assignedIdentifier AssignedIdentifier (1..*) <"The identifier value. This level of indirection between the issuer and the identifier and its version provides the ability to associate multiple identifiers to one issuer, consistently with the FpML PartyTradeIdentifier.">;
 }
 
 choice rule Identifier_choice <"The identifier issuer is specified either explicitly or by reference to one of the parties.">

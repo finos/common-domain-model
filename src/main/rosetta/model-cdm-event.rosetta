@@ -90,7 +90,7 @@ class ComputedAmount <"A class to specify the outcome of a computed amount, for 
 {
 	callFunction calculation (1..1);
 	amount number (1..1);
-	currency string (0..1) scheme;
+	currency string (0..1) scheme <"The currency in which the computed amount is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">;
 		[synonym Rosetta_Workbench value currency meta currencyScheme]
 }
 
@@ -122,13 +122,13 @@ class ContractState <"A class to specify a contract instantiation with respect t
         [synonym CME_SubmissionIRS_1_0 value FpML path "Instrmt.SecXML"]
 }
 
-class CreditLimit
+class CreditLimit <"A class to specify the credit limit, to be used in the context of the clearing workflow.">
 	[synonym FpML_5_10 value CreditLimit]
 {
 	limitId string (0..1) scheme;
 		[synonym FpML_5_10 value limitId meta creditLimitIdScheme]
 	applicableProduct ProductIdentification (0..1) <"Further to the FpML standard, the CDM ProductIdentification provides the ability to associate a CDM qualified product.">;
-	currency string (0..1) scheme;
+	currency string (0..1) scheme <"The currency in which the credit limit is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">;
 		[synonym FpML_5_10 value currency meta currencyScheme]
 	tenor Period (0..1) <"The maximum allowed tenor for a trade under this limit. When this structure is used as part of a suspendCredit message, this tenor imposes a temporary tenor limit on allowed trade types.">;
 		[synonym FpML_5_10 value tenor]
@@ -209,7 +209,7 @@ class CustomisedWorkflow <"In its initial iteration, this class is meant to supp
 		[synonym CME_SubmissionIRS_1_0 set to "Custom" when "Pty.Src" = "D"]
 }
 
-class Event rosettaKey
+class Event rosettaKey <"A class to specify the lifecycle event. The associated rosettaKey denotes the ability to associate a hash value to the respective Event instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 {
 	id (0..1);
 		[synonym Rosetta_Workbench meta id]
@@ -414,7 +414,7 @@ class LimitApplicable
 		[synonym FpML_5_10 value utilization]
 	amountRemaining number (0..1) <"The limit remaining for the limit level and limit type. This does not take into account any pending trades. While the attribute is of type integer in FpML and the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">;
 		[synonym FpML_5_10, CME_ClearedConfirm_1_17, Rosetta_Workbench value amountRemaining]
-	currency string (0..1) scheme;
+	currency string (0..1) scheme <"The currency in which the applicable limit is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">;
 		[synonym FpML_5_10, CME_ClearedConfirm_1_17, Rosetta_Workbench value currency meta currencyScheme]
 	velocity Velocity (0..1);
 		[synonym FpML_5_10 value velocity]
@@ -768,18 +768,28 @@ isEvent CashAndSecurityTransfer <"The qualification of a security settlement fro
 
 isEvent ClearedTrade <"The cleared trade at the CCP.">
 	Event -> primitive -> inception only exists
-	and Event -> lineage -> eventLineage -> eventLineageQualifier = EventLineageQualifierEnum.CCP_Registration
-	and Event -> lineage -> eventLineage -> eventLineageQualifier = EventLineageQualifierEnum.ClearingNotification
+	and Event -> eventWorkflow -> workflowStatus = WorkflowStatusEnum.Cleared
+//	and Event -> lineage -> @key -> Event -> eventQualifier = eventQualifier.ClearingSubmission
+//	and Event -> lineage -> @key -> Event -> eventQualifier = eventQualifier.ClearedTrade
 
-isEvent ClearingRejection <"The rejection of an alpha trade submission by a CCP, which is qualified by the fact that (i) termsChange is the only primitive, the workflow status is `rejected`, and (iii) the CCP is positioned as a partyRole to the execution or contract in the after state.">
+isEvent ClearingRejection <"The rejection of an alpha trade submission by a CCP, which is qualified by the fact that (i) termsChange is the only primitive, the workflow status is `rejected`, and (iii) the CCP is positioned as a partyRole to the execution or contract in the after state, while it didn't exist in the before state.">
 	Event -> primitive -> termsChange only exists
 	and Event -> eventWorkflow -> workflowStatus = WorkflowStatusEnum.Rejected
+	and ( Event -> primitive -> termsChange -> after -> execution -> partyRole is absent
+		or Event -> primitive -> termsChange -> after -> execution -> partyRole -> role <> PartyRoleEnum.ClearingOrganization
+		or Event -> primitive -> termsChange -> after -> contract -> partyRole is absent
+		or Event -> primitive -> termsChange -> after -> contract -> partyRole -> role <> PartyRoleEnum.ClearingOrganization )
 	and ( Event -> primitive -> termsChange -> after -> execution -> partyRole -> role = PartyRoleEnum.ClearingOrganization 
 		or Event -> primitive -> termsChange -> after -> contract -> partyRole -> role = PartyRoleEnum.ClearingOrganization )
 	and quantityAfterQuantityChange = quantityBeforeQuantityChange
 
-isEvent ClearingSubmission <"The submission of a contract to a CCP, which is qualified by the fact that (i) the termsChange is the only primitive, and (ii) the CCP is positioned as a partyRole to the execution or contract in the after state.">
+isEvent ClearingSubmission <"The submission of a contract to a CCP, which is qualified by the fact that (i) the termsChange is the only primitive, and (ii) the CCP is positioned as a partyRole to the execution or contract in the after state, while it didn't exist in the before state.">
 	Event -> primitive -> termsChange only exists
+	and Event -> eventWorkflow -> workflowStatus = WorkflowStatusEnum.Submitted
+	and ( Event -> primitive -> termsChange -> after -> execution -> partyRole is absent
+		or Event -> primitive -> termsChange -> after -> execution -> partyRole -> role <> PartyRoleEnum.ClearingOrganization
+		or Event -> primitive -> termsChange -> after -> contract -> partyRole is absent
+		or Event -> primitive -> termsChange -> after -> contract -> partyRole -> role <> PartyRoleEnum.ClearingOrganization )
 	and ( Event -> primitive -> termsChange -> after -> contract -> partyRole -> role = PartyRoleEnum.ClearingOrganization
 		or Event -> primitive -> termsChange -> after -> execution -> partyRole -> role = PartyRoleEnum.ClearingOrganization )
 	
@@ -925,7 +935,7 @@ isEvent TradeWarehousePositionNotification
  */
 	
 /*
-workflow rule ClearedContract
+workflow rule ClearedContract - with event qualifier
     
     Event <beta> is ClearingNotification
 	relatedTo <alpha> by rosettaKey where Event -> lineage -> eventLineage -> eventlineageQualifier = EventLineageQualifierEnum.CCP_Registration
@@ -936,3 +946,17 @@ workflow rule ClearedContract
     and CCP which is in the party role of `alpha` is the same as the CCP which is counterparty to `beta` and `gamma`
   
  */
+
+ /*
+workflow rule ClearedContract - without event qualifier
+    
+    Event <beta> is ClearingNotification
+	relatedTo <alpha> by rosettaKey where Event -> lineage -> @key -> Event -> eventQualifier = eventQualifier.ClearingSubmission
+    and relatedTo <gamma> by rosettaKey where Event -> lineage -> @key -> Event -> eventQualifier = eventQualifier.ClearedTrade
+    
+    constraint is economicTerms are the same except for payerReceiver or buyerSeller
+    and event date of `alpha` = trade date of `beta` and `gamma`
+    and CCP which is in the party role of `alpha` is the same as the CCP which is counterparty to `beta` and `gamma`
+  
+ */
+ 
