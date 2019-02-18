@@ -341,7 +341,7 @@ class EventWorkflow <"A class to specify workflow information, which is conceptu
 {
 	workflowStatus WorkflowStatusEnum (0..1) <"The workflow status indicator, e.g. Accepted, Rejected, ...">;
 		[synonym CME_SubmissionIRS_1_0 value RptTyp path "TrdCaptRpt"]
-		[synonym Rosetta_Workbench value clearingStatus path "primitive.inception.after"]
+		[synonym Rosetta_Workbench value workflowStatus]
 		[synonym CME_ClearedConfirm_1_17 value status path "clearingConfirmed.trade.tradeHeader"]
 	comment string (0..1) <"A comment field to be associated with the workflow, e.g. to specify why a transaction event was rejected by a party.">;
 	partyCustomisedWorkflow PartyCustomisedWorkflow (0..*) <"Workflow data that is specific to certain market participants and is expressed as part of the CDM in a very generic manner, which can be part-specific. The initial use cases have been derived from the CME clearing and the DTCC TIW submissions.">;
@@ -775,10 +775,10 @@ isEvent ClearedTrade <"The cleared trade at the CCP.">
 isEvent ClearingRejection <"The rejection of an alpha trade submission by a CCP, which is qualified by the fact that (i) termsChange is the only primitive, the workflow status is `rejected`, and (iii) the CCP is positioned as a partyRole to the execution or contract in the after state, while it didn't exist in the before state.">
 	Event -> primitive -> termsChange only exists
 	and Event -> eventWorkflow -> workflowStatus = WorkflowStatusEnum.Rejected
-	and ( Event -> primitive -> termsChange -> after -> execution -> partyRole is absent
-		or Event -> primitive -> termsChange -> after -> execution -> partyRole -> role <> PartyRoleEnum.ClearingOrganization
-		or Event -> primitive -> termsChange -> after -> contract -> partyRole is absent
-		or Event -> primitive -> termsChange -> after -> contract -> partyRole -> role <> PartyRoleEnum.ClearingOrganization )
+	and ( Event -> primitive -> termsChange -> before -> execution -> partyRole is absent
+		or Event -> primitive -> termsChange -> before -> execution -> partyRole -> role <> PartyRoleEnum.ClearingOrganization
+		or Event -> primitive -> termsChange -> before -> contract -> partyRole is absent
+		or Event -> primitive -> termsChange -> before -> contract -> partyRole -> role <> PartyRoleEnum.ClearingOrganization )
 	and ( Event -> primitive -> termsChange -> after -> execution -> partyRole -> role = PartyRoleEnum.ClearingOrganization 
 		or Event -> primitive -> termsChange -> after -> contract -> partyRole -> role = PartyRoleEnum.ClearingOrganization )
 	and quantityAfterQuantityChange = quantityBeforeQuantityChange
@@ -786,10 +786,10 @@ isEvent ClearingRejection <"The rejection of an alpha trade submission by a CCP,
 isEvent ClearingSubmission <"The submission of a contract to a CCP, which is qualified by the fact that (i) the termsChange is the only primitive, and (ii) the CCP is positioned as a partyRole to the execution or contract in the after state, while it didn't exist in the before state.">
 	Event -> primitive -> termsChange only exists
 	and Event -> eventWorkflow -> workflowStatus = WorkflowStatusEnum.Submitted
-	and ( Event -> primitive -> termsChange -> after -> execution -> partyRole is absent
-		or Event -> primitive -> termsChange -> after -> execution -> partyRole -> role <> PartyRoleEnum.ClearingOrganization
-		or Event -> primitive -> termsChange -> after -> contract -> partyRole is absent
-		or Event -> primitive -> termsChange -> after -> contract -> partyRole -> role <> PartyRoleEnum.ClearingOrganization )
+	and ( Event -> primitive -> termsChange -> before -> execution -> partyRole is absent
+		or Event -> primitive -> termsChange -> before -> execution -> partyRole -> role <> PartyRoleEnum.ClearingOrganization
+		or Event -> primitive -> termsChange -> before -> contract -> partyRole is absent
+		or Event -> primitive -> termsChange -> before -> contract -> partyRole -> role <> PartyRoleEnum.ClearingOrganization )
 	and ( Event -> primitive -> termsChange -> after -> contract -> partyRole -> role = PartyRoleEnum.ClearingOrganization
 		or Event -> primitive -> termsChange -> after -> execution -> partyRole -> role = PartyRoleEnum.ClearingOrganization )
 	
