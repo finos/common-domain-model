@@ -1,7 +1,7 @@
 namespace "org.isda.cdm"
 version "%project.version%"
 
-class Cashflow <"A class to specify a cashflow, i.e. the outcome of either of computation (e.g. interest accrual) or some assessment of some sort (e.g. a fee). The cashflow can then be turned into a payment, artefact to be used as the input to a payment system or the outcome of it.">
+class Cashflow rosettaKey <"A class to specify a cashflow, i.e. the outcome of either of computation (e.g. interest accrual) or and assessment of some sort (e.g. a fee). The cashflow can then be turned into a cash transfer, artefact to be used as the input to a payment system or the outcome of it. The associated rosettaKey denotes the ability to associate a hash value to the respective Cashflow instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 {
 	id (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
@@ -43,7 +43,7 @@ class ClosedState <"A class to qualify the closed state of an execution or a con
 		[synonym Rosetta_Workbench value lastPaymentDate]
 }
 
-class Contract rosettaKey <"A class to specify a contract object, which can be invoked either within the context of an event, or independently from it. It corresponds to the FpML Trade in the Confirmation view. Attributes also applicable to pre-execution (a.k.a. pre-trade view in FpML) contexts have been positioned as part of the ContractualProduct class.">
+class Contract rosettaKey <"A class to specify a financial contract object, which can be invoked either within the context of an event, or independently from it. It corresponds to the FpML Trade in the Confirmation view (while the CDM Execution class corresponds to the FpML trade in the Pre-Trade view). The associated rosettaKey denotes the ability to associate a hash value to the respective Contract instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 {
 	id (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 meta id path "trade"]
@@ -60,7 +60,7 @@ class Contract rosettaKey <"A class to specify a contract object, which can be i
 		[synonym DTCC_11_0, DTCC_9_0 value USI]
 		[synonym DTCC_11_0, DTCC_9_0 value OriginatingUSI]
 		[synonym DTCC_11_0, DTCC_9_0 value UTI]
-	tradeDate TradeDate (1..1) <"The trade date. This is the date on which the trade was originally executed. The trade date is specified through the TradeDate class so that in the case of a novation the novated part of the trade be reported (by both the remaining party and the transferee) using the date on which the novation was agreed on. The remaining part of a trade is to be reported (by both the transferor and the remaining party) using a trade date corresponding to the original execution date.">;
+	tradeDate TradeDate (1..1) <"The date on which the contract has been executed.">;
 	clearedDate date (0..1) <"If the trade was cleared (novated) through a central counterparty clearing service, this represents the date the trade was cleared (transferred to the central counterparty).">;
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value clearedDate path "trade.tradeHeader"]
 		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value clearedDate path "tradeHeader"]
@@ -321,7 +321,7 @@ class CrossCurrencyTerms
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value settlementProvision]
 }
 
-class CreditDefaultPayout rosettaKey <"The credit default payout specification terms.">
+class CreditDefaultPayout rosettaKey <"The credit default payout specification terms. The associated rosettaKey denotes the ability to associate a hash value to the respective CreditDefaultPayout instances for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 {
 	id (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id path "trade.creditDefaultSwap"]
@@ -379,7 +379,7 @@ data rule EconomicTerms_extraordinaryEvents <"Extraordinary events provisions mu
 	when EconomicTerms -> extraordinaryEvents exists
 	then EconomicTerms -> payout -> equityPayout exists
 
-class EquityPayout rosettaKey <"The equity payout specification terms.">
+class EquityPayout rosettaKey <"The equity payout specification terms. The associated rosettaKey denotes the ability to associate a hash value to the respective EquityPayout instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 {
 	id (0..1);
 		[synonym FpML_5_10 meta id]
@@ -486,7 +486,7 @@ data rule BasketReferenceInformation_nameOrId <"The BasketReferenceInformation r
 	then GeneralTerms -> basketReferenceInformation -> basketName exists
 		or GeneralTerms -> basketReferenceInformation -> basketId exists
 
-class InterestRatePayout calculation FixedAmount, FloatingAmount rosettaKey <"The interest rate payout specification terms.">
+class InterestRatePayout calculation FixedAmount, FloatingAmount rosettaKey <"The interest rate payout specification terms. The associated rosettaKey denotes the ability to associate a hash value to the respective InterestRatePayout instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 {
 	id (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
@@ -508,7 +508,7 @@ class InterestRatePayout calculation FixedAmount, FloatingAmount rosettaKey <"Th
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentDate]
 	paymentDelay boolean (0..1) <"Applicable to CDS on MBS to specify whether payment delays are applicable to the fixed Amount. RMBS typically have a payment delay of 5 days between the coupon date of the reference obligation and the payment date of the synthetic swap. CMBS do not, on the other hand, with both payment dates being on the 25th of each month.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentDelay]
-	resetDates ResetDates (0..1) <"The reset dates schedule. The reset dates schedule only applies for a floating rate stream.">;
+	resetDates ResetDates (0..1) <"The reset dates schedule, i.e. the dates on which the new observed index value is applied for each period and the interest rate hence begins to accrue.">;
 	discountingMethod DiscountingMethod (0..1) <"The parameters specifying any discounting conventions that may apply. This element must only be included if discounting applies.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value discounting path "calculationPeriodAmount.calculation"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint fraDiscounting]
@@ -635,7 +635,7 @@ class OptionExercise <"A class to represent the applicable terms to qualify an o
 	settlement OptionSettlement (0..1) <"The option settlement terms, such as cash vs. physical, the settlement date, the settlement currency and/or amount. FpML represents this information as part of the OptionSettlement.model.">;
 }
 
-class OptionPayout rosettaKey <"The option payout specification terms.">
+class OptionPayout rosettaKey <"The option payout specification terms. The associated rosettaKey denotes the ability to associate a hash value to the respective OptionPayout instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 {
 	id (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
