@@ -1,5 +1,6 @@
 package org.isda.cdm.processor;
 
+import com.google.common.collect.MoreCollectors;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObject;
@@ -12,6 +13,9 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Maps from TradeSide.id to TradeSide.orderer.party.id.
+ */
 @SuppressWarnings("unused")
 public class TradeSideToPartyMappingProcessor extends MappingProcessor {
 
@@ -33,24 +37,28 @@ public class TradeSideToPartyMappingProcessor extends MappingProcessor {
     }
 
     private Optional<String> getPartyId(String tradeSideId) {
-        for(Mapping mapping : getMappings()) {
-            String xmlValue = String.valueOf(mapping.getXmlValue());
-            if(mapping.getXmlPath().endsWith("id") && xmlValue.equals(tradeSideId)) {
-                Path partyPath = mapping.getXmlPath()
-                        .getParent()
-                        .append(Path.valueOf("orderer.party.href"));
-                Optional<Mapping> foundMapping = getMappings().stream()
-                        .filter(p -> p.getXmlPath().toString().equals(partyPath.toString()))
-                        .findFirst();
-                Optional<String> partyId = foundMapping
-                        .map(Mapping::getXmlValue)
-                        .map(String::valueOf);
-                if(partyId.isPresent()) {
-                    // TODO: update mapping list
-                    return partyId;
-                }
-            }
-        }
-        return Optional.empty();
+        // Relative path between tradeSide and party.  E.g. <trade-side>.orderer.party.href
+        Path relativePath = Path.parse("orderer.party.href");
+        // Find tradeSide.id path, then append the relative path to get the party path.
+        Optional<Path> partyPath = getMappings().stream()
+                .filter(m -> matches(m, tradeSideId))
+                .map(Mapping::getXmlPath)
+                .map(Path::getParent)
+                .map(p -> p.append(relativePath))
+                .collect(MoreCollectors.toOptional());
+        // Find the mapping object for the party path, and get the party id value
+        return partyPath.flatMap(this::extractXmlValueFromMappings);
+    }
+
+    private Optional<String> extractXmlValueFromMappings(Path partyPath) {
+        return getMappings().stream()
+                .filter(p -> partyPath.fullStartMatches(p.getXmlPath()))
+                .map(Mapping::getXmlValue)
+                .map(String::valueOf)
+                .collect(MoreCollectors.toOptional());
+    }
+
+    private boolean matches(Mapping mapping, String tradeSideId) {
+        return mapping.getXmlPath().endsWith("id") && String.valueOf(mapping.getXmlValue()).equals(tradeSideId);
     }
 }
