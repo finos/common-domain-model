@@ -1,7 +1,7 @@
 namespace "org.isda.cdm"
 version "%project.version%"
 
-class Cashflow rosettaKey <"A class to specify a cashflow, i.e. the outcome of either of computation (e.g. interest accrual) or and assessment of some sort (e.g. a fee). The cashflow can then be turned into a cash transfer, artefact to be used as the input to a payment system or the outcome of it. The associated rosettaKey denotes the ability to associate a hash value to the respective Cashflow instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+class Cashflow rosettaKey <"A class to specify a cashflow, i.e. the outcome of either of computation (e.g. interest accrual) or and assessment of some sort (e.g. a fee). The cashflow can then be turned into a cash transfer, artefact to be used as the input to a payment system or the outcome of it. The associated rosettaKey denotes the ability to associate a hash value to the Cashflow instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 {
 	id (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
@@ -12,7 +12,7 @@ class Cashflow rosettaKey <"A class to specify a cashflow, i.e. the outcome of e
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value fixedAmount]
 	premiumExpression PremiumExpression (0..1) <"FpML specifies the Premium.model group for representing the option premium when expressed in a way other than an amount.">;
 	cashflowDate AdjustableOrAdjustedOrRelativeDate (0..1);
-	cashflowCalculation calculation (0..1) <"The computation arguments used to compute the cashflow, when applicable.">;
+	cashflowCalculation calculation (0..1) <"This is a conceptual placeholder for providing the breakdown into the cashflow calculation components, leveraging the fact that the CDM provides calculation components, starting with the FixedAmount and the FloatingAmount. Further evaluation of expected usage needs to take place to confirm and prioritize such implementation.">;
 		[synonym Rosetta_Workbench value cashflowCalculation]
 	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, e.g. brokerage fee, premium, upfront fee etc. Particularly relevant when it cannot be inferred directly through lineage.">;
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentType]
@@ -43,7 +43,7 @@ class ClosedState <"A class to qualify the closed state of an execution or a con
 		[synonym Rosetta_Workbench value lastPaymentDate]
 }
 
-class Contract rosettaKey <"A class to specify a financial contract object, which can be invoked either within the context of an event, or independently from it. It corresponds to the FpML Trade in the Confirmation view (while the CDM Execution class corresponds to the FpML trade in the Pre-Trade view). The associated rosettaKey denotes the ability to associate a hash value to the respective Contract instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+class Contract rosettaKey <"A class to specify a financial contract object, which can be invoked either within the context of an event, or independently from it. It corresponds to the FpML Trade in the Confirmation view (while the CDM Execution class corresponds to the FpML trade in the Pre-Trade view). The associated rosettaKey denotes the ability to associate a hash value to the Contract instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 {
 	id (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 meta id path "trade"]
@@ -321,24 +321,24 @@ class CrossCurrencyTerms
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value settlementProvision]
 }
 
-class CreditDefaultPayout rosettaKey <"The credit default payout specification terms. The associated rosettaKey denotes the ability to associate a hash value to the respective CreditDefaultPayout instances for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+class CreditDefaultPayout rosettaKey <"The credit default payout specification terms encompasses the General Terms (except for the date-related paradigms), the Protection Terms, the Cash Settlement Terms, the Physical Settlement Terms and the transacted price attributes such as the initial points and market price. The associated rosettaKey denotes the ability to associate a hash value to the CreditDefaultPayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 {
 	id (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id path "trade.creditDefaultSwap"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id path "creditDefaultSwap"]
-	generalTerms GeneralTerms (1..1) <"This element contains all the data that appears in the section entitled '1. General Terms' in the 2003 ISDA Credit Derivatives Confirmation, except for the effectiveDate, terminationDate and dateAdjustments elements, which have been positioned as part of the InterestRatePayout class.">;
+	generalTerms GeneralTerms (1..1) <"Specifies the terms defined as part of the General Terms section of the ISDA 2003 Credit Definitions, except for the date adjustments provisions, i.e. the reference information, the additional terms, the substitution and the modified equity delivery qualification.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value generalTerms path "trade.creditDefaultSwap"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value generalTerms path "creditDefaultSwap"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value generalTerms]
-	protectionTerms ProtectionTerms (1..*) <"The credit protection terms.">;
+	protectionTerms ProtectionTerms (1..*) <"Specifies the notional amount, the credit events, the underlying obligations of the reference entity and the floating amount events applicable to mortgage-backed securities.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value protectionTerms path "trade.creditDefaultSwap"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value protectionTerms path "creditDefaultSwap"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value protectionTerms]
-	cashSettlementTerms CashSettlementTerms (0..*);
+	cashSettlementTerms CashSettlementTerms (0..*) <"Specifies the terms applicable to the cash settlement of a credit event.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value cashSettlementTerms path "trade.creditDefaultSwap"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value cashSettlementTerms path "creditDefaultSwap"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value cashSettlementTerms]
-	physicalSettlementTerms PhysicalSettlementTerms (0..*);
+	physicalSettlementTerms PhysicalSettlementTerms (0..*) <"Specifies the terms applicable to the physical settlement of a credit event.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value physicalSettlementTerms path "trade.creditDefaultSwap"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value physicalSettlementTerms path "creditDefaultSwap"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value physicalSettlementTerms]
@@ -361,7 +361,7 @@ choice rule CreditDefaultPayout_choice <"Choice rule to represent an FpML choice
 	for CreditDefaultPayout optional choice between
 	cashSettlementTerms and physicalSettlementTerms
 
-class EconomicTerms rosettaKeyValue <"This class represents the full set of price-forming features associated with a contractual product: the payout component, the quantity, as well as the legal optional provisions which have valuation implications. A rosettaKeyValue is associated to the contractual product economic terms for the purpose of supporting hash-based reconciliations thanks to the fact that its computation doesn't include meta data, such as identifiers, references, schemes and other rosettaKey artefacts.">
+class EconomicTerms rosettaKeyValue <"This class represents the full set of price-forming features associated with a contractual product: the payout component, the quantity, as well as the legal optional provisions which have valuation implications. A rosettaKeyValue is associated to the contractual product economic terms for the purpose of supporting hash-based reconciliations thanks to the fact that its computation doesn't include meta data, such as identifiers, references, schemes and other rosettaKey artefacts. The rosettaKeyValue default implementation is available as part of the generated code as org.isda.cdm.rosettakey.RosettaKeyValueHashFunction.">
 {
 	payout Payout (1..1) <"The payout specifies the future cashflow computation methodology which characterizes a financial product.">;
 	quantity ContractualQuantity (0..*); // WIP to position the notional/quantity at the contract level; unbounded cardinality is meant to address the x-ccy contracts, while optional cardinality is for transitional compatibility purposes with the current model
@@ -379,7 +379,7 @@ data rule EconomicTerms_extraordinaryEvents <"Extraordinary events provisions mu
 	when EconomicTerms -> extraordinaryEvents exists
 	then EconomicTerms -> payout -> equityPayout exists
 
-class EquityPayout rosettaKey <"The equity payout specification terms. The associated rosettaKey denotes the ability to associate a hash value to the respective EquityPayout instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+class EquityPayout rosettaKey <"The equity payout specification terms. The associated rosettaKey denotes the ability to associate a hash value to the EquityPayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 {
 	id (0..1);
 		[synonym FpML_5_10 meta id]
@@ -412,7 +412,7 @@ data rule EquityPayout_totalReturn <"An equity total return specifies price retu
 	then EquityPayout -> priceReturnTerms exists
 	and EquityPayout -> dividendReturnTerms exists
 
-class Execution rosettaKey <"A class to specify an execution, which consists essentially in the economic terms which are agreed between the parties, alongside with the qualification of the type of execution.">
+class Execution rosettaKey <"A class to specify an execution, which consists essentially in the economic terms which are agreed between the parties, alongside with the qualification of the type of execution. The associated rosettaKey denotes the ability to associate a hash value to the respective Execution instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 {
 	executionType ExecutionTypeEnum (1..1) <"Specifies the type of execution, e.g. via voice, electronically...">;
 		[synonym Rosetta_Workbench value executionType]
@@ -448,9 +448,13 @@ data rule EquityPayout_singleUnderlier <"In the case of an equity payout with a 
 		or EquityPayout -> underlier -> singleUnderlier -> underlyingProduct -> mutualFund
 		or EquityPayout -> underlier -> singleUnderlier -> underlyingProduct -> warrant ) exists
 
-class GeneralTerms <"A class specifying the general terms of the credit default payout, and corresponding to some the data that appears in the section entitled '1. General Terms' in the 2003 ISDA Credit Derivatives Confirmation. It corresponds to the FpML GeneralTerms complex type, minus the effectiveDate, terminationDate and dateAdjustments elements, which have been positioned as part of the InterestRatePayout class.">
+class GeneralTerms <"A class specifying the general terms of the credit default payout, and corresponding to some the data that appears in the section entitled '1. General Terms' in the 2003 ISDA Credit Derivatives Confirmation. It corresponds to the FpML GeneralTerms complex type, except for the date-related attributes, which have been positioned as part of the InterestRatePayout class.">
 {
-	buyerSeller BuyerSeller (1..1);
+	buyerSeller BuyerSeller (1..1) <"The credit default payout buyer/seller parties.">;
+	/*
+	 * TODO - Deprecate the dateAdjustments from the CreditDefaultPayout and map it to the InterestRatePayout, as all other date-related provisions are there
+	 * See Trello card https://trello.com/c/WUMJVWyM
+	 */
 	dateAdjustments BusinessDayAdjustments (0..1) <"ISDA Credit 2003 Definitions: Business Day and Business Day Convention.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value dateAdjustments]
 	referenceInformation ReferenceInformation (0..1) <"This attribute contains all the terms relevant to defining the reference entity and reference obligation(s).">;
@@ -486,7 +490,7 @@ data rule BasketReferenceInformation_nameOrId <"The BasketReferenceInformation r
 	then GeneralTerms -> basketReferenceInformation -> basketName exists
 		or GeneralTerms -> basketReferenceInformation -> basketId exists
 
-class InterestRatePayout calculation FixedAmount, FloatingAmount rosettaKey <"The interest rate payout specification terms. The associated rosettaKey denotes the ability to associate a hash value to the respective InterestRatePayout instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+class InterestRatePayout calculation FixedAmount, FloatingAmount rosettaKey <"The interest rate payout specification terms. The associated rosettaKey denotes the ability to associate a hash value to the InterestRatePayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 {
 	id (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
