@@ -7,7 +7,6 @@
     xmlns:co="http://www.regnosys.com/extension-1-10/confirmation">
     <co:timestamp>
         <co:creationTimestamp>2018-02-20T18:13:51.0</co:creationTimestamp>
-        <co:submittedForClearing>2018-10-31T14:13:57.0</co:submittedForClearing>
     </co:timestamp>
     <co:eventIdentifier>
         <co:issuer href="tradingVenue"/>
@@ -16,8 +15,8 @@
     </co:eventIdentifier>
     <co:eventDate>2018-02-20</co:eventDate>
     <co:isCorrection>false</co:isCorrection>
-    <party id="clientA">
-        <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external">Client A</partyId>
+    <party id="clientB">
+        <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external">Client B</partyId>
     </party>
     <party id="tradingVenue">
         <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external">Trading Venue XYZ</partyId>
@@ -25,22 +24,22 @@
     <party id="ccp">
         <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external">Clearing House</partyId>
     </party>
-    <party id="clearer1">
-        <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external">Clearing Agent 1</partyId>
+    <party id="clearer2">
+        <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external">Clearing Agent 2</partyId>
     </party>
     <party id="alpha">
         <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso17442">Alpha trade
-            resigtration</partyId>
+            registration</partyId>
     </party>
-    <party id="beta">
-        <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso17442">Beta trade
+    <party id="gamma">
+        <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso17442">Gamma trade
             notification</partyId>
     </party>
-    <account id="accountA">
-        <accountId accountIdScheme="http://www.fpml.org/coding-scheme/external">Account A</accountId>
-        <accountBeneficiary href="clientA"/>
+    <account id="accountB">
+        <accountId accountIdScheme="http://www.fpml.org/coding-scheme/external">Account B</accountId>
+        <accountBeneficiary href="clientB"/>
     </account>
-    <!-- The below are dummy references into the alpha trade registration at the CCP and the beta trade notification. -->
+    <!-- The below are dummy references into the alpha trade registration at the CCP and the gamma trade notification. -->
     <co:lineage>
         <co:eventLineage>
             <co:eventLineageQualifier>CCP_Registration</co:eventLineageQualifier>
@@ -48,12 +47,12 @@
         </co:eventLineage>
         <co:eventLineage>
             <co:eventLineageQualifier>ClearingNotification</co:eventLineageQualifier>
-            <co:eventReference href="beta"/>
+            <co:eventReference href="gamma"/>
         </co:eventLineage>
     </co:lineage>
     <co:primitive>
         <co:inception>
-            <!-- Gamma trade between the CCP and the clearing agent 1 for the client A -->
+            <!-- Beta trade between the CCP and the clearing agent 2 for the client B -->
             <co:after>
                 <co:trade>
                     <tradeHeader>
@@ -61,7 +60,7 @@
                         <partyTradeIdentifier>
                             <partyReference href="ccp"/>
                             <versionedTradeId>
-                                <tradeId tradeIdScheme="http://www.ccp.com/trade-id">gammatrade789</tradeId>
+                                <tradeId tradeIdScheme="http://www.ccp.com/trade-id">betatrade456</tradeId>
                                 <version>1</version>
                             </versionedTradeId>
                         </partyTradeIdentifier>
@@ -69,13 +68,13 @@
                         <clearedDate>2018-10-31</clearedDate>
                     </tradeHeader>
                     <swap>
-                        <swapStream id="fixedLeg-a2">
+                        <swapStream id="fixedLeg-a1">
                             <!-- The trade is between the CCP and the Clearing agent, with reference
                             to the client's account in the books of that agent -->
                             <payerPartyReference href="ccp"/>
-                            <receiverPartyReference href="clearer1"/>
-                            <receiverAccountReference href="accountA"/>
-                            <calculationPeriodDates id="fixedCalcPeriodDates-a2">
+                            <receiverPartyReference href="clearer2"/>
+                            <receiverAccountReference href="accountB"/>
+                            <calculationPeriodDates id="fixedCalcPeriodDates-a1">
                                 <effectiveDate>
                                     <unadjustedDate>2018-11-02</unadjustedDate>
                                     <dateAdjustments>
@@ -87,12 +86,12 @@
                                     <dateAdjustments>
                                         <businessDayConvention>MODFOLLOWING</businessDayConvention>
                                         <businessCentersReference
-                                            href="fixedPrimaryBusinessCenters-a2"/>
+                                            href="fixedPrimaryBusinessCenters-a1"/>
                                     </dateAdjustments>
                                 </terminationDate>
                                 <calculationPeriodDatesAdjustments>
                                     <businessDayConvention>MODFOLLOWING</businessDayConvention>
-                                    <businessCentersReference href="fixedPrimaryBusinessCenters-a2"
+                                    <businessCentersReference href="fixedPrimaryBusinessCenters-a1"
                                     />
                                 </calculationPeriodDatesAdjustments>
                                 <calculationPeriodFrequency>
@@ -101,8 +100,8 @@
                                     <rollConvention>2</rollConvention>
                                 </calculationPeriodFrequency>
                             </calculationPeriodDates>
-                            <paymentDates id="fixedLegPaymentDates-a2">
-                                <calculationPeriodDatesReference href="fixedCalcPeriodDates-a2"/>
+                            <paymentDates id="fixedLegPaymentDates-a1">
+                                <calculationPeriodDatesReference href="fixedCalcPeriodDates-a1"/>
                                 <paymentFrequency>
                                     <periodMultiplier>6</periodMultiplier>
                                     <period>M</period>
@@ -110,7 +109,7 @@
                                 <payRelativeTo>CalculationPeriodEndDate</payRelativeTo>
                                 <paymentDatesAdjustments>
                                     <businessDayConvention>MODFOLLOWING</businessDayConvention>
-                                    <businessCenters id="fixedPrimaryBusinessCenters-a2">
+                                    <businessCenters id="fixedPrimaryBusinessCenters-a1">
                                         <businessCenter>GBLO</businessCenter>
                                         <businessCenter>USNY</businessCenter>
                                     </businessCenters>
@@ -131,11 +130,11 @@
                                 </calculation>
                             </calculationPeriodAmount>
                         </swapStream>
-                        <swapStream id="floatLeg-a21">
-                            <payerPartyReference href="clearer1"/>
-                            <payerAccountReference href="accountA"/>
+                        <swapStream id="floatLeg-a1">
+                            <payerPartyReference href="clearer2"/>
+                            <payerAccountReference href="accountB"/>
                             <receiverPartyReference href="ccp"/>
-                            <calculationPeriodDates id="floatingCalcPeriodDates-a2">
+                            <calculationPeriodDates id="floatingCalcPeriodDates-a1">
                                 <effectiveDate>
                                     <unadjustedDate>2018-11-02</unadjustedDate>
                                     <dateAdjustments>
@@ -147,12 +146,12 @@
                                     <dateAdjustments>
                                         <businessDayConvention>MODFOLLOWING</businessDayConvention>
                                         <businessCentersReference
-                                            href="floatPrimaryBusinessCenters-a2"/>
+                                            href="floatPrimaryBusinessCenters-a1"/>
                                     </dateAdjustments>
                                 </terminationDate>
                                 <calculationPeriodDatesAdjustments>
                                     <businessDayConvention>MODFOLLOWING</businessDayConvention>
-                                    <businessCentersReference href="floatPrimaryBusinessCenters-a2"
+                                    <businessCentersReference href="floatPrimaryBusinessCenters-a1"
                                     />
                                 </calculationPeriodDatesAdjustments>
                                 <calculationPeriodFrequency>
@@ -161,8 +160,8 @@
                                     <rollConvention>2</rollConvention>
                                 </calculationPeriodFrequency>
                             </calculationPeriodDates>
-                            <paymentDates id="floatingLegPaymentDates-a2">
-                                <calculationPeriodDatesReference href="floatingCalcPeriodDates-a2"/>
+                            <paymentDates id="floatingLegPaymentDates-a1">
+                                <calculationPeriodDatesReference href="floatingCalcPeriodDates-a1"/>
                                 <paymentFrequency>
                                     <periodMultiplier>3</periodMultiplier>
                                     <period>M</period>
@@ -170,14 +169,14 @@
                                 <payRelativeTo>CalculationPeriodEndDate</payRelativeTo>
                                 <paymentDatesAdjustments>
                                     <businessDayConvention>MODFOLLOWING</businessDayConvention>
-                                    <businessCenters id="floatPrimaryBusinessCenters-a2">
+                                    <businessCenters id="floatPrimaryBusinessCenters-a1">
                                         <businessCenter>GBLO</businessCenter>
                                         <businessCenter>USNY</businessCenter>
                                     </businessCenters>
                                 </paymentDatesAdjustments>
                             </paymentDates>
-                            <resetDates id="floatingLegResetDates-a2">
-                                <calculationPeriodDatesReference href="floatingCalcPeriodDates-a2"/>
+                            <resetDates id="floatingLegResetDates-a1">
+                                <calculationPeriodDatesReference href="floatingCalcPeriodDates-a1"/>
                                 <resetRelativeTo>CalculationPeriodStartDate</resetRelativeTo>
                                 <fixingDates>
                                     <periodMultiplier>-2</periodMultiplier>
@@ -187,7 +186,7 @@
                                     <businessCenters>
                                         <businessCenter>GBLO</businessCenter>
                                     </businessCenters>
-                                    <dateRelativeTo href="floatingLegResetDates-a2"/>
+                                    <dateRelativeTo href="floatingLegResetDates-a1"/>
                                 </fixingDates>
                                 <resetFrequency>
                                     <periodMultiplier>3</periodMultiplier>
@@ -195,7 +194,7 @@
                                 </resetFrequency>
                                 <resetDatesAdjustments>
                                     <businessDayConvention>MODFOLLOWING</businessDayConvention>
-                                    <businessCentersReference href="floatPrimaryBusinessCenters-a2"
+                                    <businessCentersReference href="floatPrimaryBusinessCenters-a1"
                                     />
                                 </resetDatesAdjustments>
                             </resetDates>
@@ -220,12 +219,11 @@
                         </swapStream>
                     </swap>
                 </co:trade>
-                <co:clearingStatus>Cleared</co:clearingStatus>
                 <co:creditLimitInformation>
                     <co:limitApplicable>
                         <co:level creditLimitLevelScheme="creditLimitLevelScheme">CUST</co:level>
                         <co:limitType creditLimitTypeScheme="http://www.fpml.org/coding-scheme/credit-limit-type">Notional</co:limitType>
-                        <co:limitAmount>4850000000000</co:limitAmount>
+                        <co:limitAmount>1000000000000</co:limitAmount>
                         <co:amountUtilized>1222268700</co:amountUtilized>
                         <co:amountRemaining>998777731300</co:amountRemaining>
                         <co:limitImpactDueToTrade>100000000</co:limitImpactDueToTrade>
@@ -234,7 +232,7 @@
                     <co:limitApplicable>
                         <co:level creditLimitLevelScheme="creditLimitLevelScheme">CUST</co:level>
                         <co:limitType creditLimitTypeScheme="http://www.fpml.org/coding-scheme/credit-limit-type">NPV</co:limitType>
-                        <co:limitAmount>4850000000000</co:limitAmount>
+                        <co:limitAmount>1000000000000</co:limitAmount>
                         <co:amountUtilized>5600080</co:amountUtilized>
                         <co:amountRemaining>999994399919</co:amountRemaining>
                         <co:limitImpactDueToTrade>1492336</co:limitImpactDueToTrade>
@@ -243,7 +241,7 @@
                     <co:limitApplicable>
                         <co:level creditLimitLevelScheme="creditLimitLevelScheme">CUST</co:level>
                         <co:limitType creditLimitTypeScheme="http://www.fpml.org/coding-scheme/credit-limit-type">PV01</co:limitType>
-                        <co:limitAmount>7890000000000</co:limitAmount>
+                        <co:limitAmount>1000000000000</co:limitAmount>
                         <co:amountUtilized>99392</co:amountUtilized>
                         <co:amountRemaining>999999900607</co:amountRemaining>
                         <co:limitImpactDueToTrade>46973</co:limitImpactDueToTrade>
@@ -252,7 +250,7 @@
                     <co:limitApplicable>
                         <co:level creditLimitLevelScheme="creditLimitLevelScheme">ACCT</co:level>
                         <co:limitType creditLimitTypeScheme="http://www.fpml.org/coding-scheme/credit-limit-type">PV01</co:limitType>
-                        <co:limitAmount>1860000000000</co:limitAmount>
+                        <co:limitAmount>1000000000000</co:limitAmount>
                         <co:amountUtilized>101854</co:amountUtilized>
                         <co:amountRemaining>999999898145</co:amountRemaining>
                         <co:limitImpactDueToTrade>46973</co:limitImpactDueToTrade>
@@ -261,7 +259,7 @@
                     <co:limitApplicable>
                         <co:level creditLimitLevelScheme="creditLimitLevelScheme">ACCT</co:level>
                         <co:limitType creditLimitTypeScheme="http://www.fpml.org/coding-scheme/credit-limit-type">Notional</co:limitType>
-                        <co:limitAmount>1780000000000</co:limitAmount>
+                        <co:limitAmount>1000000000000</co:limitAmount>
                         <co:amountUtilized>1200000000</co:amountUtilized>
                         <co:amountRemaining>998800000000</co:amountRemaining>
                         <co:limitImpactDueToTrade>100000000</co:limitImpactDueToTrade>
@@ -270,7 +268,7 @@
                     <co:limitApplicable>
                         <co:level creditLimitLevelScheme="creditLimitLevelScheme">ACCT</co:level>
                         <co:limitType creditLimitTypeScheme="http://www.fpml.org/coding-scheme/credit-limit-type">NPV</co:limitType>
-                        <co:limitAmount>1690000000000</co:limitAmount>
+                        <co:limitAmount>1000000000000</co:limitAmount>
                         <co:amountUtilized>5145303</co:amountUtilized>
                         <co:amountRemaining>999994854696</co:amountRemaining>
                         <co:limitImpactDueToTrade>1492336</co:limitImpactDueToTrade>
@@ -280,4 +278,5 @@
             </co:after>
         </co:inception>
     </co:primitive>
+    <co:workflowStatus>Cleared</co:workflowStatus>
 </co:event>
