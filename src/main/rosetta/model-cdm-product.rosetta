@@ -1,7 +1,7 @@
 namespace "org.isda.cdm"
 version "%project.version%"
 
-class Cashflow <"A class to specify a cashflow, i.e. the outcome of either of computation (e.g. interest accrual) or some assessment of some sort (e.g. a fee). The cashflow can then be turned into a payment, artefact to be used as the input to a payment system or the outcome of it.">
+class Cashflow rosettaKey <"A class to specify a cashflow, i.e. the outcome of either of computation (e.g. interest accrual) or and assessment of some sort (e.g. a fee). The cashflow can then be turned into a cash transfer, artefact to be used as the input to a payment system or the outcome of it. The associated rosettaKey denotes the ability to associate a hash value to the respective Cashflow instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 {
 	id (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
@@ -43,12 +43,12 @@ class ClosedState <"A class to qualify the closed state of an execution or a con
 		[synonym Rosetta_Workbench value lastPaymentDate]
 }
 
-class Contract rosettaKey <"A class to specify a contract object, which can be invoked either within the context of an event, or independently from it. It corresponds to the FpML Trade, although restricted to execution and post-execution contexts. Attributes also applicable to pre-execution (a.k.a. pre-trade view in FpML) contexts have been positioned as part of the ContractualProduct class.">
+class Contract rosettaKey <"A class to specify a financial contract object, which can be invoked either within the context of an event, or independently from it. It corresponds to the FpML Trade in the Confirmation view (while the CDM Execution class corresponds to the FpML trade in the Pre-Trade view). The associated rosettaKey denotes the ability to associate a hash value to the respective Contract instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 {
 	id (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 meta id path "trade"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17, Rosetta_Workbench meta id]
-	contractIdentifier Identifier (1..*) <"The contract identifier, which has 3 components: an actual identifier, an issuer and a version number. There can be several contract identifier, an example of such being a contract is reportable to both the CFTC and ESMA and then has an associated USI (Unique Swap Identifier) UTI (Unique Trade Identifier).">;
+	contractIdentifier Identifier (1..*) <"The identifier(s) that uniquely identify a contract. There can be several contract identifier, an example of such being a contract is reportable to both the CFTC and ESMA and then has an associated USI (Unique Swap Identifier) UTI (Unique Trade Identifier).">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0 value partyTradeIdentifier path "trade.tradeHeader"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0 value partyTradeIdentifier path "tradeHeader"]
 		[synonym CME_ClearedConfirm_1_17 value partyTradeIdentifier path "trade.tradeHeader"]
@@ -60,11 +60,12 @@ class Contract rosettaKey <"A class to specify a contract object, which can be i
 		[synonym DTCC_11_0, DTCC_9_0 value USI]
 		[synonym DTCC_11_0, DTCC_9_0 value OriginatingUSI]
 		[synonym DTCC_11_0, DTCC_9_0 value UTI]
-	tradeDate TradeDate (1..1) <"The trade date. This is the date on which the trade was originally executed. The trade date is specified through the TradeDate class so that in the case of a novation the novated part of the trade be reported (by both the remaining party and the transferee) using the date on which the novation was agreed on. The remaining part of a trade is to be reported (by both the transferor and the remaining party) using a trade date corresponding to the original execution date.">;
+	tradeDate TradeDate (1..1) <"The date on which the contract has been executed.">;
 	clearedDate date (0..1) <"If the trade was cleared (novated) through a central counterparty clearing service, this represents the date the trade was cleared (transferred to the central counterparty).">;
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value clearedDate path "trade.tradeHeader"]
 		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value clearedDate path "tradeHeader"]
-	contractualProduct ContractualProduct (1..1) <"The contractual product information that is associated with the contract. The corresponding FpML construct is the product abstract element and the associated substitution group.">;
+	contractualProduct ContractualProduct (1..1) <"The contractual product information that is associated with the contract, which combines the economic terms, the product identification and the product taxonomy. The corresponding FpML construct is the product abstract element and the associated substitution group.">;
+		[synonym CME_SubmissionIRS_1_0 value trade path "Instrmt.SecXML.FpML"]
 	collateral Collateral (0..1) <"Defines the collateral obligations of a party.">;
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value collateral path "trade"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value collateral]
@@ -260,17 +261,17 @@ data rule FpML_cd_32 <"FpML validation rule cd-32 - If condition LongForm is tru
 	 	and Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
 	 then Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> dayCountFraction exists
 
-class ContractualProduct <"The contractual product class is meant to be used across the entire pre-execution, execution and (as part of the Contract) post-execution lifecycle contexts.">
+class ContractualProduct <"A class to specify the contractual products' economic terms, alongside their product identification and product taxonomy. The contractual product class is meant to be used across the pre-execution, execution and (as part of the Contract) post-execution lifecycle contexts.">
 {
-	productIdentification ProductIdentification (0..1);
+	productIdentification ProductIdentification (0..1) <"The product identification value(s) that might be associated with a contractual product. The CDM provides the ability to associate several product identification methods with a product.">;
 	productTaxonomy ProductTaxonomy (0..*) <"The product taxonomy value(s) associated with a contractual product.">;
-	economicTerms EconomicTerms (1..1);
+	economicTerms EconomicTerms (1..1) <"The economic terms associated with a contractual product, i.e. the set of features that are price-forming.">;
 }
 
-class ContractualQuantity
+class ContractualQuantity <"The quantity or notional amount that is associated with a contractual product. The quantity attribute applies to products relating to securities or tangible assets (such as equities or commodities), while the notional amount applies to products pertaining to interest rate, FX or credit products.">
 {
-	quantity Quantity (0..1);
-	notionalAmount Money (0..1) reference <"When applied to Credit default Swaps, this is the notional amount of protection coverage. ISDA 2003 Term: Floating Rate Payer Calculation Amount">;
+	quantity Quantity (0..1) <"The contractual quantity when specified as an amount/number of securities or tangible assets. The quantity attribute is typical used in the equity and commodity asset classes.">;
+	notionalAmount Money (0..1) reference <"The contractual quantity when specified as an amount and a currency units without associated schedule or FX terms. When applied to Credit default Swaps, this is the notional amount of protection coverage. ISDA 2003 Term: Floating Rate Payer Calculation Amount.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value initialValue path "calculationPeriodAmount.calculation" /*set when "calculationPeriodAmount.calculation.notionalSchedule.notionalStepSchedule.step" is absent*/]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value calculationAmount path "periodicPayment.fixedAmountCalculation"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value calculationAmount path "periodicPayment.floatingAmountCalculation"]
@@ -279,16 +280,16 @@ class ContractualQuantity
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notional]
 		[synonym FpML_5_10 value notionalAmount path "trade.returnSwap.returnLeg.notional", notionalAmount path "trade.equitySwapTransactionSupplement.returnLeg.notional"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notionalReference meta href]
-	notionalSchedule NotionalSchedule (0..1);
+	notionalSchedule NotionalSchedule (0..1) <"The contractual quantity when specified as a notional amount with an associated schedule, as used in the case of an amortizing swap where the notional amount decreases over time.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notionalSchedule path "calculationPeriodAmount.calculation" /*set when "calculationPeriodAmount.calculation.notionalSchedule.notionalStepSchedule.step" exists*/]
 		[synonym DTCC_11_0, DTCC_9_0 value calculationElements]
-	fxLinkedNotional FxLinkedNotionalSchedule (0..1);
+	fxLinkedNotional FxLinkedNotionalSchedule (0..1) <"The contractual quantity when specified as a notional amount which value is a function of FX parameters.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value fxLinkedNotionalSchedule path "calculationPeriodAmount.calculation" /*set when "calculationPeriodAmount.calculation.fxLinkedNotionalSchedule.initialValue" exists*/]
-	futureValueNotional FutureValueAmount (0..1);
+	futureValueNotional FutureValueAmount (0..1) <"The future value notional is specific to BRL CDI swaps, and is specified alongside the notional amount. The value is calculated as follows: Future Value Notional = Notional Amount * (1 + Fixed Rate) ^ (Fixed Rate Day Count Fraction). The currency should always match that expressed in the notional schedule. The value date should match the adjusted termination date.">;
 	 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value futureValueNotional path "calculationPeriodAmount.calculation"]
-	notionalReset boolean (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Equity Notional Reset | Specifies whether the notional reset is applicable (true) or not applicable (false).">;
+	notionalReset boolean (0..1) <"TThe purpose of this indicator is to specify whether the notional reset is applicable (true) or not applicable (false). It is typically used in the context of equity swaps. 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Equity Notional Reset.">;
 		[synonym FpML_5_10 value notionalReset path "trade.returnSwap.returnLeg.rateOfReturn", notionalReset path "trade.equitySwapTransactionSupplement.returnLeg.rateOfReturn"]
-	notionalAdjustments NotionalAdjustmentEnum (0..1) <"Applicable to return swaps. Specifies the conditions that govern the adjustment to the number of units of the return swap, e.g. execution, portfolio rebalancing.">;
+	notionalAdjustments NotionalAdjustmentEnum (0..1) <"This attribute specifies the conditions that govern the adjustment to the number of units of the return swap, e.g. execution, portfolio rebalancing. It is typically used in the context of equity swaps.">;
 		[synonym FpML_5_10 value notionalAdjustments path "trade.returnSwap.returnLeg", notionalAdjustments path "trade.equitySwapTransactionSupplement.returnLeg"]
 }
 
@@ -320,7 +321,7 @@ class CrossCurrencyTerms
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value settlementProvision]
 }
 
-class CreditDefaultPayout rosettaKey <"The credit default payout specification terms.">
+class CreditDefaultPayout rosettaKey <"The credit default payout specification terms. The associated rosettaKey denotes the ability to associate a hash value to the respective CreditDefaultPayout instances for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 {
 	id (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id path "trade.creditDefaultSwap"]
@@ -360,9 +361,9 @@ choice rule CreditDefaultPayout_choice <"Choice rule to represent an FpML choice
 	for CreditDefaultPayout optional choice between
 	cashSettlementTerms and physicalSettlementTerms
 
-class EconomicTerms rosettaKeyValue <"This class represents the full set of product economics: the payout component, as well as the legal optional provisions which have valuation implications. A rosettaKey hash is associated to the contractual product economic terms for the purpose of supporting hash-based reconciliations.">
+class EconomicTerms rosettaKeyValue <"This class represents the full set of price-forming features associated with a contractual product: the payout component, the quantity, as well as the legal optional provisions which have valuation implications. A rosettaKeyValue is associated to the contractual product economic terms for the purpose of supporting hash-based reconciliations thanks to the fact that its computation doesn't include meta data, such as identifiers, references, schemes and other rosettaKey artefacts.">
 {
-	payout Payout (1..1) <"The payout specification, which can combine several payout terms, e.g. an interest rate and a credit default payout in the case of a credit default swap.">;
+	payout Payout (1..1) <"The payout specifies the future cashflow computation methodology which characterizes a financial product.">;
 	quantity ContractualQuantity (0..*); // WIP to position the notional/quantity at the contract level; unbounded cardinality is meant to address the x-ccy contracts, while optional cardinality is for transitional compatibility purposes with the current model
 	earlyTerminationProvision EarlyTerminationProvision (0..1) <"Parameters specifying provisions relating to the optional and mandatory early termination of a swap transaction.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value earlyTerminationProvision path "trade.swap", earlyTerminationProvision path "trade.capFloor"]
@@ -370,7 +371,7 @@ class EconomicTerms rosettaKeyValue <"This class represents the full set of prod
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value cancelableProvision path "trade.swap"]
 	extendibleProvision ExtendibleProvision (0..1) <"A provision that allows the specification of an embedded option with a swap giving the buyer of the option the right to extend the swap, in whole or in part, to the extended termination date.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value extendibleProvision path "trade.swap"]
-	extraordinaryEvents ExtraordinaryEvents (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Extraordinary Events">;
+	extraordinaryEvents ExtraordinaryEvents (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Extraordinary Events.">;
 		[synonym FpML_5_10 value extraordinaryEvents path "trade.returnSwap"]
 }
 
@@ -378,7 +379,7 @@ data rule EconomicTerms_extraordinaryEvents <"Extraordinary events provisions mu
 	when EconomicTerms -> extraordinaryEvents exists
 	then EconomicTerms -> payout -> equityPayout exists
 
-class EquityPayout rosettaKey <"The equity payout specification terms.">
+class EquityPayout rosettaKey <"The equity payout specification terms. The associated rosettaKey denotes the ability to associate a hash value to the respective EquityPayout instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 {
 	id (0..1);
 		[synonym FpML_5_10 meta id]
@@ -391,7 +392,7 @@ class EquityPayout rosettaKey <"The equity payout specification terms.">
 		[synonym FpML_5_10 value dividendConditions path "return", singleUnderlyer path "underlyer"]
 	priceReturnTerms PriceReturnTerms (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Pricing">;
 	calculationPeriodDates CalculationPeriodDates (1..1) <"The calculation period dates schedule.">;
-	paymentDates PaymentDates (1..1) <"The payment dates schedule.">;
+	paymentDates PaymentDates (1..1) <"The payment date schedule, as defined by the parameters that are needed to specify it, either in a parametric way or by reference to another schedule of dates (e.g. the valuation dates).">;
 		[synonym FpML_5_10 value paymentDates path "rateOfReturn"]
 	settlementTerms SettlementTerms (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Settlement | ">;
 }
@@ -410,6 +411,34 @@ data rule EquityPayout_totalReturn <"An equity total return specifies price retu
 	when EquityPayout -> returnType = ReturnTypeEnum.Total
 	then EquityPayout -> priceReturnTerms exists
 	and EquityPayout -> dividendReturnTerms exists
+
+class Execution rosettaKey <"A class to specify an execution, which consists essentially in the economic terms which are agreed between the parties, alongside with the qualification of the type of execution.">
+{
+	executionType ExecutionTypeEnum (1..1) <"Specifies the type of execution, e.g. via voice, electronically...">;
+		[synonym Rosetta_Workbench value executionType]
+		[synonym CME_SubmissionIRS_1_0 value VenuTyp]
+	executionVenue LegalEntity (0..1) <"The execution venue identification, when applicable.">;
+	identifier Identifier (1..*) <"The identifier(s) associated with the execution.">;
+		[synonym Rosetta_Workbench value identifier]
+		[synonym DTCC_11_0, DTCC_9_0 value partyTradeIdentifier path "Submitter"]
+		[synonym CME_SubmissionIRS_1_0 value partyTradeIdentifier path "Instrmt.SecXML.FpML.trade.tradeHeader"]
+	tradeDate date (1..1) id <"The trade/execution date.">;
+		[synonym Rosetta_Workbench value tradeDate meta id]
+		[synonym CME_SubmissionIRS_1_0 value tradeDate path "Instrmt.SecXML.FpML.trade.tradeHeader" meta id]
+	contractualProduct ContractualProduct (1..1);
+		[synonym Rosetta_Workbench value contractualProduct]
+		[synonym CME_SubmissionIRS_1_0 value trade path "Instrmt.SecXML.FpML"]
+	party Party (0..*) <"The party reference is optional because positioned as part of the Event class when the execution is specified as part of such context.">;
+		[synonym CME_SubmissionIRS_1_0 value party path "Instrmt.SecXML.FpML"]
+	partyRole PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the execution, further to the principal parties (i.e payer/receive or buyer/seller) to it.">;
+	closedState ClosedState (0..1) <"The qualification what led to the execution closure alongside with the dates on which this closure takes effect.">;
+		[synonym Rosetta_Workbench value closedState]
+}
+
+data rule Execution_executionVenue <"When the execution type is set to 'Electronically', the execution venue must be specified.">
+	when Execution -> executionType = ExecutionTypeEnum.Electronic
+	then Execution -> executionVenue exists
+
 
 
 data rule EquityPayout_singleUnderlier <"In the case of an equity payout with a single underlier, that underlier needs to be an equity product.">
@@ -457,7 +486,7 @@ data rule BasketReferenceInformation_nameOrId <"The BasketReferenceInformation r
 	then GeneralTerms -> basketReferenceInformation -> basketName exists
 		or GeneralTerms -> basketReferenceInformation -> basketId exists
 
-class InterestRatePayout calculation FixedAmount, FloatingAmount rosettaKey <"The interest rate payout specification terms.">
+class InterestRatePayout calculation FixedAmount, FloatingAmount rosettaKey <"The interest rate payout specification terms. The associated rosettaKey denotes the ability to associate a hash value to the respective InterestRatePayout instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 {
 	id (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
@@ -471,7 +500,7 @@ class InterestRatePayout calculation FixedAmount, FloatingAmount rosettaKey <"Th
     	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value dayCountFraction]
     	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value dayCountFraction path "interestCalculation" meta dayCountFractionScheme]
 	calculationPeriodDates CalculationPeriodDates (1..1) <"The calculation period dates schedule.">;
-	paymentDates PaymentDates (0..1) <"The payment dates schedule.">;
+	paymentDates PaymentDates (0..1) <"The payment date schedule, as defined by the parameters that are needed to specify it, either in a parametric way or by reference to another schedule of dates (e.g. the reset dates).">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentDates]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value periodicPayment]
 		[synonym FpML_5_10 value interestLegPaymentDates path "interestLegCalculationPeriodDates"]
@@ -479,7 +508,7 @@ class InterestRatePayout calculation FixedAmount, FloatingAmount rosettaKey <"Th
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentDate]
 	paymentDelay boolean (0..1) <"Applicable to CDS on MBS to specify whether payment delays are applicable to the fixed Amount. RMBS typically have a payment delay of 5 days between the coupon date of the reference obligation and the payment date of the synthetic swap. CMBS do not, on the other hand, with both payment dates being on the 25th of each month.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentDelay]
-	resetDates ResetDates (0..1) <"The reset dates schedule. The reset dates schedule only applies for a floating rate stream.">;
+	resetDates ResetDates (0..1) <"The reset dates schedule, i.e. the dates on which the new observed index value is applied for each period and the interest rate hence begins to accrue.">;
 	discountingMethod DiscountingMethod (0..1) <"The parameters specifying any discounting conventions that may apply. This element must only be included if discounting applies.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value discounting path "calculationPeriodAmount.calculation"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint fraDiscounting]
@@ -584,15 +613,15 @@ data rule CalculationPeriodDates_firstCompoundingPeriodEndDate <"FpML specifies 
 		or InterestRatePayout -> compoundingMethod = CompoundingMethodEnum.None
 	then InterestRatePayout -> calculationPeriodDates -> firstCompoundingPeriodEndDate is absent
 
-class NotionalSchedule <"A class specifying defining the notional amount or notional amount schedule associated with a contractual product. The notional schedule will be captured explicitly, specifying the dates that the notional changes and the outstanding notional amount that applies from that date. A parametric representation of the rules defining the notional step schedule can optionally be included.">
+class NotionalSchedule <"A class specifying the notional amount or notional amount schedule associated with a contractual product. The notional schedule will be captured explicitly, specifying the dates that the notional changes and the outstanding notional amount that applies from that date. A parametric representation of the rules defining the notional step schedule can optionally be included.">
 	[synonym FpML_5_10 value Notional]
 {
 	id (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
-	notionalStepSchedule NonNegativeAmountSchedule (1..1) <"The notional amount or notional amount schedule expressed as explicit outstanding notional amounts and dates. In the case of a schedule, the step dates may be subject to adjustments in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">;
+	notionalStepSchedule NonNegativeAmountSchedule (1..1) <"The notional amount when expressed as a varying notional alongside a date schedule. The step dates may be subject to adjustments in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notionalStepSchedule]
 		[synonym DTCC_11_0, DTCC_9_0 value notional]
-    notionalStepParameters NotionalStepRule (0..1) <"A parametric representation of the notional step schedule, i.e. parameters used to generate the notional schedule.">;
+    notionalStepParameters NotionalStepRule (0..1) <"A parametric representation of the notional step schedule, to be used when the notional schedule is not just specified as a set of dates and notional amount. Those parameters include the step frequency, the first and last notional step dates, the step rate, ...">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notionalStepParameters]
 }
 
@@ -606,7 +635,7 @@ class OptionExercise <"A class to represent the applicable terms to qualify an o
 	settlement OptionSettlement (0..1) <"The option settlement terms, such as cash vs. physical, the settlement date, the settlement currency and/or amount. FpML represents this information as part of the OptionSettlement.model.">;
 }
 
-class OptionPayout rosettaKey <"The option payout specification terms.">
+class OptionPayout rosettaKey <"The option payout specification terms. The associated rosettaKey denotes the ability to associate a hash value to the respective OptionPayout instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 {
 	id (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
@@ -622,62 +651,9 @@ class OptionPayout rosettaKey <"The option payout specification terms.">
 	underlier Product (1..1) <"The option underlier. The implementation is restricted to contractual underliers as part of the initial CDM phase.">;
 }
 
-class PaymentDates <"The payment dates schedule. Some adjustments from the FpML construct have been undertaken in order to make use of this class for the equity swaps: the lastPaymentDate can be specified in relation to another date, while the dateRelativeTo attribute has been added for similar purposes with respect to the interim payment dates.">
-	[synonym FpML_5_10 value PaymentDates]
+class Payout <"A class to represent the set of future cashflow methodologies that can be associated for the purpose of specifying a financial product. Those future cashflow computation methodologies can be combined vary as a function of the underlying asset class (interest rate, equity, credit, ...) and the associated financial terms (option, cashflow). The payout class provide the ability to combine those methodologies for the purpose of specifying wide set of financial products.">
 {
-	id (0..1);
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
-		[synonym FpML_5_10 meta id path "interestLegCalculationPeriodDates"]
-	dateRelativeTo date (0..1) reference <"The anchor date when the payment dates are specified by reference to a set of dates specified somewhere else in the instance document/transaction, e.g. the valuation dates as typically the case for equity swaps.  When this attribute is specified, the paymentDaysOffset and the paymentDatesAdjustments also need to specified.">;
-		[synonym FpML_5_10 value dateRelativeTo path "paymentDatesInterim.relativeDates" meta href]
-		[synonym FpML_5_10 value dateRelativeTo path "relativeDates" meta href]
-	paymentFrequency Frequency (0..1) <"The frequency at which regular payment dates occur. If the payment frequency is equal to the frequency defined in the calculation period dates component then one calculation period contributes to each payment amount. If the payment frequency is less frequent than the frequency defined in the calculation period dates component then more than one calculation period will contribute to the payment amount. A payment frequency more frequent than the calculation period frequency or one that is not a multiple of the calculation period frequency is invalid. If the payment frequency is of value T (term), the period is defined by the effectiveDate and the terminationDate.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentFrequency]
-	firstPaymentDate date (0..1) <"The first unadjusted payment date. This day may be subject to adjustment in accordance with any business day convention specified in paymentDatesAdjustments. This element must only be included if there is an initial stub. This date will normally correspond to an unadjusted calculation period start or end date. This is true even if early or delayed payment is specified to be applicable since the actual first payment date will be the specified number of days before or after the applicable adjusted calculation period start or end date with the resulting payment date then being adjusted in accordance with any business day convention specified in paymentDatesAdjustments.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value firstPaymentDate]
-	lastPaymentDate LastRegularPaymentDate (0..1) <"The last payment date. In the case of interest rate swaps, FpML specifies that this date must only be included if there is a final stub, with all calculation periods after this date contributing to the final payment.">;
-	payRelativeTo PayRelativeToEnum (0..1) <"Specifies whether the payments occur relative to each adjusted calculation period start date, adjusted calculation period end date or each reset date. The reset date is applicable in the case of certain euro (former French Franc) floating rate indices. Calculation period start date means relative to the start of the first calculation period contributing to a given payment. Similarly, calculation period end date means the end of the last calculation period contributing to a given payment. The valuation date is applicable for Brazilian-CDI swaps.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value payRelativeTo]
-	paymentDaysOffset Offset (0..1) <"If early payment or delayed payment is required, specifies the number of days offset that the payment occurs relative to what would otherwise be the unadjusted payment date. The offset can be specified in terms of either calendar or business days. Even in the case of a calendar days offset, the resulting payment date, adjusted for the specified calendar days offset, will still be adjusted in accordance with the specified payment dates adjustments. This element should only be included if early or delayed payment is applicable, i.e. if the periodMultiplier element value is not equal to zero. An early payment would be indicated by a negative periodMultiplier element value and a delayed payment (or payment lag) would be indicated by a positive periodMultiplier element value.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentDaysOffset]
-		[synonym FpML_5_10 value relativeDates path "paymentDatesInterim", relativeDates]
-	paymentDatesAdjustments BusinessDayAdjustments (0..1) <"The business day convention to apply to each payment date if it would otherwise fall on a day that is not a business day in the specified financial business centers.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentDatesAdjustments]
-		[synonym FpML_5_10 value relativeDates path "paymentDatesInterim"]
-}
-
-data rule FpML_ird_35_cd_31 <"FpML validation rule ird-35 & cd-31- If firstPaymentDate exists, and if lastRegularPaymentDate exists, then firstPaymentDate must be before lastRegularPaymentDate.">
-	when PaymentDates -> firstPaymentDate exists
-		and PaymentDates -> lastPaymentDate -> lastRegularPaymentDate exists
-	then PaymentDates -> firstPaymentDate < PaymentDates -> lastPaymentDate -> lastRegularPaymentDate
-
-data rule PaymentDates_paymentDaysOffset <"FpML specifies that paymentDaysOffset should only be included if early or delayed payment is applicable, i.e. if the periodMultiplier element value is not equal to zero.">
-	when PaymentDates -> paymentDaysOffset exists
-	then PaymentDates -> paymentDaysOffset -> periodMultiplier <> 0
-
-data rule PaymentDates_payRelativeTo <"FpML specifies a required payRelativeTo element as part of the PaymentDates. As standardised CDS don't have such payRelativeTo provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
-	when Payout -> interestRatePayout count = 2
-		and Payout -> interestRatePayout -> paymentDates exists
-	then Payout -> interestRatePayout -> paymentDates -> payRelativeTo exists
-
-data rule PaymentDates_paymentDatesAdjustments <"FpML specifies a required paymentDatesAdjustments element as part of the PaymentDates. As standardised CDS don't have such paymentDatesAdjustments provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
-	when Payout -> interestRatePayout count = 2
-		and Payout -> interestRatePayout -> paymentDates exists
-	then Payout -> interestRatePayout -> paymentDates -> paymentDatesAdjustments exists
-
-data rule PaymentDates_paymentFrequency <"FpML specifies a required paymentFrequency element as part of the PaymentDates. As standardised CDS may not have such paymentFrequency provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
-	when Payout -> interestRatePayout count = 2
-		and Payout -> interestRatePayout -> paymentDates exists
-	then Payout -> interestRatePayout -> paymentDates -> paymentFrequency exists
-
-data rule PaymentDates_dateRelativeTo <"When the payment dates are specified by reference to another date, the payment offset and the payment date adjustments also need to be specified.">
-	when PaymentDates -> dateRelativeTo exists
-	then ( PaymentDates -> paymentDaysOffset
-		and PaymentDates -> paymentDatesAdjustments ) exists
-
-class Payout <"The class to represent the set of payouts that can be associated with a financial product. The payout can be specified through a number of combinations, e.g. by associating several interest rate payouts to specify an interest rate swap, or a credit default and an interest rate payout to specify a credit default swap. The implied product is inferred by the isProduct CDM artefact. Each of the payout attributes has an associated rosettaKeyValue which can be referenced by implementers as part of the Lineage class.">
-{
-	interestRatePayout InterestRatePayout (0..*) <"The interest rate payout, which can be applied to interest rate swaps and FRA (which both have two associated interest rate payouts), credit default swaps (to represent the fee leg when subject to period payments) and equity swaps (to represent the funding leg). 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Floating Obligations |">;
+	interestRatePayout InterestRatePayout (0..*) <"The interest rate payout, which can be applied to interest rate swaps and FRA (which both have two associated interest rate payouts), credit default swaps (to represent the fee leg when subject to periodic payments) and equity swaps (to represent the funding leg). 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Floating Obligations.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value swapStream path "trade.swap" ]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value swapStream path "swap"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value swapStream]
@@ -757,6 +733,21 @@ data rule ResetDates_interestRateSwap <"The cardinality of the ResetDates attrib
 		and Payout -> interestRatePayout -> resetDates -> resetFrequency exists
 		and Payout -> interestRatePayout -> resetDates -> resetDatesAdjustments exists
 
+data rule PaymentDates_payRelativeTo <"FpML specifies a required payRelativeTo element as part of the PaymentDates. As standardized CDS don't have such payRelativeTo provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
+	when Payout -> interestRatePayout count = 2
+		and Payout -> interestRatePayout -> paymentDates exists
+	then Payout -> interestRatePayout -> paymentDates -> payRelativeTo exists
+
+data rule PaymentDates_paymentDatesAdjustments <"FpML specifies a required paymentDatesAdjustments element as part of the PaymentDates. As standardized CDS don't have such paymentDatesAdjustments provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
+	when Payout -> interestRatePayout count = 2
+		and Payout -> interestRatePayout -> paymentDates exists
+	then Payout -> interestRatePayout -> paymentDates -> paymentDatesAdjustments exists
+
+data rule PaymentDates_paymentFrequency <"FpML specifies a required paymentFrequency element as part of the PaymentDates. As standardized CDS may not have such paymentFrequency provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
+	when Payout -> interestRatePayout count = 2
+		and Payout -> interestRatePayout -> paymentDates exists
+	then Payout -> interestRatePayout -> paymentDates -> paymentFrequency exists
+
 class Product one of <"A class to represent a financial product. With respect to contractual products, this class provides the ability to specify either a post-execution 'view' of contract (the Contract class) or the pre-execution contractual product (the ContractualProduct class). This class is used as part of the option exercise representation, which makes use of the contract attribute for supporting the swaption use case, with the exercise into a swap.">
 {
 	contract Contract (0..1);
@@ -826,18 +817,18 @@ class ProductIdentification <"A class to combine the CDM product qualifier with 
 		[synonym DTCC_11_0, DTCC_9_0 value instrumentId path "payment.calculationDetails.calculationElements.underlier.index" meta instrumentIdScheme]
 }
 
-class Quantity
+class Quantity <"A class to specify an amount/number of securities or tangible assets such as a commodity product. The units qualifier is not used if the Quantity class is applied to securities.">
 {
-	amount number (1..1);
+	amount number (1..1) <"The amount to quantify ">;
 		[synonym Rosetta_Workbench value amount]
-	unit UnitEnum (0..1) <"The unit of measure, applicable to physical assets.">;
+	unit UnitEnum (0..1) <"The unit of measure, applicable to physical assets, e.g. MWh or MMBTU.">;
 		[synonym Rosetta_Workbench value unit]
 }
 
-class RateSpecification one of <"A class to specify the fixed rate, floating rate or inflation rate.">
+class RateSpecification one of <"A class to specify the fixed interest rate, floating interest rate or inflation rate.">
 {
 	fixedRate Schedule (0..1) <"The fixed rate or fixed rate schedule expressed as explicit fixed rates and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">;
-	floatingRate FloatingRateSpecification (0..1) <"A floating rate calculation definition.">;
+	floatingRate FloatingRateSpecification (0..1) <"A floating interest rate calculation definition.">;
 	inflationRate InflationRateSpecification (0..1) <"An inflation rate calculation definition.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value inflationRateCalculation path "calculationPeriodAmount.calculation"]
 }
@@ -879,6 +870,21 @@ data rule TransactedPrice_marketPrice <"FpML specifies that  marketFixedRate and
 /***********************
  * Product Qualification
  */
+
+isProduct CreditDefaultSwap <"This product qualification is temporary until such time that the ISDA Credit Groups specifies a proper taxonomy for credit derivatives that is based upon economic terms.">
+	EconomicTerms -> payout -> creditDefaultPayout exists
+	and ( EconomicTerms -> payout -> interestRatePayout
+		or EconomicTerms -> payout -> cashflow ) exists
+	and EconomicTerms -> payout -> equityPayout is absent
+	and EconomicTerms -> payout -> optionPayout is absent
+	
+isProduct CreditDefaultSwaption <"This product qualification is temporary until such time that the ISDA Credit Groups specifies a proper taxonomy for credit derivatives that is based upon economic terms.">
+	EconomicTerms -> payout -> optionPayout exists
+	and EconomicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout exists
+	and ( EconomicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> interestRatePayout
+		or EconomicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> cashflow ) exists
+	and EconomicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> equityPayout is absent
+	and EconomicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> optionPayout is absent
 
 isProduct EquitySwap_PriceReturnBasicPerformance_SingleName <"The Price Return Basic Performance equity swap specified in the ISDA taxonomy V2.0 corresponds to the price and total return swaps.">
 	[synonym ISDA_Taxonomy_v1 value EquitySwap_PriceReturnBasicPerformance_SingleName]
@@ -1113,10 +1119,10 @@ isProduct InterestRate_Fra
 	and EconomicTerms -> payout -> interestRatePayout -> discountingMethod exists
 	and effectiveDate = paymentDate
 
-alias effectiveDate // Scope limited to interestPayour until such time that we position it to the economicTerms level
+alias effectiveDate // Scope limited to interestPayout until such time that we position it to the economicTerms level
 	EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate
 	or EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
 
-alias paymentDate // Scope limited to interestPayour until such time that we position it to the economicTerms level
+alias paymentDate // Scope limited to interestPayout until such time that we position it to the economicTerms level
 	EconomicTerms -> payout -> interestRatePayout -> paymentDate -> adjustedDate
 	or EconomicTerms -> payout -> interestRatePayout -> paymentDate -> unadjustedDate

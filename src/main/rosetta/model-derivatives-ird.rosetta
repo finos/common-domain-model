@@ -79,13 +79,13 @@ data rule CalculationPeriod_calculationPeriodNumberOfDays <"FpML specifies calcu
 	when PaymentCalculationPeriod -> calculationPeriod -> calculationPeriodNumberOfDays exists
 	then PaymentCalculationPeriod -> calculationPeriod -> calculationPeriodNumberOfDays >= 0
  
-class CalculationPeriodDates <"A class defining the parameters used to generate the calculation period dates schedule, including the specification of any initial or final stub calculation periods. A calculation period schedule consists of an optional initial stub calculation period, one or more regular calculation periods and an optional final stub calculation period. In the absence of any initial or final stub calculation periods, the regular part of the calculation period schedule is assumed to be between the effective date and the termination date. No implicit stubs are allowed, i.e. stubs must be explicitly specified using an appropriate combination of firstPeriodStartDate, firstRegularPeriodStartDate and lastRegularPeriodEndDate.">
+class CalculationPeriodDates <"A class for defining the parameters used to generate the calculation period dates schedule, including the specification of any initial or final stub calculation periods. A calculation period schedule consists of an optional initial stub calculation period, one or more regular calculation periods and an optional final stub calculation period. In the absence of any initial or final stub calculation periods, the regular part of the calculation period schedule is assumed to be between the effective date and the termination date. No implicit stubs are allowed, i.e. stubs must be explicitly specified using an appropriate combination of firstPeriodStartDate, firstRegularPeriodStartDate and lastRegularPeriodEndDate.">
 	[synonym FpML_5_10 value CalculationPeriodDates]
 {
 	id (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id path "calculationPeriodDates"]
 		[synonym FpML_5_10 meta id path "interestLegCalculationPeriodDates"]
-	effectiveDate AdjustableOrRelativeDate (0..1) <"The first day of the term of the trade. This day may be subject to adjustment in accordance with a business day convention.">;
+	effectiveDate AdjustableOrRelativeDate (0..1) <"The first day of the terms of the trade. This day may be subject to adjustment in accordance with a business day convention.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value effectiveDate]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value effectiveDate path "calculationPeriodDates"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value relativeEffectiveDate path "calculationPeriodDates"]
@@ -97,7 +97,7 @@ class CalculationPeriodDates <"A class defining the parameters used to generate 
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value relativeTerminationDate path "calculationPeriodDates"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint adjustedTerminationDate]
 		[synonym FpML_5_10 value terminationDate path "interestLegCalculationPeriodDates", terminationDate]
-	calculationPeriodDatesAdjustments BusinessDayAdjustments (0..1) <"The business day convention to apply to each calculation period end date if it would otherwise fall on a day which is not a business day in the specified business centers.">;
+	calculationPeriodDatesAdjustments BusinessDayAdjustments (0..1) <"The specification of the business day convention and financial business centers used for adjusting any calculation period date if it would otherwise fall on a day that is not a business day in the specified business center.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value calculationPeriodDatesAdjustments path "calculationPeriodDates"]
 		[synonym FpML_5_10 value calculationPeriodDatesAdjustments path "interestLegCalculationPeriodDates.interestLegPaymentDates.periodicDates"]
 	firstPeriodStartDate AdjustableDate (0..1) <"The start date of the calculation period. FpML specifies that for interest rate swaps this date must only be specified if it is not equal to the effective date. It is always specified in the case of equity swaps and credit default swaps with periodic payments. This date may be subject to adjustment in accordance with a business day convention.">;
@@ -208,7 +208,7 @@ class CashPriceMethod <"A type defining the parameters necessary for each of the
 {
 	cashSettlementReferenceBanks CashSettlementReferenceBanks (0..1) <"A container for a set of reference institutions. These reference institutions may be called upon to provide rate quotations as part of the method to determine the applicable cash settlement amount. If institutions are not specified, it is assumed that reference institutions will be agreed between the parties on the exercise date, or in the case of swap transaction to which mandatory early termination is applicable, the cash settlement valuation date.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value cashSettlementReferenceBanks]
-	cashSettlementCurrency string (1..1) scheme <"The currency in which the cash settlement amount will be calculated and settled.">;
+	cashSettlementCurrency string (1..1) scheme <"The currency in which the cash settlement amount will be calculated and settled. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value cashSettlementCurrency meta currencyScheme]
 	quotationRateType QuotationRateTypeEnum (1..1) <"Which rate quote is to be observed, either Bid, Mid, Offer or Exercising Party Pays. The meaning of Exercising Party Pays is defined in the 2000 ISDA Definitions, Section 17.2. Certain Definitions Relating to Cash Settlement, paragraph (j).">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value quotationRateType]
@@ -236,7 +236,7 @@ class CrossCurrencyMethod <"A class to represent the cash settlement method defi
 {
 	cashSettlementReferenceBanks CashSettlementReferenceBanks (0..*) <"A container for a set of institutions that may be called upon to provide rate quotations as part of the method to determine the applicable cash settlement amount. If institutions are not specified, it is assumed that reference institutions will be agreed between the parties on the exercise date, or in the case of swap transaction to which mandatory early termination is applicable, the cash settlement valuation date.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value cashSettlementReferenceBanks]
-	cashSettlementCurrency string (1..2) scheme <"The currency, or currencies, in which the cash settlement amount(s) will be calculated and settled. While the order in which the currencies are stated is unimportant, the cash settlement currency or currencies must correspond to one or both of the constituent currencies of the swap transaction.">;
+	cashSettlementCurrency string (1..2) scheme <"The currency, or currencies, in which the cash settlement amount(s) will be calculated and settled. While the order in which the currencies are stated is unimportant, the cash settlement currency or currencies must correspond to one or both of the constituent currencies of the swap transaction. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value cashSettlementCurrency meta currencyScheme]
 	quotationRateType QuotationRateTypeEnum (1..1) <"Which rate quote is to be observed, either Bid, Mid, Offer or Exercising Party Pays. The meaning of Exercising Party Pays is defined in the 2000 ISDA Definitions, Section 17.2. Certain Definitions Relating to Cash Settlement, paragraph (j).">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value quotationRateType]
@@ -440,11 +440,11 @@ data rule FloatingRateDefinition_FloatingRateMultiplier <"FpML specifies that th
 class FxFixingDate extends Offset <"A class that is extending the Offset structure for providing the ability to specify an FX fixing date as an offset to dates specified somewhere else in the document.">
 	[synonym FpML_5_10 value FxFixingDate]
 {
-	businessDayConvention BusinessDayConventionEnum (1..1) <"The convention for adjusting a date if it would otherwise fall on a day that is not a business day.">;
+	businessDayConvention BusinessDayConventionEnum (1..1) <"The convention for adjusting a date if it would otherwise fall on a day that is not a business day, as specified by an ISDA convention (e.g. Following, Precedent).">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value businessDayConvention]
 	businessCenters BusinessCenters (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value businessCenters]
-	businessCentersReference BusinessCenters (0..1) reference <"A pointer style reference to a set of financial business centers defined elsewhere in the document. This set of business centers is used to determine whether a particular day is a business day or not.">;
+	businessCentersReference BusinessCenters (0..1) reference <"A reference to a set of financial business centers defined elsewhere in the document. This set of business centers is used to determine whether a particular day is a business day or not.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value businessCentersReference meta href]
 	dateRelativeToPaymentDates DateRelativeToPaymentDates (0..1) <"The payment date references on which settlements in non-deliverable currency are due and will then have to be converted according to the terms specified through the other parts of the nonDeliverableSettlement structure.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value dateRelativeToPaymentDates]
@@ -480,7 +480,7 @@ class FxLinkedNotionalSchedule <"A class to describe a notional schedule where e
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value constantNotionalScheduleReference meta href]
 	initialValue number (0..1) <"The initial currency amount for the varying notional. This may be omitted for a forward starting swap if the FX-linked notional value is not known at deal inception.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value initialValue]
-	varyingNotionalCurrency string (1..1) scheme <"The currency of the varying notional amount, i.e. the notional amount being determined periodically based on observation of a spot currency exchange rate.">;
+	varyingNotionalCurrency string (1..1) scheme <"The currency of the varying notional amount, i.e. the notional amount being determined periodically based on observation of a spot currency exchange rate. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value varyingNotionalCurrency meta currencyScheme]
 	varyingNotionalFixingDates RelativeDateOffset (1..1) <"The dates on which spot currency exchange rates are observed for purposes of determining the varying notional currency amount that will apply to a calculation period.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value varyingNotionalFixingDates]
@@ -543,10 +543,10 @@ data rule FpML_ird_44 <"FpML validation rule ird-44 - AdjustedEarlyTerminationDa
 	then MandatoryEarlyTerminationAdjustedDates -> adjustedEarlyTerminationDate <= MandatoryEarlyTerminationAdjustedDates -> adjustedCashSettlementValuationDate
 		and MandatoryEarlyTerminationAdjustedDates -> adjustedCashSettlementValuationDate <= MandatoryEarlyTerminationAdjustedDates -> adjustedCashSettlementPaymentDate
 
-class NonDeliverableSettlement <"A class defining the parameters used when the reference currency of the swapStream is non-deliverable.">
+class NonDeliverableSettlement <"A class defining the parameters used when the reference currency of the payout is non-deliverable.">
 	[synonym FpML_5_10 value NonDeliverableSettlement]
 {
-	referenceCurrency string (1..1) scheme <"The currency in which the swap stream is denominated.">;
+	referenceCurrency string (1..1) scheme <"The currency in which the swap stream is denominated, which is distinct from the currency in which the cashflows will be settled. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value referenceCurrency meta currencyScheme]
 	fxFixingDate FxFixingDate (0..1) <"The date, when expressed as a relative date, on which the currency rate will be determined for the purpose of specifying the amount in deliverable currency.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value fxFixingDate]
@@ -694,7 +694,7 @@ class PriceSourceDisruption <"A class defining the parameters used to get a pric
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value fallbackReferencePrice]
 }
 
-class PrincipalExchange <"A class defining a principal exchange amount and adjusted exchange date. The class forms part of the cashflow representation of a swap stream.">
+class PrincipalExchange <"A class for defining a principal exchange amount and adjusted exchange date. This class forms part of the cashflow representation of a swap stream.">
 	[synonym FpML_5_10 value PrincipalExchange]
 {
 	id (0..1);
@@ -711,7 +711,7 @@ class PrincipalExchange <"A class defining a principal exchange amount and adjus
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value presentValuePrincipalExchangeAmount]
 }
 
-class ResetDates <"A class defining the parameters used to generate the reset dates schedule and associated fixing dates. The reset dates are determined relative to the calculation period schedule dates.">
+class ResetDates <"A class defining the parameters used to generate the reset dates schedule and associated fixing dates. The reset dates are the dates on which the new index value (which is observed on the fixing date) is applied for each period and on which the interest rate hence begins to accrue.">
 	[synonym FpML_5_10 value ResetDates]
 {
 	id (0..1);
@@ -723,7 +723,7 @@ class ResetDates <"A class defining the parameters used to generate the reset da
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value resetRelativeTo path "resetDates"]
 		[synonym FpML_5_10 value resetRelativeTo path "interestLegCalculationPeriodDates.interestLegResetDates"]
 	initialFixingDate InitialFixingDate (0..1) <"The initial fixing date.">;
-	fixingDates RelativeDateOffset (0..1) <"Specifies the fixing date relative to the reset date in terms of a business days offset and an associated set of financial business centers. Normally these offset calculation rules will be those specified in the ISDA definition for the relevant floating rate index (ISDA's Floating Rate Option). However, non-standard offset calculation rules may apply for a trade if mutually agreed by the principal parties to the transaction. In FpML, the href attribute on the dateRelativeTo element should reference the id attribute on the resetDates element.">;
+	fixingDates RelativeDateOffset (0..1) <"The fixing dates are the dates on which the index values are observed. The fixing dates are specified by reference to the reset date through business days offset and an associated set of financial business centers. Normally these offset calculation rules will be those specified in the ISDA definition for the relevant floating rate index (ISDA's Floating Rate Option). However, non-standard offset calculation rules may apply for a trade if mutually agreed by the principal parties to the transaction.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value fixingDates path "resetDates"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value fixingDateOffset]
 	finalFixingDate AdjustableDate (0..1) <"This attribute is not part of the FpML ResetDate, and has been added as part of the CDM to support the credit derivatives final fixing date.">;
@@ -732,7 +732,7 @@ class ResetDates <"A class defining the parameters used to generate the reset da
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value resetCutOffDaysOffset path "resetDates"]
 	resetFrequency ResetFrequency (0..1) <"The frequency at which the reset dates occur. In the case of a weekly reset frequency, also specifies the day of the week that the reset occurs. If the reset frequency is greater than the calculation period frequency then this implies that more than one reset is established for each calculation period and some form of rate averaging is applicable.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value resetFrequency path "resetDates", resetFrequency path "interestLegCalculationPeriodDates.interestLegResetDates"]
-	resetDatesAdjustments BusinessDayAdjustments (0..1) <"The business day convention to apply to each reset date if it would otherwise fall on a day that is not a business day in the specified financial business centers.">;
+	resetDatesAdjustments BusinessDayAdjustments (0..1) <"The definition of the business day convention and financial business centers used for adjusting the reset date if it would otherwise fall on a day that is not a business day in the specified business center.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value resetDatesAdjustments path "resetDates"]
 }
 
@@ -751,7 +751,7 @@ data rule ResetFrequency_notWeekly <"FpML specifies that the weeklyRollConventio
 class SettlementProvision <"A class defining the specification of settlement terms, occurring when the settlement currency is different to the notional currency of the trade.">
 	[synonym FpML_5_10 value SettlementProvision]
 {
-	settlementCurrency string (1..1) scheme <"The currency that stream settles in (to support swaps that settle in a currency different from the notional currency).">;
+	settlementCurrency string (1..1) scheme <"The currency that the payout are settled in when the currency in which the payout is specified is non-deliverable. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value settlementCurrency meta currencyScheme]
 	nonDeliverableSettlement NonDeliverableSettlement (0..1) <"The specification of the non-deliverable settlement provision.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value nonDeliverableSettlement]
