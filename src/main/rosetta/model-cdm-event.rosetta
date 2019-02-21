@@ -209,7 +209,7 @@ class CustomisedWorkflow <"In its initial iteration, this class is meant to supp
 		[synonym CME_SubmissionIRS_1_0 set to "Custom" when "Pty.Src" = "D"]
 }
 
-class Event rosettaKey <"A class to specify the lifecycle event. The associated rosettaKey denotes the ability to associate a hash value to the respective Event instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+class Event rosettaKey <"A class to specify the lifecycle event. The associated rosettaKey denotes the ability to associate a hash value to the Event instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 {
 	id (0..1);
 		[synonym Rosetta_Workbench meta id]
@@ -266,20 +266,6 @@ class Event rosettaKey <"A class to specify the lifecycle event. The associated 
 	eventEffect EventEffect (0..1) <"The set of effects associated with the lifecycle event, i.e. generated cashflows, contracts (from, say, novation events), listed products (from, say, a bond option exercise event)  values and more. Those are represented through a set of rosettaKey references. This attribute is optional in order to provide implementers with the ability not to make use of this feature.">;
 	eventWorkflow EventWorkflow (0..1) <"The event workflow information, i.e. the workflow status, the associated comment and the partyCustomisedWorkflow which purpose is to provide the ability to associate custom workflow information to the CDM.">;
 }
-
-data rule Event_version <"The identifier version is required for lifecycle events.">
-	when Event -> eventIdentifier -> assignedIdentifier -> identifier exists
-	then Event -> eventIdentifier -> assignedIdentifier -> version exists
-	
-data rule Event_new <"The eventIdentifier version associated with a new event is equal to 1.">
-	when Event -> action = ActionEnum.New
-	then Event -> eventIdentifier -> assignedIdentifier -> version = 1
-
-data rule Event_correctCancel <"The eventIdentifier version associated with a correction or a cancellation is greater than 1 and a lineage into a prior version of the event needs to exist.">
-	when ( Event -> action = ActionEnum.Correct
-		or Event -> action = ActionEnum.Cancel )
-	then Event -> eventIdentifier -> assignedIdentifier -> version > 1
-	and Event -> lineage -> eventLineage -> eventLineageQualifier = EventLineageQualifierEnum.PriorEventVersion
 
 data rule Event_intent <"The intent should only be associated with the primitives which use can lead to ambiguity with respect to the qualification of the event.">
 	when ( Event -> primitive -> allocation
@@ -536,18 +522,19 @@ class PrimitiveEvent <"The set of primitive events.">
 		[synonym DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value ignore]	
 	inception Inception (0..*);
 		[synonym Rosetta_Workbench value inception]
+		[synonym CME_SubmissionIRS_1_0 value ignore]
 	observation ObservationPrimitive (0..*);
 		[synonym Rosetta_Workbench value observation]
 		[synonym CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value ignore]	
 	quantityChange QuantityChangePrimitive (0..*);
 		[synonym Rosetta_Workbench value quantityChange]
-		[synonym DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value ignore]
+		[synonym DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value ignore]
 	reset ResetPrimitive (0..*);
 		[synonym Rosetta_Workbench value reset]
 		[synonym DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value ignore]	
 	termsChange TermsChangePrimitive (0..1);
 		[synonym Rosetta_Workbench value termsChange]
-		[synonym DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value ignore]
+		[synonym DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value ignore]
 	transfer TransferPrimitive (0..*);
 		[synonym Rosetta_Workbench value transfer]
 		[synonym CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value ignore]
@@ -558,20 +545,9 @@ class QuantityChangePrimitive <"The primitive event to represent a change in qua
 {
 	before Trade (1..1) <"The state of the trade (either an execution or a contract, before the event.">;
 		[synonym Rosetta_Workbench value before]
-		[synonym CME_SubmissionIRS_1_0 value ignore]
 	after Trade (1..1) <"The state of the trade (either an execution or a contract, as a follow-up from the event.">;
 		[synonym Rosetta_Workbench value after]
-	change ContractualQuantity (1..*);
-		[synonym Rosetta_Workbench value change]
 }
-
-/*
- * TODO - Consider extending the data rule syntax to support the below data rule https://trello.com/c/1ZRsJbzN
- */
-//data rule QuantityChangePrimitive_change <"The change value should be equal to the difference between the respective quantities.">_
-//	when Event -> primitive -> quantityChange exists
-//	then Event -> primitive -> quantityChange -> change = (quantityAfterQuantityChange - quantityBeforeQuantityChange)
-
 
 class ResetPrimitive <"The primitive event to represent a reset.">
 {
@@ -591,7 +567,7 @@ class ResetPrimitive <"The primitive event to represent a reset.">
 class SecurityTransferBreakdown
 {
 	transferorTransferee TransferorTransferee (1..1) <"The transferee and transferor party information.">;
-	security Security (1..*) <"The security(ies) that is being transfered">;
+	security Security (1..*) <"The securities that are being transfered">;
 		[synonym Rosetta_Workbench value security]
 	quantity number (1..1);
 		[synonym Rosetta_Workbench value quantity]
@@ -614,6 +590,7 @@ class TermsChangePrimitive <"The primitive event to represent change(s) to the c
 {
 	before Trade (1..1);
 		[synonym Rosetta_Workbench value before]
+		[synonym CME_SubmissionIRS_1_0 value ignore]
 	after Trade (1..1);
 		[synonym Rosetta_Workbench value after]
 }
@@ -676,7 +653,7 @@ class TransferCalculation
 	period CalculationPeriodBase (0..1 ) <"The period adjusted start and end dates.">;
 		[synonym DTCC_11_0, DTCC_9_0 value calculationPeriod path "calculationElements"]
 	lineage Lineage (0..*) <"The lineage into the components used for the calculation.">;
-	calculationOutcome calculation (0..1) <"The calculation outcome.">;
+	calculationOutcome calculation (0..1) <"This is a conceptual placeholder for providing the breakdown into the cashflow calculation components, leveraging the fact that the CDM provides calculation components, starting with the FixedAmount and the FloatingAmount. Further evaluation of expected usage needs to take place to confirm and prioritize such implementation.">;
 		[synonym Rosetta_Workbench value transferCalculation]
 }
 
@@ -800,7 +777,6 @@ isEvent Increase <"The qualification of a increase event from the fact that (i) 
 	and ( Event -> primitive -> quantityChange only exists
 		or ( Event -> primitive -> quantityChange and Event -> primitive -> transfer -> cashTransfer ) exists )
 	and quantityBeforeQuantityChange < quantityAfterQuantityChange
-	and changedQuantity > 0.0
 	and Event -> primitive -> quantityChange -> after -> contract -> closedState is absent
 
 isEvent MultipleTransfers <"The qualification an event that combines multiple transfers from the fact that multiple transfer primitives exist.">
@@ -865,7 +841,6 @@ isEvent PartialTermination <"The qualification of a partial termination event fr
 		or ( Event -> primitive -> quantityChange and Event -> primitive -> transfer -> cashTransfer ) exists )
 	and quantityBeforeQuantityChange > quantityAfterQuantityChange
 	and quantityAfterQuantityChange > 0.0
-	and changedQuantity < 0.0
 	and Event -> primitive -> quantityChange -> after -> contract -> closedState is absent
 
 alias quantityBeforeQuantityChange <"The alias to represent the quantity or notional amount in terms of number of units (i.e. ignoring the currency or units denomination) before a quantity change primitive.">
@@ -888,14 +863,6 @@ alias quantityAfterQuantityChange <"The alias to represent the quantity or notio
 	and ( Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> notionalAmount group by currency ) -> amount
 	and ( Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount group by currency ) -> amount
 
-alias changedQuantity
-	Event -> primitive -> quantityChange -> change -> quantity -> amount
-	and Event -> primitive -> quantityChange -> change -> notionalAmount -> amount
-	and Event -> primitive -> quantityChange -> change -> notionalSchedule -> notionalStepSchedule -> initialValue
-	and Event -> primitive -> quantityChange -> change -> notionalSchedule -> notionalStepSchedule -> step -> stepValue
-	and Event -> primitive -> quantityChange -> change -> notionalSchedule -> notionalStepParameters -> notionalStepAmount
-	and Event -> primitive -> quantityChange -> change -> fxLinkedNotional -> initialValue
-
 isEvent Reset <"The qualification of a reset event from the fact that the only primitive is the reset.">
 	Event -> primitive -> reset only exists
 
@@ -913,7 +880,8 @@ isEvent SecuritySettlement <"The qualification of a security settlement from the
 
 isEvent Termination <"The qualification of a termination event from the fact that (i) the intent is Termination when specified, (ii) the only primitive is the quantityChange and there is only one such primitive involved, the (iii) the remaining quantity is null, and (iv) the closedState of the contract is Terminated.">
 	Event -> intent when present = IntentEnum.Termination
-	and Event -> primitive -> quantityChange only exists
+	and ( Event -> primitive -> quantityChange only exists
+		or ( Event -> primitive -> quantityChange and Event -> primitive -> transfer -> cashTransfer ) exists )
 	and quantityAfterQuantityChange = 0.0
 	and Event -> primitive -> quantityChange -> after -> contract -> closedState -> state = ClosedStateEnum.Terminated
 
