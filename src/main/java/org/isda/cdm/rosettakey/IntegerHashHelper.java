@@ -62,6 +62,6 @@ public class IntegerHashHelper implements HashHelper<Integer> {
 
     @Override
     public BinaryOperator<Integer> accumulator() {
-        return (accumulator, hash) -> 31 * accumulator + hash;
+        return (accumulator, hash) -> initialValue().equals(hash) ? accumulator : 31 * accumulator + hash;
     }
 }
