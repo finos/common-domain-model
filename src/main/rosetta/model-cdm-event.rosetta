@@ -721,6 +721,11 @@ isEvent CashAndSecurityTransfer <"The qualification of a security settlement fro
 isEvent ClearedTrade <"The cleared trade at the CCP.">
 	Event -> primitive -> inception only exists
 	and Event -> eventWorkflow -> workflowStatus = WorkflowStatusEnum.Cleared
+/*
+ * It is proposed to remove the below qualification for 2 reasons
+ *  - Limit the scope of event qualification to evaluating what is available within the event, while the workflow rule evaluated across events
+ *  - Not introduce the distinction between agency and principal model (with this latter having contracts between clearing members and clients)
+ */	
 //	and Event -> lineage -> @rosettaKey -> Event -> eventQualifier = eventQualifier.ClearingSubmission
 //	and Event -> lineage -> @rosettaKey -> Event -> eventQualifier = eventQualifier.ClearedTrade
 
@@ -877,29 +882,53 @@ isEvent TradeWarehousePositionNotification
  * Workflow rules
  */
 	
-/*
-workflow rule ClearedContract - with event qualifier
-    
-    Event <beta> is ClearingNotification
-	relatedTo <alpha> by rosettaKey where Event -> lineage -> eventLineage -> eventlineageQualifier = EventLineageQualifierEnum.CCP_Registration
-    and relatedTo <gamma> by rosettaKey where Event -> lineage -> eventLineage -> eventlineageQualifier = EventLineageQualifierEnum.ClearingNotification
-    
-    constraint is economicTerms are the same except for payerReceiver or buyerSeller
-    and event date of `alpha` = trade date of `beta` and `gamma`
-    and CCP which is in the party role of `alpha` is the same as the CCP which is counterparty to `beta` and `gamma`
-  
- */
 
  /*
-workflow rule ClearedContract - without event qualifier
+workflow rule ClearedContractAgency_Participant <"The cross-events validity constraints to specify that a contract has been cleared according to the agency model from the perspective of the involved clearing member or client.">
     
-    Event <beta> is ClearingNotification
-	relatedTo <alpha> by rosettaKey where Event -> lineage -> @key -> Event -> eventQualifier = eventQualifier.ClearingSubmission
-    and relatedTo <gamma> by rosettaKey where Event -> lineage -> @key -> Event -> eventQualifier = eventQualifier.ClearedTrade
-    
+    Event <beta> is ClearingSubmission
+	relatedTo <alpha> where Event -> lineage -> @rosettaKey -> Event -> eventQualifier = eventQualifier.ClearingSubmission
+ 
     constraint is economicTerms are the same except for payerReceiver or buyerSeller
-    and event date of `alpha` = trade date of `beta` and `gamma`
-    and CCP which is in the party role of `alpha` is the same as the CCP which is counterparty to `beta` and `gamma`
+    and <alpha> contract/execution is terminated  *Difference*
+    and event date of <alpha> submission = trade date of <beta>
+    and CCP which is in the party role in after state of <alpha> submission is the same as the CCP which is counterparty to <beta>
+ */
   
+ /*
+workflow rule ClearedContractAgency_CCP <"The cross-events validity constraints to specify that a contract has been cleared according to the agency model from the perspective of the involved clearing member or client.">
+    
+    Event <beta> is ClearingSubmission
+	relatedTo <alpha> where Event -> lineage -> @rosettaKey -> Event -> eventQualifier = eventQualifier.ClearingSubmission
+ 	and relatedTo <gamma> where Event -> lineage -> @rosettaKey -> Event -> eventQualifier = eventQualifier.ClearedTrade *Difference*
+ 	
+    constraint is economicTerms are the same except for payerReceiver or buyerSeller
+    and event date of <alpha> submission = trade date of <beta>
+    and CCP which is in the party role in after state of <alpha> submission is the same as the CCP which is counterparty to <beta> and <gamma> *Difference*
+ */
+ 
+  /*
+workflow rule ClearedContractPrincipal_Participant <"The cross-events validity constraints to specify that a contract has been cleared according to the principal model from the perspective of the involved clearing member or client.">
+    
+    Event <beta> is ClearingSubmission
+	relatedTo <alpha> where Event -> lineage -> @rosettaKey -> Event -> eventQualifier = eventQualifier.ClearingSubmission
+	relatedTo <theta> where Event -> lineage -> @rosettaKey -> Event -> eventQualifier = eventQualifier.NewTrade or eventQualifier.ClearedTrade???? *Difference*
+
+    constraint is economicTerms are the same except for payerReceiver or buyerSeller
+    and <alpha> contract/execution is terminated  *Difference*
+    and event date of <alpha> submission = trade date of <beta>
+    and CCP which is in the party role in after state of <alpha> submission is the same as the CCP which is counterparty to <beta>
+ */
+  
+ /*
+workflow rule ClearedContractPrincipal_CCP <"The cross-events validity constraints to specify that a contract has been cleared according to the principal model from the perspective of the involved clearing member or client.">
+    
+    Event <beta> is ClearingSubmission
+	relatedTo <alpha> where Event -> lineage -> @rosettaKey -> Event -> eventQualifier = eventQualifier.ClearingSubmission
+ 	and relatedTo <gamma> where Event -> lineage -> @rosettaKey -> Event -> eventQualifier = eventQualifier.ClearedTrade *Difference*
+ 	
+    constraint is economicTerms are the same except for payerReceiver or buyerSeller
+    and event date of <alpha> submission = trade date of <beta>
+    and CCP which is in the party role in after state of <alpha> submission is the same as the CCP which is counterparty to <beta> and <gamma> *Difference*
  */
  
