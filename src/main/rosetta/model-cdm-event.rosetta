@@ -374,8 +374,8 @@ class Inception <"The primitive event for the inception of a new contract betwee
 		[synonym Rosetta_Workbench value before]
 	after PostInceptionState (1..1) <"The after state corresponds to the new contract between the parties.">;
 		[synonym Rosetta_Workbench value after]
-		[synonym DTCC_11_0 value OTC_RM path "Header"]
-		[synonym DTCC_11_0, DTCC_9_0 value OTC_Matching path "Body" set when "Header.OTC_RM.Manifest.TradeMsg.TransType" = "Trade"]
+		[synonym DTCC_11_0 value OTC_RM path "Header", OTC_Matching path "Body" set when "Header.OTC_RM.Manifest.TradeMsg.TransType" = "Trade"]
+		[synonym DTCC_9_0 value OTC_Matching path "Body" set when "Header.OTC_RM.Manifest.TradeMsg.TransType" = "Trade"]
 		[synonym CME_ClearedConfirm_1_17 value clearingConfirmed]
 }
 
@@ -598,16 +598,14 @@ class TermsChangePrimitive <"The primitive event to represent change(s) to the c
 class Trade one of <"A class to represent the general trade concept, which can either be an execution or a contract. The execution consists essentially in the economic terms which are agreed between the parties. The contract will further qualify those with the legal entities (think of the allocation case, which execution state can involve the investment adviser rather not the actual funds) while not specify the master agreement or collateral terms which might be associated with the subsequent contract.">
 {
     execution Execution (0..1) <"The execution corresponds to economic terms that are agreed between parties, but which legal terms are not yet specified. The execution attribute applies to the post-execution scenario of a product that is subject to the clearing mandate and is then routed to the CCP as an execution.">;
-		[synonym CME_SubmissionIRS_1_0 value TrdCaptRpt] // Temporary solution as the below logic doesn't work when moving from QtyChange primitive to TermsChange primitive
-//    	[synonym CME_SubmissionIRS_1_0 value TrdCaptRpt set when "TrdCaptRpt.VenuTyp" exists]
-//    	[synonym Rosetta_Workbench value trade set when "trade.executionType" exists]
+    	[synonym CME_SubmissionIRS_1_0 value TrdCaptRpt set when "TrdCaptRpt.VenuTyp" exists]
+    	[synonym Rosetta_Workbench value trade set when "trade.executionType" exists]
 	contract Contract (0..1) <"The contract differs from the execution by the fact that its legal terms are fully specified. This includes the legal entities that are associated to it as well as any associated legal agreement, e.g. master agreement, credit and collateral terms, ... ">;
-        [synonym Rosetta_Workbench value trade]
         [synonym DTCC_11_0, DTCC_9_0 value FpML path "Trade"]
         [synonym DTCC_11_0, DTCC_9_0 value TradeMsg path "Manifest"]
         [synonym DTCC_11_0, DTCC_9_0 value ReportingJurisdiction path "ReportingData.ReportingHeader"]
-//        [synonym CME_SubmissionIRS_1_0 value TrdCaptRpt set when "TrdCaptRpt.VenuTyp" is absent]
-//        [synonym Rosetta_Workbench value trade set when "trade.executionType" is absent]
+        [synonym Rosetta_Workbench value trade set when "trade.executionType" is absent]
+		[synonym CME_SubmissionIRS_1_0 value TrdCaptRpt set when "TrdCaptRpt.VenuTyp" is absent]
 }
 
 class TradeWarehouseWorkflow <"A class to specify trade warehouse workflow information: the identity of the trade warehouse, the contract status at the warehouse and party-specific workflow information.">
