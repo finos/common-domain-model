@@ -7,7 +7,7 @@ import com.rosetta.model.lib.RosettaKey;
  * Combines a {@link com.rosetta.model.lib.HashHelper} and {@link HashFunction} so that we have an easy way of asking a
  * {@link RosettaKey} model object for its hash value.
  */
-public class RosettaKeyHashFunction extends IntegerHashHelper implements HashFunction<RosettaKey, Integer> {
+public class DefaultRosettaKeyHashFunction extends NonNullHashCollector implements HashFunction<RosettaKey, Integer> {
 
     @Override
     public Integer hash(RosettaKey modelObject) {
