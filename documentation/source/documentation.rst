@@ -815,11 +815,9 @@ The below sections detail the key features of this product implementation: contr
 Post-execution: the contract
 """"""""""""""""""""""""""""
 
-Contractual products are bilateral contracts between two parties, which terms are specified at trade inception and apply throughout the life of the contract.  Contractual products are fungible only under specific terms (e.g. existence of a close-out netting agreement between the parties).
+Contractual products are bilateral contracts between two parties, its terms are specified at trade inception and apply throughout the life of the contract.  Contractual products are fungible only under specific terms (e.g. existence of a close-out netting agreement between the parties).
 
 The CDM ``Contract`` class incorporates all the elements that are part of the FpML *Trade* confirmation view, with the exception of the following elements: *tradeSummary*, *originatingPackage*, *allocations* and *approvals*.
-
-The Rosetta ``Contract`` class includes a ``closedState`` attribute whose purpose is to specify what led to the contract closure alongside with the dates on which this closure took effect.
 
 .. code-block:: Java
 
@@ -827,7 +825,7 @@ The Rosetta ``Contract`` class includes a ``closedState`` attribute whose purpos
  {
   id (0..1);
   contractIdentifier Identifier (1..*) ;
-  tradeDate DateInstances (1..1) ;
+  tradeDate TradeDate (1..1) ;
   clearedDate date (0..1) ;
   contractualProduct ContractualProduct (1..1) ;
   collateral Collateral (0..1) ;
