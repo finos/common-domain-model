@@ -20,7 +20,7 @@ class Account <"The account specification.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value servicingParty meta href]
 }
 
-class LegalEntity <"A class to represent the attributes that are specific to a legal entity.">
+class LegalEntity <"A class to specify a legal entity.">
 {
 	id (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id path "referenceEntity"]
@@ -32,7 +32,6 @@ class LegalEntity <"A class to represent the attributes that are specific to a l
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value entityName meta entityNameScheme]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value entityName path "referenceEntity" meta entityNameScheme]
 		[synonym CME_SubmissionIRS_1_0 value SID path "Hdr"]
-		[synonym ISDA_Create_1_0 value name]
 }
 
 class NaturalPerson <"A class to represent the attributes that are specific to a natural person.">
@@ -68,7 +67,7 @@ class NaturalPersonRole <"A class to specify the role(s) that natural person(s) 
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value role meta personRoleScheme]
 }
 
-class Party <"A class to specify a party, without a qualification as to whether this party is a legal entity or a natural person.">
+class Party <"A class to specify a party, without a qualification as to whether this party is a legal entity or a natural person, although the model provides the ability to associate a person (or set of persons) to a party, which use case would imply that such party would be a legal entity (even if not formally specified as such). ">
 	[synonym FpML_5_10 value Party]
 {
 	id (0..1);
@@ -83,14 +82,16 @@ class Party <"A class to specify a party, without a qualification as to whether 
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value entityName meta entityNameScheme]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value entityName path "referenceEntity" meta entityNameScheme]
 		[synonym CME_SubmissionIRS_1_0 value SID path "Hdr"]
-//	legalEntity LegalEntity (0..1);
-	naturalPerson NaturalPerson (0..*);
+		[synonym ISDA_Create_1_0 value name]
+		[synonym ISDA_Create_1_0 value partyA_name]
+		[synonym ISDA_Create_1_0 value partyB_name]
+	naturalPerson NaturalPerson (0..*) <"The person(s) who might be associated with the party as part of the execution, contract or legal document.">;
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value person]
 	account Account (0..1) <"The account that might be associated with the party. At most one account can be specified, as it is expected that this information is used in the context of a contract or legal document where only one account per party can be associated with such object.">;
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0, ISDA_Create_1_0 value account]
 }
 
-class PartyRole <"A class to specify the role(s) that party(ies) may have in relation to the contract.">
+class PartyRole <"A class to specify the role(s) that party(ies) may have in relation to the execution, contract or other legal agreement.">
 {
 	partyReference Party (1..1) reference <"A reference to the party to which the role refers to.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value determiningParty path "trade" meta href]

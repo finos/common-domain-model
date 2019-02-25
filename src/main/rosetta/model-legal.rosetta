@@ -4,11 +4,33 @@ version "%project.version%"
 class ApplicableRegime <"A class to specify the regulatory regime applicable to the parties to an ISDA 2018 CSA for Initial Margin as the combination of a the regulatory regime specification, a boolean value as an exception to the ISDA Standard Initial Margin Model.">
 {
 	regime RegulatoryRegimeEnum (1..1) <"The regulatory regime, as specified through an enumeration.">;
-	applicable boolean (1..1) <"A boolean flag to specify whether the regulatory regime is applicable.">;
+	isApplicable boolean (1..1) <"A boolean flag to specify whether the regulatory regime is applicable.">;
 	simmException SimmException (1..1) <"The specified exception to the ISDA Standard Initial Margin Model.">;
+	retrospectiveEffect boolean (1..1) <"ISDA 2016 CSA for Initial Margin, paragraph 13 (b)(i): if `Retrospective Effect` is specified as applicable to a Regime (a `Retrospective Regime`) then all Covered Transactions (IM) under all other Regimes with an earlier Regime Effective Time will, to the extent that they would have been Covered Transactions (IM) under such Retrospective Regime had such Transactions been entered into at or after the Regime Effective Time of the Retrospective Regime, be deemed to be Covered Transactions (IM) for such Retrospective Regime.">;
+		[synonym ISDA_Create_1_0 set to True when "partyA_retrospective" = "applicable"]
+		[synonym ISDA_Create_1_0 set to True when "partyB_retrospective" = "applicable"]
+		[synonym ISDA_Create_1_0 set to False when "partyA_retrospective" = "not_applicable"]
+		[synonym ISDA_Create_1_0 set to False when "partyB_retrospective" = "not_applicable"]
 }
 
-abstract class CsaInitialMargin2018 <"An abstract class to specify the provisions that are common among the respective governing laws.">
+abstract class CsaInitialMargin2016 <"An abstract class to specify the provisions for the 2016 ISDA Credit Support Annex for Initial Margin that are common among the corresponding governing laws.">
+{
+	regime Regime (1..2) <"The Regime Table provision as specified by the ISDA 2016 CSA for Initial Margin, Paragraph 13 General Principles, which determines the regulatory regime(s) applicable to each of the parties to the CSA in their capacity as Secured Party, with one set of values per counterparty. As specified in the CSA, the applicability of a regime shall not be construed as a representation, admission or acknowledgement that either party is actually regulated under such regime.">;
+	oneWayProvisions OneWayProvisions (1..1) <"The determination of whether the One Way Provisions are applicable (true) or not applicable (false) as specified by ISDA 2016 CSA for Initial Margin, Paragraph 13 (aa).">;
+	method Method (1..1) <"The specification of the ISDA SIMM Method as specified by ISDA 2016 CSA for Initial Margin, Paragraph 13, General Principles (ee).">;
+	alternativeEquitySensitivity string (0..1) <"The alternative sensitivities to equity products as determined by the ISDA 2016 CSA for Initial Margin, Paragraph 13, General Principles (gg) (2) (A). If specified, defines the alternative sensitivity calculation, with the delta being then allocated back to individual equities in equity indices, funds and ETFs.">;
+	alternativeCommoditySensitivity string (0..1) <"The alternative sensitivities to commodity products as determined by the ISDA 2016 CSA for Initial Margin, Paragraph 13, General Principles (gg) (2) (B). If specified, defines the alternative sensitivity calculation, with the delta being then allocated back to individual commodities in commodity indices.">;
+	eligibleCollateral IndependentAmountEligibleCollateral (1..2) <"The eligible collateral as specified in relation to each pledgor/chargor's obligation as determined by the ISDA 2018 CSA for Initial Margin, Paragraph 13, General Principles (ii) and the associated Eligible Collateral (IM) Schedule.">;
+	substitutedRegime SubstitutedRegime (0..*) <"The set of substituted regulatory regimes that can be specified for a party in accordance to ISDA 2016 CSA for Initial Margin, Paragraph 13, General Principles (ll). Notwithstanding that a regulatory regime is specified as not applicable in the Regime clauses and that no initial margin amounts will be calculated for such regime under this agreement, the parties agree that, with respect to a party, Regime for the purposes of the definition of Regulatory Event and the proviso in the definition of ISDA SIMM will include such Regime if it is specified as a Substituted Regime for that party as part of this provision.">;
+	baseCurrency string (1..1) scheme <"The base currency as specified by the ISDA 2016 CSA for Initial Margin, Paragraph 13 (a). The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">;
+		[synonym ISDA_Create_1_0 value base_currency]
+	marginApproach MarginApproachEnum (1..1) <"The Margin Approach applicable to the CSA, as specified by the ISDA 2016 CSA for Initial Margin, Paragraph 13 (c) (i).">;
+	calculationAgent InitialMarginCalculationAgent (1..1) <"The initial margin designated calculation agent, as specified by the ISDA 2016 CSA for Initial Margin, Paragraph 13 (c) (ii).">;
+	custodyArrangement CustodyArrangement (0..2) <"The custodian in respect to each party as the Pledgor/Chargor, as specified by the ISDA 2016 CSA for Initial Margin, Paragraph 13 (m). This attribute is optional as the parties may not specify such custodians as part of the CSA.">;	
+}
+
+
+abstract class CsaInitialMargin2018 <"An abstract class to specify the provisions for the 2018 ISDA Credit Support Annex for Initial Margin that are common among the corresponding governing laws.">
 {
 	regime Regime (1..2) <"The Regime Table provision as specified by the ISDA 2018 CSA for Initial Margin, Paragraph 13 Regime Table provision, which determines the regulatory regime(s) applicable to each of the parties to the CSA in their capacity as Secured Party, with one set of values per counterparty. As specified in the CSA, the applicability of a regime shall not be construed as a representation, admission or acknowledgement that either party is actually regulated under such regime.">;
 	oneWayProvisions OneWayProvisions (1..1) <"The determination of whether the One Way Provisions are applicable (true) or not applicable (false) as specified by ISDA 2018 CSA for Initial Margin, Paragraph 13 (aa).">;
@@ -158,8 +180,7 @@ class InitialMarginCalculationAgent one of <"A class to specify the initial marg
 	designatedParty InitialAmountCalculationAgentEnum (0..1) <"The party when specified as a function of its role. The ISDA 2018 CSA for Initial Margin specifies that the calculation can be 'the party making the demand for purposes of Paragraphs 3, 4(d) and 5 and the Secured Party for the purposes of Paragraph 4(e)'.">;
 }
 
-class LegalDocument extends LegalDocumentBase one of <"A class to specify the elections and variables associated to a legal document.">
-	[synonym FpML_5_10 value LegalDocument]
+class LegalDocument extends LegalDocumentBase rosettaKey one of <"A class to specify the elections and variables that specify a legal document.">
 {
 	csaInitialMargin2018EnglishLaw CsaInitialMargin2018EnglishLaw (0..1) <"The elections and variables specified in Paragraph 13 of the ISDA 2018 Credit Support Annex for Initial Margin, English Law.">;
 	csaInitialMargin2018NewYorkLaw CsaInitialMargin2018NewYorkLaw (0..1) <"The elections and variables specified in Paragraph 13 of the ISDA 2018 Credit Support Annex for Initial Margin, New York Law.">;
@@ -167,15 +188,16 @@ class LegalDocument extends LegalDocumentBase one of <"A class to specify the el
 
 abstract class LegalDocumentBase <"A class describing the legal document. The purpose of this abstract class is to provide the ability to associate a 'one of' feature to the LegalDocument class as a way to enforce a systematic choice between its attributes.">
 {
-	partyRole PartyRole (1..*) <"The roles of the parties to the document.">;
+	partyRoles PartyRole (1..*) <"The roles of the parties to the document.">;
 		[synonym FpML_5_10 value partyRoles path "legalDocumentHeader"]
 	agreementDate date (1..1) <"The date on which the legal document has been agreed between the parties.">;
 		[synonym FpML_5_10 value agreementDate path "legalDocumentHeader"]
-	effectiveDate date (1..1) <"The date on which the agreement is effective. It is expected that it will most often correspond to the agreement date, although there could be situations where the parties will explicitly agree on a distinct effective date.">;
+		[synonym ISDA_Create_1_0 value execution_date]
+	effectiveDate date (0..1) <"The date on which the agreement is effective, if different from the agreement date. It is expected that it will most often correspond to the agreement date, although there could be situations where the parties will explicitly agree on a distinct effective date.">;
 		[synonym FpML_5_10 value effectiveDate path "legalDocumentHeader"]
 	identifier Identifier (0..*) <"The legal document identifier. Several identifiers can be specified.">;
 		[synonym FpML_5_10 value partyDocumentIdentifier path "legalDocumentHeader"]
-	amendedDocument LegalDocument (1..1) reference <"The reference to the document that is amended by this legal document.">;
+	amendedDocument LegalDocument (1..1) rosettaKey <"The reference to the document that is amended by this legal document.">;
 		[synonym FpML_5_10 value amendedDocument path "legalDocumentHeader"]
 	documentHistory LegalDocumentHistory (0..1) <"The legal document history.">;
 		[synonym FpML_5_10 value documentHistory path "legalDocumentHeader"]
@@ -185,6 +207,8 @@ abstract class LegalDocumentBase <"A class describing the legal document. The pu
 		[synonym FpML_5_10 value party]
 		[synonym ISDA_Create_1_0 value partyA]
 		[synonym ISDA_Create_1_0 value partyB]
+		[synonym ISDA_Create_1_0 value partyA path "answers"]
+		[synonym ISDA_Create_1_0 value partyB path "answers"]
 }
 
 class LegalDocumentAmendment <"A legal document amendment, which can be specified by either referencing a legal document that is described elsewhere in the document, or by specifying the identity of that amended document.">
@@ -254,6 +278,12 @@ class PartyDocumentIdentifier <"A class defining a legal document identifier iss
 		[synonym FpML_5_10 value partyReference]
 	documentIdentifier Identifier (1..*) scheme <"While FpML specifies the document identifier with a value and an associated scheme, the CDM makes use of the Identifier, which has an explicit issuer. The issuer of this identifier is not necessarily the same as the party reference">;
 		[synonym FpML_5_10 value documentId meta legalDocumentIdScheme]
+}
+
+class PartyRegime <"A class to specify the regulatory regimes applicable to each party to an ISDA Credit Support Annex in its capacity as a Secured Party.">
+{
+	securedPartyReference Party (1..1) reference <"A reference to the party when acting as a secured party in application of the ISDA CSA.">;
+	applicableRegime ApplicableRegime (1..*) <"The applicable regulatory regime(s), with one instantiated value per regulatory regime.">;	
 }
 
 class Regime <"The regulatory regime(s) applicable to the respective parties to certain legal agreements, such as the Standard CSA 2018 for Initial Margin.">
