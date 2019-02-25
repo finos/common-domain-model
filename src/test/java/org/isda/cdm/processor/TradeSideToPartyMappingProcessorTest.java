@@ -27,10 +27,10 @@ public class TradeSideToPartyMappingProcessorTest {
     void setUp() {
         rosettaPath = RosettaPath.valueOf("Event.payerReceiver.payerPartyReference");
         mappings = Arrays.asList(
-                new Mapping(Path.parse("swap.tradeSide[0].id"), TRADE_SIDE_1, null, NOT_MAPPED_ERROR),
-                new Mapping(Path.parse("swap.tradeSide[1].id"), TRADE_SIDE_2, null, NOT_MAPPED_ERROR),
-                new Mapping(Path.parse("swap.tradeSide[0].orderer.party.href"), PARTY_A, null, NOT_MAPPED_ERROR),
-                new Mapping(Path.parse("swap.tradeSide[1].orderer.party.href"), PARTY_B, null, NOT_MAPPED_ERROR));
+                new Mapping(Path.parse("swap.tradeSide[0].id"), TRADE_SIDE_1, null, null, NOT_MAPPED_ERROR, false, false),
+                new Mapping(Path.parse("swap.tradeSide[1].id"), TRADE_SIDE_2, null, null, NOT_MAPPED_ERROR, false, false),
+                new Mapping(Path.parse("swap.tradeSide[0].orderer.party.href"), PARTY_A, null, PARTY_A, NOT_MAPPED_ERROR, false, false),
+                new Mapping(Path.parse("swap.tradeSide[1].orderer.party.href"), PARTY_B, null, PARTY_B, NOT_MAPPED_ERROR, false, false));
     }
 
     @Test
