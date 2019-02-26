@@ -40,7 +40,7 @@ public class TradeSideToPartyMappingProcessorTest {
 
         TradeSideToPartyMappingProcessor processor =
                 new TradeSideToPartyMappingProcessor(rosettaPath, mappings);
-        processor.map(builder);
+        processor.map(builder, null);
 
         assertEquals(PARTY_A, builder.getReference());
     }
@@ -52,7 +52,7 @@ public class TradeSideToPartyMappingProcessorTest {
 
         TradeSideToPartyMappingProcessor processor =
                 new TradeSideToPartyMappingProcessor(rosettaPath, mappings);
-        processor.map(builder);
+        processor.map(builder, null);
 
         assertEquals(PARTY_B, builder.getReference());
     }
