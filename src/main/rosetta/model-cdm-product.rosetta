@@ -1,5 +1,5 @@
 namespace "org.isda.cdm"
-version "%project.version%"
+version "${project.version}"
 
 class Cashflow rosettaKey <"A class to specify a cashflow, i.e. the outcome of either of computation (e.g. interest accrual) or and assessment of some sort (e.g. a fee). The cashflow can then be turned into a cash transfer, artefact to be used as the input to a payment system or the outcome of it. The associated rosettaKey denotes the ability to associate a hash value to the Cashflow instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 {
@@ -53,6 +53,7 @@ class Contract rosettaKey <"A class to specify a financial contract object, whic
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0 value partyTradeIdentifier path "tradeHeader"]
 		[synonym CME_ClearedConfirm_1_17 value partyTradeIdentifier path "trade.tradeHeader"]
 		[synonym CME_ClearedConfirm_1_17 value universalSwapIdentifier path "trade.tradeHeader"]
+		[synonym CME_SubmissionIRS_1_0 value partyTradeIdentifier path "Instrmt.SecXML.FpML.trade.tradeHeader"]
 		[synonym DTCC_11_0, DTCC_9_0 value Submitter]
 		[synonym DTCC_11_0, DTCC_9_0 value ContraTradeId]
 		[synonym DTCC_11_0, DTCC_9_0 value YourTradeId]
@@ -77,6 +78,7 @@ class Contract rosettaKey <"A class to specify a financial contract object, whic
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value governingLaw]
 	party Party (0..*) <"The parties to the contract. The cardinality is optional to address the case where the contract object is part of an event record, in which case the party is specified as part of that object. In that respect, the CDM approach is distinct from FpML, where party information is specified as part of a wrapper alongside the trade object.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value party]
+		[synonym CME_SubmissionIRS_1_0 value party path "Instrmt.SecXML.FpML"]
 	account Account (0..*) <"Optional account information.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0 value account]
 	partyRole PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the contract, further to the principal parties (i.e payer/receive or buyer/seller) to it.">;
@@ -486,7 +488,7 @@ data rule BasketReferenceInformation_nameOrId <"The BasketReferenceInformation r
 	then GeneralTerms -> basketReferenceInformation -> basketName exists
 		or GeneralTerms -> basketReferenceInformation -> basketId exists
 
-class InterestRatePayout calculation FixedAmount, FloatingAmount rosettaKey <"The interest rate payout specification terms. The associated rosettaKey denotes the ability to associate a hash value to the InterestRatePayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+class InterestRatePayout rosettaKey <"The interest rate payout specification terms. The associated rosettaKey denotes the ability to associate a hash value to the InterestRatePayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 {
 	id (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
@@ -521,6 +523,9 @@ class InterestRatePayout calculation FixedAmount, FloatingAmount rosettaKey <"Th
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value stubCalculationPeriodAmount]
 	bondReference BondReference (0..1) <"Reference to a bond underlier to represent an asset swap or Condition Precedent Bond.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value bondReference]
+
+	fixedAmount calculation (0..1) <"Fixed Amount Calculation">;
+	floatingAmount calculation (0..1) <"Floating Amount Calculation">;
 }
 
 choice rule InterestRatePayout_choice <"The paymentDates attributes is applicable to interest rate payouts with periodic payments, while the paymentDate reflects the FpML FRA implementation where one specific date is specified.">

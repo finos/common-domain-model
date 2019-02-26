@@ -52,26 +52,6 @@
             <xsd:enumeration value="terminated"/>
         </xsd:restriction>
     </xsd:simpleType>
-    <xsd:simpleType name="ContractLineageQualifierEnum">
-        <xsd:restriction base="xsd:token">
-            <xsd:enumeration value="PriorContractVersion"/>
-        </xsd:restriction>
-    </xsd:simpleType>
-    <xsd:simpleType name="EventLineageQualifierEnum">
-        <xsd:restriction base="xsd:token">
-            <xsd:enumeration value="CashTransfer"/>
-            <xsd:enumeration value="CCP_Registration"/>
-            <xsd:enumeration value="ClearingNotification"/>
-            <xsd:enumeration value="Compression"/>
-            <xsd:enumeration value="Exercise"/>
-            <xsd:enumeration value="Increase"/>
-            <xsd:enumeration value="Novation"/>
-            <xsd:enumeration value="Observation"/>
-            <xsd:enumeration value="PriorEventVersion"/>
-            <xsd:enumeration value="Reset"/>
-            <xsd:enumeration value="Termination"/>
-        </xsd:restriction>
-    </xsd:simpleType>
     <xsd:simpleType name="ExecutionTypeEnum">
         <xsd:restriction base="xsd:token">
             <xsd:enumeration value="Electronic"/>
@@ -223,19 +203,6 @@
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
-    <xsd:complexType name="ContractLineage">
-        <xsd:sequence>
-            <xsd:element name="contractLineageQualifier" type="ContractLineageQualifierEnum"
-                minOccurs="0"/>
-            <xsd:element name="contractReference" type="ContractReference"/>
-            <xsd:element name="cashflowReference" type="CashflowReference" minOccurs="0"/>
-            <xsd:element name="creditDefaultPayoutReference" type="CreditDefaultPayoutReference"
-                minOccurs="0"/>
-            <xsd:element name="interestRatePayoutReference" type="InterestRatePayoutReference"
-                minOccurs="0"/>
-            <xsd:element name="optionPayoutReference" type="OptionPayoutReference" minOccurs="0"/>
-        </xsd:sequence>
-    </xsd:complexType>
     <xsd:complexType name="ContractReference">
         <xsd:complexContent>
             <xsd:extension base="fpml:Reference">
@@ -326,13 +293,6 @@
             </xsd:choice>
         </xsd:sequence>
         <xsd:attribute name="id" type="xsd:ID"/>
-    </xsd:complexType>
-    <xsd:complexType name="EventLineage">
-        <xsd:sequence>
-            <xsd:element name="eventLineageQualifier" type="EventLineageQualifierEnum"/>
-            <xsd:element name="eventReference" type="EventReference"/>
-            <xsd:element name="cashflowReference" type="CashflowReference" minOccurs="0"/>
-        </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="EventPackage">
         <xsd:sequence>
@@ -441,8 +401,14 @@
     </xsd:complexType>
     <xsd:complexType name="Lineage">
         <xsd:sequence>
-            <xsd:element name="contractLineage" type="ContractLineage" minOccurs="0" maxOccurs="unbounded"/>
-            <xsd:element name="eventLineage" type="EventLineage" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="contractReference" type="ContractReference" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="eventReference" type="EventReference" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="cashflowReference" type="CashflowReference" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="creditDefaultPayoutReference" type="CreditDefaultPayoutReference"
+                minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="interestRatePayoutReference" type="InterestRatePayoutReference"
+                minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="optionPayoutReference" type="OptionPayoutReference" minOccurs="0" maxOccurs="unbounded"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="MessageInformation">

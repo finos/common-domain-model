@@ -1,5 +1,5 @@
 namespace "org.isda.cdm"
-version "%project.version%"
+version "${project.version}"
 
 class AdjustableDate <"A class for defining a date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
 	[synonym FpML_5_10 value AdjustableDate]
@@ -109,11 +109,17 @@ class AdjustableOrRelativeDate <"A class giving the choice between defining a da
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id path "adjustedEffectiveDate"]
 	adjustableDate AdjustableDate (0..1) <"A date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">;
-	relativeDate RelativeDateOffset (0..1) <"A date specified as some offset to another date (the anchor date).">;
+	relativeDate AdjustedRelativeDateOffset (0..1) <"A date specified as some offset to another date (the anchor date).">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value relativeDate]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value relativeDate path "paymentDate"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value relativeDateAdjustments]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value relativeEffectiveDate]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint periodMultiplier]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint period]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint dayType]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint businessDayConvention]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint businessCenters]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint dateRelativeTo]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint relativeDateAdjustments]
 		[synonym FpML_5_10 value relativeDate path "paymentDateFinal"]
 }
 
@@ -897,6 +903,7 @@ class Period <"A class to define recurring periods or time offsets.">
 	periodMultiplier int (1..1) <"A time period multiplier, e.g. 1, 2 or 3 etc. A negative value can be used when specifying an offset relative to another date, e.g. -2 days.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value periodMultiplier]
 		[synonym FpML_5_10 value periodMultiplier path "dateOffset"]
+		[synonym FpML_5_10 value periodMultiplier path "calculationPeriodDates.relativeEffectiveDate"]
 	period PeriodEnum (1..1) <"A time period, e.g. a day, week, month or year of the stream. If the periodMultiplier value is 0 (zero) then period must contain the value D (day).">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value period]
 		[synonym FpML_5_10 value period path "dateOffset"]
@@ -1017,7 +1024,7 @@ class RelativeDateOffset extends Offset <"A class defining a date (referred to a
 	dateRelativeTo date (0..1) reference <"Specifies the anchor as an href attribute. The href attribute value is a pointer style reference to the element or component elsewhere in the document where the anchor date is defined.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value dateRelativeTo meta href]
 	adjustedDate date (0..1) <"The date once the adjustment has been performed. (Note that this date may change if the business center holidays change).">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value adjustedDate]		
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value adjustedDate]
 }
 
 class ResetFrequency extends Frequency <"A class defining the reset frequency. In the case of a weekly reset, also specifies the day of the week that the reset occurs. If the reset frequency is greater than the calculation period frequency the this implies that more or more reset dates is established for each calculation period and some form of rate averaging is applicable. The specific averaging method of calculation is specified in FloatingRateCalculation. In case the reset frequency is of value T (term), the period is defined by the swap/swapStream/calculationPerioDates/effectiveDate and the swap/swapStream/calculationPerioDates/terminationDate.">
@@ -1233,4 +1240,5 @@ class TradeDate <"A class to specify the contract's trade date alongside an iden
 	date date (1..1) <"The trade date associated with the contract. In the case of a novated trade, this date corresponds to the novation date.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value tradeDate path "trade.tradeHeader"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value tradeDate path "tradeHeader"]
+		[synonym CME_SubmissionIRS_1_0 value tradeDate path "Instrmt.SecXML.FpML.trade.tradeHeader" meta id]
 }

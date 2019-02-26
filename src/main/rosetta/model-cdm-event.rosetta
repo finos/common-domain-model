@@ -1,5 +1,5 @@
 namespace "org.isda.cdm"
-version "%project.version%"
+version "${project.version}"
 
 class AllocationOutcome <"A class to specify the allocated outcome as the combination of an execution which state is specified as 'Allocated' and a contract or set of contract(s). (The allocation to one single contract is deemed appropriate.)">
 {
@@ -43,22 +43,6 @@ class CashTransferComponent extends TransferBase
 		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0 value breakdown]
 }
 
-class ClearingWorkflow <"A class to specify the clearing workflow information: clearing status, clearing venue, party-specific execution workflow information, ...">
-{
-	/*
-	 * One alternative is to represent the clearing venue as part of the partyRole + party, 
-	 * but CME mapping would be involved because requiring to create an id/href relationship
-	 */
-	clearingVenue string (0..1) <"The clearing venue identification. This attribute is optional because the CCP is the party to the contract in the case of a beta/gamma trade.">;
-	 	[synonym CME_SubmissionIRS_1_0 value TSub path "Hdr"]
-	/*
-	 * This information results from CDM lineage into the alpha trade, which implies that the value should probably not be mapped
-	 */ 	
-	originatingEvent OriginatingEventEnum (0..1) <"The qualification by the clearing facility of whether the cleared trade results from a trade presented for clearing by market participants (in which case it is qualified as a 'New Trade') or whether it results from a process that is internal to the CCP, in which case this process will be qualified accordingly (e.g. Transfer, Novation, Compression, ...).">;
-		[synonym CME_ClearedConfirm_1_17 value originatingEvent path "trade.tradeHeader"]
-		[synonym Rosetta_Workbench value originatingEvent]
-}
-
 /*
  * TODO - The commodity transfer component and its associated breakdown should be deemed as sample implementations,
  * which need to be confirmed through relevant user stories and use cases
@@ -92,24 +76,6 @@ class ComputedAmount <"A class to specify the outcome of a computed amount, for 
 	amount number (1..1);
 	currency string (0..1) scheme <"The currency in which the computed amount is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">;
 		[synonym Rosetta_Workbench value currency meta currencyScheme]
-}
-
-class ContractLineage <"The lineage into the contract object alongside with, optionally, the various payout components.">
-{
-	contractLineageQualifier ContractLineageQualifierEnum (0..1) <"The lineage qualification, which is meant to provide insight into the object that is represented by the rosettaKey reference.">;
-		[synonym Rosetta_Workbench value contractLineageQualifier]
-	contractReference Contract (1..1) rosettaKey reference <"The reference to the instantiation of a Contract object. The definition associated to the Lineage class provides more specific with respect to those referencing approaches, their expected usage and available implementation.">;
-	    [synonym Rosetta_Workbench value contractReference meta href]
-	cashflowReference Cashflow (0..*) rosettaKey reference <"The reference to the instantiation of a Cashflow payout component object. An expected typical usage is to provide lineage for the payment of, say, the option premium or the swap initial fee. The definition associated to the Lineage class provides more specific with respect to those referencing approaches, their expected usage and available implementation.">;
-		[synonym Rosetta_Workbench value cashflowReference meta href] 
-	creditDefaultPayoutReference CreditDefaultPayout (0..*) rosettaKey reference <"The reference to the instantiation of a CreditdefaultPayout component object. The definition associated to the Lineage class provides more specific with respect to those referencing approaches, their expected usage and available implementation.">;
-		[synonym Rosetta_Workbench value creditDefaultReference meta href]
-	interestRatePayoutReference InterestRatePayout (0..*) rosettaKey reference <"The reference to the instantiation of a InterestRatePayout component object. An expected typical usage is to provide lineage for the payment of, say, an interest rate swap reset, with the ability to relate the gross cashflow amounts to the respective payout components. The definition associated to the Lineage class provides more specific with respect to those referencing approaches, their expected usage and available implementation.">;
-		[synonym Rosetta_Workbench value interestRatePayoutReference meta href]
-	optionPayoutReference OptionPayout (0..*) rosettaKey reference <"The reference to the instantiation of a OptionPayout component object. The definition associated to the Lineage class provides more specific with respect to those referencing approaches, their expected usage and available implementation.">;
-		[synonym Rosetta_Workbench value optionPayoutReference meta href]
-	equityPayoutReference EquityPayout (0..*) rosettaKey reference <"The reference to the instantiation of a EquityPayout object. An expected typical usage is to provide lineage for the payment of, say, an equity dividend. The definition associated to the Lineage class provides more specific with respect to those referencing approaches, their expected usage and available implementation.">;
-		[synonym Rosetta_Workbench value equityPayoutReference meta href]	
 }
 
 class ContractState <"A class to specify a contract instantiation with respect to the before and/or after state of lifecycle events.">
@@ -285,16 +251,6 @@ class EventEffect <"The set of operational and positional effects associated wit
 	transfer TransferPrimitive (0..*) rosettaKey <"A pointer to the transfer effect(s), either a cash, security or other asset.">;
 }
 
-class EventLineage <"The lineage into the event object alongside with, optionally, the transfer component.">
-{
-	eventLineageQualifier EventLineageQualifierEnum (1..1) <"The lineage qualification, which is meant to provide insight into the object that is represented by the rosettaKey reference.">;
-		[synonym Rosetta_Workbench value eventLineageQualifier]
-	eventReference Event (1..1) rosettaKey reference <"The reference to the instantiation of an Event object, either through a rosettaKey or an xml-derived id/href mechanism. The definition associated to the Lineage class provides more specific with respect to those referencing approaches, their expected usage and available implementation.">;
-		[synonym Rosetta_Workbench value eventReference meta href]
-	transferReference TransferPrimitive (0..*) rosettaKey reference; // Usage needs to be confirmed
-		[synonym Rosetta_Workbench value cashflowReference meta href] 
-}
-
 class EventTestBundle <"A class which combines several events for testing purposes.">
 {
 	event Event (2..*);
@@ -423,10 +379,20 @@ class LimitApplicableExtended extends LimitApplicable <"A class to represent the
 
 class Lineage <"A class to provide lineage information across lifecycle events through a pointer or set of pointers into the event(s), contract(s) and, possibly, payout components that the event is dependent on or relates to. As an example, if an inception event is corrected, the correction event will have a lineage into the initial event, which takes the form of a rosettaKey into that initial inception event. Two referencing mechanisms are provided as part of the CDM: either the rosettaKey, which corresponds to the hash value of the CDM class which is referred to, or a reference qualifier which is meant to provide support for the ingestion of xml documents with id/href mechanisms. The CDM recommends the use of the rosettaKey and provides a default implementation which is accessible in the generated code through org.isda.cdm.rosettakey.RosettaKeyValueHashFunction. If implementers want to use an alternative hashing mechanism, the API in which they need to plug it is com.rosetta.model.lib.HashFunction.">
 {
-	contractLineage ContractLineage (0..*) <"The contract lineage components, i.e. the contract and the various contract payouts. A typical usage example is the payment of an interest rate swap reset event, with the lineage into the contract as well as each of the respective legs for the gross cashflow components.">;
-	    [synonym Rosetta_Workbench value contractLineage]
-	eventLineage EventLineage (0..*) <"The event lineage components, i.e. the contract and the transfer.">;
-	    [synonym Rosetta_Workbench value eventLineage]   
+	contractReference Contract (0..*) rosettaKey reference <"The reference to the instantiation of a Contract object. The definition associated to the Lineage class provides more specific with respect to those referencing approaches, their expected usage and available implementation.">;
+	    [synonym Rosetta_Workbench value contractReference meta href]
+	eventReference Event (0..*) rosettaKey reference <"The reference to the instantiation of an Event object, either through a rosettaKey or an xml-derived id/href mechanism. The definition associated to the Lineage class provides more specific with respect to those referencing approaches, their expected usage and available implementation.">;
+		[synonym Rosetta_Workbench value eventReference meta href]
+	cashflowReference Cashflow (0..*) rosettaKey reference <"The reference to the instantiation of a Cashflow payout component object. An expected typical usage is to provide lineage for the payment of, say, the option premium or the swap initial fee. The definition associated to the Lineage class provides more specific with respect to those referencing approaches, their expected usage and available implementation.">;
+		[synonym Rosetta_Workbench value cashflowReference meta href] 
+	creditDefaultPayoutReference CreditDefaultPayout (0..*) rosettaKey reference <"The reference to the instantiation of a CreditdefaultPayout component object. The definition associated to the Lineage class provides more specific with respect to those referencing approaches, their expected usage and available implementation.">;
+		[synonym Rosetta_Workbench value creditDefaultReference meta href]
+	interestRatePayoutReference InterestRatePayout (0..*) rosettaKey reference <"The reference to the instantiation of a InterestRatePayout component object. An expected typical usage is to provide lineage for the payment of, say, an interest rate swap reset, with the ability to relate the gross cashflow amounts to the respective payout components. The definition associated to the Lineage class provides more specific with respect to those referencing approaches, their expected usage and available implementation.">;
+		[synonym Rosetta_Workbench value interestRatePayoutReference meta href]
+	optionPayoutReference OptionPayout (0..*) rosettaKey reference <"The reference to the instantiation of a OptionPayout component object. The definition associated to the Lineage class provides more specific with respect to those referencing approaches, their expected usage and available implementation.">;
+		[synonym Rosetta_Workbench value optionPayoutReference meta href]
+	equityPayoutReference EquityPayout (0..*) rosettaKey reference <"The reference to the instantiation of a EquityPayout object. An expected typical usage is to provide lineage for the payment of, say, an equity dividend. The definition associated to the Lineage class provides more specific with respect to those referencing approaches, their expected usage and available implementation.">;
+		[synonym Rosetta_Workbench value equityPayoutReference meta href]
 }
 
 class MessageInformation <"This class corresponds to the components of the FpML MessageHeader.model.">
@@ -619,7 +585,7 @@ class TradeWarehouseWorkflow <"A class to specify trade warehouse workflow infor
 		[synonym CME_SubmissionIRS_1_0 value ignore]
 }
 
-class TransferPrimitive rosettaKey <"A class to specify the transfer of assets between parties, those assets being either cash, securities or physical assets. This class combines components that are cross-assets (settlement date, settlement type, status, ...) and some other which are specialized by asset class (e.g. the payer/receiver amount and cashflow type for a cash transfer, the transferor/transferee, security indication, quantity, and asset transfer type qualification for the case of a security). The associated rosettaKey denotes the ability to associate a hash value to the TransferPrimitive instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+class TransferPrimitive <"A class to specify the transfer of assets between parties, those assets being either cash, securities or physical assets. This class combines components that are cross-assets (settlement date, settlement type, status, ...) and some other which are specialized by asset class (e.g. the payer/receiver amount and cashflow type for a cash transfer, the transferor/transferee, security indication, quantity, and asset transfer type qualification for the case of a security).">
 {
 	identifier string (0..1) scheme <"The identifier which might be associated with the transfer.">;
 		[synonym DTCC_11_0, DTCC_9_0 value tradeCashflowsId path "FpML" meta tradeCashflowsIdScheme]
@@ -737,8 +703,13 @@ isEvent CashAndSecurityTransfer <"The qualification of a security settlement fro
 isEvent ClearedTrade <"The cleared trade at the CCP.">
 	Event -> primitive -> inception only exists
 	and Event -> eventWorkflow -> workflowStatus = WorkflowStatusEnum.Cleared
-//	and Event -> lineage -> @key -> Event -> eventQualifier = eventQualifier.ClearingSubmission
-//	and Event -> lineage -> @key -> Event -> eventQualifier = eventQualifier.ClearedTrade
+/*
+ * It is proposed to remove the below qualification for 2 reasons
+ *  - Limit the scope of event qualification to evaluating what is available within the event, while the workflow rule evaluated across events
+ *  - Not introduce the distinction between agency and principal model (with this latter having contracts between clearing members and clients)
+ */	
+//	and Event -> lineage -> @rosettaKey -> Event -> eventQualifier = eventQualifier.ClearingSubmission
+//	and Event -> lineage -> @rosettaKey -> Event -> eventQualifier = eventQualifier.ClearedTrade
 
 isEvent ClearingRejection <"The rejection of an alpha trade submission by a CCP, which is qualified by the fact that (i) termsChange is the only primitive, the workflow status is `rejected`, and (iii) the CCP is positioned as a partyRole to the execution or contract in the after state, while it didn't exist in the before state.">
 	Event -> primitive -> termsChange only exists
@@ -831,10 +802,6 @@ isEvent PartialNovation <"The qualification of a novation event from the fact th
 	and quantityAfterQuantityChange > 0.0
 //	and originalContractParties <> newContractParties
 
-data rule Novation_fee <"Logic to specify that if a cash transfer is qualified as a novation fee, it must have lineage into the novation contract, the contract resulting from the novation as well as the novation event.">
-	when Event -> primitive -> transfer -> cashTransfer -> cashflowType = CashflowTypeEnum.NovationFee
-	then Event -> lineage -> eventLineage -> eventLineageQualifier = EventLineageQualifierEnum.Novation
-
 isEvent PartialTermination <"The qualification of a partial termination event from the fact that (i) the intent is Partial Termination when specified, (ii) the associated primitives are the quantityChange and the cash transfer, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
 	Event -> intent when present = IntentEnum.PartialTermination
 	and ( Event -> primitive -> quantityChange only exists
@@ -893,29 +860,53 @@ isEvent TradeWarehousePositionNotification
  * Workflow rules
  */
 	
-/*
-workflow rule ClearedContract - with event qualifier
-    
-    Event <beta> is ClearingNotification
-	relatedTo <alpha> by rosettaKey where Event -> lineage -> eventLineage -> eventlineageQualifier = EventLineageQualifierEnum.CCP_Registration
-    and relatedTo <gamma> by rosettaKey where Event -> lineage -> eventLineage -> eventlineageQualifier = EventLineageQualifierEnum.ClearingNotification
-    
-    constraint is economicTerms are the same except for payerReceiver or buyerSeller
-    and event date of `alpha` = trade date of `beta` and `gamma`
-    and CCP which is in the party role of `alpha` is the same as the CCP which is counterparty to `beta` and `gamma`
-  
- */
 
  /*
-workflow rule ClearedContract - without event qualifier
+workflow rule ClearedContractAgency_Participant <"The cross-events validity constraints to specify that a contract has been cleared according to the agency model from the perspective of the involved clearing member or client.">
     
-    Event <beta> is ClearingNotification
-	relatedTo <alpha> by rosettaKey where Event -> lineage -> @key -> Event -> eventQualifier = eventQualifier.ClearingSubmission
-    and relatedTo <gamma> by rosettaKey where Event -> lineage -> @key -> Event -> eventQualifier = eventQualifier.ClearedTrade
-    
+    Event <beta> is ClearingSubmission
+	relatedTo <alpha> where Event -> lineage -> @rosettaKey -> Event -> eventQualifier = eventQualifier.ClearingSubmission
+ 
     constraint is economicTerms are the same except for payerReceiver or buyerSeller
-    and event date of `alpha` = trade date of `beta` and `gamma`
-    and CCP which is in the party role of `alpha` is the same as the CCP which is counterparty to `beta` and `gamma`
+    and <alpha> contract/execution is terminated  *Difference*
+    and event date of <alpha> submission = trade date of <beta>
+    and CCP which is in the party role in after state of <alpha> submission is the same as the CCP which is counterparty to <beta>
+ */
   
+ /*
+workflow rule ClearedContractAgency_CCP <"The cross-events validity constraints to specify that a contract has been cleared according to the agency model from the perspective of the involved clearing member or client.">
+    
+    Event <beta> is ClearingSubmission
+	relatedTo <alpha> where Event -> lineage -> @rosettaKey -> Event -> eventQualifier = eventQualifier.ClearingSubmission
+ 	and relatedTo <gamma> where Event -> lineage -> @rosettaKey -> Event -> eventQualifier = eventQualifier.ClearedTrade *Difference*
+ 	
+    constraint is economicTerms are the same except for payerReceiver or buyerSeller
+    and event date of <alpha> submission = trade date of <beta>
+    and CCP which is in the party role in after state of <alpha> submission is the same as the CCP which is counterparty to <beta> and <gamma> *Difference*
+ */
+ 
+  /*
+workflow rule ClearedContractPrincipal_Participant <"The cross-events validity constraints to specify that a contract has been cleared according to the principal model from the perspective of the involved clearing member or client.">
+    
+    Event <beta> is ClearingSubmission
+	relatedTo <alpha> where Event -> lineage -> @rosettaKey -> Event -> eventQualifier = eventQualifier.ClearingSubmission
+	relatedTo <theta> where Event -> lineage -> @rosettaKey -> Event -> eventQualifier = eventQualifier.NewTrade or eventQualifier.ClearedTrade???? *Difference*
+
+    constraint is economicTerms are the same except for payerReceiver or buyerSeller
+    and <alpha> contract/execution is terminated  *Difference*
+    and event date of <alpha> submission = trade date of <beta>
+    and CCP which is in the party role in after state of <alpha> submission is the same as the CCP which is counterparty to <beta>
+ */
+  
+ /*
+workflow rule ClearedContractPrincipal_CCP <"The cross-events validity constraints to specify that a contract has been cleared according to the principal model from the perspective of the involved clearing member or client.">
+    
+    Event <beta> is ClearingSubmission
+	relatedTo <alpha> where Event -> lineage -> @rosettaKey -> Event -> eventQualifier = eventQualifier.ClearingSubmission
+ 	and relatedTo <gamma> where Event -> lineage -> @rosettaKey -> Event -> eventQualifier = eventQualifier.ClearedTrade *Difference*
+ 	
+    constraint is economicTerms are the same except for payerReceiver or buyerSeller
+    and event date of <alpha> submission = trade date of <beta>
+    and CCP which is in the party role in after state of <alpha> submission is the same as the CCP which is counterparty to <beta> and <gamma> *Difference*
  */
  
