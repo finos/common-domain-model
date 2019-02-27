@@ -1,26 +1,42 @@
 namespace "org.isda.cdm"
 version "%project.version%"
-
-class ApplicableRegime <"A class to specify the regulatory regime applicable to the parties to an ISDA 2018 CSA for Initial Margin as the combination of a the regulatory regime specification, a boolean value as an exception to the ISDA Standard Initial Margin Model.">
+  
+class AdditionalRegime extends RegimeTerms <"A class to specify the additional regulatory regime(s) that might be specified by the parties to a legal agreement, such as the ISDA 2016 and 2018 CSA for Initial Margin.">
 {
-	regime RegulatoryRegimeEnum (1..1) <"The regulatory regime, as specified through an enumeration.">;
-	isApplicable boolean (1..1) <"A boolean flag to specify whether the regulatory regime is applicable.">;
-	simmException SimmException (1..1) <"The specified exception to the ISDA Standard Initial Margin Model.">;
-	retrospectiveEffect boolean (1..1) <"ISDA 2016 CSA for Initial Margin, paragraph 13 (b)(i): if `Retrospective Effect` is specified as applicable to a Regime (a `Retrospective Regime`) then all Covered Transactions (IM) under all other Regimes with an earlier Regime Effective Time will, to the extent that they would have been Covered Transactions (IM) under such Retrospective Regime had such Transactions been entered into at or after the Regime Effective Time of the Retrospective Regime, be deemed to be Covered Transactions (IM) for such Retrospective Regime.">;
-		[synonym ISDA_Create_1_0 set to True when "partyA_retrospective" = "applicable"]
-		[synonym ISDA_Create_1_0 set to True when "partyB_retrospective" = "applicable"]
-		[synonym ISDA_Create_1_0 set to False when "partyA_retrospective" = "not_applicable"]
-		[synonym ISDA_Create_1_0 set to False when "partyB_retrospective" = "not_applicable"]
+	regime string (1..1) <"The additional regulatory regime as specified by the parties.">;
+		[synonym ISDA_Create_1_0 value additional_regimes]
+}
+
+class ApplicableRegime extends RegimeTerms <"A class to specify the applicable regulatory regime(s) that parties to a legal agreement, such as the ISDA 2016 and 2018 CSA for Initial Margin, might be subject to.">
+{
+	regime RegulatoryRegimeEnum (1..1) <"The applicable regulatory regime, as specified through an enumeration.">;
+		[synonym AcadiaSoft_AM_1_0 value regime]
+		[synonym ISDA_Create_1_0 set to RegulatoryRegimeEnum.AustraliaMarginRules when "australia" exists]
+		[synonym ISDA_Create_1_0 set to RegulatoryRegimeEnum.CanadaMarginRules when "canada" exists]
+		[synonym ISDA_Create_1_0 set to RegulatoryRegimeEnum.CFTC_MarginRules when "cftc" exists]
+		[synonym ISDA_Create_1_0 set to RegulatoryRegimeEnum.EMIR_MarginRules when "emir" exists]
+		[synonym ISDA_Create_1_0 set to RegulatoryRegimeEnum.HongKongMarginRules when "hongkong" exists]
+		[synonym ISDA_Create_1_0 set to RegulatoryRegimeEnum.JapanMarginRules when "japan" exists]
+		[synonym ISDA_Create_1_0 set to RegulatoryRegimeEnum.SEC_MarginRules when "sec" exists]
+		[synonym ISDA_Create_1_0 set to RegulatoryRegimeEnum.SingaporeMarginRules when "singapore" exists]
+		[synonym ISDA_Create_1_0 set to RegulatoryRegimeEnum.SwitzerlandMarginRules when "switzerland" exists]
+		[synonym ISDA_Create_1_0 set to RegulatoryRegimeEnum.US_PrudentialMarginRules when "prudential" exists]
 }
 
 abstract class CsaInitialMargin2016 <"An abstract class to specify the provisions for the 2016 ISDA Credit Support Annex for Initial Margin that are common among the corresponding governing laws.">
 {
 	regime Regime (1..2) <"The Regime Table provision as specified by the ISDA 2016 CSA for Initial Margin, Paragraph 13 General Principles, which determines the regulatory regime(s) applicable to each of the parties to the CSA in their capacity as Secured Party, with one set of values per counterparty. As specified in the CSA, the applicability of a regime shall not be construed as a representation, admission or acknowledgement that either party is actually regulated under such regime.">;
+		[synonym AcadiaSoft_AM_1_0 value regime]
 	oneWayProvisions OneWayProvisions (1..1) <"The determination of whether the One Way Provisions are applicable (true) or not applicable (false) as specified by ISDA 2016 CSA for Initial Margin, Paragraph 13 (aa).">;
-	method Method (1..1) <"The specification of the ISDA SIMM Method as specified by ISDA 2016 CSA for Initial Margin, Paragraph 13, General Principles (ee).">;
-	alternativeEquitySensitivity string (0..1) <"The alternative sensitivities to equity products as determined by the ISDA 2016 CSA for Initial Margin, Paragraph 13, General Principles (gg) (2) (A). If specified, defines the alternative sensitivity calculation, with the delta being then allocated back to individual equities in equity indices, funds and ETFs.">;
-	alternativeCommoditySensitivity string (0..1) <"The alternative sensitivities to commodity products as determined by the ISDA 2016 CSA for Initial Margin, Paragraph 13, General Principles (gg) (2) (B). If specified, defines the alternative sensitivity calculation, with the delta being then allocated back to individual commodities in commodity indices.">;
-	eligibleCollateral IndependentAmountEligibleCollateral (1..2) <"The eligible collateral as specified in relation to each pledgor/chargor's obligation as determined by the ISDA 2018 CSA for Initial Margin, Paragraph 13, General Principles (ii) and the associated Eligible Collateral (IM) Schedule.">;
+	method Method (1..1) <"The specification of the ISDA SIMM Method as specified by ISDA CSA for Initial Margin, Paragraph 13, General Principles (ee).">;
+	sensitivityToEquity SensitivityMethodology (1..1) <"The methodology the compute sensitivities to equity indices, funds and ETFs for the purpose of the ISDA 2016 and 2018 CSA for Initial Margin. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles (gg) (2) (A).">;
+		[synonym ISDA_Create_1_0 value sensitivities_to_equity_indices_funds_etfs]
+	sensitivityToCommodity SensitivityMethodology (1..1) <"The methodology the compute sensitivities to commodity indices for the purpose of the ISDA 2016 and 2018 CSA for Initial Margin. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles (gg) (2) (B).">;
+		[synonym ISDA_Create_1_0 value sensitivities_to_commodity_indices]
+	pledgorPostingObligations PledgorPostingObligations (1..1) <"">;
+		[synonym ISDA_Create_1_0 value pledgor_posting_obligations]
+	additionalObligations string (0..1) <"">;
+		[synonym ISDA_Create_1_0 set to "additional_obligations" when "additional_obligations" <> "none"]
 	substitutedRegime SubstitutedRegime (0..*) <"The set of substituted regulatory regimes that can be specified for a party in accordance to ISDA 2016 CSA for Initial Margin, Paragraph 13, General Principles (ll). Notwithstanding that a regulatory regime is specified as not applicable in the Regime clauses and that no initial margin amounts will be calculated for such regime under this agreement, the parties agree that, with respect to a party, Regime for the purposes of the definition of Regulatory Event and the proviso in the definition of ISDA SIMM will include such Regime if it is specified as a Substituted Regime for that party as part of this provision.">;
 	baseCurrency string (1..1) scheme <"The base currency as specified by the ISDA 2016 CSA for Initial Margin, Paragraph 13 (a). The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">;
 		[synonym ISDA_Create_1_0 value base_currency]
@@ -29,6 +45,10 @@ abstract class CsaInitialMargin2016 <"An abstract class to specify the provision
 	custodyArrangement CustodyArrangement (0..2) <"The custodian in respect to each party as the Pledgor/Chargor, as specified by the ISDA 2016 CSA for Initial Margin, Paragraph 13 (m). This attribute is optional as the parties may not specify such custodians as part of the CSA.">;	
 }
 
+class CsaInitialMargin2016NewYorkLaw extends CsaInitialMargin2016 <"A class to specify the provisions that are specific to the New York Law version of the ISDA 2016 Credit Support Annex for Initial Margin.">
+{
+
+}
 
 abstract class CsaInitialMargin2018 <"An abstract class to specify the provisions for the 2018 ISDA Credit Support Annex for Initial Margin that are common among the corresponding governing laws.">
 {
@@ -50,10 +70,16 @@ class CsaInitialMargin2018EnglishLaw extends CsaInitialMargin2018 <"A class to s
 
 }
 
-data rule CreditSupportAnnexInitialMargin2018EnglishLaw_baseCurrency <"The ISDA 2018 CSA for Initial Margin English Law specifies that the base currency should either be USD or EUR.">
-	when LegalDocument -> csaInitialMargin2018EnglishLaw exists
-	then LegalDocument -> csaInitialMargin2018EnglishLaw -> baseCurrency = "USD"
+data rule CreditSupportAnnexInitialMargin2018EnglishLaw_baseCurrency <"The ISDA 2016 and 2018 CSA for Initial Margin under English and New York Law specify that the base currency should either be USD or EUR. ISDA 2016 Credit Support Annex for Initial Margin, New York Law, paragraph 13, General Principles, (a)(i): Base Currency means United States Dollar/Euro.">
+	when ( LegalDocument -> csaInitialMargin2016NewYorkLaw
+		or LegalDocument -> csaInitialMargin2018EnglishLaw
+		or LegalDocument -> csaInitialMargin2018NewYorkLaw ) exists
+	then ( LegalDocument -> csaInitialMargin2016NewYorkLaw -> baseCurrency = "USD"
+		or LegalDocument -> csaInitialMargin2016NewYorkLaw -> baseCurrency = "EUR"
+		or LegalDocument -> csaInitialMargin2018EnglishLaw -> baseCurrency = "USD"
 		or LegalDocument -> csaInitialMargin2018EnglishLaw -> baseCurrency = "EUR"
+		or LegalDocument -> csaInitialMargin2018NewYorkLaw -> baseCurrency = "USD"
+		or LegalDocument -> csaInitialMargin2018NewYorkLaw -> baseCurrency = "EUR" )
 
 class CsaInitialMargin2018NewYorkLaw extends CsaInitialMargin2018 <"A class to specify the provisions that are specific to the New York Law version of the ISDA 2018 Credit Support Annex for Initial Margin.">
 {
@@ -159,7 +185,7 @@ class IndependentAmountEligibleCollateral <"A class to specify the eligible coll
 		[synonym FpML_5_10 value partyReference]
 	eligibleCollateral EligibleCollateral (0..*) <"The eligible collateral assets.">;
 		[synonym FpML_5_10 value eligibleCollateral]
-	independentAmountEligibility	IndependentAmountEligibilityEnum (0..1) scheme <"The terms when no collateral assets are specified.">;
+	independentAmountEligibility IndependentAmountEligibilityEnum (0..1) scheme <"The terms when no collateral assets are specified.">;
 		[synonym FpML_5_10 value independentAmountEligibility meta independentAmountEligibilityScheme]
 	fxHaircut number (0..1) <"The ISDA 2018 CSA specifies the FX haircut with respect to each party's posting obligation to be equal to 8% if the eligible collateral is denominated in a currency that is distinct from the Termination Currency specified with respect to the Secured Party, and 0% if the same.">;
 	terminationCurrency TerminationCurrency (1..2) <"The Termination Currency as specified by each of the parties to the agreement as determined by the ISDA 2018 CSA for Initial Margin, Paragraph 13 Eligible Credit Support (IM) Schedule.">;
@@ -180,8 +206,9 @@ class InitialMarginCalculationAgent one of <"A class to specify the initial marg
 	designatedParty InitialAmountCalculationAgentEnum (0..1) <"The party when specified as a function of its role. The ISDA 2018 CSA for Initial Margin specifies that the calculation can be 'the party making the demand for purposes of Paragraphs 3, 4(d) and 5 and the Secured Party for the purposes of Paragraph 4(e)'.">;
 }
 
-class LegalDocument extends LegalDocumentBase rosettaKey one of <"A class to specify the elections and variables that specify a legal document.">
+class LegalDocument extends LegalDocumentBase rosettaKey one of <"A class to specify the elections and variables that characterize a legal document.">
 {
+	csaInitialMargin2016NewYorkLaw CsaInitialMargin2016NewYorkLaw (0..1) <"The elections and variables specified in Paragraph 13 of the ISDA 2016 Credit Support Annex for Initial Margin, New York Law.">;
 	csaInitialMargin2018EnglishLaw CsaInitialMargin2018EnglishLaw (0..1) <"The elections and variables specified in Paragraph 13 of the ISDA 2018 Credit Support Annex for Initial Margin, English Law.">;
 	csaInitialMargin2018NewYorkLaw CsaInitialMargin2018NewYorkLaw (0..1) <"The elections and variables specified in Paragraph 13 of the ISDA 2018 Credit Support Annex for Initial Margin, New York Law.">;
 }
@@ -206,9 +233,7 @@ abstract class LegalDocumentBase <"A class describing the legal document. The pu
 	party Party (2..*) <"The parties associated with the legal document, which include the contractual parties to the legal document, as well as some other ones which might be involved in a role such as service provider.">;
 		[synonym FpML_5_10 value party]
 		[synonym ISDA_Create_1_0 value partyA]
-		[synonym ISDA_Create_1_0 value partyB]
 		[synonym ISDA_Create_1_0 value partyA path "answers"]
-		[synonym ISDA_Create_1_0 value partyB path "answers"]
 }
 
 class LegalDocumentAmendment <"A legal document amendment, which can be specified by either referencing a legal document that is described elsewhere in the document, or by specifying the identity of that amended document.">
@@ -257,17 +282,28 @@ class LegalDocumentType <"A class to specify the type of legal document, which i
 		[synonym AcadiaSoft_AM_1_0 value csaVersion]
 }
 
-class Method <"A class to specify the ISDA SIMM Method as specified by ISDA 2018 CSA for Initial Margin, Paragraph 13, General Principles (ee).">
+class Method <"A class to specify the ISDA SIMM Method as the combination of the  as specified by ISDA 2016 and 2018 CSA for Initial Margin. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles (ee): .">
 {
 	version SimmVersion (1..1) <"The qualification of the ISDA SIMM version that is specified for all Covered Transactions as specified by ISDA 2018 CSA for Initial Margin, Paragraph 13, General Principles (ee) (1).">;
 	calculationCurrency SimmCalculationCurrency (1..2) <"The SIMM Calculation Currency, as specified for each of the parties to the CSA Initial Margin.">;
+		[synonym ISDA_Create_1_0 value simm_calculation_currency]
 }
 
-class OneWayProvisions <"A class to specify the One Way Provisions applicable to the ISDA 2018 CSA for Initial Margin, paragraph 13, General Principles, provision (aa).">
+class OneWayProvisions <"A class to specify the Posting Party for the purposes of One Way Provisions in relation to the ISDA CSA for Initial Margin. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles (aa): One Way Provisions | ISDA 2018 Credit Support Annex for Initial Margin, paragraph 13, General Principles (aa): One Way Provisions.">
 {
-	applicable boolean (1..1) <"The determination of whether the One Way Provisions are applicable (true) or not applicable (false).">;
-	postingPartyReference Party (1..1) reference <"The posting Party for the purposes of One Way Provisions.">;
+	isApplicable boolean (1..1) <"The determination of whether the One Way Provisions are applicable (true) or not applicable (false).">;
+		[synonym ISDA_Create_1_0 set to True when "one_way_provisions" = "applicable"]
+		[synonym ISDA_Create_1_0 set to False when "one_way_provisions" = "not_applicable"]
+	postingPartyReference Party (0..1) reference <"The Posting Party for the purposes of One Way Provisions. This party is specified in the case where the One Way Provision is deemed applicable.">;
 }
+
+data rule OneWayProvisions_postingPartyReference_exists <"This Posting Party must be specified in the case where the One Way Provision is deemed applicable.">
+	when OneWayProvisions -> isApplicable = True
+	then OneWayProvisions -> postingPartyReference exists
+
+data rule OneWayProvisions_postingPartyReference_absent <"This Posting Party must not be specified in the case where the One Way Provision is not deemed applicable.">
+	when OneWayProvisions -> isApplicable = False
+	then OneWayProvisions -> postingPartyReference is absent
 
 class PartyDocumentIdentifier <"A class defining a legal document identifier issued by the indicated party.">
 	[synonym FpML_5_10 value PartyDocumentIdentifier]
@@ -280,52 +316,97 @@ class PartyDocumentIdentifier <"A class defining a legal document identifier iss
 		[synonym FpML_5_10 value documentId meta legalDocumentIdScheme]
 }
 
-class PartyRegime <"A class to specify the regulatory regimes applicable to each party to an ISDA Credit Support Annex in its capacity as a Secured Party.">
+class PledgorPostingObligations <"A class to specify the pledgor(s) collateral posting obligations as specified under the terms of the ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (ii).">
 {
-	securedPartyReference Party (1..1) reference <"A reference to the party when acting as a secured party in application of the ISDA CSA.">;
-	applicableRegime ApplicableRegime (1..*) <"The applicable regulatory regime(s), with one instantiated value per regulatory regime.">;	
+	pledgor Party (1..2) reference <"The pledgor party(ies) to which the posting obligations apply to, which can be either one of the parties to the legal agreement, or both of those.">;
+		[synonym ISDA_Create_1_0 value pledgor]
+	asPermitted boolean (1..1) <"If set to True, the Control Agreement a Credit Support Document with respect to a party. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 6, (e).">;
+		[synonym ISDA_Create_1_0 set to True when "partyA_type" = "control_agreement"]
+	eligibleCollateral EligibleCollateral (0..*) <"The eligible collateral as specified in relation to the pledgor(s) obligation.">;
+		[synonym FpML_5_10 value eligibleCollateral]
+	additionalLanguage string (0..1) <"The additional language that might be specified by the parties to the legal agreement.">;	
 }
 
-class Regime <"The regulatory regime(s) applicable to the respective parties to certain legal agreements, such as the Standard CSA 2018 for Initial Margin.">
+data rule PledgorPostingObligations_asPermitted <"">
+	when PledgorPostingObligations -> asPermitted = True
+	then PledgorPostingObligations -> eligibleCollateral is absent
+	
+data rule PledgorPostingObligations_eligibleCollateral
+	when PledgorPostingObligations -> asPermitted = False
+	then PledgorPostingObligations -> eligibleCollateral exists	
+
+class Regime <"A class to specify the regulatory regimes applicable to the respective parties a legal agreement. 2016 ISDA Credit Support Annex for Initial Margin: Regime.">
+	[synonym AcadiaSoft_AM_1_0 value Regime]
 {
-	partyReference Party (1..1) reference <"A reference to the party when acting as a secured party in application of the ISDA CSA.">;
-	applicableRegime ApplicableRegime (1..*) <"The applicable regulatory regime(s), with one instantiated value per regulatory regime.">;
+	partyReference Party (1..1) reference <"The reference to the party to which the set of regulatory regime elections specified in the applicableRegime attribute apply to.">;
+		[synonym ISDA_Create_1_0 value partyA_secured_party]
+		[synonym AcadiaSoft_AM_1_0 value party]
+	applicableRegime ApplicableRegime (1..*) <"The set of regulatory regimes and associated provisions applicable to the respective parties to the legal agreement.">;	
+	additionalRegimes AdditionalRegime (0..*) <"The additional regulatory regime(s) that might be specified by the parties to a legal agreement. ISDA 2016 Credit Support Annex for Initial Margin paragraph 13, General Principles, (ll): The parties may from time to time agree in writing that other regimes also comprise `Regimes` and that the General Principles be adopted and/or amended to accommodate such additional Regimes.">;
+}
+
+abstract class RegimeTerms <"An abstract class to specify the regulatory regime terms which are referred to as part of certain legal agreements, such as such as the ISDA 2016 and 2018 CSA for Initial Margin.">
+{
+	isApplicable boolean (1..1) <"A boolean flag to specify whether the regulatory regime is applicable.">;
+		[synonym ISDA_Create_1_0 set to True when "partyA_secured_party" = "applicable"]
+		[synonym ISDA_Create_1_0 set to False when "partyA_secured_party" = "not_applicable"]
+	simmException SimmException (1..1) <"The specified exception to the ISDA Standard Initial Margin Model.">;
+	retrospectiveEffect boolean (1..1) <"ISDA 2016 CSA for Initial Margin, paragraph 13 (b)(i): if `Retrospective Effect` is specified as applicable to a Regime (a `Retrospective Regime`) then all Covered Transactions (IM) under all other Regimes with an earlier Regime Effective Time will, to the extent that they would have been Covered Transactions (IM) under such Retrospective Regime had such Transactions been entered into at or after the Regime Effective Time of the Retrospective Regime, be deemed to be Covered Transactions (IM) for such Retrospective Regime.">;
+		[synonym AcadiaSoft_AM_1_0 value retrospectiveEffect]
+		[synonym ISDA_Create_1_0 set to True when "partyA_retrospective" = "applicable"]
+		[synonym ISDA_Create_1_0 set to False when "partyA_retrospective" = "not_applicable"]
+	additionalType AdditionalTypeEnum (1..1) <"The Additional Type of transaction that can require the collection or delivery of initial margin under the specified regulatory regime for the purposes of Covered Transactions, as specified in ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (b) (B).">;
+}
+
+class SensitivityMethodology one of
+{
+	specifiedMethodology SensitivitiesEnum (0..1);
+	customMethodology string (0..1);
 }
 
 class SimmCalculationCurrency <"A class to specify the ISDA SIMM Calculation Currency as either the Base Currency or an alternative currency, in accordance with the ISDA 2018 CSA for Initial Margin, Paragraph 13, General Principles (ee) (3).">
 {
 	partyReference Party (1..1) reference <"A reference to the party to the CSA agreement to which the SIMM Calculation Currency qualification applies.">;
-	baseCurrency boolean (1..1);
+	isBaseCurrency boolean (1..1);
+		[synonym ISDA_Create_1_0 value partyA_use_base_currency]
 	currency string (0..1) scheme <"The currency in which the ISDA SIMM Calculation is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">;
+		[synonym ISDA_Create_1_0 value partyA_use_other_currency]
+		[synonym AcadiaSoft_AM_1_0 value currency]
 }
 
 data rule SimmCalculationCurrency_baseCurrency <"When the SIMM calculation currency is specified as the CSA base currency the currency attribute should not be specified.">
-	when SimmCalculationCurrency -> baseCurrency = True
+	when SimmCalculationCurrency -> isBaseCurrency = True
 	then SimmCalculationCurrency -> currency is absent
 
+/*
+ * The below should be reassessed as a function of whether we end-up keeping distinctive base classes across vintages
+ */
 data rule SimmCalculationCurrency_otherCurrency <"When the SIMM calculation currency is specified as distinct from the CSA base currency the currency attribute should be specified and be different from the CSA Base Currency.">
-	when CsaInitialMargin2018 -> method -> calculationCurrency -> baseCurrency = False
+	when CsaInitialMargin2018 -> method -> calculationCurrency -> isBaseCurrency = False
 	then CsaInitialMargin2018 -> method -> calculationCurrency -> currency exists
 	and CsaInitialMargin2018 -> method -> calculationCurrency -> currency <> CsaInitialMargin2018 -> baseCurrency
 
-class SimmException one of <"A class to specify the SIMM exception to the regulatory regime clause of the ISDA 2018 CSA for Initial Margin as either a normalised value specified as part of an enumeration or a customised value specified of type string.">
+class SimmException one of <"A class to specify the SIMM exception to the regulatory regime clause of the ISDA 2016 and 2018 CSA for Initial Margin as either a normalized value specified as part of an enumeration or a customized value specified of type string. ISDA 2016 Credit Support Annex for Initial Margin paragraph 13, Regime: SIMM Exception | ISDA 2018 Credit Support Annex for Initial Margin paragraph 13, Regime: SIMM Exception.">
 {
 	standardisedException SimmExceptionEnum (0..1) <"The Standard Initial Margin Model exception when specified by the party according to one of the enumerated values.">;
-	asSpecified string (0..1) <"The Standard Initial Margin Model exception when specified as a customised approach by the party.">;
+		[synonym AcadiaSoft_AM_1_0 set to "NotApplicable" when "simmException" = "False"]
+		[synonym ISDA_Create_1_0 set to "NotApplicable" when "partyA_SIMM" = "not_applicable"]
+	asSpecified string (0..1) <"The Standard Initial Margin Model exception when specified as a customized approach by the party.">;
+		[synonym ISDA_Create_1_0 value partyA_SIMM_applicable_specify]
 }
 
 class SimmVersion <"A class to specify the ISDA SIMM version that applies to the ISDA 2018 CSA for Initial Margin. According to the ISDA 2018 CSA for Initial Margin, Paragraph 13, General Principles (ee) (1) provisions, the SIMM version is either not specified, or references a version used by one of the parties to the agreement.">
 {
-	specified boolean (1..1) <"A boolean attribute to determine whether the SIMM version is specified for the ISDA 2018 CSA for Initial Margin.">;
+	isSpecified boolean (1..1) <"A boolean attribute to determine whether the SIMM version is specified for the purpose of the legal agreement.">;
 	version SpecifiedSimmVersion (0..1) <"When the SIMM version is specified, it will reference the party that uses such version.">;
 }
 
 data rule SimmVersion_version1 <"The version attribute should be absent when the SIMM version is stated as not specified for the CSA.">
-	when SimmVersion -> specified = False
+	when SimmVersion -> isSpecified = False
 	then SimmVersion -> version is absent
 	
 data rule SimmVersion_version2 <"The version attribute should be specified when the SIMM version is stated as specified for the CSA.">
-	when SimmVersion -> specified = True
+	when SimmVersion -> isSpecified = True
 	then SimmVersion -> version exists	
 
 class SpecifiedSimmVersion <"A class to specify the ISDA SIMM version applicable to one of the parties to the CSA agreement that will then be the relevant version for that CSA.">
