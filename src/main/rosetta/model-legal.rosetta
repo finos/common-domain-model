@@ -4,8 +4,24 @@ version "%project.version%"
 class AdditionalRegime extends RegimeTerms <"A class to specify the additional regulatory regime(s) that might be specified by the parties to a legal agreement, such as the ISDA 2016 and 2018 CSA for Initial Margin.">
 {
 	regime string (1..1) <"The additional regulatory regime as specified by the parties.">;
-		[synonym ISDA_Create_1_0 value additional_regimes]
+		[synonym ISDA_Create_1_0 value regime_name]
 }
+
+class AdditionalType <"The specification of the Additional Type of transaction that can require the collection or delivery of initial margin under a given regulatory regime for the purposes of Covered Transactions, as specified in ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (b) (B).">
+{
+	standardValue AdditionalTypeEnum (1..1) <"The qualification of the Additional Type of transaction that can require the collection or delivery of initial margin when specified as a standard value.">;
+		[synonym ISDA_Create_1_0 value additional_type]
+	customValue string (0..1) <"The qualification of the Additional Type of transaction that can require the collection or delivery of initial margin when specified as a custom value by the parties to the legal agreement.">;
+		[synonym ISDA_Create_1_0 value additional_type_specify]
+}
+
+data rule AdditionalType_customValue <"The specification of a custom value by the parties to the legal agreement takes place alongside the qualification of the `Other` value as part of the AdditionalTypeEnum.">
+	when AdditionalType -> standardValue = AdditionalTypeEnum.Other
+	then AdditionalType -> customValue exists
+
+data rule AdditionalType_standardValue <"The specification of a standard value by the parties to the legal agreement is done through the qualification of a value distinct than `Other` as part of the AdditionalTypeEnum, and implies that the customerValue is not being qualified.">
+	when AdditionalType -> standardValue <> AdditionalTypeEnum.Other
+	then AdditionalType -> customValue is absent	
 
 class ApplicableRegime extends RegimeTerms <"A class to specify the applicable regulatory regime(s) that parties to a legal agreement, such as the ISDA 2016 and 2018 CSA for Initial Margin, might be subject to.">
 {
@@ -25,7 +41,7 @@ class ApplicableRegime extends RegimeTerms <"A class to specify the applicable r
 
 abstract class CsaInitialMargin2016 <"An abstract class to specify the provisions for the 2016 ISDA Credit Support Annex for Initial Margin that are common among the corresponding governing laws.">
 {
-	regime Regime (1..2) <"The Regime Table provision as specified by the ISDA 2016 CSA for Initial Margin, Paragraph 13 General Principles, which determines the regulatory regime(s) applicable to each of the parties to the CSA in their capacity as Secured Party, with one set of values per counterparty. As specified in the CSA, the applicability of a regime shall not be construed as a representation, admission or acknowledgement that either party is actually regulated under such regime.">;
+	regime Regime (2..2) <"The Regime Table provision as specified by the ISDA 2016 CSA for Initial Margin, Paragraph 13 General Principles, which determines the regulatory regime(s) applicable to each of the parties to the CSA in their capacity as Secured Party, with one set of values per counterparty. As specified in the CSA, the applicability of a regime shall not be construed as a representation, admission or acknowledgement that either party is actually regulated under such regime.">;
 		[synonym AcadiaSoft_AM_1_0 value regime]
 	oneWayProvisions OneWayProvisions (1..1) <"The determination of whether the One Way Provisions are applicable (true) or not applicable (false) as specified by ISDA 2016 CSA for Initial Margin, Paragraph 13 (aa).">;
 	method Method (1..1) <"The specification of the ISDA SIMM Method as specified by ISDA CSA for Initial Margin, Paragraph 13, General Principles (ee).">;
@@ -33,16 +49,16 @@ abstract class CsaInitialMargin2016 <"An abstract class to specify the provision
 		[synonym ISDA_Create_1_0 value sensitivities_to_equity_indices_funds_etfs]
 	sensitivityToCommodity SensitivityMethodology (1..1) <"The methodology the compute sensitivities to commodity indices for the purpose of the ISDA 2016 and 2018 CSA for Initial Margin. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles (gg) (2) (B).">;
 		[synonym ISDA_Create_1_0 value sensitivities_to_commodity_indices]
-	pledgorPostingObligations PledgorPostingObligations (1..1) <"">;
+	pledgorPostingObligations PledgorPostingObligations (1..1) <"The pledgor's posting obligations as specified in the ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (ii).">;
 		[synonym ISDA_Create_1_0 value pledgor_posting_obligations]
-	additionalObligations string (0..1) <"">;
-		[synonym ISDA_Create_1_0 set to "additional_obligations" when "additional_obligations" <> "none"]
-	substitutedRegime SubstitutedRegime (0..*) <"The set of substituted regulatory regimes that can be specified for a party in accordance to ISDA 2016 CSA for Initial Margin, Paragraph 13, General Principles (ll). Notwithstanding that a regulatory regime is specified as not applicable in the Regime clauses and that no initial margin amounts will be calculated for such regime under this agreement, the parties agree that, with respect to a party, Regime for the purposes of the definition of Regulatory Event and the proviso in the definition of ISDA SIMM will include such Regime if it is specified as a Substituted Regime for that party as part of this provision.">;
 	baseCurrency string (1..1) scheme <"The base currency as specified by the ISDA 2016 CSA for Initial Margin, Paragraph 13 (a). The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">;
 		[synonym ISDA_Create_1_0 value base_currency]
-	marginApproach MarginApproachEnum (1..1) <"The Margin Approach applicable to the CSA, as specified by the ISDA 2016 CSA for Initial Margin, Paragraph 13 (c) (i).">;
-	calculationAgent InitialMarginCalculationAgent (1..1) <"The initial margin designated calculation agent, as specified by the ISDA 2016 CSA for Initial Margin, Paragraph 13 (c) (ii).">;
-	custodyArrangement CustodyArrangement (0..2) <"The custodian in respect to each party as the Pledgor/Chargor, as specified by the ISDA 2016 CSA for Initial Margin, Paragraph 13 (m). This attribute is optional as the parties may not specify such custodians as part of the CSA.">;
+	additionalObligations string (0..1) <"The additional obligations as specified in the ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (b)(ii).">;
+		[synonym ISDA_Create_1_0 set to "additional_obligations_specify" when "additional_obligations" = "specify"]
+	otherEligibleSupport string (0..1) <"The items that qualify as Other Eligible Support in accordance with the ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (c)(iv).">;
+		[synonym ISDA_Create_1_0 set to "additional_obligations_specify" when "additional_obligations" = "specify"]
+	threshold Threshold (2..2); // Need for a common sense definition, as I couldn't infer anything sensible from the CSA
+		[synonym ISDA_Create_1_0 value threshold]
 }
 
 class CsaInitialMargin2016NewYorkLaw extends CsaInitialMargin2016 <"A class to specify the provisions that are specific to the New York Law version of the ISDA 2016 Credit Support Annex for Initial Margin.">
@@ -95,7 +111,7 @@ class MultipleDebtTypes <"A class to specify the ability to specify multiple cre
 {
 	condition QuantifierEnum (1..1) <"An enumerated attribute, to qualify whether All or Any debt type applies.">;
 		[synonym FpML_5_10 value condition]
-	debtType string (2..*) scheme <"At least two debt types much be specified.">;
+	debtType string (2..*) scheme <"The type of debt, e.g. long term debt, deposit, ... FpML doesn't specific a scheme value, hence no enumeration is specified as part of the CDM. At least two debt types much be specified.">;
 		[synonym FpML_5_10 value debtType meta debtTypeScheme]
 }
 
@@ -114,7 +130,7 @@ class CreditNotation <"A class to specify the credit notation as the combination
 		[synonym FpML_5_10 value agency meta creditRatingAgencyScheme]
 	notation string (1..1) scheme <"The credit rating notation. As it varies among credit rating agencies, FpML doesn't specify a default scheme.">;
 		[synonym FpML_5_10 value notation meta creditRatingNotationScheme]
-	scale string (0..1) scheme <"The credit rating scale, with a typical distinction between short term, long term. FpML doesn't specify a default scheme.">;
+	scale string (0..1) scheme <"The credit rating scale, with a typical distinction between short term, long term. FpML doesn't specify a default scheme, which is hence not specified as an enumeration as part of the CDM.">;
 		[synonym FpML_5_10 value scale meta creditRatingScaleScheme]
 	debt CreditRatingDebt (0..1) <"The credit rating debt type (e.g. long term, high yield, deposits, ...) associated with the credit rating notation and scale.">;
 		[synonym FpML_5_10 value debt]
@@ -131,7 +147,7 @@ class CreditNotations one of <"The credit rating notation higher level construct
 class CreditRatingDebt one of <"The credit rating debt type(s) associated with the credit rating notation and scale. When several debt types are specified, they must be qualified through an 'any' or 'all'.">
 	[synonym FpML_5_10 value CreditRatingDebt]
 {
-	debtType string (0..1) scheme <"This attribute is to be specified when only one debt type is specified. FpML doesn't specify values in relation to the associated scheme.">;
+	debtType string (0..1) scheme <"This attribute is to be specified when only one debt type is specified. FpML doesn't specify values in relation to the associated scheme, which is hence not specified as an enumeration as part of the CDM.">;
 		[synonym FpML_5_10 value debtType meta debtTypeScheme]
 	debtTypes MultipleDebtTypes (0..1) <"This attribute provides the ability to specify several debt types, alongside an 'any' or 'all' or all condition. As an example, Baa1 rating is required for any long term debt and deposit.">;
 }
@@ -160,8 +176,14 @@ class DocumentIdentity extends LegalDocumentIdentity
 class EligibleCollateral <"The collateral eligibility as a function of the types of asset, the maturity and rating terms.">
 	[synonym FpML_5_10 value EligibleCollateral]
 {
+	/*
+	 * ISDA Create specifies the eligible collateral as well as the valuation % as a string. Let's discuss if there is room a for better approach.
+	 * The below approach which combines the asset, the tenor and the credit rating qualification is extremely comprehensive and was vetted extensively as part of the
+	 * FpML standard CSA initiative.
+	 */
 	eligibleAsset CollateralAssetDefinitionsEnum (1..1) <"The eligible asset is specified by reference to the ISDA 2003 Collateral Assets definitions.">;
 		[synonym FpML_5_10 value eligibleAsset]
+		[synonym ISDA_Create_1_0 value items]
 	lowerMaturity Period (0..1) <"The (optional) lower maturity band of the eligible collateral assets.">;
 		[synonym FpML_5_10 value lowerMaturity]
 	higherMaturity Period (0..1) <"The (optional) higher maturity band of the eligible collateral assets.">;
@@ -170,13 +192,13 @@ class EligibleCollateral <"The collateral eligibility as a function of the types
 		[synonym FpML_5_10 value minimumRating]
 	valuationPercentage number (0..1) <"Specifies the haircut associated to the collateral asset, expressed as a percentage. A value of 90% means that 90% of the value of the applicable asset is considered as collateral. Absence of this element implies that the valuation percentage is 100%.">;
 		[synonym FpML_5_10 value valuationPercentage]
+		[synonym ISDA_Create_1_0 value valuation_percentage]
 }
 
 data rule EligibleCollateral_valuationPercentage <"The valuation percentage should be specified as a value between 0 and 1.">
 	when EligibleCollateral -> valuationPercentage exists
 	then EligibleCollateral -> valuationPercentage >= 0
 	and EligibleCollateral -> valuationPercentage <= 1
-
 
 class IndependentAmountEligibleCollateral <"A class to specify the eligible collateral for initial margin purposes. Those features go beyond what is required for meeting the terms specified by the ISDA 2018 CSA for Initial Margin.">
 	[synonym FpML_5_10 value IndependentAmountEligibleCollateral]
@@ -321,10 +343,13 @@ class PledgorPostingObligations <"A class to specify the pledgor(s) collateral p
 	pledgor Party (1..2) reference <"The pledgor party(ies) to which the posting obligations apply to, which can be either one of the parties to the legal agreement, or both of those.">;
 		[synonym ISDA_Create_1_0 value pledgor]
 	asPermitted boolean (1..1) <"If set to True, the Control Agreement a Credit Support Document with respect to a party. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 6, (e).">;
-		[synonym ISDA_Create_1_0 set to True when "partyA_type" = "control_agreement"]
+		[synonym ISDA_Create_1_0 
+			set to True when "partyA_type" = "control_agreement",
+			set to False when "partyB_eligible_currencies" exists]
 	eligibleCollateral EligibleCollateral (0..*) <"The eligible collateral as specified in relation to the pledgor(s) obligation.">;
-		[synonym FpML_5_10 value eligibleCollateral]
+		[synonym FpML_5_10 value partyA_eligible_currencies]
 	additionalLanguage string (0..1) <"The additional language that might be specified by the parties to the legal agreement.">;
+		[synonym ISDA_Create_1_0 value partyA_additional_language]
 }
 
 data rule PledgorPostingObligations_asPermitted <"">
@@ -339,10 +364,10 @@ class Regime <"A class to specify the regulatory regimes applicable to the respe
 	[synonym AcadiaSoft_AM_1_0 value Regime]
 {
 	partyReference Party (1..1) reference <"The reference to the party to which the set of regulatory regime elections specified in the applicableRegime attribute apply to.">;
-		[synonym ISDA_Create_1_0 value partyA_secured_party]
 		[synonym AcadiaSoft_AM_1_0 value party]
 	applicableRegime ApplicableRegime (1..*) <"The set of regulatory regimes and associated provisions applicable to the respective parties to the legal agreement.">;
 	additionalRegimes AdditionalRegime (0..*) <"The additional regulatory regime(s) that might be specified by the parties to a legal agreement. ISDA 2016 Credit Support Annex for Initial Margin paragraph 13, General Principles, (ll): The parties may from time to time agree in writing that other regimes also comprise `Regimes` and that the General Principles be adopted and/or amended to accommodate such additional Regimes.">;
+		[synonym ISDA_Create_1_0 value additional_regimes]
 }
 
 abstract class RegimeTerms <"An abstract class to specify the regulatory regime terms which are referred to as part of certain legal agreements, such as such as the ISDA 2016 and 2018 CSA for Initial Margin.">
@@ -362,6 +387,8 @@ class SensitivityMethodology one of
 {
 	specifiedMethodology SensitivitiesEnum (0..1);
 	customMethodology string (0..1);
+		[synonym ISDA_Create_1_0 value sensitivities_equity_indices_funds_etfs_specify]
+		[synonym ISDA_Create_1_0 value sensitivities_to_commodity_indices_specify]
 }
 
 class SimmCalculationCurrency <"A class to specify the ISDA SIMM Calculation Currency as either the Base Currency or an alternative currency, in accordance with the ISDA 2018 CSA for Initial Margin, Paragraph 13, General Principles (ee) (3).">
@@ -426,3 +453,21 @@ class TerminationCurrency <"A class to specify the Termination Currency applicab
 	partyReference Party (1..1) reference <"A reference to the party to which the Termination Currency determination applies.">;
 	currency string (1..1) scheme <"The Termination Currency associated with the party that referenced as part of this class. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">;
 }
+
+class Threshold
+{
+	partyReference Party (1..1) reference;
+	amount Money (0..1);
+	customThreshold string (0..1);
+		[synonym ISDA_Create_1_0 value partyA_specify]
+	noThreshold number (0..1);
+		[synonym ISDA_Create_1_0 set to 0 when "partyA_zero" exists] // Mapping to be confirmed with 0 value selected
+}
+
+choice rule Threshold_choice <"The Threshold is specified either through an amount">
+	for Threshold required choice between
+	amount and customThreshold and noThreshold
+	
+data rule Threshold_noThreshold <"">
+	when Threshold -> noThreshold exists
+	then Threshold -> noThreshold = 0	
