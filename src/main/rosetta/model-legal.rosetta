@@ -1,6 +1,6 @@
 namespace "org.isda.cdm"
 version "%project.version%"
-  
+
 class AdditionalRegime extends RegimeTerms <"A class to specify the additional regulatory regime(s) that might be specified by the parties to a legal agreement, such as the ISDA 2016 and 2018 CSA for Initial Margin.">
 {
 	regime string (1..1) <"The additional regulatory regime as specified by the parties.">;
@@ -42,7 +42,7 @@ abstract class CsaInitialMargin2016 <"An abstract class to specify the provision
 		[synonym ISDA_Create_1_0 value base_currency]
 	marginApproach MarginApproachEnum (1..1) <"The Margin Approach applicable to the CSA, as specified by the ISDA 2016 CSA for Initial Margin, Paragraph 13 (c) (i).">;
 	calculationAgent InitialMarginCalculationAgent (1..1) <"The initial margin designated calculation agent, as specified by the ISDA 2016 CSA for Initial Margin, Paragraph 13 (c) (ii).">;
-	custodyArrangement CustodyArrangement (0..2) <"The custodian in respect to each party as the Pledgor/Chargor, as specified by the ISDA 2016 CSA for Initial Margin, Paragraph 13 (m). This attribute is optional as the parties may not specify such custodians as part of the CSA.">;	
+	custodyArrangement CustodyArrangement (0..2) <"The custodian in respect to each party as the Pledgor/Chargor, as specified by the ISDA 2016 CSA for Initial Margin, Paragraph 13 (m). This attribute is optional as the parties may not specify such custodians as part of the CSA.">;
 }
 
 class CsaInitialMargin2016NewYorkLaw extends CsaInitialMargin2016 <"A class to specify the provisions that are specific to the New York Law version of the ISDA 2016 Credit Support Annex for Initial Margin.">
@@ -62,7 +62,7 @@ abstract class CsaInitialMargin2018 <"An abstract class to specify the provision
 	baseCurrency string (1..1) scheme <"The base currency as specified by the ISDA 2018 CSA for Initial Margin, Paragraph 13 (a). The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">;
 	marginApproach MarginApproachEnum (1..1) <"The Margin Approach applicable to the CSA, as specified by the ISDA 2018 CSA for Initial Margin, Paragraph 13 (c) (i).">;
 	calculationAgent InitialMarginCalculationAgent (1..1) <"The initial margin designated calculation agent, as specified by the ISDA 2018 CSA for Initial Margin, Paragraph 13 (c) (ii).">;
-	custodyArrangement CustodyArrangement (0..2) <"The custodian in respect to each party as the Pledgor/Chargor, as specified by the ISDA 2018 CSA for Initial Margin, Paragraph 13 (m). This attribute is optional as the parties may not specify such custodians as part of the CSA.">;	
+	custodyArrangement CustodyArrangement (0..2) <"The custodian in respect to each party as the Pledgor/Chargor, as specified by the ISDA 2018 CSA for Initial Margin, Paragraph 13 (m). This attribute is optional as the parties may not specify such custodians as part of the CSA.">;
 }
 
 class CsaInitialMargin2018EnglishLaw extends CsaInitialMargin2018 <"A class to specify the provisions that are specific to the English Law version of the ISDA 2018 Credit Support Annex for Initial Margin.">
@@ -324,16 +324,16 @@ class PledgorPostingObligations <"A class to specify the pledgor(s) collateral p
 		[synonym ISDA_Create_1_0 set to True when "partyA_type" = "control_agreement"]
 	eligibleCollateral EligibleCollateral (0..*) <"The eligible collateral as specified in relation to the pledgor(s) obligation.">;
 		[synonym FpML_5_10 value eligibleCollateral]
-	additionalLanguage string (0..1) <"The additional language that might be specified by the parties to the legal agreement.">;	
+	additionalLanguage string (0..1) <"The additional language that might be specified by the parties to the legal agreement.">;
 }
 
 data rule PledgorPostingObligations_asPermitted <"">
 	when PledgorPostingObligations -> asPermitted = True
 	then PledgorPostingObligations -> eligibleCollateral is absent
-	
+
 data rule PledgorPostingObligations_eligibleCollateral
 	when PledgorPostingObligations -> asPermitted = False
-	then PledgorPostingObligations -> eligibleCollateral exists	
+	then PledgorPostingObligations -> eligibleCollateral exists
 
 class Regime <"A class to specify the regulatory regimes applicable to the respective parties a legal agreement. 2016 ISDA Credit Support Annex for Initial Margin: Regime.">
 	[synonym AcadiaSoft_AM_1_0 value Regime]
@@ -341,7 +341,7 @@ class Regime <"A class to specify the regulatory regimes applicable to the respe
 	partyReference Party (1..1) reference <"The reference to the party to which the set of regulatory regime elections specified in the applicableRegime attribute apply to.">;
 		[synonym ISDA_Create_1_0 value partyA_secured_party]
 		[synonym AcadiaSoft_AM_1_0 value party]
-	applicableRegime ApplicableRegime (1..*) <"The set of regulatory regimes and associated provisions applicable to the respective parties to the legal agreement.">;	
+	applicableRegime ApplicableRegime (1..*) <"The set of regulatory regimes and associated provisions applicable to the respective parties to the legal agreement.">;
 	additionalRegimes AdditionalRegime (0..*) <"The additional regulatory regime(s) that might be specified by the parties to a legal agreement. ISDA 2016 Credit Support Annex for Initial Margin paragraph 13, General Principles, (ll): The parties may from time to time agree in writing that other regimes also comprise `Regimes` and that the General Principles be adopted and/or amended to accommodate such additional Regimes.">;
 }
 
@@ -404,10 +404,10 @@ class SimmVersion <"A class to specify the ISDA SIMM version that applies to the
 data rule SimmVersion_version1 <"The version attribute should be absent when the SIMM version is stated as not specified for the CSA.">
 	when SimmVersion -> isSpecified = False
 	then SimmVersion -> version is absent
-	
+
 data rule SimmVersion_version2 <"The version attribute should be specified when the SIMM version is stated as specified for the CSA.">
 	when SimmVersion -> isSpecified = True
-	then SimmVersion -> version exists	
+	then SimmVersion -> version exists
 
 class SpecifiedSimmVersion <"A class to specify the ISDA SIMM version applicable to one of the parties to the CSA agreement that will then be the relevant version for that CSA.">
 {

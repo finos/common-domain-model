@@ -13,41 +13,59 @@ import com.rosetta.model.lib.process.Processor;
  */
 public abstract class MappingProcessor implements Processor {
 
-    private final RosettaPath path;
-    private final List<Mapping> mappings;
+	private final RosettaPath path;
+	private final List<Mapping> mappings;
 
-    MappingProcessor(RosettaPath path, List<Mapping> mappings) {
-        this.path = path;
-        this.mappings = mappings;
-    }
+	MappingProcessor(RosettaPath path, List<Mapping> mappings) {
+		this.path = path;
+		this.mappings = mappings;
+	}
 
-    @Override
-    public <R extends RosettaModelObject> void processRosetta(RosettaPath currentPath, Class<? extends R> rosettaType, RosettaModelObjectBuilder<R> builder) {
-        if (currentPath.endsWith(path)) {
-            map(builder);
-        }
-    }
+	@Override
+	public <R extends RosettaModelObject> void processRosetta(RosettaPath currentPath, Class<? extends R> rosettaType
+			, RosettaModelObjectBuilder<R> builder, RosettaModelObjectBuilder<?> parent) {
+		if (builder!=null && currentPath.matchesIgnoringIndex(path)) {
+			map(builder, parent);
+		}
+	}
 
-    @Override
-    public <T> void processBasic(RosettaPath path, Class<T> rosettaType, T instance) {
-        // Do nothing
-    }
+	@Override
+	public <R extends RosettaModelObject> void processRosetta(RosettaPath currentPath, Class<? extends R> rosettaType,
+			List<? extends RosettaModelObjectBuilder<?>> builder, RosettaModelObjectBuilder<?> parent) {
+		if (builder!=null && currentPath.matchesIgnoringIndex(path)) {
+			map(builder, parent);
+		}
+	}
 
-    @Override
-    public Report report() {
-        return null;
-    }
+	
 
-    /**
-     * Perform custom mapping logic and updates resultant mapped value on builder object.
-     */
-    protected abstract <R extends RosettaModelObject> void map(RosettaModelObjectBuilder<R> builder);
+	@Override
+	public <T> void processBasic(RosettaPath path, Class<T> rosettaType, T instance, RosettaModelObjectBuilder<?> parent) {
+		// Do nothing
+	}
 
-    RosettaPath getPath() {
-        return path;
-    }
+	@Override
+	public <T> void processBasic(RosettaPath path, Class<T> rosettaType, List<T> instance,
+			RosettaModelObjectBuilder<?> parent) {
+	}
 
-    List<Mapping> getMappings() {
-        return mappings;
-    }
+	@Override
+	public Report report() {
+		return null;
+	}
+
+	/**
+	 * Perform custom mapping logic and updates resultant mapped value on builder object.
+	 */
+	protected abstract <R extends RosettaModelObject> void map(RosettaModelObjectBuilder<R> builder, RosettaModelObjectBuilder<?> parent);
+	protected abstract void map(List<? extends RosettaModelObjectBuilder<?>> builder,
+			RosettaModelObjectBuilder<?> parent);
+	
+	RosettaPath getPath() {
+		return path;
+	}
+
+	List<Mapping> getMappings() {
+		return mappings;
+	}
 }
