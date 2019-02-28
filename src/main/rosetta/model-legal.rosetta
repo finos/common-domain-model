@@ -39,10 +39,27 @@ class ApplicableRegime extends RegimeTerms <"A class to specify the applicable r
 		[synonym ISDA_Create_1_0 set to RegulatoryRegimeEnum.US_PrudentialMarginRules when "prudential" exists]
 }
 
+class CalculationDateLocation <"A class to specify the Calculation Date Location election for the respective parties to the legal agreement. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d) (i).">
+{
+	partyElections CalculationDateLocationElection (2..2) <"The parties' calculation date location elections.">;
+}
+
+class CalculationDateLocationElection
+{
+	
+}
+
+class CollateralRounding <"A class to specify the rounding methodology applicable to the Delivery Amount and the Return Amount in terms of nearest integral multiple of Base Currency units. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (c) (vi) (C): Rounding.">
+{
+	deliveryAmount number (1..1) <"The rounding methodology applicable to the Delivery Amount in terms of nearest integral multiple of Base Currency units.">;
+		[synonym ISDA_Create_1_0 value delivery_amount]
+	returnAmount number (1..1) <"The rounding methodology applicable to the Return Amount in terms of nearest integral multiple of Base Currency units.">;
+		[synonym ISDA_Create_1_0 value return_amount]
+} 
+
 abstract class CsaInitialMargin2016 <"An abstract class to specify the provisions for the 2016 ISDA Credit Support Annex for Initial Margin that are common among the corresponding governing laws.">
 {
-	regime Regime (2..2) <"The Regime Table provision as specified by the ISDA 2016 CSA for Initial Margin, Paragraph 13 General Principles, which determines the regulatory regime(s) applicable to each of the parties to the CSA in their capacity as Secured Party, with one set of values per counterparty. As specified in the CSA, the applicability of a regime shall not be construed as a representation, admission or acknowledgement that either party is actually regulated under such regime.">;
-		[synonym AcadiaSoft_AM_1_0 value regime]
+	regime Regime (1..1) <"The Regime Table provision as specified by the ISDA 2016 CSA for Initial Margin, Paragraph 13 General Principles, which determines the regulatory regime(s) applicable to each of the parties to the CSA in their capacity as Secured Party, with one set of values per counterparty. As specified in the CSA, the applicability of a regime shall not be construed as a representation, admission or acknowledgement that either party is actually regulated under such regime.">;
 	oneWayProvisions OneWayProvisions (1..1) <"The determination of whether the One Way Provisions are applicable (true) or not applicable (false) as specified by ISDA 2016 CSA for Initial Margin, Paragraph 13 (aa).">;
 	method Method (1..1) <"The specification of the ISDA SIMM Method as specified by ISDA CSA for Initial Margin, Paragraph 13, General Principles (ee).">;
 	sensitivityToEquity SensitivityMethodology (1..1) <"The methodology the compute sensitivities to equity indices, funds and ETFs for the purpose of the ISDA 2016 and 2018 CSA for Initial Margin. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles (gg) (2) (A).">;
@@ -55,10 +72,17 @@ abstract class CsaInitialMargin2016 <"An abstract class to specify the provision
 		[synonym ISDA_Create_1_0 value base_currency]
 	additionalObligations string (0..1) <"The additional obligations as specified in the ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (b)(ii).">;
 		[synonym ISDA_Create_1_0 set to "additional_obligations_specify" when "additional_obligations" = "specify"]
-	otherEligibleSupport string (0..1) <"The items that qualify as Other Eligible Support in accordance with the ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (c)(iv).">;
+	otherEligibleSupport string (0..1) <"The items that qualify as Other Eligible Support in accordance with the ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (c)(iv). ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (vi) (C): Rounding.">;
 		[synonym ISDA_Create_1_0 set to "additional_obligations_specify" when "additional_obligations" = "specify"]
-	threshold Threshold (2..2); // Need for a common sense definition, as I couldn't infer anything sensible from the CSA
+	threshold Threshold (1..1) <"The unsecured credit exposure that the parties are prepared to accept before asking for collateral.">;
 		[synonym ISDA_Create_1_0 value threshold]
+	minimumTransferAmount MinimumTransferAmount (1..1) <"The amount above which collateral has to be posted/returned.">;
+		[synonym ISDA_Create_1_0 value minimum_transfer_amount]
+	rounding CollateralRounding (1..1) <"The rounding methodology applicable to the Delivery Amount and the Return Amount in terms of nearest integral multiple of Base Currency units. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (c) (vi) (C): Rounding">;
+		[synonym ISDA_Create_1_0 value rounding]
+	transferTiming string (0..1) <"The time by which the transfer of collateral must take place when different from the Regular Settlement Day as a result of parties' election. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (c) (vii): Transfer Timing.">;
+		[synonym ISDA_Create_1_0 value settlement_day_specify path "transfer_timing"]
+	calculationDateLocation CalculationDateLocation (1..1);
 }
 
 class CsaInitialMargin2016NewYorkLaw extends CsaInitialMargin2016 <"A class to specify the provisions that are specific to the New York Law version of the ISDA 2016 Credit Support Annex for Initial Margin.">
@@ -311,6 +335,11 @@ class Method <"A class to specify the ISDA SIMM Method as the combination of the
 		[synonym ISDA_Create_1_0 value simm_calculation_currency]
 }
 
+class MinimumTransferAmount <"A class to specify the amount above which collateral has to be posted/returned.">
+{
+	partyElections PartyElectiveAmount (2..2) <"The parties' minimum transfer amount elections.">;
+}
+
 class OneWayProvisions <"A class to specify the Posting Party for the purposes of One Way Provisions in relation to the ISDA CSA for Initial Margin. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles (aa): One Way Provisions | ISDA 2018 Credit Support Annex for Initial Margin, paragraph 13, General Principles (aa): One Way Provisions.">
 {
 	isApplicable boolean (1..1) <"The determination of whether the One Way Provisions are applicable (true) or not applicable (false).">;
@@ -338,11 +367,33 @@ class PartyDocumentIdentifier <"A class defining a legal document identifier iss
 		[synonym FpML_5_10 value documentId meta legalDocumentIdScheme]
 }
 
+class PartyElectiveAmount <"A class to specify party elective amounts which can be used for the purpose of specifying elections such as the ISDA CSA Threshold and Minimum Transfer Amount.">
+{
+	partyReference Party (1..1) reference <"The reference to the party to which the election amount applies to.">;
+	amount Money (0..1) <"The elective amount when expressed as a currency amount. The associated PartyElectiveAmount_amount enforces that the currency amount is actually greater than 0.">;
+	customElection string (0..1) <"The elective amount when expressed as a custom election by the party.">;
+		[synonym ISDA_Create_1_0 value partyA_specify]
+	noAmount number (0..1) <"The elective amount when specifies as 0 with no associated currency. The associated PartyElectiveAmount_noAmount data rule enforces that the number is actually equal to 0.">;
+		[synonym ISDA_Create_1_0 set to 0 when "partyA_minimum_transfer_amount" exists]
+}
+
+choice rule PartyElectiveAmount_choice <"The elective amount is specified either as a currency amount, a custom election or a 0 amount with no associated currency.">
+	for PartyElectiveAmount required choice between
+	amount and customElection and noAmount
+	
+data rule PartyElectiveAmount_noAmount <"The noAmount attribute specifies a 0 amount election, with no associated currency.">
+	when PartyElectiveAmount -> noAmount exists
+	then PartyElectiveAmount -> noAmount = 0	
+
+data rule PartyElectiveAmount_amount <"The amount attribute specifies a currency amount greater than 0.">
+	when PartyElectiveAmount -> amount exists
+	then PartyElectiveAmount -> amount -> amount > 0	
+
 class PledgorPostingObligations <"A class to specify the pledgor(s) collateral posting obligations as specified under the terms of the ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (ii).">
 {
 	pledgor Party (1..2) reference <"The pledgor party(ies) to which the posting obligations apply to, which can be either one of the parties to the legal agreement, or both of those.">;
 		[synonym ISDA_Create_1_0 value pledgor]
-	asPermitted boolean (1..1) <"If set to True, the Control Agreement a Credit Support Document with respect to a party. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 6, (e).">;
+	asPermitted boolean (1..1) <"If set to True, the Control Agreement is a Credit Support Document with respect to the pledgor party(ies). ISDA 2016 Credit Support Annex for Initial Margin, paragraph 6, (e).">;
 		[synonym ISDA_Create_1_0 
 			set to True when "partyA_type" = "control_agreement",
 			set to False when "partyB_eligible_currencies" exists]
@@ -360,14 +411,19 @@ data rule PledgorPostingObligations_eligibleCollateral
 	when PledgorPostingObligations -> asPermitted = False
 	then PledgorPostingObligations -> eligibleCollateral exists
 
-class Regime <"A class to specify the regulatory regimes applicable to the respective parties a legal agreement. 2016 ISDA Credit Support Annex for Initial Margin: Regime.">
+class Regime <"A class to specify the regulatory regimes elections by the respective parties a legal agreement. 2016 ISDA Credit Support Annex for Initial Margin: Regime.">
 	[synonym AcadiaSoft_AM_1_0 value Regime]
 {
-	partyReference Party (1..1) reference <"The reference to the party to which the set of regulatory regime elections specified in the applicableRegime attribute apply to.">;
+	partyReference Party (1..1) reference <"The reference to the party to which the set of regulatory regime elections specified in the applicableRegime attribute applies to.">;
 		[synonym AcadiaSoft_AM_1_0 value party]
 	applicableRegime ApplicableRegime (1..*) <"The set of regulatory regimes and associated provisions applicable to the respective parties to the legal agreement.">;
 	additionalRegimes AdditionalRegime (0..*) <"The additional regulatory regime(s) that might be specified by the parties to a legal agreement. ISDA 2016 Credit Support Annex for Initial Margin paragraph 13, General Principles, (ll): The parties may from time to time agree in writing that other regimes also comprise `Regimes` and that the General Principles be adopted and/or amended to accommodate such additional Regimes.">;
 		[synonym ISDA_Create_1_0 value additional_regimes]
+}
+
+class RegimeElection <"A class to specify the regulatory regimes elections by the each of the parties to a legal agreement.">
+{
+	partyElections Regime (2..2) <"The parties' regulatory regime elections.">;
 }
 
 abstract class RegimeTerms <"An abstract class to specify the regulatory regime terms which are referred to as part of certain legal agreements, such as such as the ISDA 2016 and 2018 CSA for Initial Margin.">
@@ -454,20 +510,7 @@ class TerminationCurrency <"A class to specify the Termination Currency applicab
 	currency string (1..1) scheme <"The Termination Currency associated with the party that referenced as part of this class. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">;
 }
 
-class Threshold
+class Threshold <"A class to specify the unsecured credit exposure that each party to the agreement is prepared to accept before asking for collateral. This threshold is specified either as an amount or as a custom election.">
 {
-	partyReference Party (1..1) reference;
-	amount Money (0..1);
-	customThreshold string (0..1);
-		[synonym ISDA_Create_1_0 value partyA_specify]
-	noThreshold number (0..1);
-		[synonym ISDA_Create_1_0 set to 0 when "partyA_zero" exists] // Mapping to be confirmed with 0 value selected
+	partyElections PartyElectiveAmount (2..2) <"The parties' threshold elections.">;
 }
-
-choice rule Threshold_choice <"The Threshold is specified either through an amount">
-	for Threshold required choice between
-	amount and customThreshold and noThreshold
-	
-data rule Threshold_noThreshold <"">
-	when Threshold -> noThreshold exists
-	then Threshold -> noThreshold = 0	
