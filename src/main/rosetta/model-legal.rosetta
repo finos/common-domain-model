@@ -92,6 +92,11 @@ abstract class CsaInitialMargin2016 <"An abstract class to specify the provision
 		[synonym ISDA_Create_1_0 value settlement_day_specify path "transfer_timing"]
 	calculationDateLocation CalculationDateLocation (1..1) <"The specified location where the credit exposure will be calculated by the respective parties.">;
 		[synonym ISDA_Create_1_0 value calculation_date_location]
+	notificationTime NotificationTime (1..1) <"The time by which a demand for the Transfer of Eligible Credit Support (IM) or Posted Credit Support (IM) needs to be made in order for the transfer to take place in accordance with the Transfer Timing provisions. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d)(iii).">;
+		[synonym ISDA_Create_1_0 value notification_time]
+	conditionPrecedent string (0..1) <"When specified, this attribute overwrites the default Condition Precedent provision as specified in ISDA 2016 Credit Support Annex for Initial Margin, paragraph 4, (a).">;
+		[synonym ISDA_Create_1_0 value conditions_precedent]
+		
 }
 
 class CsaInitialMargin2016NewYorkLaw extends CsaInitialMargin2016 <"A class to specify the provisions that are specific to the New York Law version of the ISDA 2016 Credit Support Annex for Initial Margin.">
@@ -261,6 +266,11 @@ class MultipleCreditNotations <"A class to specify the specify multiple credit n
 		[synonym FpML_5_10 value debtType meta creditNotation]
 }
 
+class NotificationTime <"A class to specify the time by which a demand for the Transfer of Eligible Credit Support (IM) or Posted Credit Support (IM) needs to be made in order for the transfer to take place in accordance with the Transfer Timing provisions. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d)(iii).">
+{
+	partyElections PartyNotificationTime (2..2) <"The parties' Notification Time elections.">;
+}
+
 class OneWayProvisions <"A class to specify the Posting Party for the purposes of One Way Provisions in relation to the ISDA CSA for Initial Margin. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles (aa): One Way Provisions.">
 {
 	isApplicable boolean (1..1) <"The determination of whether the One Way Provisions are applicable (true) or not applicable (false).">;
@@ -288,7 +298,7 @@ class PartyDocumentIdentifier <"A class defining a legal document identifier iss
 		[synonym FpML_5_10 value documentId meta legalDocumentIdScheme]
 }
 
-class PartyElectiveAmount <"A class to specify party elective amounts which can be used for the purpose of specifying elections such as the ISDA CSA Threshold and Minimum Transfer Amount.">
+class PartyElectiveAmount <"A class to specify the party elective amounts which can be used for the purpose of specifying elections such as the ISDA CSA Threshold and Minimum Transfer Amount.">
 {
 	party Party (1..1) reference <"The party which the elective amount applies to.">;
 	amount Money (0..1) <"The elective amount when expressed as a currency amount. The associated PartyElectiveAmount_amount enforces that the currency amount is actually greater than 0.">;
@@ -309,6 +319,18 @@ data rule PartyElectiveAmount_noAmount <"The noAmount attribute specifies a 0 am
 data rule PartyElectiveAmount_amount <"The amount attribute specifies a currency amount greater than 0.">
 	when PartyElectiveAmount -> amount exists
 	then PartyElectiveAmount -> amount -> amount > 0	
+
+class PartyNotificationTime <"A class to specify the party notification time elections.">
+{
+	party Party (1..1) reference <"The party which the notification time election applies to.">;
+	notificationTime BusinessCenterTime (0..1) <"The Notification Time as a time that is qualified by a standard business center.">;
+	customNotification string (0..1) <"The Notification Time as a custom election.">;
+		[synonym ISDA_Create_1_0 value partyA_specify]
+}
+
+choice rule PartyNotificationTime_choice <"The Notification Time election can be done either as a time that is qualified by a standard business center, or as a custom election.">
+	for PartyNotificationTime required choice between
+	notificationTime and customNotification
 
 class PledgorPostingObligations <"A class to specify the pledgor(s) collateral posting obligations as specified under the terms of the ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (ii).">
 {
@@ -424,5 +446,5 @@ class TerminationCurrency <"A class to specify the Termination Currency applicab
 
 class Threshold <"A class to specify the unsecured credit exposure that each party to the agreement is prepared to accept before asking for collateral. This threshold is specified either as an amount or as a custom election.">
 {
-	partyElections PartyElectiveAmount (2..2) <"The parties' threshold elections.">;
+	partyElections PartyElectiveAmount (2..2) <"The parties' Threshold elections.">;
 }
