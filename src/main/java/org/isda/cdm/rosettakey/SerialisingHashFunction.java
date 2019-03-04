@@ -23,9 +23,21 @@ public class SerialisingHashFunction implements PostProcessStep {
 	public String getName() {
 		return "SHA-256 key calculator";
 	}
+	
+	public String hash(RosettaModelObject object) {
+		return computeHashes(object.getClass(), object);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private <T extends RosettaModelObject> String computeHashes(Class<T> clazz, RosettaModelObject object) {
+		RosettaModelObjectBuilder<T> builder = (RosettaModelObjectBuilder<T>) object.toBuilder();
+		StringHashProstProcessReport<? extends T> report = runProcessStep(clazz, builder);
+		
+		return report.getResultHash();
+	}
 
 	@Override
-	public <T extends RosettaModelObject> PostProcessorReport<? extends T> runProcessStep(Class<T> topClass,
+	public <T extends RosettaModelObject> StringHashProstProcessReport<? extends T> runProcessStep(Class<T> topClass,
 			RosettaModelObjectBuilder<? extends T> builder) {
 		T built = builder.build();
 		try {
