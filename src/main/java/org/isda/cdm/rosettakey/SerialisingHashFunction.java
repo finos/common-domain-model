@@ -25,8 +25,8 @@ public class SerialisingHashFunction implements PostProcessStep {
 	}
 
 	@Override
-	public <T extends RosettaModelObject> PostProcessorReport<T> runProcessStep(Class<T> topClass,
-			RosettaModelObjectBuilder<T> builder) {
+	public <T extends RosettaModelObject> PostProcessorReport<? extends T> runProcessStep(Class<T> topClass,
+			RosettaModelObjectBuilder<? extends T> builder) {
 		T built = builder.build();
 		try {
             byte[] bytes = RosettaObjectMapper.getDefaultRosettaObjectMapper().writeValueAsBytes(built);
