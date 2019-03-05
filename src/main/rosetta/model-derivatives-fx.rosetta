@@ -1,28 +1,59 @@
 namespace "org.isda.cdm"
 version "${project.version}"
 
-class FxPayout extends FxCoreDetails {
+class ForwardPayout <"A forward contract"> 
+{
+	product Product (1..1) <"The product underlying the forward contract">;
+	settlementDate date (0..1) <"For FX Forward, the settlement date (or value date) for each currency leg can be set individually.">;
 	
 }
 
-class FxCoreDetails <"The elements common to FX spot, forward and swap legs.">
+class Fx extends BaseFxProduct 
+{
+	exchangedCurrency1 Cashflow (1..1);
+	exchangedCurrency2 Cashflow (1..1);
+}
+
+class BaseFxProduct <"The elements common to FX spot, forward and swap legs.">
 {
 	dealtCurrency DealtCurrencyEnum (0..1) <"Indicates which currency was dealt.">;
 	fxTenor FxTenor (0..1);
-	valueDate date (0..1) <"The date on which both currencies traded will settle.">;
-	currencyValueDates CurrencyDates (0..1) <"The date on which the currency1 amount will be settled. To be used in a split value date scenario.">;
+	currencyValueDates CurrencyDates (0..1);
 	exchangeRate ExchangeRate (1..1) <"The rate of exchange between the two currencies.">;
 	nonDeliverableSettlement FxCashSettlement (0..1) <"Used to describe a particular type of FX forward transaction that is settled in a single currency (for example, a non-deliverable forward).">;
 	disruption FxDisruption (0..*) <"Describes the disruption events and fallbacks applicable to a currency pair referenced by the transaction.">;
 }
 
-choice rule FxCoreDetails_choice
-	for FxCoreDetails required choice between valueDate and currencyValueDates
+
+data rule FxForward_settlementDate_choice <"For Fx Forwards, either the settlementDate is set or the currencyValueDates, but not both.">
+	when ForwardPayout -> product -> fx exists 
+	then 
+	(
+		ForwardPayout -> settlementDate exists and 
+		ForwardPayout -> product -> fx -> currencyValueDates is absent
+	)
+	or 
+	(
+		ForwardPayout -> settlementDate is absent and 
+		ForwardPayout -> product -> fx -> currencyValueDates exists
+	)
 	
+data rule FxForward_settlementDate_choice_alternative <"For Fx Forwards, either the settlementDate is set or the currencyValueDates, but not both.">
+	when ForwardPayout -> product -> fx exists 
+	then (ForwardPayout -> settlementDate exists) <> (ForwardPayout -> product -> fx -> currencyValueDates exists)
+	
+//	Another choice of syntax, however this will require some grammar changes
+//	data rule FxForward_settlementDate_choice_2 <"For Fx Forwards, either the settlementDate is set or the currencyValueDates, but not both.">
+//	when ForwardPayout -> product -> fx exists 
+//	then exactly one of 
+//		ForwardPayout -> settlementDate 
+//		ForwardPayout -> product -> fx -> currencyValueDates
+//	
+		
 class CurrencyDates
 {
-	currency1ValueDate date (1..1);
-	currency2ValueDate date (1..1);
+	currency1ValueDate date (1..1) <"The date on which the currency1 amount will be settled. To be used in a split value date scenario.">;
+	currency2ValueDate date (1..1) <"The date on which the currency2 amount will be settled. To be used in a split value date scenario.">;
 }
 
 class FxTenor 
@@ -128,13 +159,27 @@ class FxDisruptionProvisions <"Describes a set of disruption events and the fall
 
 class FxDisruptionEvents <"A container for the disruption event set."> 
 {
-	// fxDisruptionEvent string (1..*);
+	fxDisruptionEvent FxDisruptionEvent (1..*);
+		
 	
-	
+//	 dualExchangeRate FxDisruptionEvent (0..*);
+//	 exchangeRestrictions FxDisruptionEvent (0..*);
+//	 priceSourceDisruption FxDisruptionEvent (0..*);
+}
+
+//choice rule FxDisruptionEvents_choice 
+//	for FxDisruptionEvents optional choice between dualExchangeRate and exchangeRestrictions and fxDisruptionEvent
+
+class FxDisruptionEvent {
+	label FxDisruptionEventEnum (1..1);
 }
 
 class FxDisruptionFallbacks {
 	
+}
+
+enum FxDisruptionEventEnum {
+	dualExchangeRate, exchangeRestrictions, priceSourceDisruption
 }
 
 enum DealtCurrencyEnum { 
