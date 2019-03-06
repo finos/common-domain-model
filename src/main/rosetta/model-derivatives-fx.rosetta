@@ -5,13 +5,15 @@ class ForwardPayout <"A forward contract">
 {
 	product Product (1..1) <"The product underlying the forward contract">;
 	settlementDate date (0..1) <"For FX Forward, the settlement date (or value date) for each currency leg can be set individually.">;
-	
+		[synonym FpML_5_10 value valueDate path "fxSingleLeg"]
 }
 
 class Fx extends BaseFxProduct 
 {
 	exchangedCurrency1 Cashflow (1..1);
+		[synonym FpML_5_10 value exchangedCurrency1]
 	exchangedCurrency2 Cashflow (1..1);
+		[synonym FpML_5_10 value exchangedCurrency2]
 }
 
 class BaseFxProduct <"The elements common to FX spot, forward and swap legs.">
@@ -20,10 +22,11 @@ class BaseFxProduct <"The elements common to FX spot, forward and swap legs.">
 	fxTenor FxTenor (0..1);
 	currencyValueDates CurrencyDates (0..1);
 	exchangeRate ExchangeRate (1..1) <"The rate of exchange between the two currencies.">;
+		[synonym FpML_5_10 value exchangeRate]
 	nonDeliverableSettlement FxCashSettlement (0..1) <"Used to describe a particular type of FX forward transaction that is settled in a single currency (for example, a non-deliverable forward).">;
 	disruption FxDisruption (0..*) <"Describes the disruption events and fallbacks applicable to a currency pair referenced by the transaction.">;
+		[synonym FpML_5_10 value disruption]
 }
-
 
 data rule FxForward_settlementDate_choice <"For Fx Forwards, either the settlementDate is set or the currencyValueDates, but not both.">
 	when ForwardPayout -> product -> fx exists 
@@ -42,13 +45,13 @@ data rule FxForward_settlementDate_choice_alternative <"For Fx Forwards, either 
 	when ForwardPayout -> product -> fx exists 
 	then (ForwardPayout -> settlementDate exists) <> (ForwardPayout -> product -> fx -> currencyValueDates exists)
 	
-//	Another choice of syntax, however this will require some grammar changes
-//	data rule FxForward_settlementDate_choice_2 <"For Fx Forwards, either the settlementDate is set or the currencyValueDates, but not both.">
+//Another choice of syntax, however this will require some grammar changes
+//data rule FxForward_settlementDate_choice_2 <"For Fx Forwards, either the settlementDate is set or the currencyValueDates, but not both.">
 //	when ForwardPayout -> product -> fx exists 
 //	then exactly one of 
 //		ForwardPayout -> settlementDate 
 //		ForwardPayout -> product -> fx -> currencyValueDates
-//	
+	
 		
 class CurrencyDates
 {
@@ -60,16 +63,23 @@ class FxTenor
 {
 	tenorName FxTenorPeriodEnum (1..1) <"A tenor expressed with a standard business term (i.e. Spot, TomorrowNext, etc.)">;
 	tenorPeriod Period (1..1) <"A tenor expressed as a period type and multiplier (e.g. 1D, 1Y, etc.)">;
+		[synonym FpML_5_10 value tenorPeriod]
 }
 
 class ExchangeRate <"A type that is used for describing the exchange rate for a particular transaction."> 
 {
 	quotedCurrencyPair QuotedCurrencyPair (1..1) <"Defines the two currencies for an FX trade and the quotation relationship between the two currencies.">;
+		[synonym FpML_5_10 value quotedCurrencyPair]
 	rate number (1..1) <"The rate of exchange between the two currencies of the leg of a deal. Must be specified with a quote basis.">;
-	spotRate number (0..1) <"An element used for FX forwards and certain types of FX OTC options. For deals consumated in the FX Forwards Market, this represents the current market rate for a particular currency pair. For barrier and digital/binary options, it can be useful to include the spot rate at the time the option was executed to make it easier to know whether the option needs to move 'up' or 'down' to be triggered.">;
-	forwardPoints number (0..1) <"An optional element used for deals consumated in the FX Forwards market. Forward points represent the interest rate differential between the two currencies traded and are quoted as a preminum or a discount. Forward points are added to, or subtracted from, the spot rate to create the rate of the forward trade.">;
+		[synonym FpML_5_10 value rate]
+	spotRate number (0..1) <"An element used for FX forwards and certain types of FX OTC options. For deals consummated in the FX Forwards Market, this represents the current market rate for a particular currency pair. For barrier and digital/binary options, it can be useful to include the spot rate at the time the option was executed to make it easier to know whether the option needs to move 'up' or 'down' to be triggered.">;
+		[synonym FpML_5_10 value spotRate]
+	forwardPoints number (0..1) <"An optional element used for deals consummated in the FX Forwards market. Forward points represent the interest rate differential between the two currencies traded and are quoted as a premium or a discount. Forward points are added to, or subtracted from, the spot rate to create the rate of the forward trade.">;
+		[synonym FpML_5_10 value forwardPoints]
 	pointValue number (0..1) <"An optional element that documents the size of point (pip) in which a rate was quoted (or in this case, forwardPoints are calculated). Point (pip) size varies by currency pair: major currencies are all traded in points of 0.0001, with the exception of JPY which has a point size of 0.01. The FpML PointValue type is constrained such that the factor can only be values of 10^n, where n <= 0, this constraint is not enforced here and is left to the implementor.">;
+		[synonym FpML_5_10 value pointValue]
 	crossRate CrossRate (0..*) <"An optional element that allow for definition of the currency exchange rates used to cross between the traded currencies for non-base currency FX contracts.">;
+		[synonym FpML_5_10 value crossRate]
 }
 
 data rule ExchangeRate_rate <"Per FpML the rate must be a PositiveDecimal">
@@ -92,6 +102,7 @@ data rule ExchangeRate_rule_2
 class CrossRate extends QuotedCurrencyPair <"A type that is used for including the currency exchange rates used to cross between the traded currencies for non-base currency FX contracts.">
 {
 	rate number (1..1) <"The exchange rate used to cross between the traded currencies.">;
+		[synonym FpML_5_10 value rate]
 	spotRate number (0..1) <"An optional element used for FX forwards and certain types of FX OTC options. For deals consumated in the FX Forwards Market, this represents the current market rate for a particular currency pair.">;
 	forwardPoints number (0..1) <"An optional element used for deals consumated in the FX Forwards market. Forward points represent the interest rate differential between the two currencies traded and are quoted as a preminum or a discount. Forward points are added to, or subtracted from, the spot rate to create the rate of the forward trade.">;
 }
@@ -149,12 +160,14 @@ class FxDisruption <"A structure describing how disruption for a specified curre
 	baseCurrency string (1..1) scheme <"The base currency in the exchange rate monitored for disruption events. Typically this will be the settlement currency, but could be an intermediate currency, in the case where disruption provisions are defined for components of a cross rate.">;
 	referenceCurrency string (1..1) scheme <"The reference currency in the exchange rate being monitored for disruption events.">;
 	provisions FxDisruptionProvisions (1..*) <"One or more provisions describing disruption events and how they will be handled.">;
+		[synonym FpML_5_10 value provisions]
 }
 
 class FxDisruptionProvisions <"Describes a set of disruption events and the fallbacks they will invoke.">
 {
 	events FxDisruptionEvents (1..1) <"If any of the events listed in this section occurs then the associated fallbacks will be applied.">;
 	fallbacks FxDisruptionFallbacks (1..1) <"Describes the fallback processing or termination procedures that can be applied if an event occurs">;
+		[synonym FpML_5_10 value fallbacks]
 }
 
 class FxDisruptionEvents <"A container for the disruption event set."> 
