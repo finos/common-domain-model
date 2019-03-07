@@ -6,6 +6,8 @@ import com.regnosys.rosetta.common.inspection.RosettaNodeInspector;
 import com.rosetta.model.lib.path.RosettaPath;
 import org.isda.cdm.*;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -19,6 +21,8 @@ import static org.hamcrest.Matchers.is;
 import static org.isda.cdm.filter.EventEffectPathFilter.*;
 
 class EventEffectPathFilterTest {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(EventEffectPathFilterTest.class);
 
     @Test
     void shouldFilterPathsForEffectedContract() {
@@ -84,6 +88,9 @@ class EventEffectPathFilterTest {
         Visitor<PathObject<Class<?>>> collectFilteredPathVisitor = getCollectEffectedContractPathsVisitor(filteredPaths);
         rosettaNodeInspector.inspect(PathTypeNode.root(Event.class), collectFilteredPathVisitor);
 
+        LOGGER.debug("Collected these paths to Contract:");
+        filteredPaths.forEach(path -> LOGGER.debug("{}", path));
+        
         assertThat(filteredPaths, hasSize(4));
         assertThat(filteredPaths.stream()
                         .map(o -> o.getHierarchicalPath().map(RosettaPath::buildPath).orElse(""))
@@ -100,7 +107,7 @@ class EventEffectPathFilterTest {
             Class<?> forClass = n.get().getObject();
             List<String> inspectedPath = n.get().getPath();
             if(Contract.class.isAssignableFrom(forClass) &&
-                    inspectedPath.containsAll(EventEffectPathFilter.EFFECTED_CONTRACT_REQUIRED_PATHS) &&
+                    EventEffectPathFilter.EFFECTED_CONTRACT_PREDICATE.test(inspectedPath) &&
             		!inspectedPath.contains("lineage") && // ignore lineage as it links to previous events
                     !inspectedPath.contains("underlier")) // ignore underlier as it links to other contracts
             {
