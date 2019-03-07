@@ -28,7 +28,7 @@ public class TradeSideToPartyMappingProcessor extends MappingProcessor {
 	}
 
 	@Override
-	public <R extends RosettaModelObject> void map(RosettaModelObjectBuilder<R> builder, RosettaModelObjectBuilder<?> parent) {
+	public <R extends RosettaModelObject> void map(RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
 		ReferenceWithMetaPartyBuilder partyReference = (ReferenceWithMetaPartyBuilder) builder;
 		String tradeSideId = partyReference.getReference();
 		
@@ -68,7 +68,7 @@ public class TradeSideToPartyMappingProcessor extends MappingProcessor {
 	}
 
 	@Override
-	protected void map(List<? extends RosettaModelObjectBuilder<?>> builder, RosettaModelObjectBuilder<?> parent) {
+	protected void map(List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
 		// TODO Auto-generated method stub
 		
 	}

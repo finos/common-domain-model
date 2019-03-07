@@ -28,43 +28,42 @@ public class SerialisingHashFunction implements PostProcessStep {
 		return computeHashes(object.getClass(), object);
 	}
 	
-	@SuppressWarnings("unchecked")
 	private <T extends RosettaModelObject> String computeHashes(Class<T> clazz, RosettaModelObject object) {
-		RosettaModelObjectBuilder<T> builder = (RosettaModelObjectBuilder<T>) object.toBuilder();
-		StringHashProstProcessReport<? extends T> report = runProcessStep(clazz, builder);
+		RosettaModelObjectBuilder builder = object.toBuilder();
+		StringHashPostProcessReport report = runProcessStep(clazz, builder);
 		
 		return report.getResultHash();
 	}
 
 	@Override
-	public <T extends RosettaModelObject> StringHashProstProcessReport<? extends T> runProcessStep(Class<T> topClass,
-			RosettaModelObjectBuilder<? extends T> builder) {
-		T built = builder.build();
+	public <T extends RosettaModelObject> StringHashPostProcessReport runProcessStep(Class<T> topClass,
+			RosettaModelObjectBuilder builder) {
+		RosettaModelObject built = builder.build();
 		try {
             byte[] bytes = RosettaObjectMapper.getDefaultRosettaObjectMapper().writeValueAsBytes(built);
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            return new StringHashProstProcessReport<>(Base64.getEncoder().encodeToString(digest.digest(bytes)), builder);
+            return new StringHashPostProcessReport(Base64.getEncoder().encodeToString(digest.digest(bytes)), builder);
         } catch (JsonProcessingException | NoSuchAlgorithmException e) {
             throw new ProcessingException("Unable to generate hash for object: " + built.toString(), e);
         }
 	}
 
-	class StringHashProstProcessReport<T extends RosettaModelObject> implements PostProcessorReport<T> {
+	class StringHashPostProcessReport implements PostProcessorReport {
 		private final String resultHash;
-		private final  RosettaModelObjectBuilder<T> resultObject;
+		private final  RosettaModelObjectBuilder resultObject;
 		
 		public String getResultHash() {
 			return resultHash;
 		}
 
-		public StringHashProstProcessReport(String resultHash, RosettaModelObjectBuilder<T> resultObject) {
+		public StringHashPostProcessReport(String resultHash, RosettaModelObjectBuilder resultObject) {
 			super();
 			this.resultHash = resultHash;
 			this.resultObject = resultObject;
 		}
 
 		@Override
-		public RosettaModelObjectBuilder<T> getResultObject() {
+		public RosettaModelObjectBuilder getResultObject() {
 			return resultObject;
 		}
 		
