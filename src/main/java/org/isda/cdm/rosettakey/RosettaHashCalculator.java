@@ -22,7 +22,7 @@ public class RosettaHashCalculator {
 	
 	private <T extends RosettaModelObject> Map<String, RosettaModelObject> computeHashes(Class<T> clazz, RosettaModelObject object) {
 		RosettaModelObjectBuilder builder = object.toBuilder();
-		KeyPostProcessReport<? extends T> report = processor.runProcessStep(clazz, builder);
+		KeyPostProcessReport report = processor.runProcessStep(clazz, builder);
 		
 		return report.getKeyMap().entrySet().stream().collect(Collectors.toMap(e->e.getKey(), e->e.getValue().build()));
 	}
