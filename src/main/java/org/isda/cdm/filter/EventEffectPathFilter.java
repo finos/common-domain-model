@@ -19,23 +19,28 @@ public class EventEffectPathFilter {
 
     static final List<String> EFFECTED_CONTRACT_REQUIRED_PATHS = Arrays.asList("primitive", "before");
     static final List<String> EFFECTED_EXECUTION_REQUIRED_PATHS = Arrays.asList("primitive", "before");
-
+    static final List<String> FORWARD_CONTRACT_PATHS = Arrays.asList("forwardPayout", "product", "contract");
+    static final List<String> FORWARD_CONTRACTUAL_PRODUCT_PATHS = Arrays.asList("forwardPayout", "product", "contractualProduct");
+    
+    static final Predicate<List<String>> EFFECTED_CONTRACT_PREDICATE = (rosettaKeyPath) -> rosettaKeyPath.containsAll(EFFECTED_CONTRACT_REQUIRED_PATHS) && 
+    		!rosettaKeyPath.containsAll(FORWARD_CONTRACT_PATHS) && 
+    		!rosettaKeyPath.containsAll(FORWARD_CONTRACTUAL_PRODUCT_PATHS);
     /**
      * Map containing predicates to determine whether a given rosettaKeyPath should be added to event effect path.
      */
-    private static final Map<PathClass, Predicate<RosettaPath>> PATH_FILTERS = ImmutableMap.<PathClass, Predicate<RosettaPath>>builder()
-            .put(EFFECTED_CONTRACT_PATH, (rosettaKeyPath) -> rosettaKeyPath.allElementPaths().containsAll(EFFECTED_CONTRACT_REQUIRED_PATHS))
-            .put(EFFECTED_EXECUTION_PATH, (rosettaKeyPath) -> rosettaKeyPath.allElementPaths().containsAll(EFFECTED_EXECUTION_REQUIRED_PATHS))
-            .put(CONTRACT_PATH, (rosettaKeyPath) -> !rosettaKeyPath.allElementPaths().containsAll(EFFECTED_CONTRACT_REQUIRED_PATHS))
-            .put(EXECUTION_PATH, (rosettaKeyPath) -> !rosettaKeyPath.allElementPaths().containsAll(EFFECTED_EXECUTION_REQUIRED_PATHS))
+    private static final Map<PathClass, Predicate<List<String>>> PATH_FILTERS = ImmutableMap.<PathClass, Predicate<List<String>>>builder()
+            .put(EFFECTED_CONTRACT_PATH, EFFECTED_CONTRACT_PREDICATE)
+            .put(EFFECTED_EXECUTION_PATH, (rosettaKeyPath) -> rosettaKeyPath.containsAll(EFFECTED_EXECUTION_REQUIRED_PATHS))
+            .put(CONTRACT_PATH, (rosettaKeyPath) -> !rosettaKeyPath.containsAll(EFFECTED_CONTRACT_REQUIRED_PATHS))
+            .put(EXECUTION_PATH, (rosettaKeyPath) -> !rosettaKeyPath.containsAll(EFFECTED_EXECUTION_REQUIRED_PATHS))
             .build();
-
+    
     /**
      * @return true to indicate that rosettaKey at the given rosettaKeyPath should be added to eventEffectsPath
      */
     public static boolean test(RosettaPath eventEffectsPath, Class<?> forClass, RosettaPath rosettaKeyPath) {
         return Optional.ofNullable(PATH_FILTERS.get(new PathClass(eventEffectsPath, forClass)))
-                .map(predicate -> predicate.test(rosettaKeyPath))
+                .map(predicate -> predicate.test(rosettaKeyPath.allElementPaths()))
                 .orElse(true);
     }
 
