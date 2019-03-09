@@ -21,11 +21,11 @@ public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
 	}
 
 	@Override
-	protected <R extends RosettaModelObject> void map(RosettaModelObjectBuilder<R> builder, RosettaModelObjectBuilder<?> parent) {
+	protected <R extends RosettaModelObject> void map(RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
 	}
 
 	@Override
-	protected void map(List<? extends RosettaModelObjectBuilder<?>> builder, RosettaModelObjectBuilder<?> parent) {
+	protected void map(List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
 		@SuppressWarnings("unchecked")
 		List<InterestRatePayoutBuilder> irps = (List<InterestRatePayoutBuilder>) builder;
 		List<InterestRatePayoutBuilder> result = new ArrayList<>();
