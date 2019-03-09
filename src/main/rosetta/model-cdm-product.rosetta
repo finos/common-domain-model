@@ -1131,29 +1131,14 @@ isProduct InterestRate_Fra
 
 isProduct ForeignExchange_Forward
 	[synonym ISDA_Taxonomy_v1 value ForeignExchange_Forward]
-	EconomicTerms -> payout -> forwardPayout -> product -> fx -> exchangeRate -> forwardPoints exists and 
-	EconomicTerms -> payout -> forwardPayout -> product -> fx -> exchangeRate -> spotRate exists
+	EconomicTerms -> payout -> forwardPayout -> product -> fx exists and  
+	EconomicTerms -> payout -> forwardPayout -> settlementDate - EconomicTerms -> payout -> forwardPayout -> tradeDate > 2
 
 isProduct ForeignExchange_Spot
 	[synonym ISDA_Taxonomy_v1 value ForeignExchange_Spot]
-	EconomicTerms -> payout -> forwardPayout -> product -> fx -> exchangeRate -> forwardPoints is absent and 
-	EconomicTerms -> payout -> forwardPayout -> product -> fx -> exchangeRate -> spotRate is absent and
-	EconomicTerms -> payout -> forwardPayout -> product -> fx -> exchangeRate -> rate exists 
+	EconomicTerms -> payout -> forwardPayout -> product -> fx exists and  
+	EconomicTerms -> payout -> forwardPayout -> settlementDate - EconomicTerms -> payout -> forwardPayout -> tradeDate <= 2 
 
-class Foo {
-	three number (1..1);
-	two number (1..1);
-	four date (1..1);
-	five date (1..1);
-}
-
-data rule Foo_rule 
-	when Foo -> three exists 
-	then 
-		Foo -> four + Foo -> five = 42
-
-isProduct Foo_qualifier
-	EconomicTerms -> quantity -> quantity -> amount + EconomicTerms -> quantity -> quantity -> amount = 42
 	
 alias effectiveDate // Scope limited to interestPayout until such time that we position it to the economicTerms level
 	EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate
