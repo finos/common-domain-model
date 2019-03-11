@@ -35,8 +35,22 @@ steps:
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.workbench.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.common.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -U -s /settings.xml clean deploy
-      - mvn -U -s /settings.xml -f pom-daml.xml clean deploy
 
+  BuildDaml:
+    title: Maven DAML build
+    fail_fast: false
+    image: r.cfcr.io/regnosysops/regnosys/mvn-docker-build:java-11
+    working_directory: ./
+    when:
+      condition:
+        all:
+          isNotRelease: "${{TAG_REPO}} == false"
+    commands:
+      - rm -rf /codefresh/volume/.m2/com/regnosys
+      - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.workbench.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.common.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - mvn -U -s /settings.xml -f pom-daml.xml clean deploy
 
   BuildRelease:
     title: Maven build for release
@@ -53,8 +67,6 @@ steps:
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.workbench.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.common.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -s /settings.xml clean deploy -P full
-      - mvn -U -s /settings.xml -f pom-daml.xml clean deploy
-
 
   NotifySlackOnFail:
     title: Trigger Slack dev channel notification if master build failed
