@@ -3,6 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.isda</groupId>
     <artifactId>cdm-daml</artifactId>
+    <packaging>pom</packaging>
     <name>cdm</name>
 
     <url>https://www.rosetta-model.org</url>
@@ -93,13 +94,13 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>copy-cdm-files</id>
+                        <id>copy-rosetta-src</id>
                         <phase>validate</phase>
                         <goals>
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${basedir}/target/classes/cdm/rosetta</outputDirectory>
+                            <outputDirectory>${project.build.directory}/classes/cdm/rosetta</outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>src/main/rosetta</directory>
@@ -112,7 +113,7 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>copy-daml-sources</id>
+                        <id>copy-daml-src</id>
                         <phase>process-resources</phase>
                         <goals>
                             <goal>copy-resources</goal>
@@ -146,25 +147,6 @@
                         <goals>
                             <goal>generate</goal>
                         </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>3.0.0</version>
-                <executions>
-                    <execution>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>src/generated/daml/</source>
-                                <source>src/main/rosetta/</source>
-                            </sources>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -248,29 +230,19 @@
                 </dependencies>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.0</version>
+                <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
-                    <excludes>
-                        <exclude>**/*.rosetta</exclude>
-                        <exclude>**/*.java</exclude>
-                    </excludes>
-                    <skip>true</skip>
+                    <descriptors>
+                        <descriptor>assembly-daml.xml</descriptor>
+                    </descriptors>
+                    <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
                 <executions>
                     <execution>
-                        <id>default-compile</id>
-                        <phase>compile</phase>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
                         <goals>
-                            <goal>compile</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>default-testCompile</id>
-                        <phase>test-compile</phase>
-                        <goals>
-                            <goal>testCompile</goal>
+                            <goal>single</goal>
                         </goals>
                     </execution>
                 </executions>
