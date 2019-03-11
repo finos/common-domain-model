@@ -20,10 +20,9 @@ public class RosettaHashCalculator {
 		return computeHashes(object.getClass(), object);
 	}
 	
-	@SuppressWarnings("unchecked")
 	private <T extends RosettaModelObject> Map<String, RosettaModelObject> computeHashes(Class<T> clazz, RosettaModelObject object) {
-		RosettaModelObjectBuilder<T> builder = (RosettaModelObjectBuilder<T>) object.toBuilder();
-		KeyPostProcessReport<? extends T> report = processor.runProcessStep(clazz, builder);
+		RosettaModelObjectBuilder builder = object.toBuilder();
+		KeyPostProcessReport report = processor.runProcessStep(clazz, builder);
 		
 		return report.getKeyMap().entrySet().stream().collect(Collectors.toMap(e->e.getKey(), e->e.getValue().build()));
 	}

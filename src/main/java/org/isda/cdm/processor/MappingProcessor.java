@@ -24,7 +24,7 @@ public abstract class MappingProcessor implements BuilderProcessor {
 
 	@Override
 	public <R extends RosettaModelObject> void processRosetta(RosettaPath currentPath, Class<? extends R> rosettaType
-			, RosettaModelObjectBuilder<? extends R> builder, RosettaModelObjectBuilder<?> parent, AttributeMeta... meta) {
+			, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent, AttributeMeta... meta) {
 		if (builder!=null && currentPath.matchesIgnoringIndex(path)) {
 			map(builder, parent);
 		}
@@ -32,7 +32,7 @@ public abstract class MappingProcessor implements BuilderProcessor {
 
 	@Override
 	public <R extends RosettaModelObject> void processRosetta(RosettaPath currentPath, Class<? extends R> rosettaType,
-			List<? extends RosettaModelObjectBuilder<?>> builder, RosettaModelObjectBuilder<?> parent, AttributeMeta... meta) {
+			List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent, AttributeMeta... meta) {
 		if (builder!=null && currentPath.matchesIgnoringIndex(path)) {
 			map(builder, parent);
 		}
@@ -41,13 +41,13 @@ public abstract class MappingProcessor implements BuilderProcessor {
 	
 
 	@Override
-	public <T> void processBasic(RosettaPath path, Class<T> rosettaType, T instance, RosettaModelObjectBuilder<?> parent, AttributeMeta... meta) {
+	public <T> void processBasic(RosettaPath path, Class<T> rosettaType, T instance, RosettaModelObjectBuilder parent, AttributeMeta... meta) {
 		// Do nothing
 	}
 
 	@Override
 	public <T> void processBasic(RosettaPath path, Class<T> rosettaType, List<T> instance,
-			RosettaModelObjectBuilder<?> parent, AttributeMeta... meta) {
+			RosettaModelObjectBuilder parent, AttributeMeta... meta) {
 	}
 
 	@Override
@@ -58,9 +58,9 @@ public abstract class MappingProcessor implements BuilderProcessor {
 	/**
 	 * Perform custom mapping logic and updates resultant mapped value on builder object.
 	 */
-	protected abstract <R extends RosettaModelObject> void map(RosettaModelObjectBuilder<R> builder, RosettaModelObjectBuilder<?> parent);
-	protected abstract void map(List<? extends RosettaModelObjectBuilder<?>> builder,
-			RosettaModelObjectBuilder<?> parent);
+	protected abstract <R extends RosettaModelObject> void map(RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent);
+	protected abstract void map(List<? extends RosettaModelObjectBuilder> builder,
+			RosettaModelObjectBuilder parent);
 	
 	RosettaPath getPath() {
 		return path;

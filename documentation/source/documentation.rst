@@ -53,7 +53,7 @@ The CDM Components
 The below **ISDA CDM Components Diagram** lays out the three set of CDM application components:
 
 * The **Rosetta Workbench** corresponds to the 'under the hood' components with respect to the CDM: the Rosetta grammar and the Rosetta code generators, which together form the Rosetta DSL, and the associated test infrastructure and Rosetta portal, which have been developed through bespoke code.
-* The **ISDA CDM Distribution** is made available to participants as part of the download available from the Rosetta Portal and is subject to the ISDA CDM licence.  The most crucial components of this ISDA CDM Distribution are the following:
+* The **ISDA CDM Distribution** is made available to participants as part of the download available from the CDM Portal and is subject to the ISDA CDM licence.  The most crucial components of this ISDA CDM Distribution are the following:
 
   * The **Model Definition**, which corresponds to the actual Rosetta model, as expressed by the Rosetta syntax and which components are further detailed as part of the CDM Modelling Artefacts section of this documentation.
   * The **Model Code Projection**, currently available as Java and JSON.  As the Rosetta syntax represents not just data components but also logic, the JSON representation has a quite limited scope and usefulness, and might be deprecated at some future point.
