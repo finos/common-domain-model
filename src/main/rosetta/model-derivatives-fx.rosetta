@@ -1,13 +1,15 @@
 namespace "org.isda.cdm"
 version "${project.version}"
 
-class ForwardPayout <"A forward contract"> 
+class SpotForwardPayout <"Whether the payout is classified as spot or forward is done using product qualification, see isProduct ForeignExchange_Forward"> 
 {
 	product Product (1..1) <"The product underlying the forward contract">;
 		[synonym FpML_5_10 value fxSingleLeg]
+	tradeDate date (1..1) <"Trade Date is duplicated here temporarily as we require this for option 2 of spot vs forward product qualification.">;
+		[synonym FpML_5_10 value tradeDate path "tradeHeader" maps 2 set when "fxSingleLeg" exists ]
 	settlementDate date (0..1) <"For FX Forward, the settlement date (or value date) for each currency leg can be set individually.">;
 		[synonym FpML_5_10 value valueDate path "fxSingleLeg"]
-}
+} 
 
 class Fx extends BaseFxProduct 
 {
@@ -30,21 +32,21 @@ class BaseFxProduct <"The elements common to FX spot, forward and swap legs.">
 }
 
 data rule FxForward_settlementDate_choice <"For Fx Forwards, either the settlementDate is set or the currencyValueDates, but not both.">
-	when ForwardPayout -> product -> fx exists 
+	when SpotForwardPayout -> product -> fx exists 
 	then 
 	(
-		ForwardPayout -> settlementDate exists and 
-		ForwardPayout -> product -> fx -> currencyValueDates is absent
+		SpotForwardPayout -> settlementDate exists and 
+		SpotForwardPayout -> product -> fx -> currencyValueDates is absent
 	)
 	or 
 	(
-		ForwardPayout -> settlementDate is absent and 
-		ForwardPayout -> product -> fx -> currencyValueDates exists
+		SpotForwardPayout -> settlementDate is absent and 
+		SpotForwardPayout -> product -> fx -> currencyValueDates exists
 	)
 	
 data rule FxForward_settlementDate_choice_alternative <"For Fx Forwards, either the settlementDate is set or the currencyValueDates, but not both.">
-	when ForwardPayout -> product -> fx exists 
-	then (ForwardPayout -> settlementDate exists) <> (ForwardPayout -> product -> fx -> currencyValueDates exists)
+	when SpotForwardPayout -> product -> fx exists 
+	then (SpotForwardPayout -> settlementDate exists) <> (SpotForwardPayout -> product -> fx -> currencyValueDates exists)
 	
 //Another choice of syntax, however this will require some grammar changes
 //data rule FxForward_settlementDate_choice_2 <"For Fx Forwards, either the settlementDate is set or the currencyValueDates, but not both.">
