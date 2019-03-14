@@ -11,7 +11,7 @@ class SpotForwardPayout <"Whether the payout is classified as spot or forward is
 		[synonym FpML_5_10 value valueDate path "fxSingleLeg"]
 } 
 
-class Fx extends BaseFxProduct 
+class Fx extends BaseFxProduct
 {
 	exchangedCurrency1 Cashflow (1..1);
 		[synonym FpML_5_10 value exchangedCurrency1]
@@ -27,6 +27,7 @@ class BaseFxProduct <"The elements common to FX spot, forward and swap legs.">
 	exchangeRate ExchangeRate (1..1) <"The rate of exchange between the two currencies.">;
 		[synonym FpML_5_10 value exchangeRate]
 	nonDeliverableSettlement FxCashSettlement (0..1) <"Used to describe a particular type of FX forward transaction that is settled in a single currency (for example, a non-deliverable forward).">;
+		[synonym FpML_5_10 value nonDeliverableSettlement]
 	disruption FxDisruption (0..*) <"Describes the disruption events and fallbacks applicable to a currency pair referenced by the transaction.">;
 		[synonym FpML_5_10 value disruption]
 }
@@ -117,11 +118,14 @@ data rule CrossRate_rule_1
 class FxCashSettlement <"A type that is used for describing cash settlement of an option / non deliverable forward. It includes the currency to settle into together with the fixings required to calculate the currency amount.">
 {
 	settlementCurrency string (1..1) scheme <"The currency in which cash settlement occurs for non-deliverable forwards and cash-settled options (non-deliverable or otherwise).">;
+		[synonym FpML_5_10 value settlementCurrency]
 	referenceCurrency string (0..1) scheme;
 	notionalAmount Money (0..1) <"The amount of money that the settlement will be derived from.">;
 	fixing FxFixing (0..*) <"Specifies the source for and timing of a fixing of an exchange rate. This is used in the agreement of non-deliverable forward trades as well as various types of FX OTC options that require observations against a particular rate. This element is optional, permitting it to be omitted where fixing details are unavailable at the point of message creation. It has multiple occurrence to support the case where fixing details must be specified for more than one currency pair e.g. on an option settled into a third currency (that is not one of the option currencies).">;
+		[synonym FpML_5_10 value fixing]
 	rateSourceFixing FxRateSourceFixing (0..*) <"Specifies the source for and timing of a fixing of an exchange rate. This is used in the agreement of non-deliverable forward trades as well as various types of FX OTC options that require observations against a particular rate. This element is optional, permitting it to be omitted where fixing details are unavailable at the point of message creation. It has multiple occurrence to support the case where fixing details must be specified for more than one currency pair e.g. on an option settled into a third currency (that is not one of the option currencies).">;
-	settlementDate AdjustableDate (0..1) <"The date on which settlement is scheduled to occur.">;
+	// TODO: Cannot find usage of settlementDate, remove once all fx and fx options mapped
+	// settlementDate AdjustableDate (0..1) <"The date on which settlement is scheduled to occur.">;
 }
 
 data rule FxCashSettlement_notionalAmount <"The notionalAmount should be positive.">
@@ -134,8 +138,11 @@ choice rule FxCashSettlement_choice
 class FxFixing <"A type that specifies the source for and timing of a fixing of an exchange rate. This is used in the agreement of non-deliverable forward trades as well as various types of FX OTC options that require observations against a particular rate.">
 {
 	quotedCurrencyPair QuotedCurrencyPair (1..1) <"Defines the two currencies for an FX trade and the quotation relationship between the two currencies.">;
+		[synonym FpML_5_10 value quotedCurrencyPair]
 	fixingDate date (0..1) <"Describes the specific date when a non-deliverable forward or cash-settled option will 'fix' against a particular rate, which will be used to compute the ultimate cash settlement. This element should be omitted where a single, discrete fixing date cannot be identified e.g. on an american option, where fixing may occur at any date on a continuous range.">;
+		[synonym FpML_5_10 value fixingDate]
 	fxSpotRateSource FxSpotRateSource (0..1) <"Specifies the methodology (reference source and, optionally, fixing time) to be used for determining a currency conversion rate.">;
+		[synonym FpML_5_10 value fxSpotRateSource]
 }
 
 class FxRateSourceFixing <"Describes a rate source to be fixed and the date the fixing occurs"> 
