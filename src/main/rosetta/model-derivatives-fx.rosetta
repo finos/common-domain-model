@@ -1,7 +1,7 @@
 namespace "org.isda.cdm"
 version "${project.version}"
 
-class SpotForwardPayout <"Whether the payout is classified as spot or forward is done using product qualification, see isProduct ForeignExchange_Forward"> 
+class ForwardPayout <"Whether the payout is classified as spot or forward is done using product qualification, see isProduct ForeignExchange_Forward"> 
 {
 	product Product (1..1) <"The product underlying the forward contract">;
 		[synonym FpML_5_10 value fxSingleLeg]
@@ -11,66 +11,44 @@ class SpotForwardPayout <"Whether the payout is classified as spot or forward is
 		[synonym FpML_5_10 value valueDate path "fxSingleLeg"]
 } 
 
-class Fx extends BaseFxProduct
+class ForeignExchange <"From FpML: A type defining either a spot or forward FX transactions.">
+	[synonym FpML_5_10 value FxSingleLeg]
 {
-	exchangedCurrency1 Cashflow (1..1);
+	exchangedCurrency1 Cashflow (1..1) <"This is the first of the two currency flows that define a single leg of a standard foreign exchange transaction.">;
 		[synonym FpML_5_10 value exchangedCurrency1]
-	exchangedCurrency2 Cashflow (1..1);
+	exchangedCurrency2 Cashflow (1..1) <"This is the second of the two currency flows that define a single leg of a standard foreign exchange transaction.">;
 		[synonym FpML_5_10 value exchangedCurrency2]
-}
-
-class BaseFxProduct <"The elements common to FX spot, forward and swap legs.">
-{
-	dealtCurrency DealtCurrencyEnum (0..1) <"Indicates which currency was dealt.">;
-	fxTenor FxTenor (0..1);
-	currencyValueDates CurrencyDates (0..1);
+//	dealtCurrency DealtCurrencyEnum (0..1) <"Indicates which currency was dealt.">;
+//		[synonym FpML_5_10 value dealtCurrency]
+//	tenorName FxTenorPeriodEnum (0..1) <"A tenor expressed with a standard business term (i.e. Spot, TomorrowNext, etc.)">;
+//		[synonym FpML_5_10 value tenorName]
+	tenorPeriod Period (0..1) <"A tenor expressed as a period type and multiplier (e.g. 1D, 1Y, etc.)">;
+		[synonym FpML_5_10 value tenorPeriod]
+	currencyValueDates CurrencyValueDates (0..1) <"The dates on which each currency amount will be settled">;
 	exchangeRate ExchangeRate (1..1) <"The rate of exchange between the two currencies.">;
 		[synonym FpML_5_10 value exchangeRate]
 	nonDeliverableSettlement FxCashSettlement (0..1) <"Used to describe a particular type of FX forward transaction that is settled in a single currency (for example, a non-deliverable forward).">;
 		[synonym FpML_5_10 value nonDeliverableSettlement]
-	disruption FxDisruption (0..*) <"Describes the disruption events and fallbacks applicable to a currency pair referenced by the transaction.">;
-		[synonym FpML_5_10 value disruption]
+}
+
+class CurrencyValueDates <"Currency settlement dates for each currency of a Foreign Exchange product.">
+{
+	currency1ValueDate date (1..1) <"The date on which the currency1 amount will be settled. To be used in a split value date scenario.">;
+		[synonym FpML_5_10 value currency1ValueDate]
+	currency2ValueDate date (1..1) <"The date on which the currency2 amount will be settled. To be used in a split value date scenario.">;
+		[synonym FpML_5_10 value currency2ValueDate]
 }
 
 data rule FxForward_settlementDate_choice <"For Fx Forwards, either the settlementDate is set or the currencyValueDates, but not both.">
-	when SpotForwardPayout -> product -> fx exists 
-	then 
-	(
-		SpotForwardPayout -> settlementDate exists and 
-		SpotForwardPayout -> product -> fx -> currencyValueDates is absent
-	)
-	or 
-	(
-		SpotForwardPayout -> settlementDate is absent and 
-		SpotForwardPayout -> product -> fx -> currencyValueDates exists
-	)
+	when ForwardPayout -> product -> foreignExchange exists 
+	then ( ForwardPayout -> settlementDate exists and ForwardPayout -> product -> foreignExchange -> currencyValueDates is absent ) 
+		or ( ForwardPayout -> settlementDate is absent and ForwardPayout -> product -> foreignExchange -> currencyValueDates exists )
 	
-data rule FxForward_settlementDate_choice_alternative <"For Fx Forwards, either the settlementDate is set or the currencyValueDates, but not both.">
-	when SpotForwardPayout -> product -> fx exists 
-	then (SpotForwardPayout -> settlementDate exists) <> (SpotForwardPayout -> product -> fx -> currencyValueDates exists)
-	
-//Another choice of syntax, however this will require some grammar changes
-//data rule FxForward_settlementDate_choice_2 <"For Fx Forwards, either the settlementDate is set or the currencyValueDates, but not both.">
-//	when ForwardPayout -> product -> fx exists 
-//	then exactly one of 
-//		ForwardPayout -> settlementDate 
-//		ForwardPayout -> product -> fx -> currencyValueDates
-	
-		
-class CurrencyDates
-{
-	currency1ValueDate date (1..1) <"The date on which the currency1 amount will be settled. To be used in a split value date scenario.">;
-	currency2ValueDate date (1..1) <"The date on which the currency2 amount will be settled. To be used in a split value date scenario.">;
-}
+//choice rule ForeignExchange_tenor_choice 
+//	for ForeignExchange optional choice between tenorName and tenorPeriod
 
-class FxTenor 
-{
-	tenorName FxTenorPeriodEnum (1..1) <"A tenor expressed with a standard business term (i.e. Spot, TomorrowNext, etc.)">;
-	tenorPeriod Period (1..1) <"A tenor expressed as a period type and multiplier (e.g. 1D, 1Y, etc.)">;
-		[synonym FpML_5_10 value tenorPeriod]
-}
-
-class ExchangeRate <"A type that is used for describing the exchange rate for a particular transaction."> 
+class ExchangeRate <"A type that is used for describing the exchange rate for a particular transaction.">
+	[synonym FpML_5_10 value ExchangeRate] 
 {
 	quotedCurrencyPair QuotedCurrencyPair (1..1) <"Defines the two currencies for an FX trade and the quotation relationship between the two currencies.">;
 		[synonym FpML_5_10 value quotedCurrencyPair]
@@ -102,13 +80,16 @@ data rule ExchangeRate_rule_2
 	when ExchangeRate -> forwardPoints exists 
 	then ExchangeRate -> spotRate exists
 
-// TODO: Duplicate large part of ExchangeRate, consider removing redundancy
+// TODO: Duplicates large part of ExchangeRate, consider removing redundancy
 class CrossRate extends QuotedCurrencyPair <"A type that is used for including the currency exchange rates used to cross between the traded currencies for non-base currency FX contracts.">
+	[synonym FpML_5_10 value CrossRate] 
 {
 	rate number (1..1) <"The exchange rate used to cross between the traded currencies.">;
 		[synonym FpML_5_10 value rate]
-	spotRate number (0..1) <"An optional element used for FX forwards and certain types of FX OTC options. For deals consumated in the FX Forwards Market, this represents the current market rate for a particular currency pair.">;
-	forwardPoints number (0..1) <"An optional element used for deals consumated in the FX Forwards market. Forward points represent the interest rate differential between the two currencies traded and are quoted as a preminum or a discount. Forward points are added to, or subtracted from, the spot rate to create the rate of the forward trade.">;
+	spotRate number (0..1) <"An optional element used for FX forwards and certain types of FX OTC options. For deals consummated in the FX Forwards Market, this represents the current market rate for a particular currency pair.">;
+		[synonym FpML_5_10 value spotRate]
+	forwardPoints number (0..1) <"An optional element used for deals consummated in the FX Forwards market. Forward points represent the interest rate differential between the two currencies traded and are quoted as a premium or a discount. Forward points are added to, or subtracted from, the spot rate to create the rate of the forward trade.">;
+		[synonym FpML_5_10 value forwardPoints]
 }
 
 data rule CrossRate_rule_1
@@ -116,16 +97,18 @@ data rule CrossRate_rule_1
 	then CrossRate -> spotRate exists
 	
 class FxCashSettlement <"A type that is used for describing cash settlement of an option / non deliverable forward. It includes the currency to settle into together with the fixings required to calculate the currency amount.">
+	[synonym FpML_5_10 value FxCashSettlement] 
 {
 	settlementCurrency string (1..1) scheme <"The currency in which cash settlement occurs for non-deliverable forwards and cash-settled options (non-deliverable or otherwise).">;
 		[synonym FpML_5_10 value settlementCurrency]
 	referenceCurrency string (0..1) scheme;
+		[synonym FpML_5_10 value referenceCurrency]
 	notionalAmount Money (0..1) <"The amount of money that the settlement will be derived from.">;
+		[synonym FpML_5_10 value notionalAmount]
 	fixing FxFixing (0..*) <"Specifies the source for and timing of a fixing of an exchange rate. This is used in the agreement of non-deliverable forward trades as well as various types of FX OTC options that require observations against a particular rate. This element is optional, permitting it to be omitted where fixing details are unavailable at the point of message creation. It has multiple occurrence to support the case where fixing details must be specified for more than one currency pair e.g. on an option settled into a third currency (that is not one of the option currencies).">;
 		[synonym FpML_5_10 value fixing]
 	rateSourceFixing FxRateSourceFixing (0..*) <"Specifies the source for and timing of a fixing of an exchange rate. This is used in the agreement of non-deliverable forward trades as well as various types of FX OTC options that require observations against a particular rate. This element is optional, permitting it to be omitted where fixing details are unavailable at the point of message creation. It has multiple occurrence to support the case where fixing details must be specified for more than one currency pair e.g. on an option settled into a third currency (that is not one of the option currencies).">;
-	// TODO: Cannot find usage of settlementDate, remove once all fx and fx options mapped
-	// settlementDate AdjustableDate (0..1) <"The date on which settlement is scheduled to occur.">;
+		[synonym FpML_5_10 value rateSourceFixing]
 }
 
 data rule FxCashSettlement_notionalAmount <"The notionalAmount should be positive.">
@@ -136,6 +119,7 @@ choice rule FxCashSettlement_choice
 	for FxCashSettlement optional choice between fixing and rateSourceFixing
 
 class FxFixing <"A type that specifies the source for and timing of a fixing of an exchange rate. This is used in the agreement of non-deliverable forward trades as well as various types of FX OTC options that require observations against a particular rate.">
+	[synonym FpML_5_10 value FxFixing] 
 {
 	quotedCurrencyPair QuotedCurrencyPair (1..1) <"Defines the two currencies for an FX trade and the quotation relationship between the two currencies.">;
 		[synonym FpML_5_10 value quotedCurrencyPair]
@@ -145,71 +129,45 @@ class FxFixing <"A type that specifies the source for and timing of a fixing of 
 		[synonym FpML_5_10 value fxSpotRateSource]
 }
 
-class FxRateSourceFixing <"Describes a rate source to be fixed and the date the fixing occurs"> 
+class FxRateSourceFixing <"Describes a rate source to be fixed and the date the fixing occurs">
+	[synonym FpML_5_10 value FxRateSourceFixing] 
 {
 	settlementRateSource FxSettlementRateSource (1..1);
+		[synonym FpML_5_10 value settlementRateSource]
 	fixingDate AdjustableDate (1..1) <"The date on which the fixing is scheduled to occur.">;
+		[synonym FpML_5_10 value fixingDate]
 }
 
 class FxSettlementRateSource 
+	[synonym FpML_5_10 value FxSettlementRateSource] 
 {
 	settlementRateOption string (0..1) scheme <"Indicates that an officially defined rate settlement rate option will be the used for the fixing.">;
+		[synonym FpML_5_10 value settlementRateOption]
 	nonstandardSettlementRate FxInformationSource (0..1) <"Indicates that a non-standard rate source will be used for the fixing.">;
 }
 
 choice rule FxSettlementRateSource_choice 
 	for FxSettlementRateSource required choice between settlementRateOption and nonstandardSettlementRate
 
-class FxInformationSource extends InformationSource 
+class FxInformationSource extends InformationSource <"Information source specific to Foreign Exchange products.">
+	[synonym FpML_5_10 value FxInformationSource] 
 {
 	fixingTime BusinessCenterTime (0..1) <"The time that the fixing will be taken along with a business center to define the time zone.">;
 }
 
-class FxDisruption <"A structure describing how disruption for a specified currency pair should be handled.">
-{
-	baseCurrency string (1..1) scheme <"The base currency in the exchange rate monitored for disruption events. Typically this will be the settlement currency, but could be an intermediate currency, in the case where disruption provisions are defined for components of a cross rate.">;
-	referenceCurrency string (1..1) scheme <"The reference currency in the exchange rate being monitored for disruption events.">;
-	provisions FxDisruptionProvisions (1..*) <"One or more provisions describing disruption events and how they will be handled.">;
-		[synonym FpML_5_10 value provisions]
-}
-
-class FxDisruptionProvisions <"Describes a set of disruption events and the fallbacks they will invoke.">
-{
-	events FxDisruptionEvents (1..1) <"If any of the events listed in this section occurs then the associated fallbacks will be applied.">;
-	fallbacks FxDisruptionFallbacks (1..1) <"Describes the fallback processing or termination procedures that can be applied if an event occurs">;
-		[synonym FpML_5_10 value fallbacks]
-}
-
-class FxDisruptionEvents <"A container for the disruption event set."> 
-{
-	fxDisruptionEvent FxDisruptionEvent (1..*);
-		
-	
-//	 dualExchangeRate FxDisruptionEvent (0..*);
-//	 exchangeRestrictions FxDisruptionEvent (0..*);
-//	 priceSourceDisruption FxDisruptionEvent (0..*);
-}
-
-//choice rule FxDisruptionEvents_choice 
-//	for FxDisruptionEvents optional choice between dualExchangeRate and exchangeRestrictions and fxDisruptionEvent
-
-class FxDisruptionEvent {
-	label FxDisruptionEventEnum (1..1);
-}
-
-class FxDisruptionFallbacks {
-	
-}
-
-enum FxDisruptionEventEnum {
-	dualExchangeRate, exchangeRestrictions, priceSourceDisruption
-}
-
-enum DealtCurrencyEnum { 
-	ExchangedCurrency1, ExchangedCurrency2
-} 
-
-enum FxTenorPeriodEnum <"The specification of a time period containing values such as Today, Tomorrow etc."> 
-{
-	Broken, Today, Tomorrow, TomorrowNext, Spot, SpotNext
-}
+//enum DealtCurrencyEnum <"Reference to a specific currency of the Foreign Exchange product.">
+//	[synonym FpML_5_10 value DealtCurrencyEnum]  
+//{ 
+//	ExchangedCurrency1, ExchangedCurrency2
+//} 
+//
+//enum FxTenorPeriodEnum <"The specification of a time period containing values such as Today, Tomorrow etc.">
+//	[synonym FpML_5_10 value FxTenorPeriodEnum]   
+//{
+//	Broken <"Broken/non conventional Tenor Period.">, 
+//	Today <"Today Tenor Period.">, 
+//	Tomorrow <"Tomorrow Tenor Period.">, 
+//	TomorrowNext <"Day after Tomorrow Tenor Period.">, 
+//	Spot <"Spot Tenor Period.">, 
+//	SpotNext <"Day after Spot Tenor period.">
+//}
