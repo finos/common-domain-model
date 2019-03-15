@@ -85,9 +85,9 @@ abstract class CsaInitialMargin2016 <"An abstract class to specify the provision
 	baseCurrency string (1..1) scheme <"The base currency as specified by the ISDA 2016 CSA for Initial Margin, Paragraph 13 (a). The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">;
 		[synonym ISDA_Create_1_0 value base_currency]
 	additionalObligations string (0..1) <"The additional obligations as specified in the ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (b)(ii).">;
-		[synonym ISDA_Create_1_0 set to "additional_obligations_specify" when "additional_obligations" = "specify"]
+		[synonym ISDA_Create_1_0 set to "additional_obligations.additional_obligations_specify" when "additional_obligations.additional_obligations" = "specify"]
 	otherEligibleSupport string (0..1) <"The items that qualify as Other Eligible Support in accordance with the ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (c)(iv). ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (vi)(C): Rounding.">;
-		[synonym ISDA_Create_1_0 set to "additional_obligations_specify" when "additional_obligations" = "specify"]
+		[synonym ISDA_Create_1_0 set to "other_eligible_support.eligible_support_specify" when "other_eligible_support.other_eligible_support" = "specify"]
 	threshold Threshold (1..1) <"The unsecured credit exposure that the parties are prepared to accept before asking for collateral.">;
 		[synonym ISDA_Create_1_0 value threshold]
 	minimumTransferAmount MinimumTransferAmount (1..1) <"The amount above which collateral has to be posted/returned.">;
@@ -115,7 +115,6 @@ abstract class CsaInitialMargin2016 <"An abstract class to specify the provision
 		[synonym ISDA_Create_1_0 set to True when path = "delivery_in_lieu_right.right.applicable",
 			set to False when path = "delivery_in_lieu_right.right.not_applicable"]
 	custodyArrangements CustodyArrangements (1..1) <"The Custodian and Segregated Account details in respect of each party as the Pledgor. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n): Custody Arrangements.">;
-		[synonym ISDA_Create_1_0 value custodian_and_segregated_account_details]
 }
 
 class CsaInitialMargin2016NewYorkLaw extends CsaInitialMargin2016 <"A class to specify the provisions that are specific to the New York Law version of the ISDA 2016 Credit Support Annex for Initial Margin.">
@@ -159,16 +158,26 @@ class CreditRatingDebt one of <"The credit rating debt type(s) associated with t
 
 class CustodianEvent <"A class to specify the Custodian Event in terms of applicability and end-date. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(iii): Custodian Event.">
 {
-	isApplicable boolean (1..1) <"The qualification as to whether the Custodian Event is applicable.">;
+	isApplicable boolean (1..1) <"The qualification as to whether the Custodian Event is applicable. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(iii): Custodian Event.">;
 	// TODO - Need to confirm through sample document that the CE End date needs to be specified if the Custodian Event is not applicable
 	endDate CustodianEventEndDate (1..1);
+		[synonym ISDA_Create_1_0 value ce_end_date]
 }
 
-class CustodianEventEndDate <"A class to specify the Custodian Event End Date. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(iii): CE End Date.">
+class CustodianEventEndDate <"A class to specify the Custodian Event End Date, which will be the earliest to occur of ...... . ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(iii): CE End Date.">
 {
-	numberOfDays number (1..1);
-	customProvision string (0..1);
-	
+	daysAfterCustodianEvent CustomisableOffset (1..1);
+		// TODO - Need for a mapping logic that will map the elements in ce_end_date which prefix is `after`
+	releaseDate CustomisableOffset (1..1);
+		// TODO - Need for a mapping logic that will map the elements in ce_end_date which prefix is `release`
+	dateOfTimelyStatement CustomisableOffset (1..1);
+		// TODO - Need for a mapping logic that will map the elements in ce_end_date which prefix is `timely` or `date_of_timely`
+}
+
+class CustomisableOffset <"A class to specify an offset either as a normalized [multiplier, period, dayType] or as a custom provision of type string.">
+{
+	offset Offset (0..1);
+	customProvision string (0..1);	
 }
 
 class CustodianRisk <"A class to specify the Custodian Risk. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(ii): Custodian (IM) Risk.">
@@ -359,9 +368,9 @@ class PartyCustodianElection <"A class to specify the Custody Arrangements elect
 		// TODO - Need for a mapping logic that will parse the ISDA Create prefix to identify partyA vs. partyB entries
 	custodian LegalEntity (1..1) <"The custody agent. While ISDA Create only specify the custodian's name, specifying the legal entity as part of the CDM is deemed more appropriate.">;
 	segregatedCashAccount Account (1..1) <"The identification of the segregated account for the purpose of holding cash collateral.">;
-		// TODO - Need for a mapping logic that will parse the ISDA Create suffix to identify cash vs. security
+		// TODO - Need for a mapping logic that will parse the ISDA Create suffix to identify cash vs. security with custodian_and_segregated_account_details as a path
 	segregatedSecurityAccount Account (1..1) <"The identification of the segregated account for the purpose of holding security collateral.">;
-		// TODO - Need for a mapping logic that will parse the ISDA Create suffix to identify cash vs. security
+		// TODO - Need for a mapping logic that will parse the ISDA Create suffix to identify cash vs. security with custodian_and_segregated_account_details as a path
 	custodianRisk CustodianRisk (1..1) <"The qualification of the Custodian Risk. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(ii): Custodian (IM) Risk.">;
 		[synonym ISDA_Create_1_0 value custodian_risk]
 }
