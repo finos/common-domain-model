@@ -679,7 +679,7 @@ class Payout <"A class to represent the set of future cashflow methodologies in 
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value creditDefaultSwapOption]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value bondOption path "trade"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value bondOption]
-	forwardPayout SpotForwardPayout (0..*);
+	forwardPayout ForwardPayout (0..*);
 		[synonym FpML_5_10 value trade]
 		[synonym CME_SubmissionIRS_1_0 value ignore]
 	cashflow Cashflow (0..*) <"A cashflow between the parties to the trade. For interest rate and equity products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the FpML initialPayment element and the singlePayment element of the fee leg. For option products, it represents the FpML premium element.">;
@@ -781,7 +781,7 @@ class Product one of <"A class to represent a financial product. With respect to
 		[synonym FpML_5_10 value mutualFund]
 	warrant Warrant (0..1);
 		[synonym FpML_5_10 value warrant]
-	fx Fx (0..1);
+	foreignExchange ForeignExchange (0..1);
 		
 }
 
@@ -1129,16 +1129,15 @@ isProduct InterestRate_Fra
 	and EconomicTerms -> payout -> interestRatePayout -> discountingMethod exists
 	and effectiveDate = paymentDate
 
-isProduct ForeignExchange_Forward
+isProduct ForeignExchange
 	[synonym ISDA_Taxonomy_v1 value ForeignExchange_Forward]
-	EconomicTerms -> payout -> forwardPayout -> product -> fx exists and  
-	EconomicTerms -> payout -> forwardPayout -> settlementDate - EconomicTerms -> payout -> forwardPayout -> tradeDate > 2
-
-isProduct ForeignExchange_Spot
 	[synonym ISDA_Taxonomy_v1 value ForeignExchange_Spot]
-	EconomicTerms -> payout -> forwardPayout -> product -> fx exists and  
-	EconomicTerms -> payout -> forwardPayout -> settlementDate - EconomicTerms -> payout -> forwardPayout -> tradeDate <= 2 
+	EconomicTerms -> payout -> forwardPayout -> product -> foreignExchange exists and  
+	EconomicTerms -> payout -> forwardPayout -> product -> foreignExchange -> nonDeliverableSettlement is absent
 
+isProduct ForeignExchange_NDF
+	[synonym ISDA_Taxonomy_v1 value ForeignExchange_NDF]
+	EconomicTerms -> payout -> forwardPayout -> product -> foreignExchange -> nonDeliverableSettlement exists
 	
 alias effectiveDate // Scope limited to interestPayout until such time that we position it to the economicTerms level
 	EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate
