@@ -124,50 +124,6 @@
                 </executions>
             </plugin>
             <plugin>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>3.1.0</version>
-                <executions>
-                    <execution>
-                        <id>copy-rosetta-src</id>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/classes/cdm/rosetta</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>src/main/rosetta</directory>
-                                    <includes>
-                                        <include>*.rosetta</include>
-                                    </includes>
-                                    <filtering>true</filtering>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>copy-daml-src</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/classes/cdm/daml</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>${basedir}/src/generated/daml</directory>
-                                    <includes>
-                                        <include>**/*.daml</include>
-                                    </includes>
-                                    <!--<filtering>true</filtering>-->
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.eclipse.xtext</groupId>
                 <artifactId>xtext-maven-plugin</artifactId>
                 <version>${xtext.version}</version>
@@ -247,10 +203,92 @@
                 </dependencies>
             </plugin>
             <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>copy-rosetta-src</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/classes/cdm/rosetta</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/rosetta</directory>
+                                    <includes>
+                                        <include>*.rosetta</include>
+                                    </includes>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-src-generated-daml</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/classes/cdm/daml</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/src/generated/daml</directory>
+                                    <includes>
+                                        <include>**/*.daml</include>
+                                    </includes>
+                                    <!--<filtering>true</filtering>-->
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-src-main-daml</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/classes/cdm/daml</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/src/main/daml</directory>
+                                    <includes>
+                                        <include>**/*.daml</include>
+                                    </includes>
+                                    <!--<filtering>true</filtering>-->
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <executable>da</executable>
+                    <arguments>
+                        <argument>compile</argument>
+                    </arguments>
+                </configuration>
+            </plugin>
+            <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
                     <descriptors>
-                        <descriptor>assembly-daml.xml</descriptor>
+                        <descriptor>daml-assembly.xml</descriptor>
                     </descriptors>
                     <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
