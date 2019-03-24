@@ -131,7 +131,11 @@ abstract class CsaInitialMargin2016 <"An abstract class to specify the provision
 			set to False when path = "delivery_in_lieu_right.right.not_applicable"]
 	custodyArrangements CustodyArrangements (1..1) <"The Custodian and Segregated Account details in respect of each party as the Pledgor. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n): Custody Arrangements.">;
     additionalRepresentation AdditionalRepresentation (1..1) <"ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (o): Additional Representation(s).">;
-	otherEligibleSupport OtherEligibleSupport (1..1);
+	otherEligibleSupport OtherEligibleSupport (1..1) <"The Other Eligible Support elections associated with margin agreements. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (p): Other Eligible Support (IM) and Other Posted Support (IM).">;
+	demandsAndNotices PartyContactInformation (1..1) <"The address where the demands, specifications and notices will be communicated to within each of the parties to the agreement. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (q): Demands and Notices.">;
+	// TODO - Discuss with Linklater the idea of normalizing those addresses, instead of having a mere string
+	addressesForTransfer PartyContactInformation (1..1) <"The addresses for transfer as specified by the respective parties to the agreement. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (r): Addresses for Transfers.">;
+	// TODO - Discuss with Linklater the idea of normalizing those addresses, instead of having a mere string
 }
 
 class CsaInitialMargin2016NewYorkLaw extends CsaInitialMargin2016 <"A class to specify the provisions that are specific to the New York Law version of the ISDA 2016 Credit Support Annex for Initial Margin.">
@@ -386,9 +390,15 @@ data rule OneWayProvisions_postingPartyReference_absent <"This Posting Party mus
 	when OneWayProvisions -> isApplicable = False
 	then OneWayProvisions -> postingParty is absent
 
-class OtherEligibleSupport
+// TODO - Need to associate a more meaningful definition to the below class and attribute.  I couldn't find anything as part of the CSA terms.
+class OtherEligibleSupport <"A class to specify the Other Eligible Support elections associated with margin agreements. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (p): Other Eligible Support (IM) and Other Posted Support (IM).">
 {
-	
+	valuee boolean (1..1) <"ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (p)(i): Value.">;
+		[synonym ISDA_Create_1_0 set to True when path = "support_value.is_applicable.applicable",
+			set to False when path = "support_value.is_applicable.not_applicable"]
+	transfer boolean (1..1) <"ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (p)(ii): Transfer.">;
+		[synonym ISDA_Create_1_0 set to True when path = "support_transfer.is_applicable.applicable",
+			set to False when path = "support_transfer.is_applicable.not_applicable"]
 }
 
 class PartyAdditionalRepresentation <"A class to specify the parties' Additional Representation(s) election.">

@@ -1,7 +1,7 @@
 namespace "org.isda.cdm"
 version "${project.version}"
 
-class Account <"The account specification.">
+class Account <"A class to specify an account as an account number alongside, optionally. an account name, an account type, an account beneficiary and a servicing party.">
 	[synonym FpML_5_10 value Account]
 {
 	id (0..1);
@@ -20,7 +20,46 @@ class Account <"The account specification.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value servicingParty meta href]
 }
 
-class LegalEntity <"A class to specify a legal entity.">
+class Address <"A class to specify a post or street address.">
+	[synonym FpML_5_10 value Address]
+{
+	street string (1..*) <"The set of street and building number information that identifies a postal address within a city.">;
+		[synonym FpML_5_10 value streetAddress]
+	city string (1..1) <"The city component of the postal address.">;
+		[synonym FpML_5_10 value city]
+	state string (0..1) <"A country subdivision used in postal addresses in some countries. For example, US states, Canadian provinces, Swiss cantons, ...">;
+		[synonym FpML_5_10 value state]
+	country string (1..1) scheme <"The ISO 3166 standard code for the country within which the postal address is located.">;
+		[synonym FpML_5_10 value country meta countryScheme]
+	postalCode string (1..1) <"The code, required for computerized mail sorting systems, that is allocated to a physical address by a national postal authority.">;
+		[synonym FpML_5_10 value postalCode]
+}
+
+class BusinessUnit <"A class to specify an organizational unit.">
+	[synonym FpML_5_10 value BusinessUnit]
+{
+	id (0..1);
+		[synonym FpML_5_10 meta id]
+	name string (1..1) <"A name used to describe the organizational unit">;
+		[synonym FpML_5_10 value name]
+	identifier Identifier (0..1) <"An identifier used to uniquely identify the organizational unit">;
+	contactInformation ContactInformation (0..1) <"The contact information for such business unit, when different from the contact information associated with the party.">;
+		[synonym FpML_5_10 value contactInfo]
+}
+
+class ContactInformation <"A class to specify contact information associated with a party: telephone, postal/street address, email and web page.">
+	[synonym FpML_5_10 value ContactInformation]
+{
+	telephone TelephoneNumber (0..*) <"The telephone number.">;
+		[synonym FpML_5_10 value telephone]
+	address Address (0..*) <"The street/postal address.">;
+		[synonym FpML_5_10 value address]
+	email string (0..*) <"The email address.">;
+		[synonym FpML_5_10 value email]
+	webPage string (0..*) <"The web page. This attribute is not specified as part of the FpML ContactInformation complex type.">;
+}
+
+class LegalEntity <"A class to specify a legal entity, with a required name and an optional entity identifier (such as the LEI).">
 {
 	id (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id path "referenceEntity"]
@@ -85,10 +124,22 @@ class Party <"A class to specify a party, without a qualification as to whether 
 		[synonym CME_SubmissionIRS_1_0 value SID path "Hdr"]
 		[synonym ISDA_Create_1_0 value name]
 		[synonym ISDA_Create_1_0 value partyA_name]
-	naturalPerson NaturalPerson (0..*) <"The person(s) who might be associated with the party as part of the execution, contract or legal document.">;
+	person NaturalPerson (0..*) <"The person(s) who might be associated with the party as part of the execution, contract or legal document.">;
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value person]
 	account Account (0..1) <"The account that might be associated with the party. At most one account can be specified, as it is expected that this information is used in the context of a contract or legal document where only one account per party can be associated with such object.">;
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0, ISDA_Create_1_0 value account]
+}
+
+class PartyContactInformation <"A class to specify contact information within a party: address and, optionally, associated business unit and person.">
+{
+	partyReference Party (1..1) reference <"The reference to the party to which the contact information refers to.">;
+		[synonym FpML_5_10 value partyReference meta href]
+	contactInformation ContactInformation (0..1) <"The postal/street address, telephone number, email address and/or web page. If the contact information is specific to the associated business unit(s), it should be associated with those.">;
+		[synonym FpML_5_10 value contactInfo]
+	businessUnit BusinessUnit (0..*) <"Optional organization unit information used to describe the organization units (e.g. trading desks) involved in a transaction or business process, incl. the contact information (when relevant).">;
+		[synonym FpML_5_10 value businessUnit]
+	person NaturalPerson (0..*) <"Optional information about people involved in a transaction or business process. (These are employees of the party.)">;
+		[synonym FpML_5_10 value person]
 }
 
 class PartyRole <"A class to specify the role(s) that party(ies) may have in relation to the execution, contract or other legal agreement.">
@@ -110,4 +161,10 @@ class PartyRole <"A class to specify the role(s) that party(ies) may have in rel
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value role path "tradeHeader.partyTradeInformation.relatedParty"]
 	ownershipPartyReference Party (0..1) reference <"A reference to the party that has ownership of this party role information. FpML specifies that For shared trade information, this attribute will reference the originator of the data (for example, an execution facility or clearing house).">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0 value partyReference path "tradeHeader.partyTradeInformation" meta href]
+}
+
+class TelephoneNumber <"A class to specify a telephone number as a type of phone number (e.g. work, personal, ...) alongside with the actual number.">
+{
+	type TelephoneTypeEnum (0..1) <"The type of telephone number, e.g. work, mobile.">;
+	number string (1..1) <"The actual telephone number.">;
 }
