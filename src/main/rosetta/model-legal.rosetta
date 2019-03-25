@@ -133,9 +133,14 @@ abstract class CsaInitialMargin2016 <"An abstract class to specify the provision
     additionalRepresentation AdditionalRepresentation (1..1) <"ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (o): Additional Representation(s).">;
 	otherEligibleSupport OtherEligibleSupport (1..1) <"The Other Eligible Support elections associated with margin agreements. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (p): Other Eligible Support (IM) and Other Posted Support (IM).">;
 	demandsAndNotices PartyContactInformation (1..1) <"The address where the demands, specifications and notices will be communicated to within each of the parties to the agreement. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (q): Demands and Notices.">;
-	// TODO - Discuss with Linklater the idea of normalizing those addresses, instead of having a mere string
 	addressesForTransfer PartyContactInformation (1..1) <"The addresses for transfer as specified by the respective parties to the agreement. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (r): Addresses for Transfers.">;
-	// TODO - Discuss with Linklater the idea of normalizing those addresses, instead of having a mere string
+	terminationCurrency TerminationCurrencyAmendment (1..1) <"The Amendment to Termination Currency elections by the parties to the agreement. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (t): Amendment to Termination Currency.">;
+		[synonym ISDA_Create_1_0 value amendment_to_termination_currency]
+	bespokeProvision string (0..1) <"The bespoke provision that might be specified by the parties to the agreement. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (u)(iii): Other Provisions.">;
+		[synonym ISDA_Create_1_0 value specify path "bespoke_provisions"]
+	japaneseSecuritiesProvisions boolean (1..1) <"ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (v): Japanese Securities Provisions (Shichiken).">;
+		[synonym ISDA_Create_1_0 set to True when path = "japanese_securities_provisions.is_applicable.applicable",
+			set to False when path = "japanese_securities_provisions.is_applicable.not_applicable"]
 }
 
 class CsaInitialMargin2016NewYorkLaw extends CsaInitialMargin2016 <"A class to specify the provisions that are specific to the New York Law version of the ISDA 2016 Credit Support Annex for Initial Margin.">
@@ -276,7 +281,7 @@ class IndependentAmountEligibleCollateral <"A class to specify the eligible coll
 	independentAmountEligibility IndependentAmountEligibilityEnum (0..1) scheme <"The terms when no collateral assets are specified.">;
 		[synonym FpML_5_10 value independentAmountEligibility meta independentAmountEligibilityScheme]
 	fxHaircut number (0..1) <"The ISDA 2018 CSA specifies the FX haircut with respect to each party's posting obligation to be equal to 8% if the eligible collateral is denominated in a currency that is distinct from the Termination Currency specified with respect to the Secured Party, and 0% if the same.">;
-	terminationCurrency TerminationCurrency (1..2) <"The Termination Currency as specified by each of the parties to the agreement as determined by the ISDA 2018 CSA for Initial Margin, Paragraph 13 Eligible Credit Support (IM) Schedule.">;
+	terminationCurrency PartyTerminationCurrency (2..2) <"The Termination Currency election by the parties to the agreement. ISDA 2018 CSA for Initial Margin, Paragraph 13 Eligible Credit Support (IM) Schedule.">;
 }
 
 choice rule IndependentAmountEligibleCollateral_choice <"The independentAmountEligibility attribute provides alternative terms to specifying eligible collateral.">
@@ -472,6 +477,14 @@ choice rule PartyNotificationTime_choice <"The Notification Time election can be
 	for PartyNotificationTime required choice between
 	notificationTime and customNotification
 
+class PartyTerminationCurrency <"A class to specify the Amendment to Termination Currency election by the parties to the agreement. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (t) (A) & (B).">
+{
+	party Party (1..1) reference <"The party which the Termination Currency determination applies to.">;
+		// TODO - Need for a mapping logic that will parse the ISDA Create prefix to identify partyA vs. partyB entries
+	currency string (1..1) scheme <"The Termination Currency associated with the party that referenced as part of this class. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">;
+		[synonym ISDA_Create_1_0 value partyA_termination_currency, partyB_termination_currency]
+}
+
 /*
  * TODO - Not completely clear as to how the eligible collateral specification works in ISDA Create
  */
@@ -622,12 +635,28 @@ class Substitution <"A class to specify the conditions under which the Pledgor c
 		[synonym ISDA_Create_1_0 value specify]
 }
 
-class TerminationCurrency <"A class to specify the Termination Currency applicable to each of the parties to the CSA, as specified by the ISDA 2018 CSA for Initial Margin, Paragraph 13 Eligible Credit Support (IM) Schedule.">
+class TerminationCurrencyAmendment <"A class to specify the Amendment to Termination Currency elections by the parties to the agreement. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (t): Amendment to Termination Currency.">
 {
-	party Party (1..1) reference <"The party which the Termination Currency determination applies to.">;
-		// TODO - Need for a mapping logic that will parse the ISDA Create prefix to identify partyA vs. partyB entries
-	currency string (1..1) scheme <"The Termination Currency associated with the party that referenced as part of this class. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">;
-		[synonym ISDA_Create_1_0 value partyA_termination_currency, partyB_termination_currency]
+	isApplicable boolean (1..1) <"The qualification of whether the Amendment to Termination Currency is deemed applicable by the parties.">;
+		[synonym ISDA_Create_1_0 set to True when path = "is_applicable.applicable",
+			set to False when path = "annex_date_is_applicable.not_applicable"]
+	effectiveDate AmendmentEffectiveDate (0..1) <"The effective date of the Amendment to Termination Currency. This date can be specified as either an actual date, a specific date (e.g. the annex date) or as a custom provision.">;
+	currencyElection PartyTerminationCurrency (0..1) <"The parties' election with respect to the Termination Currency.">;
+	bothPartiesCurrency string (0..1) scheme <"The currency election in the case of a Termination Event where there are two Affected Parties.">;
+		[synonym ISDA_Create_1_0 value both_parties_termination_currency]
+}
+
+data rule TerminationCurrencyAmendment_applicable <"The actual Amendment to Termination Currency elections only apply when the Amendment to Termination Currency is deemed applicable by the parties.">
+	when TerminationCurrencyAmendment -> isApplicable = False
+	then TerminationCurrencyAmendment -> effectiveDate is absent
+	and TerminationCurrencyAmendment -> currencyElection is absent
+	and TerminationCurrencyAmendment -> bothPartiesCurrency is absent
+
+class AmendmentEffectiveDate one of <"A class to specify the effective date of the Amendment to Termination Currency. This date can be specified as either an actual date, a specific date (e.g. the annex date) or as a custom provision. ">
+{
+	date date (0..1) <"The effective date of the Amendment to Termination Currency when specified as an actual date.">;
+	specificDate AmendmentEffectiveDateEnum (0..1) <"The effective date of the Amendment to Termination Currency when specified as a specific date (e.g. the annex date).">;
+	customProvision string (0..1)<"The effective date of the Amendment to Termination Currency when specified as a non normalized custom provision.">;
 }
 
 class TerminationEvents <"A class to specify the Termination Events that will be deemed an Access Condition. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e)(ii).">
