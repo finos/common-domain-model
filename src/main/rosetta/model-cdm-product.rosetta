@@ -441,10 +441,10 @@ data rule Execution_executionVenue <"When the execution type is set to 'Electron
 
 data rule EquityPayout_singleUnderlier <"In the case of an equity payout with a single underlier, that underlier needs to be an equity product.">
 	when EquityPayout -> underlier -> singleUnderlier exists
-	then ( EquityPayout -> underlier -> singleUnderlier -> underlyingProduct -> equity
-		or EquityPayout -> underlier -> singleUnderlier -> underlyingProduct -> exchangeTradedFund
-		or EquityPayout -> underlier -> singleUnderlier -> underlyingProduct -> mutualFund
-		or EquityPayout -> underlier -> singleUnderlier -> underlyingProduct -> warrant ) exists
+	then ( EquityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> equity
+		or EquityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> exchangeTradedFund
+		or EquityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> mutualFund
+		or EquityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> warrant ) exists
 
 class GeneralTerms <"A class specifying a set of non-monetary terms for the Credit Derivative Transaction, including the buyer and seller and selected items from the ISDA 2014 Credit Definition article II, such as the reference obligation and related terms. The CDM GeneralTerms class corresponds to the FpML GeneralTerms complex type, except that the effectiveDate and scheduledTerminationDate have been positioned as part of the InterestRatePayout class in the CDM instead of in GeneralTerms.">
 {
@@ -763,26 +763,8 @@ class Product one of <"A class to represent a financial product. With respect to
 	contractualProduct ContractualProduct (0..1);
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value creditDefaultSwap]
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17  value swap]
-	bond Bond (0..1);
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value bond]
-	convertibleBond ConvertibleBond (0..1);
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value convertibleBond]
-	equity Equity (0..1);
-		[synonym FpML_5_10 value equity]
-	exchangeTradedFund ExchangeTradedFund (0..1);
-		[synonym FpML_5_10 value exchangeTradedFund]
-	index Index (0..1);
-		[synonym FpML_5_10 value index]
-	loan Loan (0..1);
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value loan]
-	mortgageBackedSecurity MortgageBackedSecurity (0..1);
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value mortgage]
-	mutualFund MutualFund (0..1);
-		[synonym FpML_5_10 value mutualFund]
-	warrant Warrant (0..1);
-		[synonym FpML_5_10 value warrant]
 	foreignExchange ForeignExchange (0..1);
-		
+	security Security (0..1);
 }
 
 class ProductIdentification <"A class to combine the CDM product qualifier with other product qualifiers, such as the FpML ones. While the CDM product qualifier is derived by the CDM from the product payout features, the other product identification elements are assigned by some external sources and correspond to values specified by other data representation protocols.">
@@ -901,20 +883,20 @@ isProduct EquitySwap_PriceReturnBasicPerformance_SingleName <"The Price Return B
 	EconomicTerms -> payout -> interestRatePayout exists
 	and ( EconomicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum.Price
 		or EconomicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum.Total )
-	and ( EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> equity
-		or EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> exchangeTradedFund
-		or EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> mutualFund
-		or EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> warrant
+	and ( EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> equity
+		or EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> exchangeTradedFund
+		or EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> mutualFund
+		or EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> warrant
 		) exists
 
 isProduct EquitySwap_ParameterReturnDividend_SingleName <"The Parameter Return Dividend equity swap specified in the ISDA taxonomy V2.0 corresponds to the dividend return swap.">
 	[synonym ISDA_Taxonomy_v1 value EquitySwap_ParameterReturnDividend_SingleName]
 	EconomicTerms -> payout -> interestRatePayout exists
 	and EconomicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum.Dividend
-	and ( EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> equity
-		or EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> exchangeTradedFund
-		or EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> mutualFund
-		or EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> warrant
+	and ( EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> equity
+		or EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> exchangeTradedFund
+		or EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> mutualFund
+		or EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> warrant
 		) exists
 
 isProduct InterestRate_IRSwap_Basis
@@ -1113,8 +1095,8 @@ isProduct InterestRate_Option_Swaption
 
 isProduct InterestRate_Option_DebtOption
 	[synonym ISDA_Taxonomy_v1 value InterestRate_DebtOption]
-	EconomicTerms -> payout -> optionPayout -> underlier -> bond exists
-		or EconomicTerms -> payout -> optionPayout -> underlier -> convertibleBond exists
+	EconomicTerms -> payout -> optionPayout -> underlier -> security -> bond exists
+		or EconomicTerms -> payout -> optionPayout -> underlier -> security -> convertibleBond exists
 
 isProduct InterestRate_CapFloor
 	[synonym ISDA_Taxonomy_v1 value InterestRate_CapFloor]
@@ -1132,12 +1114,12 @@ isProduct InterestRate_Fra
 isProduct ForeignExchange
 	[synonym ISDA_Taxonomy_v1 value ForeignExchange_Forward]
 	[synonym ISDA_Taxonomy_v1 value ForeignExchange_Spot]
-	EconomicTerms -> payout -> forwardPayout -> product -> foreignExchange exists and  
-	EconomicTerms -> payout -> forwardPayout -> product -> foreignExchange -> nonDeliverableSettlement is absent
+	EconomicTerms -> payout -> forwardPayout -> underlier -> foreignExchange exists and  
+	EconomicTerms -> payout -> forwardPayout -> underlier -> foreignExchange -> nonDeliverableSettlement is absent
 
 isProduct ForeignExchange_NDF
 	[synonym ISDA_Taxonomy_v1 value ForeignExchange_NDF]
-	EconomicTerms -> payout -> forwardPayout -> product -> foreignExchange -> nonDeliverableSettlement exists
+	EconomicTerms -> payout -> forwardPayout -> underlier -> foreignExchange -> nonDeliverableSettlement exists
 	
 alias effectiveDate // Scope limited to interestPayout until such time that we position it to the economicTerms level
 	EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate

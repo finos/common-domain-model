@@ -1,13 +1,18 @@
 namespace "org.isda.cdm"
 version "${project.version}"
 
-class ForwardPayout <"Whether the payout is classified as spot or forward is done using product qualification, see isProduct ForeignExchange_Forward"> 
+class ForwardPayout <"Representation of a forward settling payout."> 
 {
-	product Product (1..1) <"The product underlying the forward contract">;
+	buyerSeller BuyerSeller (0..1) <"The buyer and seller on the forward contract when parties are not specified on the product i.e. Bonds">;
+	underlier Product (1..1) <"The product underlying the forward contract. This can technically be any asset or contract.">;
 		[synonym FpML_5_10 value fxSingleLeg]
-	settlementDate date (0..1) <"For FX Forward, the settlement date (or value date) for each currency leg can be set individually.">;
+	settlementDate date (0..1) <"The settlement date for a forward settling product. For FX Forward, this represents a common settlement date between the currency legs. To specify settlement dates per currency leg, see ForeignExchange class.">;
 		[synonym FpML_5_10 value valueDate path "fxSingleLeg"]
-} 
+}
+
+data rule ForwardPayout_Parties <"As the Foreign Exchange product specifies parties explicitly, ">
+	when ForwardPayout -> underlier -> security exists then
+	ForwardPayout -> buyerSeller exists
 
 class ForeignExchange <"From FpML: A type defining either a spot or forward FX transactions.">
 	[synonym FpML_5_10 value FxSingleLeg]
@@ -16,10 +21,6 @@ class ForeignExchange <"From FpML: A type defining either a spot or forward FX t
 		[synonym FpML_5_10 value exchangedCurrency1]
 	exchangedCurrency2 Cashflow (1..1) <"This is the second of the two currency flows that define a single leg of a standard foreign exchange transaction.">;
 		[synonym FpML_5_10 value exchangedCurrency2]
-//	dealtCurrency DealtCurrencyEnum (0..1) <"Indicates which currency was dealt.">;
-//		[synonym FpML_5_10 value dealtCurrency]
-//	tenorName FxTenorPeriodEnum (0..1) <"A tenor expressed with a standard business term (i.e. Spot, TomorrowNext, etc.)">;
-//		[synonym FpML_5_10 value tenorName]
 	tenorPeriod Period (0..1) <"A tenor expressed as a period type and multiplier (e.g. 1D, 1Y, etc.)">;
 		[synonym FpML_5_10 value tenorPeriod]
 	currencyValueDates CurrencyValueDates (0..1) <"The dates on which each currency amount will be settled">;
@@ -36,12 +37,9 @@ class CurrencyValueDates <"Currency settlement dates for each currency of a Fore
 }
 
 data rule FxForward_settlementDate_choice <"For Fx Forwards, either the settlementDate is set or the currencyValueDates, but not both.">
-	when ForwardPayout -> product -> foreignExchange exists 
-	then ( ForwardPayout -> settlementDate exists and ForwardPayout -> product -> foreignExchange -> currencyValueDates is absent ) 
-		or ( ForwardPayout -> settlementDate is absent and ForwardPayout -> product -> foreignExchange -> currencyValueDates exists )
-	
-//choice rule ForeignExchange_tenor_choice 
-//	for ForeignExchange optional choice between tenorName and tenorPeriod
+	when ForwardPayout -> underlier -> foreignExchange exists 
+	then ( ForwardPayout -> settlementDate exists and ForwardPayout -> underlier -> foreignExchange -> currencyValueDates is absent ) 
+		or ( ForwardPayout -> settlementDate is absent and ForwardPayout -> underlier -> foreignExchange -> currencyValueDates exists )
 
 class ExchangeRate <"A type that is used for describing the exchange rate for a particular transaction.">
 	[synonym FpML_5_10 value ExchangeRate] 
@@ -150,20 +148,3 @@ class FxInformationSource extends InformationSource <"Information source specifi
 {
 	fixingTime BusinessCenterTime (0..1) <"The time that the fixing will be taken along with a business center to define the time zone.">;
 }
-
-//enum DealtCurrencyEnum <"Reference to a specific currency of the Foreign Exchange product.">
-//	[synonym FpML_5_10 value DealtCurrencyEnum]  
-//{ 
-//	ExchangedCurrency1, ExchangedCurrency2
-//} 
-//
-//enum FxTenorPeriodEnum <"The specification of a time period containing values such as Today, Tomorrow etc.">
-//	[synonym FpML_5_10 value FxTenorPeriodEnum]   
-//{
-//	Broken <"Broken/non conventional Tenor Period.">, 
-//	Today <"Today Tenor Period.">, 
-//	Tomorrow <"Tomorrow Tenor Period.">, 
-//	TomorrowNext <"Day after Tomorrow Tenor Period.">, 
-//	Spot <"Spot Tenor Period.">, 
-//	SpotNext <"Day after Spot Tenor period.">
-//}
