@@ -235,10 +235,10 @@ class BusinessCenterTime <"A class for defining a time with respect to a busines
 {
 	hourMinuteTime time (1..1) <"A time specified in hh:mm:ss format where the second component must be '00', e.g. 11am would be represented as 11:00:00.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value hourMinuteTime]
-		[synonym ISDA_Create_1_0 value partyA_time]
+		[synonym ISDA_Create_1_0 value partyA_time, partyB_time, time]
 	businessCenter BusinessCenterEnum (1..1) scheme <"A code identifying a business day calendar location. A business day calendar location is drawn from the list identified by the business day calendar location enumeration.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value businessCenter meta businessCenterScheme]
-		[synonym ISDA_Create_1_0 value partyA_location]
+		[synonym ISDA_Create_1_0 value partyA_location, partyB_location, location]
 }
 
 
@@ -764,6 +764,7 @@ class Offset extends Period <"A class defining an offset used in calculating a n
 {
 	dayType DayTypeEnum (0..1) <"In the case of an offset specified as a number of days, this element defines whether consideration is given as to whether a day is a good business day or not. If a day type of business days is specified then non-business days are ignored when calculating the offset. The financial business centers to use for determination of business days are implied by the context in which this element is used. This element must only be included when the offset is specified as a number of days. If the offset is zero days then the dayType element should not be included.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value dayType]
+		[synonym ISDA_Create_1_0 set to "Calendar" when "release_date" = "days"]
 }
 
 data rule Offset_DayType <"FpML specifies that the dayType must only be included when the offset is specified as a number of days, while should not be included if the offset is zero days.">
@@ -776,7 +777,7 @@ class OptionPhysicalSettlement
 {
 	clearedPhysicalSettlement boolean (1..1) <"Specifies whether the swap resulting from physical settlement of the swaption transaction will clear through a clearing house. The meaning of Cleared Physical Settlement is defined in the 2006 ISDA Definitions, Section 15.2 (published in Supplement number 28).">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value clearedPhysicalSettlement]
-	predeterminedClearingOrganizationPartyReference Party (0..1) reference <"A reference to the clearing organisation (CCP, DCO) to which the trade should be cleared.">;
+	predeterminedClearingOrganizationPartyReference Party (0..1) reference <"A reference to the clearing organization (CCP, DCO) to which the trade should be cleared.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value predeterminedClearingOrganizationPartyReference meta href]
 }
 
@@ -908,9 +909,11 @@ class Period <"A class to define recurring periods or time offsets.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value periodMultiplier]
 		[synonym FpML_5_10 value periodMultiplier path "dateOffset"]
 		[synonym FpML_5_10 value periodMultiplier path "calculationPeriodDates.relativeEffectiveDate"]
+		[synonym ISDA_Create_1_0 value timely_days, release_days, after_days]
 	period PeriodEnum (1..1) <"A time period, e.g. a day, week, month or year of the stream. If the periodMultiplier value is 0 (zero) then period must contain the value D (day).">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value period]
 		[synonym FpML_5_10 value period path "dateOffset"]
+		[synonym ISDA_Create_1_0 set to "D"]
 }
 
 data rule Period_period <"FpML specifies that if the periodMultiplier value is 0 (zero) then period must contain the value D (day).">
