@@ -19,4 +19,4 @@ Contains the CDM documentation in html format.  In the common-domain-model sub-f
 The DAML source code generated from the CDM.  To download and install the DAML SDK go to https://docs.daml.com/getting-started/installation.html?ref=rosetta.
 
 /lib
-The compiled DAML artefacts (.dar and .dalf) generated from the CDM.
+The compiled DAML artefacts (.dar) generated from the CDM.
