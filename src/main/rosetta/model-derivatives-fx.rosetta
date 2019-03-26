@@ -53,7 +53,7 @@ data rule FxForward_settlementDate <"For foreign exchange contracts, either the 
 	then ( ForwardPayout -> settlementDate exists and ForwardPayout -> foreignExchange -> currencyValueDates is absent ) 
 		or ( ForwardPayout -> settlementDate is absent and ForwardPayout -> foreignExchange -> currencyValueDates exists )
 
-class ExchangeRate <"A type that is used for describing the exchange rate for a particular transaction.">
+class ExchangeRate <"A class that is used for describing the exchange rate for a particular transaction.">
 	[synonym FpML_5_10 value ExchangeRate] 
 {
 	quotedCurrencyPair QuotedCurrencyPair (1..1) <"Defines the two currencies for an FX trade and the quotation relationship between the two currencies.">;
@@ -87,7 +87,7 @@ data rule ExchangeRate_forwardPoints_spotRate
 	then ExchangeRate -> spotRate exists
 
 // TODO: Duplicates large part of ExchangeRate, consider removing redundancy
-class CrossRate extends QuotedCurrencyPair <"A type that is used for including the currency exchange rates used to cross between the traded currencies for non-base currency FX contracts.">
+class CrossRate extends QuotedCurrencyPair <"A class that is used for including the currency exchange rates used to cross between the traded currencies for non-base currency FX contracts.">
 	[synonym FpML_5_10 value CrossRate] 
 {
 	rate number (1..1) <"The exchange rate used to cross between the traded currencies.">;
@@ -102,7 +102,7 @@ data rule CrossRate_rule_1
 	when CrossRate -> forwardPoints exists 
 	then CrossRate -> spotRate exists
 	
-class FxCashSettlement <"A type that is used for describing cash settlement of an option / non deliverable forward. It includes the currency to settle into together with the fixings required to calculate the currency amount.">
+class FxCashSettlement <"A class that is used for describing cash settlement of an option / non deliverable forward. It includes the currency to settle into together with the fixings required to calculate the currency amount.">
 	[synonym FpML_5_10 value FxCashSettlement] 
 {
 	settlementCurrency string (1..1) scheme <"The currency in which cash settlement occurs for non-deliverable forwards and cash-settled options (non-deliverable or otherwise).">;
@@ -124,7 +124,7 @@ data rule FxCashSettlement_notionalAmount <"The notionalAmount should be positiv
 choice rule FxCashSettlement_choice 
 	for FxCashSettlement optional choice between fixing and rateSourceFixing
 
-class FxFixing <"A type that specifies the source for and timing of a fixing of an exchange rate. This is used in the agreement of non-deliverable forward trades as well as various types of FX OTC options that require observations against a particular rate.">
+class FxFixing <"A class that specifies the source for and timing of a fixing of an exchange rate. This is used in the agreement of non-deliverable forward trades as well as various types of FX OTC options that require observations against a particular rate.">
 	[synonym FpML_5_10 value FxFixing] 
 {
 	quotedCurrencyPair QuotedCurrencyPair (1..1) <"Defines the two currencies for an FX trade and the quotation relationship between the two currencies.">;
