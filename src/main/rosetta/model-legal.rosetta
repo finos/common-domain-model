@@ -38,6 +38,13 @@ data rule AdditionalType_standardValue <"The specification of a standard value b
 	when AdditionalType -> standardValue <> AdditionalTypeEnum.Other
 	then AdditionalType -> customValue is absent	
 
+class AmendmentEffectiveDate one of <"A class to specify the effective date of the Amendment to Termination Currency. This date can be specified as either an actual date, a specific date (e.g. the annex date) or as a custom provision. ">
+{
+	date date (0..1) <"The effective date of the Amendment to Termination Currency when specified as an actual date.">;
+	specificDate AmendmentEffectiveDateEnum (0..1) <"The effective date of the Amendment to Termination Currency when specified as a specific date (e.g. the annex date).">;
+	customProvision string (0..1)<"The effective date of the Amendment to Termination Currency when specified as a non normalized custom provision.">;
+}
+
 class ApplicableRegime extends RegimeTerms <"A class to specify the applicable regulatory regime(s) that parties to a legal agreement, such as the ISDA 2016 and 2018 CSA for Initial Margin, might be subject to.">
 {
 	regime RegulatoryRegimeEnum (1..1) <"The applicable regulatory regime, as specified through an enumeration.">;
@@ -73,11 +80,9 @@ choice rule CalculationDateLocationElection_choice <"The Calculation Date Locati
 	for CalculationDateLocationElection required choice between
 	businessCenter and customLocation
 
-class ChargorPostingObligations extends PostingObligations <"A class to specify the chargor(s) collateral posting obligations as specified under the terms of the English Law ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (ii).">
+class ChargorPostingObligations <"A class to specify the chargor(s) collateral posting obligations as specified under the terms of the English Law ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (ii).">
 {
-	chargor Party (1..2) reference <"The chargor party(ies) to which the posting obligations apply to, which can be either one of the parties to the legal agreement, or both of those.">;
-		[synonym ISDA_Create_1_0 value chargor]
-	// See mapping comment in PledgorPostingObligations class	
+	partyElection PartyPostingObligations (1..2) reference <"The chargor party(ies) to which the posting obligations apply to, which can be either one of the parties to the legal agreement, or both of those.">;
 }
 
 class CollateralRounding <"A class to specify the rounding methodology applicable to the Delivery Amount and the Return Amount in terms of nearest integral multiple of Base Currency units. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (c)(vi)(C): Rounding.">
@@ -114,6 +119,8 @@ abstract class CsaInitialMargin2016 <"An abstract class to specify the provision
 		[synonym ISDA_Create_1_0 value sensitivities_to_equity_indices_funds_etfs]
 	sensitivityToCommodity SensitivityMethodology (1..1) <"The methodology to compute sensitivities to commodity indices for the purpose of the ISDA 2016 and 2018 CSA for Initial Margin. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles (gg)(2)(B).">;
 		[synonym ISDA_Create_1_0 value sensitivities_to_commodity_indices]
+	fxHaircutCurrency FxHaircutCurrency (1..1) <"The reference currency for the purpose of specifying the FX Haircut relating to a posting obligation, as being either the Termination Currency or an FX Designated Currency.">;
+		[synonym ISDA_Create_1_0 value fx_haircut_percentage]
 	baseCurrency string (1..1) scheme <"The base currency as specified by the ISDA 2016 CSA for Initial Margin, Paragraph 13 (a). The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">;
 		[synonym ISDA_Create_1_0 value base_currency]
 	additionalObligations string (0..1) <"The additional obligations as specified in the ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (b)(ii).">;
@@ -292,27 +299,44 @@ data rule EligibleCollateral_valuationPercentage <"The valuation percentage shou
 	then EligibleCollateral -> valuationPercentage >= 0
 	and EligibleCollateral -> valuationPercentage <= 1
 
-class IndependentAmountEligibleCollateral <"A class to specify the eligible collateral for initial margin purposes. Those features go beyond what is required for meeting the terms specified by the ISDA 2016 CSA for Initial Margin.">
-	[synonym FpML_5_10 value IndependentAmountEligibleCollateral]
-{
-	party Party (1..1) reference <"The party which the eligible collateral election applies to.">;
-		[synonym FpML_5_10 value partyReference]
-	eligibleCollateral EligibleCollateral (0..*) <"The eligible collateral assets.">;
-		[synonym FpML_5_10 value eligibleCollateral]
-	independentAmountEligibility IndependentAmountEligibilityEnum (0..1) scheme <"The terms when no collateral assets are specified.">;
-		[synonym FpML_5_10 value independentAmountEligibility meta independentAmountEligibilityScheme]
-	fxHaircut number (0..1) <"The ISDA 2018 CSA specifies the FX haircut with respect to each party's posting obligation to be equal to 8% if the eligible collateral is denominated in a currency that is distinct from the Termination Currency specified with respect to the Secured Party, and 0% if the same.">;
-	terminationCurrency PartyTerminationCurrency (2..2) <"The Termination Currency election by the parties to the agreement. ISDA 2018 CSA for Initial Margin, Paragraph 13 Eligible Credit Support (IM) Schedule.">;
-}
+//class IndependentAmountEligibleCollateral <"A class to specify the eligible collateral for initial margin purposes. Those features go beyond what is required for meeting the terms specified by the ISDA 2016 CSA for Initial Margin.">
+//	[synonym FpML_5_10 value IndependentAmountEligibleCollateral]
+//{
+//	party Party (1..1) reference <"The party which the eligible collateral election applies to.">;
+//		[synonym FpML_5_10 value partyReference]
+//	eligibleCollateral EligibleCollateral (0..*) <"The eligible collateral assets.">;
+//		[synonym FpML_5_10 value eligibleCollateral]
+//	independentAmountEligibility IndependentAmountEligibilityEnum (0..1) scheme <"The terms when no collateral assets are specified.">;
+//		[synonym FpML_5_10 value independentAmountEligibility meta independentAmountEligibilityScheme]
+//	fxHaircut number (0..1) <"The ISDA 2018 CSA specifies the FX haircut with respect to each party's posting obligation to be equal to 8% if the eligible collateral is denominated in a currency that is distinct from the Termination Currency specified with respect to the Secured Party, and 0% if the same.">;
+//	terminationCurrency PartyTerminationCurrency (2..2) <"The Termination Currency election by the parties to the agreement. ISDA 2018 CSA for Initial Margin, Paragraph 13 Eligible Credit Support (IM) Schedule.">;
+//}
 
-choice rule IndependentAmountEligibleCollateral_choice <"The independentAmountEligibility attribute provides alternative terms to specifying eligible collateral.">
-	for IndependentAmountEligibleCollateral required choice between
-	eligibleCollateral and independentAmountEligibility
+//choice rule IndependentAmountEligibleCollateral_choice <"The independentAmountEligibility attribute provides alternative terms to specifying eligible collateral.">
+//	for IndependentAmountEligibleCollateral required choice between
+//	eligibleCollateral and independentAmountEligibility
 
 //data rule IndependentAmountEligibleCollateral_fxHaircut <"The ISDA 2018 CSA specifies the FX haircut with respect to each party's posting obligation to be equal to 8% if the eligible collateral is denominated in a currency that is distinct from the Termination Currency specified with respect to the Secured Party, and 0% if the same.">
 //	when CsaInitialMargin2018 -> eligibleCollateral -> fxHaircut exists
 //	then CsaInitialMargin2018 -> eligibleCollateral -> fxHaircut = 0.08
 //	or CsaInitialMargin2018 -> eligibleCollateral -> fxHaircut = 0.0
+
+class FxHaircutCurrency one of <"A class to specify the reference currency for the purpose of specifying the FX Haircut relating to a posting obligation, as being either the Termination Currency or an FX Designated Currency.">
+{
+	isTerminationCurrency boolean (1..1) <"The reference currency for the purpose of specifying the FX Haircut relating to a posting obligation is the Termination Currency when the Boolean value is set to True.">;
+		[synonym ISDA_Create_1_0 set to True when path = "is_termination_currency.terminationCurrency",
+			set to False when path = "is_termination_currency.fxCurrency"]
+	fxDesignatedCurrency string (0..1) scheme <"When specified, the reference currency for the purpose of specifying the FX Haircut relating to a posting obligation. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">;
+		[synonym ISDA_Create_1_0 value fx_designated_currency]
+}
+
+data rule FxHaircutCurrency_terminationCurrency <"The FX Designated Currency shouldn't be specified when the reference currency for the purpose of specifying the FX Haircut relating to a posting obligation is specified as the Termination Currency.">
+	when FxHaircutCurrency -> isTerminationCurrency = True
+	then FxHaircutCurrency -> fxDesignatedCurrency is absent
+
+data rule FxHaircut_fxDesignatedCurrency <"The FX Designated Currency should be specified when the reference currency for the purpose of specifying the FX Haircut relating to a posting obligation is specified as not being the Termination Currency.">
+	when FxHaircutCurrency -> isTerminationCurrency = False
+	then FxHaircutCurrency -> fxDesignatedCurrency exists
 
 class LegalDocument extends LegalDocumentBase rosettaKey one of <"A class to specify the elections and variables that characterize a legal document.">
 {
@@ -405,11 +429,10 @@ class NotificationTime <"A class to specify the time by which a demand for the T
 	partyElections PartyNotificationTime (2..2) <"The parties' Notification Time elections.">;
 }
 
-class ObligorPostingObligations extends PostingObligations <"A class to specify the obligor(s) collateral posting obligations as specified under the terms of the Japanese Law ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (ii).">
+class ObligorPostingObligations <"A class to specify the obligor(s) collateral posting obligations as specified under the terms of the Japanese Law ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (ii).">
 {
-	obligor Party (1..2) reference <"The obligor party(ies) to which the posting obligations apply to, which can be either one of the parties to the legal agreement, or both of those.">;
+	partyElection PartyPostingObligations (1..2) reference <"The obligor party(ies) to which the posting obligations apply to, which can be either one of the parties to the legal agreement, or both of those.">;
 		[synonym ISDA_Create_1_0 value obligor]
-	// See mapping comment in PledgorPostingObligations class
 }
 
 class OneWayProvisions <"A class to specify whether One Way Provisions apply in relation to the ISDA CSA for Initial Margin and, if yes, to specify the Posting Party. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles (aa): One Way Provisions.">
@@ -516,6 +539,37 @@ choice rule PartyNotificationTime_choice <"The Notification Time election can be
 	for PartyNotificationTime required choice between
 	notificationTime and customNotification
 
+class PartyPostingObligations <"A class to specify the collateral posting obligations as specified under the terms of the ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (ii).">
+{
+	party Party (1..1) reference <"The party which the Termination Currency determination applies to: the Chargor (English Law CSA), the Obligor (Japanese Law CSA) or the Pledgor (New York Law CSA).">;
+		[synonym ISDA_Create_1_0 value chargor, pledgor, obligor]
+		/*
+		 * TODO - In the case where both parties are specified, ISDA Create specifies the value 'both', instead of 1 set of entries for party A, and 1 set for partyB.
+		 * The proposed approach is to create 2 entries at level of ChargorPostingObligations/ObligorPostingObligations/PledgorPostingObligations through back-end logic (i.e. not in the syntax).
+		 */
+	asPermitted boolean (1..1) <"If set to True, the Control Agreement is a Credit Support Document with respect to the party(ies). ISDA 2016 Credit Support Annex for Initial Margin, paragraph 6, (e).">;
+		[synonym ISDA_Create_1_0 
+			set to True when "partyA_type" = "control_agreement",
+			set to False when "partyA_eligible_currencies" exists,
+			set to True when "partyB_type" = "control_agreement",
+			set to False when "partyB_eligible_currencies" exists]
+	eligibleCollateral EligibleCollateral (0..*) <"The eligible collateral as specified in relation to the pledgor/chargor/obligor(s) posting obligation. ISDA 2016 Credit Support Annex for Initial Margin, Eligible Credit Support (IM) Schedule.">;
+		[synonym ISDA_Create_1_0 value partyA_eligible_currencies]
+		[synonym ISDA_Create_1_0 value partyB_eligible_currencies]
+	excludedCollateral string (0..1) <"The excluded collateral as specified in relation to the pledgor/chargor/obligor(s) posting obligation. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (ii)(B)(i).">; // This representation matches the current ISDA Create one, but should be aligned with the eligibleCollateral representation once that one is confirmed
+		[synonym ISDA_Create_1_0 value partyA_control_agreement_specify, partyB_control_agreement_specify]
+	additionalLanguage string (0..1) <"The additional language that might be specified by the parties to the legal agreement.">;
+		[synonym ISDA_Create_1_0 value partyA_additional_language, partyB_additional_language]
+}
+
+data rule PartyPostingObligations_asPermitted <"The eligible collateral should be specified when the Control Agreement is a Credit Support Document with respect to the party(ies).">
+	when PartyPostingObligations -> asPermitted = True
+	then PartyPostingObligations -> eligibleCollateral is absent
+
+data rule PartyPostingObligations_eligibleCollateral <"The eligible collateral shouldn't be specified when the Control Agreement isn't deemed a Credit Support Document with respect to the party(ies).">
+	when PartyPostingObligations -> asPermitted = False
+	then PartyPostingObligations -> eligibleCollateral exists
+
 class PartyRegimeElection <"A class to specify the parties' respective elections with respect to the applicable regulatory regime(s) in their capacity as Secured Party (English Law & New York Law) or Obligee (Japanese Law).">
 {
 	party Party (1..1) reference <"The party which the set of regulatory regime elections specified by the applicableRegime attribute apply to.">;
@@ -534,16 +588,10 @@ class PartyTerminationCurrency <"A class to specify the Amendment to Termination
 		[synonym ISDA_Create_1_0 value partyA_termination_currency, partyB_termination_currency]
 }
 
-class PledgorPostingObligations extends PostingObligations <"A class to specify the pledgor(s) collateral posting obligations as specified under the terms of the New York Law ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (ii).">
+class PledgorPostingObligations <"A class to specify the pledgor(s) collateral posting obligations as specified under the terms of the New York Law ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (ii).">
 {
-	pledgor Party (1..2) reference <"The pledgor party(ies) to which the posting obligations apply to, which can be either one of the parties to the legal agreement, or both of those.">;
+	partyElection PartyPostingObligations (1..2) reference <"The pledgor party(ies) to which the posting obligations apply to, which can be either one of the parties to the legal agreement, or both of those.">;
 		[synonym ISDA_Create_1_0 value pledgor]
-		/*
-		 * TODO - In the case where both parties are specified, ISDA Create specifies the value 'both'.
-		 * 2 possible approaches wrt CDM: either develop a mapping logic that will create 2 entries (could be done in the back-end, rather than the syntax)
-		 * or create a class abstraction that provides a choice between 1 party or a value of 'BothParties'.
-		 * My inclination is for the former, which allows to have a consistent a party representation across the whole document.
-		 */
 }
 
 class PledgorRightsEvent one of <"A class to specify the Pledgor Rights Event election. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (j): Pledgor Rights Event."> // TODO - Look to enhance this definition, as it's not clear what it means in layman terms
@@ -561,31 +609,6 @@ class PledgorAdditionalRightsEvent <"A class to specify the Pledgor Additional R
 	qualification string (0..1) <"The qualification of the Pledgor Additional Rights Event election, when applicable.">;
 		[synonym ISDA_Create_1_0 value specify]
 }
-
-abstract class PostingObligations <"A class to specify the collateral posting obligations as specified under the terms of the ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (ii). This class is then extended so that party to which the posting obligation applies to is qualified according to relevant governing law: Chargor under English Law, Obligor under Japanese Law and Pledgor under New York Law.">
-{
-	asPermitted boolean (1..1) <"If set to True, the Control Agreement is a Credit Support Document with respect to the party(ies). ISDA 2016 Credit Support Annex for Initial Margin, paragraph 6, (e).">;
-		[synonym ISDA_Create_1_0 
-			set to True when "partyA_type" = "control_agreement",
-			set to False when "partyA_eligible_currencies" exists,
-			set to True when "partyB_type" = "control_agreement",
-			set to False when "partyB_eligible_currencies" exists]
-	eligibleCollateral EligibleCollateral (0..*) <"The eligible collateral as specified in relation to the pledgor/chargor/obligor(s) posting obligation. ISDA 2016 Credit Support Annex for Initial Margin, Eligible Credit Support (IM) Schedule.">;
-		[synonym ISDA_Create_1_0 value partyA_eligible_currencies]
-		[synonym ISDA_Create_1_0 value partyB_eligible_currencies]
-	excludedCollateral string (0..1) <"The excluded collateral as specified in relation to the pledgor/chargor/obligor(s) posting obligation. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (ii)(B)(i).">; // This representation matches the current ISDA Create one, but should be aligned with the eligibleCollateral representation once that one is confirmed
-		[synonym ISDA_Create_1_0 value partyA_control_agreement_specify, partyB_control_agreement_specify]
-	additionalLanguage string (0..1) <"The additional language that might be specified by the parties to the legal agreement.">;
-		[synonym ISDA_Create_1_0 value partyA_additional_language, partyB_additional_language]
-}
-
-data rule PostingObligations_asPermitted <"The eligible collateral should be specified when the Control Agreement is a Credit Support Document with respect to the party(ies).">
-	when PostingObligations -> asPermitted = True
-	then PostingObligations -> eligibleCollateral is absent
-
-data rule PostingObligations_eligibleCollateral <"The eligible collateral shouldn't be specified when the Control Agreement isn't deemed a Credit Support Document with respect to the party(ies).">
-	when PostingObligations -> asPermitted = False
-	then PostingObligations -> eligibleCollateral exists
 
 data rule PledgorAdditionalRightsEvent_applicable <"If the Pledgor Additional Rights Event election is applicable, its meaning needs to be specified.">
 	when PledgorAdditionalRightsEvent -> isApplicable = True
@@ -702,13 +725,6 @@ data rule TerminationCurrencyAmendment_applicable <"The actual Amendment to Term
 	then TerminationCurrencyAmendment -> effectiveDate is absent
 	and TerminationCurrencyAmendment -> currencyElection is absent
 	and TerminationCurrencyAmendment -> bothPartiesCurrency is absent
-
-class AmendmentEffectiveDate one of <"A class to specify the effective date of the Amendment to Termination Currency. This date can be specified as either an actual date, a specific date (e.g. the annex date) or as a custom provision. ">
-{
-	date date (0..1) <"The effective date of the Amendment to Termination Currency when specified as an actual date.">;
-	specificDate AmendmentEffectiveDateEnum (0..1) <"The effective date of the Amendment to Termination Currency when specified as a specific date (e.g. the annex date).">;
-	customProvision string (0..1)<"The effective date of the Amendment to Termination Currency when specified as a non normalized custom provision.">;
-}
 
 class TerminationEvents <"A class to specify the Termination Events that will be deemed an Access Condition. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e)(ii).">
 {
