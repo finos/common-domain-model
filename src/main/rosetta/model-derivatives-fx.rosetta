@@ -1,18 +1,30 @@
 namespace "org.isda.cdm"
 version "${project.version}"
 
-class ForwardPayout <"Representation of a forward settling payout."> 
+class ForwardPayout <"Representation of a forward settling payout.">
 {
-	buyerSeller BuyerSeller (0..1) <"The buyer and seller on the forward contract when parties are not specified on the product i.e. Bonds">;
-	underlier Product (1..1) <"The product underlying the forward contract. This can technically be any asset or contract.">;
-		[synonym FpML_5_10 value fxSingleLeg]
 	settlementDate date (0..1) <"The settlement date for a forward settling product. For FX Forward, this represents a common settlement date between the currency legs. To specify settlement dates per currency leg, see ForeignExchange class.">;
 		[synonym FpML_5_10 value valueDate path "fxSingleLeg"]
+	foreignExchange ForeignExchange (0..1) <"A Foreign Exchange underlier to the forward payout.">;
+		[synonym FpML_5_10 value fxSingleLeg]
+	securityComponent SecurityComponent (0..1) <"A security underlier to the forward payout.">;
 }
 
-data rule ForwardPayout_Parties <"As the Foreign Exchange product specifies parties explicitly, ">
-	when ForwardPayout -> underlier -> security exists then
-	ForwardPayout -> buyerSeller exists
+choice rule ForwardPayout_choice <"The forward payout must have an underlying asset.">
+	for ForwardPayout required choice between 
+	foreignExchange and securityComponent
+
+class SecurityComponent <"Represents attributes specific to a forward settling security.">
+{
+	buyerSeller BuyerSeller (0..1) <"The buyer and seller on the forward contract when parties are not specified on the product i.e. Bonds">;
+	quantity Quantity (0..1);
+	nominalAmount Money (0..1);
+	underlier Security (1..1) <"The product underlying the forward contract. This can technically be any asset or contract.">;
+}
+
+choice rule SecurityComponent_choice <"Quantity of securities can either be represented at number of contracts or a nominal amount.">
+	for SecurityComponent required choice between 
+	quantity and nominalAmount
 
 class ForeignExchange <"From FpML: A type defining either a spot or forward FX transactions.">
 	[synonym FpML_5_10 value FxSingleLeg]
@@ -37,9 +49,9 @@ class CurrencyValueDates <"Currency settlement dates for each currency of a Fore
 }
 
 data rule FxForward_settlementDate_choice <"For Fx Forwards, either the settlementDate is set or the currencyValueDates, but not both.">
-	when ForwardPayout -> underlier -> foreignExchange exists 
-	then ( ForwardPayout -> settlementDate exists and ForwardPayout -> underlier -> foreignExchange -> currencyValueDates is absent ) 
-		or ( ForwardPayout -> settlementDate is absent and ForwardPayout -> underlier -> foreignExchange -> currencyValueDates exists )
+	when ForwardPayout -> foreignExchange  exists 
+	then ( ForwardPayout -> settlementDate exists and ForwardPayout -> foreignExchange -> currencyValueDates is absent ) 
+		or ( ForwardPayout -> settlementDate is absent and ForwardPayout -> foreignExchange -> currencyValueDates exists )
 
 class ExchangeRate <"A type that is used for describing the exchange rate for a particular transaction.">
 	[synonym FpML_5_10 value ExchangeRate] 
