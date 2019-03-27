@@ -1,9 +1,53 @@
 namespace "org.isda.cdm"
 version "%project.version%"
 
-class AccessConditions <"A class to specify each party's election with respect to the Termination Events that will be deemed an Access Condition. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e)(ii).">
+class AccessConditions <"A class to specify each party's election with respect to the Termination Events that will be deemed an Access Condition. ISDA 2016 English Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e)(ii). | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (f)(ii). | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e)(ii).">
 {
-	partyElections TerminationEvents (2..2) <"The parties' Access Condition elections.">;
+	partyElection AccessConditionsElections (2..2) <"The parties' Access Condition election.">;
+}
+
+class AccessConditionsElections <"A class to specify the Termination Events that will be deemed an Access Condition. ISDA 2016 English Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e)(ii). | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (f)(ii). | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e)(ii).">
+{
+	party Party (1..1) reference <"The elective party.">;
+		// TODO - Need for a mapping logic that will parse the ISDA Create prefix to identify partyA vs. partyB entries
+	illegality boolean (1..1);
+		[synonym ISDA_Create_1_0 
+			set to True when "partyA_illegality" = "applicable",
+			set to False when "partyA_illegality" = "not_applicable",
+			set to True when "partyB_illegality" = "applicable",
+			set to False when "partyB_illegality" = "not_applicable"]
+	forceMajeure boolean (1..1);
+		[synonym ISDA_Create_1_0 
+			set to True when "partyA_force_majeure" = "applicable",
+			set to False when "partyA_force_majeure" = "not_applicable",
+			set to True when "partyB_force_majeure" = "applicable",
+			set to False when "partyB_force_majeure" = "not_applicable"]
+	taxEvent boolean (1..1);
+		[synonym ISDA_Create_1_0 
+			set to True when "partyA_tax_event" = "applicable",
+			set to False when "partyA_tax_event" = "not_applicable",
+			set to True when "partyB_tax_event" = "applicable",
+			set to False when "partyB_tax_event" = "not_applicable"]
+	taxEventUponMerger boolean (1..1);
+		[synonym ISDA_Create_1_0 
+			set to True when "partyA_tax_event_upon_merger" = "applicable",
+			set to False when "partyA_tax_event_upon_merger" = "not_applicable",
+			set to True when "partyB_tax_event_upon_merger" = "applicable",
+			set to False when "partyB_tax_event_upon_merger" = "not_applicable"]
+	creditEventUponMerger boolean (1..1);
+		[synonym ISDA_Create_1_0
+			set to True when "partyA_credit_event_upon_merger" = "applicable",
+			set to False when "partyA_credit_event_upon_merger" = "not_applicable",
+			set to True when "partyB_credit_event_upon_merger" = "applicable",
+			set to False when "partyB_credit_event_upon_merger" = "not_applicable"]
+	additionalTerminationEvent boolean (1..1);
+		[synonym ISDA_Create_1_0
+			set to True when "partyA_additional_termination_events" = "applicable",
+			set to False when "partyA_additional_termination_events" = "not_applicable",
+			set to True when "partyB_additional_termination_events" = "applicable",
+			set to False when "partyB_additional_termination_events" = "not_applicable"]
+	additionalLanguage string (0..1);
+		[synonym ISDA_Create_1_0 value specify]
 }
 
 class AdditionalRegime extends RegimeTerms <"A class to specify the additional regulatory regime(s) that might be specified by the parties to a legal agreement, such as the ISDA 2016 and 2018 CSA for Initial Margin.">
@@ -32,6 +76,18 @@ class AdditionalRepresentationElection <"A class to specify the parties' Additio
 			set to True when path = "partyA_additional_representations.not_applicable",
 			set to False when path = "partyB_additional_representations.not_applicable"]
 }
+
+class AdditionalRightsEvent <"A class to specify the Pledgor/Obligor/Chargor Additional Rights Event election. ISDA 2016 English Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (k): Chargor Additional Rights Event. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (k): Obligor Additional Rights Event. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (k): Pledgor Additional Rights Event.">
+{
+	isApplicable boolean (1..1) <"The election of whether the Pledgor Additional Rights Event election is applicable.">;
+		[synonym ISDA_Create_1_0 value applicable]
+	qualification string (0..1) <"The qualification of the Pledgor Additional Rights Event election, when applicable.">;
+		[synonym ISDA_Create_1_0 value specify]
+}
+
+data rule AdditionalRightsEvent_applicable <"If the Pledgor/Obligor/ChargorAdditional Rights Event election is applicable, its meaning needs to be specified.">
+	when AdditionalRightsEvent -> isApplicable = True
+	then AdditionalRightsEvent -> qualification exists
 
 class AdditionalType <"The specification of the Additional Type of transaction that can require the collection or delivery of initial margin under a given regulatory regime for the purposes of Covered Transactions, as specified in ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (b)(B).">
 {
@@ -74,12 +130,12 @@ class ApplicableRegime extends RegimeTerms <"A class to specify the applicable r
 
 class CalculationCurrencyElection <"A class to specify the SIMM Calculation Currency elections by each party to the agreement.">
 {
-	partyElection SimmCalculationCurrency (2..2 ) <"The parties'SIMM Calculation Currency elections.">;
+	partyElection SimmCalculationCurrency (2..2 ) <"The parties'SIMM Calculation Currency election.">;
 }
 
 class CalculationDateLocation <"A class to specify the Calculation Date Location election for the respective parties to the legal agreement. ISDA 2016 English Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d)(i): Calculation Date Location. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e)(i): Calculation Date Location. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d)(i): Calculation Date Location.">
 {
-	partyElection CalculationDateLocationElection (2..2) <"The parties' calculation date location elections.">;
+	partyElection CalculationDateLocationElection (2..2) <"The parties' calculation date location election.">;
 }
 
 class CalculationDateLocationElection <"A class to specify each of the party elections with respect to the Calculation Date Location. ISDA 2016 English Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d)(i): Calculation Date Location. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e)(i): Calculation Date Location. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d)(i): Calculation Date Location.">
@@ -92,7 +148,7 @@ class CalculationDateLocationElection <"A class to specify each of the party ele
 		[synonym ISDA_Create_1_0 value partyA_specify, partyB_specify]
 }
 
-choice rule CalculationDateLocationElection_choice <"The Calculation Date Location can be specified either as a standard business center, or as a custom location.">
+choice rule CalculationDateLocationElection_choice <"The Calculation Date Location is specified either as a standard business center or as a custom location.">
 	for CalculationDateLocationElection required choice between
 	businessCenter and customLocation
 
@@ -112,6 +168,26 @@ class CollateralManagementAgreementElection <"A class to specify the Collateral 
 		// TODO - Need for a mapping logic that will parse the ISDA Create prefix to identify partyA vs. partyB entries
 	collateralManagementAgreement string (1..1) <"The designated Collateral Management Agreement with respect to the elective party as the Obligee.">;
 		[synonym ISDA_Create_1_0 value partyA_specify, partyB_specify]
+}
+
+class CollateralManagementArrangement <"A class to specify the Collateral Management Arrangement elections in accordance with the ISDA Japanese Law CSA. ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (m): Collateral Management Arrangement.">
+{
+	partyElection CollateralManagementArrangementElection (2..2 ) <"The party-specific election with respect to the Custodian and Segregated Account details and the Custodian Risk provision.">;
+	collateralManagerEvent CustodianEvent (1..1);
+	isCreditSupportDocument boolean (1..1) <"Unless specified as True, the Collateral Management Agreement is not a Credit Support Document under the agreement with respect to a party. ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 6 (e): The Collateral Management Agreement as a Credit Support Document.">;
+		[synonym ISDA_Create_1_0 set to True when path = "collateral_management_agreement_as_a_credit_support_document.definition.creditSupportDocument",
+			set to False when path = "collateral_management_agreement_as_a_credit_support_document.definition.not_specified"]
+	hasCollateralManagementLanguage boolean (1..1) <"Collateral Management Agreement language is specified when True.">;
+		[synonym ISDA_Create_1_0 set to True when path = "relationship_with_the_collateral_management_agreement.include_language.include",
+			set to False when path = "relationship_with_the_collateral_management_agreement.include_language.exclude"] 
+}
+
+class CollateralManagementArrangementElection
+{
+	party Party (1..1) reference <"The elective party.">;
+		// TODO - Need for a mapping logic that will parse the ISDA Create prefix to identify partyA vs. partyB entries
+	collateralManagerRisk CustodianRisk (1..1) <"The qualification of the Collateral Manager Risk. ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (m)(i): Collateral Manager Risk.">;
+		[synonym ISDA_Create_1_0 value collateral_manager_risk]
 }
 
 class CollateralManager <"A class to specify the Collateral Manager election by the respective parties to a Japanese Law ISDA CSA. ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (b)(ii): Collateral Manager.">
@@ -134,6 +210,14 @@ class CollateralRounding <"A class to specify the rounding methodology applicabl
 	returnAmount number (1..1) <"The rounding methodology applicable to the Return Amount in terms of nearest integral multiple of Base Currency units.">;
 		[synonym ISDA_Create_1_0 value return_amount]
 } 
+
+class ConditionsPrecedent <"A class to specify the two set of elections that may overwrite the default Condition Precedent provision as specified in ISDA 2016 Credit Support Annex for Initial Margin, Paragraph 4, (a): the custom election that may overwrite paragraph 4, (a) provisions, and the set of provisions that are deemed Access Condition. ISDA 2016 English Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e): Conditions Precedent. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (f): Conditions Precedent. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e): Conditions Precedent.">
+{
+	customProvisions string (0..1) <"The custom provisions that might be specified by the parties to the agreement for the purpose of overwriting the default Condition Precedent provision as specified in ISDA 2016 Credit Support Annex for Initial Margin, Paragraph 4, (a). ISDA 2016 English Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e)(i). | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (f)(i). | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e)(i).">;
+		[synonym ISDA_Create_1_0 value conditions_precedent path "conditions_precedent"]
+	accessConditions AccessConditions (1..1) <"The parties' election with respect to the Termination Events that will be deemed an Access Condition. ISDA 2016 English Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e)(ii). | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (f)(ii). | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e)(ii).">;
+		[synonym ISDA_Create_1_0 value access_conditions]
+}
 
 class CreditNotation <"A class to specify the credit notation as the combination of agency, notation, scale and debt type qualifications.">
 	[synonym FpML_5_10 value CreditNotation]
@@ -197,21 +281,9 @@ abstract class CsaInitialMargin2016 <"An abstract class to specify the provision
 		[synonym ISDA_Create_1_0 value calculation_date_location]
 	notificationTime NotificationTime (1..1) <"The time by which a demand for the Transfer of Eligible Credit Support (IM) or Posted Credit Support (IM) needs to be made in order for the transfer to take place in accordance with the Transfer Timing provisions. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d)(iii).">;
 		[synonym ISDA_Create_1_0 value notification_time]
-	conditionPrecedent string (0..1) <"When specified, this attribute overwrites the default Condition Precedent provision as specified in ISDA 2016 Credit Support Annex for Initial Margin, paragraph 4, (a).">;
-		[synonym ISDA_Create_1_0 value conditions_precedent]
-	accessConditions AccessConditions (1..1) <"The Termination Event(s) that will be deemed Access Conditions by the respective parties to the agreement. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e)(ii).">;
-		[synonym ISDA_Create_1_0 value access_conditions]
-	substitution Substitution (1..1) <"The conditions under which the Pledgor can substitute posted collateral. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (f): Substitution.">;
-		[synonym ISDA_Create_1_0 value consent]
-	disputeResolution DisputeResolution (1..1) <"The election terms under which a party disputes (i) the Calculation Agent’s calculation of a Delivery Amount or a Return Amount, or (ii) the Value of any Transfer of Eligible Credit Support or Posted Credit Support. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (g): Dispute Resolution.">;
-	pledgorRightsEvent PledgorRightsEvent (1..1) <"The Pledgor Rights Event election. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (j): Pledgor Rights Event.">; // TODO - Look to enhance this definition, as it's not clear what it means in layman terms
-		[synonym ISDA_Create_1_0 value pledgor_rights_event]
-	pledgorAdditionalRightsEvent PledgorAdditionalRightsEvent (0..1) <"The Pledgor Additional Rights Event election. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (k): Pledgor Additional Rights Event.">; // TODO - Look to enhance this definition, as it's not clear what it means in layman terms;
-		[synonym ISDA_Create_1_0 value pledgor_additional_rights_event]
-	deliveryInLieuRight boolean (1..1) <"The Delivery in Lieu Right election. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (m): Modification to Pledgor’s Rights and Remedies.">; // TODO - Look to enhance this definition, as it's not clear what it means in layman terms;
-		[synonym ISDA_Create_1_0 set to True when path = "delivery_in_lieu_right.right.applicable",
-			set to False when path = "delivery_in_lieu_right.right.not_applicable"]
-	custodyArrangements CustodyArrangements (1..1) <"The Custodian and Segregated Account details in respect of each party as the Pledgor. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n): Custody Arrangements.">;
+	conditionPrecedent ConditionsPrecedent (1..1) <"The two set of elections specified in Paragraph 13 that may overwrite the default Condition Precedent provision as specified in ISDA 2016 Credit Support Annex for Initial Margin, Paragraph 4, (a): the custom election that may overwrite paragraph 4, (a) provisions, and the set of provisions that are deemed Access Condition. ISDA 2016 English Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e): Conditions Precedent. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (f): Conditions Precedent. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e): Conditions Precedent.">;
+	substitution Substitution (1..1) <"The conditions under which the Pledgor/Obligor/Chargor can substitute posted collateral. ISDA 2016 English Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (f): Substitution. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (g): Substitution. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (f): Substitution.">;
+	disputeResolution DisputeResolution (1..1) <"The election terms under which a party disputes (i) the Calculation Agent’s calculation of a Delivery Amount or a Return Amount, or (ii) the Value of any Transfer of Eligible Credit Support or Posted Credit Support. ISDA 2016 English Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (g): Dispute Resolution. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (h): Dispute Resolution. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (g): Dispute Resolution.">;
     additionalRepresentation AdditionalRepresentation (1..1) <"ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (o): Additional Representation(s).">;
 	otherEligibleAndPostedSupport OtherEligibleAndPostedSupport (1..1) <"The Other Eligible Support elections associated with margin agreements. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (p): Other Eligible Support (IM) and Other Posted Support (IM).">;
 	demandsAndNotices PartyContactInformation (1..1) <"The address where the demands, specifications and notices will be communicated to within each of the parties to the agreement. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (q): Demands and Notices.">;
@@ -231,6 +303,14 @@ class CsaInitialMargin2016EnglishLaw extends CsaInitialMargin2016 <"A class to s
 		[synonym ISDA_Create_1_0 value chargor_posting_obligations]
 	transferTiming string (0..1) <"The time by which the transfer of collateral must take place when different from the Regular Settlement Day as a result of parties' election. ISDA 2016 English Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (c)(vii): Transfer Timing.">;
 		[synonym ISDA_Create_1_0 value settlement_day_specify path "transfer_timing"]
+	chargorRightsEvent RightsEvent (1..1) <"The Chargor Rights Event election. ISDA 2016 English Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (j): Chargor Rights Event.">;
+		[synonym ISDA_Create_1_0 value chargor_rights_event]
+	chargorAdditionalRightsEvent AdditionalRightsEvent (0..1) <"The Chargor Additional Rights Event election. ISDA 2016 English Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (k): Chargor Additional Rights Event.">;
+		[synonym ISDA_Create_1_0 value chargor_additional_rights_event]
+	deliveryInLieuRight boolean (1..1) <"The Delivery in Lieu Right provision applies when the value is set to True. ISDA 2016 English Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (m): Modification to Chargor’s Rights and Remedies.">;
+		[synonym ISDA_Create_1_0 set to True when path = "delivery_in_lieu_right.right.applicable",
+			set to False when path = "delivery_in_lieu_right.right.not_applicable"]
+	custodyArrangements CustodyArrangements (1..1) <"The Custodian and Segregated Account details in respect of each party as the Pledgor. ISDA 2016 English Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n): Custody Arrangements.">;
 }
 
 class CsaInitialMargin2016JapaneseLaw extends CsaInitialMargin2016 <"A class to specify the provisions that are specific to the Japanese Law version of the ISDA 2016 Credit Support Annex for Initial Margin.">
@@ -243,6 +323,19 @@ class CsaInitialMargin2016JapaneseLaw extends CsaInitialMargin2016 <"A class to 
 		[synonym ISDA_Create_1_0 value collateral_manager]
 	otherEligibleCreditSupport string (0..1) <"The Other Eligible Support election. ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d)(iv).">;
 		[synonym ISDA_Create_1_0 set to "other_eligible_support.eligible_support_specify" when "other_eligible_support.other_eligible_support.specify" exists]
+	cashSettlementDay string (0..1) <"Cash Settlement Day has the meaning specified in ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, Paragraph 4(b)(i), unless otherwise specified as part of this attribute. ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e)(iv): Cash Settlement Day.">;
+		[synonym ISDA_Create_1_0 value specify path "cash_settlement_day"]
+	securitiesSettlementDay string (0..1) <"Securities Settlement Day has the meaning specified in ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, Paragraph 12, unless otherwise specified as part of this attribute. ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e)(v): Securities Settlement Day.">;
+		[synonym ISDA_Create_1_0 value specify path "securities_settlement_day"]
+	obligorRightsEvent RightsEvent (1..1) <"The Obligor Rights Event election. ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (k): Obligor Rights Event.">;
+		[synonym ISDA_Create_1_0 value obligor_rights_event]
+	obligorAdditionalRightsEvent AdditionalRightsEvent (0..1) <"The Obligor Additional Rights Event election. ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (k): Obligor Additional Rights Event.">;
+		[synonym ISDA_Create_1_0 value obligor_additional_rights_event]
+	automaticSetOff boolean (1..1) <"The Automatic Set-Off provision applies when the value is set to True. ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (l): Modification to Obligor’s Rights and Remedies.">;
+		[synonym ISDA_Create_1_0 set to True when path = "automatic_setoff.right.applicable",
+			set to False when path = "automatic_setoff.right.not_applicable"]
+	collateralManagementArrangement CollateralManagementArrangement (1..1) <"ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (m): Collateral Management Arrangement.">;
+	distributionAndInterestPayment DistributionAndInterestPayment (1..1) <"The Distributions and Interest Payment as part of the Japanese Law ISDA CSA. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n): Distributions and Interest Payment (IM).">;
 }
 
 class CsaInitialMargin2016NewYorkLaw extends CsaInitialMargin2016 <"A class to specify the provisions that are specific to the New York Law version of the ISDA 2016 Credit Support Annex for Initial Margin.">
@@ -253,6 +346,14 @@ class CsaInitialMargin2016NewYorkLaw extends CsaInitialMargin2016 <"A class to s
 		[synonym ISDA_Create_1_0 set to "other_eligible_support.eligible_support_specify" when "other_eligible_support.other_eligible_support.specify" exists]
 	transferTiming string (0..1) <"The time by which the transfer of collateral must take place when different from the Regular Settlement Day as a result of parties' election. ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (c)(vii): Transfer Timing.">;
 		[synonym ISDA_Create_1_0 value settlement_day_specify path "transfer_timing"]
+	pledgorRightsEvent RightsEvent (1..1) <"The Pledgor Rights Event election. ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (j): Pledgor Rights Event.">;
+		[synonym ISDA_Create_1_0 value pledgor_rights_event]
+	pledgorAdditionalRightsEvent AdditionalRightsEvent (0..1) <"The Pledgor Additional Rights Event election. ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (k): Pledgor Additional Rights Event.">;
+		[synonym ISDA_Create_1_0 value pledgor_additional_rights_event]
+	deliveryInLieuRight boolean (1..1) <"The Delivery in Lieu Right provision applies when the value is set to True. ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (m): Modification to Pledgor’s Rights and Remedies.">;
+		[synonym ISDA_Create_1_0 set to True when path = "delivery_in_lieu_right.right.applicable",
+			set to False when path = "delivery_in_lieu_right.right.not_applicable"]
+	custodyArrangements CustodyArrangements (1..1) <"The Custodian and Segregated Account details in respect of each party as the Pledgor. ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n): Custody Arrangements.">;
 }
 
 data rule CreditSupportAnnexInitialMargin2018EnglishLaw_baseCurrency <"The ISDA 2016 CSA for Initial Margin under English and New York Law specify that the base currency should either be USD or EUR. ISDA 2016 Credit Support Annex for Initial Margin, New York Law, paragraph 13, General Principles, (a)(i): Base Currency means United States Dollar/Euro.">
@@ -260,7 +361,68 @@ data rule CreditSupportAnnexInitialMargin2018EnglishLaw_baseCurrency <"The ISDA 
 	then LegalDocument -> csaInitialMargin2016NewYorkLaw -> baseCurrency = "USD"
 		or LegalDocument -> csaInitialMargin2016NewYorkLaw -> baseCurrency = "EUR"
 
-class CustodianElection <"A class to specify the Custody Arrangements elections by each party to the agreement: custody agent and account(s) identification, as well as custodian risk qualification.">
+class CustodianEvent <"A class to specify the Custodian Event (English Law & New York Law ISDA CSA) and the Collateral Manager Event (Japanese Law ISDA CSA) in terms of applicability and end-date. ISDA 2016 English Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(iii): Custodian Event. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (m)(ii): Collateral Manager Event. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(iii): Custodian Event.">
+{
+	isApplicable boolean (1..1) <"The qualification as to whether the Custodian Event (English Law & New York Law ISDA CSA) or the Collateral Manager Event (Japanese Law ISDA CSA) is applicable.">;
+		[synonym ISDA_Create_1_0 set to True when path = "custodian_event.definition.applicable",
+			set to True when path = "collateral_manager_event.definition.applicable",
+			set to False when path = "custodian_event.definition.not_applicable",
+			set to False when path = "collateral_manager_event.definition.not_applicable"]
+	endDate CustodianEventEndDate (1..1) <"The qualification of the Custodian Event (English Law & New York Law ISDA CSA) or Collateral Manager Event (Japanese Law ISDA CSA) End Date.">;
+		[synonym ISDA_Create_1_0 value ce_end_date]
+}
+
+class CustodianEventEndDate <"A class to specify the Custodian Event (English Law & New York Law ISDA CSA) or Collateral Manager Event (Japanese Law ISDA CSA) End Date. Its qualification is function of three elective periods: either (i) a specified number of days after the occurrence of the Custodian Event (the daysAfterCustodianEvent attribute), (ii) or the number of days prior to the date on which the Control Agreement will terminate, with in this latter case the further qualification of the number of days prior to the Release Date if only one party has effectively provided the Timely Statement to the other party. ISDA 2016 English Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(iii): CE End Date. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (m)(ii): CME End Date. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(iii): CE End Date.">
+{
+	daysAfterCustodianEvent CustomisableOffset (1..1) <"The parties' election to specify the number of days after the occurrence of the Custodian Event (English Law & New York Law ISDA CSA) or the Collateral Management Event (Japanese Law ISDA CSA) for the purpose of qualifying the CE/CME End Date.">;
+		// TODO - Need for a mapping logic that will map the elements in ce_end_date which prefix is `after`
+	releaseDate CustomisableOffset (1..1) <"The parties' election to specify the number of days prior to the termination of the Control Agreement (English Law & New York Law ISDA CSA) or the Collateral Management Event (Japanese Law ISDA CSA) for the purpose of qualifying the CE/CME End Date, in the case where advance notice is given.">;
+		// TODO - Need for a mapping logic that will map the elements in ce_end_date which prefix is `release`
+	dateOfTimelyStatement CustomisableOffset (1..1) <"The parties' election to specify the number of days one party has effectively provided the Timely Statement to the other party.">;
+		// TODO - Need for a mapping logic that will map the elements in ce_end_date which prefix is `timely` or `date_of_timely`
+}
+
+class CustodianRisk <"A class to specify the Custodian Risk (English Law and New York Law ISDA CSA) and the Collateral Manager Risk (Japanese Law ISDA CSA) election. ISDA 2016 English Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(ii): Custodian (IM) Risk. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (m)(i): Collateral Manager Risk. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(ii): Custodian (IM) Risk.">
+{
+	isSpecified boolean (1..1) <"The qualification as to whether the risk is deemed as Specified.">;
+		[synonym ISDA_Create_1_0 set to True when "partyA_custodian_risk" = "other",
+			set to False when "partyA_custodian_risk" = "not_specified",
+			set to True when "partyB_custodian_risk" = "other",
+			set to False when "partyB_custodian_risk" = "not_specified",
+			set to True when "partyA_collateral_manager_risk" = "other",
+			set to False when "partyA_collateral_manager_risk" = "not_specified",
+			set to True when "partyB_collateral_manager_risk" = "other",
+			set to False when "partyB_collateral_manager_risk" = "not_specified"]
+	qualification string (0..1) <"The Custodian Risk (English Law and New York Law ISDA CSA) or Collateral Manager Risk (Japanese Law ISDA CSA) qualification. This attribute is optional because it can be deemed as 'specified', but not be qualified.">;
+		[synonym ISDA_Create_1_0 value partyA_specify, partyB_specify]
+}
+
+data rule CustodianRisk_specified <"The Custodian Risk (English Law and New York Law ISDA CSA) or Collateral Manager Risk (Japanese Law ISDA CSA) should only be qualified if that risk is deemed 'specified'.">
+	when CustodianRisk -> isSpecified = False
+	then CustodianRisk -> qualification is absent
+
+class CustomisableOffset <"A class to specify an offset either as a normalized [multiplier, period, dayType] or as a custom provision of type string.">
+{
+	offset Offset (0..1);
+	customProvision string (0..1);	
+}
+
+class CustodyArrangements <"A class to specify the Custody Arrangements for the English Law and New York Law ISDA Credit Support Annex. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n): Custody Arrangements.">
+{
+	partyElection CustodyArrangementsElection (2..2 ) <"The party-specific election with respect to the Custodian and Segregated Account details and the Custodian Risk provision.">;
+	custodianEvent CustodianEvent (1..1) <"When specified as True, means that the Custodian Events specified in Paragraph 13 General Principles, (m)(iii) will constitute an Additional Termination Event. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (m)(iii): Custodian Event.">;
+		[synonym ISDA_Create_1_0 set to True when path = "custodian_event.definition.applicable",
+			set to True when path = "custodian_event.definition.not_applicable"]
+	isCreditSupportDocument boolean (1..1) <"Unless specified as True, the Control Agreement is not a Credit Support Document under the agreement with respect to a party. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 6 (e): The Control Agreement as a Credit Support Document.">;
+		[synonym ISDA_Create_1_0 set to True when path = "control_agreement_as_a_credit_support_document.definition.creditSupportDocument",
+			set to False when path = "control_agreement_as_a_credit_support_document.definition.not_specified"]
+	hasControlAgreementLanguage boolean (1..1) <"Control Agreement language is specified when True.">;
+		[synonym ISDA_Create_1_0 set to True when path = "relationship_with_the_control_agreement.include_language.include",
+			set to False when path = "relationship_with_the_control_agreement.include_language.exclude"]
+	otherProvisions string (0..1) <"ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(vii): Other Provisions.">;
+}
+
+class CustodyArrangementsElection <"A class to specify the Custody Arrangements election by each party to the agreement: custody agent and account(s) identification, as well as custodian risk qualification.">
 {
 	party Party (1..1) reference <"The elective party.">;
 		// TODO - Need for a mapping logic that will parse the ISDA Create prefix to identify partyA vs. partyB entries
@@ -273,66 +435,24 @@ class CustodianElection <"A class to specify the Custody Arrangements elections 
 		[synonym ISDA_Create_1_0 value custodian_risk]
 }
 
-class CustodianEvent <"A class to specify the Custodian Event in terms of applicability and end-date. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(iii): Custodian Event.">
-{
-	isApplicable boolean (1..1) <"The qualification as to whether the Custodian Event is applicable. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(iii): Custodian Event.">;
-	// TODO - Need to confirm through sample document that the CE End date needs to be specified if the Custodian Event is not applicable
-	endDate CustodianEventEndDate (1..1);
-		[synonym ISDA_Create_1_0 value ce_end_date]
-}
-
-class CustodianEventEndDate <"A class to specify the Custodian Event End Date, which qualification is function of three elective periods: either (i) a specified number of days after the occurrence of the Custodian Event (the daysAfterCustodianEvent attribute), (ii) or the number of days prior to the date on which the Control Agreement will terminate, with in this latter case the further qualification of the number of days prior to the Release Date if only one party has effectively provided the Timely Statement to the other party. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(iii): CE End Date.">
-{
-	daysAfterCustodianEvent CustomisableOffset (1..1) <"The parties' election to specify the number of days after the occurrence of the Custodian Event for the purpose of qualifying the Custodian Event End Date. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(iii)(1)(A).">;
-		// TODO - Need for a mapping logic that will map the elements in ce_end_date which prefix is `after`
-	releaseDate CustomisableOffset (1..1) <"The parties' election to specify the number of days prior to the Control Agreement termination for the purpose of qualifying the Custodian Event End Date, in the case where advance notice is given in accordance with the Control Agreement. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(iii)(1)(B).">;
-		// TODO - Need for a mapping logic that will map the elements in ce_end_date which prefix is `release`
-	dateOfTimelyStatement CustomisableOffset (1..1) <"The parties' election to specify the number of days one party has effectively provided the Timely Statement to the other party. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(iii)(1)(B)(ii).">;
-		// TODO - Need for a mapping logic that will map the elements in ce_end_date which prefix is `timely` or `date_of_timely`
-}
-
-class CustodianRisk <"A class to specify the Custodian Risk. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(ii): Custodian (IM) Risk.">
-{
-	isSpecified boolean (1..1) <"The qualification as to whether the risk is deemed as Specified.">;
-		[synonym ISDA_Create_1_0 set to True when "partyA_custodian_risk" = "other",
-			set to False when "partyA_custodian_risk" = "not_specified",
-			set to True when "partyB_custodian_risk" = "other",
-			set to False when "partyB_custodian_risk" = "not_specified"]
-	qualification string (0..1) <"The Custodian Risk qualification. This attribute is optional because a Custodian Risk can be deemed as 'specified', but not be qualified.">;
-		[synonym ISDA_Create_1_0 value partyA_specify, partyB_specify]
-}
-
-data rule CustodianRisk_specified <"The Custodian Risk should only be qualified if that risk is deemed 'specified'.">
-	when CustodianRisk -> isSpecified = False
-	then CustodianRisk -> qualification is absent
-
-class CustomisableOffset <"A class to specify an offset either as a normalized [multiplier, period, dayType] or as a custom provision of type string.">
-{
-	offset Offset (0..1);
-	customProvision string (0..1);	
-}
-
-class CustodyArrangements <"A class to specify the Custodian and Segregated Account details with respect to each party as the Pledgor, and to specify the Custodian Event provision and the terms with respect to the Control Agreement that will apply to both parties. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n): Custody Arrangements. | ISDA 2016 Credit Support Annex for Initial Margin, paragraph 6: Custody Arrangements and the Control Agreement.">
-{
-	partyCustodian CustodianElection (2..2) <"The parties' custody agent elections.">;
-	custodianEvent CustodianEvent (1..1) <"When specified as True, the Custodian Event means that the following Custodian Events specified in the agreement will constitute an Additional Termination Event. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (m)(iii): Custodian Event.">;
-		[synonym ISDA_Create_1_0 set to True when path = "custodian_event.definition.applicable",
-			set to True when path = "custodian_event.definition.not_applicable"]
-	isCreditSupportDocument boolean (1..1) <"Unless specified as True, the Control Agreement is not a Credit Support Document under the agreement with respect to a party. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 6 (e): The Control Agreement as a Credit Support Document.">;
-		[synonym ISDA_Create_1_0 set to True when path = "control_agreement_as_a_credit_support_document.definition.creditSupportDocument",
-			set to False when path = "control_agreement_as_a_credit_support_document.definition.not_specified"]
-	hasControlAgreementLanguage boolean (1..1) <"">;
-		[synonym ISDA_Create_1_0 set to True when path = "relationship_with_the_control_agreement.include_language.include",
-			set to False when path = "relationship_with_the_control_agreement.include_language.exclude"] // TODO - mapping to be confirmed through relevant example 
-	otherProvisions string (0..1) <"ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(vii): Other Provisions.">;
-}
-
-class DisputeResolution one of <"A class to specify the election terms under which a party disputes (i) the Calculation Agent’s calculation of a Delivery Amount or a Return Amount, or (ii) the Value of any Transfer of Eligible Credit Support or Posted Credit Support. Parties can specify such election either through a business center time or through a custom election. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (g): Dispute Resolution.">
+class DisputeResolution one of <"A class to specify the election terms under which a party disputes (i) the Calculation Agent’s calculation of a Delivery Amount or a Return Amount, or (ii) the Value of any Transfer of Eligible Credit Support or Posted Credit Support. Parties can specify such election either through a business center time or through a custom election. ISDA 2016 English Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (g): Dispute Resolution. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (h): Dispute Resolution. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (g): Dispute Resolution.">
 {
 	resolutionTime BusinessCenterTime (0..1) <"The time by which the dispute needs to be resolved, failure of which would trigger a recalculation alongside a process that is specified as part of the agreement. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (g)(i): Resolution Time.">;
 		[synonym ISDA_Create_1_0 value resolution_time]
 	otherTerms string (0..1) <"The custom Resolution Time election that might be specified by the parties.">;
 		// TODO - ISDA Create synonym to be confirmed through sample document
+}
+
+class DistributionAndInterestPayment <"A class to specify the Distributions and Interest Payment provisions applicable to the Japanese Law ISDA CSA. ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n): Distributions and Interest Payment (IM).">
+{
+	interestRate EligibleCurrencyInterestRate (1..*) <"The interest rate associated with initial margin collateral. ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(i): Interest Rate (IM).">;
+		[synonym ISDA_Create_1_0 value interest_rate]
+	interestPaymentTransfer boolean (1..1) <"The Interest Payment Transfer is applicable when True. ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(ii): Transfer of Interest Payment (IM) or application of Interest Amount (IM).">;
+		[synonym ISDA_Create_1_0 set to True when path = "interest_transfer.interest_transfer.applicable",
+			set to True when path = "interest_transfer.interest_transfer.not_applicable"]
+	interestPaymentNetting boolean (1..1) <"The Interest Payment Netting is applicable when True. ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(ii): Transfer of Interest Payment (IM) or application of Interest Amount (IM).">;
+		[synonym ISDA_Create_1_0 set to True when path = "interest_payment_netting.interest_payment_netting.applicable",
+			set to True when path = "iinterest_payment_netting.interest_payment_netting.not_applicable"]
 }
 
 class ElectiveAmountElection <"A class to specify the party elective amounts which can be used for the purpose of specifying elections such as the ISDA CSA Threshold and Minimum Transfer Amount.">
@@ -385,6 +505,16 @@ data rule EligibleCollateral_valuationPercentage <"The valuation percentage shou
 	when EligibleCollateral -> valuationPercentage exists
 	then EligibleCollateral -> valuationPercentage >= 0
 	and EligibleCollateral -> valuationPercentage <= 1
+
+class EligibleCurrencyInterestRate <"A class to specify the interest rate associated with initial margin collateral. ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n): Distributions and Interest Payment (IM).">
+{
+	currency string (1..1) scheme <"The eligible currency.">;
+		[synonym ISDA_Create_1_0 value eligible_currency]
+	interestRate number (1..1) <"The interest rate associated with the eligible currency.">;
+		[synonym ISDA_Create_1_0 value interest_rate]
+	actual365Currency string (1..1); // TODO - Need to clarify with Linklater what this attribute is
+		[synonym ISDA_Create_1_0 value a365_currency]
+}
 
 //class IndependentAmountEligibleCollateral <"A class to specify the eligible collateral for initial margin purposes. Those features go beyond what is required for meeting the terms specified by the ISDA 2016 CSA for Initial Margin.">
 //	[synonym FpML_5_10 value IndependentAmountEligibleCollateral]
@@ -512,19 +642,23 @@ class MultipleDebtTypes <"A class to specify the ability to specify multiple cre
 		[synonym FpML_5_10 value debtType meta debtTypeScheme]
 }
 
-class NotificationTime <"A class to specify the time by which a demand for the Transfer of Eligible Credit Support (IM) or Posted Credit Support (IM) needs to be made in order for the transfer to take place in accordance with the Transfer Timing provisions. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d)(iii).">
+class NotificationTime <"A class to specify the time by which a demand for the Transfer of Eligible Credit Support (IM) or Posted Credit Support (IM) needs to be made in order for the transfer to take place in accordance with the Transfer Timing provisions. ISDA 2016 English Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d)(iii): Notification Time. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e)(iii): Notification Time. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d)(iii): Notification Time.">
 {
-	partyElections NotificationTimeElection (2..2) <"The parties' Notification Time elections.">;
+	partyElections NotificationTimeElection (2..2) <"The parties' Notification Time election.">;
 }
 
-class NotificationTimeElection <"A class to specify the party notification time elections.">
+class NotificationTimeElection <"A class to specify the party notification time election. ISDA 2016 English Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d)(iii): Notification Time. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e)(iii): Notification Time. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d)(iii): Notification Time.">
 {
 	party Party (1..1) reference <"The elective party.">;
 		// TODO - Need for a mapping logic that will parse the ISDA Create prefix to identify partyA vs. partyB entries
-	notificationTime BusinessCenterTime (0..1) <"The Notification Time as a time that is qualified by a standard business center.">;
+	notificationTime BusinessCenterTime (0..1) <"The Notification Time as a time that is qualified as a standard business center.">;
 	customNotification string (0..1) <"The Notification Time as a custom election.">;
 		[synonym ISDA_Create_1_0 value partyA_specify, partyB_specify]
 }
+
+choice rule NotificationTimeElection_choice <"The Notification Time is specified either as a time that is qualified by a standard business center or as a custom election.">
+	for NotificationTimeElection required choice between
+	notificationTime and customNotification
 
 class ObligorPostingObligations <"A class to specify the obligor(s) collateral posting obligations as specified under the terms of the Japanese Law ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (ii).">
 {
@@ -571,10 +705,6 @@ class PartyDocumentIdentifier <"A class defining a legal document identifier iss
 		[synonym FpML_5_10 value documentId meta legalDocumentIdScheme]
 }
 
-choice rule NotificationTimeElection_choice <"The Notification Time election can be done either as a time that is qualified by a standard business center, or as a custom election.">
-	for NotificationTimeElection required choice between
-	notificationTime and customNotification
-
 data rule PostingObligationsElection_asPermitted <"The eligible collateral should be specified when the Control Agreement is a Credit Support Document with respect to the party(ies).">
 	when PostingObligationsElection -> asPermitted = True
 	then PostingObligationsElection -> eligibleCollateral is absent
@@ -583,30 +713,10 @@ data rule PostingObligationsElection_eligibleCollateral <"The eligible collatera
 	when PostingObligationsElection -> asPermitted = False
 	then PostingObligationsElection -> eligibleCollateral exists
 
-class PledgorAdditionalRightsEvent <"A class to specify the Pledgor Additional Rights Event election. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (k): Pledgor Additional Rights Event."> // TODO - Look to enhance this definition, as it's not clear what it means in layman terms
-{
-	isApplicable boolean (1..1) <"The election of whether the Pledgor Additional Rights Event election is applicable.">;
-		[synonym ISDA_Create_1_0 value applicable]
-	qualification string (0..1) <"The qualification of the Pledgor Additional Rights Event election, when applicable.">;
-		[synonym ISDA_Create_1_0 value specify]
-}
-
-data rule PledgorAdditionalRightsEvent_applicable <"If the Pledgor Additional Rights Event election is applicable, its meaning needs to be specified.">
-	when PledgorAdditionalRightsEvent -> isApplicable = True
-	then PledgorAdditionalRightsEvent -> qualification exists
-
 class PledgorPostingObligations <"A class to specify the pledgor(s) collateral posting obligations as specified under the terms of the New York Law ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (ii).">
 {
 	partyElection PostingObligationsElection (1..2) reference <"The pledgor party(ies) to which the posting obligations apply to, which can be either one of the parties to the legal agreement, or both of those.">;
 		[synonym ISDA_Create_1_0 value pledgor]
-}
-
-class PledgorRightsEvent one of <"A class to specify the Pledgor Rights Event election. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (j): Pledgor Rights Event."> // TODO - Look to enhance this definition, as it's not clear what it means in layman terms
-{
-	includeCoolingOffLanguage boolean (0..1);
-		[synonym ISDA_Create_1_0 set to True when "include" exists]
-	customElection string (0..1);
-		[synonym ISDA_Create_1_0 value specify]
 }
 
 class PostingObligationsElection <"A class to specify the collateral posting obligations as specified under the terms of the ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (ii).">
@@ -666,6 +776,23 @@ abstract class RegimeTerms <"An abstract class that is used by the ApplicableReg
 			set to False when "partyB_retrospective" = "not_applicable"]
 	additionalType AdditionalTypeEnum (1..1) <"The Additional Type of transaction that can require the collection or delivery of initial margin under the specified regulatory regime for the purposes of Covered Transactions, as specified in ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (b)(B).">;
 }
+
+class RightsEvent <"A class to specify the Pledgor/Obligor/Chargor Rights Event election. ISDA 2016 English Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (j): Chargor Rights Event. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (j): Obligor Rights Event. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (j): Pledgor Rights Event.">
+{
+	includeCoolingOffLanguage boolean (1..1) <"The Pledgor/Obligor/Chargor Rights Event election includes cooling off language when the attribute is set of True.">;
+		[synonym ISDA_Create_1_0 set to True when "cooling_off_language.include" exists,
+			set to True when "cooling_off_language.include" is absent]
+	customElection string (0..1) <"A custom Pledgor/Obligor/Chargor Rights Event election might be specified by the parties.">;
+		[synonym ISDA_Create_1_0 value specify]
+}
+
+data rule RightsEvent_includeCoolingOffLanguage <"When the Rights Event election includes cooling off language, no custom election should be specified.">
+	when RightsEvent -> includeCoolingOffLanguage = True
+	then RightsEvent -> customElection is absent
+
+data rule RightsEvent_customElection <"When the Rights Event is specified through a custom election, no standard cooling off language should be specified.">
+	when RightsEvent -> customElection exists
+	then RightsEvent -> includeCoolingOffLanguage = False
 
 class SensitivityMethodology one of <"A class to specify the methodology according to which sensitivities to (i) equity indices, funds and ETFs, and (ii) commodity indices are computed. This specification is done either through a normalized election as part of the specifiedMethodology, or through a custom election via the customMethodology attribute. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (gg)(2).">
 {
@@ -730,11 +857,13 @@ class SpecifiedSimmVersion <"A class to specify the ISDA SIMM version applicable
 
 class Substitution <"A class to specify the conditions under which the Pledgor can substitute posted collateral. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (f): Substitution.">
 {
-	needsConsent boolean (1..1) <"The election as to whether the Pledgor must obtain the Secured Party’s consent for any collateral substitution. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (f)(ii): Consent.">;
-		[synonym ISDA_Create_1_0 set to True when "is_applicable" exists,
-			set to False when "is_not_applicable" exists] // This second mapping is a guess and needs to be confirmed through an example
+	needsConsent boolean (1..1) <"The election as to whether the Pledgor/Obligor/Chargor must obtain the Secured Party’s consent for any collateral substitution. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (f)(ii): Consent.">;
+		[synonym ISDA_Create_1_0 set to True when path = "consent.is_applicable",
+			set to True when path = "consent.is_applicable.standard",
+			set to True when path = "consent.is_applicable.other",
+			set to False when path = "consent.is_not_applicable"] // This second mapping is a guess and needs to be confirmed through an example
 	specificConsentLanguage string (0..1) <"Specific consent language might be specified by the parties.">;
-		[synonym ISDA_Create_1_0 value specify]
+		[synonym ISDA_Create_1_0 value specify path "consent"] // Need to confirm the mapping for an English Law CSA with non-standard consent language 
 }
 
 class TerminationCurrencyAmendment <"A class to specify the Amendment to Termination Currency elections by the parties to the agreement. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (t): Amendment to Termination Currency.">
@@ -760,49 +889,6 @@ class TerminationCurrencyElection <"A class to specify the Amendment to Terminat
 		// TODO - Need for a mapping logic that will parse the ISDA Create prefix to identify partyA vs. partyB entries
 	currency string (1..1) scheme <"The Termination Currency associated with the party that referenced as part of this class. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">;
 		[synonym ISDA_Create_1_0 value partyA_termination_currency, partyB_termination_currency]
-}
-
-class TerminationEvents <"A class to specify the Termination Events that will be deemed an Access Condition. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e)(ii).">
-{
-	party Party (1..1) reference <"The party which the set of Access Condition elections apply to.">;
-		// TODO - Need for a mapping logic that will parse the ISDA Create prefix to identify partyA vs. partyB entries
-	illegality boolean (1..1);
-		[synonym ISDA_Create_1_0 
-			set to True when "partyA_illegality" = "applicable",
-			set to False when "partyA_illegality" = "not_applicable",
-			set to True when "partyB_illegality" = "applicable",
-			set to False when "partyB_illegality" = "not_applicable"]
-	forceMajeure boolean (1..1);
-		[synonym ISDA_Create_1_0 
-			set to True when "partyA_force_majeure" = "applicable",
-			set to False when "partyA_force_majeure" = "not_applicable",
-			set to True when "partyB_force_majeure" = "applicable",
-			set to False when "partyB_force_majeure" = "not_applicable"]
-	taxEvent boolean (1..1);
-		[synonym ISDA_Create_1_0 
-			set to True when "partyA_tax_event" = "applicable",
-			set to False when "partyA_tax_event" = "not_applicable",
-			set to True when "partyB_tax_event" = "applicable",
-			set to False when "partyB_tax_event" = "not_applicable"]
-	taxEventUponMerger boolean (1..1);
-		[synonym ISDA_Create_1_0 
-			set to True when "partyA_tax_event_upon_merger" = "applicable",
-			set to False when "partyA_tax_event_upon_merger" = "not_applicable",
-			set to True when "partyB_tax_event_upon_merger" = "applicable",
-			set to False when "partyB_tax_event_upon_merger" = "not_applicable"]
-	creditEventUponMerger boolean (1..1);
-		[synonym ISDA_Create_1_0
-			set to True when "partyA_credit_event_upon_merger" = "applicable",
-			set to False when "partyA_credit_event_upon_merger" = "not_applicable",
-			set to True when "partyB_credit_event_upon_merger" = "applicable",
-			set to False when "partyB_credit_event_upon_merger" = "not_applicable"]
-	additionalTerminationEvent boolean (1..1);
-		[synonym ISDA_Create_1_0
-			set to True when "partyA_additional_termination_events" = "applicable",
-			set to False when "partyA_additional_termination_events" = "not_applicable",
-			set to True when "partyB_additional_termination_events" = "applicable",
-			set to False when "partyB_additional_termination_events" = "not_applicable"]
-	additionalLanguage string (0..1);
 }
 
 class Threshold <"A class to specify the unsecured credit exposure that each party to the agreement is prepared to accept before asking for collateral. This threshold is specified either as an amount or as a custom election. ISDA 2016 English Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (c)(vi)(A): Threshold. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d)(vi)(A): Threshold. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (c)(vi)(A): Threshold.">
