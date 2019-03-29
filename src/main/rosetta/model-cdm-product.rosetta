@@ -550,12 +550,6 @@ data rule InterestRatePayout_paymentDates <"FpML specifies a required paymentDat
 	when Payout -> interestRatePayout count = 2
 	then Payout -> interestRatePayout -> dayCountFraction exists
 
-data rule FpML_ird_1 <"FpML validation rule ird-1 - Reset dates must exist if and only if a floating rate or inflation rate exists.">
-	when InterestRatePayout -> resetDates exists
-	then ( InterestRatePayout -> rateSpecification -> floatingRate
-		or InterestRatePayout -> rateSpecification -> inflationRate
-	) exists
-
 data rule FpML_ird_6 <"FpML validation rule ird-6 - If paymentDates/firstPaymentDate exists, and if calculationPeriodDates/effectiveDate exists, then paymentDates/firstPaymentDate must be after calculationPeriodDates/effectiveDate/unadjustedDate.">
 	when InterestRatePayout -> paymentDates -> firstPaymentDate exists
 		and InterestRatePayout -> calculationPeriodDates -> effectiveDate exists
@@ -722,24 +716,6 @@ data rule FpML_cd_30 <"FpML validation rule cd-30 - If feeLeg/periodicPayment/la
 	when (Payout -> interestRatePayout -> paymentDates -> lastPaymentDate -> lastRegularPaymentDate
 		and Payout -> interestRatePayout -> calculationPeriodDates -> terminationDate) exists
 	then Payout -> interestRatePayout -> paymentDates -> lastPaymentDate -> lastRegularPaymentDate < Payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate -> unadjustedDate
-
-data rule CalculationPeriodDates_calculationPeriodDatesAdjustments <"FpML specifies a required calculationPeriodDatesAdjustments element as part of the CalculationPeriodDates. As standardised CDS don't have such business day adjustment provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
-	when Payout -> interestRatePayout count = 2
-		and Payout -> interestRatePayout -> calculationPeriodDates exists
-	then Payout -> interestRatePayout -> calculationPeriodDates -> calculationPeriodDatesAdjustments exists
-
-data rule CalculationPeriodDates_calculationPeriodFrequency <"FpML specifies a required calculationPeriodFrequency element as part of the CalculationPeriodDates. As standardised CDS don't have such calculationPeriodFrequency provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
-	when Payout -> interestRatePayout count = 2
-		and Payout -> interestRatePayout -> calculationPeriodDates exists
-	then Payout -> interestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency exists
-
-data rule ResetDates_interestRateSwap <"The cardinality of the ResetDates attributes has been relaxed with respect to the FpML implementation to accommodate the credit default swap initial and final fixing dates. The purpose of this data rule is to apply the FpML data constraints when the product is an interest rate swap.">
-	when Payout -> interestRatePayout count = 2
-		and Payout -> interestRatePayout -> resetDates exists
-	then Payout -> interestRatePayout -> resetDates -> calculationPeriodDatesReference exists
-		and Payout -> interestRatePayout -> resetDates -> fixingDates exists
-		and Payout -> interestRatePayout -> resetDates -> resetFrequency exists
-		and Payout -> interestRatePayout -> resetDates -> resetDatesAdjustments exists
 
 data rule PaymentDates_payRelativeTo <"FpML specifies a required payRelativeTo element as part of the PaymentDates. As standardized CDS don't have such payRelativeTo provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
 	when Payout -> interestRatePayout count = 2
@@ -1112,7 +1088,6 @@ isProduct InterestRate_Fra
 	EconomicTerms -> payout -> interestRatePayout exists
 	and EconomicTerms -> payout -> creditDefaultPayout is absent
 	and EconomicTerms -> payout -> cashflow is absent
-	and EconomicTerms -> payout -> interestRatePayout -> discountingMethod exists
 	and effectiveDate = paymentDate
 
 isProduct ForeignExchange
