@@ -396,7 +396,15 @@ class DateTimeList <"List of dateTimes.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value dateTime]
 }
 
-class Documentation <"A class for defining the definitions that govern the document and should include the year and type of definitions referenced, along with any relevant documentation (such as master agreement) and the date it was signed.">
+class Documentation <"A class for specifying the documents that govern the contract, either as a reference to such documents when specified as part of the CDM, or through identification of some of the key terms of those documents, such as the type of document, the document identifier, the publisher, the document vintage and the agreement date.">
+{
+	legalDocument LegalDocument (0..*) rosettaKey <"The legal document(s) that govern the contract, when such document is specified as part of the CDM.">;
+	documentationIdentification DocumentationIdentification (0..1) <"The identification of the legal document(s) that govern the contract through some of the key terms of such document(s): type of document, the document identifier, the publisher, the document vintage and the agreement date.">;
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value documentation path "trade"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value documentation]
+}
+
+class DocumentationIdentification <"A class for defining the definitions that govern the document and should include the year and type of definitions referenced, along with any relevant documentation (such as master agreement) and the date it was signed.">
 	[synonym FpML_5_10 value Documentation]
 {
 	masterAgreement MasterAgreement (0..1) <"The agreement executed between the parties and intended to govern all OTC derivatives transactions between those parties.">;
@@ -419,8 +427,8 @@ class Documentation <"A class for defining the definitions that govern the docum
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value attachment]
 }
 
-choice rule Documentation_choice <"Choice rule to represent an FpML choice construct.">
-	for Documentation optional choice between
+choice rule DocumentationIdentification_choice <"Choice rule to represent an FpML choice construct.">
+	for DocumentationIdentification optional choice between
 	masterConfirmation and brokerConfirmation
 
 class EuropeanExercise <"A class defining the exercise period for a European style option together with any rules governing the notional amount of the underlying which can be exercised on any given exercise date and any associated exercise fees.">
