@@ -70,9 +70,7 @@ class Contract rosettaKey <"A class to specify a financial contract object, whic
 	collateral Collateral (0..1) <"Defines the collateral obligations of a party.">;
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value collateral path "trade"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value collateral]
-	documentation Documentation (0..1) <"Defines the definitions that govern the document and should include the year and type of definitions referenced, along with any relevant documentation (such as master agreement) and the date it was signed.">;
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value documentation path "trade"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value documentation]
+	documentation Documentation (0..1) <"Specifies the document(s) that govern the document, either as a reference to such documents when specified as part of the CDM, or through identification of some of the key terms of those documents, such as the type of document, the document identifier, the publisher, the document vintage and the agreement date.">;
 	governingLaw GoverningLawEnum (0..1) scheme <"Identification of the law governing the contract.">;
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value governingLaw path "trade" meta governingLawScheme]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value governingLaw]
@@ -91,8 +89,8 @@ class Contract rosettaKey <"A class to specify a financial contract object, whic
 }
 
 data rule DeliverableObligations_physicalSettlementMatrix <"The below set of credit deliverable obligation provisions are specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that those provisions cannot be omitted if the Credit Derivatives Physical Settlement Matrix doesn't governs the terms of the contract.">
-	when ( Contract -> documentation -> contractualMatrix -> matrixType <> MatrixTypeEnum.CreditDerivativesPhysicalSettlementMatrix
-		or Contract -> documentation -> contractualMatrix -> matrixType is absent )
+	when ( Contract -> documentation -> documentationIdentification -> contractualMatrix -> matrixType <> MatrixTypeEnum.CreditDerivativesPhysicalSettlementMatrix
+		or Contract -> documentation -> documentationIdentification -> contractualMatrix -> matrixType is absent )
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations exists
 	then ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> notSubordinated
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> specifiedCurrency
@@ -113,8 +111,8 @@ data rule DeliverableObligations_physicalSettlementMatrix <"The below set of cre
 	) exists
 
 data rule Obligations_physicalSettlementMatrix <"The below set of obligation of the reference entity are specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that those provisions cannot be omitted if the Physical Settlement Matrix governs the terms of the contract. This data rule also applies to cash settled contracts because those could still end-up being physically settled, in case the case where an auction could not take place because of, say, liquidity considerations.">
-	when ( Contract -> documentation -> contractualMatrix -> matrixType <> MatrixTypeEnum.CreditDerivativesPhysicalSettlementMatrix
-		or Contract -> documentation -> contractualMatrix -> matrixType is absent )
+	when ( Contract -> documentation -> documentationIdentification -> contractualMatrix -> matrixType <> MatrixTypeEnum.CreditDerivativesPhysicalSettlementMatrix
+		or Contract -> documentation -> documentationIdentification -> contractualMatrix -> matrixType is absent )
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations exists
 	then ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notSubordinated
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notSovereignLender
@@ -128,8 +126,8 @@ data rule Obligations_physicalSettlementMatrix <"The below set of obligation of 
 	) exists
 
 data rule CreditEvents_physicalSettlementMatrix <"The below set of credit events are specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that those provisions can only be omitted if the Physical Settlement Matrix governs the terms of the contract. This data rule also applies to cash settled contracts because those could still end-up being physically settled, in the case where an auction could not take place because of, say, liquidity considerations.">
-	when ( Contract -> documentation -> contractualMatrix -> matrixType <> MatrixTypeEnum.CreditDerivativesPhysicalSettlementMatrix
-		or Contract -> documentation -> contractualMatrix -> matrixType is absent )
+	when ( Contract -> documentation -> documentationIdentification -> contractualMatrix -> matrixType <> MatrixTypeEnum.CreditDerivativesPhysicalSettlementMatrix
+		or Contract -> documentation -> documentationIdentification -> contractualMatrix -> matrixType is absent )
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents exists
 	then ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> bankruptcy
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> obligationDefault
@@ -139,8 +137,8 @@ data rule CreditEvents_physicalSettlementMatrix <"The below set of credit events
 	) exists
 
 data rule Restructuring_physicalSettlementMatrix <"The below multiple holder obligation restructuring provisions is specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that this provision can only be omitted if the Physical Settlement Matrix governs the terms of the contract. This data rule also applies to cash settled contracts because those could still end-up being physically settled, in the case where an auction could not take place because of, say, liquidity considerations.">
-	when ( Contract -> documentation -> contractualMatrix -> matrixType <> MatrixTypeEnum.CreditDerivativesPhysicalSettlementMatrix
-		or Contract -> documentation -> contractualMatrix -> matrixType is absent )
+	when ( Contract -> documentation -> documentationIdentification -> contractualMatrix -> matrixType <> MatrixTypeEnum.CreditDerivativesPhysicalSettlementMatrix
+		or Contract -> documentation -> documentationIdentification -> contractualMatrix -> matrixType is absent )
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring exists
 	then Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleHolderObligation exists
 
@@ -149,7 +147,7 @@ data rule Restructuring_physicalSettlementMatrix <"The below multiple holder obl
  */
 data rule AdditionalFixedPayments_mortgages <"The below set of additional fixed payment provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlier is a mortgage index.">
 	when ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> mortgageBackedSecurity exists
-		or Contract -> documentation -> contractualTermsSupplement -> type = ContractualSupplementEnum.CDSonMBS )
+		or Contract -> documentation -> documentationIdentification -> contractualTermsSupplement -> type = ContractualSupplementEnum.CDSonMBS )
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents exists
 	then ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> additionalFixedPayments -> interestShortfallReimbursement
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> additionalFixedPayments -> principalShortfallReimbursement
@@ -158,7 +156,7 @@ data rule AdditionalFixedPayments_mortgages <"The below set of additional fixed 
 
 data rule FloatingAmountEvents_mortgages <"The below set of floating amount events provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlier is a mortgage index.">
 	when ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> mortgageBackedSecurity exists
-		or Contract -> documentation -> contractualTermsSupplement -> type = ContractualSupplementEnum.CDSonMBS )
+		or Contract -> documentation -> documentationIdentification -> contractualTermsSupplement -> type = ContractualSupplementEnum.CDSonMBS )
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents exists
 	then ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> failureToPayPrincipal
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> writedown
@@ -167,7 +165,7 @@ data rule FloatingAmountEvents_mortgages <"The below set of floating amount even
 
 data rule CreditEvents_mortgages <"The below set of credit events provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlier is a mortgage index.">
 	when ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> mortgageBackedSecurity exists
-		or Contract -> documentation -> contractualTermsSupplement -> type = ContractualSupplementEnum.CDSonMBS )
+		or Contract -> documentation -> documentationIdentification -> contractualTermsSupplement -> type = ContractualSupplementEnum.CDSonMBS )
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents exists
 	then ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> failureToPayPrincipal
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> failureToPayInterest
@@ -199,24 +197,24 @@ data rule FpML_cd_1 <"FpML validation rule cd-1 - If referenceInformation exists
 		or Contract -> tradeDate -> date < Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate
 
 data rule FpML_cd_7 <"FpML validation rule cd-7 - If condition LongForm is true, then effectiveDate/dateAdjustments exists.">
-	when ( Contract -> documentation -> masterConfirmation and Contract -> documentation -> contractualMatrix ) is absent
+	when ( Contract -> documentation -> documentationIdentification -> masterConfirmation and Contract -> documentation -> documentationIdentification -> contractualMatrix ) is absent
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
 	then Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> dateAdjustments exists
 		or Contract -> tradeDate -> date < Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate
 
 data rule FpML_cd_8 <"FpML validation rule cd-8 - If condition LongForm is true, and if scheduledTerminationDate exists then scheduledTerminationDate/dateAdjustments exists.">
-	when ( Contract -> documentation -> masterConfirmation and Contract -> documentation -> contractualMatrix ) is absent
+	when ( Contract -> documentation -> documentationIdentification -> masterConfirmation and Contract -> documentation -> documentationIdentification -> contractualMatrix ) is absent
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
 	then Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate -> dateAdjustments exists
 
 data rule FpML_cd_11 <"FpML validation rule cd-11 - If condition LongForm is true, and if condition ISDA2003 is true, then allGuarantees must exist.">
-	when ( Contract -> documentation -> masterConfirmation and Contract -> documentation -> contractualMatrix ) is absent
+	when ( Contract -> documentation -> documentationIdentification -> masterConfirmation and Contract -> documentation -> documentationIdentification -> contractualMatrix ) is absent
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
-		and Contract -> documentation -> contractualDefinitions = ContractualDefinitionsEnum.ISDA2003Credit
+		and Contract -> documentation -> documentationIdentification -> contractualDefinitions = ContractualDefinitionsEnum.ISDA2003Credit
 	then Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> allGuarantees exists
 
 data rule FpML_cd_19 <"FpML validation rule cd-19 - If the condition ISDA1999Credit is true, then the following elements must not exist: protectionTerms/creditEvents/creditEventNotice/businessCenter, protectionTerms/creditEvents/restructuring/multipleHolderObligation, protectionTerms/creditEvents/restructuring/multipleCreditEventNotices, generalTerms/referenceInformation/allGuarantees, generalTerms/indexReferenceInformation, generalTerms/substitution, generalTerms/modifiedEquityDelivery.">
-	when Contract -> documentation -> contractualDefinitions = ContractualDefinitionsEnum.ISDA1999Credit
+	when Contract -> documentation -> documentationIdentification -> contractualDefinitions = ContractualDefinitionsEnum.ISDA1999Credit
 	then ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> creditEventNotice -> businessCenter
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleHolderObligation
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleCreditEventNotices
@@ -227,16 +225,16 @@ data rule FpML_cd_19 <"FpML validation rule cd-19 - If the condition ISDA1999Cre
 	is absent
 
 data rule FpML_cd_20 <"FpML validation rule cd-20 - If the condition ISDA2003 is true, then protectionTerms/obligations/notContingent must not exist.">
-	when Contract -> documentation -> contractualDefinitions = ContractualDefinitionsEnum.ISDA2003Credit
+	when Contract -> documentation -> documentationIdentification -> contractualDefinitions = ContractualDefinitionsEnum.ISDA2003Credit
 	then Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notContingent is absent
 
 data rule FpML_cd_23 <"FpML validation rule cd-23 - If the condition LongForm is true, then cashSettlementTerms or physicalSettlementTerms must exist.">
-	when ( Contract -> documentation -> masterConfirmation and Contract -> documentation -> contractualMatrix ) is absent
+	when ( Contract -> documentation -> documentationIdentification -> masterConfirmation and Contract -> documentation -> documentationIdentification -> contractualMatrix ) is absent
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
 	then ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> cashSettlementTerms or Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms ) exists
 
 data rule FpML_cd_24 <"FpML validation rule cd-24 - If the condition LongForm is true, then the following elements must exist: protectionTerms/creditEvents/creditEventNotice, protectionTerms/obligations, generalTerms/referenceInformation/referencePrice.">
-	when ( Contract -> documentation -> masterConfirmation and Contract -> documentation -> contractualMatrix ) is absent
+	when ( Contract -> documentation -> documentationIdentification -> masterConfirmation and Contract -> documentation -> documentationIdentification -> contractualMatrix ) is absent
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
 	then ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> creditEventNotice
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations
@@ -244,7 +242,7 @@ data rule FpML_cd_24 <"FpML validation rule cd-24 - If the condition LongForm is
 	) exists
 
 data rule FpML_cd_25 <"FpML validation rule cd-25 - If the condition LongForm is true, and if physicalSettlementTerms exists, then physicalSettlementTerms must contain settlementCurrency, physicalSettlementPeriod, escrow and deliverableObligations/accruedInterest.">
-	when ( Contract -> documentation -> masterConfirmation and Contract -> documentation -> contractualMatrix ) is absent
+	when ( Contract -> documentation -> documentationIdentification -> masterConfirmation and Contract -> documentation -> documentationIdentification -> contractualMatrix ) is absent
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms exists
 	then ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> settlementCurrency
@@ -254,7 +252,7 @@ data rule FpML_cd_25 <"FpML validation rule cd-25 - If the condition LongForm is
 	) exists
 
 data rule FpML_cd_32 <"FpML validation rule cd-32 - If condition LongForm is true, and if fixedAmountCalculation/calculationAmount exists, then fixedAmountCalculation/dayCountFraction must exist.">
-	when ( Contract -> documentation -> masterConfirmation and Contract -> documentation -> contractualMatrix ) is absent
+	when ( Contract -> documentation -> documentationIdentification -> masterConfirmation and Contract -> documentation -> documentationIdentification -> contractualMatrix ) is absent
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
 	 	and Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
 	 then Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> dayCountFraction exists
