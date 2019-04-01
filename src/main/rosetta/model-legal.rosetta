@@ -471,7 +471,9 @@ class CustodyArrangementsElection <"A class to specify the Custody Arrangements 
 class DeliveryAmount one of <"A class to specify the application of Interest Amount with respect the Delivery Amount. ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(ii).">
 {
 	standardElection DeliveryAmountElectionEnum (0..1) <"The standard election as specified by an enumeration.">;
+		[synonym ISDA_Create_1_0 value delivery_amount]
 	customElection string (0..1) <"The custom election that might be specified by the parties to the agreement.">;
+		[synonym ISDA_Create_1_0 value specify_delivery_amount]
 }
 
 class DisputeResolution one of <"A class to specify the election terms under which a party disputes (i) the Calculation Agent’s calculation of a Delivery Amount or a Return Amount, or (ii) the Value of any Transfer of Eligible Credit Support or Posted Credit Support. Parties can specify such election either through a business center time or through a custom election. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (g): Dispute Resolution. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (h): Dispute Resolution. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (g): Dispute Resolution.">
@@ -503,6 +505,7 @@ class DistributionAndInterestPayment <"A class to specify the Distributions and 
 		[synonym ISDA_Create_1_0 set to True when path = "daily_interest_compounding.daily_interest_compounding.applicable",
 			set to False when path = "daily_interest_compounding.daily_interest_compounding.not_applicable"]
 	alternativeProvision string (0..1 ) <"When specified, it means that the ISDA CSA Japanese Law provisions specified in Paragraph 6(c)(ii) don't apply and are overwritten by this election by the parties to the agreement. When this attribute is not specified, it means that the ISDA CSA Japanese Law provisions specified in Paragraph 6(c)(ii) apply. ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(iv): Alternative to Interest Amount (IM) and Interest Payment (IM).">;	
+		[synonym ISDA_Create_1_0 value specify path "alternative_to_interest_amounts_and_interest_payment"]
 }
 
 class ElectiveAmountElection <"A class to specify the party elective amounts which can be used for the purpose of specifying elections such as the ISDA CSA Threshold and Minimum Transfer Amount.">
@@ -895,6 +898,8 @@ class RelatedAgreement <"A class to specify a related legal agreement, in accord
 class ReturnAmount one of <"A class to specify the application of Interest Amount with respect the Return Amount. ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(ii).">
 {
 	includesDefaultLanguage boolean (0..1) <"Default language is included when True, and excluded when False.">;
+		[synonym ISDA_Create_1_0 set to True when path = "return_amount.include",
+			set to False when path = "return_amount.exclude"]
 	customElection string (0..1) <"Custom election that might be specified by the parties to the agreement.">;
 		[synonym ISDA_Create_1_0 value specify_return_amount]
 }
@@ -985,14 +990,14 @@ class Substitution <"A class to specify the conditions under which the Pledgor c
 			set to True when path = "consent.is_applicable.other",
 			set to False when path = "consent.is_applicable.not_applicable"]
 	specificConsentLanguage string (0..1) <"Specific consent language might be specified by the parties.">;
-		[synonym ISDA_Create_1_0 value specify path "consent"] // Need to confirm the mapping for an English Law CSA with non-standard consent language 
+		[synonym ISDA_Create_1_0 value specify path "consent"] 
 }
 
 class TerminationCurrencyAmendment <"A class to specify the Amendment to Termination Currency elections by the parties to the agreement. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (t): Amendment to Termination Currency.">
 {
 	isApplicable boolean (1..1) <"The qualification of whether the Amendment to Termination Currency is deemed applicable by the parties (True) or not (False).">;
 		[synonym ISDA_Create_1_0 set to True when path = "is_applicable.applicable",
-			set to False when path = "annex_date_is_applicable.not_applicable"]
+			set to False when path = "is_applicable.not_applicable"]
 	effectiveDate AmendmentEffectiveDate (0..1) <"The effective date of the Amendment to Termination Currency. This date can be specified as either an actual date, a specific date (e.g. the annex date) or as a custom provision.">;
 	terminationCurrency PartyTerminationCurrency (0..1) <"The parties' election with respect to the Termination Currency.">;
 	bothPartiesCurrency string (0..1) scheme <"The currency election in the case of a Termination Event where there are two Affected Parties.">;
