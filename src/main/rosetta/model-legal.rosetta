@@ -81,7 +81,7 @@ class ApplicableRegime extends RegimeTerms <"A class to specify the applicable r
 
 class CalculationCurrencyElection <"A class to specify the SIMM Calculation Currency elections by each party to the agreement.">
 {
-	partyElection SimmCalculationCurrency (2..2 ) <"The parties'SIMM Calculation Currency election.">;
+	partyElection SimmCalculationCurrency (2..2 ) <"The parties' SIMM Calculation Currency election.">;
 }
 
 class CalculationDateLocation <"A class to specify the Calculation Date Location election for the respective parties to the legal agreement. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (d)(i): Calculation Date Location. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e)(i): Calculation Date Location. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d)(i): Calculation Date Location.">
@@ -411,9 +411,9 @@ abstract class CsaVariationMargin2016 extends Csa2016 <"An abstract class to spe
 	valuationAgent Party (1..1) reference <"The Valuation Agent as specified by the parties to the agreement. ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (d)(i): Valuation Agent.">;
 	valuationDateLocation CalculationDateLocation (1..1) <"The business location elected by the respective parties to the agreement as the Valuation Date Location. ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (d)(ii): Valuation Date Location.">;
 	valuationTime BusinessCenterTime (1..*) <"ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (d)(iii): Valuation Time.">;
-	// In relation to the above, need to confirm that several valuation times can be specified, as suggested by the sample document which has been used
+	// In relation to the above, need to confirm that several valuation times can be specified, as suggested by the sample document which has been used, although this sounds peculiar if not expressed as one valuation time election per party
 	notificationTime int (1..1) <"The extend of time by which a demand for the Transfer of Eligible Credit Support (VM) or Posted Credit Support (VM) needs to be made after the relevant Valuation Time in order for the transfer to take place. This time is expressed in a number of minutes. ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (d)(iv): Notification Time.">;
-	// In relation to the above, need to confirm that the time can be systematically expressed in terms of number of minutes
+	// TODO - Look to express this elapse time as an interval time, to be projected as a a java Interval type https://trello.com/c/hclQUeS0 
 	holdingAndUsingPostedCollateral HoldingAndUsingPostedCollateral (1..1) <"The elections for the holding and using of posted collateral by the respective parties to the Credit Support Annex for Variation Margin. ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (h): Holding and Using Posted Collateral (VM).">; 
 	creditSupportOffsets boolean (1..1) <"When True the Credit Support Offsets provisions in Paragraph 11(j) of the ISDA 2016 Credit Support Annex for Variation Margin apply. They don't apply when False. ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (j): Credit Support Offsets.">;
 	otherCsa RelatedAgreement (1..1) <"The qualification of whether Other CSA are specified by the parties to the agreement. ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (o): Other CSA.">;
@@ -425,11 +425,6 @@ class CsaVariationMargin2016NewYorkLaw extends CsaVariationMargin2016 <"A class 
 	transferTiming string (1..1) <"The time by which the transfer of collateral must take place after the Notification Time on the Regular Settlement Day. ISDA 2016 New York Law Credit Support Annex for Variation Margin, paragraph 13, (c)(viii): Transfer Timing.">;
 	otherEligibleAndPostedSupport OtherEligibleAndPostedSupport (1..1) <"The Other Eligible Support elections associated with margin agreements. ISDA 2016 New York Law Credit Support Annex for Variation Margin, paragraph 13, (l): Other Eligible Support (VM) and Other Posted Support (VM).">;
 }
-
-data rule CreditSupportAnnexInitialMargin2018EnglishLaw_baseCurrency <"The ISDA 2016 CSA for Initial Margin under English and New York Law specify that the base currency should either be USD or EUR. ISDA 2016 Credit Support Annex for Initial Margin, New York Law, paragraph 13, General Principles, (a)(i): Base Currency means United States Dollar/Euro.">
-	when LegalDocument -> csaInitialMargin2016NewYorkLaw exists
-	then LegalDocument -> csaInitialMargin2016NewYorkLaw -> baseCurrency = "USD"
-		or LegalDocument -> csaInitialMargin2016NewYorkLaw -> baseCurrency = "EUR"
 
 class CustodianEvent <"A class to specify the Custodian Event (English Law & New York Law ISDA CSA) and the Collateral Manager Event (Japanese Law ISDA CSA) in terms of applicability and end-date. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (n)(iii): Custodian Event. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (m)(ii): Collateral Manager Event. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(iii): Custodian Event.">
 {
