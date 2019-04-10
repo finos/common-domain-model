@@ -3,16 +3,27 @@ version "${project.version}"
 
 class ForwardPayout <"Representation of a forward settling payout. Both FX Spot and FX Forward should use this component. Distinction between the two will be handled via product qualification.">
 {
+	/*
+	TBD for later commit:
+
+	- Remove securityLeg from the ForwardPayout class alltogether, since settlementDate is redundant with the same attribute in the securityLeg and a securityPayout attribute is now included directly within the Payout class.
+	Also:
+	- Either rename that class as "ForeignExchangePayout",
+	- Or keep as "ForwardPayout" with the anticipation that other underlying payoffs (e.g. Commodities) could be optionally added later.
+	*/
 	settlementDate date (0..1) <"The settlement date for a forward settling product. For Foreign Exchange contracts, this represents a common settlement date between both currency legs. To specify different settlement dates for each currency leg, see the ForeignExchange class.">;
 		[synonym FpML_5_10 value valueDate path "fxSingleLeg"]
 	foreignExchange ForeignExchange (0..1) <"A Foreign Exchange underlier to the forward payout.">;
 		[synonym FpML_5_10 value fxSingleLeg]
-	securityComponent SecurityComponent (0..1) <"A security underlier to the forward payout.">;
+	securityLeg SecurityLeg (0..1) <"A security leg underlier to the forward payout.">;
 }
 
 choice rule ForwardPayout_choice <"The forward payout must have an underlying asset that is either a security or a foreign exchange contract.">
 	for ForwardPayout required choice between 
-	foreignExchange and securityComponent
+	foreignExchange and securityLeg
+
+/*
+NOW SUPERSEDED BY NEW SecurityLeg CLASS USED TO REPRESENT SECURITIES FINANCING TRANSACTIONS
 
 class SecurityComponent <"Represents attributes specific to a forward settling security.">
 {
@@ -25,6 +36,7 @@ class SecurityComponent <"Represents attributes specific to a forward settling s
 choice rule SecurityComponent_choice <"Quantity of securities can either be represented at number of contracts or a nominal amount.">
 	for SecurityComponent required choice between 
 	quantity and nominalAmount
+*/
 
 class ForeignExchange <"From FpML: A type defining either a spot or forward FX transactions.">
 	[synonym FpML_5_10 value FxSingleLeg]
