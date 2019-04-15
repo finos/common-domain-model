@@ -132,7 +132,7 @@ class Party <"A class to specify a party, without a qualification as to whether 
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0, ISDA_Create_1_0 value account]
 }
 
-class PartyContactInformation <"A class to specify contact information within a party: address and, optionally, associated business unit and person.">
+class PartyContactInformation <"A class to specify contact information within a party: address and, optionally, associated business unit and person. This class also supports the ISDA CSA representation as a single string, through the address attribute.">
 	[synonym FpML_5_10 value PartyContactInformation]
 {
 	partyReference Party (1..1) reference <"The reference to the party to which the contact information refers to.">;
@@ -144,10 +144,10 @@ class PartyContactInformation <"A class to specify contact information within a 
 	person NaturalPerson (0..*) <"Optional information about people involved in a transaction or business process. (These are employees of the party.)">;
 		[synonym FpML_5_10 value person]
 	address string (0..1) <"The address specified as a string to support non-normalized contact information, such as in the case of ISDA Create.">;
-		// TODO - Confirm ISDA Create mapping through relevant examples for #47 and #49
+		[synonym ISDA_Create_1_0 value partyA_specify, partyB_specify]
 }
 
-choice rule PartyContactInformation_choice <"The address attribute corresponds to a non-normalized alternative representation to the contactInformation.">
+choice rule PartyContactInformation_choice <"The address attribute corresponds to a non-normalized alternative representation to the contactInformation. This reflects the current ISDA Create data representation.">
 	for PartyContactInformation optional choice between
 	contactInformation and address	
 
