@@ -24,6 +24,7 @@ public class RosettaHashCalculator {
 		RosettaModelObjectBuilder builder = object.toBuilder();
 		KeyPostProcessReport report = processor.runProcessStep(clazz, builder);
 		
-		return report.getKeyMap().entrySet().stream().collect(Collectors.toMap(e->e.getKey(), e->e.getValue().build()));
+		return report.getKeyMap().entrySet().stream().collect(Collectors.toMap(e->e.getValue().getMeta().getGlobalKey(),
+				e->((RosettaModelObjectBuilder)e.getValue()).build()));
 	}
 }
