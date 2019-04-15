@@ -1,10 +1,9 @@
 package org.isda.cdm.functions;
 
 import org.isda.cdm.*;
+import org.isda.cdm.metafields.*;
 import org.isda.cdm.calculation.FixedAmount;
 import org.junit.jupiter.api.Test;
-
-import com.rosetta.model.metafields.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -49,7 +48,7 @@ class FixedAmountTest {
                         						.setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
                         						.setBusinessCenters(BusinessCenters.builder()
                         								.setBusinessCentersReference(ReferenceWithMetaBusinessCenters.builder()
-                        										.setReference("primaryBusinessCenters")
+                        										.setExternalReference("primaryBusinessCenters")
                         										.build())
                         								.build())
                         						.build())
@@ -64,7 +63,7 @@ class FixedAmountTest {
                                 .setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
                                 .setBusinessCenters(BusinessCenters.builder()
                                 		.setBusinessCentersReference(ReferenceWithMetaBusinessCenters.builder()
-                                        		.setReference("primaryBusinessCenters")
+                                        		.setExternalReference("primaryBusinessCenters")
                                         		.build())
                                         .build())
                                 .build())
