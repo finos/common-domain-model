@@ -968,10 +968,10 @@ class RelatedAgreement <"A class to specify a related legal agreement. ISDA 2016
 			set to False when path = "specify_other_csa.false",
 			set to False when path = "specify_japanese_law_csa_vm.false"]
 	/*
-	 * TODO - The below string representation corresponds to the current ISDA CSA representation.  
+	 * TODO - The below string representation corresponds to the current ISDA Create representation.  
 	 * We should consider adjusting it to provide the ability to cross-reference another agreement when electronically represented.
-	 * In the CDM the adjustment would consist of having this attribute to be of type LegalAgreement, with an associated reference qualifier.
-	 * As part of this, we should provide an unbounded cardinality.
+	 * The CDM adjustment would consist of having this attribute to be of type LegalAgreement, with an associated reference qualifier.
+	 * As part of this, we should provide an unbounded cardinality, as there can be several related agreements.
 	 */		
 	legalDocument string (0..1) <"The specification of this other agreement, when the qualification is True.">;
 		[synonym ISDA_Create_1_0 value specify]
@@ -1031,8 +1031,8 @@ class SimmCalculationCurrency <"A class to specify the ISDA SIMM Calculation Cur
 }
 
 data rule SimmCalculationCurrency_baseCurrency <"When the SIMM calculation currency is specified as the Base Currency, the currency attribute should not be specified.">
-	when CsaInitialMargin2016 -> method -> calculationCurrency -> isBaseCurrency = True
-	then CsaInitialMargin2016 -> method -> calculationCurrency -> currency is absent
+	when SimmCalculationCurrency -> isBaseCurrency = True
+	then SimmCalculationCurrency -> currency is absent
 
 data rule SimmCalculationCurrency_notBaseCurrency <"When the SIMM calculation currency is specified as distinct from the Base Currency, the currency attribute should be specified.">
 	when SimmCalculationCurrency -> isBaseCurrency = False
