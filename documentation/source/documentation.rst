@@ -1046,11 +1046,11 @@ Like the product qualifier, the event qualification is stamped onto the generate
 Derivative Products Underlyers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-While the FpML specifies a number of underlyer product attributes as part of the contract representation, the CDM approach is to rather not to include any attribute that can be abstracted through reference data.  This is because specifying such information as part of the contract information leads to a risk or contradictory information, particularly for long-dated contracts.
+While the FpML specifies a number of underlier product attributes as part of the contract representation, the CDM approach is to rather not to include any attribute that can be abstracted through reference data.  This is because specifying such information as part of the contract information leads to a risk or contradictory information, particularly for long-dated contracts.
 
 As a result, the bond and convertible bond representation is limited to the product identifier.
 
-Follow-up is in progress with the ISDA CDM Credit Workstream to confirm the approach with respect to the loan and mortgage-backed security underlyers.
+Follow-up is in progress with the ISDA CDM Credit Workstream to confirm the approach with respect to the loan and mortgage-backed security underliers.
 
 .. code-block:: Java
 
@@ -1267,37 +1267,142 @@ One distinction with the product approach is that the ``intent`` qualification i
 Legal Agreements
 ----------------
 
-The Legal Agreements representation is a work-in-progress, which started in November 2018 with the initial aim of representing the ISDA Credit Support Annex Agreement.  Once done, the goal will then be to extend the model in two directions: the collateral management processes, and a broader set of legal agreements.
+The CDM aims at providing a digital representation of the legal agreements that govern the financial contracts and workflows which are represented as part of its scope.
 
-The CDM model leverages some prior and current work:
+This is expected to yield two sets of benefits:
 
-* The FpML Legal View, which was developed in 2014 with the aim to support the ISDA Standard CSA in a generic manner;
-* The AcadiaSoft Agreement Manager implementation;
-* The ISDA Credit implementation.
+* Support the marketplace initiatives that aim at streamlining and standardizing the legal agreements by providing a comprehensive digital representation of such documents.  As part of that, the CDM is looking to effectively integrate with some of those marketplace initiatives, such as (but not limited to) ISDA Create and AcadiaSoft Agreement Manager.  While the initial scope is focused on the ISDA legal agreements, it is not limited to those.  As an example, as a follow-up from the work in progress to represent secured funding contracts and associated lifecycle events it is expected that the CDM will look to represent the associated governing legal agreements.
+* Complement the contract and lifecycle event representation in order to provide a comprehensive representation of the financial workflows.  Collateral management is a good example of the applicability of such approach, as most of the associated workflows require to reference the associated legal agreements, such as the ISDA Initial Margin and Variation Margin Credit Support Annex.
 
-The ``LegalDocument`` class is the entry point for the legal document representation.
+
+The current CDM scope covers the following features:
+
+* Model representation of the following legal agreements:
+
+ * ISDA 2016 Credit Support Annex for Initial Margin, with the New York, Japanese and English governing laws;
+ * ISDA 2016 Credit Support Annex for Variation Margin, New York governing law.
+
+* Mapping to the ISDA Create data representation for the elections associated with the ISDA 2016 CSA for Initial Margin (not the ISDA CSA Variation Margin, which is not yet represented in ISDA Create);
+* Initial work has been developed to map the CDM to the AcadiaSoft Agreement Manager, although only limited progress has been made so far;
+* Integration of the ``LegalDocument`` with the ``Contract``, through the CDM referencing mechanism.
+
+
+The ability to ingest sample legal agreements is currently being worked out, but not yet supported as part of the CDM.
+
+Modelling Approach
+^^^^^^^^^^^^^^^^^^
+
+The current CDM model leverages some prior and current work:
+
+* The FpML Legal View, which was developed in 2013-14 with the aim of supporting the ISDA Standard CSA in a generic manner;
+* The ISDA Create solution (in its version 1.0).
+
+The intent is also to further leverage the AcadiaSoft Agreement Manager solution as part of the further iterations of the model, particularly as it relates to the integration with the collateral management workflow.
+
+The key modelling principles that have been adopted to represent legal agreements are as follows:
+
+* Distinction between the document identification features (document name, publisher, identification, ...), which are represented through the ``LegalDocumentBase`` abstract class, and the elections, which are the content features and are represented through classes which are aligned with the legal agreement template which they meant to represent, an example of which being the ``CsaInitialMargin2016JapaneseLaw`` class, which represents the ISDA 2016 Japanese Law CSA for Initial Margin;
+* Composite model, both as part of the ``LegalDocumentBase`` abstract class, which makes use of classes that are also used as part of the contract and lifecycle event components of the CDM (e.g. ``Party``, ``Identifier``, ``PartyRole``), and as part of the elective classes, with the above mentioned ``CsaInitialMargin2016JapaneseLaw`` class extending the ``CsaInitialMargin2016`` abstract class which specifies the elections that are common among the governing laws, and which in turn extends the ``Csa2016`` abstract class which specifies the elections that are common among the ISDA 2016 Initial Margin and Variation Margin CSA agreements;
+* Representation of the legal agreement elections, as opposed to the whole Language of those legal agreements. Similar to what has been done as part of the ISDA Create solution, such approach still provides the ability for CDM users to wrap those normalized elections into the corresponding legal agreement template, in order to provide a complete legal document;
+*  Focus on providing whenever possible a normalized data representation which can be digitally usable as such once projected through a machine executable language.  Practically speaking, that means restricting the use of elections expressed in a ``string`` format whenever possible. To this effect, the CDM leverages the ISDA Create data representation, while also extends it in some cases by leveraging some of the work developed in 2013-14 as part of the FpML work to provide a digital representation of the Standard CSA.  Notable examples of such approach are:
+
+ * The ``EligibleCollateral`` class provides the ability to specify the eligible collateral in a comprehensive manner for the purpose of initial and variation margin, which can be directly useable digitally through the combination of an enumerated list of eligible assets (based upon the 2003 ISDA Collateral Asset Definitions), normalized maturity bands and agency rating notations;
+ * The ``EligibilityToHoldCollateral`` class specifies the conditions under which a party and its custodian(s) are entitled to hold collateral in relation to the ISDA CSA for Variation Margin, through the combination of party terms that are specified through an enumeration, normalized custodian terms (see below) and/or the determination of countries in which such collateral can he held into;
+ * The ``CustodianTerms`` class provides the ability to specify the requirements applicable to the custodian with respect to the holding of posted collateral through the combination of minimal assets and minimal rating considerations, or through the designation of a specific custodian.
+
+The Composite Elective Data Representation Paradigm
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+As already mentioned, the current CDM scope is limited to the ISDA 2016 CSA for Initial Margin and Variation Margin.  Taking this context in consideration, this data representation is organised around 3 levels of composition:
+
+* The ``Csa2016`` abstract class specifies the set of provisions that are common among governing laws and across Initial and Variation Margin templates:
+
+ .. code-block:: Java
+
+  abstract class Csa2016
+  {
+	 baseCurrency string (1..1) scheme ;
+	  additionalObligations string (0..1) ;
+	  conditionsPrecedent ConditionsPrecedent (1..1) ;
+	  substitution Substitution (1..1) ;
+    disputeResolution DisputeResolution (1..1) ;
+	  additionalRepresentation AdditionalRepresentation (1..1) ;
+	  demandsAndNotices ContactElection (1..1) ;
+	  addressesForTransfer ContactElection (1..1) ;
+	  bespokeProvision string (0..1) ;
+  }
+
+* The ``CsaInitialMargin2016`` abstract class extends the ``Csa2016`` class to specify the provisions for the 2016 ISDA Credit Support Annex for Initial Margin that are common among the applicable governing laws:
+
+ .. code-block:: Java
+
+  abstract class CsaInitialMargin2016 extends Csa2016
+  {
+ 	 regime Regime (1..1) ;
+ 	 oneWayProvisions OneWayProvisions (1..1) ;
+ 	 method Method (1..1) ;
+ 	 identifiedCrossCurrencySwap boolean (1..1) ;
+ 	 sensitivityToEquity SensitivityMethodology (1..1) ;
+ 	 sensitivityToCommodity SensitivityMethodology (1..1) ;
+ 	 fxHaircutCurrency FxHaircutCurrency (1..1) ;
+ 	 creditSupportObligations CreditSupportObligationsInitialMargin (1..1) ;
+ 	 calculationDateLocation CalculationDateLocation (1..1) ;
+ 	 notificationTime NotificationTime (1..1) ;
+ 	 terminationCurrency TerminationCurrencyAmendment (1..1) ;
+  }
+
+* The ``CsaVariationMargin2016`` abstract class extends the ``Csa2016`` class to specify the provisions for the 2016 ISDA Credit Support Annex for Variation Margin that are common among the applicable governing laws:
+
+ .. code-block:: Java
+
+  abstract class CsaVariationMargin2016 extends Csa2016
+  {
+ 	 creditSupportObligations CreditSupportObligationsVariationMargin (1..1) ;
+ 	 valuationAgent Party (1..1) reference ;
+ 	 valuationDateLocation CalculationDateLocation (1..1) ;
+ 	 valuationTime BusinessCenterTime (1..*) ;
+ 	 notificationTime int (1..1) ;
+ 	 holdingAndUsingPostedCollateral HoldingAndUsingPostedCollateral (1..1) ;
+ 	 creditSupportOffsets boolean (1..1) ;
+ 	 otherCsa RelatedAgreement (1..1) ;
+  }
+
+* The current base classes that represent the ISDA CSA elections are the following:
+
+ * The ``CsaInitialMargin2016JapaneseLaw``, ``CsaInitialMargin2016NewYorkLaw`` and ``CsdInitialMargin2016EnglishLaw`` classes extend the ``CsaInitialMargin2016`` abstract class to specify the Initial Margin elections which are specific to those respective governing laws;
+ * The ``CsaVariationMargin2016NewYorkLaw`` class extends the ``CsaVariationMargin2016`` abstract class to specify the Variation Margin elections that are specific to the New York law.
+
+
+
+Linking Legal Agreements to Contracts and Events
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The way in which the CDM relates/ties a legal document with the relevant contract or event is through the referencing mechanism.
+
+This referencing mechanism has been implemented for the ``Contract`` (but not yet for the ``Event``, the reason being that no lifecycle event workflow has yet been specified that references legal agreement other than through the contract).
+
+This referencing of the legal agreement from the ``Contract`` is done from the ``documentation`` attribute and the associated class.  Alongside with providing the ability to identify some of the key terms of a governing legal agreement (such as the document identifier, the publisher, the document vintage and the agreement date) as part of the ``documentationIdentification`` attribute, this class provides the ability to reference a legal agreement is that is electronically represented in the CDM through the ``legalDocument`` attribute, which has a reference key into the instance agreement.
+
+The below snippet represents this ``Documentation`` class, which ``legalDocument`` attribute carries the ``reference`` qualifier, while the underneath snippet presents the ``LegalDocument`` class and its associated ``key`` qualifier.
 
 .. code-block:: Java
 
- abstract class LegalDocumentBase
+ class Documentation
  {
-  partyRole PartyRole (1..*) ;
-  agreementDate date (1..1) ;
-  effectiveDate date (1..1) ;
-  identifier Identifier (0..*) ;
-  amendedDocument string (1..1) ;
-  documentHistory LegalDocumentHistory (0..1) ;
-  documentType LegalDocumentType (1..1) ;
-  party Party (2..*) ;
+	legalDocument LegalDocument (0..*) reference ;
+	documentationIdentification DocumentationIdentification (0..1) ;
  }
 
- class LegalDocument extends LegalDocumentBase one of
+.. code-block:: Java
+
+ class LegalDocument extends LegalDocumentBase key one of
  {
-  csaInitialMargin2018EnglishLaw CsaInitialMargin2018EnglishLaw (0..1) ;
-  csaInitialMargin2018NewYorkLaw CsaInitialMargin2018NewYorkLaw (0..1) ;
+ 	csdInitialMargin2016EnglishLaw CsdInitialMargin2016EnglishLaw (0..1) ;
+ 	csaInitialMargin2016JapaneseLaw CsaInitialMargin2016JapaneseLaw (0..1) ;
+ 	csaInitialMargin2016NewYorkLaw CsaInitialMargin2016NewYorkLaw (0..1) ;
+ 	csaVariationMargin2016NewYorkLaw CsaVariationMargin2016NewYorkLaw (0..1) ;
  }
 
-While the initial focus has been on representing the ISDA 2018 CSA for Initial margin, it was then decided to shift the focus onto the 2016 variation of that agreement, for the purpose of getting sample documents with which to confirm and test the implementation.  That work is expected to take place in early 2019.
 
 Interest Calculation
 --------------------
