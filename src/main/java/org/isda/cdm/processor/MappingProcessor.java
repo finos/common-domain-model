@@ -23,19 +23,21 @@ public abstract class MappingProcessor implements BuilderProcessor {
 	}
 
 	@Override
-	public <R extends RosettaModelObject> void processRosetta(RosettaPath currentPath, Class<? extends R> rosettaType
+	public <R extends RosettaModelObject> boolean processRosetta(RosettaPath currentPath, Class<? extends R> rosettaType
 			, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent, AttributeMeta... meta) {
 		if (builder!=null && currentPath.matchesIgnoringIndex(path)) {
 			map(builder, parent);
 		}
+		return true;
 	}
 
 	@Override
-	public <R extends RosettaModelObject> void processRosetta(RosettaPath currentPath, Class<? extends R> rosettaType,
+	public <R extends RosettaModelObject> boolean processRosetta(RosettaPath currentPath, Class<? extends R> rosettaType,
 			List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent, AttributeMeta... meta) {
 		if (builder!=null && currentPath.matchesIgnoringIndex(path)) {
 			map(builder, parent);
 		}
+		return true;
 	}
 
 	
