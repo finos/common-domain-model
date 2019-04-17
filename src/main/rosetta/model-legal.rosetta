@@ -703,7 +703,7 @@ class InterestAmount <"A class to specify the application of Interest Amount wit
 	deliveryAmount DeliveryAmount (1..1) <"The application of Interest Amount with respect the Delivery Amount. ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(ii).">;
 }
 
-class LegalDocument extends LegalDocumentBase key one of <"A class to specify the elections and variables that characterize a legal document.">
+class LegalAgreement extends LegalAgreementBase key one of <"A class to specify the elections and variables that characterize a legal agreement.">
 {
 	csdInitialMargin2016EnglishLaw CsdInitialMargin2016EnglishLaw (0..1) <"The elections and variables specified in Paragraph 13 of the ISDA 2016 Credit Support Deed for Initial Margin, English Law.">;
 	csaInitialMargin2016JapaneseLaw CsaInitialMargin2016JapaneseLaw (0..1) <"The elections and variables specified in Paragraph 13 of the ISDA 2016 Credit Support Annex for Initial Margin, Japanese Law.">;
@@ -711,54 +711,41 @@ class LegalDocument extends LegalDocumentBase key one of <"A class to specify th
 	csaVariationMargin2016NewYorkLaw CsaVariationMargin2016NewYorkLaw (0..1) <"The elections and variables specified in Paragraph 13 of the ISDA 2016 Credit Support Annex for Variation Margin, New York Law.">;
 }
 
-class LegalDocumentAmendment <"A legal document amendment, which can be specified by either referencing a legal document that is described elsewhere in the document, or by specifying the identity of that amended document.">
+abstract class LegalAgreementBase <"A class describing the legal agreement baseline information, other than the actual elections: type of legal agreement, agreement date and effective date, parties to the agreement, ... The purpose of this abstract class is to provide the ability to associate a 'one of' feature to the LegalAgreement class as a way to enforce a systematic choice between its attributes.">
 {
-	agreementDate date (1..1) <"The date on which the legal document has been agreed between the parties.">;
-		[synonym FpML_5_10 value agreementDate]
-	documentIdentifier Identifier (0..*) <"The legal document identifier. Several identifiers can be specified.">;
-		[synonym FpML_5_10 value partyDocumentIdentifier]
-}
-
-/*
- * TODO ISDA Create information other than elections should be accessed from the API  /api/v1/subAccounts/{subAccountId}/negotiations/{negotiationId}
- * Need to work with Victor Parashiv @ Linklater to confirm how to access that API, which requires an AccountId and NegociationId
- * See email sent to Pierre on 28 Feb 2019
- */
-abstract class LegalDocumentBase <"A class describing the legal document. The purpose of this abstract class is to provide the ability to associate a 'one of' feature to the LegalDocument class as a way to enforce a systematic choice between its attributes.">
-{
-	agreementDate date (1..1) <"The date on which the legal document has been agreed between the parties. This corresponds to the Date of Deed in an English Law document.">;
+	agreementDate date (1..1) <"The date on which the legal agreement has been agreed between the parties. This corresponds to the Date of Deed in an English Law document.">;
 		[synonym FpML_5_10 value agreementDate path "legalDocumentHeader"]
 		[synonym ISDA_Create_1_0 value execution_date]
 	effectiveDate date (0..1) <"The date on which the agreement is effective, if different from the agreement date. It is expected that it will most often correspond to the agreement date, although there could be situations where the parties will explicitly agree on a distinct effective date.">;
 		[synonym FpML_5_10 value effectiveDate path "legalDocumentHeader"]
-	identifier Identifier (0..*) <"The legal document identifier. Several identifiers can be specified.">;
+	identifier Identifier (0..*) <"The legal agreement identifier. Several identifiers can be specified.">;
 		[synonym FpML_5_10 value partyDocumentIdentifier path "legalDocumentHeader"]
 		[synonym ISDA_Create_1_0 value id]
-	lineage Lineage (0..1) <"The lineage into prior versions of this legal document or into other legal documents that might be referenced by it.">;
-	documentType LegalDocumentType (1..1) <"The type of legal document, identified via a set of distinct attributes: name, publisher, governing law and version, e.g. ISDA 2013 Standard Credit Support Annex English Law.">;
+	lineage Lineage (0..1) <"The lineage into prior versions of this legal agreement or into other legal agreements that might be referenced by it.">;
+	agreementType LegalAgreementType (1..1) <"The type of legal agreement, identified via a set of distinct attributes: name, publisher, governing law and version, e.g. ISDA 2013 Standard Credit Support Annex English Law.">;
 		[synonym FpML_5_10 value documentType]
-	contractualParty Party (2..2) reference <"The contractual parties to the legal document, which reference information is positioned as part of the partInformation attribute.">;
+	contractualParty Party (2..2) reference <"The contractual parties to the legal agreement, which reference information is positioned as part of the partInformation attribute.">;
 		[synonym FpML_5_10 value party]
 	otherParty PartyRole (0..*) <"The role(s) that other party(ies) may have in relation to the legal agreement, further to the contractual parties.">;
 	umbrellaAgreement UmbrellaAgreement (0..1) <"The parties to the agreement that might be associated to it as part of what is termed an umbrella agreement.">;
 		[synonym ISDA_Create_1_0 value umbrella_agreement_and_principal_identification]
-	partyInformation Party (2..*) <"The information about the parties involved with the legal documents, which consists of both the contractual parties and the parties that might be involved in relation to some other roles (e.g. custody agent).">;
+	partyInformation Party (2..*) <"The information about the parties involved with the legal agreements, which consists of both the contractual parties and the parties that might be involved in relation to some other roles (e.g. custody agent).">;
 }
 
-class LegalDocumentType <"A class to specify the type of legal document, which is extended by each legal document instance, such as the ISDA 2016 CSA for Initial Margin.">
+class LegalAgreementType <"A class to specify the type of legal agreement, which is extended by each legal agreement instance, such as the ISDA 2016 CSA for Initial Margin.">
 	[synonym FpML_5_10 value LegalDocumentType]
 {
-	name LegalDocumentNameEnum (1..1) <"The legal document name, e.g. Credit Support Annex for Variation Margin.">;
+	name LegalAgreementNameEnum (1..1) <"The legal agreement name, e.g. Credit Support Annex for Variation Margin.">;
 		[synonym FpML_5_10 value name]
 		[synonym AcadiaSoft_AM_1_0 value documentName]
 		[synonym ISDA_Create_1_0 value documentType]
-	publisher LegalDocumentPublisherEnum (1..1) <"The legal document publisher, e.g. ISDA.">;
+	publisher LegalAgreementPublisherEnum (1..1) <"The legal agreement publisher, e.g. ISDA.">;
 		[synonym FpML_5_10, AcadiaSoft_AM_1_0, ISDA_Create_1_0 value publisher]
-	governingLaw LegalDocumentStyleEnum (0..1) <"The legal document reference style, e.g. English Law, New York Law or Japanese Law.">;
+	governingLaw GoverningLawEnum (0..1) <"The law governing the legal agreement, e.g. English Law, New York Law or Japanese Law.">;
 		[synonym FpML_5_10 value style]
 		[synonym AcadiaSoft_AM_1_0 value governingLaw]
 		[synonym ISDA_Create_1_0 value governingLaw]
-	vintage string (0..1) <"In the case where successive definitions of the legal document have been developed, the vintage identification. This is typically (but not necessarily) done by referencing the year, e.g. 2013 in the case of the ISDA 2013 Standard Credit Support Annex.">;
+	vintage string (0..1) <"In the case where successive definitions of the legal agreement have been developed, the vintage identification. This is typically (but not necessarily) done by referencing the year, e.g. 2013 in the case of the ISDA 2013 Standard Credit Support Annex.">;
 		[synonym FpML_5_10, FpML_5_10 value version]
 		[synonym AcadiaSoft_AM_1_0 value csaVersion]
 }
@@ -845,7 +832,7 @@ class OtherEligibleAndPostedSupport <"A class to specify the Other Eligible Supp
 			set to False when path = "support_transfer.is_applicable.not_applicable"]
 }
 
-class PartyDocumentIdentifier <"A class defining a legal document identifier issued by the indicated party.">
+class PartyAgreementIdentifier <"A class defining a legal agreement identifier issued by the indicated party.">
 	[synonym FpML_5_10 value PartyDocumentIdentifier]
 {
 	id string (0..1) id;
