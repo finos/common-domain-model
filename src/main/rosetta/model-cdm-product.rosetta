@@ -638,22 +638,30 @@ class SecurityLeg key <"Terms defining a security leg in a securities financing 
 	[synonym FpML_5_10 meta id]
 {
 	buyerSeller BuyerSeller (1..1) <"Whether the leg is a buyer or seller of security">;
+		[synonym FpML_5_10 value nearLeg]
+		[synonym FpML_5_10 value farLeg]
 	settlementDate AdjustableOrRelativeDate (1..1) <"Settlement or Payment Date for the security leg">;
-		[synonym FpML_5_10 value settlementDate]
+		[synonym FpML_5_10 value settlementDate path "nearLeg"]
+		[synonym FpML_5_10 value settlementDate path "farLeg"]
 	settlementAmount Money (1..1) <"Settlement amount for the security leg">;
-		[synonym FpML_5_10 value settlementAmount]
+		[synonym FpML_5_10 value settlementAmount path "nearLeg"]
+		[synonym FpML_5_10 value settlementAmount path "farLeg"]
 	fxRate ExchangeRate (0..1) <"FX rate in case when cash settlement amount is in a different currency to the security.">;
 	deliveryDate AdjustableOrRelativeDate (0..1) <"Delivery Date for the transaction. Delivery Date can be populated when it is not equal to the Settlement Date.">;
-		[synonym FpML_5_10 value deliveryDate]
+		[synonym FpML_5_10 value deliveryDate path "nearLeg"]
+		[synonym FpML_5_10 value deliveryDate path "farLeg"]
 	deliveryMethod DeliveryMethodEnum (1..1) <"Specifies a delivery method for the security transaction.">;
-		[synonym FpML_5_10 value deliveryMethod]
+		[synonym FpML_5_10 value deliveryMethod path "nearLeg"]
+		[synonym FpML_5_10 value deliveryMethod path "farLeg"]
 	securityValuation SecurityValuation (1..*) <"The underlying securities and their valuation for the security leg.">;
-		[synonym FpML_5_10 value collateral]
+		
 }
 
 class SecurityValuation <"Terms defining the security valuation method as part of a security leg in a securities fianncing transaction and closely modelled onto the CollateralValuation type in FpML.">
 {
 	securityValuationModel SecurityValuationModel (1..1) <"The security valuation model choice, based on either a nominal amount or a number of units.">;
+		[synonym FpML_5_10 value collateral path "nearLeg"]
+		[synonym FpML_5_10 value collateral path "farLeg"]
 	underlier Security (1..1) <"The underlying security of the security leg.">;
 }
 
@@ -721,8 +729,6 @@ class UnitContractValuationModel <"Unit contract model for security valuation, e
 class SecurityPayout key <"Security payout specification in case the product payout involves some form of security collateral, as in a securities financing transaction.">
 {
 	securityLeg SecurityLeg (0..*) <"Each SecurityLeg represent a buy/sell at different dates, typically 1 near leg and 1 far leg in a securities financing transaction.">;
-		[synonym FpML_5_10 value nearLeg]
-		[synonym FpML_5_10 value farLeg]
 	// TO DO: triParty, collateral substitutions, callDate and callingParty for an evergreen transaction (or should this be part of an Option Payout?)
 }	
 
@@ -753,6 +759,7 @@ class Payout <"A class to represent the set of future cashflow methodologies in 
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value fra path "trade" mapper FRAIRPSplitter]
 		[synonym CME_SubmissionIRS_1_0 value fra mapper FRAIRPSplitter]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value interestLeg path "trade.returnSwap", interestLeg path "trade.equitySwapTransactionSupplement"]
+		[synonym FpML_5_10 value repo path "trade"]
 	creditDefaultPayout CreditDefaultPayout (0..1) <"The credit default payout, which provides the details necessary for determining when a credit payout will be triggered as well as the parameters for calculating the payout and the settlement terms.">;
 	equityPayout EquityPayout (0..*) <"The equity payout, which encompasses the equity price returns, dividend returns, volatility and variance return provisions.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value returnLeg path "trade.returnSwap", returnLeg path "trade.equitySwapTransactionSupplement"]
