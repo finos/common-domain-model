@@ -493,8 +493,9 @@ class CustodyArrangements <"A class to specify the Custody Arrangements for the 
 {
 	partyElection CustodyArrangementsElection (2..2 ) <"The party-specific election with respect to the Custodian and Segregated Account details and the Custodian Risk provision.">;
 	custodianEvent CustodianEvent (1..1) <"When specified as True, means that the Custodian Events specified in Paragraph 13 General Principles, (m)(iii) will constitute an Additional Termination Event. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (m)(iii): Custodian Event.">;
-		[synonym ISDA_Create_1_0 set to True when path = "custodian_event.definition.applicable",
-			set to True when path = "custodian_event.definition.not_applicable"]
+		/*[synonym ISDA_Create_1_0 set to True when path = "custodian_event.definition.applicable",
+			set to True when path = "custodian_event.definition.not_applicable"]*/
+		//You cant set a complex object (a CustodianEvent) to a primitive value
 	isCreditSupportDocument boolean (1..1) <"Unless specified as True, the Control Agreement is not a Credit Support Document under the agreement with respect to a party. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 6 (e): The Control Agreement as a Credit Support Document.">;
 		[synonym ISDA_Create_1_0 set to True when path = "control_agreement_as_a_credit_support_document.definition.creditSupportDocument",
 			set to False when path = "control_agreement_as_a_credit_support_document.definition.not_specified"]
@@ -1041,11 +1042,12 @@ data rule SimmCalculationCurrency_notBaseCurrency <"When the SIMM calculation cu
 class SimmException one of <"A class to specify the SIMM exception to the regulatory regime clause of the ISDA 2016 and 2018 CSA for Initial Margin as either a normalized value specified as part of an enumeration or a customized value specified of type string. ISDA 2016 Credit Support Annex for Initial Margin paragraph 13, Regime: SIMM Exception.">
 {
 	standardisedException SimmExceptionEnum (0..1) <"The Standard Initial Margin Model exception when specified by the party according to one of the enumerated values.">;
-		[synonym AcadiaSoft_AM_1_0 set to "NotApplicable" when "simmException" = "False"]
-		[synonym ISDA_Create_1_0 set to "NotApplicable" when "partyA_SIMM" = "not_applicable",
-			set to "NotApplicable" when "partyB_SIMM" = "not_applicable",
-			set to "Applicable" when "partyA_SIMM" = "applicable",
-			set to "Applicable" when "partyB_SIMM" = "applicable"]
+		[synonym AcadiaSoft_AM_1_0 set to SimmExceptionEnum.NotApplicable when "simmException" = "False"]
+		[synonym ISDA_Create_1_0 set to SimmExceptionEnum.NotApplicable when "partyA_SIMM" = "not_applicable",
+			set to SimmExceptionEnum.NotApplicable when "partyB_SIMM" = "not_applicable",
+			set to SimmExceptionEnum.Applicable when "partyA_SIMM" = "applicable",
+			set to SimmExceptionEnum.Applicable when "partyB_SIMM" = "applicable"]
+		//TODO what if one value is applicable and the other isn't?
 	asSpecified string (0..1) <"The Standard Initial Margin Model exception when specified as a customized approach by the party.">;
 		[synonym ISDA_Create_1_0 value partyA_SIMM_applicable_specify, partyB_SIMM_applicable_specify]
 }
