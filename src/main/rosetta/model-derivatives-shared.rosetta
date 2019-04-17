@@ -1,12 +1,10 @@
 namespace "org.isda.cdm"
 version "${project.version}"
 
-class AdjustableDate <"A class for defining a date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
-	[synonym FpML_5_10 value AdjustableDate]
-	[synonym FpML_5_10 value AdjustableDate2]
+class AdjustableDate key <"A class for defining a date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value AdjustableDate meta id path "adjustableDate"]
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value AdjustableDate2 meta id path "adjustableDate"]
 {
-	id (0..1);
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id path "adjustableDate"]
 	unadjustedDate date (0..1 ) <"A date subject to adjustment. While in FpML this date is required, this cardinality constraint has been relaxed as part of the CDM in order to support the FRA representation, which effective and termination dates are specified in FpML as adjusted dates.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value unadjustedDate]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value unadjustedDate path "adjustableDate"]
@@ -36,11 +34,9 @@ choice rule AdjustableDate_choice <"Choice rule to represent an FpML choice cons
 	for AdjustableDate optional choice between
 	dateAdjustments and dateAdjustmentsReference 
 
-class AdjustableDates <"A class for defining a series of dates that shall be subject to adjustment if they would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the dates.">
-	[synonym FpML_5_10 value AdjustableDates]
+class AdjustableDates key <"A class for defining a series of dates that shall be subject to adjustment if they would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the dates.">
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value AdjustableDates meta id]
 {
-	id (0..1);
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 	unadjustedDate date (1..*) <"A date subject to adjustment.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value unadjustedDate]
 	dateAdjustments BusinessDayAdjustments (1..1) <"The business day convention and financial business centers used for adjusting the date if it would otherwise fall on a day that is not a business date in the specified business centers.">;
@@ -49,11 +45,9 @@ class AdjustableDates <"A class for defining a series of dates that shall be sub
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value adjustedDate meta id]
 }
 
-class AdjustableOrAdjustedDate <"A class for defining a date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
-	[synonym FpML_5_10 value AdjustableOrAdjustedDate]
+class AdjustableOrAdjustedDate key <"A class for defining a date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value AdjustableOrAdjustedDate meta id]
 {
-	id (0..1);
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 	unadjustedDate date (0..1 ) <"A date subject to adjustment.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value unadjustedDate]
 	dateAdjustments BusinessDayAdjustments (0..1) <"The business day convention and financial business centers used for adjusting the date if it would otherwise fall on a day that is not a business date in the specified business centers.">;
@@ -71,8 +65,6 @@ data rule AdjustableOrAdjustedDate_adjustedDate <"FpML specifies a choice betwee
 
 class AdjustableOrAdjustedOrRelativeDate <"This Rosetta class specifies the date as either an unadjusted, adjusted or relative date. It supplements the features of the AdjustableOrAdjustedDate to support the credit default swap option premium, which uses the relative date construct.">
 {
-	id (0..1);
-		//[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 	unadjustedDate date (0..1 ) <"A date subject to adjustment.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value unadjustedDate]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value adjustablePaymentDate]
@@ -103,11 +95,10 @@ data rule AdjustableOrAdjustedOrRelativeDate_adjustedDate <"This data rule exten
 		or ( ( AdjustableOrAdjustedOrRelativeDate -> unadjustedDate and AdjustableOrAdjustedOrRelativeDate -> dateAdjustments ) exists 
 			and AdjustableOrAdjustedOrRelativeDate -> adjustedDate is absent )
 
-class AdjustableOrRelativeDate <"A class giving the choice between defining a date as an explicit date together with applicable adjustments or as relative to some other (anchor) date.">
+class AdjustableOrRelativeDate key <"A class giving the choice between defining a date as an explicit date together with applicable adjustments or as relative to some other (anchor) date.">
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id path "adjustedEffectiveDate"]
 {
-	id (0..1);
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id path "adjustedEffectiveDate"]
 	adjustableDate AdjustableDate (0..1) <"A date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">;
 	relativeDate AdjustedRelativeDateOffset (0..1) <"A date specified as some offset to another date (the anchor date).">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value relativeDate]
@@ -127,10 +118,9 @@ choice rule AdjustableOrRelativeDate_choice <"Choice rule to represent an FpML c
 	for AdjustableOrRelativeDate required choice between
 		adjustableDate and relativeDate
 
-class AdjustableOrRelativeDates <"A class giving the choice between defining a series of dates as an explicit list of dates together with applicable adjustments or as relative to some other series of (anchor) dates.">
+class AdjustableOrRelativeDates key <"A class giving the choice between defining a series of dates as an explicit list of dates together with applicable adjustments or as relative to some other series of (anchor) dates.">
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 {
-	id (0..1);
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 	adjustableDates AdjustableDates (0..1) <"A series of dates that shall be subject to adjustment if they would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value adjustableDates]
 	relativeDates RelativeDates (0..1) <"A series of dates specified as some offset to another series of dates (the anchor dates).">;
@@ -149,11 +139,9 @@ class AdjustedRelativeDateOffset extends RelativeDateOffset <"A type defining a 
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value relativeDateAdjustments]
 }
 
-class AmericanExercise <"A class defining the exercise period for an American style option together with any rules governing the notional amount of the underlying which can be exercised on any given exercise date and any associated exercise fees.">
-	[synonym FpML_5_10 value AmericanExercise]
+class AmericanExercise key <"A class defining the exercise period for an American style option together with any rules governing the notional amount of the underlying which can be exercised on any given exercise date and any associated exercise fees.">
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value AmericanExercise meta id]
 {
-	id (0..1);
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 	commencementDate AdjustableOrRelativeDate (1..1) <"The first day of the exercise period for an American style option.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value commencementDate]
 	expirationDate AdjustableOrRelativeDate (1..1) <"The last day within an exercise period for an American style option. For a European style option it is the only day within the exercise period.">;
@@ -186,11 +174,9 @@ class AutomaticExercise <"A type to define automatic exercise of a swaption. Wit
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value thresholdRate]
 }
 
-class BermudaExercise <"A class defining the Bermuda option exercise dates and the expiration date together with any rules governing the notional amount of the underlying which can be exercised on any given exercise date and any associated exercise fee.">
-	[synonym FpML_5_10 value BermudaExercise]
+class BermudaExercise key <"A class defining the Bermuda option exercise dates and the expiration date together with any rules governing the notional amount of the underlying which can be exercised on any given exercise date and any associated exercise fee.">
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value BermudaExercise meta id]
 {
-	id (0..1);
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 	bermudaExerciseDates AdjustableOrRelativeDates (1..1) <"The dates that define the Bermuda option exercise dates and the expiration date. The last specified date is assumed to be the expiration date. The dates can either be specified as a series of explicit dates and associated adjustments or as a series of dates defined relative to another schedule of dates, for example, the calculation period start dates. Where a relative series of dates are defined the first and last possible exercise dates can be separately specified.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value bermudaExerciseDates]
 	relevantUnderlyingDate AdjustableOrRelativeDates (0..1) <"The date on the underlying set by the exercise of an option. What this date is depends on the option (e.g. in a swaption it is the swap effective date, in an extendible/cancelable provision it is the swap termination date).">;
@@ -214,11 +200,10 @@ class BrokerConfirmation <"Identifies the market sector in which the trade has b
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value brokerConfirmationType meta brokerConfirmationTypeScheme]
 }
 
-class BusinessCenters <"A class for specifying the business day calendar location used in determining whether a day is a business day or not, either by specifying this business center by reference to an enumerated list that is maintained by the FpML standard, or by reference to such specification when it exists elsewhere as part of the instance document. This class corresponds to the FpML BusinessCentersOrReference.model.">
+class BusinessCenters key <"A class for specifying the business day calendar location used in determining whether a day is a business day or not, either by specifying this business center by reference to an enumerated list that is maintained by the FpML standard, or by reference to such specification when it exists elsewhere as part of the instance document. This class corresponds to the FpML BusinessCentersOrReference.model.">
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id path "businessCenters"]
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 {
-	id (0..1);
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id path "businessCenters"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 	businessCenter BusinessCenterEnum (0..*) scheme <"A code identifying one or several business day calendar location(s). The set of business day calendar locations are specified by the business day calendar location enumeration which is maintained by the FpML standard.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value businessCenter meta businessCenterScheme]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value businessCenter path "businessCenters" meta businessCenterScheme]
@@ -249,11 +234,9 @@ class BusinessDateRange extends DateRange <"A class defining a range of contiguo
 	businessCenters BusinessCenters (0..1) <"The business center(s), specified either explicitly or by reference to those specified somewhere else in the instance document.">;
 }
 
-class BusinessDayAdjustments <"A class defining the business day convention and financial business centers used for adjusting any relevant date if it would otherwise fall on a day that is not a business day in the specified business center.">
-	[synonym FpML_5_10 value BusinessDayAdjustments]
+class BusinessDayAdjustments key <"A class defining the business day convention and financial business centers used for adjusting any relevant date if it would otherwise fall on a day that is not a business day in the specified business center.">
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value BusinessDayAdjustments meta id]
 {
-	id (0..1);
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 	businessDayConvention BusinessDayConventionEnum (1..1) <"The convention for adjusting a date if it would otherwise fall on a day that is not a business day.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value businessDayConvention]
 	businessCenters BusinessCenters (0..1) <"The business center(s), specified either explicitly or by reference to those specified somewhere else in the instance document.">;
@@ -398,7 +381,7 @@ class DateTimeList <"List of dateTimes.">
 
 class Documentation <"A class for specifying the documents that govern the contract, either as a reference to such documents when specified as part of the CDM, or through identification of some of the key terms of those documents, such as the type of document, the document identifier, the publisher, the document vintage and the agreement date.">
 {
-	legalDocument LegalDocument (0..*) rosettaKey <"The legal document(s) that govern the contract, when such document is specified as part of the CDM.">;
+	legalDocument LegalDocument (0..*) reference <"The legal document(s) that govern the contract, when such document is specified as part of the CDM.">;
 	documentationIdentification DocumentationIdentification (0..1) <"The identification of the legal document(s) that govern the contract through some of the key terms of such document(s): type of document, the document identifier, the publisher, the document vintage and the agreement date.">;
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value documentation path "trade"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value documentation]
@@ -431,11 +414,9 @@ choice rule DocumentationIdentification_choice <"Choice rule to represent an FpM
 	for DocumentationIdentification optional choice between
 	masterConfirmation and brokerConfirmation
 
-class EuropeanExercise <"A class defining the exercise period for a European style option together with any rules governing the notional amount of the underlying which can be exercised on any given exercise date and any associated exercise fees.">
-	[synonym FpML_5_10 value EuropeanExercise]
+class EuropeanExercise key <"A class defining the exercise period for a European style option together with any rules governing the notional amount of the underlying which can be exercised on any given exercise date and any associated exercise fees.">
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value EuropeanExercise meta id]
 {
-	id (0..1);
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 	expirationDate AdjustableOrRelativeDate (1..1) <"The last day within an exercise period for an American style option. For a European style option it is the only day within the exercise period.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value expirationDate]
 	relevantUnderlyingDate AdjustableOrRelativeDates (0..1) <"The date on the underlying set by the exercise of an option. What this date is depends on the option (e.g. in a swaption it is the swap effective date, in an extendible/cancelable provision it is the swap termination date).">;
@@ -519,12 +500,10 @@ choice rule ExerciseProcedure_choice <"Choice rule to represent an FpML choice c
 	for ExerciseProcedure required choice between
 	manualExercise and automaticExercise
 
-class FloatingRate <"A class defining a floating interest rate through the specification of the floating rate index, the tenor, the multiplier schedule, the spread, the qualification of whether a specific rate treatment and/or a cap or floor apply.">
-	[synonym FpML_5_10 value FloatingRate]
+class FloatingRate key <"A class defining a floating interest rate through the specification of the floating rate index, the tenor, the multiplier schedule, the spread, the qualification of whether a specific rate treatment and/or a cap or floor apply.">
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value FloatingRate meta id path "calculationPeriodAmount.calculation.floatingRateCalculation"]
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value FloatingRate meta id path "periodicPayment.floatingAmountCalculation.floatingRate"]
 {
-	id (0..1);
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id path "calculationPeriodAmount.calculation.floatingRateCalculation"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id path "periodicPayment.floatingAmountCalculation.floatingRate"]
 	floatingRateIndex FloatingRateIndexEnum (1..1) scheme <"The reference index that is used to specify the floating interest rate. The FpML standard maintains the list of such indices, which are positioned as enumeration values as part of the CDM.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value floatingRateIndex path "calculationPeriodAmount.calculation.floatingRateCalculation" meta floatingRateIndexScheme]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value floatingRateIndex path "periodicPayment.floatingAmountCalculation.floatingRate" meta floatingRateIndexScheme]
@@ -564,11 +543,9 @@ class FloatingRateSpecification extends FloatingRate <"A class to specify the fl
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value negativeInterestRateTreatment path "calculationPeriodAmount.calculation.floatingRateCalculation", negativeInterestRateTreatment path "periodicPayment.floatingAmountCalculation.floatingRate"]
 }
 
-class Frequency <"A class for defining a date frequency, e.g. one day, three months, through the combination of an integer value and a standardized period value that is specified as part of an enumeration.">
-	[synonym FpML_5_10 value Frequency]
+class Frequency key <"A class for defining a date frequency, e.g. one day, three months, through the combination of an integer value and a standardized period value that is specified as part of an enumeration.">
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value Frequency meta id]
 {
-	id (0..1);
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 	periodMultiplier int (1..1) <"A time period multiplier, e.g. 1, 2, or 3. If the period value is T (Term) then period multiplier must contain the value 1.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value periodMultiplier]
 		[synonym FpML_5_10 value periodMultiplier path "paymentDatesInterim.relativeDates"]
@@ -701,11 +678,9 @@ class MasterConfirmation <"A class for defining the master confirmation agreemen
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value masterConfirmationAnnexType meta masterConfirmationAnnexTypeScheme]
 }
 
-class Money <"A class defining a currency amount.">
-	[synonym FpML_5_10 value Money]
+class Money key<"A class defining a currency amount.">
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value Money meta id]
 {
-	id (0..1);
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 	currency string (1..1) scheme <"The currency in which the associated amount is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value currency meta currencyScheme]
 		[synonym ISDA_Create_1_0 value partyA_currency]
@@ -735,11 +710,9 @@ class NonNegativeAmountSchedule extends NonNegativeSchedule <"A class defining a
 		[synonym DTCC_11_0, DTCC_9_0 value currency maps 2 meta currencyScheme]
 }
 
-class NonNegativeSchedule <"A class defining a schedule of non-negative rates or amounts in terms of an initial value and then a series of step date and value pairs. On each step date the rate or amount changes to the new step value. The series of step date and value pairs are optional. If not specified, this implies that the initial value remains unchanged over time.">
-	[synonym FpML_5_10 value NonNegativeSchedule path "notionalStepSchedule"]
+class NonNegativeSchedule key <"A class defining a schedule of non-negative rates or amounts in terms of an initial value and then a series of step date and value pairs. On each step date the rate or amount changes to the new step value. The series of step date and value pairs are optional. If not specified, this implies that the initial value remains unchanged over time.">
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value NonNegativeSchedule path "notionalStepSchedule" meta id]
 {
-	id (0..1);
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 	initialValue number (1..1) <"The non-negative initial rate or amount, as the case may be. An initial rate of 5% would be represented as 0.05.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value initialValue]
 		[synonym DTCC_11_0, DTCC_9_0 value amount maps 2]
@@ -751,11 +724,9 @@ data rule NonNegativeSchedule_initialValue <"FpML specified initialValue as a No
 	when NonNegativeSchedule exists
 	then NonNegativeSchedule -> initialValue >= 0.0
 
-class NonNegativeStep <"A class defining a step date and non-negative step value pair. This step definitions are used to define varying rate or amount schedules, e.g. a notional amortisation or a step-up coupon schedule.">
-	[synonym FpML_5_10 value NonNegativeStep]
+class NonNegativeStep key <"A class defining a step date and non-negative step value pair. This step definitions are used to define varying rate or amount schedules, e.g. a notional amortisation or a step-up coupon schedule.">
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value NonNegativeStep meta id]
 {
-	id (0..1);
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 	stepDate date (1..1) <"The date on which the associated stepValue becomes effective. This day may be subject to adjustment in accordance with a business day convention.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value stepDate]
 	stepValue number (1..1) <"The non-negative rate or amount which becomes effective on the associated stepDate. A rate of 5% would be represented as 0.05.">;
@@ -842,12 +813,10 @@ class PayerReceiver <"A class to represent the FpML PayerReceiver.model.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value sellerAccountReference maps 2 meta href]
 }
 
-class PaymentDates <"A class to specify the parameters to generate the payment date schedule, either through a parametric representation or by reference to other dates specified in the instance document (e.g. the reset dates or valuation dates). The CDM representation combines the FpML payment dates representation for interest rate and total return swap products by providing the ability to specify the payment dates as a function of some other dates specified in the instance document.">
-	[synonym FpML_5_10 value PaymentDates]
+class PaymentDates key <"A class to specify the parameters to generate the payment date schedule, either through a parametric representation or by reference to other dates specified in the instance document (e.g. the reset dates or valuation dates). The CDM representation combines the FpML payment dates representation for interest rate and total return swap products by providing the ability to specify the payment dates as a function of some other dates specified in the instance document.">
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value PaymentDates meta id]
+	[synonym FpML_5_10 value PaymentDates meta id path "interestLegCalculationPeriodDates"]
 {
-	id (0..1);
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
-		[synonym FpML_5_10 meta id path "interestLegCalculationPeriodDates"]
 	dateRelativeTo date (0..1) reference <"The anchor date when the payment dates are specified by reference to a set of dates specified somewhere else in the instance document/transaction, e.g. the valuation dates as typically the case for equity swaps.  When this attribute is specified, the paymentDaysOffset and the paymentDatesAdjustments also need to specified.">;
 		[synonym FpML_5_10 value dateRelativeTo path "paymentDatesInterim.relativeDates" meta href]
 		[synonym FpML_5_10 value dateRelativeTo path "relativeDates" meta href]
@@ -880,11 +849,9 @@ data rule PaymentDates_dateRelativeTo <"When the payment dates are specified by 
 	then ( PaymentDates -> paymentDaysOffset
 		and PaymentDates -> paymentDatesAdjustments ) exists
 
-class PaymentDetail
-	[synonym FpML_5_10 value PaymentDetail]
+class PaymentDetail key
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value PaymentDetail meta id]
 {
-	id (0..1);
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 	paymentDate AdjustableOrRelativeDate (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentDate]
 	paymentRule PaymentRule (1..1) <"The calculation rule.">;
@@ -907,11 +874,9 @@ class PaymentRule <"A class defining the payment calculation rule. As of FpML 5.
 	percentageRule PercentageRule (0..1) <"This attribute is not present as part of the FpML construct, as the payment rule is specialised by means of runtime type extension through the xsi:type.">;
 }
 
-class Period <"A class to define recurring periods or time offsets.">
-	[synonym FpML_5_10 value Period]
+class Period key <"A class to define recurring periods or time offsets.">
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value Period meta id]
 {
-	id (0..1);
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 	periodMultiplier int (1..1) <"A time period multiplier, e.g. 1, 2 or 3 etc. A negative value can be used when specifying an offset relative to another date, e.g. -2 days.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value periodMultiplier]
 		[synonym FpML_5_10 value periodMultiplier path "dateOffset"]
@@ -941,11 +906,9 @@ class PremiumExpression <"This class corresponds to the FpML Premium.model group
 	 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value percentageOfNotional]
 }
 
-class PrincipalExchanges <"A class defining which principal exchanges occur for the stream.">
-	[synonym FpML_5_10 value PrincipalExchanges]
+class PrincipalExchanges key <"A class defining which principal exchanges occur for the stream.">
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value PrincipalExchanges meta id]
 {
-	id (0..1);
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 	initialExchange boolean (1..1) <"A true/false flag to indicate whether there is an initial exchange of principal on the effective date.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value initialExchange]
 	finalExchange boolean (1..1) <"A true/false flag to indicate whether there is a final exchange of principal on the termination date.">;
@@ -965,11 +928,9 @@ class QuotedCurrencyPair <"A class that describes the composition of a rate that
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value quoteBasis]
 }
 
-class RateObservation <"A class defining parameters associated with an individual observation or fixing. This class forms part of the cashflow representation of a stream.">
-	[synonym FpML_5_10 value RateObservation]
+class RateObservation key <"A class defining parameters associated with an individual observation or fixing. This class forms part of the cashflow representation of a stream.">
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value RateObservation meta id]
 {
-	id (0..1);
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 	resetDate date (0..1) <"The reset date.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value resetDate]
 	adjustedFixingDate date (0..1) <"The adjusted fixing date, i.e. the actual date the rate is observed. The date should already be adjusted for any applicable business day convention.">;
@@ -1099,11 +1060,9 @@ class Rounding <"A class defining a rounding direction and precision to be used 
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value precision]
 }
 
-class Schedule <"A class defining a schedule of rates or amounts in terms of an initial value and then a series of step date and value pairs. On each step date the rate or amount changes to the new step value. The series of step date and value pairs are optional. If not specified, this implies that the initial value remains unchanged over time.">
-	[synonym FpML_5_10 value Schedule]
+class Schedule key <"A class defining a schedule of rates or amounts in terms of an initial value and then a series of step date and value pairs. On each step date the rate or amount changes to the new step value. The series of step date and value pairs are optional. If not specified, this implies that the initial value remains unchanged over time.">
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value Schedule meta id path "periodicPayment.fixedAmountCalculation.fixedRate"]
 {
-	id (0..1);
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id path "periodicPayment.fixedAmountCalculation.fixedRate"]
 	initialValue number (1..1) <"The initial rate or amount, as the case may be. An initial rate of 5% would be represented as 0.05.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value initialValue]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value initialValue path "calculationPeriodAmount.calculation.fixedRateSchedule"]
@@ -1119,10 +1078,9 @@ data rule FpML_ird_25 <"FpML validation rule ird-25 - If step does not exist, th
 	when Schedule -> step is absent
 	then Schedule -> initialValue <> 0.0
 
-class SettlementBase <"A base class to be extended by the SettlementTerms, CashSettlementTerms and PhysicalSettlementTerms classes.">
+class SettlementBase key <"A base class to be extended by the SettlementTerms, CashSettlementTerms and PhysicalSettlementTerms classes.">
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 {
-	id (0..1);
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 	settlementCurrency string (0..1) scheme <"The settlement currency is to be specified when the Settlement Amount cannot be known in advance. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value settlementCurrency meta currencyScheme]
 }
@@ -1150,11 +1108,9 @@ class SettlementRateSource one of <"A class describing the method for obtaining 
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value cashSettlementReferenceBanks]
 }
 
-class SimplePayment extends PayerReceiver <"A class to specified payments in a simpler fashion than the Payment type. This construct should be used from the FpML version 4.3 onwards.">
-	[synonym FpML_5_10 value SimplePayment]
+class SimplePayment extends PayerReceiver key <"A class to specified payments in a simpler fashion than the Payment type. This construct should be used from the FpML version 4.3 onwards.">
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value SimplePayment meta id]
 {
-	id (0..1);
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 	paymentAmount Money (1..1) <"The payment amount.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentAmount]
 	paymentDate AdjustableOrRelativeDate (1..1) <"The payment date. This date is subject to adjustment in accordance with any applicable business day convention.">;
@@ -1172,22 +1128,18 @@ class SpreadSchedule extends Schedule <"Adds an optional spread type element to 
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value SpreadScheduleType meta spreadScheduleTypeScheme]
 }
 
-class Step <"A class defining a step date and step value pair. This step definitions are used to define varying rate or amount schedules, e.g. a notional amortisation or a step-up coupon schedule.">
-	[synonym FpML_5_10 value Step]
+class Step key <"A class defining a step date and step value pair. This step definitions are used to define varying rate or amount schedules, e.g. a notional amortisation or a step-up coupon schedule.">
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value Step meta id]
 {
-	id (0..1);
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 	stepDate date (1..1) <"The date on which the associated step value becomes effective.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value stepDate]
 	stepValue number (1..1) <"The rate of amount which becomes effective on the associated step date. A rate of 5% would be represented as 0.05.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value stepValue]
 }
 
-class Strike <"A class describing a single cap or floor rate.">
-	[synonym FpML_5_10 value Strike]
+class Strike key <"A class describing a single cap or floor rate.">
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value Strike meta id]
 {
-	id (0..1);
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 	strikeRate number (1..1) <"The rate for a cap or floor.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value strikeRate]
 		[synonym FIX_5_0_SP2 value StrikePrice tag 202]
@@ -1207,10 +1159,8 @@ class StrikeSchedule extends Schedule <"A class describing a schedule of cap or 
 }
 
 class StubFloatingRate <"A class defining a floating rate.">
-	[synonym FpML_5_10 value StubFloatingRate]
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value StubFloatingRate meta id]
 {
-	id (0..1);
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 	floatingRateIndex FloatingRateIndexEnum (1..1) <"The floating rate index.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value floatingRateIndex]
 	indexTenor Period (0..1) <"The ISDA Designated Maturity, i.e. the tenor of the floating rate.">;
@@ -1246,11 +1196,10 @@ class TimeZone <"The time alongside with the timezone location information. This
 		[synonym Rosetta_Workbench value location meta timezoneLocationScheme]
 }
 
-class TradeDate <"A class to specify the contract's trade date alongside an identifier.">
+class TradeDate key <"A class to specify the contract's trade date alongside an identifier.">
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id path "trade.tradeHeader.tradeDate"]
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id path "tradeHeader.tradeDate"]
 {
-	id (0..1);
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id path "trade.tradeHeader.tradeDate"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id path "tradeHeader.tradeDate"]
 	date date (1..1) <"The trade date associated with the contract. In the case of a novated trade, this date corresponds to the novation date.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value tradeDate path "trade.tradeHeader"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value tradeDate path "tradeHeader"]

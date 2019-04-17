@@ -6,7 +6,8 @@ import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObject;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
-import com.rosetta.model.metafields.ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder;
+
+import org.isda.cdm.metafields.ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,14 +31,14 @@ public class TradeSideToPartyMappingProcessor extends MappingProcessor {
 	@Override
 	public <R extends RosettaModelObject> void map(RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
 		ReferenceWithMetaPartyBuilder partyReference = (ReferenceWithMetaPartyBuilder) builder;
-		String tradeSideId = partyReference.getReference();
+		String tradeSideId = partyReference.getExternalReference();
 		
 		
 		
 		getPartyId(tradeSideId)
 				.ifPresent(partyId -> {
 					LOGGER.info("Mapped tradeSide.id ({}) to tradeSide.orderer.party.id ({}) at path {}", tradeSideId, partyId, getPath());
-					partyReference.setReference(partyId).build();
+					partyReference.setExternalReference(partyId).build();
 				});
 	}
 
@@ -69,7 +70,5 @@ public class TradeSideToPartyMappingProcessor extends MappingProcessor {
 
 	@Override
 	protected void map(List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
-		// TODO Auto-generated method stub
-		
 	}
 }

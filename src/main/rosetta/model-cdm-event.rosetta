@@ -175,10 +175,9 @@ class CustomisedWorkflow <"In its initial iteration, this class is meant to supp
 		[synonym CME_SubmissionIRS_1_0 set to "Custom" when "Pty.Src" = "D"]
 }
 
-class Event rosettaKey <"A class to specify the lifecycle event. The associated rosettaKey denotes the ability to associate a hash value to the Event instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+class Event key <"A class to specify the lifecycle event. The associated rosettaKey denotes the ability to associate a hash value to the Event instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+	[synonym Rosetta_Workbench meta id]
 {
-	id (0..1);
-		[synonym Rosetta_Workbench meta id]
 	messageInformation MessageInformation (0..1);
 		[synonym DTCC_11_0, DTCC_9_0 value FpML path "Body.OTC_Matching.Trade"]
 		[synonym DTCC_11_0, DTCC_9_0 value FpML path "Body.OTC_Matching.Payment"]
@@ -243,12 +242,12 @@ data rule Event_intent <"The intent should only be associated with the primitive
 
 class EventEffect <"The set of operational and positional effects associated with a lifecycle event, alongside the reference to the contract reference(s) that is subject to the event (and is positioned in the before state of the event primitive).">
 {
-	effectedContract Contract (0..*) rosettaKey <"A pointer to the contract(s) to which the event effect(s) apply, i.e. in the before event state.">;
-	effectedExecution Execution (0..*) rosettaKey <"A pointer to the execution(s) to which the event effect(s) apply, i.e. in the before event state.">;
-	contract Contract (0..*) rosettaKey <"A pointer to the contract effect(s), an example of such being the outcome of a new trade, swaption exercise or novation event.">;
-    execution Execution (0..*) rosettaKey <"A pointer to the execution effect(s), an example of such being a clearing submission event when taking place on the back of an execution.">;
-    productIdentifier ProductIdentifier (0..*) rosettaKey <"A pointer to the product identifier effect(s), an example of such being the outcome of the physical exercise of a bond option.">;
-	transfer TransferPrimitive (0..*) rosettaKey <"A pointer to the transfer effect(s), either a cash, security or other asset.">;
+	effectedContract Contract (0..*) reference <"A pointer to the contract(s) to which the event effect(s) apply, i.e. in the before event state.">;
+	effectedExecution Execution (0..*) reference <"A pointer to the execution(s) to which the event effect(s) apply, i.e. in the before event state.">;
+	contract Contract (0..*) reference <"A pointer to the contract effect(s), an example of such being the outcome of a new trade, swaption exercise or novation event.">;
+    execution Execution (0..*) reference <"A pointer to the execution effect(s), an example of such being a clearing submission event when taking place on the back of an execution.">;
+    productIdentifier ProductIdentifier (0..*) reference <"A pointer to the product identifier effect(s), an example of such being the outcome of the physical exercise of a bond option.">;
+	transfer TransferPrimitive (0..*) reference <"A pointer to the transfer effect(s), either a cash, security or other asset.">;
 }
 
 class EventTestBundle <"A class which combines several events for testing purposes.">
@@ -259,7 +258,7 @@ class EventTestBundle <"A class which combines several events for testing purpos
 		[synonym Rosetta_Workbench value computedAmount]
 }
 
-class EventTimestamp <"A class to represent the various set of timestamps that can be associated with lifecycle events, as a collection of [dateTime, qualifier]">
+class EventTimestamp <"A class to represent the various set of timestamps that can be associated with lifecycle events, as a collection of [dateTime, qualifier].">
 {
 	dateTime zonedDateTime (1..1) <"The CDM specifies that the zoned date time is to be expressed in accordance with ISO 8601, either as UTC as an offset to UTC.">;
 		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value creationTimestamp]
@@ -269,14 +268,14 @@ class EventTimestamp <"A class to represent the various set of timestamps that c
 		[synonym CME_SubmissionIRS_1_0 value TxnTm path "TrdCaptRpt"]
 		[synonym CME_SubmissionIRS_1_0 value Snt path "TrdCaptRpt.Hdr"]
 		[synonym CME_SubmissionIRS_1_0 value TS path "TrdCaptRpt.TrdRegTS"]
-	qualification EventTimeStampQualificationEnum (1..1);
-		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 set to EventTimeStampQualificationEnum.eventCreationDateTime when "creationTimestamp" exists]
-		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 set to EventTimeStampQualificationEnum.eventExpirationDateTime when "expiryTimestamp" exists]
-		[synonym CME_ClearedConfirm_1_17, Rosetta_Workbench set to EventTimeStampQualificationEnum.clearingSubmissionDateTime when "submittedForClearing" exists]
-		[synonym DTCC_11_0, DTCC_9_0 set to EventTimeStampQualificationEnum.eventSubmittedDateTime when "ReceiveTime" exists]
-		[synonym CME_SubmissionIRS_1_0 set to EventTimeStampQualificationEnum.transactionCreationDateTime when path = "TrdCaptRpt.TxnTm"]
-		[synonym CME_SubmissionIRS_1_0 set to EventTimeStampQualificationEnum.eventSentDateTime when path= "TrdCaptRpt.Hdr.Snt"]
-		[synonym CME_SubmissionIRS_1_0 set to EventTimeStampQualificationEnum.executionDateTime when path= "TrdCaptRpt.TrdRegTS.TS" and "TrdCaptRpt.TrdRegTS.Typ" = 1]
+	qualification EventTimestampQualificationEnum (1..1) <"The timestamp qualifier is specified through an enumeration because the experience of integrating the DTCC and CME data representations suggests that a wide set of timestamps are currently utilized among service providers, while there is not at present an objective set of criteria that could help suggest a defined set of timestamps as part of the CDM. At some future point, one possible baseline could be developed from the review of the set of timestamps specified across regulatory regimes and regulations (incl. regulations such as high frequency trading). Also, the integration with a further set of implementations and the specification of business workflows such as clearing as part of the CDM development should help confirm the implementation approach in this respect.">;
+		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 set to EventTimestampQualificationEnum.eventCreationDateTime when "creationTimestamp" exists]
+		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 set to EventTimestampQualificationEnum.eventExpirationDateTime when "expiryTimestamp" exists]
+		[synonym CME_ClearedConfirm_1_17, Rosetta_Workbench set to EventTimestampQualificationEnum.clearingSubmissionDateTime when "submittedForClearing" exists]
+		[synonym DTCC_11_0, DTCC_9_0 set to EventTimestampQualificationEnum.eventSubmittedDateTime when "ReceiveTime" exists]
+		[synonym CME_SubmissionIRS_1_0 set to EventTimestampQualificationEnum.transactionCreationDateTime when path = "TrdCaptRpt.TxnTm"]
+		[synonym CME_SubmissionIRS_1_0 set to EventTimestampQualificationEnum.eventSentDateTime when path= "TrdCaptRpt.Hdr.Snt"]
+		[synonym CME_SubmissionIRS_1_0 set to EventTimestampQualificationEnum.executionDateTime when path= "TrdCaptRpt.TrdRegTS.TS" and "TrdCaptRpt.TrdRegTS.Typ" = 1]
 }
 
 class EventWorkflow <"A class to specify workflow information, which is conceptually applicable to all lifecycle events.">
@@ -379,21 +378,21 @@ class LimitApplicableExtended extends LimitApplicable <"A class to represent the
 
 class Lineage <"A class to provide lineage information across lifecycle events through a pointer or set of pointers into the event(s), contract(s) and, possibly, payout components that the event is dependent on or relates to. As an example, if an inception event is corrected, the correction event will have a lineage into the initial event, which takes the form of a rosettaKey into that initial inception event. Two referencing mechanisms are provided as part of the CDM: either the rosettaKey, which corresponds to the hash value of the CDM class which is referred to, or a reference qualifier which is meant to provide support for the ingestion of xml documents with id/href mechanisms. The CDM recommends the use of the rosettaKey and provides a default implementation which is accessible in the generated code through org.isda.cdm.rosettakey.RosettaKeyValueHashFunction. If implementers want to use an alternative hashing mechanism, the API in which they need to plug it is com.rosetta.model.lib.HashFunction.">
 {
-	contractReference Contract (0..*) rosettaKey reference <"The reference to the instantiation of a Contract object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">;
+	contractReference Contract (0..*) reference <"The reference to the instantiation of a Contract object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">;
 	    [synonym Rosetta_Workbench value contractReference meta href]
-	eventReference Event (0..*) rosettaKey reference <"The reference to the instantiation of an Event object, either through a rosettaKey or an xml-derived id/href mechanism. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">;
+	eventReference Event (0..*) reference <"The reference to the instantiation of an Event object, either through a rosettaKey or an xml-derived id/href mechanism. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">;
 		[synonym Rosetta_Workbench value eventReference meta href]
-	cashflowReference Cashflow (0..*) rosettaKey reference <"The reference to the instantiation of a Cashflow payout component object. An expected typical usage is to provide lineage for the payment of, say, the option premium or the swap initial fee. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">;
+	cashflowReference Cashflow (0..*) reference <"The reference to the instantiation of a Cashflow payout component object. An expected typical usage is to provide lineage for the payment of, say, the option premium or the swap initial fee. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">;
 		[synonym Rosetta_Workbench value cashflowReference meta href] 
-	creditDefaultPayoutReference CreditDefaultPayout (0..*) rosettaKey reference <"The reference to the instantiation of a CreditdefaultPayout component object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">;
+	creditDefaultPayoutReference CreditDefaultPayout (0..*) reference <"The reference to the instantiation of a CreditdefaultPayout component object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">;
 		[synonym Rosetta_Workbench value creditDefaultReference meta href]
-	interestRatePayoutReference InterestRatePayout (0..*) rosettaKey reference <"The reference to the instantiation of a InterestRatePayout component object. An expected typical usage is to provide lineage for the payment of, say, an interest rate swap reset, with the ability to relate the gross cashflow amounts to the respective payout components. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">;
+	interestRatePayoutReference InterestRatePayout (0..*) reference <"The reference to the instantiation of a InterestRatePayout component object. An expected typical usage is to provide lineage for the payment of, say, an interest rate swap reset, with the ability to relate the gross cashflow amounts to the respective payout components. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">;
 		[synonym Rosetta_Workbench value interestRatePayoutReference meta href]
-	optionPayoutReference OptionPayout (0..*) rosettaKey reference <"The reference to the instantiation of a OptionPayout component object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">;
+	optionPayoutReference OptionPayout (0..*) reference <"The reference to the instantiation of a OptionPayout component object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">;
 		[synonym Rosetta_Workbench value optionPayoutReference meta href]
-	equityPayoutReference EquityPayout (0..*) rosettaKey reference <"The reference to the instantiation of a EquityPayout object. An expected typical usage is to provide lineage for the payment of, say, an equity dividend. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">;
+	equityPayoutReference EquityPayout (0..*) reference <"The reference to the instantiation of a EquityPayout object. An expected typical usage is to provide lineage for the payment of, say, an equity dividend. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">;
 		[synonym Rosetta_Workbench value equityPayoutReference meta href]
-	legalDocument LegalDocument (0..*) rosettaKey reference <"The reference to the instantiation of a Legal Document object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">;
+	legalDocument LegalDocument (0..*) reference <"The reference to the instantiation of a Legal Document object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">;
 }
 
 class MessageInformation <"This class corresponds to the components of the FpML MessageHeader.model.">
@@ -586,7 +585,7 @@ class TradeWarehouseWorkflow <"A class to specify trade warehouse workflow infor
 		[synonym CME_SubmissionIRS_1_0 value ignore]
 }
 
-class TransferPrimitive rosettaKey <"A class to specify the transfer of assets between parties, those assets being either cash, securities or physical assets. This class combines components that are cross-assets (settlement date, settlement type, status, ...) and some other which are specialized by asset class (e.g. the payer/receiver amount and cashflow type for a cash transfer, the transferor/transferee, security indication, quantity, and asset transfer type qualification for the case of a security). The associated rosettaKey denotes the ability to associate a hash value to the respective Execution instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+class TransferPrimitive key <"A class to specify the transfer of assets between parties, those assets being either cash, securities or physical assets. This class combines components that are cross-assets (settlement date, settlement type, status, ...) and some other which are specialized by asset class (e.g. the payer/receiver amount and cashflow type for a cash transfer, the transferor/transferee, security indication, quantity, and asset transfer type qualification for the case of a security). The associated rosettaKey denotes the ability to associate a hash value to the respective Execution instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 {
 	identifier string (0..1) scheme <"The identifier which might be associated with the transfer.">;
 		[synonym DTCC_11_0, DTCC_9_0 value tradeCashflowsId path "FpML" meta tradeCashflowsIdScheme]

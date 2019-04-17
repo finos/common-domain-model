@@ -3,7 +3,8 @@ package org.isda.cdm.processor;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.path.RosettaPath;
-import com.rosetta.model.metafields.ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder;
+
+import org.isda.cdm.metafields.ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -36,24 +37,24 @@ public class TradeSideToPartyMappingProcessorTest {
     @Test
     void shouldMapTradeSide1ToPartyA() {
         ReferenceWithMetaPartyBuilder builder = new ReferenceWithMetaPartyBuilder();
-        builder.setReference(TRADE_SIDE_1);
+        builder.setExternalReference(TRADE_SIDE_1);
 
         TradeSideToPartyMappingProcessor processor =
                 new TradeSideToPartyMappingProcessor(rosettaPath, mappings);
         processor.map(builder, null);
 
-        assertEquals(PARTY_A, builder.getReference());
+        assertEquals(PARTY_A, builder.getExternalReference());
     }
 
     @Test
     void shouldMapTradeSide2ToPartyB() {
         ReferenceWithMetaPartyBuilder builder = new ReferenceWithMetaPartyBuilder();
-        builder.setReference(TRADE_SIDE_2);
+        builder.setExternalReference(TRADE_SIDE_2);
 
         TradeSideToPartyMappingProcessor processor =
                 new TradeSideToPartyMappingProcessor(rosettaPath, mappings);
         processor.map(builder, null);
 
-        assertEquals(PARTY_B, builder.getReference());
+        assertEquals(PARTY_B, builder.getExternalReference());
     }
 }
