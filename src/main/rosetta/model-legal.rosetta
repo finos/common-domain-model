@@ -1,7 +1,7 @@
 namespace "org.isda.cdm"
 version "%project.version%"
 
-class AdditionalRegime extends RegimeTerms <"A class to specify the additional regulatory regime(s) that might be specified by the parties to a legal agreement, such as the ISDA 2016 and 2018 CSA for Initial Margin.">
+class AdditionalRegime extends RegimeTerms <"A class to specify the additional regulatory regime(s) that might be elected by the parties to a legal agreement where such provision exists, such as the ISDA 2016 and 2018 CSA for Initial Margin.">
 {
 	regime string (1..1) <"The additional regulatory regime as specified by the parties.">;
 		[synonym ISDA_Create_1_0 value regime_name]
@@ -10,7 +10,8 @@ class AdditionalRegime extends RegimeTerms <"A class to specify the additional r
 class AdditionalRepresentation <"A class to specify the Additional Representation. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (o): Additional Representation(s).">
 {
 	/*
-	 *  TODO - The ISDA Create template for 2016 CSA #44 provide for each part to specify an applicable boolean election alongside with a common specification in the form of a string field.  Having compared two documents which  have distinct elections with respect to the former attribute, I don’t see such election reflected in the pdf resulting document.
+	 * TODO - The ISDA Create template for 2016 CSA #44 provide for each part to specify an applicable boolean election alongside with a common specification in the form of a string field. 
+	 * Having compared two documents which have distinct elections with respect to the former attribute, I don’t see such election reflected in the pdf resulting document.
 	 */
 	partyElection AdditionalRepresentationElection (2..2) <"A qualification as to whether the Additional Representation is applicable.">;
 	customElection string (0..1) <"A supplemental custom election that might be specified by the parties for the purpose of specifying the Additional Representation.">;
@@ -30,15 +31,15 @@ class AdditionalRepresentationElection <"A class to specify the parties' Additio
 
 class AdditionalRightsEvent <"A class to specify the Pledgor/Obligor/Chargor Additional Rights Event election. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (k): Chargor Additional Rights Event. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (k): Obligor Additional Rights Event. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (k): Pledgor Additional Rights Event.">
 {
-	isApplicable boolean (1..1) <"The election of whether the Pledgor Additional Rights Event election is applicable.">;
+	isApplicable boolean (1..1) <"The Pledgor Additional Rights Event election is applicable when True, and not applicable when False.">;
 		[synonym ISDA_Create_1_0 value applicable]
-	qualification string (0..1) <"The qualification of the Pledgor Additional Rights Event election, when applicable.">;
+	qualification string (0..1) <"The qualification of the Pledgor Additional Rights Event election, when specified.">;
 		[synonym ISDA_Create_1_0 value specify]
 }
 
-data rule AdditionalRightsEvent_applicable <"If the Pledgor/Obligor/ChargorAdditional Rights Event election is applicable, its meaning needs to be specified.">
-	when AdditionalRightsEvent -> isApplicable = True
-	then AdditionalRightsEvent -> qualification exists
+data rule AdditionalRightsEvent_qualification <"The Pledgor/Obligor/ChargorAdditional Rights should be qualified only when the Pledgor Additional Rights Event election is specified as applicable.">
+	when AdditionalRightsEvent -> qualification exists
+	then AdditionalRightsEvent -> isApplicable = True
 
 class AdditionalType <"The specification of the Additional Type of transaction that can require the collection or delivery of initial margin under a given regulatory regime for the purposes of Covered Transactions, as specified in ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (b)(B).">
 {
@@ -722,6 +723,11 @@ abstract class LegalAgreementBase <"A class describing the legal agreement basel
 	identifier Identifier (0..*) <"The legal agreement identifier. Several identifiers can be specified.">;
 		[synonym FpML_5_10 value partyDocumentIdentifier path "legalDocumentHeader"]
 		[synonym ISDA_Create_1_0 value id]
+	/*
+	 * The ISDA Create template for the Japanese Law 2016 CSA includes an election that qualifies whether the related master agreement pertains to the 1992 or the 2002 vintage.
+	 * This election hasn't been included so far as part of the CDM because it is felt that it introduces a risk of inconsistency with respect to the actual document reference,
+	 * with no perceived benefit.  Follow-up is in progress with Linklaters to confirm the relevance of this election.
+	 */
 	lineage Lineage (0..1) <"The lineage into prior versions of this legal agreement or into other legal agreements that might be referenced by it.">;
 	agreementType LegalAgreementType (1..1) <"The type of legal agreement, identified via a set of distinct attributes: name, publisher, governing law and version, e.g. ISDA 2013 Standard Credit Support Annex English Law.">;
 		[synonym FpML_5_10 value documentType]
