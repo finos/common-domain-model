@@ -382,6 +382,11 @@ data rule EconomicTerms_extraordinaryEvents <"Extraordinary events provisions mu
 	when EconomicTerms -> extraordinaryEvents exists
 	then EconomicTerms -> payout -> equityPayout exists
 
+data rule CalculationPeriodDates_effectiveDate_terminationDate <"If the effective date and the termination date are specified, then the termination date must be after the effective date. This data rule extends the FpML validation rules ird-14 & cd-5, which scope is limited to the unadjusted date, to the adjusted date.">
+	when effectiveDate exists 
+	and terminationDate exists
+	then effectiveDate > terminationDate
+
 class EquityPayout key <"The equity payout specification terms. The associated rosettaKey denotes the ability to associate a hash value to the EquityPayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[synonym FpML_5_10 meta id]
 {

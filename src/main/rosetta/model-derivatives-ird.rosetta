@@ -116,12 +116,6 @@ class CalculationPeriodDates key <"A class for defining the parameters used to g
 		[synonym FpML_5_10 value calculationPeriodFrequency path "interestLegCalculationPeriodDates.interestLegPaymentDates.periodicDates"]
 }
 
-data rule CalculationPeriodDates_effectiveDate_terminationDate <"If the effective date and the termination date are specified, then the termination date must be after the effective date. This data rule extends the FpML validation rules ird-14 & cd-5, which scope is limited to the unadjusted date, by adding a clause applicable to the adjusted date. This is the result of the usage of CalculationPeriodDates class to support the FRA representation, which in FpML specifies the effective and termination dates as adjusted dates.">
-	when CalculationPeriodDates -> effectiveDate exists
-		and CalculationPeriodDates -> terminationDate exists
-	then CalculationPeriodDates -> terminationDate -> adjustableDate -> unadjustedDate > CalculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
-		or CalculationPeriodDates -> terminationDate -> adjustableDate -> adjustedDate > CalculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate
-
 data rule FpML_ird_16 <"FpML validation rule ird-16 - If firstRegularPeriodStartDate exists within any element of type CalculationPeriodDates, then terminationDate/unadjustedDate must be after firstRegularPeriodStartDate.">
 	when CalculationPeriodDates -> firstRegularPeriodStartDate exists
 	then CalculationPeriodDates -> terminationDate -> adjustableDate -> unadjustedDate > CalculationPeriodDates -> firstRegularPeriodStartDate
