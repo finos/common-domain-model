@@ -767,7 +767,7 @@ class Payout <"A class to represent the set of future cashflow methodologies in 
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value bondOption path "trade"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value bondOption]
 	forwardPayout ForwardPayout (0..*);
-		[synonym FpML_5_10 value trade]
+		[synonym FpML_5_10 value trade set when "trade.fxSingleLeg" exists]
 		[synonym CME_SubmissionIRS_1_0 value ignore]
 	securityPayout SecurityPayout (0..*) <"The security payout when the product involves some form of securities, such as collateral in a securities financing transaction">;
 		[synonym FpML_5_10 value ignore]
@@ -1068,8 +1068,7 @@ isProduct InterestRate_IRSwap_FixedFloat
 		or EconomicTerms -> payout -> interestRatePayout -> stubPeriod exists
 		or EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> stubPeriodType exists
 		or EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> settlementProvision exists )
-	and (EconomicTerms -> payout -> interestRatePayout -> paymentDates exists
-		or paymentDate <> effectiveDate )
+	and EconomicTerms -> payout -> interestRatePayout -> paymentDates exists
 
 isProduct InterestRate_IRSwap_FixedFixed
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFixed]
@@ -1206,10 +1205,28 @@ isProduct ForeignExchange_NDF
 	[synonym ISDA_Taxonomy_v1 value ForeignExchange_NDF]
 	EconomicTerms -> payout -> forwardPayout -> foreignExchange -> nonDeliverableSettlement exists
 	
-alias effectiveDate // Scope limited to interestPayout until such time that we position it to the economicTerms level
-	EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate
+alias effectiveDate
+	EconomicTerms -> effectiveDate -> adjustableDate -> adjustedDate
+	or EconomicTerms -> effectiveDate -> adjustableDate -> unadjustedDate
+	or EconomicTerms -> effectiveDate -> relativeDate -> adjustedDate
+	or EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate
 	or EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
+	or EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> relativeDate -> adjustedDate
+	or EconomicTerms -> payout -> equityPayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate
+	or EconomicTerms -> payout -> equityPayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
+	or EconomicTerms -> payout -> equityPayout -> calculationPeriodDates -> effectiveDate -> relativeDate -> adjustedDate
 
 alias paymentDate // Scope limited to interestPayout until such time that we position it to the economicTerms level
 	EconomicTerms -> payout -> interestRatePayout -> paymentDate -> adjustedDate
 	or EconomicTerms -> payout -> interestRatePayout -> paymentDate -> unadjustedDate
+
+alias terminationDate
+	EconomicTerms -> terminationDate -> adjustableDate -> adjustedDate
+	or EconomicTerms -> terminationDate -> adjustableDate -> unadjustedDate
+	or EconomicTerms -> terminationDate -> relativeDate -> adjustedDate
+	or EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate -> adjustedDate
+	or EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate -> unadjustedDate
+	or EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> relativeDate -> adjustedDate
+	or EconomicTerms -> payout -> equityPayout -> calculationPeriodDates -> terminationDate -> adjustableDate -> adjustedDate
+	or EconomicTerms -> payout -> equityPayout -> calculationPeriodDates -> terminationDate -> adjustableDate -> unadjustedDate
+	or EconomicTerms -> payout -> equityPayout -> calculationPeriodDates -> terminationDate -> relativeDate -> adjustedDate
