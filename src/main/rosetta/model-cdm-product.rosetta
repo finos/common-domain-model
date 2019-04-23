@@ -325,7 +325,7 @@ class CreditDefaultPayout key <"The credit default payout specification provides
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value generalTerms path "trade.creditDefaultSwap"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value generalTerms path "creditDefaultSwap"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value generalTerms]
-	protectionTerms ProtectionTerms (1..*) <"Specifies the terms for calculating a payout to protect the buyer of the swap in the case of a qualified credit event.  These terms include the notional amount, the applicable credit events, the reference obligation, and in the case of a CDS on mortgage-backed securities, the floatingAmountEvents.">;
+	protectionTerms ProtectionTerms (1..*) <"Specifies the terms for calculating a payout to protect the buyer of the swap in the case of a qualified credit event. These terms include the notional amount, the applicable credit events, the reference obligation, and in the case of a CDS on mortgage-backed securities, the floatingAmountEvents.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value protectionTerms path "trade.creditDefaultSwap"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value protectionTerms path "creditDefaultSwap"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value protectionTerms]
@@ -446,8 +446,6 @@ data rule Execution_executionVenue <"When the execution type is set to 'Electron
 	when Execution -> executionType = ExecutionTypeEnum.Electronic
 	then Execution -> executionVenue exists
 
-
-
 data rule EquityPayout_singleUnderlier <"In the case of an equity payout with a single underlier, that underlier needs to be an equity product.">
 	when EquityPayout -> underlier -> singleUnderlier exists
 	then ( EquityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> equity
@@ -501,8 +499,8 @@ class InterestRatePayout key <"A class to specify all of the terms necessary to 
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value dayCountFraction path "calculationPeriodAmount.calculation" meta dayCountFractionScheme]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value dayCountFraction path "periodicPayment.fixedAmountCalculation" meta dayCountFractionScheme]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value dayCountFraction path "periodicPayment.floatingAmountCalculation" meta dayCountFractionScheme]
-    	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value dayCountFraction]
-    	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value dayCountFraction path "interestCalculation" meta dayCountFractionScheme]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value dayCountFraction]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value dayCountFraction path "interestCalculation" meta dayCountFractionScheme]
 	calculationPeriodDates CalculationPeriodDates (0..1) <"The parameters used to generate the calculation period dates schedule, including the specification of any initial or final stub calculation periods.">;
 	paymentDates PaymentDates (0..1) <"The payment date schedule, as defined by the parameters that are needed to specify it, either in a parametric way or by reference to another schedule of dates (e.g. the reset dates).">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentDates]
@@ -525,7 +523,6 @@ class InterestRatePayout key <"A class to specify all of the terms necessary to 
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value stubCalculationPeriodAmount]
 	bondReference BondReference (0..1) <"Reference to a bond underlier to represent an asset swap or Condition Precedent Bond.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value bondReference]
-
 	fixedAmount calculation (0..1) <"Fixed Amount Calculation">;
 	floatingAmount calculation (0..1) <"Floating Amount Calculation">;
 }
@@ -582,7 +579,7 @@ data rule FinalStub_lastRegularPaymentDate <"FpML specifies that lastRegularPaym
 
 data rule SettlementProvision_settlementCurrency <"FpML specifies that the SettlementProvision exists when the settlement currency is different to the notional currency of the trade.">
 	when InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> nonDeliverableSettlement exists
-	then InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> settlementCurrency <>  InterestRatePayout -> quantity -> notionalAmount -> currency
+	then InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> settlementCurrency <> InterestRatePayout -> quantity -> notionalAmount -> currency
 		or InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> settlementCurrency <> InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> currency
 		or InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> settlementCurrency <> InterestRatePayout -> quantity -> fxLinkedNotional -> varyingNotionalCurrency
 
@@ -620,7 +617,7 @@ class NotionalSchedule key <"A class specifying the notional amount or notional 
 	notionalStepSchedule NonNegativeAmountSchedule (1..1) <"The notional amount when expressed as a varying notional alongside a date schedule. The step dates may be subject to adjustments in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notionalStepSchedule]
 		[synonym DTCC_11_0, DTCC_9_0 value notional]
-    notionalStepParameters NotionalStepRule (0..1) <"A parametric representation of the notional step schedule, to be used when the notional schedule is not just specified as a set of dates and notional amount. Those parameters include the step frequency, the first and last notional step dates, the step rate, ...">;
+	notionalStepParameters NotionalStepRule (0..1) <"A parametric representation of the notional step schedule, to be used when the notional schedule is not just specified as a set of dates and notional amount. Those parameters include the step frequency, the first and last notional step dates, the step rate, ...">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notionalStepParameters]
 }
 
@@ -846,10 +843,10 @@ data rule PaymentDates_paymentFrequency <"FpML specifies a required paymentFrequ
 class Product one of <"A class to represent a financial product. With respect to contractual products, this class provides the ability to specify either a post-execution 'view' of contract (the Contract class) or the pre-execution contractual product (the ContractualProduct class). This class is used as part of the option exercise representation, which makes use of the contract attribute for supporting the swaption use case, with the exercise into a swap.">
 {
 	contract Contract (0..1);
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17  value contract]
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value contract]
 	contractualProduct ContractualProduct (0..1);
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value creditDefaultSwap]
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17  value swap]		
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value swap]		
 	index Index (0..1);
 		[synonym FpML_5_10 value index]
 	loan Loan (0..1);
@@ -945,7 +942,7 @@ class TransactedPrice <"A class to represent the transacted price attributes tha
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value quotationStyle path "feeLeg"]
 }
 
-data rule TransactedPrice_marketPrice <"FpML specifies that  marketFixedRate and marketPrice only have meaning in a credit index trade">
+data rule TransactedPrice_marketPrice <"FpML specifies that marketFixedRate and marketPrice only have meaning in a credit index trade">
 	when Payout -> creditDefaultPayout -> generalTerms -> indexReferenceInformation is absent
 	then Payout -> creditDefaultPayout -> transactedPrice -> marketFixedRate is absent
 		and Payout -> creditDefaultPayout -> transactedPrice -> marketPrice is absent
@@ -1002,7 +999,7 @@ isProduct InterestRate_IRSwap_FixedFloat_PlainVanilla <"This product qualificati
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFloat]
 	EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
 	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
-	and  EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
+	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> settlementProvision is absent
 	and EconomicTerms -> payout -> optionPayout is absent
@@ -1203,35 +1200,9 @@ isProduct InterestRate_Fra
 isProduct ForeignExchange
 	[synonym ISDA_Taxonomy_v1 value ForeignExchange_Forward]
 	[synonym ISDA_Taxonomy_v1 value ForeignExchange_Spot]
-	EconomicTerms -> payout -> forwardPayout -> foreignExchange exists and  
+	EconomicTerms -> payout -> forwardPayout -> foreignExchange exists and
 	EconomicTerms -> payout -> forwardPayout -> foreignExchange -> nonDeliverableSettlement is absent
 
 isProduct ForeignExchange_NDF
 	[synonym ISDA_Taxonomy_v1 value ForeignExchange_NDF]
 	EconomicTerms -> payout -> forwardPayout -> foreignExchange -> nonDeliverableSettlement exists
-	
-alias effectiveDate
-	EconomicTerms -> effectiveDate -> adjustableDate -> adjustedDate
-	or EconomicTerms -> effectiveDate -> adjustableDate -> unadjustedDate
-	or EconomicTerms -> effectiveDate -> relativeDate -> adjustedDate
-	or EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate
-	or EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
-	or EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> relativeDate -> adjustedDate
-	or EconomicTerms -> payout -> equityPayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate
-	or EconomicTerms -> payout -> equityPayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
-	or EconomicTerms -> payout -> equityPayout -> calculationPeriodDates -> effectiveDate -> relativeDate -> adjustedDate
-
-alias paymentDate // Scope limited to interestPayout until such time that we position it to the economicTerms level
-	EconomicTerms -> payout -> interestRatePayout -> paymentDate -> adjustedDate
-	or EconomicTerms -> payout -> interestRatePayout -> paymentDate -> unadjustedDate
-
-alias terminationDate
-	EconomicTerms -> terminationDate -> adjustableDate -> adjustedDate
-	or EconomicTerms -> terminationDate -> adjustableDate -> unadjustedDate
-	or EconomicTerms -> terminationDate -> relativeDate -> adjustedDate
-	or EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate -> adjustedDate
-	or EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate -> unadjustedDate
-	or EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> relativeDate -> adjustedDate
-	or EconomicTerms -> payout -> equityPayout -> calculationPeriodDates -> terminationDate -> adjustableDate -> adjustedDate
-	or EconomicTerms -> payout -> equityPayout -> calculationPeriodDates -> terminationDate -> adjustableDate -> unadjustedDate
-	or EconomicTerms -> payout -> equityPayout -> calculationPeriodDates -> terminationDate -> relativeDate -> adjustedDate

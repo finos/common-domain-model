@@ -8,13 +8,13 @@ calculation FixedAmount <"2006 ISDA Definition Article 5 Section 5.1. Calculatio
 	where
 		calculationAmount	: InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
 		fixedRate			: InterestRatePayout -> rateSpecification -> fixedRate -> initialValue
-	    dayCountFraction	: InterestRatePayout -> dayCountFraction
+		dayCountFraction	: InterestRatePayout -> dayCountFraction
 }
 
 calculation FloatingAmount <"2006 ISDA Definition Article 6 Section 6.1. Calculation of a Floating Amount: Subject to the provisions of Section 6.4 (Negative Interest Rates), the Floating Amount payable by a party on a Payment Date will be: (a) if Compounding is not specified for the Swap Transaction or that party, an amount calculated on a formula basis for that Payment Date or for the related Calculation Period as follows: Floating Amount = Calculation Amount × Floating Rate + Spread × Floating Rate Day Count Fraction (b) if “Compounding” is specified to be applicable to the Swap Transaction or that party and 'Flat Compounding' is not specified, an amount equal to the sum of the Compounding Period Amounts for each of the Compounding Periods in the related Calculation Period; or (c) if 'Flat Compounding' is specified to be applicable to the Swap Transaction or that party, an amount equal to the sum of the Basic Compounding Period Amounts for each of the Compounding Periods in the related Calculation Period plus the sum of the Additional Compounding Period Amounts for each such Compounding Period.">
 {
 	 // TODO - The below calculation needs to be refined for the case of negative interest rate and compounding
-	 // TODO - The ISDA 2006 doesn't make reference to the FpML floatingRateMultiplierSchedule.  
+	 // TODO - The ISDA 2006 doesn't make reference to the FpML floatingRateMultiplierSchedule.
 	 // Discussed resolution path with Jonathan & Harry is for Jonathan to ask the Rates Committee if the rate multiplier is actually used.
 	 
 	floatingAmount = calculationAmount * ( floatingRate + spread ) * dayCountFraction
@@ -131,7 +131,7 @@ calculation DayCountFractionEnum._30E_360 <"2006 ISDA Definition Article 4 secti
 		endMonth <"The calendar month, expressed as a number, in which the day immediately following the last day included in the Calculation Period or Compounding Period falls">:
 			calculationPeriod -> endDate -> month
 		
-		endDay  <"The first calendar day, expressed as a number, of the Calculation Period or Compounding Period, unless such number would be 31, in which case will be 30">:
+		endDay <"The first calendar day, expressed as a number, of the Calculation Period or Compounding Period, unless such number would be 31, in which case will be 30">:
 			Min( calculationPeriod -> endDate -> day, 30 )
 		
 		startDay <"The calendar day, expressed as a number, immediately following the last day included in the Calculation Period or Compounding Period, unless such number would be 31, in which case will be 30"> :
@@ -168,17 +168,17 @@ calculation DayCountFractionEnum._30E_360_ISDA <"2006 ISDA Definition Article 4 
 			calculationPeriod -> endDate -> month
 			
 		startDay <"The first calendar day, expressed as a number, of the Calculation Period or Compounding Period, unless (i) that day is the last day of February or (ii) such number would be 31, in which case will be 30">:
-			 if ( (startDateIsInLeapYear = False and calculationPeriod -> startDate -> month = 2 and calculationPeriod -> startDate -> day = 28)
-	  				      or (startDateIsInLeapYear = True  and calculationPeriod -> startDate -> month = 2 and calculationPeriod -> startDate -> day = 29)
-	  				      or (calculationPeriod -> startDate -> day = 31)) = True 
-	  				    then 30 else calculationPeriod -> startDate -> day
+			if ( (startDateIsInLeapYear = False and calculationPeriod -> startDate -> month = 2 and calculationPeriod -> startDate -> day = 28)
+				or (startDateIsInLeapYear = True and calculationPeriod -> startDate -> month = 2 and calculationPeriod -> startDate -> day = 29)
+				or (calculationPeriod -> startDate -> day = 31)) = True 
+			then 30 else calculationPeriod -> startDate -> day
 			
 		endDay <"The calendar day, expressed as a number, immediately following the last day included in the Calculation Period or Compounding Period, unless (i) that day is the last day of February but not the Termination Date or (ii) such number would be 31, in which case will be 30">:
 			if ( (endDateIsInLeapYear = False and calculationPeriod -> endDate -> month = 2 and calculationPeriod -> endDate -> day = 28)
-					      or (endDateIsInLeapYear = True  and calculationPeriod -> endDate -> month = 2 and calculationPeriod -> endDate -> day = 29)
-				          or (calculationPeriod -> endDate -> day = 31)
-					      or (calculationPeriod -> endDate = interestRatePayoutTerminationDate -> adjustedDate)) = True 
-					    then 30 else calculationPeriod -> endDate -> day
+				or (endDateIsInLeapYear = True and calculationPeriod -> endDate -> month = 2 and calculationPeriod -> endDate -> day = 29)
+				or (calculationPeriod -> endDate -> day = 31)
+				or (calculationPeriod -> endDate = interestRatePayoutTerminationDate -> adjustedDate)) = True 
+			then 30 else calculationPeriod -> endDate -> day
 }
 
 calculation DayCountFractionEnum.ACT_365L <"The actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 365 (or, if the later Period End Date of the Calculation Period or Compounding Period falls in a leap year, divided by 366). ">
