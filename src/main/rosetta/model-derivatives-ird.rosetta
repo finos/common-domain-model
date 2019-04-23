@@ -116,34 +116,29 @@ class CalculationPeriodDates key <"A class for defining the parameters used to g
 		[synonym FpML_5_10 value calculationPeriodFrequency path "interestLegCalculationPeriodDates.interestLegPaymentDates.periodicDates"]
 }
 
-data rule FpML_ird_16 <"FpML validation rule ird-16 - If firstRegularPeriodStartDate exists within any element of type CalculationPeriodDates, then terminationDate/unadjustedDate must be after firstRegularPeriodStartDate.">
+data rule FpML_ird_16 <"FpML validation rule ird-16 - If firstRegularPeriodStartDate exists within any element of type CalculationPeriodDates, then terminationDate/unadjustedDate must be after firstRegularPeriodStartDate. This data rule applies within a given interest rate payout component.">
 	when CalculationPeriodDates -> firstRegularPeriodStartDate exists
 	then CalculationPeriodDates -> terminationDate -> adjustableDate -> unadjustedDate > CalculationPeriodDates -> firstRegularPeriodStartDate
 
-data rule FpML_ird_17 <"FpML validation rule ird-17 - If lastRegularPeriodEndDate exists, then terminationDate/unadjustedDate must be after lastRegularPeriodEndDate.">
+data rule FpML_ird_17 <"FpML validation rule ird-17 - If lastRegularPeriodEndDate exists, then terminationDate/unadjustedDate must be after lastRegularPeriodEndDate. This data rule applies within a given interest rate payout component.">
 	when CalculationPeriodDates -> lastRegularPeriodEndDate exists
 	then CalculationPeriodDates -> terminationDate -> adjustableDate -> unadjustedDate > CalculationPeriodDates -> lastRegularPeriodEndDate
 
-data rule FpML_ird_18 <"FpML validation rule ird-18 - If firstRegularPeriodStartDate exists, and if lastRegularPeriodEndDate exists, then lastRegularPeriodEndDate must be after firstRegularPeriodStartDate.">
+data rule FpML_ird_18 <"FpML validation rule ird-18 - If firstRegularPeriodStartDate exists, and if lastRegularPeriodEndDate exists, then lastRegularPeriodEndDate must be after firstRegularPeriodStartDate. This data rule applies within a given interest rate payout component.">
 	when (CalculationPeriodDates -> firstRegularPeriodStartDate
 		and CalculationPeriodDates -> lastRegularPeriodEndDate) exists
 	then CalculationPeriodDates -> lastRegularPeriodEndDate > CalculationPeriodDates -> firstRegularPeriodStartDate
 
-data rule FpML_ird_20 <"FpML validation rule ird-20 - If lastRegularPeriodEndDate exists, then lastRegularPeriodEndDate must be after effectiveDate/unadjustedDate.">
+data rule FpML_ird_20 <"FpML validation rule ird-20 - If lastRegularPeriodEndDate exists, then lastRegularPeriodEndDate must be after effectiveDate/unadjustedDate. This data rule applies within a given interest rate payout component.">
 	when CalculationPeriodDates -> lastRegularPeriodEndDate exists
 	then CalculationPeriodDates -> lastRegularPeriodEndDate > CalculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
 
-data rule FpML_ird_21_payoutEffectiveDate <"FpML validation rule ird-21 - If firstPeriodStartDate exists, then firstPeriodStartDate/unadjustedDate must be before effectiveDate/unadjustedDate. This implementation of the data rule is meant to tackle the case where the effective date is specified at the payout level.">
+data rule FpML_ird_21 <"FpML validation rule ird-21 - If firstPeriodStartDate exists, then firstPeriodStartDate/unadjustedDate must be before effectiveDate/unadjustedDate. This data rule applies within a given interest rate payout component.">
 	when CalculationPeriodDates -> firstPeriodStartDate exists
 		and CalculationPeriodDates -> effectiveDate exists
 	then CalculationPeriodDates -> firstPeriodStartDate -> unadjustedDate < CalculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
 
-data rule FpML_ird_21_economicTermsEffectiveDate <"FpML validation rule ird-21 - If firstPeriodStartDate exists, then firstPeriodStartDate/unadjustedDate must be before effectiveDate/unadjustedDate. This implementation of the data rule is meant to tackle the case where the effective date is specified at the economic terms level.">
-	when ( EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> firstPeriodStartDate
-		and EconomicTerms -> effectiveDate ) exists
-	then EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> firstPeriodStartDate -> unadjustedDate < EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
-
-data rule FpML_ird_22 <"FpML validation rule ird-22 - If firstPeriodStartDate exists, and if firstRegularPeriodStartDate exists, then firstPeriodStartDate/unadjustedDate must be before firstRegularPeriodStartDate.">
+data rule FpML_ird_22 <"FpML validation rule ird-22 - If firstPeriodStartDate exists, and if firstRegularPeriodStartDate exists, then firstPeriodStartDate/unadjustedDate must be before firstRegularPeriodStartDate. This data rule applies within a given interest rate payout component.">
 	when CalculationPeriodDates -> firstPeriodStartDate exists
 		and CalculationPeriodDates -> firstRegularPeriodStartDate exists
 	then CalculationPeriodDates -> firstPeriodStartDate -> unadjustedDate < CalculationPeriodDates -> firstRegularPeriodStartDate
