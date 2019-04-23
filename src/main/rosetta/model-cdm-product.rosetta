@@ -15,13 +15,12 @@ class Cashflow key <"A class to specify a cashflow, i.e. the outcome of either o
 		[synonym Rosetta_Workbench value cashflowCalculation]
 	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, e.g. brokerage fee, premium, upfront fee etc. Particularly relevant when it cannot be inferred directly through lineage.">;
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentType]
-//		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 set to CashflowTypeEnum.Premium when path = "premium"]
 	discountFactor number (0..1) <"The value representing the discount factor used to calculate the present value of the cashflow.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value discountFactor]
 	presentValueAmount Money (0..1) <"The amount representing the present value of the forecast payment.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value presentValueAmount]
 	paymentDelay boolean (0..1) <"Applicable to CDS on MBS to specify whether payment delays are applicable to the fixed Amount. RMBS typically have a payment delay of 5 days between the coupon date of the reference obligation and the payment date of the synthetic swap. CMBS do not, on the other hand, with both payment dates being on the 25th of each month.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentDelay]
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentDelay path "trade.creditDefaultSwap.feeLeg"]
 }
 
 data rule Cashflow_cashflowAmount <"The cashflow amount should be a positive number, as the cashflow direction is indeed implied by the payer/receiver attribute.">
@@ -760,7 +759,7 @@ class Payout <"A class to represent the set of future cashflow methodologies in 
 	creditDefaultPayout CreditDefaultPayout (0..1) <"The credit default payout, which provides the details necessary for determining when a credit payout will be triggered as well as the parameters for calculating the payout and the settlement terms.">;
 	equityPayout EquityPayout (0..*) <"The equity payout, which encompasses the equity price returns, dividend returns, volatility and variance return provisions.">;
 		[synonym FpML_5_10 value returnLeg path "trade.returnSwap", returnLeg path "trade.equitySwapTransactionSupplement"]
-		[synonym CME_SubmissionIRS_1_0 value ignore]
+		[synonym CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0 value ignore]
 	optionPayout OptionPayout (0..*) <"The option payout.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value swaption path "trade"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value swaption]
@@ -770,7 +769,7 @@ class Payout <"A class to represent the set of future cashflow methodologies in 
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value bondOption]
 	forwardPayout ForwardPayout (0..*);
 		[synonym FpML_5_10 value trade set when "trade.fxSingleLeg" exists]
-		[synonym CME_SubmissionIRS_1_0 value ignore]
+		[synonym CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0 value ignore]
 	securityPayout SecurityPayout (0..*) <"The security payout when the product involves some form of securities, such as collateral in a securities financing transaction">;
 		[synonym FpML_5_10 value ignore]
 	cashflow Cashflow (0..*) <"A cashflow between the parties to the trade. For interest rate and equity products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the FpML initialPayment element and the singlePayment element of the fee leg. For option products, it represents the FpML premium element.">;
@@ -783,7 +782,7 @@ class Payout <"A class to represent the set of future cashflow methodologies in 
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value singlePayment path "creditDefaultSwap.feeLeg"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value singlePayment]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint paymentDelay]
-//		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value feeLeg set when "feeLeg.periodicPayment" is absent]
+//		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint payerReceiver]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value premium path "trade.swaption"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value premium path "swaption"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value premium path "trade.creditDefaultSwapOption"]
@@ -795,30 +794,24 @@ class Payout <"A class to represent the set of future cashflow methodologies in 
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value otherPartyPayment]
 }
 
-//data rule FpML_cd_26_28 <"This data rule corresponds to two FpML validation rules, as the singlePayment and the firstPayment have been represented through the same Payout/cashflow attribute. It has also been adjusted to take into consideration the fact that credit derivatives (i) might not have an effective date, while in some other cases the payment date is either (ii) absent, or (iii) specified as a relative date (e.g. to the trade date). FpML validation rule cd-26 - If feeLeg/singlePayment/adjustablePaymentDate exists, then feeLeg/singlePayment/adjustablePaymentDate must be after generalTerms/effectiveDate/unadjustedDate. FpML validation rule cd-28 - If feeLeg/periodicPayment/firstPaymentDate exists, then feeLeg/periodicPayment/firstPaymentDate must be after generalTerms/effectiveDate/unadjustedDate.">
-//	when Payout -> creditDefaultPayout exists
-//		and Payout -> cashflow exists
-//		and Payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate exists
-//		and Payout -> cashflow -> cashflowDate -> unadjustedDate exists
-//		and Payout -> cashflow -> cashflowDate -> relativeDate is absent
-//	then Payout -> cashflow -> cashflowDate -> unadjustedDate > Payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
-
-data rule FpML_cd_26_28_new <"This data rule corresponds to two FpML validation rules, as the singlePayment and the firstPayment have been represented through the same Payout/cashflow attribute. It has also been adjusted to take into consideration the fact that credit derivatives (i) might not have an effective date, while in some other cases the payment date is either (ii) absent, or (iii) specified as a relative date (e.g. to the trade date). FpML validation rule cd-26 - If feeLeg/singlePayment/adjustablePaymentDate exists, then feeLeg/singlePayment/adjustablePaymentDate must be after generalTerms/effectiveDate/unadjustedDate. FpML validation rule cd-28 - If feeLeg/periodicPayment/firstPaymentDate exists, then feeLeg/periodicPayment/firstPaymentDate must be after generalTerms/effectiveDate/unadjustedDate.">
+data rule FpML_cd_26_28 <"FpML validation rule cd-26 - If feeLeg/singlePayment/adjustablePaymentDate exists, then feeLeg/singlePayment/adjustablePaymentDate must be after generalTerms/effectiveDate/unadjustedDate. FpML validation rule cd-28 - If feeLeg/periodicPayment/firstPaymentDate exists, then feeLeg/periodicPayment/firstPaymentDate must be after generalTerms/effectiveDate/unadjustedDate. This data rule tackles those two FpML validation rules at once, as the singlePayment and the firstPayment have been represented through the same Payout/cashflow attribute.">
 	when EconomicTerms -> payout -> creditDefaultPayout exists
 		and EconomicTerms -> payout -> cashflow exists
 		and EconomicTerms -> effectiveDate exists
 		and EconomicTerms -> payout -> cashflow -> cashflowDate -> unadjustedDate exists
 		and EconomicTerms -> payout -> cashflow -> cashflowDate -> relativeDate is absent
 	then EconomicTerms -> payout -> cashflow -> cashflowDate -> unadjustedDate > EconomicTerms -> effectiveDate -> adjustableDate -> unadjustedDate
+		or EconomicTerms -> payout -> cashflow -> cashflowDate -> adjustedDate > EconomicTerms -> effectiveDate -> adjustableDate -> adjustedDate
+		or EconomicTerms -> payout -> cashflow -> cashflowDate -> relativeDate -> adjustedDate > EconomicTerms -> effectiveDate -> relativeDate -> adjustedDate
 
-data rule FpML_cd_27 <"As the singlePayment and the initialPayment have been represented through the same Payout/cashflow attribute, this data rule addresses both the FpML cd-27 validation rule as well as the corresponding logic for the initialPayment date (which doesn't have an associated FpML validation rule). It has also been adjusted to take into consideration the fact that credit derivatives (i) might not have a termination date, while in some other cases the payment date is either (ii) absent, or (iii) specified as a relative date (e.g. to the trade date). FpML validation rule cd-27 - If feeLeg/singlePayment/adjustablePaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/singlePayment/adjustablePaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
+data rule FpML_cd_27 <"FpML validation rule cd-27 - If feeLeg/singlePayment/adjustablePaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/singlePayment/adjustablePaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
 	when EconomicTerms -> payout -> creditDefaultPayout exists
 		and EconomicTerms -> payout -> cashflow exists
 		and EconomicTerms -> terminationDate exists
 		and EconomicTerms -> payout -> cashflow -> cashflowDate exists
-		and EconomicTerms -> payout -> cashflow -> cashflowDate -> relativeDate is absent
-	then EconomicTerms -> payout -> cashflow -> cashflowDate -> unadjustedDate < EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate -> unadjustedDate
-
+	then EconomicTerms -> payout -> cashflow -> cashflowDate -> unadjustedDate < EconomicTerms -> terminationDate -> adjustableDate -> unadjustedDate
+		or EconomicTerms -> payout -> cashflow -> cashflowDate -> adjustedDate < EconomicTerms -> terminationDate -> adjustableDate -> adjustedDate
+		or EconomicTerms -> payout -> cashflow -> cashflowDate -> relativeDate -> adjustedDate < EconomicTerms -> terminationDate -> adjustableDate -> adjustedDate
 
 data rule FpML_cd_30 <"FpML validation rule cd-30 - If feeLeg/periodicPayment/lastRegularPaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/periodicPayment/lastRegularPaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
 	when (EconomicTerms -> payout -> interestRatePayout -> paymentDates -> lastPaymentDate -> lastRegularPaymentDate
