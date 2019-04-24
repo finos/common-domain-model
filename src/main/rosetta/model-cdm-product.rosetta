@@ -274,6 +274,7 @@ class ContractualQuantity <"A class to specify the quantity or notional amount t
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notional]
 		[synonym FpML_5_10 value notionalAmount path "trade.returnSwap.returnLeg.notional", notionalAmount path "trade.equitySwapTransactionSupplement.returnLeg.notional"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notionalReference meta href]
+		[synonym FpML_5_10 value settlementAmount path "nearLeg"]
 	notionalSchedule NotionalSchedule (0..1) <"The contractual quantity when specified as a notional amount with an associated schedule, as used in the case of an amortizing swap where the notional amount decreases over time.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notionalSchedule path "calculationPeriodAmount.calculation" /*set when "calculationPeriodAmount.calculation.notionalSchedule.notionalStepSchedule.step" exists*/]
 		[synonym DTCC_11_0, DTCC_9_0 value calculationElements]
@@ -634,22 +635,31 @@ class OptionPayout key <"The option payout specification terms. The associated r
 	underlier Product (1..1) <"The option underlier. The implementation is restricted to contractual underliers as part of the initial CDM phase.">;
 }
 
-class SecurityLeg <"Terms defining a security leg in a securities financing transaction, which can either be the near leg or the far leg and is closely modelled onto the nearLeg and farLeg types in FpML">
+class SecurityLeg key <"Terms defining a security leg in a securities financing transaction, which can either be the near leg or the far leg and is closely modelled onto the nearLeg and farLeg types in FpML">
+	[synonym FpML_5_10 meta id]
 {
 	buyerSeller BuyerSeller (1..1) <"Whether the leg is a buyer or seller of security">;
 	settlementDate AdjustableOrRelativeDate (1..1) <"Settlement or Payment Date for the security leg">;
-		// [synonym FpML_5_10 value deliveryDate]
-	settlementAmount Money (1..1) <"Settlement amount for the security leg">;
+		[synonym FpML_5_10 value settlementDate]
+	settlementAmount Money (0..1) <"Settlement amount for the security leg">;
+		[synonym FpML_5_10 value settlementAmount]
+	settlementCurrency string (0..1) <"Settlement Currency for use where the Settlement Amount cannot be known in advance.">;
+		[synonym FpML_5_10 value settlementCurrency]
 	fxRate ExchangeRate (0..1) <"FX rate in case when cash settlement amount is in a different currency to the security.">;
 	deliveryDate AdjustableOrRelativeDate (0..1) <"Delivery Date for the transaction. Delivery Date can be populated when it is not equal to the Settlement Date.">;
-		// [synonym FpML_5_10 value deliveryDate]
-	// To add: deliveryMethod
-	securityValuation SecurityValuation (1..*) <"The underlying securities and their valuation for the security leg.">;
+		[synonym FpML_5_10 value deliveryDate]
+	deliveryMethod DeliveryMethodEnum (1..1) <"Specifies a delivery method for the security transaction.">;
+		[synonym FpML_5_10 value deliveryMethod]
 }
+
+choice rule SecurityLeg_choice
+	for SecurityLeg required choice between 
+	settlementAmount and settlementCurrency
 
 class SecurityValuation <"Terms defining the security valuation method as part of a security leg in a securities fianncing transaction and closely modelled onto the CollateralValuation type in FpML.">
 {
 	securityValuationModel SecurityValuationModel (1..1) <"The security valuation model choice, based on either a nominal amount or a number of units.">;
+		[synonym FpML_5_10 value collateral]
 	underlier Security (1..1) <"The underlying security of the security leg.">;
 }
 
@@ -662,6 +672,7 @@ class SecurityValuationModel one of <"The security valuation model choice, which
 class BondValuationModel <"Bond valuation model for the security leg in a securities financing transaction, closely modelled onto the BondCollateral.model in FpML.">
 {
 	nominalAmount Money (1..1) <"The quantity of the underlier expressed as a nominal amount.">;
+		[synonym FpML_5_10 value nominalAmount]
 	bondPriceAndYieldModel BondPriceAndYieldModel (1..1) <"Price and yield model for valuing a bond security leg.">;
 	accrualsAmount Money (0..1) <"Accruals amount for the bond in the security leg">;
 }
@@ -675,16 +686,19 @@ class BondPriceAndYieldModel <"Bond price and yield valuation model for the secu
 	allInPrice number (0..1) <"Bond all-in-price which is a price that includes all relevant price adjustments (i.e. accrued interest, haircut or margin ratio, inflation factor,etc.). It expresses a price in terms of percentage of nominal amount.">;
 }
 
-class CleanOrDirtyPrice one of <"Class specifying the bond price as either clean or dirty in a bond valuation model.">
+class CleanOrDirtyPrice <"Class specifying the bond price as either clean or dirty in a bond valuation model.">
 {
 	cleanPrice CleanPrice (0..1) <"The clean price and accruals presented separately.">;
 	dirtyPrice number (0..1) <"The dirty price presented as a single number.">;
+		[synonym FpML_5_10 value dirtyPrice]
 }
 
 class CleanPrice <"Class to specify the clean price of a bond in a bond valuation model, with accruals presented separately, and modelled onto the cleanPrice model in BonPriceAndYield.model in FpML.">
 {
 	cleanPrice number (1..1) <"The clean price as a number.">;
+		[synonym FpML_5_10 value cleanPrice]
 	accruals number (0..1) <"The accruals as a number.">;
+		[synonym FpML_5_10 value accruals]
 	dirtyPrice calculation (0..1) <"Placeholder for a calculation of dirtyPrice based on cleanPrice and accruals.">;
 }
 
@@ -714,9 +728,53 @@ class UnitContractValuationModel <"Unit contract model for security valuation, e
 
 class SecurityPayout key <"Security payout specification in case the product payout involves some form of security collateral, as in a securities financing transaction.">
 {
-	securityLeg SecurityLeg (0..*) <"Each SecurityLeg represent a buy/sell at different dates, typically 1 near leg and 1 far leg in a securities financing transaction.">;
+	securityLeg SecurityLeg (1..*) <"Each SecurityLeg represent a buy/sell at different dates, typically 1 near leg and 1 far leg in a securities financing transaction.">;
+		[synonym FpML_5_10 value nearLeg]
+		[synonym FpML_5_10 value farLeg]
 	// TO DO: triParty, collateral substitutions, callDate and callingParty for an evergreen transaction (or should this be part of an Option Payout?)
-}	
+	initialMargin InitialMargin (0..1) <"RepoDurationEnum.">;
+		[synonym FpML_5_10 value initialMargin]
+	repoDuration RepoDurationEnum (0..1) <"A duration code for the repo transaction. This defines a type of a repo transaction with fixed duration.">;
+		[synonym FpML_5_10 value duration]
+	securityValuation SecurityValuation (1..*) <"The underlying securities and their valuation for the security leg.">;
+		[synonym FpML_5_10 value nearLeg, bond]
+}
+
+class InitialMargin <"Defines initial margin applied to a repo transaction. Initial margin is an agreed premium to the Purchase Price of a repo to determine the required Market Value of the collateral to be delivered on the Purchase Date. It reflects quality of the collateral. Its aim is to calculate the risk-adjusted or liquidation value of collateral."> 
+{
+	marginType MarginTypeEnum (1..1) <"An element defining the type of assets (cash or securities) specified to apply as margin to the repo transaction. See GMRA 2011 paragraph 2(h) for 'Cash Margin' and GMRA 2011 paragraph 2(cc) for 'Margin Securities'.">;
+		[synonym FpML_5_10 value marginType]
+	margin InitialMarginCalculation (1..*) <"Initial margin calculation for a collateral asset. Initial margin requirements may be specified for multiple pieces of collateral.">;
+		[synonym FpML_5_10 value margin]
+	marginThreshold Money (0..1) <"An element defining a margin threshold which is the Net Exposure of a trade below which parties agree they will not call a margin from each other.">;
+		[synonym FpML_5_10 value marginThreshold]
+	minimumTransferAmount Money (0..1) <"An element defining a minimum transfer amount which is the minimum margin call parties will make once the margin threshold (or margin ratio threshold / haircut threshold) has been exceeded.">;
+		[synonym FpML_5_10 value minimumTransferAmount]
+}
+
+data rule InitialMargin_marginThreshold 
+	when InitialMargin -> marginThreshold exists
+	then InitialMargin -> marginThreshold -> amount > 0
+	
+data rule InitialMargin_minimumTransferAmount 
+	when InitialMargin -> minimumTransferAmount exists
+	then InitialMargin -> minimumTransferAmount -> amount > 0
+
+class InitialMarginCalculation <"Defines the initial margin calculation applicable to a single piece of collateral.">
+{
+	marginRatio number (0..1) <"An element defining an initial margin expressed as a ratio of the Market Value of the collateral to the Purchase Price. A default value of initial margin ratio of 1.00 means there is no margin and thus no risk related with the collateral. See GMRA 2000 paragraph 2(z) and GMRA 2011 paragraph 2(bb).">;
+		[synonym FpML_5_10 value marginRatio]
+	marginRatioThreshold number (0..2) <"An element defining a margin ratio threshold which is the value above (when it's lower than initial margin ratio) or below (when it's higher than initial margin ratio) which parties agree they will not call a margin from each other.">;
+		[synonym FpML_5_10 value marginRatioThreshold]
+	haircut number (0..1) <"An element defining a haircut expressed as the percentage difference between the Market Value of the collateral and the Purchase Price of the repo and calculated as 100 multiplied by a ratio of the difference between the Market Value of the collateral and the Purchase Price of the repo to the Market Value of the collateral. Haircut is alternative way to adjust the value of collateral sold in a repurchase agreement to initial margin ratio. Because an initial margin is a percentage of the Purchase Price, while a haircut is a percentage of the Market Value of collateral, the arithmetic of initial margins and haircuts is slightly different. For example, an initial margin of 102% is not equivalent to a haircut of 2%, but to 1.961% (ie 100/102%). See GMRA 2011 paragraph 2(aa).">;
+		[synonym FpML_5_10 value haircut]
+	haircutThreshold number (0..2) <"An element defining a haircut percentage threshold which is the value above (when it's lower than initial haircut) or below (when it's higher than initial haircut) which parties agree they will not call a margin from each other.">;
+		[synonym FpML_5_10 value haircutThreshold]
+}
+
+choice rule InitialMarginCalculation_choice
+	for InitialMarginCalculation required choice between 
+	marginRatio and haircut
 
 /*
 TO DO ON SECURITY PAYOUT:
@@ -745,6 +803,7 @@ class Payout <"A class to represent the set of future cashflow methodologies in 
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value fra path "trade" mapper FRAIRPSplitter]
 		[synonym CME_SubmissionIRS_1_0 value fra mapper FRAIRPSplitter]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value interestLeg path "trade.returnSwap", interestLeg path "trade.equitySwapTransactionSupplement"]
+		[synonym FpML_5_10 value repo path "trade"]
 	creditDefaultPayout CreditDefaultPayout (0..1) <"The credit default payout, which provides the details necessary for determining when a credit payout will be triggered as well as the parameters for calculating the payout and the settlement terms.">;
 	equityPayout EquityPayout (0..*) <"The equity payout, which encompasses the equity price returns, dividend returns, volatility and variance return provisions.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value returnLeg path "trade.returnSwap", returnLeg path "trade.equitySwapTransactionSupplement"]
@@ -759,7 +818,7 @@ class Payout <"A class to represent the set of future cashflow methodologies in 
 		[synonym FpML_5_10 value trade]
 		[synonym CME_SubmissionIRS_1_0 value ignore]
 	securityPayout SecurityPayout (0..*) <"The security payout when the product involves some form of securities, such as collateral in a securities financing transaction">;
-		[synonym FpML_5_10 value ignore]
+		[synonym FpML_5_10 value repo path "trade"]
 	cashflow Cashflow (0..*) <"A cashflow between the parties to the trade. For interest rate and equity products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the FpML initialPayment element and the singlePayment element of the fee leg. For option products, it represents the FpML premium element.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value additionalPayment path "trade.swap"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value additionalPayment path "swap"]
@@ -1183,6 +1242,10 @@ isProduct ForeignExchange
 isProduct ForeignExchange_NDF
 	[synonym ISDA_Taxonomy_v1 value ForeignExchange_NDF]
 	EconomicTerms -> payout -> forwardPayout -> foreignExchange -> nonDeliverableSettlement exists
+
+isProduct RepurchaseAgreement
+	EconomicTerms -> payout -> securityPayout -> securityLeg count >= 1 and 
+	EconomicTerms -> payout -> interestRatePayout count = 1
 	
 alias effectiveDate // Scope limited to interestPayout until such time that we position it to the economicTerms level
 	EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate
@@ -1191,3 +1254,5 @@ alias effectiveDate // Scope limited to interestPayout until such time that we p
 alias paymentDate // Scope limited to interestPayout until such time that we position it to the economicTerms level
 	EconomicTerms -> payout -> interestRatePayout -> paymentDate -> adjustedDate
 	or EconomicTerms -> payout -> interestRatePayout -> paymentDate -> unadjustedDate
+
+	
