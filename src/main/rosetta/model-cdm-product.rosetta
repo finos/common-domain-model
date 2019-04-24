@@ -253,8 +253,8 @@ data rule FpML_cd_25 <"FpML validation rule cd-25 - If the condition LongForm is
 data rule FpML_cd_32 <"FpML validation rule cd-32 - If condition LongForm is true, and if fixedAmountCalculation/calculationAmount exists, then fixedAmountCalculation/dayCountFraction must exist.">
 	when ( Contract -> documentation -> documentationIdentification -> masterConfirmation and Contract -> documentation -> documentationIdentification -> contractualMatrix ) is absent
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
-	 	and Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
-	 then Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> dayCountFraction exists
+		and Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
+	then Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> dayCountFraction exists
 
 class ContractualProduct <"A class to specify the contractual products' economic terms, alongside their product identification and product taxonomy. The contractual product class is meant to be used across the pre-execution, execution and (as part of the Contract) post-execution lifecycle contexts.">
 {
@@ -281,7 +281,7 @@ class ContractualQuantity <"A class to specify the quantity or notional amount t
 	fxLinkedNotional FxLinkedNotionalSchedule (0..1) <"The contractual quantity when specified as a notional amount which value is a function of FX parameters.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value fxLinkedNotionalSchedule path "calculationPeriodAmount.calculation" /*set when "calculationPeriodAmount.calculation.fxLinkedNotionalSchedule.initialValue" exists*/]
 	futureValueNotional FutureValueAmount (0..1) <"The future value notional is specific to BRL CDI swaps, and is specified alongside the notional amount. The value is calculated as follows: Future Value Notional = Notional Amount * (1 + Fixed Rate) ^ (Fixed Rate Day Count Fraction). The currency should always match that expressed in the notional schedule. The value date should match the adjusted termination date.">;
-	 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value futureValueNotional path "calculationPeriodAmount.calculation"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value futureValueNotional path "calculationPeriodAmount.calculation"]
 	notionalReset boolean (0..1) <"TThe purpose of this indicator is to specify whether the notional reset is applicable (true) or not applicable (false). It is typically used in the context of equity swaps. 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Equity Notional Reset.">;
 		[synonym FpML_5_10 value notionalReset path "trade.returnSwap.returnLeg.rateOfReturn", notionalReset path "trade.equitySwapTransactionSupplement.returnLeg.rateOfReturn"]
 	notionalAdjustments NotionalAdjustmentEnum (0..1) <"This attribute specifies the conditions that govern the adjustment to the number of units of the return swap, e.g. execution, portfolio rebalancing. It is typically used in the context of equity swaps.">;
@@ -425,14 +425,13 @@ class Execution key <"A class to specify an execution, which consists essentiall
 		[synonym CME_SubmissionIRS_1_0 value VenuTyp]
 	executionVenue LegalEntity (0..1) <"The execution venue identification, when applicable.">;
 	identifier Identifier (1..*) <"The identifier(s) associated with the execution.">;
-		[synonym Rosetta_Workbench value identifier]
+		[synonym FpML_5_10 value partyTradeIdentifier path "tradeHeader"]
 		[synonym DTCC_11_0, DTCC_9_0 value partyTradeIdentifier path "Submitter"]
 		[synonym CME_SubmissionIRS_1_0 value partyTradeIdentifier path "Instrmt.SecXML.FpML.trade.tradeHeader"]
 	tradeDate date (1..1) id <"The trade/execution date.">;
-		[synonym Rosetta_Workbench value tradeDate meta id]
+		[synonym FpML_5_10 value tradeDate path "tradeHeader" meta id]
 		[synonym CME_SubmissionIRS_1_0 value tradeDate path "Instrmt.SecXML.FpML.trade.tradeHeader" meta id]
 	contractualProduct ContractualProduct (1..1);
-		[synonym Rosetta_Workbench value contractualProduct]
 		[synonym CME_SubmissionIRS_1_0 value trade path "Instrmt.SecXML.FpML"]
 	party Party (0..*) <"The party reference is optional because positioned as part of the Event class when the execution is specified as part of such context.">;
 		[synonym CME_SubmissionIRS_1_0 value party path "Instrmt.SecXML.FpML"]
