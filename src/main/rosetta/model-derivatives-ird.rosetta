@@ -77,13 +77,15 @@ choice rule CalculationPeriod_choice4 <"FpML validation rule ird-31 - Context: C
 data rule CalculationPeriod_calculationPeriodNumberOfDays <"FpML specifies calculationPeriodNumberOfDays as a positive integer.">
 	when PaymentCalculationPeriod -> calculationPeriod -> calculationPeriodNumberOfDays exists
 	then PaymentCalculationPeriod -> calculationPeriod -> calculationPeriodNumberOfDays >= 0
- 
+
 class CalculationPeriodDates key <"A class for defining the parameters used to generate the calculation period dates schedule, including the specification of any initial or final stub calculation periods. A calculation period schedule consists of an optional initial stub calculation period, one or more regular calculation periods and an optional final stub calculation period. In the absence of any initial or final stub calculation periods, the regular part of the calculation period schedule is assumed to be between the effective date and the termination date. No implicit stubs are allowed, i.e. stubs must be explicitly specified using an appropriate combination of firstPeriodStartDate, firstRegularPeriodStartDate and lastRegularPeriodEndDate.">
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id path "calculationPeriodDates"]
 	[synonym FpML_5_10 meta id path "interestLegCalculationPeriodDates"]
 {
 	effectiveDate AdjustableOrRelativeDate (0..1) <"The first day of the terms of the trade. This day may be subject to adjustment in accordance with a business day convention.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value effectiveDate]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value effectiveDate set when "effectiveDate.relativeDate" exists]
+		// TODO - The above mapping logic doesn't handle the case of an equity swap payout with an effective date specified as an adjustable date, such as in the eqs-ex01-single-underlyer-execution-long-form.xml
+		// This use case should be tackled as part of this Trello card https://trello.com/c/tGA9hPQi
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value effectiveDate path "calculationPeriodDates"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value relativeEffectiveDate path "calculationPeriodDates"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint adjustedEffectiveDate]
@@ -91,7 +93,6 @@ class CalculationPeriodDates key <"A class for defining the parameters used to g
 		[synonym FpML_5_10 value settlementDate path "nearLeg"]
 	terminationDate AdjustableOrRelativeDate (0..1) <"The last day of the terms of the trade. This date may be subject to adjustments in accordance with the business day convention. It can also be specified in relation to another scheduled date (e.g. the last payment date).">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value terminationDate path "calculationPeriodDates"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value scheduledTerminationDate]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value relativeTerminationDate path "calculationPeriodDates"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint adjustedTerminationDate]
 		[synonym FpML_5_10 value terminationDate path "interestLegCalculationPeriodDates", terminationDate]
@@ -99,7 +100,6 @@ class CalculationPeriodDates key <"A class for defining the parameters used to g
 	calculationPeriodDatesAdjustments BusinessDayAdjustments (0..1) <"The specification of the business day convention and financial business centers used for adjusting any calculation period date if it would otherwise fall on a day that is not a business day in the specified business center.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value calculationPeriodDatesAdjustments path "calculationPeriodDates"]
 		[synonym FpML_5_10 value calculationPeriodDatesAdjustments path "interestLegCalculationPeriodDates.interestLegPaymentDates.periodicDates"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value dateAdjustments]
 	firstPeriodStartDate AdjustableDate (0..1) <"The start date of the calculation period. FpML specifies that for interest rate swaps this date must only be specified if it is not equal to the effective date. It is always specified in the case of equity swaps and credit default swaps with periodic payments. This date may be subject to adjustment in accordance with a business day convention.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value firstPeriodStartDate path "calculationPeriodDates"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value periodicPayment]
@@ -118,36 +118,31 @@ class CalculationPeriodDates key <"A class for defining the parameters used to g
 		[synonym FpML_5_10 value calculationPeriodFrequency path "interestLegCalculationPeriodDates.interestLegPaymentDates.periodicDates"]
 }
 
-data rule CalculationPeriodDates_effectiveDate_terminationDate <"If the effective date and the termination date are specified, then the termination date must be after the effective date. This data rule extends the FpML validation rules ird-14 & cd-5, which scope is limited to the unadjusted date, by adding a clause applicable to the adjusted date. This is the result of the usage of CalculationPeriodDates class to support the FRA representation, which in FpML specifies the effective and termination dates as adjusted dates.">
-	when CalculationPeriodDates -> effectiveDate exists 
-		and CalculationPeriodDates -> terminationDate exists
-	then CalculationPeriodDates -> terminationDate -> adjustableDate -> unadjustedDate > CalculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
-		or CalculationPeriodDates -> terminationDate -> adjustableDate -> adjustedDate > CalculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate
-
-data rule FpML_ird_16 <"FpML validation rule ird-16 - If firstRegularPeriodStartDate exists within any element of type CalculationPeriodDates, then terminationDate/unadjustedDate must be after firstRegularPeriodStartDate.">
+data rule FpML_ird_16 <"FpML validation rule ird-16 - If firstRegularPeriodStartDate exists within any element of type CalculationPeriodDates, then terminationDate/unadjustedDate must be after firstRegularPeriodStartDate. This data rule applies within a given interest rate payout component.">
 	when CalculationPeriodDates -> firstRegularPeriodStartDate exists
 	then CalculationPeriodDates -> terminationDate -> adjustableDate -> unadjustedDate > CalculationPeriodDates -> firstRegularPeriodStartDate
 
-data rule FpML_ird_17 <"FpML validation rule ird-17 - If lastRegularPeriodEndDate exists, then terminationDate/unadjustedDate must be after lastRegularPeriodEndDate.">
+data rule FpML_ird_17 <"FpML validation rule ird-17 - If lastRegularPeriodEndDate exists, then terminationDate/unadjustedDate must be after lastRegularPeriodEndDate. This data rule applies within a given interest rate payout component.">
 	when CalculationPeriodDates -> lastRegularPeriodEndDate exists
 	then CalculationPeriodDates -> terminationDate -> adjustableDate -> unadjustedDate > CalculationPeriodDates -> lastRegularPeriodEndDate
 
-data rule FpML_ird_18 <"FpML validation rule ird-18 - If firstRegularPeriodStartDate exists, and if lastRegularPeriodEndDate exists, then lastRegularPeriodEndDate must be after firstRegularPeriodStartDate.">
-	when (CalculationPeriodDates -> firstRegularPeriodStartDate 
-		and CalculationPeriodDates -> lastRegularPeriodEndDate) exists 
+data rule FpML_ird_18 <"FpML validation rule ird-18 - If firstRegularPeriodStartDate exists, and if lastRegularPeriodEndDate exists, then lastRegularPeriodEndDate must be after firstRegularPeriodStartDate. This data rule applies within a given interest rate payout component.">
+	when (CalculationPeriodDates -> firstRegularPeriodStartDate
+		and CalculationPeriodDates -> lastRegularPeriodEndDate) exists
 	then CalculationPeriodDates -> lastRegularPeriodEndDate > CalculationPeriodDates -> firstRegularPeriodStartDate
 
-data rule FpML_ird_20 <"FpML validation rule ird-20 - If lastRegularPeriodEndDate exists, then lastRegularPeriodEndDate must be after effectiveDate/unadjustedDate.">
-	when CalculationPeriodDates -> lastRegularPeriodEndDate exists 
+data rule FpML_ird_20 <"FpML validation rule ird-20 - If lastRegularPeriodEndDate exists, then lastRegularPeriodEndDate must be after effectiveDate/unadjustedDate. This data rule applies within a given interest rate payout component.">
+	when CalculationPeriodDates -> lastRegularPeriodEndDate exists
 	then CalculationPeriodDates -> lastRegularPeriodEndDate > CalculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
-	
-data rule FpML_ird_21 <"FpML validation rule ird-21 - If firstPeriodStartDate exists, then firstPeriodStartDate/unadjustedDate must be before effectiveDate/unadjustedDate.">
-	when CalculationPeriodDates -> firstPeriodStartDate exists 
+
+data rule FpML_ird_21 <"FpML validation rule ird-21 - If firstPeriodStartDate exists, then firstPeriodStartDate/unadjustedDate must be before effectiveDate/unadjustedDate. This data rule applies within a given interest rate payout component.">
+	when CalculationPeriodDates -> firstPeriodStartDate exists
+		and CalculationPeriodDates -> effectiveDate exists
 	then CalculationPeriodDates -> firstPeriodStartDate -> unadjustedDate < CalculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
 
-data rule FpML_ird_22 <"FpML validation rule ird-22 - If firstPeriodStartDate exists, and if firstRegularPeriodStartDate exists, then firstPeriodStartDate/unadjustedDate must be before firstRegularPeriodStartDate.">
+data rule FpML_ird_22 <"FpML validation rule ird-22 - If firstPeriodStartDate exists, and if firstRegularPeriodStartDate exists, then firstPeriodStartDate/unadjustedDate must be before firstRegularPeriodStartDate. This data rule applies within a given interest rate payout component.">
 	when CalculationPeriodDates -> firstPeriodStartDate exists
-		and CalculationPeriodDates -> firstRegularPeriodStartDate exists 
+		and CalculationPeriodDates -> firstRegularPeriodStartDate exists
 	then CalculationPeriodDates -> firstPeriodStartDate -> unadjustedDate < CalculationPeriodDates -> firstRegularPeriodStartDate
 
 class CancelableProvision extends BuyerSeller <"A class defining the right of a party to cancel a swap transaction on the specified exercise dates. The provision is for 'walk-away' cancellation (i.e. the fair value of the swap is not paid). A fee payable on exercise can be specified. As a difference from the FpML construct, the canonical model extends the BuyerSeller class.">
@@ -215,7 +210,7 @@ class CashPriceMethod <"A type defining the parameters necessary for each of the
 
 class CashSettlementPaymentDate key <"A class defining the cash settlement payment date(s) as either a set of explicit dates, together with applicable adjustments, or as a date relative to some other (anchor) date, or as any date in a range of contiguous business days.">
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
-{	
+{
 	adjustableDates AdjustableDates (0..1) <"A series of dates that shall be subject to adjustment if they would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value adjustableDates]
 	relativeDate RelativeDateOffset (0..1) <"A date specified as some offset to another date (the anchor date).">;
@@ -299,7 +294,7 @@ data rule FpML_ird_41 <"FpML validation rule ird-41 - AdjustedCashSettlementValu
 
 class EarlyTerminationProvision key <"A class defining an early termination provision for a swap. This early termination is at fair value, i.e. on termination the fair value of the product must be settled between the parties.">
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
-{	
+{
 	mandatoryEarlyTermination MandatoryEarlyTermination (0..1) <"A mandatory early termination provision to terminate the swap at fair value.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value mandatoryEarlyProvision]
 	mandatoryEarlyTerminationDateTenor Period (0..1) <"Period after trade date of the mandatory early termination date.">;
@@ -317,7 +312,7 @@ data rule EarlyTerminationProvision_mandatoryEarlyTermination <"The FpML Mandato
 
 class ExerciseEvent key <"A class defining the adjusted dates associated with a particular exercise event.">
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
-{	
+{
 	adjustedExerciseDate date (1..1) <"The date on which the option exercise takes place. This date should already be adjusted for any applicable business day convention.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value adjustedExerciseDate]
 	adjustedRelevantSwapEffectiveDate date (1..1) <"The effective date of the underlying swap associated with a given exercise date. This date should already be adjusted for any applicable business day convention.">;
@@ -569,7 +564,7 @@ class NotionalStepRule <"A class defining a parametric representation for the no
 
 data rule NotionalStepRule_notionalStepAmount <"FpML specifies a choice as part of the NotionalStepRule construct between the notionalStepAmount and the combination of notionalStepRate and stepRelativeTo.">
 	when NotionalStepRule -> notionalStepAmount exists
-	then NotionalStepRule -> notionalStepRate is absent 
+	then NotionalStepRule -> notionalStepRate is absent
 		and NotionalStepRule -> stepRelativeTo is absent
 
 data rule NotionalStepRule_notionalStepRate <"FpML specifies a choice as part of the NotionalStepRule construct between the notionalStepAmount and the combination of notionalStepRate and stepRelativeTo.">
@@ -637,7 +632,7 @@ class OptionCashSettlement key <"A class to define the cash settlement terms for
 }
 
 choice rule OptionCashSettlement_choice <"Choice rule to represent an FpML choice construct.">
-	for OptionCashSettlement optional choice between 
+	for OptionCashSettlement optional choice between
 	cashPriceMethod and cashPriceAlternateMethod and parYieldCurveAdjustedMethod and zeroCouponYieldAdjustedMethod
 	and parYieldCurveUnadjustedMethod and crossCurrencyMethod and collateralizedCashPriceMethod
 
@@ -663,7 +658,7 @@ class PaymentCalculationPeriod key <"A class defining the adjusted payment date 
 choice rule PaymentCalculationPeriod_choice <"Choice rule to represent an FpML choice construct.">
 	for PaymentCalculationPeriod required choice between
 		calculationPeriod and fixedPaymentAmount
-	
+
 data rule FpML_ird_34 <"FpML validation rule ird-34 - Either unadjustedPaymentDate or adjustedPaymentDate must exist.">
 	when PaymentCalculationPeriod exists
 	then PaymentCalculationPeriod -> unadjustedPaymentDate exists
@@ -697,7 +692,7 @@ class ResetDates key <"A class defining the parameters used to generate the rese
 	calculationPeriodDatesReference CalculationPeriodDates (0..1) reference <"A pointer style reference to the associated calculation period dates component defined elsewhere in the document.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value calculationPeriodDatesReference path "resetDates" meta href]
 		[synonym FpML_5_10 value calculationPeriodDatesReference path "interestLegCalculationPeriodDates.interestLegResetDates" meta href]
-	resetRelativeTo ResetRelativeToEnum (0..1) <"Specifies whether the reset dates are determined with respect to each adjusted calculation period start date or adjusted calculation period end date.  If the reset frequency is specified as daily this element must not be included.">;
+	resetRelativeTo ResetRelativeToEnum (0..1) <"Specifies whether the reset dates are determined with respect to each adjusted calculation period start date or adjusted calculation period end date. If the reset frequency is specified as daily this element must not be included.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value resetRelativeTo path "resetDates"]
 		[synonym FpML_5_10 value resetRelativeTo path "interestLegCalculationPeriodDates.interestLegResetDates"]
 	initialFixingDate InitialFixingDate (0..1) <"The initial fixing date.">;
@@ -718,13 +713,13 @@ data rule ResetDates_rateCutOffDaysOffset <"FpML specifies that the rate cut-off
 	when ResetDates -> rateCutOffDaysOffset exists
 	then ResetDates -> rateCutOffDaysOffset -> periodMultiplier < 0
 
-data rule ResetFrequency_weekly <"FpML specifies that the weeklyRollConvention must be specified as part of the reset frequency if and only if the reset frequency is defined as weekly.  This data rule is focused on the first part of the assertion.">
+data rule ResetFrequency_weekly <"FpML specifies that the weeklyRollConvention must be specified as part of the reset frequency if and only if the reset frequency is defined as weekly. This data rule is focused on the first part of the assertion.">
 	when ResetDates -> resetFrequency -> period = PeriodExtendedEnum.W
 	then ResetDates -> resetFrequency -> weeklyRollConvention exists
 
-data rule ResetFrequency_notWeekly <"FpML specifies that the weeklyRollConvention must be specified as part of the reset frequency if and only if the reset frequency is defined as weekly.  This data rule is focused on the latter part of the assertion.">
+data rule ResetFrequency_notWeekly <"FpML specifies that the weeklyRollConvention must be specified as part of the reset frequency if and only if the reset frequency is defined as weekly. This data rule is focused on the latter part of the assertion.">
 	when ResetDates -> resetFrequency -> period <> PeriodExtendedEnum.W
-	then ResetDates -> resetFrequency -> weeklyRollConvention is absent	
+	then ResetDates -> resetFrequency -> weeklyRollConvention is absent
 
 class SettlementProvision <"A class defining the specification of settlement terms, occurring when the settlement currency is different to the notional currency of the trade.">
 	[synonym FpML_5_10 value SettlementProvision]
