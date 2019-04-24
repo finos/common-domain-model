@@ -641,14 +641,20 @@ class SecurityLeg key <"Terms defining a security leg in a securities financing 
 	buyerSeller BuyerSeller (1..1) <"Whether the leg is a buyer or seller of security">;
 	settlementDate AdjustableOrRelativeDate (1..1) <"Settlement or Payment Date for the security leg">;
 		[synonym FpML_5_10 value settlementDate]
-	settlementAmount Money (1..1) <"Settlement amount for the security leg">;
+	settlementAmount Money (0..1) <"Settlement amount for the security leg">;
 		[synonym FpML_5_10 value settlementAmount]
+	settlementCurrency string (0..1) <"Settlement Currency for use where the Settlement Amount cannot be known in advance.">;
+		[synonym FpML_5_10 value settlementCurrency]
 	fxRate ExchangeRate (0..1) <"FX rate in case when cash settlement amount is in a different currency to the security.">;
 	deliveryDate AdjustableOrRelativeDate (0..1) <"Delivery Date for the transaction. Delivery Date can be populated when it is not equal to the Settlement Date.">;
 		[synonym FpML_5_10 value deliveryDate]
 	deliveryMethod DeliveryMethodEnum (1..1) <"Specifies a delivery method for the security transaction.">;
 		[synonym FpML_5_10 value deliveryMethod]
 }
+
+choice rule SecurityLeg_choice
+	for SecurityLeg required choice between 
+	settlementAmount and settlementCurrency
 
 class SecurityValuation <"Terms defining the security valuation method as part of a security leg in a securities fianncing transaction and closely modelled onto the CollateralValuation type in FpML.">
 {
@@ -680,10 +686,11 @@ class BondPriceAndYieldModel <"Bond price and yield valuation model for the secu
 	allInPrice number (0..1) <"Bond all-in-price which is a price that includes all relevant price adjustments (i.e. accrued interest, haircut or margin ratio, inflation factor,etc.). It expresses a price in terms of percentage of nominal amount.">;
 }
 
-class CleanOrDirtyPrice one of <"Class specifying the bond price as either clean or dirty in a bond valuation model.">
+class CleanOrDirtyPrice <"Class specifying the bond price as either clean or dirty in a bond valuation model.">
 {
 	cleanPrice CleanPrice (0..1) <"The clean price and accruals presented separately.">;
 	dirtyPrice number (0..1) <"The dirty price presented as a single number.">;
+		[synonym FpML_5_10 value dirtyPrice]
 }
 
 class CleanPrice <"Class to specify the clean price of a bond in a bond valuation model, with accruals presented separately, and modelled onto the cleanPrice model in BonPriceAndYield.model in FpML.">
@@ -691,7 +698,10 @@ class CleanPrice <"Class to specify the clean price of a bond in a bond valuatio
 	cleanPrice number (1..1) <"The clean price as a number.">;
 		[synonym FpML_5_10 value cleanPrice]
 	accruals number (0..1) <"The accruals as a number.">;
-	dirtyPrice calculation (0..1) <"Placeholder for a calculation of dirtyPrice based on cleanPrice and accruals.">;
+		[synonym FpML_5_10 value accruals]
+	dirtyPrice number (0..1) <"Bond dirty price, expressed in percentage points, 100 is the initial value of the bond.">;
+		
+	calculatedDirtyPrice calculation (0..1) <"Placeholder for a calculation of dirtyPrice based on cleanPrice and accruals.">;
 }
 
 class RelativePrice <"Bond price relative to a benchmark, as in a convertible bond.">
