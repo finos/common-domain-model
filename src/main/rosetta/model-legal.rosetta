@@ -333,7 +333,7 @@ abstract class CsaInitialMargin2016 extends Csa2016 <"An abstract class to speci
 
 class CsaInitialMargin2016JapaneseLaw extends CsaInitialMargin2016 <"A class to specify the provisions that are specific to the Japanese Law version of the ISDA 2016 Credit Support Annex for Initial Margin.">
 {
-	obligorPostingObligations ObligorPostingObligations (1..1) <"The obligor's posting obligations. ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (ii).">;
+	obligorPostingObligations ObligorPostingObligations (1..1) <"The obligor's posting obligations. This term of obligor is the equivalent of the chargor in the English Law CSA and the pledgor in the New York Law CSA, i.e. it's the party that will post/pledge collateral to the other party. ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (ii).">;
 		[synonym ISDA_Create_1_0 value obligor_posting_obligations]
 	collateralManagementAgreeement CollateralManagementAgreement (1..1) <"ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (b)(i): Collateral Management Agreement.">;
 		[synonym ISDA_Create_1_0 value collateral_management_agreement]
@@ -366,7 +366,7 @@ class CsaInitialMargin2016JapaneseLaw extends CsaInitialMargin2016 <"A class to 
 
 class CsaInitialMargin2016NewYorkLaw extends CsaInitialMargin2016 <"A class to specify the provisions that are specific to the New York Law version of the ISDA 2016 Credit Support Annex for Initial Margin.">
 {
-	pledgorPostingObligations PledgorPostingObligations (1..1) <"The pledgor's posting obligations. ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (ii).">;
+	pledgorPostingObligations PledgorPostingObligations (1..1) <"The pledgor's posting obligations. This term of pledgor is the equivalent of the chargor in the English Law CSA and the obligor in the Japanese Law CSA, i.e. it's the party that will post/pledge collateral to the other party. ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (ii).">;
 		[synonym ISDA_Create_1_0 value pledgor_posting_obligations]
 	otherEligibleSupport string (0..1) <"The Other Eligible Support election. If not specified, this election is deemed as not applicable. ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (c)(iv).">;
 		[synonym ISDA_Create_1_0 set to "other_eligible_support.eligible_support_specify" when "other_eligible_support.other_eligible_support.specify" exists]
@@ -388,7 +388,7 @@ class CsaInitialMargin2016NewYorkLaw extends CsaInitialMargin2016 <"A class to s
 
 class CsdInitialMargin2016EnglishLaw extends CsaInitialMargin2016 <"A class to specify the provisions that are specific to the English Law version of the ISDA 2016 Credit Support Deed for Initial Margin.">
 {
-	chargorPostingObligations ChargorPostingObligations (1..1) <"The chargor's posting obligations. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (ii).">;
+	chargorPostingObligations ChargorPostingObligations (1..1) <"The chargor's posting obligations. This term of chargor is the equivalent of the pledgor in the New York Law CSA and the obligor in the Japanese Law CSA, i.e. it's the party that will post/pledge collateral to the other party. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (ii).">;
 		[synonym ISDA_Create_1_0 value chargor_posting_obligations]
 	transferTiming string (0..1) <"The time by which the transfer of collateral must take place when different from the Regular Settlement Day as a result of parties' election. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (c)(vii): Transfer Timing.">;
 		[synonym ISDA_Create_1_0 value settlement_day_specify path "transfer_timing"]
@@ -469,19 +469,18 @@ data rule CustodianRisk_specified <"The Custodian Risk (English Law and New York
 	when CustodianRisk -> isSpecified = False
 	then CustodianRisk -> qualification is absent
 
-class CustodianTerms <"A class to specify the requirements applicable to the custodian with respect to the holding of posted collateral.">
+class CustodianTerms <"A class to specify the requirements applicable to the custodian with respect to the holding of posted collateral. ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (h)(i): Eligibility to Hold Posted Collateral (VM); Custodians (VM).">
 	[synonym FpML_5_10 value CustodianTerms]
 {
 	/*
-	 * This class leverages the FpML representation for the ISDA Standard CSA for the purpose of normalizing this election.
-	 * Those provisions go beyond what is specified as part of the 2016 CSA, which election has not yet been normalized.
+	 * This class leverages the FpML representation for the ISDA Standard CSA for the purpose of normalizing the election 
+	 * in the ISDA CSA 2016 for Variation Margin, Paragraph 13, (h)(i)(2).
 	 */
 	minimumAssets Money (0..1) <"The minimal level of assets requirement with respect to the custody agent.">;
 		[synonym FpML_5_10 value minimumAssets]
 	minimumRating CreditNotations (0..1) <"The minimal rating requirement with respect to the custody agent.">;
 		[synonym FpML_5_10 value minimumRating]
-	designation string (0..1) <"The custodian designation.">;
-		[synonym FpML_5_10 value initialDesignation]
+	initialDesignation LegalEntity (0..1) <"The 2016 ISDA CSA for Variation Margin provide the ability for the parties to specify the initial custodian.">;
 }
 
 class CustomisableOffset <"A class to specify an offset either as a normalized [multiplier, period, dayType] or as a custom provision of type string.">
@@ -728,7 +727,7 @@ abstract class LegalAgreementBase <"A class describing the legal agreement basel
 	lineage Lineage (0..1) <"The lineage into prior versions of this legal agreement or into other legal agreements that might be referenced by it.">;
 	agreementType LegalAgreementType (1..1) <"The type of legal agreement, identified via a set of distinct attributes: name, publisher, governing law and version, e.g. ISDA 2013 Standard Credit Support Annex English Law.">;
 		[synonym FpML_5_10 value documentType]
-	contractualParty Party (2..2) reference <"The contractual parties to the legal agreement, which reference information is positioned as part of the partInformation attribute.">;
+	contractualParty Party (2..2) reference <"The two contractual parties to the legal agreement, which reference information is positioned as part of the partyInformation attribute.">;
 		[synonym FpML_5_10 value party]
 	otherParty PartyRole (0..*) <"The role(s) that other party(ies) may have in relation to the legal agreement, further to the contractual parties.">;
 	umbrellaAgreement UmbrellaAgreement (0..1) <"The parties to the agreement that might be associated to it as part of what is termed an umbrella agreement.">;
