@@ -6,7 +6,7 @@ class AdjustableDate key <"A class for defining a date that shall be subject to 
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value AdjustableDate2 meta id path "adjustableDate"]
 {
 	unadjustedDate date (0..1 ) <"A date subject to adjustment. While in FpML this date is required, this cardinality constraint has been relaxed as part of the CDM in order to support the FRA representation, which effective and termination dates are specified in FpML as adjusted dates.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value unadjustedDate]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value unadjustedDate maps 2]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value unadjustedDate path "adjustableDate"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value unadjustedDate path "paymentDate"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value unadjustedDate path "paymentDate.adjustableDate"]
@@ -103,7 +103,6 @@ class AdjustableOrRelativeDate key <"A class giving the choice between defining 
 	relativeDate AdjustedRelativeDateOffset (0..1) <"A date specified as some offset to another date (the anchor date).">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value relativeDate]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value relativeDate path "paymentDate"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value relativeDateAdjustments]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint periodMultiplier]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint period]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint dayType]
@@ -238,7 +237,7 @@ class BusinessDayAdjustments key <"A class defining the business day convention 
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value BusinessDayAdjustments meta id]
 {
 	businessDayConvention BusinessDayConventionEnum (1..1) <"The convention for adjusting a date if it would otherwise fall on a day that is not a business day.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value businessDayConvention]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value businessDayConvention maps 2]
 	businessCenters BusinessCenters (0..1) <"The business center(s), specified either explicitly or by reference to those specified somewhere else in the instance document.">;
 }
 	
@@ -509,15 +508,18 @@ class FloatingRate key <"A class defining a floating interest rate through the s
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value floatingRateIndex path "periodicPayment.floatingAmountCalculation.floatingRate" meta floatingRateIndexScheme]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value floatingRateIndex]
 		[synonym FpML_5_10 value floatingRateIndex path "interestCalculation.floatingRateCalculation"]
+		[synonym FpML_5_10 value floatingRateIndex path "floatingRateCalculation"]
 	indexTenor Period (0..1) <"The ISDA Designated Maturity, i.e. the floating rate tenor.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value indexTenor path "calculationPeriodAmount.calculation.floatingRateCalculation", indexTenor path "periodicPayment.floatingAmountCalculation.floatingRate"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value indexTenor]
 		[synonym FpML_5_10 value indexTenor path "interestCalculation.floatingRateCalculation"]
+		[synonym FpML_5_10 value indexTenor path "floatingRateCalculation"]
 	floatingRateMultiplierSchedule Schedule (0..1) <"A rate multiplier or multiplier schedule to apply to the floating rate. A multiplier schedule is expressed as explicit multipliers and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in the calculationPeriodDatesAdjustments. The multiplier can be a positive or negative decimal. This element should only be included if the multiplier is not equal to 1 (one) for the term of the stream.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value floatingRateMultiplierSchedule path "calculationPeriodAmount.calculation.floatingRateCalculation", floatingRateMultiplierSchedule path "periodicPayment.floatingAmountCalculation.floatingRate"]
 	spreadSchedule SpreadSchedule (0..*) <"The ISDA Spread or a Spread schedule expressed as explicit spreads and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The spread is a per annum rate, expressed as a decimal. For purposes of determining a calculation period amount, if positive the spread will be added to the floating rate and if negative the spread will be subtracted from the floating rate. A positive 10 basis point (0.1%) spread would be represented as 0.001.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value spreadSchedule path "calculationPeriodAmount.calculation.floatingRateCalculation", spreadSchedule path "periodicPayment.floatingAmountCalculation.floatingRate"]
 		[synonym FpML_5_10 value spreadSchedule path "interestCalculation.floatingRateCalculation"]
+		[synonym FpML_5_10 value spreadSchedule path "floatingRateCalculation"]
 	rateTreatment RateTreatmentEnum (0..1) <"The specification of any rate conversion which needs to be applied to the observed rate before being used in any calculations. The two common conversions are for securities quoted on a bank discount basis which will need to be converted to either a Money Market Yield or Bond Equivalent Yield. See the Annex to the 2000 ISDA Definitions, Section 7.3. Certain General Definitions Relating to Floating Rate Options, paragraphs (g) and (h) for definitions of these terms.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value rateTreatment path "calculationPeriodAmount.calculation.floatingRateCalculation", rateTreatment path "periodicPayment.floatingAmountCalculation.floatingRate"]
 	capRateSchedule StrikeSchedule (0..*) <"The cap rate or cap rate schedule, if any, which applies to the floating rate. The cap rate (strike) is only required where the floating rate on a swap stream is capped at a certain level. A cap rate schedule is expressed as explicit cap rates and dates and the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The cap rate is assumed to be exclusive of any spread and is a per annum rate, expressed as a decimal. A cap rate of 5% would be represented as 0.05.">;
@@ -682,10 +684,10 @@ class Money key<"A class defining a currency amount.">
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value Money meta id]
 {
 	currency string (1..1) scheme <"The currency in which the associated amount is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value currency meta currencyScheme]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value currency maps 2 meta currencyScheme]
 		[synonym ISDA_Create_1_0 value partyA_currency]
 	amount number (1..1) <"The monetary quantity in currency units.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value amount]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value amount maps 2]
 		[synonym ISDA_Create_1_0 value partyA_amount]
 }
 
@@ -798,6 +800,7 @@ class PayerReceiver <"A class to represent the FpML PayerReceiver.model.">
 	payerPartyReference Party (1..1) reference <"A reference to the party responsible for making the payments defined by this structure.">;
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value payerPartyReference meta href]
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value buyerPartyReference maps 2 meta href]
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value buyerPartyReference path "trade.creditDefaultSwap.generalTerms" maps 2 meta href]
 		[synonym CME_SubmissionIRS_1_0 value payerPartyReference meta href mapper TradeSideToParty]
 		[synonym CME_SubmissionIRS_1_0 value buyerPartyReference maps 2 meta href mapper TradeSideToParty]
 	payerAccountReference Account (0..1) reference <"A reference to the account responsible for making the payments defined by this structure.">;
@@ -806,6 +809,7 @@ class PayerReceiver <"A class to represent the FpML PayerReceiver.model.">
 	receiverPartyReference Party (1..1) reference <"A reference to the party that receives the payments corresponding to this structure.">;
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value receiverPartyReference meta href]
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value sellerPartyReference maps 2 meta href]
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value sellerPartyReference path "trade.creditDefaultSwap.generalTerms" maps 2 meta href]
 		[synonym CME_SubmissionIRS_1_0 value receiverPartyReference meta href mapper TradeSideToParty]
 		[synonym CME_SubmissionIRS_1_0 value sellerPartyReference maps 2 meta href mapper TradeSideToParty]
 	receiverAccountReference Account (0..1) reference <"A reference to the account that receives the payments corresponding to this structure.">;
@@ -1069,6 +1073,7 @@ class Schedule key <"A class defining a schedule of rates or amounts in terms of
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value initialValue path "calculationPeriodAmount.calculation.floatingRateCalculation"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value fixedRate path "periodicPayment.fixedAmountCalculation"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value fixedRate]
+		[synonym FpML_5_10 value initialValue path "fixedRateSchedule"]
 	step Step (0..*) <"The schedule of step date and value pairs. On each step date the associated step value becomes effective A list of steps may be ordered in the document by ascending step date. An FpML document containing an unordered list of steps is still regarded as a conformant document.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value step path "calculationPeriodAmount.calculation.fixedRateSchedule"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value step]

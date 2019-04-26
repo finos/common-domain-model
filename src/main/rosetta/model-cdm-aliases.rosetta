@@ -1,0 +1,101 @@
+namespace "org.isda.cdm"
+version "${project.version}"
+
+/***************************************************************
+ * Aliases (other than those embedded in the calculation syntax)
+ */
+
+alias effectiveDate
+	EconomicTerms -> effectiveDate -> adjustableDate -> adjustedDate
+	or EconomicTerms -> effectiveDate -> adjustableDate -> unadjustedDate
+	or EconomicTerms -> effectiveDate -> relativeDate -> adjustedDate
+	or EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate
+	or EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
+	or EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> relativeDate -> adjustedDate
+	or EconomicTerms -> payout -> equityPayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate
+	or EconomicTerms -> payout -> equityPayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
+	or EconomicTerms -> payout -> equityPayout -> calculationPeriodDates -> effectiveDate -> relativeDate -> adjustedDate
+
+alias newContractParties
+	( Event -> primitive -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> buyerPartyReference
+		and Event -> primitive -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> sellerPartyReference )
+	or ( Event -> primitive -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver -> payerPartyReference
+		and Event -> primitive -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver -> receiverPartyReference )
+	or ( Event -> primitive -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> buyerSeller -> buyerPartyReference
+		and Event -> primitive -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> buyerSeller -> sellerPartyReference	)
+
+// TODO - Providing the ability to embed aliases would provide the ability to ensure consistency between this alias and the effectiveDate one, while also simplify the syntax
+// See Trello card https://trello.com/c/89Lv8rAn
+alias novatedContractEffectiveDate <"This alias is used to qualify the novation event, which effective date is the same as the effective of the novated trade.">
+	Event -> primitive -> inception -> after -> contract -> contractualProduct -> economicTerms -> effectiveDate -> adjustableDate -> adjustedDate
+	or Event -> primitive -> inception -> after -> contract -> contractualProduct -> economicTerms -> effectiveDate -> adjustableDate -> unadjustedDate
+	or Event -> primitive -> inception -> after -> contract -> contractualProduct -> economicTerms -> effectiveDate -> relativeDate -> adjustedDate
+	or Event -> primitive -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate
+	or Event -> primitive -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
+	or Event -> primitive -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> relativeDate -> adjustedDate
+	or Event -> primitive -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate
+	or Event -> primitive -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
+	or Event -> primitive -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout -> calculationPeriodDates -> effectiveDate -> relativeDate -> adjustedDate
+
+alias originalContractParties
+	( Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> buyerPartyReference
+		and Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> sellerPartyReference )
+	or ( Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver -> payerPartyReference
+		and Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver -> receiverPartyReference )
+	or ( Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> buyerSeller -> buyerPartyReference
+		and Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> buyerSeller -> sellerPartyReference	)
+
+alias paymentDate // Scope limited to interestPayout until such time that we position it to the economicTerms level
+	EconomicTerms -> payout -> interestRatePayout -> paymentDate -> adjustedDate
+	or EconomicTerms -> payout -> interestRatePayout -> paymentDate -> unadjustedDate
+
+alias quantityAfterAllocation <"The alias to represent the quantity or notional amount associated to allocated contract(s) in terms of number of units (i.e. ignoring the currency or units denomination).">
+	Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity -> amount
+	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount
+	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
+	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step -> stepValue
+	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepParameters -> notionalStepAmount
+	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> fxLinkedNotional -> initialValue
+	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> notionalAmount -> amount
+	or Event -> primitive -> allocation -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount -> amount
+
+alias quantityBeforeAllocation <"The alias to represent the quantity or notional amount associated to a pre-allocation contractual product in terms of number of units (i.e. ignoring the currency or units denomination).">
+	Event -> primitive -> allocation -> before -> execution -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity -> amount
+	or Event -> primitive -> allocation -> before -> execution -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount -> amount
+	or Event -> primitive -> allocation -> before -> execution -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
+	or Event -> primitive -> allocation -> before -> execution -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step -> stepValue
+	or Event -> primitive -> allocation -> before -> execution -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepParameters -> notionalStepAmount
+	or Event -> primitive -> allocation -> before -> execution -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> fxLinkedNotional -> initialValue
+	or Event -> primitive -> allocation -> before -> execution -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> notionalAmount -> amount
+	or Event -> primitive -> allocation -> before -> execution -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount -> amount
+
+alias quantityAfterQuantityChange <"The alias to represent the quantity or notional amount in terms of number of units (i.e. ignoring the currency or units denomination) after a quantity change primitive.">
+	Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity -> amount
+	and ( Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount group by currency ) -> amount
+	and ( Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule group by currency ) -> initialValue
+	and ( Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule group by currency ) -> step -> stepValue
+	and ( Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule group by notionalStepSchedule -> currency ) -> notionalStepParameters -> notionalStepAmount
+	and ( Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> fxLinkedNotional group by varyingNotionalCurrency ) -> initialValue
+	and ( Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> notionalAmount group by currency ) -> amount
+	and ( Event -> primitive -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount group by currency ) -> amount
+
+alias quantityBeforeQuantityChange <"The alias to represent the quantity or notional amount in terms of number of units (i.e. ignoring the currency or units denomination) before a quantity change primitive.">
+	(Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity) -> amount
+	and ( Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount group by currency) -> amount
+	and ( Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule group by currency ) -> initialValue 
+	and ( Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule group by currency ) -> step -> stepValue
+	and ( Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule group by notionalStepSchedule -> currency ) -> notionalStepParameters -> notionalStepAmount
+	and ( Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> fxLinkedNotional group by varyingNotionalCurrency ) -> initialValue
+	and ( Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> notionalAmount group by currency ) -> amount
+	and ( Event -> primitive -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount group by currency ) -> amount
+
+alias terminationDate
+	EconomicTerms -> terminationDate -> adjustableDate -> adjustedDate
+	or EconomicTerms -> terminationDate -> adjustableDate -> unadjustedDate
+	or EconomicTerms -> terminationDate -> relativeDate -> adjustedDate
+	or EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate -> adjustedDate
+	or EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate -> unadjustedDate
+	or EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> relativeDate -> adjustedDate
+	or EconomicTerms -> payout -> equityPayout -> calculationPeriodDates -> terminationDate -> adjustableDate -> adjustedDate
+	or EconomicTerms -> payout -> equityPayout -> calculationPeriodDates -> terminationDate -> adjustableDate -> unadjustedDate
+	or EconomicTerms -> payout -> equityPayout -> calculationPeriodDates -> terminationDate -> relativeDate -> adjustedDate
