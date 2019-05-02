@@ -1,0 +1,162 @@
+namespace "org.isda.cdm"
+version "${project.version}"
+
+// add authority
+
+regulatoryRegime ESMA_EMIR
+regulatoryRegime ESMA_MiFIR
+regulatoryRegime ESMA_SFTR
+regulatoryRegime CFTC_DFA
+
+mandate regulation
+mandate specification
+mandate guideline
+
+segment article
+segment whereas
+segment annex
+segment section
+segment field
+
+organisation ISDA
+
+reporting standard ISO_20022 <"ISO 20022 is a multi part International Standard prepared by ISO Technical Committee TC68 Financial Services.">
+	[regulatoryReference ESMA_MiFIR regulation "RTS 22" article "1"
+		provision "All details to be included in transaction reports shall be submitted in accordance with the standards and formats specified in Table 2 of Annex I, 
+					in an electronic and machine-readable form and in a common XML template in accordance with the ISO 20022 methodology"]
+ 
+report ESMA_EMIR regulation "ITS Article 9" in T+1 
+	when ExecutingEntityInScope
+	using standard ISO_20022 with fields 
+		ReportingCounterpartyID
+		Notional
+  		MaturityDate
+	
+
+// non-financial counterparty located in the EEA
+eligibility rule ExecutingEntityInScope <"When the executing entity is a financial counterparty or non-financial counterparty located in the EEA">
+   [regulatoryReference ESMA_MiFIR regulation "ITS Article 9" article "1 (2)" provision "This Regulation shall apply to CCPs and their clearing members, to financial counterparties and to trade repositories. It shall apply to non-financial counterparties and trading venues where so provided"]
+	// TODO add all conditions that we need to identify financial counterparty and non-financial counterparty
+	// TODO lookup LEI code and check it is in the EEA
+	Contract -> partyRole -> role = PartyRoleEnum.ClearingFirm
+	or 
+	Contract -> partyRole -> role = PartyRoleEnum.ClearingOrganization
+
+// mandate = trans report
+// tech standard = rts 22
+report ESMA_MiFIR regulation "RTS 22" in T+1
+	when InvestmentFirm and ReportableTransation and ReportableProduct
+	using standard ISO_20022 with fields 
+		ExecutingEntityIdentificationCode
+		Quantity
+  		MaturityDate
+		TransactionReferenceNumber
+		DerivativeNotionalIncreaseDecrease
+		UnderlyingIndexName
+			
+eligibility rule ReportableProduct <"When eligible for rts 22">
+   [regulatoryReference ESMA_MiFIR regulation "RTS 22 (EU) 2015/2365" article "2" provision "For the purposes of Article 26 of Regulation (EU) No 600/2014, the conclusion of an acquisition or disposal of a financial instrument referred to in Article 26(2) of Regulation (EU) No 600/2014 shall constitute a transaction."]
+		Event -> primitive -> inception only exists
+		or 
+		Event -> primitive -> quantityChange exists
+		
+			
+eligibility rule ReportableTransation <"When eligible for rts 22">
+   [regulatoryReference ESMA_MiFIR regulation "RTS 22 (EU) 2015/2365" article "2" provision "For the purposes of Article 26 of Regulation (EU) No 600/2014, the conclusion of an acquisition or disposal of a financial instrument referred to in Article 26(2) of Regulation (EU) No 600/2014 shall constitute a transaction."]
+		Event -> primitive -> inception only exists
+		or 
+		Event -> primitive -> quantityChange exists
+
+eligibility rule InvestmentFirm <"Identify as an investment firm which has executed the trade">
+   [regulatoryReference ESMA_MiFIR regulation "RTS 22" section "Context of the Delegation Act" provision "The Markets in Financial Instruments Regulation (EU) No 600/2014 (MiFIR) requires investment firms to report complete and accurate details of transactions in financial instruments"]
+	True
+		
+reporting rule DerivativeNotionalIncreaseDecrease
+   [regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "1. Table 2. Field 32" 
+   	provision "Traded price of the transaction excluding, where applicable, commission and accrued interest.
+				In the case of option contracts, it shall be the premium of the derivative contract per underlying or index point.
+				In the case of spread bets it shall be the reference price of the underlying instrument.
+				For credit default swaps (CDS) it shall be the coupon in basis points.
+				Where price is reported in monetary terms, it shall be provided in the major currency unit.
+				Where price is currently not available but pending, the value shall be ‘PNDG’
+				Where price is not applicable the value shall be ‘NOAP’
+				The information reported in this field shall be consistent with the values provided in fields 30 and 46."]
+ 	from
+ 		if Event -> primitive -> quantityChange only exists
+ 		then quantityAfterQuantityChange - quantityBeforeQuantityChange
+ 		else "NOAP"
+
+reporting rule UnderlyingIndexName
+   [regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "1. Table 2. Field 48" 
+   	provision "When the underlying is an index, the name of the Index"
+   ]
+ 	from
+ 		if Contract -> is
+ 		then quantityAfterQuantityChange - quantityBeforeQuantityChange
+ 		else "NOAP"
+
+
+reporting rule TransactionReferenceNumber
+   [regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "1. Table 2. Field 2" provision "Identification number that is unique to the executing firm for each transaction report. Where, pursuant to Article 26(5) of Regulation (EU) No 600/2014, a trading venue submits a transaction report on behalf of a firm that is not subject to Regulation (EU) No 600/2014, the trading venue shall populate this field with a number that has been internally generated by the trading venue and that is unique for each transaction report submitted by the trading venue."]
+ 	from Event -> messageInformation -> messageId
+
+reporting rule ExecutingEntityIdentificationCode <"Code used to identify the entity executing the transaction (the LEI)">
+   [regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "1. Table 2. Field 4" provision "Code used to identify the entity executing the transaction."]
+
+ 	from Contract -> partyContractInformation -> partyReference -> partyId
+ 	 	
+reporting rule Quantity <"The number of units of the financial instrument, or the number of derivative contracts in the transaction. The nominal or monetary value of the financial instrument.">
+ 	   [regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "1. Table 2. Field 30" 
+ 	   	provision "The number of units of the financial instrument, or the number of derivative contracts in the transaction.
+					The nominal or monetary value of the financial instrument.
+					For spread bets, the quantity shall be the monetary value wagered per point movement in the underlying financial instrument.
+					For credit default swaps, the quantity shall be the notional amount for which the protection is acquired or disposed of.
+					For increase or decrease in notional amount derivative contracts, the number shall reflect the absolute value of the change and shall be expressed as a positive number.
+					The information reported in this field shall be consistent with the values provided in fields 33 and 46."]
+ 	from Contract -> contractualProduct -> economicTerms -> quantity -> quantity
+ 	
+reporting rule MaturityDate <"Date of maturity of the financial instrument. Field only applies to debt instruments with defined maturity">
+ 	   [regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "1. Table 2. Field 54" provision "Date of maturity of the financial instrument. Field only applies to debt instruments with defined maturity."]
+ 	   [regulatoryReference ESMA_MiFIR regulation "ITS Article 9" field "2.27" provision "Original date of expiry of the reported contract."]
+ 	   [marketPractice ISDA write-up "The counterparties should report the unadjusted Maturity date, as agreed in the contract, even if it falls on a weekend or a bank holiday." 
+ 	   	recommendation "Where there is different Maturity Dates on the two legs, the Maturity Date reported should be the longest dated.
+						The unadjusted Maturity Date should be used, unless both parties agree on reporting the adjusted date.
+						Although this is an Optional field, if there is a Maturity Date for the trade, this field must be reported."]
+ 	from Contract -> contractualProduct -> economicTerms -> terminationDate -> adjustableDate -> adjustedDate
+
+reporting rule Price <"Date of maturity of the financial instrument. Field only applies to debt instruments with defined maturity">
+ 	   [regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "1. Table 2. Field 33" 
+ 	   	provision "Traded price of the transaction excluding, where applicable, commission and accrued interest.
+					In the case of option contracts, it shall be the premium of the derivative contract per underlying or index point.
+					In the case of spread bets it shall be the reference price of the underlying instrument.
+					For credit default swaps (CDS) it shall be the coupon in basis points.
+					Where price is reported in monetary terms, it shall be provided in the major currency unit.
+					Where price is currently not available but pending, the value shall be ‘PNDG’
+					Where price is not applicable the value shall be ‘NOAP’
+					The information reported in this field shall be consistent with the values provided in fields 30 and 46."]
+ 	from Contract -> contractualProduct -> economicTerms -> terminationDate -> adjustableDate -> adjustedDate
+
+
+reporting rule ReportingCounterpartyID
+ 	   [regulatoryReference ESMA_MiFIR regulation "ITS Article 9" field "1.2"
+ 	   	provision "Unique code identifying the reporting counterparty of the contract (the LEI)"
+ 	   ]
+ 	// TODO add filter on lei scheme
+ 	// from Contract -> contractIdentifier
+ 	//   filter contractIdentifier -> issuer -> scheme = 'ISO17442'
+ 	//   get contractIdentifier -> issuer
+ 	from Contract -> contractIdentifier -> issuer
+
+
+reporting rule Notional
+ 	   [regulatoryReference ESMA_MiFIR regulation "ITS Article 9" field "2.20"
+ 	   	provision "The reference amount from which contractual payments are determined."
+ 	   ]
+ 	   [marketPractice ISDA write-up "Document" 
+ 	   	recommendation "Report the current notional, i.e. where the notional changes during the life of the trade (for example due to amortising, accreting or partial termination), the notional amount at the time of reporting is to be submitted.
+						Where there is more than one notional amount, e.g. FX products, sort the currencies alphabetically and report the notional of the first currency. 
+						Amortizing, accreting and resets (on EQ) which change notional amount will be reported.
+						Notional changes for compounding calculation events will not be reported."]
+ 	from Contract -> contractualProduct -> economicTerms -> quantity -> quantity -> amount
+
+

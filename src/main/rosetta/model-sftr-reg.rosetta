@@ -1,0 +1,26 @@
+namespace "org.isda.cdm"
+version "${project.version}"
+
+	
+	
+report ESMA_SFTR regulation "(EU) 2015/2365" in T+1 when InScopeOfEvent
+	using standard ISO_20022 with fields
+		TypeOfSFT
+		UnitPrice
+			
+reporting rule TypeOfSFT
+ 	from 
+ 		if ProductIdentification -> productType = "RepurchaseAgreement"
+		then "REPO"
+	else if ProductIdentification -> productType = "Buy_Sell_Back"
+		then "SBSC"
+	else ""
+ 		
+ 			
+reporting rule UnitPrice
+ 	from 
+ 		 Contract -> contractualProduct -> economicTerms -> payout -> securityPayout
+ 		    -> securityValuation -> securityValuationModel -> bondValuationModel 
+ 		    -> bondPriceAndYieldModel -> cleanOrDirtyPrice -> dirtyPrice
+
+
