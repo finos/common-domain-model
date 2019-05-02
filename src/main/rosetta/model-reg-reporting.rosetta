@@ -91,8 +91,10 @@ reporting rule UnderlyingIndexName
    	provision "When the underlying is an index, the name of the Index"
    ]
  	from
- 		if Contract -> is
- 		then quantityAfterQuantityChange - quantityBeforeQuantityChange
+ 		if Contract -> contractualProduct -> economicTerms -> payout -> equityPayout -> underlier -> singleUnderlier exists 
+ 		then Contract -> contractualProduct -> economicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> contractualProduct -> productIdentification -> productId
+ 		else if Contract -> contractualProduct -> economicTerms -> payout -> equityPayout -> underlier -> basket exists 
+ 		then Contract -> contractualProduct -> economicTerms -> payout -> equityPayout -> underlier -> basket
  		else "NOAP"
 
 
@@ -137,6 +139,7 @@ reporting rule Price <"Date of maturity of the financial instrument. Field only 
  	from Contract -> contractualProduct -> economicTerms -> terminationDate -> adjustableDate -> adjustedDate
 
 
+			
 reporting rule ReportingCounterpartyID
  	   [regulatoryReference ESMA_MiFIR regulation "ITS Article 9" field "1.2"
  	   	provision "Unique code identifying the reporting counterparty of the contract (the LEI)"
