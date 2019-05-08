@@ -31,7 +31,7 @@ report ESMA_EMIR regulation "ITS Article 9" in T+1
 		ReportingCounterpartyID
 		Notional
   		MaturityDate
-	
+
 
 // non-financial counterparty located in the EEA
 eligibility rule ExecutingEntityInScope <"When the executing entity is a financial counterparty or non-financial counterparty located in the EEA">
@@ -51,8 +51,8 @@ report ESMA_MiFIR regulation "RTS 22" in T+1
 		Quantity
   		MaturityDate
 		TransactionReferenceNumber
-		DerivativeNotionalIncreaseDecrease
-		UnderlyingIndexName
+//		DerivativeNotionalIncreaseDecrease
+//		UnderlyingIndexName
 			
 eligibility rule ReportableProduct <"When eligible for rts 22">
    [regulatoryReference ESMA_MiFIR regulation "RTS 22 (EU) 2015/2365" article "2" provision "For the purposes of Article 26 of Regulation (EU) No 600/2014, the conclusion of an acquisition or disposal of a financial instrument referred to in Article 26(2) of Regulation (EU) No 600/2014 shall constitute a transaction."]
@@ -71,41 +71,44 @@ eligibility rule InvestmentFirm <"Identify as an investment firm which has execu
    [regulatoryReference ESMA_MiFIR regulation "RTS 22" section "Context of the Delegation Act" provision "The Markets in Financial Instruments Regulation (EU) No 600/2014 (MiFIR) requires investment firms to report complete and accurate details of transactions in financial instruments"]
 	True
 		
-reporting rule DerivativeNotionalIncreaseDecrease
-   [regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "1. Table 2. Field 32" 
-   	provision "Traded price of the transaction excluding, where applicable, commission and accrued interest.
-				In the case of option contracts, it shall be the premium of the derivative contract per underlying or index point.
-				In the case of spread bets it shall be the reference price of the underlying instrument.
-				For credit default swaps (CDS) it shall be the coupon in basis points.
-				Where price is reported in monetary terms, it shall be provided in the major currency unit.
-				Where price is currently not available but pending, the value shall be ‘PNDG’
-				Where price is not applicable the value shall be ‘NOAP’
-				The information reported in this field shall be consistent with the values provided in fields 30 and 46."]
- 	from
- 		if Event -> primitive -> quantityChange only exists
- 		then quantityAfterQuantityChange - quantityBeforeQuantityChange
- 		else "NOAP"
+//reporting rule DerivativeNotionalIncreaseDecrease
+//   [regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "1. Table 2. Field 32" 
+//   	provision "Traded price of the transaction excluding, where applicable, commission and accrued interest.
+//				In the case of option contracts, it shall be the premium of the derivative contract per underlying or index point.
+//				In the case of spread bets it shall be the reference price of the underlying instrument.
+//				For credit default swaps (CDS) it shall be the coupon in basis points.
+//				Where price is reported in monetary terms, it shall be provided in the major currency unit.
+//				Where price is currently not available but pending, the value shall be ‘PNDG’
+//				Where price is not applicable the value shall be ‘NOAP’
+//				The information reported in this field shall be consistent with the values provided in fields 30 and 46."]
+// 	extract
+// 		if Event -> primitive -> quantityChange only exists
+// 		then quantityAfterQuantityChange - quantityBeforeQuantityChange
+// 		else "NOAP"
 
-reporting rule UnderlyingIndexName
-   [regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "1. Table 2. Field 48" 
-   	provision "When the underlying is an index, the name of the Index"
-   ]
- 	from
- 		if Contract -> contractualProduct -> economicTerms -> payout -> equityPayout -> underlier -> singleUnderlier exists 
- 		then Contract -> contractualProduct -> economicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> contractualProduct -> productIdentification -> productId
- 		else if Contract -> contractualProduct -> economicTerms -> payout -> equityPayout -> underlier -> basket exists 
- 		then Contract -> contractualProduct -> economicTerms -> payout -> equityPayout -> underlier -> basket
- 		else "NOAP"
+//reporting rule UnderlyingIndexName
+//   [regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "1. Table 2. Field 48" 
+//   	provision "When the underlying is an index, the name of the Index"
+//   ]
+// 	extract Contract -> contractualProduct -> economicTerms -> payout -> equityPayout -> underlier then
+// 		extract 
+// 			if Underlier -> singleUnderlier exists 
+// 				then Underlier -> singleUnderlier -> underlyingProduct -> contractualProduct -> productIdentification -> productId
+// 			else if Underlier -> basket exists 
+// 				then "Add basket id path here"
+// 			else "NOAP" //TODO NOAP isn't a basket
+ 	
+
 
 
 reporting rule TransactionReferenceNumber
    [regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "1. Table 2. Field 2" provision "Identification number that is unique to the executing firm for each transaction report. Where, pursuant to Article 26(5) of Regulation (EU) No 600/2014, a trading venue submits a transaction report on behalf of a firm that is not subject to Regulation (EU) No 600/2014, the trading venue shall populate this field with a number that has been internally generated by the trading venue and that is unique for each transaction report submitted by the trading venue."]
- 	from Event -> messageInformation -> messageId
+ 	extract Event -> messageInformation -> messageId
 
 reporting rule ExecutingEntityIdentificationCode <"Code used to identify the entity executing the transaction (the LEI)">
    [regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "1. Table 2. Field 4" provision "Code used to identify the entity executing the transaction."]
 
- 	from Contract -> partyContractInformation -> partyReference -> partyId
+ 	extract Contract -> partyContractInformation -> partyReference -> partyId
  	 	
 reporting rule Quantity <"The number of units of the financial instrument, or the number of derivative contracts in the transaction. The nominal or monetary value of the financial instrument.">
  	   [regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "1. Table 2. Field 30" 
@@ -115,7 +118,7 @@ reporting rule Quantity <"The number of units of the financial instrument, or th
 					For credit default swaps, the quantity shall be the notional amount for which the protection is acquired or disposed of.
 					For increase or decrease in notional amount derivative contracts, the number shall reflect the absolute value of the change and shall be expressed as a positive number.
 					The information reported in this field shall be consistent with the values provided in fields 33 and 46."]
- 	from Contract -> contractualProduct -> economicTerms -> quantity -> quantity
+ 	extract Contract -> contractualProduct -> economicTerms -> quantity -> quantity
  	
 reporting rule MaturityDate <"Date of maturity of the financial instrument. Field only applies to debt instruments with defined maturity">
  	   [regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "1. Table 2. Field 54" provision "Date of maturity of the financial instrument. Field only applies to debt instruments with defined maturity."]
@@ -124,7 +127,7 @@ reporting rule MaturityDate <"Date of maturity of the financial instrument. Fiel
  	   	recommendation "Where there is different Maturity Dates on the two legs, the Maturity Date reported should be the longest dated.
 						The unadjusted Maturity Date should be used, unless both parties agree on reporting the adjusted date.
 						Although this is an Optional field, if there is a Maturity Date for the trade, this field must be reported."]
- 	from Contract -> contractualProduct -> economicTerms -> terminationDate -> adjustableDate -> adjustedDate
+ 	extract Contract -> contractualProduct -> economicTerms -> terminationDate -> adjustableDate -> adjustedDate
 
 reporting rule Price <"Date of maturity of the financial instrument. Field only applies to debt instruments with defined maturity">
  	   [regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "1. Table 2. Field 33" 
@@ -136,10 +139,10 @@ reporting rule Price <"Date of maturity of the financial instrument. Field only 
 					Where price is currently not available but pending, the value shall be ‘PNDG’
 					Where price is not applicable the value shall be ‘NOAP’
 					The information reported in this field shall be consistent with the values provided in fields 30 and 46."]
- 	from Contract -> contractualProduct -> economicTerms -> terminationDate -> adjustableDate -> adjustedDate
+ 	extract Contract -> contractualProduct -> economicTerms -> terminationDate -> adjustableDate -> adjustedDate
 
 
-			
+
 reporting rule ReportingCounterpartyID
  	   [regulatoryReference ESMA_MiFIR regulation "ITS Article 9" field "1.2"
  	   	provision "Unique code identifying the reporting counterparty of the contract (the LEI)"
@@ -148,7 +151,10 @@ reporting rule ReportingCounterpartyID
  	// from Contract -> contractIdentifier
  	//   filter contractIdentifier -> issuer -> scheme = 'ISO17442'
  	//   get contractIdentifier -> issuer
- 	from Contract -> contractIdentifier -> issuer
+ 	extract Contract -> contractIdentifier then
+ 		filter when Identifier -> issuer = 'ISO17442' then
+ 		extract Identifier -> issuer
+ 		
 
 
 reporting rule Notional
@@ -160,6 +166,13 @@ reporting rule Notional
 						Where there is more than one notional amount, e.g. FX products, sort the currencies alphabetically and report the notional of the first currency. 
 						Amortizing, accreting and resets (on EQ) which change notional amount will be reported.
 						Notional changes for compounding calculation events will not be reported."]
- 	from Contract -> contractualProduct -> economicTerms -> quantity -> quantity -> amount
+ 	extract Contract -> contractualProduct -> economicTerms -> quantity -> quantity -> amount
 
 
+//reporting rule Foo
+//   [regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "1. Table 2. Field 2" provision "Identification number that is unique to the executing firm for each transaction report. Where, pursuant to Article 26(5) of Regulation (EU) No 600/2014, a trading venue submits a transaction report on behalf of a firm that is not subject to Regulation (EU) No 600/2014, the trading venue shall populate this field with a number that has been internally generated by the trading venue and that is unique for each transaction report submitted by the trading venue."]
+//		(
+//		blueprint ReportingCounterpartyID,
+//		blueprint Notional,
+//		blueprint MaturityDate
+//		)
