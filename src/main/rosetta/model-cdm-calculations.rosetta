@@ -1,6 +1,88 @@
 namespace "org.isda.cdm"
 version "${project.version}"
 
+// Option 1 - delegates more work to the InterpolateForwardRate function
+calculation FxMarkToMarket <"Representation of sample mark to market calculation provided by a member firm.">
+{
+	= quotedQuantity - baseQuantity * interpolatedRate
+	
+	where
+		// calculation inputs
+		// TODO: reference ISDA documentation where applicable
+		// TODO: code generation to support comparison vs. enum values
+		quotedQuantity <"The amount of the quoted currency.">: 
+			if ForwardPayout -> foreignExchange -> exchangeRate -> quotedCurrencyPair -> quoteBasis = QuoteBasisEnum.Currency2PerCurrency1 
+			then ForwardPayout -> foreignExchange -> exchangedCurrency2 -> cashflowAmount -> amount 
+			else ForwardPayout -> foreignExchange -> exchangedCurrency1 -> cashflowAmount -> amount
+			
+		baseQuantity <"The amount of the base currency.">: 
+			if ForwardPayout -> foreignExchange -> exchangeRate -> quotedCurrencyPair -> quoteBasis = QuoteBasisEnum.Currency2PerCurrency1 
+			then ForwardPayout -> foreignExchange -> exchangedCurrency1 -> cashflowAmount -> amount 
+			else ForwardPayout -> foreignExchange -> exchangedCurrency2 -> cashflowAmount -> amount
+			
+		interpolatedRate :
+			InterpolateForwardRate( ForwardPayout ) -> result
+}
+
+function InterpolateForwardRate( forward ForwardPayout )
+{
+	result number;
+}
+
+// Option 2 - more explicit about what parameters to feed into interpolation calculation
+calculation FxMarkToMarket_FullInterpolation <"Representation of sample mark to market calculation provided by a member firm, providing more transparency on the parameters used to interpolate the mark to market rate.">
+{	
+	= quotedQuantity - baseQuantity * interpolatedRate
+	
+	where
+		// TODO: (non-critical) Change to use alias, so to clearly distinguish between calculation inputs and 'syntactic sugar'
+		// TODO: (non-critical) SpotRate( fx ) -> rate is unecessary, SpotRate( fx ) should be enough, as it returns only 1 value
+		// TODO: code generation to support variables that reference other variables, under the hood the reference to 'fx' in 'tenor' is broken
+		fx					: ForwardPayout -> foreignExchange
+		tenor				: fx -> tenorPeriod -> periodMultiplier
+		tenorRemaining		: ForwardPayout -> settlementDate - Today() -> date
+		spotRate			: SpotRate( fx ) -> rate
+		forwardRate			: ForwardRate( fx -> tenorPeriod, fx ) -> rate
+		
+		// calculation inputs
+		// TODO: reference ISDA documentation where applicable
+		quotedQuantity <"The amount of the quoted currency.">: 
+			if fx -> exchangeRate -> quotedCurrencyPair -> quoteBasis = QuoteBasisEnum.Currency2PerCurrency1 
+			then fx -> exchangedCurrency2 -> cashflowAmount -> amount 
+			else fx -> exchangedCurrency1 -> cashflowAmount -> amount
+			
+		baseQuantity <"The amount of the base currency.">: 
+			if fx -> exchangeRate -> quotedCurrencyPair -> quoteBasis = QuoteBasisEnum.Currency2PerCurrency1 
+			then fx -> exchangedCurrency1 -> cashflowAmount -> amount 
+			else fx -> exchangedCurrency2 -> cashflowAmount -> amount
+			
+		interpolatedRate <"The interpolated rate.">: 
+			InterpolateFull( tenor - tenorRemaining, 0, tenor, spotRate,  forwardRate ) -> result
+}
+
+function Today() <"Returns the current date of the operating system.">
+{
+	date date;
+}
+
+function InterpolateFull(x number,  xStart int, xEnd int, yStart number, yEnd number ) <"Returns the one-dimensional piecewise linear interpolant to a function with given discrete data points ([xStart, xEnd], [yStart, yEnd]), evaluated at x.">
+{
+	result number;	
+}
+
+function SpotRate( fx ForeignExchange ) <"An external market data lookup for the spot fx for the currency pair.">
+{
+	rate number;
+}
+
+function ForwardRate( tenor Period, fx ForeignExchange ) <"An external market data lookup for the forward fx rate for the currency pair, making use of the period specified on the Foreign Exchange contract.">
+{
+	rate number;
+}
+
+
+
+
 calculation FixedAmount <"2006 ISDA Definition Article 5 Section 5.1. Calculation of a Fixed Amount: The Fixed Amount payable by a party on a Payment Date will be: (a) if an amount is specified for the Swap Transaction as the Fixed Amount payable by that party for that Payment Date or for the related Calculation Period, that amount; or (b) if an amount is not specified for the Swap Transaction as the Fixed Amount payable by that party for that Payment Date or for the related Calculation Period, an amount calculated on a formula basis for that Payment Date or for the related Calculation Period as follows: Fixed Amount = Calculation Amount × Fixed Rate × Day Count Fraction.">
 {
 	fixedAmount = calculationAmount * fixedRate * dayCountFraction
