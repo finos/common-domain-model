@@ -1,15 +1,26 @@
 namespace "org.isda.cdm"
 version "${project.version}"
 
-// Option 1 - delegates more work to the InterpolateForwardRate function
-calculation FxMarkToMarket <"Representation of sample mark to market calculation provided by a member firm.">
+
+/*
+ * Goals:
+ *   1. Describe product agnostic VM calculations;
+ *   2. to be as transparent as possible in capturing which CDM objects are being used for the calculations.
+ */
+
+
+// Option 1
+//   1. - delegates more work to the InterpolateForwardRate function, opaque usage of ForwardPayout
+//   2. - will not support other products
+//   3. + requires minimal infrastructure work to support VG thread
+// TODO: reference ISDA documentation where applicable
+// TODO: code generation to support comparison vs. enum values
+calculation FxMarkToMarket_1 <"Representation of sample mark to market calculation provided by a member firm.">
 {
-	= quotedQuantity - baseQuantity * interpolatedRate
+	= (quotedQuantity / interpolatedRate - baseQuantity) * interpolatedRate
 	
 	where
 		// calculation inputs
-		// TODO: reference ISDA documentation where applicable
-		// TODO: code generation to support comparison vs. enum values
 		quotedQuantity <"The amount of the quoted currency.">: 
 			if ForwardPayout -> foreignExchange -> exchangeRate -> quotedCurrencyPair -> quoteBasis = QuoteBasisEnum.Currency2PerCurrency1 
 			then ForwardPayout -> foreignExchange -> exchangedCurrency2 -> cashflowAmount -> amount 
@@ -24,28 +35,67 @@ calculation FxMarkToMarket <"Representation of sample mark to market calculation
 			InterpolateForwardRate( ForwardPayout ) -> result
 }
 
+// Option 1.5
+//   1. + calculation expressed in a product agnostic way
+//   2. + calculation inputs can reference alias' or calculations to pull traded price and quantity for any product
+//   3. - delegates more work to the InterpolateForwardRate function, opaque usage of ForwardPayout
+// TODO: extract tradedPrice, tradedQuantity and marketPrice for all products using either alias or other calculations
+calculation MarkToMarket_1_5 <"mtm calculation expressed in a product agnostic way.">
+{
+	= tradedQuantity * (tradedPrice - marketPrice)
+	
+	where
+		tradedPrice <"The amount of the quoted currency.">: 
+			ForwardPayout -> foreignExchange -> exchangeRate -> rate 
+			
+		tradedQuantity <"The amount of the base currency.">: 
+			if ForwardPayout -> foreignExchange -> exchangeRate -> quotedCurrencyPair -> quoteBasis = QuoteBasisEnum.Currency2PerCurrency1 
+			then ForwardPayout -> foreignExchange -> exchangedCurrency1 -> cashflowAmount -> amount 
+			else ForwardPayout -> foreignExchange -> exchangedCurrency2 -> cashflowAmount -> amount
+			
+		marketPrice:
+			InterpolateForwardRate( ForwardPayout ) -> result
+}
+
+
 function InterpolateForwardRate( forward ForwardPayout )
 {
 	result number;
 }
 
 // Option 2 - more explicit about what parameters to feed into interpolation calculation
-calculation FxMarkToMarket_FullInterpolation <"Representation of sample mark to market calculation provided by a member firm, providing more transparency on the parameters used to interpolate the mark to market rate.">
+//   1. + explicit in which model objects are being passed into function calls, transparency
+//   2. - will require lots of product specific logic in a calculation that should be product agnostic
+//
+// TODO: (non-critical) Change to use alias, so to clearly distinguish between calculation inputs and 'syntactic sugar', enforce non-calc-inputs to be alias'
+// TODO: (non-critical) SpotRate( fx ) -> rate is unnecessary, SpotRate( fx ) should be enough, as it returns only 1 value
+// TODO: code generation to support comparison vs. enum values
+// TODO: code generation to support variables that reference other variables, under the hood the reference to 'fx' in 'tenor' is broken
+calculation FxMarkToMarket_2 <"Representation of sample mark to market calculation provided by a member firm, providing more transparency on the parameters used to interpolate the mark to market rate.">
 {	
-	= quotedQuantity - baseQuantity * interpolatedRate
+	= (quotedQuantity / interpolatedRate - baseQuantity) * interpolatedRate
 	
 	where
-		// TODO: (non-critical) Change to use alias, so to clearly distinguish between calculation inputs and 'syntactic sugar'
-		// TODO: (non-critical) SpotRate( fx ) -> rate is unecessary, SpotRate( fx ) should be enough, as it returns only 1 value
-		// TODO: code generation to support variables that reference other variables, under the hood the reference to 'fx' in 'tenor' is broken
-		fx					: ForwardPayout -> foreignExchange
-		tenor				: fx -> tenorPeriod -> periodMultiplier
-		tenorRemaining		: ForwardPayout -> settlementDate - Today() -> date
-		spotRate			: SpotRate( fx ) -> rate
-		forwardRate			: ForwardRate( fx -> tenorPeriod, fx ) -> rate
+		// variables used in the rate InterpolateFull function call, below.
+		fx:
+			ForwardPayout -> foreignExchange
+			
+		tenor:
+			fx -> tenorPeriod -> periodMultiplier
+			
+		tenorRemaining: 
+			ForwardPayout -> settlementDate - Today() -> date
+			
+		spotRate:
+			SpotRate( fx ) -> rate
+			
+		forwardRate:
+			ForwardRate( fx -> tenorPeriod, fx ) -> rate
 		
-		// calculation inputs
-		// TODO: reference ISDA documentation where applicable
+		// actual calculation inputs
+		interpolatedRate <"The interpolated rate.">: 
+			Interpolate( tenor - tenorRemaining, 0, tenor, spotRate, forwardRate ) -> result
+			
 		quotedQuantity <"The amount of the quoted currency.">: 
 			if fx -> exchangeRate -> quotedCurrencyPair -> quoteBasis = QuoteBasisEnum.Currency2PerCurrency1 
 			then fx -> exchangedCurrency2 -> cashflowAmount -> amount 
@@ -55,9 +105,6 @@ calculation FxMarkToMarket_FullInterpolation <"Representation of sample mark to 
 			if fx -> exchangeRate -> quotedCurrencyPair -> quoteBasis = QuoteBasisEnum.Currency2PerCurrency1 
 			then fx -> exchangedCurrency1 -> cashflowAmount -> amount 
 			else fx -> exchangedCurrency2 -> cashflowAmount -> amount
-			
-		interpolatedRate <"The interpolated rate.">: 
-			InterpolateFull( tenor - tenorRemaining, 0, tenor, spotRate,  forwardRate ) -> result
 }
 
 function Today() <"Returns the current date of the operating system.">
@@ -65,7 +112,7 @@ function Today() <"Returns the current date of the operating system.">
 	date date;
 }
 
-function InterpolateFull(x number,  xStart int, xEnd int, yStart number, yEnd number ) <"Returns the one-dimensional piecewise linear interpolant to a function with given discrete data points ([xStart, xEnd], [yStart, yEnd]), evaluated at x.">
+function Interpolate(x number,  xStart int, xEnd int, yStart number, yEnd number ) <"Returns the one-dimensional piecewise linear interpolant to a function with given discrete data points ([xStart, xEnd], [yStart, yEnd]), evaluated at x.">
 {
 	result number;	
 }
@@ -78,6 +125,77 @@ function SpotRate( fx ForeignExchange ) <"An external market data lookup for the
 function ForwardRate( tenor Period, fx ForeignExchange ) <"An external market data lookup for the forward fx rate for the currency pair, making use of the period specified on the Foreign Exchange contract.">
 {
 	rate number;
+}
+
+
+
+
+
+
+// Option 3 - reference other calculations, potential to make calculations product agnostic
+// TODO: requires support for referencing calculations from calculations
+
+calculation MarkToMarket_3 <"Representation of sample mark to market calculation provided by a member firm.">
+{
+		= tradedQuantity * (tradedPrice - marketPrice)
+	
+	where
+		tradedPrice <"The amount of the quoted currency.">: 
+			TradedPrice( EconomicTerms -> payout )
+			
+		tradedQuantity <"The amount of the base currency.">: 
+			TradedQuantity( EconomicTerms -> payout )
+			
+		marketPrice:
+			CalculateMarketPrice( ForwardPayout ) -> result
+}
+
+calculation TradedPrice
+{
+	= 	if Payout -> forwardPayout -> foreignExchange exists 
+		then Payout -> forwardPayout -> foreignExchange -> exchangeRate -> rate
+		else 0.0
+}
+
+calculation TradedQuantity <"A calculation that takes a Payout and returns the traded quantity.">
+{
+	= 	if Payout -> forwardPayout -> foreignExchange exists 
+		then 
+			if ForeignExchange -> exchangeRate -> quotedCurrencyPair -> quoteBasis = QuoteBasisEnum.Currency2PerCurrency1 
+			then ForeignExchange -> exchangedCurrency1 -> cashflowAmount -> amount 
+			else ForeignExchange -> exchangedCurrency2 -> cashflowAmount -> amount
+		else 
+			if Payout -> interestRatePayout -> exists 
+			then Payout -> interestRatePayout -> ... -> notionalAmount
+			else 0.0
+}
+
+calculation CalculateMarketPrice
+{
+	= Interpolate(x, xStart, xEnd, yStart, yEnd)
+	
+	where 
+		tenorRemaining: 
+			// TODO: further call out to alias' or calculations to extract this data for any product
+			ForwardPayout -> settlementDate - Today() -> date
+			
+		tenor:
+			ForwardPayout -> foreignExchange -> tenorPeriod -> periodMultiplier
+			
+		x: 
+			 tenor - tenorRemaining
+			
+		xStart:
+			0
+			
+		xEnd:
+			tenor
+			
+		yStart:
+			ForwardRate( ForwardPayout -> foreignExchange -> tenorPeriod, ForwardPayout -> foreignExchange ) -> rate
+			
+		yEnd:
+			SpotRate( ForwardPayout -> foreignExchange ) -> rate
 }
 
 
