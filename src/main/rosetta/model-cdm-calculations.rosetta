@@ -1,20 +1,24 @@
 namespace "org.isda.cdm"
 version "${project.version}"
 
-
 /*
+ * Variation Margin Mark to Market Calculation 
+ * 
  * Goals:
- *   1. Describe product agnostic VM calculations;
- *   2. to be as transparent as possible in capturing which CDM objects are being used for the calculations.
+ *   1. Describe a product agnostic mark-to-market calculation such that it can be used for Variation Margin valuation process;
+ *   2. To be as transparent as possible in capturing which CDM elements are being used for the calculations.
  */
 
 
-// Option 1
-//   1. - delegates more work to the InterpolateForwardRate function, opaque usage of ForwardPayout
-//   2. - will not support other products
-//   3. + requires minimal infrastructure work to support VG thread
-// TODO: reference ISDA documentation where applicable
-// TODO: code generation to support comparison vs. enum values
+/*
+ * Option 1 - A mark to market calculation for an FX Forward as provided by a member firm
+ * 
+ *   1. + requires minimal infrastructure work to support VG thread
+ *   2. - delegates more work to the InterpolateForwardRate function, opaque usage of ForwardPayout
+ *   3. - will not support other products
+ * 
+ * TODO: code generation to support comparison vs. enum values
+ */
 calculation FxMarkToMarket_1 <"Representation of sample mark to market calculation provided by a member firm.">
 {
 	= (quotedQuantity / interpolatedRate - baseQuantity) * interpolatedRate
@@ -35,42 +39,23 @@ calculation FxMarkToMarket_1 <"Representation of sample mark to market calculati
 			InterpolateForwardRate( ForwardPayout ) -> result
 }
 
-// Option 1.5
-//   1. + calculation expressed in a product agnostic way
-//   2. + calculation inputs can reference alias' or calculations to pull traded price and quantity for any product
-//   3. - delegates more work to the InterpolateForwardRate function, opaque usage of ForwardPayout
-// TODO: extract tradedPrice, tradedQuantity and marketPrice for all products using either alias or other calculations
-calculation MarkToMarket_1_5 <"mtm calculation expressed in a product agnostic way.">
-{
-	= tradedQuantity * (tradedPrice - marketPrice)
-	
-	where
-		tradedPrice <"The amount of the quoted currency.">: 
-			ForwardPayout -> foreignExchange -> exchangeRate -> rate 
-			
-		tradedQuantity <"The amount of the base currency.">: 
-			if ForwardPayout -> foreignExchange -> exchangeRate -> quotedCurrencyPair -> quoteBasis = QuoteBasisEnum.Currency2PerCurrency1 
-			then ForwardPayout -> foreignExchange -> exchangedCurrency1 -> cashflowAmount -> amount 
-			else ForwardPayout -> foreignExchange -> exchangedCurrency2 -> cashflowAmount -> amount
-			
-		marketPrice:
-			InterpolateForwardRate( ForwardPayout ) -> result
-}
-
-
 function InterpolateForwardRate( forward ForwardPayout )
 {
 	result number;
 }
 
-// Option 2 - more explicit about what parameters to feed into interpolation calculation
-//   1. + explicit in which model objects are being passed into function calls, transparency
-//   2. - will require lots of product specific logic in a calculation that should be product agnostic
-//
-// TODO: (non-critical) Change to use alias, so to clearly distinguish between calculation inputs and 'syntactic sugar', enforce non-calc-inputs to be alias'
-// TODO: (non-critical) SpotRate( fx ) -> rate is unnecessary, SpotRate( fx ) should be enough, as it returns only 1 value
-// TODO: code generation to support comparison vs. enum values
-// TODO: code generation to support variables that reference other variables, under the hood the reference to 'fx' in 'tenor' is broken
+
+/*
+ * Option 2 - A mark to market calculation for an FX Forward as provided by a member firm, but providing more transparency to the inputs of the interpolation function
+ * 
+ *   1. + explicit in which model elements are being passed into function calls
+ *   2. - will require lots of product specific logic in a calculation that should be product agnostic
+ * 
+ * TODO: code generation to support comparison vs. enum values
+ * TODO: code generation to support variables that reference other variables, under the hood the reference to 'fx' in 'tenor' is broken
+ * TODO: (non-critical) Change to use alias, so to clearly distinguish between calculation inputs and 'syntactic sugar', enforce non-calc-inputs to be alias'
+ * TODO: (non-critical) SpotRate( fx ) -> rate is unnecessary, SpotRate( fx ) should be enough, as it returns only 1 value 
+ */
 calculation FxMarkToMarket_2 <"Representation of sample mark to market calculation provided by a member firm, providing more transparency on the parameters used to interpolate the mark to market rate.">
 {	
 	= (quotedQuantity / interpolatedRate - baseQuantity) * interpolatedRate
@@ -128,13 +113,19 @@ function ForwardRate( tenor Period, fx ForeignExchange ) <"An external market da
 }
 
 
-
-
-
-
-// Option 3 - reference other calculations, potential to make calculations product agnostic
-// TODO: requires support for referencing calculations from calculations
-
+/* 
+ * Option 3 - reference other calculations, potential to make calculations product agnostic
+ * 
+ *   1. + Mark to market calculation described in product-agnostic terms
+ *   2. + Product specific logic (i.e. to extract price and quantity) are abstracted into other 'calculations' or functions
+ *   3. + Price and quantity abstractions can be reused in Portfolio processing
+ *   4. - More work involved upgrade syntax and code generators
+ * 
+ * TODO: requires support for referencing calculations from calculations
+ * TODO: code generation to support comparison vs. enum values
+ * TODO: code generation to support variables that reference other variables, under the hood the reference to 'fx' in 'tenor' is broken
+ */
+/*
 calculation MarkToMarket_3 <"Representation of sample mark to market calculation provided by a member firm.">
 {
 		= tradedQuantity * (tradedPrice - marketPrice)
@@ -150,13 +141,6 @@ calculation MarkToMarket_3 <"Representation of sample mark to market calculation
 			CalculateMarketPrice( ForwardPayout ) -> result
 }
 
-calculation TradedPrice
-{
-	= 	if Payout -> forwardPayout -> foreignExchange exists 
-		then Payout -> forwardPayout -> foreignExchange -> exchangeRate -> rate
-		else 0.0
-}
-
 calculation TradedQuantity <"A calculation that takes a Payout and returns the traded quantity.">
 {
 	= 	if Payout -> forwardPayout -> foreignExchange exists 
@@ -164,10 +148,21 @@ calculation TradedQuantity <"A calculation that takes a Payout and returns the t
 			if ForeignExchange -> exchangeRate -> quotedCurrencyPair -> quoteBasis = QuoteBasisEnum.Currency2PerCurrency1 
 			then ForeignExchange -> exchangedCurrency1 -> cashflowAmount -> amount 
 			else ForeignExchange -> exchangedCurrency2 -> cashflowAmount -> amount
-		else 
+		else if  
 			if Payout -> interestRatePayout -> exists 
 			then Payout -> interestRatePayout -> ... -> notionalAmount
 			else 0.0
+		else if 
+			...
+}
+
+calculation TradedPrice
+{
+	= 	if Payout -> forwardPayout -> foreignExchange exists 
+			then Payout -> forwardPayout -> foreignExchange -> exchangeRate -> rate
+		else if Payout -> interestRatePayout exists
+			then 
+				... 
 }
 
 calculation CalculateMarketPrice
@@ -176,14 +171,13 @@ calculation CalculateMarketPrice
 	
 	where 
 		tenorRemaining: 
-			// TODO: further call out to alias' or calculations to extract this data for any product
-			ForwardPayout -> settlementDate - Today() -> date
+			EconomicTerms -> payout -> forwardPayout -> settlementDate - Today() -> date
 			
 		tenor:
-			ForwardPayout -> foreignExchange -> tenorPeriod -> periodMultiplier
+			Tenor( EconomicTerms )
 			
 		x: 
-			 tenor - tenorRemaining
+			tenor - tenorRemaining
 			
 		xStart:
 			0
@@ -197,7 +191,7 @@ calculation CalculateMarketPrice
 		yEnd:
 			SpotRate( ForwardPayout -> foreignExchange ) -> rate
 }
-
+*/
 
 
 
