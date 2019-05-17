@@ -8,8 +8,6 @@ version "${project.version}"
  *   1. Describe a product agnostic mark-to-market calculation such that it can be used for Variation Margin valuation process;
  *   2. To be as transparent as possible in capturing which CDM elements are being used for the calculations.
  */
-
-
 /*
  * Option 1 - A mark to market calculation for an FX Forward as provided by a member firm
  * 
@@ -22,7 +20,7 @@ version "${project.version}"
 calculation FxMarkToMarket_1 <"Representation of sample mark to market calculation provided by a member firm.">
 {
 	= (quotedQuantity / interpolatedRate - baseQuantity) * interpolatedRate
-	
+	  
 	where
 		// calculation inputs
 		quotedQuantity <"The amount of the quoted currency.">: 
@@ -111,84 +109,3 @@ function ForwardRate( tenor Period, fx ForeignExchange ) <"An external market da
 {
 	rate number;
 }
-
-
-/* 
- * Option 3 - reference other calculations, potential to make calculations product agnostic
- * 
- *   1. + Mark to market calculation described in product-agnostic terms
- *   2. + Product specific logic (i.e. to extract price and quantity) are abstracted into other 'calculations' or functions
- *   3. + Price and quantity abstractions can be reused in Portfolio processing
- *   4. - More work involved upgrade syntax and code generators
- * 
- * TODO: requires support for referencing calculations from calculations
- * TODO: code generation to support comparison vs. enum values
- * TODO: code generation to support variables that reference other variables, under the hood the reference to 'fx' in 'tenor' is broken
- */
-/*
-calculation MarkToMarket_3 <"Representation of sample mark to market calculation provided by a member firm.">
-{
-		= tradedQuantity * (tradedPrice - marketPrice)
-	
-	where
-		tradedPrice <"The amount of the quoted currency.">: 
-			TradedPrice( EconomicTerms -> payout )
-			
-		tradedQuantity <"The amount of the base currency.">: 
-			TradedQuantity( EconomicTerms -> payout )
-			
-		marketPrice:
-			CalculateMarketPrice( ForwardPayout ) -> result
-}
-
-calculation TradedQuantity <"A calculation that takes a Payout and returns the traded quantity.">
-{
-	= 	if Payout -> forwardPayout -> foreignExchange exists 
-		then 
-			if ForeignExchange -> exchangeRate -> quotedCurrencyPair -> quoteBasis = QuoteBasisEnum.Currency2PerCurrency1 
-			then ForeignExchange -> exchangedCurrency1 -> cashflowAmount -> amount 
-			else ForeignExchange -> exchangedCurrency2 -> cashflowAmount -> amount
-		else if  
-			if Payout -> interestRatePayout -> exists 
-			then Payout -> interestRatePayout -> ... -> notionalAmount
-			else 0.0
-		else if 
-			...
-}
-
-calculation TradedPrice
-{
-	= 	if Payout -> forwardPayout -> foreignExchange exists 
-			then Payout -> forwardPayout -> foreignExchange -> exchangeRate -> rate
-		else if Payout -> interestRatePayout exists
-			then 
-				... 
-}
-
-calculation CalculateMarketPrice
-{
-	= Interpolate(x, xStart, xEnd, yStart, yEnd)
-	
-	where 
-		tenorRemaining: 
-			EconomicTerms -> payout -> forwardPayout -> settlementDate - Today() -> date
-			
-		tenor:
-			Tenor( EconomicTerms )
-			
-		x: 
-			tenor - tenorRemaining
-			
-		xStart:
-			0
-			
-		xEnd:
-			tenor
-			
-		yStart:
-			ForwardRate( ForwardPayout -> foreignExchange -> tenorPeriod, ForwardPayout -> foreignExchange ) -> rate
-			
-		yEnd:
-			SpotRate( ForwardPayout -> foreignExchange ) -> rate
-}
-*/
