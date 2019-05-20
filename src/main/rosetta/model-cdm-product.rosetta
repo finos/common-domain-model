@@ -434,6 +434,7 @@ class Execution key <"A class to specify an execution, which consists essentiall
 		[synonym CME_SubmissionIRS_1_0 value tradeDate path "Instrmt.SecXML.FpML.trade.tradeHeader" meta id]
 	contractualProduct ContractualProduct (1..1);
 		[synonym CME_SubmissionIRS_1_0 value trade path "Instrmt.SecXML.FpML"]
+	// product Product (1..1) <"The product traded as part of this execution">;
 	party Party (0..*) <"The party reference is optional because positioned as part of the Event class when the execution is specified as part of such context.">;
 		[synonym CME_SubmissionIRS_1_0 value party path "Instrmt.SecXML.FpML"]
 	partyRole PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the execution, further to the principal parties (i.e payer/receive or buyer/seller) to it.">;
@@ -1000,6 +1001,47 @@ data rule TransactedPrice_marketPrice <"FpML specifies that marketFixedRate and 
 	when Payout -> creditDefaultPayout -> generalTerms -> indexReferenceInformation is absent
 	then Payout -> creditDefaultPayout -> transactedPrice -> marketFixedRate is absent
 		and Payout -> creditDefaultPayout -> transactedPrice -> marketPrice is absent
+
+ /************************
+ * Portfolio Aggregation *
+ ************************/
+
+class Position <"A Position describes how much of a given Product is being held and constitutes the atomic element of a Portfolio.">
+{
+	product Product (1..1) <"The product underlying the position, which can either be a contractual product or securities.">;
+	quantity Quantity (1..1) <"The quantity of the product, which can be a negative number in case of a short position.">;
+	// TBD: whether to add a PositionType here to qualify whether the position is just executed, already settled, etc.
+}
+ 
+class PortfolioState key <"State-full representation of a Portfolio that describes all the positions held at a given time, in various states which can be either traded, settled, etc., with lineage information to the previous state">
+{
+	positions Position (0..*) <"The list of positions, each containing a Quantity and a Product.">;
+	lineage Lineage (1..1) <"Pointer to the previous PortfolioState and new Event(s) leading to the current (new) state. Previous PortfolioState in the Lineage can be Null in case this is the start of the chain of Events.">;
+	// TBD: delineate positions into several attributes such as: tradedPositions, settledPositions, etc, to distinguish between the various risk states of a portfolio
+}
+
+data rule PortfolioState_initialisation <"When the PortfolioState is the starting state of the Portfolio, as identified by a Null state in the Lineage, Positions must be empty and the reference to the latest Event is also empty. This is how a Portfolio gets initialised.">
+	when PortfolioState exists and PortfolioState -> lineage -> portfolioState is absent
+	then PortfolioState -> positions is absent
+	and PortfolioState -> lineage -> eventReference is absent
+
+ class AggregationParameters <"Parameters to be used to filter events that are relevant to a given portfolio in order to calculate the state of this portfolio. The attributes correspond to all the possible aggregation criteria that can be used and these criteria can be combined. All the attributes are optional.">
+{
+	// Just a subset of possible aggregation parameters, for illustration to initiate the build-up of that class
+	party Party (0..*) reference <"To aggregate based on a selection of party(ies) / legal entity(ies).">;
+	productQualifier productType (0..*) <"To aggregate based on a selection of product type(s).">;
+	contractReference Contract (0..*) reference <"To aggregate based on Events that are applicable only to a given Contract(s).">;
+	// TO DO: add more possible aggregation attributes, and more complex filtering/aggregation rules such as exclusion instead of just inclusion, etc.
+	// TBD: include the time dimension here to filter relevant events in a given period?
+}
+
+class Portfolio <"A Portfolio represents an aggregation of multiple Positions, by describing the parameters that this Portfolio should be aggregated based on. The resulting PortfolioState is calculated using these aggregation parameters as inputs, by aggregating all the Events that are relevant to this Portfolio. The concept of Portfolio works at all levels in the model: from the highest for a given LegalEntity for instance, to the lowest to account for security substitutions in a secutity financing transaction. As such, Portfolio can be used either above or below the Contract level.">
+{
+	aggregationParameters AggregationParameters (1..1) <"Describes the portfolio by describing how to aggregate all its relevant Events.">;
+	portfolioState PortfolioState (1..1) <"Describes the state of the Portfolio as a list of Positions resulting from the aggregation.">;
+}
+
+// TO ADD: PortfolioState calculation based on EventEffect
 
 /***********************
  * Product Qualification
