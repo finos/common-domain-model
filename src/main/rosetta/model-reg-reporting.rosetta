@@ -66,51 +66,50 @@ report ESMA_MiFIR regulation "RTS 22" in T+1
 		CommodityDerivativeIndicator
 		SecuritiesFinancingTransactionIndicator
 
- 
- 
- 
- reporting rule Ele
- 	filter when Event -> primitive -> inception exists then
- 		filter when Event -> effectiveDate = Event -> effectiveDate or Event -> effectiveDate = Event -> effectiveDate
- 		
- 
- 
 
 
-report ESMA_EMIR regulation "ITS Article 9" in T+1
-	when ExecutingEntityInScope
-	using standard ISO_20022 with fields
-		ReportingCounterpartyID
-		Notional
-  		MaturityDate
-
+//
+//report ESMA_EMIR regulation "ITS Article 9" in T+1
+//	when ExecutingEntityInScope
+//	using standard ISO_20022 with fields
+//		ReportingCounterpartyID
+//		Notional
+//  		MaturityDate
+//
 
 // non-financial counterparty located in the EEA
 eligibility rule ExecutingEntityInScope <"When the executing entity is a financial counterparty or non-financial counterparty located in the EEA">
    [regulatoryReference ESMA_MiFIR regulation "ITS Article 9" article "1 (2)" provision "This Regulation shall apply to CCPs and their clearing members, to financial counterparties and to trade repositories. It shall apply to non-financial counterparties and trading venues where so provided"]
 	// TODO add all conditions that we need to identify financial counterparty and non-financial counterparty
 	// TODO lookup LEI code and check it is in the EEA
+	filter when 
 	Contract -> partyRole -> role = PartyRoleEnum.ClearingFirm
-	or
+		or
 	Contract -> partyRole -> role = PartyRoleEnum.ClearingOrganization
 
 eligibility rule ReportableProduct <"When eligible for rts 22">
    [regulatoryReference ESMA_MiFIR regulation "RTS 22 (EU) 2015/2365" article "2" provision "For the purposes of Article 26 of Regulation (EU) No 600/2014, the conclusion of an acquisition or disposal of a financial instrument referred to in Article 26(2) of Regulation (EU) No 600/2014 shall constitute a transaction."]
+		filter when
 		Event -> primitive -> inception only exists
-		or
+			or
 		Event -> primitive -> quantityChange exists
 
 
 eligibility rule ReportableTransation <"When eligible for rts 22">
    [regulatoryReference ESMA_MiFIR regulation "RTS 22 (EU) 2015/2365" article "2" provision "For the purposes of Article 26 of Regulation (EU) No 600/2014, the conclusion of an acquisition or disposal of a financial instrument referred to in Article 26(2) of Regulation (EU) No 600/2014 shall constitute a transaction."]
+		filter when
 		Event -> primitive -> inception only exists
-		or
+			or
 		Event -> primitive -> quantityChange exists
 
 eligibility rule InvestmentFirm <"Identify as an investment firm which has executed the trade">
-   [regulatoryReference ESMA_MiFIR regulation "RTS 22" section "Context of the Delegation Act" provision "The Markets in Financial Instruments Regulation (EU) No 600/2014 (MiFIR) requires investment firms to report complete and accurate details of transactions in financial instruments"]
-	True	 	
- 	
+   [regulatoryReference ESMA_MiFIR regulation "RTS 22" section "Context of the Delegation Act" 
+   	provision "The Markets in Financial Instruments Regulation (EU) No 600/2014 (MiFIR) requires investment firms to report complete and accurate details of transactions in financial instruments"
+   ]
+ 	// TODO lookup IsInvestmentFirm for ExecutingEntityIdentificationCode
+ 	filter when Event -> primitive -> inception exists
+ 	 
+ 	 
 reporting rule MaturityDate <"Date of maturity of the financial instrument. Field only applies to debt instruments with defined maturity">
  	   [regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "1. Table 2. Field 54" provision "Date of maturity of the financial instrument. Field only applies to debt instruments with defined maturity."]
  	   [regulatoryReference ESMA_MiFIR regulation "ITS Article 9" field "2.27" provision "Original date of expiry of the reported contract."]
@@ -118,7 +117,7 @@ reporting rule MaturityDate <"Date of maturity of the financial instrument. Fiel
  	   	recommendation "Where there is different Maturity Dates on the two legs, the Maturity Date reported should be the longest dated.
 						The unadjusted Maturity Date should be used, unless both parties agree on reporting the adjusted date.
 						Although this is an Optional field, if there is a Maturity Date for the trade, this field must be reported."]
- 	ContractForEvent then extract Contract -> contractualProduct -> economicTerms -> terminationDate -> adjustableDate -> adjustedDate
+ 	ContractForEvent then extract Contract -> contractualProduct -> economicTerms -> terminationDate -> adjustableDate -> unadjustedDate
 
 reporting rule ReportingCounterpartyID
  	   [regulatoryReference ESMA_MiFIR regulation "ITS Article 9" field "1.2"
@@ -148,10 +147,13 @@ reporting rule Notional
 reporting rule ReportStatus <"Indication as to whether the transaction report is new or a cancellation">
 		[regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "I table 2 #1" 
 			provision "Indication as to whether the transaction report is new or a cancellation."]
- 	extract if Event -> action = ActionEnum.New
+ 	extract if Event -> primitive -> inception exists
  				then "NEWT"
  			else if Event -> action = ActionEnum.Cancel
  				then "CANC"
+// TODO
+// 			else if Event -> eventQualifier = "Termination"
+// 				then "CANC"
  			else ""
  			as "Report Status"
 
@@ -160,11 +162,9 @@ reporting rule TransactionReferenceNumber
 		[regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "I table 2 #2" 
 			provision "Identification number that is unique to the executing firm for each transaction report. Where, pursuant to Article 26(5) of Regulation (EU) No 600/2014, a trading venue submits a transaction report on behalf of a firm that is not subject to Regulation (EU) No 600/2014, the trading venue shall populate this field with a number that has been internally generated by the trading venue and that is unique for each transaction report submitted by the trading venue" reportedField
 		]
- 	ContractForEvent then 
- 	extract Contract -> contractIdentifier then
- 		//filter when Identifier -> issuer = 'ISO17442' then
- 		extract Identifier -> assignedIdentifier -> identifier
- 			as "Trading Venue Transaction Identification Code"
+		// TODO confirm with ISDA
+		extract Event -> eventIdentifier -> assignedIdentifier -> identifier
+ 			as "Transaction Reference Number"
  	
 
 reporting rule TradingVenueTransactionIdentificationCode <"Trading venue transaction identification code">
@@ -178,27 +178,43 @@ reporting rule ExecutingEntityIdentificationCode <"Code used to identify the ent
 		[regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "I table 2 #4" 
 		   	provision "Code used to identify the entity executing the transaction."]
  	ContractForEvent then 
- 	extract Contract -> partyContractInformation -> partyReference -> partyId
+ 	extract Contract -> partyContractInformation then 
+ 	filter when PartyContractInformation -> relatedParty -> role = PartyRoleEnum.ReportingParty then
+ 	extract PartyContractInformation -> partyReference -> partyId
  		as "Executing Entity Identification Code"
  	
 reporting rule IsInvestmentFirm
 		[regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "I table 2 #5" 
 			provision "Indicates whether the entity identified in field 4 is an investment firm covered by Article 4(1) of Directive 2014/65/EU." reportedField
 		]
- 	return "Y" as "Is Investment Firm"
+//	 extract 
+//	 	if /* TODO lookup is isvestment firm */  True 
+//	 		then "Y" 
+//	 	else "N"
+	 	return "Y"
+			as "Is Investment Firm"
 
 reporting rule SubmittingEntityIdentificationCode <"Submitting entity identification code">
 		[regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "I table 2 #6" 
 			provision "Code used to identify the entity submitting the transaction report to the competent authority in accordance with Article 26(7) of Regulation (EU) No 600/2014. Where the report is submitted by the executing firm directly to the competent authority, it shall be populated with the LEI of the executing firm (where the executing firm is a legal entity). Where the report is submitted by a trading venue, it shall be populated with the LEI of the operator of the trading venue. Where the report is submitted by an ARM, it shall be populated with the LEI of the ARM." reportedField
 		]
- 	return "Out Of Scope"
+ 	ContractForEvent then 
+ 	extract Contract -> partyContractInformation then 
+ 	filter when PartyContractInformation -> relatedParty -> role = PartyRoleEnum.ReportingParty then
+ 	extract PartyContractInformation -> partyReference -> partyId
  		as "Submitting Entity Identification Code"
+
+
+// if fixed/inflation
+// then buyer is payer of fixed rate
+// 
+
  	
 reporting rule BuyerIdentificationCode <"Buyer identification code">
 		[regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "I table 2 #7" 
 			provision "Code used to identify the acquirer of the financial instrument.Where the acquirer is a legal entity, the LEI code of the acquirer shall be used.Where the acquirer is a non-legal entity, the identifier specified in Article 6 shall be used.Where the transaction was executed on a trading venue or on an organised trading platform outside of the Union that utilises a central counterparty (CCP) and where the identity of the acquirer is not disclosed, the LEI code of the CCP shall be used.Where the transaction was executed on a trading venue or on an organised trading platform outside of the Union that does not utilise a CCP and where the identity of the acquirer is not disclosed, the MIC code of the trading venue or of the organised trading platform outside of the Union shall be used.Where the acquirer is an investment firm acting as a systematic internaliser (SI), the LEI code of the SI shall be used.‘INTC’ shall be used to designate an aggregate client account within the investment firm in order to report a transfer into or out of that account with an associated allocation to the individual client(s) out of or into that account respectively.In case of options and swaptions, the buyer shall be the counterparty that holds the right to exercise the option and the seller shall be the counterparty that sells the option and receives a premium.In case of futures and forwards other than futures and forwards relating to currencies, the buyer shall be the counterparty buying the instrument and the seller the counterparty selling the instrument.In the case of swaps relating to securities, the buyer shall be the counterparty that gets the risk of price movement of the underlying security and receives the security amount. The seller shall be the counterparty paying the security amount.In the case of swaps related to interest rates or inflation indices, the buyer shall be the counterparty paying the fixed rate. The seller shall be the counterparty receiving the fixed rate. In case of basis swaps (float-to-float interest rate swaps), the buyer shall be the counterparty that pays the spread and the seller the counterparty that receives the spread.In the case of swaps and forwards related to currencies and of cross currency swaps, the buyer shall be the counterparty receiving the currency which is first when sorted alphabetically by ISO 4217 standard and the seller shall be the counterparty delivering this currency.In the case of swap related to dividends, the buyer shall be the counterparty receiving the equivalent actual dividend payments. The seller is the counterparty paying the dividend and receiving the fixed rate.In the case of derivative instruments for the transfer of credit risk except options and swaptions, the buyer shall be the counterparty buying the protection. The seller is the counterparty selling the protection.In case of derivative contract related to commodities, the buyer shall be the counterparty that receives the commodity specified in the report and the seller the counterparty delivering this commodity.In case of forward rate agreements, the buyer shall be the counterparty paying the fixed rate and the seller the counterparty receiving the fixed rate.For an increase in notional, the buyer shall be the same as the acquirer of the financial instrument in the original transaction and the seller shall be the same as the disposer of the financial instrument in the original transaction.For a decrease in notional the buyer shall be the same as the disposer of the financial instrument in the original transaction and the seller shall be the same as the acquirer of the financial instrument in the original transaction." reportedField
 		]
- 	return "Out Of Scope"
+ 	return "Not yet implemented"
  		as "Buyer Identification Code"
 
 
@@ -206,7 +222,7 @@ reporting rule SellerIdentificationCode <"Seller identification code">
 		[regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "I table 2 #16" 
 			provision "Code used to identify the disposer of the financial instrument.Where the disposer is a legal entity, the LEI code of the disposer shall be used.Where the disposer is a non-legal entity, the identifier specified in Article 6 shall be used.Where the transaction was executed on a trading venue or on an organised trading platform outside of the Union that utilises a CCP and where the identity of the disposer is not disclosed, the LEI code of the CCP shall be used.Where the transaction was executed on a trading venue or on an organised trading platform outside of the Union that does not utilise a CCP and where the identity of the disposer is not disclosed, the MIC code of the trading venue or of the organised trading platform outside of the Union shall be used.Where the disposer is an investment firm acting as a SI, the LEI code of the SI shall be used‘INTC’ shall be used to designate an aggregate client account within the investment firm in order to report a transfer into or out of that account with an associated allocation to the individual client(s) out of or into that account respectively.In case of options and swaptions, the buyer shall be the counterparty that holds the right to exercise the option and the seller shall be the counterparty that sells the option and receives a premium.In case of futures and forwards other than futures and forwards relating to currencies, the buyer shall be the counterparty buying the instrument and the seller the counterparty selling the instrument.In the case of swaps relating to securities, the buyer shall be the counterparty that gets the risk of price movement of the underlying security and receives the security amount. The seller shall be the counterparty paying the security amount.In the case of swaps related to interest rates or inflation indices, the buyer shall be the counterparty paying the fixed rate. The seller shall be the counterparty receiving the fixed rate. In case of basis swaps (float-to-float interest rate swaps), the buyer shall be the counterparty that pays the spread and the seller the counterparty that receives the spread.In the case of swaps and forwards related to currencies and of cross currency swaps, the buyer shall be the counterparty receiving the currency which is first when sorted alphabetically by ISO 4217 standard and the seller shall be the counterparty delivering this currency.In the case of swap related to dividends, the buyer shall be the counterparty receiving the equivalent actual dividend payments. The seller is the counterparty paying the dividend and receiving the fixed rate.In the case of derivative instruments for the transfer of credit risk except options and swaptions, the buyer shall be the counterparty buying the protection. The seller is the counterparty selling the protection.In case of derivative contracts related to commodities, the buyer shall be the counterparty that receives the commodity specified in the report and the seller the counterparty delivering this commodity.In case of forward rate agreements, the buyer shall be the counterparty paying the fixed rate and the seller the counterparty receiving the fixed rate.For an increase in notional, the seller shall be the same as the disposer in the original transaction.For a decrease in notional the seller shall be the same as the acquirer of the financial instrument in the original transaction." reportedField
 		]
- 	return "Out Of Scope"
+ 	return "Not yet implemented"
  		as "Seller Identification Code"
 
 reporting rule TransmissionOfOrderIndicator <"Transmission of order indicator">
@@ -219,9 +235,10 @@ reporting rule TransmissionOfOrderIndicator <"Transmission of order indicator">
 
 reporting rule TradingDateTime <"Trading date time">
 		[regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "I table 2 #28" 
-			provision "Date and time when the transaction was executed. For transactions executed on a trading venue, the level of granularity shall be in accordance with the requirements set out in Article of Commission Delegated Regulation (EU) 2017/574 (2). For transactions not executed on a trading venue, the date and time shall be when the parties agree the content of the following fields: quantity, price, currencies in fields 31, 34 and 44, instrument identification code, instrument classification and underlying instrument code, where applicable. For transactions not executed on a trading venue the time reported shall be at least to the nearest second. Where the transaction results from an order transmitted by the executing firm on behalf of a client to a third party where the conditions for transmission set out in Article 4 were not satisfied, this shall be the date and time of the transaction rather than the time of the order transmission." reportedField
-		]
- 	return "Out Of Scope"
+			provision "Date and time when the transaction was executed. For transactions executed on a trading venue, the level of granularity shall be in accordance with the requirements set out in Article of Commission Delegated Regulation (EU) 2017/574 (2). For transactions not executed on a trading venue, the date and time shall be when the parties agree the content of the following fields: quantity, price, currencies in fields 31, 34 and 44, instrument identification code, instrument classification and underlying instrument code, where applicable. For transactions not executed on a trading venue the time reported shall be at least to the nearest second. Where the transaction results from an order transmitted by the executing firm on behalf of a client to a third party where the conditions for transmission set out in Article 4 were not satisfied, this shall be the date and time of the transaction rather than the time of the order transmission." reportedField]
+ 	extract Event -> timestamp then
+ 		filter when EventTimestamp -> qualification = EventTimestampQualificationEnum.executionDateTime then 
+ 		extract EventTimestamp -> dateTime 
  		as "Trading Date Time"
 
 reporting rule TradingCapacity <"Trading capacity">
@@ -257,16 +274,51 @@ reporting rule DerivativeNotionalIncreaseDecrease
 
 reporting rule Price <"Date of maturity of the financial instrument. Field only applies to debt instruments with defined maturity">
  	   [regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "1. Table 2. Field 33" 
- 	   	provision "Traded price of the transaction excluding, where applicable, commission and accrued interest.
-					In the case of option contracts, it shall be the premium of the derivative contract per underlying or index point.
-					In the case of spread bets it shall be the reference price of the underlying instrument.
+ 	   	provision "Traded price of spread bets it shall be the reference price of the underlying instrument.
 					For credit default swaps (CDS) it shall be the coupon in basis points.
 					Where price is reported in monetary terms, it shall be provided in the major currency unit.
 					Where price is currently not available but pending, the value shall be ‘PNDG’
 					Where price is not applicable the value shall be ‘NOAP’
 					The information reported in this field shall be consistent with the values provided in fields 30 and 46."]
+					
+	// if there is one or more fixed legs
+	// then get highest numeric value of the transaction excluding, where applicable, commission and accrued interest.
+//					In the case of option contracts, it shall be the premium of the derivative contract per underlying or index point.
+//					In the case  of  fixed rate
+//					the
+ 	ContractForEvent then
+ 	//filter when RateSpecification -> fixedRate count > 0 then
+ 		filter when Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate exists then
+ 		extract Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate -> initialValue
+ 		// extract max value
+	 as "Price"
+ 	// FixedRatePrice then FloatingRatePrice
+
+
+	// CDS 		
+ 	// If there is no FloatingRate price use Fixed Rate Price
+ 	// If there is a Fixed Rate price != 0, then use Fixed Rate Price
+
+	// if (FloatingRate not exist or FixedRatePrice != 0)
+	// use FixedRatePrice
+	// else
+	// use FloatingRatePrice
+	
+
+ reporting rule FixedRatePrice
+ 	ContractForEvent then
+ 	//filter when RateSpecification -> fixedRate count > 0 then
+ 		filter when Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate exists then
+ 		extract Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate -> initialValue
+ 		// extract max value
+	 as "Price"
+ 		
+  reporting rule FloatingRatePrice
  	ContractForEvent then 
- 	extract Contract -> contractualProduct -> economicTerms -> terminationDate -> adjustableDate -> adjustedDate
+ 	extract Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification then
+ 	//filter when RateSpecification -> fixedRate count = 0 then
+ 		extract RateSpecification -> floatingRate -> spreadSchedule -> initialValue
+ 		// extract max value
  		as "Price"
 
 reporting rule Venue <"Venue">
@@ -441,6 +493,10 @@ reporting rule ContractForEvent
  			then Event -> primitive -> inception -> after -> contract
  		else Event -> primitive -> inception -> after -> contract
  	as "Contract"
+
+reporting rule RateSpecification
+ 	extract Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification
+ 	as "Rate Specification"
 
 
 	
