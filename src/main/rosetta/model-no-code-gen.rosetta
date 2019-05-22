@@ -1,22 +1,82 @@
 namespace "org.isda.cdm"
 version "${project.version}"
 
-enum DirecitonEnum {
-	Increase, Decrease
-}
 
-class QuantityChange 
-{
-	quantity Quantity (1..1);
-	direction DirecitonEnum (1..1);
-}
 
-// TODO: support object name-space to overcome erroneous name collisions  
-function QuantityChangeFunc( trade Trade, quantityChange QuantityChange ) 
-{
+
+/*
+ * Option 2 - A mark to market calculation for an FX Forward as provided by a member firm, but providing more transparency to the inputs of the interpolation function
+ * 
+ *   1. + explicit in which model elements are being passed into function calls
+ *   2. - will require lots of product specific logic in a calculation that should be product agnostic
+ * 
+ * TODO: code generation to support comparison vs. enum values
+ * TODO: code generation to support variables that reference other variables, under the hood the reference to 'fx' in 'tenor' is broken
+ * TODO: (non-critical) Change to use alias, so to clearly distinguish between calculation inputs and 'syntactic sugar', enforce non-calc-inputs to be alias'
+ * TODO: (non-critical) SpotRate( fx ) -> rate is unnecessary, SpotRate( fx ) should be enough, as it returns only 1 value 
+ */
+calculation FxMarkToMarket_2 <"Representation of sample mark to market calculation provided by a member firm, providing more transparency on the parameters used to interpolate the mark to market rate.">
+{	
+	= (quotedQuantity / interpolatedRate - baseQuantity) * interpolatedRate
 	
+	where 
+		// variables used in the rate InterpolateFull function call, below.
+		fx:
+			ForwardPayout -> foreignExchange
+			
+		tenor:
+			fx -> tenorPeriod -> periodMultiplier
+		
+		today:
+			Today()
+			
+		tenorRemaining: 
+			ForwardPayout -> settlementDate + today -> time
+			
+		spotRate:
+			SpotRate( fx ) -> rate
+			
+		forwardRate:
+			ForwardRate( fx -> tenorPeriod, fx ) -> rate
+		
+		// actual calculation inputs
+		interpolatedRate <"The interpolated rate.">: 
+			42.0 // Interpolate( tenor - tenorRemaining, 0, tenor, spotRate, forwardRate ) -> result
+			
+		quotedQuantity <"The amount of the quoted currency.">: 
+			if fx -> exchangeRate -> quotedCurrencyPair -> quoteBasis = QuoteBasisEnum.Currency2PerCurrency1 
+			then fx -> exchangedCurrency2 -> cashflowAmount -> amount 
+			else fx -> exchangedCurrency1 -> cashflowAmount -> amount
+			
+		baseQuantity <"The amount of the base currency.">: 
+			if fx -> exchangeRate -> quotedCurrencyPair -> quoteBasis = QuoteBasisEnum.Currency2PerCurrency1 
+			then fx -> exchangedCurrency1 -> cashflowAmount -> amount 
+			else fx -> exchangedCurrency2 -> cashflowAmount -> amount
 }
 
+function Today() <"Returns the current date of the operating system.">
+{
+	date date;
+	time time;
+}
+
+function Interpolate(x number,  xStart int, xEnd int, yStart number, yEnd number ) <"Returns the one-dimensional piecewise linear interpolant to a function with given discrete data points ([xStart, xEnd], [yStart, yEnd]), evaluated at x.">
+{
+	result number;	
+}
+
+function SpotRate( fx ForeignExchange ) <"An external market data lookup for the spot fx for the currency pair.">
+{
+	rate number;
+}
+
+function ForwardRate( tenor Period, fx ForeignExchange ) <"An external market data lookup for the forward fx rate for the currency pair, making use of the period specified on the Foreign Exchange contract.">
+{
+	rate number;
+}
+
+
+>>>>>>> 32df460... Turn on code gen for csa option 1
 /* 
  * Option 3 - reference other calculations, potential to make calculations product agnostic
  * 
