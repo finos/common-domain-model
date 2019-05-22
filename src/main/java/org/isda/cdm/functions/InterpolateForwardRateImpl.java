@@ -6,6 +6,7 @@ import org.isda.cdm.functions.InterpolateForwardRate.CalculationResult;
 public class InterpolateForwardRateImpl {
 	
 	public CalculationResult execute(ForwardPayout forward) {
-		throw new UnsupportedOperationException("TODO: auto-generated method stub");
+		throw new UnsupportedOperationException("TODO: implement this method");
 	}
+	
 }
