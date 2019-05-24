@@ -1,0 +1,64 @@
+namespace "org.isda.cdm"
+version "${project.version}"
+
+reporting rule BuyerSeller
+	extract Contract->contractualProduct->economicTerms -> payout then
+	(
+		FixedFloatBuyerSeller,
+		FixedFixedBuyerSeller,
+		SingleCurrencyBasisSwap,
+		CrossCurrencySwapBuyerSeller
+	)
+
+reporting rule FixedFloatBuyerSeller
+	filter when rule IsFixedFloat then
+	filter when Payout -> interestRatePayout -> rateSpecification -> fixedRate exists then
+	extract Payout -> interestRatePayout -> payerReceiver then 
+	PayerReceiverToBuyerSeller
+	
+reporting rule FixedFixedBuyerSeller
+	filter when rule IsFixedFixed then
+	extract Payout->interestRatePayout then
+	filter when InterestRatePayout -> quantity -> notionalAmount exists then//this is my interpretation of "Filter Fixed Rate amount exists"
+	extract InterestRatePayout -> payerReceiver then 
+	PayerReceiverToBuyerSeller
+		
+reporting rule PayerReceiverToBuyerSeller
+	(
+		extract PayerReceiver -> payerPartyReference then
+		filter when Party -> partyId -> scheme ="iso17442" then
+		extract Party->partyId as "Buyer" 
+		,
+		extract PayerReceiver -> receiverPartyReference then 
+		filter when Party -> partyId -> scheme ="iso17442" then
+		extract Party->partyId as "Seller"
+	)
+
+reporting rule IsFixedFloat
+	extract Payout->interestRatePayout -> rateSpecification -> fixedRate count = 1
+	and Payout->interestRatePayout -> rateSpecification -> floatingRate count = 1
+
+
+reporting rule IsFixedFixed
+	extract Payout -> interestRatePayout -> rateSpecification -> fixedRate count = 2
+	
+reporting rule SingleCurrencyBasisSwap
+	filter when rule IsIRSwapBasis then
+	extract Payout->interestRatePayout then
+	filter when InterestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule -> initialValue exists then
+	extract InterestRatePayout -> payerReceiver then 
+	PayerReceiverToBuyerSeller
+	
+reporting rule IsIRSwapBasis
+	extract Payout -> interestRatePayout -> rateSpecification -> floatingRate count = 2
+	
+reporting rule CrossCurrencySwapBuyerSeller
+	filter when rule IsXCCYSwap then
+	extract Payout->interestRatePayout then
+	minBy InterestRatePayout->quantity -> notionalAmount->currency then
+	extract InterestRatePayout -> payerReceiver then
+	PayerReceiverToBuyerSeller
+	
+reporting rule IsXCCYSwap
+	extract Payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges exists
+	
