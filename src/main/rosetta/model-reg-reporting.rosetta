@@ -82,7 +82,7 @@ eligibility rule ExecutingEntityInScope <"When the executing entity is a financi
    [regulatoryReference ESMA_MiFIR regulation "ITS Article 9" article "1 (2)" provision "This Regulation shall apply to CCPs and their clearing members, to financial counterparties and to trade repositories. It shall apply to non-financial counterparties and trading venues where so provided"]
 	// TODO add all conditions that we need to identify financial counterparty and non-financial counterparty
 	// TODO lookup LEI code and check it is in the EEA
-	filter when 
+	filter when
 	Contract -> partyRole -> role = PartyRoleEnum.ClearingFirm
 		or
 	Contract -> partyRole -> role = PartyRoleEnum.ClearingOrganization
@@ -104,12 +104,15 @@ eligibility rule ReportableTransation <"When eligible for rts 22">
 
 eligibility rule InvestmentFirm <"Identify as an investment firm which has executed the trade">
    [regulatoryReference ESMA_MiFIR regulation "RTS 22" section "Context of the Delegation Act" 
-   	provision "The Markets in Financial Instruments Regulation (EU) No 600/2014 (MiFIR) requires investment firms to report complete and accurate details of transactions in financial instruments"
-   ]
- 	// TODO lookup IsInvestmentFirm for ExecutingEntityIdentificationCode
- 	filter when Event -> primitive -> inception exists
- 	 
- 	 
+	   	provision "The Markets in Financial Instruments Regulation (EU) No 600/2014 (MiFIR) requires investment firms to report complete and accurate details of transactions in financial instruments"]
+ 	filter when rule IsExecutingEntityInvestmentFirm
+
+eligibility rule IsExecutingEntityInvestmentFirm
+       	ContractForEvent then 
+		 	extract Contract -> partyContractInformation then 
+		 	filter when PartyContractInformation -> relatedParty -> role = PartyRoleEnum.ReportingParty then
+		 	extract PartyContractInformation -> partyReference then lookup IsExecutingEntityInvestmentFirm boolean
+
 reporting rule MaturityDate <"Date of maturity of the financial instrument. Field only applies to debt instruments with defined maturity">
  	   [regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "1. Table 2. Field 54" provision "Date of maturity of the financial instrument. Field only applies to debt instruments with defined maturity."]
  	   [regulatoryReference ESMA_MiFIR regulation "ITS Article 9" field "2.27" provision "Original date of expiry of the reported contract."]
