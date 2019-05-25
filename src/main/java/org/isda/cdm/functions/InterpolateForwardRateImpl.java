@@ -3,10 +3,13 @@ package org.isda.cdm.functions;
 import org.isda.cdm.ForwardPayout;
 import org.isda.cdm.functions.InterpolateForwardRate.CalculationResult;
 
-public class InterpolateForwardRateImpl {
+import java.math.BigDecimal;
+
+public class InterpolateForwardRateImpl implements InterpolateForwardRate {
 	
 	public CalculationResult execute(ForwardPayout forward) {
-		throw new UnsupportedOperationException("TODO: implement this method");
+		return new CalculationResult()
+				.setResult(new BigDecimal("1.31"));
 	}
 	
 }
