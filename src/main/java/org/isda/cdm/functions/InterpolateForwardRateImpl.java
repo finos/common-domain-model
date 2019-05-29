@@ -9,7 +9,7 @@ public class InterpolateForwardRateImpl implements InterpolateForwardRate {
 	
 	public CalculationResult execute(ForwardPayout forward) {
 		return new CalculationResult()
-				.setResult(new BigDecimal("1.31"));
+				.setResult(new BigDecimal("0.8675"));
 	}
 	
 }
