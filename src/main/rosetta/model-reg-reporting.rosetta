@@ -22,7 +22,7 @@ segment field
 organisation ISDA
 
 reporting standard ISO_20022 <"ISO 20022 is a multi part International Standard prepared by ISO Technical Committee TC68 Financial Services.">
-	[regulatoryReference ESMA_MiFIR regulation "RTS 22" article "1"
+	[regulatoryReference ESMA_MiFIR regulation "RTS 22" article "1" whereas "2"
 		provision "All details to be included in transaction reports shall be submitted in accordance with the standards and formats specified in Table 2 of Annex I, 
 					in an electronic and machine-readable form and in a common XML template in accordance with the ISO 20022 methodology"]
 
@@ -38,8 +38,7 @@ report ESMA_MiFIR regulation "RTS 22" in T+1
 		ExecutingEntityIdentificationCode
 		IsInvestmentFirm
 		SubmittingEntityIdentificationCode
-		BuyerIdentificationCode
-		SellerIdentificationCode
+		BuyerSeller
 		TransmissionOfOrderIndicator
 		TradingDateTime
 		TradingCapacity
@@ -273,40 +272,6 @@ reporting rule DerivativeNotionalIncreaseDecrease
  		else if quantityAfterQuantityChange < quantityBeforeQuantityChange
  			then "DECR"
  		else ""
-
-
-reporting rule Price <"Date of maturity of the financial instrument. Field only applies to debt instruments with defined maturity">
- 	   [regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "1. Table 2. Field 33" 
- 	   	provision "Traded price of spread bets it shall be the reference price of the underlying instrument.
-					For credit default swaps (CDS) it shall be the coupon in basis points.
-					Where price is reported in monetary terms, it shall be provided in the major currency unit.
-					Where price is currently not available but pending, the value shall be ‘PNDG’
-					Where price is not applicable the value shall be ‘NOAP’
-					The information reported in this field shall be consistent with the values provided in fields 30 and 46."]
-					
-	// if there is one or more fixed legs
-	// then get highest numeric value of the transaction excluding, where applicable, commission and accrued interest.
-//					In the case of option contracts, it shall be the premium of the derivative contract per underlying or index point.
-//					In the case  of  fixed rate
-//					the
- 	ContractForEvent then
- 	//filter when RateSpecification -> fixedRate count > 0 then
- 		filter when Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate exists then
- 		extract Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate -> initialValue
- 		// extract max value
-	 as "Price"
- 	// FixedRatePrice then FloatingRatePrice
-
-
-	// CDS 		
- 	// If there is no FloatingRate price use Fixed Rate Price
- 	// If there is a Fixed Rate price != 0, then use Fixed Rate Price
-
-	// if (FloatingRate not exist or FixedRatePrice != 0)
-	// use FixedRatePrice
-	// else
-	// use FloatingRatePrice
-	
 
  reporting rule FixedRatePrice
  	ContractForEvent then
