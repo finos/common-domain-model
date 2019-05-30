@@ -1,0 +1,132 @@
+namespace "org.isda.cdm"
+version "${project.version}"
+
+reporting rule BuyerSeller
+	ContractForEvent then
+	extract Contract->contractualProduct->economicTerms -> payout then
+	(
+		FixedFloatBuyerSeller,
+		FixedFixedBuyerSeller,
+		SingleCurrencyBasisSwap,
+		CrossCurrencySwapBuyerSeller,
+		CreditDefaultSwapBuyerSeller
+	)
+
+reporting rule FixedFloatBuyerSeller
+	filter when rule IsFixedFloat then
+	extract multiple Payout -> interestRatePayout then
+	filter when InterestRatePayout -> rateSpecification -> fixedRate exists then
+	extract InterestRatePayout -> payerReceiver then 
+	PayerReceiverToBuyerSeller
+	
+reporting rule FixedFixedBuyerSeller
+	filter when rule IsFixedFixed then
+	extract Payout->interestRatePayout then
+	filter when InterestRatePayout -> quantity -> notionalAmount exists then//this is my interpretation of "Filter Fixed Rate amount exists"
+	extract InterestRatePayout -> payerReceiver then 
+	PayerReceiverToBuyerSeller
+		
+reporting rule PayerReceiverToBuyerSeller
+	(
+		extract PayerReceiver -> payerPartyReference then
+		filter when Party -> partyId -> scheme ="iso17442" then
+		extract Party->partyId as "Buyer" 
+		,
+		extract PayerReceiver -> receiverPartyReference then 
+		filter when Party -> partyId -> scheme ="iso17442" then
+		extract Party->partyId as "Seller"
+	)
+
+reporting rule IsFixedFloat
+	extract Payout->interestRatePayout -> rateSpecification -> fixedRate count = 1
+	and Payout->interestRatePayout -> rateSpecification -> floatingRate count = 1
+
+
+reporting rule IsFixedFixed
+	extract Payout -> interestRatePayout -> rateSpecification -> fixedRate count = 2
+	
+reporting rule SingleCurrencyBasisSwap
+	filter when rule IsIRSwapBasis then
+	extract Payout->interestRatePayout then
+	filter when InterestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule -> initialValue exists then
+	extract InterestRatePayout -> payerReceiver then 
+	PayerReceiverToBuyerSeller
+	
+reporting rule IsIRSwapBasis
+	extract Payout -> interestRatePayout -> rateSpecification -> floatingRate count = 2
+	
+reporting rule CrossCurrencySwapBuyerSeller
+	filter when rule IsXCCYSwap then
+	extract Payout->interestRatePayout then
+	minBy InterestRatePayout->quantity -> notionalAmount->currency then
+	extract InterestRatePayout -> payerReceiver then
+	PayerReceiverToBuyerSeller
+	
+reporting rule IsXCCYSwap
+	extract Payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges exists
+
+reporting rule CreditDefaultSwapBuyerSeller
+	filter when rule IsCreditDefaultSwap then
+	extract Payout -> creditDefaultPayout -> generalTerms -> buyerSeller
+	then BuyerSellerToBuyerAndSeller
+	
+reporting rule IsCreditDefaultSwap
+	extract Payout -> creditDefaultPayout exists
+	
+reporting rule BuyerSellerToBuyerAndSeller
+	(
+		extract BuyerSeller -> buyerPartyReference then
+		filter when Party -> partyId -> scheme ="iso17442" then
+		extract Party->partyId as "Buyer" 
+		,
+		extract BuyerSeller -> sellerPartyReference then 
+		filter when Party -> partyId -> scheme ="iso17442" then
+		extract Party->partyId as "Seller"
+	)
+	
+reporting rule Price <"Date of maturity of the financial instrument. Field only applies to debt instruments with defined maturity">
+ 	   [regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "1. Table 2. Field 33" 
+ 	   	provision "Traded price of spread bets it shall be the reference price of the underlying instrument.
+					For credit default swaps (CDS) it shall be the coupon in basis points.
+					Where price is reported in monetary terms, it shall be provided in the major currency unit.
+					Where price is currently not available but pending, the value shall be ‘PNDG’
+					Where price is not applicable the value shall be ‘NOAP’
+					The information reported in this field shall be consistent with the values provided in fields 30 and 46."]
+	ContractForEvent then
+	extract Contract->contractualProduct->economicTerms -> payout then
+	(
+		FixedFixedPrice,
+		FixedFloatPrice,
+		BasisSwapPrice,
+		CDSPrice
+	)
+	
+reporting rule FixedFixedPrice 
+	filter when rule IsFixedFixed then
+	extract Payout -> interestRatePayout -> rateSpecification -> fixedRate then
+	maxBy Schedule -> initialValue then
+	extract Schedule -> initialValue as "price"
+	
+reporting rule FixedFloatPrice 
+	filter when rule IsFixedFloat then
+	extract Payout -> interestRatePayout -> rateSpecification -> fixedRate then
+	maxBy Schedule -> initialValue then
+	extract Schedule -> initialValue as "price"
+	
+reporting rule BasisSwapPrice 
+	filter when rule IsIRSwapBasis then
+	extract Payout -> interestRatePayout -> rateSpecification -> floatingRate then
+	maxBy FloatingRateSpecification -> initialRate then
+	extract FloatingRateSpecification -> initialRate as "price"
+
+reporting rule CDSPrice 
+	filter when rule IsCreditDefaultSwap then
+	extract if Payout -> interestRatePayout -> rateSpecification -> fixedRate -> initialValue <> 0 then "0"
+		else "1"
+	/*
+	(
+		filter when Payout -> interestRatePayout -> rateSpecification -> fixedRate -> initialValue <> 0 then
+		extract Payout -> interestRatePayout -> rateSpecification -> fixedRate -> initialValue as "price",
+		filter when Payout -> interestRatePayout -> rateSpecification -> fixedRate -> initialValue = 0 then
+		filter when Payout -> interestRatePayout -> rateSpecification -> fixedRate -> initialValue = 0
+	)*/
