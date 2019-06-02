@@ -121,12 +121,11 @@ reporting rule BasisSwapPrice
 
 reporting rule CDSPrice 
 	filter when rule IsCreditDefaultSwap then
-	extract if Payout -> interestRatePayout -> rateSpecification -> fixedRate -> initialValue <> 0 then "0"
-		else "1"
-	/*
-	(
-		filter when Payout -> interestRatePayout -> rateSpecification -> fixedRate -> initialValue <> 0 then
-		extract Payout -> interestRatePayout -> rateSpecification -> fixedRate -> initialValue as "price",
-		filter when Payout -> interestRatePayout -> rateSpecification -> fixedRate -> initialValue = 0 then
-		filter when Payout -> interestRatePayout -> rateSpecification -> fixedRate -> initialValue = 0
-	)*/
+	extract Payout -> interestRatePayout -> rateSpecification then
+	if (//this deliberatly uses two different forms of test
+		filter when RateSpecification -> fixedRate -> initialValue <> 0
+			=> extract RateSpecification -> fixedRate -> initialValue as "price",
+		extract RateSpecification -> floatingRate -> initialRate //If the value returned by the test is not null the test passes
+			=> extract RateSpecification -> floatingRate -> initialRate as "price",
+		=> return 0 as "price"
+	)
