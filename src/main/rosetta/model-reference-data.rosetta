@@ -6,7 +6,7 @@ class Account key <"A class to specify an account as an account number alongside
 {
 	accountNumber string (1..1) scheme <"The account number.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value accountId meta accountIdScheme]
-		[synonym ISDA_Create_1_0 value id, partyA_cash, partyA_securities ]
+		[synonym ISDA_Create_1_0 value partyA_cash, partyA_securities ]
 	accountName string (0..1) scheme <"The name by which the account is known.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value accountName meta accountNameScheme]
 		[synonym ISDA_Create_1_0 value name]
@@ -110,18 +110,17 @@ class Party key <"A class to specify a party, without a qualification as to whet
 	partyId string (1..*) scheme <"The identifier associated with a party, e.g. the 20 digits LEI code.">;
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value partyId meta partyIdScheme]
 		[synonym DTCC_11_0, DTCC_9_0 value partyId maps 2 meta partyIdScheme]
-		[synonym ISDA_Create_1_0 value id]
 	name string (0..1) scheme <"The party name.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value partyName meta entityNameScheme]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value entityName meta entityNameScheme]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value entityName path "referenceEntity" meta entityNameScheme]
 		[synonym CME_SubmissionIRS_1_0 value SID path "Hdr"]
-		[synonym ISDA_Create_1_0 value name]
-		[synonym ISDA_Create_1_0 value partyA_name, partyB_name]
+		[synonym ISDA_Create_1_0 value partyA_name path "answers.parties"]
+		[synonym ISDA_Create_1_0 value partyB_name path "answers.parties"]
 	person NaturalPerson (0..*) <"The person(s) who might be associated with the party as part of the execution, contract or legal document.">;
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value person]
 	account Account (0..1) <"The account that might be associated with the party. At most one account can be specified, as it is expected that this information is used in the context of a contract or legal document where only one account per party can be associated with such object.">;
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0, ISDA_Create_1_0 value account]
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value account]
 }
 
 class PartyContactInformation <"A class to specify contact information within a party: address and, optionally, associated business unit and person. This class also supports the ISDA CSA representation as a single string, through the address attribute.">
@@ -136,7 +135,8 @@ class PartyContactInformation <"A class to specify contact information within a 
 	person NaturalPerson (0..*) <"Optional information about people involved in a transaction or business process. (These are employees of the party.)">;
 		[synonym FpML_5_10 value person]
 	address string (0..1) <"The address specified as a string to support non-normalized contact information, such as in the case of ISDA Create.">;
-		[synonym ISDA_Create_1_0 value partyA_specify, partyB_specify]
+		[synonym ISDA_Create_1_0 value partyA_specify]
+		[synonym ISDA_Create_1_0 value partyB_specify]
 }
 
 choice rule PartyContactInformation_choice <"The address attribute corresponds to a non-normalized alternative representation to the contactInformation. This reflects the current ISDA Create data representation.">

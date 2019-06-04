@@ -1,5 +1,13 @@
 package org.isda.cdm.processor;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
+
+import org.isda.cdm.metafields.ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.MoreCollectors;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.Path;
@@ -7,19 +15,9 @@ import com.rosetta.model.lib.RosettaModelObject;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 
-import org.isda.cdm.metafields.ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 /**
  * Maps from TradeSide.id to TradeSide.orderer.party.id.
  */
-@SuppressWarnings("unused")
 public class TradeSideToPartyMappingProcessor extends MappingProcessor {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(TradeSideToPartyMappingProcessor.class);
