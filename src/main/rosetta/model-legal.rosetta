@@ -22,8 +22,8 @@ class AdditionalRepresentation <"A class to specify the Additional Representatio
 class AdditionalRepresentationElection <"A class to specify the parties' Additional Representation(s) election.">
 {
 	party string (1..1) <"The elective party.">;
-		[synonym ISDA_Create_1_0 set to "partyA" when path = "additional_representations.partyA_additional_representations"]
-		[synonym ISDA_Create_1_0 set to "partyB" when path = "partyB_additional_representations"]
+		[synonym ISDA_Create_1_0 set to "partyA" when "partyA_additional_representations" = "applicable", set to "partyA" when "partyA_additional_representations" = "not_applicable" ]
+		[synonym ISDA_Create_1_0 set to "partyB" when "partyB_additional_representations" = "applicable", set to "partyB" when "partyB_additional_representations" = "not_applicable" ]
 	isApplicable boolean (1..1) <"The Additional Representation is applicable when True, and not applicable when False.">;
 		[synonym ISDA_Create_1_0 set to True when "partyA_additional_representations" = "applicable", set to False when "partyA_additional_representations" = "not_applicable"]
 		[synonym ISDA_Create_1_0 set to True when "partyB_additional_representations" = "applicable", set to False when "partyB_additional_representations" = "not_applicable"]
@@ -85,10 +85,12 @@ class ApplicableRegime <"A class to specify the applicable regulatory regime(s) 
 
 class RegimeTerms <"A class that is used by the ApplicableRegime and the AdditionalRegime classes to specify the regulatory regime terms which are referred to as part of certain legal agreements, such as such as the ISDA 2016 and 2018 CSA for Initial Margin.">
 {
+	party string (1..1) <"A boolean flag to specify whether the regulatory regime is applicable.">;
+		[synonym ISDA_Create_1_0 set to "partyA" when "partyA_secured_party" = "applicable", set to "partyA" when "partyA_secured_party" = "not_applicable"]
+		[synonym ISDA_Create_1_0 set to "partyB" when "partyB_secured_party" = "applicable", set to "partyB" when "partyB_secured_party" = "not_applicable"]
 	isApplicable boolean (1..1) <"A boolean flag to specify whether the regulatory regime is applicable.">;
 		 [synonym ISDA_Create_1_0 set to True when "partyA_secured_party" = "applicable", set to False when "partyA_secured_party" = "not_applicable"]
 		 [synonym ISDA_Create_1_0 set to True when "partyB_secured_party" = "applicable", set to False when "partyB_secured_party" = "not_applicable"]
-			 
 	simmException SimmException (1..1) <"The SIMM exception to the regulatory regime clause of the ISDA 2016 and 2018 CSA for Initial Margin as either a normalized value specified as part of an enumeration or a customized value specified of type string. ISDA 2016 Credit Support Annex for Initial Margin paragraph 13, Regime: SIMM Exception.">;
 	retrospectiveEffect boolean (1..1) <"ISDA 2016 CSA for Initial Margin, paragraph 13 (b)(i): if `Retrospective Effect` is specified as applicable to a Regime (a `Retrospective Regime`) then all Covered Transactions (IM) under all other Regimes with an earlier Regime Effective Time will, to the extent that they would have been Covered Transactions (IM) under such Retrospective Regime had such Transactions been entered into at or after the Regime Effective Time of the Retrospective Regime, be deemed to be Covered Transactions (IM) for such Retrospective Regime.">;
 		[synonym AcadiaSoft_AM_1_0 value retrospectiveEffect]
@@ -109,7 +111,10 @@ class CalculationDateLocation <"A class to specify the Calculation Date Location
 
 class CalculationDateLocationElection <"A class to specify each of the party elections with respect to the Calculation Date Location. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (d)(i): Calculation Date Location. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e)(i): Calculation Date Location. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d)(i): Calculation Date Location.">
 {
-	party Party (1..1) reference <"The elective party.">;
+	party string (1..1) <"The elective party.">;
+		[synonym ISDA_Create_1_0 set to "partyA" when "partyA_calculation_date_location" = "select_location", set to "partyA" when "partyA_calculation_date_location" = "other"]
+		[synonym ISDA_Create_1_0 set to "partyB" when "partyB_calculation_date_location" = "select_location", set to "partyB" when "partyB_calculation_date_location" = "other"]
+		
 	businessCenter BusinessCenterEnum (0..1) scheme <"The Calculation Date Location when specified as a business center which corresponds to the FpML list of business centers or can be mapped to it.">;
 		[synonym ISDA_Create_1_0 value partyA_location set when "partyA_calculation_date_location" = "select_location"]
 		[synonym ISDA_Create_1_0 value partyB_location set when "partyB_calculation_date_location" = "select_location"]
@@ -210,7 +215,9 @@ class Conditions <"A class to specify each party's election with respect to the 
 
 class ConditionsElections <"A class to specify the Termination Events that will be deemed an Access Condition (Initial Margin CSA) or a Specified Condition (Variation Margin CSA). ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (e)(ii). | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (f)(ii). | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e)(ii). | ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (e): Conditions Precedent and Secured Party’s Rights and Remedies.">
 {
-	party Party (1..1) reference <"The elective party.">;
+	party string (1..1) <"The elective party.">;
+		[synonym ISDA_Create_1_0 set to "partyA" when "partyA_illegality" = "applicable", set to "partyA" when "partyA_illegality" = "not_applicable"]
+		[synonym ISDA_Create_1_0 set to "partyB" when "partyB_illegality" = "applicable", set to "partyB" when "partyB_illegality" = "not_applicable"]
 	illegality boolean (1..1);
 		[synonym ISDA_Create_1_0 set to True when "partyA_illegality" = "applicable", set to False when "partyA_illegality" = "not_applicable"]
 		[synonym ISDA_Create_1_0 set to True when "partyB_illegality" = "applicable", set to False when "partyB_illegality" = "not_applicable"]
@@ -231,8 +238,8 @@ class ConditionsElections <"A class to specify the Termination Events that will 
 		[synonym ISDA_Create_1_0 set to True when "partyB_additional_termination_events" = "applicable", set to False when "partyB_additional_termination_events" = "not_applicable"]
 	additionalLanguage string (0..1);
 		[synonym ISDA_Create_1_0 value specify]
-	additionalTerminationEvent AdditionalTerminationEvent (0..1);
-		[synonym ISDA_Create_1_0 value additional_termination_event]		
+//	additionalTerminationEvent AdditionalTerminationEvent (0..1);
+//		[synonym ISDA_Create_1_0 value additional_termination_event]		
 }
 
 class AdditionalTerminationEvent < "A class to specify an optional termination event, additional to the Termination Events that will be deemed an Access Condition (Initial Margin CSA) or a Specified Condition (Variation Margin CSA)">
@@ -565,19 +572,21 @@ class DistributionAndInterestPayment <"A class to specify the Distributions and 
 }
 
 
-// Nikos: Threshold and MinimumTransferAmount class share this one, further complicating partyA & partyB branching
+// Note: Threshold and MinimumTransferAmount class both map to this one
 class ElectiveAmountElection <"A class to specify the party elective amounts which can be used for the purpose of specifying elections such as the ISDA CSA Threshold and Minimum Transfer Amount.">
 {
-	party Party (1..1) reference <"The elective party.">;
+	party string (1..1) <"The elective party.">;
+		// TODO this won't work for minimum_transfer_amount
+		[synonym ISDA_Create_1_0 set to "partyA" when path = "partyA_threshold", set to "partyA" when path = "partyA_minimum_transfer_amount"]
+		[synonym ISDA_Create_1_0 set to "partyB" when path = "partyB_threshold", set to "partyB" when path = "partyB_minimum_transfer_amount"]
 	amount Money (0..1) <"The elective amount when expressed as a currency amount. The associated PartyElectiveAmount_amount data rule enforces that the currency amount is actually greater than 0.">;
 	customElection string (0..1) <"The elective amount when expressed as a custom election by the party.">;
 		[synonym ISDA_Create_1_0 value partyA_specify]
 		[synonym ISDA_Create_1_0 value partyB_specify]
-		// Nikos ... review this one... maybe these need to also go to the next field?
+		// TODO review this one... maybe these need to also go to the next field?
 		// [synonym ISDA_Create_1_0 set to 0 when "partyA_threshold" = "zero"]
 		[synonym ISDA_Create_1_0 value partyA_threshold]
 		[synonym ISDA_Create_1_0 value partyB_threshold]
-		
 	noAmount int (0..1) <"The elective amount when specified as 0 with no associated currency. The associated PartyElectiveAmount_noAmount data rule enforces that the number is actually equal to 0.">;
 		[synonym ISDA_Create_1_0 set to 0 when "partyA_minimum_transfer_amount" = "zero"]
 		[synonym ISDA_Create_1_0 set to 0 when "partyB_minimum_transfer_amount" = "zero"]
@@ -817,7 +826,9 @@ class NotificationTime <"A class to specify the time by which a demand for the T
 
 class NotificationTimeElection <"A class to specify the notification time election by the respective parties to the agreement. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (d)(iii): Notification Time. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e)(iii): Notification Time. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d)(iii): Notification Time.">
 {
-	party Party (1..1) reference <"The elective party.">;
+	party string (1..1) <"The elective party.">;
+		[synonym ISDA_Create_1_0 set to "partyA" when "partyA_notification_time" = "false", set to "partyA" when "partyA_notification_time" = "true"]
+		[synonym ISDA_Create_1_0 set to "partyB" when "partyB_notification_time" = "false", set to "partyB" when "partyB_notification_time" = "true"]		
 	notificationTime BusinessCenterTime (0..1) <"The Notification Time as a time that is qualified as a standard business center.">;
 	customNotification string (0..1) <"The Notification Time as a custom election.">;
 		[synonym ISDA_Create_1_0 value partyA_specify set when "partyA_notification_time" = "false"]
@@ -839,7 +850,8 @@ class OneWayProvisions <"A class to specify whether One Way Provisions apply in 
 {
 	isApplicable boolean (1..1) <"The determination of whether the One Way Provisions are applicable (true) or not applicable (false).">;
 		[synonym ISDA_Create_1_0 set to True when "is_applicable" = "applicable", set to False when "is_applicable" = "not_applicable"]
-	postingParty Party (0..1) reference <"The Posting Party for the purposes of One Way Provisions. It is specified in the case where the One Way Provision is deemed applicable.">;
+	postingParty string (0..1) <"The Posting Party for the purposes of One Way Provisions. It is specified in the case where the One Way Provision is deemed applicable.">;
+		[synonym ISDA_Create_1_0 value posting_party]
 }
 
 data rule OneWayProvisions_postingPartyReference_exists <"A data rule to enforce that the Posting Party must be specified in the case where the One Way Provision is deemed applicable.">
@@ -882,8 +894,8 @@ class PledgorPostingObligations <"A class to specify the pledgor(s) collateral p
 class PostingObligationsElection <"A class to specify the collateral posting obligations as specified under the terms of the ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (ii).">
 {
 	party string (1..1) <"The elective party.">;
-		[synonym ISDA_Create_1_0 set to "partyA" when path = "partyA_type"]
-		[synonym ISDA_Create_1_0 set to "partyB" when path = "partyB_type"]
+	    [synonym ISDA_Create_1_0 set to "partyA" when path = "partyA_type"]
+    	[synonym ISDA_Create_1_0 set to "partyB" when path = "partyB_type"]
 	asPermitted boolean (1..1) <"If set to True, the Control Agreement is a Credit Support Document with respect to the party(ies). ISDA 2016 Credit Support Annex for Initial Margin, paragraph 6, (e).">;
 		[synonym ISDA_Create_1_0 set to True when "partyA_type" = "control_agreement", set to False when "partyA_type" = "specify"]
 		[synonym ISDA_Create_1_0 set to True when "partyB_type" = "control_agreement", set to False when "partyB_type" = "specify"]		
@@ -913,6 +925,10 @@ class ProcessAgentElection <"A class to specify the parties' respective election
 {
 	party Party (1..1) reference <"The elective party.">;
 		[synonym AcadiaSoft_AM_1_0 value party]
+		// TODO will need to stream line the parties here
+	partyName string (1..1)  <"The elective party as string.">;		
+		[synonym ISDA_Create_1_0 set to "partyA" when "partyA_process_agent" = "not_applicable", set to "partyA" when "partyA_process_agent" = "other"]
+		[synonym ISDA_Create_1_0 set to "partyB" when "partyB_process_agent" = "not_applicable", set to "partyB" when "partyB_process_agent" = "other"]
 	isApplicable boolean (1..1) <"The qualification of whether the Process Agent is applicable (True) or not applicable (False).">;
 		[synonym ISDA_Create_1_0 set to True when "partyA_process_agent" = "other", set to False when "partyA_process_agent" = "not_applicable"]
 		[synonym ISDA_Create_1_0 set to True when "partyB_process_agent" = "other", set to False when "partyA_process_agent" = "not_applicable"]
@@ -1014,7 +1030,9 @@ class SensitivityMethodology one of <"A class to specify the methodology accordi
 
 class SimmCalculationCurrency <"A class to specify the ISDA SIMM Calculation Currency as either the Base Currency or an alternative currency. ISDA 2016 CSA for Initial Margin, Paragraph 13, General Principles (ee)(3). | ISDA 2018 CSA for Initial Margin, Paragraph 13, General Principles (ee)(3).">
 {
-	party Party (1..1) reference <"The party which the SIMM Calculation Currency qualification applies to.">;
+	party string (1..1)  <"The party which the SIMM Calculation Currency qualification applies to.">;
+		[synonym ISDA_Create_1_0 set to "partyA" when path = "partyA_use_base_currency", set to "partyA" when path = "partyA_use_other_currency" ]
+		[synonym ISDA_Create_1_0 set to "partyB" when path = "partyB_use_base_currency", set to "partyB" when path = "partyA_use_other_currency" ]
 	isBaseCurrency boolean (1..1) <"The SIMM Calculation Currency (also known as SIMM Reporting Currency) means the Base Currency when True. It means a different currency when False. In that latter case, the SIMM Calculation Currency is specified as part of the currency attribute.">;
 		[synonym ISDA_Create_1_0 value partyA_use_base_currency]
 		[synonym ISDA_Create_1_0 value partyB_use_base_currency]
@@ -1092,8 +1110,9 @@ data rule TerminationCurrencyAmendment_applicable <"The Amendment to Termination
 	
 class TerminationCurrencyElection <"A class to specify the Amendment to Termination Currency election by the parties to the agreement. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (t) (A) & (B).">
 {
-	party Party (1..1) reference <"The elective party.">;
-		// TODO - Need for a mapping logic that will parse the ISDA Create prefix to identify partyA vs. partyB entries
+	party string (1..1) <"The elective party.">;
+		[synonym ISDA_Create_1_0 set to "partyA" when path = "partyA_termination_currency"]
+		[synonym ISDA_Create_1_0 set to "partyB" when path = "partyB_termination_currency"]
 	currency string (1..1) scheme <"The Termination Currency associated with the party that referenced as part of this class. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">;
 		[synonym ISDA_Create_1_0 value partyA_termination_currency]
 		[synonym ISDA_Create_1_0 value partyB_termination_currency]
