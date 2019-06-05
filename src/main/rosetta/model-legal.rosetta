@@ -731,6 +731,27 @@ class InterestAmount <"A class to specify the application of Interest Amount wit
 	deliveryAmount DeliveryAmount (1..1) <"The application of Interest Amount with respect the Delivery Amount. ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(ii).">;
 }
 
+class EquitySwapMasterConfirmation2018 extends EquityMasterConfirmation <"Specification for the General Terms and Relationship Supplement Elections as provided in the 2018 ISDA CDM Equity Confirmation for Security Equity Swap.">
+{
+	typeOfSwapElection ReturnTypeEnum (1..1) <"Part 1 Section 4, 'Dividend Obligations', of the 2018 ISDA CDM Equity Confirmation, Para 4.2 'Dividend Returns': The Type Of Swap Election shall be 'Total Return', unless otherwise specified (as alternative 'Price Return') in the Transaction Supplement.">;
+	// finalPricingElection DeterminationMethodEnum (1..1) <"Specifies the method according to which an amount or a date is determined.">;
+	pricingMethodElection PriceReturnTerms (1..1) <"Part 1 Section 5, 'Pricing', of the 2018 ISDA CDM Equity Confirmation, Para 5.1, 'Determining Prices': Each price in relation to a Pricing Date shall be determined pursuant to the specified Pricing Method. The relevant price specified under the column header 'Price' for a corresponding Pricing Date specified under the column header 'Pricing Date' shall be determined using the corresponding method specified under the column header 'Pricing Method'. Pricing Method for the final Equity Valuation Date shall be specified by the Final EVD Pricing Election and Pricing Method for any other Equity Valaution Date shall be 'Securities Close Pricing (Official)'">;
+	//TODO: the initialPrice attribute should be optional in PriceReturnTerms, only the valuationPriceInterim and valuationPriceFinal methods should be specified at the Swap level
+	linearInterpolationElection InterpolationMethodEnum (1..1) <"Part 1 Section 3, 'Floating Obligations', of the 2018 ISDA CDM Equity Confirmation. Para 3.3, 'Linear Interpolation': If the initial Calculation Period is not equal to the Designated Maturity, then the Linear Interpolation Election shall be as specified in the Relationship Supplement, unless otherwise specified in the Transaction Supplement.">;
+	settlementTerms SettlementTerms (1..1) <"Part 1 Section 8, 'Settlement', of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap. All Settlements are in Cash.">;
+	equityCalculationPeriod CalculationPeriodDates (1..1) <"The parameters used to generate the 'Equity Valuation Dates' schedule, including the Effective Date and Termination Date for the Swap.">;
+	equityCashSettlementDates PaymentDates (1..1) <"The parameters used to generate the payment date schedule, relative to the equityCalculationPeriod. Part 1 Section 12, 'Definitions', of the 2018 ISDA CDM Equity Confirmation. Para 73: 'Equity Cash Settlement Date' means each date falling one Settlement Cycle after an Equity Valuation Date; provided that if any such date is not a Settlement Currency Business Day, then such date shall be adjusted per Following Day Adjustment.">;
+	// TODOs: Averaging Election, Dividend Payment Date Election, Break Funding Election
+}
+
+abstract class EquityMasterConfirmation extends MasterConfirmationBase <"Specification for General Terms and Elections of an Equity Master Confirmation that is applicable across multiple Equity confirmations and is referenced by each of these confirmations, an example of which being the 2018 ISDA CDM Equity Confirmation for Security Equity Swap.">
+{
+}
+
+abstract class MasterConfirmationBase <"Legal agreement specification for General Terms and Elections that are applicable across multiple confirmations and are referenced by these confirmations.">
+{
+}
+
 class LegalAgreement extends LegalAgreementBase key one of <"A class to specify the elections and variables that characterize a legal agreement.">
 {
 	csdInitialMargin2016EnglishLaw CsdInitialMargin2016EnglishLaw (0..1) <"The elections and variables specified in Paragraph 13 of the ISDA 2016 Credit Support Deed for Initial Margin, English Law.">;
@@ -740,6 +761,8 @@ class LegalAgreement extends LegalAgreementBase key one of <"A class to specify 
 	csaInitialMargin2016NewYorkLaw CsaInitialMargin2016NewYorkLaw (0..1) <"The elections and variables specified in Paragraph 13 of the ISDA 2016 Credit Support Annex for Initial Margin, New York Law.">;
 		[synonym ISDA_Create_1_0 value answers set when "document.governingLaw" = "New York"]
 	csaVariationMargin2016NewYorkLaw CsaVariationMargin2016NewYorkLaw (0..1) <"The elections and variables specified in Paragraph 13 of the ISDA 2016 Credit Support Annex for Variation Margin, New York Law.">;
+		[synonym ISDA_Create_1_0 value ignore]
+	equitySwapMasterConfirmation2018 EquitySwapMasterConfirmation2018 (0..1) <"The General Terms and Relationship Supplement Elections specified in the 2018 ISDA CDM Equity Confirmation for Security Equity Swap.">;
 		[synonym ISDA_Create_1_0 value ignore]
 }
 
