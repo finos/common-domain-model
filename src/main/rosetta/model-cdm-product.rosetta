@@ -438,7 +438,7 @@ class Execution key <"A class to specify an execution, which consists essentiall
 	party Party (0..*) <"The party reference is optional because positioned as part of the Event class when the execution is specified as part of such context.">;
 		[synonym CME_SubmissionIRS_1_0 value party path "Instrmt.SecXML.FpML"]
 	partyRole PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the execution, further to the principal parties (i.e payer/receive or buyer/seller) to it.">;
-	closedState ClosedState (0..1) <"The qualification what led to the execution closure alongside with the dates on which this closure takes effect.">;
+	closedState ClosedState (0..1) <"The qualification of what led to the execution closure alongside with the dates on which this closure takes effect.">;
 		[synonym Rosetta_Workbench value closedState]
 	legalAgreementReference LegalAgreement (0..*) reference <"Whether that execution references any higher-level agreement between the parties, as in the case of a Master Confirmation Agreeemnt governing subsequent executions.">;
 }
@@ -1012,18 +1012,34 @@ class Position <"A Position describes how much of a given Product is being held 
 {
 	product Product (1..1) <"The product underlying the position, which can either be a contractual product or securities.">;
 	quantity Quantity (1..1) <"The quantity of the product, which can be a negative number in case of a short position.">;
-	// TBD: whether to add a PositionType here to qualify whether the position is just executed, already settled, etc.
+	positionStatus PositionStatusEnum (1..1) <"Qualifier for the state of the Position, to distinguish if just executed, formed, already settled, closed etc.">;
+	contractReference Contract (0..1) reference <"Reference to the Contract, in case product is contractual and the contract has been formed">;
 }
- 
+
+data rule Position_ContractFormed <"When the position status indicates that contract has been formed, a contract must exists">
+	when Position -> positionStatus = PositionStatusEnum.Formed
+	then Position -> contractReference exists
+/*
+	TODO: implement this extra check based on a comparison function for EconomicTerms
+		and Position -> product -> contractualProduct -> EconomicTerms -> = Position -> contract -> contractualProduct -> EconomicTerms
+*/
+
+enum PositionStatusEnum <"Enumeration to describe the different (risk) states of a Position, whether executed, settled, matured...etc">
+{
+	Executed <"The position has been executed, which is the point at which risk has been transferred.">,
+	Formed <"Contract has been formed, in case position is on a contractual product.">,
+	Settled <"The position has settled, in case product is subject to settlement after execution, such as securities.">,
+	Cancelled <"The position has been cancelled, in case of a cancellation event following an execution.">
+}
+
 class PortfolioState key <"State-full representation of a Portfolio that describes all the positions held at a given time, in various states which can be either traded, settled, etc., with lineage information to the previous state">
 {
 	positions Position (0..*) <"The list of positions, each containing a Quantity and a Product.">;
 	lineage Lineage (1..1) <"Pointer to the previous PortfolioState and new Event(s) leading to the current (new) state. Previous PortfolioState in the Lineage can be Null in case this is the start of the chain of Events.">;
-	// TBD: delineate positions into several attributes such as: tradedPositions, settledPositions, etc, to distinguish between the various risk states of a portfolio
 }
 
 data rule PortfolioState_initialisation <"When the PortfolioState is the starting state of the Portfolio, as identified by a Null state in the Lineage, Positions must be empty and the reference to the latest Event is also empty. This is how a Portfolio gets initialised.">
-	when PortfolioState exists and PortfolioState -> lineage -> portfolioState is absent
+	when PortfolioState exists and PortfolioState -> lineage -> portfolioStateReference is absent
 	then PortfolioState -> positions is absent
 	and PortfolioState -> lineage -> eventReference is absent
 
