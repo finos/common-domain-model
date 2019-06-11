@@ -1,6 +1,89 @@
 namespace "org.isda.cdm"
 version "${project.version}"
 
+calculation EquityCashSettlementAmount <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 72. 'Equity Cash Settlement Amount' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Cash Settlement Amount = ABS(Rate Of Return) × Equity Notional Amount.">
+{
+	equityCashSettlementAmount = Abs( rateOfReturn ) * notionalAmount
+	
+	where
+		rateOfReturn	: ResolveRateOfReturn( EquityPayout ) -> rate
+		notionalAmount	: ResolveNotionalAmount( EquityPayout ) -> notional
+}
+
+calculation EquityPerformance <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Performance = (Rate Of Return) × Equity Notional Amount.">
+{
+	equityPerformance = rateOfReturn * notionalAmount
+
+	where
+		rateOfReturn	: ResolveRateOfReturn( EquityPayout ) -> rate
+		notionalAmount	: ResolveNotionalAmount( EquityPayout ) -> notional
+}
+
+calculation RateOfReturn <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 139. 'Rate Of Return' means, in respect of any Equity Valuation Date, the amount determined pursuant to the following formula: Rate Of Return = (Final Price - Initial Price) / Initial Price.">
+{
+	rateOfReturn = ( finalPrice - initialPrice ) / initialPrice
+
+	where
+		calculationPeriod : ResolveCalculationPeriod( EquityPayout -> calculationPeriodDates /*, time */ )
+
+		initialPrice <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 102. 'Initial Price' means, in respect of the first Equity Valuation Date, the Specified Initial Price, and in respect of each subsequent Equity Valuation Date, the Final Price for the Equity Valuation Date immediately preceding such Equity Valuation Date."> : 
+	  	if calculationPeriod -> isFirstPeriod = True then 
+			EquityPayout -> priceReturnTerms -> initialPrice -> netPrice -> amount
+		else (
+			if EquityPayout -> priceReturnTerms -> valuationPriceInterim exists then
+				ResolvePrice( EquityPayout -> priceReturnTerms -> valuationPriceInterim, calculationPeriod -> startDate ) -> price
+			else ResolvePrice( EquityPayout -> priceReturnTerms -> valuationPriceFinal, calculationPeriod -> startDate ) -> price
+			)
+			
+		finalPrice <"Part 1 Section 5, 'Pricing', of the 2018 ISDA CDM Equity Confirmation, Para 5.1, 'Determining Prices': Each price in relation to a Pricing Date shall be determined pursuant to the specified Pricing Method. Pricing Method for the final Equity Valuation Date shall be specified by the Final EVD Pricing Election and Pricing Method for any other Equity Valuation Date shall be 'Securities Close Pricing (Official)'"> :
+			if calculationPeriod -> isLastPeriod = True then
+				ResolvePrice( EquityPayout -> priceReturnTerms -> valuationPriceFinal, calculationPeriod -> endDate ) -> price
+			else
+				ResolvePrice( EquityPayout -> priceReturnTerms -> valuationPriceInterim, calculationPeriod -> endDate ) -> price
+}
+
+calculation EquityNotionalAmount <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 74. 'Equity Notional Amount' means the Number Of Securities times the Initial Price, adjusted, if applicable, as provided in Part 1 Section 2.2, 'Equity Notional Reset'. If 'With Reset' is the Equity Notional Reset Election, then in respect of each Equity Cash Settlement Date: (i) the Equity Notional Amount applicable in respect of the first Equity Cash Settlement Date will be the amount specified as such in the definition of Equity Notional Amount; (ii) the Equity Notional Amount applicable in respect of each subsequent Equity Cash Settlement Date will be the sum of (a) the Equity Notional Amount in respect of the prior Equity Cash Settlement Date and (b) the Equity Performance, whether positive or negative, in respect of the prior Equity Cash Settlement Date; and (iii)	the Floating Notional Amount will be adjusted as provided in sub-clauses (i) and (ii) above as though it were an Equity Notional Amount.">
+{
+	equityNotionalAmount = numberOfSecurities * initialPrice
+
+	where
+		numberOfSecurities	: EquityPayout -> underlier -> singleUnderlier -> openUnits
+		calculationPeriod	: ResolveCalculationPeriod( EquityPayout -> calculationPeriodDates /*, time */ )
+		initialPrice		: ResolveInitialPrice ( EquityPayout ) -> price
+}
+
+function ResolveCalculationPeriod( calculationPeriodDates CalculationPeriodDates /*, time zonedDateTime*/ ) <"Function specification to return the current calculation period start and end dates, and whether this is the first or last period of the schedule, based on a CalculationPeriodDates schedule and the current time.">
+{
+	// TODO: add "time" as argument, once new Function Specification module in production
+	startDate AdjustableOrRelativeDate;
+	endDate AdjustableOrRelativeDate;
+	isFirstPeriod boolean;
+	isLastPeriod boolean;
+}
+
+function ResolvePrice( equityValuation EquityValuation, valuationDate AdjustableOrRelativeDate ) <"Function specification to return the price on a Valuation Date based on an EquityValuation method.'">
+{
+	price number;
+}
+
+function ResolveInitialPrice( equityPayout EquityPayout ) <"">
+{
+	price number;
+	// Body to be copied from "RateOfReturn" specification once new Function Specification module in production
+}
+
+function ResolveRateOfReturn( equityPayout EquityPayout ) <"">
+{
+	rate number;
+	// Body to be copied from "RateOfReturn" specification once new Function Specification module in production
+}
+
+function ResolveNotionalAmount( equityPayout EquityPayout ) <"">
+{
+	notional number;
+	// Body to be copied from "EquityNotionalAmount" specification once new Function Specification module in production
+}
+
 calculation FixedAmount <"2006 ISDA Definition Article 5 Section 5.1. Calculation of a Fixed Amount: The Fixed Amount payable by a party on a Payment Date will be: (a) if an amount is specified for the Swap Transaction as the Fixed Amount payable by that party for that Payment Date or for the related Calculation Period, that amount; or (b) if an amount is not specified for the Swap Transaction as the Fixed Amount payable by that party for that Payment Date or for the related Calculation Period, an amount calculated on a formula basis for that Payment Date or for the related Calculation Period as follows: Fixed Amount = Calculation Amount × Fixed Rate × Day Count Fraction.">
 {
 	fixedAmount = calculationAmount * fixedRate * dayCountFraction
@@ -24,7 +107,7 @@ calculation FloatingAmount <"2006 ISDA Definition Article 6 Section 6.1. Calcula
 		floatingRate		: ResolveRateIndex( InterestRatePayout -> rateSpecification -> floatingRate -> floatingRateIndex ) -> rate
 		// TODO: question to group: why can a float rate calculation node in FpML contain multiple rate schedules?
 		spread				: GetRateSchedule( InterestRatePayout -> rateSpecification -> floatingRate ) -> schedule -> initialValue
-		dayCountFraction	: InterestRatePayout -> dayCountFraction 
+		dayCountFraction	: InterestRatePayout -> dayCountFraction
 }
 
 calculation DayCountFractionEnum._1_1 <"2006 ISDA Definition Article 4 section 4.16(a):	if “1/1” is specified, 1;">
@@ -226,3 +309,5 @@ function PeriodsInYear( frequency CalculationPeriodFrequency )
 {
 	numberOfPeriods int;
 }
+
+function Abs( x number ) number
