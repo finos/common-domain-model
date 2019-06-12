@@ -2,6 +2,72 @@ namespace "org.isda.cdm"
 version "${project.version}"
 
 /*
+ * Primitive Event Function Specifications 
+ */
+
+spec QuantityChange <"A specification of the inputs, outputs and constraints when calculating the after state of a Quantity Change Primitive Event">:
+	inputs:
+		trade Trade (1..1)
+		quantityChange ContractualQuantity (1..1)
+	
+	output:
+		quantityChangePrimitive QuantityChangePrimitive (1..1)
+	
+	pre-condition <"Non-zero quantity change">:
+		GreaterThan(quantityChange, 0);
+
+	post-condition <"Correctly populate the before attributes on the Primitive Event">:
+		quantityChangePrimitive -> before = trade;
+	
+	post-condition <"The resulting quantity must equal the original quantity plus the quantity change.">:
+		ExtractQuantity( quantityChangePrimitive -> after ) = Plus( ExtractQuantity( trade ), quantityChange );
+	 
+	post-condition <"The input and output types need to be consistent, if we started with an Execution, we should end with an Execution">:
+		if quantityChangePrimitive -> after -> execution exists then quantityChangePrimitive -> before /* -> execution */ exists else False;
+	
+	post-condition:
+		if quantityChangePrimitive -> after -> contract exists then quantityChangePrimitive -> after -> contract exists else False;  // should be included as part of the previous post-condition, but currently held back by grammar limitation
+
+		
+spec ExtractQuantity <"A function that abstracts away the details of how to retrieve quantity from a given product">:
+	inputs:
+		trade Trade (1..1)
+	output:
+		quantity ContractualQuantity (1..1) 
+	 
+// TODO: turn these functions into language level operators i.e. '+'
+spec Plus:
+	inputs:
+		q1 ContractualQuantity (1..1)
+		q2 ContractualQuantity (1..1)
+	output:
+		result ContractualQuantity (1..1)
+
+// TODO: turn these functions into language level operators i.e. '='
+spec Equals:
+	inputs:
+		contractualQuantity ContractualQuantity (1..1)
+		scalar number (1..1)
+	output:
+		result number (1..1)
+
+// TODO: turn these functions into language level operators i.e. '>'
+spec GreaterThan:
+	inputs:
+		contractualQuantity ContractualQuantity (1..1)
+		scalar number (1..1)
+	output:
+		result number (1..1)
+		
+// TODO: turn these functions into language level operators i.e. '>='
+spec GreaterThanEquals:
+	inputs:
+		contractualQuantity ContractualQuantity (1..1)
+		scalar number (1..1)
+	output:
+		result number (1..1)
+
+/*
  * Option 2 - A mark to market calculation for an FX Forward as provided by a member firm, but providing more transparency to the inputs of the interpolation function
  * 
  *   1. + explicit in which model elements are being passed into function calls
@@ -14,7 +80,7 @@ version "${project.version}"
  */
 calculation FxMarkToMarket_2 <"Representation of sample mark to market calculation provided by a member firm, providing more transparency on the parameters used to interpolate the mark to market rate.">
 {	
-	= (quotedQuantity / interpolatedRate - baseQuantity) * interpolatedRate
+	: (quotedQuantity / interpolatedRate - baseQuantity) * interpolatedRate
 	
 	where 
 		// variables used in the rate InterpolateFull function call, below.
