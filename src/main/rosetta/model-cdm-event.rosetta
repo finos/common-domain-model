@@ -1,23 +1,41 @@
 namespace "org.isda.cdm"
 version "${project.version}"
 
-class AllocationOutcome <"A class to specify the allocated outcome as the combination of an execution which state is specified as 'Allocated' and a contract or set of contract(s). (The allocation to one single contract is deemed appropriate.)">
+class AllocationOutcome <"A class to specify the allocated outcome as the combination of the previous Trade, which is either an execution or a contract and which state is specified as 'Allocated', and a set of Trade(s) of the same execution or contract type as before allocation. The allocation to one single trade is deemed appropriate: e.g. the trade could be effectively allocated from the fund manager doing the execution to a single fund entity.">
 {
-	execution Execution (1..1);
-		[synonym Rosetta_Workbench value execution]
-	contract Contract (1..*);
-		[synonym Rosetta_Workbench value trade]
+	originalTrade Trade (1..1);
+		[synonym Rosetta_Workbench value originalTrade]
+	allocatedTrade Trade (1..*);
+		[synonym Rosetta_Workbench value allocatedTrade]
 }
 
-data rule AllocationOutcome_execution <"The allocation outcome must result in execution state of 'Allocated'.">
-	when AllocationOutcome exists
-	then AllocationOutcome -> execution -> closedState -> state = ClosedStateEnum.Allocated
+// TODO: move these data rule as a "post-condition" to the Allocation "Function Spec"
 
-class AllocationPrimitive <"The primitive event to represent a split/allocation of a contractual product or a contract.">
+data rule AllocationOutcome_executionClosed <"The allocation outcome must result in execution state of 'Allocated' for an execution.">
+	when AllocationOutcome exists and AllocationOutcome -> originalTrade -> execution exists
+	then AllocationOutcome -> originalTrade -> execution -> closedState -> state = ClosedStateEnum.Allocated
+
+data rule AllocationOutcome_contractClosed <"The allocation outcome must result in a contract state of 'Allocated' for a contract.">
+	when AllocationOutcome exists and AllocationOutcome -> originalTrade -> contract exists
+	then AllocationOutcome -> originalTrade -> contract -> closedState -> state = ClosedStateEnum.Allocated
+
+data rule AllocationPrimitive_executionType <"If the trade type pre-allocation is an execution, then the trade type post-allocation must also be an execution.">
+	when AllocationPrimitive exists and AllocationPrimitive -> before -> execution exists
+	then AllocationPrimitive -> after -> originalTrade -> execution exists
+		and AllocationPrimitive -> after -> allocatedTrade -> execution exists
+		and AllocationPrimitive -> after -> allocatedTrade -> contract is absent
+
+data rule AllocationPrimitive_contractType <"If the trade type pre-allocation is a contract, then the trade type post-allocation must also be a contract.">
+	when AllocationPrimitive exists and AllocationPrimitive -> before -> contract exists
+	then AllocationPrimitive -> after -> originalTrade -> contract exists
+		and AllocationPrimitive -> after -> allocatedTrade -> contract exists
+		and AllocationPrimitive -> after -> allocatedTrade -> execution is absent
+
+class AllocationPrimitive <"The primitive event to represent a split/allocation of a trade. As part of this primitive event the type of trade, either an execution or a contract, does not get altered. In the case of an execution, the further transformation of each split execution into a contract will be the purpose of the COntractFormation primitive.">
 {
-	before ExecutionState (1..1);
+	before Trade (1..1) <"The trade before allocation, which is either an execution if allocation happens before the contract is formed, or an already formed contract.">;
 		[synonym Rosetta_Workbench value before]
-	after AllocationOutcome (1..1);
+	after AllocationOutcome (1..1) <"Outcome of the allocation as a list of Trades, which is either a split execution or a split contract, plus a pointer to the previous execution or contract marked as 'Allocated'">;
 		[synonym Rosetta_Workbench value after]
 }
 
@@ -303,12 +321,6 @@ choice rule ExerciseOutcome_choice <"A option exercise results in either a physi
 	for ExerciseOutcome required choice between
 	physicalExercise and cashExercise
 
-class ExecutionState <"A class to specify an execution instantiation with respect to the before and/or after state of lifecycle events.">
-{
-	execution Execution (1..1);
-		[synonym Rosetta_Workbench value execution]
-}
-
 class ExercisePrimitive <"This primitive leverages the FpML OptionExercise construct, except for the exerciseTiming which is deemed as associated to a request for exercise that is meant to take place, as opposed to the actual exercise event.">
 {
 	exerciseDate AdjustableOrAdjustedDate (0..1);
@@ -321,6 +333,18 @@ class ExercisePrimitive <"This primitive leverages the FpML OptionExercise const
 		[synonym Rosetta_Workbench value before]
 	after ExerciseOutcome (1..1);
 		[synonym Rosetta_Workbench value after]
+}
+
+class ExecutionState <"A class to specify an execution instantiation with respect to the before and/or after state of lifecycle events.">
+{
+	execution Execution (1..1);
+		[synonym Rosetta_Workbench value execution]
+}
+
+class ExecutionPrimitive <"Class to specify the primitive event for an execution, with 'after' state being an ExecutionState and the 'before' state being Null. It is expected that the 'before' state will be adjusted or deprecated once the CDM scope is extended to the pre-execution space.">
+{
+	before ExecutionState (0..0) <"The 0 cardinality reflects the fact that there is no execution in the before state of an execution primitive. As noted in the definition associated with the class, this is expected to change once the CDM scope is extended to the pre-execution space.">;
+	after ExecutionState (1..1) <"The after state corresponds to the execution between the parties. In the case of an execution on a contractual product, some additional characteristics may need to be specified to get a fully-formed contract, for instance when the executing party acts as an agent, as is the case in an allocation scenario. This is the purpose of the 'ContractFormation' primitive event.">;
 }
 
 class Inception <"The primitive event for the inception of a new contract between parties. It is expected that this primitive will be adjusted or deprecated once the CDM scope is extended to the pre-execution space.">
@@ -468,7 +492,7 @@ class PhysicalExercise <"The physical exercise results into a financial product 
 }
 
 data rule PhysicalExercise_quantity <"The quantity attribute should only be associated with non-contractual products, as it is then expressed as part of the contractual terms.">
-	when ( PhysicalExercise -> product -> contractualProduct or PhysicalExercise -> product -> contract) exists
+	when PhysicalExercise -> product -> contractualProduct exists
 	then PhysicalExercise -> quantity is absent
 
 class PostInceptionState extends ContractState
@@ -481,12 +505,13 @@ class PostInceptionState extends ContractState
 
 class PrimitiveEvent <"A class to specify the set of elemental/primitives components that are used to specify lifecycle events. Lifecycle events make use of one or several of those elemental components specified as part of this class.">
 {
+	execution ExecutionPrimitive (0..1);
 	allocation AllocationPrimitive (0..*);
 		[synonym Rosetta_Workbench value allocation]
 		[synonym DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value ignore]
 	exercise ExercisePrimitive (0..1);
 		[synonym Rosetta_Workbench value exercise]
-		[synonym DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value ignore]	
+		[synonym DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value ignore]
 	inception Inception (0..*);
 		[synonym Rosetta_Workbench value inception]
 		[synonym CME_SubmissionIRS_1_0 value ignore]
