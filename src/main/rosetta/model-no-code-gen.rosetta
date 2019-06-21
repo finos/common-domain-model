@@ -33,6 +33,8 @@ spec NewEquitySwapProduct <"Function specification to create an Equity Swap acco
 		if masterConfirmation exists then
 			product -> contractualProduct -> economicTerms -> payout -> equityPayout = NewSingleNameEquityPayout( underlier, masterConfirmation ) and
 			product -> contractualProduct -> economicTerms -> payout -> interestRatePayout = NewFloatingPayout( masterConfirmation )
+			/* TO ADD WHEN 'EquitySwapMasterConfirmation' gets augmented with a 'withReset' attribute
+			and product -> contractualProduct -> economicTerms -> quantity -> notionalReset = masterConfirmation -> withReset;*/
 		else
 			product -> contractualProduct -> economicTerms -> payout -> equityPayout = NewSingleNameEquityPayout( underlier, Null() );
 	// TODO: add once we have the 'is absent' syntax available
@@ -149,14 +151,21 @@ spec NewContractEvent <"Function specification to create the fully-formed busine
 	output:
 		event Event (1..1)
 	
-	post-condition <"Event must contain an execution primitive that corresponds to the product being contracted.">:
+	post-condition <"Event must contain an execution primitive that corresponds to the product being contracted, a contract formation primitive based on that execution primitive and (optionally) the legal agreement, and no other primitive.">:
 		event -> primitive -> execution = NewExecutionFromProduct( product, partyA, partyB );
-	post-condition <"Event must contain a contract formation primitive based on the execution primitive and (optionally) the legal agreement.">:
 		if legalAgreement exists then
 			event -> primitive -> contractFormation = NewContractFormationFromExecution( event -> primitive -> execution -> after, partyA, partyB, legalAgreement )
 		else
 			event -> primitive -> contractFormation = NewContractFormationFromExecution( event -> primitive -> execution -> after, partyA, partyB, Null() );
 	// TODO: add once syntax becomes available as part of Function Spec
+		/*event -> primitive -> allocation is absent;
+		event -> primitive -> exercise is absent;
+		event -> primitive -> inception is absent;
+		event -> primitive -> observation is absent;
+		event -> primitive -> quantityChange is absent;
+		event -> primitive -> reset is absent;
+		event -> primitive -> termsChange is absent;
+		event -> primitive -> transfer is absent;*/
 	/*post-condition <"When they exist, the parties on the event must match the party inputs.">:
 		if event -> party exists then event -> party count = 2 and event -> party contains partyA and event -> party contains partyB else True;*/
 	post-condition <"Event effect must point to the new execution and contract, and exclude other effects.">:
@@ -166,18 +175,70 @@ spec NewContractEvent <"Function specification to create the fully-formed busine
 		/*event -> eventEffect -> effectedContract is absent;
 		event -> eventEffect -> productIdentifier is absent;
 		event -> eventEffect -> transfer is absent;*/
+	/*post-condition <"Event lineage must be empty (until such time when pre-trade workflow is addressed as part of the CDM).">:
+		event -> lineage is absent;*/
+
+spec EquityResetEvent <"Function specification for resetting an equity payout following an equity price observation, which means calculating the equity performance and resetting the equity notional.">:
+	inputs:
+		contract Contract (1..1)
+		observation Event (1..1)
+	output:
+		event Event (1..1)
+	
+	pre-condition <"There must be an equity payout on the contract, and the event input must contain an observation.">:
+		contract -> contractualProduct -> economicTerms -> payout -> equityPayout exists;
+		observation -> primitive -> observation exists;
+
+	post-condition <"Event must contain a reset primitive that is calculated based on the observation, and no other primitive.">:
+		event -> primitive -> reset = EquityReset( contract -> contractualProduct -> economicTerms -> payout -> equityPayout, observation -> primitive -> observation -> observation, observation -> primitive -> observation -> date );
+		// TODO: add once syntax becomes available as part of Function Spec
+		/*event -> primitive -> allocation is absent;
+		event -> primitive -> exercise is absent;
+		event -> primitive -> inception is absent;
+		event -> primitive -> observation is absent;
+		event -> primitive -> quantityChange is absent;
+		event -> primitive -> reset is absent;
+		event -> primitive -> termsChange is absent;
+		event -> primitive -> transfer is absent;*/
+	post-condition <"Event effect must include the notional reset on the contract.">:
+		event -> eventEffect -> effectedContract = contract;
+		event -> eventEffect -> contract = contract;
+		// TODO: the state of the contract should be altered to account for that reset event - QUESTION: how to update that?
+		/* event -> eventEffect -> effectedExecution is absent;
+		event -> eventEffect -> execution is absent;
+		event -> eventEffect -> productIdentifier is absent;*/
+	post-condition <"Event lineage must point to the contract being reset and the observation event.">:
+		event -> lineage -> contractReference = contract;
+		event -> lineage -> eventReference = observation;	
+
 
 /*
  * Primitive Event Function Specifications 
  */
 
-// spec EquityReset <"Function specification for resetting an equity payout following a price observation, which means calculating the equity performance and resetting the equity notional.">:
-// 	inputs:
-// 		equityPayout EquityPayout (1..1)
-// 		observation number (1..1)
-// 	output:
-// 		reset ResetPrimitive (1..1)
+spec EquityReset <"Function specification for resetting an equity payout following an equity price observation. This function only concerns itself with building the primitive, which currently does not affect the underlying contract (until such time when 'ResetPrimitive' is refactored to directly accomodate a 'before' and 'after' states). The contract effect will be part of the 'EventEffect' attribute on the a fully-formed Business Event that is built by the 'EquityResetEvent' function spec.">:
+	inputs:
+		equityPayout EquityPayout (1..1)
+		// source ObservationSource (1..1)
+		observation number (1..1)
+		date date (1..1)
+		// QUESTION: is it better to directly pass the observation's date and number in this function spec, or the 'ObservatioPrimitive' object to then extract its attribute?
+	output:
+		reset ResetPrimitive (1..1)
+	
+	pre-condition <"The reset date must be the period start date on the equity payout.">:
+		date = CalculationPeriod( equityPayout -> calculationPeriodDates ) -> startDate;
+	// TODO: we should verify the adequation between the observation source and the asset on the equity payout, but this requires some refactoring of 'ObservationSource' to make it work across assets (currently geared towards rates)
 
+	post-condition <"Date and value attributes must be correctly populated on the reset primitive.">:
+		reset -> date = date;
+		reset -> resetValue = observation;
+	post-condition <"Reset cashflow must be correctly calculated on the reset primitive by fetching the .">:
+		reset -> cashflow -> cashflowAmount -> amount = ResolveEquityCashSettlementAmount( equityPayout ) -> amount;
+		//TODO: handle the xccy settlement case
+		reset -> cashflow -> cashflowAmount -> currency = equityPayout -> settlementTerms -> settlementCurrency;
+		reset -> cashflow -> payerReceiver = EquityAmountPayer( equityPayout ) -> payerReceiver;
+		
 spec EquityPriceObservation <"Function specification for the observation of an equity price, based on the attributes of the 'EquityValuation' class.">:
 	inputs:
 		equity Equity (1..1)
@@ -201,14 +262,14 @@ spec EquityPriceObservation <"Function specification for the observation of an e
 		else
 			observation -> time = ResolveTimeZoneFromTimeType( timeType, determinationMethod ) -> time;
 	post-condition <"The number recorded in the observation must match the number fetched from the source.">:
-		observation -> observation = EquitySpot( equity, observation -> date, observation -> time ) -> spot;
+		observation -> observation = EquitySpot( equity, observation -> date, observation -> time, determinationMethod ) -> spot;
 
-function EquitySpot( equity Equity, date date, time TimeZone ) <"An external market data lookup for the spot equity price of the reference asset based on a determination method.">
+function EquitySpot( equity Equity, date date, time TimeZone, determinationMethod DeterminationMethodEnum ) <"An external market data lookup for the spot equity price of the reference asset based on a determination method.">
 {
 	spot number;
 }
 
-function TimeZoneFromBusinessCenterTime ( time BusinessCenterTime ) <"Function to resolve a time passed as BusinessCenterTime into a TimeZone time.">
+function TimeZoneFromBusinessCenterTime( time BusinessCenterTime ) <"Function to resolve a time passed as BusinessCenterTime into a TimeZone time.">
 {
 	time TimeZone;
 }
