@@ -15,6 +15,7 @@ segment whereas
 segment annex
 segment section
 segment field
+segment paragraph
 
 organisation ISDA
 
@@ -67,16 +68,16 @@ reporting standard ISO_20022 <"ISO 20022 is a multi part International Standard 
 		provision "All details to be included in transaction reports shall be submitted in accordance with the standards and formats specified in Table 2 of Annex I, in an electronic and machine-readable form and in a common XML template in accordance with the ISO 20022 methodology"]
 
 eligibility rule ReportableProduct <"When eligible for rts 22">
-   [regulatoryReference ESMA_MiFIR regulation "RTS 22 (EU) 2015/2365" article "2" provision "For the purposes of Article 26 of Regulation (EU) No 600/2014, the conclusion of an acquisition or disposal of a financial instrument referred to in Article 26(2) of Regulation (EU) No 600/2014 shall constitute a transaction."]
+   [regulatoryReference ESMA_MiFIR regulation "RTS 22" article "2" provision "For the purposes of Article 26 of Regulation (EU) No 600/2014, the conclusion of an acquisition or disposal of a financial instrument referred to in Article 26(2) of Regulation (EU) No 600/2014 shall constitute a transaction."]
 		filter when rule HasContract
 
 eligibility rule HasContract <"When eligible for rts 22">
-   [regulatoryReference ESMA_MiFIR regulation "RTS 22 (EU) 2015/2365" article "2" provision "For the purposes of Article 26 of Regulation (EU) No 600/2014, the conclusion of an acquisition or disposal of a financial instrument referred to in Article 26(2) of Regulation (EU) No 600/2014 shall constitute a transaction."]
+   [regulatoryReference ESMA_MiFIR regulation "RTS 22" article "2" provision "For the purposes of Article 26 of Regulation (EU) No 600/2014, the conclusion of an acquisition or disposal of a financial instrument referred to in Article 26(2) of Regulation (EU) No 600/2014 shall constitute a transaction."]
 		ContractForEvent then 
 		extract Contract -> contractualProduct exists
 
 eligibility rule ReportableTransation <"When eligible for rts 22">
-   [regulatoryReference ESMA_MiFIR regulation "RTS 22 (EU) 2015/2365" article "2" provision "For the purposes of Article 26 of Regulation (EU) No 600/2014, the conclusion of an acquisition or disposal of a financial instrument referred to in Article 26(2) of Regulation (EU) No 600/2014 shall constitute a transaction."]
+   [regulatoryReference ESMA_MiFIR regulation "RTS 22 (EU) 2015/2365" article "2" paragraph "1, 2, 3, 4" provision "For the purposes of Article 26 of Regulation (EU) No 600/2014, the conclusion of an acquisition or disposal of a financial instrument referred to in Article 26(2) of Regulation (EU) No 600/2014 shall constitute a transaction."]
 		filter when
 		Event -> primitive -> inception only exists
 			or
@@ -92,10 +93,7 @@ eligibility rule MifidInvestmentFirm <"Identify as an investment firm which has 
 eligibility rule MifirInvestmentFirm <"Identify as an investment firm which has executed the trade">
    [regulatoryReference ESMA_EMIR regulation "ITS Article 9" article "1 (2)" 
    		provision "This Regulation shall apply to CCPs and their clearing members, to financial counterparties and to trade repositories. It shall apply to non-financial counterparties and trading venues where so provided"]
-		(
-			filter when rule CountryOfIncorporationInEEA,
-			filter when rule BranchInEEA
-		)
+			filter when rule CountryOfIncorporationInEEA
 
 eligibility rule BranchInEU		
 		ContractForEvent then 
@@ -121,7 +119,6 @@ eligibility rule CountryOfIncorporationInEEA
 			 extract ExecutingEntity -> addressOfIncorporation then
 			IsAddressInEEA
 			
-
 eligibility rule IsExecutingEntityInvestmentFirm
 		ContractForEvent then 
 		ExecutingEntityForReportingParty then
@@ -171,7 +168,7 @@ reporting rule TransactionReferenceNumber
 		]
 		extract Event -> eventIdentifier -> assignedIdentifier -> identifier
  			as "Transaction Reference Number"
- 	
+
 
 reporting rule TradingVenueTransactionIdentificationCode <"Trading venue transaction identification code">
 		[regulatoryReference ESMA_MiFIR regulation "RTS 22" annex "I table 2 #3" 
