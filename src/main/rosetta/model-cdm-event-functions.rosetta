@@ -1,0 +1,272 @@
+namespace "org.isda.cdm"
+version "${project.version}"
+
+
+/*
+ * Function Specifications to process Equity Swap lifecycle events (beyond execution) 
+ *
+ * The sequence of business events being demonstrated will do the following:
+ * 1) Create a new contract file that corresponds to an Equity Swap (Ingestion)
+ * 2) Create a new MCA which attributes match the relevant terms of that Equity Swap (method TBD)
+ * 3) Create a new contract event using the NewContractEvent function, that takes its inputs (product, parties, legal agreement) as references from the above
+ * 4) Create a new observation event for the equity price
+ * 5) Create a new reset event based on that observation
+ * 6) Create a new transfer event based on that reset
+ */
+
+
+/*
+ * Function Specifications for Equity Swap product creation
+ *
+ * These should be implementation-specific, and exist in implementors' "private" extensions of the CDM rather than the public CDM
+ * They are positionned here for illustration of the equity workflow as part of the CDM, until such time when they could be deemed to be moved
+ *
+*/
+
+spec NewEquitySwapProduct <"Function specification to create an Equity Swap according to the 2018 ISDA CDM Equity Confirmation Template, based on a minimum set of inputs which can (optionally) include a Master Confirmation Agreement. The inputs represent the minimum set of inputs required to create an Equity Swap, either based on an existing Master Confirmation Agreement or as a stand-alone Equity Swap">:
+	inputs: 
+		underlier Equity (1..1) <"The underlying Equity asset for the swap.">
+		masterConfirmation EquitySwapMasterConfirmation2018 (0..1) <"An (optional) pointer to the Master Confirmation Agreement, if any, that holds further inputs to the Equity Swap">
+		
+	output:
+		product Product (1..1)
+		
+	post-condition <"Equity and interest rate payouts must be set-up according to their corresponding payout specifications, and other payout types must be absent.">:
+		if masterConfirmation exists then
+			product -> contractualProduct -> economicTerms -> payout -> equityPayout = NewSingleNameEquityPayout( underlier, masterConfirmation ) and
+			product -> contractualProduct -> economicTerms -> payout -> interestRatePayout = NewFloatingPayout( masterConfirmation )
+		else
+			product -> contractualProduct -> economicTerms -> payout -> equityPayout = NewSingleNameEquityPayout( underlier, EmptyEquitySwapMasterConfirmation2018() );
+		product -> contractualProduct -> economicTerms -> payout -> cashflow is absent;
+		product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout is absent;
+		product -> contractualProduct -> economicTerms -> payout -> forwardPayout is absent;
+		product -> contractualProduct -> economicTerms -> payout -> optionPayout is absent;	
+		
+	post-condition <"Non-contractual product types must be absent.">:
+		product -> foreignExchange is absent;
+		product -> index is absent;
+		product -> loan is absent;
+		product -> security is absent;
+		
+spec NewSingleNameEquityPayout <"Function specification to create the equity payout part of an Equity Swap according to the 2018 ISDA CDM Equity Confirmation template.">:
+	inputs:
+		underlier Equity (1..1)
+		masterConfirmation EquitySwapMasterConfirmation2018 (0..1)
+	output:
+		equityPayout EquityPayout (1..1)
+	post-condition <"Equity payout must inherit terms from the Master Confirmation Agreement when it exists.">:
+		if masterConfirmation exists then
+			equityPayout -> returnType = masterConfirmation -> typeOfSwapElection and
+			equityPayout -> calculationPeriodDates = masterConfirmation -> equityCalculationPeriod and
+			equityPayout -> paymentDates = masterConfirmation -> equityCashSettlementDates and
+			equityPayout -> settlementTerms = masterConfirmation -> settlementTerms
+		else True;
+	post-condition <"Equity payout must be single name on the provided equity underlier.">:
+		equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> equity = underlier;
+		
+spec NewFloatingPayout <"Function specification to create the interest rate (floating) payout part of an Equity Swap according to the 2018 ISDA CDM Equity Confirmation template.">:
+	inputs:
+		masterConfirmation EquitySwapMasterConfirmation2018 (0..1)
+	output:
+		interestRatePayout InterestRatePayout (1..1)
+
+	post-condition <"Interest rate payout must inherit terms from the Master Confirmation Agreement when it exists.">:
+		if masterConfirmation exists then
+			interestRatePayout -> calculationPeriodDates = masterConfirmation -> equityCalculationPeriod and
+			interestRatePayout -> paymentDates = masterConfirmation -> equityCashSettlementDates
+		else True;
+
+// TODO: allow for None keyword to denote not there
+spec EmptyLegalAgreement:
+	output:
+		result LegalAgreement (1..1)
+
+
+spec EmptyEquitySwapMasterConfirmation2018:
+	output:
+		result EquitySwapMasterConfirmation2018 (1..1)
+
+
+/*
+ * Business Event Function Specifications
+ */
+
+spec NewContractEvent <"Function specification to create the fully-formed business event of entering into a new contract, as a combination of an execution primitive and a contract formation primitive, when there is no allocation involved and the contractual parties are the execution parties. This specification is meant to replace the 'Inception' primitive that previously co-mingled these 2 primitives.">:
+	inputs:
+		product Product (1..1)
+		partyA Party (1..1)
+		partyB Party (1..1)
+		legalAgreement LegalAgreement (0..1)
+		
+	output:
+		event Event (1..1)
+	
+	post-condition <"Event must contain an execution primitive that corresponds to the product being contracted.">:
+		event -> primitive -> execution = NewExecutionFromProduct( product, partyA, partyB );
+		
+	post-condition <"Event must contain a contract formation primitive based on the execution primitive and (optionally) the legal agreement.">:
+		if legalAgreement exists then
+			event -> primitive -> contractFormation = NewContractFormationFromExecution( ExtractSingle( event -> primitive -> execution -> after ), partyA, partyB, legalAgreement )
+		else
+			event -> primitive -> contractFormation = NewContractFormationFromExecution( ExtractSingle( event -> primitive -> execution -> after ), partyA, partyB, EmptyLegalAgreement() );
+			
+	post-condition <"When they exist, the parties on the event must match the party inputs.">:
+		if event -> party exists then event -> party count = 2 and event -> party contains partyA and event -> party contains partyB else True;
+		
+	post-condition <"Event effect must point to the new execution and contract, and exclude other effects.">:
+		event -> eventEffect -> contract = event -> primitive -> contractFormation -> after -> contract;
+		event -> eventEffect -> execution = event -> primitive -> execution -> after -> execution;
+		event -> eventEffect -> effectedExecution = event -> primitive -> contractFormation -> before -> execution;
+		event -> eventEffect -> effectedContract is absent;
+		event -> eventEffect -> productIdentifier is absent;
+		event -> eventEffect -> transfer is absent;
+
+
+// TODO: language feature to extract single items regardless of type
+spec ExtractSingle <"Temporary measure to extract a single item from a list, when it is the only item in that list">:
+	inputs:
+		executionState ExecutionState (1..*)
+	output:
+		result ExecutionState (1..1)
+		
+/*
+ * Primitive Event Function Specifications 
+ */
+
+// spec EquityReset <"Function specification for resetting an equity payout following a price observation, which means calculating the equity performance and resetting the equity notional.">:
+// 	inputs:
+// 		equityPayout EquityPayout (1..1)
+// 		observation number (1..1)
+// 	output:
+// 		reset ResetPrimitive (1..1)
+
+spec EquityPriceObservation <"Function specification for the observation of an equity price, based on the attributes of the 'EquityValuation' class.">:
+	inputs:
+		equity Equity (1..1)
+		valuationDate AdjustableOrRelativeDate (1..1)
+		valuationTime BusinessCenterTime (0..1)
+		timeType TimeTypeEnum (0..1)
+		determinationMethod DeterminationMethodEnum (1..1)
+		
+	output:
+		observation ObservationPrimitive (1..1)
+		
+	pre-condition <"Optional choice between directly passing a time or a timeType, which has to be resolved into a time based on the determination method.">:
+		if valuationTime exists then timeType is absent
+		else if timeType exists then valuationTime is absent
+		else False;
+		
+	post-condition <"The date and time must be properly resolved as attributes on the output.">:
+		observation -> date = ToAdjustedDateFunction( valuationDate );
+		if valuationTime exists then
+			observation -> time = TimeZoneFromBusinessCenterTime( valuationTime )
+		else
+			observation -> time = ResolveTimeZoneFromTimeType( timeType, determinationMethod );
+			
+	post-condition <"The number recorded in the observation must match the number fetched from the source.">:
+		observation -> observation = EquitySpot( equity, observation -> date, observation -> time );
+
+
+
+spec ToAdjustedDateFunction:
+	inputs:
+		terminationDate AdjustableOrRelativeDate (1..1)
+		
+	output:
+		adjustedDate date (1..1)
+		
+
+spec EquitySpot <"An external market data lookup for the spot equity price of the reference asset based on a determination method.">:
+	inputs:
+		equity Equity (1..1)
+		date date (1..1)
+		time TimeZone (1..1 ) 
+		
+	output:
+		spot number (1..1)
+
+spec FooBar2:
+	inputs:
+		date date (1..1) 
+		
+	output:
+		spot number (1..1)
+
+
+spec TimeZoneFromBusinessCenterTime <"Function to resolve a time passed as BusinessCenterTime into a TimeZone time.">:
+	inputs:
+		time BusinessCenterTime (1..1)
+		
+	output:
+		result TimeZone (1..1)
+
+
+spec ResolveTimeZoneFromTimeType <"Function to resolve a TimeType into a TimeZone based on a determination method.">:
+	inputs:
+		timeType TimeTypeEnum (1..1)
+		determinationMethod DeterminationMethodEnum (1..1)
+		
+	output:
+		time TimeZone (1..1)
+
+
+spec NewExecutionFromProduct <"Function specification to compose an execution based on a minimum required set of inputs: product, quantity, parties etc.">:
+	inputs:
+		product Product (1..1) <"The financial product, either contractual or fungible, that is the subject of the execution.">
+		partyA Party (1..1) <"The parties to that execution, for now assumed Principal-Principal, i.e. no Agent.">
+		partyB Party (1..1) <"The parties to that execution, for now assumed Principal-Principal, i.e. no Agent.">
+		// quantity Quantity (1..1) /*<"The quantity of the financial product being executed.">*/
+		
+	output:
+		execution ExecutionPrimitive (1..1)
+		
+	pre-condition <"Parties must be different, and match the contractual parties to the legal agreement when the latter exists.">:
+		partyA <> partyB;
+		
+	post-condition:
+		execution -> before is absent;
+	
+	post-condition <"Ensuring that the execution attributes are correctly populated on the output.">:
+		// TODO: replace that with directly using the 'Product' attribute on the execution once the corresponding Primitive refactoring is in Prod.
+		execution -> after -> execution -> contractualProduct = product -> contractualProduct;
+		if execution -> after -> execution -> party exists then
+			execution -> after -> execution -> party count = 2 and
+			execution -> after -> execution -> party contains partyA and
+			execution -> after -> execution -> party contains partyB
+		else True;
+
+
+spec NewContractFormationFromExecution <"Function specification to create a fully-formed contract following execution on a contractual product. The contract can optionally reference a further legal agreement (such as a CSA or a Master Confirmation).">:
+	inputs:
+		executionState ExecutionState (1..1)
+		partyA Party (1..1)
+		partyB Party (1..1)
+		legalAgreement LegalAgreement (0..1)
+		// TODO: remove 'legalAgreementreference' from the 'Execution' class, now that the tie-in to the contract happens as part of this Function Spec
+		
+	output:
+		contractFormation ContractFormation (1..1)
+	
+	pre-condition <"Parties must be different, and match the contractual parties to the legal agreement when those exists, and the parties to the execution when those exist.">:
+		partyA <> partyB;
+		 if legalAgreement exists then
+		 	legalAgreement -> contractualParty contains partyA and
+		 	legalAgreement -> contractualParty contains partyB
+		 else True;
+		 if executionState -> execution -> party exists then 
+		 	executionState -> execution -> party contains partyA and
+		 	executionState -> execution -> party contains partyB
+		 else True;
+
+	// TODO: add once we've switched from 'ContractualProduct' to 'Product' on the 'Execution' class
+	// pre-condition <"Execution must be on a contractual product.">:
+	//	executionState -> execution -> contractualProduct exists;
+
+	post-condition <"Before state must be the execution, and the contractual product in the after state must be the underlying product of the contract being formed.">:
+		contractFormation -> before = executionState;
+		contractFormation -> after -> contract -> contractualProduct = executionState -> execution -> contractualProduct;
+		
+	post-condition <"When an overlaying legal agreement exists, the contract must reference it.">:
+		if legalAgreement exists then contractFormation -> after -> contract -> documentation -> legalAgreement = legalAgreement else True;
+
+
