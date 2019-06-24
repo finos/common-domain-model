@@ -33,7 +33,7 @@ segment field
 segment paragraph
 
 report ESMA MiFIR RTS_22 in T+1
-	when MifirInvestmentFirm and ReportableTransation and ReportableProduct
+	when MifirInvestmentFirm and ReportableTransaction and ReportableProduct
 	using standard ISO_20022 with fields
 		ReportStatus
 		TransactionReferenceNumber
@@ -77,16 +77,19 @@ report ESMA EMIR RTS_ITS_9 in T+1
 		Price
 
 eligibility rule ReportableProduct <"When eligible for rts 22">
-   [regulatoryReference ESMA MiFIR RTS_22 article "2" provision "For the purposes of Article 26 of Regulation (EU) No 600/2014, the conclusion of an acquisition or disposal of a financial instrument referred to in Article 26(2) of Regulation (EU) No 600/2014 shall constitute a transaction."]
+   [regulatoryReference ESMA MiFIR RTS_22 article "2" 
+   		provision "For the purposes of Article 26 of Regulation (EU) No 600/2014, the conclusion of an acquisition or disposal of a financial instrument referred to in Article 26(2) of Regulation (EU) No 600/2014 shall constitute a transaction."]
 		filter when rule HasContract
 
 eligibility rule HasContract <"When eligible for rts 22">
-   [regulatoryReference ESMA MiFIR RTS_22 article "2" provision "For the purposes of Article 26 of Regulation (EU) No 600/2014, the conclusion of an acquisition or disposal of a financial instrument referred to in Article 26(2) of Regulation (EU) No 600/2014 shall constitute a transaction."]
+   [regulatoryReference ESMA MiFIR RTS_22 article "2" 
+   		provision "For the purposes of Article 26 of Regulation (EU) No 600/2014, the conclusion of an acquisition or disposal of a financial instrument referred to in Article 26(2) of Regulation (EU) No 600/2014 shall constitute a transaction."]
 		ContractForEvent then 
 		extract Contract -> contractualProduct exists
 
-eligibility rule ReportableTransation <"When eligible for rts 22">
-   [regulatoryReference ESMA MiFIR RTS_22 article "2" paragraph "1, 2, 3, 4" provision "For the purposes of Article 26 of Regulation (EU) No 600/2014, the conclusion of an acquisition or disposal of a financial instrument referred to in Article 26(2) of Regulation (EU) No 600/2014 shall constitute a transaction."]
+eligibility rule ReportableTransaction <"When eligible for rts 22">
+   [regulatoryReference ESMA MiFIR RTS_22 article "2" paragraph "1, 2, 3, 4" 
+   		provision "For the purposes of Article 26 of Regulation (EU) No 600/2014, the conclusion of an acquisition or disposal of a financial instrument referred to in Article 26(2) of Regulation (EU) No 600/2014 shall constitute a transaction."]
 		filter when
 		Event -> primitive -> inception only exists
 			or
@@ -605,7 +608,7 @@ reporting rule BuyerSellerToBuyerAndSeller
 	)
 	
 reporting rule Price <"Date of maturity of the financial instrument. Field only applies to debt instruments with defined maturity">
- 	   [regulatoryReference ESMA MiFIR RTS_22 annex "1. Table 2. Field 33" 
+ 	   [regulatoryReference ESMA MiFIR RTS_22 annex "1" table "2" field "33" 
  	   	provision "Traded price of spread bets it shall be the reference price of the underlying instrument. For credit default swaps (CDS) it shall be the coupon in basis points. Where price is reported in monetary terms, it shall be provided in the major currency unit. Where price is currently not available but pending, the value shall be ‘PNDG’. Where price is not applicable the value shall be ‘NOAP’. The information reported in this field shall be consistent with the values provided in fields 30 and 46."]
 	ContractForEvent then
 	extract Contract -> contractualProduct -> economicTerms -> payout then
@@ -617,7 +620,7 @@ reporting rule Price <"Date of maturity of the financial instrument. Field only 
 	)
 	
 reporting rule FixedFixedPrice 
- 	   [regulatoryReference ESMA MiFIR RTS_22 annex "1. Table 2. Field 33" 
+ 	   [regulatoryReference ESMA MiFIR RTS_22 annex "1" table "2" field "33" 
 			rationale_author "DRR"
 			rationale "The Regulations don’t mention Fixed-Fixed, but we can allow for that by defining which fixed rate to pick."
 	 	   	structured_provision "The regulatoryPrice of a Fixed-Float or Fixed-Inflation Swap is by definition the highest Fixed Rate"
@@ -634,7 +637,7 @@ reporting rule FixedFloatPrice
 	extract Schedule -> initialValue as "Price"
 	
 reporting rule BasisSwapPrice
- 	   [regulatoryReference ESMA MiFIR RTS_22 annex "1. Table 2. Field 33" 
+ 	   [regulatoryReference ESMA MiFIR RTS_22 annex "1" table "2" field "33" 
 			rationale_author "DRR"
 			rationale "We also need to cater for the edge case of spreads on both legs. Assume –ve spreads uncommon enough not to need to debate highest positive spread vs highest absolute spread at this point."
 	 	   	structured_provision "The regulatoryPrice of a Basis or Float-Inflation Swap is by definition the highest Spread"
@@ -646,7 +649,7 @@ reporting rule BasisSwapPrice
 
 
 reporting rule CDSPrice
- 	   [regulatoryReference ESMA MiFIR RTS_22 annex "1. Table 2. Field 33" 
+ 	   [regulatoryReference ESMA MiFIR RTS_22 annex "1" table "2" field "33" 
 			rationale_author "DRR"
 			rationale "Coupon refers to the Fixed Rate. However market practice is to have either/both a Fixed Rate and/or a spread on the Floating Rate."
 	 	   	structured_provision "Of a Credit Default Swap is by definition the Fixed Rate unless the Fixed Rate is Zero and there is a Spread then the regulatoryPrice is by definition the Spread"
