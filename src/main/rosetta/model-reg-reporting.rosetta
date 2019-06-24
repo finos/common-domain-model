@@ -34,7 +34,7 @@ segment paragraph
 organisation ISDA
 
 report ESMA MiFIR RTS_22 in T+1
-	when MifidInvestmentFirm and ReportableTransation and ReportableProduct
+	when MifirInvestmentFirm and ReportableTransation and ReportableProduct
 	using standard ISO_20022 with fields
 		ReportStatus
 		TransactionReferenceNumber
@@ -169,7 +169,7 @@ reporting rule ReportStatus <"Indication as to whether the transaction report is
 			rationale "Article 2 means that each reportable event is treated as an independent transaction. The practical implementation of corrections is: A New event is a NEWT, A new, non-reportable version of a previously-reported event, that renders the previous version of the same event non-reportable, is a CANC, A new, non-reportable version of a non-reportable event is not reported, A new, reportable version of a previously-reported event, that supersedes the previous version of the same event is a CANC followed by a NEWT"
 			structured_provision "MiFIR.ReportStatus is by definition ‘NEWT’ unless the report is a Cancellation when MiFIR.ReportStatus is by definition ‘CANC’"
 			provision "Indication as to whether the transaction report is new or a cancellation."]
- 	extract if Event -> primitive -> inception exists
+ 	extract if Event -> primitive -> inception exists or Event -> primitive -> quantityChange exists
  				then "NEWT"
  			else if Event -> action = ActionEnum.Cancel
  				then "CANC"
@@ -457,8 +457,8 @@ reporting rule ContractForEvent
  	extract 
  		if Event -> primitive -> inception -> after -> contract only exists
  			then Event -> primitive -> inception -> after -> contract
- 		else if Event -> primitive -> inception -> after -> contract  exists
- 			then Event -> primitive -> inception -> after -> contract
+ 		else if Event -> primitive -> quantityChange -> after -> contract  exists
+ 			then Event -> primitive -> quantityChange -> after -> contract
  		else Event -> primitive -> inception -> after -> contract
  	as "Contract"
 
@@ -570,13 +570,13 @@ reporting rule CrossCurrencySwapBuyerSeller
 			provision "The seller shall be the counterparty delivering this currency which is first when sorted alphabetically by ISO 4217 standard."]
 
 	filter when rule IsXCCYSwap then
-	extract Payout -> interestRatePayout then
-	minBy InterestRatePayout -> quantity -> notionalAmount -> currency then
-	extract InterestRatePayout -> payerReceiver then
-	PayerReceiverToBuyerSeller
+	 extract Payout -> interestRatePayout then
+	 minBy InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> currency then
+	 extract InterestRatePayout -> payerReceiver then
+	  PayerReceiverToBuyerSeller
 	
 reporting rule IsXCCYSwap
-	extract Payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges exists
+	extract multiple Payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges exists
 
 reporting rule CreditDefaultSwapBuyerSeller
 	filter when rule IsCreditDefaultSwap then
@@ -590,11 +590,23 @@ reporting rule BuyerSellerToBuyerAndSeller
 	(
 		extract BuyerSeller -> buyerPartyReference then
 		filter when Party -> partyId -> scheme ="iso17442" then
-		extract Party -> partyId as "Buyer" 
+		extract Party -> partyId as "Buyer identification code" 
+		,
+		extract BuyerSeller -> buyerPartyReference then
+		filter when Party -> partyId -> scheme ="iso17442" then
+		lookup ExecutingEntity ExecutingEntity then
+		extract ExecutingEntity -> addressOfBranch -> country
+		as "Country of the branch for the buyer"
 		,
 		extract BuyerSeller -> sellerPartyReference then 
 		filter when Party -> partyId -> scheme ="iso17442" then
-		extract Party -> partyId as "Seller"
+		extract Party -> partyId as "Seller identification code"
+		,
+		extract BuyerSeller -> sellerPartyReference then 
+		filter when Party -> partyId -> scheme ="iso17442" then
+		lookup ExecutingEntity ExecutingEntity then
+		extract ExecutingEntity -> addressOfBranch -> country
+		as "Country of the branch for the seller"
 	)
 	
 reporting rule Price <"Date of maturity of the financial instrument. Field only applies to debt instruments with defined maturity">
