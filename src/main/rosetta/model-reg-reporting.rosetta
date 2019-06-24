@@ -3,6 +3,7 @@ version "${project.version}"
 
 body Authority ESMA <"ESMA is an independent EU Authority that contributes to safeguarding the stability of the European Union's financial system by enhancing the protection of investors and promoting stable and orderly financial markets.">
 body Authority FCA <"The Financial Conduct Authority is the conduct regulator for 58,000 financial services firms and financial markets in the UK and the prudential regulator for over 18,000 of those firms. ">
+body Organisation ISDA <"Since 1985, the International Swaps and Derivatives Association has worked to make the global derivatives markets safer and more efficient">
 
 corpus Regulation "600/2014" MiFIR 
 	<"Regulation (EU) No 600/2014 of the European Parliament and of the Council of 15 May 2014 on markets in financial instruments and amending Regulation (EU) No 648/2012 Text with EEA relevance">
@@ -31,10 +32,8 @@ segment section
 segment field
 segment paragraph
 
-organisation ISDA
-
 report ESMA MiFIR RTS_22 in T+1
-	when MifidInvestmentFirm and ReportableTransation and ReportableProduct
+	when MifirInvestmentFirm and ReportableTransation and ReportableProduct
 	using standard ISO_20022 with fields
 		ReportStatus
 		TransactionReferenceNumber
@@ -70,7 +69,7 @@ report ESMA MiFIR RTS_22 in T+1
 		SecuritiesFinancingTransactionIndicator
 
 report ESMA EMIR RTS_ITS_9 in T+1
-	when MifirInvestmentFirm
+	when EmirInvestmentFirm
 	using standard ISO_20022 with fields
 		ReportingCounterpartyID
 		BuyerSeller
@@ -93,14 +92,14 @@ eligibility rule ReportableTransation <"When eligible for rts 22">
 			or
 		Event -> primitive -> quantityChange exists
 
-eligibility rule MifidInvestmentFirm <"Identify as an investment firm which has executed the trade">
+eligibility rule MifirInvestmentFirm <"Identify as an investment firm which has executed the trade">
    [regulatoryReference ESMA MiFIR RTS_22 section "Context of the Delegation Act" 
 	   	provision "The Markets in Financial Instruments Regulation (EU) No 600/2014 (MiFIR) requires investment firms to report complete and accurate details of transactions in financial instruments. ‘investment firm’ means any legal person whose regular occupation or business is the provision of one or more investment services to third parties and/or the performance of one or more investment activities on a professional basis. Member States may include in the definition of investment firms undertakings which are not legal persons, provided that: (a) their legal status ensures a level of protection for third parties’ interests equivalent to that afforded by legal persons; and (b) they are subject to equivalent prudential supervision appropriate to their legal form. However, where a natural person provides services involving the holding of third party funds or transferable securities, that person may be considered to be an investment firm for the purposes of this Directive and of Regulation (EU) No 600/2014 only if, without prejudice to the other requirements imposed in this Directive, in Regulation (EU) No 600/2014, and in Directive 2013/36/EU, that person complies with the following conditions: (a) the ownership rights of third parties in instruments and funds must be safeguarded, especially in the event of the insolvency of the firm or of its proprietors, seizure, set-off or any other action by creditors of the firm or of its proprietors; (b) the firm must be subject to rules designed to monitor the firm’s solvency and that of its proprietors; (c) the firm’s annual accounts must be audited by one or more persons empowered, under national law, to audit accounts; (d) where the firm has only one proprietor, that person must make provision for the protection of investors in the event of the firm’s cessation of business following the proprietor’s death or incapacity or any other such event"]
 		filter when rule IsExecutingEntityInvestmentFirm then
 	    filter when rule BranchInEU
 
 
-eligibility rule MifirInvestmentFirm <"Identify as an investment firm which has executed the trade">
+eligibility rule EmirInvestmentFirm <"Identify as an investment firm which has executed the trade">
    [regulatoryReference ESMA EMIR RTS_ITS_9 article "1 (2)" 
    		provision "This Regulation shall apply to CCPs and their clearing members, to financial counterparties and to trade repositories. It shall apply to non-financial counterparties and trading venues where so provided"]
 			filter when rule CountryOfIncorporationInEEA
@@ -143,10 +142,6 @@ eligibility rule ExecutingEntityForReportingParty
 reporting rule MaturityDate <"Date of maturity of the financial instrument. Field only applies to debt instruments with defined maturity">
  	   [regulatoryReference ESMA MiFIR RTS_22 annex "1. Table 2. Field 54" provision "Date of maturity of the financial instrument. Field only applies to debt instruments with defined maturity."]
  	   [regulatoryReference ESMA EMIR RTS_ITS_9 field "2.27" provision "Original date of expiry of the reported contract."]
- 	   [marketPractice ISDA write-up "The counterparties should report the unadjusted Maturity date, as agreed in the contract, even if it falls on a weekend or a bank holiday." 
- 	   	recommendation "Where there is different Maturity Dates on the two legs, the Maturity Date reported should be the longest dated.
-						The unadjusted Maturity Date should be used, unless both parties agree on reporting the adjusted date.
-						Although this is an Optional field, if there is a Maturity Date for the trade, this field must be reported."]
  	ContractForEvent then extract Contract -> contractualProduct -> economicTerms -> terminationDate -> adjustableDate -> unadjustedDate
 
 reporting rule ReportingCounterpartyID
