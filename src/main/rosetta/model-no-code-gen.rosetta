@@ -10,29 +10,18 @@ version "${project.version}"
  */
 
 /*
-spec TransitionPortfolioState <"Specification to transition the state of a Portfolio based on its current state and a new set of Events. The eventList being passed on is meant to be already filtered on both time and aggregation parameters for the underlying Portfolio.">: 
-	inputs:
-		currentState PortfolioState (1..1)
-		eventList Event (1..1)
-		aggregationParams AggregationParameters (1..1)
-		
-	output:
-		newState PortfolioState (1..1)
+spec TransitionPortfolioState( currentState PortfolioState, eventList Event, aggregationParams AggregationParameters ) -> newState PortfolioState
+<"Specification to transition the state of a Portfolio based on its current state and a new set of Events. The eventList being passed on is meant to be already filtered on both time and aggregation parameters for the underlying Portfolio.">
+{
+	pre condition:
+		MinDatetime( eventList -> timestamp ) >= MaxDatetime( currentState -> lineage -> eventReference -> timestamp ) <"New set of Events must be posterior to the latest Events on the previous PortfolioState.">
+		IsApplicableEvent( eventList, aggregationParams ) <"Events must be pre-filtered and therefore applicable to the aggregation parameters of the Portfolio.">
 
-	pre-condition <"New set of Events must be posterior to the latest Events on the previous PortfolioState.">:
-		MinDatetime( eventList -> timestamp -> dateTime ) >= MaxDatetime( currentState -> lineage -> eventReference -> timestamp );
-		
-	pre-condition <"Events must be pre-filtered and therefore applicable to the aggregation parameters of the Portfolio.">:
-		IsApplicableEvent( eventList, aggregationParams );
-
-//	post-condition <"Update the new positions list based on adding the PositionEffect of the new Events to the current positions list, using the further specified + operator">:
-//		newState -> positions = currentState -> positions + PositionEffect( eventList );
-		
-	post-condition <"Event lineage of the new state pointing to the latest set of Events.">: 
-		newState -> lineage -> eventReference = eventList;
-		
-	post-condition <"PortfolioState lineage of the new state pointing to the current, and now previous, state.">:
-		newState -> lineage -> portfolioStateReference = currentState;
+	post condition:
+		newState -> positionList = currentState -> positionList + PositionEffect( eventList ) <"Update the new positions list based on adding the PositionEffect of the new Events to the current positions list, using the further specified + operator">
+		newState -> lineage -> eventReference = eventList <"Event lineage of the new state pointing to the latest set of Events.">
+		newState -> lineage -> portfolioStateReference = currentState <"PortfolioState lineage of the new state pointing to the current, and now previous, state.">
+}
 
 spec MinDatetime:
 	inputs:
