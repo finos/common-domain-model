@@ -1,8 +1,9 @@
-package org.isda.cdm.functions;
+package org.isda.cdm.functions.example;
 
 import com.google.common.collect.ClassToInstanceMap;
 import com.google.common.collect.MutableClassToInstanceMap;
 import com.rosetta.model.lib.functions.RosettaFunction;
+import org.isda.cdm.functions.DefaultNewContractEvent;
 
 public class DefaultRosettaFunctions {
 
