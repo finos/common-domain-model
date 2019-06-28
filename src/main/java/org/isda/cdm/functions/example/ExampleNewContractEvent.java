@@ -1,19 +1,20 @@
-package org.isda.cdm.functions;
+package org.isda.cdm.functions.example;
 
 import com.google.common.collect.ClassToInstanceMap;
 import com.rosetta.model.lib.functions.RosettaFunction;
 import org.isda.cdm.*;
+import org.isda.cdm.functions.NewContractEvent;
 import org.isda.cdm.metafields.FieldWithMetaString;
 import org.isda.cdm.metafields.ReferenceWithMetaParty;
 
-public class DefaultNewContractEvent extends NewContractEvent {
+public class ExampleNewContractEvent extends NewContractEvent {
 
-    public DefaultNewContractEvent(ClassToInstanceMap<RosettaFunction> classRegistry) {
+    ExampleNewContractEvent(ClassToInstanceMap<RosettaFunction> classRegistry) {
         super(classRegistry);
     }
 
     @Override
-    Event doEvaluate(Product product, Party partyA, Party partyB, LegalAgreement legalAgreement) {
+    protected Event doEvaluate(Product product, Party partyA, Party partyB, LegalAgreement legalAgreement) {
         return Event.builder()
                 .addEventIdentifierBuilder(Identifier.builder()
                     .addAssignedIdentifierBuilder(AssignedIdentifier.builder()
