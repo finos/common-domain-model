@@ -36,21 +36,21 @@ steps:
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.common.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -U -s /settings.xml clean deploy
 
-  BuildDamlNormal:
-    title: Maven DAML build
-    fail_fast: false
-    image: r.cfcr.io/regnosysops/regnosys/mvn-docker-build:java-11
-    working_directory: ./
-    when:
-      condition:
-        all:
-          isNotRelease: "${{TAG_REPO}} == false"
-    commands:
-      - rm -rf /codefresh/volume/.m2/com/regnosys
-      - mvn -s /settings.xml -f daml-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - mvn -s /settings.xml -f daml-pom.xml versions:update-property -Dproperty=rosetta.workbench.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
-      - mvn -s /settings.xml -f daml-pom.xml versions:update-property -Dproperty=rosetta.common.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
-      - mvn -U -s /settings.xml -f daml-pom.xml clean deploy
+#  BuildDamlNormal:
+#    title: Maven DAML build
+#    fail_fast: false
+#    image: r.cfcr.io/regnosysops/regnosys/mvn-docker-build:java-11
+#    working_directory: ./
+#    when:
+#      condition:
+#        all:
+#          isNotRelease: "${{TAG_REPO}} == false"
+#    commands:
+#      - rm -rf /codefresh/volume/.m2/com/regnosys
+#      - mvn -s /settings.xml -f daml-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+#      - mvn -s /settings.xml -f daml-pom.xml versions:update-property -Dproperty=rosetta.workbench.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+#      - mvn -s /settings.xml -f daml-pom.xml versions:update-property -Dproperty=rosetta.common.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+#      - mvn -U -s /settings.xml -f daml-pom.xml clean deploy
 
   BuildRelease:
     title: Maven build for release
@@ -68,21 +68,21 @@ steps:
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.common.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -s /settings.xml clean deploy -P full
 
-  BuildDamlRelease:
-    title: Maven DAML build for release
-    fail_fast: false
-    image: r.cfcr.io/regnosysops/regnosys/mvn-docker-build:java-11
-    working_directory: ./
-    when:
-      condition:
-        all:
-          isRelease: "${{TAG_REPO}}"
-    commands:
-      - rm -rf /codefresh/volume/.m2/com/regnosys
-      - mvn -s /settings.xml -f daml-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - mvn -s /settings.xml -f daml-pom.xml versions:update-property -Dproperty=rosetta.workbench.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
-      - mvn -s /settings.xml -f daml-pom.xml versions:update-property -Dproperty=rosetta.common.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
-      - mvn -s /settings.xml -f daml-pom.xml clean deploy -P full
+#  BuildDamlRelease:
+#    title: Maven DAML build for release
+#    fail_fast: false
+#    image: r.cfcr.io/regnosysops/regnosys/mvn-docker-build:java-11
+#    working_directory: ./
+#    when:
+#      condition:
+#        all:
+#          isRelease: "${{TAG_REPO}}"
+#    commands:
+#      - rm -rf /codefresh/volume/.m2/com/regnosys
+#      - mvn -s /settings.xml -f daml-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+#      - mvn -s /settings.xml -f daml-pom.xml versions:update-property -Dproperty=rosetta.workbench.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+#      - mvn -s /settings.xml -f daml-pom.xml versions:update-property -Dproperty=rosetta.common.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+#      - mvn -s /settings.xml -f daml-pom.xml clean deploy -P full
 
   NotifySlackOnFail:
     title: Trigger Slack dev channel notification if master build failed
@@ -95,8 +95,8 @@ steps:
         any:
           buildNormalFailed: steps.BuildNormal.result == 'error'
           buildReleaseFailed: steps.BuildRelease.result == 'error'
-          buildDamlNormalFailed: steps.BuildDamlNormal.result == 'error'
-          buildDamlReleaseFailed: steps.BuildDamlRelease.result == 'error'
+#          buildDamlNormalFailed: steps.BuildDamlNormal.result == 'error'
+#          buildDamlReleaseFailed: steps.BuildDamlRelease.result == 'error'
     commands:
       - export SAFE_COMMIT_AUTHOR='${{CF_COMMIT_AUTHOR}}'
       - export COMMIT_AUTHOR=${SAFE_COMMIT_AUTHOR:-MissingAuthor}
@@ -116,8 +116,8 @@ steps:
         any:
           normalBuildFailure: steps.BuildNormal.result == 'failure'
           releaseBuildFailure: steps.BuildRelease.result == 'failure'
-          normalDamlBuildFailure: steps.BuildDamlNormal.result == 'failure'
-          releaseDamlBuildFailure: steps.BuildDamlRelease.result == 'failure'
+#          normalDamlBuildFailure: steps.BuildDamlNormal.result == 'failure'
+#          releaseDamlBuildFailure: steps.BuildDamlRelease.result == 'failure'
     commands:
       - exit 1
 
