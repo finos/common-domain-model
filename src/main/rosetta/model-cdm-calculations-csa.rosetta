@@ -22,15 +22,17 @@ calculation FxMarkToMarket <"Representation of sample mark to market calculation
 	  
 	where
 		// calculation inputs
+		forwardFX <"Alias for the forward FX path in the model, to make function more readable.">:
+			ForwardPayout -> underlier -> singleUnderlier -> underlyingProduct -> foreignExchange
 		quotedQuantity <"The amount of the quoted currency.">: 
-			if ForwardPayout -> foreignExchange -> exchangeRate -> quotedCurrencyPair -> quoteBasis = QuoteBasisEnum.Currency2PerCurrency1 
-			then ForwardPayout -> foreignExchange -> exchangedCurrency2 -> cashflowAmount -> amount 
-			else ForwardPayout -> foreignExchange -> exchangedCurrency1 -> cashflowAmount -> amount
+			if forwardFX -> exchangeRate -> quotedCurrencyPair -> quoteBasis = QuoteBasisEnum.Currency2PerCurrency1 
+			then forwardFX -> exchangedCurrency2 -> cashflowAmount -> amount 
+			else forwardFX -> exchangedCurrency1 -> cashflowAmount -> amount
 			
 		baseQuantity <"The amount of the base currency.">: 
-			if ForwardPayout -> foreignExchange -> exchangeRate -> quotedCurrencyPair -> quoteBasis = QuoteBasisEnum.Currency2PerCurrency1 
-			then ForwardPayout -> foreignExchange -> exchangedCurrency1 -> cashflowAmount -> amount 
-			else ForwardPayout -> foreignExchange -> exchangedCurrency2 -> cashflowAmount -> amount
+			if forwardFX -> exchangeRate -> quotedCurrencyPair -> quoteBasis = QuoteBasisEnum.Currency2PerCurrency1 
+			then forwardFX  -> exchangedCurrency1 -> cashflowAmount -> amount 
+			else forwardFX -> exchangedCurrency2 -> cashflowAmount -> amount
 			
 		interpolatedRate :
 			InterpolateForwardRate( ForwardPayout ) -> result

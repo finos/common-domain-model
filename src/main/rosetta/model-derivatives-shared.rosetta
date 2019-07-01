@@ -1103,13 +1103,19 @@ class SettlementTerms extends SettlementBase <"A class to specify the settlement
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value settlementType]
 	settlementDate AdjustableOrRelativeDate (0..1);
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value settlementDate]
+	valueDate date (0..1) <"The settlement date for a forward settling product. For Foreign Exchange contracts, this represents a common settlement date between both currency legs. To specify different settlement dates for each currency leg, see the ForeignExchange class. This attribute is meant to be merged with the 'settlementDate' at some future point noce we refactor 'Date' to use a single complex type across the model.">;
+		[synonym FpML_5_10 value valueDate]
 	settlementAmount Money (0..1) <"The Settlement Amount, when known in advance.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value settlementAmount]
 }
 
-choice rule SettlementTerms_choice <"The settlementCurrency attribute is to be specified when the settlement amount is not known in advance.">
-	for OptionSettlement optional choice between
+choice rule SettlementTerms_amountCurrency <"The settlementCurrency attribute is to be specified when the settlement amount is not known in advance.">
+	for SettlementTerms optional choice between
 	settlementAmount and settlementCurrency
+
+choice rule SettlementTerms_date <"Settlement date must be specified either throught he 'settlementDate' or 'valueDate' attribute. This is a temporary work-around until such time when we can retire the 'valueDate' attribute.">
+	for SettlementTerms optional choice between
+	settlementDate and valueDate
 
 class SettlementRateSource one of <"A class describing the method for obtaining a settlement rate.">
 	[synonym FpML_5_10 value SettlementRateSource]
