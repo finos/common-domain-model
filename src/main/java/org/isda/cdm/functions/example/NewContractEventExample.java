@@ -4,17 +4,27 @@ import com.google.common.collect.ClassToInstanceMap;
 import com.rosetta.model.lib.functions.RosettaFunction;
 import org.isda.cdm.*;
 import org.isda.cdm.functions.NewContractEvent;
+import org.isda.cdm.functions.NewContractFormationFromExecution;
+import org.isda.cdm.functions.NewExecutionFromProduct;
 import org.isda.cdm.metafields.FieldWithMetaString;
 import org.isda.cdm.metafields.ReferenceWithMetaParty;
 
-public class ExampleNewContractEvent extends NewContractEvent {
+public class NewContractEventExample extends NewContractEvent {
 
-    ExampleNewContractEvent(ClassToInstanceMap<RosettaFunction> classRegistry) {
+    NewContractEventExample(ClassToInstanceMap<RosettaFunction> classRegistry) {
         super(classRegistry);
     }
 
     @Override
     protected Event doEvaluate(Product product, Party partyA, Party partyB, LegalAgreement legalAgreement) {
+
+        NewExecutionFromProduct newExecutionFromProduct = classRegistry.getInstance(NewExecutionFromProduct.class);
+        ExecutionPrimitive executionPrimitive = newExecutionFromProduct.evaluate(product, partyA, partyB);
+
+        NewContractFormationFromExecution newContractFormationFromExecution = classRegistry.getInstance(NewContractFormationFromExecution.class);
+        ContractFormation contractFormation = newContractFormationFromExecution.evaluate(executionPrimitive.getAfter(), partyA, partyB, legalAgreement);
+
+
         return Event.builder()
                 .addEventIdentifierBuilder(Identifier.builder()
                     .addAssignedIdentifierBuilder(AssignedIdentifier.builder()
@@ -30,10 +40,8 @@ public class ExampleNewContractEvent extends NewContractEvent {
                 .addParty(partyA)
                 .addParty(partyB)
                 .setPrimitiveBuilder(PrimitiveEvent.builder()
-                        .addExecutionBuilder(ExecutionPrimitive.builder()
-                                .setAfterBuilder(ExecutionState.builder()
-                                        .setExecutionBuilder(Execution.builder()
-                                                .setProduct(product)))))
+                        .addExecution(executionPrimitive)
+                    .addContractFormation(contractFormation))
                 .build();
     }
 

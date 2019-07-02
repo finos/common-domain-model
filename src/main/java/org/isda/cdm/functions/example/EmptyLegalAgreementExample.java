@@ -5,9 +5,9 @@ import com.rosetta.model.lib.functions.RosettaFunction;
 import org.isda.cdm.LegalAgreement;
 import org.isda.cdm.functions.EmptyLegalAgreement;
 
-public class ExampleEmptyLegalAgreement extends EmptyLegalAgreement {
+public class EmptyLegalAgreementExample extends EmptyLegalAgreement {
 
-    protected ExampleEmptyLegalAgreement(ClassToInstanceMap<RosettaFunction> classRegistry) {
+    protected EmptyLegalAgreementExample(ClassToInstanceMap<RosettaFunction> classRegistry) {
         super(classRegistry);
     }
 
