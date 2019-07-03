@@ -1,41 +1,16 @@
 namespace "org.isda.cdm"
 version "${project.version}"
 
-class ForwardPayout <"Representation of a forward settling payout. Both FX Spot and FX Forward should use this component. Distinction between the two will be handled via product qualification.">
+class ForwardPayout <"Representation of a forward settling payout. The 'Underlier' attribute captures the underlying payout, which is settled according to the 'SettlementTerms' attribute. Both FX Spot and FX Forward should use this componen, while distinction between the two will be handled via product qualification.">
 {
-	/*
-	TBD for later commit:
-
-	- Remove securityLeg from the ForwardPayout class alltogether, since settlementDate is redundant with the same attribute in the securityLeg and a securityPayout attribute is now included directly within the Payout class.
-	Also:
-	- Either rename that class as "ForeignExchangePayout",
-	- Or keep as "ForwardPayout" with the anticipation that other underlying payoffs (e.g. Commodities) could be optionally added later.
-	*/
-	settlementDate date (0..1) <"The settlement date for a forward settling product. For Foreign Exchange contracts, this represents a common settlement date between both currency legs. To specify different settlement dates for each currency leg, see the ForeignExchange class.">;
-		[synonym FpML_5_10 value valueDate]
-	foreignExchange ForeignExchange (0..1) <"A Foreign Exchange underlier to the forward payout.">;
-	securityLeg SecurityLeg (0..1) <"A security leg underlier to the forward payout.">;
+	underlier Underlier (1..1) <"Underlying product that the forward is written on, which can be of any type: FX, a contractual product, a security, etc.">;
+	settlementTerms OptionSettlement (1..1) <"Settlement terms for the underlier that include the settlement date, settlement method etc.">;
 }
 
-choice rule ForwardPayout_choice <"The forward payout must have an underlying asset that is either a security or a foreign exchange contract.">
-	for ForwardPayout required choice between 
-	foreignExchange and securityLeg
-
-/*
-NOW SUPERSEDED BY NEW SecurityLeg CLASS USED TO REPRESENT SECURITIES FINANCING TRANSACTIONS
-
-class SecurityComponent <"Represents attributes specific to a forward settling security.">
-{
-	buyerSeller BuyerSeller (0..1) <"The buyer and seller on the forward contract when parties are not specified on the product i.e. Bonds">;
-	quantity Quantity (0..1) <"The quantity of the underlier expressed as a number.">;
-	nominalAmount Money (0..1) <"The quantity of the underlier expressed as a nominal amount.">;
-	underlier Security (1..1) <"The security underlying the forward contract.">;
-}
-
-choice rule SecurityComponent_choice <"Quantity of securities can either be represented at number of contracts or a nominal amount.">
-	for SecurityComponent required choice between 
-	quantity and nominalAmount
-*/
+// NOW SUPERSEDED By THE USE OF GENERIC 'PRODUCT' UNDERLIER, WHICH ALREADY HAS A 'ONE OF' RULE:
+// choice rule ForwardPayout_choice <"The forward payout must have an underlying asset that is either a security or a foreign exchange contract.">
+// 	for ForwardPayout required choice between 
+// 	settlementTerms and underlier
 
 class ForeignExchange <"From FpML: A type defining either a spot or forward FX transactions.">
 	[synonym FpML_5_10 value FxSingleLeg]
@@ -48,14 +23,20 @@ class ForeignExchange <"From FpML: A type defining either a spot or forward FX t
 		[synonym FpML_5_10 value tenorPeriod]
 	exchangeRate ExchangeRate (1..1) <"The rate of exchange between the two currencies.">;
 		[synonym FpML_5_10 value exchangeRate]
-	nonDeliverableSettlement FxCashSettlement (0..1) <"Used to describe a particular type of FX forward transaction that is settled in a single currency (for example, a non-deliverable forward).">;
-		[synonym FpML_5_10 value nonDeliverableSettlement]
 }
 
-data rule FxForward_settlementDate <"For foreign exchange contracts, either the settlementDate is set or the currencyValueDates, but not both.">
-	when ForwardPayout -> foreignExchange  exists 
-	then ( ForwardPayout -> settlementDate exists and ForwardPayout -> foreignExchange -> exchangedCurrency1 -> cashflowDate is absent and ForwardPayout -> foreignExchange -> exchangedCurrency2 -> cashflowDate is absent ) 
-		or ( ForwardPayout -> settlementDate is absent and ForwardPayout -> foreignExchange -> exchangedCurrency1 -> cashflowDate exists and ForwardPayout -> foreignExchange -> exchangedCurrency2 -> cashflowDate exists )
+data rule FxForward_settlementDate <"For foreign exchange contracts, either the settlementDate is set or the cashflowDates, but not both. When the cashflowDates are set, they must be the same for the 2 legs of the currency pair.">
+	when forwardFX exists
+	then ( ForwardPayout -> settlementTerms -> valueDate exists
+			and forwardFX -> exchangedCurrency1 -> cashflowDate is absent and forwardFX -> exchangedCurrency2 -> cashflowDate is absent ) 
+		or ( ForwardPayout -> settlementTerms -> valueDate is absent
+			and forwardFX -> exchangedCurrency1 -> cashflowDate exists and forwardFX -> exchangedCurrency2 -> cashflowDate exists and
+			forwardFX -> exchangedCurrency1 -> cashflowDate = forwardFX -> exchangedCurrency2 -> cashflowDate )
+
+data rule FxForward_fxSettlement <"For foreign exchange contracts, the settlement type must be either fx non-deliverable settlement or not specified, which implies physical settlement in the case of foreign exchange.">
+	when forwardFX exists
+	then ( ForwardPayout -> settlementTerms -> cashSettlementTerms is absent
+		and ForwardPayout -> settlementTerms -> physicalSettlementTerms is absent )
 
 class ExchangeRate <"A class that is used for describing the exchange rate for a particular transaction.">
 	[synonym FpML_5_10 value ExchangeRate] 
