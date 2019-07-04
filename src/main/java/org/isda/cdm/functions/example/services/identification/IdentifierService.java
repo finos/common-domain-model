@@ -1,11 +1,11 @@
 package org.isda.cdm.functions.example.services.identification;
 
-import com.rosetta.model.lib.RosettaModelObject;
 import org.isda.cdm.AssignedIdentifier;
 import org.isda.cdm.Identifier;
 import org.isda.cdm.metafields.FieldWithMetaString;
 import org.isda.cdm.metafields.ReferenceWithMetaParty;
 
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 /**
@@ -15,32 +15,46 @@ public class IdentifierService {
 
     private final TreeSet<IdentifierRecord> data = new TreeSet<>();
 
-    public Identifier next(String issuer, Class<? extends RosettaModelObject> type) {
+    public void put(Identifier id) {
+        data.add(IdentifierRecord.create(id));
+    }
+
+    public Identifier nextType(String issuer, String type) {
+        return data.stream().filter(r -> r.issuer.equalsIgnoreCase(issuer) && r.type.equals(type))
+                .max(IdentifierRecord::compareTo)
+                .map(IdentifierRecord::incrementType)
+                .orElse(new IdentifierRecord(issuer, type, 1, 1)).toIdentifier();
+    }
+
+    public Identifier nextVersion(String issuer, String type) {
         return data.stream().filter(r -> r.issuer.equalsIgnoreCase(issuer) && r.type.equals(type))
                 .max(IdentifierRecord::compareTo)
                 .map(IdentifierRecord::incrementVersion)
-                .orElse(new IdentifierRecord(issuer, type, 1, 1).toIdentifier());
+                .orElse(new IdentifierRecord(issuer, type, 1, 1)).toIdentifier();
     }
 
-    public Identifier next(String issuer, Class<? extends RosettaModelObject> type, int typeIndex) {
-        return data.stream().filter(r -> r.issuer.equalsIgnoreCase(issuer) && r.type.equals(type) && r.typeIndex == typeIndex)
-                .max(IdentifierRecord::compareTo)
-                .map(IdentifierRecord::incrementVersion)
-                .orElse(new IdentifierRecord(issuer, type, 1, 1).toIdentifier());
+    public Identifier nextType(Identifier id) {
+        IdentifierRecord identifierRecord = IdentifierRecord.create(id);
+        return nextType(identifierRecord.issuer, identifierRecord.type);
     }
 
     private static class IdentifierRecord implements Comparable<IdentifierRecord> {
 
         private final String issuer;
-        private final Class<? extends RosettaModelObject> type;
+        private final String type;
         private final int typeIndex;
         private final int version;
 
-        private IdentifierRecord(String issuer, Class<? extends RosettaModelObject> type, int typeIndex, int version) {
+        private IdentifierRecord(String issuer, String type, int typeIndex, int version) {
             this.issuer = issuer;
             this.type = type;
             this.typeIndex = typeIndex;
             this.version = version;
+        }
+
+        public static IdentifierRecord create(Identifier id) {
+            String[] identifier = id.getAssignedIdentifier().get(0).getIdentifier().getValue().split("-");
+            return new IdentifierRecord(id.getIssuer().getValue(), identifier[0], Integer.parseInt(identifier[1]), id.getAssignedIdentifier().get(0).getVersion());
         }
 
         private Identifier toIdentifier() {
@@ -52,17 +66,17 @@ public class IdentifierService {
                             .setExternalReference(issuer))
                     .addAssignedIdentifierBuilder(AssignedIdentifier.builder()
                             .setIdentifier(FieldWithMetaString.builder()
-                                    .setValue(type.getSimpleName() + typeIndex).build())
+                                    .setValue(type + "-" + typeIndex).build())
                             .setVersion(version))
                     .build();
         }
 
-        private Identifier incrementType() {
-            return new IdentifierRecord(issuer, type, typeIndex + 1, 1).toIdentifier();
+        private IdentifierRecord incrementType() {
+            return new IdentifierRecord(issuer, type, typeIndex + 1, 1);
         }
 
-        private Identifier incrementVersion() {
-            return new IdentifierRecord(issuer, type, typeIndex, version + 1).toIdentifier();
+        private IdentifierRecord incrementVersion() {
+            return new IdentifierRecord(issuer, type, typeIndex, version + 1);
         }
 
         @Override
@@ -89,9 +103,13 @@ public class IdentifierService {
         }
 
         @Override
+        public String toString() {
+            return String.format("%s-%s-%s-%s", issuer, type, typeIndex, version);
+        }
+
+        @Override
         public int compareTo(IdentifierRecord o) {
-            return (issuer + type.getSimpleName() + typeIndex + version).compareToIgnoreCase(
-                    o.issuer + o.type.getSimpleName() + o.typeIndex + o.version);
+            return toString().compareToIgnoreCase(o.toString());
         }
     }
 }

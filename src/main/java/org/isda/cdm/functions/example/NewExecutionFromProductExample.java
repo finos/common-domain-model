@@ -17,7 +17,7 @@ public class NewExecutionFromProductExample extends NewExecutionFromProduct {
 
     @Override
     protected ExecutionPrimitive doEvaluate(Product product, Party partyA, Party partyB) {
-        Identifier id = identifierService.next(partyA.getMeta().getExternalKey(), Execution.class);
+        Identifier id = identifierService.nextType(partyA.getMeta().getExternalKey(), Execution.class.getSimpleName());
 
         return ExecutionPrimitive.builder()
                 .setAfterBuilder(ExecutionState.builder()

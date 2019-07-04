@@ -18,7 +18,7 @@ public class NewContractFormationFromExecutionExample extends NewContractFormati
 
     @Override
     protected ContractFormation doEvaluate(ExecutionState executionState, Party partyA, Party partyB, LegalAgreement legalAgreement) {
-        Identifier id = identifierService.next(partyA.getMeta().getExternalKey(), Contract.class);
+        Identifier id = identifierService.nextType(partyA.getMeta().getExternalKey(), Contract.class.getSimpleName());
         ContractualProduct contractualProduct = executionState.getExecution().getProduct().getContractualProduct();
 
         return ContractFormation.builder()

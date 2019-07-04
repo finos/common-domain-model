@@ -19,7 +19,8 @@ public class NewContractEventExample extends NewContractEvent {
 
     @Override
     protected Event doEvaluate(Product product, Party partyA, Party partyB, LegalAgreement legalAgreement) {
-        Identifier id = identifierService.next(partyA.getMeta().getExternalKey(), Event.class);
+        Identifier id = identifierService.nextType(partyA.getMeta().getExternalKey(), Event.class.getSimpleName());
+        identifierService.put(id);
 
         NewExecutionFromProduct newExecutionFromProduct = classRegistry.getInstance(NewExecutionFromProduct.class);
         ExecutionPrimitive executionPrimitive = newExecutionFromProduct.evaluate(product, partyA, partyB);
