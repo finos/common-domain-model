@@ -9,10 +9,9 @@ import org.isda.cdm.metafields.ReferenceWithMetaLegalAgreement;
 
 public class NewContractFormationFromExecutionExample extends NewContractFormationFromExecution {
 
-
     private final IdentifierService identifierService;
 
-    protected NewContractFormationFromExecutionExample(ClassToInstanceMap<RosettaFunction> classRegistry, IdentifierService identifierService) {
+    NewContractFormationFromExecutionExample(ClassToInstanceMap<RosettaFunction> classRegistry, IdentifierService identifierService) {
         super(classRegistry);
         this.identifierService = identifierService;
     }
@@ -27,8 +26,6 @@ public class NewContractFormationFromExecutionExample extends NewContractFormati
                 .setAfterBuilder(PostInceptionState.builder()
                         .setContractBuilder(Contract.builder()
                                 .addContractIdentifier(id)
-                                .addParty(partyA)
-                                .addParty(partyB)
                                 .setContractualProduct(contractualProduct)
                                 .setDocumentationBuilder(Documentation.builder()
                                         .addLegalAgreementBuilder(ReferenceWithMetaLegalAgreement.builder()

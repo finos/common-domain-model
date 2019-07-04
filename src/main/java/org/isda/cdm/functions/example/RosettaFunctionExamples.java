@@ -7,16 +7,26 @@ import org.isda.cdm.functions.example.services.identification.IdentifierService;
 
 public class RosettaFunctionExamples {
 
-    private static final ClassToInstanceMap<RosettaFunction> map = MutableClassToInstanceMap.create();
+    private static final RosettaFunctionExamples instance = new RosettaFunctionExamples();
 
-    public static ClassToInstanceMap<RosettaFunction> get() {
+    private final ClassToInstanceMap<RosettaFunction> map;
+
+    private RosettaFunctionExamples() {
+        map = MutableClassToInstanceMap.create();
+
         IdentifierService identifierService = new IdentifierService();
 
         new NewContractEventExample(map, identifierService);
         new EmptyLegalAgreementExample(map);
         new NewExecutionFromProductExample(map, identifierService);
         new NewContractFormationFromExecutionExample(map, identifierService);
+    }
 
-        return map;
+    public <T extends RosettaFunction> T get(Class<T> clazz) {
+        return map.getInstance(clazz);
+    }
+
+    public static RosettaFunctionExamples getInstance() {
+        return instance;
     }
 }

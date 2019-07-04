@@ -7,7 +7,7 @@ import org.isda.cdm.functions.EmptyLegalAgreement;
 
 public class EmptyLegalAgreementExample extends EmptyLegalAgreement {
 
-    protected EmptyLegalAgreementExample(ClassToInstanceMap<RosettaFunction> classRegistry) {
+    EmptyLegalAgreementExample(ClassToInstanceMap<RosettaFunction> classRegistry) {
         super(classRegistry);
     }
 
