@@ -2,7 +2,7 @@
 
 The ISDA Common Domain Model
 ============================
-The ISDA Common Domain Model is an initiative that ISDA has spearheaded to produce a common, robust, digital blueprint for how derivatives are traded and managed across their lifecycle. It is based on the design principles specified as part of ISDA’s October 2017 `CDM concept paper <https://www.isda.org/a/gVKDE/CDM-FINAL.pdf>`_ for a product scope limited to simple interest and credit derivative products and an agreed sample of business events.
+The ISDA Common Domain Model is an initiative that ISDA has spearheaded to produce a common, robust, digital blueprint for how derivatives are traded and managed across their lifecycle.
 
 ISDA anticipates that establishing such digital data and processing standards will lead to the following benefits:
 
@@ -13,19 +13,14 @@ ISDA anticipates that establishing such digital data and processing standards wi
 * Facilitate interoperability across firms and platforms.
 
 A high-level presentation of the ISDA CDM and additional information is available on the ISDA website (`www.isda.org <http://www.isda.org/>`_) and particularly with the referred `Short Video <https://www.isda.org/2017/11/30/what-is-the-isda-cdm/>`_.
+It is based on the design principles specified as part of ISDA’s October 2017 `CDM concept paper <https://www.isda.org/a/gVKDE/CDM-FINAL.pdf>`_ which the *ISDA CDM Design Working Group* is tasked with implementing.
+The practical manifestation of those design choices is the ISDA CDM, as a model written in the Rosetta DSL and openly accessible to all industry participants.
 
-The Rosetta Workbench
+The Rosetta DSL
 =====================
-To tie the design choices made by the Working Group to how they manifest practically, we make reference to the Rosetta Workbench which we will refer to simply as Rosetta. It is useful to think of Rosetta as a set of tools to use when creating domain models.  Much like how software engineers use programming languages and tools to create software.
-
-Rosetta is a digital repository whose purpose is to consolidate market standards and practices into a cohesive model, from which executable code is automatically generated.
-
-The key idea behind Rosetta is that financial markets presently have two unappealing characteristics as it relates to their supporting electronic data representation:
-
-*  **Variety of data representations**. The plurality of data standards (the main ones being FIX, FpML, ISO 20022 and EFET) is compounded by the many variations in the implementation of those, to which we need to add a wide range of proprietary data representations.
-*  **Limited availability of native digital tools** that would allow those data representations to be directly translated into executable code. Even the protocols that have a native digital representation (e.g. FpML and FIXML, which are available in the form of XML schemas) have associated specifications artefacts which require further manual specification and/or coding in order to result in a complete executable solution. In FpML, this is the case of the associated validation rules. In FIX, an example of such are the Recommended Practices/Guidelines, which are only available in the form of PDF documents.
-
-Rosetta is looking to address those shortcomings by **consolidating various data and workflow representations into a cohesive model** (hence the naming reference to the Rosetta Stone), which can be **automatically translated into executable code**.
+To tie the design choices made by the Working Group to how they manifest practically, we make reference to the Rosetta DSL which we will refer to simply as Rosetta.
+It is useful to think of Rosetta as a set of tools to use when creating domain models.  Much like how software engineers use programming languages and tools to create software.
+This now is open-sourced and available on an Apache 2.0 licence. For more info, you can read the `documentation https://github.com/REGnosys/rosetta-dsl#the-rosetta-dsl`_
 
 .. figure:: rosetta-components.png
 
