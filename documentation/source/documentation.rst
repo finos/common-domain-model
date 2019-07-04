@@ -20,7 +20,8 @@ The Rosetta DSL
 =====================
 To tie the design choices made by the Working Group to how they manifest practically, we make reference to the Rosetta DSL which we will refer to simply as Rosetta.
 It is useful to think of Rosetta as a set of tools to use when creating domain models.  Much like how software engineers use programming languages and tools to create software.
-This now is open-sourced and available on an Apache 2.0 licence. For more info, you can read the `documentation https://github.com/REGnosys/rosetta-dsl#the-rosetta-dsl`_
+This is now open-sourced, available on an Apache 2.0 licence and hosted in its own repository .
+For more info, you can read the `documentation <https://github.com/REGnosys/rosetta-dsl#the-rosetta-dsl>`_
 
 .. figure:: rosetta-components.png
 
