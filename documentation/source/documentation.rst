@@ -18,31 +18,8 @@ The practical manifestation of those design choices is the ISDA CDM, as a model 
 
 The Rosetta DSL
 =====================
-To tie the design choices made by the Working Group to how they manifest practically, we make reference to the `Rosetta DSL <https://github.com/REGnosys/rosetta-dsl>`_ which we will refer to simply as Rosetta.
-It is useful to think of Rosetta as a set of tools to use when creating domain models.  Much like how software engineers use programming languages and tools to create software.
+This is now open-sourced, available on an Apache 2.0 licence and hosted in its own `repository <https://github.com/REGnosys/rosetta-dsl#the-rosetta-dsl>`_.
 
-This is now open-sourced, available on an Apache 2.0 licence and hosted in its own repository.
-For more info, you can read the `documentation <https://github.com/REGnosys/rosetta-dsl#the-rosetta-dsl>`_
-
-.. figure:: rosetta-components.png
-
-As illustrated by the above picture, Rosetta has two main components as it relates to its usage as part of the ISDA CDM: the Model Repository and the Rosetta Workbench.
-
-The **Model Repository** has two components:
-
-* The **legible model**, that expresses the data and associated logic using the Rosetta syntax.
-* The **projection of this model** into a variety of executable code representations (presently Java).
-
-The **Rosetta Workbench** corresponds to the toolset that supports the CDM, through 4 sets of functions:
-
-* The **grammar**, which is specified as part of a Domain Specific Language (DLS) component which has been developed using open source software. While the CDM syntax is based upon this grammar, access to this grammar is needed for using the CDM.
-* The **navigation tools**, which expose through a web portal a textual and a graphical interface into the CDM.
-* The **ingestion service**, which transforms events and trades expressed using alternative data representations into JSON documents that conform to the CDM.  At present, the ingested trades confirm to the version 5.10 of the FpML standard, and the events are originated using a custom data representation.
-* The **code generators**, which are used to produce the executable code projections that are part of the model repository. Those code generators are developed using the same open source software component as the grammar, and access to those is not required for CDM usage purposes.
-
-Those workbench components are presented in the below picture.
-
-.. figure:: rosetta-home.png
 
 The CDM Components
 ==================
