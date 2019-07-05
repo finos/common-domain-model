@@ -23,9 +23,7 @@ public class NewExecutionFromProductExample extends NewExecutionFromProduct {
                 .setAfterBuilder(ExecutionState.builder()
                         .setExecutionBuilder(Execution.builder()
                                 .addIdentifier(id)
-                                .setProduct(product)
-                                .addParty(partyA)
-                                .addParty(partyB)))
+                                .setProduct(product)))
                 .build();
     }
 }
