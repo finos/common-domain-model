@@ -18,7 +18,7 @@ The ISDA CDM is made openly accessible to all industry participants.
 
 The Rosetta DSL
 =====================
-As a practical manifestation of the design choices made by the Working Group, the ISDA CDM is as a model written in a Domain-Specific Language (DSL) called the *Rosetta DSL*. This DSL is now open source under an Apache 2.0 licence and hosted in its own `repository <https://github.com/REGnosys/rosetta-dsl#the-rosetta-dsl>`_.
+As a practical manifestation of the design choices made by the Working Group, the ISDA CDM is a model written in a Domain-Specific Language (DSL) called the *Rosetta DSL*. This DSL is now open source under an Apache 2.0 licence and hosted in its own `repository <https://github.com/REGnosys/rosetta-dsl#the-rosetta-dsl>`_.
 
 
 The CDM Components
@@ -26,7 +26,7 @@ The CDM Components
 
 The below **ISDA CDM Components Diagram** lays out the three set of CDM application components:
 
-* **Rosetta** corresponds to the 'under the hood' components with respect to the CDM: the Rosetta grammar and the default code generators (currently Java), which together form the Rosetta DSL. To facilitate adoption and implementation of the CDM by the community, a dedicated `repository <https://github.com/REGnosys/rosetta-code-generators>`_ has been opened-up, also under an Apache 2.0 license, where other industry participants can write code generators in any other languages.
+* **Rosetta** corresponds to the 'under the hood' components with respect to the CDM: the Rosetta grammar and the default code generators (currently Java), which together form the Rosetta DSL. To facilitate adoption and implementation of the CDM by the community, a dedicated `repository <https://github.com/REGnosys/rosetta-code-generators>`_ has been open-sourced, also under an Apache 2.0 license, for other industry participants to write code generators in any other languages.
 * The **ISDA CDM Distribution** is made available to participants as part of the download available from the CDM Portal and is subject to the ISDA CDM licence.  The most crucial components of this ISDA CDM Distribution are the following:
 
   * The **Model Definition**, which corresponds to the actual Rosetta model, as expressed by the Rosetta syntax and which components are further detailed as part of the CDM Modelling Artefacts section of this documentation.
