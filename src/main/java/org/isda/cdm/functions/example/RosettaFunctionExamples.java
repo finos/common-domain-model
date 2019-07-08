@@ -24,7 +24,6 @@ public class RosettaFunctionExamples {
         new EmptyLegalAgreementExample(map);
         new NewExecutionFromProductExample(map, identifierService);
         new NewContractFormationFromExecutionExample(map, identifierService);
-        new EquityResetEventExample(map, identifierService, businessDate);
         new GetBusinessDateSpecExmaple(map, businessDate);
     }
 
