@@ -12,50 +12,28 @@ ISDA anticipates that establishing such digital data and processing standards wi
 * Provide a common foundation for new technologies like distributed ledger, cloud and smart contracts to facilitate data consistency;
 * Facilitate interoperability across firms and platforms.
 
-A high-level presentation of the ISDA CDM and additional information is available on the ISDA website (`www.isda.org <http://www.isda.org/>`_) and particularly with the referred `Short Video <https://www.isda.org/2017/11/30/what-is-the-isda-cdm/>`_.
-It is based on the design principles specified as part of ISDA’s October 2017 `CDM concept paper <https://www.isda.org/a/gVKDE/CDM-FINAL.pdf>`_ which the *ISDA CDM Design Working Group* is tasked with implementing.
-The practical manifestation of those design choices is the ISDA CDM, as a model written in the Rosetta DSL and openly accessible to all industry participants.
+A high-level `presentation <https://www.isda.org/a/z8AEE/ISDA-CDM-Factsheet.pdf>`_ of the ISDA CDM and additional information is available on the ISDA website (`www.isda.org <http://www.isda.org/>`_), particularly with the referred `Short Video <https://www.isda.org/2017/11/30/what-is-the-isda-cdm/>`_. It is based on the design principles specified as part of ISDA’s October 2017 `CDM concept paper <https://www.isda.org/a/gVKDE/CDM-FINAL.pdf>`_ which the *ISDA CDM Design Working Group* is tasked with implementing.
+
+The ISDA CDM is made openly accessible to all industry participants.
 
 The Rosetta DSL
 =====================
-To tie the design choices made by the Working Group to how they manifest practically, we make reference to the Rosetta DSL which we will refer to simply as Rosetta.
-It is useful to think of Rosetta as a set of tools to use when creating domain models.  Much like how software engineers use programming languages and tools to create software.
-This now is open-sourced and available on an Apache 2.0 licence. For more info, you can read the `documentation https://github.com/REGnosys/rosetta-dsl#the-rosetta-dsl`_
+As a practical manifestation of the design choices made by the Working Group, the ISDA CDM is a model written in a Domain-Specific Language (DSL) called the *Rosetta DSL*. This DSL is now open source under an Apache 2.0 licence and hosted in its own `repository <https://github.com/REGnosys/rosetta-dsl#the-rosetta-dsl>`_.
 
-.. figure:: rosetta-components.png
-
-As illustrated by the above picture, Rosetta has two main components as it relates to its usage as part of the ISDA CDM: the Model Repository and the Rosetta Workbench.
-
-The **Model Repository** has two components:
-
-* The **legible model**, that expresses the data and associated logic using the Rosetta syntax.
-* The **projection of this model** into a variety of executable code representations (presently Java).
-
-The **Rosetta Workbench** corresponds to the toolset that supports the CDM, through 4 sets of functions:
-
-* The **grammar**, which is specified as part of a Domain Specific Language (DLS) component which has been developed using open source software. While the CDM syntax is based upon this grammar, access to this grammar is needed for using the CDM.
-* The **navigation tools**, which expose through a web portal a textual and a graphical interface into the CDM.
-* The **ingestion service**, which transforms events and trades expressed using alternative data representations into JSON documents that conform to the CDM.  At present, the ingested trades confirm to the version 5.10 of the FpML standard, and the events are originated using a custom data representation.
-* The **code generators**, which are used to produce the executable code projections that are part of the model repository. Those code generators are developed using the same open source software component as the grammar, and access to those is not required for CDM usage purposes.
-
-Those workbench components are presented in the below picture.
-
-.. figure:: rosetta-home.png
 
 The CDM Components
 ==================
 
 The below **ISDA CDM Components Diagram** lays out the three set of CDM application components:
 
-* The **Rosetta Workbench** corresponds to the 'under the hood' components with respect to the CDM: the Rosetta grammar and the Rosetta code generators, which together form the Rosetta DSL, and the associated test infrastructure and Rosetta portal, which have been developed through bespoke code.
+* **Rosetta** corresponds to the 'under the hood' components with respect to the CDM: the Rosetta grammar and the default code generators (currently Java), which together form the Rosetta DSL. To facilitate adoption and implementation of the CDM by the community, a dedicated `repository <https://github.com/REGnosys/rosetta-code-generators>`_ has been open-sourced, also under an Apache 2.0 license, for other industry participants to write code generators in any other languages.
 * The **ISDA CDM Distribution** is made available to participants as part of the download available from the CDM Portal and is subject to the ISDA CDM licence.  The most crucial components of this ISDA CDM Distribution are the following:
 
   * The **Model Definition**, which corresponds to the actual Rosetta model, as expressed by the Rosetta syntax and which components are further detailed as part of the CDM Modelling Artefacts section of this documentation.
   * The **Model Code Projection**, currently available as Java and JSON.  As the Rosetta syntax represents not just data components but also logic, the JSON representation has a quite limited scope and usefulness, and might be deprecated at some future point.
   * While the two above components represent the essence of the model and are meant to be used as such by implementers, the **Default Apps** correspond to default implementations which can either be used as such, or be disabled or extended by those participants.  An example of such would be the rosettaKey implementation, which uses the default Java hash code function, but which might be deemed as inappropriate by some participants and hence be replaced by some alternative implementation.
 
-* **CDM Implementations** by service providers. It is expected that a rich eco-system of such licensed application components that are based upon the CDM will develop over time. REGnosys is just the first to have taken the initiative to develop an offering of solutions, which purpose is to assist market participants in making use of the CDM.  ISDA doesn't endorse any of of those application components.
-
+* **CDM Applications** by service providers. It is expected that a rich eco-system of such licensed application components that are based upon the CDM will develop over time. REGnosys is the first to have taken the initiative to develop an offering of solutions, which purpose is to assist market participants in making use of the CDM. In particular, the CDM Portal provides a few UI components allowing participants to browse through the CDM. ISDA doesn't endorse any of those application components.
 
 .. figure:: cdm-components-diagram.png
 
@@ -729,7 +707,7 @@ One of the objectives of the CDM Initial Phase has been to express in a machine 
 
 The ISDA 2006 definitions of the **Fixed Amount** and **Floating Amount** have been used as an initial scope.
 
-To this effect, the grammar component of the Rosetta workbench has been extended as a way to express a syntax that can support such expressions.
+To this effect, the Rosetta grammar has been extended as a way to express a syntax that can support such expressions.
 
 Syntax
 ^^^^^^
