@@ -7,7 +7,6 @@ import org.isda.cdm.*;
 import org.isda.cdm.calculation.EquityCashSettlementAmount;
 import org.isda.cdm.calculation.EquityNotionalAmount;
 import org.isda.cdm.calculation.RateOfReturn;
-import org.isda.cdm.functions.CalculationPeriod;
 import org.isda.cdm.functions.*;
 import org.isda.cdm.functions.example.services.identification.IdentifierService;
 
@@ -29,25 +28,16 @@ public class EquityResetEventExample extends EquityResetEvent {
 
     @Override
     protected Event doEvaluate(Contract contract, Event observation) {
-
         EquityPayout equityPayout = getOnlyElement(contract.getContractualProduct().getEconomicTerms().getPayout().getEquityPayout());
 
-        CalculationPeriod calculationPeriod = new CalculationPeriod() {
-            @Override
-            public CalculationResult execute(CalculationPeriodDates calculationPeriodDates) {
-                LocalDate startDate = calculationPeriodDates.getEffectiveDate().getAdjustableDate().getUnadjustedDate();
+        EquityCalculationPeriod equityCalculationPeriod = new EquityCalculationPeriodImpl();
 
+        RateOfReturn rateOfReturnCalc = new RateOfReturn(
+                () -> new GetBusinessDateFunc.CalculationResult().setResult(new DateImpl(businessDate)),
+                equityCalculationPeriod,
+                (equityValuation, date) -> new ResolvePrice.CalculationResult().setPrice(new BigDecimal("40")));
 
-                return new CalculationResult()
-                        .setStartDate(new DateImpl(calculationPeriodDates.getEffectiveDate().getAdjustableDate().getUnadjustedDate()));
-            }
-        };
-
-        RateOfReturn rateOfReturnCalc = new RateOfReturn(calculationPeriod,
-                (equityValuation, date) -> new ResolvePrice.CalculationResult().setPrice(new BigDecimal("0.1")));
-
-        EquityNotionalAmount equityNotionalAmountCalc = new EquityNotionalAmount(calculationPeriod,
-                _equityPayout -> new ResolveInitialPrice.CalculationResult().setPrice(new BigDecimal("100.00")));
+        EquityNotionalAmount equityNotionalAmountCalc = new EquityNotionalAmount(_equityPayout -> new ResolveInitialPrice.CalculationResult().setPrice(new BigDecimal("100.00")));
 
         EquityCashSettlementAmount settlementAmount = new EquityCashSettlementAmount(
                 new AbsImpl(),
@@ -65,9 +55,12 @@ public class EquityResetEventExample extends EquityResetEvent {
         return Event.builder()
                 .addEventIdentifier(id)
                 .setPrimitiveBuilder(PrimitiveEvent.builder()
-                    .addResetBuilder(ResetPrimitive.builder()
-                        .setResetValue(equityCashSettlementAmount)
-                        .setDate(businessDate)))
+                        .addResetBuilder(ResetPrimitive.builder()
+                                .setDate(businessDate)
+                                .setResetValue(observation.getPrimitive().getObservation().get(0).getObservation())
+                                .setCashflowBuilder(Cashflow.builder()
+                                        .setCashflowAmountBuilder(Money.builder()
+                                                .setAmount(equityCashSettlementAmount)))))
                 .build();
     }
 }

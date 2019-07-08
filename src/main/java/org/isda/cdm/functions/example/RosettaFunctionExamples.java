@@ -18,21 +18,18 @@ public class RosettaFunctionExamples {
     private RosettaFunctionExamples() {
         map = MutableClassToInstanceMap.create();
         identifierService = new IdentifierService();
-        businessDate = LocalDate.of(2019, 7, 8);
+        businessDate = LocalDate.of(2001, 10, 10);
 
         new NewContractEventExample(map, identifierService);
         new EmptyLegalAgreementExample(map);
         new NewExecutionFromProductExample(map, identifierService);
         new NewContractFormationFromExecutionExample(map, identifierService);
         new EquityResetEventExample(map, identifierService, businessDate);
+        new GetBusinessDateSpecExmaple(map, businessDate);
     }
 
     public <T extends RosettaFunction> T get(Class<T> clazz) {
         return map.getInstance(clazz);
-    }
-
-    public IdentifierService getIdentifierService() {
-        return identifierService;
     }
 
     public static RosettaFunctionExamples getInstance() {
