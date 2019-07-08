@@ -5,22 +5,26 @@ import com.google.common.collect.MutableClassToInstanceMap;
 import com.rosetta.model.lib.functions.RosettaFunction;
 import org.isda.cdm.functions.example.services.identification.IdentifierService;
 
+import java.time.LocalDate;
+
 public class RosettaFunctionExamples {
 
     private static final RosettaFunctionExamples instance = new RosettaFunctionExamples();
 
     private final ClassToInstanceMap<RosettaFunction> map;
     private final IdentifierService identifierService;
+    private final LocalDate businessDate;
 
     private RosettaFunctionExamples() {
         map = MutableClassToInstanceMap.create();
         identifierService = new IdentifierService();
+        businessDate = LocalDate.of(2019, 7, 8);
 
         new NewContractEventExample(map, identifierService);
         new EmptyLegalAgreementExample(map);
         new NewExecutionFromProductExample(map, identifierService);
         new NewContractFormationFromExecutionExample(map, identifierService);
-        new EquityResetEventExample(map, identifierService);
+        new EquityResetEventExample(map, identifierService, businessDate);
     }
 
     public <T extends RosettaFunction> T get(Class<T> clazz) {
