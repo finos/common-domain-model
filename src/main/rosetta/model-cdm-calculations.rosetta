@@ -10,12 +10,6 @@ calculation EquityCashSettlementAmount <"Part 1 Section 12 of the 2018 ISDA CDM 
 		notionalAmount	: ResolveNotionalAmount( EquityPayout ) -> notional
 }
 
-function EquityAmountPayer( equityPayout EquityPayout ) <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 71. ' Equity Amount Payer' means: if the Rate Of Return is positive, then the Short Party shall be the Equity Amount Payer; and if the Rate Of Return is negative, then the Long Party shall be the Equity Amount Payer.">
-{
-	payerReceiver PayerReceiver;
-	// should be provided as a fully specified function (with a body, like calculation) with logic based on the direction of RateOfReturn
-}
-
 calculation EquityPerformance <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Performance = (Rate Of Return) × Equity Notional Amount.">
 {
 	equityPerformance : rateOfReturn * notionalAmount
@@ -30,7 +24,9 @@ calculation RateOfReturn <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirm
 	rateOfReturn : ( finalPrice - initialPrice ) / initialPrice 
 
 	where
-		calculationPeriod : CalculationPeriod( EquityPayout -> calculationPeriodDates /*, time */ ) 
+		businessDate: GetBusinessDateFunc()
+		
+		calculationPeriod : EquityCalculationPeriod( EquityPayout, businessDate -> result ) 
 					
 		initialPrice <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 102. 'Initial Price' means, in respect of the first Equity Valuation Date, the Specified Initial Price, and in respect of each subsequent Equity Valuation Date, the Final Price for the Equity Valuation Date immediately preceding such Equity Valuation Date."> : 
 		  	if calculationPeriod -> isFirstPeriod = True then 
@@ -49,13 +45,17 @@ calculation RateOfReturn <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirm
 				ResolvePrice( EquityPayout -> priceReturnTerms -> valuationPriceInterim, calculationPeriod -> endDate ) -> price
 }
 
+function GetBusinessDateFunc()
+{
+	result date;
+}
+
 calculation EquityNotionalAmount <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 74. 'Equity Notional Amount' means the Number Of Securities times the Initial Price, adjusted, if applicable, as provided in Part 1 Section 2.2, 'Equity Notional Reset'. If 'With Reset' is the Equity Notional Reset Election, then in respect of each Equity Cash Settlement Date: (i) the Equity Notional Amount applicable in respect of the first Equity Cash Settlement Date will be the amount specified as such in the definition of Equity Notional Amount; (ii) the Equity Notional Amount applicable in respect of each subsequent Equity Cash Settlement Date will be the sum of (a) the Equity Notional Amount in respect of the prior Equity Cash Settlement Date and (b) the Equity Performance, whether positive or negative, in respect of the prior Equity Cash Settlement Date; and (iii)	the Floating Notional Amount will be adjusted as provided in sub-clauses (i) and (ii) above as though it were an Equity Notional Amount.">
 {
 	equityNotionalAmount : numberOfSecurities * initialPrice
 
 	where
 		numberOfSecurities	: EquityPayout -> underlier -> singleUnderlier -> quantity -> amount
-		calculationPeriod	: CalculationPeriod( EquityPayout -> calculationPeriodDates )
 		initialPrice		: ResolveInitialPrice ( EquityPayout ) -> price
 }
 
@@ -87,6 +87,7 @@ function ResolveEquityCashSettlementAmount( equityPayout EquityPayout ) <"">
 	amount number;
 	// Body to be copied from "EquityCashSettlementAmount" specification once new Function Specification module in production
 }
+
 
 calculation FixedAmount <"2006 ISDA Definition Article 5 Section 5.1. Calculation of a Fixed Amount: The Fixed Amount payable by a party on a Payment Date will be: (a) if an amount is specified for the Swap Transaction as the Fixed Amount payable by that party for that Payment Date or for the related Calculation Period, that amount; or (b) if an amount is not specified for the Swap Transaction as the Fixed Amount payable by that party for that Payment Date or for the related Calculation Period, an amount calculated on a formula basis for that Payment Date or for the related Calculation Period as follows: Fixed Amount = Calculation Amount × Fixed Rate × Day Count Fraction.">
 {
@@ -286,6 +287,15 @@ calculation DayCountFractionEnum.ACT_365L <"The actual number of days in the Cal
 			if (endDateIsInLeapYear = True) then 366 else 365
 }
 
+function EquityCalculationPeriod(equityPayout EquityPayout, businessDate date) 
+{
+	startDate date;
+	endDate date;
+	isFirstPeriod boolean;
+	isLastPeriod boolean;
+} 
+
+// Deprecated - deleted once calculations have moved to Function Spec
 function CalculationPeriod( calculationPeriodDates CalculationPeriodDates ) <"2006 ISDA Definition Section 4.13. 'Calculation Period' means, in respect of a Swap Transaction and a party, each period from, and including, one Period End Date of that party to, but excluding, the next following applicable Period End Date during the Term of the Swap Transaction, except that (a) the initial Calculation Period for the party will commence on, and include, the Effective Date and (b) the final Calculation Period for the party will end on, but exclude, the Termination Date.">
 {
 	startDate date;

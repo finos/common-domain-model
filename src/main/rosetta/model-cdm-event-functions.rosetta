@@ -48,12 +48,15 @@ spec NewEquitySwapProduct <"Function specification to create an Equity Swap acco
 		product -> loan is absent;
 		product -> security is absent;
 		
+		
 spec NewSingleNameEquityPayout <"Function specification to create the equity payout part of an Equity Swap according to the 2018 ISDA CDM Equity Confirmation template.">:
 	inputs:
 		underlier Equity (1..1)
 		masterConfirmation EquitySwapMasterConfirmation2018 (0..1)
+		
 	output:
 		equityPayout EquityPayout (1..1)
+		
 	post-condition <"Equity payout must inherit terms from the Master Confirmation Agreement when it exists.">:
 		if masterConfirmation exists then
 			equityPayout -> returnType = masterConfirmation -> typeOfSwapElection and
@@ -61,14 +64,14 @@ spec NewSingleNameEquityPayout <"Function specification to create the equity pay
 			equityPayout -> paymentDates = masterConfirmation -> equityCashSettlementDates and
 			equityPayout -> settlementTerms = masterConfirmation -> settlementTerms
 		else True;
+		
 	post-condition <"Equity payout must be single name on the provided equity underlier.">:
 		equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> equity = underlier;
 		
+		
 spec NewFloatingPayout <"Function specification to create the interest rate (floating) payout part of an Equity Swap according to the 2018 ISDA CDM Equity Confirmation template.">:
-	inputs:
-		masterConfirmation EquitySwapMasterConfirmation2018 (0..1)
-	output:
-		interestRatePayout InterestRatePayout (1..1)
+	inputs: masterConfirmation EquitySwapMasterConfirmation2018 (0..1)
+	output: interestRatePayout InterestRatePayout (1..1)
 
 	post-condition <"Interest rate payout must inherit terms from the Master Confirmation Agreement when it exists.">:
 		if masterConfirmation exists then
@@ -78,12 +81,11 @@ spec NewFloatingPayout <"Function specification to create the interest rate (flo
 
 // TODO: allow for None keyword to denote not there
 spec EmptyLegalAgreement:
-	output:
+	output: 
 		result LegalAgreement (1..1)
-
-
+	
 spec EmptyEquitySwapMasterConfirmation2018:
-	output:
+	output: 
 		result EquitySwapMasterConfirmation2018 (1..1)
 
 
@@ -106,9 +108,9 @@ spec NewContractEvent <"Function specification to create the fully-formed busine
 		
 	post-condition <"Event must contain a contract formation primitive based on the execution primitive and (optionally) the legal agreement.">:
 		if legalAgreement exists then
-			event -> primitive -> contractFormation = NewContractFormationFromExecution( ExtractSingle( event -> primitive -> execution -> after ), partyA, partyB, legalAgreement )
+			event -> primitive -> contractFormation = NewContractFormationFromExecution( ExtractSingleExecutionState( event -> primitive -> execution -> after ), partyA, partyB, legalAgreement )
 		else
-			event -> primitive -> contractFormation = NewContractFormationFromExecution( ExtractSingle( event -> primitive -> execution -> after ), partyA, partyB, EmptyLegalAgreement() );
+			event -> primitive -> contractFormation = NewContractFormationFromExecution( ExtractSingleExecutionState( event -> primitive -> execution -> after ), partyA, partyB, EmptyLegalAgreement() );
 			
 	post-condition <"When they exist, the parties on the event must match the party inputs.">:
 		if event -> party exists then event -> party count = 2 and event -> party contains partyA and event -> party contains partyB else True;
@@ -120,25 +122,82 @@ spec NewContractEvent <"Function specification to create the fully-formed busine
 		event -> eventEffect -> effectedContract is absent;
 		event -> eventEffect -> productIdentifier is absent;
 		event -> eventEffect -> transfer is absent;
-
-
-// TODO: language feature to extract single items regardless of type
-spec ExtractSingle <"Temporary measure to extract a single item from a list, when it is the only item in that list">:
-	inputs:
-		executionState ExecutionState (1..*)
-	output:
-		result ExecutionState (1..1)
 		
 /*
  * Primitive Event Function Specifications 
  */
 
-// spec EquityReset <"Function specification for resetting an equity payout following a price observation, which means calculating the equity performance and resetting the equity notional.">:
-// 	inputs:
-// 		equityPayout EquityPayout (1..1)
-// 		observation number (1..1)
-// 	output:
-// 		reset ResetPrimitive (1..1)
+spec EquityResetEvent <"Function specification for resetting an equity payout following an equity price observation, which means calculating the equity performance and resetting the equity notional.">:
+	inputs:
+		contract Contract (1..1)
+		observation Event (1..1)
+		
+	output:
+		event Event (1..1)
+
+ 	pre-condition <"There must be an equity payout on the contract, and the event input must contain an observation.">:
+		contract -> contractualProduct -> economicTerms -> payout -> equityPayout exists;
+		observation -> primitive -> observation exists;
+
+	// TODO: the state of the contract should be altered to account for that reset event - QUESTION: how to update that?
+
+ 	post-condition <"Event must contain a reset primitive that is calculated based on the observation, and no other primitive.">:
+		event -> primitive -> reset = EquityReset( 
+				ExtractSingleEquityPayout( contract -> contractualProduct -> economicTerms -> payout -> equityPayout ), 
+				ExtractSingleNumber( observation -> primitive -> observation -> observation ), 
+				ExtractSingleDate( observation -> primitive -> observation -> date ) );
+		event -> primitive -> reset only exists;
+		
+	post-condition <"Event effect must include the notional reset on the contract.">:
+		event -> eventEffect -> effectedContract = contract;
+		event -> eventEffect -> contract = contract;
+		event -> eventEffect -> effectedExecution is absent;
+		event -> eventEffect -> execution is absent;
+		event -> eventEffect -> productIdentifier is absent;
+		
+	post-condition <"Event lineage must point to the contract being reset and the observation event.">:
+		event -> lineage -> contractReference = contract;
+		event -> lineage -> eventReference = observation;
+
+	
+spec EquityReset <"Function specification for resetting an equity payout following an equity price observation. This function only concerns itself with building the primitive, which currently does not affect the underlying contract (until such time when 'ResetPrimitive' is refactored to directly accomodate a 'before' and 'after' states). The contract effect will be part of the 'EventEffect' attribute on the a fully-formed Business Event that is built by the 'EquityResetEvent' function spec.">:
+	inputs:
+		equityPayout EquityPayout (1..1)
+		// source ObservationSource (1..1)
+		observation number (1..1)
+		date date (1..1)
+		// QUESTION: is it better to directly pass the observation's date and number in this function spec, or the 'ObservatioPrimitive' object to then extract its attribute?
+	
+	output:
+		reset ResetPrimitive (1..1)
+
+	pre-condition <"The reset date must be the period start date on the equity payout.">:
+		date = CalculationPeriodSpec( equityPayout -> calculationPeriodDates, GetBusinessDateSpec() ) -> unadjustedFirstDate;
+		// TODO: we should verify the adequation between the observation source and the asset on the equity payout, but this requires some refactoring of 'ObservationSource' to make it work across assets (currently geared towards rates)
+
+	post-condition <"Date and value attributes must be correctly populated on the reset primitive.">:
+		reset -> date = date;
+		reset -> resetValue = observation;
+		
+	post-condition <"Reset cashflow must be correctly calculated on the reset primitive by fetching the .">:
+		reset -> cashflow -> cashflowAmount -> amount = ResolveEquityCashSettlementAmountSpec( equityPayout );
+		//TODO: handle the xccy settlement case
+		reset -> cashflow -> cashflowAmount -> currency = equityPayout -> settlementTerms -> settlementCurrency;
+		reset -> cashflow -> payerReceiver = EquityAmountPayer( equityPayout );
+
+
+spec CalculationPeriodSpec <"A product agnostic approach to extracting the calculation period dates">:
+	inputs:
+		periodDates CalculationPeriodDates (1..1) 
+		date date (1..1)
+	output:
+		result DateRange (1..1)
+
+
+spec GetBusinessDateSpec <"A function to be implementated by CDM users for systematic implementations to provide a business date">:
+	output:
+		result date (1..1)
+
 
 spec EquityPriceObservation <"Function specification for the observation of an equity price, based on the attributes of the 'EquityValuation' class.">:
 	inputs:
@@ -167,13 +226,15 @@ spec EquityPriceObservation <"Function specification for the observation of an e
 		observation -> observation = EquitySpot( equity, observation -> date, observation -> time );
 
 
+// should be provided as a fully specified function (with a body, like calculation) with logic based on the direction of RateOfReturn
+spec EquityAmountPayer <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 71. ' Equity Amount Payer' means: if the Rate Of Return is positive, then the Short Party shall be the Equity Amount Payer; and if the Rate Of Return is negative, then the Long Party shall be the Equity Amount Payer.">:
+	inputs: equityPayout EquityPayout (1..1) 
+	output: payerReceiver PayerReceiver (1..1)
+
 
 spec ToAdjustedDateFunction:
-	inputs:
-		terminationDate AdjustableOrRelativeDate (1..1)
-		
-	output:
-		adjustedDate date (1..1)
+	inputs: terminationDate AdjustableOrRelativeDate (1..1)
+	output: adjustedDate date (1..1)
 		
 
 spec EquitySpot <"An external market data lookup for the spot equity price of the reference asset based on a determination method.">:
@@ -182,23 +243,12 @@ spec EquitySpot <"An external market data lookup for the spot equity price of th
 		date date (1..1)
 		time TimeZone (1..1 ) 
 		
-	output:
-		spot number (1..1)
-
-spec FooBar2:
-	inputs:
-		date date (1..1) 
-		
-	output:
-		spot number (1..1)
+	output: spot number (1..1)
 
 
 spec TimeZoneFromBusinessCenterTime <"Function to resolve a time passed as BusinessCenterTime into a TimeZone time.">:
-	inputs:
-		time BusinessCenterTime (1..1)
-		
-	output:
-		result TimeZone (1..1)
+	inputs: time BusinessCenterTime (1..1)
+	output: result TimeZone (1..1)
 
 
 spec ResolveTimeZoneFromTimeType <"Function to resolve a TimeType into a TimeZone based on a determination method.">:
@@ -270,3 +320,28 @@ spec NewContractFormationFromExecution <"Function specification to create a full
 		if legalAgreement exists then contractFormation -> after -> contract -> documentation -> legalAgreement = legalAgreement else True;
 
 
+
+// TODO: 
+spec ResolveEquityCashSettlementAmountSpec:
+	inputs: equityPayout EquityPayout (1..1)
+	output: amount number (1..1)
+	
+
+// TODO: add language feature to extract single items regardless of type
+spec ExtractSingleEquityPayout:
+	inputs: equityPayout EquityPayout (1..*)
+	output: result EquityPayout (1..1)
+
+spec ExtractSingleNumber:
+	inputs: numbers number (1..*)
+	output: n number (1..1)
+
+spec ExtractSingleDate:
+	inputs: dates date (1..*)
+	output: d date (1..1)	
+
+spec ExtractSingleExecutionState <"Temporary measure to extract a single item from a list, when it is the only item in that list">:
+	inputs: executionStates ExecutionState (1..*)
+	output: executionState ExecutionState (1..1)
+	
+		
