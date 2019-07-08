@@ -35,22 +35,24 @@ public class EquityResetEventExample extends EquityResetEvent {
         RateOfReturn rateOfReturnCalc = new RateOfReturn(
                 () -> new GetBusinessDateFunc.CalculationResult().setResult(new DateImpl(businessDate)),
                 equityCalculationPeriod,
-                (equityValuation, date) -> new ResolvePrice.CalculationResult().setPrice(new BigDecimal("40")));
+                (equityValuation, date) -> new ResolvePrice.CalculationResult().setPrice(observation.getPrimitive()
+                        .getObservation().get(0).getObservation()));
 
-        EquityNotionalAmount equityNotionalAmountCalc = new EquityNotionalAmount(_equityPayout -> new ResolveInitialPrice.CalculationResult().setPrice(new BigDecimal("100.00")));
+        EquityNotionalAmount equityNotionalAmountCalc = new EquityNotionalAmount(
+                _equityPayout -> new ResolveInitialPrice.CalculationResult().setPrice(new BigDecimal("100.00")));
 
         EquityCashSettlementAmount settlementAmount = new EquityCashSettlementAmount(
                 new AbsImpl(),
-                (_equityPayout) -> new ResolveRateOfReturn.CalculationResult().setRate(rateOfReturnCalc.calculate(_equityPayout).getRateOfReturn()),
-                (_equityPayout) -> new ResolveNotionalAmount.CalculationResult().setNotional(equityNotionalAmountCalc.calculate(_equityPayout).getEquityNotionalAmount())
-        );
+                (_equityPayout) -> new ResolveRateOfReturn.CalculationResult()
+                        .setRate(rateOfReturnCalc.calculate(_equityPayout).getRateOfReturn()),
+                (_equityPayout) -> new ResolveNotionalAmount.CalculationResult()
+                        .setNotional(equityNotionalAmountCalc.calculate(_equityPayout).getEquityNotionalAmount()));
 
-        BigDecimal equityCashSettlementAmount = settlementAmount.calculate(equityPayout).getEquityCashSettlementAmount();
+        EquityCashSettlementAmount.CalculationResult calculationResult = settlementAmount.calculate(equityPayout);
+
+        BigDecimal equityCashSettlementAmount = calculationResult.getEquityCashSettlementAmount();
 
         Identifier id = identifierService.nextVersion(contract.getContractIdentifier().get(0).getIssuer().getValue(), Event.class.getSimpleName());
-
-//        EquityReset equityReset = classRegistry.getInstance(EquityReset.class);
-//        equityReset.evaluate()
 
         return Event.builder()
                 .addEventIdentifier(id)

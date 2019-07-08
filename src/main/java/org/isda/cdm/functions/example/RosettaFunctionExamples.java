@@ -32,6 +32,10 @@ public class RosettaFunctionExamples {
         return map.getInstance(clazz);
     }
 
+    public IdentifierService getIdentifierService() {
+        return identifierService;
+    }
+
     public static RosettaFunctionExamples getInstance() {
         return instance;
     }
