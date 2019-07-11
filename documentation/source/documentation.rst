@@ -47,13 +47,14 @@ All the modelling artefacts available in the CDM, with their associated syntax a
 CDM Model
 =========
 
-This section presents an outline of the five dimensions of the CDM model:
+This section presents an outline of the six dimensions of the CDM model:
 
 * Product
 * Event
 * Legal Agreement
 * Calculation
 * Reference Data
+* Mapping (Synonym)
 
 Product Model
 -------------
@@ -252,11 +253,11 @@ Product Qualification
 
 The product qualification is inferred from the product's economic terms through a dedicated logic which navigates the model components. It uses the ``isProduct`` Rosetta syntax detailed as part of the *Object Qualification* in the *CDM Modelling Artefacts* section of the documentation
 
-**The qualification of a Zero-Coupon Fixed-Float Inflation Swap** provides an example of the logic to serve that purpose, which combines Boolean and qualified expressions.
-
 The CDM makes use of the ISDA taxonomy V2.0 leaf level to qualify the product. 18 interest rate derivative products have so far been qualified as part of the CDM, in effect representing the full ISDA V2.0 scope. The current CDM implementation only qualifies interest rate swaps, as the ISDA taxonomy V2.0 for credit default swap references the transaction type instead of the product features, which values are not publicly available and hence not positioned as a CDM enumeration.
 
 Follow-up is in progress with the ISDA Credit Group to evaluate whether an alternative product qualification could be developed that would leverage the approach adopted for interest rate derivatives. This issue will be addressed as part of later versions of the CDM.
+
+**The qualification of a Zero-Coupon Fixed-Float Inflation Swap** provides an example of the product qualification logic, which combines Boolean and qualified expressions:
 
 .. code-block:: Java
 
@@ -304,15 +305,60 @@ The CDM product qualification is stamped onto the generated CDM objects and thei
 Event Model
 -----------
 
-The CDM event model is based upon the same high-level principles as the product model:
+The CDM event model is based upon the same composition principle as the product model:
 
-* **Events are specified by composition** of *primitive events**, which use of a large set of the FpML building blocks.
+* **Business events are specified by composition** of *primitive events*, which use a large set of the FpML event building blocks.
 * **Event qualification is inferred** from those primitive events and, in some relevant cases, from an **intent** qualifier.
+
+Primitive Event
+^^^^^^^^^^^^^^^
+
+CDM primitive events are the building block components used to specify business events. The current list of primitive events can be seen in the below snippet, as well as a few examples of such primitive events:
+
+.. code-block:: Java
+
+ class PrimitiveEvent
+ {
+  inception Inception (0..*);
+  quantityChange QuantityChangePrimitive (0..*);
+  allocation AllocationPrimitive (0..*);
+  termsChange TermsChangePrimitive (0..1);
+  exercise ExercisePrimitive (0..1);
+  observation ObservationPrimitive (0..*);
+  reset ResetPrimitive (0..*);
+  transfer Transfer (0..*);
+ }
+ 
+ class Inception
+ {
+  before ContractState (0..0);
+  after PostInceptionState (1..1);
+ }
+ 
+ class ObservationPrimitive
+ {
+  source ObservationSource (1..1);
+  observation number (1..1)
+  date date (1..1);
+  time TimeZone (0..1);
+  side QuotationSideEnum (0..1);
+ }
+
+Primitive events can be thought of as mathematical operators on a state of a transaction lifecycle. Apart from the ``ObservationPrimitive``, they each have a ``before`` and ``after`` attributes that define the elements of the state transition. From an observation, which is independent from any transaction and is the equivalent of the **market data oracle** in a distributed ledger context, a ``ResetPrimitive`` can be built which does affect a particular transaction. A separate ``Transfer`` can be built in case that reset generates a cashflow.
+
+**Note 1**: In the ``Inception`` primitive, which corresponds to the execution of a contract, the ``before`` state is a ``ContractState`` with 0 cardinality, as the CDM currently does not tackle any the pre-execution lifecycle.
+
+**Note 2**: Not all primitive events are currently composed of a ``before`` and ``after`` state. This will need to be reviewed and potentially harmonised to establish a clean state-transition model in the CDM.
+
+As mathematical operators, primitive events reflect a many-to-one mapping with actual business events. An example composition of the primitive building blocks to represent a business event is the **partial novation** of a contract:
+
+* an ``Inception`` primitive creates the contract with the novation party. The ``tradeDate`` on the novated portion of the contract should reflect the date of the novation event.
+* a ``QuantityChange`` primitive applies to the original contract where the quantity after change is different from 0 (0 would represent the case of a full novation).
 
 Baseline Event Features
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-The ``Event`` class carries the following information:
+The ``Event`` class that represents business events carries the following information:
 
 .. code-block:: Java
 
@@ -333,6 +379,8 @@ The ``Event`` class carries the following information:
   functionCall string (0..1);
   eventEffect EventEffect (0..1);
  }
+
+The ``primitive`` attribute describing the mathematical set of operators for the business event is of cardinality 1, whereby the actual composition into possibly multiple primitive events happens in the ``PrimitiveEvent`` class.
 
 Message Information
 """""""""""""""""""
@@ -366,12 +414,12 @@ The CDM adopts a generic approach to represent timestamp information, consisting
 
 The experience of mapping the CME clearing and the DTCC trade matching and cashflow confirmation transactions to the CDM did reveal a diverse set of timestamps. The expected benefits of the CDM generic approach are twofold:
 
-* It allows for flexibility in a context where it would challenging to mandate which points in the process should have associated timestamps.
+* It allows for flexibility in a context where it would be challenging to mandate which points in the process should have associated timestamps.
 * Gathering all of those in one place in the model allows for evaluation and rationalisation down the road.
 
 The CDM Group has expressed concerns with combining timestamps which are deemed 'technical' with 'business' ones. A further evaluation of this timestamp modelling approach will be required.
 
-Below is JSON snippet of an instance representation of this approach.
+Below is JSON representation instance of this approach.
 
 .. code-block:: Java
 
@@ -399,11 +447,6 @@ The event identification information comprises the ``identifier`` and an optiona
   issuer string (1..1) scheme;
   assignedIdentifier AssignedIdentifier (1..*);
  }
-
-Primitive Event
-"""""""""""""""
-
-The CDM composite approach uses the primitive events as building blocks for lifecycle events. These primitive events are detailed in the *Primitive Event* section of the documentation.
 
 Intent Qualification
 """"""""""""""""""""
@@ -543,42 +586,23 @@ In the below JSON snippet of a quantity change event on a contract, we can see t
   }
 
 * For the ``effectedContract`` effect: ``d36e1d72`` points to the original contract in the ``before`` state of the ``quantityChange`` primitive event.
-* For the ``contract`` effect: ``600e4873`` points to the new contract in the ``after`` state of the ``quantityChange`` primitive event. Note how the new contract retains the original ``tradeDate`` attribute of the initial contract even after a quantity change.
+* For the ``contract`` effect: ``600e4873`` points to the new contract in the ``after`` state of the ``quantityChange`` primitive event. Note how the new contract retains the initial ``tradeDate`` attribute of the original contract even after a quantity change.
 * For the ``transfer`` effect: ``ee4f7520`` points to the ``transfer`` primitive event.
 
-Other Information
-""""""""""""""""
+Other Misc. Information
+"""""""""""""""""""""""
 
 * **Date information** is provided through the ``eventDate`` and ``effectiveDate`` attributes, the latter being optional as not applicable to certain events (e.g. observations).
 * **Action qualification** specifies whether the event is a new one or a correction or cancellation of a prior one.
 * **Party information** is optional because not applicable to certain events (e.g. most of the observation events).
 * **Event qualifier** is derived from the event features, as per the *Event Qualification* section.
 
-Primitive Event
-^^^^^^^^^^^^^^^
-
-CDM primitive events are the building block components used to specify business events.
-
-.. code-block:: Java
-
- class PrimitiveEvent
- {
-  inception Inception (0..*);
-  quantityChange QuantityChangePrimitive (0..*);
-  allocation AllocationPrimitive (0..*);
-  termsChange TermsChangePrimitive (0..1);
-  exercise ExercisePrimitive (0..1);
-  observation ObservationPrimitive (0..*);
-  reset ResetPrimitive (0..*);
-  transfer Transfer (0..*);
- }
-
 Event Qualification
 ^^^^^^^^^^^^^^^^^^^
 
 Similar to the product modelling approach, the CDM lifecycle events are qualified as a function of the combination of their primitive event features and, when specified, the ``intent`` attribute. The event qualification uses the ``isEvent`` syntax in Rosetta, which is specified as part of the *Object Qualification* in the *CDM Modelling Artefacts* section of the documentation.
 
-The CDM makes use of the ISDA taxonomy V2.0 leaf level to qualify the event.  The synonymity with the ISDA taxonomy V1.0 has been systematically indicated as part of the model upon request from CDM group participants, who pointed out that a number of them use it internally. 23 lifecycle events have currently been qualified as part of the CDM.
+The CDM makes use of the ISDA taxonomy V2.0 leaf level to qualify the event.  The synonymity with the ISDA taxonomy V1.0 has been systematically indicated as part of the model upon request from CDM group participants, who pointed out that a number of them use it internally. 22 lifecycle events have currently been qualified as part of the CDM.
 
 One distinction with the product approach is that the ``intent`` qualification is also deemed necessary to complement the primitive event information in certain cases. To this effect, the Rosetta event qualification syntax allows to specify that the intent must have a specified value *when present*, as illustrated by the below snippet.
 
@@ -615,120 +639,133 @@ The event qualification is positioned as a the ``eventQualifier`` attribute of t
 Legal Agreement
 ---------------
 
-The CDM aims at providing a digital representation of the legal agreements that govern the financial contracts and workflows.
+The CDM provides a digital representation of the legal agreements that govern financial contracts and workflows. The benefits are:
 
-This is expected to yield two sets of benefits:
+* **Supporting marketplace initiatives to streamline and standardise legal agreements** with a comprehensive digital representation of such agreements. While the initial scope is focused on the ISDA legal agreements, it is not limited to those.  As an example, as a follow-up from work to represent secured funding contracts and associated lifecycle events, the CDM will look to represent the associated governing legal agreements (such as GMRA for repo).
+* **Providing a comprehensive representation of the financial workflows** by complementing the contract and lifecycle event representation. Collateral management is an example of the applicability of such approach, as most of the flows require reference to the associated legal agreements (such as the ISDA Initial Margin and Variation Margin Credit Support Annex).
 
-* Support the marketplace initiatives that aim at streamlining and standardizing the legal agreements by providing a comprehensive digital representation of such agreements.  As part of that, the CDM is looking to effectively integrate with some of those marketplace initiatives, such as (but not limited to) ISDA Create and AcadiaSoft Agreement Manager.  While the initial scope is focused on the ISDA legal agreements, it is not limited to those.  As an example, as a follow-up from the work in progress to represent secured funding contracts and associated lifecycle events it is expected that the CDM will look to represent the associated governing legal agreements.
-* Complement the contract and lifecycle event representation in order to provide a comprehensive representation of the financial workflows.  Collateral management is a good example of the applicability of such approach, as most of the associated workflows require to reference the associated legal agreements, such as the ISDA Initial Margin and Variation Margin Credit Support Annex.
+The current CDM scope comprises the following features:
 
+* **Composable and normalised model representation** of a number of legal agreements:
 
-The current CDM scope encompasses the following features:
+  * ISDA 2016 Credit Support Annex for Initial Margin, with the New York, Japanese and English governing laws
+  * ISDA 2016 Credit Support Annex for Variation Margin, New York governing law
 
-* Model representation of the following legal agreements:
-
-  * ISDA 2016 Credit Support Annex for Initial Margin, with the New York, Japanese and English governing laws;
-  * ISDA 2016 Credit Support Annex for Variation Margin, New York governing law.
-
-* Mapping to the ISDA Create data representation for the elections associated with the ISDA 2016 CSA for Initial Margin (not the ISDA CSA Variation Margin, which is not yet represented in ISDA Create);
-* Initial work has been developed to map the CDM to the AcadiaSoft Agreement Manager, although only limited progress has been made so far;
-* Integration of the ``LegalAgreement`` with the ``Contract``, through the CDM referencing mechanism.
-
-The ability to ingest sample legal agreements is currently being worked out, but not yet supported as part of the CDM.
+* **Mapping to existing marketplace representations** for the following initiatives:
+  
+  * **ISDA Create Initial Margin**: Ingestion of JSON sample files generated from the ISDA Create platform for the elections associated with the ISDA 2016 CSA for Initial Margin has been implemented, to demonstrate connectivity between the ISDA Create Initial Margin negotiation tool and the CDM. (The ISDA CSA Variation Margin is not yet represented in ISDA Create.) A specific set of synonyms associated to the ``ISDA_Create_1_0`` synonym source has been developed to enable this mapping (see *Mapping* section).
+  * **AcadiaSoft Agreement Manager**: Initial work has been developed to map the CDM to the AcadiaSoft Agreement Manager, although only limited progress has been made so far.
+  
+* **Linking of legal agreement into contract** through the CDM referencing mechanism.
 
 Modelling Approach
 ^^^^^^^^^^^^^^^^^^
 
 The current CDM model leverages some prior and current work:
 
-* The FpML Legal View, which was developed in 2013-14 with the aim of supporting the ISDA Standard CSA in a generic manner;
-* The ISDA Create solution (in its version 1.0).
+* The FpML Legal View, which was developed in 2013-14 to support the ISDA Standard CSA in a generic manner
+* The ISDA Create solution, in its version 1.0.
 
-The intent is also to further leverage the AcadiaSoft Agreement Manager solution as part of the further iterations of the model, particularly as it relates to the integration with the collateral management workflow.
+The intent is to also leverage the **AcadiaSoft Agreement Manager** solution as part of further iterations of the model, to enable integration with the collateral management workflow.
 
-The key modelling principles that have been adopted to represent legal agreements are as follows:
+The key modelling principles that have been adopted to represent legal agreements are:
 
-* Distinction between the agreement identification features (agreement name, publisher, identification, ...), which are represented through the ``LegalAgreementBase`` abstract class, and the elections, which are the content features and are represented through classes which are aligned with the legal agreement template which they meant to represent, an example of which being the ``CsaInitialMargin2016JapaneseLaw`` class, which represents the ISDA 2016 Japanese Law CSA for Initial Margin;
-* Composite model, both as part of the ``Base`` abstract class, which makes use of classes that are also used as part of the contract and lifecycle event components of the CDM (e.g. ``Party``, ``Identifier``, ``PartyRole``), and as part of the elective classes, with the above mentioned ``CsaInitialMargin2016JapaneseLaw`` class extending the ``CsaInitialMargin2016`` abstract class which specifies the elections that are common among governing laws, and which in turn extends the ``Csa2016`` abstract class which specifies the elections that are common among the ISDA 2016 Initial Margin and Variation Margin CSA agreements;
-* Representation of the legal agreement elections, as opposed to their whole write-up.  Similar to what has been done as part of the ISDA Create solution, such approach still provides the ability for CDM users to wrap those normalized elections into the corresponding legal agreement template, in order to provide a complete legal agreement;
-* Focus on providing whenever possible a normalized data representation which can be digitally usable as such once projected through a machine executable language.  Practically speaking, that means restricting the use of elections expressed in a ``string`` format whenever possible.  To this effect, the CDM leverages the ISDA Create data representation, while also extends it in some cases by leveraging some of the work developed in 2013-14 as part of the FpML work to provide a digital representation of the Standard CSA.  Notable examples of such approach are:
+* **Distinction between the agreement identification features and the content features** (i.e. elections).
 
-  * The ``EligibleCollateral`` class provides the ability to specify the eligible collateral in a comprehensive manner for the purpose of initial and variation margin, which can be directly useable digitally through the combination of an enumerated list of eligible assets (based upon the 2003 ISDA Collateral Asset Definitions), normalized maturity bands and agency rating notations;
-  * The ``EligibilityToHoldCollateral`` class specifies the conditions under which a party and its custodian(s) are entitled to hold collateral in relation to the ISDA CSA for Variation Margin, through the combination of party terms that are specified through an enumeration, normalized custodian terms (see below) and/or the determination of countries in which such collateral can he held into;
-  * The ``CustodianTerms`` class provides the ability to specify the requirements applicable to the custodian with respect to the holding of posted collateral through the combination of minimal assets and minimal rating considerations, or through the designation of a specific custodian.
+  * The agreement identification features: agreement name, publisher, identification, etc are represented by the ``LegalAgreementBase`` abstract class.
+  * The elections are represented through classes aligned with the legal agreement template which they represent. An example is the ``CsaInitialMargin2016JapaneseLaw`` class, which represents the ISDA 2016 Japanese Law CSA for Initial Margin.
+  
+* **Composite model**.
+
+  * The ``LegalAgreementBase`` abstract class uses components that are also used as part of the CDM contract and lifecycle event components: e.g. ``Party``, ``Identifier``, ``PartyRole``.
+  * As part of the election classes: the above mentioned ``CsaInitialMargin2016JapaneseLaw`` class extends the ``CsaInitialMargin2016`` abstract class which specifies the elections that are common among governing laws. The ``CsaInitialMargin2016`` in turn extends the ``Csa2016`` abstract class which specifies the elections that are common among the ISDA 2016 Initial Margin and Variation Margin CSA agreements.
+  
+* **Representation of legal agreement elections as data**, as opposed to their whole write-up. Similar to what has been done in ISDA Create, such approach still allows CDM users to wrap those normalised elections into the corresponding legal agreement template, in order to provide a complete legal agreement.
+* **Normalisation of the data representation** to be machine readable and executable. In practice, the use of elections expressed in a ``string`` format has been restricted whenever possible, as ``string`` requires language parsing and disassembling to be machine executable. The CDM leverages the ISDA Create data representation and extends it in some cases, leveraging some output of the FpML work to digitise the Standard CSA. Notable examples of such approach are:
+
+  * The ``EligibleCollateral`` class comprehensively specifies the eligible collateral for initial and variation margin as directly machine readable, through the combination of an enumeration of eligible assets (based upon the 2003 ISDA Collateral Asset Definitions), normalised maturity bands and agency rating notations.
+  * The ``EligibilityToHoldCollateral`` class specifies the conditions under which a party and its custodian(s) are entitled to hold collateral under the ISDA CSA for Variation Margin, through the combination of party terms that are specified through an enumeration, normalised custodian terms (see below) and/or the enumeration of countries in which such collateral can be held.
+  * The ``CustodianTerms`` class specifies the requirements applicable to the custodian with respect to the holding of posted collateral, through the combination of minimal assets and minimal rating considerations or through the designation of a specific custodian.
 
 The Elective Provisions
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-As already mentioned, the current CDM scope is limited to the ISDA 2016 CSA for Initial Margin and Variation Margin.  Taking this context in consideration, the data representation is currently organised around 3 levels of composition:
+The current CDM scope is limited to the ISDA 2016 CSA for Initial Margin and Variation Margin. In this context, the model components are organised around 3 levels, in this order of abstraction:
 
-* The ``Csa2016`` abstract class specifies the set of provisions that are common among governing laws and across Initial and Variation Margin templates.  It is expected that this abstract class will evolve as further vintages of the ISDA CSA are being modelled.
+* **Vintage**, such as CSA 2016
+* **Margin Type**, i.e. Initial or Variation Margin
+* **Governing Law**, such as New York or Japanese
 
- .. code-block:: Java
+The ``Csa2016`` abstract class specifies the set of provisions that are common among governing laws and across Initial and Variation Margin templates. This abstract class will evolve as further vintages of the ISDA CSA are being modelled.
+
+.. code-block:: Java
 
   abstract class Csa2016
   {
-	 baseCurrency string (1..1) scheme ;
-	  additionalObligations string (0..1) ;
-	  conditionsPrecedent ConditionsPrecedent (1..1) ;
-	  substitution Substitution (1..1) ;
-    disputeResolution DisputeResolution (1..1) ;
-	  additionalRepresentation AdditionalRepresentation (1..1) ;
-	  demandsAndNotices ContactElection (1..1) ;
-	  addressesForTransfer ContactElection (1..1) ;
-	  bespokeProvision string (0..1) ;
+   baseCurrency string (1..1) scheme;
+   additionalObligations string (0..1);
+   conditionsPrecedent ConditionsPrecedent (1..1);
+   substitution Substitution (1..1);
+   disputeResolution DisputeResolution (1..1);
+   additionalRepresentation AdditionalRepresentation (1..1);
+   demandsAndNotices ContactElection (1..1);
+   addressesForTransfer ContactElection (1..1);
+   bespokeProvision string (0..1) ;
   }
 
-* The ``CsaInitialMargin2016`` abstract class extends the ``Csa2016`` class to specify the provisions for the 2016 ISDA Credit Support Annex for Initial Margin that are common among the applicable governing laws.
+The ``CsaInitialMargin2016`` abstract class extends the ``Csa2016`` class to specify the provisions for the 2016 ISDA Credit Support Annex for Initial Margin that are common across the applicable governing laws.
 
- .. code-block:: Java
+.. code-block:: Java
 
   abstract class CsaInitialMargin2016 extends Csa2016
   {
- 	 regime Regime (1..1) ;
- 	 oneWayProvisions OneWayProvisions (1..1) ;
- 	 method Method (1..1) ;
- 	 identifiedCrossCurrencySwap boolean (1..1) ;
- 	 sensitivityToEquity SensitivityMethodology (1..1) ;
- 	 sensitivityToCommodity SensitivityMethodology (1..1) ;
- 	 fxHaircutCurrency FxHaircutCurrency (1..1) ;
- 	 creditSupportObligations CreditSupportObligationsInitialMargin (1..1) ;
- 	 calculationDateLocation CalculationDateLocation (1..1) ;
- 	 notificationTime NotificationTime (1..1) ;
- 	 terminationCurrency TerminationCurrencyAmendment (1..1) ;
+   regime Regime (1..1);
+   oneWayProvisions OneWayProvisions (1..1);
+   method Method (1..1);
+   identifiedCrossCurrencySwap boolean (1..1);
+   sensitivityToEquity SensitivityMethodology (1..1);
+   sensitivityToCommodity SensitivityMethodology (1..1);
+   fxHaircutCurrency FxHaircutCurrency (1..1);
+   creditSupportObligations CreditSupportObligationsInitialMargin (1..1);
+   calculationDateLocation CalculationDateLocation (1..1);
+   notificationTime NotificationTime (1..1);
+   terminationCurrency TerminationCurrencyAmendment (1..1) ;
   }
 
-* The ``CsaVariationMargin2016`` abstract class extends the ``Csa2016`` class to specify the provisions for the 2016 ISDA Credit Support Annex for Variation Margin that are common among the applicable governing laws.  It should be noted that its implementation has been undertaken without a thorough review of the Japanese and English governing laws (as only a New York sample agreement was available), and it should be expected that it might have to be adjusted as part of the integration of those governing laws.
+The ``CsaVariationMargin2016`` abstract class extends the ``Csa2016`` class to specify the provisions for the 2016 ISDA Credit Support Annex for Variation Margin that are common across the applicable governing laws.  At this point its implementation has been undertaken without a thorough review of the Japanese and English governing laws as only a New York sample agreement was available. It might have to be adjusted to integrate those governing laws.
 
- .. code-block:: Java
+.. code-block:: Java
 
   abstract class CsaVariationMargin2016 extends Csa2016
   {
- 	 creditSupportObligations CreditSupportObligationsVariationMargin (1..1) ;
- 	 valuationAgent Party (1..1) reference ;
- 	 valuationDateLocation CalculationDateLocation (1..1) ;
- 	 valuationTime BusinessCenterTime (1..*) ;
- 	 notificationTime int (1..1) ;
- 	 holdingAndUsingPostedCollateral HoldingAndUsingPostedCollateral (1..1) ;
- 	 creditSupportOffsets boolean (1..1) ;
- 	 otherCsa RelatedAgreement (1..1) ;
+   creditSupportObligations CreditSupportObligationsVariationMargin (1..1);
+   valuationAgent Party (1..1) reference;
+   valuationDateLocation CalculationDateLocation (1..1);
+   valuationTime BusinessCenterTime (1..*);
+   notificationTime int (1..1);
+   holdingAndUsingPostedCollateral HoldingAndUsingPostedCollateral (1..1);
+   creditSupportOffsets boolean (1..1);
+   otherCsa RelatedAgreement (1..1);
   }
 
-* The classes that represent the ISDA CSA elections by extending the above abstract constructs are the following:
+The (non-abstract) classes that represent the ISDA CSA elections extend the above abstract constructs:
 
-  * The ``CsaInitialMargin2016JapaneseLaw``, ``CsaInitialMargin2016NewYorkLaw`` and ``CsdInitialMargin2016EnglishLaw`` classes extend the ``CsaInitialMargin2016`` abstract class to specify the Initial Margin elections which are specific to those governing laws;
-  * The ``CsaVariationMargin2016NewYorkLaw`` class extends the ``CsaVariationMargin2016`` abstract class to specify the Variation Margin elections that are specific to the New York law.
+* For Initial Margin: the ``CsaInitialMargin2016JapaneseLaw``, ``CsaInitialMargin2016NewYorkLaw`` and ``CsdInitialMargin2016EnglishLaw`` classes extend the ``CsaInitialMargin2016`` abstract class to specify the Initial Margin elections that are specific to those governing laws.
+* For Variation Margin: the ``CsaVariationMargin2016NewYorkLaw`` class extends the ``CsaVariationMargin2016`` abstract class to specify the Variation Margin elections that are specific to New York law.
 
 Linking Legal Agreements to Contracts and Events
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The way in which the CDM relates/ties a legal agreement with the relevant contract or event is through the referencing mechanism.
+The CDM uses the key / referencing mechanism to tie a legal agreement with the relevant contract or event.
 
-This referencing mechanism has been implemented for the ``Contract`` (but not yet for the ``Event``, the reason being that no lifecycle event workflow has yet been specified that references legal agreement other than through the contract).
+This referencing mechanism has been implemented for the ``Contract`` but not yet for the ``Event``, since no lifecycle event workflow has yet been specified that references legal agreement other than through the contract itself.
 
-This referencing of the legal agreement from the ``Contract`` is done through the ``documentation`` attribute.  Alongside with providing the ability to identify some of the key terms of a governing legal agreement (such as the agreement identifier, the publisher, the document vintage and the agreement date) as part of the ``documentationIdentification`` attribute, the associated ``Documentation`` class provides the ability to reference a legal agreement that is electronically represented in the CDM through the ``legalAgreement`` attribute, which has a reference key into the instance agreement.
+Referencing the legal agreement from the ``Contract`` is done through the ``documentation`` attribute.  The associated ``Documentation`` class allows to:
 
-The below snippet represents this ``Documentation`` class, which ``legalAgreement`` attribute carries the ``reference`` qualifier.
+* Identify some of the key terms of a governing legal agreement such as the agreement identifier, the publisher, the document vintage and the agreement date, as part of the ``documentationIdentification`` attribute
+* Reference a legal agreement that is electronically represented in the CDM through the ``legalAgreement`` attribute, which has a reference key into the agreement instance
+
+The below snippet represents this ``Documentation`` class, which ``legalAgreement`` attribute carries the ``reference`` qualifier and where the ``LegalAgreement`` class carries associated ``key`` qualifier:
 
 .. code-block:: Java
 
@@ -737,10 +774,6 @@ The below snippet represents this ``Documentation`` class, which ``legalAgreemen
   legalAgreement LegalAgreement (0..*) reference;
   documentationIdentification DocumentationIdentification (0..1);
  }
-
-This further snippet presents the ``LegalAgreement`` class and its associated ``key`` qualifier.
-
-.. code-block:: Java
 
  class LegalAgreement extends LegalAgreementBase key one of
  {
@@ -872,19 +905,20 @@ It is expected that this CDM reference data representation will be further expan
   dateOfBirth date (0..1) ;
  }
 
-Model Mappings (Synonyms)
--------------------------
+Mapping (Synonym)
+-----------------
 
 In order to facilitate the translation of existing industry messages (based on open standards or proprietary ones) into CDM, the CDM is mapped to a set of those alternative data representations using the ``synonym`` feature available in the Rosetta DSL.
 
 The following set of synonym sources are currently in place for the CDM:
 
-* **FpML standard**: synonymity to the version 5.10 of the standard through the ``FpML_5_10`` synonym source
-* **FIX standard**: synonymity to the version 5.0 SP2 of the standard through the ``FIX_5_0_SP2`` synonym source
-* **ISO 20022 standard**: synonymity to the standard throught the ``ISO_20022`` synonym source, with no version reference at present
-* **Rosetta workbench**: synonymity to the *event.xsd* schema used for the purpose of ingesting sample lifecycle events through the ``Rosetta_Workbench`` synonym source
-* **DTCC**: synonymity to the *OTC_Matching_11-0.xsd* schema (including the imported FpML schema version 4.9) that is used for trade matching confirmations through the ``DTCC_11_0`` synonym source, and synonymity to the *OTC_Matching_9-0.xsd* schema (also including the imported FpML schema version 4.9) that is used for payment notifications through the ``DTCC_9_0`` synonym source
-* **CME**: synonymity to the *cme-conf-ext-1-17.xsd* schema (including the imported FpML schema version 5.0) that is used fo the clearing confirmation purposes through the ``CME_ClearedConfirm_1_17`` synonym source, and synonymity to the *bloombergTradeFixml* schema (including the imported FpML schema version 4.6) that is used for clearing submissions through the ``CME_SubmissionIRS_1_0`` synonym source
-* **AcadiaSoft**: synonymity to the version 1 of the Agreement Manager through the ``AcadiaSoft_AM_1_0`` synonym source
+* **FpML standard** (synonym source: ``FpML_5_10``): synonyms to the version 5.10 of the FpML standard
+* **FIX standard** (synonym source: ``FIX_5_0_SP2``): synonyms to the version 5.0 SP2 of the FIX protocol
+* **ISO 20022 standard** (synonym source: ``ISO_20022``): synonyms to the ISO 20022 reporting standard, with no version reference at present
+* **Rosetta workbench** (synonym source: ``Rosetta_Workbench``): synonyms to the *event.xsd* schema used internally in Rosetta to ingeste sample lifecycle events
+* **DTCC** (synonym sources: ``DTCC_11_0`` and ``DTCC_9_0``): synonyms to the *OTC_Matching_11-0.xsd* schema used for trade matching confirmations, and to the *OTC_Matching_9-0.xsd* schema used for payment notifications, both including the imported FpML schema version 4.9.
+* **CME** (synonym sources: ``CME_ClearedConfirm_1_17`` and ``CME_SubmissionIRS_1_0``): synonyms to the *cme-conf-ext-1-17.xsd* schema (including the imported FpML schema version 5.0) used for clearing confirmation, and to the *bloombergTradeFixml* schema (including the imported FpML schema version 4.6) used for clearing submission
+* **AcadiaSoft** (synonym source: ``AcadiaSoft_AM_1_0``): synonyms to version 1.0 of AcadiaSoft Agreement Manager
+* **ISDA Create** (synonym source: ``ISDA_Create_1_0``): synonyms to version 1.0 of the ISDA Create tool for Initial Margin negotiation
 
 Those synonym sources are listed as part of the Rosetta grammar, so that the synonym source value can be controlled when editing synonyms.
