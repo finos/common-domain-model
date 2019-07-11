@@ -787,7 +787,7 @@ The below snippet represents this ``Documentation`` class, which ``legalAgreemen
 Function
 --------
 
-In addition to the product, event and legal agreement data model, the CDM specifies a number of functions that apply to the data model. Functions are the building blocks to construct automated processes, and specifying them in the CDM allows to drive the standardisation of those processes.
+The CDM purpose is to lay the foundation for the standardisation and automation of industry processes. These processes are based on *functions* to transform data from inputs into outputs, often combined into a sequence of steps or *workflow*, which is the basis of process automation. In addition to the product, event and legal agreement data model, functions are an essential building blocks in the CDM to standardise indutry processes.
 
 There are two types of functions in the CDM. They use the *Function Artefact* available in the Rosetta DSL and described as part of the *CDM Modelling Artefacts* section of the documentation:
 
@@ -797,12 +797,12 @@ There are two types of functions in the CDM. They use the *Function Artefact* av
 Calculation
 ^^^^^^^^^^^
 
-The current CDM version implements the **Fixed Amount** and **Floating Amount** ISDA 2006 Definitions, alongside some of the day count fractions.
+The CDM provides certain ISDA Definitions as machine executable formulas, to confirm that it can be applied to standardise the industry calculation processes that use those definitions. The ISDA 2006 definitions of **Fixed Amount** and **Floating Amount** have been used as an initial scope, alongside some of the required day count fractions.
 
 Fixed Amount and Floating Amount Definitions
 """"""""""""""""""""""""""""""""""""""""""""
 
-The CDM expressions of the Fixed Amount and Floating Amount are similar in structure: a calculation formula that reflects the terms of the ISDA 2006 Definitions and the arguments associated with the formula.
+The CDM expressions of ``FixedAmount`` and ``FloatingAmount`` are similar in structure: a calculation formula that reflects the terms of the ISDA 2006 Definitions and the arguments associated with the formula.
 
 .. code-block:: Java
 
@@ -814,7 +814,9 @@ The CDM expressions of the Fixed Amount and Floating Amount are similar in struc
     fixedRate	: InterestRatePayout -> rateSpecification -> fixedRate -> initialValue
     dayCountFraction	: InterestRatePayout -> dayCountFraction
   }
- 
+
+.. code-block:: Java
+
  calculation FloatingAmount
  {
   floatingAmount : calculationAmount * ( floatingRate + spread ) * dayCountFraction
@@ -829,7 +831,7 @@ The CDM expressions of the Fixed Amount and Floating Amount are similar in struc
 Day Count Fractions
 """""""""""""""""""
 
-The current CDM version incorporates day count fractions calculations which are representative of the set of day count fractions specified as part of the ISDA 2006 Definitions, e.g. the ACT/365.FIXED and the 30E/360 day count fractions. While the **ACT/365.FIXED** definition is simple and relies upon a computation of the number of days in a period (not specified as part of the CDM because not involving any specific logic), the **30E/360** definition specifies the actual computation in details to account for a 360 days year and a 30 maximum days month.
+The current CDM version incorporates day count fractions calculations representing the set of day count fractions specified as part of the ISDA 2006 Definitions, e.g. the ACT/365.FIXED and the 30E/360 day count fractions. While the **ACT/365.FIXED** definition is simple and relies upon a computation of the number of days in a period (not specified as part of the CDM because not involving any specific logic), the **30E/360** definition specifies the actual computation in details to account for a 360 days year and a 30 maximum days month.
 
 .. code-block:: Java
 
@@ -861,7 +863,25 @@ The current CDM version incorporates day count fractions calculations which are 
 Function Specification
 ^^^^^^^^^^^^^^^^^^^^^^
 
-To be documented.
+A function specification in CDM standardises the `APIs <https://en.wiktionary.org/wiki/application_programming_interface>`_ that industry implementations should conform to when building the functions used for process automation. By standardising those APIs, the CDM guarantees the integrity, inter-operability and consistency of the automated processes that they support.
+
+Function specifications can be used to specify any type of function in the CDM. There are currently three main uses:
+
+* as part of calculations
+* to construct events
+* to construct products
+
+Function specification is a newly introduced feature in the CDM and the range of uses is expected to grow over time.
+
+Functions Used in Calculations
+""""""""""""""""""""""""""""""
+
+Functions to Construct Events
+"""""""""""""""""""""""""""""
+
+Functions to Construct Products
+"""""""""""""""""""""""""""""""
+
 
 Reference Data Model
 --------------------
