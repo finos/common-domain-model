@@ -52,7 +52,7 @@ This section presents an outline of the six dimensions of the CDM model:
 * Product
 * Event
 * Legal Agreement
-* Calculation
+* Function
 * Reference Data
 * Mapping (Synonym)
 
@@ -784,84 +784,84 @@ The below snippet represents this ``Documentation`` class, which ``legalAgreemen
  }
 
 
-Calculation
------------
+Function
+--------
 
-The current CDM version implements the **Fixed Amount** and **Floating Amount** ISDA 2006 Definitions, alongside with some of the day count fractions.
+In addition to the product, event and legal agreement data model, the CDM specifies a number of functions that apply to the data model. Functions are the building blocks to construct automated processes, and specifying them in the CDM allows to drive the standardisation of those processes.
+
+There are two types of functions in the CDM. They use the *Function Artefact* available in the Rosetta DSL and described as part of the *CDM Modelling Artefacts* section of the documentation:
+
+* Calculation, using the ``calculation`` syntax
+* Function Specification, using the ``spec`` syntax
+
+Calculation
+^^^^^^^^^^^
+
+The current CDM version implements the **Fixed Amount** and **Floating Amount** ISDA 2006 Definitions, alongside some of the day count fractions.
 
 Fixed Amount and Floating Amount Definitions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+""""""""""""""""""""""""""""""""""""""""""""
 
-The CDM syntax to express the Fixed Amount and Floating Amount is similar in structure: a calculation that reflects the terms of the ISDA 2006 Definitions, and associated arguments.
+The CDM expressions of the Fixed Amount and Floating Amount are similar in structure: a calculation formula that reflects the terms of the ISDA 2006 Definitions and the arguments associated with the formula.
 
 .. code-block:: Java
 
  calculation FixedAmount
  {
-  fixedAmount number: calculationAmount * rate * dayCountFraction
-  currencyAmount CurrencyEnum: currencyAmount
- }
-
- arguments FixedAmount
- {
-  calculationAmount: is InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
-  currencyAmount: is InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> currency
-  rate: is InterestRatePayout -> interestRate -> fixedRate -> initialValue
-  dayCountFraction: is InterestRatePayout -> dayCountFraction
- }
-
-.. code-block:: Java
-
+  fixedAmount : calculationAmount * fixedRate * dayCountFraction
+   where
+    calculationAmount	: InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
+    fixedRate	: InterestRatePayout -> rateSpecification -> fixedRate -> initialValue
+    dayCountFraction	: InterestRatePayout -> dayCountFraction
+  }
+ 
  calculation FloatingAmount
  {
-   floatingAmount number: calculationAmount * ( floatingRate + spread ) * dayCountFraction
-   currencyAmount CurrencyEnum: currencyAmount
- }
-
- arguments FloatingAmount
- {
-   calculationAmount: is InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
-   currencyAmount: is InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> currency
-   floatingRate: is ResolveRateIndex( InterestRatePayout -> interestRate -> floatingRate -> floatingRateIndex ) -> rate
-   spread: is GetRateSchedule( InterestRatePayout -> interestRate -> floatingRate ) -> schedule -> initialValue
-   dayCountFraction: is InterestRatePayout -> dayCountFraction
+  floatingAmount : calculationAmount * ( floatingRate + spread ) * dayCountFraction
+  
+  where
+   calculationAmount : InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
+   floatingRate : ResolveRateIndex( InterestRatePayout -> rateSpecification -> floatingRate -> floatingRateIndex ) -> rate
+   spread : GetRateSchedule( InterestRatePayout -> rateSpecification -> floatingRate ) -> schedule -> initialValue
+   dayCountFraction : InterestRatePayout -> dayCountFraction
  }
 
 Day Count Fractions
-^^^^^^^^^^^^^^^^^^^
+"""""""""""""""""""
 
-The current CDM version incorporates day count fractions calculations which are quite representative of the set of day count fractions that are specified as part of the ISDA 2006 Definitions.  Among those are the 30E/360 and the ACT/365.FIXED day count fractions. While the **30E/360** definition specifies the actual computation in quite details as a result of the use of a 360 days year and a 30 maximum days month, the **ACT/365.FIXED** is much simpler and relies upon a computation of the number of days in a period which is not specified as part of the syntax because not involving any specific logic.
+The current CDM version incorporates day count fractions calculations which are representative of the set of day count fractions specified as part of the ISDA 2006 Definitions, e.g. the ACT/365.FIXED and the 30E/360 day count fractions. While the **ACT/365.FIXED** definition is simple and relies upon a computation of the number of days in a period (not specified as part of the CDM because not involving any specific logic), the **30E/360** definition specifies the actual computation in details to account for a 360 days year and a 30 maximum days month.
 
 .. code-block:: Java
 
  calculation DayCountFractionEnum._30E_360
  {
-   number: (360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
- }
-
- arguments DayCountFractionEnum._30E_360
- {
-  alias period CalculationPeriod( InterestRatePayout -> calculationPeriodDates )
-
-  endYear : is period -> endDate -> year
-  startYear : is period -> startDate -> year
-  endMonth : is period -> endDate -> month
-  startMonth : is period -> startDate -> month
-  startDay : is Min( period -> startDate -> day, 30 )
-  endDay : is Min( period -> endDate -> day, 30 )
+  : (360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
+  
+  where
+   alias calculationPeriod
+    CalculationPeriod( InterestRatePayout -> calculationPeriodDates )
+   startYear: calculationPeriod -> startDate -> year
+   endYear: calculationPeriod -> endDate -> year
+   startMonth: calculationPeriod -> startDate -> month
+   endMonth: calculationPeriod -> endDate -> month
+   endDay: Min( calculationPeriod -> endDate -> day, 30 )
+   startDay: Min( calculationPeriod -> startDate -> day, 30 )
  }
 
 .. code-block:: Java
 
  calculation DayCountFractionEnum.ACT_365_FIXED
  {
-   number : daysInPeriod / 365
+  : daysInPeriod / 365
+  
+  where
+   daysInPeriod: CalculationPeriod( InterestRatePayout -> calculationPeriodDates ) -> daysInPeriod
  }
+ 
+Function Specification
+^^^^^^^^^^^^^^^^^^^^^^
 
- arguments DayCountFractionEnum.ACT_365_FIXED
- {
-   daysInPeriod : is DaysInPeriod( InterestRatePayout -> calculationPeriodDates ) -> days
- }
+To be documented.
 
 Reference Data Model
 --------------------
