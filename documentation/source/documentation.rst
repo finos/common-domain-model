@@ -33,7 +33,7 @@ The below ISDA CDM Components Diagram lays out the three set of CDM application 
 
   * **Model Definition**, which corresponds to the actual model as expressed in the Rosetta syntax and which components are further detailed as part of the CDM Modelling Artefacts section of this documentation.
   * **Model Code Projection**, currently available as Java and JSON.  As the Rosetta syntax represents not just data components but also logic, the JSON representation has quite a limited scope and usefulness but is being used in practice by downstream consumers of the CDM.
-  * **Default Apps**. While the two above components represent the essence of the model and are meant to be used as such by implementors, the Default Apps correspond to default implementations which can either be used as such, or be disabled or extended by those participants.  An example of such would be the ``rosettaKey`` implementation, which uses the default Java hash code function, but which might be deemed as inappropriate by some participants and hence be replaced by some alternative implementation.
+  * **Default Apps**. While the two above components represent the essence of the model and are meant to be used as such by implementors, the Default Apps correspond to default implementations which can either be used as such, or be disabled or extended by those participants.  An example of such would be the ``key`` implementation, which uses the default Java hash code function, but which might be deemed as inappropriate by some participants and hence be replaced by some alternative implementation.
 
 * **CDM Applications** by service providers. It is expected that a rich eco-system of such licensed application components that are based upon the CDM will develop over time. REGnosys is the first to have taken the initiative to develop an offering of solutions, which purpose is to assist market participants in making use of the CDM. In particular, the CDM Portal provides a few UI components allowing participants to browse through the CDM. ISDA doesn't endorse any of those application components.
 
@@ -191,7 +191,7 @@ The absence of synonym entry for the ``creditDefaultPayout`` attribute is due to
 
 .. code-block:: Java
 
- class CreditDefaultPayout key <"The credit default payout specification provides the details necessary for determining when a credit payout will be triggered as well as the parameters for calculating the payout and the settlement terms. The associated rosettaKey denotes the ability to associate a hash value to the CreditDefaultPayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+ class CreditDefaultPayout key <"The credit default payout specification provides the details necessary for determining when a credit payout will be triggered as well as the parameters for calculating the payout and the settlement terms. The associated ``key`` denotes the ability to associate a hash value to the CreditDefaultPayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
  {
   generalTerms GeneralTerms (1..1) <"The specification of the non-monetary terms for the Credit Derivative Transaction, including the buyer and seller and selected items from the ISDA 2014 Credit Definition article II, such as the reference obligation and related terms.">;
    [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value generalTerms path "trade.creditDefaultSwap"]
