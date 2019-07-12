@@ -1,11 +1,10 @@
 package org.isda.cdm.functions;
 
 import java.math.BigDecimal;
-import org.isda.cdm.functions.Abs.CalculationResult;
 
-public class AbsImpl {
+public class AbsImpl implements Abs {
 	
 	public CalculationResult execute(BigDecimal x) {
-		throw new UnsupportedOperationException("TODO: auto-generated method stub");
+		return new CalculationResult().setResult(x.abs());
 	}
 }
