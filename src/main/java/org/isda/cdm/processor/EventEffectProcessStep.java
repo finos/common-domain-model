@@ -81,7 +81,7 @@ public class EventEffectProcessStep implements PostProcessStep{
 			RosettaModelObjectBuilder builder) {
 		RosettaPath path = RosettaPath.valueOf(topClass.getSimpleName());
 		EventEffectPostProcessReport report = new EventEffectPostProcessReport();
-		EventEffectProcessor processor = new EventEffectProcessor(report);
+		EventEffectProcessor processor = new EventEffectProcessor(report,  keyProcessor.runProcessStep(topClass, builder));
 		processor.processRosetta(path, topClass, builder, null);
 		builder.process(path, processor);
 		return report;
@@ -112,9 +112,8 @@ public class EventEffectProcessStep implements PostProcessStep{
 		private final EventEffectPostProcessReport report;
 		private final Map<RosettaPath, GlobalKeyBuilder<?>> globalKeyMap;
 
-		public EventEffectProcessor(EventEffectPostProcessReport report) {
+		public EventEffectProcessor(EventEffectPostProcessReport report, KeyPostProcessReport keyPostProcessReport) {
 			this.report = report;
-			KeyPostProcessReport keyPostProcessReport = (KeyPostProcessReport)keyProcessor.report();
 			globalKeyMap = keyPostProcessReport.getKeyMap();
 		}
 
