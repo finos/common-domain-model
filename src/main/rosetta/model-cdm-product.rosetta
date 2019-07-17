@@ -392,7 +392,7 @@ class EquityPayout key <"The equity payout specification terms. The associated r
 {
 	payerReceiver PayerReceiver (0..1);
 	underlier Underlier (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Security">;
-		[synonym FpML_5_10 value underlyer]
+		[synonym FpML_5_10 value singleUnderlyer path "underlyer", basket path "underlyer"]
 	returnType ReturnTypeEnum (1..1) <"Specifies the type of return associated with the equity payout.">;
 		[synonym FpML_5_10 value returnType path "return"]
 	dividendReturnTerms DividendReturnTerms (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Dividend Obligations">;
@@ -643,7 +643,7 @@ class OptionPayout key <"The option payout specification terms. The associated r
 	denomination OptionDenomination (0..1) <"The denomination qualifies the number of units of underlier per option and the number of options comprised in the option transaction. FpML represents this information as part of the OptionDenomination.model.">;
 	quantity ContractualQuantity (0..1) <"The option notional amount. The CDM uses the generic term quantity rather than notional amount. The number of options is specified as part of the denomination attribute.">;
 	exerciseTerms OptionExercise (1..1) <"The terms for exercising the option, which include the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">;
-	underlier Product (1..1) <"The option underlier. The implementation is restricted to contractual underliers as part of the initial CDM phase.">;
+	underlier Underlier (1..1) <"The product underlying the option, which can be of any type including ContractualProduct or Security.">;
 }
 
 class SecurityLeg key <"Terms defining a security leg in a securities financing transaction, which can either be the near leg or the far leg and is closely modelled onto the nearLeg and farLeg types in FpML">
@@ -896,7 +896,7 @@ data rule PaymentDates_paymentFrequency <"FpML specifies a required paymentFrequ
 		and Payout -> interestRatePayout -> paymentDates exists
 	then Payout -> interestRatePayout -> paymentDates -> paymentFrequency exists
 
-class Product one of <"A class to represent a financial product. With respect to contractual products, this class specifies the pre-execution product characteristics (the ContractualProduct class). This class is used as underlying for the option exercise representation, which makes use of the contractualProduct attribute to support the swaption use case, with the exercise into a swap. In a complete workflow, the swaption contract itself then needs to be superseded by a swap contract underpinned by the exercised swap as a contractualProduct.">
+class Product key one of <"A class to represent a financial product. With respect to contractual products, this class specifies the pre-execution product characteristics (the ContractualProduct class). This class is used as underlying for the option exercise representation, which makes use of the contractualProduct attribute to support the swaption use case, with the exercise into a swap. In a complete workflow, the swaption contract itself then needs to be superseded by a swap contract underpinned by the exercised swap as a contractualProduct.">
 {
 	// contract Contract (0..1);
 	// 	[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value contract]
@@ -958,6 +958,7 @@ class Quantity <"A class to specify an amount/number of securities or tangible a
 {
 	amount number (1..1) <"The amount to quantify ">;
 		[synonym Rosetta_Workbench value amount]
+		[synonym FpML_5_10 value openUnits]
 	unit UnitEnum (0..1) <"The unit of measure, applicable to physical assets, e.g. MWh or MMBTU.">;
 		[synonym Rosetta_Workbench value unit]
 }
@@ -1074,11 +1075,11 @@ isProduct CreditDefaultSwap <"This product qualification is temporary until such
 
 isProduct CreditDefaultSwaption <"This product qualification is temporary until such time that the ISDA Credit Group specifies a proper taxonomy for credit derivatives that is based upon economic terms.">
 	EconomicTerms -> payout -> optionPayout exists
-	and EconomicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout exists
-	and ( EconomicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> interestRatePayout
-		or EconomicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> cashflow ) exists
-	and EconomicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> equityPayout is absent
-	and EconomicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> optionPayout is absent
+	and EconomicTerms -> payout -> optionPayout -> underlier -> singleUnderlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout exists
+	and ( EconomicTerms -> payout -> optionPayout -> underlier -> singleUnderlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> interestRatePayout
+		or EconomicTerms -> payout -> optionPayout -> underlier -> singleUnderlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> cashflow ) exists
+	and EconomicTerms -> payout -> optionPayout -> underlier -> singleUnderlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> equityPayout is absent
+	and EconomicTerms -> payout -> optionPayout -> underlier -> singleUnderlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> optionPayout is absent
 
 isProduct EquitySwap_PriceReturnBasicPerformance_SingleName <"The Price Return Basic Performance equity swap specified in the ISDA taxonomy V2.0 corresponds to the price and total return swaps.">
 	[synonym ISDA_Taxonomy_v1 value EquitySwap_PriceReturnBasicPerformance_SingleName]
@@ -1292,12 +1293,12 @@ isProduct InterestRate_InflationSwap_Basis_ZeroCoupon
 isProduct InterestRate_Option_Swaption
 	[synonym ISDA_Taxonomy_v1 value InterestRate_Option_Swaption]
 	EconomicTerms -> payout -> optionPayout exists
-	and EconomicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> interestRatePayout count = 2
+	and EconomicTerms -> payout -> optionPayout -> underlier -> singleUnderlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> interestRatePayout count = 2
 
 isProduct InterestRate_Option_DebtOption
 	[synonym ISDA_Taxonomy_v1 value InterestRate_DebtOption]
-	EconomicTerms -> payout -> optionPayout -> underlier -> security -> bond exists
-		or EconomicTerms -> payout -> optionPayout -> underlier -> security -> convertibleBond exists
+	EconomicTerms -> payout -> optionPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> bond exists
+		or EconomicTerms -> payout -> optionPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> convertibleBond exists
 
 isProduct InterestRate_CapFloor
 	[synonym ISDA_Taxonomy_v1 value InterestRate_CapFloor]
@@ -1314,12 +1315,12 @@ isProduct InterestRate_Fra
 isProduct ForeignExchange
 	[synonym ISDA_Taxonomy_v1 value ForeignExchange_Forward]
 	[synonym ISDA_Taxonomy_v1 value ForeignExchange_Spot]
-	EconomicTerms -> payout -> forwardPayout -> foreignExchange exists and
-	EconomicTerms -> payout -> forwardPayout -> foreignExchange -> nonDeliverableSettlement is absent
+	EconomicTerms -> payout -> forwardPayout -> underlier -> singleUnderlier -> underlyingProduct -> foreignExchange exists and
+	EconomicTerms -> payout -> forwardPayout -> settlementTerms -> fxSettlementTerms is absent
 
 isProduct ForeignExchange_NDF
 	[synonym ISDA_Taxonomy_v1 value ForeignExchange_NDF]
-	EconomicTerms -> payout -> forwardPayout -> foreignExchange -> nonDeliverableSettlement exists
+	EconomicTerms -> payout -> forwardPayout -> settlementTerms -> fxSettlementTerms exists
 
 isProduct RepurchaseAgreement
 	EconomicTerms -> payout -> securityPayout -> securityLeg count >= 1 and

@@ -1,7 +1,6 @@
 namespace "org.isda.cdm"
 version "${project.version}"
 
-
 /*
  * Function specification for Portfolio Aggregation
  *
@@ -55,7 +54,6 @@ spec PositionEffect <"Specification to extract the position effect as a Delta fr
 			positionEffect = PositionEffect( event -> primitive -> inception )
 		else True;
 
-
 spec PositionEffect( inception Inception) -> positionEffect Position
 <"Specification of PositionEffect for the inception primitive, which corresponds to creating a Position instantiated with the uderlying contractual product and quantity, the status as Formed and a reference to contract now in place..">
 {
@@ -71,7 +69,6 @@ spec operator + ( positionA Position, positionB Position ) -> sumPosition Positi
 	// TBD: further define here?
 }
 */
-
 
 /*
  * Option 2 - A mark to market calculation for an FX Forward as provided by a member firm, but providing more transparency to the inputs of the interpolation function
@@ -91,7 +88,7 @@ calculation FxMarkToMarket_2 <"Representation of sample mark to market calculati
 	where 
 		// variables used in the rate InterpolateFull function call, below.
 		fx:
-			ForwardPayout -> foreignExchange
+			ForwardPayout -> underlier -> singleUnderlier -> underlyingProduct -> foreignExchange
 			
 		tenor:
 			fx -> tenorPeriod -> periodMultiplier
@@ -100,7 +97,7 @@ calculation FxMarkToMarket_2 <"Representation of sample mark to market calculati
 			Today()
 			
 		tenorRemaining: 
-			ForwardPayout -> settlementDate + today -> time
+			ForwardPayout -> settlementTerms -> settlementDate -> adjustableDate -> adjustedDate + today -> time
 			
 		spotRate:
 			SpotRate( fx ) -> rate

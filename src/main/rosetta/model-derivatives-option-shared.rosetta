@@ -238,17 +238,20 @@ class OptionFeature <"A class for defining option features.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value passThrough]
 }
 
-class OptionSettlement extends SettlementTerms <"The option settlement terms.">
+class OptionSettlement extends SettlementTerms <"The option settlement terms, which can either be cash, physical, or fx-based cash-settlement. This class can be used for both the settlement of options or forwards.">
 {
+	// TBD: refactor OptionCashSettlement and FxCashSettlement to be a unique class, where cash settlement can be specified in a given currency?
 	cashSettlementTerms OptionCashSettlement (0..1) <"Specifies the parameters associated with the cash settlement procedure.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value cashSettlement]
 	physicalSettlementTerms OptionPhysicalSettlement (0..1) <"Specifies the physical settlement terms which apply to the transaction.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value physicalSettlement]
+	fxSettlementTerms FxCashSettlement (0..1) <"Specifies the cash settlement of a non deliverable fx option / forward. It includes the currency to settle into together with the fixings required to calculate the currency amount">;
+		[synonym FpML_5_10 value nonDeliverableSettlement]
 }
 
-choice rule OptionSettlement_choice <"The option settlement cannot combine physical and cash terms specification.">
+choice rule OptionSettlement_choice <"The option settlement cannot combine both physical and cash terms specification.">
 	for OptionSettlement optional choice between
-	cashSettlementTerms and physicalSettlementTerms
+	cashSettlementTerms and physicalSettlementTerms and fxSettlementTerms
 
 data rule OptionSettlement_cashSettlementTerms <"If the cash settlement terms are specified, then the settlementType can either be Cash, Election or CashOrPhysical">
 	when OptionSettlement -> cashSettlementTerms exists

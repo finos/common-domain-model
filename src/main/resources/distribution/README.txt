@@ -11,7 +11,7 @@ Contained inside are:
 2. The CDM in JSON format.
 
 /common-domain-model
-The set of files that describe the Common Domain Model.  The files use the .rosetta extension as that carries special meaning in the Rosetta Workbench and CDM Portal, to view the files simply use the text editor of your choice as these are in effect, plain text files.
+The set of files that describe the Common Domain Model.  The files use the .rosetta extension as that carries special meaning in the Rosetta DSL and CDM Portal, to view the files simply use the text editor of your choice as these are in effect, plain text files.
 
 New starters should begin with the Contract and Event classes as these are foundational to the CDM work done thus far.  These classes can be found in model_cdm_product.rosetta and model_cdm_event.rosetta respectively.
 
@@ -25,4 +25,3 @@ The generated Java artefacts of the CDM, including its source code. Use this cod
 
 /lib/dependencies
 Contains all upstream dependencies necessary to compile and run the generated Java code.
-
