@@ -122,10 +122,35 @@ spec NewContractEvent <"Function specification to create the fully-formed busine
 		event -> eventEffect -> effectedContract is absent;
 		event -> eventEffect -> productIdentifier is absent;
 		event -> eventEffect -> transfer is absent;
-		
-/*
- * Primitive Event Function Specifications 
- */
+
+
+spec CashFlowTransferEvent <"Function specification to build a cashflow transfer event following a reset event">:
+	inputs:
+		contract Contract (1..1)
+		reset Event (1..1)
+	output:
+		transfer Event (1..1)
+
+	pre-condition <"There must be a reset primitive on the event input, and the contract being referenced must be consistent between those events.">:
+		reset -> primitive -> reset exists;
+		reset -> lineage -> contractReference = contract;
+
+	post-condition <"Event must contain a transfer primitive populated with the cashflow, and no other primitive.">:
+		// TO DO: now that we have extracted cashflow calculation from the reset event, find a way to hook-up the cashflow calculation back into the transfer event
+		// transfer -> primitive -> transfer = CashflowTransfer( reset -> primitive -> reset -> cashflow );
+		transfer -> primitive -> transfer only exists;
+
+	post-condition <"Event effect must include the contract generating the cashflow.">:
+        transfer -> eventEffect -> effectedContract = contract;
+        transfer -> eventEffect -> contract = contract;
+        transfer -> eventEffect -> effectedExecution is absent;
+        transfer -> eventEffect -> execution is absent;
+        transfer -> eventEffect -> productIdentifier is absent;
+
+	post-condition <"Event lineage must point to the contract that generated the cashflow and the reset event.">:
+		transfer -> lineage -> contractReference = contract;
+		transfer -> lineage -> eventReference = reset;
+
 
 spec EquityResetEvent <"Function specification for resetting an equity payout following an equity price observation, which means calculating the equity performance and resetting the equity notional.">:
 	inputs:
@@ -133,7 +158,7 @@ spec EquityResetEvent <"Function specification for resetting an equity payout fo
 		observation Event (1..1)
 		
 	output:
-		event Event (1..1)
+		reset Event (1..1)
 
  	pre-condition <"There must be an equity payout on the contract, and the event input must contain an observation.">:
 		contract -> contractualProduct -> economicTerms -> payout -> equityPayout exists;
@@ -142,24 +167,40 @@ spec EquityResetEvent <"Function specification for resetting an equity payout fo
 	// TODO: the state of the contract should be altered to account for that reset event - QUESTION: how to update that?
 
  	post-condition <"Event must contain a reset primitive that is calculated based on the observation, and no other primitive.">:
-		event -> primitive -> reset = EquityReset( 
+		reset -> primitive -> reset = EquityReset( 
 				ExtractSingleEquityPayout( contract -> contractualProduct -> economicTerms -> payout -> equityPayout ), 
 				ExtractSingleNumber( observation -> primitive -> observation -> observation ), 
 				ExtractSingleDate( observation -> primitive -> observation -> date ) );
-		event -> primitive -> reset only exists;
+		reset -> primitive -> reset only exists;
 		
 	post-condition <"Event effect must include the notional reset on the contract.">:
-		event -> eventEffect -> effectedContract = contract;
-		event -> eventEffect -> contract = contract;
-		event -> eventEffect -> effectedExecution is absent;
-		event -> eventEffect -> execution is absent;
-		event -> eventEffect -> productIdentifier is absent;
+		reset -> eventEffect -> effectedContract = contract;
+		reset -> eventEffect -> contract = contract;
+		reset -> eventEffect -> effectedExecution is absent;
+		reset -> eventEffect -> execution is absent;
+		reset -> eventEffect -> productIdentifier is absent;
 		
 	post-condition <"Event lineage must point to the contract being reset and the observation event.">:
-		event -> lineage -> contractReference = contract;
-		event -> lineage -> eventReference = observation;
+		reset -> lineage -> contractReference = contract;
+		reset -> lineage -> eventReference = observation;
 
 	
+/*
+ * Primitive Event Function Specifications 
+ */
+
+spec CashflowTransfer <"Function specification to generate a transfer primitive following a reset. The cashflow is being passed as an input, as currently the cashflow is meant to be part of the reset. At a later stage, we should pass the reset value while the cashflow calculation should be executed as part of this spec.">:
+	inputs:
+		cashflow Cashflow (1..1)
+	output:
+		transfer TransferPrimitive (1..1)
+	
+	post-condition:
+		transfer -> settlementDate = cashflow -> cashflowDate;
+		transfer -> cashTransfer -> amount = cashflow -> cashflowAmount;
+		transfer -> cashTransfer -> payerReceiver = cashflow -> payerReceiver;
+
+
 spec EquityReset <"Function specification for resetting an equity payout following an equity price observation. This function only concerns itself with building the primitive, which currently does not affect the underlying contract (until such time when 'ResetPrimitive' is refactored to directly accomodate a 'before' and 'after' states). The contract effect will be part of the 'EventEffect' attribute on the a fully-formed Business Event that is built by the 'EquityResetEvent' function spec.">:
 	inputs:
 		equityPayout EquityPayout (1..1)
@@ -171,19 +212,26 @@ spec EquityReset <"Function specification for resetting an equity payout followi
 	output:
 		reset ResetPrimitive (1..1)
 
-	pre-condition <"The reset date must be the period start date on the equity payout.">:
-		date = CalculationPeriodSpec( equityPayout -> calculationPeriodDates, GetBusinessDateSpec() ) -> unadjustedFirstDate;
+	pre-condition <"The reset date must be the period end date on the equity payout.">:
+		date = CalculationPeriodSpec( equityPayout -> calculationPeriodDates, GetBusinessDateSpec() ) -> unadjustedLastDate;
 		// TODO: we should verify the adequation between the observation source and the asset on the equity payout, but this requires some refactoring of 'ObservationSource' to make it work across assets (currently geared towards rates)
 
-	post-condition <"Date and value attributes must be correctly populated on the reset primitive.">:
-		reset -> date = date;
-		reset -> resetValue = observation;
+	// TODO: when passing an observation source, we should verify that the observable matches the equity payout underlier
+
+	post-condition <"Reset primitive before state must be correctly populated with the equity payout that is being reset.">:
+		reset -> before -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout exists;
+		ExtractSingleEquityPayout( reset -> before -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout ) = equityPayout;
 		
-	post-condition <"Reset cashflow must be correctly calculated on the reset primitive by fetching the .">:
-		reset -> cashflow -> cashflowAmount -> amount = ResolveEquityCashSettlementAmountSpec( equityPayout );
-		//TODO: handle the xccy settlement case
-		reset -> cashflow -> cashflowAmount -> currency = equityPayout -> settlementTerms -> settlementCurrency;
-		reset -> cashflow -> payerReceiver = EquityAmountPayer( equityPayout );
+	post-condition <"Reset primitive after state must be correctly poulated with the equity payout including the reset effect.">:
+		reset -> after -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout exists;
+		// TO DO: Find a way to check that the new equity payout matches the previous one -excluding- the calculated fields
+		// ExtractSingleEquityPayout( reset -> before -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout ) = equityPayout;
+		ExtractSingleEquityPayout( reset -> after -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout ) -> rateOfReturn =
+			ResolveRateOfReturnSpec( equityPayout, date );
+		ExtractSingleEquityPayout( reset -> after -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout ) -> performance =
+			ResolveEquityPerformanceSpec( equityPayout, date );
+		ExtractSingleEquityPayout( reset -> after -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout ) -> equityCashSettlementAmount =
+			ResolveEquityCashSettlementAmountSpec( equityPayout, date );
 
 
 spec CalculationPeriodSpec <"A product agnostic approach to extracting the calculation period dates">:
@@ -197,6 +245,29 @@ spec CalculationPeriodSpec <"A product agnostic approach to extracting the calcu
 spec GetBusinessDateSpec <"A function to be implementated by CDM users for systematic implementations to provide a business date">:
 	output:
 		result date (1..1)
+
+
+spec ResolveRateOfReturnSpec <"Note: Body to be copied from RateOfReturn calculation once new Function Specification module in production.">:
+	inputs:
+		equityPayout EquityPayout (1..1)
+		date date (1..1)
+	output:
+		rate number (1..1)
+
+spec ResolveEquityPerformanceSpec <"Note: Body to be copied from EquityPerformance calculation once new Function Specification module in production.">:
+	inputs:
+		equityPayout EquityPayout (1..1)
+		date date (1..1)
+	output:
+		performance number (1..1)
+
+
+spec ResolveEquityCashSettlementAmountSpec <"Note: Body to be copied from EquityCashSettlementAmount calculation once new Function Specification module in production.">:
+	inputs:
+		equityPayout EquityPayout (1..1)
+		date date (1..1)
+	output:
+		amount number (1..1)
 
 
 spec EquityPriceObservation <"Function specification for the observation of an equity price, based on the attributes of the 'EquityValuation' class.">:
@@ -319,13 +390,6 @@ spec NewContractFormationFromExecution <"Function specification to create a full
 	post-condition <"When an overlaying legal agreement exists, the contract must reference it.">:
 		if legalAgreement exists then contractFormation -> after -> contract -> documentation -> legalAgreement = legalAgreement else True;
 
-
-
-// TODO: 
-spec ResolveEquityCashSettlementAmountSpec:
-	inputs: equityPayout EquityPayout (1..1)
-	output: amount number (1..1)
-	
 
 // TODO: add language feature to extract single items regardless of type
 spec ExtractSingleEquityPayout:
