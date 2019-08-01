@@ -5,6 +5,7 @@ import com.rosetta.model.lib.functions.RosettaFunction;
 import org.isda.cdm.*;
 import org.isda.cdm.functions.NewContractFormationFromExecution;
 import org.isda.cdm.functions.example.services.identification.IdentifierService;
+import org.isda.cdm.metafields.ReferenceWithMetaContract;
 import org.isda.cdm.metafields.ReferenceWithMetaLegalAgreement;
 
 public class NewContractFormationFromExecutionExample extends NewContractFormationFromExecution {
@@ -24,13 +25,14 @@ public class NewContractFormationFromExecutionExample extends NewContractFormati
         return ContractFormation.builder()
                 .setBefore(executionState)
                 .setAfterBuilder(PostInceptionState.builder()
-                        .setContractBuilder(Contract.builder()
-                                .addContractIdentifier(id)
-                                .setContractualProduct(contractualProduct)
-                                .setDocumentationBuilder(Documentation.builder()
-                                        .addLegalAgreementBuilder(ReferenceWithMetaLegalAgreement.builder()
-                                                .setValue(legalAgreement)
-                                                .setGlobalReference(legalAgreement.getMeta().getGlobalKey())))))
+                		.setContractBuilder(ReferenceWithMetaContract.builder()
+                				.setValue(Contract.builder()
+                						.addContractIdentifier(id)
+                                        .setContractualProduct(contractualProduct)
+                                        .setDocumentationBuilder(Documentation.builder()
+                                                .addLegalAgreementBuilder(ReferenceWithMetaLegalAgreement.builder()
+                                                        .setValue(legalAgreement)
+                                                        .setGlobalReference(legalAgreement.getMeta().getGlobalKey()))).build())))
                 .build();
     }
 }
