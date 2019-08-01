@@ -440,11 +440,35 @@ class Execution key <"A class to specify an execution, which consists essentiall
 	closedState ClosedState (0..1) <"The qualification of what led to the execution closure alongside with the dates on which this closure takes effect.">;
 		[synonym Rosetta_Workbench value closedState]
 	legalAgreementReference LegalAgreement (0..*) reference <"Whether that execution references any higher-level agreement between the parties, as in the case of a Master Confirmation Agreeemnt governing subsequent executions.">;
+	quantity Quantity (0..1) <"The execution quantity when specified as an amount/number of securities or tangible assets.">;
+	price Price (0..1) <"The transacted price of the execution, which is applicable for products such as securities.">;
+	settlementTerms SettlementTerms (0..1) <"The execution settlement terms, which is applicable for products such as securities">;
 }
 
 data rule Execution_executionVenue <"When the execution type is set to 'Electronically', the execution venue must be specified.">
 	when Execution -> executionType = ExecutionTypeEnum.Electronic
 	then Execution -> executionVenue exists
+
+data rule Execution_security_partyRole <"When the executed product is a security, both ExecutingEntity and Counterparty party roles must exist.">
+	when Execution -> product -> security exists
+	then Execution -> partyRole -> role contains PartyRoleEnum.ExecutingEntity and Execution -> partyRole -> role contains PartyRoleEnum.Counterparty
+
+data rule Execution_security_partyRole_buyerSeller <"When the executed product is a security, both buyer and seller party roles must exist.">
+	when Execution -> product -> security exists
+	then Execution -> partyRole -> role contains PartyRoleEnum.Buyer and Execution -> partyRole -> role contains PartyRoleEnum.Seller
+
+data rule Execution_quantity <"When the executed product is a security, the quantity must be specified.">
+	when Execution -> product -> security exists
+	then Execution -> quantity exists
+
+data rule Execution_price <"When the executed product is a security, the price must be specified.">
+	when Execution -> product -> security exists
+	then Execution -> price exists
+
+data rule Execution_settlementTerms <"When the executed product is a security, the settlement terms must be specified.">
+	when Execution -> product -> security exists
+	then Execution -> settlementTerms exists
+
 
 data rule EquityPayout_singleUnderlier <"In the case of an equity payout with a single underlier, that underlier needs to be an equity product.">
 	when EquityPayout -> underlier -> singleUnderlier exists
