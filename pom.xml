@@ -147,6 +147,7 @@
                                 </fileset>
                                 <fileset>
                                     <directory>src/generated/java</directory>
+                                    <directory>src/generated/daml</directory>
                                     <includes>
                                         <include>**/*</include>
                                     </includes>
@@ -180,6 +181,44 @@
                             </resources>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>copy-src-generated-daml</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/classes/cdm/daml</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/src/generated/daml</directory>
+                                    <includes>
+                                        <include>**/*.daml</include>
+                                    </includes>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-src-main-daml</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/classes/cdm/daml</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/src/main/daml</directory>
+                                    <includes>
+                                        <include>**/*.daml</include>
+                                    </includes>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -196,6 +235,7 @@
                             <sources>
                                 <source>src/generated/java/</source>
                                 <source>src/main/rosetta/</source>
+                                <source>src/generated/daml/</source>
                             </sources>
                         </configuration>
                     </execution>
@@ -221,8 +261,14 @@
                         <language>
                             <setup>com.regnosys.rosetta.RosettaStandaloneSetup</setup>
                             <outputConfigurations>
+                                <!-- Default output folder -->
                                 <outputConfiguration>
                                     <outputDirectory>src/generated/java/</outputDirectory>
+                                </outputConfiguration>
+                                <!-- DAML output folder -->
+                                <outputConfiguration>
+                                    <name>SRC_GEN_DAML_OUTPUT</name>
+                                    <outputDirectory>src/generated/daml</outputDirectory>
                                 </outputConfiguration>
                             </outputConfigurations>
                         </language>
