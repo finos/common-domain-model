@@ -41,13 +41,10 @@ steps:
     fail_fast: false
     image: digitalasset/daml-sdk:0.13.15
     working_directory: ./
-    when:
-      condition:
-        all:
-          isNotRelease: "${{TAG_REPO}} == false"
+    shell: bash
     commands:
       - daml build -o target/cdm-daml-${{RELEASE_NAME}}.dar
-      - curl -v --user isda:isda -X PUT "https://regnosys.jfrog.io/artifactory/libs-snapshot-local/com/isda/cdm-daml/${{RELEASE_NAME}}/cdm-daml-${{RELEASE_NAME}}.dar target/cdm-daml-${{RELEASE_NAME}}.dar
+      - curl -v --user isda:isda -X PUT "https://regnosys.jfrog.io/artifactory/libs-snapshot-local/com/isda/cdm-daml/${{RELEASE_NAME}}/cdm-daml-${{RELEASE_NAME}}.dar -T target/cdm-daml-${{RELEASE_NAME}}.dar
 
   BuildRelease:
     title: Maven build for release
