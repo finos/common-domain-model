@@ -7,6 +7,8 @@ import org.isda.cdm.functions.NewContractEvent;
 import org.isda.cdm.functions.NewContractFormationFromExecution;
 import org.isda.cdm.functions.NewExecutionFromProduct;
 import org.isda.cdm.functions.example.services.identification.IdentifierService;
+import org.isda.cdm.metafields.ReferenceWithMetaContract;
+import org.isda.cdm.metafields.ReferenceWithMetaExecution;
 
 public class NewContractEventExample extends NewContractEvent {
 
@@ -28,14 +30,22 @@ public class NewContractEventExample extends NewContractEvent {
         NewContractFormationFromExecution newContractFormationFromExecution = classRegistry.getInstance(NewContractFormationFromExecution.class);
         ContractFormation contractFormation = newContractFormationFromExecution.evaluate(executionPrimitive.getAfter(), partyA, partyB, legalAgreement);
 
-        return Event.builder()
+        Event.EventBuilder eventBuilder = Event.builder()
                 .addEventIdentifier(id)
                 .addParty(partyA)
                 .addParty(partyB)
                 .setPrimitiveBuilder(PrimitiveEvent.builder()
                         .addExecution(executionPrimitive)
                         .addContractFormation(contractFormation))
-                .build();
+                // In our example, we manually resolve references
+                .setEventEffectBuilder(EventEffect.builder()
+                        .addContractBuilder(ReferenceWithMetaContract.builder().setValue(contractFormation.getAfter().getContract()))
+                        .addExecutionBuilder(ReferenceWithMetaExecution.builder().setValue(executionPrimitive.getAfter().getExecution()))
+                        .addEffectedExecutionBuilder(ReferenceWithMetaExecution.builder().setValue(contractFormation.getBefore().getExecution())));
+
+        //RosettaFunctionExamples.getInstance().getPostProcessor().forEach(step -> step.runProcessStep(Event.class, eventBuilder));
+
+        return eventBuilder.build();
     }
 
 }
