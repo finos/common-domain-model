@@ -1,10 +1,10 @@
 .. |trade|  unicode:: U+02122 .. TRADE MARK SIGN
 
-The ISDA Common Domain Model
-============================
+Overview of the ISDA CDM
+========================
 
-Introduction
-------------
+What is the ISDA CDM
+--------------------
 
 The ISDA Common Domain Model (CDM) is an initiative that ISDA has spearheaded to produce a common, robust, digital blueprint for how derivatives are traded and managed across their lifecycle.
 
