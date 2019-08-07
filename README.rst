@@ -10,7 +10,7 @@ The ISDA Common Domain Model (CDM) is an initiative that ISDA has spearheaded to
 
 ISDA anticipates that establishing such digital data and processing standards will lead to the following benefits:
 
-* **Reduce the need for reconciliations** to address mismatches caused by variations in how each firm records trade lifecycle events,
+* **Reduce the need for reconciliation** to address mismatches caused by variations in how each firm records trade lifecycle events,
 * **Enable consistency** in regulatory compliance and reporting,
 * **Accelerate automation and efficiency** in the derivatives market,
 * **Provide a common foundation** for new technologies like distributed ledger, cloud and smart contracts to facilitate data consistency,
@@ -23,9 +23,9 @@ The ISDA CDM is openly accessible to all industry participants through the `CDM 
 The CDM Components
 ------------------
 
-**There are three set of CDM components** that are laid-out in the below ISDA CDM Components Diagram:
+**There are three sets of CDM components** that are laid-out in the below ISDA CDM Components Diagram:
 
-.. figure:: cdm-components-diagram.png
+.. figure:: documentation/source/cdm-components-diagram.png
 
 Rosetta
 ^^^^^^^
@@ -46,6 +46,6 @@ The ISDA CDM Distribution is made available to participants through download fro
 CDM Applications
 ^^^^^^^^^^^^^^^^
 
-It is expected that a rich eco-system of application components that are based upon the CDM and licensed by service providers will develop over time. REGnosys have taken the initiative to develop an offering of solutions to assist market participants in making use of the CDM. In particular, the CDM Portal provides UI components allowing those participants to browse through the CDM.
+It is expected that a rich eco-system of licensed application components from service providers that are based upon the CDM  will develop over time. REGnosys have taken the initiative to develop an offering of solutions to assist market participants in making use of the CDM. In particular, the CDM Portal provides UI components allowing those participants to browse through the CDM.
 
 ISDA doesn't endorse any of those application components.
