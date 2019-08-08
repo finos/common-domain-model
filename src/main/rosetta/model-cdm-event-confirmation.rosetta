@@ -1,0 +1,17 @@
+namespace "org.isda.cdm"
+version "${project.version}"
+
+class Confirmation <"A class to specify a trade confirmation.">
+{
+	identifier Identifier (1..*) <"The identifier(s) associated with the trade and resulting confirmation.">;
+	party Party (2..*) <"The parties associated with the trade.">;
+	partyRole PartyRole (2..*) <"The role(s) that party(ies) may have in relation to the trade">;
+}
+
+class ExecutionConfirmation extends Confirmation <"A class to specify an execution confirmation.">
+{
+}
+
+data rule ExecutionConfirmation_partyRole_buyerSeller <"For an execution confirmation, both buyer and seller party roles must exist.">
+	when ExecutionConfirmation exists
+	then ExecutionConfirmation -> partyRole -> role contains PartyRoleEnum.Buyer and ExecutionConfirmation -> partyRole -> role contains PartyRoleEnum.Seller
