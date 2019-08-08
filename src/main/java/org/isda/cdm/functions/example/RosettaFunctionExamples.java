@@ -10,6 +10,7 @@ import org.isda.cdm.functions.example.services.identification.IdentifierService;
 import org.isda.cdm.processor.EventEffectProcessStep;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 
 public class RosettaFunctionExamples {
@@ -43,7 +44,7 @@ public class RosettaFunctionExamples {
 
     public List<PostProcessStep> getPostProcessor() {
         RosettaKeyProcessStep rosettaKeyProcessStep = new RosettaKeyProcessStep(NonNullHashCollector::new);
-        return List.of(rosettaKeyProcessStep, new EventEffectProcessStep(rosettaKeyProcessStep));
+        return Arrays.asList(rosettaKeyProcessStep, new EventEffectProcessStep(rosettaKeyProcessStep));
     }
 
     public static RosettaFunctionExamples getInstance() {
