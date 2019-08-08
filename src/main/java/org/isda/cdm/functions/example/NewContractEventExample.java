@@ -43,8 +43,6 @@ public class NewContractEventExample extends NewContractEvent {
                         .addExecutionBuilder(ReferenceWithMetaExecution.builder().setValue(executionPrimitive.getAfter().getExecution()))
                         .addEffectedExecutionBuilder(ReferenceWithMetaExecution.builder().setValue(contractFormation.getBefore().getExecution())));
 
-        //RosettaFunctionExamples.getInstance().getPostProcessor().forEach(step -> step.runProcessStep(Event.class, eventBuilder));
-
         return eventBuilder.build();
     }
 
