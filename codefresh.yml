@@ -36,21 +36,17 @@ steps:
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.common.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -U -s /settings.xml clean deploy
 
-  BuildDamlNormal:
-    title: Maven DAML build
+  BuildDaml:
+    title: DAML build and deploy
     fail_fast: false
-    image: r.cfcr.io/regnosysops/regnosys/mvn-docker-build:java-11
-    working_directory: ./
-    when:
-      condition:
-        all:
-          isNotRelease: "${{TAG_REPO}} == false"
+    image: digitalasset/daml-sdk:0.13.15
+    working_directory: ./codefresh/volume/rosetta-cdm/
+    shell: bash
     commands:
-      - rm -rf /codefresh/volume/.m2/com/regnosys
-      - mvn -s /settings.xml -f daml-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - mvn -s /settings.xml -f daml-pom.xml versions:update-property -Dproperty=rosetta.dsl.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
-      - mvn -s /settings.xml -f daml-pom.xml versions:update-property -Dproperty=rosetta.common.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
-      - mvn -U -s /settings.xml -f daml-pom.xml clean deploy
+      - daml build -o target/cdm-daml-${{RELEASE_NAME}}.dar
+      - cd /codefresh/volume/rosetta-cdm/target
+      - tar -cvzf cdm-daml.tar.gz cdm-daml-${{RELEASE_NAME}}.dar
+      - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}" -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-daml/${{RELEASE_NAME}}/cdm-daml-${{RELEASE_NAME}}.tar.gz" -T cdm-daml.tar.gz
 
   BuildRelease:
     title: Maven build for release
@@ -68,22 +64,6 @@ steps:
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.common.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -s /settings.xml clean deploy -P full
 
-  BuildDamlRelease:
-    title: Maven DAML build for release
-    fail_fast: false
-    image: r.cfcr.io/regnosysops/regnosys/mvn-docker-build:java-11
-    working_directory: ./
-    when:
-      condition:
-        all:
-          isRelease: "${{TAG_REPO}}"
-    commands:
-      - rm -rf /codefresh/volume/.m2/com/regnosys
-      - mvn -s /settings.xml -f daml-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - mvn -s /settings.xml -f daml-pom.xml versions:update-property -Dproperty=rosetta.dsl.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
-      - mvn -s /settings.xml -f daml-pom.xml versions:update-property -Dproperty=rosetta.common.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
-      - mvn -s /settings.xml -f daml-pom.xml clean deploy -P full
-
   NotifySlackOnFail:
     title: Trigger Slack dev channel notification if master build failed
     image: codefresh/cli
@@ -95,8 +75,7 @@ steps:
         any:
           buildNormalFailed: steps.BuildNormal.result == 'error'
           buildReleaseFailed: steps.BuildRelease.result == 'error'
-          buildDamlNormalFailed: steps.BuildDamlNormal.result == 'error'
-          buildDamlReleaseFailed: steps.BuildDamlRelease.result == 'error'
+          buildDamlFailed: steps.BuildDaml.result == 'error'
     commands:
       - export SAFE_COMMIT_AUTHOR='${{CF_COMMIT_AUTHOR}}'
       - export COMMIT_AUTHOR=${SAFE_COMMIT_AUTHOR:-MissingAuthor}
@@ -116,8 +95,7 @@ steps:
         any:
           normalBuildFailure: steps.BuildNormal.result == 'failure'
           releaseBuildFailure: steps.BuildRelease.result == 'failure'
-          normalDamlBuildFailure: steps.BuildDamlNormal.result == 'failure'
-          releaseDamlBuildFailure: steps.BuildDamlRelease.result == 'failure'
+          damlBuildFailure: steps.BuildDaml.result == 'failure'
     commands:
       - exit 1
 
