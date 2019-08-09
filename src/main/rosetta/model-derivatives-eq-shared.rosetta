@@ -178,12 +178,16 @@ class IndexAdjustmentEvents <"Defines the specification of the consequences of I
 		[synonym FpML_5_10 value indexDisruption]
 }
 
-class Price <"A class describing the strike price."> // TODO - Look for further synergies with the option strike
+// TODO - #1 Look for further synergies with the option strike
+// TODO - #2 Move class to .rosetta file that is not specific to an asset class
+class Price <"A generic representation of price applicable to both derivatives and securities."> 
 	[synonym FpML_5_10 value Price]
 {
 	grossPrice ActualPrice (0..1) <"Specifies the price of the underlier, before commissions.">;
 		[synonym FpML_5_10 value grossPrice]
-	netPrice ActualPrice (1..1) <"Specifies the price of the underlier, net of commissions.">;
+	cleanNetPrice ActualPrice (0..1) <"Specifies the clean price of the underlier (e.g. excluding accrued interest), net of commissions.">;
+		[synonym FpML_5_10 value cleanNetPrice]
+	netPrice ActualPrice (0..1) <"Specifies the dirty price of the underlier (e.g. including accrued interest), net of commissions.">;
 		[synonym FpML_5_10 value netPrice]
 	accruedInterest number (0..1) <"Specifies the accrued interest that are part of the dirty price in the case of a fixed income security or a convertible bond. Expressed in percentage of the notional.">;
 		[synonym FpML_5_10 value accruedInterestPrice]
@@ -192,6 +196,10 @@ class Price <"A class describing the strike price."> // TODO - Look for further 
 	 */
 }
 
+data rule Price_cleanNetPrice_netPrice <"The netPrice and/or cleanNetPrice must be specified.">
+	when Price exists
+	then Price -> netPrice exists or Price -> cleanNetPrice exists
+ 
 class PriceReturnTerms
 	[synonym FpML_5_10 value ReturnLegValuationPrice]
 {
