@@ -30,9 +30,11 @@ The CDM Components
 Rosetta
 ^^^^^^^
 
-Rosetta corresponds to the CDM infrastructure component. As a domain model, the CDM is written in a Domain-Specific Language (DSL) called the *Rosetta DSL*, comprising a syntax (or *grammar*) and default code generators (currently Java). All the modelling artefacts available in the CDM, with their associated syntax and purpose, are detailed in the `Rosetta DSL documentation <https://docs.rosetta-technology.io/dsl/index.html>`_.
+Rosetta corresponds to the CDM infrastructure component. As a domain model, the CDM is written in a Domain-Specific Language (DSL) called the *Rosetta DSL*, comprising a syntax (or *grammar*) and default code generators (currently Java).
 
-To enable adoption and implementation of the CDM by the community, the Rosetta DSL is open source under an Apache 2.0 licence and hosted in a dedicated `Rosetta DSL repository <https://github.com/REGnosys/rosetta-dsl#the-rosetta-dsl>`_. A further `Code Generator repository <https://github.com/REGnosys/rosetta-code-generators>`_ is also open source under an Apache 2.0 license, allowing industry participants to write code generators in any language.
+To enable adoption and implementation of the CDM by the community, the Rosetta DSL is open source under an Apache 2.0 licence and hosted in a dedicated `Rosetta DSL repository <https://github.com/REGnosys/rosetta-dsl#the-rosetta-dsl>`_. A further `Code Generators repository <https://github.com/REGnosys/rosetta-code-generators>`_ is also open source under an Apache 2.0 license, allowing industry participants to write code generators for any other language.
+
+The `Rosetta DSL documentation <https://docs.rosetta-technology.io/dsl/index.html>`_ presents the Rosetta DSL and the mechanism to write and use code generators. The documentation details all the modelling artefacts available in the Rosetta syntax and their purpose, with examples drawn from the CDM.
 
 The ISDA CDM Distribution
 ^^^^^^^^^^^^^^^^^^^^^^^^^
