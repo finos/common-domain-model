@@ -34,19 +34,7 @@ steps:
       - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.dsl.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.common.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
-      - mvn -U -s /settings.xml clean deploy
-
-  BuildDaml:
-    title: DAML build and deploy
-    fail_fast: false
-    image: digitalasset/daml-sdk:0.13.15
-    working_directory: ./codefresh/volume/rosetta-cdm/
-    shell: bash
-    commands:
-      - daml build -o target/cdm-daml-${{RELEASE_NAME}}.dar
-      - cd /codefresh/volume/rosetta-cdm/target
-      - tar -cvzf cdm-daml.tar.gz cdm-daml-${{RELEASE_NAME}}.dar
-      - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}" -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-daml/${{RELEASE_NAME}}/cdm-daml-${{RELEASE_NAME}}.tar.gz" -T cdm-daml.tar.gz
+      - mvn -U -s /settings.xml clean deploy -P daml
 
   BuildRelease:
     title: Maven build for release
@@ -62,7 +50,19 @@ steps:
       - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.dsl.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.common.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
-      - mvn -s /settings.xml clean deploy -P full
+      - mvn -s /settings.xml clean deploy -P daml,full
+
+  BuildDaml:
+    title: DAML build and deploy
+    fail_fast: false
+    image: digitalasset/daml-sdk:0.13.15
+    working_directory: ./codefresh/volume/rosetta-cdm/
+    shell: bash
+    commands:
+      - daml build -o target/cdm-daml-${{RELEASE_NAME}}.dar
+      - cd /codefresh/volume/rosetta-cdm/target
+      - tar -cvzf cdm-daml.tar.gz cdm-daml-${{RELEASE_NAME}}.dar
+      - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}" -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-daml/${{RELEASE_NAME}}/cdm-daml-${{RELEASE_NAME}}.tar.gz" -T cdm-daml.tar.gz
 
   NotifySlackOnFail:
     title: Trigger Slack dev channel notification if master build failed
