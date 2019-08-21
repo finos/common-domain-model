@@ -1,2 +1,1 @@
-[comment]: <> (This is a comment, it will not be included: Add release notes here)
-
+Introduced new grammar rule `func`. Replaced all `spec`s with `func`.
