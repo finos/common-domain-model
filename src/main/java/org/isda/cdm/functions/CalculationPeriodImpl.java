@@ -1,12 +1,5 @@
 package org.isda.cdm.functions;
 
-import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.basics.schedule.*;
-import org.isda.cdm.CalculationPeriodDates;
-
-import com.rosetta.model.lib.records.DateImpl;
-
 import static org.isda.cdm.functions.CdmToStrataMapper.getFrequency;
 import static org.isda.cdm.functions.CdmToStrataMapper.getRollConvention;
 
@@ -14,23 +7,34 @@ import java.time.LocalDate;
 import java.time.chrono.IsoChronology;
 import java.time.temporal.ChronoUnit;
 
+import org.isda.cdm.CalculationPeriodDates;
+
+import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.schedule.PeriodicSchedule;
+import com.opengamma.strata.basics.schedule.Schedule;
+import com.opengamma.strata.basics.schedule.SchedulePeriod;
+import com.opengamma.strata.basics.schedule.StubConvention;
+import com.rosetta.model.lib.records.Date;
+import com.rosetta.model.lib.records.DateImpl;
+
 public class CalculationPeriodImpl implements CalculationPeriod {
 
-	private final LocalDate referenceDate;
+	private final Date referenceDate;
 
-	public CalculationPeriodImpl(LocalDate referenceDate) {
+	public CalculationPeriodImpl(Date referenceDate) {
 		this.referenceDate = referenceDate;
 	}
 
 	@Override
 	public CalculationResult execute(CalculationPeriodDates calculationPeriodDates) {
-		return execute(calculationPeriodDates, referenceDate);
+		return execute(calculationPeriodDates, referenceDate.toLocalDate());
 	}
 
 	private CalculationResult execute(CalculationPeriodDates calculationPeriodDates, LocalDate referenceDate) {
 		PeriodicSchedule periodicSchedule = PeriodicSchedule.of(
-				calculationPeriodDates.getEffectiveDate().getAdjustableDate().getUnadjustedDate(),
-				calculationPeriodDates.getTerminationDate().getAdjustableDate().getUnadjustedDate(),
+				calculationPeriodDates.getEffectiveDate().getAdjustableDate().getUnadjustedDate().toLocalDate(),
+				calculationPeriodDates.getTerminationDate().getAdjustableDate().getUnadjustedDate().toLocalDate(),
 				getFrequency(calculationPeriodDates),
 				BusinessDayAdjustment.NONE,
 				StubConvention.NONE,

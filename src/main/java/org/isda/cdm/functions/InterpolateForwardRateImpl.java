@@ -1,15 +1,28 @@
 package org.isda.cdm.functions;
 
-import org.isda.cdm.ForwardPayout;
-import org.isda.cdm.functions.InterpolateForwardRate.CalculationResult;
-
 import java.math.BigDecimal;
 
-public class InterpolateForwardRateImpl implements InterpolateForwardRate {
-	
-	public CalculationResult execute(ForwardPayout forward) {
-		return new CalculationResult()
-				.setResult(new BigDecimal("0.8675"));
+import org.isda.cdm.ForwardPayout;
+
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+
+public class InterpolateForwardRateImpl extends InterpolateForwardRate {
+	private BigDecimal rate = new BigDecimal("0.8675");
+
+	static public final class Factory {
+		@Inject
+		Provider<InterpolateForwardRateImpl> provider;
+
+		public InterpolateForwardRate create(BigDecimal rate) {
+			InterpolateForwardRateImpl rateImpl = provider.get();
+			rateImpl.rate = rate;
+			return rateImpl;
+		}
 	}
-	
+
+	@Override
+	protected BigDecimal doEvaluate(ForwardPayout forward) {
+		return rate;
+	}
 }

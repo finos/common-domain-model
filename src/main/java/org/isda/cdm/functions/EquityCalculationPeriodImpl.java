@@ -1,37 +1,20 @@
 package org.isda.cdm.functions;
 
-import com.rosetta.model.lib.records.Date;
-import com.rosetta.model.lib.records.DateImpl;
-import org.isda.cdm.EquityPayout;
-import org.isda.cdm.PriceReturnTerms;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiPredicate;
+import java.util.stream.Collectors;
 
-public class EquityCalculationPeriodImpl implements EquityCalculationPeriod {
+import org.isda.cdm.EquityCalculationPeriodData;
+import org.isda.cdm.EquityPayout;
+import org.isda.cdm.PriceReturnTerms;
 
-	@Override
-	public CalculationResult execute(EquityPayout equityPayout, Date businessDate) {
-		PriceReturnTerms terms = equityPayout.getPriceReturnTerms();
+import com.rosetta.model.lib.records.Date;
+import com.rosetta.model.lib.records.DateImpl;
 
-		List<LocalDate> unadjustedDate = terms.getValuationPriceInterim().getValuationDates().getAdjustableDates().getUnadjustedDate();
-		unadjustedDate.sort(LocalDate::compareTo);
+public class EquityCalculationPeriodImpl extends EquityCalculationPeriod {
 
-		LocalDate date = LocalDate.of(businessDate.getYear(), businessDate.getMonth(), businessDate.getDay());
-		LocalDate terminationDate = terms.getValuationPriceFinal().getValuationDate().getAdjustableDate().getUnadjustedDate();
-		LocalDate effectiveDate = equityPayout.getCalculationPeriodDates().getEffectiveDate().getAdjustableDate().getUnadjustedDate();
-
-		LocalDate endDate = findEndDate(unadjustedDate, date).orElse(terminationDate);
-		LocalDate startDate = findStartDate(unadjustedDate, date).orElse(effectiveDate);
-
-		return new CalculationResult()
-				.setStartDate(new DateImpl(startDate))
-				.setEndDate(new DateImpl(endDate))
-				.setIsFirstPeriod(startDate.equals(effectiveDate))
-				.setIsLastPeriod(endDate.equals(terminationDate));
-	}
 
 	private Optional<LocalDate> findStartDate(List<LocalDate> dates, LocalDate date) {
 		return findDate(dates, date, LocalDate::isAfter);
@@ -52,5 +35,27 @@ public class EquityCalculationPeriodImpl implements EquityCalculationPeriod {
 		} else {
 			return Optional.empty();
 		}
+	}
+
+	@Override
+	protected EquityCalculationPeriodData doEvaluate(EquityPayout equityPayout, Date businessDate) {
+		PriceReturnTerms terms = equityPayout.getPriceReturnTerms();
+
+		List<LocalDate> unadjustedDate = terms.getValuationPriceInterim().getValuationDates().getAdjustableDates().getUnadjustedDate()
+				.stream().map(Date::toLocalDate).collect(Collectors.toList());
+		unadjustedDate.sort(LocalDate::compareTo);
+
+		LocalDate date = LocalDate.of(businessDate.getYear(), businessDate.getMonth(), businessDate.getDay());
+		LocalDate terminationDate = terms.getValuationPriceFinal().getValuationDate().getAdjustableDate().getUnadjustedDate().toLocalDate();
+		LocalDate effectiveDate = equityPayout.getCalculationPeriodDates().getEffectiveDate().getAdjustableDate().getUnadjustedDate().toLocalDate();
+
+		LocalDate endDate = findEndDate(unadjustedDate, date).orElse(terminationDate);
+		LocalDate startDate = findStartDate(unadjustedDate, date).orElse(effectiveDate);
+
+		return  EquityCalculationPeriodData.builder()
+				.setStartDate(new DateImpl(startDate))
+				.setEndDate(new DateImpl(endDate))
+				.setIsFirstPeriod(startDate.equals(effectiveDate))
+				.setIsLastPeriod(endDate.equals(terminationDate)).build();
 	}
 }

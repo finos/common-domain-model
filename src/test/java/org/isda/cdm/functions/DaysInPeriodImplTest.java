@@ -1,22 +1,32 @@
 package org.isda.cdm.functions;
 
-import org.isda.cdm.*;
-import org.isda.cdm.metafields.*;
-import org.junit.jupiter.api.Test;
-
-
-import java.time.LocalDate;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import java.time.LocalDate;
+
+import org.isda.cdm.AdjustableDate;
+import org.isda.cdm.AdjustableOrRelativeDate;
+import org.isda.cdm.BusinessCenters;
+import org.isda.cdm.BusinessDayAdjustments;
+import org.isda.cdm.BusinessDayConventionEnum;
+import org.isda.cdm.CalculationPeriodDates;
+import org.isda.cdm.CalculationPeriodFrequency;
+import org.isda.cdm.PeriodExtendedEnum;
+import org.isda.cdm.RollConventionEnum;
+import org.isda.cdm.metafields.ReferenceWithMetaBusinessCenters;
+import org.junit.jupiter.api.Test;
+
+import com.rosetta.model.lib.records.Date;
+import com.rosetta.model.lib.records.DateImpl;
 
 public class DaysInPeriodImplTest {
 
     @Test
     void shouldReturnDaysInPeriodBetweenDates22Mar18To22Jun18() {
-        LocalDate effectiveDate = LocalDate.of(2018, 3, 22);
-        LocalDate terminationDate = LocalDate.of(2018, 6, 22);
+        Date effectiveDate = DateImpl.of(2018, 3, 22);
+        Date terminationDate = DateImpl.of(2018, 6, 22);
 
         CalculationPeriodDates calculationPeriodDates = getCalculationPeriodDates(effectiveDate, terminationDate, RollConventionEnum._22);
 
@@ -28,8 +38,8 @@ public class DaysInPeriodImplTest {
 
     @Test
     void shouldReturnDaysInPeriodBetweenDates29Dec17To29Mar18() {
-        LocalDate effectiveDate = LocalDate.of(2017, 12, 29);
-        LocalDate terminationDate = LocalDate.of(2018, 3, 29);
+        Date effectiveDate = new DateImpl(LocalDate.of(2017, 12, 29));
+        Date terminationDate = new DateImpl(LocalDate.of(2018, 3, 29));
 
         CalculationPeriodDates calculationPeriodDates = getCalculationPeriodDates(effectiveDate, terminationDate, RollConventionEnum._29);
 
@@ -39,7 +49,7 @@ public class DaysInPeriodImplTest {
         assertThat("Unexpected calculated daysInPeriod", daysInPeriod, is(90));
     } 
 
-    private CalculationPeriodDates getCalculationPeriodDates(LocalDate effectiveDate, LocalDate terminationDate, RollConventionEnum rollConvention) {
+    private CalculationPeriodDates getCalculationPeriodDates(Date effectiveDate, Date terminationDate, RollConventionEnum rollConvention) {
         return CalculationPeriodDates.builder()
                 .setEffectiveDateBuilder(AdjustableOrRelativeDate.builder()
 					.setAdjustableDateBuilder(AdjustableDate.builder()

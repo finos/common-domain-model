@@ -1,21 +1,20 @@
 package org.isda.cdm.functions;
 
-import org.isda.cdm.SpreadSchedule;
-import  org.isda.cdm.functions.GetRateSchedule.CalculationResult;
-
 import java.math.BigDecimal;
 import java.util.List;
 
-public class GetRateScheduleImpl implements GetRateSchedule {
+import org.isda.cdm.FloatingRateSpecification;
+import org.isda.cdm.SpreadSchedule;
 
-	public CalculationResult execute(org.isda.cdm.FloatingRateSpecification floatingRateCalculation) {
+public class GetRateScheduleImpl extends GetRateSchedule {
+
+	@Override
+	protected SpreadSchedule doEvaluate(FloatingRateSpecification floatingRateCalculation) {
 		List<SpreadSchedule> spreadSchedules = floatingRateCalculation.getSpreadSchedule();
-
 		if (spreadSchedules != null && !spreadSchedules.isEmpty()) {
-			return new CalculationResult().setSchedule(spreadSchedules.get(0));
+			return spreadSchedules.get(0);
 		} else {
-			return new CalculationResult().setSchedule((SpreadSchedule) SpreadSchedule.builder()
-					.setInitialValue(new BigDecimal("0")).build());
+			return (SpreadSchedule) SpreadSchedule.builder().setInitialValue(new BigDecimal("0")).build();
 		}
 	}
 }
