@@ -1,12 +1,13 @@
 package org.isda.cdm.functions;
 
-import com.opengamma.strata.basics.schedule.Frequency;
-import com.opengamma.strata.basics.schedule.RollConvention;
+import java.util.Arrays;
+
 import org.isda.cdm.CalculationPeriodDates;
 import org.isda.cdm.RollConventionEnum;
-import com.rosetta.model.lib.annotations.RosettaSynonym;
 
-import java.util.Arrays;
+import com.opengamma.strata.basics.schedule.Frequency;
+import com.opengamma.strata.basics.schedule.RollConvention;
+import com.rosetta.model.lib.annotations.RosettaSynonym;
 
 class CdmToStrataMapper {
 

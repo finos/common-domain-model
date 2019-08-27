@@ -5,12 +5,14 @@ import org.isda.cdm.Identifier;
 import org.isda.cdm.metafields.FieldWithMetaString;
 import org.isda.cdm.metafields.ReferenceWithMetaParty;
 
-import java.util.TreeMap;
+import com.google.inject.Singleton;
+
 import java.util.TreeSet;
 
 /**
  * An example id service that
  */
+@Singleton
 public class IdentifierService {
 
     private final TreeSet<IdentifierRecord> data = new TreeSet<>();

@@ -2,9 +2,10 @@ package org.isda.cdm.functions;
 
 import java.math.BigDecimal;
 
-public class AbsImpl implements Abs {
-	
-	public CalculationResult execute(BigDecimal x) {
-		return new CalculationResult().setResult(x.abs());
+public class AbsImpl extends Abs {
+
+	@Override
+	protected BigDecimal doEvaluate(BigDecimal x) {
+		return x.abs();
 	}
 }

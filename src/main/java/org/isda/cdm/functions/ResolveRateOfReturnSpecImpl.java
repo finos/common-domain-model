@@ -2,14 +2,14 @@ package org.isda.cdm.functions;
 
 import java.math.BigDecimal;
 
-import org.isda.cdm.EquityValuation;
+import org.isda.cdm.EquityPayout;
 
 import com.rosetta.model.lib.records.Date;
 
-public class ResolvePriceImpl extends ResolvePrice {
+public class ResolveRateOfReturnSpecImpl extends ResolveRateOfReturnSpec {
 	
 	@Override
-	protected BigDecimal doEvaluate(EquityValuation equityValuation, Date date) {
+	protected BigDecimal doEvaluate(EquityPayout equityPayout, Date date) {
 		throw new UnsupportedOperationException("TODO: auto-generated method stub");
 	}
 }

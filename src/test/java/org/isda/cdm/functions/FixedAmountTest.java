@@ -1,19 +1,38 @@
 package org.isda.cdm.functions;
 
-import org.isda.cdm.*;
-import org.isda.cdm.metafields.*;
-import org.isda.cdm.calculation.FixedAmount;
-import org.junit.jupiter.api.Test;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
+import java.math.BigDecimal;
+
+import org.isda.cdm.AdjustableDate;
+import org.isda.cdm.AdjustableOrRelativeDate;
+import org.isda.cdm.BusinessCenters;
+import org.isda.cdm.BusinessDayAdjustments;
+import org.isda.cdm.BusinessDayConventionEnum;
+import org.isda.cdm.CalculationPeriodDates;
+import org.isda.cdm.CalculationPeriodFrequency;
+import org.isda.cdm.ContractualQuantity;
+import org.isda.cdm.DayCountFractionEnum;
+import org.isda.cdm.InterestRatePayout;
+import org.isda.cdm.NonNegativeAmountSchedule;
+import org.isda.cdm.NotionalSchedule;
+import org.isda.cdm.PeriodExtendedEnum;
+import org.isda.cdm.RateSpecification;
+import org.isda.cdm.RollConventionEnum;
+import org.isda.cdm.Schedule;
+import org.isda.cdm.calculation.FixedAmount;
+import org.isda.cdm.metafields.FieldWithMetaDayCountFractionEnum;
+import org.isda.cdm.metafields.FieldWithMetaString;
+import org.isda.cdm.metafields.ReferenceWithMetaBusinessCenters;
+import org.junit.jupiter.api.Test;
+
+import com.rosetta.model.lib.records.Date;
+import com.rosetta.model.lib.records.DateImpl;
+
 class FixedAmountTest {
 
-    private static final LocalDate REFERENCE_DATE = LocalDate.of(2018, 8, 22);
+    private static final Date REFERENCE_DATE = DateImpl.of(2018, 8, 22);
 
     @Test
     void shouldCalculate() {
@@ -35,7 +54,7 @@ class FixedAmountTest {
                 .setCalculationPeriodDates(CalculationPeriodDates.builder()
                         .setEffectiveDate((AdjustableOrRelativeDate.builder()
                     			.setAdjustableDate(AdjustableDate.builder()
-                    					.setUnadjustedDate(LocalDate.of(2018, 1, 3))
+                    					.setUnadjustedDate(DateImpl.of(2018, 1, 3))
                     					.setDateAdjustments(BusinessDayAdjustments.builder()
                     							.setBusinessDayConvention(BusinessDayConventionEnum.NONE)
                     							.build())
@@ -43,7 +62,7 @@ class FixedAmountTest {
                     			.build()))
                         .setTerminationDate(AdjustableOrRelativeDate.builder()
                         		.setAdjustableDate(AdjustableDate.builder()
-                        				.setUnadjustedDate(LocalDate.of(2020, 1, 3))
+                        				.setUnadjustedDate(DateImpl.of(2020, 1, 3))
                         				.setDateAdjustments(BusinessDayAdjustments.builder()
                         						.setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
                         						.setBusinessCenters(BusinessCenters.builder()
