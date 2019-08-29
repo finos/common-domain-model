@@ -19,6 +19,7 @@ func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirma
 	assign-output equityPerformance : rateOfReturn * notionalAmount
 
 
+
 func RateOfReturn: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 139. 'Rate Of Return' means, in respect of any Equity Valuation Date, the amount determined pursuant to the following formula: Rate Of Return = (Final Price - Initial Price) / Initial Price.">
 	inputs: equityPayout EquityPayout(1..1)
 	output: rateOfReturn number (1..1)
@@ -59,26 +60,15 @@ func ResolvePrice: <"Function specification to return the price on a valuation d
 			date date (1..1)
 	output:	price number  (1..1)
 
-
-calculation FixedAmount <"2006 ISDA Definition Article 5 Section 5.1. Calculation of a Fixed Amount: The Fixed Amount payable by a party on a Payment Date will be: (a) if an amount is specified for the Swap Transaction as the Fixed Amount payable by that party for that Payment Date or for the related Calculation Period, that amount; or (b) if an amount is not specified for the Swap Transaction as the Fixed Amount payable by that party for that Payment Date or for the related Calculation Period, an amount calculated on a formula basis for that Payment Date or for the related Calculation Period as follows: Fixed Amount = Calculation Amount × Fixed Rate × Day Count Fraction.">
-{
-	fixedAmount : calculationAmount * fixedRate * dayCountFraction
-	
-	where
-		calculationAmount	: InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
-		fixedRate			: InterestRatePayout -> rateSpecification -> fixedRate -> initialValue
-		dayCountFraction	: InterestRatePayout -> dayCountFraction
-}
-
-/*
 func FixedAmount: <"2006 ISDA Definition Article 5 Section 5.1. Calculation of a Fixed Amount: The Fixed Amount payable by a party on a Payment Date will be: (a) if an amount is specified for the Swap Transaction as the Fixed Amount payable by that party for that Payment Date or for the related Calculation Period, that amount; or (b) if an amount is not specified for the Swap Transaction as the Fixed Amount payable by that party for that Payment Date or for the related Calculation Period, an amount calculated on a formula basis for that Payment Date or for the related Calculation Period as follows: Fixed Amount = Calculation Amount × Fixed Rate × Day Count Fraction.">
 	inputs: interestRatePayout InterestRatePayout (1..1)
 	output: fixedAmount number (1..1)
 	alias calculationAmount	: interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue;
 	alias fixedRate			: interestRatePayout -> rateSpecification -> fixedRate -> initialValue
-	alias dayCountFraction	: interestRatePayout -> dayCountFraction
+	alias dayCountFraction	: DayCountFraction(interestRatePayout, interestRatePayout -> dayCountFraction)
 	assign-output fixedAmount : calculationAmount * fixedRate * dayCountFraction
-*/
+
+
 calculation FloatingAmount <"2006 ISDA Definition Article 6 Section 6.1. Calculation of a Floating Amount: Subject to the provisions of Section 6.4 (Negative Interest Rates), the Floating Amount payable by a party on a Payment Date will be: (a) if Compounding is not specified for the Swap Transaction or that party, an amount calculated on a formula basis for that Payment Date or for the related Calculation Period as follows: Floating Amount = Calculation Amount × Floating Rate + Spread × Floating Rate Day Count Fraction (b) if “Compounding” is specified to be applicable to the Swap Transaction or that party and 'Flat Compounding' is not specified, an amount equal to the sum of the Compounding Period Amounts for each of the Compounding Periods in the related Calculation Period; or (c) if 'Flat Compounding' is specified to be applicable to the Swap Transaction or that party, an amount equal to the sum of the Basic Compounding Period Amounts for each of the Compounding Periods in the related Calculation Period plus the sum of the Additional Compounding Period Amounts for each such Compounding Period.">
 {
 	 // TODO - The below calculation needs to be refined for the case of negative interest rate and compounding
@@ -94,6 +84,44 @@ calculation FloatingAmount <"2006 ISDA Definition Article 6 Section 6.1. Calcula
 		spread				: GetRateSchedule( InterestRatePayout -> rateSpecification -> floatingRate ) -> initialValue
 		dayCountFraction	: InterestRatePayout -> dayCountFraction
 }
+
+
+func DayCountFraction: <"A description of inputs and outputs for all day count fraction calculations">
+	inputs:
+		interestRatePayout InterestRatePayout (1..1)
+		dayCountFractionEnum DayCountFractionEnum (1..1)
+	output:
+		result number (1..1)
+
+func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> ACT_360): <"'2006 ISDA Definition Article 4 section 4.16(e): if “Actual/360”, “Act/360” or “A/360” is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 360.">
+	alias daysInPeriod:
+		CalculationPeriod(interestRatePayout -> calculationPeriodDates ) -> daysInPeriod
+	assign-output result:
+		daysInPeriod / 360
+
+func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360): <"'2006 ISDA Definition Article 4 section 4.16(e): if “Actual/360”, “Act/360” or “A/360” is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 360.">
+	alias calculationPeriod:
+		CalculationPeriod(interestRatePayout -> calculationPeriodDates );
+	
+	alias startYear: <"The year, expressed as a number, in which the first day of the Calculation Period or Compounding Period falls">
+			calculationPeriod -> startDate -> year
+	
+	alias endYear: <"The year, expressed as a number, in which the day immediately following the last day included in the Calculation Period or Compounding Period falls">
+			calculationPeriod -> endDate -> year
+				
+	alias startMonth: <"The calendar month, expressed as a number, in which the first day of the Calculation Period or Compounding Period falls">
+			calculationPeriod -> startDate -> month
+		
+	alias endMonth: <"The calendar month, expressed as a number, in which the day immediately following the last day included in the Calculation Period or Compounding Period falls">
+			calculationPeriod -> endDate -> month
+		
+	alias endDay: <"The first calendar day, expressed as a number, of the Calculation Period or Compounding Period, unless such number would be 31, in which case will be 30">
+			Min( calculationPeriod -> endDate -> day, 30 )
+		
+	alias startDay: <"The calendar day, expressed as a number, immediately following the last day included in the Calculation Period or Compounding Period, unless such number would be 31, in which case will be 30"> 
+			Min( calculationPeriod -> startDate -> day, 30 )
+	assign-output result:
+		(360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
 
 calculation DayCountFractionEnum._1_1 <"2006 ISDA Definition Article 4 section 4.16(a):	if “1/1” is specified, 1;">
 {
@@ -322,4 +350,21 @@ function CalculationPeriod( calculationPeriodDates CalculationPeriodDates ) <"20
 	isFirstPeriod boolean;
 	isLastPeriod boolean;
 }
-	
+
+/*
+class CalculationPeriodData {
+	startDate date (1..1)
+	endDate date (1..1)
+	daysInPeriod boolean (1..1)
+	daysInLeapYearPeriod boolean (1..1)
+}
+func CalculationPeriod :<"2006 ISDA Definition Section 4.13. 'Calculation Period' means, in respect of a Swap Transaction and a party, each period from, and including, one Period End Date of that party to, but excluding, the next following applicable Period End Date during the Term of the Swap Transaction, except that (a) the initial Calculation Period for the party will commence on, and include, the Effective Date and (b) the final Calculation Period for the party will end on, but exclude, the Termination Date.">
+	inputs: calculationPeriodDates CalculationPeriodDates (1..1)
+	output: result CalculationPeriodData (1..1)
+
+data CalculationPeriodData:
+	startDate date (1..1)
+	endDate date (1..1)
+	daysInPeriod int (1..1)
+	daysInLeapYearPeriod int (1..1)
+*/
