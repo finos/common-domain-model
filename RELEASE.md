@@ -1,18 +1,33 @@
-# Rosetta Syntax Upgrade
 
-As part of on-going improvements, the Rosetta syntax has been upgraded to consolidate language features. This work aims to simplify the syntax needed when adding to, and editing the CDM. This will become increasingly important as the number of CDM contributors increase and as CDM contributions starting coming from a variety of sources. 
+# *Initial quantity refactoring: Equity Swap*
 
-This release marks the first in a series of that will cover the scope described in this [wiki](https://github.com/REGnosys/rosetta-dsl/wiki/Rosetta-Syntax-Upgrade/31f933712fb7e3565e4cfb071f9fbb2580275920). We start by focusing on the migration from `calculation`, `function` and `spec` to `func` as these objects provide the largest benefit from consolidation. 
+_What is being released_
 
-`func` offers a consistent syntax that can be used to express all 3 language features:
-- `function`s that represents only the inputs and outputs. A function’s implementation is to be provided by the implementor
-- `spec`s that define the inputs, outputs and a set of condition that must be valid for a function to have been correctly implemented
-- `calculations` that are concrete and full implementations of functions. 
+As part of an on-going effort to restructure the handling of "quantity" in the CDM, this initial release implements the new structure in the model and applies it for Equity Swap products. Other product types will be migrated to this new structure over time (likely starting with Interest Rate Swap products).
 
-Examples showing the before and after of this change in relation to the above language features (and otrhers) are also available on the [wiki](https://github.com/REGnosys/rosetta-dsl/wiki/Rosetta-Syntax-Upgrade/31f933712fb7e3565e4cfb071f9fbb2580275920).
+As was presented in the 30-Jul-2019 CDM WG meeting, the essence of the restructuring is to abstract away the quantity from the contractual product definition, such that a contractual product is defined as a "unit" of that product, similar to how non-contractual products (e.g. securities) work.
 
-`alias` will also migrate to `func`, but will be addressed in a following release. 
+To this end, 2 new main types are being introduced: `QuantityNotation` and `ResolvablePayoutQuantity`, that both leverage the existing `Quantity` type:
 
-The code generators have also been simplified as a result of migrating to func, which makes contributions to the open sourced code generators easier, also. 
+1) `QuantityNotation` specifies the actual transacted quantity of a given product. It is meant to be specified alongside but separate from the `ContractualProduct`, as an additional attribute in an `Execution` or a `Contract`. The reason for the "notation" qualifier is that this object _characterises_ the type of quantity being specied with a tag, taken from an enumeration value called `QuantityNotationEnum`. The types of quantities that can be specified include: `Notional`, `NumberOfSecurities` and the list is expected to grow over time as more product types get migrated. Multiple `quantityNotation` attributes can be specified for the same product: e.g. for Equity Swaps, both the number of securities and the notional can be specified (and a validation logic will need to be implemented to verify consistency as notional = no. securities x initial price).
 
-See the Textual Browser for changes to the syntax and the Download Pack for changes to generated Java code. 
+2) `ResolvablePayoutQuantity`, as its name suggests, is a resolvable quantity concept that applies to each of the underlying `Payout` legs through the `payoutQuantity` attribute. The principle is that a resolvable quantity can always be resolved into one number, based on: (i) the `quantityNotationTag` attribute that must be specified alongside the `contractualProduct` description, and (ii) a given date, where a schedule is applicable.
+
+For instance: an `EquityPayout` leg may specify `Notional` as the tag for its `payoutQuantity`, in which case the notional will have to be fetched from the corresponding `Notional` quantity notation, which must be provided upon execution, to resolve the product. In addition to the base case where quantity is specified either directly as a number of indirectly through this quantity notation mechanism, the use-cases for `ResolvablePayoutQuantity` are:
+
+  - Quantity based on some pre-defined schedule: e.g. amortising notional
+  - Quantity based on some pre-defined events: e.g. resetting cross-currency notional
+  - Quantity set as reference to another quantity: e.g. equity notional as no. securities x price
+
+In practice, the `Contract` object has a `contractualQuantity` attribute containing the (potentially multiple) `quantityNotation` attributes, plus other information such as whether there is a pre-agreed mechanism to amend such quantity in future. `synonym`s have been implemented for the `QuantityNotation` and `ResolvablePayoutQuantity` classes for the Equity Swaps use-case only. Other product types have been left untouched. For technical reasons a (new but temporary placeholder) type called `ExecutionQuantity` is used for the `contractualQuantity` attribute, until such time when it will be renamed as, and supersede, the existing `ContractualQuantity` type which will be progressively "emptied-out".
+
+_Review direction_
+
+In the CDM Textual Browser:
+
+- Review the `Contract` type with the additional `contractualQuantity` attribute and its underlying `quantityNotation` attribute.
+- Review the `InterestRatePayout` and `EquityPayout` types, that implement the new `PayoutBase` containing the `payoutQuantity` attribute.
+
+In the CDM Ingestion panel:
+
+- Test the products/equity use-cases, and see the structure of the newly ingested CDM. The actual quantity numbers (number of securities and notional) have been extracted away and replaced by tags in the product description. The actual numbers now sit under the `contractualQuantity` attribute that is part of the `Contract` object.
