@@ -35,7 +35,9 @@ import com.rosetta.model.lib.records.DateImpl;
 class FixedAmountTest {
 
     private static final Date REFERENCE_DATE = DateImpl.of(2018, 8, 22);
-    @Inject CalculationPeriod calculationPeriod;
+    @Inject private CalculationPeriod calculationPeriod;
+    @Inject private PeriodsInYear periodsInYear;
+    @Inject private ToAdjustedDateFunction toAdjustedDateFunction;
     
     @Test
     void shouldCalculate() {
@@ -92,7 +94,7 @@ class FixedAmountTest {
                         .build())
                 .build();
 
-        FixedAmount  fixedAmount = new FixedAmount(new CalculationPeriodImpl(REFERENCE_DATE));
+        FixedAmount  fixedAmount = new FixedAmount(new CalculationPeriodImpl(REFERENCE_DATE), periodsInYear, toAdjustedDateFunction);
         assertThat(fixedAmount.calculate(interestRatePayout).getFixedAmount(), is(new BigDecimal("750000.0000")));
     }
 
