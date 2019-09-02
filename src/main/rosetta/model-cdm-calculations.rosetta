@@ -4,8 +4,8 @@ version "${project.version}"
 func EquityCashSettlementAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 72. 'Equity Cash Settlement Amount' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Cash Settlement Amount = ABS(Rate Of Return) × Equity Notional Amount.">
 	inputs: equityPayout EquityPayout(1..1)
 	output: equityCashSettlementAmount number (1..1)
-	alias rateOfReturn	: Abs( ResolveRateOfReturn( equityPayout ) -> rate );
-	alias notionalAmount	: ResolveNotionalAmount( equityPayout ) -> notional;
+	alias rateOfReturn	: Abs( RateOfReturn( equityPayout ) );
+	alias notionalAmount	: EquityNotionalAmount( equityPayout );
 	assign-output
 		equityCashSettlementAmount : rateOfReturn * notionalAmount
 
@@ -13,8 +13,8 @@ func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirma
 	inputs: equityPayout EquityPayout(1..1)
 	output: equityPerformance number (1..1)
 	
-	alias rateOfReturn	: ResolveRateOfReturn( equityPayout ) -> rate
-	alias notionalAmount	: ResolveNotionalAmount( equityPayout ) -> notional
+	alias rateOfReturn	: RateOfReturn( equityPayout )
+	alias notionalAmount	: EquityNotionalAmount( equityPayout )
 	
 	assign-output equityPerformance : rateOfReturn * notionalAmount
 
@@ -263,39 +263,7 @@ func PeriodsInYear:
 func Abs:
 	inputs: x number (1..1)
 	output: result number (1..1)
-
-
-
-function ResolveRateOfReturn( equityPayout EquityPayout ) <"">
-{
-	rate number;
-	// Body to be copied from "RateOfReturn" specification once new Function Specification module in production
-}
-
-function ResolveNotionalAmount( equityPayout EquityPayout ) <"">
-{
-	notional number;
-	// Body to be copied from "EquityNotionalAmount" specification once new Function Specification module in production
-}
-
-// Deprecated - deleted once calculations have moved to Function Spec
-function CalculationPeriod( calculationPeriodDates CalculationPeriodDates ) <"2006 ISDA Definition Section 4.13. 'Calculation Period' means, in respect of a Swap Transaction and a party, each period from, and including, one Period End Date of that party to, but excluding, the next following applicable Period End Date during the Term of the Swap Transaction, except that (a) the initial Calculation Period for the party will commence on, and include, the Effective Date and (b) the final Calculation Period for the party will end on, but exclude, the Termination Date.">
-{
-	startDate date;
-	endDate date;
-	daysInPeriod int;
-	daysInLeapYearPeriod int;
-	isFirstPeriod boolean;
-	isLastPeriod boolean;
-}
-
-/*
-class CalculationPeriodData {
-	startDate date (1..1)
-	endDate date (1..1)
-	daysInPeriod boolean (1..1)
-	daysInLeapYearPeriod boolean (1..1)
-}
+ 
 func CalculationPeriod :<"2006 ISDA Definition Section 4.13. 'Calculation Period' means, in respect of a Swap Transaction and a party, each period from, and including, one Period End Date of that party to, but excluding, the next following applicable Period End Date during the Term of the Swap Transaction, except that (a) the initial Calculation Period for the party will commence on, and include, the Effective Date and (b) the final Calculation Period for the party will end on, but exclude, the Termination Date.">
 	inputs: calculationPeriodDates CalculationPeriodDates (1..1)
 	output: result CalculationPeriodData (1..1)
@@ -305,4 +273,3 @@ data CalculationPeriodData:
 	endDate date (1..1)
 	daysInPeriod int (1..1)
 	daysInLeapYearPeriod int (1..1)
-*/
