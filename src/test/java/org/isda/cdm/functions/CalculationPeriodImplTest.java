@@ -10,6 +10,7 @@ import org.isda.cdm.AdjustableOrRelativeDate;
 import org.isda.cdm.BusinessCenters;
 import org.isda.cdm.BusinessDayAdjustments;
 import org.isda.cdm.BusinessDayConventionEnum;
+import org.isda.cdm.CalculationPeriodData;
 import org.isda.cdm.CalculationPeriodDates;
 import org.isda.cdm.CalculationPeriodFrequency;
 import org.isda.cdm.PeriodExtendedEnum;
@@ -63,16 +64,16 @@ class CalculationPeriodImplTest {
     @Test
     void shouldReturnStartAndEndDateOfFirstPeriod() {
         CalculationPeriod usingStartDatePeriodCalculator = new CalculationPeriodImpl(DateImpl.of(2018, 1, 3));
-        CalculationPeriod.CalculationResult usingStartDate = usingStartDatePeriodCalculator.execute(calculationPeriodDates);
+        CalculationPeriodData usingStartDate = usingStartDatePeriodCalculator.evaluate(calculationPeriodDates);
 
         assertThat(usingStartDate.getStartDate(), is(DateImpl.of(2018, 1, 3)));
         assertThat(usingStartDate.getEndDate(), is(DateImpl.of(2018, 4, 3)));
 
         CalculationPeriod usingAnyDatePeriodCalculator = new CalculationPeriodImpl(DateImpl.of(2018, 2, 14));
-        CalculationPeriod.CalculationResult usingAnyDate = usingAnyDatePeriodCalculator.execute(calculationPeriodDates);
+        CalculationPeriodData usingAnyDate = usingAnyDatePeriodCalculator.evaluate(calculationPeriodDates);
 
         CalculationPeriod usingEndDatePeriodCalculator = new CalculationPeriodImpl(DateImpl.of(2018, 3, 31));
-        CalculationPeriod.CalculationResult usingEndDate = usingEndDatePeriodCalculator.execute(calculationPeriodDates);
+        CalculationPeriodData usingEndDate = usingEndDatePeriodCalculator.evaluate(calculationPeriodDates);
 
         assertThat(usingStartDate, allOf(is(usingAnyDate), is(usingEndDate)));
     }
@@ -89,7 +90,7 @@ class CalculationPeriodImplTest {
                 .setCalculationPeriodFrequency(frequency)
                 .build();
 
-        Executable result = () -> unit.execute(calculationPeriodDates);
+        Executable result = () -> unit.evaluate(calculationPeriodDates);
 
         assertThrows(ScheduleException.class, result, "Date '2018-01-03' does not match roll convention 'Day1' when starting to roll forwards");
     }

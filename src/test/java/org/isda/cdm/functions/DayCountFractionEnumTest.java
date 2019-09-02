@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 
+import org.isda.cdm.CalculationPeriodData;
 import org.isda.cdm.DayCountFractionEnum;
 import org.isda.cdm.InterestRatePayout;
 import org.isda.cdm.calculation.DayCountFraction;
@@ -63,13 +64,13 @@ public class DayCountFractionEnumTest {
 	}
 
 	private BigDecimal calculateAct360(LocalDate startDate, LocalDate endDate, int days, org.isda.cdm.DayCountFractionEnum dcf) {
-		CalculationPeriod.CalculationResult calculationPeriodResult = Mockito.mock(CalculationPeriod.CalculationResult.class);
+		CalculationPeriodData calculationPeriodResult = Mockito.mock(CalculationPeriodData.class);
 		when(calculationPeriodResult.getStartDate()).thenReturn(new DateImpl(startDate));
 		when(calculationPeriodResult.getEndDate()).thenReturn(new DateImpl(endDate));
 		when(calculationPeriodResult.getDaysInPeriod()).thenReturn(days);
 
 		CalculationPeriod calculationPeriod = Mockito.mock(CalculationPeriod.class);
-		when(calculationPeriod.execute(any())).thenReturn(calculationPeriodResult);
+		when(calculationPeriod.evaluate(any())).thenReturn(calculationPeriodResult);
 		
         InterestRatePayout interestRatePayout = Mockito.mock(InterestRatePayout.class);
         ToAdjustedDateFunction toAdjustedDate = Mockito.mock(ToAdjustedDateFunction.class);
@@ -80,12 +81,12 @@ public class DayCountFractionEnumTest {
 	}
 
     private BigDecimal calculate30360(LocalDate startDate, LocalDate endDate, org.isda.cdm.DayCountFractionEnum dcf) {
-        CalculationPeriod.CalculationResult calculationPeriodResult = Mockito.mock(CalculationPeriod.CalculationResult.class);
+    	CalculationPeriodData calculationPeriodResult = Mockito.mock(CalculationPeriodData.class);
         when(calculationPeriodResult.getStartDate()).thenReturn(new DateImpl(startDate));
         when(calculationPeriodResult.getEndDate()).thenReturn(new DateImpl(endDate));
 
         CalculationPeriod calculationPeriod = Mockito.mock(CalculationPeriod.class);
-        when(calculationPeriod.execute(any())).thenReturn(calculationPeriodResult);
+        when(calculationPeriod.evaluate(any())).thenReturn(calculationPeriodResult);
         
         ToAdjustedDateFunction toAdjustedDate = Mockito.mock(ToAdjustedDateFunction.class);
 		PeriodsInYear periodsInYear = Mockito.mock(PeriodsInYear.class);

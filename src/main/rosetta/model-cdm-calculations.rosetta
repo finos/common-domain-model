@@ -12,13 +12,9 @@ func EquityCashSettlementAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity
 func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Performance = (Rate Of Return) × Equity Notional Amount.">
 	inputs: equityPayout EquityPayout(1..1)
 	output: equityPerformance number (1..1)
-	
 	alias rateOfReturn	: RateOfReturn( equityPayout )
 	alias notionalAmount	: EquityNotionalAmount( equityPayout )
-	
 	assign-output equityPerformance : rateOfReturn * notionalAmount
-
-
 
 func RateOfReturn: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 139. 'Rate Of Return' means, in respect of any Equity Valuation Date, the amount determined pursuant to the following formula: Rate Of Return = (Final Price - Initial Price) / Initial Price.">
 	inputs: equityPayout EquityPayout(1..1)
@@ -252,7 +248,7 @@ func GetRateSchedule:
 	inputs: floatingRateCalculation FloatingRateSpecification (1..1)
 	output: schedule SpreadSchedule (1..1)
 
-func  ResolveRateIndex:<"The function to specify that the floating rate index enumeration will be expressed as a number once the rate is observed.">
+func ResolveRateIndex: <"The function to specify that the floating rate index enumeration will be expressed as a number once the rate is observed.">
 	inputs:index FloatingRateIndexEnum (1..1)
 	output: rate number(1..1)
 
@@ -268,8 +264,15 @@ func CalculationPeriod :<"2006 ISDA Definition Section 4.13. 'Calculation Period
 	inputs: calculationPeriodDates CalculationPeriodDates (1..1)
 	output: result CalculationPeriodData (1..1)
 
-data CalculationPeriodData:
+class CalculationPeriodData {
 	startDate date (1..1)
 	endDate date (1..1)
 	daysInPeriod int (1..1)
 	daysInLeapYearPeriod int (1..1)
+}
+
+//data CalculationPeriodData:
+//	startDate date (1..1)
+//	endDate date (1..1)
+//	daysInPeriod int (1..1)
+//	daysInLeapYearPeriod int (1..1)
