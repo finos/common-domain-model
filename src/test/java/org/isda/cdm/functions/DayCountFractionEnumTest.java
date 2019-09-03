@@ -64,10 +64,12 @@ public class DayCountFractionEnumTest {
 	}
 
 	private BigDecimal calculateAct360(LocalDate startDate, LocalDate endDate, int days, org.isda.cdm.DayCountFractionEnum dcf) {
-		CalculationPeriodData calculationPeriodResult = Mockito.mock(CalculationPeriodData.class);
-		when(calculationPeriodResult.getStartDate()).thenReturn(new DateImpl(startDate));
-		when(calculationPeriodResult.getEndDate()).thenReturn(new DateImpl(endDate));
-		when(calculationPeriodResult.getDaysInPeriod()).thenReturn(days);
+		CalculationPeriodData calculationPeriodResult = 
+    			CalculationPeriodData.builder()
+    				.setStartDate(new DateImpl(startDate))
+    				.setEndDate(new DateImpl(endDate))
+    				.setDaysInPeriod(days)
+    				.build();
 
 		CalculationPeriod calculationPeriod = Mockito.mock(CalculationPeriod.class);
 		when(calculationPeriod.evaluate(any())).thenReturn(calculationPeriodResult);
@@ -81,9 +83,11 @@ public class DayCountFractionEnumTest {
 	}
 
     private BigDecimal calculate30360(LocalDate startDate, LocalDate endDate, org.isda.cdm.DayCountFractionEnum dcf) {
-    	CalculationPeriodData calculationPeriodResult = Mockito.mock(CalculationPeriodData.class);
-        when(calculationPeriodResult.getStartDate()).thenReturn(new DateImpl(startDate));
-        when(calculationPeriodResult.getEndDate()).thenReturn(new DateImpl(endDate));
+    	CalculationPeriodData calculationPeriodResult = 
+    			CalculationPeriodData.builder()
+    				.setStartDate(new DateImpl(startDate))
+    				.setEndDate(new DateImpl(endDate))
+    				.build();
 
         CalculationPeriod calculationPeriod = Mockito.mock(CalculationPeriod.class);
         when(calculationPeriod.evaluate(any())).thenReturn(calculationPeriodResult);
