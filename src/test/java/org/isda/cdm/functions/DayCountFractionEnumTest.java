@@ -1,19 +1,22 @@
 package org.isda.cdm.functions;
 
-import com.rosetta.model.lib.records.DateImpl;
-import org.isda.cdm.InterestRatePayout;
-import org.isda.cdm.calculation.DayCountFractionEnum;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import org.isda.cdm.CalculationPeriodData;
+import org.isda.cdm.DayCountFractionEnum;
+import org.isda.cdm.InterestRatePayout;
+import org.isda.cdm.calculation.DayCountFraction;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
+import com.rosetta.model.lib.records.DateImpl;
 
 public class DayCountFractionEnumTest {
 
@@ -61,36 +64,40 @@ public class DayCountFractionEnumTest {
 	}
 
 	private BigDecimal calculateAct360(LocalDate startDate, LocalDate endDate, int days, org.isda.cdm.DayCountFractionEnum dcf) {
-		CalculationPeriod.CalculationResult calculationPeriodResult = Mockito.mock(CalculationPeriod.CalculationResult.class);
-		when(calculationPeriodResult.getStartDate()).thenReturn(new DateImpl(startDate));
-		when(calculationPeriodResult.getEndDate()).thenReturn(new DateImpl(endDate));
-		when(calculationPeriodResult.getDaysInPeriod()).thenReturn(days);
+		CalculationPeriodData calculationPeriodResult = 
+    			CalculationPeriodData.builder()
+    				.setStartDate(new DateImpl(startDate))
+    				.setEndDate(new DateImpl(endDate))
+    				.setDaysInPeriod(days)
+    				.build();
 
 		CalculationPeriod calculationPeriod = Mockito.mock(CalculationPeriod.class);
-		when(calculationPeriod.execute(any())).thenReturn(calculationPeriodResult);
+		when(calculationPeriod.evaluate(any())).thenReturn(calculationPeriodResult);
 		
         InterestRatePayout interestRatePayout = Mockito.mock(InterestRatePayout.class);
         ToAdjustedDateFunction toAdjustedDate = Mockito.mock(ToAdjustedDateFunction.class);
 		PeriodsInYear periodsInYear = Mockito.mock(PeriodsInYear.class);
 
-		DayCountFractionEnum unit = new DayCountFractionEnum(calculationPeriod, periodsInYear, toAdjustedDate);
-		return unit.calculate(interestRatePayout, dcf).getValue();
+		DayCountFraction unit = new DayCountFraction(calculationPeriod, periodsInYear, toAdjustedDate);
+		return unit.calculate(interestRatePayout, dcf).getResult();
 	}
 
     private BigDecimal calculate30360(LocalDate startDate, LocalDate endDate, org.isda.cdm.DayCountFractionEnum dcf) {
-        CalculationPeriod.CalculationResult calculationPeriodResult = Mockito.mock(CalculationPeriod.CalculationResult.class);
-        when(calculationPeriodResult.getStartDate()).thenReturn(new DateImpl(startDate));
-        when(calculationPeriodResult.getEndDate()).thenReturn(new DateImpl(endDate));
+    	CalculationPeriodData calculationPeriodResult = 
+    			CalculationPeriodData.builder()
+    				.setStartDate(new DateImpl(startDate))
+    				.setEndDate(new DateImpl(endDate))
+    				.build();
 
         CalculationPeriod calculationPeriod = Mockito.mock(CalculationPeriod.class);
-        when(calculationPeriod.execute(any())).thenReturn(calculationPeriodResult);
+        when(calculationPeriod.evaluate(any())).thenReturn(calculationPeriodResult);
         
         ToAdjustedDateFunction toAdjustedDate = Mockito.mock(ToAdjustedDateFunction.class);
 		PeriodsInYear periodsInYear = Mockito.mock(PeriodsInYear.class);
         
 		InterestRatePayout interestRatePayout = Mockito.mock(InterestRatePayout.class);
 
-		DayCountFractionEnum unit = new DayCountFractionEnum(calculationPeriod, periodsInYear, toAdjustedDate);
-        return unit.calculate(interestRatePayout, dcf).getValue();
+		DayCountFraction  unit = new DayCountFraction(calculationPeriod, periodsInYear, toAdjustedDate);
+        return unit.calculate(interestRatePayout, dcf).getResult();
     }
 }

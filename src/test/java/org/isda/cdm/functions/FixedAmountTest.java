@@ -21,19 +21,24 @@ import org.isda.cdm.PeriodExtendedEnum;
 import org.isda.cdm.RateSpecification;
 import org.isda.cdm.RollConventionEnum;
 import org.isda.cdm.Schedule;
+import org.isda.cdm.calculation.DayCountFraction;
 import org.isda.cdm.calculation.FixedAmount;
 import org.isda.cdm.metafields.FieldWithMetaDayCountFractionEnum;
 import org.isda.cdm.metafields.FieldWithMetaString;
 import org.isda.cdm.metafields.ReferenceWithMetaBusinessCenters;
 import org.junit.jupiter.api.Test;
 
+import com.google.inject.Inject;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.lib.records.DateImpl;
 
 class FixedAmountTest {
 
     private static final Date REFERENCE_DATE = DateImpl.of(2018, 8, 22);
-
+    @Inject private CalculationPeriod calculationPeriod;
+    @Inject private PeriodsInYear periodsInYear;
+    @Inject private ToAdjustedDateFunction toAdjustedDateFunction;
+    
     @Test
     void shouldCalculate() {
         InterestRatePayout interestRatePayout = InterestRatePayout.builder()
@@ -89,10 +94,8 @@ class FixedAmountTest {
                         .build())
                 .build();
 
-        FixedAmount.CalculationResult fixedAmount = new FixedAmount(
-                new CalculationPeriodImpl(REFERENCE_DATE), null /* TODO - add test param*/, null /* TODO - add test param*/).calculate(interestRatePayout);
-
-        assertThat(fixedAmount.getFixedAmount(), is(new BigDecimal("750000.0000")));
+        FixedAmount  fixedAmount = new FixedAmount(new CalculationPeriodImpl(REFERENCE_DATE), periodsInYear, toAdjustedDateFunction);
+        assertThat(fixedAmount.calculate(interestRatePayout).getFixedAmount(), is(new BigDecimal("750000.0000")));
     }
 
 }
