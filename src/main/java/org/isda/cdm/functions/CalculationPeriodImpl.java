@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.chrono.IsoChronology;
 import java.time.temporal.ChronoUnit;
 
+import org.isda.cdm.CalculationPeriodData;
 import org.isda.cdm.CalculationPeriodDates;
 
 import com.opengamma.strata.basics.ReferenceData;
@@ -18,7 +19,7 @@ import com.opengamma.strata.basics.schedule.StubConvention;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.lib.records.DateImpl;
 
-public class CalculationPeriodImpl implements CalculationPeriod {
+public class CalculationPeriodImpl extends CalculationPeriod {
 
 	private final Date referenceDate;
 
@@ -27,11 +28,7 @@ public class CalculationPeriodImpl implements CalculationPeriod {
 	}
 
 	@Override
-	public CalculationResult execute(CalculationPeriodDates calculationPeriodDates) {
-		return execute(calculationPeriodDates, referenceDate.toLocalDate());
-	}
-
-	private CalculationResult execute(CalculationPeriodDates calculationPeriodDates, LocalDate referenceDate) {
+	protected CalculationPeriodData doEvaluate(CalculationPeriodDates calculationPeriodDates) {
 		PeriodicSchedule periodicSchedule = PeriodicSchedule.of(
 				calculationPeriodDates.getEffectiveDate().getAdjustableDate().getUnadjustedDate().toLocalDate(),
 				calculationPeriodDates.getTerminationDate().getAdjustableDate().getUnadjustedDate().toLocalDate(),
@@ -43,7 +40,7 @@ public class CalculationPeriodImpl implements CalculationPeriod {
 		Schedule schedule = periodicSchedule.createSchedule(ReferenceData.minimal());
 
 		SchedulePeriod targetPeriod = schedule.getPeriods().stream()
-				.filter(period -> !(referenceDate.isBefore(period.getStartDate())) && referenceDate.isBefore(period.getEndDate()))
+				.filter(period -> !(toLocalDate(referenceDate).isBefore(period.getStartDate())) && toLocalDate(referenceDate).isBefore(period.getEndDate()))
 				.findFirst()
 				.orElseThrow(() -> new IllegalArgumentException("Date " + referenceDate.toString() + "not within schedule"));
 
@@ -54,11 +51,16 @@ public class CalculationPeriodImpl implements CalculationPeriod {
 			}
 		}
 		
-		return new CalculationResult()
-				.setStartDate(new DateImpl(targetPeriod.getStartDate()))
-				.setEndDate(new DateImpl(targetPeriod.getEndDate()))
-				.setDaysInLeapYearPeriod(daysThatAreInLeapYear)
-				.setDaysInPeriod((int) ChronoUnit.DAYS.between(targetPeriod.getStartDate(), targetPeriod.getEndDate()));
+		return CalculationPeriodData.builder()
+			.setStartDate(new DateImpl(targetPeriod.getStartDate()))
+			.setEndDate(new DateImpl(targetPeriod.getEndDate()))
+			.setDaysInLeapYearPeriod(daysThatAreInLeapYear)
+			.setDaysInPeriod((int) ChronoUnit.DAYS.between(targetPeriod.getStartDate(), targetPeriod.getEndDate()))
+			.build();
+	}
+	
+	private LocalDate toLocalDate(Date date) {
+		return LocalDate.of(date.getYear(), date.getMonth(), date.getDay());
 	}
 
 }
