@@ -4,8 +4,8 @@ version "${project.version}"
 func EquityCashSettlementAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 72. 'Equity Cash Settlement Amount' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Cash Settlement Amount = ABS(Rate Of Return) × Equity Notional Amount.">
 	inputs: equityPayout EquityPayout(1..1)
 	output: equityCashSettlementAmount number (1..1)
-	alias rateOfReturn	: Abs( RateOfReturn( equityPayout ) );
-	alias notionalAmount	: EquityNotionalAmount( equityPayout );
+	alias rateOfReturn	: Abs( RateOfReturn( equityPayout ) )
+	alias notionalAmount	: EquityNotionalAmount( equityPayout )
 	assign-output
 		equityCashSettlementAmount : rateOfReturn * notionalAmount
 
@@ -20,8 +20,8 @@ func RateOfReturn: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation 
 	inputs: equityPayout EquityPayout(1..1)
 	output: rateOfReturn number (1..1)
 
-	alias businessDate: GetBusinessDateSpec(); 
-	alias calculationPeriod : EquityCalculationPeriod( equityPayout, businessDate);
+	alias businessDate: GetBusinessDateSpec()
+	alias calculationPeriod : EquityCalculationPeriod( equityPayout, businessDate)
 	alias initialPrice: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 102. 'Initial Price' means, in respect of the first Equity Valuation Date, the Specified Initial Price, and in respect of each subsequent Equity Valuation Date, the Final Price for the Equity Valuation Date immediately preceding such Equity Valuation Date."> 
 			if calculationPeriod -> isFirstPeriod = True then 
 				equityPayout -> priceReturnTerms -> initialPrice -> netPrice -> amount
@@ -59,7 +59,7 @@ func ResolvePrice: <"Function specification to return the price on a valuation d
 func FixedAmount: <"2006 ISDA Definition Article 5 Section 5.1. Calculation of a Fixed Amount: The Fixed Amount payable by a party on a Payment Date will be: (a) if an amount is specified for the Swap Transaction as the Fixed Amount payable by that party for that Payment Date or for the related Calculation Period, that amount; or (b) if an amount is not specified for the Swap Transaction as the Fixed Amount payable by that party for that Payment Date or for the related Calculation Period, an amount calculated on a formula basis for that Payment Date or for the related Calculation Period as follows: Fixed Amount = Calculation Amount × Fixed Rate × Day Count Fraction.">
 	inputs: interestRatePayout InterestRatePayout (1..1)
 	output: fixedAmount number (1..1)
-	alias calculationAmount	: interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue;
+	alias calculationAmount	: interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
 	alias fixedRate			: interestRatePayout -> rateSpecification -> fixedRate -> initialValue
 	alias dayCountFraction	: DayCountFraction(interestRatePayout, interestRatePayout -> dayCountFraction)
 	assign-output fixedAmount : calculationAmount * fixedRate * dayCountFraction
@@ -150,7 +150,7 @@ func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> _30_360): <"
 
 func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360): <"'2006 ISDA Definition Article 4 section 4.16(e): if “Actual/360”, “Act/360” or “A/360” is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 360.">
 	alias calculationPeriod:
-		CalculationPeriod(interestRatePayout -> calculationPeriodDates );
+		CalculationPeriod(interestRatePayout -> calculationPeriodDates )
 	
 	alias startYear: <"The year, expressed as a number, in which the first day of the Calculation Period or Compounding Period falls">
 			calculationPeriod -> startDate -> year
