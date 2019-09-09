@@ -12,3 +12,15 @@ class Confirmation <"A class to specify a trade confirmation.">
 data rule Confirmation_partyRole_buyerSeller <"For an security confirmation, both buyer and seller party roles must exist.">
 	when Confirmation -> execution -> product -> security exists
 	then Confirmation -> partyRole -> role contains PartyRoleEnum.Buyer and Confirmation -> partyRole -> role contains PartyRoleEnum.Seller 
+
+class Affirmation <"A class to specify a trade affirmation.">
+{
+	identifier Identifier (1..*) <"The identifier(s) associated with the trade and resulting confirmation.">;
+	party Party (0..*) <"The parties associated with the trade.">;
+	partyRole PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the trade">;
+	execution Execution (0..1) reference <"Reference to the execution associated with the confirmation">
+}
+
+data rule Affirmation_partyRole_buyerSeller <"For an security affirmation, both buyer and seller party roles must exist.">
+	when Affirmation -> execution -> product -> security exists
+	then Affirmation -> partyRole -> role contains PartyRoleEnum.Buyer and Affirmation -> partyRole -> role contains PartyRoleEnum.Seller 
