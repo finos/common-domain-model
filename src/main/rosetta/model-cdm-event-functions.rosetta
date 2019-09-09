@@ -418,12 +418,8 @@ func Allocate: <"Function specification to create the fully-formed business even
 	output:
 		event Event (1..1) <"Allocation event containing both the original block trade (with the status set to Allocated) and the set of allocated trades.">
 
-	// TODO: add pre-conditions
-
 	post-condition:
-		event -> primitive -> allocation = NewAllocationPrimitive(trade, allocationInstructions, precision );
- 
-	// TODO: add further post-conditions
+		event -> primitive -> allocation = NewAllocationPrimitive( trade, allocationInstructions, precision );
 
 /*
  * Function Specifications to create new allocation primitive
@@ -438,12 +434,12 @@ func NewAllocationPrimitive: <"Function specification to create the fully-formed
 		primitive AllocationPrimitive (1..1) <"Allocation primitive containing both the original block trade (with the status set to Allocated) and the set of allocated trades.">
 
 	condition: <"The sum of allocation breakdown quantities must equal the block trade quantity.">
-		QuantityEquals( allocationInstructions -> breakdowns -> quantity, trade -> execution -> quantity, precision);
-		// TODO check trade -> contract quantities
-	
-	// TODO: add further pre-conditions
-
-	// TODO: add further post-conditions
+		if 
+			trade -> execution exists
+		then 
+			QuantityEquals( allocationInstructions -> breakdowns -> quantity, trade -> execution -> quantity, precision)
+		else
+			True;
 
 /*
  * Function Specifications to create new transfer event for a execution settlement.
