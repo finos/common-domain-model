@@ -67,7 +67,17 @@ class Contract key <"A class to specify a financial contract object, which can b
 	contractualProduct ContractualProduct (1..1) <"The contractual product information that is associated with the contract, which combines the economic terms, the product identification and the product taxonomy. The corresponding FpML construct is the product abstract element and the associated substitution group.">;
 		[synonym CME_SubmissionIRS_1_0 value trade path "Instrmt.SecXML.FpML"]
 	contractualQuantity ExecutionQuantity (0..1) <"Complex attribute to specify the quantity of the contractual product that the contract is written on. This temporarily makes uses of the 'ExecutionQuantity' class, until such time when the latter can be renamed as, and supersede, the existing 'ContractualQuantity' class.">;
+		// For Equity Swap:
 		[synonym FpML_5_10 value returnLeg path "trade.returnSwap", returnLeg path "trade.equitySwapTransactionSupplement"]
+		// For Swap Stream:
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value swap, swap path "trade" ]
+		// For Swaption:
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value swap path "trade.swaption"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value swap path "swaption"]
+		// For CapFloor
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value capFloor path "trade" ]
+		// For FRA
+		// [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value trade]
 	// TODO: make quantity attribute non-optional
 	collateral Collateral (0..1) <"Defines the collateral obligations of a party.">;
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value collateral path "trade"]
@@ -266,7 +276,7 @@ class ContractualProduct <"A class to specify the contractual products' economic
 	economicTerms EconomicTerms (1..1) <"The economic terms associated with a contractual product, i.e. the set of features that are price-forming.">;
 }
 
-class ContractualQuantity <"A class to specify the quantity or notional amount that is associated with a contractual product and that is the base for the payout calculation. The quantity attribute applies to products relating to securities or tangible assets (such as equities or commodities), while the notional amount applies to products pertaining to interest rate, FX or credit products.">
+class ContractualQuantity <"[SCHEDULED FOR DEPRECATION: Class to be emptied-out as products get progressively migrated to the restructured quantity mechanism.] A class to specify the quantity or notional amount that is associated with a contractual product and that is the base for the payout calculation. The quantity attribute applies to products relating to securities or tangible assets (such as equities or commodities), while the notional amount applies to products pertaining to interest rate, FX or credit products.">
 {
 	quantity Quantity (0..1) <"The contractual quantity when specified as an amount/number of securities or tangible assets. The quantity attribute is typical used in the equity and commodity asset classes.">;
 	notionalAmount Money (0..1) reference <"The contractual quantity when specified as an amount and a currency units without associated schedule or FX terms. When applied to Credit default Swaps, this is the notional amount of protection coverage. ISDA 2003 Term: Floating Rate Payer Calculation Amount.">;
@@ -276,20 +286,14 @@ class ContractualQuantity <"A class to specify the quantity or notional amount t
 		[synonym Rosetta_Workbench value notionalAmount]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notionalAmount]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notional]
-		[synonym FpML_5_10 value notionalAmount path "trade.returnSwap.returnLeg.notional", notionalAmount path "trade.equitySwapTransactionSupplement.returnLeg.notional"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notionalReference meta href]
 		[synonym FpML_5_10 value settlementAmount path "nearLeg"]
 	notionalSchedule NotionalSchedule (0..1) <"The contractual quantity when specified as a notional amount with an associated schedule, as used in the case of an amortizing swap where the notional amount decreases over time.">;
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notionalSchedule path "calculationPeriodAmount.calculation" /*set when "calculationPeriodAmount.calculation.notionalSchedule.notionalStepSchedule.step" exists*/]
 		[synonym DTCC_11_0, DTCC_9_0 value calculationElements]
 	fxLinkedNotional FxLinkedNotionalSchedule (0..1) <"The contractual quantity when specified as a notional amount which value is a function of FX parameters.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value fxLinkedNotionalSchedule path "calculationPeriodAmount.calculation" /*set when "calculationPeriodAmount.calculation.fxLinkedNotionalSchedule.initialValue" exists*/]
 	futureValueNotional FutureValueAmount (0..1) <"The future value notional is specific to BRL CDI swaps, and is specified alongside the notional amount. The value is calculated as follows: Future Value Notional = Notional Amount * (1 + Fixed Rate) ^ (Fixed Rate Day Count Fraction). The currency should always match that expressed in the notional schedule. The value date should match the adjusted termination date.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value futureValueNotional path "calculationPeriodAmount.calculation"]
-	notionalReset boolean (0..1) <"TThe purpose of this indicator is to specify whether the notional reset is applicable (true) or not applicable (false). It is typically used in the context of equity swaps. 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Equity Notional Reset.">;
-		[synonym FpML_5_10 value notionalReset path "trade.returnSwap.returnLeg.rateOfReturn", notionalReset path "trade.equitySwapTransactionSupplement.returnLeg.rateOfReturn"]
-	notionalAdjustments NotionalAdjustmentEnum (0..1) <"This attribute specifies the conditions that govern the adjustment to the number of units of the return swap, e.g. execution, portfolio rebalancing. It is typically used in the context of equity swaps.">;
-		[synonym FpML_5_10 value notionalAdjustments path "trade.returnSwap.returnLeg", notionalAdjustments path "trade.equitySwapTransactionSupplement.returnLeg"]
 }
 
 choice rule ContractualQuantity_choice <"The below set of notional values are exclusive, while some of those could be associated with the futureValueNotional.">
@@ -315,8 +319,14 @@ data rule ContractualQuantity_notionalAdjustments <"As the notionalAdjustments a
 class ExecutionQuantity <"Class to specify the executed quantity of a product, provided as (possibly multiple) quantity notations, plus additional information regarding potential future quantity adjustments. Should be remaned as, and supersede, 'ContractualQuantity' once the latter can be deprecated.">
 {
 	quantityNotation QuantityNotation (1..*) <"Quantity of the underlying contractual product that the contract is written on, defined as a single, non-negative number, a (mandatory) notation tag and an (optional) unit. Products, including contractual products, are designed to be defined as a unit in CDM (with quantity schedule and cross-referencing mechanisms handled as part of the underlying payout legs), so that the overall quantity can be abstracted away from the product definition. The notation tag (e.g. 'Notional') is meant to be referenced by the underlying payout legs and used to resolve the product, by fetching the actual amount from the appropriate quantity notation.">;
-		[synonym FpML_5_10 value notional]		
+		// For Equity Swap:
+		[synonym FpML_5_10 value notional]
 		[synonym FpML_5_10 value underlyer]
+		// For Swap Stream, incl. Swaption and CapFloor:
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notionalSchedule path "swapStream.calculationPeriodAmount.calculation"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notionalSchedule path "capFloorStream.calculationPeriodAmount.calculation"]
+		// For FRA:
+		// [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value fra mapper FRAIRPSplitter]
 	adjustment NotionalAdjustmentEnum (0..1) <"Specifies the conditions that govern the adjustment to the quantity of a contractual product being traded: e.g. execution, portfolio rebalancing etc. It is typically used in the context of Equity Swaps.">;
 		[synonym FpML_5_10 value notionalAdjustments]
 }
@@ -328,15 +338,18 @@ class QuantityMultiplier /*one of*/ <"Class to specify a mechanism for a quantit
 }
 
 class ResolvablePayoutQuantity key <"Generic class to specify the quantity for different payout legs in a contractual product, when that quantity can vary across payout legs or across time. A resolvable quantity can always be resolved into one number based on: (i) the quantity notation that must be specified alongside the contractual product description and (ii) a given date, where applicable. In addition to the base case where quantity is directly specified as a number as part of the quantity notation, the use cases are: (i) quantity based on some pre-defined schedule (eg amortising notional), (ii) quantity based on some pre-defined events (eg resetting cross-currency notional), or quantity set as reference to another quantity (eg equity notional as no. securities x price).">
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 	[synonym FpML_5_10 meta id path "notionalAmount"]
+	[synonym FpML_5_10 meta id path "notionalStepSchedule"]
 {
 	quantitySchedule NonNegativeQuantitySchedule (0..1) <"Quantity specified as an absolute number, (possibly) with some step schedule, (possibly) with some unit, such as the currency in the case of a notional. There needs to be at least 1 such absolutely defined quantity across payout legs of a product, to define an anchor that other payout quantities can refer to. This is enforced by a data rule on the Payout class">;
-		[synonym FpML_5_10 value ignore]
 	quantityNotationTag QuantityNotationEnum (0..1) <"Notation tag to be used as a key to fetch the payout quantity from the appropriate quantity notation, that is provided alongside the contractual product. For instance: if this quantity notation tag is 'Notional', the actual quantity will have to be fetched from the quantity notation labelled as 'Notional'.">;
 		[synonym FpML_5_10
+			set to QuantityNotationEnum.Notional when "currency" exists,
 			set to QuantityNotationEnum.Notional when "notionalAmount" exists,
-			set to QuantityNotationEnum.NumberOfSecurities when "openUnits" exists
-			/*set to QuantityNotationEnum.Notional when "relativeNotionalAmount" exists*/]
+			// set to QuantityNotationEnum.Notional when "notionalSchedule" exists,
+			set to QuantityNotationEnum.Notional when "notionalStepSchedule" exists,
+			set to QuantityNotationEnum.NumberOfSecurities when "openUnits" exists]
 	quantityReference ResolvablePayoutQuantity (0..1) reference <"Reference quantity when resolvable quantity is defined as relative to another (resolvable) quantity. A resolvable quantity needs to contain either an absolute quantity or a reference to another (resolvable) quantity. This requirement is captured by a choice rule on the class.">;
 		[synonym FpML_5_10 value relativeNotionalAmount meta href]
 	quantityMultiplier QuantityMultiplier (0..1) <"Quantity multiplier is specified on top of a reference quantity and is used as a multiplying factor when resolving the quantity. A quantity multiplier can only exist when the resolvable quantity specifies a reference quantity.">;
@@ -344,12 +357,19 @@ class ResolvablePayoutQuantity key <"Generic class to specify the quantity for d
 		[synonym FpML_5_10 value notionalReset]
 }
 
-choice rule ResolvablePayoutQuantity_choice1 <"A resolvable quantity must contain either: (i) a notation tag (so that quantity can be fetched from a higher-level specification), (ii) an absolute quantity or (iii) a reference to another (resolvable) quantity, in order to be resolved.">
-	for ResolvablePayoutQuantity required choice between quantitySchedule and quantityNotationTag and quantityReference
+choice rule ResolvablePayoutQuantity_choice1 <"A payout quantity can be resolved either (i) by fetching its actual quantity from a higher-level quantity notation specification referenced via a tag, or (ii) by reference to another (resolvable) quantity.">
+	for ResolvablePayoutQuantity optional choice between quantityNotationTag and quantityReference
 
 data rule ResolvablePayoutQuantity_quantityMultiplier <"A quantity reference must exist when there is a quantity multiplier on a resolvable quantity">
 	when ResolvablePayoutQuantity -> quantityMultiplier exists
 	then ResolvablePayoutQuantity -> quantityReference exists
+
+spec ResolveQuantity <"Function specification to resolve a payout quantity, specified as a resolvable quantity with inputs for the resolution, into a basic quantity with just a number and a unit.">:
+	inputs:
+		resolvableQuantity ResolvablePayoutQuantity (1..1) <"The quantity to resolve.">
+		date date (1..1)
+	output:
+		quantity Quantity (1..1) <"The resolved quantity, containing just a number and (optionally) a unit or currency.">
 
 class CrossCurrencyTerms
 {
@@ -485,6 +505,9 @@ class Execution key <"A class to specify an execution, which consists essentiall
 		[synonym Rosetta_Workbench value closedState]
 	legalAgreementReference LegalAgreement (0..*) reference <"Whether that execution references any higher-level agreement between the parties, as in the case of a Master Confirmation Agreeemnt governing subsequent executions.">;
 	quantity Quantity (0..1) <"The execution quantity when specified as an amount/number of securities or tangible assets.">;
+	executionQuantity ExecutionQuantity (0..1) <"Complex attribute to specify the quantity of the contractual product that is being executed. This temporarily makes uses of the 'ExecutionQuantity' class, until such time when the latter can be renamed as, and supersede, the existing 'ContractualQuantity' class. To be later merged with the 'quantity' attribute to have consistent mechanism between contractual and non-contractual products.">;
+		// For Swap Stream:
+		[synonym Rosetta_Workbench value swap]
 	price Price (0..1) <"The transacted price of the execution, which is applicable for products such as securities.">;
 	settlementTerms SettlementTerms (0..1) <"The execution settlement terms, which is applicable for products such as securities">;
 }
@@ -603,7 +626,7 @@ data rule InterestRatePayout_quantity <"When there an InterestRatePayout but no 
 	when Payout -> interestRatePayout exists
 		and Payout -> creditDefaultPayout is absent
 		and Payout -> optionPayout is absent
-	then Payout -> interestRatePayout -> quantity exists
+	then ( Payout -> interestRatePayout -> quantity exists or Payout -> interestRatePayout -> payoutQuantity exists )
 
 data rule InterestRatePayout_actualQuantity <"The quantity associated to an interest rate payout should not be expressed as a quantity, but rather as a notional (which can itself be expressed in a number of distinct ways).">
 	when InterestRatePayout exists
@@ -680,7 +703,6 @@ data rule CalculationPeriodDates_firstCompoundingPeriodEndDate <"FpML specifies 
 	then InterestRatePayout -> calculationPeriodDates -> firstCompoundingPeriodEndDate is absent
 
 class NotionalSchedule key <"A class specifying the notional amount or notional amount schedule associated with a contractual product. The notional schedule will be captured explicitly, specifying the dates that the notional changes and the outstanding notional amount that applies from that date. A parametric representation of the rules defining the notional step schedule can optionally be included.">
-	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 {
 	notionalStepSchedule NonNegativeAmountSchedule (1..1) <"The notional amount when expressed as a varying notional alongside a date schedule. The step dates may be subject to adjustments in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">;
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notionalStepSchedule]
@@ -872,8 +894,10 @@ Have appropriate synonyms vs the repo model in FpML
 abstract class PayoutBase <"Base class that all payout types should extend. Use case is that some validation rules may need to apply across all payout types, for which the data rule can be written at the base class level">
 {
 	payoutQuantity ResolvablePayoutQuantity (1..1) <"Each payout leg must implement the quantity concept as a 'resolvable' type, which allows for different payout legs to be linked to each other (e.g. in the case of cross-curreny products).">;
+		// For Equity Swap:
 		[synonym FpML_5_10 value notional, rateOfReturn]
-		[synonym CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value ignore]
+		// For Swap Stream:
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notionalSchedule path "calculationPeriodAmount.calculation"]
 }
 
 class Payout <"A class to represent the set of future cashflow methodologies in the form of specific payout class(es) that can be associated for the purpose of specifying a financial product. For example, two interest rate payouts can be combined to specify an interest rate swap, or one interest rate payout can be combined with a credit default payout to specify a credit default swap.">
@@ -1040,8 +1064,9 @@ class ProductIdentification <"A class to combine the CDM product qualifier with 
 class Quantity <"A class to specify an amount/number of securities or tangible assets such as a commodity product. The units qualifier is not used if the Quantity class is applied to securities.">
 {
 	amount number (1..1) <"The amount to quantify ">;
-		[synonym Rosetta_Workbench value amount]
+		[synonym FpML_5_10, Rosetta_Workbench value amount]
 		[synonym FpML_5_10 value openUnits]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value initialValue]
 	unit UnitEnum (0..1) <"The unit of measure, applicable to physical assets, e.g. MWh or MMBTU.">;
 		[synonym Rosetta_Workbench value unit]
 	currency string (0..1) scheme <"The currency in which the associated amount is denominated, if applicable. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">;
@@ -1058,9 +1083,16 @@ class NonNegativeQuantity extends Quantity <"Class to specify a quantity as a no
 data rule NonNegativeQuantity_amount <"For a non-negative quantity, the amount attribute must be positive.">
 	when NonNegativeQuantity exists then NonNegativeQuantity -> amount >= 0.0
 
-class NonNegativeQuantitySchedule extends NonNegativeQuantity <"Class to specify a non-negative quantity schedule, which is used to define the quantity of a payout leg. This quantity cannot be negative, while direction is specified through a BuyerSeller or PayerReceiver attribute. The non-negativity is enforced by making use of the non-negative quantity and step classes.">
+class NonNegativeStepSchedule <"Class to specify a non-negative schedule as a schedule of steps, typically used to define a payout leg with variable quantity. This quantity cannot be negative, while direction is specified through a BuyerSeller or PayerReceiver attribute. The non-negativity is enforced by making use of the non-negative step class.">
 {
-	step NonNegativeStep (0..*) <"Optional step schedule, which also needs to be non-negative, same as the initial quantity. Data rule already exists on that class to enforce the latter condition.">;
+	step NonNegativeStep (1..*) <"The schedule of step date and non-negative value pairs. On each step date the associated step value becomes effective. A list of steps may be ordered in the document by ascending step date. An FpML document containing an unordered list of steps is still regarded as a conformant document.">;
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value step]
+}
+
+class NonNegativeQuantitySchedule extends NonNegativeQuantity <"Class to specify a non-negative quantity schedule, which is used to define the quantity of a payout leg. This quantity cannot be negative, while direction is specified through a BuyerSeller or PayerReceiver attribute. The only available schedule implementation is a step schedule, specified as a set of date-value pairs. The non-negativity is enforced by extending the non-negative quantity and step schedule classes.">
+{
+	stepSchedule NonNegativeStepSchedule (0..1) <"The schedule specified as a set of date-value pairs. Attribute is optional, to represent the case where no schedule is specified so quantity is just constant over time.">;
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notionalStepSchedule]
 }
 
 enum QuantityNotationEnum <"Enumeration for the different types of quantity notations that can be specified for a product, such as the number of securities, or notional etc.">
@@ -1072,11 +1104,17 @@ enum QuantityNotationEnum <"Enumeration for the different types of quantity nota
 class QuantityNotation <"Class to specify the quantity of a product as a single, non-negative amount, characterised with a notation enumeration to indicate the type of quantity being specified. For some product cases, several quantity notations can be associated with a single product: e.g. for an Equity Swap, both the notional and (optionally) the number of securities can be specified, with a validation to check that they are consistent in relation to the equity price.">
 {
 	quantity NonNegativeQuantity (1..1) <"The quantity as a non-negative amount.">;
+		// For Swap Streams:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notionalStepSchedule]
+		// For Equity Swaps:
 		[synonym FpML_5_10 value notionalAmount, singleUnderlyer]
+		// For FRA:
+		// [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notional]
 	notationTag QuantityNotationEnum (1..1) <"The notation type associated with this quantity, specified from an enumeration.">;
 		[synonym FpML_5_10
+			set to QuantityNotationEnum.Notional when "notional" exists,
 			set to QuantityNotationEnum.Notional when "notionalAmount" exists,
+			set to QuantityNotationEnum.Notional when "notionalStepSchedule" exists,
 			set to QuantityNotationEnum.NumberOfSecurities when "singleUnderlyer.openUnits" exists]
 }
 
