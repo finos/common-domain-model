@@ -71,6 +71,7 @@ class Contract key <"A class to specify a financial contract object, which can b
 		[synonym FpML_5_10 value returnLeg path "trade.returnSwap", returnLeg path "trade.equitySwapTransactionSupplement"]
 		// For Swap Stream:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value swap, swap path "trade" ]
+		[synonym CME_SubmissionIRS_1_0 value swap path "Instrmt.SecXML.FpML.trade"]
 		// For Swaption:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value swap path "trade.swaption"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value swap path "swaption"]
@@ -509,6 +510,7 @@ class Execution key <"A class to specify an execution, which consists essentiall
 		// For Swap Stream:
 		[synonym Rosetta_Workbench value swap]
 		[synonym CME_SubmissionIRS_1_0 value swap path "Instrmt.SecXML.FpML.trade"]
+		[synonym CME_SubmissionIRS_1_0 value swap path "Instrmt.SecXML.FpML.trade.swaption"]
 	price Price (0..1) <"The transacted price of the execution, which is applicable for products such as securities.">;
 	settlementTerms SettlementTerms (0..1) <"The execution settlement terms, which is applicable for products such as securities">;
 }
@@ -1282,7 +1284,7 @@ isProduct InterestRate_IRSwap_FixedFloat_PlainVanilla <"This product qualificati
 	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> floatingRateMultiplierSchedule is absent
 	and EconomicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step is absent
 	and EconomicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepParameters is absent
-	and EconomicTerms -> payout -> interestRatePayout -> payoutQuantity -> quantitySchedule is absent
+	and EconomicTerms -> payout -> interestRatePayout -> payoutQuantity -> quantitySchedule -> stepSchedule -> step is absent
 	and EconomicTerms -> payout -> interestRatePayout -> stubPeriod is absent
 	and EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> stubPeriodType is absent
 	/*
@@ -1337,7 +1339,7 @@ isProduct InterestRate_IRSwap_FixedFloat
 	and ( EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule -> step exists
 		or EconomicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step exists
 		or EconomicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepParameters exists
-		or EconomicTerms -> payout -> interestRatePayout -> payoutQuantity -> quantitySchedule exists
+		or EconomicTerms -> payout -> interestRatePayout -> payoutQuantity -> quantitySchedule -> stepSchedule -> step exists
 		or EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> floatingRateMultiplierSchedule exists
 		or EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate -> step exists
 		or EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier <>
