@@ -418,12 +418,8 @@ func Allocate: <"Function specification to create the fully-formed business even
 	output:
 		event Event (1..1) <"Allocation event containing both the original block trade (with the status set to Allocated) and the set of allocated trades.">
 
-	// TODO: add pre-conditions
-
 	post-condition:
-		event -> primitive -> allocation = NewAllocationPrimitive(trade, allocationInstructions, precision );
- 
-	// TODO: add further post-conditions
+		event -> primitive -> allocation = NewAllocationPrimitive( trade, allocationInstructions, precision );
 
 /*
  * Function Specifications to create new allocation primitive
@@ -438,10 +434,62 @@ func NewAllocationPrimitive: <"Function specification to create the fully-formed
 		primitive AllocationPrimitive (1..1) <"Allocation primitive containing both the original block trade (with the status set to Allocated) and the set of allocated trades.">
 
 	condition: <"The sum of allocation breakdown quantities must equal the block trade quantity.">
-		QuantityEquals( allocationInstructions -> breakdowns -> quantity, trade -> execution -> quantity, precision);
-		// TODO check trade -> contract quantities
-	
-	// TODO: add further pre-conditions
+		if 
+			trade -> execution exists
+		then 
+			QuantityEquals( allocationInstructions -> breakdowns -> quantity, trade -> execution -> quantity, precision)
+		else
+			True;
 
-	// TODO: add further post-conditions
-		
+/*
+ * Function Specifications to create new transfer event for a execution settlement.
+ * 
+ * Initial implementation only supports securities settled via delivery vs payment.
+ */
+func Settle: <"Function specification to create the Transfer event based on an execution's settlement terms.">
+	inputs:
+		execution Execution (1..1) <"Execution to be settled.">
+
+	output:
+		transferEvent Event (1..1) <"Transfer event composed of cash and security components created from a security settled via delivery vs payment.">
+
+	condition:
+		execution -> product -> security exists;
+	
+	post-condition:
+		if 
+			execution -> settlementTerms -> transferSettlementType = TransferSettlementEnum.DeliveryVersusPayment
+		then
+			transferEvent -> primitive -> transfer -> cashTransfer exists 
+			and transferEvent -> primitive -> transfer -> securityTransfer exists 
+			and transferEvent -> primitive -> transfer -> commodityTransfer is absent
+		else 
+			True;
+	
+	post-condition:
+		transferEvent -> primitive -> transfer -> status = TransferStatusEnum.Settled;
+
+
+/*
+ * Function Specifications to create new transfer primitive.
+ * 
+ * Initial implementation only supports creating transfer primitives from securities settled via delivery vs payment.
+ */
+func NewTransferPrimitive: <"Function specification to create the Transfer primitive based on an execution's settlement terms and instructions.">
+	inputs:
+		execution Execution (1..1)
+	
+	output:
+		transferPrimitive TransferPrimitive (1..1) <"Transfer primitive generated from execution.">
+
+	post-condition:
+		if 
+			execution -> product -> security exists
+			and execution -> settlementTerms -> transferSettlementType = TransferSettlementEnum.DeliveryVersusPayment
+		then
+			transferPrimitive -> cashTransfer exists 
+			and transferPrimitive -> securityTransfer exists 
+			and transferPrimitive -> commodityTransfer is absent
+			and transferPrimitive -> status = TransferStatusEnum.Settled
+		else 
+			True;
