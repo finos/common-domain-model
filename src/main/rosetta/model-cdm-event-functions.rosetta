@@ -1,7 +1,11 @@
 namespace "org.isda.cdm"
 version "${project.version}"
 
+basicType any
 
+func OnlyElement: 
+	inputs: input any (0..*)
+	output: out any (1..1)
 /*
  * Function Specifications to process Equity Swap lifecycle events (beyond execution) 
  *
@@ -78,6 +82,15 @@ func NewFloatingPayout: <"Function specification to create the interest rate (fl
 			interestRatePayout -> paymentDates = masterConfirmation -> equityCashSettlementDates
 		else True;
 
+// TODO: allow for None keyword to denote not there
+func EmptyLegalAgreement:
+	output: 
+		result LegalAgreement (1..1)
+	
+func EmptyEquitySwapMasterConfirmation2018:
+	output: 
+		result EquitySwapMasterConfirmation2018 (1..1)
+
 
 /*
  * Business Event Function Specifications
@@ -98,9 +111,9 @@ func NewContractEvent: <"Function specification to create the fully-formed busin
 		
 	post-condition: <"Event must contain a contract formation primitive based on the execution primitive and (optionally) the legal agreement.">
 		if legalAgreement exists then
-			event -> primitive -> contractFormation = NewContractFormationFromExecution( event -> primitive -> execution -> after only-element, partyA, partyB, legalAgreement )
+			event -> primitive -> contractFormation = NewContractFormationFromExecution( OnlyElement( event -> primitive -> execution -> after ), partyA, partyB, legalAgreement )
 		else
-			event -> primitive -> contractFormation = NewContractFormationFromExecution( event -> primitive -> execution -> after only-element, partyA, partyB, empty );
+			event -> primitive -> contractFormation = NewContractFormationFromExecution( OnlyElement( event -> primitive -> execution -> after ), partyA, partyB, EmptyLegalAgreement() );
 			
 	post-condition: <"When they exist, the parties on the event must match the party inputs.">
 		if event -> party exists then event -> party count = 2 and event -> party contains partyA and event -> party contains partyB else True;
@@ -155,9 +168,9 @@ func EquityResetEvent: <"Function specification for resetting an equity payout f
 
  	post-condition: <"Event must contain a reset primitive that is calculated based on the observation, and no other primitive.">
 		reset -> primitive -> reset = EquityReset( 
-				contract -> contractualProduct -> economicTerms -> payout -> equityPayout only-element, 
-				observation -> primitive -> observation -> observation only-element, 
-				observation -> primitive -> observation -> date only-element );
+				OnlyElement( contract -> contractualProduct -> economicTerms -> payout -> equityPayout ), 
+				OnlyElement( observation -> primitive -> observation -> observation ), 
+				OnlyElement( observation -> primitive -> observation -> date ) );
 		reset -> primitive -> reset only exists;
 		
 	post-condition: <"Event effect must include the notional reset on the contract.">
