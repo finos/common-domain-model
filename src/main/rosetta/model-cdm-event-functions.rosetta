@@ -78,15 +78,6 @@ func NewFloatingPayout: <"Function specification to create the interest rate (fl
 			interestRatePayout -> paymentDates = masterConfirmation -> equityCashSettlementDates
 		else True;
 
-// TODO: allow for None keyword to denote not there
-func EmptyLegalAgreement:
-	output: 
-		result LegalAgreement (1..1)
-	
-func EmptyEquitySwapMasterConfirmation2018:
-	output: 
-		result EquitySwapMasterConfirmation2018 (1..1)
-
 
 /*
  * Business Event Function Specifications
@@ -109,7 +100,7 @@ func NewContractEvent: <"Function specification to create the fully-formed busin
 		if legalAgreement exists then
 			event -> primitive -> contractFormation = NewContractFormationFromExecution( event -> primitive -> execution -> after only-element, partyA, partyB, legalAgreement )
 		else
-			event -> primitive -> contractFormation = NewContractFormationFromExecution( event -> primitive -> execution -> after only-element, partyA, partyB, EmptyLegalAgreement() );
+			event -> primitive -> contractFormation = NewContractFormationFromExecution( event -> primitive -> execution -> after only-element, partyA, partyB, empty );
 			
 	post-condition: <"When they exist, the parties on the event must match the party inputs.">
 		if event -> party exists then event -> party count = 2 and event -> party contains partyA and event -> party contains partyB else True;
