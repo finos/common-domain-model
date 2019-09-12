@@ -1,10 +1,9 @@
 namespace "org.isda.cdm"
 version "${project.version}"
 
-
 /*
  * Function Specifications to process Equity Swap lifecycle events (beyond execution) 
- *
+ * 
  * The sequence of business events being demonstrated will do the following:
  * 1) Create a new contract file that corresponds to an Equity Swap (Ingestion)
  * 2) Create a new MCA which attributes match the relevant terms of that Equity Swap (method TBD)
@@ -13,15 +12,13 @@ version "${project.version}"
  * 5) Create a new reset event based on that observation
  * 6) Create a new transfer event based on that reset
  */
-
-
 /*
  * Function Specifications for Equity Swap product creation
- *
+ * 
  * These should be implementation-specific, and exist in implementors' "private" extensions of the CDM rather than the public CDM
  * They are positionned here for illustration of the equity workflow as part of the CDM, until such time when they could be deemed to be moved
- *
-*/
+ * 
+ */
 func NewEquitySwapProduct: <"Function specification to create an Equity Swap according to the 2018 ISDA CDM Equity Confirmation Template, based on a minimum set of inputs which can (optionally) include a Master Confirmation Agreement. The inputs represent the minimum set of inputs required to create an Equity Swap, either based on an existing Master Confirmation Agreement or as a stand-alone Equity Swap">
 	inputs: 
 		underlier Equity (1..1) <"The underlying Equity asset for the swap.">
@@ -35,7 +32,7 @@ func NewEquitySwapProduct: <"Function specification to create an Equity Swap acc
 			product -> contractualProduct -> economicTerms -> payout -> equityPayout = NewSingleNameEquityPayout( underlier, masterConfirmation ) and
 			product -> contractualProduct -> economicTerms -> payout -> interestRatePayout = NewFloatingPayout( masterConfirmation )
 		else
-			product -> contractualProduct -> economicTerms -> payout -> equityPayout = NewSingleNameEquityPayout( underlier, EmptyEquitySwapMasterConfirmation2018() );
+			product -> contractualProduct -> economicTerms -> payout -> equityPayout = NewSingleNameEquityPayout( underlier, empty );
 		product -> contractualProduct -> economicTerms -> payout -> cashflow is absent;
 		product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout is absent;
 		product -> contractualProduct -> economicTerms -> payout -> forwardPayout is absent;
@@ -78,16 +75,6 @@ func NewFloatingPayout: <"Function specification to create the interest rate (fl
 			interestRatePayout -> paymentDates = masterConfirmation -> equityCashSettlementDates
 		else True;
 
-// TODO: allow for None keyword to denote not there
-func EmptyLegalAgreement:
-	output: 
-		result LegalAgreement (1..1)
-	
-func EmptyEquitySwapMasterConfirmation2018:
-	output: 
-		result EquitySwapMasterConfirmation2018 (1..1)
-
-
 /*
  * Business Event Function Specifications
  */
@@ -107,9 +94,9 @@ func NewContractEvent: <"Function specification to create the fully-formed busin
 		
 	post-condition: <"Event must contain a contract formation primitive based on the execution primitive and (optionally) the legal agreement.">
 		if legalAgreement exists then
-			event -> primitive -> contractFormation = NewContractFormationFromExecution( ExtractSingleExecutionState( event -> primitive -> execution -> after ), partyA, partyB, legalAgreement )
+			event -> primitive -> contractFormation = NewContractFormationFromExecution( event -> primitive -> execution -> after only-element, partyA, partyB, legalAgreement )
 		else
-			event -> primitive -> contractFormation = NewContractFormationFromExecution( ExtractSingleExecutionState( event -> primitive -> execution -> after ), partyA, partyB, EmptyLegalAgreement() );
+			event -> primitive -> contractFormation = NewContractFormationFromExecution( event -> primitive -> execution -> after only-element, partyA, partyB, empty );
 			
 	post-condition: <"When they exist, the parties on the event must match the party inputs.">
 		if event -> party exists then event -> party count = 2 and event -> party contains partyA and event -> party contains partyB else True;
@@ -121,7 +108,6 @@ func NewContractEvent: <"Function specification to create the fully-formed busin
 		event -> eventEffect -> effectedContract is absent;
 		event -> eventEffect -> productIdentifier is absent;
 		event -> eventEffect -> transfer is absent;
-
 
 func CashFlowTransferEvent: <"Function specification to build a cashflow transfer event following a reset event">
 	inputs:
@@ -163,13 +149,11 @@ func EquityResetEvent: <"Function specification for resetting an equity payout f
 		contract -> contractualProduct -> economicTerms -> payout -> equityPayout exists;
 		observation -> primitive -> observation exists;
 
-	// TODO: the state of the contract should be altered to account for that reset event - QUESTION: how to update that?
-
  	post-condition: <"Event must contain a reset primitive that is calculated based on the observation, and no other primitive.">
 		reset -> primitive -> reset = EquityReset( 
-				ExtractSingleEquityPayout( contract -> contractualProduct -> economicTerms -> payout -> equityPayout ), 
-				ExtractSingleNumber( observation -> primitive -> observation -> observation ), 
-				ExtractSingleDate( observation -> primitive -> observation -> date ) );
+				contract -> contractualProduct -> economicTerms -> payout -> equityPayout only-element, 
+				observation -> primitive -> observation -> observation only-element, 
+				observation -> primitive -> observation -> date only-element );
 		reset -> primitive -> reset only exists;
 		
 	post-condition: <"Event effect must include the notional reset on the contract.">
@@ -199,73 +183,44 @@ func CashflowTransfer: <"Function specification to generate a transfer primitive
 		transfer -> cashTransfer -> payerReceiver = cashflow -> payerReceiver;
 
 
+// TODO: we should verify the adequation between the observation source and the asset on the equity payout, but this requires some refactoring of 'ObservationSource' to make it work across assets (currently geared towards rates)
+// TODO: when passing an observation source, we should verify that the observable matches the equity payout underlier
+// QUESTION: is it better to directly pass the observation's date and number in this function spec, or the 'ObservatioPrimitive' object to then extract its attribute?
 func EquityReset: <"Function specification for resetting an equity payout following an equity price observation. This function only concerns itself with building the primitive, which currently does not affect the underlying contract (until such time when 'ResetPrimitive' is refactored to directly accomodate a 'before' and 'after' states). The contract effect will be part of the 'EventEffect' attribute on the a fully-formed Business Event that is built by the 'EquityResetEvent' function spec.">
 	inputs:
 		equityPayout EquityPayout (1..1)
 		// source ObservationSource (1..1)
 		observation number (1..1)
-		date date (1..1)
-		// QUESTION: is it better to directly pass the observation's date and number in this function spec, or the 'ObservatioPrimitive' object to then extract its attribute?
+		date date (1..1)		
 	
 	output:
 		reset ResetPrimitive (1..1)
-
-	condition: <"The reset date must be the period end date on the equity payout.">
-		date = CalculationPeriodSpec( equityPayout -> calculationPeriodDates, GetBusinessDateSpec()) -> unadjustedLastDate;
-		// TODO: we should verify the adequation between the observation source and the asset on the equity payout, but this requires some refactoring of 'ObservationSource' to make it work across assets (currently geared towards rates)
-
-	// TODO: when passing an observation source, we should verify that the observable matches the equity payout underlier
-
-	post-condition: <"Reset primitive before state must be correctly populated with the equity payout that is being reset.">
-		reset -> before -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout exists;
-		ExtractSingleEquityPayout( reset -> before -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout ) = equityPayout;
+	
+	condition date_is_period_end_date : 
+		<"The reset date must be the period end date on the equity payout.">
+		date = CalculationPeriod( equityPayout -> calculationPeriodDates ) -> endDate;	
+	
+	assign-output reset -> after -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> rateOfReturn : 
+		<"Reset primitive after state must be correctly populated with the equity payout including the rate of return.">
+		RateOfReturn( equityPayout )
+	
+	assign-output reset -> after -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> performance : 
+		<"Reset primitive after state must be correctly populated with the equity payout including the performance.">
+		EquityPerformance( equityPayout )
 		
-	post-condition: <"Reset primitive after state must be correctly poulated with the equity payout including the reset effect.">
-		reset -> after -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout exists;
-		// TO DO: Find a way to check that the new equity payout matches the previous one -excluding- the calculated fields
-		// ExtractSingleEquityPayout( reset -> before -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout ) = equityPayout;
-		ExtractSingleEquityPayout( reset -> after -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout ) -> rateOfReturn =
-			ResolveRateOfReturnSpec( equityPayout, date );
-		ExtractSingleEquityPayout( reset -> after -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout ) -> performance =
-			ResolveEquityPerformanceSpec( equityPayout, date );
-		ExtractSingleEquityPayout( reset -> after -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout ) -> equityCashSettlementAmount =
-			ResolveEquityCashSettlementAmountSpec( equityPayout, date );
+	assign-output reset -> after -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> equityCashSettlementAmount : 
+		<"Reset primitive after state must be correctly populated with the equity payout including the cash settlement amount.">
+		EquityCashSettlementAmount( equityPayout )
+		
+	assign-output reset -> before -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout : 
+	<"Reset primitive before state must be correctly populated with the equity payout that is being reset.">
+		equityPayout
 
-
-func CalculationPeriodSpec: <"A product agnostic approach to extracting the calculation period dates">
-	inputs:
-		periodDates CalculationPeriodDates (1..1) 
-		date date (1..1)
-	output:
-		result DateRange (1..1)
 
 
 func GetBusinessDateSpec: <"A function to be implemented by CDM users for systematic implementations to provide a business date">
 	output:
 		result date (1..1)
-
-
-func ResolveRateOfReturnSpec: <"Note: Body to be copied from RateOfReturn calculation once new Function Specification module in production.">
-	inputs:
-		equityPayout EquityPayout (1..1)
-		date date (1..1)
-	output:
-		rate number (1..1)
-
-func ResolveEquityPerformanceSpec: <"Note: Body to be copied from EquityPerformance calculation once new Function Specification module in production.">
-	inputs:
-		equityPayout EquityPayout (1..1)
-		date date (1..1)
-	output:
-		performance number (1..1)
-
-
-func ResolveEquityCashSettlementAmountSpec: <"Note: Body to be copied from EquityCashSettlementAmount calculation once new Function Specification module in production.">
-	inputs:
-		equityPayout EquityPayout (1..1)
-		date date (1..1)
-	output:
-		amount number (1..1)
 
 
 func EquityPriceObservation: <"Function specification for the observation of an equity price, based on the attributes of the 'EquityValuation' class.">
@@ -388,23 +343,6 @@ func NewContractFormationFromExecution: <"Function specification to create a ful
 	post-condition: <"When an overlaying legal agreement exists, the contract must reference it.">
 		if legalAgreement exists then contractFormation -> after -> contract -> documentation -> legalAgreement = legalAgreement else True;
 
-
-// TODO: add language feature to extract single items regardless of type
-func ExtractSingleEquityPayout:
-	inputs: equityPayout EquityPayout (1..*)
-	output: result EquityPayout (1..1)
-
-func ExtractSingleNumber:
-	inputs: numbers number (1..*)
-	output: n number (1..1)
-
-func ExtractSingleDate:
-	inputs: dates date (1..*)
-	output: d date (1..1)	
-
-func ExtractSingleExecutionState: <"Temporary measure to extract a single item from a list, when it is the only item in that list">
-	inputs: executionStates ExecutionState (1..*)
-	output: executionState ExecutionState (1..1)
 	
 /*
  * Function Specifications to create new allocation event
@@ -437,7 +375,7 @@ func NewAllocationPrimitive: <"Function specification to create the fully-formed
 		if 
 			trade -> execution exists
 		then 
-			QuantityEquals( allocationInstructions -> breakdowns -> quantity, trade -> execution -> quantity, precision)
+			QuantityEquals( Sum(allocationInstructions -> breakdowns -> quantity), trade -> execution -> quantity, precision)
 		else
 			True;
 
@@ -465,7 +403,10 @@ func Settle: <"Function specification to create the Transfer event based on an e
 			and transferEvent -> primitive -> transfer -> commodityTransfer is absent
 		else 
 			True;
-	
+
+	post-condition:
+        transferEvent -> lineage -> executionReference = execution;
+
 	post-condition:
 		transferEvent -> primitive -> transfer -> status = TransferStatusEnum.Settled;
 
