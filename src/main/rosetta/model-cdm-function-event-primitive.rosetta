@@ -23,9 +23,9 @@ func QuantityChange : <"A specification of the inputs, outputs and constraints w
 	condition: <"Non-zero quantity change">
 		GreaterThan(quantityChange, 0.0);
 
-	post-condition: <"Correctly populate the before attributes on the Primitive Event">
-		quantityChangePrimitive -> before = trade;
-	
+	assign-output quantityChangePrimitive -> before: <"Correctly populate the before attributes on the Primitive Event">
+		trade
+
 	post-condition: <"The resulting quantity must equal the original quantity plus the quantity change.">
 		ExtractQuantity( quantityChangePrimitive -> after ) = Plus( ExtractQuantity( trade ), quantityChange );
 	 
@@ -35,7 +35,7 @@ func QuantityChange : <"A specification of the inputs, outputs and constraints w
 	post-condition:
 		if quantityChangePrimitive -> after -> contract exists then quantityChangePrimitive -> after -> contract exists else False;  // should be included as part of the previous post-condition, but currently held back by grammar limitation
 
-		
+
 func ExtractQuantity: <"A function that abstracts away the details of how to retrieve quantity from a given product">
 	inputs:
 		trade Trade (1..1)
