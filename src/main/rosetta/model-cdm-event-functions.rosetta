@@ -1,14 +1,9 @@
 namespace "org.isda.cdm"
 version "${project.version}"
 
-basicType any
-
-func OnlyElement: 
-	inputs: input any (0..*)
-	output: out any (1..1)
 /*
  * Function Specifications to process Equity Swap lifecycle events (beyond execution) 
- *
+ * 
  * The sequence of business events being demonstrated will do the following:
  * 1) Create a new contract file that corresponds to an Equity Swap (Ingestion)
  * 2) Create a new MCA which attributes match the relevant terms of that Equity Swap (method TBD)
@@ -17,15 +12,13 @@ func OnlyElement:
  * 5) Create a new reset event based on that observation
  * 6) Create a new transfer event based on that reset
  */
-
-
 /*
  * Function Specifications for Equity Swap product creation
- *
+ * 
  * These should be implementation-specific, and exist in implementors' "private" extensions of the CDM rather than the public CDM
  * They are positionned here for illustration of the equity workflow as part of the CDM, until such time when they could be deemed to be moved
- *
-*/
+ * 
+ */
 func NewEquitySwapProduct: <"Function specification to create an Equity Swap according to the 2018 ISDA CDM Equity Confirmation Template, based on a minimum set of inputs which can (optionally) include a Master Confirmation Agreement. The inputs represent the minimum set of inputs required to create an Equity Swap, either based on an existing Master Confirmation Agreement or as a stand-alone Equity Swap">
 	inputs: 
 		underlier Equity (1..1) <"The underlying Equity asset for the swap.">
@@ -39,7 +32,7 @@ func NewEquitySwapProduct: <"Function specification to create an Equity Swap acc
 			product -> contractualProduct -> economicTerms -> payout -> equityPayout = NewSingleNameEquityPayout( underlier, masterConfirmation ) and
 			product -> contractualProduct -> economicTerms -> payout -> interestRatePayout = NewFloatingPayout( masterConfirmation )
 		else
-			product -> contractualProduct -> economicTerms -> payout -> equityPayout = NewSingleNameEquityPayout( underlier, EmptyEquitySwapMasterConfirmation2018() );
+			product -> contractualProduct -> economicTerms -> payout -> equityPayout = NewSingleNameEquityPayout( underlier, empty );
 		product -> contractualProduct -> economicTerms -> payout -> cashflow is absent;
 		product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout is absent;
 		product -> contractualProduct -> economicTerms -> payout -> forwardPayout is absent;
@@ -81,16 +74,6 @@ func NewFloatingPayout: <"Function specification to create the interest rate (fl
 			interestRatePayout -> calculationPeriodDates = masterConfirmation -> equityCalculationPeriod and
 			interestRatePayout -> paymentDates = masterConfirmation -> equityCashSettlementDates
 		else True;
-
-// TODO: allow for None keyword to denote not there
-func EmptyLegalAgreement:
-	output: 
-		result LegalAgreement (1..1)
-	
-func EmptyEquitySwapMasterConfirmation2018:
-	output: 
-		result EquitySwapMasterConfirmation2018 (1..1)
-
 
 /*
  * Business Event Function Specifications
@@ -433,7 +416,7 @@ func NewAllocationPrimitive: <"Function specification to create the fully-formed
 		if 
 			trade -> execution exists
 		then 
-			QuantityEquals( allocationInstructions -> breakdowns -> quantity, trade -> execution -> quantity, precision)
+			QuantityEquals( Sum(allocationInstructions -> breakdowns -> quantity), trade -> execution -> quantity, precision)
 		else
 			True;
 
