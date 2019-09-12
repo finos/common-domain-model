@@ -112,7 +112,6 @@ func Contractualisation : <"Function specification to create the fully-formed bu
 		event -> eventEffect -> productIdentifier is absent;
 		event -> eventEffect -> transfer is absent;
 
-
 func CashFlowTransferEvent: <"Function specification to build a cashflow transfer event following a reset event">
 	inputs:
 		contract Contract (1..1)
@@ -215,7 +214,7 @@ func EquityReset: <"Function specification for resetting an equity payout follow
 	assign-output reset -> after -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> equityCashSettlementAmount : 
 		<"Reset primitive after state must be correctly populated with the equity payout including the cash settlement amount.">
 		EquityCashSettlementAmount( equityPayout )
-		
+
 	assign-output reset -> before -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout : 
 	<"Reset primitive before state must be correctly populated with the equity payout that is being reset.">
 		equityPayout
@@ -383,7 +382,7 @@ func ContractFormationPrimitive: <"Function specification to create a fully-form
 		
 	assign-output contractFormation -> after -> contract -> party :
 		parties
-
+		
 
 /*
  * Function Specifications to create new allocation event
@@ -444,7 +443,10 @@ func Settle: <"Function specification to create the Transfer event based on an e
 			and transferEvent -> primitive -> transfer -> commodityTransfer is absent
 		else 
 			True;
-	
+
+	post-condition:
+        transferEvent -> lineage -> executionReference = execution;
+
 	post-condition:
 		transferEvent -> primitive -> transfer -> status = TransferStatusEnum.Settled;
 
