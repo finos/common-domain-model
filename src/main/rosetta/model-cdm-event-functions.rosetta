@@ -96,35 +96,39 @@ func EmptyEquitySwapMasterConfirmation2018:
  * Business Event Function Specifications
  */
 
-func NewContractEvent: <"Function specification to create the fully-formed business event of entering into a new contract, as a combination of an execution primitive and a contract formation primitive, when there is no allocation involved and the contractual parties are the execution parties. This specification is meant to replace the 'Inception' primitive that previously co-mingled these 2 primitives.">
+func Contractualisation : <"Function specification to create the fully-formed business event of entering into a new contract, as a combination of an execution primitive and a contract formation primitive, when there is no allocation involved and the contractual parties are the execution parties. This specification is meant to replace the 'Inception' primitive that previously co-mingled these 2 primitives.">
 	inputs:
-		product Product (1..1)
-		partyA Party (1..1)
-		partyB Party (1..1)
+		event Event (1..1)
 		legalAgreement LegalAgreement (0..1)
 		
 	output:
 		event Event (1..1)
 	
-	post-condition: <"Event must contain an execution primitive that corresponds to the product being contracted.">
-		event -> primitive -> execution = NewExecutionFromProduct( product, partyA, partyB );
+	alias execution :
+		event -> primitive -> execution -> after -> execution
+	
+	condition : <"Execution must be on a contractual product.">
+		execution -> product -> contractualProduct exists;
 		
-	post-condition: <"Event must contain a contract formation primitive based on the execution primitive and (optionally) the legal agreement.">
-		if legalAgreement exists then
-			event -> primitive -> contractFormation = NewContractFormationFromExecution( OnlyElement( event -> primitive -> execution -> after ), partyA, partyB, legalAgreement )
-		else
-			event -> primitive -> contractFormation = NewContractFormationFromExecution( OnlyElement( event -> primitive -> execution -> after ), partyA, partyB, EmptyLegalAgreement() );
-			
-	post-condition: <"When they exist, the parties on the event must match the party inputs.">
-		if event -> party exists then event -> party count = 2 and event -> party contains partyA and event -> party contains partyB else True;
+	condition : <"Ensures that parties to the Contract are defined in the Legal Agreement, if one is provided."> 
+		if legalAgreement exists then legalAgreement -> contractualParty contains execution -> party;
+		
+	assign-output event -> primitive -> contractFormation : <"Event must contain a contract formation primitive based on the execution primitive and an optional legal agreement.">
+		ContractFormationPrimitive( event -> primitive -> execution -> after only-element, execution -> party , legalAgreement )
+	
+	assign-output event -> party : <"The parties on the output Event must match the parties on the input Execution.">
+		execution -> party
+		
+	assign-output event -> lineage -> eventReference :
+		event
 		
 	post-condition: <"Event effect must point to the new execution and contract, and exclude other effects.">
 		event -> eventEffect -> contract = event -> primitive -> contractFormation -> after -> contract;
-		event -> eventEffect -> execution = event -> primitive -> execution -> after -> execution;
 		event -> eventEffect -> effectedExecution = event -> primitive -> contractFormation -> before -> execution;
 		event -> eventEffect -> effectedContract is absent;
 		event -> eventEffect -> productIdentifier is absent;
 		event -> eventEffect -> transfer is absent;
+
 
 func CashFlowTransferEvent: <"Function specification to build a cashflow transfer event following a reset event">
 	inputs:
@@ -168,9 +172,9 @@ func EquityResetEvent: <"Function specification for resetting an equity payout f
 
  	post-condition: <"Event must contain a reset primitive that is calculated based on the observation, and no other primitive.">
 		reset -> primitive -> reset = EquityReset( 
-				OnlyElement( contract -> contractualProduct -> economicTerms -> payout -> equityPayout ), 
-				OnlyElement( observation -> primitive -> observation -> observation ), 
-				OnlyElement( observation -> primitive -> observation -> date ) );
+				contract -> contractualProduct -> economicTerms -> payout -> equityPayout only-element, 
+				observation -> primitive -> observation -> observation only-element, 
+				observation -> primitive -> observation -> date only-element );
 		reset -> primitive -> reset only exists;
 		
 	post-condition: <"Event effect must include the notional reset on the contract.">
@@ -300,13 +304,12 @@ func ResolveTimeZoneFromTimeType: <"Function to resolve a TimeType into a TimeZo
 	output:
 		time TimeZone (1..1)
 
-
-func NewExecutionFromProduct: <"Function specification to compose an execution based on a minimum required set of inputs: product, quantity, parties etc.">
+func ExecutionPrimitive: <"Function specification to compose an execution based on a minimum required set of inputs: product, quantity, parties etc.">
 	inputs:
 		product Product (1..1) <"The financial product, either contractual or fungible, that is the subject of the execution.">
 		partyA Party (1..1) <"The parties to that execution, for now assumed Principal-Principal, i.e. no Agent.">
 		partyB Party (1..1) <"The parties to that execution, for now assumed Principal-Principal, i.e. no Agent.">
-		// quantity Quantity (1..1) /*<"The quantity of the financial product being executed.">*/
+		quantity ExecutionQuantity (1..1) <"The quantity of the financial product being executed.">
 		
 	output:
 		execution ExecutionPrimitive (1..1)
@@ -314,53 +317,91 @@ func NewExecutionFromProduct: <"Function specification to compose an execution b
 	condition: <"Parties must be different, and match the contractual parties to the legal agreement when the latter exists.">
 		partyA <> partyB;
 		
-	post-condition:
+	assign-output execution -> after -> execution -> product -> contractualProduct:
+		product -> contractualProduct
+
+	// TODO: update to below once rosetta-dsl issue #44 and #45 resolved
+	// execution -> after -> execution -> party contains [ partyA, partyB ]
+	//	
+	// assign-output execution -> after -> execution -> party:
+	//	[ partyA, partyB ]
+		
+	post-condition: <"The execution will be the first event in any post-trade life cycle and therefore does not have a before state. Once pre-trade elements are brought into CDM, the 'before' will be used to refer to the last of the pre-trade event states.">
 		execution -> before is absent;
 	
 	post-condition: <"Ensuring that the execution attributes are correctly populated on the output.">
-		// TODO: replace that with directly using the 'Product' attribute on the execution once the corresponding Primitive refactoring is in Prod.
-		// execution -> after -> execution -> contractualProduct = product -> contractualProduct;
 		if execution -> after -> execution -> party exists then
 			execution -> after -> execution -> party count = 2 and
 			execution -> after -> execution -> party contains partyA and
-			execution -> after -> execution -> party contains partyB
-		else True;
+			execution -> after -> execution -> party contains partyB;
+
+func ProductFromEquityMasterConfirmationAgreement:
+	inputs:
+		mca EquitySwapMasterConfirmation2018 (1..1)
+	output:
+		product Product (1..1)
+		
+	alias payout:
+		product -> contractualProduct -> economicTerms -> payout
+		
+	assign-output product -> contractualProduct -> economicTerms -> payout -> equityPayout -> returnType :
+		mca -> typeOfSwapElection
+	
+	assign-output product -> contractualProduct -> economicTerms -> payout -> equityPayout -> priceReturnTerms :
+		mca -> pricingMethodElection
+		
+	assign-output product -> contractualProduct -> economicTerms -> payout -> equityPayout -> settlementTerms :
+		mca -> settlementTerms
+	
+	assign-output product -> contractualProduct -> economicTerms -> payout -> equityPayout -> calculationPeriodDates :
+		mca -> equityCalculationPeriod
+		
+	assign-output product -> contractualProduct -> economicTerms -> payout -> equityPayout -> paymentDates :
+		mca -> equityCashSettlementDates
 
 
-func NewContractFormationFromExecution: <"Function specification to create a fully-formed contract following execution on a contractual product. The contract can optionally reference a further legal agreement (such as a CSA or a Master Confirmation).">
+func Execute:
+	inputs:
+		product Product (1..1) <"The financial product, either contractual or fungible, that is the subject of the execution.">
+		quantity ExecutionQuantity (1..1) <"The quantity of the financial product being executed.">
+		partyA Party (1..1) <"The parties to that execution, for now assumed Principal-Principal, i.e. no Agent.">
+		partyB Party (1..1) <"The parties to that execution, for now assumed Principal-Principal, i.e. no Agent.">
+	
+	output: 
+		execution Event (1..1)
+	
+	assign-output execution -> primitive -> execution:
+		ExecutionPrimitive(quantity, partyA, partyB, product)
+	
+	assign-output execution -> eventEffect -> execution :  
+		execution -> primitive -> execution -> after -> execution
+	
+	post-condition:
+		execution -> lineage is absent;
+
+
+func ContractFormationPrimitive: <"Function specification to create a fully-formed contract following execution on a contractual product. The contract can optionally reference a further legal agreement (such as a CSA or a Master Confirmation).">
 	inputs:
 		executionState ExecutionState (1..1)
-		partyA Party (1..1)
-		partyB Party (1..1)
+		parties Party (1..*)
 		legalAgreement LegalAgreement (0..1)
-		// TODO: remove 'legalAgreementreference' from the 'Execution' class, now that the tie-in to the contract happens as part of this Function Spec
 		
 	output:
 		contractFormation ContractFormation (1..1)
 	
-	condition: <"Parties must be different, and match the contractual parties to the legal agreement when those exists, and the parties to the execution when those exist.">
-		partyA <> partyB;
-		 if legalAgreement exists then
-		 	legalAgreement -> contractualParty contains partyA and
-		 	legalAgreement -> contractualParty contains partyB
-		 else True;
-		 if executionState -> execution -> party exists then 
-		 	executionState -> execution -> party contains partyA and
-		 	executionState -> execution -> party contains partyB
-		 else True;
-
-	// TODO: add once we've switched from 'ContractualProduct' to 'Product' on the 'Execution' class
-	// condition <"Execution must be on a contractual product.">
-	//	executionState -> execution -> contractualProduct exists;
-
-	post-condition: <"Before state must be the execution, and the contractual product in the after state must be the underlying product of the contract being formed.">
-		contractFormation -> before = executionState;
-		//contractFormation -> after -> contract -> contractualProduct = executionState -> execution -> contractualProduct;
+	assign-output contractFormation -> before : <"Before state must be the execution, and the contractual product in the after state must be the underlying product of the contract being formed.">
+		executionState
 		
-	post-condition: <"When an overlaying legal agreement exists, the contract must reference it.">
-		if legalAgreement exists then contractFormation -> after -> contract -> documentation -> legalAgreement = legalAgreement else True;
+	assign-output contractFormation -> after -> contract -> contractualProduct :
+		executionState -> execution -> product -> contractualProduct  
 
-	
+	assign-output contractFormation -> after -> contract -> documentation -> legalAgreement : <"When an overlaying legal agreement exists, the contract must reference it.">
+		if LegalAgreement exists then legalAgreement		
+		
+	assign-output contractFormation -> after -> contract -> party :
+		parties
+
+
 /*
  * Function Specifications to create new allocation event
  */
