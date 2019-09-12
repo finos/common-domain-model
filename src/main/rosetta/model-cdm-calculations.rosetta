@@ -18,26 +18,33 @@ func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirma
 
 func RateOfReturn: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 139. 'Rate Of Return' means, in respect of any Equity Valuation Date, the amount determined pursuant to the following formula: Rate Of Return = (Final Price - Initial Price) / Initial Price.">
 	inputs: equityPayout EquityPayout(1..1)
+	
 	output: rateOfReturn number (1..1)
 
-	alias businessDate: GetBusinessDateSpec()
-	alias calculationPeriod : EquityCalculationPeriod( equityPayout, businessDate)
+	alias businessDate: 
+		GetBusinessDateSpec()
+		
+	alias calculationPeriod : 
+		EquityCalculationPeriod( equityPayout, businessDate)
+		
 	alias initialPrice: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 102. 'Initial Price' means, in respect of the first Equity Valuation Date, the Specified Initial Price, and in respect of each subsequent Equity Valuation Date, the Final Price for the Equity Valuation Date immediately preceding such Equity Valuation Date."> 
-			if calculationPeriod -> isFirstPeriod = True then 
-				equityPayout -> priceReturnTerms -> initialPrice -> netPrice -> amount
-			else (
-				if equityPayout -> priceReturnTerms -> valuationPriceInterim exists then
-					ResolvePrice( equityPayout -> priceReturnTerms -> valuationPriceInterim, calculationPeriod -> startDate )
-				else 
-					ResolvePrice( equityPayout -> priceReturnTerms -> valuationPriceFinal, calculationPeriod -> startDate )
-			) 
+		if calculationPeriod -> isFirstPeriod = True then 
+			equityPayout -> priceReturnTerms -> initialPrice -> netPrice -> amount
+		else (
+			if equityPayout -> priceReturnTerms -> valuationPriceInterim exists then
+				ResolvePrice( equityPayout -> priceReturnTerms -> valuationPriceInterim, calculationPeriod -> startDate )
+			else 
+				ResolvePrice( equityPayout -> priceReturnTerms -> valuationPriceFinal, calculationPeriod -> startDate )
+		) 
 				
 	alias finalPrice: <"Part 1 Section 5, 'Pricing', of the 2018 ISDA CDM Equity Confirmation, Para 5.1, 'Determining Prices': Each price in relation to a Pricing Date shall be determined pursuant to the specified Pricing Method. Pricing Method for the final Equity Valuation Date shall be specified by the Final EVD Pricing Election and Pricing Method for any other Equity Valuation Date shall be 'Securities Close Pricing (Official)'"> 
-			if calculationPeriod -> isLastPeriod = True then
-				ResolvePrice( equityPayout -> priceReturnTerms -> valuationPriceFinal, calculationPeriod -> endDate )
-			else
-				ResolvePrice( equityPayout -> priceReturnTerms -> valuationPriceInterim, calculationPeriod -> endDate )
-	assign-output rateOfReturn : ( finalPrice - initialPrice ) / initialPrice 
+		if calculationPeriod -> isLastPeriod = True then
+			ResolvePrice( equityPayout -> priceReturnTerms -> valuationPriceFinal, calculationPeriod -> endDate )
+		else
+			ResolvePrice( equityPayout -> priceReturnTerms -> valuationPriceInterim, calculationPeriod -> endDate )
+			
+	assign-output rateOfReturn : 
+		( finalPrice - initialPrice ) / initialPrice 
 
 
 
