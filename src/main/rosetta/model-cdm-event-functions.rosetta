@@ -112,6 +112,7 @@ func Contractualisation : <"Function specification to create the fully-formed bu
 		event -> eventEffect -> productIdentifier is absent;
 		event -> eventEffect -> transfer is absent;
 
+
 func CashFlowTransferEvent: <"Function specification to build a cashflow transfer event following a reset event">
 	inputs:
 		contract Contract (1..1)
@@ -199,26 +200,54 @@ func EquityReset: <"Function specification for resetting an equity payout follow
 	output:
 		reset ResetPrimitive (1..1)
 	
+	alias effectiveDate :
+		equityPayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate
+		
+	alias stepSchedule :
+		equityPayout -> payoutQuantity -> quantitySchedule -> stepSchedule
+		
+	alias scheduleDates :
+		stepSchedule -> step -> stepDate
+	
+	// alias on the output
+	alias EquityPayout_after: <"TODO: should be usable in assign-output blocks.">
+		reset -> after -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
+		
+	alias EquityPayout_before: <"TODO: should be usable in assign-output blocks.">
+		reset -> before -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
+		
 	condition date_is_period_end_date : 
 		<"The reset date must be the period end date on the equity payout.">
-		date = CalculationPeriod( equityPayout -> calculationPeriodDates ) -> endDate;	
+		date = CalculationPeriod( equityPayout -> calculationPeriodDates ) -> endDate;
+		
+	condition : <"effective date should be in the past.">
+		if effectiveDate exists then effectiveDate < date;
+		
+	condition : <"A step schedule needs to have more than 1 date.">
+		if stepSchedule exists then scheduleDates count > 1;
+		
+	// TODO: use alias EquityPayout_before when feature is available
+	assign-output reset -> before -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout : 
+		<"Reset primitive before state must be correctly populated with the equity payout that is being reset.">
+		equityPayout
 	
+	// TODO: use alias EquityPayout_after when feature is available	
 	assign-output reset -> after -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> rateOfReturn : 
 		<"Reset primitive after state must be correctly populated with the equity payout including the rate of return.">
 		RateOfReturn( equityPayout )
-	
+		
+	// TODO: use alias EquityPayout_after when feature is available		
 	assign-output reset -> after -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> performance : 
 		<"Reset primitive after state must be correctly populated with the equity payout including the performance.">
 		EquityPerformance( equityPayout )
 		
+	// TODO: use alias EquityPayout_after when feature is available	
 	assign-output reset -> after -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> equityCashSettlementAmount : 
 		<"Reset primitive after state must be correctly populated with the equity payout including the cash settlement amount.">
 		EquityCashSettlementAmount( equityPayout )
-
-	assign-output reset -> before -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout : 
-	<"Reset primitive before state must be correctly populated with the equity payout that is being reset.">
-		equityPayout
-
+		
+	post-condition : <"updatedContract values between before and after should be different.">
+		reset -> after -> updatedContract <> reset -> before -> updatedContract;
 
 
 func GetBusinessDateSpec: <"A function to be implemented by CDM users for systematic implementations to provide a business date">
@@ -325,7 +354,8 @@ func ProductFromEquityMasterConfirmationAgreement:
 		
 	alias payout:
 		product -> contractualProduct -> economicTerms -> payout
-		
+	
+	// TODO: make reference to alias
 	assign-output product -> contractualProduct -> economicTerms -> payout -> equityPayout -> returnType :
 		mca -> typeOfSwapElection
 	
