@@ -79,40 +79,6 @@ func NewFloatingPayout: <"Function specification to create the interest rate (fl
  * Business Event Function Specifications
  */
 
-func Contractualisation : <"Function specification to create the fully-formed business event of entering into a new contract, as a combination of an execution primitive and a contract formation primitive, when there is no allocation involved and the contractual parties are the execution parties. This specification is meant to replace the 'Inception' primitive that previously co-mingled these 2 primitives.">
-	inputs:
-		event Event (1..1)
-		legalAgreement LegalAgreement (0..1)
-		
-	output:
-		event Event (1..1)
-	
-	alias execution :
-		event -> primitive -> execution -> after -> execution
-	
-	condition : <"Execution must be on a contractual product.">
-		execution -> product -> contractualProduct exists;
-		
-	condition : <"Ensures that parties to the Contract are defined in the Legal Agreement, if one is provided."> 
-		if legalAgreement exists then legalAgreement -> contractualParty contains execution -> party;
-		
-	assign-output event -> primitive -> contractFormation : <"Event must contain a contract formation primitive based on the execution primitive and an optional legal agreement.">
-		ContractFormationPrimitive( event -> primitive -> execution -> after only-element, execution -> party , legalAgreement )
-	
-	assign-output event -> party : <"The parties on the output Event must match the parties on the input Execution.">
-		execution -> party
-		
-	assign-output event -> lineage -> eventReference :
-		event
-		
-	post-condition: <"Event effect must point to the new execution and contract, and exclude other effects.">
-		event -> eventEffect -> contract = event -> primitive -> contractFormation -> after -> contract;
-		event -> eventEffect -> effectedExecution = event -> primitive -> contractFormation -> before -> execution;
-		event -> eventEffect -> effectedContract is absent;
-		event -> eventEffect -> productIdentifier is absent;
-		event -> eventEffect -> transfer is absent;
-
-
 func CashFlowTransferEvent: <"Function specification to build a cashflow transfer event following a reset event">
 	inputs:
 		contract Contract (1..1)
@@ -170,21 +136,6 @@ func EquityResetEvent: <"Function specification for resetting an equity payout f
 	post-condition: <"Event lineage must point to the contract being reset and the observation event.">
 		reset -> lineage -> contractReference = contract;
 		reset -> lineage -> eventReference = observation;
-
-/*
- * Primitive Event Function Specifications 
- */
-
-func CashflowTransfer: <"Function specification to generate a transfer primitive following a reset. The cashflow is being passed as an input, as currently the cashflow is meant to be part of the reset. At a later stage, we should pass the reset value while the cashflow calculation should be executed as part of this spec.">
-	inputs:
-		cashflow Cashflow (1..1)
-	output:
-		transfer TransferPrimitive (1..1)
-	
-	post-condition:
-		transfer -> settlementDate = cashflow -> cashflowDate;
-		transfer -> cashTransfer -> amount = cashflow -> cashflowAmount;
-		transfer -> cashTransfer -> payerReceiver = cashflow -> payerReceiver;
 
 
 // TODO: we should verify the adequation between the observation source and the asset on the equity payout, but this requires some refactoring of 'ObservationSource' to make it work across assets (currently geared towards rates)
@@ -248,6 +199,18 @@ func EquityReset: <"Function specification for resetting an equity payout follow
 		
 	post-condition : <"updatedContract values between before and after should be different.">
 		reset -> after -> updatedContract <> reset -> before -> updatedContract;
+
+
+func CashflowTransfer: <"Function specification to generate a transfer primitive following a reset. The cashflow is being passed as an input, as currently the cashflow is meant to be part of the reset. At a later stage, we should pass the reset value while the cashflow calculation should be executed as part of this spec.">
+	inputs:
+		cashflow Cashflow (1..1)
+	output:
+		transfer TransferPrimitive (1..1)
+	
+	post-condition:
+		transfer -> settlementDate = cashflow -> cashflowDate;
+		transfer -> cashTransfer -> amount = cashflow -> cashflowAmount;
+		transfer -> cashTransfer -> payerReceiver = cashflow -> payerReceiver;
 
 
 func GetBusinessDateSpec: <"A function to be implemented by CDM users for systematic implementations to provide a business date">
@@ -315,36 +278,6 @@ func ResolveTimeZoneFromTimeType: <"Function to resolve a TimeType into a TimeZo
 	output:
 		time TimeZone (1..1)
 
-func ExecutionPrimitive: <"Function specification to compose an execution based on a minimum required set of inputs: product, quantity, parties etc.">
-	inputs:
-		product Product (1..1) <"The financial product, either contractual or fungible, that is the subject of the execution.">
-		partyA Party (1..1) <"The parties to that execution, for now assumed Principal-Principal, i.e. no Agent.">
-		partyB Party (1..1) <"The parties to that execution, for now assumed Principal-Principal, i.e. no Agent.">
-		quantity ExecutionQuantity (1..1) <"The quantity of the financial product being executed.">
-		
-	output:
-		execution ExecutionPrimitive (1..1)
-		
-	condition: <"Parties must be different, and match the contractual parties to the legal agreement when the latter exists.">
-		partyA <> partyB;
-		
-	assign-output execution -> after -> execution -> product -> contractualProduct:
-		product -> contractualProduct
-
-	// TODO: update to below once rosetta-dsl issue #44 and #45 resolved
-	// execution -> after -> execution -> party contains [ partyA, partyB ]
-	//	
-	// assign-output execution -> after -> execution -> party:
-	//	[ partyA, partyB ]
-		
-	post-condition: <"The execution will be the first event in any post-trade life cycle and therefore does not have a before state. Once pre-trade elements are brought into CDM, the 'before' will be used to refer to the last of the pre-trade event states.">
-		execution -> before is absent;
-	
-	post-condition: <"Ensuring that the execution attributes are correctly populated on the output.">
-		if execution -> after -> execution -> party exists then
-			execution -> after -> execution -> party count = 2 and
-			execution -> after -> execution -> party contains partyA and
-			execution -> after -> execution -> party contains partyB;
 
 func ProductFromEquityMasterConfirmationAgreement:
 	inputs:
@@ -392,6 +325,73 @@ func Execute:
 		execution -> lineage is absent;
 
 
+func ExecutionPrimitive: <"Function specification to compose an execution based on a minimum required set of inputs: product, quantity, parties etc.">
+	inputs:
+		product Product (1..1) <"The financial product, either contractual or fungible, that is the subject of the execution.">
+		partyA Party (1..1) <"The parties to that execution, for now assumed Principal-Principal, i.e. no Agent.">
+		partyB Party (1..1) <"The parties to that execution, for now assumed Principal-Principal, i.e. no Agent.">
+		quantity ExecutionQuantity (1..1) <"The quantity of the financial product being executed.">
+		
+	output:
+		execution ExecutionPrimitive (1..1)
+		
+	condition: <"Parties must be different, and match the contractual parties to the legal agreement when the latter exists.">
+		partyA <> partyB;
+		
+	assign-output execution -> after -> execution -> product -> contractualProduct:
+		product -> contractualProduct
+
+	// TODO: update to below once rosetta-dsl issue #44 and #45 resolved
+	// execution -> after -> execution -> party contains [ partyA, partyB ]
+	//	
+	// assign-output execution -> after -> execution -> party:
+	//	[ partyA, partyB ]
+		
+	post-condition: <"The execution will be the first event in any post-trade life cycle and therefore does not have a before state. Once pre-trade elements are brought into CDM, the 'before' will be used to refer to the last of the pre-trade event states.">
+		execution -> before is absent;
+	
+	post-condition: <"Ensuring that the execution attributes are correctly populated on the output.">
+		if execution -> after -> execution -> party exists then
+			execution -> after -> execution -> party count = 2 and
+			execution -> after -> execution -> party contains partyA and
+			execution -> after -> execution -> party contains partyB;
+			
+
+func Contractualisation : <"Function specification to create the fully-formed business event of entering into a new contract, as a combination of an execution primitive and a contract formation primitive, when there is no allocation involved and the contractual parties are the execution parties. This specification is meant to replace the 'Inception' primitive that previously co-mingled these 2 primitives.">
+	inputs:
+		event Event (1..1)
+		legalAgreement LegalAgreement (0..1)
+		
+	output:
+		event Event (1..1)
+	
+	alias execution :
+		event -> primitive -> execution -> after -> execution
+	
+	condition : <"Input event must be an execution must be on a contractual product.">
+		execution exists;
+		execution -> product -> contractualProduct exists;
+		
+	condition : <"Ensures that parties to the Contract are defined in the Legal Agreement, if one is provided."> 
+		if legalAgreement exists then legalAgreement -> contractualParty contains execution -> party;
+		
+	assign-output event -> primitive -> contractFormation : <"Event must contain a contract formation primitive based on the execution primitive and an optional legal agreement.">
+		ContractFormationPrimitive( event -> primitive -> execution -> after only-element, execution -> party , legalAgreement )
+	
+	assign-output event -> party : <"The parties on the output Event must match the parties on the input Execution.">
+		execution -> party
+		
+	assign-output event -> lineage -> eventReference : <"Construct the lineage making reference to the input event">
+		event
+		
+	post-condition: <"Event effect must point to the new execution and contract, and exclude other effects.">
+		event -> eventEffect -> contract = event -> primitive -> contractFormation -> after -> contract;
+		event -> eventEffect -> effectedExecution = event -> primitive -> contractFormation -> before -> execution;
+		event -> eventEffect -> effectedContract is absent;
+		event -> eventEffect -> productIdentifier is absent;
+		event -> eventEffect -> transfer is absent;
+					
+					
 func ContractFormationPrimitive: <"Function specification to create a fully-formed contract following execution on a contractual product. The contract can optionally reference a further legal agreement (such as a CSA or a Master Confirmation).">
 	inputs:
 		executionState ExecutionState (1..1)
@@ -414,9 +414,6 @@ func ContractFormationPrimitive: <"Function specification to create a fully-form
 		parties
 		
 
-/*
- * Function Specifications to create new allocation event
- */
 func Allocate: <"Function specification to create the fully-formed business event of allocating an execution based on allocation instructions.">
 	inputs:
 		trade Trade (1..1) <"Block trade to be allocated.">
@@ -427,12 +424,10 @@ func Allocate: <"Function specification to create the fully-formed business even
 		event Event (1..1) <"Allocation event containing both the original block trade (with the status set to Allocated) and the set of allocated trades.">
 
 	post-condition:
-		event -> primitive -> allocation = NewAllocationPrimitive( trade, allocationInstructions, precision );
+		event -> primitive -> allocation = AllocationPrimitive( trade, allocationInstructions, precision );
 
-/*
- * Function Specifications to create new allocation primitive
- */
-func NewAllocationPrimitive: <"Function specification to create the fully-formed business event of allocating an execution based on allocation instructions.">
+
+func AllocationPrimitive: <"Function specification to create the fully-formed business event of allocating an execution based on allocation instructions.">
 	inputs:
 		trade Trade (1..1) <"Block trade to be allocated.">
 		allocationInstructions AllocationInstructions (1..1) <"Allocation instructions to be applied.">
@@ -442,19 +437,11 @@ func NewAllocationPrimitive: <"Function specification to create the fully-formed
 		primitive AllocationPrimitive (1..1) <"Allocation primitive containing both the original block trade (with the status set to Allocated) and the set of allocated trades.">
 
 	condition: <"The sum of allocation breakdown quantities must equal the block trade quantity.">
-		if 
-			trade -> execution exists
-		then 
-			QuantityEquals( Sum(allocationInstructions -> breakdowns -> quantity), trade -> execution -> quantity, precision)
-		else
-			True;
+		if trade -> execution exists then 
+			QuantityEquals( Sum( allocationInstructions -> breakdowns -> quantity ), trade -> execution -> quantity, precision);
 
-/*
- * Function Specifications to create new transfer event for a execution settlement.
- * 
- * Initial implementation only supports securities settled via delivery vs payment.
- */
-func Settle: <"Function specification to create the Transfer event based on an execution's settlement terms.">
+
+func Settle: <"Function specification to create the Transfer event based on an execution's settlement terms. Initial implementation only supports securities settled via delivery vs payment.">
 	inputs:
 		execution Execution (1..1) <"Execution to be settled.">
 
@@ -465,14 +452,10 @@ func Settle: <"Function specification to create the Transfer event based on an e
 		execution -> product -> security exists;
 	
 	post-condition:
-		if 
-			execution -> settlementTerms -> transferSettlementType = TransferSettlementEnum.DeliveryVersusPayment
-		then
+		if execution -> settlementTerms -> transferSettlementType = TransferSettlementEnum.DeliveryVersusPayment then
 			transferEvent -> primitive -> transfer -> cashTransfer exists 
 			and transferEvent -> primitive -> transfer -> securityTransfer exists 
-			and transferEvent -> primitive -> transfer -> commodityTransfer is absent
-		else 
-			True;
+			and transferEvent -> primitive -> transfer -> commodityTransfer is absent;
 
 	post-condition:
         transferEvent -> lineage -> executionReference = execution;
@@ -481,12 +464,7 @@ func Settle: <"Function specification to create the Transfer event based on an e
 		transferEvent -> primitive -> transfer -> status = TransferStatusEnum.Settled;
 
 
-/*
- * Function Specifications to create new transfer primitive.
- * 
- * Initial implementation only supports creating transfer primitives from securities settled via delivery vs payment.
- */
-func NewTransferPrimitive: <"Function specification to create the Transfer primitive based on an execution's settlement terms and instructions.">
+func TransferPrimitive: <"Function specification to create the Transfer primitive based on an execution's settlement terms and instructions. Initial implementation only supports creating transfer primitives from securities settled via delivery vs payment.">
 	inputs:
 		execution Execution (1..1)
 	
@@ -494,13 +472,8 @@ func NewTransferPrimitive: <"Function specification to create the Transfer primi
 		transferPrimitive TransferPrimitive (1..1) <"Transfer primitive generated from execution.">
 
 	post-condition:
-		if 
-			execution -> product -> security exists
-			and execution -> settlementTerms -> transferSettlementType = TransferSettlementEnum.DeliveryVersusPayment
-		then
+		if execution -> product -> security exists and execution -> settlementTerms -> transferSettlementType = TransferSettlementEnum.DeliveryVersusPayment then
 			transferPrimitive -> cashTransfer exists 
 			and transferPrimitive -> securityTransfer exists 
 			and transferPrimitive -> commodityTransfer is absent
-			and transferPrimitive -> status = TransferStatusEnum.Settled
-		else 
-			True;
+			and transferPrimitive -> status = TransferStatusEnum.Settled;
