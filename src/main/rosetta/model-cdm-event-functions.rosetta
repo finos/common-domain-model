@@ -1,309 +1,6 @@
 namespace "org.isda.cdm"
 version "${project.version}"
 
-/*
- * Function Specifications to process Equity Swap lifecycle events (beyond execution) 
- * 
- * The sequence of business events being demonstrated will do the following:
- * 1) Create a new contract file that corresponds to an Equity Swap (Ingestion)
- * 2) Create a new MCA which attributes match the relevant terms of that Equity Swap (method TBD)
- * 3) Create a new contract event using the NewContractEvent function, that takes its inputs (product, parties, legal agreement) as references from the above
- * 4) Create a new observation event for the equity price
- * 5) Create a new reset event based on that observation
- * 6) Create a new transfer event based on that reset
- */
-/*
- * Function Specifications for Equity Swap product creation
- * 
- * These should be implementation-specific, and exist in implementors' "private" extensions of the CDM rather than the public CDM
- * They are positionned here for illustration of the equity workflow as part of the CDM, until such time when they could be deemed to be moved
- * 
- */
-func NewEquitySwapProduct: <"Function specification to create an Equity Swap according to the 2018 ISDA CDM Equity Confirmation Template, based on a minimum set of inputs which can (optionally) include a Master Confirmation Agreement. The inputs represent the minimum set of inputs required to create an Equity Swap, either based on an existing Master Confirmation Agreement or as a stand-alone Equity Swap">
-	inputs: 
-		underlier Equity (1..1) <"The underlying Equity asset for the swap.">
-		masterConfirmation EquitySwapMasterConfirmation2018 (0..1) <"An (optional) pointer to the Master Confirmation Agreement, if any, that holds further inputs to the Equity Swap">
-		
-	output:
-		product Product (1..1)
-		
-	post-condition: <"Equity and interest rate payouts must be set-up according to their corresponding payout specifications, and other payout types must be absent.">
-		if masterConfirmation exists then
-			product -> contractualProduct -> economicTerms -> payout -> equityPayout = NewSingleNameEquityPayout( underlier, masterConfirmation ) and
-			product -> contractualProduct -> economicTerms -> payout -> interestRatePayout = NewFloatingPayout( masterConfirmation )
-		else
-			product -> contractualProduct -> economicTerms -> payout -> equityPayout = NewSingleNameEquityPayout( underlier, empty );
-		product -> contractualProduct -> economicTerms -> payout -> cashflow is absent;
-		product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout is absent;
-		product -> contractualProduct -> economicTerms -> payout -> forwardPayout is absent;
-		product -> contractualProduct -> economicTerms -> payout -> optionPayout is absent;	
-		
-	post-condition: <"Non-contractual product types must be absent.">
-		product -> foreignExchange is absent;
-		product -> index is absent;
-		product -> loan is absent;
-		product -> security is absent;
-		
-		
-func NewSingleNameEquityPayout: <"Function specification to create the equity payout part of an Equity Swap according to the 2018 ISDA CDM Equity Confirmation template.">
-	inputs:
-		underlier Equity (1..1)
-		masterConfirmation EquitySwapMasterConfirmation2018 (0..1)
-		
-	output:
-		equityPayout EquityPayout (1..1)
-		
-	post-condition: <"Equity payout must inherit terms from the Master Confirmation Agreement when it exists.">
-		if masterConfirmation exists then
-			equityPayout -> returnType = masterConfirmation -> typeOfSwapElection and
-			equityPayout -> calculationPeriodDates = masterConfirmation -> equityCalculationPeriod and
-			equityPayout -> paymentDates = masterConfirmation -> equityCashSettlementDates and
-			equityPayout -> settlementTerms = masterConfirmation -> settlementTerms
-		else True;
-		
-	post-condition: <"Equity payout must be single name on the provided equity underlier.">
-		equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> equity = underlier;
-		
-		
-func NewFloatingPayout: <"Function specification to create the interest rate (floating) payout part of an Equity Swap according to the 2018 ISDA CDM Equity Confirmation template.">
-	inputs: masterConfirmation EquitySwapMasterConfirmation2018 (0..1)
-	output: interestRatePayout InterestRatePayout (1..1)
-
-	post-condition: <"Interest rate payout must inherit terms from the Master Confirmation Agreement when it exists.">
-		if masterConfirmation exists then
-			interestRatePayout -> calculationPeriodDates = masterConfirmation -> equityCalculationPeriod and
-			interestRatePayout -> paymentDates = masterConfirmation -> equityCashSettlementDates
-		else True;
-
-/*
- * Business Event Function Specifications
- */
-
-func CashFlowTransferEvent: <"Function specification to build a cashflow transfer event following a reset event">
-	inputs:
-		contract Contract (1..1)
-		reset Event (1..1)
-	output:
-		transfer Event (1..1)
-
-	condition: <"There must be a reset primitive on the event input, and the contract being referenced must be consistent between those events.">
-		reset -> primitive -> reset exists;
-		reset -> lineage -> contractReference = contract;
-
-	post-condition: <"Event must contain a transfer primitive populated with the cashflow, and no other primitive.">
-		// TO DO: now that we have extracted cashflow calculation from the reset event, find a way to hook-up the cashflow calculation back into the transfer event
-		// transfer -> primitive -> transfer = CashflowTransfer( reset -> primitive -> reset -> cashflow );
-		transfer -> primitive -> transfer only exists;
-
-	post-condition: <"Event effect must include the contract generating the cashflow.">
-        transfer -> eventEffect -> effectedContract = contract;
-        transfer -> eventEffect -> contract = contract;
-        transfer -> eventEffect -> effectedExecution is absent;
-        transfer -> eventEffect -> execution is absent;
-        transfer -> eventEffect -> productIdentifier is absent;
-
-	post-condition: <"Event lineage must point to the contract that generated the cashflow and the reset event.">
-		transfer -> lineage -> contractReference = contract;
-		transfer -> lineage -> eventReference = reset;
-
-
-func EquityResetEvent: <"Function specification for resetting an equity payout following an equity price observation, which means calculating the equity performance and resetting the equity notional.">
-	inputs:
-		contract Contract (1..1)
-		observation Event (1..1)
-		
-	output:
-		reset Event (1..1)
-
-	condition: <"There must be an equity payout on the contract, and the event input must contain an observation.">
-		contract -> contractualProduct -> economicTerms -> payout -> equityPayout exists;
-		observation -> primitive -> observation exists;
-
- 	post-condition: <"Event must contain a reset primitive that is calculated based on the observation, and no other primitive.">
-		reset -> primitive -> reset = EquityReset( 
-				contract -> contractualProduct -> economicTerms -> payout -> equityPayout only-element, 
-				observation -> primitive -> observation -> observation only-element, 
-				observation -> primitive -> observation -> date only-element );
-		reset -> primitive -> reset only exists;
-		
-	post-condition: <"Event effect must include the notional reset on the contract.">
-		reset -> eventEffect -> effectedContract = contract;
-		reset -> eventEffect -> contract = contract;
-		reset -> eventEffect -> effectedExecution is absent;
-		reset -> eventEffect -> execution is absent;
-		reset -> eventEffect -> productIdentifier is absent;
-		
-	post-condition: <"Event lineage must point to the contract being reset and the observation event.">
-		reset -> lineage -> contractReference = contract;
-		reset -> lineage -> eventReference = observation;
-
-
-// TODO: we should verify the adequation between the observation source and the asset on the equity payout, but this requires some refactoring of 'ObservationSource' to make it work across assets (currently geared towards rates)
-// TODO: when passing an observation source, we should verify that the observable matches the equity payout underlier
-// QUESTION: is it better to directly pass the observation's date and number in this function spec, or the 'ObservatioPrimitive' object to then extract its attribute?
-func EquityReset: <"Function specification for resetting an equity payout following an equity price observation. This function only concerns itself with building the primitive, which currently does not affect the underlying contract (until such time when 'ResetPrimitive' is refactored to directly accomodate a 'before' and 'after' states). The contract effect will be part of the 'EventEffect' attribute on the a fully-formed Business Event that is built by the 'EquityResetEvent' function spec.">
-	inputs:
-		equityPayout EquityPayout (1..1)
-		// source ObservationSource (1..1)
-		observation number (1..1)
-		date date (1..1)		
-	
-	output:
-		reset ResetPrimitive (1..1)
-	
-	alias effectiveDate :
-		equityPayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate
-		
-	alias stepSchedule :
-		equityPayout -> payoutQuantity -> quantitySchedule -> stepSchedule
-		
-	alias scheduleDates :
-		stepSchedule -> step -> stepDate
-	
-	// alias on the output
-	alias EquityPayout_after: <"TODO: should be usable in assign-output blocks.">
-		reset -> after -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
-		
-	alias EquityPayout_before: <"TODO: should be usable in assign-output blocks.">
-		reset -> before -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
-		
-	condition date_is_period_end_date : 
-		<"The reset date must be the period end date on the equity payout.">
-		date = CalculationPeriod( equityPayout -> calculationPeriodDates ) -> endDate;
-		
-	condition : <"effective date should be in the past.">
-		if effectiveDate exists then effectiveDate < date;
-		
-	condition : <"A step schedule needs to have more than 1 date.">
-		if stepSchedule exists then scheduleDates count > 1;
-		
-	// TODO: use alias EquityPayout_before when feature is available
-	assign-output reset -> before -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout : 
-		<"Reset primitive before state must be correctly populated with the equity payout that is being reset.">
-		equityPayout
-	
-	// TODO: use alias EquityPayout_after when feature is available	
-	assign-output reset -> after -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> rateOfReturn : 
-		<"Reset primitive after state must be correctly populated with the equity payout including the rate of return.">
-		RateOfReturn( equityPayout )
-		
-	// TODO: use alias EquityPayout_after when feature is available		
-	assign-output reset -> after -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> performance : 
-		<"Reset primitive after state must be correctly populated with the equity payout including the performance.">
-		EquityPerformance( equityPayout )
-		
-	// TODO: use alias EquityPayout_after when feature is available	
-	assign-output reset -> after -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> equityCashSettlementAmount : 
-		<"Reset primitive after state must be correctly populated with the equity payout including the cash settlement amount.">
-		EquityCashSettlementAmount( equityPayout )
-		
-	post-condition : <"updatedContract values between before and after should be different.">
-		reset -> after -> updatedContract <> reset -> before -> updatedContract;
-
-
-func CashflowTransfer: <"Function specification to generate a transfer primitive following a reset. The cashflow is being passed as an input, as currently the cashflow is meant to be part of the reset. At a later stage, we should pass the reset value while the cashflow calculation should be executed as part of this spec.">
-	inputs:
-		cashflow Cashflow (1..1)
-	output:
-		transfer TransferPrimitive (1..1)
-	
-	post-condition:
-		transfer -> settlementDate = cashflow -> cashflowDate;
-		transfer -> cashTransfer -> amount = cashflow -> cashflowAmount;
-		transfer -> cashTransfer -> payerReceiver = cashflow -> payerReceiver;
-
-
-func GetBusinessDateSpec: <"A function to be implemented by CDM users for systematic implementations to provide a business date">
-	output:
-		result date (1..1)
-
-
-func EquityPriceObservation: <"Function specification for the observation of an equity price, based on the attributes of the 'EquityValuation' class.">
-	inputs:
-		equity Equity (1..1)
-		valuationDate AdjustableOrRelativeDate (1..1)
-		valuationTime BusinessCenterTime (0..1)
-		timeType TimeTypeEnum (0..1)
-		determinationMethod DeterminationMethodEnum (1..1)
-		
-	output:
-		observation ObservationPrimitive (1..1)
-		
-	condition: <"Optional choice between directly passing a time or a timeType, which has to be resolved into a time based on the determination method.">
-		if valuationTime exists then timeType is absent
-		else if timeType exists then valuationTime is absent
-		else False;
-		
-	post-condition: <"The date and time must be properly resolved as attributes on the output.">
-		observation -> date = ToAdjustedDateFunction( valuationDate );
-		if valuationTime exists then
-			observation -> time = TimeZoneFromBusinessCenterTime( valuationTime )
-		else
-			observation -> time = ResolveTimeZoneFromTimeType( timeType, determinationMethod );
-			
-	post-condition: <"The number recorded in the observation must match the number fetched from the source.">
-		observation -> observation = EquitySpot( equity, observation -> date, observation -> time );
-
-
-// should be provided as a fully specified function (with a body, like calculation) with logic based on the direction of RateOfReturn
-func EquityAmountPayer: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 71. ' Equity Amount Payer' means: if the Rate Of Return is positive, then the Short Party shall be the Equity Amount Payer; and if the Rate Of Return is negative, then the Long Party shall be the Equity Amount Payer.">
-	inputs: equityPayout EquityPayout (1..1) 
-	output: payerReceiver PayerReceiver (1..1)
-
-
-func ToAdjustedDateFunction:
-	inputs: terminationDate AdjustableOrRelativeDate (1..1)
-	output: adjustedDate date (1..1)
-		
-
-func EquitySpot: <"An external market data lookup for the spot equity price of the reference asset based on a determination method.">
-	inputs:
-		equity Equity (1..1)
-		date date (1..1)
-		time TimeZone (1..1 ) 
-		
-	output: spot number (1..1)
-
-
-func TimeZoneFromBusinessCenterTime: <"Function to resolve a time passed as BusinessCenterTime into a TimeZone time.">
-	inputs: time BusinessCenterTime (1..1)
-	output: result TimeZone (1..1)
-
-
-func ResolveTimeZoneFromTimeType: <"Function to resolve a TimeType into a TimeZone based on a determination method.">
-	inputs:
-		timeType TimeTypeEnum (1..1)
-		determinationMethod DeterminationMethodEnum (1..1)
-		
-	output:
-		time TimeZone (1..1)
-
-
-func ProductFromEquityMasterConfirmationAgreement:
-	inputs:
-		mca EquitySwapMasterConfirmation2018 (1..1)
-	output:
-		product Product (1..1)
-		
-	alias payout:
-		product -> contractualProduct -> economicTerms -> payout
-		
-	// TODO: make reference to alias
-	assign-output product -> contractualProduct -> economicTerms -> payout -> equityPayout -> returnType :
-		mca -> typeOfSwapElection
-	
-	assign-output product -> contractualProduct -> economicTerms -> payout -> equityPayout -> priceReturnTerms :
-		mca -> pricingMethodElection
-		
-	assign-output product -> contractualProduct -> economicTerms -> payout -> equityPayout -> settlementTerms :
-		mca -> settlementTerms
-	
-	assign-output product -> contractualProduct -> economicTerms -> payout -> equityPayout -> calculationPeriodDates :
-		mca -> equityCalculationPeriod
-		
-	assign-output product -> contractualProduct -> economicTerms -> payout -> equityPayout -> paymentDates :
-		mca -> equityCashSettlementDates
-		
 
 func Execute:
 	inputs:
@@ -316,7 +13,7 @@ func Execute:
 		execution Event (1..1)
 	
 	assign-output execution -> primitive -> execution:
-		ExecutionPrimitive(product, partyA, partyB, quantity)
+		NewExecutionPrimitive(product, partyA, partyB, quantity)
 	
 	assign-output execution -> eventEffect -> execution :  
 		execution -> primitive -> execution -> after -> execution
@@ -325,7 +22,7 @@ func Execute:
 		execution -> lineage is absent;
 
 
-func ExecutionPrimitive: <"Function specification to compose an execution based on a minimum required set of inputs: product, quantity, parties etc.">
+func NewExecutionPrimitive: <"Function specification to compose an execution based on a minimum required set of inputs: product, quantity, parties etc.">
 	inputs:
 		product Product (1..1) <"The financial product, either contractual or fungible, that is the subject of the execution.">
 		partyA Party (1..1) <"The parties to that execution, for now assumed Principal-Principal, i.e. no Agent.">
@@ -376,7 +73,7 @@ func Contractualisation : <"Function specification to create the fully-formed bu
 		if legalAgreement exists then legalAgreement -> contractualParty contains execution -> party;
 		
 	assign-output event -> primitive -> contractFormation : <"Event must contain a contract formation primitive based on the execution primitive and an optional legal agreement.">
-		ContractFormationPrimitive( event -> primitive -> execution -> after only-element, execution -> party , legalAgreement )
+		NewContractFormationPrimitive( event -> primitive -> execution -> after only-element, execution -> party , legalAgreement )
 	
 	assign-output event -> party : <"The parties on the output Event must match the parties on the input Execution.">
 		execution -> party
@@ -384,7 +81,7 @@ func Contractualisation : <"Function specification to create the fully-formed bu
 	assign-output event -> lineage -> eventReference : <"Construct the lineage making reference to the input event">
 		event
 		
-	post-condition: <"Event effect must point to the new execution and contract, and exclude other effects.">
+	post-condition : <"Event effect must point to the new execution and contract, and exclude other effects.">
 		event -> eventEffect -> contract = event -> primitive -> contractFormation -> after -> contract;
 		event -> eventEffect -> effectedExecution = event -> primitive -> contractFormation -> before -> execution;
 		event -> eventEffect -> effectedContract is absent;
@@ -392,7 +89,7 @@ func Contractualisation : <"Function specification to create the fully-formed bu
 		event -> eventEffect -> transfer is absent;
 					
 					
-func ContractFormationPrimitive: <"Function specification to create a fully-formed contract following execution on a contractual product. The contract can optionally reference a further legal agreement (such as a CSA or a Master Confirmation).">
+func NewContractFormationPrimitive : <"Function specification to create a fully-formed contract following execution on a contractual product. The contract can optionally reference a further legal agreement (such as a CSA or a Master Confirmation).">
 	inputs:
 		executionState ExecutionState (1..1)
 		parties Party (1..*)
@@ -412,6 +109,90 @@ func ContractFormationPrimitive: <"Function specification to create a fully-form
 		
 	assign-output contractFormation -> after -> contract -> party :
 		parties
+
+
+func Reset :
+	inputs: 
+		previous Event (1..1)
+			
+	output: 
+		reset Event (1..1)
+		
+	assign-output reset -> lineage -> eventReference : 
+		previous
+		
+	assign-output reset -> primitive -> reset : 
+		NewResetPrimitive( ExtractContractState( previous ) )
+	
+	
+func ExtractContractState : <"Extracts a single product, given an event. This function navigates all the possible paths to product and extracts a single value.">
+	inputs: event Event (1..1)
+	output: contractState ContractState (1..1)	
+
+
+func NewResetPrimitive :
+	inputs:
+		contractState ContractState (1..1)
+	
+	output:
+		resetPrimitive ResetPrimitive (1..1)
+		
+	alias contract :
+		contractState -> contract
+	
+	assign-output resetPrimitive -> before :
+		contractState
+		
+	assign-output resetPrimitive -> after -> contract :
+		contractState -> contract
+		
+	assign-output resetPrimitive -> after -> updatedContract :
+		ComputeResetValue( contract )  
+	
+	
+func ComputeResetValue : <"Left to the system implementor to determine how to reset the contract in question and how to construct the updated contract."> 
+	inputs: contract Contract (1..1)
+	output: updatedContract Contract (1..1) <"A copy of the original contract, with updated values were applicable.">
+	
+
+func CashFlowTransferEvent: <"Function specification to build a cashflow transfer event following a reset event">
+	inputs:
+		contract Contract (1..1)
+		reset Event (1..1)
+	output:
+		transfer Event (1..1)
+
+	condition: <"There must be a reset primitive on the event input, and the contract being referenced must be consistent between those events.">
+		reset -> primitive -> reset exists;
+		reset -> lineage -> contractReference = contract;
+
+	post-condition: <"Event must contain a transfer primitive populated with the cashflow, and no other primitive.">
+		// TO DO: now that we have extracted cashflow calculation from the reset event, find a way to hook-up the cashflow calculation back into the transfer event
+		// transfer -> primitive -> transfer = CashflowTransfer( reset -> primitive -> reset -> cashflow );
+		transfer -> primitive -> transfer only exists;
+
+	post-condition: <"Event effect must include the contract generating the cashflow.">
+        transfer -> eventEffect -> effectedContract = contract;
+        transfer -> eventEffect -> contract = contract;
+        transfer -> eventEffect -> effectedExecution is absent;
+        transfer -> eventEffect -> execution is absent;
+        transfer -> eventEffect -> productIdentifier is absent;
+
+	post-condition: <"Event lineage must point to the contract that generated the cashflow and the reset event.">
+		transfer -> lineage -> contractReference = contract;
+		transfer -> lineage -> eventReference = reset;
+
+
+func CashflowTransfer: <"Function specification to generate a transfer primitive following a reset. The cashflow is being passed as an input, as currently the cashflow is meant to be part of the reset. At a later stage, we should pass the reset value while the cashflow calculation should be executed as part of this spec.">
+	inputs:
+		cashflow Cashflow (1..1)
+	output:
+		transfer TransferPrimitive (1..1)
+	
+	post-condition:
+		transfer -> settlementDate = cashflow -> cashflowDate;
+		transfer -> cashTransfer -> amount = cashflow -> cashflowAmount;
+		transfer -> cashTransfer -> payerReceiver = cashflow -> payerReceiver;
 		
 
 func Allocate: <"Function specification to create the fully-formed business event of allocating an execution based on allocation instructions.">
@@ -424,10 +205,10 @@ func Allocate: <"Function specification to create the fully-formed business even
 		event Event (1..1) <"Allocation event containing both the original block trade (with the status set to Allocated) and the set of allocated trades.">
 
 	post-condition:
-		event -> primitive -> allocation = AllocationPrimitive( trade, allocationInstructions, precision );
+		event -> primitive -> allocation = NewAllocationPrimitive( trade, allocationInstructions, precision );
 
 
-func AllocationPrimitive: <"Function specification to create the fully-formed business event of allocating an execution based on allocation instructions.">
+func NewAllocationPrimitive: <"Function specification to create the fully-formed business event of allocating an execution based on allocation instructions.">
 	inputs:
 		trade Trade (1..1) <"Block trade to be allocated.">
 		allocationInstructions AllocationInstructions (1..1) <"Allocation instructions to be applied.">
@@ -464,7 +245,7 @@ func Settle: <"Function specification to create the Transfer event based on an e
 		transferEvent -> primitive -> transfer -> status = TransferStatusEnum.Settled;
 
 
-func TransferPrimitive: <"Function specification to create the Transfer primitive based on an execution's settlement terms and instructions. Initial implementation only supports creating transfer primitives from securities settled via delivery vs payment.">
+func NewTransferPrimitive: <"Function specification to create the Transfer primitive based on an execution's settlement terms and instructions. Initial implementation only supports creating transfer primitives from securities settled via delivery vs payment.">
 	inputs:
 		execution Execution (1..1)
 	
