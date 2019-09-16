@@ -287,7 +287,7 @@ func ProductFromEquityMasterConfirmationAgreement:
 		
 	alias payout:
 		product -> contractualProduct -> economicTerms -> payout
-	
+		
 	// TODO: make reference to alias
 	assign-output product -> contractualProduct -> economicTerms -> payout -> equityPayout -> returnType :
 		mca -> typeOfSwapElection
@@ -303,7 +303,7 @@ func ProductFromEquityMasterConfirmationAgreement:
 		
 	assign-output product -> contractualProduct -> economicTerms -> payout -> equityPayout -> paymentDates :
 		mca -> equityCashSettlementDates
-
+		
 
 func Execute:
 	inputs:
@@ -316,7 +316,7 @@ func Execute:
 		execution Event (1..1)
 	
 	assign-output execution -> primitive -> execution:
-		ExecutionPrimitive(quantity, partyA, partyB, product)
+		ExecutionPrimitive(product, partyA, partyB, quantity)
 	
 	assign-output execution -> eventEffect -> execution :  
 		execution -> primitive -> execution -> after -> execution
@@ -408,7 +408,7 @@ func ContractFormationPrimitive: <"Function specification to create a fully-form
 		executionState -> execution -> product -> contractualProduct  
 
 	assign-output contractFormation -> after -> contract -> documentation -> legalAgreement : <"When an overlaying legal agreement exists, the contract must reference it.">
-		if LegalAgreement exists then legalAgreement		
+		if legalAgreement exists then legalAgreement		
 		
 	assign-output contractFormation -> after -> contract -> party :
 		parties
