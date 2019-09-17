@@ -19,13 +19,10 @@ func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirma
 func RateOfReturn: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 139. 'Rate Of Return' means, in respect of any Equity Valuation Date, the amount determined pursuant to the following formula: Rate Of Return = (Final Price - Initial Price) / Initial Price.">
 	inputs: equityPayout EquityPayout(1..1)
 	
-	output: rateOfReturn number (1..1)
-
-	alias businessDate: 
-		GetBusinessDateSpec()
+	output: rateOfReturn number (1..1)		
 		
 	alias calculationPeriod : 
-		EquityCalculationPeriod( equityPayout, businessDate)
+		EquityCalculationPeriod( equityPayout, GetBusinessDate() )
 		
 	alias initialPrice: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 102. 'Initial Price' means, in respect of the first Equity Valuation Date, the Specified Initial Price, and in respect of each subsequent Equity Valuation Date, the Final Price for the Equity Valuation Date immediately preceding such Equity Valuation Date."> 
 		if calculationPeriod -> isFirstPeriod = True then 
@@ -48,11 +45,18 @@ func RateOfReturn: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation 
 
 
 func EquityNotionalAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 74. 'Equity Notional Amount' means the Number Of Securities times the Initial Price, adjusted, if applicable, as provided in Part 1 Section 2.2, 'Equity Notional Reset'. If 'With Reset' is the Equity Notional Reset Election, then in respect of each Equity Cash Settlement Date: (i) the Equity Notional Amount applicable in respect of the first Equity Cash Settlement Date will be the amount specified as such in the definition of Equity Notional Amount; (ii) the Equity Notional Amount applicable in respect of each subsequent Equity Cash Settlement Date will be the sum of (a) the Equity Notional Amount in respect of the prior Equity Cash Settlement Date and (b) the Equity Performance, whether positive or negative, in respect of the prior Equity Cash Settlement Date; and (iii)	the Floating Notional Amount will be adjusted as provided in sub-clauses (i) and (ii) above as though it were an Equity Notional Amount.">
-	inputs: equityPayout EquityPayout(1..1)
-	output: equityNotionalAmount number (1..1)
+	inputs: 
+		equityPayout EquityPayout(1..1)
+		
+	output: 
+		equityNotionalAmount number (1..1)
+		
 	alias numberOfSecurities : 1.0 // equityPayout -> underlier -> singleUnderlier -> quantity -> amount
+	
 	alias initialPrice : equityPayout -> priceReturnTerms -> initialPrice -> netPrice -> amount
-	assign-output equityNotionalAmount : numberOfSecurities * initialPrice
+	
+	assign-output equityNotionalAmount : 
+		numberOfSecurities * initialPrice
 
 
 func ResolvePrice: <"Function specification to return the price on a valuation date based on an EquityValuation method. Implementor of this function should make use of the observation primitive and fetch the price based on an observation key.">
@@ -277,7 +281,7 @@ class CalculationPeriodData {
 }
 
 
-func GetBusinessDateSpec: <"A function to be implemented by CDM users for systematic implementations to provide a business date">
+func GetBusinessDate : <"A function to be implemented by CDM users for systematic implementations to provide a business date">
 	output:
 		result date (1..1)
 		

@@ -2,12 +2,13 @@ namespace "org.isda.cdm"
 version "${project.version}"
 
 /*
- * Function Specifications to process Equity Swap lifecycle events (beyond execution) 
+ * Function Specifications to process Equity Swap life cycle events (beyond execution) 
  * 
  * The sequence of business events being demonstrated will do the following:
  * 1) Create a new contract file that corresponds to an Equity Swap (Ingestion)
  * 2) Create a new MCA which attributes match the relevant terms of that Equity Swap (method TBD)
- * 3) Create a new contract event using the NewContractEvent function, that takes its inputs (product, parties, legal agreement) as references from the above
+ * 3) Create a new execution event using the Execute function, that takes its inputs (product, parties, legal agreement) as references from the above
+ * 3.5) Create a new contract event using the Contractualise function, that takes an execution as input (from #3) 
  * 4) Create a new observation event for the equity price
  * 5) Create a new reset event based on that observation
  * 6) Create a new transfer event based on that reset
@@ -17,7 +18,7 @@ version "${project.version}"
  * Function Specifications for Equity Swap product creation
  * 
  * These should be implementation-specific, and exist in implementors' "private" extensions of the CDM rather than the public CDM
- * They are positionned here for illustration of the equity workflow as part of the CDM, until such time when they could be deemed to be moved
+ * They are positioned here for illustration of the equity workflow as part of the CDM, until such time when they could be deemed to be moved
  * 
  */
 func NewEquitySwapProduct: <"Function specification to create an Equity Swap according to the 2018 ISDA CDM Equity Confirmation Template, based on a minimum set of inputs which can (optionally) include a Master Confirmation Agreement. The inputs represent the minimum set of inputs required to create an Equity Swap, either based on an existing Master Confirmation Agreement or as a stand-alone Equity Swap">
@@ -81,51 +82,19 @@ func NewFloatingPayout: <"Function specification to create the interest rate (fl
 			interestRatePayout -> calculationPeriodDates = masterConfirmation -> equityCalculationPeriod and
 			interestRatePayout -> paymentDates = masterConfirmation -> equityCashSettlementDates
 		else True;
-		
 
-func EquityResetEvent: <"Function specification for resetting an equity payout following an equity price observation, which means calculating the equity performance and resetting the equity notional.">
+
+
+func ResolveEquityContract: <"Specifies how the updated contract should be constructed in a Equity Reset event.">
 	inputs:
-		contract Contract (1..1)
-		observation Event (1..1)
+		contractState ContractState (1..1)
+		observation ObservationPrimitive (1..1)
 		
 	output:
-		reset Event (1..1)
-
-	condition: <"There must be an equity payout on the contract, and the event input must contain an observation.">
-		contract -> contractualProduct -> economicTerms -> payout -> equityPayout exists;
-		observation -> primitive -> observation exists;
-
- 	post-condition: <"Event must contain a reset primitive that is calculated based on the observation, and no other primitive.">
-		reset -> primitive -> reset = EquityReset( 
-				contract -> contractualProduct -> economicTerms -> payout -> equityPayout only-element, 
-				observation -> primitive -> observation -> observation only-element, 
-				observation -> primitive -> observation -> date only-element );
-		reset -> primitive -> reset only exists;
+		updatedContract Contract (1..1)
 		
-	post-condition: <"Event effect must include the notional reset on the contract.">
-		reset -> eventEffect -> effectedContract = contract;
-		reset -> eventEffect -> contract = contract;
-		reset -> eventEffect -> effectedExecution is absent;
-		reset -> eventEffect -> execution is absent;
-		reset -> eventEffect -> productIdentifier is absent;
-		
-	post-condition: <"Event lineage must point to the contract being reset and the observation event.">
-		reset -> lineage -> contractReference = contract;
-		reset -> lineage -> eventReference = observation;
-
-
-// TODO: we should verify the adequation between the observation source and the asset on the equity payout, but this requires some refactoring of 'ObservationSource' to make it work across assets (currently geared towards rates)
-// TODO: when passing an observation source, we should verify that the observable matches the equity payout underlier
-// QUESTION: is it better to directly pass the observation's date and number in this function spec, or the 'ObservatioPrimitive' object to then extract its attribute?
-func EquityReset: <"Function specification for resetting an equity payout following an equity price observation. This function only concerns itself with building the primitive, which currently does not affect the underlying contract (until such time when 'ResetPrimitive' is refactored to directly accomodate a 'before' and 'after' states). The contract effect will be part of the 'EventEffect' attribute on the a fully-formed Business Event that is built by the 'EquityResetEvent' function spec.">
-	inputs:
-		equityPayout EquityPayout (1..1)
-		// source ObservationSource (1..1)
-		observation number (1..1)
-		date date (1..1)		
-	
-	output:
-		reset ResetPrimitive (1..1)
+	alias equityPayout:
+		contractState -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout
 	
 	alias effectiveDate :
 		equityPayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate
@@ -136,47 +105,47 @@ func EquityReset: <"Function specification for resetting an equity payout follow
 	alias scheduleDates :
 		stepSchedule -> step -> stepDate
 	
-	// alias on the output
-	alias EquityPayout_after: <"TODO: should be usable in assign-output blocks.">
-		reset -> after -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
+	alias equityPayout: <"TODO: should be usable in assign-output blocks.">
+		updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
 		
-	alias EquityPayout_before: <"TODO: should be usable in assign-output blocks.">
-		reset -> before -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
+	condition isEquityContract :
+		equityPayout exists;
 		
 	condition date_is_period_end_date : 
 		<"The reset date must be the period end date on the equity payout.">
-		date = CalculationPeriod( equityPayout -> calculationPeriodDates ) -> endDate;
+		GetBusinessDate() = CalculationPeriod( equityPayout -> calculationPeriodDates ) -> endDate;
 		
 	condition : <"effective date should be in the past.">
-		if effectiveDate exists then effectiveDate < date;
+		if effectiveDate exists then effectiveDate < GetBusinessDate();
 		
 	condition : <"A step schedule needs to have more than 1 date.">
 		if stepSchedule exists then scheduleDates count > 1;
-		
-	// TODO: use alias EquityPayout_before when feature is available
-	assign-output reset -> before -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout : 
-		<"Reset primitive before state must be correctly populated with the equity payout that is being reset.">
-		equityPayout
 	
 	// TODO: use alias EquityPayout_after when feature is available	
-	assign-output reset -> after -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> rateOfReturn : 
+	assign-output updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> rateOfReturn : 
 		<"Reset primitive after state must be correctly populated with the equity payout including the rate of return.">
 		RateOfReturn( equityPayout )
 		
 	// TODO: use alias EquityPayout_after when feature is available		
-	assign-output reset -> after -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> performance : 
+	assign-output updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> performance : 
 		<"Reset primitive after state must be correctly populated with the equity payout including the performance.">
 		EquityPerformance( equityPayout )
 		
+	assign-output updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> quantitySchedule -> amount :
+		<"Set the notional amount on the Updated Contract.">
+		EquityNotionalAmount( equityPayout )
+	
+	assign-output updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> quantitySchedule -> currency :
+		<"The currency of the Updated Contract should be taken from the original Contract.">
+		contractState -> contract -> contractualQuantity -> quantityNotation -> quantity -> currency only-element
+		
 	// TODO: use alias EquityPayout_after when feature is available	
-	assign-output reset -> after -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> equityCashSettlementAmount : 
+	assign-output updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> equityCashSettlementAmount : 
 		<"Reset primitive after state must be correctly populated with the equity payout including the cash settlement amount.">
 		EquityCashSettlementAmount( equityPayout )
-		
-	post-condition : <"updatedContract values between before and after should be different.">
-		reset -> after -> updatedContract <> reset -> before -> updatedContract;
 
 
+// TODO: unused?
 func EquityPriceObservation: <"Function specification for the observation of an equity price, based on the attributes of the 'EquityValuation' class.">
 	inputs:
 		equity Equity (1..1)

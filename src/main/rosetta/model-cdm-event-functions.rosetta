@@ -113,16 +113,43 @@ func NewContractFormationPrimitive : <"Function specification to create a fully-
 
 func Reset :
 	inputs: 
-		previous Event (1..1)
+		previousEvent Event (1..1)
+		observationEvent Event (1..1)
 			
 	output: 
 		reset Event (1..1)
+	
+	alias contractState :
+		ExtractContractState( previousEvent )
 		
-	assign-output reset -> lineage -> eventReference : 
-		previous
+	alias contract :
+		contractState -> contract
+	
+	alias observation:
+		observationEvent -> primitive -> observation
+		
+	condition: <"The observation primitive must be part of the observation event">
+		observation exists;
 		
 	assign-output reset -> primitive -> reset : 
-		NewResetPrimitive( ExtractContractState( previous ) )
+		NewResetPrimitive( contractState, observation )
+		
+	assign-output reset -> lineage -> eventReference : 
+		previousEvent
+	
+	assign-output reset -> lineage -> contractReference :
+		contract
+		
+	assign-output reset -> eventEffect -> effectedContract :
+		contract
+	
+	assign-output reset -> eventEffect -> contract :
+		contract
+		
+	post-condition: 
+		reset -> eventEffect -> effectedExecution is absent;
+		reset -> eventEffect -> execution is absent;
+		reset -> eventEffect -> productIdentifier is absent;		
 	
 	
 func ExtractContractState : <"Extracts a single product, given an event. This function navigates all the possible paths to product and extracts a single value.">
@@ -130,9 +157,10 @@ func ExtractContractState : <"Extracts a single product, given an event. This fu
 	output: contractState ContractState (1..1)	
 
 
-func NewResetPrimitive :
+func NewResetPrimitive : <"Specifies how a Reset Primitive should be constructed.">
 	inputs:
 		contractState ContractState (1..1)
+		observation ObservationPrimitive (1..1)
 	
 	output:
 		resetPrimitive ResetPrimitive (1..1)
@@ -146,14 +174,24 @@ func NewResetPrimitive :
 	assign-output resetPrimitive -> after -> contract :
 		contractState -> contract
 		
-	assign-output resetPrimitive -> after -> updatedContract :
-		ComputeResetValue( contract )  
+	assign-output resetPrimitive -> after -> updatedContract : <"To handle the various ways Contracts can change over time, ">
+		ResolveUpdatedContract( contractState, observation )
+
+
+func ResolveUpdatedContract : <"The updated contract should be generated differently in different reset scenarios. This function handles how the contract should update according to which payouts are present within the Economic Terms."> 
+	inputs: 
+		contractState ContractState (1..1)
+		observation ObservationPrimitive (1..1)
+		
+	output: 
+		updatedContract Contract (1..1) <"A copy of the original contract, with updated values were applicable.">
+		
+	alias payout : 
+		contractState -> contract -> contractualProduct -> economicTerms -> payout
 	
-	
-func ComputeResetValue : <"Left to the system implementor to determine how to reset the contract in question and how to construct the updated contract."> 
-	inputs: contract Contract (1..1)
-	output: updatedContract Contract (1..1) <"A copy of the original contract, with updated values were applicable.">
-	
+	assign-output updatedContract -> contractualProduct -> economicTerms -> payout: 
+		if payout -> equityPayout exists then ResolveEquityContract( contractState, observation )  
+
 
 func CashFlowTransferEvent: <"Function specification to build a cashflow transfer event following a reset event">
 	inputs:
