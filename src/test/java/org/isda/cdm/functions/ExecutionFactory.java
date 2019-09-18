@@ -33,23 +33,23 @@ public class ExecutionFactory {
 	private static final String CLIENT_B_NAME = "counterpartyB";
 
 	@Test
-	@Disabled
+	//@Disabled
 	void generateExecutions() throws IOException {
 		processAndSerialize(1, getExecution(1, LocalDate.of(2019, 8, 26), "US1234567891",
-				50000000, 95.0975, 94.785, "USD", CLIENT_A_ID, CLIENT_A_NAME,
+				150000000, 95.0975, 94.785, "USD", CLIENT_A_ID, CLIENT_A_NAME,
 				LocalDate.of(2019, 8, 28), true));
 		processAndSerialize(2, getExecution(1, LocalDate.of(2019, 8, 26), "DH9105730505",
-				5000000, 95.095, 94.78, "USD", CLIENT_B_ID, CLIENT_B_NAME,
+				250000000, 95.095, 94.78, "USD", CLIENT_B_ID, CLIENT_B_NAME,
 				LocalDate.of(2019, 8, 28), true));
 		processAndSerialize(3, getExecution(1, LocalDate.of(2019, 8, 27), "US1234567891",
-				100000000, 95.0575, 94.77, "USD", CLIENT_A_ID, CLIENT_A_NAME,
-				LocalDate.of(2019, 8, 29), true));
+				10000000, 95.0575, 94.77, "USD", CLIENT_A_ID, CLIENT_A_NAME,
+				LocalDate.of(2019, 8, 29), false));
 		processAndSerialize(4, getExecution(1, LocalDate.of(2019, 8, 27), "DH9105730505",
 				125000000, 95.065, 94.73, "USD", CLIENT_A_ID, CLIENT_A_NAME,
 				LocalDate.of(2019, 8, 29), true));
 		processAndSerialize(5, getExecution(1, LocalDate.of(2019, 8, 28), "US1234567891",
 				2000000, 95.05, 94.79, "USD", CLIENT_B_ID, CLIENT_B_NAME,
-				LocalDate.of(2019, 8, 30), true));
+				LocalDate.of(2019, 8, 30), false));
 		processAndSerialize(6, getExecution(1, LocalDate.of(2019, 8, 28), "DH9105730505",
 				35000000, 95.025, 94.65, "USD", CLIENT_B_ID, CLIENT_B_NAME,
 				LocalDate.of(2019, 8, 30), true));
@@ -57,14 +57,14 @@ public class ExecutionFactory {
 				11000000, 95.0575, 94.63, "USD", CLIENT_B_ID, CLIENT_B_NAME,
 				LocalDate.of(2019, 9, 02), true));
 		processAndSerialize(8, getExecution(1, LocalDate.of(2019, 8, 29), "DH9105730505",
-				135000000, 95.0955, 94.685, "USD", CLIENT_A_ID, CLIENT_A_NAME,
-				LocalDate.of(2019, 9, 02), true));
+				13500000, 95.0955, 94.685, "USD", CLIENT_A_ID, CLIENT_A_NAME,
+				LocalDate.of(2019, 9, 02), false));
 		processAndSerialize(9, getExecution(1, LocalDate.of(2019, 8, 30), "US1234567891",
 				80000000, 95.03, 94.355, "USD", CLIENT_A_ID, CLIENT_A_NAME,
 				LocalDate.of(2019, 9, 03), true));
 		processAndSerialize(10, getExecution(1, LocalDate.of(2019, 8, 30), "DH9105730505",
-				75000000, 95.095, 94.555, "USD", CLIENT_B_ID, CLIENT_B_NAME,
-				LocalDate.of(2019, 9, 03), true));
+				7500000, 95.095, 94.555, "USD", CLIENT_B_ID, CLIENT_B_NAME,
+				LocalDate.of(2019, 9, 03), false));
 		return;
 	}
 
@@ -87,7 +87,7 @@ public class ExecutionFactory {
 	}
 
 	public Execution.ExecutionBuilder getExecution(int tradeId, LocalDate tradeDate,
-			String cusip, int quantity, double dirtyPrice, double cleanPrice, String currency,
+			String cusip, long quantity, double dirtyPrice, double cleanPrice, String currency,
 			String counterpartyId, String counterpartyPartyId, LocalDate settlementDate, boolean isExecutingEntityBuy) {
 		return Execution.builder()
 						.setExecutionType(ExecutionTypeEnum.ELECTRONIC)
@@ -137,7 +137,7 @@ public class ExecutionFactory {
 						 .build();
 	}
 
-	private Quantity getQuantity(int quantity) {
+	private Quantity getQuantity(long quantity) {
 		return Quantity.builder()
 					   .setAmount(BigDecimal.valueOf(quantity))
 					   .build();

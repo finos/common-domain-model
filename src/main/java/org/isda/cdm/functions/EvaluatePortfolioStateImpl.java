@@ -1,5 +1,6 @@
 package org.isda.cdm.functions;
 
+import com.google.common.collect.MoreCollectors;
 import com.regnosys.rosetta.common.hashing.*;
 import com.rosetta.model.lib.process.PostProcessStep;
 import org.isda.cdm.*;
@@ -28,16 +29,17 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 	protected PortfolioState doEvaluate(Portfolio input) {
 		AggregationParameters params = input.getAggregationParameters();
 		LocalDate date = params.getDate().toLocalDate();
+		boolean totalPosition = Optional.ofNullable(params.getTotalPosition()).orElse(false);
 
 		// Filter executions and build position -> aggregated position map
 		Map<Position, BigDecimal> positionQuantity = executions.stream()
-															   .filter(e -> filterByDate(e, date))
+															   .filter(e -> filterByDate(e, date, totalPosition))
 															   .filter(e -> filterByPositionStatus(e, date, params.getPositionStatus()))
 															   .filter(e -> filterByProducts(e, params.getProduct()))
 															   // TODO filter by other aggregration parameters
 															   .collect(Collectors.groupingBy(
 																	   e -> toPosition(e, date),
-																	   Collectors.reducing(BigDecimal.ZERO, e -> e.getQuantity().getAmount(),
+																	   Collectors.reducing(BigDecimal.ZERO, this::getAggregationQuantity,
 																			   BigDecimal::add)));
 
 		// Update Position with aggregated quantity
@@ -56,14 +58,49 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 		return portfolioStateBuilder.build();
 	}
 
+
+
 	/**
 	 * @return true if execution was traded on or before given date
 	 */
-	private boolean filterByDate(Execution execution, LocalDate date) {
+	private boolean filterByDate(Execution execution, LocalDate date, boolean totalPosition) {
+		if (totalPosition) {
+			return filterByTradeDate(execution, date, totalPosition);
+		} else {
+			return filterByTradeDate(execution, date, totalPosition) || filterBySettlementDate(execution, date, totalPosition);
+		}
+	}
+
+	/**
+	 * @return true if execution was traded on or before given date
+	 */
+	private boolean filterByTradeDate(Execution execution, LocalDate date, boolean totalPosition) {
 		return Optional.ofNullable(execution.getTradeDate())
 					   .map(FieldWithMetaDate::getValue)
-					   .map(tradeDate -> date.compareTo(tradeDate.toLocalDate()) >= 0)
+					   .map(tradeDate -> matches(date, tradeDate.toLocalDate(), totalPosition))
 					   .orElseThrow(() -> new RuntimeException(String.format("Trade date not set on execution [%s]", execution)));
+	}
+
+	/**
+	 * @return true if execution was traded on or before given date
+	 */
+	private boolean filterBySettlementDate(Execution execution, LocalDate date, boolean totalPosition) {
+		return Optional.ofNullable(execution.getSettlementTerms())
+					   .map(SettlementTerms::getSettlementDate)
+					   .map(AdjustableOrRelativeDate::getAdjustableDate)
+					   .map(AdjustableDate::getAdjustedDate)
+					   .map(FieldWithMetaDate::getValue)
+					   .map(settlementDate -> matches(date, settlementDate.toLocalDate(), totalPosition))
+					   .orElse(true); // SettlementDate not set on execution
+	}
+
+	/**
+	 * @return
+	 */
+	private boolean matches(LocalDate dateToFind, LocalDate tradeDate, boolean totalPosition) {
+		return totalPosition ?
+				dateToFind.compareTo(tradeDate) >= 0 : // for total position match dates on for before the given date
+				dateToFind.compareTo(tradeDate) == 0; // for daily position match dates only on given date
 	}
 
 	/**
@@ -150,5 +187,30 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 		} else {
 			throw new RuntimeException(String.format("Unable to determine PositionStatus on date [%s] for execution [%s]", date, execution));
 		}
+	}
+
+	/**
+	 * @return execution quantity, as positive for buy, and negative for sell
+	 */
+	private BigDecimal getAggregationQuantity(Execution e) {
+		PartyRoleEnum buyOrSell = getExecutingEntityBuyOrSell(e);
+		return buyOrSell == PartyRoleEnum.SELLER ?
+				e.getQuantity().getAmount().negate() : // if selling, reduce position
+				e.getQuantity().getAmount(); // if buying, increase position
+	}
+
+	/**
+	 * @return returns Buy/Sell direction of executing entity
+	 */
+	private PartyRoleEnum getExecutingEntityBuyOrSell(Execution e) {
+		String partyReference = e.getPartyRole().stream()
+								 .filter(r -> r.getRole() == PartyRoleEnum.EXECUTING_ENTITY)
+								 .map(r -> r.getPartyReference().getGlobalReference())
+								 .collect(MoreCollectors.onlyElement());
+		return e.getPartyRole().stream()
+								   .filter(r -> partyReference.equals(r.getPartyReference().getGlobalReference()))
+								   .map(r -> r.getRole())
+								   .filter(r -> r == PartyRoleEnum.BUYER || r == PartyRoleEnum.SELLER)
+								   .collect(MoreCollectors.onlyElement());
 	}
 }

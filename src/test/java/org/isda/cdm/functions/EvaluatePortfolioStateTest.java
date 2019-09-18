@@ -24,9 +24,9 @@ public class EvaluatePortfolioStateTest {
 
 	private static final String EXECUTIONS_PATH = "src/main/resources/cdm-sample-files/functions/position/";
 
+	private static final Date DATE = DateImpl.of(2019, 8, 30);
 	private static final String CUSIP_US1234567891 = "US1234567891";
 	private static final String CUSIP_DH9105730505 = "DH9105730505";
-	public static final Date DATE = DateImpl.of(2019, 8, 29);
 
 	private EvaluatePortfolioState func;
 
@@ -50,10 +50,11 @@ public class EvaluatePortfolioStateTest {
 	}
 
 	@Test
-	void shouldFilterOnDateOnly() {
+	void shouldEvaluateTotalPositionForDate() {
 		Portfolio input = Portfolio.builder()
 								   .setAggregationParameters(AggregationParameters.builder()
 																				  .setDate(DATE)
+																				  .setTotalPosition(true)
 																				  .build())
 								   .build();
 		PortfolioState portfolioState = func.doEvaluate(input);
@@ -64,26 +65,58 @@ public class EvaluatePortfolioStateTest {
 
 		Position p1 = getPosition(portfolioState, CUSIP_US1234567891, PositionStatusEnum.EXECUTED);
 		assertNotNull(p1);
-		assertEquals(p1.getQuantity().getAmount(), BigDecimal.valueOf(13000000));
+		assertEquals(BigDecimal.valueOf(91000000), p1.getQuantity().getAmount());
 
 		Position p2 = getPosition(portfolioState, CUSIP_US1234567891, PositionStatusEnum.SETTLED);
 		assertNotNull(p2);
-		assertEquals(p2.getQuantity().getAmount(), BigDecimal.valueOf(150000000));
+		assertEquals(BigDecimal.valueOf(138000000), p2.getQuantity().getAmount());
 
 		Position p3 = getPosition(portfolioState, CUSIP_DH9105730505, PositionStatusEnum.EXECUTED);
 		assertNotNull(p3);
-		assertEquals(p3.getQuantity().getAmount(), BigDecimal.valueOf(170000000));
+		assertEquals(BigDecimal.valueOf(-21000000), p3.getQuantity().getAmount());
 
 		Position p4 = getPosition(portfolioState, CUSIP_DH9105730505, PositionStatusEnum.SETTLED);
 		assertNotNull(p4);
-		assertEquals(p4.getQuantity().getAmount(), BigDecimal.valueOf(130000000));
+		assertEquals(BigDecimal.valueOf(410000000), p4.getQuantity().getAmount());
 	}
 
 	@Test
-	void shouldFilterOnDateAndPositionStatus() {
+	void shouldEvaluateDailyPositionForDate() {
 		Portfolio input = Portfolio.builder()
 								   .setAggregationParameters(AggregationParameters.builder()
 																				  .setDate(DATE)
+																				  .setTotalPosition(false)
+																				  .build())
+								   .build();
+		PortfolioState portfolioState = func.doEvaluate(input);
+
+		assertNotNull(portfolioState);
+		assertNotNull(portfolioState.getPositions());
+		assertEquals(4, portfolioState.getPositions().size());
+
+		Position p1 = getPosition(portfolioState, CUSIP_US1234567891, PositionStatusEnum.EXECUTED);
+		assertNotNull(p1);
+		assertEquals(BigDecimal.valueOf(80000000), p1.getQuantity().getAmount());
+
+		Position p2 = getPosition(portfolioState, CUSIP_US1234567891, PositionStatusEnum.SETTLED);
+		assertNotNull(p2);
+		assertEquals(BigDecimal.valueOf(-2000000), p2.getQuantity().getAmount());
+
+		Position p3 = getPosition(portfolioState, CUSIP_DH9105730505, PositionStatusEnum.EXECUTED);
+		assertNotNull(p3);
+		assertEquals(BigDecimal.valueOf(-7500000), p3.getQuantity().getAmount());
+
+		Position p4 = getPosition(portfolioState, CUSIP_DH9105730505, PositionStatusEnum.SETTLED);
+		assertNotNull(p4);
+		assertEquals(BigDecimal.valueOf(35000000), p4.getQuantity().getAmount());
+	}
+
+	@Test
+	void shouldEvaluateTotalPositionForDateAndPositionStatus() {
+		Portfolio input = Portfolio.builder()
+								   .setAggregationParameters(AggregationParameters.builder()
+																				  .setDate(DATE)
+																				  .setTotalPosition(true)
 																				  .setPositionStatus(PositionStatusEnum.EXECUTED)
 																				  .build())
 								   .build();
@@ -95,18 +128,43 @@ public class EvaluatePortfolioStateTest {
 
 		Position p1 = getPosition(portfolioState, CUSIP_US1234567891, PositionStatusEnum.EXECUTED);
 		assertNotNull(p1);
-		assertEquals(p1.getQuantity().getAmount(), BigDecimal.valueOf(13000000));
+		assertEquals(BigDecimal.valueOf(91000000), p1.getQuantity().getAmount());
 
 		Position p2 = getPosition(portfolioState, CUSIP_DH9105730505, PositionStatusEnum.EXECUTED);
 		assertNotNull(p2);
-		assertEquals(p2.getQuantity().getAmount(), BigDecimal.valueOf(170000000));
+		assertEquals(BigDecimal.valueOf(-21000000), p2.getQuantity().getAmount());
 	}
 
 	@Test
-	void shouldFilterOnDateAndProduct() {
+	void shouldEvaluateDailyPositionForDateAndPositionStatus() {
 		Portfolio input = Portfolio.builder()
 								   .setAggregationParameters(AggregationParameters.builder()
 																				  .setDate(DATE)
+																				  .setTotalPosition(false)
+																				  .setPositionStatus(PositionStatusEnum.EXECUTED)
+																				  .build())
+								   .build();
+		PortfolioState portfolioState = func.doEvaluate(input);
+
+		assertNotNull(portfolioState);
+		assertNotNull(portfolioState.getPositions());
+		assertEquals(2, portfolioState.getPositions().size());
+
+		Position p1 = getPosition(portfolioState, CUSIP_US1234567891, PositionStatusEnum.EXECUTED);
+		assertNotNull(p1);
+		assertEquals(BigDecimal.valueOf(80000000), p1.getQuantity().getAmount());
+
+		Position p2 = getPosition(portfolioState, CUSIP_DH9105730505, PositionStatusEnum.EXECUTED);
+		assertNotNull(p2);
+		assertEquals(BigDecimal.valueOf(-7500000), p2.getQuantity().getAmount());
+	}
+
+	@Test
+	void shouldEvaluateTotalPositionForDateAndProduct() {
+		Portfolio input = Portfolio.builder()
+								   .setAggregationParameters(AggregationParameters.builder()
+																				  .setDate(DATE)
+																				  .setTotalPosition(true)
 																				  .addProduct(getProduct(CUSIP_US1234567891, ProductIdSourceEnum.CUSIP))
 																				  .build())
 								   .build();
@@ -118,11 +176,35 @@ public class EvaluatePortfolioStateTest {
 
 		Position p1 = getPosition(portfolioState, CUSIP_US1234567891, PositionStatusEnum.EXECUTED);
 		assertNotNull(p1);
-		assertEquals(p1.getQuantity().getAmount(), BigDecimal.valueOf(13000000));
+		assertEquals(BigDecimal.valueOf(91000000), p1.getQuantity().getAmount());
 
 		Position p2 = getPosition(portfolioState, CUSIP_US1234567891, PositionStatusEnum.SETTLED);
 		assertNotNull(p2);
-		assertEquals(p2.getQuantity().getAmount(), BigDecimal.valueOf(150000000));
+		assertEquals(BigDecimal.valueOf(138000000), p2.getQuantity().getAmount());
+	}
+
+	@Test
+	void shouldEvaluateDailyPositionForDateAndProduct() {
+		Portfolio input = Portfolio.builder()
+								   .setAggregationParameters(AggregationParameters.builder()
+																				  .setDate(DATE)
+																				  .setTotalPosition(false)
+																				  .addProduct(getProduct(CUSIP_US1234567891, ProductIdSourceEnum.CUSIP))
+																				  .build())
+								   .build();
+		PortfolioState portfolioState = func.doEvaluate(input);
+
+		assertNotNull(portfolioState);
+		assertNotNull(portfolioState.getPositions());
+		assertEquals(2, portfolioState.getPositions().size());
+
+		Position p1 = getPosition(portfolioState, CUSIP_US1234567891, PositionStatusEnum.EXECUTED);
+		assertNotNull(p1);
+		assertEquals(BigDecimal.valueOf(80000000), p1.getQuantity().getAmount());
+
+		Position p2 = getPosition(portfolioState, CUSIP_US1234567891, PositionStatusEnum.SETTLED);
+		assertNotNull(p2);
+		assertEquals(BigDecimal.valueOf(-2000000), p2.getQuantity().getAmount());
 	}
 
 	private Product getProduct(String productId, ProductIdSourceEnum source) {
