@@ -11,7 +11,7 @@ import com.rosetta.model.lib.records.DateImpl;
 
 class GetBusinessDateImplTest extends AbstractFunctionTest {
 
-	@Inject GetBusinessDateSpec spec;
+	@Inject GetBusinessDate spec;
 
 
 	@Test

@@ -149,12 +149,7 @@ func Reset :
 	post-condition: 
 		reset -> eventEffect -> effectedExecution is absent;
 		reset -> eventEffect -> execution is absent;
-		reset -> eventEffect -> productIdentifier is absent;		
-	
-	
-func ExtractContractState : <"Extracts a single product, given an event. This function navigates all the possible paths to product and extracts a single value.">
-	inputs: event Event (1..1)
-	output: contractState ContractState (1..1)	
+		reset -> eventEffect -> productIdentifier is absent;
 
 
 func NewResetPrimitive : <"Specifies how a Reset Primitive should be constructed.">
@@ -296,3 +291,26 @@ func NewTransferPrimitive: <"Function specification to create the Transfer primi
 			and transferPrimitive -> securityTransfer exists 
 			and transferPrimitive -> commodityTransfer is absent
 			and transferPrimitive -> status = TransferStatusEnum.Settled;
+			
+			
+func NewQuantityChangePrimitive : <"A specification of the inputs, outputs and constraints when calculating the after state of a Quantity Change Primitive Event">
+	inputs:
+		trade Trade (1..1)
+		quantityChange ContractualQuantity (1..1)
+	
+	output:
+		quantityChangePrimitive QuantityChangePrimitive (1..1)
+	
+	condition: <"Non-zero quantity change">
+		GreaterThan(quantityChange, 0.0);
+
+	assign-output quantityChangePrimitive -> before: <"Correctly populate the before attributes on the Primitive Event">
+		trade
+
+	post-condition: <"The resulting quantity must equal the original quantity plus the quantity change.">
+		ExtractQuantity( quantityChangePrimitive -> after ) = Plus( ExtractQuantity( trade ), quantityChange );
+	 
+	post-condition: <"The input and output types need to be consistent, if we started with an Execution, we should end with an Execution, likewise with Contract.">
+		if quantityChangePrimitive -> before -> execution exists then quantityChangePrimitive -> after -> execution exists;
+		if quantityChangePrimitive -> before -> contract exists then quantityChangePrimitive -> after -> contract exists;
+		

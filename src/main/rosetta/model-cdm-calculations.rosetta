@@ -65,12 +65,23 @@ func ResolvePrice: <"Function specification to return the price on a valuation d
 	output:	price number  (1..1)
 
 func FixedAmount: <"2006 ISDA Definition Article 5 Section 5.1. Calculation of a Fixed Amount: The Fixed Amount payable by a party on a Payment Date will be: (a) if an amount is specified for the Swap Transaction as the Fixed Amount payable by that party for that Payment Date or for the related Calculation Period, that amount; or (b) if an amount is not specified for the Swap Transaction as the Fixed Amount payable by that party for that Payment Date or for the related Calculation Period, an amount calculated on a formula basis for that Payment Date or for the related Calculation Period as follows: Fixed Amount = Calculation Amount × Fixed Rate × Day Count Fraction.">
-	inputs: interestRatePayout InterestRatePayout (1..1)
-	output: fixedAmount number (1..1)
-	alias calculationAmount	: interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
-	alias fixedRate			: interestRatePayout -> rateSpecification -> fixedRate -> initialValue
-	alias dayCountFraction	: DayCountFraction(interestRatePayout, interestRatePayout -> dayCountFraction)
-	assign-output fixedAmount : calculationAmount * fixedRate * dayCountFraction
+	inputs: 
+		interestRatePayout InterestRatePayout (1..1)
+		
+	output: 
+		fixedAmount number (1..1)
+		
+	alias calculationAmount	: 
+		interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
+		
+	alias fixedRate : 
+		interestRatePayout -> rateSpecification -> fixedRate -> initialValue
+		
+	alias dayCountFraction : 
+		DayCountFraction(interestRatePayout, interestRatePayout -> dayCountFraction)
+	
+	assign-output fixedAmount : 
+		calculationAmount * fixedRate * dayCountFraction
 
 
 func FloatingAmount: <"2006 ISDA Definition Article 6 Section 6.1. Calculation of a Floating Amount: Subject to the provisions of Section 6.4 (Negative Interest Rates), the Floating Amount payable by a party on a Payment Date will be: (a) if Compounding is not specified for the Swap Transaction or that party, an amount calculated on a formula basis for that Payment Date or for the related Calculation Period as follows: Floating Amount = Calculation Amount × Floating Rate + Spread × Floating Rate Day Count Fraction (b) if “Compounding” is specified to be applicable to the Swap Transaction or that party and 'Flat Compounding' is not specified, an amount equal to the sum of the Compounding Period Amounts for each of the Compounding Periods in the related Calculation Period; or (c) if 'Flat Compounding' is specified to be applicable to the Swap Transaction or that party, an amount equal to the sum of the Basic Compounding Period Amounts for each of the Compounding Periods in the related Calculation Period plus the sum of the Additional Compounding Period Amounts for each such Compounding Period.">
@@ -187,7 +198,7 @@ func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360_ISD
 		CalculationPeriod( interestRatePayout -> calculationPeriodDates )
 	
 	alias interestRatePayoutTerminationDate:
-		ToAdjustedDateFunction (interestRatePayout -> calculationPeriodDates -> terminationDate)
+		ResolveAdjustableDate (interestRatePayout -> calculationPeriodDates -> terminationDate)
 	
 	alias startDateIsInLeapYear:
 			IsLeapYear(calculationPeriod -> startDate -> year)
@@ -235,7 +246,8 @@ func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> ACT_365L): <
 	alias daysInYear: <"365 or, if the later Period End Date of the Calculation Period or Compounding Period falls in a leap year, divided by 366. ">
 		if (endDateIsInLeapYear = True) then 366 else 365
 	
-	assign-output result: daysInPeriod / daysInYear
+	assign-output result: 
+		daysInPeriod / daysInYear
 
 
 func EquityCalculationPeriod:
