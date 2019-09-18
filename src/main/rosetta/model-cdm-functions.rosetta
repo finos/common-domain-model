@@ -119,7 +119,7 @@ func Reset :
 	output: 
 		reset Event (1..1)
 	
-	alias contractState :
+	alias contractState : <"Extract the Contract State from the Event.">
 		ExtractContractState( previousEvent )
 		
 	alias contract :
@@ -128,7 +128,7 @@ func Reset :
 	alias observation:
 		observationEvent -> primitive -> observation
 		
-	condition: 
+	condition: <"ExtractContractState would result in nothing (empty), check we have something.">
 		contractState exists;
 		
 	condition: <"The observation primitive must be part of the observation event">
@@ -182,12 +182,12 @@ func ResolveUpdatedContract : <"The updated contract should be generated differe
 		observation ObservationPrimitive (1..1)
 		
 	output: 
-		updatedContract Contract (1..1) <"A copy of the original contract, with updated values were applicable.">
+		updatedContract Contract (1..1) <"An object that follows the structure of the Contract with only the updated values are set.">
 		
 	alias payout : 
 		contractState -> contract -> contractualProduct -> economicTerms -> payout
 	
-	assign-output updatedContract -> contractualProduct -> economicTerms -> payout: 
+	assign-output updatedContract -> contractualProduct -> economicTerms -> payout :
 		if payout -> equityPayout exists then ResolveEquityContract( contractState, observation )  
 
 
