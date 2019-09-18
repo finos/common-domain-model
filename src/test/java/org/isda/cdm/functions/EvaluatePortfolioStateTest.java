@@ -5,6 +5,7 @@ import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.lib.records.DateImpl;
 import org.isda.cdm.*;
 import org.isda.cdm.metafields.FieldWithMetaString;
+import org.isda.cdm.metafields.ReferenceWithMetaParty;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -216,6 +217,38 @@ public class EvaluatePortfolioStateTest {
 					.build();
 	}
 
+	@Test
+	void shouldEvaluateTotalPositionForParty() {
+		Portfolio input = Portfolio.builder()
+								   .setAggregationParameters(AggregationParameters.builder()
+																				  .setDate(DATE)
+																				  .setTotalPosition(true)
+																				  .addParty(toReferenceWithMetaParty("counterpartyA"))
+																				  .build())
+								   .build();
+		PortfolioState portfolioState = func.doEvaluate(input);
+
+		assertNotNull(portfolioState);
+		assertNotNull(portfolioState.getPositions());
+		assertEquals(4, portfolioState.getPositions().size());
+
+		Position p1 = getPosition(portfolioState, CUSIP_US1234567891, PositionStatusEnum.EXECUTED);
+		assertNotNull(p1);
+		assertEquals(BigDecimal.valueOf(80000000), p1.getQuantity().getAmount());
+
+		Position p2 = getPosition(portfolioState, CUSIP_US1234567891, PositionStatusEnum.SETTLED);
+		assertNotNull(p2);
+		assertEquals(BigDecimal.valueOf(140000000), p2.getQuantity().getAmount());
+
+		Position p3 = getPosition(portfolioState, CUSIP_DH9105730505, PositionStatusEnum.EXECUTED);
+		assertNotNull(p3);
+		assertEquals(BigDecimal.valueOf(-13500000), p3.getQuantity().getAmount());
+
+		Position p4 = getPosition(portfolioState, CUSIP_DH9105730505, PositionStatusEnum.SETTLED);
+		assertNotNull(p4);
+		assertEquals(BigDecimal.valueOf(125000000), p4.getQuantity().getAmount());
+	}
+
 	private Position getPosition(PortfolioState portfolioState, String productId, PositionStatusEnum positionStatus) {
 		return portfolioState.getPositions()
 							 .stream()
@@ -228,5 +261,13 @@ public class EvaluatePortfolioStateTest {
 		return p.getProduct().getSecurity().getBond().getProductIdentifier().getIdentifier().stream()
 				.map(FieldWithMetaString::getValue)
 				.anyMatch(id -> id.equals(productId));
+	}
+
+	private ReferenceWithMetaParty toReferenceWithMetaParty(String partyId) {
+		return ReferenceWithMetaParty.builder()
+									 .setValue(Party.builder()
+													.addPartyId(FieldWithMetaString.builder().setValue(partyId).build())
+													.build())
+									 .build();
 	}
 }

@@ -6,6 +6,7 @@ import com.rosetta.model.lib.process.PostProcessStep;
 import org.isda.cdm.*;
 import org.isda.cdm.metafields.FieldWithMetaDate;
 import org.isda.cdm.metafields.FieldWithMetaString;
+import org.isda.cdm.metafields.ReferenceWithMetaParty;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -36,11 +37,11 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 															   .filter(e -> filterByDate(e, date, totalPosition))
 															   .filter(e -> filterByPositionStatus(e, date, params.getPositionStatus()))
 															   .filter(e -> filterByProducts(e, params.getProduct()))
+															   .filter(e -> filterByParty(e, params.getParty()))
 															   // TODO filter by other aggregration parameters
 															   .collect(Collectors.groupingBy(
 																	   e -> toPosition(e, date),
-																	   Collectors.reducing(BigDecimal.ZERO, this::getAggregationQuantity,
-																			   BigDecimal::add)));
+																	   Collectors.reducing(BigDecimal.ZERO, this::getAggregationQuantity, BigDecimal::add)));
 
 		// Update Position with aggregated quantity
 		Set<Position> aggregatedPositions = positionQuantity.keySet().stream()
@@ -57,8 +58,6 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 
 		return portfolioStateBuilder.build();
 	}
-
-
 
 	/**
 	 * @return true if execution was traded on or before given date
@@ -94,9 +93,6 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 					   .orElse(true); // SettlementDate not set on execution
 	}
 
-	/**
-	 * @return
-	 */
 	private boolean matches(LocalDate dateToFind, LocalDate tradeDate, boolean totalPosition) {
 		return totalPosition ?
 				dateToFind.compareTo(tradeDate) >= 0 : // for total position match dates on for before the given date
@@ -118,7 +114,7 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 	}
 
 	/**
-	 * @return true if execution was traded on or before given date
+	 * @return true if execution product matches given products
 	 */
 	private boolean filterByProducts(Execution execution, List<Product> productsToFind) {
 		if (productsToFind == null || productsToFind.isEmpty()) {
@@ -138,12 +134,35 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 							 .map(Product::getSecurity)
 							 .map(Security::getBond)
 							 .map(Bond::getProductIdentifier)
-							 .anyMatch(idsToFind -> getIdentifiersAsString(idsToFind).stream().anyMatch(identifiers::contains)
-									 && source == idsToFind.getSource());
+							 .anyMatch(idsToFind ->
+									 getIdentifiersAsString(idsToFind).stream().anyMatch(identifiers::contains)
+									 	&& source == idsToFind.getSource());
 	}
 
 	private Set<String> getIdentifiersAsString(ProductIdentifier productIdentifier) {
 		return productIdentifier.getIdentifier().stream().map(FieldWithMetaString::getValue).collect(Collectors.toSet());
+	}
+
+	/**
+	 * @return true if execution parties contains given partyId
+	 */
+	private boolean filterByParty(Execution execution, List<ReferenceWithMetaParty> partyToFind) {
+		if (partyToFind == null || partyToFind.isEmpty()) {
+			return true;
+		}
+
+		List<String> partyIdToFind = partyToFind.stream()
+												.map(ReferenceWithMetaParty::getValue)
+												.map(Party::getPartyId)
+												.flatMap(List::stream)
+												.map(FieldWithMetaString::getValue)
+												.collect(Collectors.toList());
+
+		return execution.getParty().stream()
+						.map(Party::getPartyId)
+						.flatMap(List::stream)
+						.map(FieldWithMetaString::getValue)
+						.anyMatch(partyIdToFind::contains);
 	}
 
 	/**
