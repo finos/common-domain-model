@@ -31,18 +31,21 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 
 		// Filter executions and build position -> aggregated position map
 		Map<Position, BigDecimal> positionQuantity = executions.stream()
-				.filter(e -> filterByDate(e, date))
-			    .filter(e -> filterByPositionStatus(e, date, params.getPositionStatus()))
-				.filter(e -> filterByProducts(e, params.getProduct()))
-				// TODO filter by other aggregration parameters
-				.collect(Collectors.groupingBy(
-						e -> toPosition(e, date),
-						Collectors.reducing(BigDecimal.ZERO, e -> e.getQuantity().getAmount(), BigDecimal::add)));
+															   .filter(e -> filterByDate(e, date))
+															   .filter(e -> filterByPositionStatus(e, date, params.getPositionStatus()))
+															   .filter(e -> filterByProducts(e, params.getProduct()))
+															   // TODO filter by other aggregration parameters
+															   .collect(Collectors.groupingBy(
+																	   e -> toPosition(e, date),
+																	   Collectors.reducing(BigDecimal.ZERO, e -> e.getQuantity().getAmount(),
+																			   BigDecimal::add)));
 
 		// Update Position with aggregated quantity
 		Set<Position> aggregatedPositions = positionQuantity.keySet().stream()
-				.map(p -> p.toBuilder().setQuantityBuilder(Quantity.builder().setAmount(positionQuantity.get(p))).build())
-				.collect(Collectors.toSet());
+															.map(p -> p.toBuilder()
+																	   .setQuantityBuilder(Quantity.builder().setAmount(positionQuantity.get(p)))
+																	   .build())
+															.collect(Collectors.toSet());
 
 		PortfolioState.PortfolioStateBuilder portfolioStateBuilder = PortfolioState.builder();
 		aggregatedPositions.forEach(p -> portfolioStateBuilder.addPositions(p));
@@ -95,10 +98,11 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 		ProductIdSourceEnum source = productIdentifier.getSource();
 
 		return productsToFind.stream()
-					   .map(Product::getSecurity)
-					   .map(Security::getBond)
-					   .map(Bond::getProductIdentifier)
-					   .anyMatch(idsToFind -> getIdentifiersAsString(idsToFind).stream().anyMatch(identifiers::contains) && source == idsToFind.getSource());
+							 .map(Product::getSecurity)
+							 .map(Security::getBond)
+							 .map(Bond::getProductIdentifier)
+							 .anyMatch(idsToFind -> getIdentifiersAsString(idsToFind).stream().anyMatch(identifiers::contains)
+									 && source == idsToFind.getSource());
 	}
 
 	private Set<String> getIdentifiersAsString(ProductIdentifier productIdentifier) {
@@ -130,8 +134,7 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 		if (closedState.map(s -> s.getState() == ClosedStateEnum.CANCELLED).orElse(false)
 				&& closedState.map(ClosedState::getActivityDate).map(d -> date.isAfter(d.toLocalDate())).orElse(false)) {
 			return PositionStatusEnum.CANCELLED;
-		}
-		else if (Optional.ofNullable(execution.getSettlementTerms())
+		} else if (Optional.ofNullable(execution.getSettlementTerms())
 						   .map(SettlementTerms::getSettlementDate)
 						   .map(AdjustableOrRelativeDate::getAdjustableDate)
 						   .map(AdjustableDate::getAdjustedDate)
@@ -139,14 +142,12 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 						   .map(settlementDate -> date.compareTo(settlementDate.toLocalDate()) >= 0)
 						   .orElse(false)) {
 			return PositionStatusEnum.SETTLED;
-		}
-		else if (Optional.ofNullable(execution.getTradeDate())
-						 .map(FieldWithMetaDate::getValue)
-						 .map(tradeDate -> date.compareTo(tradeDate.toLocalDate()) >= 0)
-						 .orElse(false)) {
+		} else if (Optional.ofNullable(execution.getTradeDate())
+						   .map(FieldWithMetaDate::getValue)
+						   .map(tradeDate -> date.compareTo(tradeDate.toLocalDate()) >= 0)
+						   .orElse(false)) {
 			return PositionStatusEnum.EXECUTED;
-		}
-		else {
+		} else {
 			throw new RuntimeException(String.format("Unable to determine PositionStatus on date [%s] for execution [%s]", date, execution));
 		}
 	}
