@@ -5,16 +5,26 @@ version "${project.version}"
 /*
  * Helper functions 
  */
-
-func ExtractContractState : <"Extracts a single product, given an event. This function navigates all the possible paths to product and extracts a single value.">
+func GetBusinessDate : <"A function to be implemented by CDM users for systematic implementations to provide a business date">
+	output:
+		result date (1..1)
+		
+		
+func ExtractContractState : <"Extracts a single Contract State, given an Event. This function navigates all the possible paths to product and extracts a single value.">
 	inputs: event Event (1..1)
-	output: contractState ContractState (1..1)	
+	output: contractState ContractState (1..1)
+	alias primitive : event -> primitive 	
+	assign-output contractState : 
+		if primitive -> contractFormation exists then primitive -> contractFormation -> after
+		else if primitive -> reset exists then primitive -> reset -> after
+		else empty
 
 func ExtractQuantity: <"A function that abstracts away the details of how to retrieve quantity from a given product">
 	inputs:
 		trade Trade (1..1)
 	output:
 		quantity ContractualQuantity (1..1) 
+
 	 
 // TODO: turn these functions into language level operators i.e. '+'
 func Plus:

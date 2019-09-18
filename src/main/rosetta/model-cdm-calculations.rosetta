@@ -2,12 +2,25 @@ namespace "org.isda.cdm"
 version "${project.version}"
 
 func EquityCashSettlementAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 72. 'Equity Cash Settlement Amount' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Cash Settlement Amount = ABS(Rate Of Return) × Equity Notional Amount.">
-	inputs: equityPayout EquityPayout(1..1)
-	output: equityCashSettlementAmount number (1..1)
-	alias rateOfReturn	: Abs( RateOfReturn( equityPayout ) )
-	alias notionalAmount	: EquityNotionalAmount( equityPayout )
-	assign-output
-		equityCashSettlementAmount : rateOfReturn * notionalAmount
+	inputs: 
+		equityPayout EquityPayout(1..1)
+		
+	output: 
+		equityCashSettlementAmount Money (1..1)
+		
+	alias rateOfReturn : 
+		Abs( RateOfReturn( equityPayout ) )
+		
+	alias notionalAmount : 
+		EquityNotionalAmount( equityPayout )
+		
+	assign-output equityCashSettlementAmount -> amount : 
+		rateOfReturn * notionalAmount
+		
+	assign-output equityCashSettlementAmount -> currency :
+		if equityPayout -> priceReturnTerms -> initialPrice -> netPrice exists 
+		then equityPayout -> priceReturnTerms -> initialPrice -> netPrice -> currency
+		else equityPayout -> priceReturnTerms -> initialPrice -> cleanNetPrice -> currency
 
 func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Performance = (Rate Of Return) × Equity Notional Amount.">
 	inputs: equityPayout EquityPayout(1..1)
@@ -256,6 +269,7 @@ func EquityCalculationPeriod:
 		businessDate date (1..1)
 	output: result EquityCalculationPeriodData (1..1)
 
+
 class EquityCalculationPeriodData {
 	businessDate date (1..1)
 	startDate date (1..1)
@@ -269,21 +283,26 @@ func GetRateSchedule:
 	inputs: floatingRateCalculation FloatingRateSpecification (1..1)
 	output: schedule SpreadSchedule (1..1)
 
+
 func ResolveRateIndex: <"The function to specify that the floating rate index enumeration will be expressed as a number once the rate is observed.">
 	inputs:index FloatingRateIndexEnum (1..1)
 	output: rate number(1..1)
+
 
 func PeriodsInYear:
 	inputs: frequency CalculationPeriodFrequency (1..1)
 	output: numberOfPeriods int (1..1)
 
+
 func Abs:
 	inputs: x number (1..1)
 	output: result number (1..1)
  
+ 
 func CalculationPeriod :<"2006 ISDA Definition Section 4.13. 'Calculation Period' means, in respect of a Swap Transaction and a party, each period from, and including, one Period End Date of that party to, but excluding, the next following applicable Period End Date during the Term of the Swap Transaction, except that (a) the initial Calculation Period for the party will commence on, and include, the Effective Date and (b) the final Calculation Period for the party will end on, but exclude, the Termination Date.">
 	inputs: calculationPeriodDates CalculationPeriodDates (1..1)
 	output: result CalculationPeriodData (1..1)
+
 
 class CalculationPeriodData {
 	startDate date (1..1)
@@ -291,14 +310,3 @@ class CalculationPeriodData {
 	daysInPeriod int (1..1)
 	daysInLeapYearPeriod int (1..1)
 }
-
-
-func GetBusinessDate : <"A function to be implemented by CDM users for systematic implementations to provide a business date">
-	output:
-		result date (1..1)
-		
-//data CalculationPeriodData:
-//	startDate date (1..1)
-//	endDate date (1..1)
-//	daysInPeriod int (1..1)
-//	daysInLeapYearPeriod int (1..1)

@@ -128,6 +128,9 @@ func Reset :
 	alias observation:
 		observationEvent -> primitive -> observation
 		
+	condition: 
+		contractState exists;
+		
 	condition: <"The observation primitive must be part of the observation event">
 		observation exists;
 		
@@ -188,45 +191,77 @@ func ResolveUpdatedContract : <"The updated contract should be generated differe
 		if payout -> equityPayout exists then ResolveEquityContract( contractState, observation )  
 
 
-func CashFlowTransferEvent: <"Function specification to build a cashflow transfer event following a reset event">
+func TransferCash: <"Function specification to build a transfer event following a reset on a contract">
 	inputs:
-		contract Contract (1..1)
-		reset Event (1..1)
+		resetEvent Event (1..1)
 	output:
-		transfer Event (1..1)
+		transferEvent Event (1..1)
 
+	alias contract :
+		resetEvent -> primitive -> reset -> after -> contract
+		
 	condition: <"There must be a reset primitive on the event input, and the contract being referenced must be consistent between those events.">
-		reset -> primitive -> reset exists;
-		reset -> lineage -> contractReference = contract;
+		resetEvent -> primitive -> reset exists;
+		
+	assign-output transferEvent -> primitive -> transfer :
+		NewCashTransferPrimitive( contract -> contractualProduct -> economicTerms -> payout )
 
 	post-condition: <"Event must contain a transfer primitive populated with the cashflow, and no other primitive.">
-		// TO DO: now that we have extracted cashflow calculation from the reset event, find a way to hook-up the cashflow calculation back into the transfer event
-		// transfer -> primitive -> transfer = CashflowTransfer( reset -> primitive -> reset -> cashflow );
-		transfer -> primitive -> transfer only exists;
+		transferEvent -> primitive -> transfer only exists;
 
 	post-condition: <"Event effect must include the contract generating the cashflow.">
-        transfer -> eventEffect -> effectedContract = contract;
-        transfer -> eventEffect -> contract = contract;
-        transfer -> eventEffect -> effectedExecution is absent;
-        transfer -> eventEffect -> execution is absent;
-        transfer -> eventEffect -> productIdentifier is absent;
+        transferEvent -> eventEffect -> effectedContract = contract;
+        transferEvent -> eventEffect -> contract = contract;
+        transferEvent -> eventEffect -> effectedExecution is absent;
+        transferEvent -> eventEffect -> execution is absent;
+        transferEvent -> eventEffect -> productIdentifier is absent;
 
 	post-condition: <"Event lineage must point to the contract that generated the cashflow and the reset event.">
-		transfer -> lineage -> contractReference = contract;
-		transfer -> lineage -> eventReference = reset;
+		transferEvent -> lineage -> contractReference = contract;
+		transferEvent -> lineage -> eventReference = resetEvent;
 
 
-func CashflowTransfer: <"Function specification to generate a transfer primitive following a reset. The cashflow is being passed as an input, as currently the cashflow is meant to be part of the reset. At a later stage, we should pass the reset value while the cashflow calculation should be executed as part of this spec.">
+func NewCashTransferPrimitive : <"Function specification to generate a transfer primitive following a reset. The cashflow is being passed as an input, as currently the cashflow is meant to be part of the reset. At a later stage, we should pass the reset value while the cashflow calculation should be executed as part of this spec.">
 	inputs:
-		cashflow Cashflow (1..1)
+		payout Payout (1..1)
+		
 	output:
 		transfer TransferPrimitive (1..1)
-	
-	post-condition:
-		transfer -> settlementDate = cashflow -> cashflowDate;
-		transfer -> cashTransfer -> amount = cashflow -> cashflowAmount;
-		transfer -> cashTransfer -> payerReceiver = cashflow -> payerReceiver;
 		
+	alias cashflow :
+		ResolveCashflow( payout )
+		
+	assign-output transfer -> status :
+		TransferStatusEnum.Instructed
+		
+	assign-output transfer -> cashTransfer -> amount :
+		cashflow -> cashflowAmount
+
+	assign-output transfer -> cashTransfer -> payerReceiver :
+		cashflow -> payerReceiver
+		
+	assign-output transfer -> settlementDate :
+		cashflow -> cashflowDate
+				
+		
+func ResolveCashflow : <"A product agnostic function that calculates the amount due to be transfered after a Reset Event.">
+	inputs: 
+		payout Payout (1..1)
+	
+	output: 
+		cashflow Cashflow (1..1)
+	
+	assign-output cashflow -> cashflowAmount :
+		if payout -> equityPayout exists then EquityCashSettlementAmount( payout -> equityPayout )
+		
+	assign-output cashflow -> cashflowDate -> adjustedDate :
+		ResolveCashSettlementDate( payout ) 
+
+
+func ResolveCashSettlementDate : <"A product agnostic function that resolves the settlement date of the payout for the period in question">
+	inputs: payout Payout (1..1)
+	output: date date (1..1)
+
 
 func Allocate: <"Function specification to create the fully-formed business event of allocating an execution based on allocation instructions.">
 	inputs:

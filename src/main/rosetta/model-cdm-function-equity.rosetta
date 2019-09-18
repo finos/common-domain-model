@@ -98,28 +98,18 @@ func ResolveEquityContract: <"Specifies how the updated contract should be const
 	
 	alias effectiveDate :
 		equityPayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate
-		
-	alias stepSchedule :
-		equityPayout -> payoutQuantity -> quantitySchedule -> stepSchedule
-		
-	alias scheduleDates :
-		stepSchedule -> step -> stepDate
 	
-	alias equityPayout: <"TODO: should be usable in assign-output blocks.">
+	alias equityPayout : <"TODO: should be usable in assign-output blocks.">
 		updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
 		
 	condition isEquityContract :
 		equityPayout exists;
 		
-	condition date_is_period_end_date : 
-		<"The reset date must be the period end date on the equity payout.">
+	condition isPeriodEndDate : <"The reset date must be the period end date on the equity payout.">
 		GetBusinessDate() = CalculationPeriod( equityPayout -> calculationPeriodDates ) -> endDate;
 		
 	condition : <"effective date should be in the past.">
 		if effectiveDate exists then effectiveDate < GetBusinessDate();
-		
-	condition : <"A step schedule needs to have more than 1 date.">
-		if stepSchedule exists then scheduleDates count > 1;
 	
 	// TODO: use alias EquityPayout_after when feature is available	
 	assign-output updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> rateOfReturn : 
@@ -131,11 +121,15 @@ func ResolveEquityContract: <"Specifies how the updated contract should be const
 		<"Reset primitive after state must be correctly populated with the equity payout including the performance.">
 		EquityPerformance( equityPayout )
 		
-	assign-output updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> quantitySchedule -> amount :
-		<"Set the notional amount on the Updated Contract.">
-		EquityNotionalAmount( equityPayout )
+	assign-output updatedContract -> contractualQuantity -> quantityNotation -> notationTag :
+		<"Set the notional amount on the Updated Contract.">  
+		QuantityNotationEnum.Notional
 	
-	assign-output updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> quantitySchedule -> currency :
+	assign-output updatedContract -> contractualQuantity -> quantityNotation -> quantity -> amount :
+		<"Set the notional amount on the Updated Contract.">  
+		EquityNotionalAmount( equityPayout )
+		
+	assign-output updatedContract -> contractualQuantity -> quantityNotation -> quantity -> currency :
 		<"The currency of the Updated Contract should be taken from the original Contract.">
 		contractState -> contract -> contractualQuantity -> quantityNotation -> quantity -> currency only-element
 		
