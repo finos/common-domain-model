@@ -1,7 +1,5 @@
 package org.isda.cdm.functions;
 
-import com.rosetta.model.lib.records.Date;
-import com.rosetta.model.lib.records.DateImpl;
 import org.isda.cdm.*;
 import org.isda.cdm.metafields.FieldWithMetaString;
 import org.isda.cdm.metafields.ReferenceWithMetaParty;
@@ -10,6 +8,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import static org.isda.cdm.util.SampleExecutionFactory.*;
@@ -18,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class EvaluatePortfolioStateTest {
 
-	private static final Date DATE = DateImpl.of(2019, 8, 30);
+	private static final ZonedDateTime DATE_TIME = ZonedDateTime.of(LocalDateTime.of(2019, 8, 30, 11, 00), ZoneId.of("Europe/London"));
 
 	private EvaluatePortfolioState func;
 
@@ -32,7 +33,7 @@ public class EvaluatePortfolioStateTest {
 	void shouldEvaluateTotalPositionForDate() {
 		Portfolio input = Portfolio.builder()
 								   .setAggregationParameters(AggregationParameters.builder()
-																				  .setDate(DATE)
+																				  .setDateTime(DATE_TIME)
 																				  .setTotalPosition(true)
 																				  .build())
 								   .build();
@@ -63,7 +64,7 @@ public class EvaluatePortfolioStateTest {
 	void shouldEvaluateDailyPositionForDate() {
 		Portfolio input = Portfolio.builder()
 								   .setAggregationParameters(AggregationParameters.builder()
-																				  .setDate(DATE)
+																				  .setDateTime(DATE_TIME)
 																				  .setTotalPosition(false)
 																				  .build())
 								   .build();
@@ -94,7 +95,7 @@ public class EvaluatePortfolioStateTest {
 	void shouldEvaluateTotalPositionForDateAndPositionStatus() {
 		Portfolio input = Portfolio.builder()
 								   .setAggregationParameters(AggregationParameters.builder()
-																				  .setDate(DATE)
+																				  .setDateTime(DATE_TIME)
 																				  .setTotalPosition(true)
 																				  .setPositionStatus(PositionStatusEnum.EXECUTED)
 																				  .build())
@@ -118,7 +119,7 @@ public class EvaluatePortfolioStateTest {
 	void shouldEvaluateDailyPositionForDateAndPositionStatus() {
 		Portfolio input = Portfolio.builder()
 								   .setAggregationParameters(AggregationParameters.builder()
-																				  .setDate(DATE)
+																				  .setDateTime(DATE_TIME)
 																				  .setTotalPosition(false)
 																				  .setPositionStatus(PositionStatusEnum.EXECUTED)
 																				  .build())
@@ -142,7 +143,7 @@ public class EvaluatePortfolioStateTest {
 	void shouldEvaluateTotalPositionForDateAndProduct() {
 		Portfolio input = Portfolio.builder()
 								   .setAggregationParameters(AggregationParameters.builder()
-																				  .setDate(DATE)
+																				  .setDateTime(DATE_TIME)
 																				  .setTotalPosition(true)
 																				  .addProduct(getProduct(CUSIP_US1234567891, ProductIdSourceEnum.CUSIP))
 																				  .build())
@@ -166,7 +167,7 @@ public class EvaluatePortfolioStateTest {
 	void shouldEvaluateDailyPositionForDateAndProduct() {
 		Portfolio input = Portfolio.builder()
 								   .setAggregationParameters(AggregationParameters.builder()
-																				  .setDate(DATE)
+																				  .setDateTime(DATE_TIME)
 																				  .setTotalPosition(false)
 																				  .addProduct(getProduct(CUSIP_US1234567891, ProductIdSourceEnum.CUSIP))
 																				  .build())
@@ -199,7 +200,7 @@ public class EvaluatePortfolioStateTest {
 	void shouldEvaluateTotalPositionForParty() {
 		Portfolio input = Portfolio.builder()
 								   .setAggregationParameters(AggregationParameters.builder()
-																				  .setDate(DATE)
+																				  .setDateTime(DATE_TIME)
 																				  .setTotalPosition(true)
 																				  .addParty(toReferenceWithMetaParty(CLIENT_A_NAME))
 																				  .build())

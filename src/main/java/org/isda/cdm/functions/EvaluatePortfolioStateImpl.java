@@ -29,7 +29,8 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 	@Override
 	protected PortfolioState doEvaluate(Portfolio input) {
 		AggregationParameters params = input.getAggregationParameters();
-		LocalDate date = params.getDate().toLocalDate();
+		// For this example ignore time, only used date
+		LocalDate date = params.getDateTime().toLocalDate();
 		boolean totalPosition = Optional.ofNullable(params.getTotalPosition()).orElse(false);
 
 		// Filter executions and collect into set to avoid any duplicates
