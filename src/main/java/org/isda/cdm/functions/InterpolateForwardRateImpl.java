@@ -8,21 +8,16 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 public class InterpolateForwardRateImpl extends InterpolateForwardRate {
-	private BigDecimal rate = new BigDecimal("0.8675");
 
-	static public final class Factory {
-		@Inject
-		Provider<InterpolateForwardRateImpl> provider;
-
-		public InterpolateForwardRate create(BigDecimal rate) {
-			InterpolateForwardRateImpl rateImpl = provider.get();
-			rateImpl.rate = rate;
-			return rateImpl;
-		}
-	}
+	@Inject
+	InterpolateForwardRateService valueProvider;
 
 	@Override
 	protected BigDecimal doEvaluate(ForwardPayout forward) {
-		return rate;
+		return valueProvider.get();
 	}
+
+	public interface InterpolateForwardRateService extends Provider<BigDecimal> {
+	}
+
 }
