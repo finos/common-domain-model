@@ -1,53 +1,31 @@
 package org.isda.cdm.functions;
 
-import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.lib.records.DateImpl;
 import org.isda.cdm.*;
 import org.isda.cdm.metafields.FieldWithMetaString;
 import org.isda.cdm.metafields.ReferenceWithMetaParty;
+import org.isda.cdm.util.SampleExecutionFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.math.BigDecimal;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
+import static org.isda.cdm.util.SampleExecutionFactory.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class EvaluatePortfolioStateTest {
 
-	private static final String EXECUTIONS_PATH = "src/main/resources/cdm-sample-files/functions/position/";
-
 	private static final Date DATE = DateImpl.of(2019, 8, 30);
-	private static final String CUSIP_US1234567891 = "US1234567891";
-	private static final String CUSIP_DH9105730505 = "DH9105730505";
 
 	private EvaluatePortfolioState func;
 
 	@BeforeEach
 	void setUp() {
-		try (Stream<Path> paths = Files.walk(Paths.get(EXECUTIONS_PATH))) {
-			List<Execution> executions =  paths
-					.filter(Files::isRegularFile)
-					.map(path -> {
-						try {
-							return RosettaObjectMapper.getDefaultRosettaObjectMapper().readValue(Files.readAllBytes(path), Execution.class);
-						} catch (IOException e) {
-							throw new RuntimeException(e);
-						}
-					})
-					.collect(Collectors.toList());
-			func = new EvaluatePortfolioStateImpl(executions);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		List<Execution> executions = new SampleExecutionFactory().getExecutions();
+		func = new EvaluatePortfolioStateImpl(executions);
 	}
 
 	@Test
@@ -223,7 +201,7 @@ public class EvaluatePortfolioStateTest {
 								   .setAggregationParameters(AggregationParameters.builder()
 																				  .setDate(DATE)
 																				  .setTotalPosition(true)
-																				  .addParty(toReferenceWithMetaParty("counterpartyA"))
+																				  .addParty(toReferenceWithMetaParty(CLIENT_A_NAME))
 																				  .build())
 								   .build();
 		PortfolioState portfolioState = func.doEvaluate(input);
