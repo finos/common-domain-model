@@ -5,6 +5,7 @@ import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.rosetta.lib.postprocess.PostProcessorReport;
 import com.rosetta.model.lib.RosettaModelObject;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
+import com.rosetta.model.lib.path.RosettaPath;
 import com.rosetta.model.lib.process.PostProcessStep;
 import com.rosetta.model.lib.process.ProcessingException;
 
@@ -44,7 +45,7 @@ public class SerialisingHashFunction implements PostProcessStep {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             return new StringHashPostProcessReport(Base64.getEncoder().encodeToString(digest.digest(bytes)), builder);
         } catch (JsonProcessingException | NoSuchAlgorithmException e) {
-            throw new ProcessingException("Unable to generate hash for object: " + built.toString(), e);
+            throw new ProcessingException("Unable to generate hash for object: " + built.toString(), built.getClass().getSimpleName(), getName(), RosettaPath.valueOf(""), e);
         }
 	}
 
