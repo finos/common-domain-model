@@ -32,16 +32,20 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 		LocalDate date = params.getDate().toLocalDate();
 		boolean totalPosition = Optional.ofNullable(params.getTotalPosition()).orElse(false);
 
-		// Filter executions and build position -> aggregated position map
-		Map<Position, BigDecimal> positionQuantity = executions.stream()
-															   .filter(e -> filterByDate(e, date, totalPosition))
-															   .filter(e -> filterByPositionStatus(e, date, params.getPositionStatus()))
-															   .filter(e -> filterByProducts(e, params.getProduct()))
-															   .filter(e -> filterByParty(e, params.getParty()))
-															   // TODO filter by other aggregration parameters
-															   .collect(Collectors.groupingBy(
-																	   e -> toPosition(e, date),
-																	   Collectors.reducing(BigDecimal.ZERO, this::getAggregationQuantity, BigDecimal::add)));
+		// Filter executions and collect into set to avoid any duplicates
+		Set<Execution> filteredExecution = executions.stream()
+													 .filter(e -> filterByDate(e, date, totalPosition))
+													 .filter(e -> filterByPositionStatus(e, date, params.getPositionStatus()))
+													 .filter(e -> filterByProducts(e, params.getProduct()))
+													 .filter(e -> filterByParty(e, params.getParty()))
+													 // TODO filter by other aggregration parameters
+													 .collect(Collectors.toSet());
+		// Build position -> aggregated position map
+		Map<Position, BigDecimal> positionQuantity = filteredExecution.stream()
+																	  .collect(Collectors.groupingBy(
+																			  e -> toPosition(e, date),
+																			  Collectors.reducing(BigDecimal.ZERO, this::getAggregationQuantity,
+																					  BigDecimal::add)));
 
 		// Update Position with aggregated quantity
 		Set<Position> aggregatedPositions = positionQuantity.keySet().stream()
@@ -60,14 +64,15 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 	}
 
 	/**
-	 * @return true if execution was traded on or before given date
+	 * @param execution
+	 * @param date find executions traded or settled, on or before (depending on totalPosition) this date
+	 * @param totalPosition true if aggregating all executions on or before date, false if aggregating executions for that date only
+	 * @return true if execution matches filter params
 	 */
 	private boolean filterByDate(Execution execution, LocalDate date, boolean totalPosition) {
-		if (totalPosition) {
-			return filterByTradeDate(execution, date, totalPosition);
-		} else {
-			return filterByTradeDate(execution, date, totalPosition) || filterBySettlementDate(execution, date, totalPosition);
-		}
+		// matching on executions on tradeDate or settlementDate across a date range could cause
+		// duplicates, however the filtered executions are added to a set.
+		return filterByTradeDate(execution, date, totalPosition) || filterBySettlementDate(execution, date, totalPosition);
 	}
 
 	/**
@@ -81,7 +86,7 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 	}
 
 	/**
-	 * @return true if execution was traded on or before given date
+	 * @return true if execution was settled on or before given date
 	 */
 	private boolean filterBySettlementDate(Execution execution, LocalDate date, boolean totalPosition) {
 		return Optional.ofNullable(execution.getSettlementTerms())
