@@ -65,7 +65,7 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 
 	/**
 	 * @param execution
-	 * @param date find executions traded or settled, on or before (depending on totalPosition) this date
+	 * @param date          find executions traded or settled, on or before (depending on totalPosition) this date
 	 * @param totalPosition true if aggregating all executions on or before date, false if aggregating executions for that date only
 	 * @return true if execution matches filter params
 	 */
@@ -141,7 +141,7 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 							 .map(Bond::getProductIdentifier)
 							 .anyMatch(idsToFind ->
 									 getIdentifiersAsString(idsToFind).stream().anyMatch(identifiers::contains)
-									 	&& source == idsToFind.getSource());
+											 && source == idsToFind.getSource());
 	}
 
 	private Set<String> getIdentifiersAsString(ProductIdentifier productIdentifier) {
@@ -232,9 +232,9 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 								 .map(r -> r.getPartyReference().getGlobalReference())
 								 .collect(MoreCollectors.onlyElement());
 		return e.getPartyRole().stream()
-								   .filter(r -> partyReference.equals(r.getPartyReference().getGlobalReference()))
-								   .map(r -> r.getRole())
-								   .filter(r -> r == PartyRoleEnum.BUYER || r == PartyRoleEnum.SELLER)
-								   .collect(MoreCollectors.onlyElement());
+				.filter(r -> partyReference.equals(r.getPartyReference().getGlobalReference()))
+				.map(r -> r.getRole())
+				.filter(r -> r == PartyRoleEnum.BUYER || r == PartyRoleEnum.SELLER)
+				.collect(MoreCollectors.onlyElement());
 	}
 }
