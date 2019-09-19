@@ -24,7 +24,7 @@ import com.rosetta.model.lib.records.DateImpl;
 
 public class CalculationPeriodImpl extends CalculationPeriod {
 	
-	@Inject ReferenceDateService referenceDateService;
+	@Inject(optional=true) ReferenceDateService referenceDateService;
 
 	@Override
 	protected CalculationPeriodDataBuilder doEvaluate(CalculationPeriodDates calculationPeriodDates) {
