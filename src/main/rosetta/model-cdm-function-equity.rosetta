@@ -119,13 +119,13 @@ func ResolveEquityContract: <"Specifies how the updated contract should be const
 //		<"Reset primitive after state must be correctly populated with the equity payout including the rate of return.">
 //		rateOfReturn
 		
-	assign-output updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout ->priceReturnTerms -> valuationPriceInterim -> netPrice :
+	assign-output updatedEquityPayout -> priceReturnTerms -> valuationPriceInterim -> netPrice -> amount :
 		if EquityCalculationPeriod( equityPayout, periodEndDate ) -> isLastPeriod = False then price
 		
-	assign-output updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout ->priceReturnTerms -> valuationPriceFinal -> netPrice :
+	assign-output updatedEquityPayout -> priceReturnTerms -> valuationPriceFinal -> netPrice -> amount :
 		if EquityCalculationPeriod( equityPayout, periodEndDate ) -> isLastPeriod then price
 	
-	assign-output updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout ->priceReturnTerms -> price :
+	assign-output updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout ->priceReturnTerms -> price  -> netPrice -> amount :
 		price
 			
 //	assign-output updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> performance : 
@@ -250,7 +250,7 @@ func ResolveEquityPeriodStartPrice: <"Resolves the price from the end of the pre
 	output: price number (1..1)
 	assign-output price :
 		if constractState -> updatedContract count = 1 then 
-			constractState -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout
+			constractState -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout -> priceReturnTerms -> initialPrice -> netPrice -> amount
 	// With the current state of the Reset implementation, a single updated contract is captured on the Contract State. 
 	// Once the full history of Rest values are stored, this function will use the penultimate entry to retrieve the previous period's price.  
 	

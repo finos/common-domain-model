@@ -56,14 +56,14 @@ func NewExecutionPrimitive: <"Function specification to compose an execution bas
 
 func FormContract : <"Function specification to create the fully-formed business event of entering into a new contract, as a combination of an execution primitive and a contract formation primitive, when there is no allocation involved and the contractual parties are the execution parties. This specification is meant to replace the 'Inception' primitive that previously co-mingled these 2 primitives.">
 	inputs:
-		event Event (1..1)
+		executionEvent Event (1..1)
 		legalAgreement LegalAgreement (0..1)
 		
 	output:
-		event Event (1..1)
+		contractFormationEvent Event (1..1)
 	
 	alias execution :
-		event -> primitive -> execution -> after -> execution
+		executionEvent -> primitive -> execution -> after -> execution
 	
 	condition : <"Input event must be an execution must be on a contractual product.">
 		execution exists;
@@ -72,21 +72,21 @@ func FormContract : <"Function specification to create the fully-formed business
 	condition : <"Ensures that parties to the Contract are defined in the Legal Agreement, if one is provided."> 
 		if legalAgreement exists then legalAgreement -> contractualParty contains execution -> party;
 		
-	assign-output event -> primitive -> contractFormation : <"Event must contain a contract formation primitive based on the execution primitive and an optional legal agreement.">
-		NewContractFormationPrimitive( event -> primitive -> execution -> after only-element, execution -> party , legalAgreement )
+	assign-output contractFormationEvent -> primitive -> contractFormation : <"Event must contain a contract formation primitive based on the execution primitive and an optional legal agreement.">
+		NewContractFormationPrimitive( executionEvent -> primitive -> execution -> after only-element, execution -> party , legalAgreement )
 	
-	assign-output event -> party : <"The parties on the output Event must match the parties on the input Execution.">
+	assign-output contractFormationEvent -> party : <"The parties on the output Event must match the parties on the input Execution.">
 		execution -> party
 		
-	assign-output event -> lineage -> eventReference : <"Construct the lineage making reference to the input event">
-		event
+	assign-output contractFormationEvent -> lineage -> eventReference : <"Construct the lineage making reference to the input event">
+		executionEvent
 		
 	post-condition : <"Event effect must point to the new execution and contract, and exclude other effects.">
-		event -> eventEffect -> contract = event -> primitive -> contractFormation -> after -> contract;
-		event -> eventEffect -> effectedExecution = event -> primitive -> contractFormation -> before -> execution;
-		event -> eventEffect -> effectedContract is absent;
-		event -> eventEffect -> productIdentifier is absent;
-		event -> eventEffect -> transfer is absent;
+		contractFormationEvent -> eventEffect -> contract = contractFormationEvent -> primitive -> contractFormation -> after -> contract;
+		contractFormationEvent -> eventEffect -> effectedExecution = contractFormationEvent -> primitive -> contractFormation -> before -> execution;
+		contractFormationEvent -> eventEffect -> effectedContract is absent;
+		contractFormationEvent -> eventEffect -> productIdentifier is absent;
+		contractFormationEvent -> eventEffect -> transfer is absent;
 					
 					
 func NewContractFormationPrimitive : <"Function specification to create a fully-formed contract following execution on a contractual product. The contract can optionally reference a further legal agreement (such as a CSA or a Master Confirmation).">
@@ -150,7 +150,7 @@ func Reset :
 	assign-output reset -> eventEffect -> contract :
 		contract
 		
-	assign-output reset -> timestamp :
+	assign-output reset -> timestamp -> dateTime:
 		timestamp
 		
 	post-condition: 
@@ -186,7 +186,6 @@ func ResolveUpdatedContract : <"The updated contract should be generated differe
 		contractState ContractState (1..1)
 		observation ObservationPrimitive (1..1)
 		timestamp zonedDateTime (1..1)
-		
 		
 	output: 
 		updatedContract Contract (1..1) <"An object that follows the structure of the Contract with only the updated values are set.">
