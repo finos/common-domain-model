@@ -2,6 +2,7 @@ package org.isda.cdm.functions;
 
 import org.isda.cdm.ContractFormation;
 import org.isda.cdm.Event;
+import org.isda.cdm.Event.EventBuilder;
 import org.isda.cdm.EventEffect;
 import org.isda.cdm.ExecutionPrimitive;
 import org.isda.cdm.Identifier;
@@ -9,7 +10,6 @@ import org.isda.cdm.LegalAgreement;
 import org.isda.cdm.Party;
 import org.isda.cdm.PrimitiveEvent;
 import org.isda.cdm.Product;
-import org.isda.cdm.functions.NewContractEvent;
 import org.isda.cdm.functions.example.services.identification.IdentifierService;
 import org.isda.cdm.metafields.ReferenceWithMetaContract;
 import org.isda.cdm.metafields.ReferenceWithMetaExecution;
@@ -22,7 +22,7 @@ public class NewContractEventImpl extends NewContractEvent {
     
 
     @Override
-    protected Event doEvaluate(Product product, Party partyA, Party partyB, LegalAgreement legalAgreement) {
+    protected EventBuilder doEvaluate(Product product, Party partyA, Party partyB, LegalAgreement legalAgreement) {
         Identifier id = identifierService.nextType(partyA.getMeta().getExternalKey(), Event.class.getSimpleName());
         identifierService.put(id);
 
@@ -43,7 +43,7 @@ public class NewContractEventImpl extends NewContractEvent {
                         .addExecutionBuilder(ReferenceWithMetaExecution.builder().setValue(executionPrimitive.getAfter().getExecution()))
                         .addEffectedExecutionBuilder(ReferenceWithMetaExecution.builder().setValue(contractFormation.getBefore().getExecution())));
 
-        return eventBuilder.build();
+        return eventBuilder;
     }
 
 }

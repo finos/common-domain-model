@@ -23,7 +23,7 @@ public class NewContractFormationFromExecutionImpl extends NewContractFormationF
 	@Inject private PostProcessorProvider postProcessorProvider;
 
 	@Override
-	protected ContractFormation doEvaluate(ExecutionState executionState, Party partyA, Party partyB,
+	protected ContractFormationBuilder doEvaluate(ExecutionState executionState, Party partyA, Party partyB,
 			LegalAgreement legalAgreement) {
 		Identifier id = identifierService.nextType(partyA.getMeta().getExternalKey(), Contract.class.getSimpleName());
 		ContractualProduct contractualProduct = executionState.getExecution().getProduct().getContractualProduct();
@@ -41,6 +41,6 @@ public class NewContractFormationFromExecutionImpl extends NewContractFormationF
 		postProcessorProvider.getPostProcessor()
 				.forEach(step -> step.runProcessStep(ExecutionPrimitive.class, builder));
 
-		return builder.build();
+		return builder;
 	}
 }

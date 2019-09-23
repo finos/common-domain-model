@@ -7,6 +7,7 @@ import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
 
 import org.isda.cdm.EquityCalculationPeriodData;
+import org.isda.cdm.EquityCalculationPeriodData.EquityCalculationPeriodDataBuilder;
 import org.isda.cdm.EquityPayout;
 import org.isda.cdm.PriceReturnTerms;
 
@@ -38,7 +39,7 @@ public class EquityCalculationPeriodImpl extends EquityCalculationPeriod {
 	}
 
 	@Override
-	protected EquityCalculationPeriodData doEvaluate(EquityPayout equityPayout, Date businessDate) {
+	protected EquityCalculationPeriodDataBuilder doEvaluate(EquityPayout equityPayout, Date businessDate) {
 		PriceReturnTerms terms = equityPayout.getPriceReturnTerms();
 
 		List<LocalDate> unadjustedDate = terms.getValuationPriceInterim().getValuationDates().getAdjustableDates().getUnadjustedDate()
@@ -56,6 +57,6 @@ public class EquityCalculationPeriodImpl extends EquityCalculationPeriod {
 				.setStartDate(new DateImpl(startDate))
 				.setEndDate(new DateImpl(endDate))
 				.setIsFirstPeriod(startDate.equals(effectiveDate))
-				.setIsLastPeriod(endDate.equals(terminationDate)).build();
+				.setIsLastPeriod(endDate.equals(terminationDate));
 	}
 }

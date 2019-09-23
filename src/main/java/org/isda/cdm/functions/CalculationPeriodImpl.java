@@ -8,8 +8,11 @@ import java.time.chrono.IsoChronology;
 import java.time.temporal.ChronoUnit;
 
 import org.isda.cdm.CalculationPeriodData;
+import org.isda.cdm.CalculationPeriodData.CalculationPeriodDataBuilder;
 import org.isda.cdm.CalculationPeriodDates;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
@@ -20,15 +23,12 @@ import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.lib.records.DateImpl;
 
 public class CalculationPeriodImpl extends CalculationPeriod {
-
-	private final Date referenceDate;
-
-	public CalculationPeriodImpl(Date referenceDate) {
-		this.referenceDate = referenceDate;
-	}
+	
+	@Inject(optional=true) ReferenceDateService referenceDateService;
 
 	@Override
-	protected CalculationPeriodData doEvaluate(CalculationPeriodDates calculationPeriodDates) {
+	protected CalculationPeriodDataBuilder doEvaluate(CalculationPeriodDates calculationPeriodDates) {
+		Date referenceDate = referenceDateService.get();
 		PeriodicSchedule periodicSchedule = PeriodicSchedule.of(
 				calculationPeriodDates.getEffectiveDate().getAdjustableDate().getUnadjustedDate().toLocalDate(),
 				calculationPeriodDates.getTerminationDate().getAdjustableDate().getUnadjustedDate().toLocalDate(),
@@ -56,11 +56,12 @@ public class CalculationPeriodImpl extends CalculationPeriod {
 			.setEndDate(new DateImpl(targetPeriod.getEndDate()))
 			.setDaysInLeapYearPeriod(daysThatAreInLeapYear)
 			.setDaysInPeriod((int) ChronoUnit.DAYS.between(targetPeriod.getStartDate(), targetPeriod.getEndDate()))
-			.build();
+			;
 	}
 	
 	private LocalDate toLocalDate(Date date) {
 		return LocalDate.of(date.getYear(), date.getMonth(), date.getDay());
 	}
-
+	
+	public interface ReferenceDateService extends Provider<Date> {}
 }

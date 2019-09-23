@@ -18,7 +18,7 @@ public class NewExecutionFromProductImpl extends NewExecutionFromProduct {
 	@Inject private PostProcessorProvider postProcessorProvider;
 	
 	@Override
-	protected ExecutionPrimitive doEvaluate(Product product, Party partyA, Party partyB) {
+	protected ExecutionPrimitiveBuilder doEvaluate(Product product, Party partyA, Party partyB) {
 		Identifier id = identifierService.nextType(partyA.getMeta().getExternalKey(), Execution.class.getSimpleName());
 
 		ExecutionPrimitiveBuilder builder = ExecutionPrimitive
@@ -29,6 +29,6 @@ public class NewExecutionFromProductImpl extends NewExecutionFromProduct {
 								.setProduct(product)));
 
 		postProcessorProvider.getPostProcessor().forEach(step -> step.runProcessStep(ExecutionPrimitive.class, builder));
-		return builder.build();
+		return builder;
 	}
 }
