@@ -1,45 +1,18 @@
 package org.isda.cdm.functions;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.isda.cdm.AdjustableDate;
-import org.isda.cdm.AdjustableOrRelativeDate;
-import org.isda.cdm.AggregationParameters;
-import org.isda.cdm.Bond;
-import org.isda.cdm.ClosedState;
-import org.isda.cdm.ClosedStateEnum;
-import org.isda.cdm.Execution;
-import org.isda.cdm.Party;
-import org.isda.cdm.PartyRoleEnum;
-import org.isda.cdm.Portfolio;
-import org.isda.cdm.PortfolioState;
+import com.google.common.collect.MoreCollectors;
+import com.regnosys.rosetta.common.hashing.*;
+import com.rosetta.model.lib.process.PostProcessStep;
+import org.isda.cdm.*;
 import org.isda.cdm.PortfolioState.PortfolioStateBuilder;
-import org.isda.cdm.Position;
-import org.isda.cdm.PositionStatusEnum;
-import org.isda.cdm.Product;
-import org.isda.cdm.ProductIdSourceEnum;
-import org.isda.cdm.ProductIdentifier;
-import org.isda.cdm.Quantity;
-import org.isda.cdm.Security;
-import org.isda.cdm.SettlementTerms;
 import org.isda.cdm.metafields.FieldWithMetaDate;
 import org.isda.cdm.metafields.FieldWithMetaString;
 import org.isda.cdm.metafields.ReferenceWithMetaParty;
 
-import com.google.common.collect.MoreCollectors;
-import com.regnosys.rosetta.common.hashing.NonNullHashCollector;
-import com.regnosys.rosetta.common.hashing.ReKeyProcessStep;
-import com.regnosys.rosetta.common.hashing.RosettaKeyProcessStep;
-import com.regnosys.rosetta.common.hashing.RosettaKeyValueHashFunction;
-import com.regnosys.rosetta.common.hashing.RosettaKeyValueProcessStep;
-import com.rosetta.model.lib.process.PostProcessStep;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 
@@ -48,9 +21,9 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 
 	public EvaluatePortfolioStateImpl(List<Execution> executions) {
 		this.executions = executions;
-		RosettaKeyProcessStep rosettaKeyProcessStep = new RosettaKeyProcessStep(() -> new NonNullHashCollector());
+		RosettaKeyProcessStep rosettaKeyProcessStep = new RosettaKeyProcessStep(NonNullHashCollector::new);
 		this.postProcessors = Arrays.asList(rosettaKeyProcessStep,
-				new RosettaKeyValueProcessStep(() -> new RosettaKeyValueHashFunction()),
+				new RosettaKeyValueProcessStep(RosettaKeyValueHashFunction::new),
 				new ReKeyProcessStep(rosettaKeyProcessStep));
 	}
 
@@ -83,8 +56,8 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 																	   .build())
 															.collect(Collectors.toSet());
 
-		PortfolioState.PortfolioStateBuilder portfolioStateBuilder = PortfolioState.builder();
-		aggregatedPositions.forEach(p -> portfolioStateBuilder.addPositions(p));
+		PortfolioStateBuilder portfolioStateBuilder = PortfolioState.builder();
+		aggregatedPositions.forEach(portfolioStateBuilder::addPositions);
 
 		// Update keys / references
 		postProcessors.forEach(postProcessStep -> postProcessStep.runProcessStep(PortfolioState.class, portfolioStateBuilder));
@@ -262,7 +235,7 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 								 .collect(MoreCollectors.onlyElement());
 		return e.getPartyRole().stream()
 				.filter(r -> partyReference.equals(r.getPartyReference().getGlobalReference()))
-				.map(r -> r.getRole())
+				.map(PartyRole::getRole)
 				.filter(r -> r == PartyRoleEnum.BUYER || r == PartyRoleEnum.SELLER)
 				.collect(MoreCollectors.onlyElement());
 	}

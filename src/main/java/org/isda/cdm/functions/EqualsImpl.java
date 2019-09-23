@@ -1,7 +1,7 @@
 package org.isda.cdm.functions;
 
-import java.lang.Boolean;
 import java.math.BigDecimal;
+
 import org.isda.cdm.ContractualQuantity;
 
 public class EqualsImpl extends Equals {

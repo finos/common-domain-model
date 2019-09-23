@@ -22,25 +22,23 @@ import org.isda.cdm.NotionalSchedule;
 import org.isda.cdm.PeriodExtendedEnum;
 import org.isda.cdm.RateSpecification;
 import org.isda.cdm.RollConventionEnum;
-import org.isda.cdm.functions.CalculationPeriod;
-import org.isda.cdm.functions.CalculationPeriodImpl;
-import org.isda.cdm.functions.GetRateSchedule;
-import org.isda.cdm.functions.GetRateScheduleImpl;
-import org.isda.cdm.functions.PeriodsInYear;
-import org.isda.cdm.functions.ResolveRateIndex;
-import org.isda.cdm.functions.ResolveRateIndexImpl;
-import org.isda.cdm.functions.ToAdjustedDateFunctionImpl;
+import org.isda.cdm.functions.AbstractFunctionTest;
+import org.isda.cdm.functions.FloatingAmount;
 import org.isda.cdm.metafields.FieldWithMetaDayCountFractionEnum;
 import org.isda.cdm.metafields.FieldWithMetaFloatingRateIndexEnum;
 import org.isda.cdm.metafields.FieldWithMetaString;
 import org.isda.cdm.metafields.ReferenceWithMetaBusinessCenters;
 import org.junit.jupiter.api.Test;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.rosetta.model.lib.records.DateImpl;
 
-class FloatingAmountTest {
-
-    private static final InterestRatePayout INTEREST_RATE_PAYOUT = InterestRatePayout.builder()
+class FloatingAmountTest extends AbstractFunctionTest{
+	
+	@Inject Provider<FloatingAmount> floatingAmount;
+    
+	private static final InterestRatePayout INTEREST_RATE_PAYOUT = InterestRatePayout.builder()
             .setQuantity(ContractualQuantity.builder()
                     .setNotionalSchedule(NotionalSchedule.builder()
                             .setNotionalStepSchedule((NonNegativeAmountSchedule) NonNegativeAmountSchedule.builder()
@@ -95,21 +93,9 @@ class FloatingAmountTest {
 
     @Test
     void shouldApplyMultiplication() {
-        ResolveRateIndex resolveRateIndex = new ResolveRateIndexImpl();  // 0.0875
-        GetRateSchedule getRateSchedule = new GetRateScheduleImpl();
-        CalculationPeriod calculationPeriod = new CalculationPeriodImpl(DateImpl.of(2018, 1, 3));
-        PeriodsInYear periodsInYear = new PeriodsInYear() {
-
-			@Override
-			protected Integer doEvaluate(CalculationPeriodFrequency frequency) {
-				return 4;
-			}};
-		ToAdjustedDateFunctionImpl toAdjustedDate = new ToAdjustedDateFunctionImpl();
-
-        FloatingAmount.CalculationResult result = new FloatingAmount(resolveRateIndex, getRateSchedule, calculationPeriod, periodsInYear, toAdjustedDate)
-                .calculate(INTEREST_RATE_PAYOUT);
-
-        assertThat(result.getFloatingAmount(), closeTo(BigDecimal.valueOf(1093750), BigDecimal.valueOf(0.0000001)));
+    	FloatingAmount floatingAmount = this.floatingAmount.get();
+        BigDecimal result = floatingAmount.evaluate(INTEREST_RATE_PAYOUT);
+        assertThat(result, closeTo(BigDecimal.valueOf(1093750), BigDecimal.valueOf(0.0000001)));
     }
 
 
