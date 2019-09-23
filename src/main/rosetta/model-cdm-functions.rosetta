@@ -114,7 +114,8 @@ func NewContractFormationPrimitive : <"Function specification to create a fully-
 func Reset :
 	inputs: 
 		previousEvent Event (1..1)
-		observationEvent Event (1..1) <"The ">
+		observationEvent Event (1..1)
+		timestamp zonedDateTime (1..1)
 			
 	output: 
 		reset Event (1..1)
@@ -135,7 +136,7 @@ func Reset :
 		observation exists;
 		
 	assign-output reset -> primitive -> reset : 
-		NewResetPrimitive( contractState, observation )
+		NewResetPrimitive( contractState, observation, timestamp )
 		
 	assign-output reset -> lineage -> eventReference : 
 		previousEvent
@@ -149,6 +150,9 @@ func Reset :
 	assign-output reset -> eventEffect -> contract :
 		contract
 		
+	assign-output reset -> timestamp :
+		timestamp
+		
 	post-condition: 
 		reset -> eventEffect -> effectedExecution is absent;
 		reset -> eventEffect -> execution is absent;
@@ -159,6 +163,7 @@ func NewResetPrimitive : <"Specifies how a Reset Primitive should be constructed
 	inputs:
 		contractState ContractState (1..1)
 		observation ObservationPrimitive (1..1)
+		timestamp zonedDateTime (1..1)
 	
 	output:
 		resetPrimitive ResetPrimitive (1..1)
@@ -173,13 +178,15 @@ func NewResetPrimitive : <"Specifies how a Reset Primitive should be constructed
 		contractState -> contract
 		
 	assign-output resetPrimitive -> after -> updatedContract : <"To handle the various ways Contracts can change over time, ">
-		ResolveUpdatedContract( contractState, observation )
+		ResolveUpdatedContract( contractState, observation, timestamp )
 
 
 func ResolveUpdatedContract : <"The updated contract should be generated differently in different reset scenarios. This function handles how the contract should update according to which payouts are present within the Economic Terms."> 
 	inputs: 
 		contractState ContractState (1..1)
 		observation ObservationPrimitive (1..1)
+		timestamp zonedDateTime (1..1)
+		
 		
 	output: 
 		updatedContract Contract (1..1) <"An object that follows the structure of the Contract with only the updated values are set.">
@@ -188,7 +195,7 @@ func ResolveUpdatedContract : <"The updated contract should be generated differe
 		contractState -> contract -> contractualProduct -> economicTerms -> payout
 	
 	assign-output updatedContract :
-		if payout -> equityPayout exists then ResolveEquityContract( contractState, observation )  
+		if payout -> equityPayout exists then ResolveEquityContract( contractState, observation, timestamp )  
 
 
 func TransferCash: <"Function specification to build a transfer event following a reset on a contract">
@@ -210,14 +217,14 @@ func TransferCash: <"Function specification to build a transfer event following 
 		transferEvent -> primitive -> transfer only exists;
 
 	post-condition: <"Event effect must include the contract generating the cashflow.">
-        transferEvent -> eventEffect -> effectedContract = contract;
-        transferEvent -> eventEffect -> contract = contract;
+        transferEvent -> eventEffect -> effectedContract = contractState -> contract;
+        transferEvent -> eventEffect -> contract = contractState -> contract;
         transferEvent -> eventEffect -> effectedExecution is absent;
         transferEvent -> eventEffect -> execution is absent;
         transferEvent -> eventEffect -> productIdentifier is absent;
 
 	post-condition: <"Event lineage must point to the contract that generated the cashflow and the reset event.">
-		transferEvent -> lineage -> contractReference = contract;
+		transferEvent -> lineage -> contractReference = contractState -> contract;
 		transferEvent -> lineage -> eventReference = resetEvent;
 
 
