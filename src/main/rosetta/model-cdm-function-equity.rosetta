@@ -217,7 +217,7 @@ func EquityCashSettlementAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity
 //		else equityPayout -> priceReturnTerms -> valuationPriceInterim -> netPrice
 		
 	alias periodStartPrice :
-		ResolveEquityPeriodStartPrice( contractState )
+		ResolveEquityPeriodStartPrice( contractState, date )
 		
 	alias periodEndPrice :
 		contractState -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> priceReturnTerms -> price -> netPrice -> amount
@@ -231,28 +231,35 @@ func EquityCashSettlementAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity
 	alias equityNotionalAmount:
 		EquityNotionalAmount( quantity, periodEndPrice )
 		
-	alias equityPerformance: 
-		EquityPerformance( rateOfReturn, equityNotionalAmount )
+	alias currency :
+		if equityPayout -> priceReturnTerms -> initialPrice -> netPrice exists 
+			then equityPayout -> priceReturnTerms -> initialPrice -> netPrice -> currency
 		
 	condition:
 		equityPayout -> payoutQuantity -> quantityNotationTag = QuantityNotationEnum.NumberOfSecurities; 
 		
-	assign-output equityCashSettlementAmount -> amount : <"Equity Cash Settlement Amount is defined as absolute value of the equity performance, this departs from the ISDA documentation (which defines the Equity Cash Settlement Amount as = ABS( Rate of Return ) x Equity Notional Amount."> 
-		Abs( equityPerformance )  
+	assign-output equityCashSettlementAmount -> amount : <"Equity Cash Settlement Amount as = ABS( Rate of Return ) x Equity Notional Amount."> 
+		Abs( rateOfReturn ) * equityNotionalAmount  
 		
 	assign-output equityCashSettlementAmount -> currency : <"Does not handle the cross currency case, currently.">
-		if equityPayout -> priceReturnTerms -> initialPrice -> netPrice exists 
-			then equityPayout -> priceReturnTerms -> initialPrice -> netPrice -> currency
+		currency
 
 
 func ResolveEquityPeriodStartPrice: <"Resolves the price from the end of the previous period. If first period, then take the initial price.">
-	inputs: constractState ContractState (1..1)
-	output: price number (1..1)
-	assign-output price :
-		if constractState -> updatedContract count = 1 then 
-			constractState -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout -> priceReturnTerms -> initialPrice -> netPrice -> amount
-	// With the current state of the Reset implementation, a single updated contract is captured on the Contract State. 
-	// Once the full history of Rest values are stored, this function will use the penultimate entry to retrieve the previous period's price.  
+	inputs: 
+		constractState ContractState (1..1)
+		date date (1..1)
+	output: 
+		price number (1..1)
+		
+	alias priceReturnTerms:
+		constractState -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout -> priceReturnTerms
+		
+	// TODO: update logic once ContractState holds multiple Updated Contracts, this function should then use the previous period's price.
+	assign-output price : <"The initial price is taken from the original contract if we are Resetting for the first time i.e. when the number of updated contracts is one.">
+		if constractState -> updatedContract count = 1 
+		then priceReturnTerms -> initialPrice -> netPrice -> amount
+		else priceReturnTerms -> price -> netPrice -> amount   
 	
 	
 //func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Performance = (Rate Of Return) × Equity Notional Amount.">
