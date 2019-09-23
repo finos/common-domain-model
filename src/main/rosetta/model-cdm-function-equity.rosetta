@@ -112,10 +112,10 @@ func ResolveEquityContract: <"Specifies how the updated contract should be const
 		equityPayout exists;
 		
 	assign-output updatedEquityPayout -> priceReturnTerms -> valuationPriceFinal -> netPrice -> amount :
-		if EquityCalculationPeriod( equityPayout, periodEndDate ) -> isLastPeriod then price
+		if CalculationPeriod( equityPayout -> calculationPeriodDates, periodEndDate ) -> isLastPeriod then price
 		
 	assign-output updatedEquityPayout -> priceReturnTerms -> valuationPriceInterim -> netPrice -> amount :
-		if EquityCalculationPeriod( equityPayout, periodEndDate ) -> isLastPeriod = False then price
+		if CalculationPeriod( equityPayout -> calculationPeriodDates, periodEndDate ) -> isLastPeriod = False then price
 			
 	assign-output updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> performance : 
 		<"Reset primitive after state must be correctly populated with the equity payout including the performance.">

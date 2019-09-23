@@ -8,6 +8,7 @@ import java.time.chrono.IsoChronology;
 import java.time.temporal.ChronoUnit;
 
 import org.isda.cdm.CalculationPeriodData;
+import org.isda.cdm.CalculationPeriodData.CalculationPeriodDataBuilder;
 import org.isda.cdm.CalculationPeriodDates;
 
 import com.opengamma.strata.basics.ReferenceData;
@@ -21,14 +22,8 @@ import com.rosetta.model.lib.records.DateImpl;
 
 public class CalculationPeriodImpl extends CalculationPeriod {
 
-	private final Date referenceDate;
-
-	public CalculationPeriodImpl(Date referenceDate) {
-		this.referenceDate = referenceDate;
-	}
-
 	@Override
-	protected CalculationPeriodData doEvaluate(CalculationPeriodDates calculationPeriodDates) {
+	protected CalculationPeriodDataBuilder doEvaluate(CalculationPeriodDates calculationPeriodDates, ZonedDateTime timestamp) {
 		PeriodicSchedule periodicSchedule = PeriodicSchedule.of(
 				calculationPeriodDates.getEffectiveDate().getAdjustableDate().getUnadjustedDate().toLocalDate(),
 				calculationPeriodDates.getTerminationDate().getAdjustableDate().getUnadjustedDate().toLocalDate(),
@@ -55,8 +50,7 @@ public class CalculationPeriodImpl extends CalculationPeriod {
 			.setStartDate(new DateImpl(targetPeriod.getStartDate()))
 			.setEndDate(new DateImpl(targetPeriod.getEndDate()))
 			.setDaysInLeapYearPeriod(daysThatAreInLeapYear)
-			.setDaysInPeriod((int) ChronoUnit.DAYS.between(targetPeriod.getStartDate(), targetPeriod.getEndDate()))
-			.build();
+			.setDaysInPeriod((int) ChronoUnit.DAYS.between(targetPeriod.getStartDate(), targetPeriod.getEndDate()));
 	}
 	
 	private LocalDate toLocalDate(Date date) {

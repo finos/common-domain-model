@@ -1,17 +1,45 @@
 package org.isda.cdm.functions;
 
-import com.google.common.collect.MoreCollectors;
-import com.regnosys.rosetta.common.hashing.*;
-import com.rosetta.model.lib.process.PostProcessStep;
-import org.isda.cdm.*;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.isda.cdm.AdjustableDate;
+import org.isda.cdm.AdjustableOrRelativeDate;
+import org.isda.cdm.AggregationParameters;
+import org.isda.cdm.Bond;
+import org.isda.cdm.ClosedState;
+import org.isda.cdm.ClosedStateEnum;
+import org.isda.cdm.Execution;
+import org.isda.cdm.Party;
+import org.isda.cdm.PartyRoleEnum;
+import org.isda.cdm.Portfolio;
+import org.isda.cdm.PortfolioState;
+import org.isda.cdm.PortfolioState.PortfolioStateBuilder;
+import org.isda.cdm.Position;
+import org.isda.cdm.PositionStatusEnum;
+import org.isda.cdm.Product;
+import org.isda.cdm.ProductIdSourceEnum;
+import org.isda.cdm.ProductIdentifier;
+import org.isda.cdm.Quantity;
+import org.isda.cdm.Security;
+import org.isda.cdm.SettlementTerms;
 import org.isda.cdm.metafields.FieldWithMetaDate;
 import org.isda.cdm.metafields.FieldWithMetaString;
 import org.isda.cdm.metafields.ReferenceWithMetaParty;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.google.common.collect.MoreCollectors;
+import com.regnosys.rosetta.common.hashing.NonNullHashCollector;
+import com.regnosys.rosetta.common.hashing.ReKeyProcessStep;
+import com.regnosys.rosetta.common.hashing.RosettaKeyProcessStep;
+import com.regnosys.rosetta.common.hashing.RosettaKeyValueHashFunction;
+import com.regnosys.rosetta.common.hashing.RosettaKeyValueProcessStep;
+import com.rosetta.model.lib.process.PostProcessStep;
 
 public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 
@@ -27,7 +55,7 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 	}
 
 	@Override
-	protected PortfolioState doEvaluate(Portfolio input) {
+	protected PortfolioStateBuilder doEvaluate(Portfolio input) {
 		AggregationParameters params = input.getAggregationParameters();
 		// For this example ignore time, only used date
 		LocalDate date = params.getDateTime().toLocalDate();
@@ -61,7 +89,7 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 		// Update keys / references
 		postProcessors.forEach(postProcessStep -> postProcessStep.runProcessStep(PortfolioState.class, portfolioStateBuilder));
 
-		return portfolioStateBuilder.build();
+		return portfolioStateBuilder;
 	}
 
 	/**

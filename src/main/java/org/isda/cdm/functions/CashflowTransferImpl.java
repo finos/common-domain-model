@@ -6,7 +6,7 @@ import org.isda.cdm.TransferPrimitive;
 public class CashflowTransferImpl extends CashflowTransfer {
 	
 	@Override
-	protected TransferPrimitive doEvaluate(Cashflow cashflow) {
+	protected TransferPrimitive.TransferPrimitiveBuilder doEvaluate(Cashflow cashflow) {
 		throw new UnsupportedOperationException("TODO: auto-generated method stub");
 	}
 }

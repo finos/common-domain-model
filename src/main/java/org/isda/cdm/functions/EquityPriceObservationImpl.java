@@ -10,7 +10,7 @@ import org.isda.cdm.TimeTypeEnum;
 public class EquityPriceObservationImpl extends EquityPriceObservation {
 	
 	@Override
-	protected ObservationPrimitive doEvaluate(Equity equity, AdjustableOrRelativeDate valuationDate, BusinessCenterTime valuationTime, TimeTypeEnum timeType, DeterminationMethodEnum determinationMethod) {
+	protected ObservationPrimitive.ObservationPrimitiveBuilder doEvaluate(Equity equity, AdjustableOrRelativeDate valuationDate, BusinessCenterTime valuationTime, TimeTypeEnum timeType, DeterminationMethodEnum determinationMethod) {
 		throw new UnsupportedOperationException("TODO: auto-generated method stub");
 	}
 }
