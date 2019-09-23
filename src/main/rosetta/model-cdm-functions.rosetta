@@ -197,14 +197,14 @@ func TransferCash: <"Function specification to build a transfer event following 
 	output:
 		transferEvent Event (1..1)
 
-	alias contract :
-		resetEvent -> primitive -> reset -> after -> contract
+	alias contractState :
+		resetEvent -> primitive -> reset -> after
 		
 	condition: <"There must be a reset primitive on the event input, and the contract being referenced must be consistent between those events.">
 		resetEvent -> primitive -> reset exists;
 		
 	assign-output transferEvent -> primitive -> transfer :
-		NewCashTransferPrimitive( contract -> contractualProduct -> economicTerms -> payout )
+		NewCashTransferPrimitive( contractState )
 
 	post-condition: <"Event must contain a transfer primitive populated with the cashflow, and no other primitive.">
 		transferEvent -> primitive -> transfer only exists;
@@ -223,13 +223,13 @@ func TransferCash: <"Function specification to build a transfer event following 
 
 func NewCashTransferPrimitive : <"Function specification to generate a transfer primitive following a reset. The cashflow is being passed as an input, as currently the cashflow is meant to be part of the reset. At a later stage, we should pass the reset value while the cashflow calculation should be executed as part of this spec.">
 	inputs:
-		payout Payout (1..1)
+		contractState ContractState (1..1)
 		
 	output:
 		transfer TransferPrimitive (1..1)
 		
 	alias cashflow :
-		ResolveCashflow( payout )
+		ResolveCashflow( contractState )
 		
 	assign-output transfer -> status :
 		TransferStatusEnum.Instructed
@@ -246,20 +246,21 @@ func NewCashTransferPrimitive : <"Function specification to generate a transfer 
 		
 func ResolveCashflow : <"A product agnostic function that calculates the amount due to be transfered after a Reset Event.">
 	inputs: 
-		payout Payout (1..1)
+		contractState ContractState (1..1)
 	
 	output: 
 		cashflow Cashflow (1..1)
 	
 	assign-output cashflow -> cashflowAmount :
-		if payout -> equityPayout exists then EquityCashSettlementAmount( payout -> equityPayout )
+		if contractState -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout exists 
+			then EquityCashSettlementAmount( contractState )
 		
 	assign-output cashflow -> cashflowDate -> adjustedDate :
-		ResolveCashSettlementDate( payout ) 
+		ResolveCashSettlementDate( contractState ) 
 
 
 func ResolveCashSettlementDate : <"A product agnostic function that resolves the settlement date of the payout for the period in question">
-	inputs: payout Payout (1..1)
+	inputs: contractState ContractState (1..1)
 	output: date date (1..1)
 
 
