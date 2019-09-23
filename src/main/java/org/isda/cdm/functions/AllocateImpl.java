@@ -8,7 +8,7 @@ import org.isda.cdm.Trade;
 public class AllocateImpl extends Allocate {
 	
 	@Override
-	protected Event doEvaluate(Trade trade, AllocationInstructions allocationInstructions, BigDecimal precision) {
+	protected Event.EventBuilder doEvaluate(Trade trade, AllocationInstructions allocationInstructions, BigDecimal precision) {
 		throw new UnsupportedOperationException("TODO: auto-generated method stub");
 	}
 }

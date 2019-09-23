@@ -99,46 +99,33 @@ func ResolveEquityContract: <"Specifies how the updated contract should be const
 	alias equityPayout:
 		contractState -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout
 	
-//	alias effectiveDate :
-//		equityPayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate
-	
 	alias updatedEquityPayout : <"TODO: should be usable in assign-output blocks.">
 		updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
 		
 	alias periodEndDate :
 		CalculationPeriod( equityPayout -> calculationPeriodDates, timestamp ) -> endDate
-	
-//	alias rateOfReturn :
-//		RateOfReturn( equityPayout, price, periodEndDate )
+		
+	alias equityPerformance :
+		EquityPerformance( equityPayout, observation -> observation, periodEndDate )
 		
 	condition isEquityContract :
 		equityPayout exists;
-	
-//	TODO: use alias equityPayout when assign-output can use alias'	
-//	assign-output updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> rateOfReturn : 
-//		<"Reset primitive after state must be correctly populated with the equity payout including the rate of return.">
-//		rateOfReturn
-		
-	assign-output updatedEquityPayout -> priceReturnTerms -> valuationPriceInterim -> netPrice -> amount :
-		if EquityCalculationPeriod( equityPayout, periodEndDate ) -> isLastPeriod = False then price
 		
 	assign-output updatedEquityPayout -> priceReturnTerms -> valuationPriceFinal -> netPrice -> amount :
 		if EquityCalculationPeriod( equityPayout, periodEndDate ) -> isLastPeriod then price
-	
-	assign-output updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout ->priceReturnTerms -> price  -> netPrice -> amount :
-		price
+		
+	assign-output updatedEquityPayout -> priceReturnTerms -> valuationPriceInterim -> netPrice -> amount :
+		if EquityCalculationPeriod( equityPayout, periodEndDate ) -> isLastPeriod = False then price
 			
-//	assign-output updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> performance : 
-//		<"Reset primitive after state must be correctly populated with the equity payout including the performance.">
-//		EquityPerformance( equityPayout, observation -> observation, periodEndDate )
+	assign-output updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> performance : 
+		<"Reset primitive after state must be correctly populated with the equity payout including the performance.">
+		equityPerformance
 	
-//	assign-output updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> quantityMultiplier -> multiplierValue :
-//		<"Using the Rate of Return we 'reset' the multiplier, which is used to resolve the ultimate notional amount for the equity swap.">  
-//		if equityPayout -> payoutQuantity -> quantityMultiplier -> multiplierValue exists 
-//			then equityPayout -> payoutQuantity -> quantityMultiplier -> multiplierValue * rateOfReturn
-//			else rateOfReturn
+	assign-output updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> quantityMultiplier -> multiplierValue :
+		<"Using the Rate of Return we 'reset' the multiplier, which is used to resolve the ultimate notional amount for the equity swap.">  
+		1 + equityPerformance / 100
 
-// TODO: unused?
+
 func EquityPriceObservation: <"Function specification for the observation of an equity price, based on the attributes of the 'EquityValuation' class.">
 	inputs:
 		equity Equity (1..1)
@@ -205,91 +192,82 @@ func EquityCashSettlementAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity
 	
 	alias equityPayout :
 		contractState -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout
-	
-//	alias calculationPeriod : 
-//		EquityCalculationPeriod( equityPayout, date )
-//			
-//	alias initialPrice: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 102. 'Initial Price' means, in respect of the first Equity Valuation Date, the Specified Initial Price, and in respect of each subsequent Equity Valuation Date, the Final Price for the Equity Valuation Date immediately preceding such Equity Valuation Date."> 
-//		if calculationPeriod -> isFirstPeriod
-//			then equityPayout -> priceReturnTerms -> initialPrice -> netPrice -> amount
-//		else if calculationPeriod -> isLastPeriod 
-//			then equityPayout -> priceReturnTerms -> valuationPriceFinal -> netPrice
-//		else equityPayout -> priceReturnTerms -> valuationPriceInterim -> netPrice
-		
-	alias periodStartPrice :
-		ResolveEquityPeriodStartPrice( contractState, date )
-		
-	alias periodEndPrice :
-		contractState -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> priceReturnTerms -> price -> netPrice -> amount
-	
-	alias quantity:
-		ResolveQuantity( equityPayout -> payoutQuantity, date )
-		
-	alias rateOfReturn:
-		RateOfReturn( periodStartPrice, periodEndPrice )
-		
-	alias equityNotionalAmount:
-		EquityNotionalAmount( quantity, periodEndPrice )
-		
-	alias currency :
-		if equityPayout -> priceReturnTerms -> initialPrice -> netPrice exists 
-			then equityPayout -> priceReturnTerms -> initialPrice -> netPrice -> currency
 		
 	condition:
 		equityPayout -> payoutQuantity -> quantityNotationTag = QuantityNotationEnum.NumberOfSecurities; 
 		
-	assign-output equityCashSettlementAmount -> amount : <"Equity Cash Settlement Amount as = ABS( Rate of Return ) x Equity Notional Amount."> 
-		Abs( rateOfReturn ) * equityNotionalAmount  
+	assign-output equityCashSettlementAmount -> amount : <"Equity Cash Settlement Amount is defined here as Abs( Equity Performance ). Per the ISDA Definitions: Equity Performance = (Rate Of Return) × Equity Notional Amount and Equity Cash Settlement Amount = ABS(Rate Of Return) × Equity Notional Amount; so the calculation for Equity Cash Settlement Amount in the CDM is mathematically equivalent, with the added benefit that Rate of Return does not need to be recomputed, since it was already computed in the Reset Event."> 
+		Abs( contractState -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> performance only-element )
 		
 	assign-output equityCashSettlementAmount -> currency : <"Does not handle the cross currency case, currently.">
-		currency
+		equityPayout -> priceReturnTerms -> initialPrice -> netPrice -> currency
 
 
 func ResolveEquityPeriodStartPrice: <"Resolves the price from the end of the previous period. If first period, then take the initial price.">
 	inputs: 
-		constractState ContractState (1..1)
+		equityPayout EquityPayout (1..1)
 		date date (1..1)
 	output: 
 		price number (1..1)
 		
 	alias priceReturnTerms:
-		constractState -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout -> priceReturnTerms
+		equityPayout -> priceReturnTerms
 		
-	// TODO: update logic once ContractState holds multiple Updated Contracts, this function should then use the previous period's price.
+	alias calculationPeriod:
+		equityPayout -> calculationPeriodDates
+		
 	assign-output price : <"The initial price is taken from the original contract if we are Resetting for the first time i.e. when the number of updated contracts is one.">
-		if constractState -> updatedContract count = 1 
+		if CalculationPeriod( calculationPeriod, date ) -> isFirstPeriod  
 		then priceReturnTerms -> initialPrice -> netPrice -> amount
-		else priceReturnTerms -> price -> netPrice -> amount   
+		else priceReturnTerms -> valuationPriceInterim -> netPrice -> amount   
 	
 	
-//func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Performance = (Rate Of Return) × Equity Notional Amount.">
-//	inputs: 
-//		equityPayout EquityPayout(1..1)
-//		observation number (1..1)
-//		date date (1..1)
-//		
-//	output: 
-//		equityPerformance number (1..1)
-//		
-//	alias rateOfReturn : 
-//		RateOfReturn( equityPayout, observation, date )
-//		
-//	alias notionalAmount : 
-//		EquityNotionalAmount( equityPayout, date )
-//		
-//	assign-output equityPerformance : 
-//		rateOfReturn * notionalAmount
-
-
-func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Performance = (Rate Of Return) × Equity Notional Amount.">
-	inputs:
-		rateOfReturn number (1..1)
-		equityNotionalAmount number (1..1)
-	output:
-		performance number (1..1)
+func ResolveEquityPeriodEndPrice: 
+	inputs: 
+		equityPayout EquityPayout (1..1)
+		date date (1..1)
+	output: 
+		price number (1..1)
 		
-	assign-output performance:
-		rateOfReturn * equityNotionalAmount
+	alias priceReturnTerms :
+		equityPayout -> priceReturnTerms
+		
+	alias calculationPeriod :
+		equityPayout -> calculationPeriodDates
+		
+	assign-output price : <"If the last period, take the price from the Valuation Price Final, otherwise from Valuation Price Interim.">
+		if CalculationPeriod( calculationPeriod, date ) -> isLastPeriod  
+		then priceReturnTerms -> valuationPriceFinal -> netPrice -> amount
+		else priceReturnTerms -> valuationPriceInterim -> netPrice -> amount  	
+	
+	
+func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Performance = (Rate Of Return) × Equity Notional Amount.">
+	inputs: 
+		equityPayout EquityPayout(1..1)
+		observation number (1..1)
+		date date (1..1)
+		
+	output: 
+		equityPerformance number (1..1)
+	
+	alias periodStartPrice :
+		ResolveEquityPeriodStartPrice( equityPayout, date )
+		
+	alias periodEndPrice :
+		ResolveEquityPeriodEndPrice( equityPayout, date )
+
+	alias quantity:
+		ResolveQuantity( equityPayout -> payoutQuantity, date )
+				
+	alias rateOfReturn : 
+		RateOfReturn( periodStartPrice, periodEndPrice )
+		
+	alias notionalAmount : 
+		EquityNotionalAmount( quantity, periodEndPrice )
+		
+	assign-output equityPerformance : 
+		rateOfReturn * notionalAmount
+
 
 func RateOfReturn: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 139. 'Rate Of Return' means, in respect of any Equity Valuation Date, the amount determined pursuant to the following formula: Rate Of Return = (Final Price - Initial Price) / Initial Price.">
 	inputs: 
@@ -301,41 +279,17 @@ func RateOfReturn: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation 
 		
 	assign-output rateOfReturn :
 		(finalPrice - initialPrice) / initialPrice
-		
-//	alias calculationPeriod : 
-//		EquityCalculationPeriod( equityPayout, date )
-//			
-//	alias initialPrice: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 102. 'Initial Price' means, in respect of the first Equity Valuation Date, the Specified Initial Price, and in respect of each subsequent Equity Valuation Date, the Final Price for the Equity Valuation Date immediately preceding such Equity Valuation Date."> 
-//		if calculationPeriod -> isFirstPeriod
-//			then equityPayout -> priceReturnTerms -> initialPrice -> netPrice -> amount
-//		else if calculationPeriod -> isLastPeriod 
-//			then equityPayout -> priceReturnTerms -> valuationPriceFinal -> netPrice
-//		else equityPayout -> priceReturnTerms -> valuationPriceInterim -> netPrice	 
-		
-//	assign-output rateOfReturn : 
-//		( observation - initialPrice ) / initialPrice 
 
 
 func EquityNotionalAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 74. 'Equity Notional Amount' means the Number Of Securities times the Initial Price, adjusted, if applicable, as provided in Part 1 Section 2.2, 'Equity Notional Reset'. If 'With Reset' is the Equity Notional Reset Election, then in respect of each Equity Cash Settlement Date: (i) the Equity Notional Amount applicable in respect of the first Equity Cash Settlement Date will be the amount specified as such in the definition of Equity Notional Amount; (ii) the Equity Notional Amount applicable in respect of each subsequent Equity Cash Settlement Date will be the sum of (a) the Equity Notional Amount in respect of the prior Equity Cash Settlement Date and (b) the Equity Performance, whether positive or negative, in respect of the prior Equity Cash Settlement Date; and (iii)	the Floating Notional Amount will be adjusted as provided in sub-clauses (i) and (ii) above as though it were an Equity Notional Amount.">
 	inputs: 
-//		equityPayout EquityPayout(1..1)
-//		date date (1..1)
 		numberOfSecurities Quantity (1..1)
 		price number (1..1)
 		
 	output: 
 		equityNotionalAmount number (1..1)
-		
-//	alias numberOfSecurities :
-//		ResolveQuantity( equityPayout -> underlier -> singleUnderlier -> quantity, date ) -> amount
-//	
-//	alias initialPrice :
-//		equityPayout -> priceReturnTerms -> initialPrice -> netPrice -> amount 
 	
 	assign-output equityNotionalAmount : 
 		numberOfSecurities -> amount * price
 
-
-
-
-	
+		
