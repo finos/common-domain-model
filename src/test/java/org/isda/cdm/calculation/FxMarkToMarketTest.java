@@ -17,13 +17,18 @@ import org.isda.cdm.QuotedCurrencyPair;
 import org.isda.cdm.SingleUnderlier;
 import org.isda.cdm.Underlier;
 import org.isda.cdm.functions.AbstractFunctionTest;
-import org.isda.cdm.functions.InterpolateForwardRateImpl;
+import org.isda.cdm.functions.FxMarkToMarket;
+import org.isda.cdm.services.TestableInterpolateForwardRateService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.google.inject.Inject;
 
 class FxMarkToMarketTest extends AbstractFunctionTest {
-	@Inject InterpolateForwardRateImpl.Factory factory;
+
+	@Inject TestableInterpolateForwardRateService service;
+	@Inject FxMarkToMarket markToMarket;
+	
     // (quotedQuantity / interpolatedRate - baseQuantity) * interpolatedRate
 
     private final ForeignExchangeBuilder foreignExchange = ForeignExchange.builder()
@@ -36,15 +41,20 @@ class FxMarkToMarketTest extends AbstractFunctionTest {
             .setExchangedCurrency2Builder(Cashflow.builder()
                     .setCashflowAmountBuilder(Money.builder()
                             .setAmount(BigDecimal.valueOf(12_500_000))));
-
+	
+    @Override @BeforeEach
+	public void setUp() {
+		super.setUp();
+		service.setDefaultRate(BigDecimal.valueOf(1.5));
+	}
+	
     /**
      * (quotedQuantity / interpolatedRate - baseQuantity) * interpolatedRate
      * (12_500_000 / 1.5 - 10_000_000) * 1.5 = -2_500_00
      */
     @Test
     void shouldCalculate() {
-        FxMarkToMarket markToMarket = new FxMarkToMarket(factory.create(BigDecimal.valueOf(1.5)));
-
+        
         ForwardPayout forwardPayout = ForwardPayout.builder()
                 .setUnderlierBuilder(Underlier.builder()
                         .setSingleUnderlierBuilder(SingleUnderlier.builder()
@@ -52,9 +62,9 @@ class FxMarkToMarketTest extends AbstractFunctionTest {
                                         .setForeignExchangeBuilder(foreignExchange))))
                 .build();
 
-        FxMarkToMarket.CalculationResult result = markToMarket.calculate(forwardPayout);
+        BigDecimal result = markToMarket.evaluate(forwardPayout);
 
-        assertThat(result.getValue(), closeTo(BigDecimal.valueOf(-2500000), BigDecimal.valueOf(0.000001)));
+        assertThat(result, closeTo(BigDecimal.valueOf(-2_500_000), BigDecimal.valueOf(0.000001)));
     }
 
     /**
@@ -63,7 +73,6 @@ class FxMarkToMarketTest extends AbstractFunctionTest {
      */
     @Test
     void shouldRespectBaseVsQuotedCurrency() {
-        FxMarkToMarket markToMarket = new FxMarkToMarket(factory.create(BigDecimal.valueOf(1.5)));
 
         ForeignExchangeBuilder foreignExchangeUpdated = foreignExchange.setExchangeRateBuilder(ExchangeRate.builder()
                 .setQuotedCurrencyPairBuilder(QuotedCurrencyPair.builder()
@@ -76,9 +85,9 @@ class FxMarkToMarketTest extends AbstractFunctionTest {
                                         .setForeignExchangeBuilder(foreignExchangeUpdated))))
                 .build();
 
-        FxMarkToMarket.CalculationResult result = markToMarket.calculate(forwardPayout);
+        BigDecimal result = markToMarket.evaluate(forwardPayout);
 
-        assertThat(result.getValue(), closeTo(BigDecimal.valueOf(-8_750_000), BigDecimal.valueOf(0.000001)));
+        assertThat(result, closeTo(BigDecimal.valueOf(-8_750_000), BigDecimal.valueOf(0.000001)));
     }
 
 }

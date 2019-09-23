@@ -4,6 +4,7 @@ import com.google.common.collect.MoreCollectors;
 import com.regnosys.rosetta.common.hashing.*;
 import com.rosetta.model.lib.process.PostProcessStep;
 import org.isda.cdm.*;
+import org.isda.cdm.PortfolioState.PortfolioStateBuilder;
 import org.isda.cdm.metafields.FieldWithMetaDate;
 import org.isda.cdm.metafields.FieldWithMetaString;
 import org.isda.cdm.metafields.ReferenceWithMetaParty;
@@ -20,14 +21,14 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 
 	public EvaluatePortfolioStateImpl(List<Execution> executions) {
 		this.executions = executions;
-		RosettaKeyProcessStep rosettaKeyProcessStep = new RosettaKeyProcessStep(() -> new NonNullHashCollector());
+		RosettaKeyProcessStep rosettaKeyProcessStep = new RosettaKeyProcessStep(NonNullHashCollector::new);
 		this.postProcessors = Arrays.asList(rosettaKeyProcessStep,
-				new RosettaKeyValueProcessStep(() -> new RosettaKeyValueHashFunction()),
+				new RosettaKeyValueProcessStep(RosettaKeyValueHashFunction::new),
 				new ReKeyProcessStep(rosettaKeyProcessStep));
 	}
 
 	@Override
-	protected PortfolioState doEvaluate(Portfolio input) {
+	protected PortfolioStateBuilder doEvaluate(Portfolio input) {
 		AggregationParameters params = input.getAggregationParameters();
 		// For this example ignore time, only used date
 		LocalDate date = params.getDateTime().toLocalDate();
@@ -55,13 +56,13 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 																	   .build())
 															.collect(Collectors.toSet());
 
-		PortfolioState.PortfolioStateBuilder portfolioStateBuilder = PortfolioState.builder();
-		aggregatedPositions.forEach(p -> portfolioStateBuilder.addPositions(p));
+		PortfolioStateBuilder portfolioStateBuilder = PortfolioState.builder();
+		aggregatedPositions.forEach(portfolioStateBuilder::addPositions);
 
 		// Update keys / references
 		postProcessors.forEach(postProcessStep -> postProcessStep.runProcessStep(PortfolioState.class, portfolioStateBuilder));
 
-		return portfolioStateBuilder.build();
+		return portfolioStateBuilder;
 	}
 
 	/**
@@ -234,7 +235,7 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 								 .collect(MoreCollectors.onlyElement());
 		return e.getPartyRole().stream()
 				.filter(r -> partyReference.equals(r.getPartyReference().getGlobalReference()))
-				.map(r -> r.getRole())
+				.map(PartyRole::getRole)
 				.filter(r -> r == PartyRoleEnum.BUYER || r == PartyRoleEnum.SELLER)
 				.collect(MoreCollectors.onlyElement());
 	}

@@ -37,7 +37,7 @@ public class EvaluatePortfolioStateTest {
 																				  .setTotalPosition(true)
 																				  .build())
 								   .build();
-		PortfolioState portfolioState = func.doEvaluate(input);
+		PortfolioState portfolioState = func.evaluate(input);
 
 		assertNotNull(portfolioState);
 		assertNotNull(portfolioState.getPositions());
@@ -68,7 +68,7 @@ public class EvaluatePortfolioStateTest {
 																				  .setTotalPosition(false)
 																				  .build())
 								   .build();
-		PortfolioState portfolioState = func.doEvaluate(input);
+		PortfolioState portfolioState = func.evaluate(input);
 
 		assertNotNull(portfolioState);
 		assertNotNull(portfolioState.getPositions());
@@ -100,7 +100,7 @@ public class EvaluatePortfolioStateTest {
 																				  .setPositionStatus(PositionStatusEnum.EXECUTED)
 																				  .build())
 								   .build();
-		PortfolioState portfolioState = func.doEvaluate(input);
+		PortfolioState portfolioState = func.evaluate(input);
 
 		assertNotNull(portfolioState);
 		assertNotNull(portfolioState.getPositions());
@@ -124,7 +124,7 @@ public class EvaluatePortfolioStateTest {
 																				  .setPositionStatus(PositionStatusEnum.EXECUTED)
 																				  .build())
 								   .build();
-		PortfolioState portfolioState = func.doEvaluate(input);
+		PortfolioState portfolioState = func.evaluate(input);
 
 		assertNotNull(portfolioState);
 		assertNotNull(portfolioState.getPositions());
@@ -148,7 +148,7 @@ public class EvaluatePortfolioStateTest {
 																				  .addProduct(getProduct(CUSIP_US1234567891, ProductIdSourceEnum.CUSIP))
 																				  .build())
 								   .build();
-		PortfolioState portfolioState = func.doEvaluate(input);
+		PortfolioState portfolioState = func.evaluate(input);
 
 		assertNotNull(portfolioState);
 		assertNotNull(portfolioState.getPositions());
@@ -172,7 +172,7 @@ public class EvaluatePortfolioStateTest {
 																				  .addProduct(getProduct(CUSIP_US1234567891, ProductIdSourceEnum.CUSIP))
 																				  .build())
 								   .build();
-		PortfolioState portfolioState = func.doEvaluate(input);
+		PortfolioState portfolioState = func.evaluate(input);
 
 		assertNotNull(portfolioState);
 		assertNotNull(portfolioState.getPositions());
@@ -205,7 +205,7 @@ public class EvaluatePortfolioStateTest {
 																				  .addParty(toReferenceWithMetaParty(CLIENT_A_NAME))
 																				  .build())
 								   .build();
-		PortfolioState portfolioState = func.doEvaluate(input);
+		PortfolioState portfolioState = func.evaluate(input);
 
 		assertNotNull(portfolioState);
 		assertNotNull(portfolioState.getPositions());
