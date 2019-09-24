@@ -19,8 +19,9 @@ import com.google.inject.Inject;
 import com.rosetta.model.lib.records.DateImpl;
 
 public class DayCountFractionEnumTest extends AbstractFunctionTest {
+	
 	@Inject DayCountFraction dayCountFraction;
-    @Inject TestableCalculationPeriodImpl testCalculationPeriod; 
+	@Inject TestableCalculationPeriod calculationPeriod;
     
 	@Test
 	void shouldCalculateDcfForAct360BetweenDates22Mar18To22Jun18() {
@@ -66,19 +67,20 @@ public class DayCountFractionEnumTest extends AbstractFunctionTest {
 	}
 
 	private BigDecimal calculateAct360(LocalDate startDate, LocalDate endDate, int days, org.isda.cdm.DayCountFractionEnum dcf) {
-		CalculationPeriodData calculationPeriodResult = 
+		CalculationPeriodData calculationPeriodData = 
     			CalculationPeriodData.builder()
     				.setStartDate(new DateImpl(startDate))
     				.setEndDate(new DateImpl(endDate))
     				.setDaysInPeriod(days)
     				.build();
-		CalculationPeriod calculationPeriod = Mockito.mock(CalculationPeriod.class);
-		when(calculationPeriod.evaluate(any())).thenReturn(calculationPeriodResult);
 		
-		testCalculationPeriod.setDelegate(calculationPeriod);
+		CalculationPeriod calculationPeriod = Mockito.mock(CalculationPeriod.class);
+		when(calculationPeriod.evaluate(any(), any())).thenReturn(calculationPeriodData);		
+		this.calculationPeriod.setDelegate(calculationPeriod);
+
         InterestRatePayout interestRatePayout = Mockito.mock(InterestRatePayout.class);
 
-		return dayCountFraction.evaluate(interestRatePayout, dcf);
+		return dayCountFraction.evaluate(interestRatePayout, dcf, DateImpl.of(2017, 10, 20));
 	}
 
     private BigDecimal calculate30360(LocalDate startDate, LocalDate endDate, org.isda.cdm.DayCountFractionEnum dcf) {
@@ -89,10 +91,11 @@ public class DayCountFractionEnumTest extends AbstractFunctionTest {
     				.build();
 
         CalculationPeriod calculationPeriod = Mockito.mock(CalculationPeriod.class);
-        when(calculationPeriod.evaluate(any())).thenReturn(calculationPeriodResult);
-
-		testCalculationPeriod.setDelegate(calculationPeriod);
+        when(calculationPeriod.evaluate(any(), any())).thenReturn(calculationPeriodResult);
+		this.calculationPeriod.setDelegate(calculationPeriod);
+		
 		InterestRatePayout interestRatePayout =InterestRatePayout.builder().setCalculationPeriodDates(CalculationPeriodDates.builder().build()).build();
-        return  dayCountFraction.evaluate(interestRatePayout, dcf);
+		
+        return  dayCountFraction.evaluate(interestRatePayout, dcf, DateImpl.of(2017, 10, 20));
     }
 }

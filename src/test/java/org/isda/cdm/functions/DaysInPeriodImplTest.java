@@ -16,7 +16,7 @@ import org.isda.cdm.CalculationPeriodFrequency;
 import org.isda.cdm.PeriodExtendedEnum;
 import org.isda.cdm.RollConventionEnum;
 import org.isda.cdm.metafields.ReferenceWithMetaBusinessCenters;
-import org.isda.cdm.services.TestableReferenceDateService;
+//import org.isda.cdm.services.TestableReferenceDateService;
 import org.junit.jupiter.api.Test;
 
 import com.google.inject.Inject;
@@ -25,7 +25,6 @@ import com.rosetta.model.lib.records.DateImpl;
 
 public class DaysInPeriodImplTest extends AbstractFunctionTest {
 
-	@Inject TestableReferenceDateService refDateService;
 	@Inject CalculationPeriod calculationPeriod;
 
     @Test
@@ -34,9 +33,7 @@ public class DaysInPeriodImplTest extends AbstractFunctionTest {
         Date terminationDate = DateImpl.of(2018, 6, 22);
 
         CalculationPeriodDates calculationPeriodDates = getCalculationPeriodDates(effectiveDate, terminationDate, RollConventionEnum._22);
-
-        refDateService.setReferneceDate(effectiveDate);
-        Integer daysInPeriod = calculationPeriod.evaluate(calculationPeriodDates).getDaysInPeriod();
+        Integer daysInPeriod = calculationPeriod.evaluate(calculationPeriodDates, effectiveDate).getDaysInPeriod();
         
         assertNotNull(daysInPeriod);
         assertThat("Unexpected calculated daysInPeriod", daysInPeriod, is(92));
@@ -49,8 +46,7 @@ public class DaysInPeriodImplTest extends AbstractFunctionTest {
 
         CalculationPeriodDates calculationPeriodDates = getCalculationPeriodDates(effectiveDate, terminationDate, RollConventionEnum._29);
 
-        refDateService.setReferneceDate(effectiveDate);
-        Integer daysInPeriod = calculationPeriod.evaluate(calculationPeriodDates).getDaysInPeriod();
+        Integer daysInPeriod = calculationPeriod.evaluate(calculationPeriodDates, effectiveDate).getDaysInPeriod();
         
         assertNotNull(daysInPeriod);
         assertThat("Unexpected calculated daysInPeriod", daysInPeriod, is(90));

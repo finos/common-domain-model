@@ -16,7 +16,6 @@ import org.isda.cdm.CalculationPeriodFrequency;
 import org.isda.cdm.PeriodExtendedEnum;
 import org.isda.cdm.RollConventionEnum;
 import org.isda.cdm.metafields.ReferenceWithMetaBusinessCenters;
-import org.isda.cdm.services.TestableReferenceDateService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
@@ -26,7 +25,6 @@ import com.rosetta.model.lib.records.DateImpl;
 
 class CalculationPeriodImplTest extends AbstractFunctionTest {
 	
-	@Inject TestableReferenceDateService refDateService;
 	@Inject CalculationPeriod calculationPeriod;
 
     private final CalculationPeriodDates calculationPeriodDates = CalculationPeriodDates.builder()
@@ -68,25 +66,19 @@ class CalculationPeriodImplTest extends AbstractFunctionTest {
 
     @Test
     void shouldReturnStartAndEndDateOfFirstPeriod() {
-    	refDateService.setReferneceDate(DateImpl.of(2018, 1, 3));
-        CalculationPeriodData usingStartDate = calculationPeriod.evaluate(calculationPeriodDates);
+        CalculationPeriodData usingStartDate = calculationPeriod.evaluate(calculationPeriodDates, DateImpl.of(2018, 1, 3));
 
         assertThat(usingStartDate.getStartDate(), is(DateImpl.of(2018, 1, 3)));
         assertThat(usingStartDate.getEndDate(), is(DateImpl.of(2018, 4, 3)));
 
-        refDateService.setReferneceDate(DateImpl.of(2018, 2, 14));
-        CalculationPeriodData usingAnyDate = calculationPeriod.evaluate(calculationPeriodDates);
-
-        refDateService.setReferneceDate(DateImpl.of(2018, 3, 31));
-        CalculationPeriodData usingEndDate = calculationPeriod.evaluate(calculationPeriodDates);
+        CalculationPeriodData usingAnyDate = calculationPeriod.evaluate(calculationPeriodDates, DateImpl.of(2018, 2, 14));
+        CalculationPeriodData usingEndDate = calculationPeriod.evaluate(calculationPeriodDates, DateImpl.of(2018, 3, 31));
 
         assertThat(usingStartDate, allOf(is(usingAnyDate), is(usingEndDate)));
     }
 
     @Test
     void shouldThrowWhenRollConventionNotTerminationDay() {
-        refDateService.setReferneceDate(DateImpl.of(2018, 4, 23));
-
         CalculationPeriodFrequency frequency = calculationPeriodDates.getCalculationPeriodFrequency().toBuilder()
                 .setRollConvention(RollConventionEnum._1)
                 .build();
@@ -95,7 +87,7 @@ class CalculationPeriodImplTest extends AbstractFunctionTest {
                 .setCalculationPeriodFrequency(frequency)
                 .build();
 
-        Executable result = () -> calculationPeriod.evaluate(calculationPeriodDates);
+        Executable result = () -> calculationPeriod.evaluate(calculationPeriodDates, DateImpl.of(2018, 4, 23));
 
         assertThrows(ScheduleException.class, result, "Date '2018-01-03' does not match roll convention 'Day1' when starting to roll forwards");
     }
