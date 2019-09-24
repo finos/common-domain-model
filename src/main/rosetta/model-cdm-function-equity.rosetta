@@ -79,7 +79,7 @@ func NewFloatingPayout: <"Function specification to create the interest rate (fl
 	post-condition: <"Interest rate payout must inherit terms from the Master Confirmation Agreement when it exists.">
 		if masterConfirmation exists 
 			then interestRatePayout -> calculationPeriodDates = masterConfirmation -> equityCalculationPeriod 
-				and interestRatePayout -> paymentDates = masterConfirmation -> equityCashSettlementDates;
+				and interestRatePayout -> paymentDates = masterConfirmation -> equityCashSettlementDates; 
 
 /**
  * Function specifications that are used in the Equity Reset process 
@@ -88,7 +88,7 @@ func ResolveEquityContract: <"Specifies how the updated contract should be const
 	inputs:
 		contractState ContractState (1..1)
 		observation ObservationPrimitive (1..1)
-		timestamp zonedDateTime (1..1)
+		date date (1..1)
 		
 	output:
 		updatedContract Contract (1..1)
@@ -103,7 +103,7 @@ func ResolveEquityContract: <"Specifies how the updated contract should be const
 		updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
 		
 	alias periodEndDate :
-		CalculationPeriod( equityPayout -> calculationPeriodDates, timestamp ) -> endDate
+		CalculationPeriod( equityPayout -> calculationPeriodDates, date ) -> endDate
 		
 	alias equityPerformance :
 		EquityPerformance( equityPayout, observation -> observation, periodEndDate )
@@ -123,8 +123,7 @@ func ResolveEquityContract: <"Specifies how the updated contract should be const
 	
 	assign-output updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> quantityMultiplier -> multiplierValue :
 		<"Using the Rate of Return we 'reset' the multiplier, which is used to resolve the ultimate notional amount for the equity swap.">  
-		1 + equityPerformance / 100
-
+		1 + equityPerformance // / 100
 
 func EquityPriceObservation: <"Function specification for the observation of an equity price, based on the attributes of the 'EquityValuation' class.">
 	inputs:

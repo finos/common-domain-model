@@ -115,7 +115,7 @@ func Reset :
 	inputs: 
 		previousEvent Event (1..1)
 		observationEvent Event (1..1)
-		timestamp zonedDateTime (1..1)
+		date date (1..1)
 			
 	output: 
 		reset Event (1..1)
@@ -136,7 +136,7 @@ func Reset :
 		observation exists;
 		
 	assign-output reset -> primitive -> reset : 
-		NewResetPrimitive( contractState, observation, timestamp )
+		NewResetPrimitive( contractState, observation, date )
 		
 	assign-output reset -> lineage -> eventReference : 
 		previousEvent
@@ -151,7 +151,7 @@ func Reset :
 		contract
 		
 	assign-output reset -> timestamp -> dateTime:
-		timestamp
+		ToDateTime( date )
 		
 	post-condition: 
 		reset -> eventEffect -> effectedExecution is absent;
@@ -163,7 +163,7 @@ func NewResetPrimitive : <"Specifies how a Reset Primitive should be constructed
 	inputs:
 		contractState ContractState (1..1)
 		observation ObservationPrimitive (1..1)
-		timestamp zonedDateTime (1..1)
+		date date (1..1)
 	
 	output:
 		resetPrimitive ResetPrimitive (1..1)
@@ -178,14 +178,14 @@ func NewResetPrimitive : <"Specifies how a Reset Primitive should be constructed
 		contractState -> contract
 		
 	assign-output resetPrimitive -> after -> updatedContract : <"To handle the various ways Contracts can change over time, ">
-		ResolveUpdatedContract( contractState, observation, timestamp )
+		ResolveUpdatedContract( contractState, observation, date )
 
 
 func ResolveUpdatedContract : <"The updated contract should be generated differently in different reset scenarios. This function handles how the contract should update according to which payouts are present within the Economic Terms."> 
 	inputs: 
 		contractState ContractState (1..1)
 		observation ObservationPrimitive (1..1)
-		timestamp zonedDateTime (1..1)
+		date date (1..1)
 		
 	output: 
 		updatedContract Contract (1..1) <"An object that follows the structure of the Contract with only the updated values are set.">
@@ -194,7 +194,7 @@ func ResolveUpdatedContract : <"The updated contract should be generated differe
 		contractState -> contract -> contractualProduct -> economicTerms -> payout
 	
 	assign-output updatedContract :
-		if payout -> equityPayout exists then ResolveEquityContract( contractState, observation, timestamp )  
+		if payout -> equityPayout exists then ResolveEquityContract( contractState, observation, date )  
 
 
 func TransferCash: <"Function specification to build a transfer event following a reset on a contract">

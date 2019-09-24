@@ -25,7 +25,6 @@ import com.rosetta.model.lib.records.DateImpl;
 
 public class DaysInPeriodImplTest extends AbstractFunctionTest {
 
-	@Inject TestableReferenceDateService refDateService;
 	@Inject CalculationPeriod calculationPeriod;
 
     @Test
@@ -34,9 +33,7 @@ public class DaysInPeriodImplTest extends AbstractFunctionTest {
         Date terminationDate = DateImpl.of(2018, 6, 22);
 
         CalculationPeriodDates calculationPeriodDates = getCalculationPeriodDates(effectiveDate, terminationDate, RollConventionEnum._22);
-
-        refDateService.setReferneceDate(effectiveDate);
-        Integer daysInPeriod = calculationPeriod.evaluate(calculationPeriodDates).getDaysInPeriod();
+        Integer daysInPeriod = calculationPeriod.evaluate(calculationPeriodDates, effectiveDate).getDaysInPeriod();
         
         assertNotNull(daysInPeriod);
         assertThat("Unexpected calculated daysInPeriod", daysInPeriod, is(92));
@@ -49,8 +46,7 @@ public class DaysInPeriodImplTest extends AbstractFunctionTest {
 
         CalculationPeriodDates calculationPeriodDates = getCalculationPeriodDates(effectiveDate, terminationDate, RollConventionEnum._29);
 
-        refDateService.setReferneceDate(effectiveDate);
-        Integer daysInPeriod = calculationPeriod.evaluate(calculationPeriodDates).getDaysInPeriod();
+        Integer daysInPeriod = calculationPeriod.evaluate(calculationPeriodDates, effectiveDate).getDaysInPeriod();
         
         assertNotNull(daysInPeriod);
         assertThat("Unexpected calculated daysInPeriod", daysInPeriod, is(90));

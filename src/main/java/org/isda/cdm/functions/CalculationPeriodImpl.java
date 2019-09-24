@@ -11,7 +11,6 @@ import org.isda.cdm.CalculationPeriodData;
 import org.isda.cdm.CalculationPeriodData.CalculationPeriodDataBuilder;
 import org.isda.cdm.CalculationPeriodDates;
 
-import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -24,11 +23,8 @@ import com.rosetta.model.lib.records.DateImpl;
 
 public class CalculationPeriodImpl extends CalculationPeriod {
 	
-	@Inject(optional=true) ReferenceDateService referenceDateService;
-
 	@Override
-	protected CalculationPeriodDataBuilder doEvaluate(CalculationPeriodDates calculationPeriodDates, ZonedDateTime timestamp) {
-		Date referenceDate = referenceDateService.get();
+	protected CalculationPeriodDataBuilder doEvaluate(CalculationPeriodDates calculationPeriodDates, Date date) {	
 		PeriodicSchedule periodicSchedule = PeriodicSchedule.of(
 				calculationPeriodDates.getEffectiveDate().getAdjustableDate().getUnadjustedDate().toLocalDate(),
 				calculationPeriodDates.getTerminationDate().getAdjustableDate().getUnadjustedDate().toLocalDate(),
@@ -40,13 +36,13 @@ public class CalculationPeriodImpl extends CalculationPeriod {
 		Schedule schedule = periodicSchedule.createSchedule(ReferenceData.minimal());
 
 		SchedulePeriod targetPeriod = schedule.getPeriods().stream()
-				.filter(period -> !(toLocalDate(referenceDate).isBefore(period.getStartDate())) && toLocalDate(referenceDate).isBefore(period.getEndDate()))
+				.filter(period -> !(toLocalDate(date).isBefore(period.getStartDate())) && toLocalDate(date).isBefore(period.getEndDate()))
 				.findFirst()
-				.orElseThrow(() -> new IllegalArgumentException("Date " + referenceDate.toString() + "not within schedule"));
+				.orElseThrow(() -> new IllegalArgumentException("Date " + date.toString() + "not within schedule"));
 
 		int daysThatAreInLeapYear = 0;
-		for (LocalDate date = targetPeriod.getStartDate(); date.isBefore(targetPeriod.getEndDate()); date = date.plusDays(1)) {
-			if (IsoChronology.INSTANCE.isLeapYear(date.getYear())) {
+		for (LocalDate startDate = targetPeriod.getStartDate(); startDate.isBefore(targetPeriod.getEndDate()); startDate = startDate.plusDays(1)) {
+			if (IsoChronology.INSTANCE.isLeapYear(startDate.getYear())) {
 				daysThatAreInLeapYear++;
 			}
 		}

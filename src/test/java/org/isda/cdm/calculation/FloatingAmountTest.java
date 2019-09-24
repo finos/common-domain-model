@@ -94,7 +94,7 @@ class FloatingAmountTest extends AbstractFunctionTest{
     @Test
     void shouldApplyMultiplication() {
     	FloatingAmount floatingAmount = this.floatingAmount.get();
-        BigDecimal result = floatingAmount.evaluate(INTEREST_RATE_PAYOUT);
+        BigDecimal result = floatingAmount.evaluate(INTEREST_RATE_PAYOUT, DateImpl.of(2018, 1, 3));
         assertThat(result, closeTo(BigDecimal.valueOf(1093750), BigDecimal.valueOf(0.0000001)));
     }
 
