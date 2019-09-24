@@ -31,7 +31,6 @@ import com.rosetta.model.lib.records.DateImpl;
 
 class FixedAmountTest extends AbstractFunctionTest {
 
-   
     @Inject private FixedAmount fixedAmount;
     
     @Test
@@ -88,10 +87,8 @@ class FixedAmountTest extends AbstractFunctionTest {
                                 .build())
                         .build())
                 .build();
-
-//        FixedAmount  fixedAmount = new FixedAmount(new CalculationPeriodImpl(REFERENCE_DATE), periodsInYear, toAdjustedDateFunction);
         
-        assertThat(fixedAmount.evaluate(interestRatePayout), is(new BigDecimal("750000.0000")));
+        assertThat(fixedAmount.evaluate(interestRatePayout, DateImpl.of(2018, 8, 22)), is(new BigDecimal("750000.0000")));
     }
 
 }

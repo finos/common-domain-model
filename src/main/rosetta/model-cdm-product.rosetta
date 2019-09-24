@@ -336,6 +336,7 @@ class QuantityMultiplier /*one of*/ <"Class to specify a mechanism for a quantit
 {
 	fxLinkedNotionalSchedule FxLinkedNotionalSchedule (0..1) <"Multiplier specified as an FX-linked schedule, e.g. for a resetting cross-currency swap..">;
 	equityValuation EquityValuation (0..1) <"Multiplier specified as an equity valuation schedule, e.g. for a resetting equity swap.">;
+	multiplierValue number (1..1)
 }
 
 class ResolvablePayoutQuantity key <"Generic class to specify the quantity for different payout legs in a contractual product, when that quantity can vary across payout legs or across time. A resolvable quantity can always be resolved into one number based on: (i) the quantity notation that must be specified alongside the contractual product description and (ii) a given date, where applicable. In addition to the base case where quantity is directly specified as a number as part of the quantity notation, the use cases are: (i) quantity based on some pre-defined schedule (eg amortising notional), (ii) quantity based on some pre-defined events (eg resetting cross-currency notional), or quantity set as reference to another quantity (eg equity notional as no. securities x price).">
@@ -364,13 +365,6 @@ choice rule ResolvablePayoutQuantity_choice1 <"A payout quantity can be resolved
 data rule ResolvablePayoutQuantity_quantityMultiplier <"A quantity reference must exist when there is a quantity multiplier on a resolvable quantity">
 	when ResolvablePayoutQuantity -> quantityMultiplier exists
 	then ResolvablePayoutQuantity -> quantityReference exists
-
-func ResolveQuantity: <"Function specification to resolve a payout quantity, specified as a resolvable quantity with inputs for the resolution, into a basic quantity with just a number and a unit.">
-	inputs:
-		resolvableQuantity ResolvablePayoutQuantity (1..1) <"The quantity to resolve.">
-		date date (1..1)
-	output:
-		quantity Quantity (1..1) <"The resolved quantity, containing just a number and (optionally) a unit or currency.">
 
 class CrossCurrencyTerms
 {
@@ -466,7 +460,6 @@ class EquityPayout extends PayoutBase key <"The equity payout specification term
 	settlementTerms SettlementTerms (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Settlement.">;
 	rateOfReturn number (0..1) <"Rate of Return calculation, in accordance with Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 139. 'Rate Of Return'.">;
 	performance number (0..1) <"Performance calculation, in accordance with Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance'. Cumulative performance is used as a notional multiplier factor on both legs of an Equity Swap.">;
-	equityCashSettlementAmount number (0..1) <"Equity cash settlement amount calculation, in accordance with Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 72. 'Equity Cash Settlement Amount'.">
 }
 
 data rule EquityPayout_dividendReturn <"An equity price return specifies price return terms, but no dividend terms.">
@@ -504,7 +497,6 @@ class Execution key <"A class to specify an execution, which consists essentiall
 	partyRole PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the execution, further to the principal parties (i.e payer/receive or buyer/seller) to it.">;
 	closedState ClosedState (0..1) <"The qualification of what led to the execution closure alongside with the dates on which this closure takes effect.">;
 		[synonym Rosetta_Workbench value closedState]
-	legalAgreementReference LegalAgreement (0..*) reference <"Whether that execution references any higher-level agreement between the parties, as in the case of a Master Confirmation Agreeemnt governing subsequent executions.">;
 	quantity Quantity (0..1) <"The execution quantity when specified as an amount/number of securities or tangible assets.">;
 	executionQuantity ExecutionQuantity (0..1) <"Complex attribute to specify the quantity of the contractual product that is being executed. This temporarily makes uses of the 'ExecutionQuantity' class, until such time when the latter can be renamed as, and supersede, the existing 'ContractualQuantity' class. To be later merged with the 'quantity' attribute to have consistent mechanism between contractual and non-contractual products.">;
 		// For Swap Stream:
