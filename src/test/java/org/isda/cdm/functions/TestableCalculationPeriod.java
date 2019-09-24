@@ -7,7 +7,8 @@ import com.google.inject.Singleton;
 import com.rosetta.model.lib.records.Date;
 
 @Singleton
-public class TestableCalculationPeriodImpl extends CalculationPeriodImpl {
+public class TestableCalculationPeriod extends CalculationPeriodImpl {
+	
 	CalculationPeriod delegate;
 
 	@Override

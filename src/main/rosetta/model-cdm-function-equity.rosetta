@@ -123,7 +123,7 @@ func ResolveEquityContract: <"Specifies how the updated contract should be const
 	
 	assign-output updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> quantityMultiplier -> multiplierValue :
 		<"Using the Rate of Return we 'reset' the multiplier, which is used to resolve the ultimate notional amount for the equity swap.">  
-		1 + equityPerformance // / 100
+		1 + equityPerformance // / 100 uncomment once the divide operator is fully supported
 
 func EquityPriceObservation: <"Function specification for the observation of an equity price, based on the attributes of the 'EquityValuation' class.">
 	inputs:
@@ -213,10 +213,10 @@ func ResolveEquityPeriodStartPrice: <"Resolves the price from the end of the pre
 		equityPayout -> priceReturnTerms
 		
 	alias calculationPeriod:
-		equityPayout -> calculationPeriodDates
+		CalculationPeriod( equityPayout -> calculationPeriodDates, date )
 		
 	assign-output price : <"The initial price is taken from the original contract if we are Resetting for the first time i.e. when the number of updated contracts is one.">
-		if CalculationPeriod( calculationPeriod, date ) -> isFirstPeriod  
+		if calculationPeriod -> isFirstPeriod  
 		then priceReturnTerms -> initialPrice -> netPrice -> amount
 		else priceReturnTerms -> valuationPriceInterim -> netPrice -> amount   
 	
@@ -231,11 +231,11 @@ func ResolveEquityPeriodEndPrice:
 	alias priceReturnTerms :
 		equityPayout -> priceReturnTerms
 		
-	alias calculationPeriod :
-		equityPayout -> calculationPeriodDates
+	alias calculationPeriod:
+		CalculationPeriod( equityPayout -> calculationPeriodDates, date )
 		
 	assign-output price : <"If the last period, take the price from the Valuation Price Final, otherwise from Valuation Price Interim.">
-		if CalculationPeriod( calculationPeriod, date ) -> isLastPeriod  
+		if  calculationPeriod -> isLastPeriod  
 		then priceReturnTerms -> valuationPriceFinal -> netPrice -> amount
 		else priceReturnTerms -> valuationPriceInterim -> netPrice -> amount  	
 	

@@ -21,8 +21,7 @@ import com.rosetta.model.lib.records.DateImpl;
 public class DayCountFractionEnumTest extends AbstractFunctionTest {
 	
 	@Inject DayCountFraction dayCountFraction;
-    @Inject TestableCalculationPeriodImpl testCalculationPeriod; 
-    @Inject CalculationPeriod calculationPeriodFunc;
+	@Inject TestableCalculationPeriod calculationPeriod;
     
 	@Test
 	void shouldCalculateDcfForAct360BetweenDates22Mar18To22Jun18() {
@@ -76,9 +75,9 @@ public class DayCountFractionEnumTest extends AbstractFunctionTest {
     				.build();
 		
 		CalculationPeriod calculationPeriod = Mockito.mock(CalculationPeriod.class);
-		
-		when(calculationPeriod.evaluate(any(), any())).thenReturn(calculationPeriodData);
-		
+		when(calculationPeriod.evaluate(any(), any())).thenReturn(calculationPeriodData);		
+		this.calculationPeriod.setDelegate(calculationPeriod);
+
         InterestRatePayout interestRatePayout = Mockito.mock(InterestRatePayout.class);
 
 		return dayCountFraction.evaluate(interestRatePayout, dcf, DateImpl.of(2017, 10, 20));
@@ -93,9 +92,10 @@ public class DayCountFractionEnumTest extends AbstractFunctionTest {
 
         CalculationPeriod calculationPeriod = Mockito.mock(CalculationPeriod.class);
         when(calculationPeriod.evaluate(any(), any())).thenReturn(calculationPeriodResult);
-
-		testCalculationPeriod.setDelegate(calculationPeriod);
+		this.calculationPeriod.setDelegate(calculationPeriod);
+		
 		InterestRatePayout interestRatePayout =InterestRatePayout.builder().setCalculationPeriodDates(CalculationPeriodDates.builder().build()).build();
+		
         return  dayCountFraction.evaluate(interestRatePayout, dcf, DateImpl.of(2017, 10, 20));
     }
 }

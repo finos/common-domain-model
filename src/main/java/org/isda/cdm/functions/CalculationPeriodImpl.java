@@ -11,7 +11,6 @@ import org.isda.cdm.CalculationPeriodData;
 import org.isda.cdm.CalculationPeriodData.CalculationPeriodDataBuilder;
 import org.isda.cdm.CalculationPeriodDates;
 
-import com.google.inject.Provider;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
@@ -56,7 +55,5 @@ public class CalculationPeriodImpl extends CalculationPeriod {
 	
 	private LocalDate toLocalDate(Date date) {
 		return LocalDate.of(date.getYear(), date.getMonth(), date.getDay());
-	}
-	
-	public interface ReferenceDateService extends Provider<Date> {}
+	}	
 }

@@ -38,20 +38,11 @@ func NewExecutionPrimitive: <"Function specification to compose an execution bas
 	assign-output execution -> after -> execution -> product -> contractualProduct:
 		product -> contractualProduct
 
-	// TODO: update to below once rosetta-dsl issue #44 and #45 resolved
-	// execution -> after -> execution -> party contains [ partyA, partyB ]
-	//	
-	// assign-output execution -> after -> execution -> party:
-	//	[ partyA, partyB ]
+	assign-output execution -> after -> execution -> party:
+		[ partyA, partyB ]
 		
 	post-condition: <"The execution will be the first event in any post-trade life cycle and therefore does not have a before state. Once pre-trade elements are brought into CDM, the 'before' will be used to refer to the last of the pre-trade event states.">
 		execution -> before is absent;
-	
-	post-condition: <"Ensuring that the execution attributes are correctly populated on the output.">
-		if execution -> after -> execution -> party exists then
-			execution -> after -> execution -> party count = 2 and
-			execution -> after -> execution -> party contains partyA and
-			execution -> after -> execution -> party contains partyB;
 			
 
 func FormContract : <"Function specification to create the fully-formed business event of entering into a new contract, as a combination of an execution primitive and a contract formation primitive, when there is no allocation involved and the contractual parties are the execution parties. This specification is meant to replace the 'Inception' primitive that previously co-mingled these 2 primitives.">

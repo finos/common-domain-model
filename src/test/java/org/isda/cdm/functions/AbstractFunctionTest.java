@@ -7,7 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-public class AbstractFunctionTest {
+public abstract class AbstractFunctionTest {
 	private static Injector injector;
 
 	@BeforeAll
