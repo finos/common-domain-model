@@ -143,10 +143,10 @@ func EquityPriceObservation: <"Function specification for the observation of an 
 		
 	post-condition: <"The date and time must be properly resolved as attributes on the output.">
 		observation -> date = ResolveAdjustableDate( valuationDate )
-		and (if valuationTime exists then
-			observation -> time = TimeZoneFromBusinessCenterTime( valuationTime )
-		else
-			observation -> time = ResolveTimeZoneFromTimeType( timeType, determinationMethod ))
+		and if valuationTime exists then
+				observation -> time = TimeZoneFromBusinessCenterTime( valuationTime )
+			else
+				observation -> time = ResolveTimeZoneFromTimeType( timeType, determinationMethod )
 			
 	post-condition: <"The number recorded in the observation must match the number fetched from the source.">
 		observation -> observation = EquitySpot( equity, observation -> date, observation -> time )
