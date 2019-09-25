@@ -35,9 +35,9 @@ public class CalculationPeriodImpl extends CalculationPeriod {
 		Schedule schedule = periodicSchedule.createSchedule(ReferenceData.minimal());
 
 		SchedulePeriod targetPeriod = schedule.getPeriods().stream()
-				.filter(period -> !(toLocalDate(date).isBefore(period.getStartDate())) && toLocalDate(date).isBefore(period.getEndDate()))
+				.filter(period -> !(toLocalDate(date).isBefore(period.getStartDate())) && !toLocalDate(date).isAfter(period.getEndDate()))
 				.findFirst()
-				.orElseThrow(() -> new IllegalArgumentException("Date " + date.toString() + "not within schedule"));
+				.orElseThrow(() -> new IllegalArgumentException("Date " + date.toString() + " not within schedule"));
 
 		int daysThatAreInLeapYear = 0;
 		for (LocalDate startDate = targetPeriod.getStartDate(); startDate.isBefore(targetPeriod.getEndDate()); startDate = startDate.plusDays(1)) {
