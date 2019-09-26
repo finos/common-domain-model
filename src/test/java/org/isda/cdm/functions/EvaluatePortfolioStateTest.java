@@ -3,7 +3,7 @@ package org.isda.cdm.functions;
 import org.isda.cdm.*;
 import org.isda.cdm.metafields.FieldWithMetaString;
 import org.isda.cdm.metafields.ReferenceWithMetaParty;
-import org.isda.cdm.util.SampleExecutionFactory;
+import org.isda.cdm.util.TestObjectsFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -13,7 +13,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 
-import static org.isda.cdm.util.SampleExecutionFactory.*;
+import static org.isda.cdm.util.TestObjectsFactory.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -25,7 +25,7 @@ public class EvaluatePortfolioStateTest {
 
 	@BeforeEach
 	void setUp() {
-		List<Execution> executions = new SampleExecutionFactory().getExecutions();
+		List<Execution> executions = new TestObjectsFactory().getExecutions();
 		func = new EvaluatePortfolioStateImpl(executions);
 	}
 
@@ -202,7 +202,7 @@ public class EvaluatePortfolioStateTest {
 								   .setAggregationParameters(AggregationParameters.builder()
 																				  .setDateTime(DATE_TIME)
 																				  .setTotalPosition(true)
-																				  .addParty(toReferenceWithMetaParty(CLIENT_A_NAME))
+																				  .addParty(toReferenceWithMetaParty(COUNTERPARTY_BROKER_A_NAME))
 																				  .build())
 								   .build();
 		PortfolioState portfolioState = func.evaluate(input);

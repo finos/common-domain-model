@@ -22,9 +22,9 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 	public EvaluatePortfolioStateImpl(List<Execution> executions) {
 		this.executions = executions;
 		RosettaKeyProcessStep rosettaKeyProcessStep = new RosettaKeyProcessStep(NonNullHashCollector::new);
-		this.postProcessors = Arrays.asList(rosettaKeyProcessStep,
-				new RosettaKeyValueProcessStep(RosettaKeyValueHashFunction::new),
-				new ReKeyProcessStep(rosettaKeyProcessStep));
+		this.postProcessors = Arrays.asList(rosettaKeyProcessStep, // Calculates rosetta keys
+				new RosettaKeyValueProcessStep(RosettaKeyValueHashFunction::new), // Calculates rosetta key values
+				new ReKeyProcessStep(rosettaKeyProcessStep)); // Uses external key/references to populate global reference (which refer to keys generated in earlier steps)
 	}
 
 	@Override
@@ -166,6 +166,7 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 												.collect(Collectors.toList());
 
 		return execution.getParty().stream()
+						.map(ReferenceWithMetaParty::getValue)
 						.map(Party::getPartyId)
 						.flatMap(List::stream)
 						.map(FieldWithMetaString::getValue)
