@@ -9,7 +9,7 @@ import com.rosetta.model.lib.records.Date;
 @Singleton
 public class TestableCalculationPeriod extends CalculationPeriodImpl {
 	
-	CalculationPeriod delegate;
+	private CalculationPeriod delegate;
 
 	@Override
 	public CalculationPeriodData evaluate(CalculationPeriodDates calculationPeriodDates, Date date) {
