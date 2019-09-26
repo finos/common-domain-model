@@ -90,9 +90,9 @@ public class TestObjectsFactory {
 						.setProduct(getProduct(cusip, ProductIdSourceEnum.CUSIP))
 						.setQuantity(getQuantity(quantity))
 						.setPrice(getPrice(dirtyPrice, cleanPrice, currency))
-						.addParty(getParty(CLIENT_A_ID, CLIENT_A_NAME, Optional.empty()))
-						.addParty(getParty(EXECUTING_BROKER_ID, EXECUTING_BROKER_NAME, Optional.empty()))
-						.addParty(getParty(counterpartyBrokerId, counterpartyName, Optional.empty()))
+						.addParty(getReferenceWithMetaParty(CLIENT_A_ID, CLIENT_A_NAME, Optional.empty()))
+						.addParty(getReferenceWithMetaParty(EXECUTING_BROKER_ID, EXECUTING_BROKER_NAME, Optional.empty()))
+						.addParty(getReferenceWithMetaParty(counterpartyBrokerId, counterpartyName, Optional.empty()))
 						.addPartyRole(getPartyRole(EXECUTING_BROKER_ID, isExecutingEntityBuy ? PartyRoleEnum.BUYER : PartyRoleEnum.SELLER))
 						.addPartyRole(getPartyRole(counterpartyBrokerId, isExecutingEntityBuy ? PartyRoleEnum.SELLER : PartyRoleEnum.BUYER))
 						.addPartyRole(getPartyRole(CLIENT_A_ID, PartyRoleEnum.CLIENT))
@@ -114,6 +114,12 @@ public class TestObjectsFactory {
 						.build();
 	}
 
+	private ReferenceWithMetaParty getReferenceWithMetaParty(String id, String partyId, Optional<Account> account) {
+		return ReferenceWithMetaParty.builder()
+				.setValue(getParty(id, partyId, account))
+				.build();
+	}
+
 	private Party getParty(String id, String partyId, Optional<Account> account) {
 		Party.PartyBuilder partyBuilder = Party.builder()
 											   .setMeta(MetaFields.builder()
@@ -126,7 +132,7 @@ public class TestObjectsFactory {
 																								 .build())
 																			  .build());
 
-		account.ifPresent(a -> partyBuilder.setAccount(a));
+		account.ifPresent(partyBuilder::setAccount);
 
 		return partyBuilder.build();
 	}
@@ -147,7 +153,7 @@ public class TestObjectsFactory {
 						 .build();
 	}
 
-	public Quantity getQuantity(long quantity) {
+	private Quantity getQuantity(long quantity) {
 		return Quantity.builder()
 					   .setAmount(BigDecimal.valueOf(quantity))
 					   .build();
@@ -187,6 +193,7 @@ public class TestObjectsFactory {
 				.setSettlementAmountBuilder(Money.builder()
 					.setAmount(BigDecimal.valueOf(settlementAmount))
 					.setCurrency(FieldWithMetaString.builder().setValue(settlementCurrency).build()))
+				.setSettlementCurrency(FieldWithMetaString.builder().setValue(settlementCurrency).build())
 				.build();
 	}
 

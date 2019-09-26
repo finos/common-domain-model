@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import org.isda.cdm.*;
 import org.isda.cdm.metafields.FieldWithMetaString;
 import org.isda.cdm.metafields.MetaFields;
+import org.isda.cdm.metafields.ReferenceWithMetaParty;
 import org.isda.cdm.util.TestObjectsFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,10 +22,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.isda.cdm.util.TestObjectsFactory.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class NewAllocationPrimitiveTest extends AbstractFunctionTest {
+class NewAllocationPrimitiveTest extends AbstractFunctionTest {
 
 	@Inject private NewAllocationPrimitive func;
 
+	private static final double DIRTY_PRICE = 95.0975;
 	private static final int QUANTITY_1 = 750000;
 	private static final int QUANTITY_2 = 250000;
 	private static final int QUANTITY_3 = 50000;
@@ -33,12 +35,12 @@ public class NewAllocationPrimitiveTest extends AbstractFunctionTest {
 	private AllocationInstructions allocationInstructions;
 
 	@BeforeEach
-	public void setUpTests() {
+	void setUpTests() {
 		TestObjectsFactory factory = new TestObjectsFactory();
 		LocalDate tradeDate = LocalDate.of(2019, 8, 26);
 		LocalDate settlementDate = LocalDate.of(2019, 8, 28);
 		execution = factory.getExecution(1, tradeDate, CUSIP_US1234567891, 1500000,
-				95.0975, 94.785, CURRENCY_USD, COUNTERPARTY_BROKER_A_ID, COUNTERPARTY_BROKER_A_NAME, settlementDate, true);
+				DIRTY_PRICE, 94.785, CURRENCY_USD, COUNTERPARTY_BROKER_A_ID, COUNTERPARTY_BROKER_A_NAME, settlementDate, true);
 		allocationInstructions = factory.getAllocationInstructions(QUANTITY_1, QUANTITY_2, QUANTITY_3);
 	}
 
@@ -70,34 +72,46 @@ public class NewAllocationPrimitiveTest extends AbstractFunctionTest {
 		assertEquals(3, allocatedExecutions.size());
 
 		// allocated trade 1
-		Optional<Execution> allocatedExecution1 = getAllocatedExecution(allocatedExecutions, "tradeId_c1a1");
-		assertTrue(allocatedExecution1.isPresent());
-		assertEquals(3, allocatedExecution1.get().getParty().size());
-		assertThat(getPartyReferences(allocatedExecution1.get()), hasItems(CLIENT_A_ACC_1_ID, EXECUTING_BROKER_ID, COUNTERPARTY_BROKER_A_ID));
-		assertThat(getPartyRoleEnums(allocatedExecution1.get(), CLIENT_A_ACC_1_ID), hasItems(PartyRoleEnum.CLIENT));
-		assertThat(getPartyRoleEnums(allocatedExecution1.get(), EXECUTING_BROKER_ID), hasItems(PartyRoleEnum.EXECUTING_ENTITY, PartyRoleEnum.BUYER));
-		assertThat(getPartyRoleEnums(allocatedExecution1.get(), COUNTERPARTY_BROKER_A_ID), hasItems(PartyRoleEnum.COUNTERPARTY, PartyRoleEnum.SELLER));
-		assertEquals(BigDecimal.valueOf(QUANTITY_1), allocatedExecution1.get().getQuantity().getAmount());
+		Optional<Execution> allocatedExecutionOptional1 = getAllocatedExecution(allocatedExecutions, "tradeId_c1a1");
+		assertTrue(allocatedExecutionOptional1.isPresent());
+		Execution allocatedExecution1 = allocatedExecutionOptional1.get();
+
+		assertEquals(3, allocatedExecution1.getParty().size());
+		assertThat(getPartyExternalKeys(allocatedExecution1), hasItems(CLIENT_A_ACC_1_ID, EXECUTING_BROKER_ID, COUNTERPARTY_BROKER_A_ID));
+		assertThat(getPartyRoleEnums(allocatedExecution1, CLIENT_A_ACC_1_ID), hasItems(PartyRoleEnum.CLIENT));
+		assertThat(getPartyRoleEnums(allocatedExecution1, EXECUTING_BROKER_ID), hasItems(PartyRoleEnum.EXECUTING_ENTITY, PartyRoleEnum.BUYER));
+		assertThat(getPartyRoleEnums(allocatedExecution1, COUNTERPARTY_BROKER_A_ID), hasItems(PartyRoleEnum.COUNTERPARTY, PartyRoleEnum.SELLER));
+		assertEquals(BigDecimal.valueOf(QUANTITY_1), allocatedExecution1.getQuantity().getAmount());
+		assertEquals(BigDecimal.valueOf(QUANTITY_1).multiply(BigDecimal.valueOf(DIRTY_PRICE)),
+				allocatedExecution1.getSettlementTerms().getSettlementAmount().getAmount());
 
 		// allocated trade 2
-		Optional<Execution> allocatedExecution2 = getAllocatedExecution(allocatedExecutions, "tradeId_c1a2");
-		assertTrue(allocatedExecution2.isPresent());
-		assertEquals(3, allocatedExecution2.get().getParty().size());
-		assertThat(getPartyReferences(allocatedExecution2.get()), hasItems(CLIENT_A_ACC_2_ID, EXECUTING_BROKER_ID, COUNTERPARTY_BROKER_A_ID));
-		assertThat(getPartyRoleEnums(allocatedExecution2.get(), CLIENT_A_ACC_2_ID), hasItems(PartyRoleEnum.CLIENT));
-		assertThat(getPartyRoleEnums(allocatedExecution2.get(), EXECUTING_BROKER_ID), hasItems(PartyRoleEnum.EXECUTING_ENTITY, PartyRoleEnum.BUYER));
-		assertThat(getPartyRoleEnums(allocatedExecution2.get(), COUNTERPARTY_BROKER_A_ID), hasItems(PartyRoleEnum.COUNTERPARTY, PartyRoleEnum.SELLER));
-		assertEquals(BigDecimal.valueOf(QUANTITY_2), allocatedExecution2.get().getQuantity().getAmount());
+		Optional<Execution> allocatedExecutionOptional2 = getAllocatedExecution(allocatedExecutions, "tradeId_c1a2");
+		assertTrue(allocatedExecutionOptional2.isPresent());
+		Execution allocatedExecution2 = allocatedExecutionOptional2.get();
+
+		assertEquals(3, allocatedExecution2.getParty().size());
+		assertThat(getPartyExternalKeys(allocatedExecution2), hasItems(CLIENT_A_ACC_2_ID, EXECUTING_BROKER_ID, COUNTERPARTY_BROKER_A_ID));
+		assertThat(getPartyRoleEnums(allocatedExecution2, CLIENT_A_ACC_2_ID), hasItems(PartyRoleEnum.CLIENT));
+		assertThat(getPartyRoleEnums(allocatedExecution2, EXECUTING_BROKER_ID), hasItems(PartyRoleEnum.EXECUTING_ENTITY, PartyRoleEnum.BUYER));
+		assertThat(getPartyRoleEnums(allocatedExecution2, COUNTERPARTY_BROKER_A_ID), hasItems(PartyRoleEnum.COUNTERPARTY, PartyRoleEnum.SELLER));
+		assertEquals(BigDecimal.valueOf(QUANTITY_2), allocatedExecution2.getQuantity().getAmount());
+		assertEquals(BigDecimal.valueOf(QUANTITY_2).multiply(BigDecimal.valueOf(DIRTY_PRICE)),
+				allocatedExecution2.getSettlementTerms().getSettlementAmount().getAmount());
 
 		// allocated trade 3
-		Optional<Execution> allocatedExecution3 = getAllocatedExecution(allocatedExecutions, "tradeId_c1a3");
-		assertTrue(allocatedExecution3.isPresent());
-		assertEquals(3, allocatedExecution3.get().getParty().size());
-		assertThat(getPartyReferences(allocatedExecution3.get()), hasItems(CLIENT_A_ACC_3_ID, EXECUTING_BROKER_ID, COUNTERPARTY_BROKER_A_ID));
-		assertThat(getPartyRoleEnums(allocatedExecution3.get(), CLIENT_A_ACC_3_ID), hasItems(PartyRoleEnum.CLIENT));
-		assertThat(getPartyRoleEnums(allocatedExecution3.get(), EXECUTING_BROKER_ID), hasItems(PartyRoleEnum.EXECUTING_ENTITY, PartyRoleEnum.BUYER));
-		assertThat(getPartyRoleEnums(allocatedExecution3.get(), COUNTERPARTY_BROKER_A_ID), hasItems(PartyRoleEnum.COUNTERPARTY, PartyRoleEnum.SELLER));
-		assertEquals(BigDecimal.valueOf(QUANTITY_3), allocatedExecution3.get().getQuantity().getAmount());
+		Optional<Execution> allocatedExecutionOptional3 = getAllocatedExecution(allocatedExecutions, "tradeId_c1a3");
+		assertTrue(allocatedExecutionOptional3.isPresent());
+		Execution allocatedExecution3 = allocatedExecutionOptional3.get();
+
+		assertEquals(3, allocatedExecution3.getParty().size());
+		assertThat(getPartyExternalKeys(allocatedExecution3), hasItems(CLIENT_A_ACC_3_ID, EXECUTING_BROKER_ID, COUNTERPARTY_BROKER_A_ID));
+		assertThat(getPartyRoleEnums(allocatedExecution3, CLIENT_A_ACC_3_ID), hasItems(PartyRoleEnum.CLIENT));
+		assertThat(getPartyRoleEnums(allocatedExecution3, EXECUTING_BROKER_ID), hasItems(PartyRoleEnum.EXECUTING_ENTITY, PartyRoleEnum.BUYER));
+		assertThat(getPartyRoleEnums(allocatedExecution3, COUNTERPARTY_BROKER_A_ID), hasItems(PartyRoleEnum.COUNTERPARTY, PartyRoleEnum.SELLER));
+		assertEquals(BigDecimal.valueOf(QUANTITY_3), allocatedExecution3.getQuantity().getAmount());
+		assertEquals(BigDecimal.valueOf(QUANTITY_3).multiply(BigDecimal.valueOf(DIRTY_PRICE)),
+				allocatedExecution3.getSettlementTerms().getSettlementAmount().getAmount());
 	}
 
 	private Optional<Execution> getAllocatedExecution(List<Execution> allocatedExecutions, String tradeId) {
@@ -111,9 +125,10 @@ public class NewAllocationPrimitiveTest extends AbstractFunctionTest {
 				.collect(MoreCollectors.toOptional());
 	}
 
-	private List<String> getPartyReferences(Execution e) {
+	private List<String> getPartyExternalKeys(Execution e) {
 		return e.getParty()
 				.stream()
+				.map(ReferenceWithMetaParty::getValue)
 				.map(Party::getMeta)
 				.map(MetaFields::getExternalKey)
 				.collect(Collectors.toList());

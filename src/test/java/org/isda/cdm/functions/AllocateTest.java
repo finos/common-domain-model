@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import org.isda.cdm.*;
 import org.isda.cdm.metafields.FieldWithMetaString;
 import org.isda.cdm.metafields.MetaFields;
+import org.isda.cdm.metafields.ReferenceWithMetaParty;
 import org.isda.cdm.util.TestObjectsFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,7 +20,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.isda.cdm.util.TestObjectsFactory.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class AllocateTest extends AbstractFunctionTest {
+class AllocateTest extends AbstractFunctionTest {
 
 	@Inject private Allocate func;
 
@@ -31,7 +32,7 @@ public class AllocateTest extends AbstractFunctionTest {
 	private AllocationInstructions allocationInstructions;
 
 	@BeforeEach
-	public void setUpTests() {
+	void setUpTests() {
 		TestObjectsFactory factory = new TestObjectsFactory();
 		LocalDate tradeDate = LocalDate.of(2019, 8, 26);
 		LocalDate settlementDate = LocalDate.of(2019, 8, 28);
@@ -76,11 +77,14 @@ public class AllocateTest extends AbstractFunctionTest {
 		assertEquals(4, new HashSet<>(eventEffect.getExecution()).size());
 		assertEquals(1, new HashSet<>(eventEffect.getProductIdentifier()).size());
 
-		List<String> partyGlobalReferences = getPartyGlobalReferences(allocateEvent.getParty());
-		assertEquals(6, partyGlobalReferences.size());
+		// event parties
+		List<Party> parties = allocateEvent.getParty();
 
-		List<String> partyExternalReferences = getPartyExternalReferences(allocateEvent.getParty());
-		assertThat(partyExternalReferences,
+		List<String> partyGlobalKeys = getPartyGlobalKeys(parties);
+		assertEquals(6, partyGlobalKeys.size());
+
+		List<String> partyExternalKeys = getPartyExternalKeys(parties);
+		assertThat(partyExternalKeys,
 				hasItems(EXECUTING_BROKER_ID, COUNTERPARTY_BROKER_A_ID, CLIENT_A_ID, CLIENT_A_ACC_1_ID, CLIENT_A_ACC_2_ID, CLIENT_A_ACC_3_ID));
 
 		List<AllocationPrimitive> allocationPrimitives = Optional.ofNullable(allocateEvent.getPrimitive())
@@ -92,7 +96,6 @@ public class AllocateTest extends AbstractFunctionTest {
 		// before -> execution
 		Optional<Execution> beforeExecution = Optional.ofNullable(allocationPrimitive.getBefore()).map(Trade::getExecution);
 		assertTrue(beforeExecution.isPresent());
-		assertEquals(execution, beforeExecution.get());
 
 		AllocationOutcome after = allocationPrimitive.getAfter();
 		assertNotNull(after);
@@ -117,12 +120,12 @@ public class AllocateTest extends AbstractFunctionTest {
 		assertTrue(allocatedExecutionOptional1.isPresent());
 		Execution allocatedExecution = allocatedExecutionOptional1.get();
 
-		List<Party> allocatedExecutionParties1 = allocatedExecution.getParty();
+		List<ReferenceWithMetaParty> allocatedExecutionParties1 = allocatedExecution.getParty();
 		assertEquals(3, allocatedExecutionParties1.size());
 		assertThat(getPartyGlobalReferences(allocatedExecutionParties1),
-				hasItems(getPartyGlobalReferences(allocatedExecutionParties1, CLIENT_A_ACC_1_ID),
-						getPartyGlobalReferences(allocatedExecutionParties1, EXECUTING_BROKER_ID),
-						getPartyGlobalReferences(allocatedExecutionParties1, COUNTERPARTY_BROKER_A_ID)));
+				hasItems(getPartyGlobalKey(parties, CLIENT_A_ACC_1_ID),
+						getPartyGlobalKey(parties, EXECUTING_BROKER_ID),
+						getPartyGlobalKey(parties, COUNTERPARTY_BROKER_A_ID)));
 		assertThat(getPartyExternalReferences(allocatedExecutionParties1), hasItems(CLIENT_A_ACC_1_ID, EXECUTING_BROKER_ID, COUNTERPARTY_BROKER_A_ID));
 
 		assertThat(getPartyRoleEnums(allocatedExecution, CLIENT_A_ACC_1_ID), hasItems(PartyRoleEnum.CLIENT));
@@ -136,12 +139,12 @@ public class AllocateTest extends AbstractFunctionTest {
 		assertTrue(allocatedExecutionOptional2.isPresent());
 		Execution allocatedExecution2 = allocatedExecutionOptional2.get();
 
-		List<Party> allocatedExecutionParties2 = allocatedExecution2.getParty();
+		List<ReferenceWithMetaParty> allocatedExecutionParties2 = allocatedExecution2.getParty();
 		assertEquals(3, allocatedExecutionParties2.size());
 		assertThat(getPartyGlobalReferences(allocatedExecutionParties2),
-				hasItems(getPartyGlobalReferences(allocatedExecutionParties2, CLIENT_A_ACC_2_ID),
-						getPartyGlobalReferences(allocatedExecutionParties2, EXECUTING_BROKER_ID),
-						getPartyGlobalReferences(allocatedExecutionParties2, COUNTERPARTY_BROKER_A_ID)));
+				hasItems(getPartyGlobalKey(parties, CLIENT_A_ACC_2_ID),
+						getPartyGlobalKey(parties, EXECUTING_BROKER_ID),
+						getPartyGlobalKey(parties, COUNTERPARTY_BROKER_A_ID)));
 		assertThat(getPartyExternalReferences(allocatedExecutionParties2), hasItems(CLIENT_A_ACC_2_ID, EXECUTING_BROKER_ID, COUNTERPARTY_BROKER_A_ID));
 
 		assertThat(getPartyRoleEnums(allocatedExecution2, CLIENT_A_ACC_2_ID), hasItems(PartyRoleEnum.CLIENT));
@@ -155,12 +158,12 @@ public class AllocateTest extends AbstractFunctionTest {
 		assertTrue(allocatedExecutionOptional3.isPresent());
 		Execution allocatedExecution3 = allocatedExecutionOptional3.get();
 
-		List<Party> allocatedExecutionParties3 = allocatedExecution3.getParty();
+		List<ReferenceWithMetaParty> allocatedExecutionParties3 = allocatedExecution3.getParty();
 		assertEquals(3, allocatedExecutionParties3.size());
 		assertThat(getPartyGlobalReferences(allocatedExecutionParties3),
-				hasItems(getPartyGlobalReferences(allocatedExecutionParties3, CLIENT_A_ACC_3_ID),
-						getPartyGlobalReferences(allocatedExecutionParties3, EXECUTING_BROKER_ID),
-						getPartyGlobalReferences(allocatedExecutionParties3, COUNTERPARTY_BROKER_A_ID)));
+				hasItems(getPartyGlobalKey(parties, CLIENT_A_ACC_3_ID),
+						getPartyGlobalKey(parties, EXECUTING_BROKER_ID),
+						getPartyGlobalKey(parties, COUNTERPARTY_BROKER_A_ID)));
 		assertThat(getPartyExternalReferences(allocatedExecutionParties3), hasItems(CLIENT_A_ACC_3_ID, EXECUTING_BROKER_ID, COUNTERPARTY_BROKER_A_ID));
 
 		assertThat(getPartyRoleEnums(allocatedExecution3, CLIENT_A_ACC_3_ID), hasItems(PartyRoleEnum.CLIENT));
@@ -181,16 +184,16 @@ public class AllocateTest extends AbstractFunctionTest {
 				.collect(MoreCollectors.toOptional());
 	}
 
-	private String getPartyGlobalReferences(List<Party> party, String partyExternalReference) {
+	private String getPartyGlobalKey(List<Party> party, String partyExternalKey) {
 		return party
 				.stream()
 				.map(Party::getMeta)
-				.filter(m -> m.getExternalKey().equals(partyExternalReference))
+				.filter(m -> m.getExternalKey().equals(partyExternalKey))
 				.map(MetaFields::getGlobalKey)
 				.collect(MoreCollectors.onlyElement());
 	}
 
-	private List<String> getPartyGlobalReferences(List<Party> party) {
+	private List<String> getPartyGlobalKeys(List<Party> party) {
 		return party
 				.stream()
 				.map(Party::getMeta)
@@ -198,11 +201,25 @@ public class AllocateTest extends AbstractFunctionTest {
 				.collect(Collectors.toList());
 	}
 
-	private List<String> getPartyExternalReferences(List<Party> party) {
+	private List<String> getPartyGlobalReferences(List<ReferenceWithMetaParty> partyReference) {
+		return partyReference
+				.stream()
+				.map(ReferenceWithMetaParty::getGlobalReference)
+				.collect(Collectors.toList());
+	}
+
+	private List<String> getPartyExternalKeys(List<Party> party) {
 		return party
 				.stream()
 				.map(Party::getMeta)
 				.map(MetaFields::getExternalKey)
+				.collect(Collectors.toList());
+	}
+
+	private List<String> getPartyExternalReferences(List<ReferenceWithMetaParty> partyReference) {
+		return partyReference
+				.stream()
+				.map(ReferenceWithMetaParty::getExternalReference)
 				.collect(Collectors.toList());
 	}
 

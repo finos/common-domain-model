@@ -7,9 +7,9 @@ import com.rosetta.model.lib.records.DateImpl;
 import org.isda.cdm.*;
 import org.isda.cdm.AllocationPrimitive.AllocationPrimitiveBuilder;
 import org.isda.cdm.metafields.FieldWithMetaString;
-import org.isda.cdm.metafields.MetaFields;
 import org.isda.cdm.metafields.ReferenceWithMetaParty;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -53,8 +53,8 @@ public class NewAllocationPrimitiveImpl extends NewAllocationPrimitive {
 				.collect(Collectors.toList());
 
 		// Get broker parties
-		List<Party> brokerParties = execution.getParty().stream()
-				.filter(p -> !p.getMeta().getGlobalKey().equals(clientReference))
+		List<ReferenceWithMetaParty> brokerParties = execution.getParty().stream()
+				.filter(p -> !p.getValue().getMeta().getGlobalKey().equals(clientReference))
 				.collect(Collectors.toList());
 
 		// Create AllocationPrimitive and set the before trade.
@@ -87,7 +87,6 @@ public class NewAllocationPrimitiveImpl extends NewAllocationPrimitive {
 			allocationOutcomeBuilder.addAllocatedTradeBuilder(Trade.builder()
 					.setExecutionBuilder(
 							execution.toBuilder() // Start with the input execution and the required fields
-									.setMetaBuilder(MetaFields.builder())
 									// identifier
 									.clearIdentifier()
 									.addIdentifier(getIdentifier("tradeId_" + allocatingParty.getMeta().getExternalKey()))
@@ -96,10 +95,12 @@ public class NewAllocationPrimitiveImpl extends NewAllocationPrimitive {
 									.clearPartyRole()
 									.addParty(brokerParties)
 									.addPartyRole(brokerPartyRoles)
-									.addParty(allocatingParty)
+									.addParty(ReferenceWithMetaParty.builder().setValue(allocatingParty).build())
 									.addPartyRole(allocatingClientPartyRoles)
 									// quantity
-									.setQuantity(allocatedQuantity)));
+									.setQuantity(allocatedQuantity)
+									// settlement terms
+									.setSettlementTerms(getSettlementTerms(execution, allocatedQuantity))));
 		});
 
 		allocationPrimitiveBuilder.setAfterBuilder(allocationOutcomeBuilder);
@@ -108,6 +109,24 @@ public class NewAllocationPrimitiveImpl extends NewAllocationPrimitive {
 		postProcessors.forEach(postProcessStep -> postProcessStep.runProcessStep(AllocationPrimitive.class, allocationPrimitiveBuilder));
 
 		return allocationPrimitiveBuilder;
+	}
+
+	private SettlementTerms getSettlementTerms(Execution execution, Quantity allocatedQuantity) {
+		ActualPrice dirtyPrice = execution.getPrice().getNetPrice();
+		SettlementTerms settlementTerms = execution.getSettlementTerms();
+
+		String tradeCurrency = dirtyPrice.getCurrency().getValue();
+		String settlementCurrency = settlementTerms.getSettlementCurrency().getValue();
+		if (!tradeCurrency.equals(settlementCurrency)) {
+			throw new IllegalArgumentException(String.format("Different trade and settlement currencies not supported", tradeCurrency, settlementCurrency));
+		}
+
+		BigDecimal settlementAmount = dirtyPrice.getAmount().multiply(allocatedQuantity.getAmount());
+		return settlementTerms.toBuilder()
+				.setSettlementAmount(Money.builder()
+						.setAmount(settlementAmount)
+						.build())
+				.build();
 	}
 
 	private Identifier getIdentifier(String id) {

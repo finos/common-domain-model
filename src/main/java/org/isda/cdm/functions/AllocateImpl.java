@@ -6,7 +6,7 @@ import com.rosetta.model.lib.records.DateImpl;
 import org.isda.cdm.*;
 import org.isda.cdm.AllocationPrimitive.AllocationPrimitiveBuilder;
 import org.isda.cdm.metafields.FieldWithMetaString;
-import org.isda.cdm.metafields.MetaFields;
+import org.isda.cdm.metafields.ReferenceWithMetaParty;
 import org.isda.cdm.processor.EventEffectProcessStep;
 
 import java.time.LocalDate;
@@ -33,22 +33,25 @@ public class AllocateImpl extends Allocate {
 	protected Event.EventBuilder doEvaluate(Execution execution, AllocationInstructions allocationInstructions) {
 		Event.EventBuilder eventBuilder = super.doEvaluate(execution, allocationInstructions);
 
-		Set<Party> eventParties = new HashSet<>();
+		Set<ReferenceWithMetaParty> eventParties = new HashSet<>();
 
 		for(AllocationPrimitiveBuilder allocationBuilder : eventBuilder.getPrimitive().getAllocation()) {
-			Set<Party> blockExecutionParties = new HashSet<>(allocationBuilder.build().getBefore().getExecution().getParty());
+			Set<ReferenceWithMetaParty> blockExecutionParties = new HashSet<>(allocationBuilder.build().getBefore().getExecution().getParty());
 
 			eventParties.addAll(blockExecutionParties);
 
 			// replace execution parties with references
+			// before -> execution
 			allocationBuilder.getBefore().getExecution()
 					.clearParty()
 					.addParty(replacePartyWithReference(blockExecutionParties));
+			// after -> original trade
 			allocationBuilder.getAfter().getOriginalTrade().getExecution()
 					.clearParty()
 					.addParty(replacePartyWithReference(blockExecutionParties));
+			// after -> allocated trades
 			allocationBuilder.getAfter().getAllocatedTrade().forEach(allocatedTradeBuilder -> {
-				List<Party> allocatedExecutionParties = Optional.ofNullable(allocatedTradeBuilder.build().getExecution())
+				List<ReferenceWithMetaParty> allocatedExecutionParties = Optional.ofNullable(allocatedTradeBuilder.build().getExecution())
 						.map(Execution::getParty)
 						.orElse(Collections.emptyList());
 
@@ -63,7 +66,7 @@ public class AllocateImpl extends Allocate {
 		eventBuilder
 				.addEventIdentifier(getIdentifier("allocationEvent1", 1))
 				.setEventDate(DateImpl.of(LocalDate.now()))
-				.addParty(new ArrayList<>(eventParties))
+				.addParty(eventParties.stream().map(ReferenceWithMetaParty::getValue).collect(Collectors.toList()))
 				.addTimestamp(getEventCreationTimestamp(ZonedDateTime.now()));
 
 		// Update keys / references
@@ -72,11 +75,11 @@ public class AllocateImpl extends Allocate {
 		return eventBuilder;
 	}
 
-	private List<Party> replacePartyWithReference(Collection<Party> parties) {
+	private List<ReferenceWithMetaParty> replacePartyWithReference(Collection<ReferenceWithMetaParty> parties) {
 		return parties.stream()
-				.map(p -> Party.builder().setMetaBuilder(MetaFields.builder()
-						.setGlobalKey(p.getMeta().getGlobalKey())
-						.setExternalKey(p.getMeta().getExternalKey()))
+				.map(p -> ReferenceWithMetaParty.builder()
+						.setGlobalReference(p.getValue().getMeta().getGlobalKey())
+						.setExternalReference(p.getValue().getMeta().getExternalKey())
 						.build())
 				.collect(Collectors.toList());
 	}
