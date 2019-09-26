@@ -46,18 +46,22 @@ public class EvaluatePortfolioStateTest {
 		Position p1 = getPosition(portfolioState, CUSIP_US1234567891, PositionStatusEnum.EXECUTED);
 		assertNotNull(p1);
 		assertEquals(BigDecimal.valueOf(91000000), p1.getQuantity().getAmount());
+		assertEquals(BigDecimal.valueOf(-8648032500.0).setScale(2), p1.getCashBalance().getAmount().setScale(2));
 
 		Position p2 = getPosition(portfolioState, CUSIP_US1234567891, PositionStatusEnum.SETTLED);
 		assertNotNull(p2);
 		assertEquals(BigDecimal.valueOf(138000000), p2.getQuantity().getAmount());
+		assertEquals(BigDecimal.valueOf(-13123950000.0).setScale(2), p2.getCashBalance().getAmount().setScale(2));
 
 		Position p3 = getPosition(portfolioState, CUSIP_DH9105730505, PositionStatusEnum.EXECUTED);
 		assertNotNull(p3);
 		assertEquals(BigDecimal.valueOf(-21000000), p3.getQuantity().getAmount());
+		assertEquals(BigDecimal.valueOf(1997001750.0).setScale(2), p3.getCashBalance().getAmount().setScale(2));
 
 		Position p4 = getPosition(portfolioState, CUSIP_DH9105730505, PositionStatusEnum.SETTLED);
 		assertNotNull(p4);
 		assertEquals(BigDecimal.valueOf(410000000), p4.getQuantity().getAmount());
+		assertEquals(BigDecimal.valueOf(-38982750000.0).setScale(2), p4.getCashBalance().getAmount().setScale(2));
 	}
 
 	@Test
@@ -77,18 +81,22 @@ public class EvaluatePortfolioStateTest {
 		Position p1 = getPosition(portfolioState, CUSIP_US1234567891, PositionStatusEnum.EXECUTED);
 		assertNotNull(p1);
 		assertEquals(BigDecimal.valueOf(80000000), p1.getQuantity().getAmount());
+		assertEquals(BigDecimal.valueOf(-7602400000.0).setScale(2), p1.getCashBalance().getAmount().setScale(2));
 
 		Position p2 = getPosition(portfolioState, CUSIP_US1234567891, PositionStatusEnum.SETTLED);
 		assertNotNull(p2);
 		assertEquals(BigDecimal.valueOf(-2000000), p2.getQuantity().getAmount());
+		assertEquals(BigDecimal.valueOf(190100000.0).setScale(2), p2.getCashBalance().getAmount().setScale(2));
 
 		Position p3 = getPosition(portfolioState, CUSIP_DH9105730505, PositionStatusEnum.EXECUTED);
 		assertNotNull(p3);
 		assertEquals(BigDecimal.valueOf(-7500000), p3.getQuantity().getAmount());
+		assertEquals(BigDecimal.valueOf(713212500.0).setScale(2), p3.getCashBalance().getAmount().setScale(2));
 
 		Position p4 = getPosition(portfolioState, CUSIP_DH9105730505, PositionStatusEnum.SETTLED);
 		assertNotNull(p4);
 		assertEquals(BigDecimal.valueOf(35000000), p4.getQuantity().getAmount());
+		assertEquals(BigDecimal.valueOf(-3325875000.0).setScale(2), p4.getCashBalance().getAmount().setScale(2));
 	}
 
 	@Test
@@ -109,10 +117,13 @@ public class EvaluatePortfolioStateTest {
 		Position p1 = getPosition(portfolioState, CUSIP_US1234567891, PositionStatusEnum.EXECUTED);
 		assertNotNull(p1);
 		assertEquals(BigDecimal.valueOf(91000000), p1.getQuantity().getAmount());
+		assertEquals(BigDecimal.valueOf(-8648032500.0).setScale(2), p1.getCashBalance().getAmount().setScale(2));
 
 		Position p2 = getPosition(portfolioState, CUSIP_DH9105730505, PositionStatusEnum.EXECUTED);
 		assertNotNull(p2);
 		assertEquals(BigDecimal.valueOf(-21000000), p2.getQuantity().getAmount());
+		assertEquals(BigDecimal.valueOf(1997001750.00).setScale(2), p2.getCashBalance().getAmount().setScale(2));
+
 	}
 
 	@Test
@@ -133,10 +144,12 @@ public class EvaluatePortfolioStateTest {
 		Position p1 = getPosition(portfolioState, CUSIP_US1234567891, PositionStatusEnum.EXECUTED);
 		assertNotNull(p1);
 		assertEquals(BigDecimal.valueOf(80000000), p1.getQuantity().getAmount());
+		assertEquals(BigDecimal.valueOf(-7602400000.0).setScale(2), p1.getCashBalance().getAmount().setScale(2));
 
 		Position p2 = getPosition(portfolioState, CUSIP_DH9105730505, PositionStatusEnum.EXECUTED);
 		assertNotNull(p2);
 		assertEquals(BigDecimal.valueOf(-7500000), p2.getQuantity().getAmount());
+		assertEquals(BigDecimal.valueOf(713212500.0).setScale(2), p2.getCashBalance().getAmount().setScale(2));
 	}
 
 	@Test
@@ -157,10 +170,12 @@ public class EvaluatePortfolioStateTest {
 		Position p1 = getPosition(portfolioState, CUSIP_US1234567891, PositionStatusEnum.EXECUTED);
 		assertNotNull(p1);
 		assertEquals(BigDecimal.valueOf(91000000), p1.getQuantity().getAmount());
+		assertEquals(BigDecimal.valueOf(-8648032500.0).setScale(2), p1.getCashBalance().getAmount().setScale(2));
 
 		Position p2 = getPosition(portfolioState, CUSIP_US1234567891, PositionStatusEnum.SETTLED);
 		assertNotNull(p2);
 		assertEquals(BigDecimal.valueOf(138000000), p2.getQuantity().getAmount());
+		assertEquals(BigDecimal.valueOf(-13123950000.0).setScale(2), p2.getCashBalance().getAmount().setScale(2));
 	}
 
 	@Test
@@ -181,10 +196,12 @@ public class EvaluatePortfolioStateTest {
 		Position p1 = getPosition(portfolioState, CUSIP_US1234567891, PositionStatusEnum.EXECUTED);
 		assertNotNull(p1);
 		assertEquals(BigDecimal.valueOf(80000000), p1.getQuantity().getAmount());
+		assertEquals(BigDecimal.valueOf(-7602400000.0).setScale(2), p1.getCashBalance().getAmount().setScale(2));
 
 		Position p2 = getPosition(portfolioState, CUSIP_US1234567891, PositionStatusEnum.SETTLED);
 		assertNotNull(p2);
 		assertEquals(BigDecimal.valueOf(-2000000), p2.getQuantity().getAmount());
+		assertEquals(BigDecimal.valueOf(190100000.0).setScale(2), p2.getCashBalance().getAmount().setScale(2));
 	}
 
 	private Product getProduct(String productId, ProductIdSourceEnum source) {
@@ -214,18 +231,22 @@ public class EvaluatePortfolioStateTest {
 		Position p1 = getPosition(portfolioState, CUSIP_US1234567891, PositionStatusEnum.EXECUTED);
 		assertNotNull(p1);
 		assertEquals(BigDecimal.valueOf(80000000), p1.getQuantity().getAmount());
+		assertEquals(BigDecimal.valueOf(-7602400000.0).setScale(2), p1.getCashBalance().getAmount().setScale(2));
 
 		Position p2 = getPosition(portfolioState, CUSIP_US1234567891, PositionStatusEnum.SETTLED);
 		assertNotNull(p2);
 		assertEquals(BigDecimal.valueOf(140000000), p2.getQuantity().getAmount());
+		assertEquals(BigDecimal.valueOf(-13314050000.0).setScale(2), p2.getCashBalance().getAmount().setScale(2));
 
 		Position p3 = getPosition(portfolioState, CUSIP_DH9105730505, PositionStatusEnum.EXECUTED);
 		assertNotNull(p3);
 		assertEquals(BigDecimal.valueOf(-13500000), p3.getQuantity().getAmount());
+		assertEquals(BigDecimal.valueOf(1283789250.0).setScale(2), p3.getCashBalance().getAmount().setScale(2));
 
 		Position p4 = getPosition(portfolioState, CUSIP_DH9105730505, PositionStatusEnum.SETTLED);
 		assertNotNull(p4);
 		assertEquals(BigDecimal.valueOf(125000000), p4.getQuantity().getAmount());
+		assertEquals(BigDecimal.valueOf(-11883125000.0).setScale(2), p4.getCashBalance().getAmount().setScale(2));
 	}
 
 	private Position getPosition(PortfolioState portfolioState, String productId, PositionStatusEnum positionStatus) {
