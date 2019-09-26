@@ -9,8 +9,7 @@ import com.google.inject.Provider;
 
 public class InterpolateForwardRateImpl extends InterpolateForwardRate {
 
-	@Inject
-	InterpolateForwardRateService valueProvider;
+	@Inject InterpolateForwardRateService valueProvider;
 
 	@Override
 	protected BigDecimal doEvaluate(ForwardPayout forward) {
