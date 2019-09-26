@@ -19,4 +19,13 @@ public abstract class AbstractFunctionTest {
 	public void setUp() {
 		injector.injectMembers(this);
 	}
+	
+	/**
+	 * Don't use Injector directly! Use @Inject annotation to inject functions
+	 * @return
+	 */
+	@Deprecated
+	protected static Injector getInjector() {
+		return injector;
+	}
 }

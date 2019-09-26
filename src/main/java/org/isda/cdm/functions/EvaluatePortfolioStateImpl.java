@@ -18,7 +18,8 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 
 	private final List<Execution> executions;
 	private final List<PostProcessStep> postProcessors;
-
+	
+	// FIXME functions should not have state
 	public EvaluatePortfolioStateImpl(List<Execution> executions) {
 		this.executions = executions;
 		RosettaKeyProcessStep rosettaKeyProcessStep = new RosettaKeyProcessStep(NonNullHashCollector::new);
