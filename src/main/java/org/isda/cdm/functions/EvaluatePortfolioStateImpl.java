@@ -22,9 +22,9 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 	public EvaluatePortfolioStateImpl(List<Execution> executions) {
 		this.executions = executions;
 		RosettaKeyProcessStep rosettaKeyProcessStep = new RosettaKeyProcessStep(NonNullHashCollector::new);
-		this.postProcessors = Arrays.asList(rosettaKeyProcessStep,
-				new RosettaKeyValueProcessStep(RosettaKeyValueHashFunction::new),
-				new ReKeyProcessStep(rosettaKeyProcessStep));
+		this.postProcessors = Arrays.asList(rosettaKeyProcessStep, // Calculates rosetta keys
+				new RosettaKeyValueProcessStep(RosettaKeyValueHashFunction::new), // Calculates rosetta key values
+				new ReKeyProcessStep(rosettaKeyProcessStep)); // Uses external key/references to populate global reference (which refer to keys generated in earlier steps)
 	}
 
 	@Override
@@ -49,12 +49,22 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 																			  Collectors.reducing(BigDecimal.ZERO, this::getAggregationQuantity,
 																					  BigDecimal::add)));
 
+		// Build position -> aggregated cash balance map
+		Map<Position, BigDecimal> positionCashBalance = filteredExecution.stream()
+				.collect(Collectors.groupingBy(
+						e -> toPosition(e, date),
+						Collectors.reducing(BigDecimal.ZERO, this::getAggregationSettlementAmount,
+								BigDecimal::add)));
+
 		// Update Position with aggregated quantity
 		Set<Position> aggregatedPositions = positionQuantity.keySet().stream()
-															.map(p -> p.toBuilder()
-																	   .setQuantityBuilder(Quantity.builder().setAmount(positionQuantity.get(p)))
-																	   .build())
-															.collect(Collectors.toSet());
+				.map(p -> p.toBuilder()
+						.setQuantityBuilder(Quantity.builder().setAmount(positionQuantity.get(p)))
+						.setCashBalanceBuilder(Money.builder().setAmount(positionCashBalance.get(p))) // TODO add currency
+						.build())
+				.collect(Collectors.toSet());
+
+
 
 		PortfolioStateBuilder portfolioStateBuilder = PortfolioState.builder();
 		aggregatedPositions.forEach(portfolioStateBuilder::addPositions);
@@ -166,6 +176,7 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 												.collect(Collectors.toList());
 
 		return execution.getParty().stream()
+						.map(ReferenceWithMetaParty::getValue)
 						.map(Party::getPartyId)
 						.flatMap(List::stream)
 						.map(FieldWithMetaString::getValue)
@@ -220,9 +231,21 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 	 */
 	private BigDecimal getAggregationQuantity(Execution e) {
 		PartyRoleEnum buyOrSell = getExecutingEntityBuyOrSell(e);
+		BigDecimal quantity = e.getQuantity().getAmount();
 		return buyOrSell == PartyRoleEnum.SELLER ?
-				e.getQuantity().getAmount().negate() : // if selling, reduce position
-				e.getQuantity().getAmount(); // if buying, increase position
+				quantity.negate() : // if selling, reduce position
+				quantity; // if buying, increase position
+	}
+
+	/**
+	 * @return execution cash balance, as negative for buy, and positive for sell
+	 */
+	private BigDecimal getAggregationSettlementAmount(Execution e) {
+		PartyRoleEnum buyOrSell = getExecutingEntityBuyOrSell(e);
+		BigDecimal settlementAmount = e.getSettlementTerms().getSettlementAmount().getAmount();
+		return buyOrSell == PartyRoleEnum.SELLER ?
+				settlementAmount : // if selling, increase cash
+				settlementAmount.negate(); // if buying, reduce cash
 	}
 
 	/**

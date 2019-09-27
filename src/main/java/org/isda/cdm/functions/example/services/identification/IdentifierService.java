@@ -10,7 +10,7 @@ import com.google.inject.Singleton;
 import java.util.TreeSet;
 
 /**
- * An example id service that
+ * An example id service that helps get and increment identifiers
  */
 @Singleton
 public class IdentifierService {
