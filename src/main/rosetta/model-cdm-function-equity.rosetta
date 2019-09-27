@@ -38,14 +38,14 @@ func NewEquitySwapProduct: <"Function specification to create an Equity Swap acc
 		if masterConfirmation exists then NewFloatingPayout( masterConfirmation )
 		
 	post-condition: <"Other payout types must be absent.">
-		if masterConfirmation is absent then payout -> interestRatePayout is absent; 
-		payout -> cashflow is absent;
-		payout -> creditDefaultPayout is absent;
-		payout -> forwardPayout is absent;
-		payout -> optionPayout is absent;	
+		if masterConfirmation is absent then payout -> interestRatePayout is absent
+		and payout -> cashflow is absent
+		and payout -> creditDefaultPayout is absent
+		and payout -> forwardPayout is absent
+		and payout -> optionPayout is absent	
 		
 	post-condition: <"Non-contractual product types must be absent.">
-		product -> contractualProduct only exists;
+		product -> contractualProduct only exists
 
 		
 func NewSingleNameEquityPayout: <"Function specification to create the equity payout part of an Equity Swap according to the 2018 ISDA CDM Equity Confirmation template.">
@@ -69,7 +69,7 @@ func NewSingleNameEquityPayout: <"Function specification to create the equity pa
 		masterConfirmation -> settlementTerms
 		
 	post-condition: <"Equity payout must be single name on the provided equity underlier.">
-		equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> equity = underlier;
+		equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> equity = underlier
 		
 		
 func NewFloatingPayout: <"Function specification to create the interest rate (floating) payout part of an Equity Swap according to the 2018 ISDA CDM Equity Confirmation template.">
@@ -79,7 +79,7 @@ func NewFloatingPayout: <"Function specification to create the interest rate (fl
 	post-condition: <"Interest rate payout must inherit terms from the Master Confirmation Agreement when it exists.">
 		if masterConfirmation exists 
 			then interestRatePayout -> calculationPeriodDates = masterConfirmation -> equityCalculationPeriod 
-				and interestRatePayout -> paymentDates = masterConfirmation -> equityCashSettlementDates; 
+				and interestRatePayout -> paymentDates = masterConfirmation -> equityCashSettlementDates
 
 /**
  * Function specifications that are used in the Equity Reset process 
@@ -109,7 +109,7 @@ func ResolveEquityContract: <"Specifies how the updated contract should be const
 		EquityPerformance( equityPayout, observation -> observation, periodEndDate )
 		
 	condition isEquityContract :
-		equityPayout exists;
+		equityPayout exists
 		
 	assign-output updatedEquityPayout -> priceReturnTerms -> valuationPriceFinal -> netPrice -> amount :
 		if CalculationPeriod( equityPayout -> calculationPeriodDates, periodEndDate ) -> isLastPeriod then price
@@ -139,17 +139,17 @@ func EquityPriceObservation: <"Function specification for the observation of an 
 	condition: <"Optional choice between directly passing a time or a timeType, which has to be resolved into a time based on the determination method.">
 		if valuationTime exists then timeType is absent
 		else if timeType exists then valuationTime is absent
-		else False;
+		else False
 		
 	post-condition: <"The date and time must be properly resolved as attributes on the output.">
-		observation -> date = ResolveAdjustableDate( valuationDate );
-		if valuationTime exists then
-			observation -> time = TimeZoneFromBusinessCenterTime( valuationTime )
-		else
-			observation -> time = ResolveTimeZoneFromTimeType( timeType, determinationMethod );
+		observation -> date = ResolveAdjustableDate( valuationDate )
+		and if valuationTime exists then
+				observation -> time = TimeZoneFromBusinessCenterTime( valuationTime )
+			else
+				observation -> time = ResolveTimeZoneFromTimeType( timeType, determinationMethod )
 			
 	post-condition: <"The number recorded in the observation must match the number fetched from the source.">
-		observation -> observation = EquitySpot( equity, observation -> date, observation -> time );
+		observation -> observation = EquitySpot( equity, observation -> date, observation -> time )
 
 
 // should be provided as a fully specified function (with a body, like calculation) with logic based on the direction of RateOfReturn
@@ -193,7 +193,7 @@ func EquityCashSettlementAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity
 		contractState -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout
 		
 	condition:
-		equityPayout -> payoutQuantity -> quantityNotationTag = QuantityNotationEnum.NumberOfSecurities; 
+		equityPayout -> payoutQuantity -> quantityNotationTag = QuantityNotationEnum.NumberOfSecurities
 		
 	assign-output equityCashSettlementAmount -> amount : <"Equity Cash Settlement Amount is defined here as Abs( Equity Performance ). Per the ISDA Definitions: Equity Performance = (Rate Of Return) × Equity Notional Amount and Equity Cash Settlement Amount = ABS(Rate Of Return) × Equity Notional Amount; so the calculation for Equity Cash Settlement Amount in the CDM is mathematically equivalent, with the added benefit that Rate of Return does not need to be recomputed, since it was already computed in the Reset Event."> 
 		Abs( contractState -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> performance only-element )

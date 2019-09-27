@@ -18,7 +18,7 @@ import org.isda.cdm.SingleUnderlier;
 import org.isda.cdm.Underlier;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.isda.cdm.functions.FxMarkToMarket;
-import org.isda.cdm.services.TestableInterpolateForwardRateService;
+import org.isda.cdm.functions.TestableInterpolateForwardRate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -26,7 +26,7 @@ import com.google.inject.Inject;
 
 class FxMarkToMarketTest extends AbstractFunctionTest {
 
-	@Inject TestableInterpolateForwardRateService service;
+	@Inject TestableInterpolateForwardRate interpolateForwardRate;
 	@Inject FxMarkToMarket markToMarket;
 	
     // (quotedQuantity / interpolatedRate - baseQuantity) * interpolatedRate
@@ -45,7 +45,7 @@ class FxMarkToMarketTest extends AbstractFunctionTest {
     @Override @BeforeEach
 	public void setUp() {
 		super.setUp();
-		service.setDefaultRate(BigDecimal.valueOf(1.5));
+		interpolateForwardRate.setValue(BigDecimal.valueOf(1.5));
 	}
 	
     /**
