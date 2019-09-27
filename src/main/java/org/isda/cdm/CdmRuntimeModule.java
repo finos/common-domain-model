@@ -12,6 +12,7 @@ public class CdmRuntimeModule extends AbstractModule {
 		// create bindings here
 		// TODO find out how businessDate should be handled
 		bind(LocalDate.class).annotatedWith(Names.named("businessDate")).toInstance(LocalDate.of(2001, 10, 10));
+
 	}
 
 }
