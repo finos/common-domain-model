@@ -36,9 +36,17 @@ class AllocateTest extends AbstractFunctionTest {
 		TestObjectsFactory factory = new TestObjectsFactory();
 		LocalDate tradeDate = LocalDate.of(2019, 8, 26);
 		LocalDate settlementDate = LocalDate.of(2019, 8, 28);
-		execution = factory.getExecution(1, tradeDate, CUSIP_US1234567891, 1500000, 95.0975, 94.785, CURRENCY_USD,
-				COUNTERPARTY_BROKER_A_ID, COUNTERPARTY_BROKER_A_NAME, settlementDate, true);
-		allocationInstructions = factory.getAllocationInstructions(QUANTITY_1, QUANTITY_2, QUANTITY_3);
+		execution = factory.getExecution(1, tradeDate, CUSIP_US1234567891,
+				factory.getQuantity(1500000),
+				factory.getPrice(95.0975, 94.785, CURRENCY_USD),
+				settlementDate, true,
+				factory.getParty(CLIENT_A_ID, CLIENT_A_NAME, null),
+				factory.getParty(EXECUTING_BROKER_ID, EXECUTING_BROKER_NAME, null),
+				factory.getParty(COUNTERPARTY_BROKER_A_ID, COUNTERPARTY_BROKER_A_NAME, null));
+		allocationInstructions = factory.getAllocationInstructions(
+				QUANTITY_1, factory.getParty(CLIENT_A_ACC_1_ID, CLIENT_A_ACC_1_NAME, factory.getAccount(CLIENT_A_ACC_1_NAME)),
+				QUANTITY_2, factory.getParty(CLIENT_A_ACC_2_ID, CLIENT_A_ACC_2_NAME, factory.getAccount(CLIENT_A_ACC_2_NAME)),
+				QUANTITY_3, factory.getParty(CLIENT_A_ACC_3_ID, CLIENT_A_ACC_3_NAME, factory.getAccount(CLIENT_A_ACC_3_NAME)));
 	}
 
 	@Test
