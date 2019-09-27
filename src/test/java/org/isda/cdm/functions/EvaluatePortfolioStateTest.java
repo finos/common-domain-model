@@ -17,16 +17,18 @@ import static org.isda.cdm.util.TestObjectsFactory.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class EvaluatePortfolioStateTest {
+public class EvaluatePortfolioStateTest extends AbstractFunctionTest {
 
 	private static final ZonedDateTime DATE_TIME = ZonedDateTime.of(LocalDateTime.of(2019, 8, 30, 11, 00), ZoneId.of("Europe/London"));
 
 	private EvaluatePortfolioState func;
 
 	@BeforeEach
-	void setUp() {
+	public void setUp() {
+		super.setUp();
 		List<Execution> executions = new TestObjectsFactory().getExecutions();
 		func = new EvaluatePortfolioStateImpl(executions);
+		getInjector().injectMembers(func); // FIXME Workaround for stateful function EvaluatePortfolioStateImpl
 	}
 
 	@Test
