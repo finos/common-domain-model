@@ -8,9 +8,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.isda.cdm.util.TestObjectsFactory.*;
@@ -26,19 +28,18 @@ public class EvaluatePortfolioStateTest extends AbstractFunctionTest {
 	@BeforeEach
 	public void setUp() {
 		super.setUp();
-		List<Execution> executions = new TestObjectsFactory().getExecutions();
-		func = new EvaluatePortfolioStateImpl(executions);
+		func = new EvaluatePortfolioStateImpl(getExecutions());
 		getInjector().injectMembers(func); // FIXME Workaround for stateful function EvaluatePortfolioStateImpl
 	}
 
 	@Test
 	void shouldEvaluateTotalPositionForDate() {
 		Portfolio input = Portfolio.builder()
-								   .setAggregationParameters(AggregationParameters.builder()
-																				  .setDateTime(DATE_TIME)
-																				  .setTotalPosition(true)
-																				  .build())
-								   .build();
+				.setAggregationParameters(AggregationParameters.builder()
+						.setDateTime(DATE_TIME)
+						.setTotalPosition(true)
+						.build())
+				.build();
 		PortfolioState portfolioState = func.evaluate(input);
 
 		assertNotNull(portfolioState);
@@ -69,11 +70,11 @@ public class EvaluatePortfolioStateTest extends AbstractFunctionTest {
 	@Test
 	void shouldEvaluateDailyPositionForDate() {
 		Portfolio input = Portfolio.builder()
-								   .setAggregationParameters(AggregationParameters.builder()
-																				  .setDateTime(DATE_TIME)
-																				  .setTotalPosition(false)
-																				  .build())
-								   .build();
+				.setAggregationParameters(AggregationParameters.builder()
+						.setDateTime(DATE_TIME)
+						.setTotalPosition(false)
+						.build())
+				.build();
 		PortfolioState portfolioState = func.evaluate(input);
 
 		assertNotNull(portfolioState);
@@ -104,12 +105,12 @@ public class EvaluatePortfolioStateTest extends AbstractFunctionTest {
 	@Test
 	void shouldEvaluateTotalPositionForDateAndPositionStatus() {
 		Portfolio input = Portfolio.builder()
-								   .setAggregationParameters(AggregationParameters.builder()
-																				  .setDateTime(DATE_TIME)
-																				  .setTotalPosition(true)
-																				  .setPositionStatus(PositionStatusEnum.EXECUTED)
-																				  .build())
-								   .build();
+				.setAggregationParameters(AggregationParameters.builder()
+						.setDateTime(DATE_TIME)
+						.setTotalPosition(true)
+						.setPositionStatus(PositionStatusEnum.EXECUTED)
+						.build())
+				.build();
 		PortfolioState portfolioState = func.evaluate(input);
 
 		assertNotNull(portfolioState);
@@ -131,12 +132,12 @@ public class EvaluatePortfolioStateTest extends AbstractFunctionTest {
 	@Test
 	void shouldEvaluateDailyPositionForDateAndPositionStatus() {
 		Portfolio input = Portfolio.builder()
-								   .setAggregationParameters(AggregationParameters.builder()
-																				  .setDateTime(DATE_TIME)
-																				  .setTotalPosition(false)
-																				  .setPositionStatus(PositionStatusEnum.EXECUTED)
-																				  .build())
-								   .build();
+				.setAggregationParameters(AggregationParameters.builder()
+						.setDateTime(DATE_TIME)
+						.setTotalPosition(false)
+						.setPositionStatus(PositionStatusEnum.EXECUTED)
+						.build())
+				.build();
 		PortfolioState portfolioState = func.evaluate(input);
 
 		assertNotNull(portfolioState);
@@ -157,12 +158,12 @@ public class EvaluatePortfolioStateTest extends AbstractFunctionTest {
 	@Test
 	void shouldEvaluateTotalPositionForDateAndProduct() {
 		Portfolio input = Portfolio.builder()
-								   .setAggregationParameters(AggregationParameters.builder()
-																				  .setDateTime(DATE_TIME)
-																				  .setTotalPosition(true)
-																				  .addProduct(getProduct(CUSIP_US1234567891, ProductIdSourceEnum.CUSIP))
-																				  .build())
-								   .build();
+				.setAggregationParameters(AggregationParameters.builder()
+						.setDateTime(DATE_TIME)
+						.setTotalPosition(true)
+						.addProduct(getProduct(CUSIP_US1234567891, ProductIdSourceEnum.CUSIP))
+						.build())
+				.build();
 		PortfolioState portfolioState = func.evaluate(input);
 
 		assertNotNull(portfolioState);
@@ -183,12 +184,12 @@ public class EvaluatePortfolioStateTest extends AbstractFunctionTest {
 	@Test
 	void shouldEvaluateDailyPositionForDateAndProduct() {
 		Portfolio input = Portfolio.builder()
-								   .setAggregationParameters(AggregationParameters.builder()
-																				  .setDateTime(DATE_TIME)
-																				  .setTotalPosition(false)
-																				  .addProduct(getProduct(CUSIP_US1234567891, ProductIdSourceEnum.CUSIP))
-																				  .build())
-								   .build();
+				.setAggregationParameters(AggregationParameters.builder()
+						.setDateTime(DATE_TIME)
+						.setTotalPosition(false)
+						.addProduct(getProduct(CUSIP_US1234567891, ProductIdSourceEnum.CUSIP))
+						.build())
+				.build();
 		PortfolioState portfolioState = func.evaluate(input);
 
 		assertNotNull(portfolioState);
@@ -208,22 +209,22 @@ public class EvaluatePortfolioStateTest extends AbstractFunctionTest {
 
 	private Product getProduct(String productId, ProductIdSourceEnum source) {
 		return Product.builder().setSecurityBuilder(Security.builder()
-					.setBondBuilder(Bond.builder()
+				.setBondBuilder(Bond.builder()
 						.setProductIdentifierBuilder(ProductIdentifier.builder()
-							.addIdentifier(FieldWithMetaString.builder().setValue(productId).build())
-							.setSource(source))))
-					.build();
+								.addIdentifier(FieldWithMetaString.builder().setValue(productId).build())
+								.setSource(source))))
+				.build();
 	}
 
 	@Test
 	void shouldEvaluateTotalPositionForParty() {
 		Portfolio input = Portfolio.builder()
-								   .setAggregationParameters(AggregationParameters.builder()
-																				  .setDateTime(DATE_TIME)
-																				  .setTotalPosition(true)
-																				  .addParty(toReferenceWithMetaParty(COUNTERPARTY_BROKER_A_NAME))
-																				  .build())
-								   .build();
+				.setAggregationParameters(AggregationParameters.builder()
+						.setDateTime(DATE_TIME)
+						.setTotalPosition(true)
+						.addParty(toReferenceWithMetaParty(COUNTERPARTY_BROKER_A_NAME))
+						.build())
+				.build();
 		PortfolioState portfolioState = func.evaluate(input);
 
 		assertNotNull(portfolioState);
@@ -253,10 +254,10 @@ public class EvaluatePortfolioStateTest extends AbstractFunctionTest {
 
 	private Position getPosition(PortfolioState portfolioState, String productId, PositionStatusEnum positionStatus) {
 		return portfolioState.getPositions()
-							 .stream()
-							 .filter(p -> isProductId(p, productId) && p.getPositionStatus() == positionStatus)
-							 .findFirst()
-							 .orElse(null);
+				.stream()
+				.filter(p -> isProductId(p, productId) && p.getPositionStatus() == positionStatus)
+				.findFirst()
+				.orElse(null);
 	}
 
 	private boolean isProductId(Position p, String productId) {
@@ -267,9 +268,84 @@ public class EvaluatePortfolioStateTest extends AbstractFunctionTest {
 
 	private ReferenceWithMetaParty toReferenceWithMetaParty(String partyId) {
 		return ReferenceWithMetaParty.builder()
-									 .setValue(Party.builder()
-													.addPartyId(FieldWithMetaString.builder().setValue(partyId).build())
-													.build())
-									 .build();
+				.setValue(Party.builder()
+						.addPartyId(FieldWithMetaString.builder().setValue(partyId).build())
+						.build())
+				.build();
+	}
+
+	private List<Execution> getExecutions() {
+		TestObjectsFactory factory = new TestObjectsFactory();
+		return Arrays.asList(
+				factory.getExecution(1, LocalDate.of(2019, 8, 26), CUSIP_US1234567891,
+						factory.getQuantity(150000000), factory.getPrice(95.0975, 94.785, CURRENCY_USD),
+						LocalDate.of(2019, 8, 28), true,
+						factory.getParty(CLIENT_A_ID, CLIENT_A_NAME, null),
+						factory.getParty(EXECUTING_BROKER_ID, EXECUTING_BROKER_NAME,  null),
+						factory.getParty(COUNTERPARTY_BROKER_A_ID, COUNTERPARTY_BROKER_A_NAME,  null)
+				),
+				factory.getExecution(2, LocalDate.of(2019, 8, 26), CUSIP_DH9105730505,
+						factory.getQuantity(250000000), factory.getPrice(95.095, 94.78, CURRENCY_USD),
+						LocalDate.of(2019, 8, 28), true,
+						factory.getParty(CLIENT_A_ID, CLIENT_A_NAME, null),
+						factory.getParty(EXECUTING_BROKER_ID, EXECUTING_BROKER_NAME,  null),
+						factory.getParty(COUNTERPARTY_BROKER_B_ID, COUNTERPARTY_BROKER_B_NAME,  null)
+				),
+				factory.getExecution(3, LocalDate.of(2019, 8, 27), CUSIP_US1234567891,
+						factory.getQuantity(10000000), factory.getPrice(95.0575, 94.77, CURRENCY_USD),
+						LocalDate.of(2019, 8, 29), false,
+						factory.getParty(CLIENT_A_ID, CLIENT_A_NAME, null),
+						factory.getParty(EXECUTING_BROKER_ID, EXECUTING_BROKER_NAME,  null),
+						factory.getParty(COUNTERPARTY_BROKER_A_ID, COUNTERPARTY_BROKER_A_NAME,  null)
+				),
+				factory.getExecution(4, LocalDate.of(2019, 8, 27), CUSIP_DH9105730505,
+						factory.getQuantity(125000000), factory.getPrice(95.065, 94.73, CURRENCY_USD),
+						LocalDate.of(2019, 8, 29), true,
+						factory.getParty(CLIENT_A_ID, CLIENT_A_NAME, null),
+						factory.getParty(EXECUTING_BROKER_ID, EXECUTING_BROKER_NAME,  null),
+						factory.getParty(COUNTERPARTY_BROKER_A_ID, COUNTERPARTY_BROKER_A_NAME,  null)
+				),
+				factory.getExecution(5, LocalDate.of(2019, 8, 28), CUSIP_US1234567891,
+						factory.getQuantity(2000000), factory.getPrice(95.05, 94.79, CURRENCY_USD),
+						LocalDate.of(2019, 8, 30), false,
+						factory.getParty(CLIENT_A_ID, CLIENT_A_NAME, null),
+						factory.getParty(EXECUTING_BROKER_ID, EXECUTING_BROKER_NAME,  null),
+						factory.getParty(COUNTERPARTY_BROKER_B_ID, COUNTERPARTY_BROKER_B_NAME,  null)
+				),
+				factory.getExecution(6, LocalDate.of(2019, 8, 28), CUSIP_DH9105730505,
+						factory.getQuantity(35000000), factory.getPrice(95.025, 94.65, CURRENCY_USD),
+						LocalDate.of(2019, 8, 30), true,
+						factory.getParty(CLIENT_A_ID, CLIENT_A_NAME, null),
+						factory.getParty(EXECUTING_BROKER_ID, EXECUTING_BROKER_NAME,  null),
+						factory.getParty(COUNTERPARTY_BROKER_B_ID, COUNTERPARTY_BROKER_B_NAME,  null)
+				),
+				factory.getExecution(7, LocalDate.of(2019, 8, 29), CUSIP_US1234567891,
+						factory.getQuantity(11000000), factory.getPrice(95.0575, 94.63, CURRENCY_USD),
+						LocalDate.of(2019, 9, 2), true,
+						factory.getParty(CLIENT_A_ID, CLIENT_A_NAME, null),
+						factory.getParty(EXECUTING_BROKER_ID, EXECUTING_BROKER_NAME,  null),
+						factory.getParty(COUNTERPARTY_BROKER_B_ID, COUNTERPARTY_BROKER_B_NAME,  null)
+				),
+				factory.getExecution(8, LocalDate.of(2019, 8, 29), CUSIP_DH9105730505,
+						factory.getQuantity(13500000), factory.getPrice(95.0955, 94.685, CURRENCY_USD),
+						LocalDate.of(2019, 9, 2), false,
+						factory.getParty(CLIENT_A_ID, CLIENT_A_NAME, null),
+						factory.getParty(EXECUTING_BROKER_ID, EXECUTING_BROKER_NAME,  null),
+						factory.getParty(COUNTERPARTY_BROKER_A_ID, COUNTERPARTY_BROKER_A_NAME,  null)
+				),
+				factory.getExecution(9, LocalDate.of(2019, 8, 30), CUSIP_US1234567891,
+						factory.getQuantity(80000000), factory.getPrice(95.03, 94.355, CURRENCY_USD),
+						LocalDate.of(2019, 9, 3), true,
+						factory.getParty(CLIENT_A_ID, CLIENT_A_NAME, null),
+						factory.getParty(EXECUTING_BROKER_ID, EXECUTING_BROKER_NAME,  null),
+						factory.getParty(COUNTERPARTY_BROKER_A_ID, COUNTERPARTY_BROKER_A_NAME,  null)
+				),
+				factory.getExecution(10, LocalDate.of(2019, 8, 30), CUSIP_DH9105730505,
+						factory.getQuantity(7500000), factory.getPrice(95.095, 94.555, CURRENCY_USD),
+						LocalDate.of(2019, 9, 3), false,
+						factory.getParty(CLIENT_A_ID, CLIENT_A_NAME, null),
+						factory.getParty(EXECUTING_BROKER_ID, EXECUTING_BROKER_NAME, null),
+						factory.getParty(COUNTERPARTY_BROKER_B_ID, COUNTERPARTY_BROKER_B_NAME,  null)
+				));
 	}
 }
