@@ -2,18 +2,6 @@ namespace "org.isda.cdm"
 version "${project.version}"
 
 /*
- * Function Specifications to process Equity Swap life cycle events (beyond execution) 
- * 
- * The sequence of business events being demonstrated will do the following:
- * 1) Create a new contract file that corresponds to an Equity Swap (Ingestion)
- * 2) Create a new MCA which attributes match the relevant terms of that Equity Swap (method TBD)
- * 3) Create a new execution event using the Execute function, that takes its inputs (product, parties, legal agreement) as references from the above
- * 3.5) Create a new contract event using the Contractualise function, that takes an execution as input (from #3) 
- * 4) Create a new observation event for the equity price
- * 5) Create a new reset event based on that observation
- * 6) Create a new transfer event based on that reset
- */
-/*
  * Function Specifications for Equity Swap product creation
  * 
  * These should be implementation-specific, and exist in implementors' "private" extensions of the CDM rather than the public CDM
@@ -99,7 +87,7 @@ func ResolveEquityContract: <"Specifies how the updated contract should be const
 	alias equityPayout:
 		contractState -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
 	
-	alias updatedEquityPayout : <"TODO: should be usable in assign-output blocks.">
+	alias updatedEquityPayout :
 		updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
 		
 	alias periodEndDate :
@@ -123,7 +111,8 @@ func ResolveEquityContract: <"Specifies how the updated contract should be const
 	
 	assign-output updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> quantityMultiplier -> multiplierValue :
 		<"Using the Rate of Return we 'reset' the multiplier, which is used to resolve the ultimate notional amount for the equity swap.">  
-		1 + equityPerformance // / 100 uncomment once the divide operator is fully supported
+		1 + equityPerformance / 100
+
 
 func EquityPriceObservation: <"Function specification for the observation of an equity price, based on the attributes of the 'EquityValuation' class.">
 	inputs:

@@ -308,12 +308,14 @@ func NewTransferPrimitive: <"Function specification to create the Transfer primi
 	output:
 		transferPrimitive TransferPrimitive (1..1) <"Transfer primitive generated from execution.">
 
+	assign-output transferPrimitive -> status :
+		TransferStatusEnum.Instructed
+		
 	post-condition:
 		if execution -> product -> security exists and execution -> settlementTerms -> transferSettlementType = TransferSettlementEnum.DeliveryVersusPayment 
 			then transferPrimitive -> cashTransfer exists 
 				and transferPrimitive -> securityTransfer exists 
 				and transferPrimitive -> commodityTransfer is absent
-				and transferPrimitive -> status = TransferStatusEnum.Settled
 			
 			
 func NewQuantityChangePrimitive : <"A specification of the inputs, outputs and constraints when calculating the after state of a Quantity Change Primitive Event">

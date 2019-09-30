@@ -26,6 +26,8 @@ public class NewTransferPrimitiveImpl extends NewTransferPrimitive {
 
 	@Override
 	protected TransferPrimitiveBuilder doEvaluate(Execution execution) {
+		TransferPrimitiveBuilder transferPrimitiveBuilder = super.doEvaluate(execution);
+		
 		if (!isDeliveryVsPayment(execution)) {
 			throw new IllegalArgumentException("Only executions with transferSettlementType of DELIVERY_VERSUS_PAYMENT are supported");
 		}
@@ -33,11 +35,10 @@ public class NewTransferPrimitiveImpl extends NewTransferPrimitive {
 		ReferenceWithMetaParty clientParty = getPartyReference(execution, CLIENT);
 		ReferenceWithMetaParty counterpartyBrokerParty = getPartyReference(execution, COUNTERPARTY);
 
-		TransferPrimitiveBuilder transferPrimitiveBuilder = TransferPrimitive.builder()
+		transferPrimitiveBuilder
 				.setIdentifier(getIdentifier(execution))
 				.setSettlementDate(getSettlementDate(execution))
 				.setSettlementType(TransferSettlementEnum.DELIVERY_VERSUS_PAYMENT)
-				.setStatus(TransferStatusEnum.SETTLED)
 				.addCashTransfer(getCashTransfer(execution, clientParty, counterpartyBrokerParty))
 				.addSecurityTransfer(getSecurityTransfer(execution, clientParty, counterpartyBrokerParty));
 
