@@ -16,6 +16,8 @@ import java.util.stream.Collectors;
 
 /**
  * Sample Allocate implementation, should be used as a simple example only.
+ *
+ * TODO move to CDM exmaples repo
  */
 public class AllocateImpl extends Allocate {
 

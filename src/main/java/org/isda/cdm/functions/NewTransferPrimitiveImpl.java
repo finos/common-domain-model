@@ -13,6 +13,11 @@ import java.util.*;
 
 import static org.isda.cdm.PartyRoleEnum.*;
 
+/**
+ * Sample NewTransferPrimitive implementation, should be used as a simple example only.
+ *
+ * TODO move to CDM exmaples repo
+ */
 public class NewTransferPrimitiveImpl extends NewTransferPrimitive {
 
 	private final List<PostProcessStep> postProcessors;

@@ -12,6 +12,8 @@ public class CdmTestsModule extends CdmRuntimeModule {
 		bind(InterpolateForwardRate.class).to(TestableInterpolateForwardRate.class);
 		bind(CalculationPeriodImpl.class).to(TestableCalculationPeriod.class);
 		bind(Allocate.class).to(AllocateImpl.class);
+		bind(Settle.class).to(SettleImpl.class);
+		bind(NewTransferPrimitive.class).to(NewTransferPrimitiveImpl.class);
 	}
 	
 	@Override
