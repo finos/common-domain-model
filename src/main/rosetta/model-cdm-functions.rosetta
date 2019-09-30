@@ -118,7 +118,7 @@ func Reset :
 		contractState -> contract
 	
 	alias observation:
-		observationEvent -> primitive -> observation
+		observationEvent -> primitive -> observation only-element
 		
 	condition: <"ExtractContractState would result in nothing (empty), check we have something.">
 		contractState exists
@@ -195,7 +195,7 @@ func TransferCash: <"Function specification to build a transfer event following 
 		transferEvent Event (1..1)
 
 	alias contractState :
-		resetEvent -> primitive -> reset -> after
+		resetEvent -> primitive -> reset -> after only-element
 		
 	condition: <"There must be a reset primitive on the event input, and the contract being referenced must be consistent between those events.">
 		resetEvent -> primitive -> reset exists
@@ -308,12 +308,14 @@ func NewTransferPrimitive: <"Function specification to create the Transfer primi
 	output:
 		transferPrimitive TransferPrimitive (1..1) <"Transfer primitive generated from execution.">
 
+	assign-output transferPrimitive -> status :
+		TransferStatusEnum.Instructed
+		
 	post-condition:
 		if execution -> product -> security exists and execution -> settlementTerms -> transferSettlementType = TransferSettlementEnum.DeliveryVersusPayment 
 			then transferPrimitive -> cashTransfer exists 
 				and transferPrimitive -> securityTransfer exists 
 				and transferPrimitive -> commodityTransfer is absent
-				and transferPrimitive -> status = TransferStatusEnum.Settled
 			
 			
 func NewQuantityChangePrimitive : <"A specification of the inputs, outputs and constraints when calculating the after state of a Quantity Change Primitive Event">
