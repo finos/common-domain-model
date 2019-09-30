@@ -9,6 +9,7 @@ import org.isda.cdm.Event.EventBuilder;
 import org.isda.cdm.TransferPrimitive.TransferPrimitiveBuilder;
 import org.isda.cdm.metafields.FieldWithMetaString;
 import org.isda.cdm.metafields.ReferenceWithMetaAccount;
+import org.isda.cdm.metafields.ReferenceWithMetaExecution;
 import org.isda.cdm.metafields.ReferenceWithMetaParty;
 import org.isda.cdm.processor.EventEffectProcessStep;
 
@@ -17,7 +18,7 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.isda.cdm.SecurityTransferComponent.*;
+import static org.isda.cdm.SecurityTransferComponent.SecurityTransferComponentBuilder;
 
 /**
  * Sample Settle implementation, should be used as a simple example only.
@@ -100,12 +101,21 @@ public class SettleImpl extends Settle {
 				.addEventIdentifier(getIdentifier("settleEvent1", 1))
 				.setEventDate(DateImpl.of(LocalDate.now()))
 				.addParty(eventParties.stream().map(ReferenceWithMetaParty::getValue).collect(Collectors.toList()))
-				.addTimestamp(getEventCreationTimestamp(ZonedDateTime.now()));
+				.addTimestamp(getEventCreationTimestamp(ZonedDateTime.now()))
+				.setLineage(getLineage(execution));
 
 		// Update keys / references
 		postProcessors.forEach(postProcessStep -> postProcessStep.runProcessStep(Event.class, eventBuilder));
 
 		return eventBuilder;
+	}
+
+	private Lineage getLineage(Execution execution) {
+		return Lineage.builder()
+				.addExecutionReference(ReferenceWithMetaExecution.builder()
+						.setValue(execution)
+						.build())
+				.build();
 	}
 
 	private Boolean isDeliveryVsPayment(Execution execution) {
