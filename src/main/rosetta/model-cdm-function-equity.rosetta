@@ -97,7 +97,7 @@ func ResolveEquityContract: <"Specifies how the updated contract should be const
 		observation -> observation
 		
 	alias equityPayout:
-		contractState -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout
+		contractState -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
 	
 	alias updatedEquityPayout : <"TODO: should be usable in assign-output blocks.">
 		updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
@@ -186,7 +186,7 @@ func EquityCashSettlementAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity
 		contractState ContractState (1..1)
 		date date (1..1)
 		
-	output: 
+	output:
 		equityCashSettlementAmount Money (1..1)
 	
 	alias equityPayout :
@@ -199,7 +199,7 @@ func EquityCashSettlementAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity
 		Abs( contractState -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> performance only-element )
 		
 	assign-output equityCashSettlementAmount -> currency : <"Does not handle the cross currency case, currently.">
-		equityPayout -> priceReturnTerms -> initialPrice -> netPrice -> currency
+		equityPayout -> priceReturnTerms -> initialPrice -> netPrice -> currency only-element
 
 
 func ResolveEquityPeriodStartPrice: <"Resolves the price from the end of the previous period. If first period, then take the initial price.">
