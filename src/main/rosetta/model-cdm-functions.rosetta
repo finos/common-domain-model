@@ -57,7 +57,7 @@ func FormContract : <"Function specification to create the fully-formed business
 		executionEvent -> primitive -> execution -> after -> execution
 	
 	condition : <"Input event must be an execution must be on a contractual product.">
-		execution exists and 
+		execution exists and
 		execution -> product -> contractualProduct exists
 		
 	condition : <"Ensures that parties to the Contract are defined in the Legal Agreement, if one is provided."> 
@@ -294,17 +294,11 @@ func Settle: <"Function specification to create the Transfer event based on an e
 	condition:
 		execution -> product -> security exists
 	
-	post-condition:
-		if execution -> settlementTerms -> transferSettlementType = TransferSettlementEnum.DeliveryVersusPayment then
-			transferEvent -> primitive -> transfer -> cashTransfer exists 
-			and transferEvent -> primitive -> transfer -> securityTransfer exists 
-			and transferEvent -> primitive -> transfer -> commodityTransfer is absent
+	assign-output transferEvent -> primitive -> transfer:
+		NewTransferPrimitive( execution )
 
 	post-condition:
         transferEvent -> lineage -> executionReference = execution
-
-	post-condition:
-		transferEvent -> primitive -> transfer -> status = TransferStatusEnum.Settled
 
 
 func NewTransferPrimitive: <"Function specification to create the Transfer primitive based on an execution's settlement terms and instructions. Initial implementation only supports creating transfer primitives from securities settled via delivery vs payment.">

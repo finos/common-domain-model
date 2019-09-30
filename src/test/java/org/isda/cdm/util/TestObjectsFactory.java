@@ -45,61 +45,31 @@ public class TestObjectsFactory {
 				new ReKeyProcessStep(rosettaKeyProcessStep));
 	}
 
-	public List<Execution> getExecutions() {
-		return Arrays.asList(
-				getExecution(1, LocalDate.of(2019, 8, 26), CUSIP_US1234567891,
-						150000000, 95.0975, 94.785, CURRENCY_USD, COUNTERPARTY_BROKER_A_ID, COUNTERPARTY_BROKER_A_NAME,
-						LocalDate.of(2019, 8, 28), true),
-				getExecution(2, LocalDate.of(2019, 8, 26), CUSIP_DH9105730505,
-						250000000, 95.095, 94.78, CURRENCY_USD, COUNTERPARTY_BROKER_B_ID, COUNTERPARTY_BROKER_B_NAME,
-						LocalDate.of(2019, 8, 28), true),
-				getExecution(3, LocalDate.of(2019, 8, 27), CUSIP_US1234567891,
-						10000000, 95.0575, 94.77, CURRENCY_USD, COUNTERPARTY_BROKER_A_ID, COUNTERPARTY_BROKER_A_NAME,
-						LocalDate.of(2019, 8, 29), false),
-				getExecution(4, LocalDate.of(2019, 8, 27), CUSIP_DH9105730505,
-						125000000, 95.065, 94.73, CURRENCY_USD, COUNTERPARTY_BROKER_A_ID, COUNTERPARTY_BROKER_A_NAME,
-						LocalDate.of(2019, 8, 29), true),
-				getExecution(5, LocalDate.of(2019, 8, 28), CUSIP_US1234567891,
-						2000000, 95.05, 94.79, CURRENCY_USD, COUNTERPARTY_BROKER_B_ID, COUNTERPARTY_BROKER_B_NAME,
-						LocalDate.of(2019, 8, 30), false),
-				getExecution(6, LocalDate.of(2019, 8, 28), CUSIP_DH9105730505,
-						35000000, 95.025, 94.65, CURRENCY_USD, COUNTERPARTY_BROKER_B_ID, COUNTERPARTY_BROKER_B_NAME,
-						LocalDate.of(2019, 8, 30), true),
-				getExecution(7, LocalDate.of(2019, 8, 29), CUSIP_US1234567891,
-						11000000, 95.0575, 94.63, CURRENCY_USD, COUNTERPARTY_BROKER_B_ID, COUNTERPARTY_BROKER_B_NAME,
-						LocalDate.of(2019, 9, 02), true),
-				getExecution(8, LocalDate.of(2019, 8, 29), CUSIP_DH9105730505,
-						13500000, 95.0955, 94.685, CURRENCY_USD, COUNTERPARTY_BROKER_A_ID, COUNTERPARTY_BROKER_A_NAME,
-						LocalDate.of(2019, 9, 02), false),
-				getExecution(9, LocalDate.of(2019, 8, 30), CUSIP_US1234567891,
-						80000000, 95.03, 94.355, CURRENCY_USD, COUNTERPARTY_BROKER_A_ID, COUNTERPARTY_BROKER_A_NAME,
-						LocalDate.of(2019, 9, 03), true),
-				getExecution(10, LocalDate.of(2019, 8, 30), CUSIP_DH9105730505,
-						7500000, 95.095, 94.555, CURRENCY_USD, COUNTERPARTY_BROKER_B_ID, COUNTERPARTY_BROKER_B_NAME,
-						LocalDate.of(2019, 9, 03), false));
-	}
+	public Execution getExecution(int tradeId, LocalDate tradeDate, String cusip, Quantity quantity, Price price, LocalDate settlementDate,
+			boolean isExecutingEntityBuy, Party clientParty, Party executingBrokerParty, Party counterpartyBrokerParty) {
 
-	public Execution getExecution(int tradeId, LocalDate tradeDate, String cusip, long quantity, double dirtyPrice, double cleanPrice, String currency,
-			String counterpartyBrokerId, String counterpartyName, LocalDate settlementDate, boolean isExecutingEntityBuy) {
+		String clientExternalKey = clientParty.getMeta().getExternalKey();
+		String executingBrokerExternalKey = executingBrokerParty.getMeta().getExternalKey();
+		String counterpartyBrokerExternalKey = counterpartyBrokerParty.getMeta().getExternalKey();
 
 		Execution.ExecutionBuilder builder = Execution.builder()
-						.setExecutionType(ExecutionTypeEnum.ELECTRONIC)
-						.setExecutionVenue(LegalEntity.builder().setName(FieldWithMetaString.builder().setValue("Tradeweb").build()).build())
-						.addIdentifier(getIdentifier("tradeId" + tradeId, EXECUTING_BROKER_ID))
-						.setTradeDate(FieldWithMetaDate.builder().setValue(DateImpl.of(tradeDate)).build())
-						.setProduct(getProduct(cusip, ProductIdSourceEnum.CUSIP))
-						.setQuantity(getQuantity(quantity))
-						.setPrice(getPrice(dirtyPrice, cleanPrice, currency))
-						.addParty(getReferenceWithMetaParty(CLIENT_A_ID, CLIENT_A_NAME, Optional.empty()))
-						.addParty(getReferenceWithMetaParty(EXECUTING_BROKER_ID, EXECUTING_BROKER_NAME, Optional.empty()))
-						.addParty(getReferenceWithMetaParty(counterpartyBrokerId, counterpartyName, Optional.empty()))
-						.addPartyRole(getPartyRole(EXECUTING_BROKER_ID, isExecutingEntityBuy ? PartyRoleEnum.BUYER : PartyRoleEnum.SELLER))
-						.addPartyRole(getPartyRole(counterpartyBrokerId, isExecutingEntityBuy ? PartyRoleEnum.SELLER : PartyRoleEnum.BUYER))
-						.addPartyRole(getPartyRole(CLIENT_A_ID, PartyRoleEnum.CLIENT))
-						.addPartyRole(getPartyRole(EXECUTING_BROKER_ID, PartyRoleEnum.EXECUTING_ENTITY))
-						.addPartyRole(getPartyRole(counterpartyBrokerId, PartyRoleEnum.COUNTERPARTY))
-						.setClosedState(getClosedState())
-						.setSettlementTerms(getSettlementTerms(settlementDate, dirtyPrice * quantity, currency));
+				.setExecutionType(ExecutionTypeEnum.ELECTRONIC)
+				.setExecutionVenue(LegalEntity.builder().setName(FieldWithMetaString.builder().setValue("Tradeweb").build()).build())
+				.addIdentifier(getIdentifier("tradeId" + tradeId, executingBrokerExternalKey))
+				.setTradeDate(FieldWithMetaDate.builder().setValue(DateImpl.of(tradeDate)).build())
+				.setProduct(getProduct(cusip))
+				.setQuantity(quantity)
+				.setPrice(price)
+				.addParty(getReferenceWithMetaParty(clientParty))
+				.addParty(getReferenceWithMetaParty(executingBrokerParty))
+				.addParty(getReferenceWithMetaParty(counterpartyBrokerParty))
+				.addPartyRole(getPartyRole(executingBrokerExternalKey, isExecutingEntityBuy ? PartyRoleEnum.BUYER : PartyRoleEnum.SELLER))
+				.addPartyRole(getPartyRole(counterpartyBrokerExternalKey, isExecutingEntityBuy ? PartyRoleEnum.SELLER : PartyRoleEnum.BUYER))
+				.addPartyRole(getPartyRole(clientExternalKey, PartyRoleEnum.CLIENT))
+				.addPartyRole(getPartyRole(executingBrokerExternalKey, PartyRoleEnum.EXECUTING_ENTITY))
+				.addPartyRole(getPartyRole(counterpartyBrokerExternalKey, PartyRoleEnum.COUNTERPARTY))
+				.setClosedState(getClosedState())
+				.setSettlementTerms(getSettlementTerms(settlementDate, price, quantity));
 
 		// Generate global key/references etc
 		postProcessors.forEach(postProcessStep -> postProcessStep.runProcessStep(Execution.class, builder));
@@ -107,93 +77,99 @@ public class TestObjectsFactory {
 		return builder.build();
 	}
 
-	private PartyRole getPartyRole(String partyReference, PartyRoleEnum partyRole) {
+	private PartyRole getPartyRole(String partyExternalReference, PartyRoleEnum partyRole) {
 		return PartyRole.builder()
-						.setPartyReference(ReferenceWithMetaParty.builder().setExternalReference(partyReference).build())
-						.setRole(partyRole)
-						.build();
-	}
-
-	private ReferenceWithMetaParty getReferenceWithMetaParty(String id, String partyId, Optional<Account> account) {
-		return ReferenceWithMetaParty.builder()
-				.setValue(getParty(id, partyId, account))
+				.setPartyReference(ReferenceWithMetaParty.builder().setExternalReference(partyExternalReference).build())
+				.setRole(partyRole)
 				.build();
 	}
 
-	private Party getParty(String id, String partyId, Optional<Account> account) {
-		Party.PartyBuilder partyBuilder = Party.builder()
-											   .setMeta(MetaFields.builder()
-																  .setExternalKey(id)
-																  .build())
-											   .addPartyId(FieldWithMetaString.builder()
-																			  .setValue(partyId)
-																			  .setMeta(MetaFields.builder()
-																								 .setScheme("http://www.fpml.org/coding-scheme/external")
-																								 .build())
-																			  .build());
+	private ReferenceWithMetaParty getReferenceWithMetaParty(Party party) {
+		return ReferenceWithMetaParty.builder()
+				.setValue(party)
+				.build();
+	}
 
-		account.ifPresent(partyBuilder::setAccount);
+	public Party getParty(String id, String partyId, Account account) {
+		Party.PartyBuilder partyBuilder = Party.builder()
+				.setMeta(MetaFields.builder()
+						.setExternalKey(id)
+						.build())
+				.addPartyId(FieldWithMetaString.builder()
+						.setValue(partyId)
+						.setMeta(MetaFields.builder()
+								.setScheme("http://www.fpml.org/coding-scheme/external")
+								.build())
+						.build());
+
+		Optional.ofNullable(account).ifPresent(partyBuilder::setAccount);
 
 		return partyBuilder.build();
 	}
 
-	private Account getAccount(String accountName, String accountNumber) {
+	public Account getAccount(String partyName) {
 		return Account.builder()
-					  .setAccountName(FieldWithMetaString.builder().setValue(accountName).build())
-					  .setAccountType(FieldWithMetaAccountTypeEnum.builder().setValue(AccountTypeEnum.CLIENT).build())
-					  .setAccountNumber(FieldWithMetaString.builder().setValue(accountNumber).build())
-					  .build();
+				.setAccountName(FieldWithMetaString.builder().setValue(partyName + "AccountName").build())
+				.setAccountType(FieldWithMetaAccountTypeEnum.builder().setValue(AccountTypeEnum.CLIENT).build())
+				.setAccountNumber(FieldWithMetaString.builder().setValue(partyName + "AccountNumber").build())
+				.build();
 	}
 
 	private Identifier getIdentifier(String identifier, String issuer) {
 		return Identifier.builder()
-						 .addAssignedIdentifierBuilder(AssignedIdentifier.builder()
-							 .setIdentifier(FieldWithMetaString.builder().setValue(identifier).build()))
-						 .setIssuerReference(ReferenceWithMetaParty.builder().setExternalReference(issuer).build())
-						 .build();
+				.addAssignedIdentifierBuilder(AssignedIdentifier.builder()
+						.setIdentifier(FieldWithMetaString.builder().setValue(identifier).build()))
+				.setIssuerReference(ReferenceWithMetaParty.builder().setExternalReference(issuer).build())
+				.build();
 	}
 
-	private Quantity getQuantity(long quantity) {
+	public Quantity getQuantity(long quantity) {
 		return Quantity.builder()
-					   .setAmount(BigDecimal.valueOf(quantity))
-					   .build();
+				.setAmount(BigDecimal.valueOf(quantity))
+				.build();
 	}
 
-	private Product getProduct(String productId, ProductIdSourceEnum productSource) {
+	private Product getProduct(String productId) {
 		return Product.builder()
-					  .setSecurityBuilder(Security.builder()
-						  .setBondBuilder(Bond.builder()
-						  .setProductIdentifierBuilder(ProductIdentifier.builder()
-								.addIdentifier(FieldWithMetaString.builder().setValue(productId).build())
-								.setSource(productSource))))
-					  .build();
+				.setSecurityBuilder(Security.builder()
+						.setBondBuilder(Bond.builder()
+								.setProductIdentifierBuilder(ProductIdentifier.builder()
+										.addIdentifier(FieldWithMetaString.builder().setValue(productId).build())
+										.setSource(ProductIdSourceEnum.CUSIP))))
+				.build();
 	}
 
-	private Price getPrice(double dirtyPrice, double cleanPrice, String currency) {
+	public Price getPrice(double dirtyPrice, double cleanPrice, String currency) {
 		return Price.builder()
-					.setNetPrice(getActualPrice(dirtyPrice, currency))
-					.setCleanNetPrice(getActualPrice(cleanPrice, currency))
-					.setAccruedInterest(BigDecimal.valueOf(dirtyPrice - cleanPrice))
-					.build();
+				.setNetPrice(getActualPrice(dirtyPrice, currency))
+				.setCleanNetPrice(getActualPrice(cleanPrice, currency))
+				.setAccruedInterest(BigDecimal.valueOf(dirtyPrice - cleanPrice))
+				.build();
 	}
 
 	private ActualPrice getActualPrice(double amount, String currency) {
 		return ActualPrice.builder()
-						  .setAmount(BigDecimal.valueOf(amount))
-						  .setCurrency(FieldWithMetaString.builder().setValue(currency).build())
-						  .setPriceExpression(PriceExpressionEnum.ABSOLUTE_TERMS)
-						  .build();
+				.setAmount(BigDecimal.valueOf(amount))
+				.setCurrency(FieldWithMetaString.builder().setValue(currency).build())
+				.setPriceExpression(PriceExpressionEnum.ABSOLUTE_TERMS)
+				.build();
 	}
 
-	private SettlementTerms getSettlementTerms(LocalDate settlementDate, double settlementAmount, String settlementCurrency) {
+	private SettlementTerms getSettlementTerms(LocalDate settlementDate, Price price, Quantity quantity) {
+		ActualPrice dirtyPrice = price.getNetPrice();
+		BigDecimal dirtyPriceAmount = dirtyPrice.getAmount();
+		BigDecimal settlementAmount = dirtyPriceAmount.multiply(quantity.getAmount());
+		String settlementCurrency = dirtyPrice.getCurrency().getValue();
+
 		return SettlementTerms.builder()
 				.setSettlementDateBuilder(AdjustableOrRelativeDate.builder()
-					.setAdjustableDateBuilder(AdjustableDate.builder()
-						.setAdjustedDate(FieldWithMetaDate.builder().setValue(DateImpl.of(settlementDate)).build())))
+						.setAdjustableDateBuilder(AdjustableDate.builder()
+								.setAdjustedDate(FieldWithMetaDate.builder().setValue(DateImpl.of(settlementDate)).build())))
 				.setSettlementAmountBuilder(Money.builder()
-					.setAmount(BigDecimal.valueOf(settlementAmount))
-					.setCurrency(FieldWithMetaString.builder().setValue(settlementCurrency).build()))
+						.setAmount(settlementAmount)
+						.setCurrency(FieldWithMetaString.builder().setValue(settlementCurrency).build()))
 				.setSettlementCurrency(FieldWithMetaString.builder().setValue(settlementCurrency).build())
+				.setTransferSettlementType(TransferSettlementEnum.DELIVERY_VERSUS_PAYMENT)
 				.build();
 	}
 
@@ -201,30 +177,18 @@ public class TestObjectsFactory {
 		return ClosedState.builder().build();
 	}
 
-	public AllocationInstructions getAllocationInstructions(int quantity1, int quantity2, int quantity3) {
+	public AllocationInstructions getAllocationInstructions(int quantity1, Party party1, int quantity2, Party party2, int quantity3, Party party3) {
 		AllocationInstructionsBuilder builder = AllocationInstructions.builder()
 				.addBreakdowns(AllocationBreakdown.builder()
-						.setPartyReference(ReferenceWithMetaParty.builder()
-								.setValue(getParty(CLIENT_A_ACC_1_ID,
-										CLIENT_A_ACC_1_NAME,
-										Optional.of(getAccount("account1", "accountNumber1"))))
-								.build())
+						.setPartyReference(getReferenceWithMetaParty(party1))
 						.setQuantity(Quantity.builder().setAmount(BigDecimal.valueOf(quantity1)).build())
 						.build())
 				.addBreakdowns(AllocationBreakdown.builder()
-						.setPartyReference(ReferenceWithMetaParty.builder()
-								.setValue(getParty(CLIENT_A_ACC_2_ID,
-										CLIENT_A_ACC_2_NAME,
-										Optional.of(getAccount("account2", "accountNumber2"))))
-								.build())
+						.setPartyReference(getReferenceWithMetaParty(party2))
 						.setQuantity(Quantity.builder().setAmount(BigDecimal.valueOf(quantity2)).build())
 						.build())
 				.addBreakdowns(AllocationBreakdown.builder()
-						.setPartyReference(ReferenceWithMetaParty.builder()
-								.setValue(getParty(CLIENT_A_ACC_3_ID,
-										CLIENT_A_ACC_3_NAME,
-										Optional.of(getAccount("account3", "accountNumber3"))))
-								.build())
+						.setPartyReference(getReferenceWithMetaParty(party3))
 						.setQuantity(Quantity.builder().setAmount(BigDecimal.valueOf(quantity3)).build())
 						.build());
 
