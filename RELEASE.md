@@ -1,4 +1,6 @@
 
+Re-releasing 2.5.2 with updated release notes.
+
 *Rosetta Syntax Upgrade*
 
 _What is being released_
