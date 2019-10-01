@@ -38,8 +38,8 @@ public class SettleImpl extends Settle {
 	}
 
 	@Override
-	protected EventBuilder doEvaluate(Execution execution) {
-		EventBuilder eventBuilder = super.doEvaluate(execution);
+	protected EventBuilder doEvaluate(Execution execution, Event previousEvent) {
+		EventBuilder eventBuilder = super.doEvaluate(execution, previousEvent);
 
 		if (!isDeliveryVsPayment(execution)) {
 			throw new IllegalArgumentException("Only executions with transferSettlementType of DELIVERY_VERSUS_PAYMENT are supported");
@@ -101,21 +101,12 @@ public class SettleImpl extends Settle {
 				.addEventIdentifier(getIdentifier("settleEvent1", 1))
 				.setEventDate(DateImpl.of(LocalDate.now()))
 				.addParty(eventParties.stream().map(ReferenceWithMetaParty::getValue).collect(Collectors.toList()))
-				.addTimestamp(getEventCreationTimestamp(ZonedDateTime.now()))
-				.setLineage(getLineage(execution));
+				.addTimestamp(getEventCreationTimestamp(ZonedDateTime.now()));
 
 		// Update keys / references
 		postProcessors.forEach(postProcessStep -> postProcessStep.runProcessStep(Event.class, eventBuilder));
 
 		return eventBuilder;
-	}
-
-	private Lineage getLineage(Execution execution) {
-		return Lineage.builder()
-				.addExecutionReference(ReferenceWithMetaExecution.builder()
-						.setValue(execution)
-						.build())
-				.build();
 	}
 
 	private Boolean isDeliveryVsPayment(Execution execution) {

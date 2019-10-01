@@ -267,12 +267,20 @@ func Allocate: <"Function specification to create the fully-formed business even
 	inputs:
 		execution Execution (1..1) <"Block trade to be allocated.">
 		allocationInstructions AllocationInstructions (1..1) <"Allocation instructions to be applied.">
+		previousEvent Event (1..1) <"Previous event for lineage purposes.">
 
 	output:
-		event Event (1..1) <"Allocation event containing both the original block trade (with the status set to Allocated) and the set of allocated trades.">
+		allocationEvent Event (1..1) <"Allocation event containing both the original block trade (with the status set to Allocated) and the set of allocated trades.">
 
-	assign-output event -> primitive -> allocation:
+	assign-output allocationEvent -> primitive -> allocation:
 		NewAllocationPrimitive( execution, allocationInstructions )
+
+    assign-output allocationEvent -> lineage -> eventReference:
+        previousEvent
+        
+    assign-output allocationEvent -> lineage -> executionReference:
+        execution
+    
 
 
 func NewAllocationPrimitive: <"Function specification to create the fully-formed business event of allocating an execution based on allocation instructions.">
@@ -287,6 +295,7 @@ func NewAllocationPrimitive: <"Function specification to create the fully-formed
 func Settle: <"Function specification to create the Transfer event based on an execution's settlement terms. Initial implementation only supports securities settled via delivery vs payment.">
 	inputs:
 		execution Execution (1..1) <"Execution to be settled.">
+		previousEvent Event (1..1) <"Previous event for lineage purposes.">
 
 	output:
 		transferEvent Event (1..1) <"Transfer event composed of cash and security components created from a security settled via delivery vs payment.">
@@ -297,8 +306,11 @@ func Settle: <"Function specification to create the Transfer event based on an e
 	assign-output transferEvent -> primitive -> transfer:
 		NewTransferPrimitive( execution )
 
-	post-condition:
-        transferEvent -> lineage -> executionReference = execution
+    assign-output transferEvent -> lineage -> eventReference:
+		previousEvent
+
+	assign-output transferEvent -> lineage -> executionReference: 
+		execution
 
 
 func NewTransferPrimitive: <"Function specification to create the Transfer primitive based on an execution's settlement terms and instructions. Initial implementation only supports creating transfer primitives from securities settled via delivery vs payment.">
