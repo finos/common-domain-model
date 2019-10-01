@@ -35,7 +35,7 @@ import com.google.inject.Inject;
 
 class NewTransferPrimitiveTest  extends AbstractFunctionTest {
 
-	@Inject private NewTransferPrimitiveImpl func;
+	@Inject private NewTransferPrimitive func;
 
 	private static final int QUANTITY = 1500000;
 	private static final double DIRTY_PRICE = 95.0975;
