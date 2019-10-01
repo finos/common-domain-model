@@ -38,8 +38,8 @@ public class SettleImpl extends Settle {
 	}
 
 	@Override
-	protected EventBuilder doEvaluate(Execution execution) {
-		EventBuilder eventBuilder = super.doEvaluate(execution);
+	protected EventBuilder doEvaluate(Execution execution, Event previousEvent) {
+		EventBuilder eventBuilder = super.doEvaluate(execution, previousEvent);
 
 		if (!isDeliveryVsPayment(execution)) {
 			throw new IllegalArgumentException("Only executions with transferSettlementType of DELIVERY_VERSUS_PAYMENT are supported");

@@ -30,6 +30,8 @@ class SettleTest extends AbstractFunctionTest {
 	private static final double DIRTY_PRICE = 95.0975;
 
 	private Execution execution;
+	private Event previousEvent;
+
 	private LocalDate settlementDate = LocalDate.of(2019, 8, 28);
 
 	@BeforeEach
@@ -43,11 +45,12 @@ class SettleTest extends AbstractFunctionTest {
 				factory.getParty(CLIENT_A_ACC_1_ID, CLIENT_A_ACC_1_NAME, factory.getAccount(CLIENT_A_ACC_1_ID)),
 				factory.getParty(EXECUTING_BROKER_ID, EXECUTING_BROKER_NAME, null),
 				factory.getParty(COUNTERPARTY_BROKER_A_ID, COUNTERPARTY_BROKER_A_NAME, factory.getAccount(COUNTERPARTY_BROKER_A_NAME)));
+		previousEvent = Event.builder().build();
 	}
 
 	@Test
 	void shouldBuildNewSettleEvent() {
-		Event settleEvent = func.evaluate(execution);
+		Event settleEvent = func.evaluate(execution, previousEvent);
 
 		assertNotNull(settleEvent);
 

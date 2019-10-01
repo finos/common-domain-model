@@ -30,6 +30,7 @@ class AllocateTest extends AbstractFunctionTest {
 
 	private Execution execution;
 	private AllocationInstructions allocationInstructions;
+	private Event previousEvent;
 
 	@BeforeEach
 	void setUpTests() {
@@ -47,11 +48,12 @@ class AllocateTest extends AbstractFunctionTest {
 				QUANTITY_1, factory.getParty(CLIENT_A_ACC_1_ID, CLIENT_A_ACC_1_NAME, factory.getAccount(CLIENT_A_ACC_1_NAME)),
 				QUANTITY_2, factory.getParty(CLIENT_A_ACC_2_ID, CLIENT_A_ACC_2_NAME, factory.getAccount(CLIENT_A_ACC_2_NAME)),
 				QUANTITY_3, factory.getParty(CLIENT_A_ACC_3_ID, CLIENT_A_ACC_3_NAME, factory.getAccount(CLIENT_A_ACC_3_NAME)));
+		previousEvent = Event.builder().build();
 	}
 
 	@Test
 	void shouldBuildNewAllocateEvent() {
-		Event allocateEvent = func.evaluate(execution, allocationInstructions);
+		Event allocateEvent = func.evaluate(execution, allocationInstructions, previousEvent);
 
 		assertNotNull(allocateEvent);
 
