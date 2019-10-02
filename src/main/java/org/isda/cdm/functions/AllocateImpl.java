@@ -33,7 +33,7 @@ public class AllocateImpl extends Allocate {
 
 	@Override
 	protected Event.EventBuilder doEvaluate(Execution execution, AllocationInstructions allocationInstructions) {
-		Event.EventBuilder eventBuilder = super.doEvaluate(execution, allocationInstructions);
+		Event.EventBuilder eventBuilder = Event.builder();
 
 		Set<ReferenceWithMetaParty> eventParties = new HashSet<>();
 
