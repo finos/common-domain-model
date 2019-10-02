@@ -3,9 +3,7 @@ package org.isda.cdm.functions;
 import com.google.common.collect.MoreCollectors;
 import com.google.inject.Inject;
 import org.isda.cdm.*;
-import org.isda.cdm.metafields.FieldWithMetaString;
-import org.isda.cdm.metafields.MetaFields;
-import org.isda.cdm.metafields.ReferenceWithMetaParty;
+import org.isda.cdm.metafields.*;
 import org.isda.cdm.util.TestObjectsFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -31,6 +29,7 @@ class AllocateTest extends AbstractFunctionTest {
 
 	private Execution execution;
 	private AllocationInstructions allocationInstructions;
+	private Event previousEvent;
 
 	@BeforeEach
 	void setUpTests() {
@@ -48,11 +47,12 @@ class AllocateTest extends AbstractFunctionTest {
 				QUANTITY_1, factory.getParty(CLIENT_A_ACC_1_ID, CLIENT_A_ACC_1_NAME, factory.getAccount(CLIENT_A_ACC_1_NAME)),
 				QUANTITY_2, factory.getParty(CLIENT_A_ACC_2_ID, CLIENT_A_ACC_2_NAME, factory.getAccount(CLIENT_A_ACC_2_NAME)),
 				QUANTITY_3, factory.getParty(CLIENT_A_ACC_3_ID, CLIENT_A_ACC_3_NAME, factory.getAccount(CLIENT_A_ACC_3_NAME)));
+		previousEvent = Event.builder().build();
 	}
 
 	@Test @Disabled("Fails with NPE") // FIXME
 	void shouldBuildNewAllocateEvent() {
-		Event allocateEvent = func.evaluate(execution, allocationInstructions);
+		Event allocateEvent = func.evaluate(execution, allocationInstructions, previousEvent);
 
 		assertNotNull(allocateEvent);
 
@@ -85,6 +85,17 @@ class AllocateTest extends AbstractFunctionTest {
 		assertEquals(1, new HashSet<>(eventEffect.getEffectedExecution()).size());
 		assertEquals(4, new HashSet<>(eventEffect.getExecution()).size());
 		assertEquals(1, new HashSet<>(eventEffect.getProductIdentifier()).size());
+
+		// lineage - event
+		List<ReferenceWithMetaEvent> eventReferences = allocateEvent.getLineage().getEventReference();
+		assertTrue(eventReferences != null && eventReferences.size() == 1);
+		assertNotNull(eventReferences.get(0).getValue());
+
+		// lineage - execution
+		List<ReferenceWithMetaExecution> executionReferences = allocateEvent.getLineage().getExecutionReference();
+		assertTrue(executionReferences != null && executionReferences.size() == 1);
+		assertNotNull(executionReferences.get(0).getValue());
+
 
 		// event parties
 		List<Party> parties = allocateEvent.getParty();

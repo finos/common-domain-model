@@ -5,6 +5,8 @@ import com.google.inject.Inject;
 import org.isda.cdm.*;
 import org.isda.cdm.metafields.FieldWithMetaString;
 import org.isda.cdm.metafields.MetaFields;
+import org.isda.cdm.metafields.ReferenceWithMetaEvent;
+import org.isda.cdm.metafields.ReferenceWithMetaExecution;
 import org.isda.cdm.util.TestObjectsFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -31,6 +33,8 @@ class SettleTest extends AbstractFunctionTest {
 	private static final double DIRTY_PRICE = 95.0975;
 
 	private Execution execution;
+	private Event previousEvent;
+
 	private LocalDate settlementDate = LocalDate.of(2019, 8, 28);
 
 	@BeforeEach
@@ -44,11 +48,12 @@ class SettleTest extends AbstractFunctionTest {
 				factory.getParty(CLIENT_A_ACC_1_ID, CLIENT_A_ACC_1_NAME, factory.getAccount(CLIENT_A_ACC_1_ID)),
 				factory.getParty(EXECUTING_BROKER_ID, EXECUTING_BROKER_NAME, null),
 				factory.getParty(COUNTERPARTY_BROKER_A_ID, COUNTERPARTY_BROKER_A_NAME, factory.getAccount(COUNTERPARTY_BROKER_A_NAME)));
+		previousEvent = Event.builder().build();
 	}
 
 	@Test @Disabled("Fails with NPE") // FIXME
 	void shouldBuildNewSettleEvent() {
-		Event settleEvent = func.evaluate(execution);
+		Event settleEvent = func.evaluate(execution, previousEvent);
 
 		assertNotNull(settleEvent);
 
@@ -80,6 +85,16 @@ class SettleTest extends AbstractFunctionTest {
 		assertNotNull(eventEffect);
 		assertEquals(1, new HashSet<>(eventEffect.getProductIdentifier()).size());
 		assertEquals(1, new HashSet<>(eventEffect.getTransfer()).size());
+
+		// lineage - event
+		List<ReferenceWithMetaEvent> eventReferences = settleEvent.getLineage().getEventReference();
+		assertTrue(eventReferences != null && eventReferences.size() == 1);
+		assertNotNull(eventReferences.get(0).getValue());
+
+		// lineage - execution
+		List<ReferenceWithMetaExecution> executionReferences = settleEvent.getLineage().getExecutionReference();
+		assertTrue(executionReferences != null && executionReferences.size() == 1);
+		assertNotNull(executionReferences.get(0).getValue());
 
 		// event parties
 		List<Party> parties = settleEvent.getParty();

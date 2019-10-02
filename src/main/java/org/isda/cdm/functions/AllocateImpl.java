@@ -14,6 +14,8 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.isda.cdm.Event.*;
+
 /**
  * Sample Allocate implementation, should be used as a simple example only.
  *
@@ -32,9 +34,8 @@ public class AllocateImpl extends Allocate {
 	}
 
 	@Override
-	protected Event.EventBuilder doEvaluate(Execution execution, AllocationInstructions allocationInstructions) {
-		Event.EventBuilder eventBuilder = Event.builder();
-
+	protected EventBuilder doEvaluate(Execution execution, AllocationInstructions allocationInstructions, Event previousEvent) {
+		EventBuilder eventBuilder = Event.builder();
 		Set<ReferenceWithMetaParty> eventParties = new HashSet<>();
 
 		for(AllocationPrimitiveBuilder allocationBuilder : eventBuilder.getPrimitive().getAllocation()) {
