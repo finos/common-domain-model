@@ -9,7 +9,6 @@ import org.isda.cdm.Event.EventBuilder;
 import org.isda.cdm.TransferPrimitive.TransferPrimitiveBuilder;
 import org.isda.cdm.metafields.FieldWithMetaString;
 import org.isda.cdm.metafields.ReferenceWithMetaAccount;
-import org.isda.cdm.metafields.ReferenceWithMetaExecution;
 import org.isda.cdm.metafields.ReferenceWithMetaParty;
 import org.isda.cdm.processor.EventEffectProcessStep;
 
@@ -39,7 +38,7 @@ public class SettleImpl extends Settle {
 
 	@Override
 	protected EventBuilder doEvaluate(Execution execution, Event previousEvent) {
-		EventBuilder eventBuilder = super.doEvaluate(execution, previousEvent);
+		EventBuilder eventBuilder = Event.builder();
 
 		if (!isDeliveryVsPayment(execution)) {
 			throw new IllegalArgumentException("Only executions with transferSettlementType of DELIVERY_VERSUS_PAYMENT are supported");
