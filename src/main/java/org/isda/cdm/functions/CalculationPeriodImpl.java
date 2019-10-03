@@ -50,7 +50,10 @@ public class CalculationPeriodImpl extends CalculationPeriod {
 			.setStartDate(new DateImpl(targetPeriod.getStartDate()))
 			.setEndDate(new DateImpl(targetPeriod.getEndDate()))
 			.setDaysInLeapYearPeriod(daysThatAreInLeapYear)
-			.setDaysInPeriod((int) ChronoUnit.DAYS.between(targetPeriod.getStartDate(), targetPeriod.getEndDate()));
+			.setDaysInPeriod((int) ChronoUnit.DAYS.between(targetPeriod.getStartDate(), targetPeriod.getEndDate()))
+			.setIsFirstPeriod(false)
+			.setIsLastPeriod(false);
+
 	}
 	
 	private LocalDate toLocalDate(Date date) {
