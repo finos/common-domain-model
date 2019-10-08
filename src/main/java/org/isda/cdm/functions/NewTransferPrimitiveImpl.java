@@ -31,7 +31,7 @@ public class NewTransferPrimitiveImpl extends NewTransferPrimitive {
 
 	@Override
 	protected TransferPrimitiveBuilder doEvaluate(Execution execution) {
-		TransferPrimitiveBuilder transferPrimitiveBuilder = super.doEvaluate(execution);
+		TransferPrimitiveBuilder transferPrimitiveBuilder = TransferPrimitive.builder();
 		
 		if (!isDeliveryVsPayment(execution)) {
 			throw new IllegalArgumentException("Only executions with transferSettlementType of DELIVERY_VERSUS_PAYMENT are supported");
