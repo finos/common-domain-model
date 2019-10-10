@@ -272,6 +272,15 @@ func Allocate: <"Function specification to create the fully-formed business even
 	output:
 		allocationEvent Event (1..1) <"Allocation event containing both the original block trade (with the status set to Allocated) and the set of allocated trades.">
 
+	condition: <"Test. Check for security, copied from Settle function">
+		execution -> product -> security exists
+
+	condition: <"Test. Breakdowns exist">
+		allocationInstructions -> breakdowns exists
+
+	condition: <"Test. Error in code generation - no Allocation.java">
+		allocationInstructions -> breakdowns count >= 0
+
 	assign-output allocationEvent -> primitive -> allocation:
 		NewAllocationPrimitive( execution, allocationInstructions )
 
@@ -281,7 +290,6 @@ func Allocate: <"Function specification to create the fully-formed business even
     assign-output allocationEvent -> lineage -> executionReference:
         execution
     
-
 
 func NewAllocationPrimitive: <"Function specification to create the fully-formed business event of allocating an execution based on allocation instructions.">
 	inputs:
