@@ -1,6 +1,10 @@
 namespace "org.isda.cdm"
 version "${project.version}"
 
+func FooBar:
+	output:
+		outpu number (1..1)
+
 
 func Execute:
 	inputs:
@@ -31,12 +35,15 @@ func NewExecutionPrimitive: <"Function specification to compose an execution bas
 		
 	output:
 		execution ExecutionPrimitive (1..1)
+
+	alias contractualProduct:	
+		product -> contractualProduct
 		
 	condition: <"Parties must be different, and match the contractual parties to the legal agreement when the latter exists.">
 		partyA <> partyB
 		
 	assign-output execution -> after -> execution -> product -> contractualProduct:
-		product -> contractualProduct
+		contractualProduct
 
 	assign-output execution -> after -> execution -> party:
 		[ partyA, partyB ]
@@ -271,8 +278,8 @@ func Allocate: <"Function specification to create the fully-formed business even
 
 	output:
 		allocationEvent Event (1..1) <"Allocation event containing both the original block trade (with the status set to Allocated) and the set of allocated trades.">
-
-	condition PreviousEventNotAllocated : <"The previous event should not already be allocated.">
+	
+	condition: 
 		previousEvent -> eventWorkflow -> workflowStatus <> WorkflowStatusEnum.Allocated
 
 	assign-output allocationEvent -> primitive -> allocation:
@@ -284,7 +291,14 @@ func Allocate: <"Function specification to create the fully-formed business even
     assign-output allocationEvent -> lineage -> executionReference:
         execution
     
+func Affirm :
+	inputs:
+		execution Event (1..1)
 
+	output:
+		affirmation Affirmation (1..1)
+
+		
 
 func NewAllocationPrimitive: <"Function specification to create the fully-formed business event of allocating an execution based on allocation instructions.">
 	inputs:
