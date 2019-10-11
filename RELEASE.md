@@ -1,3 +1,3 @@
 _What is being released_
 
-- Add additional resources to CDM Portal
+- Update DerivHack 2019 Tile to point to CDM version 2.5.11
