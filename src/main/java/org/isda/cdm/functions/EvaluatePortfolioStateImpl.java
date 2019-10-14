@@ -8,17 +8,23 @@ import org.isda.cdm.PortfolioState.PortfolioStateBuilder;
 import org.isda.cdm.metafields.FieldWithMetaDate;
 import org.isda.cdm.metafields.FieldWithMetaString;
 import org.isda.cdm.metafields.ReferenceWithMetaParty;
+import org.isda.cdm.metafields.ReferenceWithMetaPortfolioState;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Sample EvaluatePortfolioState implementation, should be used as a simple example only.
+ *
+ * TODO move to CDM demo repo
+ */
 public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 
 	private final List<Execution> executions;
 	private final List<PostProcessStep> postProcessors;
-	
+
 	// FIXME functions should not have state
 	public EvaluatePortfolioStateImpl(List<Execution> executions) {
 		this.executions = executions;
@@ -37,18 +43,18 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 
 		// Filter executions and collect into set to avoid any duplicates
 		Set<Execution> filteredExecution = executions.stream()
-													 .filter(e -> filterByDate(e, date, totalPosition))
-													 .filter(e -> filterByPositionStatus(e, date, params.getPositionStatus()))
-													 .filter(e -> filterByProducts(e, params.getProduct()))
-													 .filter(e -> filterByParty(e, params.getParty()))
-													 // TODO filter by other aggregration parameters
-													 .collect(Collectors.toSet());
+				.filter(e -> filterByDate(e, date, totalPosition))
+				.filter(e -> filterByPositionStatus(e, date, params.getPositionStatus()))
+				.filter(e -> filterByProducts(e, params.getProduct()))
+				.filter(e -> filterByParty(e, params.getParty()))
+				// TODO filter by other aggregration parameters
+				.collect(Collectors.toSet());
 		// Build position -> aggregated position map
 		Map<Position, BigDecimal> positionQuantity = filteredExecution.stream()
-																	  .collect(Collectors.groupingBy(
-																			  e -> toPosition(e, date),
-																			  Collectors.reducing(BigDecimal.ZERO, this::getAggregationQuantity,
-																					  BigDecimal::add)));
+				.collect(Collectors.groupingBy(
+						e -> toPosition(e, date),
+						Collectors.reducing(BigDecimal.ZERO, this::getAggregationQuantity,
+								BigDecimal::add)));
 
 		// Build position -> aggregated cash balance map
 		Map<Position, BigDecimal> positionCashBalance = filteredExecution.stream()
@@ -69,6 +75,13 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 
 		PortfolioStateBuilder portfolioStateBuilder = PortfolioState.builder();
 		aggregatedPositions.forEach(portfolioStateBuilder::addPositions);
+
+		// add input portfolioState to output lineage
+		portfolioStateBuilder.setLineage(Lineage.builder()
+				.addPortfolioStateReference(ReferenceWithMetaPortfolioState.builder()
+						.setValue(input.getPortfolioState())
+						.build())
+				.build());
 
 		// Update keys / references
 		postProcessors.forEach(postProcessStep -> postProcessStep.runProcessStep(PortfolioState.class, portfolioStateBuilder));
@@ -93,9 +106,9 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 	 */
 	private boolean filterByTradeDate(Execution execution, LocalDate date, boolean totalPosition) {
 		return Optional.ofNullable(execution.getTradeDate())
-					   .map(FieldWithMetaDate::getValue)
-					   .map(tradeDate -> matches(date, tradeDate.toLocalDate(), totalPosition))
-					   .orElseThrow(() -> new RuntimeException(String.format("Trade date not set on execution [%s]", execution)));
+				.map(FieldWithMetaDate::getValue)
+				.map(tradeDate -> matches(date, tradeDate.toLocalDate(), totalPosition))
+				.orElseThrow(() -> new RuntimeException(String.format("Trade date not set on execution [%s]", execution)));
 	}
 
 	/**
@@ -103,12 +116,12 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 	 */
 	private boolean filterBySettlementDate(Execution execution, LocalDate date, boolean totalPosition) {
 		return Optional.ofNullable(execution.getSettlementTerms())
-					   .map(SettlementTerms::getSettlementDate)
-					   .map(AdjustableOrRelativeDate::getAdjustableDate)
-					   .map(AdjustableDate::getAdjustedDate)
-					   .map(FieldWithMetaDate::getValue)
-					   .map(settlementDate -> matches(date, settlementDate.toLocalDate(), totalPosition))
-					   .orElse(true); // SettlementDate not set on execution
+				.map(SettlementTerms::getSettlementDate)
+				.map(AdjustableOrRelativeDate::getAdjustableDate)
+				.map(AdjustableDate::getAdjustedDate)
+				.map(FieldWithMetaDate::getValue)
+				.map(settlementDate -> matches(date, settlementDate.toLocalDate(), totalPosition))
+				.orElse(true); // SettlementDate not set on execution
 	}
 
 	private boolean matches(LocalDate dateToFind, LocalDate tradeDate, boolean totalPosition) {
@@ -125,10 +138,10 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 			return true;
 		}
 		return Optional.ofNullable(execution.getTradeDate())
-					   .map(FieldWithMetaDate::getValue)
-					   .map(tradeDate -> toPositionStatus(execution, date))
-					   .map(s -> s == positionStatusToFind)
-					   .orElseThrow(() -> new RuntimeException(String.format("Trade date not set on execution [%s]", execution)));
+				.map(FieldWithMetaDate::getValue)
+				.map(tradeDate -> toPositionStatus(execution, date))
+				.map(s -> s == positionStatusToFind)
+				.orElseThrow(() -> new RuntimeException(String.format("Trade date not set on execution [%s]", execution)));
 	}
 
 	/**
@@ -140,21 +153,21 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 		}
 
 		ProductIdentifier productIdentifier = Optional.ofNullable(execution.getProduct())
-													  .map(Product::getSecurity)
-													  .map(Security::getBond)
-													  .map(Bond::getProductIdentifier)
-													  .orElseThrow(() -> new RuntimeException(
-															  String.format("ProductIdentifier not set on execution [%s]", execution)));
+				.map(Product::getSecurity)
+				.map(Security::getBond)
+				.map(Bond::getProductIdentifier)
+				.orElseThrow(() -> new RuntimeException(
+						String.format("ProductIdentifier not set on execution [%s]", execution)));
 		Set<String> identifiers = getIdentifiersAsString(productIdentifier);
 		ProductIdSourceEnum source = productIdentifier.getSource();
 
 		return productsToFind.stream()
-							 .map(Product::getSecurity)
-							 .map(Security::getBond)
-							 .map(Bond::getProductIdentifier)
-							 .anyMatch(idsToFind ->
-									 getIdentifiersAsString(idsToFind).stream().anyMatch(identifiers::contains)
-											 && source == idsToFind.getSource());
+				.map(Product::getSecurity)
+				.map(Security::getBond)
+				.map(Bond::getProductIdentifier)
+				.anyMatch(idsToFind ->
+						getIdentifiersAsString(idsToFind).stream().anyMatch(identifiers::contains)
+								&& source == idsToFind.getSource());
 	}
 
 	private Set<String> getIdentifiersAsString(ProductIdentifier productIdentifier) {
@@ -170,18 +183,18 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 		}
 
 		List<String> partyIdToFind = partyToFind.stream()
-												.map(ReferenceWithMetaParty::getValue)
-												.map(Party::getPartyId)
-												.flatMap(List::stream)
-												.map(FieldWithMetaString::getValue)
-												.collect(Collectors.toList());
+				.map(ReferenceWithMetaParty::getValue)
+				.map(Party::getPartyId)
+				.flatMap(List::stream)
+				.map(FieldWithMetaString::getValue)
+				.collect(Collectors.toList());
 
 		return execution.getParty().stream()
-						.map(ReferenceWithMetaParty::getValue)
-						.map(Party::getPartyId)
-						.flatMap(List::stream)
-						.map(FieldWithMetaString::getValue)
-						.anyMatch(partyIdToFind::contains);
+				.map(ReferenceWithMetaParty::getValue)
+				.map(Party::getPartyId)
+				.flatMap(List::stream)
+				.map(FieldWithMetaString::getValue)
+				.anyMatch(partyIdToFind::contains);
 	}
 
 	/**
@@ -193,8 +206,8 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 			throw new IllegalArgumentException("Position aggregation not supported for quantities with units " + quantity.getUnit().name());
 		}
 		Position.PositionBuilder positionBuilder = Position.builder()
-														   .setPositionStatus(toPositionStatus(execution, date))
-														   .setProduct(execution.getProduct());
+				.setPositionStatus(toPositionStatus(execution, date))
+				.setProduct(execution.getProduct());
 		// Update keys / references
 		postProcessors.forEach(postProcessStep -> postProcessStep.runProcessStep(Position.class, positionBuilder));
 
@@ -210,17 +223,17 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 				&& closedState.map(ClosedState::getActivityDate).map(d -> date.isAfter(d.toLocalDate())).orElse(false)) {
 			return PositionStatusEnum.CANCELLED;
 		} else if (Optional.ofNullable(execution.getSettlementTerms())
-						   .map(SettlementTerms::getSettlementDate)
-						   .map(AdjustableOrRelativeDate::getAdjustableDate)
-						   .map(AdjustableDate::getAdjustedDate)
-						   .map(FieldWithMetaDate::getValue)
-						   .map(settlementDate -> date.compareTo(settlementDate.toLocalDate()) >= 0)
-						   .orElse(false)) {
+				.map(SettlementTerms::getSettlementDate)
+				.map(AdjustableOrRelativeDate::getAdjustableDate)
+				.map(AdjustableDate::getAdjustedDate)
+				.map(FieldWithMetaDate::getValue)
+				.map(settlementDate -> date.compareTo(settlementDate.toLocalDate()) >= 0)
+				.orElse(false)) {
 			return PositionStatusEnum.SETTLED;
 		} else if (Optional.ofNullable(execution.getTradeDate())
-						   .map(FieldWithMetaDate::getValue)
-						   .map(tradeDate -> date.compareTo(tradeDate.toLocalDate()) >= 0)
-						   .orElse(false)) {
+				.map(FieldWithMetaDate::getValue)
+				.map(tradeDate -> date.compareTo(tradeDate.toLocalDate()) >= 0)
+				.orElse(false)) {
 			return PositionStatusEnum.EXECUTED;
 		} else {
 			throw new RuntimeException(String.format("Unable to determine PositionStatus on date [%s] for execution [%s]", date, execution));
@@ -254,9 +267,9 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 	 */
 	private PartyRoleEnum getExecutingEntityBuyOrSell(Execution e) {
 		String partyReference = e.getPartyRole().stream()
-								 .filter(r -> r.getRole() == PartyRoleEnum.EXECUTING_ENTITY)
-								 .map(r -> r.getPartyReference().getGlobalReference())
-								 .collect(MoreCollectors.onlyElement());
+				.filter(r -> r.getRole() == PartyRoleEnum.EXECUTING_ENTITY)
+				.map(r -> r.getPartyReference().getGlobalReference())
+				.collect(MoreCollectors.onlyElement());
 		return e.getPartyRole().stream()
 				.filter(r -> partyReference.equals(r.getPartyReference().getGlobalReference()))
 				.map(PartyRole::getRole)
