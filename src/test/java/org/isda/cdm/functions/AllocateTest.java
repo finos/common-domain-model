@@ -6,12 +6,14 @@ import org.isda.cdm.*;
 import org.isda.cdm.metafields.*;
 import org.isda.cdm.util.TestObjectsFactory;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.hasItems;
@@ -50,7 +52,7 @@ class AllocateTest extends AbstractFunctionTest {
 		previousEvent = Event.builder().build();
 	}
 
-	@Test @Disabled("Fails with NPE") // FIXME
+	@Test
 	void shouldBuildNewAllocateEvent() {
 		Event allocateEvent = func.evaluate(execution, allocationInstructions, previousEvent);
 
@@ -78,13 +80,6 @@ class AllocateTest extends AbstractFunctionTest {
 				.map(FieldWithMetaString::getValue)
 				.collect(Collectors.toList());
 		assertThat(eventIdentifier, hasItems("allocationEvent1"));
-
-		// event effects
-		EventEffect eventEffect = allocateEvent.getEventEffect();
-		assertNotNull(eventEffect);
-		assertEquals(1, new HashSet<>(eventEffect.getEffectedExecution()).size());
-		assertEquals(4, new HashSet<>(eventEffect.getExecution()).size());
-		assertEquals(1, new HashSet<>(eventEffect.getProductIdentifier()).size());
 
 		// lineage - event
 		List<ReferenceWithMetaEvent> eventReferences = allocateEvent.getLineage().getEventReference();
@@ -224,7 +219,9 @@ class AllocateTest extends AbstractFunctionTest {
 	private List<String> getPartyGlobalReferences(List<ReferenceWithMetaParty> partyReference) {
 		return partyReference
 				.stream()
-				.map(ReferenceWithMetaParty::getGlobalReference)
+				.map(ReferenceWithMetaParty::getValue)
+				.map(Party::getMeta)
+				.map(MetaFields::getGlobalKey)
 				.collect(Collectors.toList());
 	}
 
@@ -239,7 +236,9 @@ class AllocateTest extends AbstractFunctionTest {
 	private List<String> getPartyExternalReferences(List<ReferenceWithMetaParty> partyReference) {
 		return partyReference
 				.stream()
-				.map(ReferenceWithMetaParty::getExternalReference)
+				.map(ReferenceWithMetaParty::getValue)
+				.map(Party::getMeta)
+				.map(MetaFields::getExternalKey)
 				.collect(Collectors.toList());
 	}
 

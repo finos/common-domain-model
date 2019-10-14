@@ -21,7 +21,7 @@ import static org.isda.cdm.PartyRoleEnum.CLIENT;
 /**
  * Sample NewTransferPrimitive implementation, should be used as a simple example only.
  *
- * TODO move to CDM exmaples repo
+ * TODO move to CDM demo repo
  */
 public class NewAllocationPrimitiveImpl extends NewAllocationPrimitive {
 

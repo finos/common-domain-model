@@ -7,6 +7,7 @@ import org.isda.cdm.*;
 import org.isda.cdm.TransferPrimitive.TransferPrimitiveBuilder;
 import org.isda.cdm.metafields.FieldWithMetaDate;
 import org.isda.cdm.metafields.FieldWithMetaString;
+import org.isda.cdm.metafields.ReferenceWithMetaAccount;
 import org.isda.cdm.metafields.ReferenceWithMetaParty;
 
 import java.util.*;
@@ -16,7 +17,7 @@ import static org.isda.cdm.PartyRoleEnum.*;
 /**
  * Sample NewTransferPrimitive implementation, should be used as a simple example only.
  *
- * TODO move to CDM exmaples repo
+ * TODO move to CDM demo repo
  */
 public class NewTransferPrimitiveImpl extends NewTransferPrimitive {
 
@@ -32,7 +33,7 @@ public class NewTransferPrimitiveImpl extends NewTransferPrimitive {
 	@Override
 	protected TransferPrimitiveBuilder doEvaluate(Execution execution) {
 		TransferPrimitiveBuilder transferPrimitiveBuilder = TransferPrimitive.builder();
-		
+
 		if (!isDeliveryVsPayment(execution)) {
 			throw new IllegalArgumentException("Only executions with transferSettlementType of DELIVERY_VERSUS_PAYMENT are supported");
 		}
@@ -89,12 +90,16 @@ public class NewTransferPrimitiveImpl extends NewTransferPrimitive {
 
 	private CashTransferComponent getCashTransfer(Execution execution, ReferenceWithMetaParty clientParty, ReferenceWithMetaParty counterpartyBrokerParty) {
 		boolean isCounterpartyBuyer = isBuyer(execution, counterpartyBrokerParty);
+		ReferenceWithMetaParty payerParty = isCounterpartyBuyer ? counterpartyBrokerParty : clientParty;
+		ReferenceWithMetaParty receiverParty = isCounterpartyBuyer ? clientParty : counterpartyBrokerParty;
 
 		return CashTransferComponent.builder()
 				.setAmount(execution.getSettlementTerms().getSettlementAmount())
 				.setPayerReceiverBuilder(PayerReceiver.builder()
-						.setPayerPartyReference(isCounterpartyBuyer ? counterpartyBrokerParty : clientParty)
-						.setReceiverPartyReference(isCounterpartyBuyer ? clientParty : counterpartyBrokerParty))
+						.setPayerPartyReference(payerParty)
+						.setPayerAccountReference(ReferenceWithMetaAccount.builder().setValue(payerParty.getValue().getAccount()).build())
+						.setReceiverPartyReference(receiverParty)
+						.setReceiverAccountReference(ReferenceWithMetaAccount.builder().setValue(receiverParty.getValue().getAccount()).build()))
 				.build();
 	}
 
@@ -125,13 +130,17 @@ public class NewTransferPrimitiveImpl extends NewTransferPrimitive {
 
 	private SecurityTransferComponent getSecurityTransfer(Execution execution, ReferenceWithMetaParty clientParty, ReferenceWithMetaParty counterpartyBrokerParty) {
 		boolean isCounterpartyBuyer = isBuyer(execution, counterpartyBrokerParty);
+		ReferenceWithMetaParty transfereeParty = isCounterpartyBuyer ? counterpartyBrokerParty : clientParty;
+		ReferenceWithMetaParty transferorParty = isCounterpartyBuyer ? clientParty : counterpartyBrokerParty;
 
 		return SecurityTransferComponent.builder()
 				.setQuantity(execution.getQuantity().getAmount())
 				.setSecurity(execution.getProduct().getSecurity())
 				.setTransferorTransfereeBuilder(TransferorTransferee.builder()
-						.setTransfereePartyReference(isCounterpartyBuyer ? counterpartyBrokerParty : clientParty)
-						.setTransferorPartyReference(isCounterpartyBuyer ? clientParty : counterpartyBrokerParty))
+						.setTransfereePartyReference(transfereeParty)
+						.setTransfereeAccountReference(ReferenceWithMetaAccount.builder().setValue(transfereeParty.getValue().getAccount()).build())
+						.setTransferorPartyReference(transferorParty)
+						.setTransferorAccountReference(ReferenceWithMetaAccount.builder().setValue(transferorParty.getValue().getAccount()).build()))
 				.build();
 	}
 

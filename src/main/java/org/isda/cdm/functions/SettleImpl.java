@@ -6,9 +6,7 @@ import com.rosetta.model.lib.process.PostProcessStep;
 import com.rosetta.model.lib.records.DateImpl;
 import org.isda.cdm.*;
 import org.isda.cdm.Event.EventBuilder;
-import org.isda.cdm.TransferPrimitive.TransferPrimitiveBuilder;
 import org.isda.cdm.metafields.FieldWithMetaString;
-import org.isda.cdm.metafields.ReferenceWithMetaAccount;
 import org.isda.cdm.metafields.ReferenceWithMetaParty;
 import org.isda.cdm.processor.EventEffectProcessStep;
 
@@ -17,12 +15,13 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.isda.cdm.SecurityTransferComponent.SecurityTransferComponentBuilder;
+import static org.isda.cdm.PartyRoleEnum.CLIENT;
+import static org.isda.cdm.PartyRoleEnum.COUNTERPARTY;
 
 /**
  * Sample Settle implementation, should be used as a simple example only.
  *
- * TODO move to CDM exmaples repo
+ * TODO move to CDM demo repo
  */
 public class SettleImpl extends Settle {
 
@@ -45,56 +44,8 @@ public class SettleImpl extends Settle {
 		}
 
 		Set<ReferenceWithMetaParty> eventParties = new HashSet<>();
-
-		for(TransferPrimitiveBuilder transferPrimitiveBuilder : eventBuilder.getPrimitive().getTransfer()) {
-
-			// extract cash transfer parties to stamp on event
-			TransferPrimitive transferPrimitive = transferPrimitiveBuilder.build();
-			List<CashTransferComponent> cashTransfer = transferPrimitive.getCashTransfer();
-			Party payerParty = cashTransfer.stream()
-					.map(CashTransferComponent::getPayerReceiver)
-					.map(PayerReceiver::getPayerPartyReference)
-					.map(ReferenceWithMetaParty::getValue)
-					.collect(MoreCollectors.onlyElement());
-			eventParties.add(ReferenceWithMetaParty.builder().setValue(payerParty).build());
-
-			Party receiverParty = cashTransfer.stream()
-					.map(CashTransferComponent::getPayerReceiver)
-					.map(PayerReceiver::getReceiverPartyReference)
-					.map(ReferenceWithMetaParty::getValue)
-					.collect(MoreCollectors.onlyElement());
-			eventParties.add(ReferenceWithMetaParty.builder().setValue(receiverParty).build());
-
-			// add party / account references to cash transfer
-			getPayerReceiver(transferPrimitiveBuilder)
-					.setPayerPartyReference(getPartyReference(payerParty))
-					.setPayerAccountReference(getAccountReference(payerParty))
-					.setReceiverPartyReference(getPartyReference(receiverParty))
-					.setReceiverAccountReference(getAccountReference(receiverParty));
-
-			// extract security transfer parties to stamp on event
-			List<SecurityTransferComponent> securityTransfer = transferPrimitive.getSecurityTransfer();
-			Party transfereeParty = securityTransfer.stream()
-					.map(SecurityTransferComponent::getTransferorTransferee)
-					.map(TransferorTransferee::getTransfereePartyReference)
-					.map(ReferenceWithMetaParty::getValue)
-					.collect(MoreCollectors.onlyElement());
-			eventParties.add(ReferenceWithMetaParty.builder().setValue(transfereeParty).build());
-
-			Party transferorParty = securityTransfer.stream()
-					.map(SecurityTransferComponent::getTransferorTransferee)
-					.map(TransferorTransferee::getTransferorPartyReference)
-					.map(ReferenceWithMetaParty::getValue)
-					.collect(MoreCollectors.onlyElement());
-			eventParties.add(ReferenceWithMetaParty.builder().setValue(transferorParty).build());
-
-			// add party / account references to security transfer
-			getTransferorTransferee(transferPrimitiveBuilder)
-					.setTransfereePartyReference(getPartyReference(transfereeParty))
-					.setTransfereeAccountReference(getAccountReference(transfereeParty))
-					.setTransferorPartyReference(getPartyReference(transferorParty))
-					.setTransferorAccountReference(getAccountReference(transferorParty));
-		}
+		eventParties.add(getPartyReference(execution, CLIENT));
+		eventParties.add(getPartyReference(execution, COUNTERPARTY));
 
 		eventBuilder
 				.addEventIdentifier(getIdentifier("settleEvent1", 1))
@@ -115,30 +66,29 @@ public class SettleImpl extends Settle {
 				.orElse(false);
 	}
 
-	private PayerReceiver.PayerReceiverBuilder getPayerReceiver(TransferPrimitiveBuilder transferPrimitiveBuilder) {
-		return transferPrimitiveBuilder.getCashTransfer().stream()
-				.map(CashTransferComponent.CashTransferComponentBuilder::getPayerReceiver)
+	private ReferenceWithMetaParty getPartyReference(Execution execution, PartyRoleEnum partyRole) {
+		String partyExternalReference = execution.getPartyRole()
+				.stream()
+				.filter(r -> r.getRole() == partyRole)
+				.collect(MoreCollectors.onlyElement())
+				.getPartyReference()
+				.getExternalReference();
+		ReferenceWithMetaParty party = execution.getParty()
+				.stream()
+				.filter(p -> p.getValue().getMeta().getExternalKey().equals(partyExternalReference))
 				.collect(MoreCollectors.onlyElement());
+
+		if (!isAccountSet(party)) {
+			throw new IllegalArgumentException("No account found on party " + party);
+		}
+
+		return party;
 	}
 
-	private TransferorTransferee.TransferorTransfereeBuilder getTransferorTransferee(TransferPrimitiveBuilder transferPrimitiveBuilder) {
-		return transferPrimitiveBuilder.getSecurityTransfer().stream()
-				.map(SecurityTransferComponentBuilder::getTransferorTransferee)
-				.collect(MoreCollectors.onlyElement());
-	}
-
-	private ReferenceWithMetaAccount getAccountReference(Party party) {
-		return ReferenceWithMetaAccount.builder()
-				.setGlobalReference(party.getMeta().getGlobalKey())
-				.setExternalReference(party.getMeta().getExternalKey())
-				.build();
-	}
-
-	private ReferenceWithMetaParty getPartyReference(Party party) {
-		return ReferenceWithMetaParty.builder()
-				.setGlobalReference(party.getMeta().getGlobalKey())
-				.setExternalReference(party.getMeta().getExternalKey())
-				.build();
+	private Boolean isAccountSet(ReferenceWithMetaParty partyReference) {
+		return Optional.ofNullable(partyReference.getValue())
+				.map(Party::getAccount).map(Objects::nonNull)
+				.orElse(false);
 	}
 
 	private EventTimestamp getEventCreationTimestamp(ZonedDateTime eventDateTime) {
