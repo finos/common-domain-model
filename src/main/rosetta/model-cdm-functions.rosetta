@@ -272,6 +272,9 @@ func Allocate: <"Function specification to create the fully-formed business even
 	output:
 		allocationEvent Event (1..1) <"Allocation event containing both the original block trade (with the status set to Allocated) and the set of allocated trades.">
 
+	condition PreviousEventNotAllocated: <"Ensure hte previous event is not already allocated">
+		previousEvent -> eventWorkflow -> workflowStatus <> WorkflowStatusEnum.Allocated
+
 	assign-output allocationEvent -> primitive -> allocation:
 		NewAllocationPrimitive( execution, allocationInstructions )
 
@@ -280,8 +283,35 @@ func Allocate: <"Function specification to create the fully-formed business even
         
     assign-output allocationEvent -> lineage -> executionReference:
         execution
-    
 
+		assign-output allocationEvent -> primitive -> allocation -> before -> execution -> closedState -> state: ClosedStateEnum.Allocated
+
+		assign-output allocationEvent -> primitive -> allocation -> before -> contract -> closedState -> state: ClosedStateEnum.Allocated
+
+	post-condition: <"Event must contain a allocate primitive, and no other primitive.">
+		allocationEvent -> primitive -> allocation only exists
+
+	post-condition: <"Event effect must include the contract generating the cashflow.">
+			allocationEvent -> eventEffect -> effectedExecution is absent
+			and allocationEvent -> eventEffect -> execution is absent
+			and allocationEvent -> eventEffect -> productIdentifier is absent
+	post-condition: <"Allocation Event lineage check stuff">
+		allocationEvent -> lineage -> eventReference = previousEvent
+
+	post-condition: <"Check the trade economics">
+		allocationEvent -> primitive -> allocation -> before -> execution -> quantity = Sum(allocationEvent -> primitive -> allocation -> after -> allocatedTrade -> execution -> quantity)    
+
+	post-condition: <"If the trade type pre-allocation is an execution, then the trade type post-allocation must also be an execution.">
+		if allocationEvent -> primitive exists and allocationEvent -> primitive -> allocation -> before -> execution exists
+		then allocationEvent -> primitive -> allocation -> after -> originalTrade -> execution exists
+		and allocationEvent -> primitive -> allocation -> after -> allocatedTrade -> execution exists
+		and allocationEvent -> primitive -> allocation -> after -> allocatedTrade -> contract is absent
+
+	post-condition: <"If the trade type pre-allocation is a contract, then the trade type post-allocation must also be a contract.">
+		if allocationEvent -> primitive exists and allocationEvent -> primitive -> allocation -> before -> contract exists
+		then allocationEvent -> primitive -> allocation -> after -> originalTrade -> contract exists
+		and allocationEvent -> primitive -> allocation -> after -> allocatedTrade -> contract exists
+		and allocationEvent -> primitive -> allocation -> after -> allocatedTrade -> execution is absent
 
 func NewAllocationPrimitive: <"Function specification to create the fully-formed business event of allocating an execution based on allocation instructions.">
 	inputs:
