@@ -45,6 +45,42 @@ func NewExecutionPrimitive: <"Function specification to compose an execution bas
 		execution -> before is absent
 			
 
+func AffirmAllocation : <"Function specification to create the fully-formed business event of affirming an allocation.">
+	inputs:
+		allocationTrade Trade (1..1)
+		allocationEvent Event (1..1)
+
+	output:
+		affirmation Affirmation (1..1)
+
+	condition WorkflowStatusNotAffirmed : <"Current workflow status must not be affirmed.">
+		allocationEvent -> eventWorkflow -> workflowStatus <> WorkflowStatusEnum.Affirmed
+
+	condition EventIsAllocation : <"Event must be allocation.">
+		allocationEvent -> primitive -> allocation exists
+
+  assign-output affirmation -> identifier : 
+		allocationTrade -> execution -> identifier
+
+  assign-output affirmation -> party : 
+		allocationTrade -> execution -> party
+
+  assign-output affirmation -> partyRole : 
+		allocationTrade -> execution -> partyRole
+
+  assign-output affirmation -> status : 
+		AffirmationStatusEnum.Affirmed
+
+  assign-output affirmation -> lineage -> eventReference: 
+		allocationEvent
+
+	post-condition: <"Validate affirmation status.">
+		affirmation -> status = AffirmationStatusEnum.Affirmed
+
+	post-condition: <"Validate lineage of the Affirmation event.">
+		affirmation -> lineage -> eventReference = allocationEvent
+
+
 func FormContract : <"Function specification to create the fully-formed business event of entering into a new contract, as a combination of an execution primitive and a contract formation primitive, when there is no allocation involved and the contractual parties are the execution parties. This specification is meant to replace the 'Inception' primitive that previously co-mingled these 2 primitives.">
 	inputs:
 		executionEvent Event (1..1)
@@ -272,15 +308,24 @@ func Allocate: <"Function specification to create the fully-formed business even
 	output:
 		allocationEvent Event (1..1) <"Allocation event containing both the original block trade (with the status set to Allocated) and the set of allocated trades.">
 
+	condition blockTradeNotAllocated : <"Current workflow status must not be allocated.">
+		previousEvent -> eventWorkflow -> workflowStatus <> WorkflowStatusEnum.Allocated
+
 	assign-output allocationEvent -> primitive -> allocation:
 		NewAllocationPrimitive( execution, allocationInstructions )
 
-    assign-output allocationEvent -> lineage -> eventReference:
-        previousEvent
+  assign-output allocationEvent -> lineage -> eventReference:
+    previousEvent
         
-    assign-output allocationEvent -> lineage -> executionReference:
-        execution
-    
+  assign-output allocationEvent -> lineage -> executionReference:
+    execution
+
+	post-condition: <"Validate lineage of the Allocation event.">
+		allocationEvent -> lineage -> eventReference = previousEvent and
+		allocationEvent -> lineage -> executionReference = execution
+
+	post-condition: <"Allocation event amounts must sum to block trade amount.">
+		execution -> quantity = Sum( allocationEvent -> primitive -> allocation -> after -> allocatedTrade -> execution -> quantity )
 
 
 func NewAllocationPrimitive: <"Function specification to create the fully-formed business event of allocating an execution based on allocation instructions.">
