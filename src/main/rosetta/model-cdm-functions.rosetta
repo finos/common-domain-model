@@ -262,6 +262,51 @@ func ResolveCashSettlementDate : <"A product agnostic function that resolves the
 	inputs: contractState ContractState (1..1)
 	output: date date (1..1)
 
+func CreateAffirmationObject: <"Function specification to create the fully-formed affirmation object based on the allocation functions output.">
+
+	inputs: 
+		allocationEvent Event (1..1) <"Previous event for lineage purposes and defining the affirmation object">
+		allocatedTrade Trade (1..1) <"The allocation trade defining the affirmation object">
+	output:
+		affirmation Affirmation (1..1)
+
+	assign-output affirmation -> lineage -> eventReference : allocationEvent -> lineage -> eventReference
+
+	assign-output affirmation -> lineage -> executionReference : allocatedTrade -> execution 
+
+	assign-output affirmation -> party : allocationEvent -> party
+
+	assign-output affirmation -> partyRole : allocatedTrade -> execution -> partyRole
+
+	assign-output affirmation -> status: AffirmationStatusEnum.Unaffirmed
+		
+	post-condition: <"Ensure Allocation event has parties assigned to the event">
+		allocationEvent -> party exists
+
+
+func CreateConfirmationObject: <"Function specification to create the fully-formed confirmation object based on the execution functions output.">
+
+	inputs: 
+		allocationEvent Event (1..1) <"Previous event for lineage purposes and defining the confirmation object">
+		allocatedTrade Trade (1..1) <"The allocation trade defining the confirmation object">
+	output:
+		confirmation Confirmation (1..1)
+
+	
+	assign-output confirmation -> lineage -> eventReference : allocationEvent -> lineage -> eventReference
+
+	assign-output confirmation -> lineage -> executionReference : allocatedTrade -> execution 
+
+	assign-output confirmation -> party : allocationEvent -> party
+
+	assign-output confirmation -> partyRole : allocatedTrade -> execution -> partyRole
+
+	assign-output confirmation -> status: ConfirmationStatusEnum.Unconfirmed
+		
+	post-condition: <"Ensure Allocation event has parties assigned to the event">
+		allocationEvent -> party exists
+
+/*
 func Affirmation: <"Function specification to create the fully-formed business event of affirmation of an allocation based on affirmation instructions.">
 	inputs:
 		allocationEvent Event (1..1) <"Previous event for lineage purposes and defining the affirmation object">
@@ -273,7 +318,7 @@ func Affirmation: <"Function specification to create the fully-formed business e
 		allocationEvent -> eventWorkflow -> workflowStatus <> WorkflowStatusEnum.Affirmed
 
 	post-condition: <"Allocation Event lineage check stuff">
-		affirmationEvent -> lineage -> eventReference = allocationEvent
+		affirmationEvent -> lineage -> eventReference = allocationEvent*/
 	
 
 func Allocate: <"Function specification to create the fully-formed business event of allocating an execution based on allocation instructions.">
@@ -308,7 +353,7 @@ func Allocate: <"Function specification to create the fully-formed business even
 			allocationEvent -> eventEffect -> effectedExecution exists
 			and allocationEvent -> eventEffect -> execution is absent
 			and allocationEvent -> eventEffect -> productIdentifier is absent
-			
+
 	post-condition: <"Allocation Event lineage check stuff">
 		allocationEvent -> lineage -> eventReference = previousEvent
 		and allocationEvent -> lineage -> executionReference = execution
