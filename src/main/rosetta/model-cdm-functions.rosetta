@@ -297,6 +297,17 @@ func NewAllocationPrimitive: <"Function specification to create the fully-formed
 		QuantityEquals ( Sum (primitive -> after -> allocatedTrade -> execution -> quantity), primitive -> before -> execution -> quantity, precision) 
 
 
+func NewAffirmationPrimitive: <"Affirmation primitive containing the original allocation (with the status set to Affirmed)">
+	inputs:
+		primitive AllocationPrimitive (1..1) <"Allocated trade to be affirmed">
+
+	output:
+		previousEvent Event (1..1)
+
+	assign-output previousEvent -> eventWorkflow -> workflowStatus : 
+		WorkflowStatusEnum.Affirmed	
+
+
 func Settle: <"Function specification to create the Transfer event based on an execution's settlement terms. Initial implementation only supports securities settled via delivery vs payment.">
 	inputs:
 		execution Execution (1..1) <"Execution to be settled.">
