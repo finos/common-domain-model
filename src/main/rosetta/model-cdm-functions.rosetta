@@ -291,6 +291,9 @@ func NewAllocationPrimitive: <"Function specification to create the fully-formed
 	output:
 		primitive AllocationPrimitive (1..1) <"Allocation primitive containing both the original block trade (with the status set to Allocated) and the set of allocated trades.">
 
+ condition: <"Allocation instructions must specify allocation for the full quantity of the original execution.">
+		execution -> quantity = Sum( allocationInstructions -> breakdowns -> quantity ) 
+
 	post-condition:
 		execution -> quantity = Sum( primitive -> after -> allocatedTrade -> execution -> quantity )
 	/*post-condition:
