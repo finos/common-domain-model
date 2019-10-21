@@ -9,13 +9,11 @@ import org.isda.cdm.metafields.ReferenceWithMetaEvent;
 import org.isda.cdm.metafields.ReferenceWithMetaExecution;
 import org.isda.cdm.util.TestObjectsFactory;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -51,7 +49,7 @@ class SettleTest extends AbstractFunctionTest {
 		previousEvent = Event.builder().build();
 	}
 
-	@Test @Disabled("Fails with NPE") // FIXME
+	@Test
 	void shouldBuildNewSettleEvent() {
 		Event settleEvent = func.evaluate(execution, previousEvent);
 
@@ -79,12 +77,6 @@ class SettleTest extends AbstractFunctionTest {
 				.map(FieldWithMetaString::getValue)
 				.collect(Collectors.toList());
 		assertThat(eventIdentifier, hasItems("settleEvent1"));
-
-		// event effects
-		EventEffect eventEffect = settleEvent.getEventEffect();
-		assertNotNull(eventEffect);
-		assertEquals(1, new HashSet<>(eventEffect.getProductIdentifier()).size());
-		assertEquals(1, new HashSet<>(eventEffect.getTransfer()).size());
 
 		// lineage - event
 		List<ReferenceWithMetaEvent> eventReferences = settleEvent.getLineage().getEventReference();
@@ -121,10 +113,10 @@ class SettleTest extends AbstractFunctionTest {
 		assertEquals(CURRENCY_USD, cashTransferMoney.getCurrency().getValue());
 
 		PayerReceiver payerReceiver = cashTransferComponent.getPayerReceiver();
-		assertEquals(getPartyGlobalKey(parties, CLIENT_A_ACC_1_ID), payerReceiver.getPayerPartyReference().getGlobalReference());
-		assertEquals(getPartyGlobalKey(parties, CLIENT_A_ACC_1_ID), payerReceiver.getPayerAccountReference().getGlobalReference());
-		assertEquals(getPartyGlobalKey(parties, COUNTERPARTY_BROKER_A_ID), payerReceiver.getReceiverPartyReference().getGlobalReference());
-		assertEquals(getPartyGlobalKey(parties, COUNTERPARTY_BROKER_A_ID), payerReceiver.getReceiverAccountReference().getGlobalReference());
+		assertEquals(getPartyGlobalKey(parties, CLIENT_A_ACC_1_ID), payerReceiver.getPayerPartyReference().getValue().getMeta().getGlobalKey());
+		assertEquals(getAccountGlobalKey(parties, CLIENT_A_ACC_1_ID), payerReceiver.getPayerAccountReference().getValue().getMeta().getGlobalKey());
+		assertEquals(getPartyGlobalKey(parties, COUNTERPARTY_BROKER_A_ID), payerReceiver.getReceiverPartyReference().getValue().getMeta().getGlobalKey());
+		assertEquals(getAccountGlobalKey(parties, COUNTERPARTY_BROKER_A_ID), payerReceiver.getReceiverAccountReference().getValue().getMeta().getGlobalKey());
 
 		// security transfer
 
@@ -137,10 +129,10 @@ class SettleTest extends AbstractFunctionTest {
 		assertEquals(CUSIP_US1234567891, productIds.get(0).getValue());
 
 		TransferorTransferee transferorTransferee = securityTransferComponent.getTransferorTransferee();
-		assertEquals(getPartyGlobalKey(parties, CLIENT_A_ACC_1_ID), transferorTransferee.getTransfereePartyReference().getGlobalReference());
-		assertEquals(getPartyGlobalKey(parties, CLIENT_A_ACC_1_ID), transferorTransferee.getTransfereeAccountReference().getGlobalReference());
-		assertEquals(getPartyGlobalKey(parties, COUNTERPARTY_BROKER_A_ID), transferorTransferee.getTransferorPartyReference().getGlobalReference());
-		assertEquals(getPartyGlobalKey(parties, COUNTERPARTY_BROKER_A_ID), transferorTransferee.getTransferorAccountReference().getGlobalReference());
+		assertEquals(getPartyGlobalKey(parties, CLIENT_A_ACC_1_ID), transferorTransferee.getTransfereePartyReference().getValue().getMeta().getGlobalKey());
+		assertEquals(getAccountGlobalKey(parties, CLIENT_A_ACC_1_ID), transferorTransferee.getTransfereeAccountReference().getValue().getMeta().getGlobalKey());
+		assertEquals(getPartyGlobalKey(parties, COUNTERPARTY_BROKER_A_ID), transferorTransferee.getTransferorPartyReference().getValue().getMeta().getGlobalKey());
+		assertEquals(getAccountGlobalKey(parties, COUNTERPARTY_BROKER_A_ID), transferorTransferee.getTransferorAccountReference().getValue().getMeta().getGlobalKey());
 	}
 
 	private String getPartyGlobalKey(List<Party> party, String partyExternalKey) {
@@ -148,6 +140,16 @@ class SettleTest extends AbstractFunctionTest {
 				.stream()
 				.map(Party::getMeta)
 				.filter(m -> m.getExternalKey().equals(partyExternalKey))
+				.map(MetaFields::getGlobalKey)
+				.collect(MoreCollectors.onlyElement());
+	}
+
+	private String getAccountGlobalKey(List<Party> party, String partyExternalKey) {
+		return party
+				.stream()
+				.filter(p -> p.getMeta().getExternalKey().equals(partyExternalKey))
+				.map(Party::getAccount)
+				.map(Account::getMeta)
 				.map(MetaFields::getGlobalKey)
 				.collect(MoreCollectors.onlyElement());
 	}

@@ -1,37 +1,18 @@
 package org.isda.cdm.functions;
 
-import static org.isda.cdm.util.TestObjectsFactory.CLIENT_A_ACC_1_ID;
-import static org.isda.cdm.util.TestObjectsFactory.CLIENT_A_ACC_1_NAME;
-import static org.isda.cdm.util.TestObjectsFactory.COUNTERPARTY_BROKER_A_ID;
-import static org.isda.cdm.util.TestObjectsFactory.COUNTERPARTY_BROKER_A_NAME;
-import static org.isda.cdm.util.TestObjectsFactory.CURRENCY_USD;
-import static org.isda.cdm.util.TestObjectsFactory.CUSIP_US1234567891;
-import static org.isda.cdm.util.TestObjectsFactory.EXECUTING_BROKER_ID;
-import static org.isda.cdm.util.TestObjectsFactory.EXECUTING_BROKER_NAME;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
-
-import org.isda.cdm.CashTransferComponent;
-import org.isda.cdm.Execution;
-import org.isda.cdm.Money;
-import org.isda.cdm.Party;
-import org.isda.cdm.PayerReceiver;
-import org.isda.cdm.SecurityTransferComponent;
-import org.isda.cdm.TransferPrimitive;
-import org.isda.cdm.TransferSettlementEnum;
-import org.isda.cdm.TransferStatusEnum;
-import org.isda.cdm.TransferorTransferee;
+import com.google.inject.Inject;
+import org.isda.cdm.*;
 import org.isda.cdm.metafields.FieldWithMetaString;
 import org.isda.cdm.util.TestObjectsFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.google.inject.Inject;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+
+import static org.isda.cdm.util.TestObjectsFactory.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 class NewTransferPrimitiveTest  extends AbstractFunctionTest {
 
