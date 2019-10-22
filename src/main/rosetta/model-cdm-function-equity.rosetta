@@ -94,7 +94,7 @@ func ResolveEquityContract: <"Specifies how the updated contract should be const
 		CalculationPeriod( equityPayout -> calculationPeriodDates, date ) -> endDate
 		
 	alias equityPerformance :
-		EquityPerformance( equityPayout, observation -> observation, periodEndDate )
+		EquityPerformance( contractState, observation -> observation, periodEndDate )
 		
 	condition isEquityContract :
 		equityPayout exists
@@ -231,13 +231,16 @@ func ResolveEquityPeriodEndPrice:
 	
 func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Performance = (Rate Of Return) × Equity Notional Amount.">
 	inputs: 
-		equityPayout EquityPayout(1..1)
+		contractState ContractState (1..1)
 		observation number (1..1)
 		date date (1..1)
 		
 	output: 
-		equityPerformance number (1..1)
-	
+		equityPerformance number (1..1) 
+		
+	alias equityPayout:
+		contractState -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout only-element 
+		
 	alias periodStartPrice :
 		ResolveEquityPeriodStartPrice( equityPayout, date )
 		
@@ -245,7 +248,7 @@ func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirma
 		observation
 
 	alias numberOfSecurities :
-		equityPayout -> underlier -> singleUnderlier -> quantity -> quantitySchedule -> quantity -> amount
+		ExtractQuantityByNotation( contractState -> contract -> contractualQuantity -> quantityNotation, QuantityNotationEnum.NumberOfSecurities ) -> quantity -> amount
 				
 	alias rateOfReturn : 
 		RateOfReturn( periodStartPrice, periodEndPrice )

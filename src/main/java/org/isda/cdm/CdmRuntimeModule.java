@@ -8,6 +8,8 @@ import org.isda.cdm.functions.CalculationPeriodImpl;
 import org.isda.cdm.functions.EvaluatePortfolioState;
 import org.isda.cdm.functions.EvaluatePortfolioStateImpl;
 import org.isda.cdm.functions.ExtractQuantity;
+import org.isda.cdm.functions.ExtractQuantityByNotation;
+import org.isda.cdm.functions.ExtractQuantityByNotationImpl;
 import org.isda.cdm.functions.ExtractQuantityImpl;
 import org.isda.cdm.functions.GetRateSchedule;
 import org.isda.cdm.functions.GetRateScheduleImpl;
@@ -43,6 +45,7 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(Plus.class).to(bindPlus());
 		bind(ResolveRateIndex.class).to(bindResolveRateIndex());
 		bind(Sum.class).to(bindSum());
+		bind(ExtractQuantityByNotation.class).to(bindExtractQuantityByNotation());
 	}
 
 	protected Class<? extends ModelObjectValidator> bindModelObjectValidator() {
@@ -83,6 +86,9 @@ public class CdmRuntimeModule extends AbstractModule {
 	}
 	protected Class<? extends Sum> bindSum() {
 		return SumImpl.class;
+	}
+	protected Class<? extends ExtractQuantityByNotation> bindExtractQuantityByNotation() {
+		return ExtractQuantityByNotationImpl.class;
 	}
 
 }
