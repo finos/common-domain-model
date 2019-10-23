@@ -42,6 +42,9 @@ func NewExecutionPrimitive: <"Function specification to compose an execution bas
 	assign-output execution -> after -> execution -> party:
 		[ partyA, partyB ]
 		
+	assign-output execution -> after -> execution -> executionQuantity:	
+		quantity
+		
 	post-condition: <"The execution will be the first event in any post-trade life cycle and therefore does not have a before state. Once pre-trade elements are brought into CDM, the 'before' will be used to refer to the last of the pre-trade event states.">
 		execution -> before is absent
 			
@@ -90,17 +93,26 @@ func NewContractFormationPrimitive : <"Function specification to create a fully-
 		
 	output:
 		contractFormation ContractFormation (1..1)
+		
+	alias contract :
+		contractFormation -> after -> contract
+	
+	alias execution :
+		executionState -> execution
 	
 	assign-output contractFormation -> before : <"Before state must be the execution, and the contractual product in the after state must be the underlying product of the contract being formed.">
 		executionState
 		
-	assign-output contractFormation -> after -> contract -> contractualProduct :
-		executionState -> execution -> product -> contractualProduct  
+	assign-output contract -> contractualProduct :
+		execution -> product -> contractualProduct
+	
+	assign-output contract -> contractualQuantity :
+		execution -> executionQuantity
 
-	assign-output contractFormation -> after -> contract -> documentation -> legalAgreement : <"When an overlaying legal agreement exists, the contract must reference it.">
+	assign-output contract -> documentation -> legalAgreement : <"When an overlaying legal agreement exists, the contract must reference it.">
 		if legalAgreement exists then legalAgreement		
 		
-	assign-output contractFormation -> after -> contract -> party :
+	assign-output contract -> party :
 		parties
 
 

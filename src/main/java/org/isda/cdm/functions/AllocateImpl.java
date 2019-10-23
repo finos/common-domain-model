@@ -4,22 +4,23 @@ import com.regnosys.rosetta.common.hashing.*;
 import com.rosetta.model.lib.process.PostProcessStep;
 import com.rosetta.model.lib.records.DateImpl;
 import org.isda.cdm.*;
-import org.isda.cdm.AllocationPrimitive.AllocationPrimitiveBuilder;
 import org.isda.cdm.metafields.FieldWithMetaString;
 import org.isda.cdm.metafields.ReferenceWithMetaParty;
-import org.isda.cdm.processor.EventEffectProcessStep;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.isda.cdm.Event.*;
+import static org.isda.cdm.Event.EventBuilder;
 
 /**
  * Sample Allocate implementation, should be used as a simple example only.
  *
- * TODO move to CDM exmaples repo
+ * TODO move to CDM demo repo
  */
 public class AllocateImpl extends Allocate {
 
@@ -29,42 +30,22 @@ public class AllocateImpl extends Allocate {
 		RosettaKeyProcessStep rosettaKeyProcessStep = new RosettaKeyProcessStep(NonNullHashCollector::new);
 		this.postProcessors = Arrays.asList(rosettaKeyProcessStep,
 				new RosettaKeyValueProcessStep(RosettaKeyValueHashFunction::new),
-				new ReKeyProcessStep(rosettaKeyProcessStep),
-				new EventEffectProcessStep(rosettaKeyProcessStep));
+				new ReKeyProcessStep(rosettaKeyProcessStep));
 	}
 
 	@Override
 	protected EventBuilder doEvaluate(Execution execution, AllocationInstructions allocationInstructions, Event previousEvent) {
 		EventBuilder eventBuilder = Event.builder();
+
 		Set<ReferenceWithMetaParty> eventParties = new HashSet<>();
 
-		for(AllocationPrimitiveBuilder allocationBuilder : eventBuilder.getPrimitive().getAllocation()) {
-			Set<ReferenceWithMetaParty> blockExecutionParties = new HashSet<>(allocationBuilder.build().getBefore().getExecution().getParty());
-
-			eventParties.addAll(blockExecutionParties);
-
-			// replace execution parties with references
-			// before -> execution
-			allocationBuilder.getBefore().getExecution()
-					.clearParty()
-					.addParty(replacePartyWithReference(blockExecutionParties));
-			// after -> original trade
-			allocationBuilder.getAfter().getOriginalTrade().getExecution()
-					.clearParty()
-					.addParty(replacePartyWithReference(blockExecutionParties));
-			// after -> allocated trades
-			allocationBuilder.getAfter().getAllocatedTrade().forEach(allocatedTradeBuilder -> {
-				List<ReferenceWithMetaParty> allocatedExecutionParties = Optional.ofNullable(allocatedTradeBuilder.build().getExecution())
-						.map(Execution::getParty)
-						.orElse(Collections.emptyList());
-
-				eventParties.addAll(allocatedExecutionParties);
-
-				allocatedTradeBuilder.getExecution()
-						.clearParty()
-						.addParty(replacePartyWithReference(allocatedExecutionParties));
-			});
-		}
+		// add parties from block execution
+		eventParties.addAll(execution.getParty());
+		// add parties from the allocation instructions
+		eventParties.addAll(allocationInstructions.getBreakdowns()
+				.stream()
+				.map(AllocationBreakdown::getPartyReference)
+				.collect(Collectors.toSet()));
 
 		eventBuilder
 				.addEventIdentifier(getIdentifier("allocationEvent1", 1))
@@ -78,15 +59,6 @@ public class AllocateImpl extends Allocate {
 		return eventBuilder;
 	}
 
-	private List<ReferenceWithMetaParty> replacePartyWithReference(Collection<ReferenceWithMetaParty> parties) {
-		return parties.stream()
-				.map(p -> ReferenceWithMetaParty.builder()
-						.setGlobalReference(p.getValue().getMeta().getGlobalKey())
-						.setExternalReference(p.getValue().getMeta().getExternalKey())
-						.build())
-				.collect(Collectors.toList());
-	}
-
 	private EventTimestamp getEventCreationTimestamp(ZonedDateTime eventDateTime) {
 		return EventTimestamp.builder()
 				.setDateTime(eventDateTime)
@@ -98,7 +70,7 @@ public class AllocateImpl extends Allocate {
 		return Identifier.builder()
 				.addAssignedIdentifierBuilder(AssignedIdentifier.builder()
 						.setIdentifier(FieldWithMetaString.builder().setValue(id).build())
-				.setVersion(version))
+						.setVersion(version))
 				.build();
 	}
 }
