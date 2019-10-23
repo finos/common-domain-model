@@ -74,21 +74,22 @@ data CrossRate extends QuotedCurrencyPair: <"A class that is used for including 
 		if CrossRate -> forwardPoints exists
 		then CrossRate -> spotRate exists
 
-class FxCashSettlement <"A class that is used for describing cash settlement of an option / non deliverable forward. It includes the currency to settle into together with the fixings required to calculate the currency amount.">
+data FxCashSettlement: <"A class that is used for describing cash settlement of an option / non deliverable forward. It includes the currency to settle into together with the fixings required to calculate the currency amount.">
 	[synonym FpML_5_10 value FxCashSettlement] 
-{
-	settlementCurrency string (1..1) scheme <"The currency in which cash settlement occurs for non-deliverable forwards and cash-settled options (non-deliverable or otherwise).">;
+
+	settlementCurrency string (1..1) <"The currency in which cash settlement occurs for non-deliverable forwards and cash-settled options (non-deliverable or otherwise).">
+		[metadata scheme]
 		[synonym FpML_5_10 value settlementCurrency]
-	referenceCurrency string (0..1) scheme;
+	referenceCurrency string (0..1)
+		[metadata scheme]
 		[synonym FpML_5_10 value referenceCurrency]
-	fixing FxFixing (0..*) <"Specifies the source for and timing of a fixing of an exchange rate. This is used in the agreement of non-deliverable forward trades as well as various types of FX OTC options that require observations against a particular rate. This element is optional, permitting it to be omitted where fixing details are unavailable at the point of message creation. It has multiple occurrence to support the case where fixing details must be specified for more than one currency pair e.g. on an option settled into a third currency (that is not one of the option currencies).">;
+	fixing FxFixing (0..*) <"Specifies the source for and timing of a fixing of an exchange rate. This is used in the agreement of non-deliverable forward trades as well as various types of FX OTC options that require observations against a particular rate. This element is optional, permitting it to be omitted where fixing details are unavailable at the point of message creation. It has multiple occurrence to support the case where fixing details must be specified for more than one currency pair e.g. on an option settled into a third currency (that is not one of the option currencies).">
 		[synonym FpML_5_10 value fixing]
-	rateSourceFixing FxRateSourceFixing (0..*) <"Specifies the source for and timing of a fixing of an exchange rate. This is used in the agreement of non-deliverable forward trades as well as various types of FX OTC options that require observations against a particular rate. This element is optional, permitting it to be omitted where fixing details are unavailable at the point of message creation. It has multiple occurrence to support the case where fixing details must be specified for more than one currency pair e.g. on an option settled into a third currency (that is not one of the option currencies).">;
+	rateSourceFixing FxRateSourceFixing (0..*) <"Specifies the source for and timing of a fixing of an exchange rate. This is used in the agreement of non-deliverable forward trades as well as various types of FX OTC options that require observations against a particular rate. This element is optional, permitting it to be omitted where fixing details are unavailable at the point of message creation. It has multiple occurrence to support the case where fixing details must be specified for more than one currency pair e.g. on an option settled into a third currency (that is not one of the option currencies).">
 		[synonym FpML_5_10 value rateSourceFixing]
-}
 	
-choice rule FxCashSettlement_choice 
-	for FxCashSettlement optional choice between fixing and rateSourceFixing
+	condition FxCashSettlement_choice:
+		optional choice fixing, rateSourceFixing
 
 data FxFixing: <"A class that specifies the source for and timing of a fixing of an exchange rate. This is used in the agreement of non-deliverable forward trades as well as various types of FX OTC options that require observations against a particular rate.">
 	[synonym FpML_5_10 value FxFixing] 
@@ -109,16 +110,17 @@ data FxRateSourceFixing: <"Describes a rate source to be fixed and the date the 
 		[synonym FpML_5_10 value fixingDate]
 
 
-class FxSettlementRateSource <"The source of the Foreign Exchange settlement rate.">
+data FxSettlementRateSource: <"The source of the Foreign Exchange settlement rate.">
 	[synonym FpML_5_10 value FxSettlementRateSource] 
-{
-	settlementRateOption string (0..1) scheme <"Indicates that an officially defined rate settlement rate option will be the used for the fixing.">;
-		[synonym FpML_5_10 value settlementRateOption]
-	nonstandardSettlementRate FxInformationSource (0..1) <"Indicates that a non-standard rate source will be used for the fixing.">;
-}
 
-choice rule FxSettlementRateSource_choice 
-	for FxSettlementRateSource required choice between settlementRateOption and nonstandardSettlementRate
+	settlementRateOption string (0..1) <"Indicates that an officially defined rate settlement rate option will be the used for the fixing.">
+		[metadata scheme]
+		[synonym FpML_5_10 value settlementRateOption]
+	nonstandardSettlementRate FxInformationSource (0..1) <"Indicates that a non-standard rate source will be used for the fixing.">
+
+
+condition FxSettlementRateSource_choice:
+	required choice settlementRateOption, nonstandardSettlementRate
 
 data FxInformationSource extends InformationSource: <"Information source specific to Foreign Exchange products.">
 	[synonym FpML_5_10 value FxInformationSource] 
