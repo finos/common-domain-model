@@ -1,7 +1,7 @@
 namespace "org.isda.cdm"
 version "${project.version}"
 
-data Cashflow: <" A class to specify a cashflow, i.e. the outcome of either of computation (e.g. interest accrual) or an assessment of some sort (e.g. a fee). The cashflow can then be turned into a cash transfer, artefact to be used as the input to a payment system or the outcome of it. The associated rosettaKey denotes the ability to associate a hash value to the Cashflow instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+type Cashflow: <" A class to specify a cashflow, i.e. the outcome of either of computation (e.g. interest accrual) or an assessment of some sort (e.g. a fee). The cashflow can then be turned into a cash transfer, artefact to be used as the input to a payment system or the outcome of it. The associated rosettaKey denotes the ability to associate a hash value to the Cashflow instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 [metadata key]
 [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 
@@ -32,7 +32,7 @@ condition Cashflow_cashflowAmount: <"The cashflow amount should be a positive nu
  * TODO - Follow-up to evaluate an alternative approach consisting in referencing those data points rather than specifying them.
  * Trello card: https://trello.com/c/4D6zubCG
  */
-data ClosedState: <" A class to qualify the closed state of an execution or a contract through the combination or a state (e.g. terminated, novated) and a set of dates: activity date, effective date and, when relevant, last payment date.">
+type ClosedState: <" A class to qualify the closed state of an execution or a contract through the combination or a state (e.g. terminated, novated) and a set of dates: activity date, effective date and, when relevant, last payment date.">
 
 	state ClosedStateEnum (1..1) <"The qualification of what gave way to the contract or execution closure, e.g. allocation, termination, ...">
 		[synonym Rosetta_Workbench value state]
@@ -44,7 +44,7 @@ data ClosedState: <" A class to qualify the closed state of an execution or a co
 		[synonym Rosetta_Workbench value lastPaymentDate]
 
 
-data Contract: <" A class to specify a financial contract object, which can be invoked either within the context of an event, or independently from it. It corresponds to the FpML Trade in the Confirmation view (while the CDM Execution class corresponds to the FpML trade in the Pre-Trade view). The associated rosettaKey denotes the ability to associate a hash value to the Contract instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+type Contract: <" A class to specify a financial contract object, which can be invoked either within the context of an event, or independently from it. It corresponds to the FpML Trade in the Confirmation view (while the CDM Execution class corresponds to the FpML trade in the Pre-Trade view). The associated rosettaKey denotes the ability to associate a hash value to the Contract instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 		[metadata key]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 meta id path "trade"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17, Rosetta_Workbench meta id]
@@ -278,14 +278,14 @@ condition FpML_cd_32: <"FpML validation rule cd-32 - If condition LongForm is tr
 		and Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
 	then Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> dayCountFraction exists
 
-data ContractualProduct: <" A class to specify the contractual products' economic terms, alongside their product identification and product taxonomy. The contractual product class is meant to be used across the pre-execution, execution and (as part of the Contract) post-execution lifecycle contexts.">
+type ContractualProduct: <" A class to specify the contractual products' economic terms, alongside their product identification and product taxonomy. The contractual product class is meant to be used across the pre-execution, execution and (as part of the Contract) post-execution lifecycle contexts.">
 
 	productIdentification ProductIdentification (0..1) <"The product identification value(s) that might be associated with a contractual product. The CDM provides the ability to associate several product identification methods with a product.">
 	productTaxonomy ProductTaxonomy (0..*) <"The product taxonomy value(s) associated with a contractual product.">
 	economicTerms EconomicTerms (1..1) <"The economic terms associated with a contractual product, i.e. the set of features that are price-forming.">
 
 
-data ContractualQuantity: <" [SCHEDULED FOR DEPRECATION: Class to be emptied-out as products get progressively migrated to the restructured quantity mechanism.] A class to specify the quantity or notional amount that is associated with a contractual product and that is the base for the payout calculation. The quantity attribute applies to products relating to securities or tangible assets (such as equities or commodities), while the notional amount applies to products pertaining to interest rate, FX or credit products.">
+type ContractualQuantity: <" [SCHEDULED FOR DEPRECATION: Class to be emptied-out as products get progressively migrated to the restructured quantity mechanism.] A class to specify the quantity or notional amount that is associated with a contractual product and that is the base for the payout calculation. The quantity attribute applies to products relating to securities or tangible assets (such as equities or commodities), while the notional amount applies to products pertaining to interest rate, FX or credit products.">
 
 	quantity Quantity (0..1) <"The contractual quantity when specified as an amount/number of securities or tangible assets. The quantity attribute is typical used in the equity and commodity asset classes.">
 	notionalAmount Money (0..1) <"The contractual quantity when specified as an amount and a currency units without associated schedule or FX terms. When applied to Credit default Swaps, this is the notional amount of protection coverage. ISDA 2003 Term: Floating Rate Payer Calculation Amount.">
@@ -316,7 +316,7 @@ condition ContractualQuantity_notionalAdjustments: <"As the notionalAdjustments 
 	if ContractualProduct -> economicTerms -> quantity -> notionalAdjustments exists
 	then ContractualProduct -> economicTerms -> payout -> equityPayout exists*/
 
-data ExecutionQuantity: <" Class to specify the executed quantity of a product, provided as (possibly multiple) quantity notations, plus additional information regarding potential future quantity adjustments. Should be remaned as, and supersede, 'ContractualQuantity' once the latter can be deprecated.">
+type ExecutionQuantity: <" Class to specify the executed quantity of a product, provided as (possibly multiple) quantity notations, plus additional information regarding potential future quantity adjustments. Should be remaned as, and supersede, 'ContractualQuantity' once the latter can be deprecated.">
 
 	quantityNotation QuantityNotation (1..*) <"Quantity of the underlying contractual product that the contract is written on, defined as a single, non-negative number, a (mandatory) notation tag and an (optional) unit. Products, including contractual products, are designed to be defined as a unit in CDM (with quantity schedule and cross-referencing mechanisms handled as part of the underlying payout legs), so that the overall quantity can be abstracted away from the product definition. The notation tag (e.g. 'Notional') is meant to be referenced by the underlying payout legs and used to resolve the product, by fetching the actual amount from the appropriate quantity notation.">
 		// For Equity Swap:
@@ -335,14 +335,14 @@ data ExecutionQuantity: <" Class to specify the executed quantity of a product, 
 		[synonym FpML_5_10 value notionalAdjustments]
 
 
-data QuantityMultiplier /*one of*/: <" Class to specify a mechanism for a quantity to be set as a multiplier to another (reference) quantity, based on a price observation. At the moment this class only supports FX or Equity-linked notional and re-uses existing building blocks for those 2 cases, until such time when component can be made more generic. This captures the case of resetting cross-currency swaps and resetting equity swaps.">
+type QuantityMultiplier /*one of*/: <" Class to specify a mechanism for a quantity to be set as a multiplier to another (reference) quantity, based on a price observation. At the moment this class only supports FX or Equity-linked notional and re-uses existing building blocks for those 2 cases, until such time when component can be made more generic. This captures the case of resetting cross-currency swaps and resetting equity swaps.">
 
 	fxLinkedNotionalSchedule FxLinkedNotionalSchedule (0..1) <"Multiplier specified as an FX-linked schedule, e.g. for a resetting cross-currency swap..">
 	// equityValuation EquityValuation (0..1) <"Multiplier specified as an equity valuation schedule, e.g. for a resetting equity swap.">
 	multiplierValue number (1..1)
 
 
-data ResolvablePayoutQuantity: <" Generic class to specify the quantity for different payout legs in a contractual product, when that quantity can vary across payout legs or across time. A resolvable quantity can always be resolved into one number based on: (i) the quantity notation that must be specified alongside the contractual product description and (ii) a given date, where applicable. In addition to the base case where quantity is directly specified as a number as part of the quantity notation, the use cases are: (i) quantity based on some pre-defined schedule (eg amortising notional), (ii) quantity based on some pre-defined events (eg resetting cross-currency notional), or quantity set as reference to another quantity (eg equity notional as no. securities x price).">
+type ResolvablePayoutQuantity: <" Generic class to specify the quantity for different payout legs in a contractual product, when that quantity can vary across payout legs or across time. A resolvable quantity can always be resolved into one number based on: (i) the quantity notation that must be specified alongside the contractual product description and (ii) a given date, where applicable. In addition to the base case where quantity is directly specified as a number as part of the quantity notation, the use cases are: (i) quantity based on some pre-defined schedule (eg amortising notional), (ii) quantity based on some pre-defined events (eg resetting cross-currency notional), or quantity set as reference to another quantity (eg equity notional as no. securities x price).">
 	[metadata key]
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 	[synonym FpML_5_10 meta id path "notionalAmount"]
@@ -371,7 +371,7 @@ condition ResolvablePayoutQuantity_quantityMultiplier: <"A quantity reference mu
 	if ResolvablePayoutQuantity -> quantityMultiplier exists
 	then ResolvablePayoutQuantity -> quantityReference exists
 
-data CrossCurrencyTerms:
+type CrossCurrencyTerms:
 
 	principalExchanges PrincipalExchanges (0..1)
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value principalExchanges]
@@ -379,7 +379,7 @@ data CrossCurrencyTerms:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value settlementProvision]
 
 
-data CreditDefaultPayout: <" The credit default payout specification provides the details necessary for determining when a credit payout will be triggered as well as the parameters for calculating the payout and the settlement terms. The associated rosettaKey denotes the ability to associate a hash value to the CreditDefaultPayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+type CreditDefaultPayout: <" The credit default payout specification provides the details necessary for determining when a credit payout will be triggered as well as the parameters for calculating the payout and the settlement terms. The associated rosettaKey denotes the ability to associate a hash value to the CreditDefaultPayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id path "trade.creditDefaultSwap"]
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id path "creditDefaultSwap"]
@@ -419,7 +419,7 @@ data CreditDefaultPayout: <" The credit default payout specification provides th
 		cashSettlementTerms, physicalSettlementTerms
 
 
-data EconomicTerms: <" This class represents the full set of price-forming features associated with a contractual product: the payout component, the notional/quantity, the effective and termination date and the date adjustment provisions when applying uniformily across the payout components. This class also includes the legal provisions which have valuation implications: cancelable provision, extendible provision, early termination provision and extraordinary events specification. A rosettaKeyValue is associated to the contractual product economic terms for the purpose of supporting hash-based reconciliations thanks to the fact that its computation doesn't include meta data, such as identifiers, references, schemes and other rosettaKey artefacts. The rosettaKeyValue default implementation is available as part of the generated code as org.isda.cdm.rosettakey.RosettaKeyValueHashFunction.">
+type EconomicTerms: <" This class represents the full set of price-forming features associated with a contractual product: the payout component, the notional/quantity, the effective and termination date and the date adjustment provisions when applying uniformily across the payout components. This class also includes the legal provisions which have valuation implications: cancelable provision, extendible provision, early termination provision and extraordinary events specification. A rosettaKeyValue is associated to the contractual product economic terms for the purpose of supporting hash-based reconciliations thanks to the fact that its computation doesn't include meta data, such as identifiers, references, schemes and other rosettaKey artefacts. The rosettaKeyValue default implementation is available as part of the generated code as org.isda.cdm.rosettakey.RosettaKeyValueHashFunction.">
 	[partialKey]
 	effectiveDate AdjustableOrRelativeDate (0..1) <"The first day of the terms of the trade. This day may be subject to adjustment in accordance with a business day convention.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value effectiveDate path "trade.creditDefaultSwap.generalTerms", effectiveDate path "generalTerms"]
@@ -475,7 +475,7 @@ data EconomicTerms: <" This class represents the full set of price-forming featu
 //		then effectiveDate > terminationDate
 
 
-data EquityPayout extends PayoutBase: <" The equity payout specification terms. The associated rosettaKey denotes the ability to associate a hash value to the EquityPayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+type EquityPayout extends PayoutBase: <" The equity payout specification terms. The associated rosettaKey denotes the ability to associate a hash value to the EquityPayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
 	[synonym FpML_5_10 meta id]
 
@@ -518,7 +518,7 @@ data EquityPayout extends PayoutBase: <" The equity payout specification terms. 
 
 
 
-data Execution: <" A class to specify an execution, which consists essentially in the economic terms which are agreed between the parties, alongside with the qualification of the type of execution. The associated rosettaKey denotes the ability to associate a hash value to the respective Execution instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+type Execution: <" A class to specify an execution, which consists essentially in the economic terms which are agreed between the parties, alongside with the qualification of the type of execution. The associated rosettaKey denotes the ability to associate a hash value to the respective Execution instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
 	executionType ExecutionTypeEnum (1..1) <"Specifies the type of execution, e.g. via voice, electronically...">
 		[synonym Rosetta_Workbench value executionType]
@@ -577,7 +577,7 @@ condition Execution_settlementTerms: <"When the executed product is a security, 
 	then Execution -> settlementTerms exists
 
 
-data GeneralTerms: <" A class specifying a set of non-monetary terms for the Credit Derivative Transaction, including the buyer and seller and selected items from the ISDA 2014 Credit Definition article II, such as the reference obligation and related terms. The CDM GeneralTerms class corresponds to the FpML GeneralTerms complex type, except that the effectiveDate and scheduledTerminationDate have been positioned as part of the InterestRatePayout class in the CDM instead of in GeneralTerms.">
+type GeneralTerms: <" A class specifying a set of non-monetary terms for the Credit Derivative Transaction, including the buyer and seller and selected items from the ISDA 2014 Credit Definition article II, such as the reference obligation and related terms. The CDM GeneralTerms class corresponds to the FpML GeneralTerms complex type, except that the effectiveDate and scheduledTerminationDate have been positioned as part of the InterestRatePayout class in the CDM instead of in GeneralTerms.">
 
 	buyerSeller BuyerSeller (1..1) <"The credit default payout buyer/seller parties.">
 	referenceInformation ReferenceInformation (0..1) <"This attribute contains all the terms relevant to defining the reference entity and reference obligation(s).">
@@ -614,7 +614,7 @@ condition BasketReferenceInformation_nameOrId: <"The BasketReferenceInformation 
 	then GeneralTerms -> basketReferenceInformation -> basketName exists
 		or GeneralTerms -> basketReferenceInformation -> basketId exists
 
-data InterestRatePayout extends PayoutBase: <" A class to specify all of the terms necessary to define and calculate a cash flow based on a fixed, a floating or an inflation index rate. The interest rate payout can be applied to interest rate swaps and FRA (which both have two associated interest rate payouts), credit default swaps (to represent the fee leg when subject to periodic payments) and equity swaps (to represent the funding leg). The associated rosettaKey denotes the ability to associate a hash value to the InterestRatePayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+type InterestRatePayout extends PayoutBase: <" A class to specify all of the terms necessary to define and calculate a cash flow based on a fixed, a floating or an inflation index rate. The interest rate payout can be applied to interest rate swaps and FRA (which both have two associated interest rate payouts), credit default swaps (to represent the fee leg when subject to periodic payments) and equity swaps (to represent the funding leg). The associated rosettaKey denotes the ability to associate a hash value to the InterestRatePayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 
@@ -731,7 +731,7 @@ data InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
 
 
 
-data NotionalSchedule: <" A class specifying the notional amount or notional amount schedule associated with a contractual product. The notional schedule will be captured explicitly, specifying the dates that the notional changes and the outstanding notional amount that applies from that date. A parametric representation of the rules defining the notional step schedule can optionally be included.">
+type NotionalSchedule: <" A class specifying the notional amount or notional amount schedule associated with a contractual product. The notional schedule will be captured explicitly, specifying the dates that the notional changes and the outstanding notional amount that applies from that date. A parametric representation of the rules defining the notional step schedule can optionally be included.">
 	[metadata key]
 	notionalStepSchedule NonNegativeAmountSchedule (1..1) <"The notional amount when expressed as a varying notional alongside a date schedule. The step dates may be subject to adjustments in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notionalStepSchedule]
@@ -740,7 +740,7 @@ data NotionalSchedule: <" A class specifying the notional amount or notional amo
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notionalStepParameters]
 
 
-data OptionExercise: <" A class to represent the applicable terms to qualify an option exercise: the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">
+type OptionExercise: <" A class to represent the applicable terms to qualify an option exercise: the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">
 
 	optionStyle OptionStyle (1..1) <"The option exercise can be of American style, Bermuda style or European style. The FpML implementation makes use of a substitution group.">
 	strike OptionStrike (0..1) <"Specifies the strike of the option on credit default swap.">
@@ -750,7 +750,7 @@ data OptionExercise: <" A class to represent the applicable terms to qualify an 
 	settlement OptionSettlement (0..1) <"The option settlement terms, such as cash vs. physical, the settlement date, the settlement currency and/or amount. FpML represents this information as part of the OptionSettlement.model.">
 
 
-data OptionPayout: <" The option payout specification terms. The associated rosettaKey denotes the ability to associate a hash value to the respective OptionPayout instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+type OptionPayout: <" The option payout specification terms. The associated rosettaKey denotes the ability to associate a hash value to the respective OptionPayout instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 
@@ -766,7 +766,7 @@ data OptionPayout: <" The option payout specification terms. The associated rose
 	underlier Underlier (1..1) <"The product underlying the option, which can be of any type including ContractualProduct or Security.">
 
 
-data SecurityLeg: <" Terms defining a security leg in a securities financing transaction, which can either be the near leg or the far leg and is closely modelled onto the nearLeg and farLeg types in FpML">
+type SecurityLeg: <" Terms defining a security leg in a securities financing transaction, which can either be the near leg or the far leg and is closely modelled onto the nearLeg and farLeg types in FpML">
 	[metadata key]
 	[synonym FpML_5_10 meta id]
 
@@ -788,20 +788,20 @@ data SecurityLeg: <" Terms defining a security leg in a securities financing tra
 
 
 
-data SecurityValuation: <" Terms defining the security valuation method as part of a security leg in a securities fianncing transaction and closely modelled onto the CollateralValuation type in FpML.">
+type SecurityValuation: <" Terms defining the security valuation method as part of a security leg in a securities fianncing transaction and closely modelled onto the CollateralValuation type in FpML.">
 
 	securityValuationModel SecurityValuationModel (1..1) <"The security valuation model choice, based on either a nominal amount or a number of units.">
 		[synonym FpML_5_10 value collateral]
 	underlier Security (1..1) <"The underlying security of the security leg.">
 
 
-data SecurityValuationModel: <" The security valuation model choice, which can either be based on nominal amount as for a bond, or on the number of contract units as for equity.">
+type SecurityValuationModel: <" The security valuation model choice, which can either be based on nominal amount as for a bond, or on the number of contract units as for equity.">
 
 	bondValuationModel BondValuationModel (0..1) <"The valuation model when the security is a bond.">
 	unitContractValuationModel UnitContractValuationModel (0..1) <"The valuation model when the security is a unit contract like equity.">
 	condition: one-of
 
-data BondValuationModel: <" Bond valuation model for the security leg in a securities financing transaction, closely modelled onto the BondCollateral.model in FpML.">
+type BondValuationModel: <" Bond valuation model for the security leg in a securities financing transaction, closely modelled onto the BondCollateral.model in FpML.">
 
 	nominalAmount Money (1..1) <"The quantity of the underlier expressed as a nominal amount.">
 		[synonym FpML_5_10 value nominalAmount]
@@ -809,7 +809,7 @@ data BondValuationModel: <" Bond valuation model for the security leg in a secur
 	accrualsAmount Money (0..1) <"Accruals amount for the bond in the security leg">
 
 
-data BondPriceAndYieldModel: <" Bond price and yield valuation model for the security leg in a securities financing transaction, closely modelled onto the BondPriceAndYield.model in FpML.">
+type BondPriceAndYieldModel: <" Bond price and yield valuation model for the security leg in a securities financing transaction, closely modelled onto the BondPriceAndYield.model in FpML.">
 
 	cleanOrDirtyPrice CleanOrDirtyPrice (0..1) <"Either the clean or dirty price of the bond.">
 	relativePrice RelativePrice (0..1) <"Bond price relative to a Benchmark.">
@@ -818,14 +818,14 @@ data BondPriceAndYieldModel: <" Bond price and yield valuation model for the sec
 	allInPrice number (0..1) <"Bond all-in-price which is a price that includes all relevant price adjustments (i.e. accrued interest, haircut or margin ratio, inflation factor,etc.). It expresses a price in terms of percentage of nominal amount.">
 
 
-data CleanOrDirtyPrice: <" Class specifying the bond price as either clean or dirty in a bond valuation model.">
+type CleanOrDirtyPrice: <" Class specifying the bond price as either clean or dirty in a bond valuation model.">
 
 	cleanPrice CleanPrice (0..1) <"The clean price and accruals presented separately.">
 	dirtyPrice number (0..1) <"The dirty price presented as a single number.">
 		[synonym FpML_5_10 value dirtyPrice]
 
 
-data CleanPrice: <" Class to specify the clean price of a bond in a bond valuation model, with accruals presented separately, and modelled onto the cleanPrice model in BonPriceAndYield.model in FpML.">
+type CleanPrice: <" Class to specify the clean price of a bond in a bond valuation model, with accruals presented separately, and modelled onto the cleanPrice model in BonPriceAndYield.model in FpML.">
 
 	cleanPrice number (1..1) <"The clean price as a number.">
 		[synonym FpML_5_10 value cleanPrice]
@@ -834,30 +834,30 @@ data CleanPrice: <" Class to specify the clean price of a bond in a bond valuati
 	dirtyPrice calculation (0..1) <"Placeholder for a calculation of dirtyPrice based on cleanPrice and accruals.">
 
 
-data RelativePrice: <" Bond price relative to a benchmark, as in a convertible bond.">
+type RelativePrice: <" Bond price relative to a benchmark, as in a convertible bond.">
 
 	spread number (1..1) <"The spread to a benchmark.">
 	bondEquityModel BondEquityModel (1..*) <"Bond equity model for convertible bonds.">
 
 
-data BondEquityModel: <" Bond equity model to value convertible bonds and modelled onto BondEquity.model in FpML.">
+type BondEquityModel: <" Bond equity model to value convertible bonds and modelled onto BondEquity.model in FpML.">
 
 	bondchoiceModel BondChoiceModel (0..1) <"Either the bond or convertible bond.">
 	equity Equity (0..1) <"The equity.">
 	condition: one-of
 
-data BondChoiceModel: <" Either a bond or convertible bond.">
+type BondChoiceModel: <" Either a bond or convertible bond.">
 	bond Bond (0..1)
 	convertibleBond ConvertibleBond (0..1)
 	condition: one-of
 
-data UnitContractValuationModel: <" Unit contract model for security valuation, e.g. for equity, modelled onto UnitContract.model in FpML.">
+type UnitContractValuationModel: <" Unit contract model for security valuation, e.g. for equity, modelled onto UnitContract.model in FpML.">
 
 	numberOfUnits Quantity (1..1) <"The number of units (index or securities).">
 	unitPrice Money (1..1) <"The price of each unit.">
 
 
-data SecurityPayout: <" Security payout specification in case the product payout involves some form of security collateral, as in a securities financing transaction.">
+type SecurityPayout: <" Security payout specification in case the product payout involves some form of security collateral, as in a securities financing transaction.">
 	[metadata key]
 	securityLeg SecurityLeg (1..*) <"Each SecurityLeg represent a buy/sell at different dates, typically 1 near leg and 1 far leg in a securities financing transaction.">
 		[synonym FpML_5_10 value nearLeg]
@@ -871,7 +871,7 @@ data SecurityPayout: <" Security payout specification in case the product payout
 		[synonym FpML_5_10 value nearLeg, bond]
 
 
-data InitialMargin: <" Defines initial margin applied to a repo transaction. Initial margin is an agreed premium to the Purchase Price of a repo to determine the required Market Value of the collateral to be delivered on the Purchase Date. It reflects quality of the collateral. Its aim is to calculate the risk-adjusted or liquidation value of collateral.">
+type InitialMargin: <" Defines initial margin applied to a repo transaction. Initial margin is an agreed premium to the Purchase Price of a repo to determine the required Market Value of the collateral to be delivered on the Purchase Date. It reflects quality of the collateral. Its aim is to calculate the risk-adjusted or liquidation value of collateral.">
 
 	marginType MarginTypeEnum (1..1) <"An element defining the type of assets (cash or securities) specified to apply as margin to the repo transaction. See GMRA 2011 paragraph 2(h) for 'Cash Margin' and GMRA 2011 paragraph 2(cc) for 'Margin Securities'.">
 		[synonym FpML_5_10 value marginType]
@@ -891,7 +891,7 @@ condition InitialMargin_minimumTransferAmount:
 	if InitialMargin -> minimumTransferAmount exists
 	then InitialMargin -> minimumTransferAmount -> amount > 0
 
-data InitialMarginCalculation: <" Defines the initial margin calculation applicable to a single piece of collateral.">
+type InitialMarginCalculation: <" Defines the initial margin calculation applicable to a single piece of collateral.">
 
 	marginRatio number (0..1) <"An element defining an initial margin expressed as a ratio of the Market Value of the collateral to the Purchase Price. A default value of initial margin ratio of 1.00 means there is no margin and thus no risk related with the collateral. See GMRA 2000 paragraph 2(z) and GMRA 2011 paragraph 2(bb).">
 		[synonym FpML_5_10 value marginRatio]
@@ -912,7 +912,7 @@ TO DO ON SECURITY PAYOUT:
 
 Move all implementation of SecurityPayout to a dedicated file
 
-Data rules to add for security payout:
+type rules to add for security payout:
 - underliers are the same in each collateral leg
 - number of collateral legs (2)?
 - one leg is a buyer and the other is a seller
@@ -921,7 +921,7 @@ Data rules to add for security payout:
 Have appropriate synonyms vs the repo model in FpML
 */
 
-data PayoutBase: <" Base class that all payout types should extend. Use case is that some validation rules may need to apply across all payout types, for which the data rule can be written at the base class level">
+type PayoutBase: <" Base class that all payout types should extend. Use case is that some validation rules may need to apply across all payout types, for which the data rule can be written at the base class level">
 
 	payoutQuantity ResolvablePayoutQuantity (1..1) <"Each payout leg must implement the quantity concept as a 'resolvable' type, which allows for different payout legs to be linked to each other (e.g. in the case of cross-curreny products).">
 		// For Equity Swap:
@@ -934,7 +934,7 @@ data PayoutBase: <" Base class that all payout types should extend. Use case is 
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value calculationAmount path "periodicPayment.floatingAmountCalculation"]
 
 
-data Payout: <" A class to represent the set of future cashflow methodologies in the form of specific payout class(es) that can be associated for the purpose of specifying a financial product. For example, two interest rate payouts can be combined to specify an interest rate swap, or one interest rate payout can be combined with a credit default payout to specify a credit default swap.">
+type Payout: <" A class to represent the set of future cashflow methodologies in the form of specific payout class(es) that can be associated for the purpose of specifying a financial product. For example, two interest rate payouts can be combined to specify an interest rate swap, or one interest rate payout can be combined with a credit default payout to specify a credit default swap.">
 
 	interestRatePayout InterestRatePayout (0..*) <"All of the terms necessary to define and calculate a cash flow based on a fixed, a floating or an inflation index rate. The interest rate payout can be applied to interest rate swaps and FRA (which both have two associated interest rate payouts), credit default swaps (to represent the fee leg when subject to periodic payments) and equity swaps (to represent the funding leg).">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value swapStream path "trade.swap" ]
@@ -1033,7 +1033,7 @@ data Payout: <" A class to represent the set of future cashflow methodologies in
 		then Payout -> creditDefaultPayout -> transactedPrice -> marketFixedRate is absent
 			and Payout -> creditDefaultPayout -> transactedPrice -> marketPrice is absent
 
-data Product: <" A class to represent a financial product. With respect to contractual products, this class specifies the pre-execution product characteristics (the ContractualProduct class). This class is used as underlying for the option exercise representation, which makes use of the contractualProduct attribute to support the swaption use case, with the exercise into a swap. In a complete workflow, the swaption contract itself then needs to be superseded by a swap contract underpinned by the exercised swap as a contractualProduct.">
+type Product: <" A class to represent a financial product. With respect to contractual products, this class specifies the pre-execution product characteristics (the ContractualProduct class). This class is used as underlying for the option exercise representation, which makes use of the contractualProduct attribute to support the swaption use case, with the exercise into a swap. In a complete workflow, the swaption contract itself then needs to be superseded by a swap contract underpinned by the exercised swap as a contractualProduct.">
 	[metadata key]
 
 	// contract Contract (0..1)
@@ -1050,7 +1050,7 @@ data Product: <" A class to represent a financial product. With respect to contr
 	security Security (0..1)
 	condition: one-of
 
-data ProductIdentification: <" A class to combine the CDM product qualifier with other product qualifiers, such as the FpML ones. While the CDM product qualifier is derived by the CDM from the product payout features, the other product identification elements are assigned by some external sources and correspond to values specified by other data representation protocols.">
+type ProductIdentification: <" A class to combine the CDM product qualifier with other product qualifiers, such as the FpML ones. While the CDM product qualifier is derived by the CDM from the product payout features, the other product identification elements are assigned by some external sources and correspond to values specified by other data representation protocols.">
 
 	productQualifier productType (0..1) <"The CDM product qualifier, which corresponds to the outcome of the isProduct qualification logic. This value is derived by the CDM from the product payout features.">
 	primaryAssetdata AssetClassEnum (0..1) <" A classification of the most important risk class of the trade. FpML defines a simple asset class categorisation using a coding scheme.">
@@ -1096,7 +1096,7 @@ data ProductIdentification: <" A class to combine the CDM product qualifier with
 		[synonym DTCC_11_0, DTCC_9_0 value instrumentId path "payment.calculationDetails.calculationElements.underlier.index" meta instrumentIdScheme]
 
 
-data Quantity: <" A class to specify an amount/number of securities or tangible assets such as a commodity product. The units qualifier is not used if the Quantity class is applied to securities.">
+type Quantity: <" A class to specify an amount/number of securities or tangible assets such as a commodity product. The units qualifier is not used if the Quantity class is applied to securities.">
 
 	amount number (1..1) <"The amount to quantify ">
 		[synonym FpML_5_10, Rosetta_Workbench, DTCC_11_0 value amount]
@@ -1112,20 +1112,20 @@ data Quantity: <" A class to specify an amount/number of securities or tangible 
 condition Quantity_unit: <"Quantity can be either specified as: (i) a raw number (no unit, e.g. to describe a no. securities), (ii) a number with a unit (to describe physical assets, e.g. MWh or MMBTU) or (iii) a number and a currency (to describe a notional amount). Case (i) implies that choice is optional.">
 	optional choice  unit, currency
 
-data NonNegativeQuantity extends Quantity: <" Class to specify a quantity as a non-negative number, which condition is enforced through a data rule that only applies to the extending class.">
+type NonNegativeQuantity extends Quantity: <" Class to specify a quantity as a non-negative number, which condition is enforced through a data rule that only applies to the extending class.">
 
 
 
 condition NonNegativeQuantity_amount: <"For a non-negative quantity, the amount attribute must be positive.">
 	if NonNegativeQuantity exists then NonNegativeQuantity -> amount >= 0.0
 
-data NonNegativeStepSchedule: <" Class to specify a non-negative schedule as a schedule of steps, typically used to define a payout leg with variable quantity. This quantity cannot be negative, while direction is specified through a BuyerSeller or PayerReceiver attribute. The non-negativity is enforced by making use of the non-negative step class.">
+type NonNegativeStepSchedule: <" Class to specify a non-negative schedule as a schedule of steps, typically used to define a payout leg with variable quantity. This quantity cannot be negative, while direction is specified through a BuyerSeller or PayerReceiver attribute. The non-negativity is enforced by making use of the non-negative step class.">
 
 	step NonNegativeStep (1..*) <"The schedule of step date and non-negative value pairs. On each step date the associated step value becomes effective. A list of steps may be ordered in the document by ascending step date. An FpML document containing an unordered list of steps is still regarded as a conformant document.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value step]
 
 
-data NonNegativeQuantitySchedule: <"Class to specify a non-negative quantity schedule, which is used to define the quantity of a payout leg. This quantity cannot be negative, while direction is specified through a BuyerSeller or PayerReceiver attribute. The only available schedule implementation is a step schedule, specified as a set of date-value pairs. The non-negativity is enforced by using the non-negative quantity and step schedule classes.">
+type NonNegativeQuantitySchedule: <"Class to specify a non-negative quantity schedule, which is used to define the quantity of a payout leg. This quantity cannot be negative, while direction is specified through a BuyerSeller or PayerReceiver attribute. The only available schedule implementation is a step schedule, specified as a set of date-value pairs. The non-negativity is enforced by using the non-negative quantity and step schedule classes.">
 
 	quantity NonNegativeQuantity (0..1) <"The base quantity represented as a single, non-negative number plus some (optional) unit. This attribute is ignored when mapping existing FpML messages, where quantity is abstracted away at a higher level.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value ignore]
@@ -1139,7 +1139,7 @@ enum QuantityNotationEnum <"Enumeration for the different types of quantity nota
 	Notional <"When the specified quantity corresponds to a notional">
 }
 
-data QuantityNotation: <" Class to specify the quantity of a product as a single, non-negative amount, characterised with a notation enumeration to indicate the type of quantity being specified. For some product cases, several quantity notations can be associated with a single product: e.g. for an Equity Swap, both the notional and (optionally) the number of securities can be specified, with a validation to check that they are consistent in relation to the equity price.">
+type QuantityNotation: <" Class to specify the quantity of a product as a single, non-negative amount, characterised with a notation enumeration to indicate the type of quantity being specified. For some product cases, several quantity notations can be associated with a single product: e.g. for an Equity Swap, both the notional and (optionally) the number of securities can be specified, with a validation to check that they are consistent in relation to the equity price.">
 
 	quantity NonNegativeQuantity (1..1) <"The quantity as a non-negative amount.">
 		// For Swap Streams:
@@ -1159,7 +1159,7 @@ data QuantityNotation: <" Class to specify the quantity of a product as a single
 			set to QuantityNotationEnum.NumberOfSecurities when "singleUnderlyer.openUnits" exists]
 
 
-data RateSpecification : <" A class to specify the fixed interest rate, floating interest rate or inflation rate.">
+type RateSpecification : <" A class to specify the fixed interest rate, floating interest rate or inflation rate.">
 
 	fixedRate Schedule (0..1) <"The fixed rate or fixed rate schedule expressed as explicit fixed rates and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">
 	floatingRate FloatingRateSpecification (0..1) <"The floating interest rate specification, which includes the definition of the floating rate index. the tenor, the initial value, and, when applicable, the spread, the rounding convention, the averaging method and the negative interest rate treatment.">
@@ -1167,7 +1167,7 @@ data RateSpecification : <" A class to specify the fixed interest rate, floating
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value inflationRateCalculation path "calculationPeriodAmount.calculation"]
 	condition: one-of
 
-data StubPeriod: <" A class defining how the initial or final stub calculation period amounts is calculated. For example, the rate to be applied to the initial or final stub calculation period may be the linear interpolation of two different tenors for the floating rate index specified in the calculation period amount component, e.g. A two month stub period may used the linear interpolation of a one month and three month floating rate. The different rate tenors would be specified in this component. Note that a maximum of two rate tenors can be specified. If a stub period uses a single index tenor and this is the same as that specified in the calculation period amount component then the initial stub or final stub component, as the case may be, must not be included.">
+type StubPeriod: <" A class defining how the initial or final stub calculation period amounts is calculated. For example, the rate to be applied to the initial or final stub calculation period may be the linear interpolation of two different tenors for the floating rate index specified in the calculation period amount component, e.g. A two month stub period may used the linear interpolation of a one month and three month floating rate. The different rate tenors would be specified in this component. Note that a maximum of two rate tenors can be specified. If a stub period uses a single index tenor and this is the same as that specified in the calculation period amount component then the initial stub or final stub component, as the case may be, must not be included.">
 	[synonym FpML_5_10 value StubCalculationPeriodAmount]
 
 	calculationPeriodDatesReference CalculationPeriodDates (1..1) <"A pointer style reference to the associated calculation period dates component defined elsewhere in the document.">
@@ -1185,7 +1185,7 @@ data StubPeriod: <" A class defining how the initial or final stub calculation p
  * Would be great if we could confirm the actual usage though sample transactions
  * See Trello card https://trello.com/c/VLtPwoek
  */
-data TransactedPrice: <" A class to represent the transacted price attributes that are positioned as part of the FpML FeeLeg.">
+type TransactedPrice: <" A class to represent the transacted price attributes that are positioned as part of the FpML FeeLeg.">
 
 	marketFixedRate number (0..1) <"An optional element that only has meaning in a credit index trade. This element contains the credit spread ('fair value') at which the trade was executed. Unlike the fixedRate of an index, the marketFixedRate varies over the life of the index depending on market conditions. The marketFixedRate is the price of the index as quoted by trading desks.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value marketFixedRate path "feeLeg"]
@@ -1202,7 +1202,7 @@ data TransactedPrice: <" A class to represent the transacted price attributes th
  * Portfolio Aggregation *
  ************************/
 
-data Position: <" A Position describes how much of a given Product is being held and constitutes the atomic element of a Portfolio.">
+type Position: <" A Position describes how much of a given Product is being held and constitutes the atomic element of a Portfolio.">
 
 	product Product (1..1) <"The product underlying the position, which can either be a contractual product or securities.">
 	quantity Quantity (1..1) <"The quantity of the product, which can be a negative number in case of a short position.">
@@ -1228,7 +1228,7 @@ enum PositionStatusEnum <"Enumeration to describe the different (risk) states of
 	Cancelled <"The position has been cancelled, in case of a cancellation event following an execution.">
 }
 
-data PortfolioState: <" State-full representation of a Portfolio that describes all the positions held at a given time, in various states which can be either traded, settled, etc., with lineage information to the previous state">
+type PortfolioState: <" State-full representation of a Portfolio that describes all the positions held at a given time, in various states which can be either traded, settled, etc., with lineage information to the previous state">
 	[metadata key]
 	positions Position (0..*) <"The list of positions, each containing a Quantity and a Product.">
 	lineage Lineage (1..1) <"Pointer to the previous PortfolioState and new Event(s) leading to the current (new) state. Previous PortfolioState in the Lineage can be Null in case this is the start of the chain of Events.">
@@ -1239,7 +1239,7 @@ condition PortfolioState_initialisation: <"When the PortfolioState is the starti
 	then PortfolioState -> positions is absent
 	and PortfolioState -> lineage -> eventReference is absent
 
-data AggregationParameters: <" Parameters to be used to filter events that are relevant to a given portfolio in order to calculate the state of this portfolio. The attributes correspond to all the possible aggregation criteria that can be used and these criteria can be combined. All the attributes are optional.">
+type AggregationParameters: <" Parameters to be used to filter events that are relevant to a given portfolio in order to calculate the state of this portfolio. The attributes correspond to all the possible aggregation criteria that can be used and these criteria can be combined. All the attributes are optional.">
 
 	dateTime zonedDateTime (1..1) <"To aggregate as of a particular date">
 	totalPosition boolean (0..1) <"Specifies whether to calculate total position to given date, or only daily position for the given date.">
@@ -1257,7 +1257,7 @@ data AggregationParameters: <" Parameters to be used to filter events that are r
 	// TBD: include the time dimension here to filter relevant events in a given period?
 
 
-data Portfolio: <" A Portfolio represents an aggregation of multiple Positions, by describing the parameters that this Portfolio should be aggregated based on. The resulting PortfolioState is calculated using these aggregation parameters as inputs, by aggregating all the Events that are relevant to this Portfolio. The concept of Portfolio works at all levels in the model: from the highest for a given LegalEntity for instance, to the lowest to account for security substitutions in a secutity financing transaction. As such, Portfolio can be used either above or below the Contract level.">
+type Portfolio: <" A Portfolio represents an aggregation of multiple Positions, by describing the parameters that this Portfolio should be aggregated based on. The resulting PortfolioState is calculated using these aggregation parameters as inputs, by aggregating all the Events that are relevant to this Portfolio. The concept of Portfolio works at all levels in the model: from the highest for a given LegalEntity for instance, to the lowest to account for security substitutions in a secutity financing transaction. As such, Portfolio can be used either above or below the Contract level.">
 
 	aggregationParameters AggregationParameters (1..1) <"Describes the portfolio by describing how to aggregate all its relevant Events.">
 	portfolioState PortfolioState (1..1) <"Describes the state of the Portfolio as a list of Positions resulting from the aggregation.">

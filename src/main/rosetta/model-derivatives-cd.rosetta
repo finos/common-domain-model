@@ -8,7 +8,7 @@ version "${project.version}"
  * - cd-33 as there is a need for date computation by 'adding an integer multiple of the period in paymentFrequency to firstPaymentDate'
  * - cd-38 as there is a need to sum-up a set of values and check that their total = 1
  */
-data AdditionalFixedPayments: <"A class to specify the events that will give rise to the payment additional fixed payments.">
+type AdditionalFixedPayments: <"A class to specify the events that will give rise to the payment additional fixed payments.">
 	[synonym FpML_5_10 value AdditionalFixedPayments]
 	interestShortfallReimbursement boolean (0..1) <"An additional Fixed Payment Event. Corresponds to the payment by or on behalf of the Issuer of an actual interest amount in respect to the reference obligation that is greater than the expected interest amount. ISDA 2003 Term: Interest Shortfall Reimbursement.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value interestShortfallReimbursement]
@@ -17,7 +17,7 @@ data AdditionalFixedPayments: <"A class to specify the events that will give ris
 	writedownReimbursement boolean (0..1) <"An Additional Fixed Payment. Corresponds to the payment by or on behalf of the issuer of an amount in respect to the reference obligation in reduction of the prior writedowns. ISDA 2003 Term: Writedown Reimbursement.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value writedownReimbursement]
 
-data BasketReferenceInformation: <"CDS Basket Reference Information.">
+type BasketReferenceInformation: <"CDS Basket Reference Information.">
 	[synonym FpML_5_10 value BasketReferenceInformation]
 	basketName string (0..1) <"The name of the basket expressed as a free format string. FpML does not define usage rules for this element.">
 		[metadata scheme]
@@ -44,13 +44,13 @@ data BasketReferenceInformation: <"CDS Basket Reference Information.">
 		if (BasketReferenceInformation -> nthToDefault exists and BasketReferenceInformation -> mthToDefault exists)
 		then BasketReferenceInformation -> nthToDefault < BasketReferenceInformation -> mthToDefault
 
-data CalculationAmount extends Money:
+type CalculationAmount extends Money:
 	// TODO Never referenced in CDM
 	[synonym FpML_5_10 value CalculationAmount]
 	step Step (0..*) <"A schedule of step date and value pairs. On each step date the associated step value becomes effective. A list of steps may be ordered in the document by ascending step date. FpML specifies that an FpML document containing an unordered list of steps is still regarded as a conformant document.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value step]
 
-data CashSettlementTerms extends SettlementBase: <"In FpML, PhysicalSettlementTerms and CashSettlementTerms extend SettlementTerms. In the CDM, this extension paradigm has not been used because SettlementTerms class has been used for purposes related to securities transactions, while it is not used as such in the FpML standard (i.e. only as an abstract construct.">
+type CashSettlementTerms extends SettlementBase: <"In FpML, PhysicalSettlementTerms and CashSettlementTerms extend SettlementTerms. In the CDM, this extension paradigm has not been used because SettlementTerms class has been used for purposes related to securities transactions, while it is not used as such in the FpML standard (i.e. only as an abstract construct.">
 	[synonym FpML_5_10 value CashSettlementTerms]
 	valuationDate ValuationDate (0..1) <"The number of business days after conditions to settlement have been satisfied when the calculation agent obtains a price quotation on the Reference Obligation for purposes of cash settlement. There may be one or more valuation dates. This is typically specified if the cash settlement amount is not a fixed amount. ISDA 2003 Term: Valuation Date.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value valuationDate]
@@ -94,7 +94,7 @@ data CashSettlementTerms extends SettlementBase: <"In FpML, PhysicalSettlementTe
 			and CashSettlementTerms -> quotationAmount -> currency = CashSettlementTerms -> minimumQuotationAmout -> currency
 		then CashSettlementTerms -> quotationAmount -> amount > CashSettlementTerms -> minimumQuotationAmout -> amount
 
-data DeliverableObligations: <"A class to specify all the ISDA terms relevant to defining the deliverable obligations.">
+type DeliverableObligations: <"A class to specify all the ISDA terms relevant to defining the deliverable obligations.">
 	[synonym FpML_5_10 value DeliverableObligations]
 	accruedInterest boolean (0..1) <"Indicates whether accrued interest is included (true) or not (false). For cash settlement this specifies whether quotations should be obtained inclusive or not of accrued interest. For physical settlement this specifies whether the buyer should deliver the obligation with an outstanding principal balance that includes or excludes accrued interest. ISDA 2003 Term: Include/Exclude Accrued Interest.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value accruedInterest]
@@ -173,7 +173,7 @@ data DeliverableObligations: <"A class to specify all the ISDA terms relevant to
 			and DeliverableObligations -> transferable is absent
 
 
-data FloatingAmountEvents: <"A class to specify the ISDA terms relating to the floating rate payment events and the implied additional fixed payments, applicable to the credit derivatives transactions on mortgage-backed securities with pay-as-you-go or physical settlement.">
+type FloatingAmountEvents: <"A class to specify the ISDA terms relating to the floating rate payment events and the implied additional fixed payments, applicable to the credit derivatives transactions on mortgage-backed securities with pay-as-you-go or physical settlement.">
 	[synonym FpML_5_10 value FloatingAmountEvents]
 	failureToPayPrincipal boolean (0..1) <"A floating rate payment event. Corresponds to the failure by the Reference Entity to pay an expected principal amount or the payment of an actual principal amount that is less than the expected principal amount. ISDA 2003 Term: Failure to Pay Principal.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value failureToPayPrincipal]
@@ -188,14 +188,14 @@ data FloatingAmountEvents: <"A class to specify the ISDA terms relating to the f
 	additionalFixedPayments AdditionalFixedPayments (0..1) <"Specifies the events that will give rise to the payment additional fixed payments.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value additionalFixedPayments]
 
-data FloatingAmountProvisions:
+type FloatingAmountProvisions:
 	[synonym FpML_5_10 value FloatingAmountProvisions]
 	wacCapInterestProvision boolean (0..1) <"As specified by the ISDA Supplement for use with trades on mortgage-backed securities, 'WAC Cap' means a weighted average coupon or weighted average rate cap provision (however defined in the Underlying Instruments) of the Underlying Instruments that limits, increases or decreases the interest rate or interest entitlement, as set out in the Underlying Instruments on the Effective Date without regard to any subsequent amendment The presence of the element with value set to 'true' signifies that the provision is applicable. From a usage standpoint, this provision is typically applicable in the case of CMBS and not applicable in case of RMBS trades.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value WACCapInterestProvision]
 	stepUpProvision boolean (0..1) <"As specified by the ISDA Standard Terms Supplement for use with trades on mortgage-backed securities. The presence of the element with value set to 'true' signifies that the provision is applicable. If applicable, the applicable step-up terms are specified as part of that ISDA Standard Terms Supplement. From a usage standpoint, this provision is typically applicable in the case of RMBS and not applicable in case of CMBS trades.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value stepUpProvision]
 
-data IndexReferenceInformation:<"A class defining a Credit Default Swap Index.">
+type IndexReferenceInformation:<"A class defining a Credit Default Swap Index.">
 	[metadata key]
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value IndexReferenceInformation meta id]
 	indexName string (0..1)  <"The name of the index expressed as a free format string with an associated scheme.">
@@ -228,7 +228,7 @@ data IndexReferenceInformation:<"A class defining a Credit Default Swap Index.">
 		if IndexReferenceInformation -> indexAnnexVersion exists
 		then IndexReferenceInformation -> indexAnnexVersion >= 0
 
-data InterestShortFall: <"A class to specify the interest shortfall floating rate payment event.">
+type InterestShortFall: <"A class to specify the interest shortfall floating rate payment event.">
 	[synonym FpML_5_10 value InterestShortFall]
 	interestShortfallCap InterestShortfallCapEnum (1..1) <"Specifies the nature of the interest Shortfall cap (i.e. Fixed Cap or Variable Cap) in the case where it is applicable. ISDA 2003 Term: Interest Shortfall Cap.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17, DTCC_11_0, DTCC_9_0 value interestShortfallCap]
@@ -239,12 +239,12 @@ data InterestShortFall: <"A class to specify the interest shortfall floating rat
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value rateSource]
 		[synonym DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value rateSource meta floatingRateIndexScheme]
 
-data LoanParticipation extends PCDeliverableObligationCharac: <"A class to specify loan with a participation agreement whereby the buyer is capable of creating, or procuring the creation of, a contractual right in favour of the seller that provides the seller with recourse to the participation seller for a specified share in any payments due under the relevant loan which are received by the participation seller. ISDA 2003 Term: Direct Loan Participation.">
+type LoanParticipation extends PCDeliverableObligationCharac: <"A class to specify loan with a participation agreement whereby the buyer is capable of creating, or procuring the creation of, a contractual right in favour of the seller that provides the seller with recourse to the participation seller for a specified share in any payments due under the relevant loan which are received by the participation seller. ISDA 2003 Term: Direct Loan Participation.">
 	[synonym FpML_5_10 value LoanParticipation]
 	qualifyingParticipationSeller string (0..1) <"If Direct Loan Participation is specified as a deliverable obligation characteristic, this specifies any requirements for the Qualifying Participation Seller. The requirements may be listed free-form. ISDA 2003 Term: Qualifying Participation Seller.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value qualifyingParticipationSeller]
 
-data MultipleValuationDates extends SingleValuationDate:
+type MultipleValuationDates extends SingleValuationDate:
 	[synonym FpML_5_10 value MultipleValuationDates]
 	businessDaysThereafter int (0..1) <"The number of business days between successive valuation dates when multiple valuation dates are applicable for cash settlement. ISDA 2003 Term: Business Days thereafter.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value businessDaysThereafter]
@@ -259,7 +259,7 @@ data MultipleValuationDates extends SingleValuationDate:
 		if MultipleValuationDates -> numberValuationDates exists
 		then MultipleValuationDates -> numberValuationDates >= 0
 
-data NotDomesticCurrency: <"A class to specify the ISDA 2003 Term: Not Domestic Currency.">
+type NotDomesticCurrency: <"A class to specify the ISDA 2003 Term: Not Domestic Currency.">
 	[synonym FpML_5_10 value NotDomesticCurrency]
 	applicable boolean (1..1) <"Indicates whether the Not Domestic Currency provision is applicable.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value applicable]
@@ -267,7 +267,7 @@ data NotDomesticCurrency: <"A class to specify the ISDA 2003 Term: Not Domestic 
 		[metadata scheme]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value currency meta currencyScheme]
 
-data Obligations: <"A class to specify the underlying obligations of the reference entity on which protection is purchased or sold through the Credit Default Swap.">
+type Obligations: <"A class to specify the underlying obligations of the reference entity on which protection is purchased or sold through the Credit Default Swap.">
 	[synonym FpML_5_10 value Obligations]
 	category ObligationCategoryEnum (1..1) <"Used in both obligations and deliverable obligations to represent a class or type of securities which apply. ISDA 2003 Term: Obligation Category/Deliverable Obligation Category.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value category]
@@ -311,14 +311,14 @@ data Obligations: <"A class to specify the underlying obligations of the referen
 		optional choice
 		fullFaithAndCreditObLiability, generalFundObligationLiability, revenueObligationLiability
 
-data PCDeliverableObligationCharac: <"A class to specify the Partial Cash Deliverable Obligation Characteristic.">
+type PCDeliverableObligationCharac: <"A class to specify the Partial Cash Deliverable Obligation Characteristic.">
 	[synonym FpML_5_10 value PCDeliverableObligationCharac]
 	applicable boolean (1..1) <"Indicates whether the provision is applicable.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value applicable]
 	partialCashSettlement boolean (0..1) <"Specifies whether either 'Partial Cash Settlement of Assignable Loans', 'Partial Cash Settlement of Consent Required Loans' or 'Partial Cash Settlement of Participations' is applicable. If this element is specified and Assignable Loan is a Deliverable Obligation Characteristic, any Assignable Loan that is deliverable, but where a non-receipt of Consent by the Physical Settlement Date has occurred, the Loan can be cash settled rather than physically delivered. If this element is specified and Consent Required Loan is a Deliverable Obligation Characteristic, any Consent Required Loan that is deliverable, but where a non-receipt of Consent by the Physical Settlement Date has occurred, the Loan can be cash settled rather than physically delivered. If this element is specified and Direct Loan Participation is a Deliverable Obligation Characteristic, any Participation that is deliverable, but where this participation has not been effected (has not come into effect) by the Physical Settlement Date, the participation can be cash settled rather than physically delivered.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value partialCashSettlement]
 
-data PhysicalSettlementPeriod:
+type PhysicalSettlementPeriod:
 	[synonym FpML_5_10 value PhysicalSettlementPeriod]
 	businessDaysNotSpecified boolean (0..1) <"An explicit indication that a number of business days are not specified and therefore ISDA fallback provisions should apply.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value businessDaysNotSpecified]
@@ -334,7 +334,7 @@ data PhysicalSettlementPeriod:
 		if PhysicalSettlementPeriod -> maximumBusinessDays exists
 		then PhysicalSettlementPeriod -> maximumBusinessDays >= 0
 
-data PhysicalSettlementTerms extends SettlementBase: <"In FpML, PhysicalSettlementTerms and CashSettlementTerms extend SettlementTerms.  In the CDM, this extension paradigm has not been used because SettlementTerms class has been used for purposes related to securities transactions, while it is not used as such in the FpML standard (i.e. only as an abstract construct.">
+type PhysicalSettlementTerms extends SettlementBase: <"In FpML, PhysicalSettlementTerms and CashSettlementTerms extend SettlementTerms.  In the CDM, this extension paradigm has not been used because SettlementTerms class has been used for purposes related to securities transactions, while it is not used as such in the FpML standard (i.e. only as an abstract construct.">
 	[synonym FpML_5_10 value PhysicalSettlementTerms]
 	physicalSettlementPeriod PhysicalSettlementPeriod (0..1) <"The number of business days used in the determination of the physical settlement date. The physical settlement date is this number of business days after all applicable conditions to settlement are satisfied. If a number of business days is not specified fallback provisions apply for determining the number of business days. If Section 8.5/8.6 of the 1999/2003 ISDA Definitions are to apply the businessDaysNotSpecified element should be included. If a specified number of business days are to apply these should be specified in the businessDays element. If Section 8.5/8.6 of the 1999/2003 ISDA Definitions are to apply but capped at a maximum number of business days then the maximum number should be specified in the maximumBusinessDays element. ISDA 2003 Term: Physical Settlement Period.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value physicalSettlementPeriod]
@@ -345,7 +345,7 @@ data PhysicalSettlementTerms extends SettlementBase: <"In FpML, PhysicalSettleme
 	sixtyBusinessDaySettlementCap boolean (0..1) <"If this element is specified and set to 'true', for a transaction documented under the 2003 ISDA Credit Derivatives Definitions, has the effect of incorporating the language set forth below into the confirmation. The section references are to the 2003 ISDA Credit Derivatives Definitions. Notwithstanding Section 1.7 or any provisions of Sections 9.9 or 9.10 to the contrary, but without prejudice to Section 9.3 and (where applicable) Sections 9.4, 9.5 and 9.6, if the Termination Date has not occurred on or prior to the date that is 60 Business Days following the Physical Settlement Date, such 60th Business Day shall be deemed to be the Termination Date with respect to this Transaction except in relation to any portion of the Transaction (an 'Affected Portion') in respect of which: (1) a valid notice of Buy-in Price has been delivered that is effective fewer than three Business Days prior to such 60th Business Day, in which case the Termination Date for that Affected Portion shall be the third Business Day following the date on which such notice is effective; or (2) Buyer has purchased but not Delivered Deliverable Obligations validly specified by Seller pursuant to Section 9.10(b), in which case the Termination Date for that Affected Portion shall be the tenth Business Day following the date on which Seller validly specified such Deliverable Obligations to Buyer.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value sixtyBusinessDaySettlementCap]
 
-data ProtectionTerms extends PayoutBase: <"A class to specify the terms for calculating a payout to protect the buyer of the swap in the case of a qualified credit event. These terms include the notional amount, the applicable credit events, the reference obligation, and in the case of a CDS on mortgage-backed securities, the floatingAmountEvents.">
+type ProtectionTerms extends PayoutBase: <"A class to specify the terms for calculating a payout to protect the buyer of the swap in the case of a qualified credit event. These terms include the notional amount, the applicable credit events, the reference obligation, and in the case of a CDS on mortgage-backed securities, the floatingAmountEvents.">
 	[metadata key]
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value ProtectionTerms meta id]
 	notionalAmount Money (0..1) <"The notional amount of protection coverage. ISDA 2003 Term: Floating Rate Payer Calculation Amount.">
@@ -358,7 +358,7 @@ data ProtectionTerms extends PayoutBase: <"A class to specify the terms for calc
 	floatingAmountEvents FloatingAmountEvents (0..1) <"This element contains the ISDA terms relating to the floating rate payment events and the implied additional fixed payments, applicable to the credit derivatives transactions on mortgage-backed securities with pay-as-you-go or physical settlement.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value floatingAmountEvents]
 
-data ReferenceInformation: <"A class specifying the Credit Default Swap Reference Information.">
+type ReferenceInformation: <"A class specifying the Credit Default Swap Reference Information.">
 	[synonym FpML_5_10 value ReferenceInformation]
 	referenceEntity LegalEntity (1..1) <"The corporate or sovereign entity which is subject to the swap transaction and any successor that assumes all or substantially all of its contractual and other obligations. Reference Entities cannot be senior or subordinated. It is the obligations of the Reference Entities that can be senior or subordinated. ISDA 2014 Credit definitions article II section 2.1: `Reference Entity` means the entity specified as such in the related Confirmation.">
 	referenceObligation ReferenceObligation (0..*) <"The Reference Obligation is a financial instrument that is either issued or guaranteed by the reference entity. It serves to clarify the precise reference entity protection is being offered upon, and its legal position with regard to other related firms (parents/subsidiaries). Furthermore the Reference Obligation is ALWAYS deliverable and establishes the Pari Passu ranking (as the deliverable bonds must rank equal to the reference obligation). ISDA 2003 Term: Reference Obligation.">
@@ -380,7 +380,7 @@ data ReferenceInformation: <"A class specifying the Credit Default Swap Referenc
 			referenceObligation , noReferenceObligation , unknownReferenceObligation
 
 
-data ReferenceObligation: <"A class to specify the reference obligation that is associated with a credit derivative instrument.">
+type ReferenceObligation: <"A class to specify the reference obligation that is associated with a credit derivative instrument.">
 	[synonym FpML_5_10 value ReferenceObligation]
 	bond Bond (0..1) <"Identifies the underlying asset when it is a series or a class of bonds. As a difference with FpML, the CDM specifies the bond only with this product identifier attribute. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value bond]
@@ -410,7 +410,7 @@ data ReferenceObligation: <"A class to specify the reference obligation that is 
 		primaryObligor , primaryObligorReference
 
 
-data ReferencePair:
+type ReferencePair:
 	[synonym FpML_5_10 value ReferencePair]
 	referenceEntity LegalEntity (1..1) <"The corporate or sovereign entity on which you are buying or selling protection and any successor that assumes all or substantially all of its contractual and other obligations. It is vital to use the correct legal name of the entity and to be careful not to choose a subsidiary if you really want to trade protection on a parent company. Please note, Reference Entities cannot be senior or subordinated. It is the obligations of the Reference Entities that can be senior or subordinated. ISDA 2003 Term: Reference Entity.">
 	referenceObligation ReferenceObligation (0..1) <"The Reference Obligation is a financial instrument that is either issued or guaranteed by the reference entity. It serves to clarify the precise reference entity protection is being offered upon, and its legal position with regard to other related firms (parents/subsidiaries). Furthermore the Reference Obligation is ALWAYS deliverable and establishes the Pari Passu ranking (as the deliverable bonds must rank equal to the reference obligation). ISDA 2003 Term: Reference Obligation.">
@@ -425,7 +425,7 @@ data ReferencePair:
 		referenceObligation, noReferenceObligation
 
 
-data ReferencePool: <"This type contains all the reference pool items to define the reference entity and reference obligation(s) in the basket.">
+type ReferencePool: <"This type contains all the reference pool items to define the reference entity and reference obligation(s) in the basket.">
 	[synonym FpML_5_10 value ReferencePool]
 	referencePoolItem ReferencePoolItem (1..*) <"This type contains all the constituent weight and reference information.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value referencePoolItem]
@@ -439,7 +439,7 @@ data ReferencePool: <"This type contains all the reference pool items to define 
 
 
 
-data ReferencePoolItem: <"This type contains all the constituent weight and reference information.">
+type ReferencePoolItem: <"This type contains all the constituent weight and reference information.">
 	[synonym FpML_5_10 value ReferencePoolItem]
 	constituentWeight ConstituentWeight (0..1) <"Describes the weight of each of the constituents within the basket. If not provided, it is assumed to be equal weighted.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value constituentWeight]
@@ -460,7 +460,7 @@ data ReferencePoolItem: <"This type contains all the constituent weight and refe
 		cashSettlementTermsReference, physicalSettlementTermsReference
 
 
-data SettledEntityMatrix: <"A class to specify the Relevant Settled Entity Matrix.">
+type SettledEntityMatrix: <"A class to specify the Relevant Settled Entity Matrix.">
 	[synonym FpML_5_10 value SettledEntityMatrix]
 	matrixSource SettledEntityMatrixSourceEnum (1..1) <"Relevant settled entity matrix source.">
 		[metadata scheme]
@@ -468,7 +468,7 @@ data SettledEntityMatrix: <"A class to specify the Relevant Settled Entity Matri
 	publicationDate date (0..1) <"Specifies the publication date of the applicable version of the matrix. When this element is omitted, the Standard Terms Supplement defines rules for which version of the matrix is applicable.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value publicationDate]
 
-data SingleValuationDate: <"A class to specify the number of business days after satisfaction of all conditions to settlement.">
+type SingleValuationDate: <"A class to specify the number of business days after satisfaction of all conditions to settlement.">
 	[synonym FpML_5_10 value SingleValuationDate]
 	businessDays int (0..1) <"A number of business days. Its precise meaning is dependant on the context in which this element is used. ISDA 2003 Term: Business Day.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value businessDays]
@@ -477,7 +477,7 @@ data SingleValuationDate: <"A class to specify the number of business days after
 		then SingleValuationDate -> businessDays >= 0
 
 
-data SpecifiedCurrency:
+type SpecifiedCurrency:
 	[synonym FpML_5_10 value SpecifiedCurrency]
 	applicable boolean (1..1) <"Indicates whether the specified currency provision is applicable.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value applicable]
@@ -485,7 +485,7 @@ data SpecifiedCurrency:
 		[metadata scheme]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value currency meta currencyScheme]
 
-data Tranche: <"The class to represent a CDS Tranche.">
+type Tranche: <"The class to represent a CDS Tranche.">
 	[synonym FpML_5_10 value Tranche]
 	attachmentPoint number (1..1) <"Lower bound percentage of the loss that the Tranche can endure, expressed as a decimal. An attachment point of 5% would be represented as 0.05. The difference between Attachment and Exhaustion points is called the width of the Tranche.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value attachmentPoint]
@@ -506,7 +506,7 @@ data Tranche: <"The class to represent a CDS Tranche.">
 		then Tranche -> attachmentPoint <= Tranche -> exhaustionPoint
 
 
-data ValuationDate:
+type ValuationDate:
 	[synonym FpML_5_10 value ValuationDate]
 	singleValuationDate SingleValuationDate (0..1) <"Where single valuation date is specified as being applicable for cash settlement, this element specifies the number of business days after satisfaction of all conditions to settlement when such valuation date occurs. ISDA 2003 Term: Single Valuation Date.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value singleValuationDate]

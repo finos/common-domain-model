@@ -13,7 +13,7 @@ version "${project.version}"
  * ird-47 -> the rule suggest to have a dateRelativeTo which is equal to an Id associated with the type of option exercise, which contains a set of dates (and other attributes)
  * ird-50, ird-51, ird-52, ird-53, ird-54 -> vagueness as to how to ensure that the dates in the notionalStepSchedule, the fixedRateSchedule, etc. are unadjusted in the schedule implied by the calculationPeriodDates
  */
-data BondReference:  <"Reference to a bond underlier to represent an asset swap or Condition Precedent Bond.">
+type BondReference:  <"Reference to a bond underlier to represent an asset swap or Condition Precedent Bond.">
 	[synonym FpML_5_10 value BondReference]
 
 	bond ProductIdentifier (1..1) <"Reference to a bond underlier.">
@@ -24,7 +24,7 @@ data BondReference:  <"Reference to a bond underlier to represent an asset swap 
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value discrepancyClause]
 
 
-data CalculationPeriodBase:  <"The calculation period adjusted start and end dates, which are the baseline arguments needed to compute an interest accrual calculation.">
+type CalculationPeriodBase:  <"The calculation period adjusted start and end dates, which are the baseline arguments needed to compute an interest accrual calculation.">
 	[metadata key]
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 
@@ -34,7 +34,7 @@ data CalculationPeriodBase:  <"The calculation period adjusted start and end dat
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value adjustedEndDate]
 
 
-data CalculationPeriod extends CalculationPeriodBase:  <"A data defining:  the parameters used in the calculation of a fixed or floating rate calculation period amount. This data forms:  part of cashflows representation of a swap stream.">
+type CalculationPeriod extends CalculationPeriodBase:  <"A data defining:  the parameters used in the calculation of a fixed or floating rate calculation period amount. This data forms:  part of cashflows representation of a swap stream.">
 	[synonym FpML_5_10 value CalculationPeriod]
 
 	unadjustedStartDate date (0..1) <"The calculation start date, unadjusted.">
@@ -75,7 +75,7 @@ data CalculationPeriod extends CalculationPeriodBase:  <"A data defining:  the p
 		required choice
 		adjustedEndDate, unadjustedEndDate
 
-data CalculationPeriodDates:  <"A data for:  defining the parameters used to generate the calculation period dates schedule, including the specification of any initial or final stub calculation periods. A calculation period schedule consists of an optional initial stub calculation period, one or more regular calculation periods and an optional final stub calculation period. In the absence of any initial or final stub calculation periods, the regular part of the calculation period schedule is assumed to be between the effective date and the termination date. No implicit stubs are allowed, i.e. stubs must be explicitly specified using an appropriate combination of firstPeriodStartDate, firstRegularPeriodStartDate and lastRegularPeriodEndDate.">
+type CalculationPeriodDates:  <"A data for:  defining the parameters used to generate the calculation period dates schedule, including the specification of any initial or final stub calculation periods. A calculation period schedule consists of an optional initial stub calculation period, one or more regular calculation periods and an optional final stub calculation period. In the absence of any initial or final stub calculation periods, the regular part of the calculation period schedule is assumed to be between the effective date and the termination date. No implicit stubs are allowed, i.e. stubs must be explicitly specified using an appropriate combination of firstPeriodStartDate, firstRegularPeriodStartDate and lastRegularPeriodEndDate.">
 	[metadata key]
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id path "calculationPeriodDates"]
 	[synonym FpML_5_10 meta id path "interestLegCalculationPeriodDates"]
@@ -143,7 +143,7 @@ data CalculationPeriodDates:  <"A data for:  defining the parameters used to gen
 			and CalculationPeriodDates -> firstRegularPeriodStartDate exists
 		then CalculationPeriodDates -> firstPeriodStartDate -> unadjustedDate < CalculationPeriodDates -> firstRegularPeriodStartDate
 
-data CancelableProvision extends BuyerSeller:  <"A data defining:  the right of a party to cancel a swap transaction on the specified exercise dates. The provision is for 'walk-away' cancellation (i.e. the fair value of the swap is not paid). A fee payable on exercise can be specified. As a difference from the FpML construct, the canonical model extends the BuyerSeller class.">
+type CancelableProvision extends BuyerSeller:  <"A data defining:  the right of a party to cancel a swap transaction on the specified exercise dates. The provision is for 'walk-away' cancellation (i.e. the fair value of the swap is not paid). A fee payable on exercise can be specified. As a difference from the FpML construct, the canonical model extends the BuyerSeller class.">
 	[synonym FpML_5_10 value CancelableProvision]
 
 	americanExercise AmericanExercise (0..1) <"American exercise. FpML implementations consists in an exercise substitution group.">
@@ -168,14 +168,14 @@ data CancelableProvision extends BuyerSeller:  <"A data defining:  the right of 
 		required choice
 			americanExercise, bermudaExercise, europeanExercise
 
-data CancelableProvisionAdjustedDates:  <"A data to:  define the adjusted dates for a cancelable provision on a swap transaction.">
+type CancelableProvisionAdjustedDates:  <"A data to:  define the adjusted dates for a cancelable provision on a swap transaction.">
 	[synonym FpML_5_10 value CancelableProvisionAdjustedDates]
 
 	cancellationEvent CancellationEvent (1..*) <"The adjusted dates for an individual cancellation date.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value cancellationEvent]
 
 
-data CancellationEvent: <"The adjusted dates for a specific cancellation date, including the adjusted exercise date and adjusted termination date.">
+type CancellationEvent: <"The adjusted dates for a specific cancellation date, including the adjusted exercise date and adjusted termination date.">
 	[metadata key]
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 
@@ -185,7 +185,7 @@ data CancellationEvent: <"The adjusted dates for a specific cancellation date, i
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value adjustedEarlyTerminationDate]
 
 
-data CashflowRepresentation:  <"A data defining:  the cashflow representation of a swap trade.">
+type CashflowRepresentation:  <"A data defining:  the cashflow representation of a swap trade.">
 	[synonym FpML_5_10 value Cashflows]
 
 	cashflowsMatchParameters boolean (1..1) <"A true/false flag to indicate whether the cashflows match the parametric definition of the stream, i.e. whether the cashflows could be regenerated from the parameters without loss of information.">
@@ -196,7 +196,7 @@ data CashflowRepresentation:  <"A data defining:  the cashflow representation of
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentCalculationPeriod]
 
 
-data CashPriceMethod:  <"A type defining the parameters necessary for each of the ISDA cash price methods for cash settlement.">
+type CashPriceMethod:  <"A type defining the parameters necessary for each of the ISDA cash price methods for cash settlement.">
 	[synonym FpML_5_10 value businessDateRange]
 
 	cashSettlementReferenceBanks CashSettlementReferenceBanks (0..1) <"A container for a set of reference institutions. These reference institutions may be called upon to provide rate quotations as part of the method to determine the applicable cash settlement amount. If institutions are not specified, it is assumed that reference institutions will be agreed between the parties on the exercise date, or in the case of swap transaction to which mandatory early termination is applicable, the cash settlement valuation date.">
@@ -208,7 +208,7 @@ data CashPriceMethod:  <"A type defining the parameters necessary for each of th
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value quotationRateType]
 
 
-data CashSettlementPaymentDate:  <"A data defining:  the cash settlement payment date(s) as either a set of explicit dates, together with applicable adjustments, or as a date relative to some other (anchor) date, or as any date in a range of contiguous business days.">
+type CashSettlementPaymentDate:  <"A data defining:  the cash settlement payment date(s) as either a set of explicit dates, together with applicable adjustments, or as a date relative to some other (anchor) date, or as any date in a range of contiguous business days.">
 	[metadata key]
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 
@@ -224,7 +224,7 @@ data CashSettlementPaymentDate:  <"A data defining:  the cash settlement payment
 		required choice
 		adjustableDates, relativeDate, businessDateRange
 
-data CrossCurrencyMethod:  <"A data to:  represent the cash settlement method defined in the 2006 ISDA Definitions, Section 18.3. Cash Settlement Methods, paragraph (g) (published in Supplement number 28).">
+type CrossCurrencyMethod:  <"A data to:  represent the cash settlement method defined in the 2006 ISDA Definitions, Section 18.3. Cash Settlement Methods, paragraph (g) (published in Supplement number 28).">
 	[synonym FpML_5_10 value CrossCurrencyMethod]
 
 	cashSettlementReferenceBanks CashSettlementReferenceBanks (0..*) <"A container for a set of institutions that may be called upon to provide rate quotations as part of the method to determine the applicable cash settlement amount. If institutions are not specified, it is assumed that reference institutions will be agreed between the parties on the exercise date, or in the case of swap transaction to which mandatory early termination is applicable, the cash settlement valuation date.">
@@ -236,7 +236,7 @@ data CrossCurrencyMethod:  <"A data to:  represent the cash settlement method de
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value quotationRateType]
 
 
-data DateRelativeToCalculationPeriodDates:  <"A data to:  provide the ability to point to multiple payment nodes in the document through the unbounded paymentDatesReference.">
+type DateRelativeToCalculationPeriodDates:  <"A data to:  provide the ability to point to multiple payment nodes in the document through the unbounded paymentDatesReference.">
 	[synonym FpML_5_10 value DateRelativeToCalculationPeriodDates]
 
 	calculationPeriodDatesReference CalculationPeriodDates (1..*) <"A set of href pointers to calculation period dates defined somewhere else in the document.">
@@ -244,7 +244,7 @@ data DateRelativeToCalculationPeriodDates:  <"A data to:  provide the ability to
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value calculationPeriodDatesReference meta href]
 
 
-data DateRelativeToPaymentDates:  <"A data to:  provide the ability to point to multiple payment nodes in the document through the unbounded paymentDatesReference.">
+type DateRelativeToPaymentDates:  <"A data to:  provide the ability to point to multiple payment nodes in the document through the unbounded paymentDatesReference.">
 	[synonym FpML_5_10 value DateRelativeToPaymentDates]
 
 	paymentDatesReference PaymentDates (1..*) <"A set of href pointers to payment dates defined somewhere else in the document.">
@@ -252,7 +252,7 @@ data DateRelativeToPaymentDates:  <"A data to:  provide the ability to point to 
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentDatesReference meta href]
 
 
-data DiscountingMethod:  <"A data defining:  discounting information. The 2000 ISDA definitions, section 8.4. discounting (related to the calculation of a discounted fixed amount or floating amount) apply. This type must only be included if discounting applies.">
+type DiscountingMethod:  <"A data defining:  discounting information. The 2000 ISDA definitions, section 8.4. discounting (related to the calculation of a discounted fixed amount or floating amount) apply. This type must only be included if discounting applies.">
 	[synonym FpML_5_10 value Discounting]
 
 	discountingType DiscountingTypeEnum (1..1) <"The discounting method that is applicable.">
@@ -269,7 +269,7 @@ condition Discounting_discountRate: <"In FpML discountingRate and discountRateDa
 	if DiscountingMethod -> discountRateDayCountFraction exists
 	then DiscountingMethod -> discountRate exists
 
-data EarlyTerminationEvent: <"A data to:  define the adjusted dates associated with an early termination provision.">
+type EarlyTerminationEvent: <"A data to:  define the adjusted dates associated with an early termination provision.">
 	[metadata key]
 	[synonym FpML_5_10 value EarlyTerminationEvent]
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
@@ -299,7 +299,7 @@ condition FpML_ird_41: <"FpML validation rule ird-41 - AdjustedCashSettlementVal
 	if EarlyTerminationEvent exists
 	then EarlyTerminationEvent -> adjustedCashSettlementValuationDate <= EarlyTerminationEvent -> adjustedCashSettlementPaymentDate
 
-data EarlyTerminationProvision: <"A data defining:  an early termination provision for a swap. This early termination is at fair value, i.e. on termination the fair value of the product must be settled between the parties.">
+type EarlyTerminationProvision: <"A data defining:  an early termination provision for a swap. This early termination is at fair value, i.e. on termination the fair value of the product must be settled between the parties.">
 	[metadata key]
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 
@@ -316,7 +316,7 @@ data EarlyTerminationProvision: <"A data defining:  an early termination provisi
 		then (EarlyTerminationProvision -> mandatoryEarlyTermination or EarlyTerminationProvision -> optionalEarlyTermination) exists
 			or (EarlyTerminationProvision -> mandatoryEarlyTermination and EarlyTerminationProvision -> optionalEarlyTermination) exists
 
-data ExerciseEvent: <"A data defining:  the adjusted dates associated with a particular exercise event.">
+type ExerciseEvent: <"A data defining:  the adjusted dates associated with a particular exercise event.">
 	[metadata key]
 	// TODO Never referenced in CDM
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
@@ -333,7 +333,7 @@ data ExerciseEvent: <"A data defining:  the adjusted dates associated with a par
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value adjustedExerciseFeePaymentDate]
 
 
-data ExercisePeriod: <"This defines the time interval to the start of the exercise period, i.e. the earliest exercise date, and the frequency of subsequent exercise dates (if any).">
+type ExercisePeriod: <"This defines the time interval to the start of the exercise period, i.e. the earliest exercise date, and the frequency of subsequent exercise dates (if any).">
 	[metadata key]
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value ExercisePeriod meta id]
 
@@ -343,7 +343,7 @@ data ExercisePeriod: <"This defines the time interval to the start of the exerci
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value exerciseFrequency]
 
 
-data ExtendibleProvision extends BuyerSeller: <"A data defining:  an option to extend an existing swap transaction on the specified exercise dates for a term ending on the specified new termination date. As a difference from FpML, it extends the BuyerSeller class, which represents the BuyerSeller.model.">
+type ExtendibleProvision extends BuyerSeller: <"A data defining:  an option to extend an existing swap transaction on the specified exercise dates for a term ending on the specified new termination date. As a difference from FpML, it extends the BuyerSeller class, which represents the BuyerSeller.model.">
 	[synonym FpML_5_10 value ExtendibleProvision]
 
 	americanExercise AmericanExercise (0..1) <"American exercise. FpML implementations consists in an exercise substitution group.">
@@ -362,14 +362,14 @@ data ExtendibleProvision extends BuyerSeller: <"A data defining:  an option to e
 		required choice
 			americanExercise, bermudaExercise, europeanExercise
 
-data ExtendibleProvisionAdjustedDates:  <"A data defining:  the adjusted dates associated with a provision to extend a swap.">
+type ExtendibleProvisionAdjustedDates:  <"A data defining:  the adjusted dates associated with a provision to extend a swap.">
 	[synonym FpML_5_10 value ExtendibleProvisionAdjustedDates]
 
 	extensionEvent ExtensionEvent (1..*) <"The adjusted dates associated with a single extendible exercise date.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value extensionEvent]
 
 
-data ExtensionEvent: <"A data to:  define the adjusted dates associated with an individual extension event.">
+type ExtensionEvent: <"A data to:  define the adjusted dates associated with an individual extension event.">
 	[metadata key]
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value ExtensionEvent meta id]
 
@@ -383,7 +383,7 @@ condition FpML_ird_42: <"FpML validation rule ird-42 - adjustedExerciseDate must
 	if ExtensionEvent exists
 	then ExtensionEvent -> adjustedExerciseDate < ExtensionEvent -> adjustedExtendedTerminationDate
 
-data FallbackReferencePrice:  <"The method, prioritised by the order it is listed in this element, to get a replacement rate for the disrupted settlement rate option.">
+type FallbackReferencePrice:  <"The method, prioritised by the order it is listed in this element, to get a replacement rate for the disrupted settlement rate option.">
 	[synonym FpML_5_10 value FallbackReferencePrice]
 
 	valuationPostponement ValuationPostponement (0..1) <"Specifies how long to wait to get a quote from a settlement rate option upon a price source disruption.">
@@ -399,7 +399,7 @@ data FallbackReferencePrice:  <"The method, prioritised by the order it is liste
 		if FallbackReferencePrice -> valuationPostponement exists
 		then FallbackReferencePrice -> valuationPostponement -> maximumDaysOfPostponement > 0
 
-data FinalCalculationPeriodDateAdjustment:  <"A data to:  define business date convention adjustment to final payment period per leg.">
+type FinalCalculationPeriodDateAdjustment:  <"A data to:  define business date convention adjustment to final payment period per leg.">
 	[synonym FpML_5_10 value FinalCalculationPeriodDateAdjustment]
 
 	relevantUnderlyingDateReference AdjustableOrRelativeDates (1..1) <"Reference to the unadjusted cancellation effective dates.">
@@ -412,7 +412,7 @@ data FinalCalculationPeriodDateAdjustment:  <"A data to:  define business date c
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value businessDayConvention]
 
 
-data FloatingRateDefinition:  <"A data defining:  parameters associated with a floating rate reset. This data forms:  part of the cashflows representation of a stream.">
+type FloatingRateDefinition:  <"A data defining:  parameters associated with a floating rate reset. This data forms:  part of the cashflows representation of a stream.">
 	[synonym FpML_5_10 value FloatingRateDefinition]
 
 	calculatedRate number (0..1) <"The final calculated rate for a calculation period after any required averaging of rates A calculated rate of 5% would be represented as 0.05.">
@@ -433,7 +433,7 @@ condition FloatingRateDefinition_FloatingRateMultiplier: <"FpML specifies that t
 	if FloatingRateDefinition -> floatingRateMultiplier exists
 	then FloatingRateDefinition -> floatingRateMultiplier <> 1
 
-data FxFixingDate extends Offset: <"A data that:  is extending the Offset structure for providing the ability to specify an FX fixing date as an offset to dates specified somewhere else in the document.">
+type FxFixingDate extends Offset: <"A data that:  is extending the Offset structure for providing the ability to specify an FX fixing date as an offset to dates specified somewhere else in the document.">
 	[synonym FpML_5_10 value FxFixingDate]
 
 	businessDayConvention BusinessDayConventionEnum (1..1) <"The convention for adjusting a date if it would otherwise fall on a day that is not a business day, as specified by an ISDA convention (e.g. Following, Precedent).">
@@ -456,7 +456,7 @@ data FxFixingDate extends Offset: <"A data that:  is extending the Offset struct
 		required choice
 		dateRelativeToPaymentDates, dateRelativeToCalculationPeriodDates
 
-data FxLinkedNotionalAmount:  <"A data to:  describe the cashflow representation for FX linked notionals.">
+type FxLinkedNotionalAmount:  <"A data to:  describe the cashflow representation for FX linked notionals.">
 	[synonym FpML_5_10 value FxLinkedNotionalAmount]
 
 	resetDate date (0..1) <"The reset date.">
@@ -469,7 +469,7 @@ data FxLinkedNotionalAmount:  <"A data to:  describe the cashflow representation
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notionalAmount]
 
 
-data FxLinkedNotionalSchedule:  <"A data to:  describe a notional schedule where each notional that applies to a calculation period is calculated with reference to a notional amount or notional amount schedule in a different currency by means of a spot currency exchange rate which is normally observed at the beginning of each period.">
+type FxLinkedNotionalSchedule:  <"A data to:  describe a notional schedule where each notional that applies to a calculation period is calculated with reference to a notional amount or notional amount schedule in a different currency by means of a spot currency exchange rate which is normally observed at the beginning of each period.">
 	[synonym FpML_5_10 value FxLinkedNotionalSchedule path "fxLinkedNotionalSchedule"]
 
 	constantNotionalScheduleReference NotionalSchedule (1..1) <"A pointer style reference to the associated constant notional schedule defined elsewhere in the document which contains the currency amounts which will be converted into the varying notional currency amounts using the spot currency exchange rate.">
@@ -488,7 +488,7 @@ data FxLinkedNotionalSchedule:  <"A data to:  describe a notional schedule where
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value varyingNotionalInterimExchangePaymentDates]
 
 
-data InflationRateSpecification extends FloatingRateSpecification: <"A data to:  specify the inflation rate.">
+type InflationRateSpecification extends FloatingRateSpecification: <"A data to:  specify the inflation rate.">
 	[synonym FpML_5_10 value InflationRateCalculation]
 	[synonym ISO20022 value InfltnIndx]
 
@@ -509,7 +509,7 @@ data InflationRateSpecification extends FloatingRateSpecification: <"A data to: 
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value fallbackBondApplicable]
 
 
-data MandatoryEarlyTermination: <"A data to:  define an early termination provision for which exercise is mandatory.">
+type MandatoryEarlyTermination: <"A data to:  define an early termination provision for which exercise is mandatory.">
 	[metadata key]
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value MandatoryEarlyTermination meta id]
 
@@ -527,7 +527,7 @@ condition FpML_ird_27: <"FpML validation rule ird-27 - cashSettlement/cashSettle
 	if MandatoryEarlyTermination -> cashSettlement exists
 	then MandatoryEarlyTermination -> cashSettlement -> cashSettlementPaymentDate is absent
 
-data MandatoryEarlyTerminationAdjustedDates:  <"A data defining:  the adjusted dates associated with a mandatory early termination provision.">
+type MandatoryEarlyTerminationAdjustedDates:  <"A data defining:  the adjusted dates associated with a mandatory early termination provision.">
 	[synonym FpML_5_10 value MandatoryEarlyTerminationAdjustedDates]
 
 	adjustedEarlyTerminationDate date (1..1) <"The early termination date that is applicable if an early termination provision is exercised. This date should already be adjusted for any applicable business day convention.">
@@ -543,7 +543,7 @@ data MandatoryEarlyTerminationAdjustedDates:  <"A data defining:  the adjusted d
 		then MandatoryEarlyTerminationAdjustedDates -> adjustedEarlyTerminationDate <= MandatoryEarlyTerminationAdjustedDates -> adjustedCashSettlementValuationDate
 			and MandatoryEarlyTerminationAdjustedDates -> adjustedCashSettlementValuationDate <= MandatoryEarlyTerminationAdjustedDates -> adjustedCashSettlementPaymentDate
 
-data NonDeliverableSettlement:  <"A data defining:  the parameters used when the reference currency of the payout is non-deliverable.">
+type NonDeliverableSettlement:  <"A data defining:  the parameters used when the reference currency of the payout is non-deliverable.">
 	[synonym FpML_5_10 value NonDeliverableSettlement]
 
 	referenceCurrency string (1..1) <"The currency in which the swap stream is denominated, which is distinct from the currency in which the cashflows will be settled. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
@@ -564,7 +564,7 @@ data NonDeliverableSettlement:  <"A data defining:  the parameters used when the
 		required choice
 		fxFixingDate , fxFixingSchedule
 
-data NotionalStepRule:  <"A data defining:  a parametric representation for the notional step schedule, i.e. parameters used to generate the notional amount on each step date. This parametric representation is intended to cover the more common amortizing/accreting variations of swaps.">
+type NotionalStepRule:  <"A data defining:  a parametric representation for the notional step schedule, i.e. parameters used to generate the notional amount on each step date. This parametric representation is intended to cover the more common amortizing/accreting variations of swaps.">
 	[synonym FpML_5_10 value NotionalStepRule]
 
 	calculationPeriodDatesReference CalculationPeriodDates (1..1) <"A pointer style reference to the associated calculation period dates component defined elsewhere in the document.">
@@ -594,7 +594,7 @@ data NotionalStepRule:  <"A data defining:  a parametric representation for the 
 		then NotionalStepRule -> notionalStepRate exists
 			and NotionalStepRule -> stepRelativeTo exists
 
-data OptionalEarlyTermination:  <"A data defining:  an early termination provision where either or both parties have the right to exercise.">
+type OptionalEarlyTermination:  <"A data defining:  an early termination provision where either or both parties have the right to exercise.">
 	[synonym FpML_5_10 value OptionalEarlyTermination]
 
 	singlePartyOption BuyerSeller (0..1) <"If optional early termination is not available to both parties then this component specifies the buyer and seller of the option. In FpML, this attribute is of type SinglePsrtyOption, which actually consists of the BuyerSeller.model.">
@@ -621,14 +621,14 @@ condition OptionalEarlyTermination_choice: <"condition to represent an FpML choi
 	required choice
 		americanExercise, bermudaExercise, europeanExercise
 
-data OptionalEarlyTerminationAdjustedDates:  <"A data defining:  the adjusted dates associated with an optional early termination provision.">
+type OptionalEarlyTerminationAdjustedDates:  <"A data defining:  the adjusted dates associated with an optional early termination provision.">
 	[synonym FpML_5_10 value OptionalEarlyTerminationAdjustedDates]
 
 	earlyTerminationEvent EarlyTerminationEvent (1..*) <"The adjusted dates associated with an individual early termination date.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value earlyTerminationEvent]
 
 
-data OptionCashSettlement: <"A data to:  define the cash settlement terms for a product where cash settlement is applicable.">
+type OptionCashSettlement: <"A data to:  define the cash settlement terms for a product where cash settlement is applicable.">
 	[metadata key]
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value CashSettlement meta id]
 
@@ -659,7 +659,7 @@ condition OptionCashSettlement_choice: <"condition to represent an FpML choice c
 	cashPriceMethod, cashPriceAlternateMethod, parYieldCurveAdjustedMethod, zeroCouponYieldAdjustedMethod
 	, parYieldCurveUnadjustedMethod, crossCurrencyMethod, collateralizedCashPriceMethod
 
-data PaymentCalculationPeriod: <"A data defining:  the adjusted payment date and associated calculation period parameters required to calculate the actual or projected payment amount. This data forms:  part of the cashflow representation of a swap stream.">
+type PaymentCalculationPeriod: <"A data defining:  the adjusted payment date and associated calculation period parameters required to calculate the actual or projected payment amount. This data forms:  part of the cashflow representation of a swap stream.">
 	[metadata key]
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value PaymentCalculationPeriod meta id]
 
@@ -690,14 +690,14 @@ condition FpML_ird_34: <"FpML validation rule ird-34 - Either unadjustedPaymentD
 	then PaymentCalculationPeriod -> unadjustedPaymentDate exists
 		or PaymentCalculationPeriod -> adjustedPaymentDate exists
 
-data PriceSourceDisruption:  <"A data defining:  the parameters used to get a price quote to replace the settlement rate option that is disrupted.">
+type PriceSourceDisruption:  <"A data defining:  the parameters used to get a price quote to replace the settlement rate option that is disrupted.">
 	[synonym FpML_5_10 value PriceSourceDisruption]
 
 	fallbackReferencePrice FallbackReferencePrice (1..1) <"The method, prioritised by the order it is listed in this element, to get a replacement rate for the disrupted settlement rate option.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value fallbackReferencePrice]
 
 
-data PrincipalExchange: <"A data for:  defining a principal exchange amount and adjusted exchange date. This data forms:  part of the cashflow representation of a swap stream.">
+type PrincipalExchange: <"A data for:  defining a principal exchange amount and adjusted exchange date. This data forms:  part of the cashflow representation of a swap stream.">
 	[metadata key]
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value PrincipalExchange meta id]
 
@@ -713,7 +713,7 @@ data PrincipalExchange: <"A data for:  defining a principal exchange amount and 
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value presentValuePrincipalExchangeAmount]
 
 
-data ResetDates: <"A data defining:  the parameters used to generate the reset dates schedule and associated fixing dates. The reset dates are the dates on which the new index value (which is observed on the fixing date) is applied for each period and on which the interest rate hence begins to accrue.">
+type ResetDates: <"A data defining:  the parameters used to generate the reset dates schedule and associated fixing dates. The reset dates are the dates on which the new index value (which is observed on the fixing date) is applied for each period and on which the interest rate hence begins to accrue.">
 	[metadata key]
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value ResetDates meta id path "resetDates"]
 
@@ -750,7 +750,7 @@ data ResetDates: <"A data defining:  the parameters used to generate the reset d
 		if ResetDates -> resetFrequency -> period <> PeriodExtendedEnum.W
 		then ResetDates -> resetFrequency -> weeklyRollConvention is absent
 
-data SettlementProvision:  <"A data defining:  the specification of settlement terms, occurring when the settlement currency is different to the notional currency of the trade.">
+type SettlementProvision:  <"A data defining:  the specification of settlement terms, occurring when the settlement currency is different to the notional currency of the trade.">
 	[synonym FpML_5_10 value SettlementProvision]
 
 	settlementCurrency string (1..1) <"The currency that the payout are settled in when the currency in which the payout is specified is non-deliverable. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
@@ -760,7 +760,7 @@ data SettlementProvision:  <"A data defining:  the specification of settlement t
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value nonDeliverableSettlement]
 
 
-data StubCalculationPeriodAmount:  <"A data defining:  how the initial or final stub calculation period amounts is calculated. For example, the rate to be applied to the initial or final stub calculation period may be the linear interpolation of two different tenors for the floating rate index specified in the calculation period amount component, e.g. A two month stub period may used the linear interpolation of a one month and three month floating rate. The different rate tenors would be specified in this component. Note that a maximum of two rate tenors can be specified. If a stub period uses a single index tenor and this is the same as that specified in the calculation period amount component then the initial stub or final stub component, as the case may be, must not be included.">
+type StubCalculationPeriodAmount:  <"A data defining:  how the initial or final stub calculation period amounts is calculated. For example, the rate to be applied to the initial or final stub calculation period may be the linear interpolation of two different tenors for the floating rate index specified in the calculation period amount component, e.g. A two month stub period may used the linear interpolation of a one month and three month floating rate. The different rate tenors would be specified in this component. Note that a maximum of two rate tenors can be specified. If a stub period uses a single index tenor and this is the same as that specified in the calculation period amount component then the initial stub or final stub component, as the case may be, must not be included.">
 	// TODO Never referenced in CDM
 	[synonym FpML_5_10 value StubCalculationPeriodAmount]
 
@@ -773,14 +773,14 @@ data StubCalculationPeriodAmount:  <"A data defining:  how the initial or final 
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value finalStub]
 
 
-data ValuationPostponement:  <"Specifies how long to wait to get a quote from a settlement rate option upon a price source disruption.">
+type ValuationPostponement:  <"Specifies how long to wait to get a quote from a settlement rate option upon a price source disruption.">
 	[synonym FpML_5_10 value ValuationPostponement]
 
 	maximumDaysOfPostponement int (1..1) <"The maximum number of days to wait for a quote from the disrupted settlement rate option before proceeding to the next method.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value maximumDaysOfPostponement]
 
 
-data YieldCurveMethod:  <"A data defining:  the parameters required for each of the ISDA defined yield curve methods for cash settlement.">
+type YieldCurveMethod:  <"A data defining:  the parameters required for each of the ISDA defined yield curve methods for cash settlement.">
 	[synonym FpML_5_10 value YieldCurveMethod]
 
 	settlementRateSource SettlementRateSource (0..1) <"The method for obtaining a settlement rate. This may be from some information source (e.g. Reuters) or from a set of reference banks.">
