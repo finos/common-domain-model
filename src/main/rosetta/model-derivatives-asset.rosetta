@@ -1,7 +1,7 @@
 namespace "org.isda.cdm"
 version "${project.version}"
 
-data ActualPrice:
+type ActualPrice:
 	[synonym FpML_5_10 value ActualPrice]
 	currency string (0..1) <"Specifies the currency associated with the net price. This element is not present if the price is expressed in percentage terms (as specified through the priceExpression element).">
 		[metadata scheme]
@@ -14,7 +14,7 @@ data ActualPrice:
 		if  ActualPrice -> priceExpression = PriceExpressionEnum.PercentageOfNotional
 		then ActualPrice -> currency is absent
 
-data AssetPool: <"Characterizes the asset pool behind an asset backed bond.">
+type AssetPool: <"Characterizes the asset pool behind an asset backed bond.">
 	[synonym FpML_5_10 value AssetPool]
 	version string (0..1) <"The asset pool version.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value version]
@@ -31,18 +31,18 @@ data AssetPool: <"Characterizes the asset pool behind an asset backed bond.">
 /*
  * This class needs to be further developed.  When doing this, we should look to develop commonality with the credit basket representation
  */
-data Basket:
+type Basket:
 	[synonym FpML_5_10 value Basket]
 
-data Bond extends IdentifiedProduct: <"A class to specify a bond as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
+type Bond extends IdentifiedProduct: <"A class to specify a bond as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
 
 /*
  * Placeholder, that will need to be populated
  */
-data Commodity: <"A class to specify a commodity asset.">
+type Commodity: <"A class to specify a commodity asset.">
 	[synonym FpML_5_10 value Commodity]
 
-data CommoditySet:
+type CommoditySet:
 	// TODO Never referenced in CDM
 	commodity Commodity (1..1)
 	quantity number (1..1)
@@ -50,7 +50,7 @@ data CommoditySet:
 		[synonym Rosetta_Workbench value unit]
 	timeUnit TimeUnitEnum (0..1)
 
-data ConstituentWeight: <"A class describing the weight of each of the underlier constituent within the basket, either in absolute or relative terms.">
+type ConstituentWeight: <"A class describing the weight of each of the underlier constituent within the basket, either in absolute or relative terms.">
 	[synonym FpML_5_10 value ConstituentWeight]
 	openUnits number (0..1) <"The number of units (index or securities) that constitute the underlier of the swap. In the case of a basket swap, this element is used to reference both the number of basket units, and the number of each asset components of the basket when these are expressed in absolute terms.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value openUnits]
@@ -60,9 +60,9 @@ data ConstituentWeight: <"A class describing the weight of each of the underlier
 		if ConstituentWeight -> basketPercentage exists
 		then ConstituentWeight -> basketPercentage >= 0.0 and ConstituentWeight -> basketPercentage <= 1.0
 	
-data ConvertibleBond extends IdentifiedProduct: <"A class to specify a convertible bond as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
+type ConvertibleBond extends IdentifiedProduct: <"A class to specify a convertible bond as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
 
-data DividendPayout: <"A class describing the dividend payout ratio associated with an equity underlier. In certain cases the actual ratio is not known on trade inception, and only general conditions are then specified.">
+type DividendPayout: <"A class describing the dividend payout ratio associated with an equity underlier. In certain cases the actual ratio is not known on trade inception, and only general conditions are then specified.">
 	[synonym FpML_5_10 value DividendPayout]
 	dividendPayoutRatio number (1..1) <"Specifies the total actual dividend payout ratio associated with the equity underlier. A ratio of 90% should be expressed at 0.90.">
 		[synonym FpML_5_10 value dividendPayoutRatio]
@@ -91,17 +91,17 @@ data DividendPayout: <"A class describing the dividend payout ratio associated w
 			and DividendPayout -> dividendPayoutRatio <= 1
 
 
-data Equity extends IdentifiedProduct: <"A class to specify an equity as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
+type Equity extends IdentifiedProduct: <"A class to specify an equity as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
 
-data ExchangeTradedFund extends IdentifiedProduct: <"A class to specify an ETF as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
+type ExchangeTradedFund extends IdentifiedProduct: <"A class to specify an ETF as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
 
-data IdentifiedProduct: <"An abstract class to specify a product which terms are abstracted through reference data.">
+type IdentifiedProduct: <"An abstract class to specify a product which terms are abstracted through reference data.">
 	productIdentifier ProductIdentifier (1..1)
 
 
-data Index extends IdentifiedProduct: <"A class to specify an index as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
+type Index extends IdentifiedProduct: <"A class to specify an index as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
 
-data Loan extends IdentifiedProduct:
+type Loan extends IdentifiedProduct:
 	[synonym FpML_5_10 value Loan]
 	borrower LegalEntity (0..*) <"Specifies the borrower. There can be more than one borrower. It is meant to be used in the event that there is no Bloomberg Id or the Secured List isn't applicable.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value borrower]
@@ -117,7 +117,7 @@ data Loan extends IdentifiedProduct:
 		[metadata scheme]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value tranche meta loanTrancheScheme]
 
-data MortgageBackedSecurity extends ProductIdentifier:
+type MortgageBackedSecurity extends ProductIdentifier:
 	[synonym FpML_5_10 value Mortgage]
 	pool AssetPool (0..1) <"The mortgage pool that is underneath the mortgage obligation.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value pool]
@@ -127,9 +127,9 @@ data MortgageBackedSecurity extends ProductIdentifier:
 	tranche string (0..1) <"The mortgage obligation tranche that is subject to the derivative transaction.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value tranche]
 
-data MutualFund extends IdentifiedProduct: <"A class to specify a mutual fund as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
+type MutualFund extends IdentifiedProduct: <"A class to specify a mutual fund as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
 
-data ProductIdentifier: <"The product identifier, composed of an identifier, a source and a product taxonomy. The source is optional because it can be specified through the scheme that is associated with the identifier. As FpML doesn't specify a scheme as part of the standard, that scheme cannot be mapped to the CDM ProductIdSourceEnum. The associated rosettaKey denotes the ability to associate a hash value to the ProductIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+type ProductIdentifier: <"The product identifier, composed of an identifier, a source and a product taxonomy. The source is optional because it can be specified through the scheme that is associated with the identifier. As FpML doesn't specify a scheme as part of the standard, that scheme cannot be mapped to the CDM ProductIdSourceEnum. The associated rosettaKey denotes the ability to associate a hash value to the ProductIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta id]
 	identifier string (1..*) <" A unique identifier of an asset provided by a public source that is specified in the source attribute.">
@@ -139,11 +139,11 @@ data ProductIdentifier: <"The product identifier, composed of an identifier, a s
 	source ProductIdSourceEnum (0..1) <"The identifier source.">
 	productTaxonomy ProductTaxonomy (0..*) <"The product taxonomy value(s) associated with a product.">
 
-data ProductTaxonomy: <"The product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
+type ProductTaxonomy: <"The product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
 	taxonomyValue string (1..1) <"The taxonomy value.">
 	taxonomySource TaxonomySourceEnum (1..1) <"The taxonomy source.">
 
-data Security:
+type Security:
 	bond Bond (0..1)
 		[synonym FpML_5_10 hint instrumentId]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, Rosetta_Workbench value bond]
@@ -161,7 +161,7 @@ data Security:
 		[synonym FpML_5_10 value warrant]
 	condition: one-of
 
-data SingleUnderlier:
+type SingleUnderlier:
 	[synonym FpML_5_10 value SingleUnderlyer]
 	underlyingProduct Product (1..1) <"Specifies the underlying product. As a difference with FpML, and for the purpose of also supporting swaption and options on CDS through a generic construct, its scope also includes the contract and contractualProduct.">
 	quantity ResolvablePayoutQuantity (0..1) <"Quantity of the underlying product in the underlier, as a resolvable type so that it can be specified outside of the product description.">
@@ -170,12 +170,12 @@ data SingleUnderlier:
 	when SingleUnderlier -> quantity exists
 	then SingleUnderlier -> quantity -> amount >= 0*/
 
-data Underlier: <"A class describing the whole set of possible underliers: single underliers or multiple underliers, each of these having either security or index components.">
+type Underlier: <"A class describing the whole set of possible underliers: single underliers or multiple underliers, each of these having either security or index components.">
 	[synonym FpML_5_10 value Underlyer]
 	singleUnderlier SingleUnderlier (0..1)
 	basket Basket (0..1)
 	condition: one-of
 
-data Warrant extends IdentifiedProduct: <"A class to specify a warrant as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
+type Warrant extends IdentifiedProduct: <"A class to specify a warrant as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
 	[synonym FpML_5_10 value Warrant]
 

@@ -1,7 +1,7 @@
 namespace "org.isda.cdm"
 version "${project.version}"
 
-data AdditionalDisruptionEvents: <"A type for defining the Additional Disruption Events.">
+type AdditionalDisruptionEvents: <"A type for defining the Additional Disruption Events.">
 	[synonym FpML_5_10 value AdditionalDisruptionEvents]
 
 	changeInLaw boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Change in Law | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Change In Law | If true, then change in law is applicable.">
@@ -39,14 +39,14 @@ data AdditionalDisruptionEvents: <"A type for defining the Additional Disruption
 		then AdditionalDisruptionEvents ->initialStockLoanRate >= 0
 		and AdditionalDisruptionEvents -> initialStockLoanRate <= 1
 
-data DeterminationMethod: <"The purpose of this class is to be extended by the Price and EquityValuation classes.">
+type DeterminationMethod: <"The purpose of this class is to be extended by the Price and EquityValuation classes.">
 
 	// TODO Never referenced in CDM
 	determinationMethod DeterminationMethodEnum (0..1) <"Specifies the method according to which an amount or a date is determined.">
 		[synonym FpML_5_10 value determinationMethod]
 
 
-data DividendCurrency: <"A class to specify the currency in which the dividends will be denominated, i.e. either in the dividend currency or in a currency specified as part of the contract.">
+type DividendCurrency: <"A class to specify the currency in which the dividends will be denominated, i.e. either in the dividend currency or in a currency specified as part of the contract.">
 
 	currency string (0..1) <"The currency in which the dividend is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
 		[metadata scheme]
@@ -58,7 +58,7 @@ data DividendCurrency: <"A class to specify the currency in which the dividends 
 		[synonym FpML_5_10 value currencyReference meta href]
 	condition: one-of
 
-data DividendDateReference: <"A class to specify the dividend date by reference to another date, with the ability to apply and offset. This class doesn't exist in FpML and is meant to simplify the choice constraint associated with the DividendPaymentDate class.">
+type DividendDateReference: <"A class to specify the dividend date by reference to another date, with the ability to apply and offset. This class doesn't exist in FpML and is meant to simplify the choice constraint associated with the DividendPaymentDate class.">
 
 	dateReference DividendDateReferenceEnum (1..1) <"Specification of the dividend date using an enumeration, with values such as the pay date, the ex-date or the record date.">
 		[synonym FpML_5_10 value dateReference]
@@ -70,7 +70,7 @@ condition DividendDateReference_paymentDateOffset: <" FpML specifies that paymen
 	if DividendDateReference -> paymentDateOffset exists
 	then DividendDateReference -> dateReference = DividendDateReferenceEnum.SharePayment
 
-data DividendPaymentDate: <"A class describing the date on which the dividend will be paid/received. This class is also used to specify the date on which the FX rate will be determined, when applicable.">
+type DividendPaymentDate: <"A class describing the date on which the dividend will be paid/received. This class is also used to specify the date on which the FX rate will be determined, when applicable.">
 	[synonym FpML_5_10 value DividendPaymentDate]
 
 	dividendDateReference DividendDateReference (0..1)
@@ -79,7 +79,7 @@ data DividendPaymentDate: <"A class describing the date on which the dividend wi
 		[synonym FpML_5_10 value adjustableDate]
 	condition: one-of
 
-data DividendReturnTerms: <"A class describing the conditions governing the payment of dividends to the receiver of the equity return, with the exception of the dividend payout ratio, which is defined for each of the underlying components.">
+type DividendReturnTerms: <"A class describing the conditions governing the payment of dividends to the receiver of the equity return, with the exception of the dividend payout ratio, which is defined for each of the underlying components.">
 	[synonym FpML_5_10 value DividendConditions]
 
 	dividendPayout DividendPayout (0..1) <"Specifies the dividend payout ratio associated with the underlier. In FpML 5.10 the payout is positioned at the underlier level, although there is an intent to reconsider this approach and position it at the leg level. This is approach adopted by the CDM.">
@@ -115,7 +115,7 @@ data DividendReturnTerms: <"A class describing the conditions governing the paym
 		then  DividendReturnTerms -> dividendPeriodEffectiveDate is absent
 			and DividendReturnTerms -> dividendPeriodEndDate is absent
 
-data EquityCorporateEvents: <"A class for defining the merger events and their treatment.">
+type EquityCorporateEvents: <"A class for defining the merger events and their treatment.">
 	[synonym FpML_5_10 value EquityCorporateEvents]
 
 	shareForShare ShareExtraordinaryEventEnum (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Merger Event (S-F-S) shall occur if a Merger Event occurs and the consideration for the relevant Security consists solely of Combined Consideration. | The consideration paid for the original shares following the Merger Event consists wholly of new shares.">
@@ -126,7 +126,7 @@ data EquityCorporateEvents: <"A class for defining the merger events and their t
 		[synonym FpML_5_10 value shareForCombined]
 
 
-data EquityValuation extends Price: <"A class for defining how and when an equity option or equity swap is to be valued.">
+type EquityValuation extends Price: <"A class for defining how and when an equity option or equity swap is to be valued.">
 	[synonym FpML_5_10 value EquityValuation]
 
 	determinationMethod DeterminationMethodEnum (1..1) <"Specifies the method according to which an amount or a date is determined.">
@@ -146,7 +146,7 @@ data EquityValuation extends Price: <"A class for defining how and when an equit
 	 */
 
 
-data ExtraordinaryEvents: <"Where the underlying is shares, defines market events affecting the issuer of those shares that may require the terms of the transaction to be adjusted.">
+type ExtraordinaryEvents: <"Where the underlying is shares, defines market events affecting the issuer of those shares that may require the terms of the transaction to be adjusted.">
 	[synonym FpML_5_10 value ExtraordinaryEvents]
 
 	mergerEvents EquityCorporateEvents (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Merger Event shall occur if a Merger occurs and the Merger Date is on or before the final Equity Valuation Date | Occurs when the underlying ceases to exist following a merger between the Issuer and another company.">
@@ -171,7 +171,7 @@ data ExtraordinaryEvents: <"Where the underlying is shares, defines market event
 		required choice
 		additionalDisruptionEvents, failureToDeliver
 
-data IndexAdjustmentEvents: <"Defines the specification of the consequences of Index Events as defined by the 2002 ISDA Equity Derivatives Definitions.">
+type IndexAdjustmentEvents: <"Defines the specification of the consequences of Index Events as defined by the 2002 ISDA Equity Derivatives Definitions.">
 	[synonym FpML_5_10 value IndexAdjustmentEvents]
 
 	indexModification IndexEventConsequenceEnum (1..1) <"Consequence of index modification.">
@@ -184,7 +184,7 @@ data IndexAdjustmentEvents: <"Defines the specification of the consequences of I
 
 // TODO - #1 Look for further synergies with the option strike
 // TODO - #2 Move class to .rosetta file that is not specific to an asset class
-data Price: <"A generic representation of price applicable to both derivatives and securities."> 
+type Price: <"A generic representation of price applicable to both derivatives and securities."> 
 	[synonym FpML_5_10 value Price]
 
 	grossPrice ActualPrice (0..1) <"Specifies the price of the underlier, before commissions.">
@@ -202,7 +202,7 @@ data Price: <"A generic representation of price applicable to both derivatives a
 		if Price exists
 		then Price -> netPrice exists or Price -> cleanNetPrice exists
 	 
-data PriceReturnTerms:
+type PriceReturnTerms:
 	[synonym FpML_5_10 value ReturnLegValuationPrice]
 
 	initialPrice Price (1..1) <"Specifies the initial reference price of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
@@ -215,7 +215,7 @@ data PriceReturnTerms:
 	// In a subsequent phase of work, a single price should be stored and "reset" after each period. Lineage should then be used to resolve the period start and end prices for the Equity Cash Settlement Amount calculation	
 
 
-data Representations:
+type Representations:
 	[synonym FpML_5_10 value Representations]
 
 	nonReliance boolean (1..1) <"If true, then non reliance is applicable.">
