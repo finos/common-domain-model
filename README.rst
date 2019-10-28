@@ -51,3 +51,17 @@ CDM Applications
 It is expected that a rich eco-system of licensed application components from service providers that are based upon the CDM  will develop over time. REGnosys have taken the initiative to develop an offering of solutions to assist market participants in making use of the CDM. In particular, the CDM Portal provides UI components allowing those participants to browse through the CDM.
 
 ISDA doesn't endorse any of those application components.
+
+The CDM Versioning
+------------------
+
+The CDM is released using the samantic versioning system. 
+
+The format of a version number is MAJOR.MINOR.PATCH, where the;
+
+MAJOR version change indicates that a new version of the Rosetta DSL is used. 
+MINOR version change indicates when a an incompatible change is made, for example removing an attribute or changing a function. This typically would mean an implementor woudl have to make some changes.
+PATCH version when a backwards compatible change is made, for example adding a new class or attribute or adding documentation.
+
+The MAJOR.MINOR.PATCH numbers may increment by more then one unit. This is becasue release candidates can be created, but not released as further changes were made.
+
