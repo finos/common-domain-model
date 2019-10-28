@@ -59,8 +59,8 @@ The CDM is released using the semantic versioning system.
 
 The format of a version number is MAJOR.MINOR.PATCH (e.g. ``1.23.456``), where the:
 
-* MAJOR (``1``) version change indicates that a new version of the Rosetta DSL is used
-* MINOR (``23``) version change indicates when an incompatible change is made, for example removing an attribute from a class or changing a function spec. This typically would mean an implementor would have to make some changes.
-* PATCH (``456``) version when a backwards compatible change is made, for example adding a new class or attribute or adding documentation. An implementor would not have to make any changes to update to this release.
+* MAJOR (``1``) version change introduces *backward incompatible* changes and will be used the high level release name (e.g. ``ISDA CDM Version 1``)
+* MINOR (``23``) version change may or may not introduce backward incompatible changes, for example supporting a new type of event or upgrading to a new version of the Rosetta DSL.
+* PATCH (``456``) version when a backward compatible change is made, for example adding a new class, attribute or updating documentation. An implementor would not have to make any changes to update to this release.
 
 The MAJOR.MINOR.PATCH numbers may increment by more than one unit. This is becasue release candidates can be created, but not released as further changes are made and then released altogether.
