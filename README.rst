@@ -55,13 +55,12 @@ ISDA doesn't endorse any of those application components.
 The CDM Versioning
 ------------------
 
-The CDM is released using the samantic versioning system. 
+The CDM is released using the semantic versioning system. 
 
-The format of a version number is MAJOR.MINOR.PATCH, where the;
+The format of a version number is MAJOR.MINOR.PATCH (e.g. ``1.23.456``), where the:
 
-MAJOR version change indicates that a new version of the Rosetta DSL is used. 
-MINOR version change indicates when an incompatible change is made, for example removing an attribute from a class or changing a function spec. This typically would mean an implementor would have to make some changes.
-PATCH version when a backwards compatible change is made, for example adding a new class or attribute or adding documentation. An implementor would not have to make any changes to update to this release.
+* MAJOR (``1``) version change indicates that a new version of the Rosetta DSL is used
+* MINOR (``23``) version change indicates when an incompatible change is made, for example removing an attribute from a class or changing a function spec. This typically would mean an implementor would have to make some changes.
+* PATCH (``456``) version when a backwards compatible change is made, for example adding a new class or attribute or adding documentation. An implementor would not have to make any changes to update to this release.
 
-The MAJOR.MINOR.PATCH numbers may increment by more then one unit. This is becasue release candidates can be created, but not released as further changes were made.
-
+The MAJOR.MINOR.PATCH numbers may increment by more than one unit. This is becasue release candidates can be created, but not released as further changes are made and then released altogether.
