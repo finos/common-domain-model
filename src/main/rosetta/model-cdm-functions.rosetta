@@ -12,11 +12,11 @@ func Execute:
 	output: 
 		execution Event (1..1)
 	
-	assign-output execution -> primitive -> execution:
+	assign-output execution -> primitives -> execution:
 		NewExecutionPrimitive(product, partyA, partyB, quantity)
 	
 	assign-output execution -> eventEffect -> execution :  
-		execution -> primitive -> execution -> after -> execution
+		execution -> primitives -> execution -> after -> execution
 	
 	post-condition:
 		execution -> lineage is absent
@@ -57,7 +57,7 @@ func FormContract : <"Function specification to create the fully-formed business
 		contractFormationEvent Event (1..1)
 	
 	alias execution :
-		executionEvent -> primitive -> execution -> after -> execution
+		executionEvent -> primitives -> execution -> after -> execution
 	
 	condition : <"Input event must be an execution must be on a contractual product.">
 		execution exists and
@@ -66,8 +66,8 @@ func FormContract : <"Function specification to create the fully-formed business
 	condition : <"Ensures that parties to the Contract are defined in the Legal Agreement, if one is provided."> 
 		if legalAgreement exists then legalAgreement -> contractualParty contains execution -> party
 		
-	assign-output contractFormationEvent -> primitive -> contractFormation : <"Event must contain a contract formation primitive based on the execution primitive and an optional legal agreement.">
-		NewContractFormationPrimitive( executionEvent -> primitive -> execution -> after only-element, execution -> party , legalAgreement )
+	assign-output contractFormationEvent -> primitives -> contractFormation : <"Event must contain a contract formation primitive based on the execution primitive and an optional legal agreement.">
+		NewContractFormationPrimitive( executionEvent -> primitives -> execution -> after only-element, execution -> party , legalAgreement )
 	
 	assign-output contractFormationEvent -> party : <"The parties on the output Event must match the parties on the input Execution.">
 		execution -> party
@@ -76,8 +76,8 @@ func FormContract : <"Function specification to create the fully-formed business
 		executionEvent
 		
 	post-condition : <"Event effect must point to the new execution and contract, and exclude other effects.">
-		contractFormationEvent -> eventEffect -> contract = contractFormationEvent -> primitive -> contractFormation -> after -> contract
-		and contractFormationEvent -> eventEffect -> effectedExecution = contractFormationEvent -> primitive -> contractFormation -> before -> execution
+		contractFormationEvent -> eventEffect -> contract = contractFormationEvent -> primitives -> contractFormation -> after -> contract
+		and contractFormationEvent -> eventEffect -> effectedExecution = contractFormationEvent -> primitives -> contractFormation -> before -> execution
 		and contractFormationEvent -> eventEffect -> effectedContract is absent
 		and contractFormationEvent -> eventEffect -> productIdentifier is absent
 		and contractFormationEvent -> eventEffect -> transfer is absent
@@ -130,7 +130,7 @@ func Reset :
 		contractState -> contract
 	
 	alias observation:
-		observationEvent -> primitive -> observation only-element
+		observationEvent -> primitives -> observation only-element
 		
 	condition: <"ExtractContractState would result in nothing (empty), check we have something.">
 		contractState exists
@@ -138,7 +138,7 @@ func Reset :
 	condition: <"The observation primitive must be part of the observation event">
 		observation exists
 		
-	assign-output reset -> primitive -> reset : 
+	assign-output reset -> primitives -> reset : 
 		NewResetPrimitive( contractState, observation, date )
 		
 	assign-output reset -> lineage -> eventReference : 
@@ -207,16 +207,16 @@ func TransferCash: <"Function specification to build a transfer event following 
 		transferEvent Event (1..1)
 
 	alias contractState :
-		resetEvent -> primitive -> reset -> after only-element
+		resetEvent -> primitives -> reset -> after only-element
 		
 	condition: <"There must be a reset primitive on the event input, and the contract being referenced must be consistent between those events.">
-		resetEvent -> primitive -> reset exists
+		resetEvent -> primitives -> reset exists
 		
-	assign-output transferEvent -> primitive -> transfer :
+	assign-output transferEvent -> primitives -> transfer :
 		NewCashTransferPrimitive( contractState, resetEvent -> eventDate )
 
 	post-condition: <"Event must contain a transfer primitive populated with the cashflow, and no other primitive.">
-		transferEvent -> primitive -> transfer only exists
+		transferEvent -> primitives -> transfer only exists
 
 	post-condition: <"Event effect must include the contract generating the cashflow.">
         transferEvent -> eventEffect -> effectedContract = contractState -> contract
@@ -284,7 +284,7 @@ func Allocate: <"Function specification to create the fully-formed business even
 	output:
 		allocationEvent Event (1..1) <"Allocation event containing both the original block trade (with the status set to Allocated) and the set of allocated trades.">
 
-	assign-output allocationEvent -> primitive -> allocation:
+	assign-output allocationEvent -> primitives -> allocation:
 		NewAllocationPrimitive( execution, allocationInstructions )
 
     assign-output allocationEvent -> lineage -> eventReference:
@@ -315,7 +315,7 @@ func Settle: <"Function specification to create the Transfer event based on an e
 	condition:
 		execution -> product -> security exists
 	
-	assign-output transferEvent -> primitive -> transfer:
+	assign-output transferEvent -> primitives -> transfer:
 		NewTransferPrimitive( execution )
 
     assign-output transferEvent -> lineage -> eventReference:
