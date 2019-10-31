@@ -3,13 +3,14 @@ version "${project.version}"
 
 
 func Execute:
+	// TODO Never referenced in CDM
 	inputs:
 		product Product (1..1) <"The financial product, either contractual or fungible, that is the subject of the execution.">
 		quantity ExecutionQuantity (1..1) <"The quantity of the financial product being executed.">
 		partyA Party (1..1) <"The parties to that execution, for now assumed Principal-Principal, i.e. no Agent.">
 		partyB Party (1..1) <"The parties to that execution, for now assumed Principal-Principal, i.e. no Agent.">
 	
-	output: 
+	output:
 		execution Event (1..1)
 	
 	assign-output execution -> primitives -> execution:
@@ -49,6 +50,7 @@ func NewExecutionPrimitive: <"Function specification to compose an execution bas
 			
 
 func FormContract : <"Function specification to create the fully-formed business event of entering into a new contract, as a combination of an execution primitive and a contract formation primitive, when there is no allocation involved and the contractual parties are the execution parties. This specification is meant to replace the 'Inception' primitive that previously co-mingled these 2 primitives.">
+	// TODO Never referenced in CDM
 	inputs:
 		executionEvent Event (1..1)
 		legalAgreement LegalAgreement (0..1)
@@ -115,7 +117,8 @@ func NewContractFormationPrimitive : <"Function specification to create a fully-
 
 
 func Reset :
-	inputs: 
+	// TODO Never referenced in CDM
+	inputs:
 		previousEvent Event (1..1)
 		observationEvent Event (1..1)
 		date date (1..1)
@@ -138,7 +141,7 @@ func Reset :
 	condition: <"The observation primitive must be part of the observation event">
 		observation exists
 		
-	assign-output reset -> primitives -> reset : 
+	assign-output reset -> primitives -> reset :
 		NewResetPrimitive( contractState, observation, date )
 		
 	assign-output reset -> lineage -> eventReference : 
@@ -201,6 +204,7 @@ func ResolveUpdatedContract : <"The updated contract should be generated differe
 
 
 func TransferCash: <"Function specification to build a transfer event following a reset on a contract">
+	// TODO Never referenced in CDM
 	inputs:
 		resetEvent Event (1..1)
 	output:
@@ -276,6 +280,7 @@ func ResolveCashSettlementDate : <"A product agnostic function that resolves the
 
 
 func Allocate: <"Function specification to create the fully-formed business event of allocating an execution based on allocation instructions.">
+	// TODO Never referenced in CDM
 	inputs:
 		execution Execution (1..1) <"Block trade to be allocated.">
 		allocationInstructions AllocationInstructions (1..1) <"Allocation instructions to be applied.">
@@ -289,7 +294,7 @@ func Allocate: <"Function specification to create the fully-formed business even
 
     assign-output allocationEvent -> lineage -> eventReference:
         previousEvent
-        
+
     assign-output allocationEvent -> lineage -> executionReference:
         execution
     
@@ -305,6 +310,7 @@ func NewAllocationPrimitive: <"Function specification to create the fully-formed
 
 
 func Settle: <"Function specification to create the Transfer event based on an execution's settlement terms. Initial implementation only supports securities settled via delivery vs payment.">
+	// TODO Never referenced in CDM
 	inputs:
 		execution Execution (1..1) <"Execution to be settled.">
 		previousEvent Event (1..1) <"Previous event for lineage purposes.">
@@ -324,7 +330,6 @@ func Settle: <"Function specification to create the Transfer event based on an e
 	assign-output transferEvent -> lineage -> executionReference: 
 		execution
 
-
 func NewTransferPrimitive: <"Function specification to create the Transfer primitive based on an execution's settlement terms and instructions. Initial implementation only supports creating transfer primitives from securities settled via delivery vs payment.">
 	inputs:
 		execution Execution (1..1)
@@ -343,6 +348,7 @@ func NewTransferPrimitive: <"Function specification to create the Transfer primi
 			
 			
 func NewQuantityChangePrimitive : <"A specification of the inputs, outputs and constraints when calculating the after state of a Quantity Change Primitive Event">
+	// TODO Never referenced in CDM
 	inputs:
 		trade Trade (1..1)
 		quantityChange ContractualQuantity (1..1)
@@ -366,6 +372,7 @@ func NewQuantityChangePrimitive : <"A specification of the inputs, outputs and c
 		
 
 func EvaluatePortfolioState: <"Function specification to evaluate a portfolio's aggregation parameters and return a new portfolio state containing aggregated positions.">
+	// TODO Never referenced in CDM
 	inputs:
 		portfolio Portfolio (1..1) <"Portfolio containing the aggregation parameters to be used to calculate the new portfolio state.">
 		
