@@ -13,9 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.hasItems;
@@ -97,9 +95,9 @@ class SettleTest extends AbstractFunctionTest {
 		List<String> partyExternalKeys = getPartyExternalKeys(parties);
 		assertThat(partyExternalKeys, hasItems(COUNTERPARTY_BROKER_A_ID, CLIENT_A_ACC_1_ID));
 
-		List<TransferPrimitive> transferPrimitives = Optional.ofNullable(settleEvent.getPrimitive())
-				.map(PrimitiveEvent::getTransfer)
-				.orElse(Collections.emptyList());
+		List<TransferPrimitive> transferPrimitives = settleEvent.getPrimitives().stream()
+																	  .map(PrimitiveEvent::getTransfer)
+																	  .collect(Collectors.toList());
 		assertEquals(1, transferPrimitives.size());
 		TransferPrimitive transferPrimitive = transferPrimitives.get(0);
 

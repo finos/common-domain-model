@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -102,9 +101,10 @@ class AllocateTest extends AbstractFunctionTest {
 		assertThat(partyExternalKeys,
 				hasItems(EXECUTING_BROKER_ID, COUNTERPARTY_BROKER_A_ID, CLIENT_A_ID, CLIENT_A_ACC_1_ID, CLIENT_A_ACC_2_ID, CLIENT_A_ACC_3_ID));
 
-		List<AllocationPrimitive> allocationPrimitives = Optional.ofNullable(allocateEvent.getPrimitive())
-				.map(PrimitiveEvent::getAllocation)
-				.orElse(Collections.emptyList());
+		List<AllocationPrimitive> allocationPrimitives = allocateEvent.getPrimitives().stream()
+														 .map(PrimitiveEvent::getAllocation)
+														 .collect(Collectors.toList());
+
 		assertEquals(1, allocationPrimitives.size());
 		AllocationPrimitive allocationPrimitive = allocationPrimitives.get(0);
 
