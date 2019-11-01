@@ -44,12 +44,19 @@ class AllocateTest extends AbstractFunctionTest {
 				settlementDate, true,
 				factory.getParty(CLIENT_A_ID, CLIENT_A_NAME, null),
 				factory.getParty(EXECUTING_BROKER_ID, EXECUTING_BROKER_NAME, null),
-				factory.getParty(COUNTERPARTY_BROKER_A_ID, COUNTERPARTY_BROKER_A_NAME, null));
+				factory.getParty(COUNTERPARTY_BROKER_A_ID, COUNTERPARTY_BROKER_A_NAME, null)).toBuilder()
+				.setMetaBuilder(MetaFields.builder()
+						.setGlobalKey("execution-global-key"))
+				.build();
+		
 		allocationInstructions = factory.getAllocationInstructions(
 				QUANTITY_1, factory.getParty(CLIENT_A_ACC_1_ID, CLIENT_A_ACC_1_NAME, factory.getAccount(CLIENT_A_ACC_1_NAME)),
 				QUANTITY_2, factory.getParty(CLIENT_A_ACC_2_ID, CLIENT_A_ACC_2_NAME, factory.getAccount(CLIENT_A_ACC_2_NAME)),
 				QUANTITY_3, factory.getParty(CLIENT_A_ACC_3_ID, CLIENT_A_ACC_3_NAME, factory.getAccount(CLIENT_A_ACC_3_NAME)));
-		previousEvent = Event.builder().build();
+		previousEvent = Event.builder()
+				.setMetaBuilder(MetaFields.builder()
+						.setGlobalKey("previous-event-global-key"))
+				.build();
 	}
 
 	@Test
@@ -84,12 +91,12 @@ class AllocateTest extends AbstractFunctionTest {
 		// lineage - event
 		List<ReferenceWithMetaEvent> eventReferences = allocateEvent.getLineage().getEventReference();
 		assertTrue(eventReferences != null && eventReferences.size() == 1);
-		assertNotNull(eventReferences.get(0).getValue());
+		assertNotNull(eventReferences.get(0).getExternalReference());
 
 		// lineage - execution
 		List<ReferenceWithMetaExecution> executionReferences = allocateEvent.getLineage().getExecutionReference();
 		assertTrue(executionReferences != null && executionReferences.size() == 1);
-		assertNotNull(executionReferences.get(0).getValue());
+		assertNotNull(executionReferences.get(0).getExternalReference());
 
 
 		// event parties
