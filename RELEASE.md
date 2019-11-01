@@ -1,14 +1,23 @@
-# *Quantity Refactoring: Credit Products Migrated*
+# *Rosetta Syntax Upgrade - Data Types*
 
-As presented in the 30-Jul-2019 CDM WG meeting, the essence of the restructuring is to abstract away the quantity from the contractual product definition, such that a contractual product is defined as a "unit" of that product, similar to how non-contractual products (e.g. securities) work. The actual quantity is handled as part of a separate `QuantityNotation` object, while the product uses the `ResolvablePayoutQuantity` type to implement the quantity mechanics in the various `Payout` legs of the product.
+What is being released
 
-_What is being released_
+As part of on-going improvements, the Rosetta syntax has been upgraded to consolidate language features. This work aims to simplify the syntax needed when contributing to the CDM. This will become increasingly important as the number of CDM contributors increase and as CDM contributions starting coming from a variety of sources.
 
-Credit products (CDS, CD Index etc.) have been migrated to the new quantity representation.
+This is the fourth release in a series of that will cover the scope described in the Rosetta Syntax Upgrade Wiki[1].
 
-As part of this release, the quantity referencing mechanism has been augmented with an additional attribute, to distinguish between different assets which quantities are being specified. So `ResolvablePayoutQuantity` now uses both `Tag` and `Asset` as identifiers to build its quantity reference. This is applicable in the XC Swap case, where the currency will be used as the `Asset` identifier.
+In this release, the representation of data types were upgraded to bring greater readability of data types in the model and greater consistency of syntax between data types and functions.
 
-_Review direction_
+The new syntax focuses on the essence of a data type definition and moves related extra details into annotations, such as the metadata attributes scheme and reference. These annotations can then be flexibly hidden from view for easier consumption of the model in textual or graphical form (to come in future releases). Technical symbols such as semi-colons and curly-braces were removed to bring further consistency between data types and functions. 
 
-In the Ingestion Panel of the CDM Portal:
-- Look at Products / Credit and search for keyword `quantity` in the output, to see where respective elements are now positioned.
+Validation logic concerning a data type is now represented directly on the type to more closely associate these model facets. Data Rules, Choice Rules and One Of  (rules) are now all represented within the ‘condition’ block on the data type. This eliminates the need to explicitly associate validation rules to data types, which also removes the need for the inconsistent syntax that was in use previous between the Data and Choice Rules. 
+
+The new syntax that represents data types is characterised by the `type` keyword, moving away from the `class` keyword, which can draw erroneous and confusing comparisons to Java classes. The Rosetta Type is different in that Rosetta Types represent data structures and data validation only - no further functionality is allowed on the type.
+
+Review direction
+
+To see the new syntax, make use of the Textual Browser in the CDM Portal. See especially the Interest Rate Payout object (line 8360) which gives a good representation of the changes. 
+
+The `key` keyword has been moved into an annotation under the `type`’s name as it is not critical to the data definition itself. The semi-colons at the end of each attribute has also been eliminated, along with the curly-braces. All validation logic associates with the Interest Rate Payout are now defined directly on the Interest Rate Payout type. 
+
+[1] https://github.com/REGnosys/rosetta-dsl/wiki/Rosetta-Syntax-Upgrade)
