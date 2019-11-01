@@ -3,7 +3,6 @@ version "${project.version}"
 
 
 func Execute:
-	// TODO Never referenced in CDM
 	inputs:
 		product Product (1..1) <"The financial product, either contractual or fungible, that is the subject of the execution.">
 		quantity ExecutionQuantity (1..1) <"The quantity of the financial product being executed.">
@@ -16,9 +15,12 @@ func Execute:
 	assign-output execution -> primitives -> execution:
 		NewExecutionPrimitive(product, partyA, partyB, quantity)
 	
-	assign-output execution -> eventEffect -> execution :  
+	assign-output execution -> eventEffect -> execution:
 		execution -> primitives -> execution -> after -> execution
-	
+
+	assign-output execution -> party:
+		[ partyA, partyB ]
+
 	post-condition:
 		execution -> lineage is absent
 
@@ -40,7 +42,7 @@ func NewExecutionPrimitive: <"Function specification to compose an execution bas
 		product -> contractualProduct
 
 	assign-output execution -> after -> execution -> party:
-		[ partyA, partyB ]
+		[ partyA, partyB ] // TODO assign partyA and partyB as references when the as-key syntax support lists of values
 		
 	assign-output execution -> after -> execution -> executionQuantity:	
 		quantity
@@ -50,7 +52,6 @@ func NewExecutionPrimitive: <"Function specification to compose an execution bas
 			
 
 func FormContract : <"Function specification to create the fully-formed business event of entering into a new contract, as a combination of an execution primitive and a contract formation primitive, when there is no allocation involved and the contractual parties are the execution parties. This specification is meant to replace the 'Inception' primitive that previously co-mingled these 2 primitives.">
-	// TODO Never referenced in CDM
 	inputs:
 		executionEvent Event (1..1)
 		legalAgreement LegalAgreement (0..1)
@@ -74,8 +75,8 @@ func FormContract : <"Function specification to create the fully-formed business
 	assign-output contractFormationEvent -> party : <"The parties on the output Event must match the parties on the input Execution.">
 		execution -> party
 		
-	assign-output contractFormationEvent -> lineage -> eventReference : <"Construct the lineage making reference to the input event">
-		executionEvent
+	assign-output contractFormationEvent -> lineage -> eventReference: <"Construct the lineage making reference to the input event">
+		executionEvent as-key
 		
 	post-condition : <"Event effect must point to the new execution and contract, and exclude other effects.">
 		contractFormationEvent -> eventEffect -> contract = contractFormationEvent -> primitives -> contractFormation -> after -> contract
@@ -117,7 +118,6 @@ func NewContractFormationPrimitive : <"Function specification to create a fully-
 
 
 func Reset :
-	// TODO Never referenced in CDM
 	inputs:
 		previousEvent Event (1..1)
 		observationEvent Event (1..1)
@@ -145,16 +145,16 @@ func Reset :
 		NewResetPrimitive( contractState, observation, date )
 		
 	assign-output reset -> lineage -> eventReference : 
-		previousEvent
+		previousEvent as-key
 	
 	assign-output reset -> lineage -> contractReference :
-		contract
+		contract as-key
 		
 	assign-output reset -> eventEffect -> effectedContract :
-		contract
+		contract as-key
 	
 	assign-output reset -> eventEffect -> contract :
-		contract
+		contract as-key
 		
 	assign-output reset -> timestamp -> dateTime:
 		ToDateTime( date )
@@ -204,7 +204,6 @@ func ResolveUpdatedContract : <"The updated contract should be generated differe
 
 
 func TransferCash: <"Function specification to build a transfer event following a reset on a contract">
-	// TODO Never referenced in CDM
 	inputs:
 		resetEvent Event (1..1)
 	output:
@@ -219,6 +218,12 @@ func TransferCash: <"Function specification to build a transfer event following 
 	assign-output transferEvent -> primitives -> transfer :
 		NewCashTransferPrimitive( contractState, resetEvent -> eventDate )
 
+	assign-output transferEvent -> lineage -> contractReference : <"Event lineage must point to the contract that generated the cashflow and the reset event.">
+		contractState -> contract as-key
+
+	assign-output transferEvent -> lineage -> eventReference : <"Event lineage must point to the contract that generated the cashflow and the .">
+		resetEvent as-key
+
 	post-condition: <"Event must contain a transfer primitive populated with the cashflow, and no other primitive.">
 		transferEvent -> primitives -> transfer only exists
 
@@ -228,10 +233,6 @@ func TransferCash: <"Function specification to build a transfer event following 
         and transferEvent -> eventEffect -> effectedExecution is absent
         and transferEvent -> eventEffect -> execution is absent
         and transferEvent -> eventEffect -> productIdentifier is absent
-
-	post-condition: <"Event lineage must point to the contract that generated the cashflow and the reset event.">
-		transferEvent -> lineage -> contractReference = contractState -> contract
-		and transferEvent -> lineage -> eventReference = resetEvent
 
 
 func NewCashTransferPrimitive : <"Function specification to generate a transfer primitive following a reset. The cashflow is being passed as an input, as currently the cashflow is meant to be part of the reset. At a later stage, we should pass the reset value while the cashflow calculation should be executed as part of this spec.">
@@ -280,7 +281,6 @@ func ResolveCashSettlementDate : <"A product agnostic function that resolves the
 
 
 func Allocate: <"Function specification to create the fully-formed business event of allocating an execution based on allocation instructions.">
-	// TODO Never referenced in CDM
 	inputs:
 		execution Execution (1..1) <"Block trade to be allocated.">
 		allocationInstructions AllocationInstructions (1..1) <"Allocation instructions to be applied.">
@@ -293,10 +293,10 @@ func Allocate: <"Function specification to create the fully-formed business even
 		NewAllocationPrimitive( execution, allocationInstructions )
 
     assign-output allocationEvent -> lineage -> eventReference:
-        previousEvent
+        previousEvent as-key
 
     assign-output allocationEvent -> lineage -> executionReference:
-        execution
+        execution as-key
     
 
 
@@ -325,10 +325,10 @@ func Settle: <"Function specification to create the Transfer event based on an e
 		NewTransferPrimitive( execution )
 
     assign-output transferEvent -> lineage -> eventReference:
-		previousEvent
+		previousEvent as-key
 
 	assign-output transferEvent -> lineage -> executionReference: 
-		execution
+		execution as-key
 
 func NewTransferPrimitive: <"Function specification to create the Transfer primitive based on an execution's settlement terms and instructions. Initial implementation only supports creating transfer primitives from securities settled via delivery vs payment.">
 	inputs:

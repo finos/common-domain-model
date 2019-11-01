@@ -1,7 +1,11 @@
 .. |trade|  unicode:: U+02122 .. TRADE MARK SIGN
 
-Overview of the ISDA CDM
+Overview of the ISDA CDM 
 ========================
+.. role:: raw-html(raw)
+    :format: html
+
+**Continuous Integration:** |Codefresh build status| :raw-html:`<br />`
 
 What is the ISDA CDM
 --------------------
@@ -51,3 +55,7 @@ CDM Applications
 It is expected that a rich eco-system of licensed application components from service providers that are based upon the CDM  will develop over time. REGnosys have taken the initiative to develop an offering of solutions to assist market participants in making use of the CDM. In particular, the CDM Portal provides UI components allowing those participants to browse through the CDM.
 
 ISDA doesn't endorse any of those application components.
+
+.. |Codefresh build status| image:: https://g.codefresh.io/api/badges/pipeline/regnosysops/REGnosys%2Frosetta-cdm%2Frosetta-cdm?branch=master&key=eyJhbGciOiJIUzI1NiJ9.NWE1N2EyYTlmM2JiOTMwMDAxNDRiODMz.ZDeqVUhB-oMlbZGj4tfEiOg0cy6azXaBvoxoeidyL0g&type=cf-1
+   :target: https://g.codefresh.io/pipelines/rosetta-cdm/builds?repoOwner=REGnosys&repoName=rosetta-cdm&serviceName=REGnosys%2Frosetta-cdm&filter=trigger:build~Build;branch:master;pipeline:5a86c209eaf77d0001daacb6~rosetta-cdm
+

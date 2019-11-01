@@ -43,8 +43,14 @@ class SettleTest extends AbstractFunctionTest {
 				settlementDate, true,
 				factory.getParty(CLIENT_A_ACC_1_ID, CLIENT_A_ACC_1_NAME, factory.getAccount(CLIENT_A_ACC_1_ID)),
 				factory.getParty(EXECUTING_BROKER_ID, EXECUTING_BROKER_NAME, null),
-				factory.getParty(COUNTERPARTY_BROKER_A_ID, COUNTERPARTY_BROKER_A_NAME, factory.getAccount(COUNTERPARTY_BROKER_A_NAME)));
-		previousEvent = Event.builder().build();
+				factory.getParty(COUNTERPARTY_BROKER_A_ID, COUNTERPARTY_BROKER_A_NAME, factory.getAccount(COUNTERPARTY_BROKER_A_NAME))).toBuilder()
+				.setMetaBuilder(MetaFields.builder()
+						.setGlobalKey("execution-global-key"))
+				.build();
+		previousEvent = Event.builder()
+				.setMetaBuilder(MetaFields.builder()
+						.setGlobalKey("previous-event-global-key"))
+				.build();
 	}
 
 	@Test
@@ -79,12 +85,12 @@ class SettleTest extends AbstractFunctionTest {
 		// lineage - event
 		List<ReferenceWithMetaEvent> eventReferences = settleEvent.getLineage().getEventReference();
 		assertTrue(eventReferences != null && eventReferences.size() == 1);
-		assertNotNull(eventReferences.get(0).getValue());
+		assertNotNull(eventReferences.get(0).getExternalReference());
 
 		// lineage - execution
 		List<ReferenceWithMetaExecution> executionReferences = settleEvent.getLineage().getExecutionReference();
 		assertTrue(executionReferences != null && executionReferences.size() == 1);
-		assertNotNull(executionReferences.get(0).getValue());
+		assertNotNull(executionReferences.get(0).getExternalReference());
 
 		// event parties
 		List<Party> parties = settleEvent.getParty();
