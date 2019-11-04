@@ -3,20 +3,19 @@ version "${project.version}"
 
 type AllocationInstructions:
 	// TODO: add other allocation context
-    breakdowns AllocationBreakdown (1..*) <"The set of allocation breakdowns to be applied to a block trade">
- 
-type AllocationBreakdown:
-    partyReference Party (1..1) <"Reference to the party to specify the account.">
-    [metadata reference] 
-    quantity Quantity (1..1) <"The quantity to be allocated to the party.">
+	breakdowns AllocationBreakdown (1..*) <"The set of allocation breakdowns to be applied to a block trade">
 
+type AllocationBreakdown:
+	partyReference Party (1..1) <"Reference to the party to specify the account.">
+		[metadata reference]
+	quantity Quantity (1..1) <"The quantity to be allocated to the party.">
 
 type AllocationOutcome: <"A class to specify the allocated outcome as the combination of the previous Trade, which is either an execution or a contract and which state is specified as 'Allocated', and a set of Trade(s) of the same execution or contract type as before allocation. The allocation to one single trade is deemed appropriate: e.g. the trade could be effectively allocated from the fund manager doing the execution to a single fund entity.">
 	originalTrade Trade (1..1)
 		[synonym Rosetta_Workbench value originalTrade]
 	allocatedTrade Trade (1..*)
 		[synonym Rosetta_Workbench value allocatedTrade]
-	
+
 	// TODO: move these data rule as a "post-condition" to the Allocation "Function Spec"
 	condition AllocationOutcome_executionClosed: <"The allocation outcome must result in execution state of 'Allocated' for an execution.">
 		if AllocationOutcome exists and AllocationOutcome -> originalTrade -> execution exists
@@ -30,7 +29,7 @@ type AllocationPrimitive: <"The primitive event to represent a split/allocation 
 		[synonym Rosetta_Workbench value before]
 	after AllocationOutcome (1..1) <"Outcome of the allocation as a list of Trades, which is either a split execution or a split contract, plus a pointer to the previous execution or contract marked as 'Allocated'.">
 		[synonym Rosetta_Workbench value after]
-	
+
 	// TODO: move these data rule as a "post-condition" to the Allocation "Function Spec"
 	condition AllocationPrimitive_executionType: <"If the trade type pre-allocation is an execution, then the trade type post-allocation must also be an execution.">
 		if AllocationPrimitive exists and AllocationPrimitive -> before -> execution exists
@@ -42,7 +41,7 @@ type AllocationPrimitive: <"The primitive event to represent a split/allocation 
 		then AllocationPrimitive -> after -> originalTrade -> contract exists
 			and AllocationPrimitive -> after -> allocatedTrade -> contract exists
 			and AllocationPrimitive -> after -> allocatedTrade -> execution is absent
-	
+
 type CashTransferBreakdown extends TransferBreakdown:
 	payerReceiver PayerReceiver (1..1) <"The payer and receiver party information.">
 	amount Money (1..1) <"The currency amount of the payment.">
@@ -104,22 +103,22 @@ type ContractState: <"A class to specify a contract state instantiation with res
 //TODO: Check that the updated contract in the contract state matches the original reference contract, except for updated (reset) values.
 // data rule ContractState_contract
 /* NOT USED
-    class CreditLimit <"A class to specify the credit limit, to be used in the context of the clearing workflow.">
-	[synonym FpML_5_10 value CreditLimit]
-{
-	limitId string (0..1) scheme;
-		[synonym FpML_5_10 value limitId meta creditLimitIdScheme]
-	applicableProduct ProductIdentification (0..1) <"Further to the FpML standard, the CDM ProductIdentification provides the ability to associate a CDM qualified product.">
-	currency string (0..1) scheme <"The currency in which the credit limit is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
-		[synonym FpML_5_10 value currency meta currencyScheme]
-	tenor Period (0..1) <"The maximum allowed tenor for a trade under this limit. When this structure is used as part of a suspendCredit message, this tenor imposes a temporary tenor limit on allowed trade types.">
-		[synonym FpML_5_10 value tenor]
-	limitApplicable LimitApplicable (0..*)
-		[synonym FpML_5_10 value limitApplicable]
-	expirationDateTime BusinessCenterTime (0..1) <"The CDM naming include the time suffix because the FpML element is actually of type dateTime. Also, the attribute is of type BusinessCenterTime because of the design decision to only have time that are specified by reference to a timezone, with that class being deemed the proper implementation.">
-		[synonym FpML_5_10 value expirationDate]
-}
-*/
+ *     class CreditLimit <"A class to specify the credit limit, to be used in the context of the clearing workflow.">
+ * 	[synonym FpML_5_10 value CreditLimit]
+ * {
+ * 	limitId string (0..1) scheme;
+ * 		[synonym FpML_5_10 value limitId meta creditLimitIdScheme]
+ * 	applicableProduct ProductIdentification (0..1) <"Further to the FpML standard, the CDM ProductIdentification provides the ability to associate a CDM qualified product.">
+ * 	currency string (0..1) scheme <"The currency in which the credit limit is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
+ * 		[synonym FpML_5_10 value currency meta currencyScheme]
+ * 	tenor Period (0..1) <"The maximum allowed tenor for a trade under this limit. When this structure is used as part of a suspendCredit message, this tenor imposes a temporary tenor limit on allowed trade types.">
+ * 		[synonym FpML_5_10 value tenor]
+ * 	limitApplicable LimitApplicable (0..*)
+ * 		[synonym FpML_5_10 value limitApplicable]
+ * 	expirationDateTime BusinessCenterTime (0..1) <"The CDM naming include the time suffix because the FpML element is actually of type dateTime. Also, the attribute is of type BusinessCenterTime because of the design decision to only have time that are specified by reference to a timezone, with that class being deemed the proper implementation.">
+ * 		[synonym FpML_5_10 value expirationDate]
+ * }
+ */
 type CreditLimitInformation: <"A class to represent the credit limit utilisation information.">
 	[synonym CME_ClearedConfirm_1_17 value CreditLimitInformation]
 	limitApplicable LimitApplicableExtended (1..*)
@@ -141,7 +140,7 @@ type CreditLimitUtilisationPosition:
 	global number (0..1) <"Global credit limit utilisation amount, agnostic of long/short position direction.">
 		[synonym FpML_5_10 value global]
 
-type Curve : //one of
+type Curve: //one of
 	interestRateCurve InterestRateCurve (0..1)
 		[synonym Rosetta_Workbench value interestRateCurve]
 	commodityCurve CommodityReferencePriceEnum (0..1) // This is just an illustrative alternative curve instance, which implementation needs to be refined and confirmed
@@ -183,7 +182,7 @@ type CustomisedWorkflow: <"In its initial iteration, this class is meant to supp
 		[synonym CME_SubmissionIRS_1_0 set to "Customer Account" when "Pty.R" = "24"]
 		[synonym CME_SubmissionIRS_1_0 set to "Custom" when "Pty.Src" = "D"]
 
-type Event :<"A class to specify the lifecycle event. The associated rosettaKey denotes the ability to associate a hash value to the Event instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+type Event: <"A class to specify the lifecycle event. The associated rosettaKey denotes the ability to associate a hash value to the Event instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
 	[synonym Rosetta_Workbench meta id]
 	messageInformation MessageInformation (0..1)
@@ -261,7 +260,7 @@ type EventEffect: <"The set of operational and positional effects associated wit
 	transfer TransferPrimitive (0..*) <"A pointer to the transfer effect(s), either a cash, security or other asset.">
 		[metadata reference]
 
-/* USED in downstrem */ 
+/* USED in downstrem */
 type EventTestBundle: <"A class which combines several events for testing purposes.">
 	event Event (2..*)
 		[synonym Rosetta_Workbench value event]
@@ -302,8 +301,8 @@ type ExerciseOutcome: <"The exercise outcome combines the option contract (which
 		[synonym Rosetta_Workbench value physicalExercise]
 	cashExercise Cashflow (0..1)
 		[synonym Rosetta_Workbench value cashExercise]
-	condition ExerciseOutcome_choice:<"A option exercise results in either a physical or a cash exercise.">
-		required choice physicalExercise , cashExercise
+	condition ExerciseOutcome_choice: <"A option exercise results in either a physical or a cash exercise.">
+		required choice physicalExercise, cashExercise
 
 type ExercisePrimitive: <"This primitive leverages the FpML OptionExercise construct, except for the exerciseTiming which is deemed as associated to a request for exercise that is meant to take place, as opposed to the actual exercise event.">
 	exerciseDate AdjustableOrAdjustedDate (0..1)
@@ -368,9 +367,8 @@ type LimitApplicable:
 		[synonym FpML_5_10, CME_ClearedConfirm_1_17, Rosetta_Workbench value currency meta currencyScheme]
 	velocity Velocity (0..1)
 		[synonym FpML_5_10 value velocity]
-	condition LimitApplicable_choice:  <"Choice rule to represent an FpML choice construct.">
+	condition LimitApplicable_choice: <"Choice rule to represent an FpML choice construct.">
 		optional choice amountUtilized, utilization
-	
 
 type LimitApplicableExtended extends LimitApplicable: <"A class to represent the CDM attributes that are not part of the FpML standard. Once broader usage is confirmed, it is expected that those two classes can be collapsed.">
 	[synonym CME_ClearedConfirm_1_17 value CreditLimitInformation]
@@ -394,7 +392,7 @@ type Lineage: <"A class to provide lineage information across lifecycle events t
 		[synonym Rosetta_Workbench value executionReference meta href]
 	cashflowReference Cashflow (0..*) <"The reference to the instantiation of a Cashflow payout component object. An expected typical usage is to provide lineage for the payment of, say, the option premium or the swap initial fee. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
-		[synonym Rosetta_Workbench value cashflowReference meta href] 
+		[synonym Rosetta_Workbench value cashflowReference meta href]
 	creditDefaultPayoutReference CreditDefaultPayout (0..*) <"The reference to the instantiation of a CreditdefaultPayout component object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
 		[synonym Rosetta_Workbench value creditDefaultReference meta href]
@@ -454,7 +452,7 @@ type ObservationSource: <"The observation source can be composed of an curve and
 		[synonym Rosetta_Workbench value curve]
 	informationSource InformationSource (0..1)
 		[synonym Rosetta_Workbench value informationSource]
-	condition ObservationSource_content:  <"ObservationSource should not be empty, although the attribute cardinality would allow that.">
+	condition ObservationSource_content: <"ObservationSource should not be empty, although the attribute cardinality would allow that.">
 		if ObservationSource exists
 		then (ObservationSource -> curve exists and ObservationSource -> informationSource exists)
 			or ObservationSource -> curve exists
@@ -506,13 +504,13 @@ type PrimitiveEvent: <"A class to specify the set of elemental/primitives compon
 		[synonym CME_SubmissionIRS_1_0 value ignore]
 	observation ObservationPrimitive (0..*)
 		[synonym Rosetta_Workbench value observation]
-		[synonym CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value ignore]	
+		[synonym CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value ignore]
 	quantityChange QuantityChangePrimitive (0..*)
 		[synonym Rosetta_Workbench value quantityChange]
 		[synonym DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value ignore]
 	reset ResetPrimitive (0..*)
 		[synonym Rosetta_Workbench value reset]
-		[synonym DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value ignore]	
+		[synonym DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value ignore]
 	termsChange TermsChangePrimitive (0..1)
 		[synonym Rosetta_Workbench value termsChange]
 		[synonym DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value ignore]
@@ -617,7 +615,6 @@ type TransferCalculation:
 	calculationOutcome calculation (0..1) <"This is a conceptual placeholder for providing the breakdown into the cashflow calculation components, leveraging the fact that the CDM provides calculation components, starting with the FixedAmount and the FloatingAmount. Further evaluation of expected usage needs to take place to confirm and prioritize such implementation.">
 		[synonym Rosetta_Workbench value transferCalculation]
 
-
 type TransferBreakdown extends TransferBase:
 	lineage Lineage (0..*) <"The lineage into the transfer components that might be associated with each of the transfer components.">
 		[synonym Rosetta_Workbench value lineage]
@@ -644,7 +641,6 @@ type Velocity:
 /*********************
  * Event Qualification
  */
-
 isEvent Allocation <"The qualification of allocation event from the fact that (i) the intent is Allocation when specified, (ii) the only primitive is the allocation, (iii) the sum of quantities/notional before = after, and (iv) there is a single contractualProduct before (ensured through cardinality). Note: it is accepted that an allocation can result in a single contract.">
 	Event -> primitive -> allocation only exists
 	/*
