@@ -57,7 +57,7 @@ type CashTransferComponent extends TransferBase:
 		[synonym DTCC_11_0, DTCC_9_0 value "paymentAmount"]
 	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">
 		[synonym Rosetta_Workbench value "cashflowType"]
-		[synonym DTCC_11_0, DTCC_9_0 value "cashflowType" path "calculationDetails->grossCashflow" meta "cashflowTypeScheme"]
+		[synonym DTCC_11_0, DTCC_9_0 value "cashflowType" path "calculationDetails->grossCashflow" meta cashflowTypeScheme]
 	breakdown CashTransferBreakdown (0..*) <"The cash transfer breakdown, when the transfer corresponds to a net amount across several components which breakdown is deemed relevant (e.g. the net cash transfer related to several contracts, or to the net proceeds across several payout components).">
 		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0 value "breakdown"]
 
@@ -89,7 +89,7 @@ type ComputedAmount: <"A class to specify the outcome of a computed amount, for 
 	amount number (1..1)
 	currency string (0..1) <"The currency in which the computed amount is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
 		[metadata scheme]
-		[synonym Rosetta_Workbench value "currency" meta "currencyScheme"]
+		[synonym Rosetta_Workbench value "currency" meta currencyScheme]
 
 type ContractState: <"A class to specify a contract state instantiation with respect to the before and/or after state of lifecycle events.">
 	contract Contract (1..1) <"Reference to the original contract, such that the contract state can be resolved by super-imposing the updated values on top of the original contract.">
@@ -108,10 +108,10 @@ type ContractState: <"A class to specify a contract state instantiation with res
 	[synonym FpML_5_10 value "CreditLimit"]
 {
 	limitId string (0..1) scheme;
-		[synonym FpML_5_10 value "limitId" meta "creditLimitIdScheme"]
+		[synonym FpML_5_10 value "limitId" meta creditLimitIdScheme]
 	applicableProduct ProductIdentification (0..1) <"Further to the FpML standard, the CDM ProductIdentification provides the ability to associate a CDM qualified product.">
 	currency string (0..1) scheme <"The currency in which the credit limit is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
-		[synonym FpML_5_10 value "currency" meta "currencyScheme"]
+		[synonym FpML_5_10 value "currency" meta currencyScheme]
 	tenor Period (0..1) <"The maximum allowed tenor for a trade under this limit. When this structure is used as part of a suspendCredit message, this tenor imposes a temporary tenor limit on allowed trade types.">
 		[synonym FpML_5_10 value "tenor"]
 	limitApplicable LimitApplicable (0..*)
@@ -146,7 +146,7 @@ type Curve : //one of
 		[synonym Rosetta_Workbench value "interestRateCurve"]
 	commodityCurve CommodityReferencePriceEnum (0..1) // This is just an illustrative alternative curve instance, which implementation needs to be refined and confirmed
 		[metadata scheme]
-		[synonym Rosetta_Workbench value "commodityCurve" meta "commodityReferencePriceScheme"]
+		[synonym Rosetta_Workbench value "commodityCurve" meta commodityReferencePriceScheme]
 	condition Curve: one-of
 
 type CustomisedWorkflow: <"In its initial iteration, this class is meant to support the DTCC TIW workflow information.">
@@ -185,7 +185,7 @@ type CustomisedWorkflow: <"In its initial iteration, this class is meant to supp
 
 type Event :<"A class to specify the lifecycle event. The associated rosettaKey denotes the ability to associate a hash value to the Event instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
-	[synonym Rosetta_Workbench meta "id"]
+	[synonym Rosetta_Workbench meta id]
 	messageInformation MessageInformation (0..1)
 		[synonym DTCC_11_0, DTCC_9_0 value "FpML" path "Body->OTC_Matching->Trade"]
 		[synonym DTCC_11_0, DTCC_9_0 value "FpML" path "Body->OTC_Matching->Payment"]
@@ -346,7 +346,7 @@ type Inception: <"The primitive event for the inception of a new contract betwee
 type InterestRateCurve:
 	floatingRateIndex FloatingRateIndexEnum (1..1)
 		[metadata scheme]
-		[synonym Rosetta_Workbench value "floatingRateIndex" meta "floatingRateIndexScheme"]
+		[synonym Rosetta_Workbench value "floatingRateIndex" meta floatingRateIndexScheme]
 	tenor Period (1..1)
 		[synonym Rosetta_Workbench value "tenor"]
 
@@ -354,7 +354,7 @@ type LimitApplicable:
 	[synonym FpML_5_10 value "LimitApplicable"]
 	limitType CreditLimitTypeEnum (0..1) <"Standard code to indicate which type of credit line is being referred to - i.e. IM, DV01, PV01, CS01, Notional, Clip Size, Notional, maximumOrderQuantity.">
 		[metadata scheme]
-		[synonym FpML_5_10, CME_ClearedConfirm_1_17, Rosetta_Workbench value "limitType" meta "creditLimitTypeScheme"]
+		[synonym FpML_5_10, CME_ClearedConfirm_1_17, Rosetta_Workbench value "limitType" meta creditLimitTypeScheme]
 	clipSize int (0..1) <"This element is required in FpML, optional in CDM for the purpose of accommodating the CME data representation while making reference to the FpML one.">
 		[synonym FpML_5_10 value "clipSize"]
 	amountUtilized number (0..1) <"The limit utilised by all the cleared trades for the limit level and limit type. While the attribute is of type integer in FpML and the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">
@@ -365,7 +365,7 @@ type LimitApplicable:
 		[synonym FpML_5_10, CME_ClearedConfirm_1_17, Rosetta_Workbench value "amountRemaining"]
 	currency string (0..1) <"The currency in which the applicable limit is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
 		[metadata scheme]
-		[synonym FpML_5_10, CME_ClearedConfirm_1_17, Rosetta_Workbench value "currency" meta "currencyScheme"]
+		[synonym FpML_5_10, CME_ClearedConfirm_1_17, Rosetta_Workbench value "currency" meta currencyScheme]
 	velocity Velocity (0..1)
 		[synonym FpML_5_10 value "velocity"]
 	condition LimitApplicable_choice:  <"Choice rule to represent an FpML choice construct.">
@@ -376,7 +376,7 @@ type LimitApplicableExtended extends LimitApplicable: <"A class to represent the
 	[synonym CME_ClearedConfirm_1_17 value "CreditLimitInformation"]
 	limitLevel LimitLevelEnum (0..1) <"The level at which the limit is set: customer business, proprietary business or account level. This attribute is specified as a string as part of the CME clearing confirmation specification.">
 		[metadata scheme]
-		[synonym CME_ClearedConfirm_1_17, Rosetta_Workbench value "level" meta "creditLimitLevelScheme"]
+		[synonym CME_ClearedConfirm_1_17, Rosetta_Workbench value "level" meta creditLimitLevelScheme]
 	limitAmount number (0..1) <"The total limit available for the limit level and limit type. While the attribute is of type integer in the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">
 		[synonym CME_ClearedConfirm_1_17, Rosetta_Workbench value "limitAmount"]
 	limitImpactDueToTrade number (0..1) <"The limit utilized by this specific trade. While the attribute is of type integer in the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">
@@ -385,31 +385,31 @@ type LimitApplicableExtended extends LimitApplicable: <"A class to represent the
 type Lineage: <"A class to provide lineage information across lifecycle events through a pointer or set of pointers into the event(s), contract(s) and, possibly, payout components that the event is dependent on or relates to. As an example, if an inception event is corrected, the correction event will have a lineage into the initial event, which takes the form of a rosettaKey into that initial inception event. Two referencing mechanisms are provided as part of the CDM: either the rosettaKey, which corresponds to the hash value of the CDM class which is referred to, or a reference qualifier which is meant to provide support for the ingestion of xml documents with id/href mechanisms. The CDM recommends the use of the rosettaKey and provides a default implementation which is accessible in the generated code through org.isda.cdm.rosettakey.RosettaKeyValueHashFunction. If implementers want to use an alternative hashing mechanism, the API in which they need to plug it is com.rosetta.model.lib.HashFunction.">
 	contractReference Contract (0..*) <"The reference to the instantiation of a Contract object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
-		[synonym Rosetta_Workbench value "contractReference" meta "href"]
+		[synonym Rosetta_Workbench value "contractReference" meta href]
 	eventReference Event (0..*) <"The reference to the instantiation of an Event object, either through a rosettaKey or an xml-derived id/href mechanism. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
-		[synonym Rosetta_Workbench value "eventReference" meta "href"]
+		[synonym Rosetta_Workbench value "eventReference" meta href]
 	executionReference Execution (0..*) <"The reference to the instantiation of a Execution object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
-		[synonym Rosetta_Workbench value "executionReference" meta "href"]
+		[synonym Rosetta_Workbench value "executionReference" meta href]
 	cashflowReference Cashflow (0..*) <"The reference to the instantiation of a Cashflow payout component object. An expected typical usage is to provide lineage for the payment of, say, the option premium or the swap initial fee. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
-		[synonym Rosetta_Workbench value "cashflowReference" meta "href"] 
+		[synonym Rosetta_Workbench value "cashflowReference" meta href] 
 	creditDefaultPayoutReference CreditDefaultPayout (0..*) <"The reference to the instantiation of a CreditdefaultPayout component object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
-		[synonym Rosetta_Workbench value "creditDefaultReference" meta "href"]
+		[synonym Rosetta_Workbench value "creditDefaultReference" meta href]
 	interestRatePayoutReference InterestRatePayout (0..*) <"The reference to the instantiation of a InterestRatePayout component object. An expected typical usage is to provide lineage for the payment of, say, an interest rate swap reset, with the ability to relate the gross cashflow amounts to the respective payout components. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
-		[synonym Rosetta_Workbench value "interestRatePayoutReference" meta "href"]
+		[synonym Rosetta_Workbench value "interestRatePayoutReference" meta href]
 	optionPayoutReference OptionPayout (0..*) <"The reference to the instantiation of a OptionPayout component object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
-		[synonym Rosetta_Workbench value "optionPayoutReference" meta "href"]
+		[synonym Rosetta_Workbench value "optionPayoutReference" meta href]
 	equityPayoutReference EquityPayout (0..*) <"The reference to the instantiation of a EquityPayout object. An expected typical usage is to provide lineage for the payment of, say, an equity dividend. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
-		[synonym Rosetta_Workbench value "equityPayoutReference" meta "href"]
+		[synonym Rosetta_Workbench value "equityPayoutReference" meta href]
 	transferReference TransferPrimitive (0..*) <"The reference to the instantiation of a TransferPrimitive object.">
 		[metadata reference]
-		[synonym Rosetta_Workbench value "transferReference" meta "href"]
+		[synonym Rosetta_Workbench value "transferReference" meta href]
 	legalAgreement LegalAgreement (0..*) <"The reference to the instantiation of a Legal Agreement object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
 	portfolioStateReference PortfolioState (0..*) <"The refence to the previous state of a Portfolio, in a chain of Events leading up to a build of that Portfolio as the holding of Product(s) in specific Quantity(ies). As part of the PortfolioState object, a pointer to the previous PortfolioState is provided through a Lineage object, together with pointer(s) to the Event or set of Events leading up to the current (new) state.">
@@ -418,19 +418,19 @@ type Lineage: <"A class to provide lineage information across lifecycle events t
 type MessageInformation: <"This class corresponds to the components of the FpML MessageHeader.model.">
 	messageId string (1..1) <"A unique identifier assigned to the message.">
 		[metadata scheme]
-		[synonym Rosetta_Workbench value "messageId" path "messageInformation" meta "messageIdScheme"]
-		[synonym DTCC_11_0, DTCC_9_0 value "messageId" path "header" meta "messageIdScheme"]
-		[synonym CME_ClearedConfirm_1_17 value "messageId" meta "messageIdScheme"]
+		[synonym Rosetta_Workbench value "messageId" path "messageInformation" meta messageIdScheme]
+		[synonym DTCC_11_0, DTCC_9_0 value "messageId" path "header" meta messageIdScheme]
+		[synonym CME_ClearedConfirm_1_17 value "messageId" meta messageIdScheme]
 	sentBy string (0..1) <"The identifier for the originator of a message instance.">
 		[metadata scheme]
-		[synonym Rosetta_Workbench value "sentBy" path "messageInformation" meta "messageAddressScheme"]
+		[synonym Rosetta_Workbench value "sentBy" path "messageInformation" meta messageAddressScheme]
 		[synonym DTCC_11_0, DTCC_9_0 value "From"]
-		[synonym CME_ClearedConfirm_1_17 value "sentBy" meta "messageAddressScheme"]
+		[synonym CME_ClearedConfirm_1_17 value "sentBy" meta messageAddressScheme]
 		[synonym CME_SubmissionIRS_1_0 value "SSub" path "TrdCaptRpt->Hdr"]
 	sentTo string (0..*) <"The identifier(s) for the recipient(s) of a message instance.">
 		[metadata scheme]
-		[synonym Rosetta_Workbench value "sentTo" path "messageInformation" meta "messageAddressScheme"]
-		[synonym CME_ClearedConfirm_1_17 value "sendTo" meta "messageAddressScheme"]
+		[synonym Rosetta_Workbench value "sentTo" path "messageInformation" meta messageAddressScheme]
+		[synonym CME_ClearedConfirm_1_17 value "sendTo" meta messageAddressScheme]
 		[synonym DTCC_11_0, DTCC_9_0 value "To"]
 		[synonym CME_SubmissionIRS_1_0 value "TID" path "TrdCaptRpt->Hdr"]
 	copyTo string (0..*) <"A unique identifier (within the specified coding scheme) giving the details of some party to whom a copy of this message will be sent for reference.">
@@ -463,7 +463,7 @@ type ObservationSource: <"The observation source can be composed of an curve and
 type PartyCustomisedWorkflow: <"A class to specify a party-related, non-standardized data in a generic form.">
 	partyReference Party (0..1) <"Reference to the party to which the workflow pertains to.">
 		[metadata reference]
-		[synonym DTCC_11_0, DTCC_9_0 value "partyReference" meta "href"]
+		[synonym DTCC_11_0, DTCC_9_0 value "partyReference" meta href]
 	partyName string (0..1) <"The party name to which the workflow pertains to.">
 		[synonym CME_SubmissionIRS_1_0 value "ID" path "Pty"]
 	customisedWorkflow CustomisedWorkflow (1..*) <"Non-standardized data in a generic form.">
@@ -586,7 +586,7 @@ type TransferPrimitive: <"A class to specify the transfer of assets between part
 	[metadata key]
 	identifier string (0..1) <"The identifier which might be associated with the transfer.">
 		[metadata scheme]
-		[synonym DTCC_11_0, DTCC_9_0 value "tradeCashflowsId" path "FpML" meta "tradeCashflowsIdScheme"]
+		[synonym DTCC_11_0, DTCC_9_0 value "tradeCashflowsId" path "FpML" meta tradeCashflowsIdScheme]
 	settlementType TransferSettlementEnum (0..1) <"The qualification as to how the transfer will settle, e.g. a DvP settlement.">
 		[synonym Rosetta_Workbench value "transferType"]
 		[synonym DTCC_11_0, DTCC_9_0 value "SettlementType" path "PaymentDetails"]
@@ -606,7 +606,7 @@ type TransferPrimitive: <"A class to specify the transfer of assets between part
 type TransferBase:
 	identifier string (0..1) <"The identifier that can be associated with each of the transfer components">
 		[metadata scheme]
-		[synonym DTCC_11_0, DTCC_9_0 value "identifier" meta "paymentIdScheme"]
+		[synonym DTCC_11_0, DTCC_9_0 value "identifier" meta paymentIdScheme]
 	transferCalculation TransferCalculation (0..1) <"The calculation details underlying the transfer amount, when applicable.">
 		[synonym DTCC_11_0, DTCC_9_0 value "calculationDetails"]
 
@@ -625,16 +625,16 @@ type TransferBreakdown extends TransferBase:
 type TransferorTransferee: <"A class mimicking the PayerReceiver, which is itself derived from the FpML PayerReceiver.model, to represent the transferee and transferor party information in relation to the transfer of security or commodities.">
 	transferorPartyReference Party (1..1) <"A reference to the party responsible for making the payments defined by this structure.">
 		[metadata reference]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "payerPartyReference" meta "href"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "payerPartyReference" meta href]
 	transferorAccountReference Account (0..1) <"A reference to the account responsible for making the payments defined by this structure.">
 		[metadata reference]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "payerAccountReference" meta "href"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "payerAccountReference" meta href]
 	transfereePartyReference Party (1..1) <"A reference to the party that receives the payments corresponding to this structure.">
 		[metadata reference]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "receiverPartyReference" meta "href"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "receiverPartyReference" meta href]
 	transfereeAccountReference Account (0..1) <"A reference to the account that receives the payments corresponding to this structure.">
 		[metadata reference]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "receiverAccountReference" meta "href"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "receiverAccountReference" meta href]
 
 type Velocity:
 	[synonym FpML_5_10 value "Velocity"]
