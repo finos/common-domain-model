@@ -2,7 +2,8 @@
 
 _What is being released_
 
-Infrastructure work to support the projection from CDM into FpML 5.10 documents.  Initial projection service implementation and  mapping classes support the projection of products that qualify as `InterestRate_IRSwap_FixedFloat`.
+Further infrastructure work to support the projection from CDM into FpML 5.10 documents:
+- Add validation to the input CDM JSON before running projection to XML, so all relevent diagnostics can be displayed to the user.
 
 _Review direction_
 
