@@ -1,18 +1,9 @@
-# *DerivHack Feedback - Support Assignment of References*
+# *CDM to FpML Projection*
 
-What is being released
+_What is being released_
 
-From Barclays DerivHack 2019 event feedback, users requested the Function Syntax to support assigning references in addition to assigning values. This is necessary when specifying how the Lineage object should be populated, in the Function Syntax’s `assign-output` statements.
+Infrastructure work to support the projection from CDM into FpML 5.10 documents.  Initial projection service implementation and  mapping classes support the projection of products that qualify as `InterestRate_IRSwap_FixedFloat`.
 
-The Function Syntax now supports the `as-key` keyword within the context of an `assign-output` statement that effectively communicates to the reader (and to the underlying generated code) that it is the reference that will be assigned and not the value itself. 
+_Review direction_
 
-For example, in the below code snippet, we assign the global key of the Execution Event to the appropriate element on the Lineage object.
-
-```
-assign-output allocationEvent -> lineage -> eventReference:
-  executionEvent as-key
-```
-
-Review direction
-
-In the Textual Browser, see the Execute, Allocate and Settle Functions where examples of where the new keyword is being used. The change has also been affected in the generated java code which can be used by CDM adopters. 
+The projection functionality will be made available in Rosetta Core, where users can drag and drop CDM JSON files in, which will be projected into FpML 5.10 and displayed as XML.
