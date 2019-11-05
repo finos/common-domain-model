@@ -332,14 +332,14 @@ type ExecutionPrimitive: <"Specification of the primitive event for an execution
 	after ExecutionState (1..1) <"The after state corresponds to the execution between the parties. In the case of an execution on a contractual product, some additional characteristics may need to be specified to get a fully-formed contract, for instance when the executing party acts as an agent, as is the case in an allocation scenario. This is the purpose of the 'ContractFormation' primitive event.">
 		[synonym Rosetta_Workbench value after]
 
-type ContractFormation: <"Specification of the primitive event for the formation of a contract, with 'before' state being an 'ExecutionState' and 'after' state being a 'PostInceptionState'. This primitive combined with the 'ExecutionPrimitive' supersedes the earlier 'Inception' primitive, which had both the the execution and the contract formation bundled together, and as such was only applicable to contractual products. This intends to provide for properly atomic primitives.">
+type ContractFormationPrimitive: <"Specification of the primitive event for the formation of a contract, with 'before' state being an 'ExecutionState' and 'after' state being a 'PostInceptionState'. This primitive combined with the 'ExecutionPrimitive' supersedes the earlier 'Inception' primitive, which had both the the execution and the contract formation bundled together, and as such was only applicable to contractual products. This intends to provide for properly atomic primitives.">
 	before ExecutionState (1..1) <"The before state corresponds to the output of an execution between the parties.">
 		[synonym Rosetta_Workbench value before]
 	after PostInceptionState (1..1) <"The after state corresponds to the new contract being formed between the parties, plus some additional trade workflow information.">
 		[synonym Rosetta_Workbench value after]
 
 // TODO: deprecate that class, now superseded by a combination of 'ExecutionPrimitive' and 'ContractFormation'
-type Inception: <"The primitive event for the inception of a new contract between parties. It is expected that this primitive will be adjusted or deprecated once the CDM scope is extended to the pre-execution space.">
+type InceptionPrimitive: <"The primitive event for the inception of a new contract between parties. It is expected that this primitive will be adjusted or deprecated once the CDM scope is extended to the pre-execution space.">
 	before ContractState (0..0) <"The (0..0) cardinality reflects the fact that there is no contract in the before state of an inception primitive. As noted in the definition associated with the class, this is expected to change once the CDM scope is extended to the pre-execution space.">
 		[synonym Rosetta_Workbench value before]
 	after PostInceptionState (1..1) <"The after state corresponds to the new contract between the parties.">
@@ -498,7 +498,7 @@ type PostInceptionState extends ContractState:
 type PrimitiveEvent: <"A type to specify the one and only one of the elemental/primitives components that are used to specify lifecycle events. Lifecycle events make use of one or several of those elemental components specified as part of this class.">
 	execution ExecutionPrimitive (0..1)
 		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0, FpML_5_10 value ignore]
-	contractFormation ContractFormation (0..1)
+	contractFormation ContractFormationPrimitive (0..1)
 		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0, FpML_5_10 value ignore]
 	allocation AllocationPrimitive (0..1)
 		[synonym Rosetta_Workbench value allocation path "primitive"]
@@ -506,7 +506,7 @@ type PrimitiveEvent: <"A type to specify the one and only one of the elemental/p
 	exercise ExercisePrimitive (0..1)
 		[synonym Rosetta_Workbench value exercise path "primitive"]
 		[synonym DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value ignore]
-	inception Inception (0..1)
+	inception InceptionPrimitive (0..1)
 		[synonym Rosetta_Workbench value inception path "primitive"]
 		[synonym CME_SubmissionIRS_1_0 value ignore]
 	observation ObservationPrimitive (0..1)
