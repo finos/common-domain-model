@@ -33,7 +33,7 @@ type AdjustableDate: <"A class for defining a date that shall be subject to adju
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value adjustedEffectiveDate]
 
 	condition AdjustableDate_choice: <"Choice rule to represent an FpML choice construct.">
-	optional choice dateAdjustments, dateAdjustmentsReference
+		optional choice dateAdjustments, dateAdjustmentsReference
 
 type AdjustableDates: <"A class for defining a series of dates that shall be subject to adjustment if they would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the dates.">
 	[metadata key]
@@ -60,11 +60,11 @@ type AdjustableOrAdjustedDate: <"A class for defining a date that shall be subje
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value adjustedDate meta id]
 
 	condition AdjustableOrAdjustedDate_adjustedDate: <"FpML specifies a choice between adjustedDate and [unadjustedDate (required), dateAdjutsments (required), adjustedDate (optional)].">
-	if AdjustableOrAdjustedDate exists
-	then AdjustableOrAdjustedDate -> adjustedDate exists 
-		or ( AdjustableOrAdjustedDate -> unadjustedDate and AdjustableOrAdjustedDate -> dateAdjustments and AdjustableOrAdjustedDate -> adjustedDate ) exists
-		or ( ( AdjustableOrAdjustedDate -> unadjustedDate and AdjustableOrAdjustedDate -> dateAdjustments ) exists 
-			and AdjustableOrAdjustedDate -> adjustedDate is absent )
+		if AdjustableOrAdjustedDate exists
+		then AdjustableOrAdjustedDate -> adjustedDate exists
+			or (AdjustableOrAdjustedDate -> unadjustedDate and AdjustableOrAdjustedDate -> dateAdjustments and AdjustableOrAdjustedDate -> adjustedDate) exists
+			or ((AdjustableOrAdjustedDate -> unadjustedDate and AdjustableOrAdjustedDate -> dateAdjustments) exists
+			and AdjustableOrAdjustedDate -> adjustedDate is absent)
 
 type AdjustableOrAdjustedOrRelativeDate: <"This Rosetta class specifies the date as either an unadjusted, adjusted or relative date. It supplements the features of the AdjustableOrAdjustedDate to support the credit default swap option premium, which uses the relative date construct.">
 
@@ -91,12 +91,12 @@ type AdjustableOrAdjustedOrRelativeDate: <"This Rosetta class specifies the date
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value relativeDate path "paymentDate"]
 
 	condition AdjustableOrAdjustedOrRelativeDate_adjustedDate: <"This data rule extends the data rule AdjustableOrAdjustedDate_adjustedDate by specifying logic applicable to the relative date.">
-	if AdjustableOrAdjustedOrRelativeDate exists
-	then AdjustableOrAdjustedOrRelativeDate -> adjustedDate exists
-		or AdjustableOrAdjustedOrRelativeDate -> relativeDate exists
-		or ( AdjustableOrAdjustedOrRelativeDate -> unadjustedDate ) exists
-		or ( ( AdjustableOrAdjustedOrRelativeDate -> unadjustedDate and AdjustableOrAdjustedOrRelativeDate -> dateAdjustments ) exists 
-			and AdjustableOrAdjustedOrRelativeDate -> adjustedDate is absent )
+		if AdjustableOrAdjustedOrRelativeDate exists
+		then AdjustableOrAdjustedOrRelativeDate -> adjustedDate exists
+			or AdjustableOrAdjustedOrRelativeDate -> relativeDate exists
+			or (AdjustableOrAdjustedOrRelativeDate -> unadjustedDate) exists
+			or ((AdjustableOrAdjustedOrRelativeDate -> unadjustedDate and AdjustableOrAdjustedOrRelativeDate -> dateAdjustments) exists
+			and AdjustableOrAdjustedOrRelativeDate -> adjustedDate is absent)
 
 type AdjustableOrRelativeDate: <"A class giving the choice between defining a date as an explicit date together with applicable adjustments or as relative to some other (anchor) date.">
 	[metadata key]
@@ -117,7 +117,7 @@ type AdjustableOrRelativeDate: <"A class giving the choice between defining a da
 		[synonym FpML_5_10 value relativeDate path "paymentDateFinal"]
 
 	condition AdjustableOrRelativeDate_choice: <"Choice rule to represent an FpML choice construct.">
-	required choice adjustableDate, relativeDate
+		required choice adjustableDate, relativeDate
 
 type AdjustableOrRelativeDates: <"A class giving the choice between defining a series of dates as an explicit list of dates together with applicable adjustments or as relative to some other series of (anchor) dates.">
 	[metadata key]
@@ -130,7 +130,7 @@ type AdjustableOrRelativeDates: <"A class giving the choice between defining a s
 		[synonym FpML_5_10 value relativeDateSequence]
 
 	condition AdjustableOrRelativeDates_choice: <"Choice rule to represent an FpML choice construct.">
-	required choice adjustableDates, relativeDates
+		required choice adjustableDates, relativeDates
 
 type AdjustedRelativeDateOffset extends RelativeDateOffset: <"A type defining a date (referred to as the derived date) as a relative offset from another date (referred to as the anchor date) plus optional date adjustments.">
 	[synonym FpML_5_10 value AdjustedRelativeDateOffset]
@@ -211,7 +211,7 @@ type BusinessCenters: <"A class for specifying the business day calendar locatio
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value businessCentersReference meta href]
 
 	condition BusinessCenters_choice: <"Choice rule to represent an FpML choice construct.">
-	required choice businessCenter, businessCentersReference
+		required choice businessCenter, businessCentersReference
 
 type BusinessCenterTime: <"A class for defining a time with respect to a business day calendar location. For example, 11:00:00 GBLO.">
 	[synonym FpML_5_10 value BusinessCenterTime]
@@ -277,7 +277,7 @@ type CalculationAgent: <"A class defining the ISDA calculation agent responsible
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value calculationAgentBusinessCenter]
 
 	condition CalculationAgent_choice: <"Choice rule to represent an FpML choice construct.">
-	optional choice calculationAgentPartyReference, calculationAgentParty
+		optional choice calculationAgentPartyReference, calculationAgentParty
 
 type CalculationPeriodFrequency extends Frequency: <"A class to specify the frequency at which calculation period end dates occur within the regular part of the calculation period schedule and their roll date convention.">
 	[synonym FpML_5_10 value CalculationPeriodFrequency]
@@ -410,7 +410,7 @@ type DocumentationIdentification: <"A class for defining the definitions that go
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value attachment]
 
 	condition DocumentationIdentification_choice: <"Choice rule to represent an FpML choice construct.">
-	optional choice masterConfirmation, brokerConfirmation
+		optional choice masterConfirmation, brokerConfirmation
 
 type EuropeanExercise: <"A class defining the exercise period for a European style option together with any rules governing the notional amount of the underlying which can be exercised on any given exercise date and any associated exercise fees.">
 	[metadata key]
@@ -446,6 +446,7 @@ type ExerciseFee extends BuyerSeller: <"A class defining the fee payable on exer
 
 	condition ExerciseFee_choice: <"Choice rule to represent an FpML choice construct.">
 		required choice feeAmount, feeRate
+
 /*
  * In the below notional has been changed to be of type NotionalSchedule
  */
@@ -463,7 +464,7 @@ type ExerciseFeeSchedule extends PayerReceiver: <"A class to define a fee or sch
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value feePaymentDate]
 
 	condition ExerciseFeeSchedule_choice: <"Choice rule to represent an FpML choice construct.">
-	required choice feeAmountSchedule, feeRateSchedule
+		required choice feeAmountSchedule, feeRateSchedule
 
 type ExerciseNotice: <"A class defining to whom and where notice of execution should be given. The partyReference refers to one of the principal parties of the trade. If present the exerciseNoticePartyReference refers to a party, other than the principal party, to whom notice should be given.">
 	[synonym FpML_5_10 value ExerciseNotice]
@@ -551,12 +552,12 @@ type Frequency: <"A class for defining a date frequency, e.g. one day, three mon
 		[synonym FpML_5_10 value period path "paymentDatesInterim.relativeDates"]
 
 	condition Frequency_period: <"FpML specifies that if period value is T (Term) then periodMultiplier must contain the value 1.">
-	if Frequency -> period = PeriodExtendedEnum.T
-	then Frequency -> periodMultiplier = 1
+		if Frequency -> period = PeriodExtendedEnum.T
+		then Frequency -> periodMultiplier = 1
 
 	condition Frequency_periodMultiplier: <"FpML specifies periodMultiplier as a positive integer.">
-	if Frequency exists
-	then Frequency -> periodMultiplier >= 0
+		if Frequency exists
+		then Frequency -> periodMultiplier >= 0
 
 type FutureValueAmount extends Money: <"A class defining a currency amount as at a future value date.">
 	[synonym FpML_5_10 value FutureValueAmount]
@@ -722,8 +723,8 @@ type NonNegativeSchedule: <"A class defining a schedule of non-negative rates or
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value step]
 
 	condition NonNegativeSchedule_initialValue: <"FpML specified initialValue as a NonNegativeDecimal.">
-	if NonNegativeSchedule exists
-	then NonNegativeSchedule -> initialValue >= 0.0
+		if NonNegativeSchedule exists
+		then NonNegativeSchedule -> initialValue >= 0.0
 
 type NonNegativeStep: <"A class defining a step date and non-negative step value pair. This step definitions are used to define varying rate or amount schedules, e.g. a notional amortisation or a step-up coupon schedule.">
 	[metadata key]
@@ -734,8 +735,8 @@ type NonNegativeStep: <"A class defining a step date and non-negative step value
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value stepValue]
 
 	condition NonNegativeStep_stepValue: <"FpML specified stepValue as a NonNegativeDecimal.">
-	if NonNegativeStep exists
-	then NonNegativeStep -> stepValue >= 0.0
+		if NonNegativeStep exists
+		then NonNegativeStep -> stepValue >= 0.0
 
 type Offset extends Period: <"A class defining an offset used in calculating a new date relative to a reference date, e.g. calendar days, business days, commodity Business days, etc.">
 	[synonym FpML_5_10 value Offset]
@@ -743,7 +744,7 @@ type Offset extends Period: <"A class defining an offset used in calculating a n
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value dayType]
 		[synonym ISDA_Create_1_0 set to DayTypeEnum.Calendar when "release_date" = "days"]
 	condition Offset_DayType: <"FpML specifies that the dayType must only be included when the offset is specified as a number of days, while should not be included if the offset is zero days.">
-		if Offset -> period <> PeriodEnum.D 
+		if Offset -> period <> PeriodEnum.D
 			or Offset -> periodMultiplier = 0
 		then Offset -> dayType is absent
 
@@ -834,18 +835,18 @@ type PaymentDates: <"A class to specify the parameters to generate the payment d
 		[synonym FpML_5_10 value relativeDates path "paymentDatesInterim"]
 
 	condition FpML_ird_35_cd_31: <"FpML validation rule ird-35 & cd-31- If firstPaymentDate exists, and if lastRegularPaymentDate exists, then firstPaymentDate must be before lastRegularPaymentDate.">
-	if PaymentDates -> firstPaymentDate exists
-		and PaymentDates -> lastPaymentDate -> lastRegularPaymentDate exists
-	then PaymentDates -> firstPaymentDate < PaymentDates -> lastPaymentDate -> lastRegularPaymentDate
+		if PaymentDates -> firstPaymentDate exists
+			and PaymentDates -> lastPaymentDate -> lastRegularPaymentDate exists
+		then PaymentDates -> firstPaymentDate < PaymentDates -> lastPaymentDate -> lastRegularPaymentDate
 
 	condition PaymentDates_paymentDaysOffset: <"FpML specifies that paymentDaysOffset should only be included if early or delayed payment is applicable, i.e. if the periodMultiplier element value is not equal to zero.">
-	if PaymentDates -> paymentDaysOffset exists
-	then PaymentDates -> paymentDaysOffset -> periodMultiplier <> 0
+		if PaymentDates -> paymentDaysOffset exists
+		then PaymentDates -> paymentDaysOffset -> periodMultiplier <> 0
 
 	condition PaymentDates_dateRelativeTo: <"When the payment dates are specified by reference to another date, the payment offset and the payment date adjustments also need to be specified.">
-	if PaymentDates -> dateRelativeTo exists
-	then ( PaymentDates -> paymentDaysOffset
-		and PaymentDates -> paymentDatesAdjustments ) exists
+		if PaymentDates -> dateRelativeTo exists
+		then (PaymentDates -> paymentDaysOffset
+			and PaymentDates -> paymentDatesAdjustments) exists
 
 type PaymentDetail:
 	[metadata key]
@@ -944,8 +945,8 @@ type RateObservation: <"A class defining parameters associated with an individua
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value treatedForecastRate]
 
 	condition RateObservation_observationWeight: <"FpML specifies observationWeight as a positive integer.">
-	if RateObservation -> observationWeight exists
-	then RateObservation -> observationWeight >= 0
+		if RateObservation -> observationWeight exists
+		then RateObservation -> observationWeight >= 0
 
 type ReferenceBank: <"A class to describe an institution (party) identified by means of a coding scheme and an optional name.">
 	[synonym FpML_5_10 value ReferenceBank]
@@ -1068,8 +1069,8 @@ type Schedule: <"A class defining a schedule of rates or amounts in terms of an 
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value step]
 
 	condition FpML_ird_25: <"FpML validation rule ird-25 - If step does not exist, then initialValue must not be equal to 0.">
-	if Schedule -> step is absent
-	then Schedule -> initialValue <> 0.0
+		if Schedule -> step is absent
+		then Schedule -> initialValue <> 0.0
 
 type SettlementBase: <"A base class to be extended by the SettlementTerms, CashSettlementTerms and PhysicalSettlementTerms classes.">
 	[metadata key]
@@ -1114,8 +1115,8 @@ type SimplePayment extends PayerReceiver: <"A class to specified payments in a s
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value paymentDate]
 
 	condition SimplePayment_PaymentAmount: <"FpML specifies paymentAmount as NonNegativeMoney.">
-	if SimplePayment -> paymentAmount exists
-	then SimplePayment -> paymentAmount -> amount > 0.0
+		if SimplePayment -> paymentAmount exists
+		then SimplePayment -> paymentAmount -> amount > 0.0
 
 type SpreadSchedule extends Schedule: <"Adds an optional spread type element to the Schedule to identify a long or short spread value.">
 	[synonym FpML_5_10 value SpreadSchedule]

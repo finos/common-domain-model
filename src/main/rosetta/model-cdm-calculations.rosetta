@@ -10,13 +10,13 @@ func FixedAmount: <"2006 ISDA Definition Article 5 Section 5.1. Calculation of a
 	output:
 		fixedAmount number (1..1)
 
-	alias calculationAmount	: 
+	alias calculationAmount:
 		interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
 
-	alias fixedRate : 
+	alias fixedRate:
 		interestRatePayout -> rateSpecification -> fixedRate -> initialValue
 
-	alias dayCountFraction : 
+	alias dayCountFraction:
 		DayCountFraction(interestRatePayout, interestRatePayout -> dayCountFraction, date)
 
 	assign-output fixedAmount:
@@ -32,13 +32,13 @@ func FloatingAmount: <"2006 ISDA Definition Article 6 Section 6.1. Calculation o
 		date date (1..1)
 	output: floatingAmount number (1..1)
 
-	alias calculationAmount	: interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
-	alias floatingRate		: ResolveRateIndex( interestRatePayout -> rateSpecification -> floatingRate -> floatingRateIndex )
+	alias calculationAmount: interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
+	alias floatingRate: ResolveRateIndex(interestRatePayout -> rateSpecification -> floatingRate -> floatingRateIndex)
 	// TODO: question to group: why can a float rate calculation node in FpML contain multiple rate schedules?
-	alias spread			: GetRateSchedule( interestRatePayout -> rateSpecification -> floatingRate ) -> initialValue
-	alias dayCountFraction	: DayCountFraction(interestRatePayout, interestRatePayout -> dayCountFraction, date)
+	alias spread: GetRateSchedule( interestRatePayout -> rateSpecification -> floatingRate ) -> initialValue
+	alias dayCountFraction: DayCountFraction(interestRatePayout, interestRatePayout -> dayCountFraction, date)
 
-	assign-output floatingAmount: calculationAmount * ( floatingRate + spread ) * dayCountFraction
+	assign-output floatingAmount: calculationAmount * (floatingRate + spread) * dayCountFraction
 
 func DayCountFraction: <"A description of inputs and outputs for all day count fraction calculations">
 	[calculation]
@@ -57,9 +57,9 @@ func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> ACT_ACT_ISDA
 	[calculation]
 	alias calculationPeriod: CalculationPeriod(interestRatePayout -> calculationPeriodDates, date)
 	alias daysInLeapYearPeriod: <"The number of days of the period that fall in a leap year.">
-			calculationPeriod -> daysInLeapYearPeriod
+		calculationPeriod -> daysInLeapYearPeriod
 	alias daysInNonLeapPeriod: <"The difference between the total days in the period and the days in leap year period">
-			(calculationPeriod -> daysInPeriod) - (calculationPeriod -> daysInLeapYearPeriod)
+		(calculationPeriod -> daysInPeriod) - (calculationPeriod -> daysInLeapYearPeriod)
 	assign-output result:
 		(daysInNonLeapPeriod / 365) + (daysInLeapYearPeriod / 366)
 
@@ -67,9 +67,9 @@ func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> ACT_ACT_ICMA
 	[calculation]
 	alias calculationPeriod: CalculationPeriod(interestRatePayout -> calculationPeriodDates, date)
 	alias daysInPeriod: <"Number of calendar in the calculation period">
-			calculationPeriod -> daysInPeriod
+		calculationPeriod -> daysInPeriod
 	alias periodsInYear: <"Number of calculation periods in a year">
-			PeriodsInYear(interestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency)
+		PeriodsInYear(interestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency)
 	assign-output result:
 		// TODO support the long initial and final stubs
 		daysInPeriod / (daysInPeriod * periodsInYear)
@@ -83,7 +83,7 @@ func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> ACT_365_FIXE
 
 func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> ACT_360): <"'2006 ISDA Definition Article 4 section 4.16(e): if “Actual/360”, “Act/360” or “A/360” is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 360.">
 	[calculation]
-	alias daysInPeriod:  <"Number of calendar in the calculation period">
+	alias daysInPeriod: <"Number of calendar in the calculation period">
 		CalculationPeriod(interestRatePayout -> calculationPeriodDates, date ) -> daysInPeriod
 	assign-output result:
 		daysInPeriod / 360
@@ -94,22 +94,22 @@ func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> _30_360): <"
 		CalculationPeriod(interestRatePayout -> calculationPeriodDates, date)
 
 	alias startYear: <"The year, expressed as a number, in which the first day of the Calculation Period or Compounding Period falls">
-			calculationPeriod -> startDate -> year
+		calculationPeriod -> startDate -> year
 
 	alias endYear: <"The year, expressed as a number, in which the day immediately following the last day included in the Calculation Period or Compounding Period falls">
-			calculationPeriod -> endDate -> year
+		calculationPeriod -> endDate -> year
 
 	alias startMonth: <"The calendar month, expressed as a number, in which the first day of the Calculation Period or Compounding Period falls">
-			calculationPeriod -> startDate -> month
+		calculationPeriod -> startDate -> month
 
 	alias endMonth: <"The calendar month, expressed as number, in which the day immediately following the last day included in the Calculation Period or Compounding Period falls">
-			calculationPeriod -> endDate -> month
+		calculationPeriod -> endDate -> month
 
 	alias endDay: <"The calendar day, expressed as a number, immediately following the last day included in the Calculation Period or Compounding Period, unless such number would be 31 and D2, is greater than 29, in which case D2 will be 30">
-			if calculationPeriod -> startDate -> day > 29 then Min( calculationPeriod -> endDate -> day, 30 ) else calculationPeriod -> endDate -> day
+		if calculationPeriod -> startDate -> day > 29 then Min(calculationPeriod -> endDate -> day, 30) else calculationPeriod -> endDate -> day
 
 	alias startDay: <"The first calendar day, expressed as a number, of the Calculation Period or Compounding Period, unless such number would be 31, in which case, will be 30">
-			Min( calculationPeriod -> startDate -> day, 30 )
+		Min(calculationPeriod -> startDate -> day, 30)
 	assign-output result:
 		(360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
 
@@ -119,22 +119,22 @@ func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360): <
 		CalculationPeriod(interestRatePayout -> calculationPeriodDates, date)
 
 	alias startYear: <"The year, expressed as a number, in which the first day of the Calculation Period or Compounding Period falls">
-			calculationPeriod -> startDate -> year
+		calculationPeriod -> startDate -> year
 
 	alias endYear: <"The year, expressed as a number, in which the day immediately following the last day included in the Calculation Period or Compounding Period falls">
-			calculationPeriod -> endDate -> year
+		calculationPeriod -> endDate -> year
 
 	alias startMonth: <"The calendar month, expressed as a number, in which the first day of the Calculation Period or Compounding Period falls">
-			calculationPeriod -> startDate -> month
+		calculationPeriod -> startDate -> month
 
 	alias endMonth: <"The calendar month, expressed as a number, in which the day immediately following the last day included in the Calculation Period or Compounding Period falls">
-			calculationPeriod -> endDate -> month
+		calculationPeriod -> endDate -> month
 
 	alias endDay: <"The first calendar day, expressed as a number, of the Calculation Period or Compounding Period, unless such number would be 31, in which case will be 30">
-			Min( calculationPeriod -> endDate -> day, 30 )
+		Min(calculationPeriod -> endDate -> day, 30)
 
-	alias startDay: <"The calendar day, expressed as a number, immediately following the last day included in the Calculation Period or Compounding Period, unless such number would be 31, in which case will be 30"> 
-			Min( calculationPeriod -> startDate -> day, 30 )
+	alias startDay: <"The calendar day, expressed as a number, immediately following the last day included in the Calculation Period or Compounding Period, unless such number would be 31, in which case will be 30">
+		Min(calculationPeriod -> startDate -> day, 30)
 	assign-output result:
 		(360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
 
@@ -142,48 +142,48 @@ func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360_ISD
 	[calculation]
 
 	alias calculationPeriod:
-		CalculationPeriod( interestRatePayout -> calculationPeriodDates, date )
+		CalculationPeriod(interestRatePayout -> calculationPeriodDates, date)
 
 	alias interestRatePayoutTerminationDate:
 		ResolveAdjustableDate (interestRatePayout -> calculationPeriodDates -> terminationDate)
 
 	alias startDateIsInLeapYear:
-			IsLeapYear(calculationPeriod -> startDate -> year)
+		IsLeapYear(calculationPeriod -> startDate -> year)
 
 	alias endDateIsInLeapYear:
-			IsLeapYear(calculationPeriod -> endDate -> year)
+		IsLeapYear(calculationPeriod -> endDate -> year)
 
 	alias startYear: <"The year, expressed as a number, in which the first day of the Calculation Period or Compounding Period falls">
-			calculationPeriod -> startDate -> year
+		calculationPeriod -> startDate -> year
 
 	alias endYear: <"The year, expressed as a number, in which the day immediately following the last day included in the Calculation Period or Compounding Period falls">
-			calculationPeriod -> endDate -> year
+		calculationPeriod -> endDate -> year
 
 	alias startMonth: <"The calendar month, expressed as a number, in which the first day of the Calculation Period or Compounding Period falls">
-			calculationPeriod -> startDate -> month
+		calculationPeriod -> startDate -> month
 
 	alias endMonth: <"The calendar month, expressed as a number, in which the day immediately following the last day included in the Calculation Period or Compounding Period falls">
-			calculationPeriod -> endDate -> month
+		calculationPeriod -> endDate -> month
 
 	alias startDay:
-			if startDateIsInLeapYear = False and calculationPeriod -> startDate -> month = 2 and calculationPeriod -> startDate -> day = 28
-				or startDateIsInLeapYear = True and calculationPeriod -> startDate -> month = 2 and calculationPeriod -> startDate -> day = 29
-				or calculationPeriod -> startDate -> day = 31
-			then 30 else calculationPeriod -> endDate -> day
+		if startDateIsInLeapYear = False and calculationPeriod -> startDate -> month = 2 and calculationPeriod -> startDate -> day = 28
+			or startDateIsInLeapYear = True and calculationPeriod -> startDate -> month = 2 and calculationPeriod -> startDate -> day = 29
+			or calculationPeriod -> startDate -> day = 31
+		then 30 else calculationPeriod -> endDate -> day
 
 	alias endDay:
-			if endDateIsInLeapYear = False and calculationPeriod -> endDate -> month = 2 and calculationPeriod -> endDate -> day = 28
-				or endDateIsInLeapYear = True and calculationPeriod -> endDate -> month = 2 and calculationPeriod -> endDate -> day = 29
-				or calculationPeriod -> endDate -> day = 31
-				or calculationPeriod -> endDate = interestRatePayoutTerminationDate
-			then 30 else calculationPeriod -> endDate -> day
+		if endDateIsInLeapYear = False and calculationPeriod -> endDate -> month = 2 and calculationPeriod -> endDate -> day = 28
+			or endDateIsInLeapYear = True and calculationPeriod -> endDate -> month = 2 and calculationPeriod -> endDate -> day = 29
+			or calculationPeriod -> endDate -> day = 31
+			or calculationPeriod -> endDate = interestRatePayoutTerminationDate
+		then 30 else calculationPeriod -> endDate -> day
 	assign-output result:
 		(360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
 
 func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> ACT_365L): <"The actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 365 (or, if the later Period End Date of the Calculation Period or Compounding Period falls in a leap year, divided by 366). ">
 	[calculation]
 	alias calculationPeriod:
-		CalculationPeriod( interestRatePayout -> calculationPeriodDates, date )
+		CalculationPeriod(interestRatePayout -> calculationPeriodDates, date)
 
 	alias endDateIsInLeapYear:
 		IsLeapYear(calculationPeriod -> endDate -> year)

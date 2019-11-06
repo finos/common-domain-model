@@ -20,17 +20,17 @@ func NewEquitySwapProduct: <"Function specification to create an Equity Swap acc
 		product -> contractualProduct -> economicTerms -> payout
 
 	assign-output product -> contractualProduct -> economicTerms -> payout -> equityPayout:
-		NewSingleNameEquityPayout( underlier, masterConfirmation )
+		NewSingleNameEquityPayout(underlier, masterConfirmation)
 
 	assign-output product -> contractualProduct -> economicTerms -> payout -> interestRatePayout: <"Equity and interest rate payouts must be set-up according to their corresponding payout specifications">
-		if masterConfirmation exists then NewFloatingPayout( masterConfirmation )
+		if masterConfirmation exists then NewFloatingPayout(masterConfirmation)
 
 	post-condition: <"Other payout types must be absent.">
 		if masterConfirmation is absent then payout -> interestRatePayout is absent
-		and payout -> cashflow is absent
-		and payout -> creditDefaultPayout is absent
-		and payout -> forwardPayout is absent
-		and payout -> optionPayout is absent
+			and payout -> cashflow is absent
+			and payout -> creditDefaultPayout is absent
+			and payout -> forwardPayout is absent
+			and payout -> optionPayout is absent
 
 	post-condition: <"Non-contractual product types must be absent.">
 		product -> contractualProduct only exists
@@ -63,9 +63,9 @@ func NewFloatingPayout: <"Function specification to create the interest rate (fl
 	output: interestRatePayout InterestRatePayout (1..1)
 
 	post-condition: <"Interest rate payout must inherit terms from the Master Confirmation Agreement when it exists.">
-		if masterConfirmation exists 
-			then interestRatePayout -> calculationPeriodDates = masterConfirmation -> equityCalculationPeriod 
-				and interestRatePayout -> paymentDates = masterConfirmation -> equityCashSettlementDates
+		if masterConfirmation exists
+		then interestRatePayout -> calculationPeriodDates = masterConfirmation -> equityCalculationPeriod
+			and interestRatePayout -> paymentDates = masterConfirmation -> equityCashSettlementDates
 
 /**
  * Function specifications that are used in the Equity Reset process 
@@ -85,14 +85,14 @@ func ResolveEquityContract: <"Specifies how the updated contract should be const
 	alias equityPayout:
 		contractState -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
 
-	alias updatedEquityPayout :
+	alias updatedEquityPayout:
 		updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
 
-	alias periodEndDate :
+	alias periodEndDate:
 		CalculationPeriod( equityPayout -> calculationPeriodDates, date ) -> endDate
 
-	alias equityPerformance :
-		EquityPerformance( contractState, observation -> observation, periodEndDate )
+	alias equityPerformance:
+		EquityPerformance(contractState, observation -> observation, periodEndDate)
 
 	condition isEquityContract :
 		equityPayout exists
@@ -125,17 +125,17 @@ func EquityPriceObservation: <"Function specification for the observation of an 
 	condition: <"Optional choice between directly passing a time or a timeType, which has to be resolved into a time based on the determination method.">
 		if valuationTime exists then timeType is absent
 		else if timeType exists then valuationTime is absent
-		else False
+			else False
 
 	post-condition: <"The date and time must be properly resolved as attributes on the output.">
-		observation -> date = ResolveAdjustableDate( valuationDate )
+		observation -> date = ResolveAdjustableDate(valuationDate)
 		and if valuationTime exists then
-				observation -> time = TimeZoneFromBusinessCenterTime( valuationTime )
-			else
-				observation -> time = ResolveTimeZoneFromTimeType( timeType, determinationMethod )
+		observation -> time = TimeZoneFromBusinessCenterTime(valuationTime)
+		else
+		observation -> time = ResolveTimeZoneFromTimeType(timeType, determinationMethod)
 
 	post-condition: <"The number recorded in the observation must match the number fetched from the source.">
-		observation -> observation = EquitySpot( equity, observation -> date, observation -> time )
+		observation -> observation = EquitySpot(equity, observation -> date, observation -> time)
 
 // should be provided as a fully specified function (with a body, like calculation) with logic based on the direction of RateOfReturn
 func EquityAmountPayer: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 71. ' Equity Amount Payer' means: if the Rate Of Return is positive, then the Short Party shall be the Equity Amount Payer; and if the Rate Of Return is negative, then the Long Party shall be the Equity Amount Payer.">
@@ -170,14 +170,14 @@ func EquityCashSettlementAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity
 	output:
 		equityCashSettlementAmount Money (1..1)
 
-	alias equityPayout :
+	alias equityPayout:
 		contractState -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout
 
 	condition:
 		equityPayout -> payoutQuantity -> quantityNotationTag = QuantityNotationEnum.NumberOfSecurities
 
 	assign-output equityCashSettlementAmount -> amount: <"Equity Cash Settlement Amount is defined here as Abs( Equity Performance ). Per the ISDA Definitions: Equity Performance = (Rate Of Return) × Equity Notional Amount and Equity Cash Settlement Amount = ABS(Rate Of Return) × Equity Notional Amount; so the calculation for Equity Cash Settlement Amount in the CDM is mathematically equivalent, with the added benefit that Rate of Return does not need to be recomputed, since it was already computed in the Reset Event."> 
-		Abs( contractState -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> performance only-element )
+		Abs(contractState -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> performance only-element)
 
 	assign-output equityCashSettlementAmount -> currency: <"Does not handle the cross currency case, currently.">
 		equityPayout -> priceReturnTerms -> initialPrice -> netPrice -> currency only-element
@@ -193,10 +193,10 @@ func ResolveEquityPeriodStartPrice: <"Resolves the price from the end of the pre
 		equityPayout -> priceReturnTerms
 
 	alias calculationPeriod:
-		CalculationPeriod( equityPayout -> calculationPeriodDates, date )
+		CalculationPeriod(equityPayout -> calculationPeriodDates, date)
 
 	assign-output price: <"The initial price is taken from the original contract if we are Resetting for the first time i.e. when the number of updated contracts is one.">
-		if calculationPeriod -> isFirstPeriod  
+		if calculationPeriod -> isFirstPeriod
 		then priceReturnTerms -> initialPrice -> netPrice -> amount
 		else priceReturnTerms -> valuationPriceInterim -> netPrice -> amount
 
@@ -207,14 +207,14 @@ func ResolveEquityPeriodEndPrice:
 	output:
 		price number (1..1)
 
-	alias priceReturnTerms :
+	alias priceReturnTerms:
 		equityPayout -> priceReturnTerms
 
 	alias calculationPeriod:
-		CalculationPeriod( equityPayout -> calculationPeriodDates, date )
+		CalculationPeriod(equityPayout -> calculationPeriodDates, date)
 
 	assign-output price: <"If the last period, take the price from the Valuation Price Final, otherwise from Valuation Price Interim.">
-		if  calculationPeriod -> isLastPeriod  
+		if calculationPeriod -> isLastPeriod
 		then priceReturnTerms -> valuationPriceFinal -> netPrice -> amount
 		else priceReturnTerms -> valuationPriceInterim -> netPrice -> amount
 
@@ -230,20 +230,20 @@ func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirma
 	alias equityPayout:
 		contractState -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
 
-	alias periodStartPrice :
-		ResolveEquityPeriodStartPrice( equityPayout, date )
+	alias periodStartPrice:
+		ResolveEquityPeriodStartPrice(equityPayout, date)
 
-	alias periodEndPrice :
+	alias periodEndPrice:
 		observation
 
-	alias numberOfSecurities :
+	alias numberOfSecurities:
 		ExtractQuantityByNotation( contractState -> contract -> contractualQuantity -> quantityNotation, QuantityNotationEnum.NumberOfSecurities ) -> quantity -> amount
 
-	alias rateOfReturn : 
-		RateOfReturn( periodStartPrice, periodEndPrice )
+	alias rateOfReturn:
+		RateOfReturn(periodStartPrice, periodEndPrice)
 
-	alias notionalAmount : 
-		EquityNotionalAmount( numberOfSecurities, periodEndPrice )
+	alias notionalAmount:
+		EquityNotionalAmount(numberOfSecurities, periodEndPrice)
 
 	assign-output equityPerformance:
 		rateOfReturn * notionalAmount

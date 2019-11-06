@@ -7,15 +7,15 @@ type ForwardPayout: <"Representation of a forward settling payout. The 'Underlie
 	settlementTerms OptionSettlement (1..1) <"Settlement terms for the underlier that include the settlement date, settlement method etc.">
 	condition FxForward_settlementDate: <"For foreign exchange contracts, either the settlementDate is set or the cashflowDates, but not both. When the cashflowDates are set, they must be the same for the 2 legs of the currency pair.">
 		if forwardFX exists
-		then ( ForwardPayout -> settlementTerms -> valueDate exists
-				and forwardFX -> exchangedCurrency1 -> cashflowDate is absent and forwardFX -> exchangedCurrency2 -> cashflowDate is absent ) 
-			or ( ForwardPayout -> settlementTerms -> valueDate is absent
-				and forwardFX -> exchangedCurrency1 -> cashflowDate exists and forwardFX -> exchangedCurrency2 -> cashflowDate exists and
-				forwardFX -> exchangedCurrency1 -> cashflowDate = forwardFX -> exchangedCurrency2 -> cashflowDate )
+		then (ForwardPayout -> settlementTerms -> valueDate exists
+			and forwardFX -> exchangedCurrency1 -> cashflowDate is absent and forwardFX -> exchangedCurrency2 -> cashflowDate is absent)
+			or (ForwardPayout -> settlementTerms -> valueDate is absent
+			and forwardFX -> exchangedCurrency1 -> cashflowDate exists and forwardFX -> exchangedCurrency2 -> cashflowDate exists and
+			forwardFX -> exchangedCurrency1 -> cashflowDate = forwardFX -> exchangedCurrency2 -> cashflowDate)
 	condition FxForward_fxSettlement: <"For foreign exchange contracts, the settlement type must be either fx non-deliverable settlement or not specified, which implies physical settlement in the case of foreign exchange.">
 		if forwardFX exists
-		then ( ForwardPayout -> settlementTerms -> cashSettlementTerms is absent
-			and ForwardPayout -> settlementTerms -> physicalSettlementTerms is absent )
+		then (ForwardPayout -> settlementTerms -> cashSettlementTerms is absent
+			and ForwardPayout -> settlementTerms -> physicalSettlementTerms is absent)
 
 // NOW SUPERSEDED By THE USE OF GENERIC 'PRODUCT' UNDERLIER, WHICH ALREADY HAS A 'ONE OF' RULE:
 // choice rule ForwardPayout_choice <"The forward payout must have an underlying asset that is either a security or a foreign exchange contract.">
@@ -53,10 +53,10 @@ type ExchangeRate: <"A class that is used for describing the exchange rate for a
 		if ExchangeRate -> spotRate exists
 		then ExchangeRate -> spotRate > 0
 	condition ExchangeRate_pointValue_forwardPoints:
-		if ExchangeRate -> pointValue exists 
+		if ExchangeRate -> pointValue exists
 		then ExchangeRate -> forwardPoints exists
 	condition ExchangeRate_forwardPoints_spotRate:
-		if ExchangeRate -> forwardPoints exists 
+		if ExchangeRate -> forwardPoints exists
 		then ExchangeRate -> spotRate exists
 
 // TODO: Duplicates large part of ExchangeRate, consider removing redundancy
