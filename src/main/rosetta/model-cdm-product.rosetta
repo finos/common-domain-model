@@ -42,6 +42,7 @@ type ClosedState: <" A class to qualify the closed state of an execution or a co
 	lastPaymentDate date (0..1) <"The date associated with the last payment in relation to the artefact (e.g. contract) to which this closed state applies. As an example, in the case of an early termination event, it would be the settlement date of the associated fee, if applicable.">
 		[synonym Rosetta_Workbench value lastPaymentDate]
 
+
 type Contract: <" A class to specify a financial contract object, which can be invoked either within the context of an event, or independently from it. It corresponds to the FpML Trade in the Confirmation view (while the CDM Execution class corresponds to the FpML trade in the Pre-Trade view). The associated rosettaKey denotes the ability to associate a hash value to the Contract instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 meta id path "trade"]
@@ -69,20 +70,20 @@ type Contract: <" A class to specify a financial contract object, which can be i
 	contractualQuantity ExecutionQuantity (0..1) <"Complex attribute to specify the quantity of the contractual product that the contract is written on. This temporarily makes uses of the 'ExecutionQuantity' class, until such time when the latter can be renamed as, and supersede, the existing 'ContractualQuantity' class.">
 		// For Equity Swap:
 		[synonym FpML_5_10 value returnLeg path "trade.returnSwap", returnLeg path "trade.equitySwapTransactionSupplement"]
-			// For Swap Stream:
+		// For Swap Stream:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value swap, swap path "trade" ]
 		[synonym CME_SubmissionIRS_1_0 value swap path "Instrmt.SecXML.FpML.trade"]
-			// For Swaption:
+		// For Swaption:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value swap path "trade.swaption"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value swap path "swaption"]
-			// For CapFloor:
+		// For CapFloor:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value capFloor path "trade" ]
-			// For FRA:
-			// [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value trade]
-			// For CDS:
+		// For FRA:
+		// [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value trade]
+		// For CDS:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value creditDefaultSwap ]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value creditDefaultSwap path "trade" ]
-			// For CDS Option
+		// For CDS Option
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value creditDefaultSwap path "trade.creditDefaultSwapOption" ]
 	// TODO: make quantity attribute non-optional
 	collateral Collateral (0..1) <"Defines the collateral obligations of a party.">
@@ -281,6 +282,7 @@ type ContractualProduct: <" A class to specify the contractual products' economi
 	productTaxonomy ProductTaxonomy (0..*) <"The product taxonomy value(s) associated with a contractual product.">
 	economicTerms EconomicTerms (1..1) <"The economic terms associated with a contractual product, i.e. the set of features that are price-forming.">
 
+
 type ContractualQuantity: <" [SCHEDULED FOR DEPRECATION: Class to be emptied-out as products get progressively migrated to the restructured quantity mechanism.] A class to specify the quantity or notional amount that is associated with a contractual product and that is the base for the payout calculation. The quantity attribute applies to products relating to securities or tangible assets (such as equities or commodities), while the notional amount applies to products pertaining to interest rate, FX or credit products.">
 
 	quantity Quantity (0..1) <"The contractual quantity when specified as an amount/number of securities or tangible assets. The quantity attribute is typical used in the equity and commodity asset classes.">
@@ -295,7 +297,7 @@ type ContractualQuantity: <" [SCHEDULED FOR DEPRECATION: Class to be emptied-out
 	notionalSchedule NotionalSchedule (0..1) <"The contractual quantity when specified as a notional amount with an associated schedule, as used in the case of an amortizing swap where the notional amount decreases over time.">
 		[synonym DTCC_11_0, DTCC_9_0 value calculationElements]
 	fxLinkedNotional FxLinkedNotionalSchedule (0..1) <"The contractual quantity when specified as a notional amount which value is a function of FX parameters.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value fxLinkedNotionalSchedule path "calculationPeriodAmount.calculation" /*set when "calculationPeriodAmount.calculation.fxLinkedNotionalSchedule.initialValue" exists*/]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value fxLinkedNotionalSchedule path "calculationPeriodAmount.calculation" /*set when "calculationPeriodAmount.calculation.fxLinkedNotionalSchedule.initialValue" exists*/ ]
 	futureValueNotional FutureValueAmount (0..1) <"The future value notional is specific to BRL CDI swaps, and is specified alongside the notional amount. The value is calculated as follows: Future Value Notional = Notional Amount * (1 + Fixed Rate) ^ (Fixed Rate Day Count Fraction). The currency should always match that expressed in the notional schedule. The value date should match the adjusted termination date.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value futureValueNotional path "calculationPeriodAmount.calculation"]
 
@@ -315,23 +317,25 @@ type ExecutionQuantity: <" Class to specify the executed quantity of a product, 
 		// For Equity Swap:
 		[synonym FpML_5_10 value notional]
 		[synonym FpML_5_10 value underlyer]
-			// For Swap Stream, incl. Swaption and CapFloor:
+		// For Swap Stream, incl. Swaption and CapFloor:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notionalSchedule path "swapStream.calculationPeriodAmount.calculation"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notionalSchedule path "capFloorStream.calculationPeriodAmount.calculation"]
-			// For FRA:
-			// [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value fra mapper FRAIRPSplitter]
-			// For CDS
+		// For FRA:
+		// [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value fra mapper FRAIRPSplitter]
+		// For CDS
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value protectionTerms]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value fixedAmountCalculation path "feeLeg.periodicPayment"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value floatingAmountCalculation path "feeLeg.periodicPayment"]
 	adjustment NotionalAdjustmentEnum (0..1) <"Specifies the conditions that govern the adjustment to the quantity of a contractual product being traded: e.g. execution, portfolio rebalancing etc. It is typically used in the context of Equity Swaps.">
 		[synonym FpML_5_10 value notionalAdjustments]
 
+
 type QuantityMultiplier /*one of*/ : <" Class to specify a mechanism for a quantity to be set as a multiplier to another (reference) quantity, based on a price observation. At the moment this class only supports FX or Equity-linked notional and re-uses existing building blocks for those 2 cases, until such time when component can be made more generic. This captures the case of resetting cross-currency swaps and resetting equity swaps.">
 
 	fxLinkedNotionalSchedule FxLinkedNotionalSchedule (0..1) <"Multiplier specified as an FX-linked schedule, e.g. for a resetting cross-currency swap..">
 	// equityValuation EquityValuation (0..1) <"Multiplier specified as an equity valuation schedule, e.g. for a resetting equity swap.">
 	multiplierValue number (1..1)
+
 
 type ResolvablePayoutQuantity: <" Generic class to specify the quantity for different payout legs in a contractual product, when that quantity can vary across payout legs or across time. A resolvable quantity can always be resolved into one number based on: (i) the quantity notation that must be specified alongside the contractual product description and (ii) a given date, where applicable. In addition to the base case where quantity is directly specified as a number as part of the quantity notation, the use cases are: (i) quantity based on some pre-defined schedule (eg amortising notional), (ii) quantity based on some pre-defined events (eg resetting cross-currency notional), or quantity set as reference to another quantity (eg equity notional as no. securities x price).">
 	[metadata key]
@@ -367,6 +371,7 @@ type CrossCurrencyTerms:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value principalExchanges]
 	settlementProvision SettlementProvision (0..1)
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value settlementProvision]
+
 
 type CreditDefaultPayout: <" The credit default payout specification provides the details necessary for determining when a credit payout will be triggered as well as the parameters for calculating the payout and the settlement terms. The associated rosettaKey denotes the ability to associate a hash value to the CreditDefaultPayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
@@ -405,6 +410,7 @@ type CreditDefaultPayout: <" The credit default payout specification provides th
 
 	condition CreditDefaultPayout_choice: <"Choice rule to represent an FpML choice construct.">
 		optional choice cashSettlementTerms, physicalSettlementTerms
+
 
 type EconomicTerms: <" This class represents the full set of price-forming features associated with a contractual product: the payout component, the notional/quantity, the effective and termination date and the date adjustment provisions when applying uniformily across the payout components. This class also includes the legal provisions which have valuation implications: cancelable provision, extendible provision, early termination provision and extraordinary events specification. A rosettaKeyValue is associated to the contractual product economic terms for the purpose of supporting hash-based reconciliations thanks to the fact that its computation doesn't include meta data, such as identifiers, references, schemes and other rosettaKey artefacts. The rosettaKeyValue default implementation is available as part of the generated code as org.isda.cdm.rosettakey.RosettaKeyValueHashFunction.">
 	[partialKey]
@@ -454,6 +460,7 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
 			and EconomicTerms -> terminationDate) exists
 		then EconomicTerms -> payout -> interestRatePayout -> paymentDates -> lastPaymentDate -> lastRegularPaymentDate < EconomicTerms -> terminationDate -> adjustableDate -> unadjustedDate
 
+
 // FIXME Object compare: effectiveDate > terminationDate
 //	condition CalculationPeriodDates_effectiveDate_terminationDate: <"If the effective date and the termination date are specified, then the termination date must be after the effective date. This data rule extends the FpML validation rules ird-14 & cd-5, which scope is limited to the unadjusted date, to the adjusted date.">
 //		if effectiveDate exists
@@ -500,6 +507,7 @@ type EquityPayout extends PayoutBase: <" The equity payout specification terms. 
 			or EquityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> mutualFund
 			or EquityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> warrant) exists
 
+
 type Execution: <" A class to specify an execution, which consists essentially in the economic terms which are agreed between the parties, alongside with the qualification of the type of execution. The associated rosettaKey denotes the ability to associate a hash value to the respective Execution instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
 	executionType ExecutionTypeEnum (1..1) <"Specifies the type of execution, e.g. via voice, electronically...">
@@ -528,7 +536,7 @@ type Execution: <" A class to specify an execution, which consists essentially i
 		[synonym Rosetta_Workbench value swap]
 		[synonym CME_SubmissionIRS_1_0 value swap path "Instrmt.SecXML.FpML.trade"]
 		[synonym CME_SubmissionIRS_1_0 value swap path "Instrmt.SecXML.FpML.trade.swaption"]
-			// For CDS:
+		// For CDS:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value creditDefaultSwap]
 	price Price (0..1) <"The transacted price of the execution, which is applicable for products such as securities.">
 	settlementTerms SettlementTerms (0..1) <"The execution settlement terms, which is applicable for products such as securities">
@@ -556,6 +564,7 @@ type Execution: <" A class to specify an execution, which consists essentially i
 	condition Execution_settlementTerms: <"When the executed product is a security, the settlement terms must be specified.">
 		if Execution -> product -> security exists
 		then Execution -> settlementTerms exists
+
 
 type GeneralTerms: <" A class specifying a set of non-monetary terms for the Credit Derivative Transaction, including the buyer and seller and selected items from the ISDA 2014 Credit Definition article II, such as the reference obligation and related terms. The CDM GeneralTerms class corresponds to the FpML GeneralTerms complex type, except that the effectiveDate and scheduledTerminationDate have been positioned as part of the InterestRatePayout class in the CDM instead of in GeneralTerms.">
 
@@ -702,6 +711,7 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
 			or InterestRatePayout -> compoundingMethod = CompoundingMethodEnum.None
 		then InterestRatePayout -> calculationPeriodDates -> firstCompoundingPeriodEndDate is absent
 
+
 type NotionalSchedule: <" A class specifying the notional amount or notional amount schedule associated with a contractual product. The notional schedule will be captured explicitly, specifying the dates that the notional changes and the outstanding notional amount that applies from that date. A parametric representation of the rules defining the notional step schedule can optionally be included.">
 	[metadata key]
 	notionalStepSchedule NonNegativeAmountSchedule (1..1) <"The notional amount when expressed as a varying notional alongside a date schedule. The step dates may be subject to adjustments in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">
@@ -709,6 +719,7 @@ type NotionalSchedule: <" A class specifying the notional amount or notional amo
 		[synonym DTCC_11_0, DTCC_9_0 value notional]
 	notionalStepParameters NotionalStepRule (0..1) <"A parametric representation of the notional step schedule, to be used when the notional schedule is not just specified as a set of dates and notional amount. Those parameters include the step frequency, the first and last notional step dates, the step rate, ...">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notionalStepParameters]
+
 
 type OptionExercise: <" A class to represent the applicable terms to qualify an option exercise: the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">
 
@@ -718,6 +729,7 @@ type OptionExercise: <" A class to represent the applicable terms to qualify an 
 	exerciseProcedure ExerciseProcedure (0..1) <"The set of parameters defining the procedure associated with the exercise, e.g. manual exercise.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value exerciseProcedure]
 	settlement OptionSettlement (0..1) <"The option settlement terms, such as cash vs. physical, the settlement date, the settlement currency and/or amount. FpML represents this information as part of the OptionSettlement.model.">
+
 
 type OptionPayout: <" The option payout specification terms. The associated rosettaKey denotes the ability to associate a hash value to the respective OptionPayout instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
@@ -733,6 +745,7 @@ type OptionPayout: <" The option payout specification terms. The associated rose
 	quantity ContractualQuantity (0..1) <"The option notional amount. The CDM uses the generic term quantity rather than notional amount. The number of options is specified as part of the denomination attribute.">
 	exerciseTerms OptionExercise (1..1) <"The terms for exercising the option, which include the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">
 	underlier Underlier (1..1) <"The product underlying the option, which can be of any type including ContractualProduct or Security.">
+
 
 type SecurityLeg: <" Terms defining a security leg in a securities financing transaction, which can either be the near leg or the far leg and is closely modelled onto the nearLeg and farLeg types in FpML">
 	[metadata key]
@@ -753,11 +766,13 @@ type SecurityLeg: <" Terms defining a security leg in a securities financing tra
 	condition SecurityLeg_choice:
 		required choice settlementAmount, settlementCurrency
 
+
 type SecurityValuation: <" Terms defining the security valuation method as part of a security leg in a securities fianncing transaction and closely modelled onto the CollateralValuation type in FpML.">
 
 	securityValuationModel SecurityValuationModel (1..1) <"The security valuation model choice, based on either a nominal amount or a number of units.">
 		[synonym FpML_5_10 value collateral]
 	underlier Security (1..1) <"The underlying security of the security leg.">
+
 
 type SecurityValuationModel: <" The security valuation model choice, which can either be based on nominal amount as for a bond, or on the number of contract units as for equity.">
 
@@ -772,6 +787,7 @@ type BondValuationModel: <" Bond valuation model for the security leg in a secur
 	bondPriceAndYieldModel BondPriceAndYieldModel (1..1) <"Price and yield model for valuing a bond security leg.">
 	accrualsAmount Money (0..1) <"Accruals amount for the bond in the security leg">
 
+
 type BondPriceAndYieldModel: <" Bond price and yield valuation model for the security leg in a securities financing transaction, closely modelled onto the BondPriceAndYield.model in FpML.">
 
 	cleanOrDirtyPrice CleanOrDirtyPrice (0..1) <"Either the clean or dirty price of the bond.">
@@ -780,11 +796,13 @@ type BondPriceAndYieldModel: <" Bond price and yield valuation model for the sec
 	inflationFactor number (0..1) <"The inflation factor is specified for inflation-linked products which require some additional elements to calculate prices correctly.">
 	allInPrice number (0..1) <"Bond all-in-price which is a price that includes all relevant price adjustments (i.e. accrued interest, haircut or margin ratio, inflation factor,etc.). It expresses a price in terms of percentage of nominal amount.">
 
+
 type CleanOrDirtyPrice: <" Class specifying the bond price as either clean or dirty in a bond valuation model.">
 
 	cleanPrice CleanPrice (0..1) <"The clean price and accruals presented separately.">
 	dirtyPrice number (0..1) <"The dirty price presented as a single number.">
 		[synonym FpML_5_10 value dirtyPrice]
+
 
 type CleanPrice: <" Class to specify the clean price of a bond in a bond valuation model, with accruals presented separately, and modelled onto the cleanPrice model in BonPriceAndYield.model in FpML.">
 
@@ -794,10 +812,12 @@ type CleanPrice: <" Class to specify the clean price of a bond in a bond valuati
 		[synonym FpML_5_10 value accruals]
 	dirtyPrice calculation (0..1) <"Placeholder for a calculation of dirtyPrice based on cleanPrice and accruals.">
 
+
 type RelativePrice: <" Bond price relative to a benchmark, as in a convertible bond.">
 
 	spread number (1..1) <"The spread to a benchmark.">
 	bondEquityModel BondEquityModel (1..*) <"Bond equity model for convertible bonds.">
+
 
 type BondEquityModel: <" Bond equity model to value convertible bonds and modelled onto BondEquity.model in FpML.">
 
@@ -815,6 +835,7 @@ type UnitContractValuationModel: <" Unit contract model for security valuation, 
 	numberOfUnits Quantity (1..1) <"The number of units (index or securities).">
 	unitPrice Money (1..1) <"The price of each unit.">
 
+
 type SecurityPayout: <" Security payout specification in case the product payout involves some form of security collateral, as in a securities financing transaction.">
 	[metadata key]
 	securityLeg SecurityLeg (1..*) <"Each SecurityLeg represent a buy/sell at different dates, typically 1 near leg and 1 far leg in a securities financing transaction.">
@@ -827,6 +848,7 @@ type SecurityPayout: <" Security payout specification in case the product payout
 		[synonym FpML_5_10 value duration]
 	securityValuation SecurityValuation (1..*) <"The underlying securities and their valuation for the security leg.">
 		[synonym FpML_5_10 value nearLeg, bond]
+
 
 type InitialMargin: <" Defines initial margin applied to a repo transaction. Initial margin is an agreed premium to the Purchase Price of a repo to determine the required Market Value of the collateral to be delivered on the Purchase Date. It reflects quality of the collateral. Its aim is to calculate the risk-adjusted or liquidation value of collateral.">
 
@@ -879,12 +901,13 @@ type PayoutBase: <" Base class that all payout types should extend. Use case is 
 	payoutQuantity ResolvablePayoutQuantity (1..1) <"Each payout leg must implement the quantity concept as a 'resolvable' type, which allows for different payout legs to be linked to each other (e.g. in the case of cross-curreny products).">
 		// For Equity Swap:
 		[synonym FpML_5_10 value notional, rateOfReturn]
-			// For Swap Stream:
+		// For Swap Stream:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notionalSchedule path "calculationPeriodAmount.calculation"]
-			// For CDS:
+		// For CDS:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value calculationAmount]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value calculationAmount path "periodicPayment.fixedAmountCalculation"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value calculationAmount path "periodicPayment.floatingAmountCalculation"]
+
 
 type Payout: <" A class to represent the set of future cashflow methodologies in the form of specific payout class(es) that can be associated for the purpose of specifying a financial product. For example, two interest rate payouts can be combined to specify an interest rate swap, or one interest rate payout can be combined with a credit default payout to specify a credit default swap.">
 
@@ -928,7 +951,7 @@ type Payout: <" A class to represent the set of future cashflow methodologies in
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value singlePayment path "trade.creditDefaultSwap.feeLeg"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value singlePayment path "creditDefaultSwap.feeLeg"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value singlePayment]
-			// TODO - The below 2 attributes are not properly mapped.  This needs to be addressed as part of this Trello card https://trello.com/c/488uoZcS
+		// TODO - The below 2 attributes are not properly mapped.  This needs to be addressed as part of this Trello card https://trello.com/c/488uoZcS
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint paymentDelay]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint payerReceiver]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value premium path "trade.swaption"]
@@ -1046,6 +1069,7 @@ type ProductIdentification: <" A class to combine the CDM product qualifier with
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value productId path "swaption.swap" meta productIdScheme]
 		[synonym DTCC_11_0, DTCC_9_0 value instrumentId path "payment.calculationDetails.calculationElements.underlier.index" meta instrumentIdScheme]
 
+
 type Quantity: <" A class to specify an amount/number of securities or tangible assets such as a commodity product. The units qualifier is not used if the Quantity class is applied to securities.">
 
 	amount number (1..1) <"The amount to quantify ">
@@ -1071,12 +1095,14 @@ type NonNegativeStepSchedule: <" Class to specify a non-negative schedule as a s
 	step NonNegativeStep (1..*) <"The schedule of step date and non-negative value pairs. On each step date the associated step value becomes effective. A list of steps may be ordered in the document by ascending step date. An FpML document containing an unordered list of steps is still regarded as a conformant document.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value step]
 
+
 type NonNegativeQuantitySchedule: <"Class to specify a non-negative quantity schedule, which is used to define the quantity of a payout leg. This quantity cannot be negative, while direction is specified through a BuyerSeller or PayerReceiver attribute. The only available schedule implementation is a step schedule, specified as a set of date-value pairs. The non-negativity is enforced by using the non-negative quantity and step schedule classes.">
 
 	quantity NonNegativeQuantity (0..1) <"The base quantity represented as a single, non-negative number plus some (optional) unit. This attribute is ignored when mapping existing FpML messages, where quantity is abstracted away at a higher level.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value ignore]
 	stepSchedule NonNegativeStepSchedule (0..1) <"The schedule specified as a set of date-value pairs. Attribute is optional, to represent the case where no schedule is specified so quantity is just constant over time.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notionalStepSchedule]
+
 
 enum QuantityNotationEnum <"Enumeration for the different types of quantity notations that can be specified for a product, such as the number of securities, or notional etc.">
 {
@@ -1089,11 +1115,11 @@ type QuantityNotation: <" Class to specify the quantity of a product as a single
 	quantity NonNegativeQuantity (1..1) <"The quantity as a non-negative amount.">
 		// For Swap Streams:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notionalStepSchedule]
-			// For Equity Swaps:
+		// For Equity Swaps:
 		[synonym FpML_5_10 value notionalAmount, singleUnderlyer]
-			// For FRA:
-			// [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notional]
-			// For CDS:
+		// For FRA:
+		// [synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value notional]
+		// For CDS:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value calculationAmount]
 	notationTag QuantityNotationEnum (1..1) <"The notation type associated with this quantity, specified from an enumeration.">
 		[synonym FpML_5_10, DTCC_11_0
@@ -1102,6 +1128,7 @@ type QuantityNotation: <" Class to specify the quantity of a product as a single
 			set to QuantityNotationEnum.Notional when "notionalStepSchedule" exists,
 			set to QuantityNotationEnum.Notional when "calculationAmount" exists,
 			set to QuantityNotationEnum.NumberOfSecurities when "singleUnderlyer.openUnits" exists]
+
 
 type RateSpecification: <" A class to specify the fixed interest rate, floating interest rate or inflation rate.">
 
@@ -1122,6 +1149,7 @@ type StubPeriod: <" A class defining how the initial or final stub calculation p
 	finalStub StubValue (0..1) <"Specifies how the final stub amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating tenors may be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3. Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value finalStub]
 
+
 /*
  * QUESTION TO CDM GROUP
  * TODO - FpML sample credit trades don't include examples that specify those attributes
@@ -1138,6 +1166,7 @@ type TransactedPrice: <" A class to represent the transacted price attributes th
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value marketPrice path "feeLeg"]
 	quotationStyle QuotationStyleEnum (0..1) <"An optional element that contains the up-front points expressed as a percentage of the notional. An initialPoints value of 5% would be represented as 0.05. The initialPoints element is an alternative to marketFixedRate in quoting the traded level of a trade. When initialPoints is used, the traded level is the sum of fixedRate and initialPoints. The initialPoints is one of the items that are factored into the initialPayment calculation and is payable by the Buyer to the Seller. Note that initialPoints and marketFixedRate may both be present in the same document when both implied values are desired.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value quotationStyle path "feeLeg"]
+
 
 /************************
  * Portfolio Aggregation *
@@ -1220,7 +1249,7 @@ isProduct CreditDefaultSwaption <"This product qualification is temporary until 
 
 isProduct EquitySwap_PriceReturnBasicPerformance_SingleName <"The Price Return Basic Performance equity swap specified in the ISDA taxonomy V2.0 corresponds to the price and total return swaps.">
 	[synonym ISDA_Taxonomy_v1 value EquitySwap_PriceReturnBasicPerformance_SingleName]
-EconomicTerms -> payout -> interestRatePayout exists
+	EconomicTerms -> payout -> interestRatePayout exists
 	and ( EconomicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum.Price
 		or EconomicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum.Total )
 	and ( EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> equity
@@ -1231,7 +1260,7 @@ EconomicTerms -> payout -> interestRatePayout exists
 
 isProduct EquitySwap_ParameterReturnDividend_SingleName <"The Parameter Return Dividend equity swap specified in the ISDA taxonomy V2.0 corresponds to the dividend return swap.">
 	[synonym ISDA_Taxonomy_v1 value EquitySwap_ParameterReturnDividend_SingleName]
-EconomicTerms -> payout -> interestRatePayout exists
+	EconomicTerms -> payout -> interestRatePayout exists
 	and EconomicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum.Dividend
 	and ( EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> equity
 		or EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> exchangeTradedFund
@@ -1241,7 +1270,7 @@ EconomicTerms -> payout -> interestRatePayout exists
 
 isProduct InterestRate_IRSwap_Basis
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Basis]
-EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 2
+	EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 2
 	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
@@ -1249,7 +1278,7 @@ EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRa
 
 isProduct InterestRate_IRSwap_FixedFloat_PlainVanilla <"This product qualification doesn't represent the exact terms of the ISDA Taxonomomy V2.0 for the plain vanilla swaps, as some of those cannot be represented as part of the CDM syntax (e.g. the qualification that there is no provision for early termination which uses an off-market valuation), while some other are deemed missing in the ISDA taxonomy and have been added as part of the CDM (absence of cross-currency settlement provision, absence of fixed rate and notional step schedule, absence of stub). ">
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFloat]
-EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
+	EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
 	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
 	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
@@ -1306,7 +1335,7 @@ EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate 
 
 isProduct InterestRate_IRSwap_FixedFloat
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFloat]
-EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
+	EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
 	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
 	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
@@ -1328,7 +1357,7 @@ EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate 
 
 isProduct InterestRate_IRSwap_FixedFixed
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFixed]
-EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 2
+	EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 2
 	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
@@ -1336,7 +1365,7 @@ EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate 
 
 isProduct InterestRate_CrossCurrency_Basis
 	[synonym ISDA_Taxonomy_v1 value InterestRate_CrossCurrency_Basis]
-EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 2
+	EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 2
 	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges exists
@@ -1344,7 +1373,7 @@ EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRa
 
 isProduct InterestRate_CrossCurrency_FixedFloat
 	[synonym ISDA_Taxonomy_v1 value InterestRate_CrossCurrency_FixedFloat]
-EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
+	EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
 	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
 	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges exists
@@ -1352,7 +1381,7 @@ EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate 
 
 isProduct InterestRate_CrossCurrency_FixedFixed
 	[synonym ISDA_Taxonomy_v1 value InterestRate_CrossCurrency_FixedFixed]
-EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 2
+	EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 2
 	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges exists
@@ -1360,7 +1389,7 @@ EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate 
 
 isProduct InterestRate_IRSwap_FixedFloat_ZeroCoupon
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFloat]
-EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
+	EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
 	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
 	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
@@ -1373,7 +1402,7 @@ EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate 
  */
 isProduct InterestRate_IRSwap_FixedFloat_OIS
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_FixedFloat]
-EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
+	EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
 	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
 	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
@@ -1382,7 +1411,7 @@ EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate 
 
 isProduct InterestRate_IRSwap_Basis_OIS
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Basis]
-EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 2
+	EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 2
 	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
@@ -1391,7 +1420,7 @@ EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRa
 
 isProduct InterestRate_InflationSwap_FixedFloat_YearOn_Year
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation]
-EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
+	EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
 	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
 	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
@@ -1401,7 +1430,7 @@ EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate 
 
 isProduct InterestRate_InflationSwap_FixedFloat_ZeroCoupon
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation]
-EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
+	EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
 	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
 	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
@@ -1411,7 +1440,7 @@ EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate 
 
 isProduct InterestRate_InflationSwap_Basis_YearOn_Year
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation]
-EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
+	EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
 	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
 	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
@@ -1421,7 +1450,7 @@ EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRa
 
 isProduct InterestRate_InflationSwap_Basis_ZeroCoupon
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation]
-EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
+	EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
 	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
 	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
@@ -1431,22 +1460,22 @@ EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRa
 
 isProduct InterestRate_Option_Swaption
 	[synonym ISDA_Taxonomy_v1 value InterestRate_Option_Swaption]
-EconomicTerms -> payout -> optionPayout exists
+	EconomicTerms -> payout -> optionPayout exists
 	and EconomicTerms -> payout -> optionPayout -> underlier -> singleUnderlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> interestRatePayout count = 2
 
 isProduct InterestRate_Option_DebtOption
 	[synonym ISDA_Taxonomy_v1 value InterestRate_DebtOption]
-EconomicTerms -> payout -> optionPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> bond exists
+	EconomicTerms -> payout -> optionPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> bond exists
 	or EconomicTerms -> payout -> optionPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> convertibleBond exists
 
 isProduct InterestRate_CapFloor
 	[synonym ISDA_Taxonomy_v1 value InterestRate_CapFloor]
-EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> capRateSchedule exists
+	EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> capRateSchedule exists
 	or EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> floorRateSchedule exists
 
 isProduct InterestRate_Fra
 	[synonym ISDA_Taxonomy_v1 value InterestRate_Fra]
-EconomicTerms -> payout -> interestRatePayout count = 2
+	EconomicTerms -> payout -> interestRatePayout count = 2
 	and EconomicTerms -> payout -> creditDefaultPayout is absent
 	and EconomicTerms -> payout -> cashflow is absent
 	and effectiveDate = paymentDate
@@ -1454,12 +1483,12 @@ EconomicTerms -> payout -> interestRatePayout count = 2
 isProduct ForeignExchange
 	[synonym ISDA_Taxonomy_v1 value ForeignExchange_Forward]
 	[synonym ISDA_Taxonomy_v1 value ForeignExchange_Spot]
-EconomicTerms -> payout -> forwardPayout -> underlier -> singleUnderlier -> underlyingProduct -> foreignExchange exists and
+	EconomicTerms -> payout -> forwardPayout -> underlier -> singleUnderlier -> underlyingProduct -> foreignExchange exists and
 	EconomicTerms -> payout -> forwardPayout -> settlementTerms -> fxSettlementTerms is absent
 
 isProduct ForeignExchange_NDF
 	[synonym ISDA_Taxonomy_v1 value ForeignExchange_NDF]
-EconomicTerms -> payout -> forwardPayout -> settlementTerms -> fxSettlementTerms exists
+	EconomicTerms -> payout -> forwardPayout -> settlementTerms -> fxSettlementTerms exists
 
 isProduct RepurchaseAgreement
 	EconomicTerms -> payout -> securityPayout -> securityLeg count >= 1 and
