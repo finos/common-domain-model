@@ -1,10 +1,9 @@
-# *CDM to FpML Projection*
-
 _What is being released_
 
-Further infrastructure work to support the projection from CDM into FpML 5.10 documents:
-- Add validation to the input CDM JSON before running projection to XML, so all relevent diagnostics can be displayed to the user.
+Added tiles to the CDM Portal to allow users to directly link to functionality in Rosetta Core.  The following links have been added:
+- CDM Instance Viewer - drag and drop CDM JSON events which will be displayed visually.
+- Projection - drag and drop CDM JSON files which will be projected into FpML 5.10 and displayed as XML.
 
 _Review direction_
 
-The projection functionality will be made available in Rosetta Core, where users can drag and drop CDM JSON files in, which will be projected into FpML 5.10 and displayed as XML.
+Clicking on either CDM Portal link will log the user into Rosetta Core and open the relevent panel.
