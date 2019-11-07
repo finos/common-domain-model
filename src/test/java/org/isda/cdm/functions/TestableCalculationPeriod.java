@@ -1,11 +1,13 @@
 package org.isda.cdm.functions;
 
+import com.google.inject.Singleton;
+import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.CalculationPeriodData;
 import org.isda.cdm.CalculationPeriodDates;
 
-import com.google.inject.Singleton;
-import com.rosetta.model.lib.records.Date;
-
+/**
+ * Used in DayCountFractionEnumTest
+ */
 @Singleton
 public class TestableCalculationPeriod extends CalculationPeriodImpl {
 	

@@ -1,8 +1,9 @@
-package org.isda.cdm.functions;
-
-import java.math.BigDecimal;
+package org.isda.cdm.calculation.functions;
 
 import org.isda.cdm.FloatingRateIndexEnum;
+import org.isda.cdm.functions.ResolveRateIndex;
+
+import java.math.BigDecimal;
 
 public class ResolveRateIndexImpl extends ResolveRateIndex {
 

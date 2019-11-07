@@ -1,24 +1,20 @@
 package org.isda.cdm;
 
-import org.isda.cdm.functions.CalculationPeriod;
-import org.isda.cdm.functions.InterpolateForwardRate;
-import org.isda.cdm.functions.NewTransferPrimitive;
-import org.isda.cdm.functions.NewTransferPrimitiveImpl;
-import org.isda.cdm.functions.Settle;
-import org.isda.cdm.functions.SettleImpl;
-import org.isda.cdm.functions.TestableCalculationPeriod;
-import org.isda.cdm.functions.TestableInterpolateForwardRate;
-
 import com.rosetta.model.lib.validation.ModelObjectValidator;
+import org.isda.cdm.calculation.functions.GetRateScheduleImpl;
+import org.isda.cdm.calculation.functions.ResolveRateIndexImpl;
+import org.isda.cdm.calculation.functions.TestableInterpolateForwardRate;
+import org.isda.cdm.functions.CalculationPeriod;
+import org.isda.cdm.functions.*;
 
 public class CdmTestsModule extends CdmRuntimeModule {
 
 	@Override
 	protected void configure() {
 		super.configure();
+		bind(ResolveRateIndex.class).to(bindResolveRateIndex());
+		bind(GetRateSchedule.class).to(bindGetRateSchedule());
 		bind(InterpolateForwardRate.class).to(bindInterpolateForwardRate());
-		bind(Settle.class).to(bindSettle());
-		bind(NewTransferPrimitive.class).to(bindNewTransferPrimitive());
 	}
 
 	@Override
@@ -35,12 +31,11 @@ public class CdmTestsModule extends CdmRuntimeModule {
 		return TestableInterpolateForwardRate.class;
 	}
 
-	protected Class<? extends Settle> bindSettle() {
-		return SettleImpl.class;
+	protected Class<? extends ResolveRateIndex> bindResolveRateIndex() {
+		return ResolveRateIndexImpl.class;
 	}
 
-	protected Class<? extends NewTransferPrimitive> bindNewTransferPrimitive() {
-		return NewTransferPrimitiveImpl.class;
+	protected Class<? extends GetRateSchedule> bindGetRateSchedule() {
+		return GetRateScheduleImpl.class;
 	}
-
 }
