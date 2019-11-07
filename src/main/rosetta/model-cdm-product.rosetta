@@ -110,7 +110,7 @@ type Contract: <" A class to specify a financial contract object, which can be i
 
 
 condition DeliverableObligations_physicalSettlementMatrix: <"The below set of credit deliverable obligation provisions are specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that those provisions cannot be omitted if the Credit Derivatives Physical Settlement Matrix doesn't governs the terms of the contract.">
-	if ( Contract -> documentation -> documentationIdentification -> contractualMatrix -> matrixType <> MatrixTypeEnum.CreditDerivativesPhysicalSettlementMatrix
+	if ( Contract -> documentation -> documentationIdentification -> contractualMatrix -> matrixType <> MatrixTypeEnum -> CreditDerivativesPhysicalSettlementMatrix
 		or Contract -> documentation -> documentationIdentification -> contractualMatrix -> matrixType is absent )
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations exists
 	then ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> notSubordinated
@@ -132,7 +132,7 @@ condition DeliverableObligations_physicalSettlementMatrix: <"The below set of cr
 	) exists
 
 condition Obligations_physicalSettlementMatrix: <"The below set of obligation of the reference entity are specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that those provisions cannot be omitted if the Physical Settlement Matrix governs the terms of the contract. This data rule also applies to cash settled contracts because those could still end-up being physically settled, in case the case where an auction could not take place because of, say, liquidity considerations.">
-	if ( Contract -> documentation -> documentationIdentification -> contractualMatrix -> matrixType <> MatrixTypeEnum.CreditDerivativesPhysicalSettlementMatrix
+	if ( Contract -> documentation -> documentationIdentification -> contractualMatrix -> matrixType <> MatrixTypeEnum -> CreditDerivativesPhysicalSettlementMatrix
 		or Contract -> documentation -> documentationIdentification -> contractualMatrix -> matrixType is absent )
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations exists
 	then ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notSubordinated
@@ -147,7 +147,7 @@ condition Obligations_physicalSettlementMatrix: <"The below set of obligation of
 	) exists
 
 condition CreditEvents_physicalSettlementMatrix: <"The below set of credit events are specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that those provisions can only be omitted if the Physical Settlement Matrix governs the terms of the contract. This data rule also applies to cash settled contracts because those could still end-up being physically settled, in the case where an auction could not take place because of, say, liquidity considerations.">
-	if ( Contract -> documentation -> documentationIdentification -> contractualMatrix -> matrixType <> MatrixTypeEnum.CreditDerivativesPhysicalSettlementMatrix
+	if ( Contract -> documentation -> documentationIdentification -> contractualMatrix -> matrixType <> MatrixTypeEnum -> CreditDerivativesPhysicalSettlementMatrix
 		or Contract -> documentation -> documentationIdentification -> contractualMatrix -> matrixType is absent )
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents exists
 	then ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> bankruptcy
@@ -158,7 +158,7 @@ condition CreditEvents_physicalSettlementMatrix: <"The below set of credit event
 	) exists
 
 condition Restructuring_physicalSettlementMatrix: <"The below multiple holder obligation restructuring provisions is specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that this provision can only be omitted if the Physical Settlement Matrix governs the terms of the contract. This data rule also applies to cash settled contracts because those could still end-up being physically settled, in the case where an auction could not take place because of, say, liquidity considerations.">
-	if ( Contract -> documentation -> documentationIdentification -> contractualMatrix -> matrixType <> MatrixTypeEnum.CreditDerivativesPhysicalSettlementMatrix
+	if ( Contract -> documentation -> documentationIdentification -> contractualMatrix -> matrixType <> MatrixTypeEnum -> CreditDerivativesPhysicalSettlementMatrix
 		or Contract -> documentation -> documentationIdentification -> contractualMatrix -> matrixType is absent )
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring exists
 	then Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleHolderObligation exists
@@ -168,7 +168,7 @@ condition Restructuring_physicalSettlementMatrix: <"The below multiple holder ob
  */
 condition AdditionalFixedPayments_mortgages: <"The below set of additional fixed payment provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlier is a mortgage index.">
 	if ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> mortgageBackedSecurity exists
-		or Contract -> documentation -> documentationIdentification -> contractualTermsSupplement -> contractualTermsSupplementType = ContractualSupplementEnum.CDSonMBS )
+		or Contract -> documentation -> documentationIdentification -> contractualTermsSupplement -> contractualTermsSupplementType = ContractualSupplementEnum -> CDSonMBS )
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents exists
 	then ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> additionalFixedPayments -> interestShortfallReimbursement
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> additionalFixedPayments -> principalShortfallReimbursement
@@ -177,7 +177,7 @@ condition AdditionalFixedPayments_mortgages: <"The below set of additional fixed
 
 condition FloatingAmountEvents_mortgages: <"The below set of floating amount events provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlier is a mortgage index.">
 	if ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> mortgageBackedSecurity exists
-		or Contract -> documentation -> documentationIdentification -> contractualTermsSupplement -> contractualTermsSupplementType = ContractualSupplementEnum.CDSonMBS )
+		or Contract -> documentation -> documentationIdentification -> contractualTermsSupplement -> contractualTermsSupplementType = ContractualSupplementEnum -> CDSonMBS )
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents exists
 	then ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> failureToPayPrincipal
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> writedown
@@ -186,7 +186,7 @@ condition FloatingAmountEvents_mortgages: <"The below set of floating amount eve
 
 condition CreditEvents_mortgages: <"The below set of credit events provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlier is a mortgage index.">
 	if ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> mortgageBackedSecurity exists
-		or Contract -> documentation -> documentationIdentification -> contractualTermsSupplement -> contractualTermsSupplementType = ContractualSupplementEnum.CDSonMBS )
+		or Contract -> documentation -> documentationIdentification -> contractualTermsSupplement -> contractualTermsSupplementType = ContractualSupplementEnum -> CDSonMBS )
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents exists
 	then ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> failureToPayPrincipal
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> failureToPayInterest
@@ -197,15 +197,15 @@ condition CreditEvents_mortgages: <"The below set of credit events provisions ar
 	) exists
 
 condition Contract_hedgingParty: <"FpML specifies that there cannot be more than 2 hedging parties.">
-	if Contract -> partyRole -> role = PartyRoleEnum.HedgingParty
+	if Contract -> partyRole -> role = PartyRoleEnum -> HedgingParty
 	then Contract -> partyRole -> role count <= 2
 
 condition Contract_determiningParty: <"FpML specifies that there cannot be more than 2 determining parties.">
-	if Contract -> partyRole -> role = PartyRoleEnum.DeterminingParty
+	if Contract -> partyRole -> role = PartyRoleEnum -> DeterminingParty
 	then Contract -> partyRole -> role count <= 2
 
 condition Contract_barrierDerterminationAgent: <"FpML specifies that there cannot be more than 1 barrier determination agent.">
-	if Contract -> partyRole -> role = PartyRoleEnum.BarrierDeterminationAgent
+	if Contract -> partyRole -> role = PartyRoleEnum -> BarrierDeterminationAgent
 	then Contract -> partyRole -> role count <= 1
 
 condition Contract_clearedDate: <"If the cleared date exists, it needs to be on or after the trade date.">
@@ -231,11 +231,11 @@ condition FpML_cd_8: <"FpML validation rule cd-8 - If condition LongForm is true
 condition FpML_cd_11: <"FpML validation rule cd-11 - If condition LongForm is true, and if condition ISDA2003 is true, then allGuarantees must exist.">
 	if ( Contract -> documentation -> documentationIdentification -> masterConfirmation and Contract -> documentation -> documentationIdentification -> contractualMatrix ) is absent
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
-		and Contract -> documentation -> documentationIdentification -> contractualDefinitions = ContractualDefinitionsEnum.ISDA2003Credit
+		and Contract -> documentation -> documentationIdentification -> contractualDefinitions = ContractualDefinitionsEnum -> ISDA2003Credit
 	then Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> allGuarantees exists
 
 condition FpML_cd_19: <"FpML validation rule cd-19 - If the condition ISDA1999Credit is true, then the following elements must not exist: protectionTerms/creditEvents/creditEventNotice/businessCenter, protectionTerms/creditEvents/restructuring/multipleHolderObligation, protectionTerms/creditEvents/restructuring/multipleCreditEventNotices, generalTerms/referenceInformation/allGuarantees, generalTerms/indexReferenceInformation, generalTerms/substitution, generalTerms/modifiedEquityDelivery.">
-	if Contract -> documentation -> documentationIdentification -> contractualDefinitions = ContractualDefinitionsEnum.ISDA1999Credit
+	if Contract -> documentation -> documentationIdentification -> contractualDefinitions = ContractualDefinitionsEnum -> ISDA1999Credit
 	then ( Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> creditEventNotice -> businessCenter
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleHolderObligation
 		and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleCreditEventNotices
@@ -246,7 +246,7 @@ condition FpML_cd_19: <"FpML validation rule cd-19 - If the condition ISDA1999Cr
 	is absent
 
 condition FpML_cd_20: <"FpML validation rule cd-20 - If the condition ISDA2003 is true, then protectionTerms/obligations/notContingent must not exist.">
-	if Contract -> documentation -> documentationIdentification -> contractualDefinitions = ContractualDefinitionsEnum.ISDA2003Credit
+	if Contract -> documentation -> documentationIdentification -> contractualDefinitions = ContractualDefinitionsEnum -> ISDA2003Credit
 	then Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notContingent is absent
 
 condition FpML_cd_23: <"FpML validation rule cd-23 - If the condition LongForm is true, then cashSettlementTerms or physicalSettlementTerms must exist.">
@@ -351,10 +351,10 @@ type ResolvablePayoutQuantity: <" Generic class to specify the quantity for diff
 	quantitySchedule NonNegativeQuantitySchedule (0..1) <"Quantity specified as an absolute number, (possibly) with some step schedule, (possibly) with some unit, such as the currency in the case of a notional. This attribute is optional, as long as a quantity notation tag is specified so that quantity can be resolved. There needs to be at least 1 such absolutely defined quantity across payout legs of a product, to define an anchor that other payout quantities can refer to. This is enforced by a data rule on the Payout class.">
 	quantityNotationTag QuantityNotationEnum (0..1) <"Notation tag to be used as a key to fetch the payout quantity from the appropriate quantity notation, that is provided alongside the contractual product. For instance: if this quantity notation tag is 'Notional', the actual quantity will have to be fetched from the quantity notation labelled as 'Notional'.">
 		[synonym FpML_5_10
-			set to QuantityNotationEnum.Notional when "currency" exists,
-			set to QuantityNotationEnum.Notional when "notionalAmount" exists,
-			set to QuantityNotationEnum.Notional when "notionalStepSchedule" exists,
-			set to QuantityNotationEnum.NumberOfSecurities when "openUnits" exists]
+			set to QuantityNotationEnum -> Notional when "currency" exists,
+			set to QuantityNotationEnum -> Notional when "notionalAmount" exists,
+			set to QuantityNotationEnum -> Notional when "notionalStepSchedule" exists,
+			set to QuantityNotationEnum -> NumberOfSecurities when "openUnits" exists]
 	quantityNotationAsset string (0..1) <"Asset name to be used as part of the key to fetch the payout quantity for the appropriate asset. An example usage is for cross-currency products where different notionals can be specified for each currency, such that the currency must be used to uniquely source the quantity.">
     		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value currency maps 2 meta currencyScheme]
 	quantityReference ResolvablePayoutQuantity (0..1) <"Reference quantity when resolvable quantity is defined as relative to another (resolvable) quantity. A resolvable quantity needs to contain either an absolute quantity or a reference to another (resolvable) quantity. This requirement is captured by a choice rule on the class.">
@@ -495,17 +495,17 @@ type EquityPayout extends PayoutBase: <" The equity payout specification terms. 
 	performance number (0..1) <"Performance calculation, in accordance with Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance'. Cumulative performance is used as a notional multiplier factor on both legs of an Equity Swap.">
 
 	condition EquityPayout_dividendReturn: <"An equity price return specifies price return terms, but no dividend terms.">
-		if EquityPayout -> returnType = ReturnTypeEnum.Price
+		if EquityPayout -> returnType = ReturnTypeEnum -> Price
 		then EquityPayout -> priceReturnTerms exists
 		and EquityPayout -> dividendReturnTerms is absent
 
 	condition EquityPayout_priceReturn: <"An equity dividend return specifies dividend return terms, but no price terms.">
-		if EquityPayout -> returnType = ReturnTypeEnum.Dividend
+		if EquityPayout -> returnType = ReturnTypeEnum -> Dividend
 		then EquityPayout -> dividendReturnTerms exists
 		and EquityPayout -> priceReturnTerms is absent
 
 	condition EquityPayout_totalReturn: <"An equity total return specifies price return as well as dividend terms.">
-		if EquityPayout -> returnType = ReturnTypeEnum.Total
+		if EquityPayout -> returnType = ReturnTypeEnum -> Total
 		then EquityPayout -> priceReturnTerms exists
 		and EquityPayout -> dividendReturnTerms exists
 
@@ -553,16 +553,16 @@ type Execution: <" A class to specify an execution, which consists essentially i
 
 
 condition Execution_executionVenue: <"When the execution type is set to 'Electronically', the execution venue must be specified.">
-	if Execution -> executionType = ExecutionTypeEnum.Electronic
+	if Execution -> executionType = ExecutionTypeEnum -> Electronic
 	then Execution -> executionVenue exists
 
 condition Execution_security_partyRole: <"When the executed product is a security, both ExecutingEntity and Counterparty party roles must exist.">
 	if Execution -> product -> security exists
-	then Execution -> partyRole -> role contains PartyRoleEnum.ExecutingEntity and Execution -> partyRole -> role contains PartyRoleEnum.Counterparty
+	then Execution -> partyRole -> role contains PartyRoleEnum -> ExecutingEntity and Execution -> partyRole -> role contains PartyRoleEnum -> Counterparty
 
 condition Execution_security_partyRole_buyerSeller: <"When the executed product is a security, both buyer and seller party roles must exist.">
 	if Execution -> product -> security exists
-	then Execution -> partyRole -> role contains PartyRoleEnum.Buyer and Execution -> partyRole -> role contains PartyRoleEnum.Seller
+	then Execution -> partyRole -> role contains PartyRoleEnum -> Buyer and Execution -> partyRole -> role contains PartyRoleEnum -> Seller
 
 condition Execution_quantity: <"When the executed product is a security, the quantity must be specified.">
 	if Execution -> product -> security exists
@@ -705,7 +705,7 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
 	condition FpML_ird_7_1: <"FpML validation rule ird-7 1/2 - The existence of compoundingMethod is prohibited when the calculation period and payment frequencies are the same.">
 	 	if InterestRatePayout -> paymentDates -> paymentFrequency -> period = InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> period
 	 		and InterestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier
-	 	then ( InterestRatePayout -> compoundingMethod is absent or InterestRatePayout -> compoundingMethod = CompoundingMethodEnum.None )
+	 	then ( InterestRatePayout -> compoundingMethod is absent or InterestRatePayout -> compoundingMethod = CompoundingMethodEnum -> None )
 
 	condition FpML_ird_7_2: <"FpML validation rule ird-7 2/2 - The existence of compoundingMethod is required when the calculation period and payment frequencies differ.">
 	 	if ( ( InterestRatePayout -> paymentDates -> paymentFrequency -> period and InterestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency -> period ) exists
@@ -724,7 +724,7 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
 
 	condition CalculationPeriodDates_firstCompoundingPeriodEndDate: <"FpML specifies that the firstCompoundingPeriodEndDate must only be specified when the compounding method is specified and not equal to a value of None.">
 		if InterestRatePayout -> compoundingMethod is absent
-			or InterestRatePayout -> compoundingMethod = CompoundingMethodEnum.None
+			or InterestRatePayout -> compoundingMethod = CompoundingMethodEnum -> None
 		then InterestRatePayout -> calculationPeriodDates -> firstCompoundingPeriodEndDate is absent
 
 
@@ -757,7 +757,7 @@ type OptionPayout: <" The option payout specification terms. The associated rose
 	buyerSeller BuyerSeller (1..1)
 	optionType OptionTypeEnum (0..1) <"The type of option transaction. From a usage standpoint, put/call is the default option type, while payer/receiver indicator is used for options on index credit default swaps, consistently with the industry practice. Straddle is used for the case of straddle strategy, that combine a call and a put with the same strike.">
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value optionType]
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 set to OptionTypeEnum.Straddle when "swaptionStraddle" = True]
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 set to OptionTypeEnum -> Straddle when "swaptionStraddle" = True]
 	feature OptionFeature (0..1) <"The option feature, such as quanto, Asian, barrier, knock.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value feature]
 	denomination OptionDenomination (0..1) <"The denomination qualifies the number of units of underlier per option and the number of options comprised in the option transaction. FpML represents this information as part of the OptionDenomination.model.">
@@ -1152,11 +1152,11 @@ type QuantityNotation: <" Class to specify the quantity of a product as a single
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value calculationAmount]
 	notationTag QuantityNotationEnum (1..1) <"The notation type associated with this quantity, specified from an enumeration.">
 		[synonym FpML_5_10, DTCC_11_0
-			set to QuantityNotationEnum.Notional when "notional" exists,
-			set to QuantityNotationEnum.Notional when "notionalAmount" exists,
-			set to QuantityNotationEnum.Notional when "notionalStepSchedule" exists,
-			set to QuantityNotationEnum.Notional when "calculationAmount" exists,
-			set to QuantityNotationEnum.NumberOfSecurities when "singleUnderlyer.openUnits" exists]
+			set to QuantityNotationEnum -> Notional when "notional" exists,
+			set to QuantityNotationEnum -> Notional when "notionalAmount" exists,
+			set to QuantityNotationEnum -> Notional when "notionalStepSchedule" exists,
+			set to QuantityNotationEnum -> Notional when "calculationAmount" exists,
+			set to QuantityNotationEnum -> NumberOfSecurities when "singleUnderlyer.openUnits" exists]
 
 
 type RateSpecification : <" A class to specify the fixed interest rate, floating interest rate or inflation rate.">
@@ -1213,7 +1213,7 @@ type Position: <" A Position describes how much of a given Product is being held
 
 
 condition Position_ContractFormed: <"When the position status indicates that contract has been formed, a contract must exists">
-	if Position -> positionStatus = PositionStatusEnum.Formed
+	if Position -> positionStatus = PositionStatusEnum -> Formed
 	then Position -> contractReference exists
 /*
 	TODO: implement this extra check based on a comparison function for EconomicTerms
@@ -1287,8 +1287,8 @@ isProduct CreditDefaultSwaption <"This product qualification is temporary until 
 isProduct EquitySwap_PriceReturnBasicPerformance_SingleName <"The Price Return Basic Performance equity swap specified in the ISDA taxonomy V2.0 corresponds to the price and total return swaps.">
 	[synonym ISDA_Taxonomy_v1 value EquitySwap_PriceReturnBasicPerformance_SingleName]
 	EconomicTerms -> payout -> interestRatePayout exists
-	and ( EconomicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum.Price
-		or EconomicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum.Total )
+	and ( EconomicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum -> Price
+		or EconomicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum -> Total )
 	and ( EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> equity
 		or EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> exchangeTradedFund
 		or EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> mutualFund
@@ -1298,7 +1298,7 @@ isProduct EquitySwap_PriceReturnBasicPerformance_SingleName <"The Price Return B
 isProduct EquitySwap_ParameterReturnDividend_SingleName <"The Parameter Return Dividend equity swap specified in the ISDA taxonomy V2.0 corresponds to the dividend return swap.">
 	[synonym ISDA_Taxonomy_v1 value EquitySwap_ParameterReturnDividend_SingleName]
 	EconomicTerms -> payout -> interestRatePayout exists
-	and EconomicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum.Dividend
+	and EconomicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum -> Dividend
 	and ( EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> equity
 		or EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> exchangeTradedFund
 		or EconomicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> mutualFund
@@ -1337,7 +1337,7 @@ isProduct InterestRate_IRSwap_FixedFloat_PlainVanilla <"This product qualificati
 //		EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> indexTenor -> period
 	and EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier =
 		EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> indexTenor -> periodMultiplier
-	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period <> PeriodExtendedEnum.T
+	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period <> PeriodExtendedEnum -> T
 	and EconomicTerms -> payout -> interestRatePayout -> compoundingMethod is absent
 	// TODO comment out data rules that should only apply to qualification (and not be applied as part of general validation)
 //	and Vanilla_AnnualPaymentDifferentResetFrequency, Vanilla_SemiAnnualPayment_QuarterlyReset, Vanilla_QuarterlyPayment_MonthlyReset apply
@@ -1351,23 +1351,23 @@ isProduct InterestRate_IRSwap_FixedFloat_PlainVanilla <"This product qualificati
 
 // TODO comment out data rules that should only apply to qualification (and not be applied as part of general validation)
 //condition Vanilla_AnnualPaymentDifferentResetFrequency: <"One of the provision to qualify a plain vanilla swap according to the ISDA Taxonomy V2.0 is that when the payment frequency is annual, the reset frequency is semi-annual or quarterly.">
-//	when EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.Y
-//	then EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period = PeriodExtendedEnum.M
+//	when EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum -> Y
+//	then EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period = PeriodExtendedEnum -> M
 //	and ( EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 6
 //		or EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 3 )
 
 // TODO comment out data rules that should only apply to qualification (and not be applied as part of general validation)
 //condition Vanilla_SemiAnnualPayment_QuarterlyReset: <"One of the provision to qualify a plain vanilla swap according to the ISDA Taxonomy V2.0 is that when the payment frequency is semi-annual, the reset frequency is quarterly.">
-//	when EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.M
+//	when EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum -> M
 //		and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 6
-//	then EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period = PeriodExtendedEnum.M
+//	then EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period = PeriodExtendedEnum -> M
 //		and EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 3
 
 // TODO comment out data rules that should only apply to qualification (and not be applied as part of general validation)
 //condition Vanilla_QuarterlyPayment_MonthlyReset: <"One of the provision to qualify a plain vanilla swap according to the ISDA Taxonomy V2.0 is that when the payment frequency is quarterly, the reset frequency is monthly.">
-//	when EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.M
+//	when EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum -> M
 //		and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 6
-//	then EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period = PeriodExtendedEnum.M
+//	then EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period = PeriodExtendedEnum -> M
 //		and EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 3
 
 isProduct InterestRate_IRSwap_FixedFloat
@@ -1377,7 +1377,7 @@ isProduct InterestRate_IRSwap_FixedFloat
 	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 	and EconomicTerms -> payout -> optionPayout is absent
-	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period <> PeriodExtendedEnum.T
+	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period <> PeriodExtendedEnum -> T
 	and ( EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule -> step exists
 		or EconomicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step exists
 		or EconomicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepParameters exists
@@ -1432,7 +1432,7 @@ isProduct InterestRate_IRSwap_FixedFloat_ZeroCoupon
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 	and EconomicTerms -> payout -> optionPayout is absent
 	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
-	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.T
+	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum -> T
 
 /*
  * TODO Adjust the Xtext grammar to support enumeration styles
@@ -1444,7 +1444,7 @@ isProduct InterestRate_IRSwap_FixedFloat_OIS
 	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 	and EconomicTerms -> payout -> optionPayout is absent
-	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> floatingRateIndex = FloatingRateIndexEnum.AUD_AONIA_OIS_COMPOUND
+	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> floatingRateIndex = FloatingRateIndexEnum -> AUD_AONIA_OIS_COMPOUND
 
 isProduct InterestRate_IRSwap_Basis_OIS
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Basis]
@@ -1453,7 +1453,7 @@ isProduct InterestRate_IRSwap_Basis_OIS
 	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 	and EconomicTerms -> payout -> optionPayout is absent
-	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> floatingRateIndex = FloatingRateIndexEnum.AUD_AONIA_OIS_COMPOUND
+	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> floatingRateIndex = FloatingRateIndexEnum -> AUD_AONIA_OIS_COMPOUND
 
 isProduct InterestRate_InflationSwap_FixedFloat_YearOn_Year
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation]
@@ -1463,7 +1463,7 @@ isProduct InterestRate_InflationSwap_FixedFloat_YearOn_Year
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 	and EconomicTerms -> payout -> optionPayout is absent
 	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
-	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.Y
+	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum -> Y
 
 isProduct InterestRate_InflationSwap_FixedFloat_ZeroCoupon
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation]
@@ -1473,7 +1473,7 @@ isProduct InterestRate_InflationSwap_FixedFloat_ZeroCoupon
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 	and EconomicTerms -> payout -> optionPayout is absent
 	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
-	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.T
+	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum -> T
 
 isProduct InterestRate_InflationSwap_Basis_YearOn_Year
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation]
@@ -1483,7 +1483,7 @@ isProduct InterestRate_InflationSwap_Basis_YearOn_Year
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 	and EconomicTerms -> payout -> optionPayout is absent
 	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
-	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.Y
+	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum -> Y
 
 isProduct InterestRate_InflationSwap_Basis_ZeroCoupon
 	[synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation]
@@ -1493,7 +1493,7 @@ isProduct InterestRate_InflationSwap_Basis_ZeroCoupon
 	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 	and EconomicTerms -> payout -> optionPayout is absent
 	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
-	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.T
+	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum -> T
 
 isProduct InterestRate_Option_Swaption
 	[synonym ISDA_Taxonomy_v1 value InterestRate_Option_Swaption]

@@ -307,32 +307,32 @@ type CalculationPeriodFrequency extends Frequency: <"A class to specify the freq
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value rollConvention]
 	
 	condition FpML_ird_57: <"FpML validation rule ird-57 - Context: CalculationPeriodFrequency. [period eq ('M', 'Y')] not(rollConvention = ('NONE', 'SFE', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT','SUN')).">
-		if CalculationPeriodFrequency -> period = PeriodExtendedEnum.M or CalculationPeriodFrequency -> period = PeriodExtendedEnum.Y
-		then CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.NONE
-			or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.SFE
-			or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.MON
-			or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.TUE
-			or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.WED
-			or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.THU
-			or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.FRI
-			or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.SAT
-			or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.SUN
+		if CalculationPeriodFrequency -> period = PeriodExtendedEnum -> M or CalculationPeriodFrequency -> period = PeriodExtendedEnum -> Y
+		then CalculationPeriodFrequency -> rollConvention <> RollConventionEnum -> NONE
+			or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum -> SFE
+			or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum -> MON
+			or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum -> TUE
+			or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum -> WED
+			or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum -> THU
+			or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum -> FRI
+			or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum -> SAT
+			or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum -> SUN
 	
 	condition FpML_ird_58: <"FpML validation rule ird-58 - Context: CalculationPeriodFrequency. When the period is 'W', the rollConvention must be a week day, 'SFE' or 'NONE'.">
-		if CalculationPeriodFrequency -> period = PeriodExtendedEnum.W
-		then CalculationPeriodFrequency -> rollConvention = RollConventionEnum.NONE
-			or CalculationPeriodFrequency -> rollConvention = RollConventionEnum.SFE
-			or CalculationPeriodFrequency -> rollConvention = RollConventionEnum.MON
-			or CalculationPeriodFrequency -> rollConvention = RollConventionEnum.TUE
-			or CalculationPeriodFrequency -> rollConvention = RollConventionEnum.WED
-			or CalculationPeriodFrequency -> rollConvention = RollConventionEnum.THU
-			or CalculationPeriodFrequency -> rollConvention = RollConventionEnum.FRI
-			or CalculationPeriodFrequency -> rollConvention = RollConventionEnum.SAT
-			or CalculationPeriodFrequency -> rollConvention = RollConventionEnum.SUN
+		if CalculationPeriodFrequency -> period = PeriodExtendedEnum -> W
+		then CalculationPeriodFrequency -> rollConvention = RollConventionEnum -> NONE
+			or CalculationPeriodFrequency -> rollConvention = RollConventionEnum -> SFE
+			or CalculationPeriodFrequency -> rollConvention = RollConventionEnum -> MON
+			or CalculationPeriodFrequency -> rollConvention = RollConventionEnum -> TUE
+			or CalculationPeriodFrequency -> rollConvention = RollConventionEnum -> WED
+			or CalculationPeriodFrequency -> rollConvention = RollConventionEnum -> THU
+			or CalculationPeriodFrequency -> rollConvention = RollConventionEnum -> FRI
+			or CalculationPeriodFrequency -> rollConvention = RollConventionEnum -> SAT
+			or CalculationPeriodFrequency -> rollConvention = RollConventionEnum -> SUN
 	
 	condition FpML_ird_60: <"FpML validation rule ird-60 - Context: CalculationPeriodFrequency. When the period is 'T', the rollConvention must be 'NONE'.">
-		if CalculationPeriodFrequency -> period = PeriodExtendedEnum.T
-		then CalculationPeriodFrequency -> rollConvention = RollConventionEnum.NONE
+		if CalculationPeriodFrequency -> period = PeriodExtendedEnum -> T
+		then CalculationPeriodFrequency -> rollConvention = RollConventionEnum -> NONE
 
 
 type CashSettlementReferenceBanks: <"A class defining the list of reference institutions polled for relevant rates or prices when determining the cash settlement amount for a product where cash settlement is applicable.">
@@ -591,7 +591,7 @@ type Frequency: <"A class for defining a date frequency, e.g. one day, three mon
 
 
 condition Frequency_period: <"FpML specifies that if period value is T (Term) then periodMultiplier must contain the value 1.">
-	if Frequency -> period = PeriodExtendedEnum.T
+	if Frequency -> period = PeriodExtendedEnum -> T
 	then Frequency -> periodMultiplier = 1
 	
 condition Frequency_periodMultiplier: <"FpML specifies periodMultiplier as a positive integer.">
@@ -793,9 +793,9 @@ type Offset extends Period: <"A class defining an offset used in calculating a n
 	[synonym FpML_5_10 value Offset]
 	dayType DayTypeEnum (0..1) <"In the case of an offset specified as a number of days, this element defines whether consideration is given as to whether a day is a good business day or not. If a day type of business days is specified then non-business days are ignored when calculating the offset. The financial business centers to use for determination of business days are implied by the context in which this element is used. This element must only be included when the offset is specified as a number of days. If the offset is zero days then the dayType element should not be included.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value dayType]
-		[synonym ISDA_Create_1_0 set to DayTypeEnum.Calendar when "release_date" = "days"]
+		[synonym ISDA_Create_1_0 set to DayTypeEnum -> Calendar when "release_date" = "days"]
 	condition Offset_DayType: <"FpML specifies that the dayType must only be included when the offset is specified as a number of days, while should not be included if the offset is zero days.">
-		if Offset -> period <> PeriodEnum.D 
+		if Offset -> period <> PeriodEnum -> D 
 			or Offset -> periodMultiplier = 0
 		then Offset -> dayType is absent
 
@@ -943,10 +943,10 @@ type Period: <"A class to define recurring periods or time offsets.">
 	period PeriodEnum (1..1) <"A time period, e.g. a day, week, month or year of the stream. If the periodMultiplier value is 0 (zero) then period must contain the value D (day).">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value period]
 		[synonym FpML_5_10 value period path "dateOffset"]
-		// [synonym ISDA_Create_1_0 set to PeriodEnum.D]
+		// [synonym ISDA_Create_1_0 set to PeriodEnum -> D]
 	condition Period_period: <"FpML specifies that if the periodMultiplier value is 0 (zero) then period must contain the value D (day).">
 		if Period -> periodMultiplier = 0
-		then Period -> period = PeriodEnum.D
+		then Period -> period = PeriodEnum -> D
 
 type PremiumExpression: <"This class corresponds to the FpML Premium.model group for representing the option premium when expressed in a way other than an amount.">
 
@@ -1070,7 +1070,7 @@ type ResetFrequency extends Frequency: <"A class defining the reset frequency. I
 
 	condition FpML_ird_49: <"FpML validation rule ird-49 - WeeklyRollConvention should exist if and only if the period is 'W'.">
 		if ResetFrequency -> weeklyRollConvention exists
-		then ResetFrequency -> period = PeriodExtendedEnum.W
+		then ResetFrequency -> period = PeriodExtendedEnum -> W
 
 
 type Resource: <"Describes the resource that contains the media representation of a business event (i.e used for stating the Publicly Available Information). For example, can describe a file or a URL that represents the event. This type is an extended version of a type defined by RIXML (www.rixml.org).  Rosetta restricts the FpML implementation by not providing the ability to associated a document in hexadecimalBinary or base64Binary until such time that actual use cases will come up.">
