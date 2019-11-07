@@ -1,11 +1,12 @@
-package org.isda.cdm.functions;
-
-import java.math.BigDecimal;
-import java.util.List;
+package org.isda.cdm.calculation.functions;
 
 import org.isda.cdm.FloatingRateSpecification;
 import org.isda.cdm.SpreadSchedule;
 import org.isda.cdm.SpreadSchedule.SpreadScheduleBuilder;
+import org.isda.cdm.functions.GetRateSchedule;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 public class GetRateScheduleImpl extends GetRateSchedule {
 
