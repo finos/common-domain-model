@@ -61,27 +61,31 @@ func FormContract : <"Function specification to create the fully-formed business
 	
 	alias execution :
 		executionEvent -> primitives -> execution -> after -> execution
-	
+
 	condition : <"Input event must be an execution must be on a contractual product.">
 		execution exists and
 		execution -> product -> contractualProduct exists
-		
-	condition : <"Ensures that parties to the Contract are defined in the Legal Agreement, if one is provided."> 
+
+	condition : <"Ensures that parties to the Contract are defined in the Legal Agreement, if one is provided.">
 		if legalAgreement exists then legalAgreement -> contractualParty contains execution -> party
-		
+
 	assign-output contractFormationEvent -> primitives -> contractFormation : <"Event must contain a contract formation primitive based on the execution primitive and an optional legal agreement.">
 		NewContractFormationPrimitive( executionEvent -> primitives -> execution -> after only-element, execution -> party , legalAgreement )
-	
+
 	assign-output contractFormationEvent -> party : <"The parties on the output Event must match the parties on the input Execution.">
 		execution -> party
-		
+
 	assign-output contractFormationEvent -> lineage -> eventReference: <"Construct the lineage making reference to the input event">
 		executionEvent as-key
-		
+
+	assign-output contractFormationEvent -> eventEffect -> contract :
+		contractFormationEvent -> primitives -> contractFormation -> after -> contract
+
+	assign-output contractFormationEvent -> eventEffect -> effectedExecution:
+		contractFormationEvent -> primitives -> contractFormation -> before -> execution
+
 	post-condition : <"Event effect must point to the new execution and contract, and exclude other effects.">
-		contractFormationEvent -> eventEffect -> contract = contractFormationEvent -> primitives -> contractFormation -> after -> contract
-		and contractFormationEvent -> eventEffect -> effectedExecution = contractFormationEvent -> primitives -> contractFormation -> before -> execution
-		and contractFormationEvent -> eventEffect -> effectedContract is absent
+		contractFormationEvent -> eventEffect -> effectedContract is absent
 		and contractFormationEvent -> eventEffect -> productIdentifier is absent
 		and contractFormationEvent -> eventEffect -> transfer is absent
 					
