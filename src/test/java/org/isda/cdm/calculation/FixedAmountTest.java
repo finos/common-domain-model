@@ -1,33 +1,19 @@
-package org.isda.cdm.functions;
+package org.isda.cdm.calculation;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
-
-import java.math.BigDecimal;
-
-import org.isda.cdm.AdjustableDate;
-import org.isda.cdm.AdjustableOrRelativeDate;
-import org.isda.cdm.BusinessCenters;
-import org.isda.cdm.BusinessDayAdjustments;
-import org.isda.cdm.BusinessDayConventionEnum;
-import org.isda.cdm.CalculationPeriodDates;
-import org.isda.cdm.CalculationPeriodFrequency;
-import org.isda.cdm.ContractualQuantity;
-import org.isda.cdm.DayCountFractionEnum;
-import org.isda.cdm.InterestRatePayout;
-import org.isda.cdm.NonNegativeAmountSchedule;
-import org.isda.cdm.NotionalSchedule;
-import org.isda.cdm.PeriodExtendedEnum;
-import org.isda.cdm.RateSpecification;
-import org.isda.cdm.RollConventionEnum;
-import org.isda.cdm.Schedule;
+import com.google.inject.Inject;
+import com.rosetta.model.lib.records.DateImpl;
+import org.isda.cdm.*;
+import org.isda.cdm.functions.AbstractFunctionTest;
+import org.isda.cdm.functions.FixedAmount;
 import org.isda.cdm.metafields.FieldWithMetaDayCountFractionEnum;
 import org.isda.cdm.metafields.FieldWithMetaString;
 import org.isda.cdm.metafields.ReferenceWithMetaBusinessCenters;
 import org.junit.jupiter.api.Test;
 
-import com.google.inject.Inject;
-import com.rosetta.model.lib.records.DateImpl;
+import java.math.BigDecimal;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 
 class FixedAmountTest extends AbstractFunctionTest {
 

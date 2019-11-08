@@ -1,7 +1,8 @@
-package org.isda.cdm.functions;
+package org.isda.cdm.calculation.functions;
 
 import com.google.inject.Singleton;
 import org.isda.cdm.ForwardPayout;
+import org.isda.cdm.functions.InterpolateForwardRate;
 
 import java.math.BigDecimal;
 
