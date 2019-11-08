@@ -1,14 +1,12 @@
-# *Quantity Refactoring: Credit Products Migrated*
-
-As presented in the 30-Jul-2019 CDM WG meeting, the essence of the restructuring is to abstract away the quantity from the contractual product definition, such that a contractual product is defined as a "unit" of that product, similar to how non-contractual products (e.g. securities) work. The actual quantity is handled as part of a separate `QuantityNotation` object, while the product uses the `ResolvablePayoutQuantity` type to implement the quantity mechanics in the various `Payout` legs of the product.
-
 _What is being released_
 
-Credit products (CDS, CD Index etc.) have been migrated to the new quantity representation.
-
-As part of this release, the quantity referencing mechanism has been augmented with an additional attribute, to distinguish between different assets which quantities are being specified. So `ResolvablePayoutQuantity` now uses both `Tag` and `Asset` as identifiers to build its quantity reference. This is applicable in the XC Swap case, where the currency will be used as the `Asset` identifier.
+- Added new type called BusinessEvent to capture just the collection of Primitive Events.
+- Changed the cardinality of BusinessEvent.primative from 1..1 to 1..*. 
+- Changed the cardinality of all attributes of PrimitiveEvent from 0..* to 0..1 and introduced a one-of constraint.
+- Moved all primitive types to their own file for ease of navigating the model files.
+- Renamed primitives to have consistent naming convention (e.g. Inception changed to InceptionPrimitive)
+- Updated all qualifications to work with the primitives cardinality change.
 
 _Review direction_
 
-In the Ingestion Panel of the CDM Portal:
-- Look at Products / Credit and search for keyword `quantity` in the output, to see where respective elements are now positioned.
+View the BusinessEvent type and PrimitiveEvent type in the CDM Portal to see the changes.

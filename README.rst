@@ -1,7 +1,11 @@
 .. |trade|  unicode:: U+02122 .. TRADE MARK SIGN
 
-Overview of the ISDA CDM
+Overview of the ISDA CDM 
 ========================
+.. role:: raw-html(raw)
+    :format: html
+
+**Continuous Integration:** |Codefresh build status| :raw-html:`<br />`
 
 What is the ISDA CDM
 --------------------
@@ -51,3 +55,21 @@ CDM Applications
 It is expected that a rich eco-system of licensed application components from service providers that are based upon the CDM  will develop over time. REGnosys have taken the initiative to develop an offering of solutions to assist market participants in making use of the CDM. In particular, the CDM Portal provides UI components allowing those participants to browse through the CDM.
 
 ISDA doesn't endorse any of those application components.
+
+The CDM Versioning
+------------------
+
+The CDM is released using the semantic versioning system. 
+
+The format of a version number is MAJOR.MINOR.PATCH (e.g. ``1.23.456``), where the:
+
+* MAJOR (``1``) version change introduces *backward incompatible* changes and will be used as high level release name (e.g. ``ISDA CDM Version 1``)
+* MINOR (``23``) version change may or may not introduce backward incompatible changes, for example supporting a new type of event or feature or upgrading to a new version of the Rosetta DSL.
+* PATCH (``456``) version when a backward compatible change is made, for example adding a new class, attribute or updating documentation. An implementor would not have to make any changes to update to this release.
+
+The MAJOR.MINOR.PATCH numbers may increment by more than one unit. This is because release candidates can be created, but not released as further changes are made and then released altogether.
+
+.. |Codefresh build status| image:: https://g.codefresh.io/api/badges/pipeline/regnosysops/REGnosys%2Frosetta-cdm%2Frosetta-cdm?branch=master&key=eyJhbGciOiJIUzI1NiJ9.NWE1N2EyYTlmM2JiOTMwMDAxNDRiODMz.ZDeqVUhB-oMlbZGj4tfEiOg0cy6azXaBvoxoeidyL0g&type=cf-1
+   :target: https://g.codefresh.io/pipelines/rosetta-cdm/builds?repoOwner=REGnosys&repoName=rosetta-cdm&serviceName=REGnosys%2Frosetta-cdm&filter=trigger:build~Build;branch:master;pipeline:5a86c209eaf77d0001daacb6~rosetta-cdm
+
+

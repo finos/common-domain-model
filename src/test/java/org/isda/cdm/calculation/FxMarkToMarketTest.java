@@ -1,28 +1,18 @@
 package org.isda.cdm.calculation;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.closeTo;
-
-import java.math.BigDecimal;
-
-import org.isda.cdm.Cashflow;
-import org.isda.cdm.ExchangeRate;
-import org.isda.cdm.ForeignExchange;
+import com.google.inject.Inject;
+import org.isda.cdm.*;
 import org.isda.cdm.ForeignExchange.ForeignExchangeBuilder;
-import org.isda.cdm.ForwardPayout;
-import org.isda.cdm.Money;
-import org.isda.cdm.Product;
-import org.isda.cdm.QuoteBasisEnum;
-import org.isda.cdm.QuotedCurrencyPair;
-import org.isda.cdm.SingleUnderlier;
-import org.isda.cdm.Underlier;
+import org.isda.cdm.calculation.functions.TestableInterpolateForwardRate;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.isda.cdm.functions.FxMarkToMarket;
-import org.isda.cdm.functions.TestableInterpolateForwardRate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.google.inject.Inject;
+import java.math.BigDecimal;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.closeTo;
 
 class FxMarkToMarketTest extends AbstractFunctionTest {
 
