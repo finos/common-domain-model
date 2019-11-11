@@ -1,9 +1,12 @@
 _What is being released_
 
-Added tiles to the CDM Portal to allow users to directly link to functionality in Rosetta Core.  The following links have been added:
-- CDM Instance Viewer - drag and drop CDM JSON events which will be displayed visually.
-- Projection - drag and drop CDM JSON files which will be projected into FpML 5.10 and displayed as XML.
+- Added new type called BusinessEvent to capture just the collection of Primitive Events.
+- Changed the cardinality of BusinessEvent.primative from 1..1 to 1..*. 
+- Changed the cardinality of all attributes of PrimitiveEvent from 0..* to 0..1 and introduced a one-of constraint.
+- Moved all primitive types to their own file for ease of navigating the model files.
+- Renamed primitives to have consistent naming convention (e.g. Inception changed to InceptionPrimitive)
+- Updated all qualifications to work with the primitives cardinality change.
 
 _Review direction_
 
-Clicking on either CDM Portal link will log the user into Rosetta Core and open the relevent panel.
+View the BusinessEvent type and PrimitiveEvent type in the CDM Portal to see the changes.
