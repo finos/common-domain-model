@@ -19,10 +19,10 @@ type AllocationOutcome: <"A class to specify the allocated outcome as the combin
 	// TODO: move these data rule as a "post-condition" to the Allocation "Function Spec"
 	condition AllocationOutcome_executionClosed: <"The allocation outcome must result in execution state of 'Allocated' for an execution.">
 		if AllocationOutcome exists and AllocationOutcome -> originalTrade -> execution exists
-		then AllocationOutcome -> originalTrade -> execution -> closedState -> state = ClosedStateEnum.Allocated
+		then AllocationOutcome -> originalTrade -> execution -> closedState -> state = ClosedStateEnum -> Allocated
 	condition AllocationOutcome_contractClosed: <"The allocation outcome must result in a contract state of 'Allocated' for a contract.">
 		if AllocationOutcome exists and AllocationOutcome -> originalTrade -> contract exists
-		then AllocationOutcome -> originalTrade -> contract -> closedState -> state = ClosedStateEnum.Allocated
+		then AllocationOutcome -> originalTrade -> contract -> closedState -> state = ClosedStateEnum -> Allocated
 
 type CashTransferBreakdown extends TransferBreakdown:
 	payerReceiver PayerReceiver (1..1) <"The payer and receiver party information.">
@@ -194,12 +194,12 @@ type Event extends BusinessEvent : <"A class to specify the lifecycle event. The
 		[synonym Rosetta_Workbench value "effectiveDate"]
 	action ActionEnum (1..1) <"Specifies whether the event is a new, a correction or a cancellation.">
 		[synonym Rosetta_Workbench
-			set to ActionEnum.New when "isCorrection" = False,
-			set to ActionEnum.Correct when "isCorrection" = True,
-			set to ActionEnum.Cancel when "isRetraction" = True]
+			set to ActionEnum -> New when "isCorrection" = False,
+			set to ActionEnum -> Correct when "isCorrection" = True,
+			set to ActionEnum -> Cancel when "isRetraction" = True]
 		[synonym FpML_5_10
-			set to ActionEnum.New when "isCorrection" = False,
-			set to ActionEnum.Correct when "isCorrection" = True]
+			set to ActionEnum -> New when "isCorrection" = False,
+			set to ActionEnum -> Correct when "isCorrection" = True]
 		[synonym DTCC_11_0, DTCC_9_0 value "Activity" path "Header->OTC_RM->Manifest->TradeMsg"]
 		[synonym CME_SubmissionIRS_1_0 value "TransTyp" path "TrdCaptRpt"]
 	intent IntentEnum (0..1) <"The intent attribute is meant to be specified when the event qualification cannot be programmatically inferred from the event features. As a result it is only associated with those primitives that can give way to such ambiguity, the quantityChange being one of those. An example of such is a reduction in the trade notional, which could be interpreted as either a trade correction (unless a maximum period of time post-event is specified as part of the qualification), a partial termination or a portfolio rebalancing in the case of an equity swap. On the other hand, an event such as the exercise is not expected to have an associated intent as there should not be ambiguity.">
@@ -260,13 +260,13 @@ type EventTimestamp: <"A class to represent the various set of timestamps that c
 		[synonym CME_SubmissionIRS_1_0 value "Snt" path "TrdCaptRpt->Hdr"]
 		[synonym CME_SubmissionIRS_1_0 value "TS" path "TrdCaptRpt->TrdRegTS"]
 	qualification EventTimestampQualificationEnum (1..1) <"The timestamp qualifier is specified through an enumeration because the experience of integrating the DTCC and CME data representations suggests that a wide set of timestamps are currently utilized among service providers, while there is not at present an objective set of criteria that could help suggest a defined set of timestamps as part of the CDM. At some future point, one possible baseline could be developed from the review of the set of timestamps specified across regulatory regimes and regulations (incl. regulations such as high frequency trading). Also, the integration with a further set of implementations and the specification of business workflows such as clearing as part of the CDM development should help confirm the implementation approach in this respect.">
-		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 set to EventTimestampQualificationEnum.eventCreationDateTime when "creationTimestamp" exists]
-		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 set to EventTimestampQualificationEnum.eventExpirationDateTime when "expiryTimestamp" exists]
-		[synonym CME_ClearedConfirm_1_17, Rosetta_Workbench set to EventTimestampQualificationEnum.clearingSubmissionDateTime when "submittedForClearing" exists]
-		[synonym DTCC_11_0, DTCC_9_0 set to EventTimestampQualificationEnum.eventSubmittedDateTime when "ReceiveTime" exists]
-		[synonym CME_SubmissionIRS_1_0 set to EventTimestampQualificationEnum.transactionCreationDateTime when path = "TrdCaptRpt->TxnTm"]
-		[synonym CME_SubmissionIRS_1_0 set to EventTimestampQualificationEnum.eventSentDateTime when path= "TrdCaptRpt->Hdr->Snt"]
-		[synonym CME_SubmissionIRS_1_0 set to EventTimestampQualificationEnum.executionDateTime when path= "TrdCaptRpt->TrdRegTS->TS" and "TrdCaptRpt->TrdRegTS->Typ" = 1]
+		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 set to EventTimestampQualificationEnum -> eventCreationDateTime when "creationTimestamp" exists]
+		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 set to EventTimestampQualificationEnum -> eventExpirationDateTime when "expiryTimestamp" exists]
+		[synonym CME_ClearedConfirm_1_17, Rosetta_Workbench set to EventTimestampQualificationEnum -> clearingSubmissionDateTime when "submittedForClearing" exists]
+		[synonym DTCC_11_0, DTCC_9_0 set to EventTimestampQualificationEnum -> eventSubmittedDateTime when "ReceiveTime" exists]
+		[synonym CME_SubmissionIRS_1_0 set to EventTimestampQualificationEnum -> transactionCreationDateTime when path = "TrdCaptRpt->TxnTm"]
+		[synonym CME_SubmissionIRS_1_0 set to EventTimestampQualificationEnum -> eventSentDateTime when path= "TrdCaptRpt->Hdr->Snt"]
+		[synonym CME_SubmissionIRS_1_0 set to EventTimestampQualificationEnum -> executionDateTime when path= "TrdCaptRpt->TrdRegTS->TS" and "TrdCaptRpt->TrdRegTS->Typ" = 1]
 
 type EventWorkflow: <"A class to specify workflow information, which is conceptually applicable to all lifecycle events.">
 	workflowStatus WorkflowStatusEnum (0..*) <"The workflow status indicator, e.g. Accepted, Rejected, ...">
@@ -544,7 +544,7 @@ isEvent CashAndSecurityTransfer <"The qualification of a security settlement fro
 isEvent ClearedTrade <"The cleared trade at the CCP.">
 	Event -> primitives count = 1
 	and Event -> primitives -> inception exists
-	and Event -> eventWorkflow -> workflowStatus = WorkflowStatusEnum.Cleared
+	and Event -> eventWorkflow -> workflowStatus = WorkflowStatusEnum -> Cleared
 /*
  * It is proposed to remove the below qualification for 2 reasons
  *  - Limit the scope of event qualification to evaluating what is available within the event, while the workflow rule evaluated across events
@@ -556,25 +556,25 @@ isEvent ClearedTrade <"The cleared trade at the CCP.">
 isEvent ClearingRejection <"The rejection of an alpha trade submission by a CCP, which is qualified by the fact that (i) termsChange is the only primitive, the workflow status is `rejected`, and (iii) the CCP is positioned as a partyRole to the execution or contract in the after state, while it didn't exist in the before state.">
 	Event -> primitives count = 1
 	and Event -> primitives -> termsChange exists
-	and Event -> eventWorkflow -> workflowStatus = WorkflowStatusEnum.Rejected
+	and Event -> eventWorkflow -> workflowStatus = WorkflowStatusEnum -> Rejected
 	and ( Event -> primitives -> termsChange -> before -> execution -> partyRole is absent
-		or Event -> primitives -> termsChange -> before -> execution -> partyRole -> role <> PartyRoleEnum.ClearingOrganization
+		or Event -> primitives -> termsChange -> before -> execution -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization
 		or Event -> primitives -> termsChange -> before -> contract -> partyRole is absent
-		or Event -> primitives -> termsChange -> before -> contract -> partyRole -> role <> PartyRoleEnum.ClearingOrganization )
-	and ( Event -> primitives -> termsChange -> after -> execution -> partyRole -> role = PartyRoleEnum.ClearingOrganization
-		or Event -> primitives -> termsChange -> after -> contract -> partyRole -> role = PartyRoleEnum.ClearingOrganization )
+		or Event -> primitives -> termsChange -> before -> contract -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization )
+	and ( Event -> primitives -> termsChange -> after -> execution -> partyRole -> role = PartyRoleEnum -> ClearingOrganization
+		or Event -> primitives -> termsChange -> after -> contract -> partyRole -> role = PartyRoleEnum -> ClearingOrganization )
 	and quantityAfterQuantityChange = quantityBeforeQuantityChange
 
 isEvent ClearingSubmission <"The submission of a contract to a CCP, which is qualified by the fact that (i) the termsChange is the only primitive, and (ii) the CCP is positioned as a partyRole to the execution or contract in the after state, while it didn't exist in the before state.">
 	Event -> primitives count = 1
 	and Event -> primitives -> termsChange exists
-	and Event -> eventWorkflow -> workflowStatus = WorkflowStatusEnum.Submitted
+	and Event -> eventWorkflow -> workflowStatus = WorkflowStatusEnum -> Submitted
 	and ( Event -> primitives -> termsChange -> before -> execution -> partyRole is absent
-		or Event -> primitives -> termsChange -> before -> execution -> partyRole -> role <> PartyRoleEnum.ClearingOrganization
+		or Event -> primitives -> termsChange -> before -> execution -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization
 		or Event -> primitives -> termsChange -> before -> contract -> partyRole is absent
-		or Event -> primitives -> termsChange -> before -> contract -> partyRole -> role <> PartyRoleEnum.ClearingOrganization )
-	and ( Event -> primitives -> termsChange -> after -> contract -> partyRole -> role = PartyRoleEnum.ClearingOrganization
-		or Event -> primitives -> termsChange -> after -> execution -> partyRole -> role = PartyRoleEnum.ClearingOrganization )
+		or Event -> primitives -> termsChange -> before -> contract -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization )
+	and ( Event -> primitives -> termsChange -> after -> contract -> partyRole -> role = PartyRoleEnum -> ClearingOrganization
+		or Event -> primitives -> termsChange -> after -> execution -> partyRole -> role = PartyRoleEnum -> ClearingOrganization )
 	
 isEvent Compression <"The qualification of a compression event from the fact that (i) the quantityChange primitive exists, and (ii) there are multiple contracts (or contract references) specified in the before state.">
 	Event -> primitives -> quantityChange exists
@@ -589,7 +589,7 @@ isEvent Exercise <"The qualification of an exercise event from the fact that (i)
 	and Event -> primitives -> exercise exists
 
 isEvent Increase <"The qualification of a increase event from the fact that (i) the intent is Increase when specified, (ii) the associated primitives are the quantityChange and the cash transfer, the (iii) the quantity associated with the contract increases.">
-	Event -> intent when present = IntentEnum.Increase
+	Event -> intent when present = IntentEnum -> Increase
 	and ( Event -> primitives count = 1
 		and Event -> primitives -> quantityChange exists
 		or ( Event -> primitives -> quantityChange and Event -> primitives -> transfer -> cashTransfer ) exists )
@@ -610,7 +610,7 @@ isEvent Novation <"The qualification of a novation event from the fact that (i) 
 	Event -> primitives -> quantityChange exists
 	and Event -> primitives -> inception exists
 	and quantityAfterQuantityChange = 0.0
-	and Event -> primitives -> quantityChange -> after -> contract -> closedState -> state = ClosedStateEnum.Novated
+	and Event -> primitives -> quantityChange -> after -> contract -> closedState -> state = ClosedStateEnum -> Novated
 	and Event -> primitives -> inception -> after -> contract -> contractIdentifier <> Event -> primitives -> quantityChange -> before -> contract -> contractIdentifier
 	and Event -> eventDate = Event -> primitives -> inception -> after -> contract -> tradeDate -> date
 	and Event -> effectiveDate = novatedContractEffectiveDate
@@ -630,7 +630,7 @@ isEvent PartialNovation <"The qualification of a novation event from the fact th
 //	and originalContractParties <> newContractParties
 
 isEvent PartialTermination <"The qualification of a partial termination event from the fact that (i) the intent is Partial Termination when specified, (ii) the associated primitives are the quantityChange and the cash transfer, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
-	Event -> intent when present = IntentEnum.PartialTermination
+	Event -> intent when present = IntentEnum -> PartialTermination
 	and ( Event -> primitives count = 1
 		and Event -> primitives -> quantityChange exists
 		or ( Event -> primitives -> quantityChange and Event -> primitives -> transfer -> cashTransfer ) exists )
@@ -656,12 +656,12 @@ isEvent SecuritySettlement <"The qualification of a security settlement from the
 	and Event -> primitives -> transfer -> commodityTransfer is absent
 
 isEvent Termination <"The qualification of a termination event from the fact that (i) the intent is Termination when specified, (ii) the only primitive is the quantityChange and there is only one such primitive involved, the (iii) the remaining quantity is null, and (iv) the closedState of the contract is Terminated.">
-	Event -> intent when present = IntentEnum.Termination
+	Event -> intent when present = IntentEnum -> Termination
 	and ( Event -> primitives count = 1
 		and Event -> primitives -> quantityChange exists
 		or ( Event -> primitives -> quantityChange and Event -> primitives -> transfer -> cashTransfer ) exists )
 	and quantityAfterQuantityChange = 0.0
-	and Event -> primitives -> quantityChange -> after -> contract -> closedState -> state = ClosedStateEnum.Terminated
+	and Event -> primitives -> quantityChange -> after -> contract -> closedState -> state = ClosedStateEnum -> Terminated
 
 isEvent TradeWarehousePositionNotification
 	Event -> primitives -> inception exists
