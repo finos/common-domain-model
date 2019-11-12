@@ -4,22 +4,19 @@ version "${project.version}"
 /***************************************************************
  * Aliases (other than those embedded in the calculation syntax)
  */
-
-
- alias forwardFX
+alias forwardFX
 	ForwardPayout -> underlier -> singleUnderlier -> underlyingProduct -> foreignExchange
 
 /** 
  * TODO should replace "alias forwardFX" when it's clear how to call function from the data class.
  * 1. ForwardFX(this) 2. ForwardFX(underlier)
 
-func ForwardFX:
-	inputs: forwardPayout ForwardPayout(1..1)
-	output: result ForeignExchange (1..1)
-	assign-output result: forwardPayout -> underlier -> singleUnderlier -> underlyingProduct -> foreignExchange
+ * func ForwardFX:
+ * 	inputs: forwardPayout ForwardPayout(1..1)
+ * 	output: result ForeignExchange (1..1)
+ * 	assign-output result: forwardPayout -> underlier -> singleUnderlier -> underlyingProduct -> foreignExchange
 
  */
-
 alias effectiveDate
 	EconomicTerms -> effectiveDate -> adjustableDate -> adjustedDate
 	or EconomicTerms -> effectiveDate -> adjustableDate -> unadjustedDate
@@ -61,7 +58,7 @@ alias quantityAfterQuantityChange <"The alias to represent the quantity or notio
 alias quantityBeforeQuantityChange <"The alias to represent the quantity or notional amount in terms of number of units (i.e. ignoring the currency or units denomination) before a quantity change primitive.">
 	(WorkflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity) -> amount
 	and ( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount group by currency) -> amount
-	and ( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule group by currency ) -> initialValue 
+	and ( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule group by currency ) -> initialValue
 	and ( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule group by currency ) -> step -> stepValue
 	and ( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule group by notionalStepSchedule -> currency ) -> notionalStepParameters -> notionalStepAmount
 	and ( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> fxLinkedNotional group by varyingNotionalCurrency ) -> initialValue

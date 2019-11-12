@@ -3,12 +3,12 @@ version "${project.version}"
 
 type AllocationInstructions:
 	// TODO: add other allocation context
-    breakdowns AllocationBreakdown (1..*) <"The set of allocation breakdowns to be applied to a block trade">
- 
+	breakdowns AllocationBreakdown (1..*) <"The set of allocation breakdowns to be applied to a block trade">
+
 type AllocationBreakdown:
-    partyReference Party (1..1) <"Reference to the party to specify the account.">
-    [metadata reference]
-    quantity Quantity (1..1) <"The quantity to be allocated to the party.">
+	partyReference Party (1..1) <"Reference to the party to specify the account.">
+		[metadata reference]
+	quantity Quantity (1..1) <"The quantity to be allocated to the party.">
 
 
 type AllocationOutcome: <"A class to specify the allocated outcome as the combination of the previous Trade, which is either an execution or a contract and which state is specified as 'Allocated', and a set of Trade(s) of the same execution or contract type as before allocation. The allocation to one single trade is deemed appropriate: e.g. the trade could be effectively allocated from the fund manager doing the execution to a single fund entity.">
@@ -85,22 +85,22 @@ type ContractState: <"A class to specify a contract state instantiation with res
 //TODO: Check that the updated contract in the contract state matches the original reference contract, except for updated (reset) values.
 // data rule ContractState_contract
 /* NOT USED
-    class CreditLimit <"A class to specify the credit limit, to be used in the context of the clearing workflow.">
-	[synonym FpML_5_10 value "CreditLimit"]
-{
-	limitId string (0..1) scheme;
-		[synonym FpML_5_10 value "limitId" meta creditLimitIdScheme]
-	applicableProduct ProductIdentification (0..1) <"Further to the FpML standard, the CDM ProductIdentification provides the ability to associate a CDM qualified product.">
-	currency string (0..1) scheme <"The currency in which the credit limit is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
-		[synonym FpML_5_10 value "currency" meta currencyScheme]
-	tenor Period (0..1) <"The maximum allowed tenor for a trade under this limit. When this structure is used as part of a suspendCredit message, this tenor imposes a temporary tenor limit on allowed trade types.">
-		[synonym FpML_5_10 value "tenor"]
-	limitApplicable LimitApplicable (0..*)
-		[synonym FpML_5_10 value "limitApplicable"]
-	expirationDateTime BusinessCenterTime (0..1) <"The CDM naming include the time suffix because the FpML element is actually of type dateTime. Also, the attribute is of type BusinessCenterTime because of the design decision to only have time that are specified by reference to a timezone, with that class being deemed the proper implementation.">
-		[synonym FpML_5_10 value "expirationDate"]
-}
-*/
+ *     class CreditLimit <"A class to specify the credit limit, to be used in the context of the clearing workflow.">
+ * 	[synonym FpML_5_10 value "CreditLimit"]
+ * {
+ * 	limitId string (0..1) scheme;
+ * 		[synonym FpML_5_10 value "limitId" meta creditLimitIdScheme]
+ * 	applicableProduct ProductIdentification (0..1) <"Further to the FpML standard, the CDM ProductIdentification provides the ability to associate a CDM qualified product.">
+ * 	currency string (0..1) scheme <"The currency in which the credit limit is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
+ * 		[synonym FpML_5_10 value "currency" meta currencyScheme]
+ * 	tenor Period (0..1) <"The maximum allowed tenor for a trade under this limit. When this structure is used as part of a suspendCredit message, this tenor imposes a temporary tenor limit on allowed trade types.">
+ * 		[synonym FpML_5_10 value "tenor"]
+ * 	limitApplicable LimitApplicable (0..*)
+ * 		[synonym FpML_5_10 value "limitApplicable"]
+ * 	expirationDateTime BusinessCenterTime (0..1) <"The CDM naming include the time suffix because the FpML element is actually of type dateTime. Also, the attribute is of type BusinessCenterTime because of the design decision to only have time that are specified by reference to a timezone, with that class being deemed the proper implementation.">
+ * 		[synonym FpML_5_10 value "expirationDate"]
+ * }
+ */
 type CreditLimitInformation: <"A class to represent the credit limit utilisation information.">
 	[synonym CME_ClearedConfirm_1_17 value "CreditLimitInformation"]
 	limitApplicable LimitApplicableExtended (1..*)
@@ -122,7 +122,7 @@ type CreditLimitUtilisationPosition:
 	global number (0..1) <"Global credit limit utilisation amount, agnostic of long/short position direction.">
 		[synonym FpML_5_10 value "global"]
 
-type Curve : //one of
+type Curve: //one of
 	interestRateCurve InterestRateCurve (0..1)
 		[synonym Rosetta_Workbench value "interestRateCurve"]
 	commodityCurve CommodityReferencePriceEnum (0..1) // This is just an illustrative alternative curve instance, which implementation needs to be refined and confirmed
@@ -164,7 +164,7 @@ type CustomisedWorkflow: <"In its initial iteration, this class is meant to supp
 		[synonym CME_SubmissionIRS_1_0 set to "Customer Account" when "Pty->R" = "24"]
 		[synonym CME_SubmissionIRS_1_0 set to "Custom" when "Pty->Src" = "D"]
 
-type WorkflowEvent : <"A class to specify the lifecycle event. The associated rosettaKey denotes the ability to associate a hash value to the Event instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+type WorkflowEvent: <"A class to specify the lifecycle event. The associated rosettaKey denotes the ability to associate a hash value to the Event instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
 	[synonym Rosetta_Workbench meta id]
 	businessEvent BusinessEvent (1..1)
@@ -221,7 +221,7 @@ type WorkflowEvent : <"A class to specify the lifecycle event. The associated ro
 	eventWorkflow EventWorkflow (0..1) <"The event workflow information, i.e. the workflow status, the associated comment and the partyCustomisedWorkflow which purpose is to provide the ability to associate custom workflow information to the CDM.">
 
 	condition Event_intent: <"The intent should only be associated with the primitives which use can lead to ambiguity with respect to the qualification of the event.">
-		if ( WorkflowEvent -> businessEvent -> primitives -> allocation exists
+		if (WorkflowEvent -> businessEvent -> primitives -> allocation exists
 			or WorkflowEvent -> businessEvent -> primitives -> exercise exists
 			or WorkflowEvent -> businessEvent -> primitives -> inception exists
 			or WorkflowEvent -> businessEvent -> primitives -> observation exists
@@ -287,8 +287,8 @@ type ExerciseOutcome: <"The exercise outcome combines the option contract (which
 		[synonym Rosetta_Workbench value "physicalExercise"]
 	cashExercise Cashflow (0..1)
 		[synonym Rosetta_Workbench value "cashExercise"]
-	condition ExerciseOutcome_choice:<"A option exercise results in either a physical or a cash exercise.">
-		required choice physicalExercise , cashExercise
+	condition ExerciseOutcome_choice: <"A option exercise results in either a physical or a cash exercise.">
+		required choice physicalExercise, cashExercise
 
 type ExecutionState: <"A class to specify an execution instantiation with respect to the before and/or after state of lifecycle events.">
 	execution Execution (1..1)
@@ -320,7 +320,7 @@ type LimitApplicable:
 		[synonym FpML_5_10, CME_ClearedConfirm_1_17, Rosetta_Workbench value "currency" meta currencyScheme]
 	velocity Velocity (0..1)
 		[synonym FpML_5_10 value "velocity"]
-	condition LimitApplicable_choice:  <"Choice rule to represent an FpML choice construct.">
+	condition LimitApplicable_choice: <"Choice rule to represent an FpML choice construct.">
 		optional choice amountUtilized, utilization
 
 
@@ -393,7 +393,7 @@ type ObservationSource: <"The observation source can be composed of an curve and
 		[synonym Rosetta_Workbench value "curve"]
 	informationSource InformationSource (0..1)
 		[synonym Rosetta_Workbench value "informationSource"]
-	condition ObservationSource_content:  <"ObservationSource should not be empty, although the attribute cardinality would allow that.">
+	condition ObservationSource_content: <"ObservationSource should not be empty, although the attribute cardinality would allow that.">
 		if ObservationSource exists
 		then (ObservationSource -> curve exists and ObservationSource -> informationSource exists)
 			or ObservationSource -> curve exists
@@ -512,7 +512,6 @@ type Velocity:
 /*********************
  * Event Qualification
  */
-
 isEvent Allocation <"The qualification of allocation event from the fact that (i) the intent is Allocation when specified, (ii) the only primitive is the allocation, (iii) the sum of quantities/notional before = after, and (iv) there is a single contractualProduct before (ensured through cardinality). Note: it is accepted that an allocation can result in a single contract.">
 	WorkflowEvent -> businessEvent -> primitives count = 1
 	and WorkflowEvent -> businessEvent -> primitives -> allocation exists
