@@ -9,65 +9,65 @@ version "${project.version}"
  * 
  */
 func NewEquitySwapProduct: <"Function specification to create an Equity Swap according to the 2018 ISDA CDM Equity Confirmation Template, based on a minimum set of inputs which can (optionally) include a Master Confirmation Agreement. The inputs represent the minimum set of inputs required to create an Equity Swap, either based on an existing Master Confirmation Agreement or as a stand-alone Equity Swap">
-	inputs: 
+	inputs:
 		underlier Equity (1..1) <"The underlying Equity asset for the swap.">
 		masterConfirmation EquitySwapMasterConfirmation2018 (0..1) <"An (optional) pointer to the Master Confirmation Agreement, if any, that holds further inputs to the Equity Swap">
-		
+
 	output:
 		product Product (1..1)
-		
+
 	alias payout:
 		product -> contractualProduct -> economicTerms -> payout
-		
-	assign-output product -> contractualProduct -> economicTerms -> payout -> equityPayout : 
-		NewSingleNameEquityPayout( underlier, masterConfirmation )
-	
-	assign-output product -> contractualProduct -> economicTerms -> payout -> interestRatePayout : <"Equity and interest rate payouts must be set-up according to their corresponding payout specifications">
-		if masterConfirmation exists then NewFloatingPayout( masterConfirmation )
-		
+
+	assign-output product -> contractualProduct -> economicTerms -> payout -> equityPayout:
+		NewSingleNameEquityPayout(underlier, masterConfirmation)
+
+	assign-output product -> contractualProduct -> economicTerms -> payout -> interestRatePayout: <"Equity and interest rate payouts must be set-up according to their corresponding payout specifications">
+		if masterConfirmation exists then NewFloatingPayout(masterConfirmation)
+
 	post-condition: <"Other payout types must be absent.">
 		if masterConfirmation is absent then payout -> interestRatePayout is absent
-		and payout -> cashflow is absent
-		and payout -> creditDefaultPayout is absent
-		and payout -> forwardPayout is absent
-		and payout -> optionPayout is absent	
-		
+			and payout -> cashflow is absent
+			and payout -> creditDefaultPayout is absent
+			and payout -> forwardPayout is absent
+			and payout -> optionPayout is absent
+
 	post-condition: <"Non-contractual product types must be absent.">
 		product -> contractualProduct only exists
 
-		
+
 func NewSingleNameEquityPayout: <"Function specification to create the equity payout part of an Equity Swap according to the 2018 ISDA CDM Equity Confirmation template.">
 	inputs:
 		underlier Equity (1..1)
 		masterConfirmation EquitySwapMasterConfirmation2018 (0..1)
-		
+
 	output:
 		equityPayout EquityPayout (1..1)
-		
-	assign-output equityPayout -> returnType : <"Equity payout must inherit terms from the Master Confirmation Agreement."> 
+
+	assign-output equityPayout -> returnType: <"Equity payout must inherit terms from the Master Confirmation Agreement."> 
 		masterConfirmation -> typeOfSwapElection
-		
-	assign-output equityPayout -> calculationPeriodDates : <"Equity payout must inherit terms from the Master Confirmation Agreement."> 
+
+	assign-output equityPayout -> calculationPeriodDates: <"Equity payout must inherit terms from the Master Confirmation Agreement."> 
 		masterConfirmation -> equityCalculationPeriod
-		
-	assign-output equityPayout -> paymentDates : <"Equity payout must inherit terms from the Master Confirmation Agreement."> 
+
+	assign-output equityPayout -> paymentDates: <"Equity payout must inherit terms from the Master Confirmation Agreement."> 
 		masterConfirmation -> equityCashSettlementDates
-		
-	assign-output equityPayout -> settlementTerms : <"Equity payout must inherit terms from the Master Confirmation Agreement."> 
+
+	assign-output equityPayout -> settlementTerms: <"Equity payout must inherit terms from the Master Confirmation Agreement."> 
 		masterConfirmation -> settlementTerms
-		
+
 	post-condition: <"Equity payout must be single name on the provided equity underlier.">
 		equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> equity = underlier
-		
-		
+
+
 func NewFloatingPayout: <"Function specification to create the interest rate (floating) payout part of an Equity Swap according to the 2018 ISDA CDM Equity Confirmation template.">
 	inputs: masterConfirmation EquitySwapMasterConfirmation2018 (0..1)
 	output: interestRatePayout InterestRatePayout (1..1)
 
 	post-condition: <"Interest rate payout must inherit terms from the Master Confirmation Agreement when it exists.">
-		if masterConfirmation exists 
-			then interestRatePayout -> calculationPeriodDates = masterConfirmation -> equityCalculationPeriod 
-				and interestRatePayout -> paymentDates = masterConfirmation -> equityCashSettlementDates
+		if masterConfirmation exists
+		then interestRatePayout -> calculationPeriodDates = masterConfirmation -> equityCalculationPeriod
+			and interestRatePayout -> paymentDates = masterConfirmation -> equityCashSettlementDates
 
 /**
  * Function specifications that are used in the Equity Reset process 
@@ -77,39 +77,39 @@ func ResolveEquityContract: <"Specifies how the updated contract should be const
 		contractState ContractState (1..1)
 		observation ObservationPrimitive (1..1)
 		date date (1..1)
-		
+
 	output:
 		updatedContract Contract (1..1)
-		
+
 	alias price:
 		observation -> observation
-		
+
 	alias equityPayout:
 		contractState -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
-	
-	alias updatedEquityPayout :
+
+	alias updatedEquityPayout:
 		updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
-		
-	alias periodEndDate :
+
+	alias periodEndDate:
 		CalculationPeriod( equityPayout -> calculationPeriodDates, date ) -> endDate
-		
-	alias equityPerformance :
-		EquityPerformance( contractState, observation -> observation, periodEndDate )
-		
+
+	alias equityPerformance:
+		EquityPerformance(contractState, observation -> observation, periodEndDate)
+
 	condition isEquityContract :
 		equityPayout exists
-		
-	assign-output updatedEquityPayout -> priceReturnTerms -> valuationPriceFinal -> netPrice -> amount :
+
+	assign-output updatedEquityPayout -> priceReturnTerms -> valuationPriceFinal -> netPrice -> amount:
 		if CalculationPeriod( equityPayout -> calculationPeriodDates, periodEndDate ) -> isLastPeriod then price
-		
-	assign-output updatedEquityPayout -> priceReturnTerms -> valuationPriceInterim -> netPrice -> amount :
+
+	assign-output updatedEquityPayout -> priceReturnTerms -> valuationPriceInterim -> netPrice -> amount:
 		if CalculationPeriod( equityPayout -> calculationPeriodDates, periodEndDate ) -> isLastPeriod = False then price
-			
-	assign-output updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> performance : 
+
+	assign-output updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> performance:
 		<"Reset primitive after state must be correctly populated with the equity payout including the performance.">
 		equityPerformance
-	
-	assign-output updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> quantityMultiplier -> multiplierValue :
+
+	assign-output updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> quantityMultiplier -> multiplierValue:
 		<"Using the Rate of Return we 'reset' the multiplier, which is used to resolve the ultimate notional amount for the equity swap.">  
 		1 + equityPerformance / 100
 
@@ -121,38 +121,38 @@ func EquityPriceObservation: <"Function specification for the observation of an 
 		valuationTime BusinessCenterTime (0..1)
 		timeType TimeTypeEnum (0..1)
 		determinationMethod DeterminationMethodEnum (1..1)
-		
+
 	output:
 		observation ObservationPrimitive (1..1)
-		
+
 	condition: <"Optional choice between directly passing a time or a timeType, which has to be resolved into a time based on the determination method.">
 		if valuationTime exists then timeType is absent
 		else if timeType exists then valuationTime is absent
-		else False
-		
+			else False
+
 	post-condition: <"The date and time must be properly resolved as attributes on the output.">
-		observation -> date = ResolveAdjustableDate( valuationDate )
+		observation -> date = ResolveAdjustableDate(valuationDate)
 		and if valuationTime exists then
-				observation -> time = TimeZoneFromBusinessCenterTime( valuationTime )
-			else
-				observation -> time = ResolveTimeZoneFromTimeType( timeType, determinationMethod )
-			
+		observation -> time = TimeZoneFromBusinessCenterTime(valuationTime)
+		else
+		observation -> time = ResolveTimeZoneFromTimeType(timeType, determinationMethod)
+
 	post-condition: <"The number recorded in the observation must match the number fetched from the source.">
-		observation -> observation = EquitySpot( equity, observation -> date, observation -> time )
+		observation -> observation = EquitySpot(equity, observation -> date, observation -> time)
 
 
 // should be provided as a fully specified function (with a body, like calculation) with logic based on the direction of RateOfReturn
 func EquityAmountPayer: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 71. ' Equity Amount Payer' means: if the Rate Of Return is positive, then the Short Party shall be the Equity Amount Payer; and if the Rate Of Return is negative, then the Long Party shall be the Equity Amount Payer.">
-	inputs: equityPayout EquityPayout (1..1) 
+	inputs: equityPayout EquityPayout (1..1)
 	output: payerReceiver PayerReceiver (1..1)
-		
+
 
 func EquitySpot: <"An external market data lookup for the spot equity price of the reference asset based on a determination method.">
 	inputs:
 		equity Equity (1..1)
 		date date (1..1)
-		time TimeZone (1..1 ) 
-		
+		time TimeZone (1..1 )
+
 	output: spot number (1..1)
 
 
@@ -165,122 +165,121 @@ func ResolveTimeZoneFromTimeType: <"Function to resolve a TimeType into a TimeZo
 	inputs:
 		timeType TimeTypeEnum (1..1)
 		determinationMethod DeterminationMethodEnum (1..1)
-		
+
 	output:
 		time TimeZone (1..1)
-		
+
 
 func EquityCashSettlementAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 72. 'Equity Cash Settlement Amount' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Cash Settlement Amount = ABS(Rate Of Return) × Equity Notional Amount.">
-	inputs: 
+	inputs:
 		contractState ContractState (1..1)
 		date date (1..1)
-		
+
 	output:
 		equityCashSettlementAmount Money (1..1)
-	
-	alias equityPayout :
+
+	alias equityPayout:
 		contractState -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout
-		
+
 	condition:
 		equityPayout -> payoutQuantity -> quantityNotationTag = QuantityNotationEnum -> NumberOfSecurities
-		
-	assign-output equityCashSettlementAmount -> amount : <"Equity Cash Settlement Amount is defined here as Abs( Equity Performance ). Per the ISDA Definitions: Equity Performance = (Rate Of Return) × Equity Notional Amount and Equity Cash Settlement Amount = ABS(Rate Of Return) × Equity Notional Amount; so the calculation for Equity Cash Settlement Amount in the CDM is mathematically equivalent, with the added benefit that Rate of Return does not need to be recomputed, since it was already computed in the Reset Event."> 
-		Abs( contractState -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> performance only-element )
-		
-	assign-output equityCashSettlementAmount -> currency : <"Does not handle the cross currency case, currently.">
+
+	assign-output equityCashSettlementAmount -> amount: <"Equity Cash Settlement Amount is defined here as Abs( Equity Performance ). Per the ISDA Definitions: Equity Performance = (Rate Of Return) × Equity Notional Amount and Equity Cash Settlement Amount = ABS(Rate Of Return) × Equity Notional Amount; so the calculation for Equity Cash Settlement Amount in the CDM is mathematically equivalent, with the added benefit that Rate of Return does not need to be recomputed, since it was already computed in the Reset Event."> 
+		Abs(contractState -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> performance only-element)
+
+	assign-output equityCashSettlementAmount -> currency: <"Does not handle the cross currency case, currently.">
 		equityPayout -> priceReturnTerms -> initialPrice -> netPrice -> currency only-element
 
 
 func ResolveEquityPeriodStartPrice: <"Resolves the price from the end of the previous period. If first period, then take the initial price.">
-	inputs: 
+	inputs:
 		equityPayout EquityPayout (1..1)
 		date date (1..1)
-	output: 
+	output:
 		price number (1..1)
-		
+
 	alias priceReturnTerms:
 		equityPayout -> priceReturnTerms
-		
+
 	alias calculationPeriod:
-		CalculationPeriod( equityPayout -> calculationPeriodDates, date )
-		
-	assign-output price : <"The initial price is taken from the original contract if we are Resetting for the first time i.e. when the number of updated contracts is one.">
-		if calculationPeriod -> isFirstPeriod  
+		CalculationPeriod(equityPayout -> calculationPeriodDates, date)
+
+	assign-output price: <"The initial price is taken from the original contract if we are Resetting for the first time i.e. when the number of updated contracts is one.">
+		if calculationPeriod -> isFirstPeriod
 		then priceReturnTerms -> initialPrice -> netPrice -> amount
-		else priceReturnTerms -> valuationPriceInterim -> netPrice -> amount   
-	
-	
-func ResolveEquityPeriodEndPrice: 
-	inputs: 
+		else priceReturnTerms -> valuationPriceInterim -> netPrice -> amount
+
+
+func ResolveEquityPeriodEndPrice:
+	inputs:
 		equityPayout EquityPayout (1..1)
 		date date (1..1)
-	output: 
+	output:
 		price number (1..1)
-		
-	alias priceReturnTerms :
+
+	alias priceReturnTerms:
 		equityPayout -> priceReturnTerms
-		
+
 	alias calculationPeriod:
-		CalculationPeriod( equityPayout -> calculationPeriodDates, date )
-		
-	assign-output price : <"If the last period, take the price from the Valuation Price Final, otherwise from Valuation Price Interim.">
-		if  calculationPeriod -> isLastPeriod  
+		CalculationPeriod(equityPayout -> calculationPeriodDates, date)
+
+	assign-output price: <"If the last period, take the price from the Valuation Price Final, otherwise from Valuation Price Interim.">
+		if calculationPeriod -> isLastPeriod
 		then priceReturnTerms -> valuationPriceFinal -> netPrice -> amount
-		else priceReturnTerms -> valuationPriceInterim -> netPrice -> amount  	
-	
-	
+		else priceReturnTerms -> valuationPriceInterim -> netPrice -> amount
+
+
 func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Performance = (Rate Of Return) × Equity Notional Amount.">
-	inputs: 
+	inputs:
 		contractState ContractState (1..1)
 		observation number (1..1)
 		date date (1..1)
-		
-	output: 
-		equityPerformance number (1..1) 
-		
+
+	output:
+		equityPerformance number (1..1)
+
 	alias equityPayout:
-		contractState -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout only-element 
-		
-	alias periodStartPrice :
-		ResolveEquityPeriodStartPrice( equityPayout, date )
-		
-	alias periodEndPrice :
+		contractState -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
+
+	alias periodStartPrice:
+		ResolveEquityPeriodStartPrice(equityPayout, date)
+
+	alias periodEndPrice:
 		observation
 
-	alias numberOfSecurities :
+	alias numberOfSecurities:
 		ExtractQuantityByNotation( contractState -> contract -> contractualQuantity -> quantityNotation, QuantityNotationEnum -> NumberOfSecurities ) -> quantity -> amount
-				
-	alias rateOfReturn : 
-		RateOfReturn( periodStartPrice, periodEndPrice )
-		
-	alias notionalAmount : 
-		EquityNotionalAmount( numberOfSecurities, periodEndPrice )
-		
-	assign-output equityPerformance : 
+
+	alias rateOfReturn:
+		RateOfReturn(periodStartPrice, periodEndPrice)
+
+	alias notionalAmount:
+		EquityNotionalAmount(numberOfSecurities, periodEndPrice)
+
+	assign-output equityPerformance:
 		rateOfReturn * notionalAmount
 
 
 func RateOfReturn: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 139. 'Rate Of Return' means, in respect of any Equity Valuation Date, the amount determined pursuant to the following formula: Rate Of Return = (Final Price - Initial Price) / Initial Price.">
-	inputs: 
+	inputs:
 		initialPrice number (1..1)
 		finalPrice number (1..1)
-	
-	output: 
+
+	output:
 		rateOfReturn number (1..1)
-		
-	assign-output rateOfReturn :
+
+	assign-output rateOfReturn:
 		(finalPrice - initialPrice) / initialPrice
 
 
 func EquityNotionalAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 74. 'Equity Notional Amount' means the Number Of Securities times the Initial Price, adjusted, if applicable, as provided in Part 1 Section 2.2, 'Equity Notional Reset'. If 'With Reset' is the Equity Notional Reset Election, then in respect of each Equity Cash Settlement Date: (i) the Equity Notional Amount applicable in respect of the first Equity Cash Settlement Date will be the amount specified as such in the definition of Equity Notional Amount; (ii) the Equity Notional Amount applicable in respect of each subsequent Equity Cash Settlement Date will be the sum of (a) the Equity Notional Amount in respect of the prior Equity Cash Settlement Date and (b) the Equity Performance, whether positive or negative, in respect of the prior Equity Cash Settlement Date; and (iii)	the Floating Notional Amount will be adjusted as provided in sub-clauses (i) and (ii) above as though it were an Equity Notional Amount.">
-	inputs: 
+	inputs:
 		numberOfSecurities number (1..1)
 		price number (1..1)
-		
-	output: 
+
+	output:
 		equityNotionalAmount number (1..1)
-	
-	assign-output equityNotionalAmount : 
+
+	assign-output equityNotionalAmount:
 		numberOfSecurities * price
 
-		
