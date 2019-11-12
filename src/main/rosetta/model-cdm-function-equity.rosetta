@@ -182,7 +182,7 @@ func EquityCashSettlementAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity
 		contractState -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout
 		
 	condition:
-		equityPayout -> payoutQuantity -> quantityNotationTag = QuantityNotationEnum.NumberOfSecurities
+		equityPayout -> payoutQuantity -> quantityNotationTag = QuantityNotationEnum -> NumberOfSecurities
 		
 	assign-output equityCashSettlementAmount -> amount : <"Equity Cash Settlement Amount is defined here as Abs( Equity Performance ). Per the ISDA Definitions: Equity Performance = (Rate Of Return) × Equity Notional Amount and Equity Cash Settlement Amount = ABS(Rate Of Return) × Equity Notional Amount; so the calculation for Equity Cash Settlement Amount in the CDM is mathematically equivalent, with the added benefit that Rate of Return does not need to be recomputed, since it was already computed in the Reset Event."> 
 		Abs( contractState -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> performance only-element )
@@ -248,7 +248,7 @@ func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirma
 		observation
 
 	alias numberOfSecurities :
-		ExtractQuantityByNotation( contractState -> contract -> contractualQuantity -> quantityNotation, QuantityNotationEnum.NumberOfSecurities ) -> quantity -> amount
+		ExtractQuantityByNotation( contractState -> contract -> contractualQuantity -> quantityNotation, QuantityNotationEnum -> NumberOfSecurities ) -> quantity -> amount
 				
 	alias rateOfReturn : 
 		RateOfReturn( periodStartPrice, periodEndPrice )
