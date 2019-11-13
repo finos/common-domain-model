@@ -1,11 +1,12 @@
-# *CDM Portal - Introductory Video*
+# *Clearing - Introduce the concept of Workflow Event*
 
 _What is being released_
 
-As part of on-going improvement, visual material is added to facilitate understanding of ISDA CDM and its supporting infrastructure. In this release an introductory video is added to the Home Page of the CDM Portal that explains the main features in the ISDA CDM and how to make use of them. 
-
-Additionally, the DerivHack 2019 Tile has been removed. 
+`WorkflowEvent` is a higher-level concept on top of `BusinessEvent` (and contains it), to be used by implementors to build their own workflow rule-book that eventually leads to a state-transition (as expressed in the `BusinessEvent`).
+ - Renamed the type  `Event` to `WorkflowEvent`
+ - Positioned the `BusinessEvent` type to be an attribute of the new `WorkflowEvent`
+ - Renamed the `Rosetta_Workbench` synonym to `Workflow_Event`
 
 _Review direction_
 
-Visit the ISDA CDM Portal to find the video on the Home Page. 
+Visit the ISDA CDM Portal and navigatge to WorkflowEvent`.
