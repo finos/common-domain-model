@@ -1,4 +1,4 @@
-# *Clearing - Introduce the concept of Workflow Event*
+# *Introduce the concept of Workflow Event*
 
 _What is being released_
 
