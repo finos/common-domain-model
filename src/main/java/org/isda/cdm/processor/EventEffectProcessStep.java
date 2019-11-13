@@ -1,25 +1,5 @@
 package org.isda.cdm.processor;
 
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.function.BiConsumer;
-import java.util.function.BiPredicate;
-
-import org.isda.cdm.Contract.ContractBuilder;
-import org.isda.cdm.Event.EventBuilder;
-import org.isda.cdm.EventEffect.EventEffectBuilder;
-import org.isda.cdm.Execution.ExecutionBuilder;
-import org.isda.cdm.ProductIdentifier.ProductIdentifierBuilder;
-import org.isda.cdm.TransferPrimitive.TransferPrimitiveBuilder;
-import org.isda.cdm.metafields.ReferenceWithMetaContract;
-import org.isda.cdm.metafields.ReferenceWithMetaContract.ReferenceWithMetaContractBuilder;
-import org.isda.cdm.metafields.ReferenceWithMetaExecution;
-import org.isda.cdm.metafields.ReferenceWithMetaExecution.ReferenceWithMetaExecutionBuilder;
-import org.isda.cdm.metafields.ReferenceWithMetaProductIdentifier;
-import org.isda.cdm.metafields.ReferenceWithMetaProductIdentifier.ReferenceWithMetaProductIdentifierBuilder;
-import org.isda.cdm.metafields.ReferenceWithMetaTransferPrimitive;
-import org.isda.cdm.metafields.ReferenceWithMetaTransferPrimitive.ReferenceWithMetaTransferPrimitiveBuilder;
-
 import com.google.common.collect.ImmutableMap;
 import com.regnosys.rosetta.common.hashing.RosettaKeyProcessStep;
 import com.regnosys.rosetta.common.hashing.RosettaKeyProcessStep.KeyPostProcessReport;
@@ -32,6 +12,25 @@ import com.rosetta.model.lib.path.RosettaPath;
 import com.rosetta.model.lib.process.AttributeMeta;
 import com.rosetta.model.lib.process.BuilderProcessor.Report;
 import com.rosetta.model.lib.process.PostProcessStep;
+import org.isda.cdm.Contract.ContractBuilder;
+import org.isda.cdm.EventEffect.EventEffectBuilder;
+import org.isda.cdm.Execution.ExecutionBuilder;
+import org.isda.cdm.ProductIdentifier.ProductIdentifierBuilder;
+import org.isda.cdm.TransferPrimitive.TransferPrimitiveBuilder;
+import org.isda.cdm.WorkflowEvent.WorkflowEventBuilder;
+import org.isda.cdm.metafields.ReferenceWithMetaContract;
+import org.isda.cdm.metafields.ReferenceWithMetaContract.ReferenceWithMetaContractBuilder;
+import org.isda.cdm.metafields.ReferenceWithMetaExecution;
+import org.isda.cdm.metafields.ReferenceWithMetaExecution.ReferenceWithMetaExecutionBuilder;
+import org.isda.cdm.metafields.ReferenceWithMetaProductIdentifier;
+import org.isda.cdm.metafields.ReferenceWithMetaProductIdentifier.ReferenceWithMetaProductIdentifierBuilder;
+import org.isda.cdm.metafields.ReferenceWithMetaTransferPrimitive;
+import org.isda.cdm.metafields.ReferenceWithMetaTransferPrimitive.ReferenceWithMetaTransferPrimitiveBuilder;
+
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.function.BiConsumer;
+import java.util.function.BiPredicate;
 
 
 public class EventEffectProcessStep implements PostProcessStep{
@@ -120,8 +119,8 @@ public class EventEffectProcessStep implements PostProcessStep{
 		@Override
 		public <R extends RosettaModelObject> boolean processRosetta(RosettaPath path, Class<? extends R> rosettaType,
 				RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent, AttributeMeta... metas) {
-			if (builder instanceof EventBuilder && builder.hasData()) {
-				((EventBuilder) builder).getOrCreateEventEffect();
+			if (builder instanceof WorkflowEventBuilder && builder.hasData()) {
+				((WorkflowEventBuilder) builder).getOrCreateEventEffect();
 			}
 			if (builder instanceof EventEffectBuilder) {
 				EventEffectBuilder eventEffect = (EventEffectBuilder) builder;
