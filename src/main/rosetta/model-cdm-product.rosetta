@@ -13,7 +13,7 @@ type Cashflow: <" A class to specify a cashflow, i.e. the outcome of either of c
 	premiumExpression PremiumExpression (0..1) <"FpML specifies the Premium.model group for representing the option premium when expressed in a way other than an amount.">
 	cashflowDate AdjustableOrAdjustedOrRelativeDate (0..1)
 	cashflowCalculation calculation (0..1) <"This is a conceptual placeholder for providing the breakdown into the cashflow calculation components, leveraging the fact that the CDM provides calculation components, starting with the FixedAmount and the FloatingAmount. Further evaluation of expected usage needs to take place to confirm and prioritize such implementation.">
-		[synonym Rosetta_Workbench value "cashflowCalculation"]
+		[synonym Workflow_Event value "cashflowCalculation"]
 	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, e.g. brokerage fee, premium, upfront fee etc. Particularly relevant when it cannot be inferred directly through lineage.">
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "paymentType"]
 	discountFactor number (0..1) <"The value representing the discount factor used to calculate the present value of the cashflow.">
@@ -34,19 +34,19 @@ type Cashflow: <" A class to specify a cashflow, i.e. the outcome of either of c
 type ClosedState: <" A class to qualify the closed state of an execution or a contract through the combination or a state (e.g. terminated, novated) and a set of dates: activity date, effective date and, when relevant, last payment date.">
 
 	state ClosedStateEnum (1..1) <"The qualification of what gave way to the contract or execution closure, e.g. allocation, termination, ...">
-		[synonym Rosetta_Workbench value "state"]
+		[synonym Workflow_Event value "state"]
 	activityDate date (1..1) <"The activity date on which the closing state took place, i.e. either the event date of the closing event (e.g. option exercise, contract early termination) or the contractual termination date.">
-		[synonym Rosetta_Workbench value "activityDate"]
+		[synonym Workflow_Event value "activityDate"]
 	effectiveDate date (0..1) <"The date on which the closing event contractually takes effect, when different from the activity date. When an explicit event effective date attribute is associated with the closing event, it will be that date. In the case of a cancellation event, it will be the date on which the cancelled event took place.">
-		[synonym Rosetta_Workbench value "effectiveDate"]
+		[synonym Workflow_Event value "effectiveDate"]
 	lastPaymentDate date (0..1) <"The date associated with the last payment in relation to the artefact (e.g. contract) to which this closed state applies. As an example, in the case of an early termination event, it would be the settlement date of the associated fee, if applicable.">
-		[synonym Rosetta_Workbench value "lastPaymentDate"]
+		[synonym Workflow_Event value "lastPaymentDate"]
 
 
 type Contract: <" A class to specify a financial contract object, which can be invoked either within the context of an event, or independently from it. It corresponds to the FpML Trade in the Confirmation view (while the CDM Execution class corresponds to the FpML trade in the Pre-Trade view). The associated rosettaKey denotes the ability to associate a hash value to the Contract instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 meta id path "trade"]
-	[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17, Rosetta_Workbench meta id]
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17, Workflow_Event meta id]
 
 	contractIdentifier Identifier (1..*) <"The identifier(s) that uniquely identify a contract, and which can be qualified by referencing or defining the issuer(s) of such identifier(s). There can be several contract identifier, an example of such being a contract is reportable to both the CFTC and ESMA and then has an associated USI (Unique Swap Identifier) UTI (Unique Trade Identifier).">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0 value "partyTradeIdentifier" path "trade->tradeHeader"]
@@ -105,7 +105,7 @@ type Contract: <" A class to specify a financial contract object, which can be i
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0 value "partyTradeInformation" path "trade->tradeHeader"]
 		[synonym CME_ClearedConfirm_1_17 value "partyTradeInformation" path "trade->tradeHeader"]
 	closedState ClosedState (0..1) <"The qualification of what led to the contract closure alongside with the dates on which this closure took effect.">
-		[synonym Rosetta_Workbench value "closedState"]
+		[synonym Workflow_Event value "closedState"]
 
 	condition DeliverableObligations_physicalSettlementMatrix: <"The below set of credit deliverable obligation provisions are specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that those provisions cannot be omitted if the Credit Derivatives Physical Settlement Matrix doesn't governs the terms of the contract.">
 		if (Contract -> documentation -> documentationIdentification -> contractualMatrix -> matrixType <> MatrixTypeEnum -> CreditDerivativesPhysicalSettlementMatrix
@@ -289,7 +289,7 @@ type ContractualQuantity: <" [SCHEDULED FOR DEPRECATION: Class to be emptied-out
 	notionalAmount Money (0..1) <"The contractual quantity when specified as an amount and a currency units without associated schedule or FX terms. When applied to Credit default Swaps, this is the notional amount of protection coverage. ISDA 2003 Term: Floating Rate Payer Calculation Amount.">
 		[metadata reference]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "initialValue" path "calculationPeriodAmount->calculation"]
-		[synonym Rosetta_Workbench value "notionalAmount"]
+		[synonym Workflow_Event value "notionalAmount"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notionalAmount"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notional"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notionalReference" meta href]
@@ -416,10 +416,10 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
 	[partialKey]
 	effectiveDate AdjustableOrRelativeDate (0..1) <"The first day of the terms of the trade. This day may be subject to adjustment in accordance with a business day convention.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "effectiveDate" path "trade->creditDefaultSwap->generalTerms", "effectiveDate" path "generalTerms"]
-		[synonym Rosetta_Workbench value "effectiveDate" path "creditDefaultSwap->generalTerms", "effectiveDate" path "creditDefaultSwapOption->creditDefaultSwap->generalTerms"]
+		[synonym Workflow_Event value "effectiveDate" path "creditDefaultSwap->generalTerms", "effectiveDate" path "creditDefaultSwapOption->creditDefaultSwap->generalTerms"]
 	terminationDate AdjustableOrRelativeDate (0..1) <"The last day of the terms of the trade. This date may be subject to adjustments in accordance with the business day convention. It can also be specified in relation to another scheduled date (e.g. the last payment date).">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "scheduledTerminationDate" path "trade->creditDefaultSwap->generalTerms", "scheduledTerminationDate" path "generalTerms"]
-		[synonym Rosetta_Workbench value "scheduledTerminationDate" path "creditDefaultSwap->generalTerms", "scheduledTerminationDate" path "creditDefaultSwapOption->creditDefaultSwap->generalTerms"]
+		[synonym Workflow_Event value "scheduledTerminationDate" path "creditDefaultSwap->generalTerms", "scheduledTerminationDate" path "creditDefaultSwapOption->creditDefaultSwap->generalTerms"]
 	dateAdjustments BusinessDayAdjustments (0..1) <"The business day adjustment convention when it applies across all the payout components. This specification of the business day convention and financial business centers is used for adjusting any calculation period date if it would otherwise fall on a day that is not a business day in the specified business center.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "dateAdjustments" path "trade->creditDefaultSwap->generalTerms", "dateAdjustments" path "generalTerms"]
 	payout Payout (1..1) <"The payout specifies the future cashflow computation methodology which characterizes a financial product.">
@@ -511,7 +511,7 @@ type EquityPayout extends PayoutBase: <" The equity payout specification terms. 
 type Execution: <" A class to specify an execution, which consists essentially in the economic terms which are agreed between the parties, alongside with the qualification of the type of execution. The associated rosettaKey denotes the ability to associate a hash value to the respective Execution instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
 	executionType ExecutionTypeEnum (1..1) <"Specifies the type of execution, e.g. via voice, electronically...">
-		[synonym Rosetta_Workbench value "executionType"]
+		[synonym Workflow_Event value "executionType"]
 		[synonym CME_SubmissionIRS_1_0 value "VenuTyp"]
 	executionVenue LegalEntity (0..1) <"The execution venue identification, when applicable.">
 	identifier Identifier (1..*) <"The identifier(s) associated with the execution.">
@@ -529,11 +529,11 @@ type Execution: <" A class to specify an execution, which consists essentially i
 		[synonym CME_SubmissionIRS_1_0 value "party" path "Instrmt->SecXML->FpML"]
 	partyRole PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the execution, further to the principal parties (i.e payer/receive or buyer/seller) to it.">
 	closedState ClosedState (0..1) <"The qualification of what led to the execution closure alongside with the dates on which this closure takes effect.">
-		[synonym Rosetta_Workbench value "closedState"]
+		[synonym Workflow_Event value "closedState"]
 	quantity Quantity (0..1) <"The execution quantity when specified as an amount/number of securities or tangible assets.">
 	executionQuantity ExecutionQuantity (0..1) <"Complex attribute to specify the quantity of the contractual product that is being executed. This temporarily makes uses of the 'ExecutionQuantity' class, until such time when the latter can be renamed as, and supersede, the existing 'ContractualQuantity' class. To be later merged with the 'quantity' attribute to have consistent mechanism between contractual and non-contractual products.">
 		// For Swap Stream:
-		[synonym Rosetta_Workbench value "swap"]
+		[synonym Workflow_Event value "swap"]
 		[synonym CME_SubmissionIRS_1_0 value "swap" path "Instrmt->SecXML->FpML->trade"]
 		[synonym CME_SubmissionIRS_1_0 value "swap" path "Instrmt->SecXML->FpML->trade->swaption"]
 		// For CDS:
@@ -580,10 +580,10 @@ type GeneralTerms: <" A class specifying a set of non-monetary terms for the Cre
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "additionalTerm" meta additionalTermScheme]
 	substitution boolean (0..1) <"Value of this attribute set to 'true' indicates that substitution is applicable.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "substitution"]
-		[synonym Rosetta_Workbench value "substitution"]
+		[synonym Workflow_Event value "substitution"]
 	modifiedEquityDelivery boolean (0..1) <"Value of this attribute set to 'true' indicates that modified equity delivery is applicable.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "modifiedEquityDelivery"]
-		[synonym Rosetta_Workbench value "modifiedEquityDelivery"]
+		[synonym Workflow_Event value "modifiedEquityDelivery"]
 
 	condition GeneralTerms_choice: <"Choice rule to represent an FpML choice construct.">
 		required choice referenceInformation, indexReferenceInformation, basketReferenceInformation
@@ -1073,11 +1073,11 @@ type ProductIdentification: <" A class to combine the CDM product qualifier with
 type Quantity: <" A class to specify an amount/number of securities or tangible assets such as a commodity product. The units qualifier is not used if the Quantity class is applied to securities.">
 
 	amount number (1..1) <"The amount to quantify ">
-		[synonym FpML_5_10, Rosetta_Workbench, DTCC_11_0 value "amount"]
+		[synonym FpML_5_10, Workflow_Event, DTCC_11_0 value "amount"]
 		[synonym FpML_5_10 value "openUnits"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "initialValue"]
 	unit UnitEnum (0..1) <"The unit of measure, applicable to physical assets, e.g. MWh or MMBTU.">
-		[synonym Rosetta_Workbench value "unit"]
+		[synonym Workflow_Event value "unit"]
 	currency string (0..1) <"The currency in which the associated amount is denominated, if applicable. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
 		[metadata scheme]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "currency" maps 2 meta currencyScheme]

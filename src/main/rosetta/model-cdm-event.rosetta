@@ -13,9 +13,9 @@ type AllocationBreakdown:
 
 type AllocationOutcome: <"A class to specify the allocated outcome as the combination of the previous Trade, which is either an execution or a contract and which state is specified as 'Allocated', and a set of Trade(s) of the same execution or contract type as before allocation. The allocation to one single trade is deemed appropriate: e.g. the trade could be effectively allocated from the fund manager doing the execution to a single fund entity.">
 	originalTrade Trade (1..1)
-		[synonym Rosetta_Workbench value "originalTrade"]
+		[synonym Workflow_Event value "originalTrade"]
 	allocatedTrade Trade (1..*)
-		[synonym Rosetta_Workbench value "allocatedTrade"]
+		[synonym Workflow_Event value "allocatedTrade"]
 	// TODO: move these data rule as a "post-condition" to the Allocation "Function Spec"
 	condition AllocationOutcome_executionClosed: <"The allocation outcome must result in execution state of 'Allocated' for an execution.">
 		if AllocationOutcome exists and AllocationOutcome -> originalTrade -> execution exists
@@ -27,20 +27,20 @@ type AllocationOutcome: <"A class to specify the allocated outcome as the combin
 type CashTransferBreakdown extends TransferBreakdown:
 	payerReceiver PayerReceiver (1..1) <"The payer and receiver party information.">
 	amount Money (1..1) <"The currency amount of the payment.">
-		[synonym Rosetta_Workbench value "amount"]
+		[synonym Workflow_Event value "amount"]
 	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">
-		[synonym Rosetta_Workbench value "cashflowType"]
+		[synonym Workflow_Event value "cashflowType"]
 
 type CashTransferComponent extends TransferBase:
 	payerReceiver PayerReceiver (1..1) <"The payer and receiver party information.">
 	amount Money (1..1) <"The currency amount.">
-		[synonym Rosetta_Workbench value "amount"]
+		[synonym Workflow_Event value "amount"]
 		[synonym DTCC_11_0, DTCC_9_0 value "paymentAmount"]
 	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">
-		[synonym Rosetta_Workbench value "cashflowType"]
+		[synonym Workflow_Event value "cashflowType"]
 		[synonym DTCC_11_0, DTCC_9_0 value "cashflowType" path "calculationDetails->grossCashflow" meta cashflowTypeScheme]
 	breakdown CashTransferBreakdown (0..*) <"The cash transfer breakdown, when the transfer corresponds to a net amount across several components which breakdown is deemed relevant (e.g. the net cash transfer related to several contracts, or to the net proceeds across several payout components).">
-		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0 value "breakdown"]
+		[synonym Workflow_Event, DTCC_11_0, DTCC_9_0 value "breakdown"]
 
 /*
  * TODO - The commodity transfer component and its associated breakdown should be deemed as sample implementations,
@@ -50,7 +50,7 @@ type CommodityTransferBreakdown extends TransferBreakdown:
 	transferorTransferee TransferorTransferee (1..1) <"The transferee and transferor party information.">
 	commodity Commodity (1..1)
 	quantity number (1..1)
-		[synonym Rosetta_Workbench value "quantity"]
+		[synonym Workflow_Event value "quantity"]
 	unit UnitEnum (1..1) <"The unit of measure, applicable to physical assets.">
 	timeUnit TimeUnitEnum (0..1)
 
@@ -58,23 +58,23 @@ type CommodityTransferComponent extends TransferBase:
 	transferorTransferee TransferorTransferee (1..1) <"The transferee and transferor party information.">
 	commodity Commodity (1..1)
 	quantity number (1..1)
-		[synonym Rosetta_Workbench value "quantity"]
+		[synonym Workflow_Event value "quantity"]
 	unit UnitEnum (1..1) <"The unit of measure, applicable to physical assets.">
 	timeUnit TimeUnitEnum (0..1)
 	assetTransferType AssetTransferTypeEnum (0..1) <"The type of transfer, e.g. Free of Payment.">
 	breakdown CommodityTransferBreakdown (0..*) <"The security transfer breakdown, when the transfer corresponds to a net transfer across several components which breakdown is deemed relevant (e.g. the net security transfer related to several contracts).">
-		[synonym Rosetta_Workbench value "breakdown"]
+		[synonym Workflow_Event value "breakdown"]
 
 type ComputedAmount: <"A class to specify the outcome of a computed amount, for testing purposes.">
 	callFunction calculation (1..1)
 	amount number (1..1)
 	currency string (0..1) <"The currency in which the computed amount is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
 		[metadata scheme]
-		[synonym Rosetta_Workbench value "currency" meta currencyScheme]
+		[synonym Workflow_Event value "currency" meta currencyScheme]
 
 type ContractState: <"A class to specify a contract state instantiation with respect to the before and/or after state of lifecycle events.">
 	contract Contract (1..1) <"Reference to the original contract, such that the contract state can be resolved by super-imposing the updated values on top of the original contract.">
-		[synonym Rosetta_Workbench value "trade"]
+		[synonym Workflow_Event value "trade"]
 		[synonym DTCC_11_0, DTCC_9_0 value "FpML" path "Trade"]
 		[synonym DTCC_11_0, DTCC_9_0 value "TradeMsg" path "Manifest"]
 		[synonym DTCC_11_0, DTCC_9_0 value "ReportingJurisdiction" path "ReportingData->ReportingHeader"]
@@ -104,7 +104,7 @@ type ContractState: <"A class to specify a contract state instantiation with res
 type CreditLimitInformation: <"A class to represent the credit limit utilisation information.">
 	[synonym CME_ClearedConfirm_1_17 value "CreditLimitInformation"]
 	limitApplicable LimitApplicableExtended (1..*)
-		[synonym CME_ClearedConfirm_1_17, Rosetta_Workbench value "limitApplicable"]
+		[synonym CME_ClearedConfirm_1_17, Workflow_Event value "limitApplicable"]
 
 type CreditLimitUtilisation: <"Credit limit utilisation breakdown by executed trades and pending orders.">
 	[synonym FpML_5_10 value "CreditLimitUtilization"]
@@ -124,10 +124,10 @@ type CreditLimitUtilisationPosition:
 
 type Curve: //one of
 	interestRateCurve InterestRateCurve (0..1)
-		[synonym Rosetta_Workbench value "interestRateCurve"]
+		[synonym Workflow_Event value "interestRateCurve"]
 	commodityCurve CommodityReferencePriceEnum (0..1) // This is just an illustrative alternative curve instance, which implementation needs to be refined and confirmed
 		[metadata scheme]
-		[synonym Rosetta_Workbench value "commodityCurve" meta commodityReferencePriceScheme]
+		[synonym Workflow_Event value "commodityCurve" meta commodityReferencePriceScheme]
 	condition Curve: one-of
 
 type CustomisedWorkflow: <"In its initial iteration, this class is meant to support the DTCC TIW workflow information.">
@@ -166,9 +166,9 @@ type CustomisedWorkflow: <"In its initial iteration, this class is meant to supp
 
 type WorkflowEvent: <"A class to specify the lifecycle event. The associated rosettaKey denotes the ability to associate a hash value to the Event instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
-	[synonym Rosetta_Workbench meta id]
+	[synonym Workflow_Event meta id]
 	businessEvent BusinessEvent (1..1)
-		[synonym Rosetta_Workbench hint primitive]
+		[synonym Workflow_Event hint primitive]
 	messageInformation MessageInformation (0..1)
 		[synonym DTCC_11_0, DTCC_9_0 value "FpML" path "Body->OTC_Matching->Trade"]
 		[synonym DTCC_11_0, DTCC_9_0 value "FpML" path "Body->OTC_Matching->Payment"]
@@ -176,26 +176,26 @@ type WorkflowEvent: <"A class to specify the lifecycle event. The associated ros
 		[synonym DTCC_11_0, DTCC_9_0 value "Manifest" path "Header->OTC_RM"]
 		[synonym CME_ClearedConfirm_1_17 value "header" path "clearingConfirmed"]
 	timestamp EventTimestamp (1..*) <"The set of timestamp(s) associated with the event as a collection of [dateTime, qualifier].">
-		[synonym Rosetta_Workbench value "timestamp"]
+		[synonym Workflow_Event value "timestamp"]
 		[synonym DTCC_11_0, DTCC_9_0 value "header" path "Body->OTC_Matching->Trade->FpML"]
 		[synonym DTCC_11_0, DTCC_9_0 value "Route" path "Header->OTC_RM->Delivery->RouteHist"]
 		[synonym DTCC_11_0, DTCC_9_0 value "header" path "Body->OTC_Matching->Payment->FpML"]
 		[synonym CME_ClearedConfirm_1_17 value "timestamps" path "clearingConfirmed->trade->tradeHeader"]
 		[synonym CME_ClearedConfirm_1_17 value "header" path "clearingConfirmed"]
 	eventIdentifier Identifier (1..*) <"The identifier(s) that uniquely identify a lifecycle event. The unbounded cardinality is meant to provide the ability to associate identifiers that are issued by distinct parties. As an example, each of the parties to the event may choose to associate their own identifiers to the event.">
-		[synonym Rosetta_Workbench value "eventIdentifier"]
+		[synonym Workflow_Event value "eventIdentifier"]
 		[synonym DTCC_11_0, DTCC_9_0 value "Submitter" path "Header->OTC_RM->Manifest->TradeMsg"]
 		[synonym DTCC_11_0, DTCC_9_0 value "ContraTradeId" path "Header->OTC_RM->Manifest->TradeMsg"]
 		[synonym DTCC_11_0, DTCC_9_0 value "YourTradeId" path "Header->OTC_RM->Manifest->TradeMsg"]
 		[synonym DTCC_11_0, DTCC_9_0 value "tradeIdentifyingItems" path "Header->OTC_RM->Manifest->TradeMsg"]
 	eventQualifier eventType (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic which qualifies the lifecycle event as a function of its features (e.g. PartialTermination, ClearingSubmission, Novation, ...).">
 	eventDate date (1..1) <"The date on which the event is taking place. This is the equivalent of the trade date in the case of an execution or a contract.">
-		[synonym Rosetta_Workbench value "eventDate"]
+		[synonym Workflow_Event value "eventDate"]
 		[synonym CME_ClearedConfirm_1_17 value "clearedDate" path "clearingConfirmed->trade->tradeHeader" maps 2]
 	effectiveDate date (0..1) <"The date on which the event contractually takes effect, when different from the event date.">
-		[synonym Rosetta_Workbench value "effectiveDate"]
+		[synonym Workflow_Event value "effectiveDate"]
 	action ActionEnum (1..1) <"Specifies whether the event is a new, a correction or a cancellation.">
-		[synonym Rosetta_Workbench
+		[synonym Workflow_Event
 			set to ActionEnum -> New when "isCorrection" = False,
 			set to ActionEnum -> Correct when "isCorrection" = True,
 			set to ActionEnum -> Cancel when "isRetraction" = True]
@@ -205,7 +205,7 @@ type WorkflowEvent: <"A class to specify the lifecycle event. The associated ros
 		[synonym DTCC_11_0, DTCC_9_0 value "Activity" path "Header->OTC_RM->Manifest->TradeMsg"]
 		[synonym CME_SubmissionIRS_1_0 value "TransTyp" path "TrdCaptRpt"]
 	intent IntentEnum (0..1) <"The intent attribute is meant to be specified when the event qualification cannot be programmatically inferred from the event features. As a result it is only associated with those primitives that can give way to such ambiguity, the quantityChange being one of those. An example of such is a reduction in the trade notional, which could be interpreted as either a trade correction (unless a maximum period of time post-event is specified as part of the qualification), a partial termination or a portfolio rebalancing in the case of an equity swap. On the other hand, an event such as the exercise is not expected to have an associated intent as there should not be ambiguity.">
-		[synonym Rosetta_Workbench value "intent"]
+		[synonym Workflow_Event value "intent"]
 	party Party (0..*) <"The specification of the event parties. This attribute is optional, as not applicable to certain events (e.g. most of the observations).">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "party"]
 		[synonym DTCC_11_0, DTCC_9_0 value "party" path "Body->OTC_Matching->Trade->FpML" ]
@@ -214,9 +214,9 @@ type WorkflowEvent: <"A class to specify the lifecycle event. The associated ros
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0 value "account"]
 		[synonym CME_ClearedConfirm_1_17 value "account" path "clearingConfirmed"]
 	lineage Lineage (0..1) <"The lineage attribute provides a linkage among lifecycle events through the rosettaKey hash value. One example is when a given lifecycle event is being corrected or cancelled. In such case, each subsequent event will have lineage into the prior version of that event. The second broad use case is when an event has a dependency upon either another event (e.g. the regular payment associated with a fix/float swap will have a lineage into the reset event, which will in turn have a lineage into the observation event for the floating rate and the contract) or a contract (e.g. the exercise of an option has a lineage into that option).">
-		[synonym Rosetta_Workbench value "lineage"]
+		[synonym Workflow_Event value "lineage"]
 	functionCall string (0..1) <"This is placeholder concept for a function call into a calculation that will return an outcome. This concept needs to be further firmed out.">
-		[synonym Rosetta_Workbench value "functionCall"]
+		[synonym Workflow_Event value "functionCall"]
 	eventEffect EventEffect (0..1) <"The set of effects associated with the lifecycle event, i.e. generated cashflows, contracts (from, say, novation events), listed products (from, say, a bond option exercise event) values and more. Those are represented through a set of rosettaKey references. This attribute is optional in order to provide implementers with the ability not to make use of this feature.">
 	eventWorkflow EventWorkflow (0..1) <"The event workflow information, i.e. the workflow status, the associated comment and the partyCustomisedWorkflow which purpose is to provide the ability to associate custom workflow information to the CDM.">
 
@@ -230,7 +230,7 @@ type WorkflowEvent: <"A class to specify the lifecycle event. The associated ros
 
 type BusinessEvent: <"A business event is a collection of primitive events.">
 	primitives PrimitiveEvent (1..*) <"The elemental component(s) that specify the lifecycle events. Each of the primitive/elemental components listed as part of the PrimitiveEvent class has distinctive features that allow to specify the lifecycle event, either by itself or in combination with some other of such components.">
-		[synonym Rosetta_Workbench hint primitive]
+		[synonym Workflow_Event hint primitive]
 
 type EventEffect: <"The set of operational and positional effects associated with a lifecycle event, alongside the reference to the contract reference(s) that is subject to the event (and is positioned in the before state of the event primitive).">
 	effectedContract Contract (0..*) <"A pointer to the contract(s) to which the event effect(s) apply, i.e. in the before event state.">
@@ -249,23 +249,23 @@ type EventEffect: <"The set of operational and positional effects associated wit
 /* USED in downstrem */
 type EventTestBundle: <"A class which combines several events for testing purposes.">
 	event WorkflowEvent (2..*)
-		[synonym Rosetta_Workbench value "event"]
+		[synonym Workflow_Event value "event"]
 	computedAmount ComputedAmount (0..*)
-		[synonym Rosetta_Workbench value "computedAmount"]
+		[synonym Workflow_Event value "computedAmount"]
 
 type EventTimestamp: <"A class to represent the various set of timestamps that can be associated with lifecycle events, as a collection of [dateTime, qualifier].">
 	dateTime zonedDateTime (1..1) <"The CDM specifies that the zoned date time is to be expressed in accordance with ISO 8601, either as UTC as an offset to UTC.">
-		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "creationTimestamp"]
-		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "expiryTimestamp"]
+		[synonym Workflow_Event, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "creationTimestamp"]
+		[synonym Workflow_Event, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "expiryTimestamp"]
 		[synonym DTCC_11_0, DTCC_9_0 value "ReceiveTime"]
 		[synonym CME_ClearedConfirm_1_17 value "submittedForClearing"]
 		[synonym CME_SubmissionIRS_1_0 value "TxnTm" path "TrdCaptRpt"]
 		[synonym CME_SubmissionIRS_1_0 value "Snt" path "TrdCaptRpt->Hdr"]
 		[synonym CME_SubmissionIRS_1_0 value "TS" path "TrdCaptRpt->TrdRegTS"]
 	qualification EventTimestampQualificationEnum (1..1) <"The timestamp qualifier is specified through an enumeration because the experience of integrating the DTCC and CME data representations suggests that a wide set of timestamps are currently utilized among service providers, while there is not at present an objective set of criteria that could help suggest a defined set of timestamps as part of the CDM. At some future point, one possible baseline could be developed from the review of the set of timestamps specified across regulatory regimes and regulations (incl. regulations such as high frequency trading). Also, the integration with a further set of implementations and the specification of business workflows such as clearing as part of the CDM development should help confirm the implementation approach in this respect.">
-		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 set to EventTimestampQualificationEnum -> eventCreationDateTime when "creationTimestamp" exists]
-		[synonym Rosetta_Workbench, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 set to EventTimestampQualificationEnum -> eventExpirationDateTime when "expiryTimestamp" exists]
-		[synonym CME_ClearedConfirm_1_17, Rosetta_Workbench set to EventTimestampQualificationEnum -> clearingSubmissionDateTime when "submittedForClearing" exists]
+		[synonym Workflow_Event, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 set to EventTimestampQualificationEnum -> eventCreationDateTime when "creationTimestamp" exists]
+		[synonym Workflow_Event, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 set to EventTimestampQualificationEnum -> eventExpirationDateTime when "expiryTimestamp" exists]
+		[synonym CME_ClearedConfirm_1_17, Workflow_Event set to EventTimestampQualificationEnum -> clearingSubmissionDateTime when "submittedForClearing" exists]
 		[synonym DTCC_11_0, DTCC_9_0 set to EventTimestampQualificationEnum -> eventSubmittedDateTime when "ReceiveTime" exists]
 		[synonym CME_SubmissionIRS_1_0 set to EventTimestampQualificationEnum -> transactionCreationDateTime when path = "TrdCaptRpt->TxnTm"]
 		[synonym CME_SubmissionIRS_1_0 set to EventTimestampQualificationEnum -> eventSentDateTime when path= "TrdCaptRpt->Hdr->Snt"]
@@ -274,7 +274,7 @@ type EventTimestamp: <"A class to represent the various set of timestamps that c
 type EventWorkflow: <"A class to specify workflow information, which is conceptually applicable to all lifecycle events.">
 	workflowStatus WorkflowStatusEnum (0..*) <"The workflow status indicator, e.g. Accepted, Rejected, ...">
 		[synonym CME_SubmissionIRS_1_0 value "RptTyp" path "TrdCaptRpt"]
-		[synonym Rosetta_Workbench value "workflowStatus"]
+		[synonym Workflow_Event value "workflowStatus"]
 		[synonym CME_ClearedConfirm_1_17 value "status" path "clearingConfirmed->trade->tradeHeader"]
 	comment string (0..1) <"A comment field to be associated with the workflow, e.g. to specify why a transaction event was rejected by a party.">
 	partyCustomisedWorkflow PartyCustomisedWorkflow (0..*) <"Workflow data that is specific to certain market participants and is expressed as part of the CDM in a very generic manner, which can be party-specific. The initial use cases have been derived from the CME clearing and the DTCC TIW submissions.">
@@ -282,42 +282,42 @@ type EventWorkflow: <"A class to specify workflow information, which is conceptu
 
 type ExerciseOutcome: <"The exercise outcome combines the option contract (which states would be 'Exercised' in case of a full exercise and which would have a reduced notional in case of partial exercise) and either a physical or partial exercise.">
 	contract Contract (1..1)
-		[synonym Rosetta_Workbench value "contract"]
+		[synonym Workflow_Event value "contract"]
 	physicalExercise PhysicalExercise (0..1)
-		[synonym Rosetta_Workbench value "physicalExercise"]
+		[synonym Workflow_Event value "physicalExercise"]
 	cashExercise Cashflow (0..1)
-		[synonym Rosetta_Workbench value "cashExercise"]
+		[synonym Workflow_Event value "cashExercise"]
 	condition ExerciseOutcome_choice: <"A option exercise results in either a physical or a cash exercise.">
 		required choice physicalExercise, cashExercise
 
 type ExecutionState: <"A class to specify an execution instantiation with respect to the before and/or after state of lifecycle events.">
 	execution Execution (1..1)
-		[synonym Rosetta_Workbench value "execution"]
+		[synonym Workflow_Event value "execution"]
 
 
 type InterestRateCurve:
 	floatingRateIndex FloatingRateIndexEnum (1..1)
 		[metadata scheme]
-		[synonym Rosetta_Workbench value "floatingRateIndex" meta floatingRateIndexScheme]
+		[synonym Workflow_Event value "floatingRateIndex" meta floatingRateIndexScheme]
 	tenor Period (1..1)
-		[synonym Rosetta_Workbench value "tenor"]
+		[synonym Workflow_Event value "tenor"]
 
 type LimitApplicable:
 	[synonym FpML_5_10 value "LimitApplicable"]
 	limitType CreditLimitTypeEnum (0..1) <"Standard code to indicate which type of credit line is being referred to - i.e. IM, DV01, PV01, CS01, Notional, Clip Size, Notional, maximumOrderQuantity.">
 		[metadata scheme]
-		[synonym FpML_5_10, CME_ClearedConfirm_1_17, Rosetta_Workbench value "limitType" meta creditLimitTypeScheme]
+		[synonym FpML_5_10, CME_ClearedConfirm_1_17, Workflow_Event value "limitType" meta creditLimitTypeScheme]
 	clipSize int (0..1) <"This element is required in FpML, optional in CDM for the purpose of accommodating the CME data representation while making reference to the FpML one.">
 		[synonym FpML_5_10 value "clipSize"]
 	amountUtilized number (0..1) <"The limit utilised by all the cleared trades for the limit level and limit type. While the attribute is of type integer in FpML and the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">
-		[synonym FpML_5_10, CME_ClearedConfirm_1_17, Rosetta_Workbench value "amountUtilized"]
+		[synonym FpML_5_10, CME_ClearedConfirm_1_17, Workflow_Event value "amountUtilized"]
 	utilization CreditLimitUtilisation (0..1)
 		[synonym FpML_5_10 value "utilization"]
 	amountRemaining number (0..1) <"The limit remaining for the limit level and limit type. This does not take into account any pending trades. While the attribute is of type integer in FpML and the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">
-		[synonym FpML_5_10, CME_ClearedConfirm_1_17, Rosetta_Workbench value "amountRemaining"]
+		[synonym FpML_5_10, CME_ClearedConfirm_1_17, Workflow_Event value "amountRemaining"]
 	currency string (0..1) <"The currency in which the applicable limit is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
 		[metadata scheme]
-		[synonym FpML_5_10, CME_ClearedConfirm_1_17, Rosetta_Workbench value "currency" meta currencyScheme]
+		[synonym FpML_5_10, CME_ClearedConfirm_1_17, Workflow_Event value "currency" meta currencyScheme]
 	velocity Velocity (0..1)
 		[synonym FpML_5_10 value "velocity"]
 	condition LimitApplicable_choice: <"Choice rule to represent an FpML choice construct.">
@@ -328,40 +328,40 @@ type LimitApplicableExtended extends LimitApplicable: <"A class to represent the
 	[synonym CME_ClearedConfirm_1_17 value "CreditLimitInformation"]
 	limitLevel LimitLevelEnum (0..1) <"The level at which the limit is set: customer business, proprietary business or account level. This attribute is specified as a string as part of the CME clearing confirmation specification.">
 		[metadata scheme]
-		[synonym CME_ClearedConfirm_1_17, Rosetta_Workbench value "level" meta creditLimitLevelScheme]
+		[synonym CME_ClearedConfirm_1_17, Workflow_Event value "level" meta creditLimitLevelScheme]
 	limitAmount number (0..1) <"The total limit available for the limit level and limit type. While the attribute is of type integer in the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">
-		[synonym CME_ClearedConfirm_1_17, Rosetta_Workbench value "limitAmount"]
+		[synonym CME_ClearedConfirm_1_17, Workflow_Event value "limitAmount"]
 	limitImpactDueToTrade number (0..1) <"The limit utilized by this specific trade. While the attribute is of type integer in the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">
-		[synonym CME_ClearedConfirm_1_17, Rosetta_Workbench value "limitImpactDueToTrade"]
+		[synonym CME_ClearedConfirm_1_17, Workflow_Event value "limitImpactDueToTrade"]
 
 type Lineage: <"A class to provide lineage information across lifecycle events through a pointer or set of pointers into the event(s), contract(s) and, possibly, payout components that the event is dependent on or relates to. As an example, if an inception event is corrected, the correction event will have a lineage into the initial event, which takes the form of a rosettaKey into that initial inception event. Two referencing mechanisms are provided as part of the CDM: either the rosettaKey, which corresponds to the hash value of the CDM class which is referred to, or a reference qualifier which is meant to provide support for the ingestion of xml documents with id/href mechanisms. The CDM recommends the use of the rosettaKey and provides a default implementation which is accessible in the generated code through org.isda.cdm.rosettakey.RosettaKeyValueHashFunction. If implementers want to use an alternative hashing mechanism, the API in which they need to plug it is com.rosetta.model.lib.HashFunction.">
 	contractReference Contract (0..*) <"The reference to the instantiation of a Contract object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
-		[synonym Rosetta_Workbench value "contractReference" meta href]
+		[synonym Workflow_Event value "contractReference" meta href]
 	eventReference WorkflowEvent (0..*) <"The reference to the instantiation of an Event object, either through a rosettaKey or an xml-derived id/href mechanism. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
-		[synonym Rosetta_Workbench value "eventReference" meta href]
+		[synonym Workflow_Event value "eventReference" meta href]
 	executionReference Execution (0..*) <"The reference to the instantiation of a Execution object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
-		[synonym Rosetta_Workbench value "executionReference" meta href]
+		[synonym Workflow_Event value "executionReference" meta href]
 	cashflowReference Cashflow (0..*) <"The reference to the instantiation of a Cashflow payout component object. An expected typical usage is to provide lineage for the payment of, say, the option premium or the swap initial fee. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
-		[synonym Rosetta_Workbench value "cashflowReference" meta href]
+		[synonym Workflow_Event value "cashflowReference" meta href]
 	creditDefaultPayoutReference CreditDefaultPayout (0..*) <"The reference to the instantiation of a CreditdefaultPayout component object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
-		[synonym Rosetta_Workbench value "creditDefaultReference" meta href]
+		[synonym Workflow_Event value "creditDefaultReference" meta href]
 	interestRatePayoutReference InterestRatePayout (0..*) <"The reference to the instantiation of a InterestRatePayout component object. An expected typical usage is to provide lineage for the payment of, say, an interest rate swap reset, with the ability to relate the gross cashflow amounts to the respective payout components. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
-		[synonym Rosetta_Workbench value "interestRatePayoutReference" meta href]
+		[synonym Workflow_Event value "interestRatePayoutReference" meta href]
 	optionPayoutReference OptionPayout (0..*) <"The reference to the instantiation of a OptionPayout component object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
-		[synonym Rosetta_Workbench value "optionPayoutReference" meta href]
+		[synonym Workflow_Event value "optionPayoutReference" meta href]
 	equityPayoutReference EquityPayout (0..*) <"The reference to the instantiation of a EquityPayout object. An expected typical usage is to provide lineage for the payment of, say, an equity dividend. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
-		[synonym Rosetta_Workbench value "equityPayoutReference" meta href]
+		[synonym Workflow_Event value "equityPayoutReference" meta href]
 	transferReference TransferPrimitive (0..*) <"The reference to the instantiation of a TransferPrimitive object.">
 		[metadata reference]
-		[synonym Rosetta_Workbench value "transferReference" meta href]
+		[synonym Workflow_Event value "transferReference" meta href]
 	legalAgreement LegalAgreement (0..*) <"The reference to the instantiation of a Legal Agreement object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
 	portfolioStateReference PortfolioState (0..*) <"The refence to the previous state of a Portfolio, in a chain of Events leading up to a build of that Portfolio as the holding of Product(s) in specific Quantity(ies). As part of the PortfolioState object, a pointer to the previous PortfolioState is provided through a Lineage object, together with pointer(s) to the Event or set of Events leading up to the current (new) state.">
@@ -370,18 +370,18 @@ type Lineage: <"A class to provide lineage information across lifecycle events t
 type MessageInformation: <"This class corresponds to the components of the FpML MessageHeader.model.">
 	messageId string (1..1) <"A unique identifier assigned to the message.">
 		[metadata scheme]
-		[synonym Rosetta_Workbench value "messageId" path "messageInformation" meta messageIdScheme]
+		[synonym Workflow_Event value "messageId" path "messageInformation" meta messageIdScheme]
 		[synonym DTCC_11_0, DTCC_9_0 value "messageId" path "header" meta messageIdScheme]
 		[synonym CME_ClearedConfirm_1_17 value "messageId" meta messageIdScheme]
 	sentBy string (0..1) <"The identifier for the originator of a message instance.">
 		[metadata scheme]
-		[synonym Rosetta_Workbench value "sentBy" path "messageInformation" meta messageAddressScheme]
+		[synonym Workflow_Event value "sentBy" path "messageInformation" meta messageAddressScheme]
 		[synonym DTCC_11_0, DTCC_9_0 value "From"]
 		[synonym CME_ClearedConfirm_1_17 value "sentBy" meta messageAddressScheme]
 		[synonym CME_SubmissionIRS_1_0 value "SSub" path "TrdCaptRpt->Hdr"]
 	sentTo string (0..*) <"The identifier(s) for the recipient(s) of a message instance.">
 		[metadata scheme]
-		[synonym Rosetta_Workbench value "sentTo" path "messageInformation" meta messageAddressScheme]
+		[synonym Workflow_Event value "sentTo" path "messageInformation" meta messageAddressScheme]
 		[synonym CME_ClearedConfirm_1_17 value "sendTo" meta messageAddressScheme]
 		[synonym DTCC_11_0, DTCC_9_0 value "To"]
 		[synonym CME_SubmissionIRS_1_0 value "TID" path "TrdCaptRpt->Hdr"]
@@ -390,9 +390,9 @@ type MessageInformation: <"This class corresponds to the components of the FpML 
 
 type ObservationSource: <"The observation source can be composed of an curve and/or and information source.">
 	curve Curve (0..1)
-		[synonym Rosetta_Workbench value "curve"]
+		[synonym Workflow_Event value "curve"]
 	informationSource InformationSource (0..1)
-		[synonym Rosetta_Workbench value "informationSource"]
+		[synonym Workflow_Event value "informationSource"]
 	condition ObservationSource_content: <"ObservationSource should not be empty, although the attribute cardinality would allow that.">
 		if ObservationSource exists
 		then (ObservationSource -> curve exists and ObservationSource -> informationSource exists)
@@ -411,14 +411,14 @@ type PartyCustomisedWorkflow: <"A class to specify a party-related, non-standard
 
 type PhysicalExercise: <"The physical exercise results into a financial product which is represented through the Product class, with an associated quantity and cashflow (e.g. a physical exercise of a bond option will result into a bond with a cash proceed which will be a function of the option strike price).">
 	product Product (1..1)
-		[synonym Rosetta_Workbench value "product"]
+		[synonym Workflow_Event value "product"]
 	quantity Quantity (0..1) <"The quantity associated the asset that is physically settled. This quantity should only be associated with non-contractual products, as it is then expressed as part of the contractual terms.">
-		[synonym Rosetta_Workbench value "quantity"]
+		[synonym Workflow_Event value "quantity"]
 	contractualQuantity ExecutionQuantity (0..1) <"Complex attribute to specify the quantity of the contractual product that is being exercised. This temporarily makes uses of the 'ExecutionQuantity' class, until such time when the latter can be renamed as, and supersede, the existing 'ContractualQuantity' class. To be later merged with the 'quantity' attribute to have consistent mechanism between contractual and non-contractual products.">
 		// For Swap Stream:
-		[synonym Rosetta_Workbench value "swap" path "product"]
+		[synonym Workflow_Event value "swap" path "product"]
 	cashflow Cashflow (0..1) <"The cashflow component of the physical exercise.">
-		[synonym Rosetta_Workbench value "cashflow"]
+		[synonym Workflow_Event value "cashflow"]
 	condition PhysicalExercise_quantity: <"The quantity attribute should only be associated with non-contractual products, as it is then expressed as part of the contractual terms.">
 		if PhysicalExercise -> product -> contractualProduct exists
 		then PhysicalExercise -> quantity is absent
@@ -426,39 +426,39 @@ type PhysicalExercise: <"The physical exercise results into a financial product 
 type PostInceptionState extends ContractState:
 	creditLimitInformation CreditLimitInformation (0..1) <"Credit limit utilization information.">
 		[synonym CME_ClearedConfirm_1_17 value "creditLimitInformation" path "trade->tradeHeader"]
-		[synonym Rosetta_Workbench value "creditLimitInformation"]
+		[synonym Workflow_Event value "creditLimitInformation"]
 	tradeWarehouseWorkflow TradeWarehouseWorkflow (0..1) <"Information related to trade warehouse workflow.">
 
 
 type SecurityTransferBreakdown:
 	transferorTransferee TransferorTransferee (1..1) <"The transferee and transferor party information.">
 	security Security (1..*) <"The securities that are being transfered">
-		[synonym Rosetta_Workbench value "security"]
+		[synonym Workflow_Event value "security"]
 	quantity number (1..1)
-		[synonym Rosetta_Workbench value "quantity"]
+		[synonym Workflow_Event value "quantity"]
 
 type SecurityTransferComponent extends TransferBase:
 	transferorTransferee TransferorTransferee (1..1) <"The transferee and transferor party information.">
 	security Security (1..1) <"The security that is being transfered">
-		[synonym Rosetta_Workbench value "security"]
+		[synonym Workflow_Event value "security"]
 	quantity number (1..1)
-		[synonym Rosetta_Workbench value "quantity"]
+		[synonym Workflow_Event value "quantity"]
 	assetTransferType AssetTransferTypeEnum (0..1) // The relevance of this attribute and the associated values need to be confirmed"
-		[synonym Rosetta_Workbench value "assetTransferType"]
+		[synonym Workflow_Event value "assetTransferType"]
 	breakdown SecurityTransferBreakdown (0..*) <"The security transfer breakdown, when the transfer corresponds to a net transfer across several components which breakdown is deemed relevant (e.g. the net security transfer related to several contracts).">
-		[synonym Rosetta_Workbench value "breakdown"]
+		[synonym Workflow_Event value "breakdown"]
 
 
 //one of
 type Trade: <"A class to represent the general trade concept, which can either be an execution or a contract. The execution consists essentially in the economic terms which are agreed between the parties. The contract will further qualify those with the legal entities (think of the allocation case, which execution state can involve the investment adviser rather not the actual funds) while not specify the master agreement or collateral terms which might be associated with the subsequent contract.">
 	execution Execution (0..1) <"The execution corresponds to economic terms that are agreed between parties, but which legal terms are not yet specified. The execution attribute applies to the post-execution scenario of a product that is subject to the clearing mandate and is then routed to the CCP as an execution.">
 		[synonym CME_SubmissionIRS_1_0 value "TrdCaptRpt" set when "TrdCaptRpt->VenuTyp" exists]
-		[synonym Rosetta_Workbench value "trade" set when "trade->executionType" exists]
+		[synonym Workflow_Event value "trade" set when "trade->executionType" exists]
 	contract Contract (0..1) <"The contract differs from the execution by the fact that its legal terms are fully specified. This includes the legal entities that are associated to it as well as any associated legal agreement, e.g. master agreement, credit and collateral terms, ... ">
 		[synonym DTCC_11_0, DTCC_9_0 value "FpML" path "Trade"]
 		[synonym DTCC_11_0, DTCC_9_0 value "TradeMsg" path "Manifest"]
 		[synonym DTCC_11_0, DTCC_9_0 value "ReportingJurisdiction" path "ReportingData->ReportingHeader"]
-		[synonym Rosetta_Workbench value "trade" set when "trade->executionType" is absent]
+		[synonym Workflow_Event value "trade" set when "trade->executionType" is absent]
 		[synonym CME_SubmissionIRS_1_0 value "TrdCaptRpt" set when "TrdCaptRpt->VenuTyp" is absent]
 	condition Trade: one-of
 
@@ -483,12 +483,12 @@ type TransferCalculation:
 		[synonym DTCC_11_0, DTCC_9_0 value "calculationPeriod" path "calculationElements"]
 	lineage Lineage (0..*) <"The lineage into the components used for the calculation.">
 	calculationOutcome calculation (0..1) <"This is a conceptual placeholder for providing the breakdown into the cashflow calculation components, leveraging the fact that the CDM provides calculation components, starting with the FixedAmount and the FloatingAmount. Further evaluation of expected usage needs to take place to confirm and prioritize such implementation.">
-		[synonym Rosetta_Workbench value "transferCalculation"]
+		[synonym Workflow_Event value "transferCalculation"]
 
 
 type TransferBreakdown extends TransferBase:
 	lineage Lineage (0..*) <"The lineage into the transfer components that might be associated with each of the transfer components.">
-		[synonym Rosetta_Workbench value "lineage"]
+		[synonym Workflow_Event value "lineage"]
 
 type TransferorTransferee: <"A class mimicking the PayerReceiver, which is itself derived from the FpML PayerReceiver.model, to represent the transferee and transferor party information in relation to the transfer of security or commodities.">
 	transferorPartyReference Party (1..1) <"A reference to the party responsible for making the payments defined by this structure.">
