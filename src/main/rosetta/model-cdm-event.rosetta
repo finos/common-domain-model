@@ -218,7 +218,7 @@ type WorkflowEvent: <"A class to specify the lifecycle event. The associated ros
 	functionCall string (0..1) <"This is placeholder concept for a function call into a calculation that will return an outcome. This concept needs to be further firmed out.">
 		[synonym Workflow_Event value "functionCall"]
 	eventEffect EventEffect (0..1) <"The set of effects associated with the lifecycle event, i.e. generated cashflows, contracts (from, say, novation events), listed products (from, say, a bond option exercise event) values and more. Those are represented through a set of rosettaKey references. This attribute is optional in order to provide implementers with the ability not to make use of this feature.">
-	eventWorkflow EventWorkflow (0..1) <"The event workflow information, i.e. the workflow status, the associated comment and the partyCustomisedWorkflow which purpose is to provide the ability to associate custom workflow information to the CDM.">
+	workflowEventState WorkflowEventState (0..1) <"The event workflow information, i.e. the workflow status, the associated comment and the partyCustomisedWorkflow which purpose is to provide the ability to associate custom workflow information to the CDM.">
 
 	condition Event_intent: <"The intent should only be associated with the primitives which use can lead to ambiguity with respect to the qualification of the event.">
 		if (WorkflowEvent -> businessEvent -> primitives -> allocation exists
@@ -271,7 +271,7 @@ type EventTimestamp: <"A class to represent the various set of timestamps that c
 		[synonym CME_SubmissionIRS_1_0 set to EventTimestampQualificationEnum -> eventSentDateTime when path= "TrdCaptRpt->Hdr->Snt"]
 		[synonym CME_SubmissionIRS_1_0 set to EventTimestampQualificationEnum -> executionDateTime when path= "TrdCaptRpt->TrdRegTS->TS" and "TrdCaptRpt->TrdRegTS->Typ" = 1]
 
-type EventWorkflow: <"A class to specify workflow information, which is conceptually applicable to all lifecycle events.">
+type WorkflowEventState: <"A class to specify workflow information, which is conceptually applicable to all lifecycle events.">
 	workflowStatus WorkflowStatusEnum (0..*) <"The workflow status indicator, e.g. Accepted, Rejected, ...">
 		[synonym CME_SubmissionIRS_1_0 value "RptTyp" path "TrdCaptRpt"]
 		[synonym Workflow_Event value "workflowStatus"]
@@ -547,7 +547,7 @@ isEvent CashAndSecurityTransfer <"The qualification of a security settlement fro
 isEvent ClearedTrade <"The cleared trade at the CCP.">
 	WorkflowEvent -> businessEvent -> primitives count = 1
 	and WorkflowEvent -> businessEvent -> primitives -> inception exists
-	and WorkflowEvent -> eventWorkflow -> workflowStatus = WorkflowStatusEnum -> Cleared
+	and WorkflowEvent -> workflowEventState -> workflowStatus = WorkflowStatusEnum -> Cleared
 /*
  * It is proposed to remove the below qualification for 2 reasons
  *  - Limit the scope of event qualification to evaluating what is available within the event, while the workflow rule evaluated across events
@@ -559,7 +559,7 @@ isEvent ClearedTrade <"The cleared trade at the CCP.">
 isEvent ClearingRejection <"The rejection of an alpha trade submission by a CCP, which is qualified by the fact that (i) termsChange is the only primitive, the workflow status is `rejected`, and (iii) the CCP is positioned as a partyRole to the execution or contract in the after state, while it didn't exist in the before state.">
 	WorkflowEvent -> businessEvent -> primitives count = 1
 	and WorkflowEvent -> businessEvent -> primitives -> termsChange exists
-	and WorkflowEvent -> eventWorkflow -> workflowStatus = WorkflowStatusEnum -> Rejected
+	and WorkflowEvent -> workflowEventState -> workflowStatus = WorkflowStatusEnum -> Rejected
 	and ( WorkflowEvent -> businessEvent -> primitives -> termsChange -> before -> execution -> partyRole is absent
 		or WorkflowEvent -> businessEvent -> primitives -> termsChange -> before -> execution -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization
 		or WorkflowEvent -> businessEvent -> primitives -> termsChange -> before -> contract -> partyRole is absent
@@ -571,7 +571,7 @@ isEvent ClearingRejection <"The rejection of an alpha trade submission by a CCP,
 isEvent ClearingSubmission <"The submission of a contract to a CCP, which is qualified by the fact that (i) the termsChange is the only primitive, and (ii) the CCP is positioned as a partyRole to the execution or contract in the after state, while it didn't exist in the before state.">
 	WorkflowEvent -> businessEvent -> primitives count = 1
 	and WorkflowEvent -> businessEvent -> primitives -> termsChange exists
-	and WorkflowEvent -> eventWorkflow -> workflowStatus = WorkflowStatusEnum -> Submitted
+	and WorkflowEvent -> workflowEventState -> workflowStatus = WorkflowStatusEnum -> Submitted
 	and ( WorkflowEvent -> businessEvent -> primitives -> termsChange -> before -> execution -> partyRole is absent
 		or WorkflowEvent -> businessEvent -> primitives -> termsChange -> before -> execution -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization
 		or WorkflowEvent -> businessEvent -> primitives -> termsChange -> before -> contract -> partyRole is absent
