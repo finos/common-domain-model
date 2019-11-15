@@ -2,4 +2,4 @@
 
 _What is being released_
 
-This is a fix that will prevent sequence sample files from being generated truncated. These fiules are generated for use within Core Instance Viewer for seeding the visualisation with sample data.
+*Bug Fix* This is a fix that will prevent incomplete sequence sample files from being generated. These files are generated for use within Rosetta Core Instance Viewer for seeding the visualisation with sample data.
