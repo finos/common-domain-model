@@ -1,4 +1,4 @@
-# *Addition of WorkflowEventState nad new ClearedTrade event qualification*
+# *Addition of WorkflowEventState and new ClearedTrade event qualification*
 
 _What is being released_
 
