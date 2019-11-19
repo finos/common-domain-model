@@ -544,8 +544,11 @@ isEvent CashAndSecurityTransfer <"The qualification of a security settlement fro
 	-> reference = WorkflowEvent -> businessEvent -> primitives -> transfer -> securityTransfer -> transferorTransferee -> transferorPartyReference -> reference
 	and WorkflowEvent -> businessEvent -> primitives -> transfer -> commodityTransfer is absent
 
+// Simple Agency model for clearing
 isEvent ClearedTrade
-	WorkflowEvent -> businessEvent -> primitives count = 4
+	WorkflowEvent -> businessEvent -> primitives count = 5
+	and WorkflowEvent -> businessEvent -> primitives -> quantityChange count = 1
+	and quantityBeforeQuantityChange > 0 and quantityAfterQuantityChange = 0
 	and WorkflowEvent -> businessEvent -> primitives -> execution count = 2
 	and WorkflowEvent -> businessEvent -> primitives -> contractFormation count = 2
 	and WorkflowEvent -> businessEvent -> primitives -> execution -> after = WorkflowEvent -> businessEvent -> primitives -> contractFormation -> before
