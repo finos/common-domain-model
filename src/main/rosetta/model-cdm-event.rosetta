@@ -544,10 +544,17 @@ isEvent CashAndSecurityTransfer <"The qualification of a security settlement fro
 	-> reference = WorkflowEvent -> businessEvent -> primitives -> transfer -> securityTransfer -> transferorTransferee -> transferorPartyReference -> reference
 	and WorkflowEvent -> businessEvent -> primitives -> transfer -> commodityTransfer is absent
 
-isEvent ClearedTrade <"The cleared trade at the CCP.">
-	WorkflowEvent -> businessEvent -> primitives count = 1
-	and WorkflowEvent -> businessEvent -> primitives -> inception exists
-	and WorkflowEvent -> workflowEventState -> workflowStatus = WorkflowStatusEnum -> Cleared
+isEvent ClearedTrade
+	WorkflowEvent -> businessEvent -> primitives count = 4
+	and WorkflowEvent -> businessEvent -> primitives -> execution count = 2
+	and WorkflowEvent -> businessEvent -> primitives -> contractFormation count = 2
+	and WorkflowEvent -> businessEvent -> primitives -> execution -> after = WorkflowEvent -> businessEvent -> primitives -> contractFormation -> before
+	and WorkflowEvent -> businessEvent -> primitives -> contractFormation -> after -> contract -> partyRole -> role contains PartyRoleEnum -> ClearingOrganization
+
+//isEvent ClearedTrade <"The cleared trade at the CCP.">
+//	WorkflowEvent -> businessEvent -> primitives count = 1
+//	and WorkflowEvent -> businessEvent -> primitives -> inception exists
+//	and WorkflowEvent -> workflowEventState -> workflowStatus = WorkflowStatusEnum -> Cleared
 /*
  * It is proposed to remove the below qualification for 2 reasons
  *  - Limit the scope of event qualification to evaluating what is available within the event, while the workflow rule evaluated across events
