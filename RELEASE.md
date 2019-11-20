@@ -1,9 +1,12 @@
-# *CDM to ISDA Create Projection*
+# *Addition of WorkflowEventState and new ClearedTrade event qualification*
 
 _What is being released_
 
-Infrastructure work to support the projection from CDM into ISDA Create JSON documents. Initial projection service implementation and a simple mapping class support the projection of '`LegalAgreement` CDM objects for English Law.  Further mapping classes will be added soon.
+The `isEvent ClearedTrade` definition has been update as part of the Clearing process in the CDM. It is now defined by the termination of a contract (alpha) and an execution and contract formation of the beta and gamma with a party role of `ClearingOrganisation`.
+
+The new `WorkflowEventState` type is where the status of the clearing process will be held (i.e. Accepted, Rejected). The type `EventWorkflow` has been renamed to `WorkflowEventState` so that it is not confused with the `EventWorkflow` type. 
 
 _Review direction_
 
-The projection functionality will be made available in Rosetta Core, and linked from CDM Portal, where users can drag and drop CDM JSON files in, which will be projected into ISDA Create documents and displayed as JSON.
+Search for ` isEvent ClearedTrade` to see the definition of ` ClearedTrade`.
+Navigate to `WorkflowEvent` and see the last attribute to see the usage of ` WorkflowEventState`. 
