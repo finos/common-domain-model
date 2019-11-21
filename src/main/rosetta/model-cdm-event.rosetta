@@ -280,12 +280,17 @@ type EventWorkflow: <"A class to specify workflow information, which is conceptu
 	partyCustomisedWorkflow PartyCustomisedWorkflow (0..*) <"Workflow data that is specific to certain market participants and is expressed as part of the CDM in a very generic manner, which can be party-specific. The initial use cases have been derived from the CME clearing and the DTCC TIW submissions.">
 		[synonym CME_SubmissionIRS_1_0 value "RptSide" path "TrdCaptRpt"]
 
+type CashExercise: <"The cash exercise specifies the cashflow using the cashflow payout and a given quantity.">
+
+	cashflow Cashflow (1..1) <"Cashflow payout specification, excluding the quantity.">
+	quantity QuantityNotation (1..1) <"Quantity of the cashflow payout.">
+
 type ExerciseOutcome: <"The exercise outcome combines the option contract (which states would be 'Exercised' in case of a full exercise and which would have a reduced notional in case of partial exercise) and either a physical or partial exercise.">
 	contract Contract (1..1)
 		[synonym Workflow_Event value "contract"]
 	physicalExercise PhysicalExercise (0..1)
 		[synonym Workflow_Event value "physicalExercise"]
-	cashExercise Cashflow (0..1)
+	cashExercise CashExercise (0..1)
 		[synonym Workflow_Event value "cashExercise"]
 	condition ExerciseOutcome_choice: <"A option exercise results in either a physical or a cash exercise.">
 		required choice physicalExercise, cashExercise
