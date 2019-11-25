@@ -280,12 +280,17 @@ type WorkflowEventState: <"A class to specify workflow information, which is con
 	partyCustomisedWorkflow PartyCustomisedWorkflow (0..*) <"Workflow data that is specific to certain market participants and is expressed as part of the CDM in a very generic manner, which can be party-specific. The initial use cases have been derived from the CME clearing and the DTCC TIW submissions.">
 		[synonym CME_SubmissionIRS_1_0 value "RptSide" path "TrdCaptRpt"]
 
+type CashExercise: <"The cash exercise specifies the cashflow using the cashflow payout and a given quantity.">
+
+	cashflow Cashflow (1..1) <"Cashflow payout specification, excluding the quantity.">
+	quantity QuantityNotation (1..1) <"Quantity of the cashflow payout.">
+
 type ExerciseOutcome: <"The exercise outcome combines the option contract (which states would be 'Exercised' in case of a full exercise and which would have a reduced notional in case of partial exercise) and either a physical or partial exercise.">
 	contract Contract (1..1)
 		[synonym Workflow_Event value "contract"]
 	physicalExercise PhysicalExercise (0..1)
 		[synonym Workflow_Event value "physicalExercise"]
-	cashExercise Cashflow (0..1)
+	cashExercise CashExercise (0..1)
 		[synonym Workflow_Event value "cashExercise"]
 	condition ExerciseOutcome_choice: <"A option exercise results in either a physical or a cash exercise.">
 		required choice physicalExercise, cashExercise
@@ -417,8 +422,9 @@ type PhysicalExercise: <"The physical exercise results into a financial product 
 	contractualQuantity ExecutionQuantity (0..1) <"Complex attribute to specify the quantity of the contractual product that is being exercised. This temporarily makes uses of the 'ExecutionQuantity' class, until such time when the latter can be renamed as, and supersede, the existing 'ContractualQuantity' class. To be later merged with the 'quantity' attribute to have consistent mechanism between contractual and non-contractual products.">
 		// For Swap Stream:
 		[synonym Workflow_Event value "swap" path "product"]
+		[synonym Workflow_Event hint cashflow]
 	cashflow Cashflow (0..1) <"The cashflow component of the physical exercise.">
-		[synonym Workflow_Event value "cashflow"]
+	 	[synonym Workflow_Event value "cashflow"]
 	condition PhysicalExercise_quantity: <"The quantity attribute should only be associated with non-contractual products, as it is then expressed as part of the contractual terms.">
 		if PhysicalExercise -> product -> contractualProduct exists
 		then PhysicalExercise -> quantity is absent
