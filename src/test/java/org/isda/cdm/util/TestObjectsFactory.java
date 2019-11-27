@@ -59,7 +59,7 @@ public class TestObjectsFactory {
 				.setTradeDate(FieldWithMetaDate.builder().setValue(DateImpl.of(tradeDate)).build())
 				.setProduct(getProduct(cusip))
 				.setQuantity(quantity)
-				.setPrice(price)
+				.setPrice(ExecutionPrice.builder().addPriceNotation(PriceNotation.builder().setPrice(price).build()).build())
 				.addParty(getReferenceWithMetaParty(clientParty))
 				.addParty(getReferenceWithMetaParty(executingBrokerParty))
 				.addParty(getReferenceWithMetaParty(counterpartyBrokerParty))
@@ -141,9 +141,11 @@ public class TestObjectsFactory {
 
 	public Price getPrice(double dirtyPrice, double cleanPrice, String currency) {
 		return Price.builder()
-				.setNetPrice(getActualPrice(dirtyPrice, currency))
-				.setCleanNetPrice(getActualPrice(cleanPrice, currency))
-				.setAccruedInterest(BigDecimal.valueOf(dirtyPrice - cleanPrice))
+				.setCashPrice(CashPrice.builder()
+						.setNetPrice(getActualPrice(dirtyPrice, currency))
+						.setCleanNetPrice(getActualPrice(cleanPrice, currency))
+						.setAccruedInterest(BigDecimal.valueOf(dirtyPrice - cleanPrice))
+						.build())
 				.build();
 	}
 
@@ -156,7 +158,7 @@ public class TestObjectsFactory {
 	}
 
 	private SettlementTerms getSettlementTerms(LocalDate settlementDate, Price price, Quantity quantity) {
-		ActualPrice dirtyPrice = price.getNetPrice();
+		ActualPrice dirtyPrice = price.getCashPrice().getCleanNetPrice();
 		BigDecimal dirtyPriceAmount = dirtyPrice.getAmount();
 		BigDecimal settlementAmount = dirtyPriceAmount.multiply(quantity.getAmount());
 		String settlementCurrency = dirtyPrice.getCurrency().getValue();
