@@ -32,3 +32,8 @@ In the Ingestion Panel, see:
 - Products > Rates > any XC Swap, and see that the currency has been kept as `assetIdentifier` as part of the quantity at the individual leg level
 - Products > Equity, and see that the asset identifier is now positioned in the `contractualQuantity`
 - Products > Rates > any Swaption, and see that the premium is now positioned as part of the `contractualPrice`.
+
+# Instance Viewer Changes
+
+- The instance can now handle visualising unidetifiable nodes that share an unidentifiable parent node. Previously the viewer would incorrectly merge the two child nodes but they will now be stamped correctly with a unique identifier.
+- The viewer is now able to visualise clearing alpha terminations correctly, generating two seperate contracts with the zero out quantity values.
