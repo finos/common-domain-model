@@ -30,5 +30,5 @@ In the textual Browser in the CDM Portal, see:
 In the Ingestion Panel, see:
 
 - Products > Rates > any XC Swap, and see that the currency has been kept as `assetIdentifier` as part of the quantity at the individual leg level
-- Products > Equity, and see that the asset identifier which is now positioned in the `contractualQuantity`
+- Products > Equity, and see that the asset identifier is now positioned in the `contractualQuantity`
 - Products > Rates > any Swaption, and see that the premium is now positioned as part of the `contractualPrice`.
