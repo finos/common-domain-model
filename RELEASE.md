@@ -33,7 +33,8 @@ In the Ingestion Panel, see:
 - Products > Equity, and see that the asset identifier is now positioned in the `contractualQuantity`
 - Products > Rates > any Swaption, and see that the premium is now positioned as part of the `contractualPrice`.
 
-# Instance Viewer Changes
+# Further synonym syntax consistency - hint, meta and mapper
+- Following restructuring of the synonym syntax to use quoted elements for both path and value, other synonym components such as hint, meta and mapper have been migrated to be quoted for consistency.
 
-- The instance can now handle visualising unidetifiable nodes that share an unidentifiable parent node. Previously the viewer would incorrectly merge the two child nodes but they will now be stamped correctly with a unique identifier.
-- The viewer is now able to visualise clearing alpha terminations correctly, generating two seperate contracts with the zero out quantity values.
+_Review Directions_
+- All synonyms now have consistent syntax. An example of the change is in the synonyms in the type `BusinessEvent`.
