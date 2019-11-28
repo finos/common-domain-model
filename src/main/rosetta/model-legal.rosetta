@@ -301,7 +301,7 @@ type CreditSupportObligationsInitialMargin: <"A class to specify the Credit Supp
 	threshold Threshold (1..1) <"The amount of net exposure that a party is willing to bear in relation to the other party before it requires asking for collateral. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (c)(vi)(A): Threshold. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d)(vi)(A): Threshold. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (c)(vi)(A): Threshold.">
 		[synonym ISDA_Create_1_0 value "threshold"]
 	minimumTransferAmount MinimumTransferAmount (1..1) <"The net amount of exposure reached before collateral has to be posted or returned. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (c)(vi)(B): Minimum Transfer Amount. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d)(vi)(B): Minimum Transfer Amount. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (c)(vi)(B): Minimum Transfer Amount.">
-		[synonym ISDA_Create_1_0 value "minimum_transfer_amount"]
+		[synonym ISDA_Create_1_0 value "minimum_transfer_amount" mapper "MinimumTransferAmount"]
 	rounding CollateralRounding (1..1) <"The rounding methodology applicable to the Delivery Amount and the Return Amount in terms of nearest integral multiple of Base Currency units. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (c)(vi)(C): Rounding. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d)(vi)(C): Rounding. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (c)(vi)(C): Rounding.">
 		[synonym ISDA_Create_1_0 value "rounding"]
 
@@ -412,7 +412,6 @@ type CsaInitialMargin2016NewYorkLaw extends CsaInitialMargin2016: <"A class to s
 	deliveryInLieuRight boolean (1..1) <"The Delivery in Lieu Right provision applies when the value is set to True. ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (m): Modification to Pledgor’s Rights and Remedies.">
 		[synonym ISDA_Create_1_0 set to True when "delivery_in_lieu_right->right->applicable" = "true", set to False when "delivery_in_lieu_right->right->not_applicable" = "true"]
 	custodyArrangements CustodyArrangements (1..1) <"The Custodian and Segregated Account details in respect of each party as the Pledgor. ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n): Custody Arrangements.">
-		//[synonym ISDA_Create_1_0 value "control_agreement_as_a_credit_support_document" path "answers"]
 	otherEligibleAndPostedSupport OtherEligibleAndPostedSupport (1..1) <"The Other Eligible Support elections associated with margin agreements. ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (p): Other Eligible Support (IM) and Other Posted Support (IM).">
 	japaneseSecuritiesProvisions boolean (1..1) <"ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (v): Japanese Securities Provisions (Shichiken).">
 		[synonym ISDA_Create_1_0 set to True when "japanese_securities_provisions->is_applicable" = "applicable", set to False when "japanese_securities_provisions->is_applicable" = "not_applicable"]
@@ -580,20 +579,18 @@ type DistributionAndInterestPayment: <"A class to specify the Distributions and 
 type ElectiveAmountElection: <"A class to specify the party elective amounts which can be used for the purpose of specifying elections such as the ISDA CSA Threshold and Minimum Transfer Amount.">
 
 	party string (1..1) <"The elective party.">
-		// TODO this won't work for minimum_transfer_amount
-		[synonym ISDA_Create_1_0 set to "partyA" when path = "partyA_threshold", set to "partyA" when path = "partyA_minimum_transfer_amount"]
-		[synonym ISDA_Create_1_0 set to "partyB" when path = "partyB_threshold", set to "partyB" when path = "partyB_minimum_transfer_amount"]
+		[synonym ISDA_Create_1_0 set to "partyA" when path = "partyA_threshold", 
+								 set to "partyB" when path = "partyB_threshold"]
+		[synonym ISDA_Create_1_0 set to "partyA" when path = "partyA_minimum_transfer_amount", 
+								 set to "partyB" when path = "partyB_minimum_transfer_amount"]
 	amount Money (0..1) <"The elective amount when expressed as a currency amount. The associated PartyElectiveAmount_amount data rule enforces that the currency amount is actually greater than 0.">
 	customElection string (0..1) <"The elective amount when expressed as a custom election by the party.">
-		[synonym ISDA_Create_1_0 value "partyA_specify"]
-		[synonym ISDA_Create_1_0 value "partyB_specify"]
-		// TODO review this one... maybe these need to also go to the next field?
-		// [synonym ISDA_Create_1_0 set to 0 when "partyA_threshold" = "zero"]
+		[synonym ISDA_Create_1_0 value "partyA_minimum_transfer_amount"]
+		[synonym ISDA_Create_1_0 value "partyB_minimum_transfer_amount"]
 		[synonym ISDA_Create_1_0 value "partyA_threshold"]
 		[synonym ISDA_Create_1_0 value "partyB_threshold"]
 	noAmount int (0..1) <"The elective amount when specified as 0 with no associated currency. The associated PartyElectiveAmount_noAmount data rule enforces that the number is actually equal to 0.">
-		[synonym ISDA_Create_1_0 set to 0 when "partyA_minimum_transfer_amount" = "zero"]
-		[synonym ISDA_Create_1_0 set to 0 when "partyB_minimum_transfer_amount" = "zero"]
+        // noAmount mapped by MinimumTransferAmount mapping processor
 
 	condition ElectiveAmountElection_choice: <"The elective amount is specified either as a currency amount, a custom election or a 0 amount with no associated currency.">
 		required choice amount, customElection, noAmount
@@ -1133,7 +1130,6 @@ type TerminationCurrencyAmendment: <"A class to specify the Amendment to Termina
 		then ( TerminationCurrencyAmendment -> effectiveDate 
 		and TerminationCurrencyAmendment -> terminationCurrency
 		and TerminationCurrencyAmendment -> bothPartiesCurrency	) is absent // TODO - Logic to be confirmed by testing NotApplicable
-
 
 type TerminationCurrencyElection: <"A class to specify the Amendment to Termination Currency election by the parties to the agreement. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (t) (A) & (B).">
 
