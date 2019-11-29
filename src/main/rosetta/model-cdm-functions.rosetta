@@ -19,7 +19,7 @@ func Execute:
 		executionEvent -> businessEvent -> primitives -> execution -> after -> execution
 
 	assign-output executionEvent -> party:
-		[ partyA, partyB ]
+		[partyA, partyB]
 
 	post-condition:
 		executionEvent -> lineage is absent
@@ -42,7 +42,7 @@ func NewExecutionPrimitive: <"Function specification to compose an execution bas
 		product -> contractualProduct
 
 	assign-output execution -> after -> execution -> party:
-		[ partyA, partyB ] // TODO assign partyA and partyB as references when the as-key syntax support lists of values
+		[partyA, partyB] // TODO assign partyA and partyB as references when the as-key syntax support lists of values
 	assign-output execution -> after -> execution -> executionQuantity:
 		quantity
 
@@ -69,7 +69,7 @@ func FormContract: <"Function specification to create the fully-formed business 
 		if legalAgreement exists then legalAgreement -> contractualParty contains execution -> party
 
 	assign-output contractFormationEvent -> businessEvent -> primitives -> contractFormation: <"Event must contain a contract formation primitive based on the execution primitive and an optional legal agreement.">
-		NewContractFormationPrimitive(executionEvent -> businessEvent -> primitives -> execution -> after only-element, execution -> party, legalAgreement)
+		NewContractFormationPrimitive(executionEvent -> businessEvent -> primitives  only-element -> execution -> after, execution -> party, legalAgreement)
 
 	assign-output contractFormationEvent -> party: <"The parties on the output Event must match the parties on the input Execution.">
 		execution -> party
@@ -77,7 +77,7 @@ func FormContract: <"Function specification to create the fully-formed business 
 	assign-output contractFormationEvent -> lineage -> eventReference: <"Construct the lineage making reference to the input event">
 		executionEvent as-key
 
-	assign-output contractFormationEvent -> eventEffect -> contract :
+	assign-output contractFormationEvent -> eventEffect -> contract:
 		contractFormationEvent -> businessEvent -> primitives -> contractFormation -> after -> contract
 
 	assign-output contractFormationEvent -> eventEffect -> effectedExecution:
@@ -135,7 +135,7 @@ func Reset:
 		contractState -> contract
 
 	alias observation:
-		observationEvent -> businessEvent -> primitives -> observation only-element
+		observationEvent -> businessEvent -> primitives  only-element -> observation
 
 	condition: <"ExtractContractState would result in nothing (empty), check we have something.">
 		contractState exists
@@ -212,7 +212,7 @@ func TransferCash: <"Function specification to build a transfer event following 
 		transferEvent WorkflowEvent (1..1)
 
 	alias contractState:
-		resetEvent -> businessEvent -> primitives -> reset -> after only-element
+		resetEvent -> businessEvent -> primitives only-element -> reset -> after
 
 	condition: <"There must be a reset primitive on the event input, and the contract being referenced must be consistent between those events.">
 		resetEvent -> businessEvent -> primitives -> reset exists
