@@ -1,0 +1,32 @@
+namespace org.isda.cdm.test
+version "${project.version}"
+
+import org.isda.cdm.*
+
+//isEvent TestPartialNovation <"">
+//	WorkflowEvent -> effectiveDate = novatedContractEffectiveDate
+//
+//
+func TestPartialNovationFunc: <"">
+	inputs: wEvent WorkflowEvent (0..1)
+	output: result boolean (0..1)
+	assign-output result: NovatedContractEffectiveDate(wEvent) -> date only-element = wEvent -> effectiveDate
+
+func NovatedContractEffectiveDate2:
+
+	inputs: workflowEvent WorkflowEvent(1..1)
+	output: result DateList(0..1)
+
+	alias eTerms: workflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> contractualProduct -> economicTerms
+
+	assign-output result -> date: [
+			eTerms -> effectiveDate -> adjustableDate -> adjustedDate,
+			eTerms -> effectiveDate -> adjustableDate -> unadjustedDate,
+			eTerms -> effectiveDate -> relativeDate -> adjustedDate,
+			eTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate,
+			eTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate,
+			eTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> relativeDate -> adjustedDate,
+			eTerms -> payout -> equityPayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate,
+			eTerms -> payout -> equityPayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate,
+			eTerms -> payout -> equityPayout -> calculationPeriodDates -> effectiveDate -> relativeDate -> adjustedDate
+	]
