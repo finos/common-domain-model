@@ -1509,12 +1509,15 @@ isProduct InterestRate_CapFloor
 	EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> capRateSchedule exists
 	or EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> floorRateSchedule exists
 
-isProduct InterestRate_Fra
-	[synonym ISDA_Taxonomy_v1 value "InterestRate_Fra"]
-	EconomicTerms -> payout -> interestRatePayout count = 2
-	and EconomicTerms -> payout -> creditDefaultPayout is absent
-	and EconomicTerms -> payout -> cashflow is absent
-	and effectiveDate = paymentDate
+func InterestRate_Fra:
+	inputs: eTerms EconomicTerms(1..1)
+	output: result boolean(1..1)
+		[synonym ISDA_Taxonomy_v1 value "InterestRate_Fra"]
+	assign-output result:
+		eTerms -> payout -> interestRatePayout count = 2
+		and eTerms -> payout -> creditDefaultPayout is absent
+		and eTerms -> payout -> cashflow is absent
+		and EffectiveDate(eTerms) -> date contains PaymentDate(eTerms)
 
 isProduct ForeignExchange
 	[synonym ISDA_Taxonomy_v1 value "ForeignExchange_Forward"]

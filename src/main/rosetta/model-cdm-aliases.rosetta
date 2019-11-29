@@ -10,18 +10,7 @@ func ForwardFX:
 	output: result ForeignExchange (1..1)
 	assign-output result: forwardPayout -> underlier -> singleUnderlier -> underlyingProduct -> foreignExchange
 
-alias effectiveDate
-	EconomicTerms -> effectiveDate -> adjustableDate -> adjustedDate
-	or EconomicTerms -> effectiveDate -> adjustableDate -> unadjustedDate
-	or EconomicTerms -> effectiveDate -> relativeDate -> adjustedDate
-	or EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate
-	or EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
-	or EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> relativeDate -> adjustedDate
-	or EconomicTerms -> payout -> equityPayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate
-	or EconomicTerms -> payout -> equityPayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
-	or EconomicTerms -> payout -> equityPayout -> calculationPeriodDates -> effectiveDate -> relativeDate -> adjustedDate
-
-func EffectiveDate2:
+func EffectiveDate:
 	inputs:
 		economicTerms EconomicTerms(1..1)
 	output: result DateList(0..1)
@@ -54,25 +43,28 @@ func NovatedContractEffectiveDate:
 	inputs:
 		workflowEvent WorkflowEvent(1..1)
 	output: result DateList(0..1)
+	
+	alias eTerms: workflowEvent -> businessEvent -> primitives only-element -> inception -> after -> contract -> contractualProduct -> economicTerms
+	alias effectiveDate: eTerms -> effectiveDate
+	alias interestRatePayoutDate: eTerms -> payout -> interestRatePayout only-element -> calculationPeriodDates -> effectiveDate
+	alias equityPayoutDate: eTerms -> payout -> equityPayout only-element -> calculationPeriodDates -> effectiveDate
+	
 	assign-output result -> date: [
-			workflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> contractualProduct -> economicTerms -> effectiveDate -> adjustableDate -> adjustedDate,
-			workflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> contractualProduct -> economicTerms -> effectiveDate -> adjustableDate -> unadjustedDate,
-			workflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> contractualProduct -> economicTerms -> effectiveDate -> relativeDate -> adjustedDate,
-			workflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate,
-			workflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate,
-			workflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> relativeDate -> adjustedDate,
-			workflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate,
-			workflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate,
-			workflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout -> calculationPeriodDates -> effectiveDate -> relativeDate -> adjustedDate
+			effectiveDate -> adjustableDate -> adjustedDate,
+			effectiveDate -> adjustableDate -> unadjustedDate,
+			effectiveDate -> relativeDate -> adjustedDate,
+			interestRatePayoutDate -> adjustableDate -> adjustedDate,
+			interestRatePayoutDate -> adjustableDate -> unadjustedDate,
+			interestRatePayoutDate -> relativeDate -> adjustedDate,
+			equityPayoutDate -> adjustableDate -> adjustedDate,
+			equityPayoutDate -> adjustableDate -> unadjustedDate,
+			equityPayoutDate -> relativeDate -> adjustedDate
 	]
-
-alias paymentDate // Scope limited to interestPayout until such time that we position it to the economicTerms level
-	EconomicTerms -> payout -> interestRatePayout -> paymentDate -> adjustedDate
 
 func PaymentDate: // Scope limited to interestPayout until such time that we position it to the economicTerms level
 	inputs: economicTerms EconomicTerms(1..1)
-	output: result DateList(0..1)
-	assign-output result -> date: [economicTerms -> payout -> interestRatePayout only-element -> paymentDate -> adjustedDate]
+	output: result date(0..1)
+	assign-output result: economicTerms -> payout -> interestRatePayout only-element -> paymentDate -> adjustedDate
 
 alias quantityAfterQuantityChange <"The alias to represent the quantity or notional amount in terms of number of units (i.e. ignoring the currency or units denomination) after a quantity change primitive.">
 	WorkflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity -> amount
