@@ -20,10 +20,10 @@ func EffectiveDate:
 			economicTerms -> effectiveDate -> relativeDate -> adjustedDate,
 			economicTerms -> payout -> interestRatePayout only-element -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate,
 			economicTerms -> payout -> interestRatePayout only-element -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate,
-			economicTerms -> payout -> interestRatePayout  only-element-> calculationPeriodDates -> effectiveDate -> relativeDate -> adjustedDate,
+			economicTerms -> payout -> interestRatePayout only-element-> calculationPeriodDates -> effectiveDate -> relativeDate -> adjustedDate,
 			economicTerms -> payout -> equityPayout only-element -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate,
-			economicTerms -> payout -> equityPayout  only-element-> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate,
-			economicTerms -> payout -> equityPayout  only-element-> calculationPeriodDates -> effectiveDate -> relativeDate -> adjustedDate
+			economicTerms -> payout -> equityPayout only-element-> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate,
+			economicTerms -> payout -> equityPayout only-element-> calculationPeriodDates -> effectiveDate -> relativeDate -> adjustedDate
 	]
 
 // TODO - Providing the ability to embed aliases would provide the ability to ensure consistency between this alias and the effectiveDate one, while also simplify the syntax
@@ -39,6 +39,8 @@ alias novatedContractEffectiveDate <"This alias is used to qualify the novation 
 	or WorkflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
 	or WorkflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout -> calculationPeriodDates -> effectiveDate -> relativeDate -> adjustedDate
 
+// TODO - Providing the ability to embed aliases would provide the ability to ensure consistency between this alias and the effectiveDate one, while also simplify the syntax
+// See Trello card https://trello.com/c/89Lv8rAn
 func NovatedContractEffectiveDate:
 	inputs:
 		workflowEvent WorkflowEvent(1..1)
@@ -87,6 +89,25 @@ alias quantityBeforeQuantityChange <"The alias to represent the quantity or noti
 	and ( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> notionalAmount group by currency ) -> amount
 	and ( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount group by currency ) -> amount
 	and ( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualQuantity -> quantityNotation group by assetIdentifier -> currency ) -> quantity -> amount
+
+func TerminationDate: // Scope limited to interestPayout until such time that we position it to the economicTerms level
+	inputs: economicTerms EconomicTerms(1..1)
+	output: result DateList(0..1)
+	alias interestRateTerminationDate: economicTerms -> payout -> interestRatePayout only-element -> calculationPeriodDates -> terminationDate
+	alias equityPayoutTerminationDate: economicTerms -> payout -> equityPayout only-element -> calculationPeriodDates -> terminationDate
+	
+	assign-output result -> date:
+		[
+			economicTerms -> terminationDate -> adjustableDate -> adjustedDate,
+			economicTerms -> terminationDate -> adjustableDate -> unadjustedDate,
+			economicTerms -> terminationDate -> relativeDate -> adjustedDate,
+			interestRateTerminationDate -> adjustableDate -> adjustedDate,
+			interestRateTerminationDate -> adjustableDate -> unadjustedDate,
+			interestRateTerminationDate -> relativeDate -> adjustedDate,
+			equityPayoutTerminationDate -> adjustableDate -> adjustedDate,
+			equityPayoutTerminationDate -> adjustableDate -> unadjustedDate,
+			equityPayoutTerminationDate -> relativeDate -> adjustedDate
+		]
 
 alias terminationDate
 	EconomicTerms -> terminationDate -> adjustableDate -> adjustedDate
