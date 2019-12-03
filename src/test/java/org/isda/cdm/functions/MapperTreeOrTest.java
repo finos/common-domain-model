@@ -20,7 +20,7 @@ class MapperTreeOrTest extends AbstractFunctionTest {
 	TestPartialNovationFunc func;
 
 	@Test
-	void comapreCollectionWithSingleValueWithFunc() {
+	void compareCollectionWithSingleValueWithFunc() {
 		Date effDate = DateImpl.of(2019, 11, 29);
 		Date otherDate = DateImpl.of(2019, 11, 28);
 
@@ -29,7 +29,7 @@ class MapperTreeOrTest extends AbstractFunctionTest {
 	}
 
 	@Test @Disabled("Currently workflowEvent -> businessEvent -> primitives will be translated as workflowEvent -> businessEvent -> primitives[0]")
-	void comapreCollectionWithListValueWithFunc() {
+	void compareCollectionWithListValueWithFunc() {
 		Date effDate = DateImpl.of(2019, 11, 29);
 		Date otherDate = DateImpl.of(2019, 11, 28);
 
@@ -44,7 +44,7 @@ class MapperTreeOrTest extends AbstractFunctionTest {
 	IsTestPartialNovation partNovation;
 	
 	@Test
-	void comapreCollectionWithSingleValue() {
+	void compareCollectionWithSingleValue() {
 		Date effDate = DateImpl.of(2019, 11, 29);
 		Date otherDate = DateImpl.of(2019, 11, 28);
 
@@ -53,7 +53,7 @@ class MapperTreeOrTest extends AbstractFunctionTest {
 	}
 
 	@Test
-	void comapreCollectionWithListValue() {
+	void compareCollectionWithListValue() {
 		Date effDate = DateImpl.of(2019, 11, 29);
 		Date otherDate = DateImpl.of(2019, 11, 28);
 		assertTrue(partNovation.apply(createEvent(effDate, effDate, effDate)).isSuccess(), "Two matching dates");
