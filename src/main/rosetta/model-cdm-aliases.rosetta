@@ -28,19 +28,6 @@ func EffectiveDate:
 
 // TODO - Providing the ability to embed aliases would provide the ability to ensure consistency between this alias and the effectiveDate one, while also simplify the syntax
 // See Trello card https://trello.com/c/89Lv8rAn
-alias novatedContractEffectiveDate <"This alias is used to qualify the novation event, which effective date is the same as the effective of the novated trade.">
-	WorkflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> contractualProduct -> economicTerms -> effectiveDate -> adjustableDate -> adjustedDate
-	or WorkflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> contractualProduct -> economicTerms -> effectiveDate -> adjustableDate -> unadjustedDate
-	or WorkflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> contractualProduct -> economicTerms -> effectiveDate -> relativeDate -> adjustedDate
-	or WorkflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate
-	or WorkflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
-	or WorkflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> relativeDate -> adjustedDate
-	or WorkflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate
-	or WorkflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
-	or WorkflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout -> calculationPeriodDates -> effectiveDate -> relativeDate -> adjustedDate
-
-// TODO - Providing the ability to embed aliases would provide the ability to ensure consistency between this alias and the effectiveDate one, while also simplify the syntax
-// See Trello card https://trello.com/c/89Lv8rAn
 func NovatedContractEffectiveDate:
 	inputs:
 		workflowEvent WorkflowEvent(1..1)
@@ -68,27 +55,40 @@ func PaymentDate: // Scope limited to interestPayout until such time that we pos
 	output: result date(0..1)
 	assign-output result: economicTerms -> payout -> interestRatePayout only-element -> paymentDate -> adjustedDate
 
-alias quantityAfterQuantityChange <"The alias to represent the quantity or notional amount in terms of number of units (i.e. ignoring the currency or units denomination) after a quantity change primitive.">
-	WorkflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity -> amount
-	and ( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount group by currency ) -> amount
-	and ( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule group by currency ) -> initialValue
-	and ( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule group by currency ) -> step -> stepValue
-	and ( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule group by notionalStepSchedule -> currency ) -> notionalStepParameters -> notionalStepAmount
-	and ( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> fxLinkedNotional group by varyingNotionalCurrency ) -> initialValue
-	and ( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> notionalAmount group by currency ) -> amount
-	and ( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount group by currency ) -> amount
-	and ( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> contractualQuantity -> quantityNotation group by assetIdentifier -> currency ) -> quantity -> amount
+type NumberList:
+	numbers number(1..*)
 
-alias quantityBeforeQuantityChange <"The alias to represent the quantity or notional amount in terms of number of units (i.e. ignoring the currency or units denomination) before a quantity change primitive.">
-	(WorkflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity) -> amount
-	and ( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount group by currency) -> amount
-	and ( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule group by currency ) -> initialValue
-	and ( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule group by currency ) -> step -> stepValue
-	and ( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule group by notionalStepSchedule -> currency ) -> notionalStepParameters -> notionalStepAmount
-	and ( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> fxLinkedNotional group by varyingNotionalCurrency ) -> initialValue
-	and ( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> notionalAmount group by currency ) -> amount
-	and ( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount group by currency ) -> amount
-	and ( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualQuantity -> quantityNotation group by assetIdentifier -> currency ) -> quantity -> amount
+func QuantityAfterQuantityChange: <"The alias to represent the quantity or notional amount in terms of number of units (i.e. ignoring the currency or units denomination) after a quantity change primitive.">
+	inputs:
+		workflowEvent WorkflowEvent(1..1)
+	output: result NumberList(1..1)
+	assign-output result -> numbers: [
+		workflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity -> amount,
+		( workflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount group by currency ) -> amount,
+		( workflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule group by currency ) -> initialValue,
+		( workflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule group by currency ) -> step -> stepValue,
+		( workflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule group by notionalStepSchedule -> currency ) -> notionalStepParameters -> notionalStepAmount,
+		( workflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> fxLinkedNotional group by varyingNotionalCurrency ) -> initialValue,
+		( workflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> notionalAmount group by currency ) -> amount,
+		( workflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount group by currency ) -> amount,
+		( workflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> contractualQuantity -> quantityNotation group by assetIdentifier -> currency ) -> quantity -> amount
+	]
+
+func QuantityBeforeQuantityChange: <"The alias to represent the quantity or notional amount in terms of number of units (i.e. ignoring the currency or units denomination) before a quantity change primitive.">
+	inputs:
+		workflowEvent WorkflowEvent(1..1)
+	output: result NumberList(1..1)
+	assign-output result -> numbers: [
+		( workflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity) -> amount,
+		( workflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount group by currency) -> amount,
+		( workflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule group by currency ) -> initialValue,
+		( workflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule group by currency ) -> step -> stepValue,
+		( workflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule group by notionalStepSchedule -> currency ) -> notionalStepParameters -> notionalStepAmount,
+		( workflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> fxLinkedNotional group by varyingNotionalCurrency ) -> initialValue,
+		( workflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> notionalAmount group by currency ) -> amount,
+		( workflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount group by currency ) -> amount,
+		( workflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualQuantity -> quantityNotation group by assetIdentifier -> currency ) -> quantity -> amount
+	]
 
 func TerminationDate: // Scope limited to interestPayout until such time that we position it to the economicTerms level
 	inputs: economicTerms EconomicTerms(1..1)
@@ -108,14 +108,3 @@ func TerminationDate: // Scope limited to interestPayout until such time that we
 			equityPayoutTerminationDate -> adjustableDate -> unadjustedDate,
 			equityPayoutTerminationDate -> relativeDate -> adjustedDate
 		]
-
-alias terminationDate
-	EconomicTerms -> terminationDate -> adjustableDate -> adjustedDate
-	or EconomicTerms -> terminationDate -> adjustableDate -> unadjustedDate
-	or EconomicTerms -> terminationDate -> relativeDate -> adjustedDate
-	or EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate -> adjustedDate
-	or EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate -> unadjustedDate
-	or EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> relativeDate -> adjustedDate
-	or EconomicTerms -> payout -> equityPayout -> calculationPeriodDates -> terminationDate -> adjustableDate -> adjustedDate
-	or EconomicTerms -> payout -> equityPayout -> calculationPeriodDates -> terminationDate -> adjustableDate -> unadjustedDate
-	or EconomicTerms -> payout -> equityPayout -> calculationPeriodDates -> terminationDate -> relativeDate -> adjustedDate

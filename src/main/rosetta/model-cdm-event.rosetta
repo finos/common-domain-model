@@ -551,14 +551,19 @@ isEvent CashAndSecurityTransfer <"The qualification of a security settlement fro
 	and WorkflowEvent -> businessEvent -> primitives -> transfer -> commodityTransfer is absent
 
 // Simple Agency model for clearing
-isEvent ClearedTrade
-	WorkflowEvent -> businessEvent -> primitives count = 5
-	and WorkflowEvent -> businessEvent -> primitives -> quantityChange count = 1
-	and quantityBeforeQuantityChange > 0.0 and quantityAfterQuantityChange = 0.0
-	and WorkflowEvent -> businessEvent -> primitives -> execution count = 2
-	and WorkflowEvent -> businessEvent -> primitives -> contractFormation count = 2
-	and WorkflowEvent -> businessEvent -> primitives -> execution -> after = WorkflowEvent -> businessEvent -> primitives -> contractFormation -> before
-	and WorkflowEvent -> businessEvent -> primitives -> contractFormation -> after -> contract -> partyRole -> role contains PartyRoleEnum -> ClearingOrganization
+func ClearedTrade:
+	inputs:
+		workflowEvent WorkflowEvent(1..1)
+	output: is_event boolean (1..1)
+	assign-output is_event:
+		workflowEvent -> businessEvent -> primitives count = 5
+		and workflowEvent -> businessEvent -> primitives -> quantityChange count = 1
+		and QuantityBeforeQuantityChange(workflowEvent) -> numbers > 0.0
+		and QuantityAfterQuantityChange(workflowEvent) -> numbers = 0.0
+		and workflowEvent -> businessEvent -> primitives -> execution count = 2
+		and workflowEvent -> businessEvent -> primitives -> contractFormation count = 2
+		and workflowEvent -> businessEvent -> primitives -> execution -> after = workflowEvent -> businessEvent -> primitives -> contractFormation -> before
+		and workflowEvent -> businessEvent -> primitives -> contractFormation -> after -> contract -> partyRole -> role contains PartyRoleEnum -> ClearingOrganization
 
 //isEvent ClearedTrade <"The cleared trade at the CCP.">
 //	WorkflowEvent -> businessEvent -> primitives count = 1
@@ -572,17 +577,21 @@ isEvent ClearedTrade
 //	and Event -> lineage -> @rosettaKey -> Event -> eventQualifier = eventQualifier.ClearingSubmission
 //	and Event -> lineage -> @rosettaKey -> Event -> eventQualifier = eventQualifier.ClearedTrade
 
-isEvent ClearingRejection <"The rejection of an alpha trade submission by a CCP, which is qualified by the fact that (i) termsChange is the only primitive, the workflow status is `rejected`, and (iii) the CCP is positioned as a partyRole to the execution or contract in the after state, while it didn't exist in the before state.">
-	WorkflowEvent -> businessEvent -> primitives count = 1
-	and WorkflowEvent -> businessEvent -> primitives -> termsChange exists
-	and WorkflowEvent -> workflowEventState -> workflowStatus = WorkflowStatusEnum -> Rejected
-	and ( WorkflowEvent -> businessEvent -> primitives -> termsChange -> before -> execution -> partyRole is absent
-		or WorkflowEvent -> businessEvent -> primitives -> termsChange -> before -> execution -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization
-		or WorkflowEvent -> businessEvent -> primitives -> termsChange -> before -> contract -> partyRole is absent
-		or WorkflowEvent -> businessEvent -> primitives -> termsChange -> before -> contract -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization )
-	and ( WorkflowEvent -> businessEvent -> primitives -> termsChange -> after -> execution -> partyRole -> role = PartyRoleEnum -> ClearingOrganization
-		or WorkflowEvent -> businessEvent -> primitives -> termsChange -> after -> contract -> partyRole -> role = PartyRoleEnum -> ClearingOrganization )
-	and quantityAfterQuantityChange = quantityBeforeQuantityChange
+func ClearingRejection: <"The rejection of an alpha trade submission by a CCP, which is qualified by the fact that (i) termsChange is the only primitive, the workflow status is `rejected`, and (iii) the CCP is positioned as a partyRole to the execution or contract in the after state, while it didn't exist in the before state.">
+	inputs:
+		workflowEvent WorkflowEvent(1..1)
+	output: is_event boolean (1..1)
+	assign-output is_event:
+		workflowEvent -> businessEvent -> primitives count = 1
+		and workflowEvent -> businessEvent -> primitives -> termsChange exists
+		and workflowEvent -> workflowEventState -> workflowStatus = WorkflowStatusEnum -> Rejected
+		and ( workflowEvent -> businessEvent -> primitives -> termsChange -> before -> execution -> partyRole is absent
+			or workflowEvent -> businessEvent -> primitives -> termsChange -> before -> execution -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization
+			or workflowEvent -> businessEvent -> primitives -> termsChange -> before -> contract -> partyRole is absent
+			or workflowEvent -> businessEvent -> primitives -> termsChange -> before -> contract -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization )
+		and ( workflowEvent -> businessEvent -> primitives -> termsChange -> after -> execution -> partyRole -> role = PartyRoleEnum -> ClearingOrganization
+			or workflowEvent -> businessEvent -> primitives -> termsChange -> after -> contract -> partyRole -> role = PartyRoleEnum -> ClearingOrganization )
+		and QuantityAfterQuantityChange(workflowEvent) -> numbers = QuantityBeforeQuantityChange(workflowEvent) -> numbers
 
 isEvent ClearingSubmission <"The submission of a contract to a CCP, which is qualified by the fact that (i) the termsChange is the only primitive, and (ii) the CCP is positioned as a partyRole to the execution or contract in the after state, while it didn't exist in the before state.">
 	WorkflowEvent -> businessEvent -> primitives count = 1
@@ -607,15 +616,19 @@ isEvent Exercise <"The qualification of an exercise event from the fact that (i)
 	WorkflowEvent -> businessEvent -> primitives count = 1
 	and WorkflowEvent -> businessEvent -> primitives -> exercise exists
 
-isEvent Increase <"The qualification of a increase event from the fact that (i) the intent is Increase when specified, (ii) the associated primitives are the quantityChange and the cash transfer, the (iii) the quantity associated with the contract increases.">
-	WorkflowEvent -> intent when present = IntentEnum -> Increase
-	and ( WorkflowEvent -> businessEvent -> primitives count = 1
-		and WorkflowEvent -> businessEvent -> primitives -> quantityChange exists
-		or ( WorkflowEvent -> businessEvent -> primitives -> quantityChange
-				and WorkflowEvent -> businessEvent -> primitives -> transfer -> cashTransfer
-		) exists )
-	and quantityBeforeQuantityChange < quantityAfterQuantityChange
-	and WorkflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> closedState is absent
+func Increase: <"The qualification of a increase event from the fact that (i) the intent is Increase when specified, (ii) the associated primitives are the quantityChange and the cash transfer, the (iii) the quantity associated with the contract increases.">
+	inputs:
+		workflowEvent WorkflowEvent(1..1)
+	output: is_event boolean (1..1)
+	assign-output is_event:
+		(workflowEvent -> intent is absent or workflowEvent -> intent = IntentEnum -> Increase)
+		and ( workflowEvent -> businessEvent -> primitives count = 1
+			and workflowEvent -> businessEvent -> primitives -> quantityChange exists
+			or ( workflowEvent -> businessEvent -> primitives -> quantityChange
+					and workflowEvent -> businessEvent -> primitives -> transfer -> cashTransfer
+			) exists )
+		and QuantityBeforeQuantityChange(workflowEvent) -> numbers < QuantityAfterQuantityChange(workflowEvent) -> numbers
+		and workflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> closedState is absent
 
 isEvent MultipleTransfers <"The qualification an event that combines multiple transfers from the fact that multiple transfer primitives exist.">
 	WorkflowEvent -> businessEvent -> primitives -> transfer multiple exists
@@ -627,37 +640,49 @@ isEvent NewTrade
 	and WorkflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> closedState is absent
 	and WorkflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> clearedDate is absent
 
-isEvent Novation <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and inception exist, (iii) the remaining quantity = 0, (iv) the closedState of the contract is Novated, (v) the stepped-in contract has a different contract identifier than the novated contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
-	WorkflowEvent -> businessEvent -> primitives -> quantityChange exists
-	and WorkflowEvent -> businessEvent -> primitives -> inception exists
-	and quantityAfterQuantityChange = 0.0
-	and WorkflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> closedState -> state = ClosedStateEnum -> Novated
-	and WorkflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> contractIdentifier <> WorkflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractIdentifier
-	and WorkflowEvent -> eventDate = WorkflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> tradeDate -> date
-	and WorkflowEvent -> effectiveDate = novatedContractEffectiveDate
+func Novation: <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and inception exist, (iii) the remaining quantity = 0, (iv) the closedState of the contract is Novated, (v) the stepped-in contract has a different contract identifier than the novated contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
+	inputs:
+		workflowEvent WorkflowEvent(1..1)
+	output: is_event boolean (1..1)
+	assign-output is_event:
+		workflowEvent -> businessEvent -> primitives -> quantityChange exists
+		and workflowEvent -> businessEvent -> primitives -> inception exists
+		and QuantityAfterQuantityChange(workflowEvent) -> numbers = 0.0
+		and workflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> closedState -> state = ClosedStateEnum -> Novated
+		and workflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> contractIdentifier <> workflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractIdentifier
+		and workflowEvent -> eventDate = workflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> tradeDate -> date
+		and workflowEvent -> effectiveDate = NovatedContractEffectiveDate(workflowEvent) -> date
 //	and originalContractParties <> newContractParties
 
 isEvent Observation <"The qualification of an observation event from the fact that (i) the only primitive is the observation, and (ii) that there is only a single instance of such observation.">
 	WorkflowEvent -> businessEvent -> primitives -> observation only single exists
 
-isEvent PartialNovation <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and inception exist, (iii) the contract quantity/notional has decreased as part of the quantityChange primitive, while (iv) there is a remaining quantity/notional, (v) the stepped-in contract has a different contract identifier than the original contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
-	WorkflowEvent -> businessEvent -> primitives -> quantityChange exists
-	and WorkflowEvent -> businessEvent -> primitives -> inception exists
-	and WorkflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> contractIdentifier <> WorkflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractIdentifier
-	and WorkflowEvent -> eventDate = WorkflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> tradeDate -> date
-	and WorkflowEvent -> effectiveDate = novatedContractEffectiveDate
-	and quantityBeforeQuantityChange > quantityAfterQuantityChange
-	and quantityAfterQuantityChange > 0.0
-//	and originalContractParties <> newContractParties
+func PartialNovation: <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and inception exist, (iii) the contract quantity/notional has decreased as part of the quantityChange primitive, while (iv) there is a remaining quantity/notional, (v) the stepped-in contract has a different contract identifier than the original contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
+	inputs:
+		workflowEvent WorkflowEvent(1..1)
+	output: is_event boolean (1..1)
+	assign-output is_event:
+		workflowEvent -> businessEvent -> primitives -> quantityChange exists
+		and workflowEvent -> businessEvent -> primitives -> inception exists
+		and workflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> contractIdentifier <> workflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractIdentifier
+		and workflowEvent -> eventDate = workflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> tradeDate -> date
+		and workflowEvent -> effectiveDate = NovatedContractEffectiveDate(workflowEvent) -> date
+		and QuantityBeforeQuantityChange(workflowEvent) -> numbers > QuantityAfterQuantityChange(workflowEvent) -> numbers
+		and QuantityAfterQuantityChange(workflowEvent) -> numbers > 0.0
+	//	and originalContractParties <> newContractParties
 
-isEvent PartialTermination <"The qualification of a partial termination event from the fact that (i) the intent is Partial Termination when specified, (ii) the associated primitives are the quantityChange and the cash transfer, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
-	WorkflowEvent -> intent when present = IntentEnum -> PartialTermination
-	and ( WorkflowEvent -> businessEvent -> primitives count = 1
-		and WorkflowEvent -> businessEvent -> primitives -> quantityChange exists
-		or ( WorkflowEvent -> businessEvent -> primitives -> quantityChange and WorkflowEvent -> businessEvent -> primitives -> transfer -> cashTransfer ) exists )
-	and quantityBeforeQuantityChange > quantityAfterQuantityChange
-	and quantityAfterQuantityChange > 0.0
-	and WorkflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> closedState is absent
+func PartialTermination: <"The qualification of a partial termination event from the fact that (i) the intent is Partial Termination when specified, (ii) the associated primitives are the quantityChange and the cash transfer, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
+	inputs:
+		workflowEvent WorkflowEvent(1..1)
+	output: is_event boolean (1..1)
+	assign-output is_event:
+		(workflowEvent -> intent is absent or workflowEvent -> intent = IntentEnum -> PartialTermination)
+		and ( workflowEvent -> businessEvent -> primitives count = 1
+			and workflowEvent -> businessEvent -> primitives -> quantityChange exists
+			or ( workflowEvent -> businessEvent -> primitives -> quantityChange and workflowEvent -> businessEvent -> primitives -> transfer -> cashTransfer ) exists )
+		and QuantityBeforeQuantityChange(workflowEvent) -> numbers > QuantityAfterQuantityChange(workflowEvent) -> numbers
+		and QuantityAfterQuantityChange(workflowEvent) -> numbers > 0.0
+		and workflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> closedState is absent
 
 isEvent Reset <"The qualification of a reset event from the fact that the only primitive is the reset.">
 	WorkflowEvent -> businessEvent -> primitives count = 1
@@ -676,13 +701,17 @@ isEvent SecuritySettlement <"The qualification of a security settlement from the
 	and WorkflowEvent -> businessEvent -> primitives -> transfer -> cashTransfer -> payerReceiver -> payerPartyReference -> reference = WorkflowEvent -> businessEvent -> primitives -> transfer -> securityTransfer -> transferorTransferee -> transfereePartyReference -> reference
 	and WorkflowEvent -> businessEvent -> primitives -> transfer -> commodityTransfer is absent
 
-isEvent Termination <"The qualification of a termination event from the fact that (i) the intent is Termination when specified, (ii) the only primitive is the quantityChange and there is only one such primitive involved, the (iii) the remaining quantity is null, and (iv) the closedState of the contract is Terminated.">
-	WorkflowEvent -> intent when present = IntentEnum -> Termination
-	and ( WorkflowEvent -> businessEvent -> primitives count = 1
-		and WorkflowEvent -> businessEvent -> primitives -> quantityChange exists
-		or ( WorkflowEvent -> businessEvent -> primitives -> quantityChange and WorkflowEvent -> businessEvent -> primitives -> transfer -> cashTransfer ) exists )
-	and quantityAfterQuantityChange = 0.0
-	and WorkflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> closedState -> state = ClosedStateEnum -> Terminated
+func Termination: <"The qualification of a termination event from the fact that (i) the intent is Termination when specified, (ii) the only primitive is the quantityChange and there is only one such primitive involved, the (iii) the remaining quantity is null, and (iv) the closedState of the contract is Terminated.">
+	inputs:
+		workflowEvent WorkflowEvent(1..1)
+	output: is_event boolean (1..1)
+	assign-output is_event:
+		(workflowEvent -> intent is absent or workflowEvent -> intent = IntentEnum -> Termination)
+		and ( workflowEvent -> businessEvent -> primitives count = 1
+			and workflowEvent -> businessEvent -> primitives -> quantityChange exists
+			or ( workflowEvent -> businessEvent -> primitives -> quantityChange and workflowEvent -> businessEvent -> primitives -> transfer -> cashTransfer ) exists )
+		and QuantityAfterQuantityChange(workflowEvent) -> numbers = 0.0
+		and workflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> closedState -> state = ClosedStateEnum -> Terminated
 
 isEvent TradeWarehousePositionNotification
 	WorkflowEvent -> businessEvent -> primitives -> inception exists
