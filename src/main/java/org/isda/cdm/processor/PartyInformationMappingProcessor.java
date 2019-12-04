@@ -64,10 +64,10 @@ public class PartyInformationMappingProcessor extends MappingProcessor {
 		getMappings().add(new Mapping(namePath, name, Path.parse("LegalAgreement.partyInformation.name"), name, null, false, false));
 	}
 
-	private PartyBuilder getParty(String externalReference, String partyId, String partyName) {
+	private PartyBuilder getParty(String externalReference, String id, String partyName) {
 		return Party.builder()
-				.setMetaBuilder(MetaFields.builder().setExternalKey(partyId))
-				.addPartyId(FieldWithMetaString.builder().setValue(partyId).build())
+				.setMetaBuilder(MetaFields.builder().setExternalKey(externalReference))
+				.addPartyId(FieldWithMetaString.builder().setValue(id).build())
 				.setNameRef(partyName);
 	}
 
