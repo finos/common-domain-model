@@ -15,6 +15,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * ISDA Create mapping processor.
+ *
+ * Sets LegalAgreement.partyInformation and LegalAgreement.contractualParty
+ */
 @SuppressWarnings("unused")
 public class PartyInformationMappingProcessor extends MappingProcessor {
 
