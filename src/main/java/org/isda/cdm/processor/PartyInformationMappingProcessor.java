@@ -15,6 +15,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * ISDA Create mapping processor.
+ *
+ * Sets LegalAgreement.partyInformation and LegalAgreement.contractualParty
+ */
 @SuppressWarnings("unused")
 public class PartyInformationMappingProcessor extends MappingProcessor {
 
@@ -30,8 +35,8 @@ public class PartyInformationMappingProcessor extends MappingProcessor {
 	@Override
 	protected void map(List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
 		LegalAgreementBuilder legalAgreementBuilder = (LegalAgreementBuilder) parent;
-		addPartyInformation(legalAgreementBuilder, Path.parse("answers.parties.partyA_name"), "partyA");
-		addPartyInformation(legalAgreementBuilder, Path.parse("answers.parties.partyB_name"), "partyB");
+		addPartyInformation(legalAgreementBuilder, Path.parse("answers.partyA.parties.partyA_name"), "partyA");
+		addPartyInformation(legalAgreementBuilder, Path.parse("answers.partyA.parties.partyB_name"), "partyB");
 	}
 
 	private void addPartyInformation(LegalAgreementBuilder legalAgreementBuilder, Path inputPath, String partyId) {
