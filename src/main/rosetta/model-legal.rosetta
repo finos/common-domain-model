@@ -299,7 +299,7 @@ type CreditRatingDebt: <"The credit rating debt type(s) associated with the cred
 type CreditSupportObligationsInitialMargin: <"A class to specify the Credit Support Obligations applicable to the Initial Margin Credit Support Annex and which are common among the English, Japanese and New York governing laws. This excludes the Other Eligible Support election (which only applies to the Japanese Law and New York Law agreements) and the Transfer Timing election (which only applies to the English Law and the New York Law agreements). ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (c): Credit Support Obligations. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d): Credit Support Obligations. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (c): Credit Support Obligations.">
 
 	threshold Threshold (1..1) <"The amount of net exposure that a party is willing to bear in relation to the other party before it requires asking for collateral. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (c)(vi)(A): Threshold. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d)(vi)(A): Threshold. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (c)(vi)(A): Threshold.">
-		[synonym ISDA_Create_1_0 value "threshold"]
+		[synonym ISDA_Create_1_0 value "threshold" mapper "Threshold"]
 	minimumTransferAmount MinimumTransferAmount (1..1) <"The net amount of exposure reached before collateral has to be posted or returned. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (c)(vi)(B): Minimum Transfer Amount. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d)(vi)(B): Minimum Transfer Amount. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (c)(vi)(B): Minimum Transfer Amount.">
 		[synonym ISDA_Create_1_0 value "minimum_transfer_amount" mapper "MinimumTransferAmount"]
 	rounding CollateralRounding (1..1) <"The rounding methodology applicable to the Delivery Amount and the Return Amount in terms of nearest integral multiple of Base Currency units. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (c)(vi)(C): Rounding. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d)(vi)(C): Rounding. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (c)(vi)(C): Rounding.">
@@ -579,18 +579,9 @@ type DistributionAndInterestPayment: <"A class to specify the Distributions and 
 type ElectiveAmountElection: <"A class to specify the party elective amounts which can be used for the purpose of specifying elections such as the ISDA CSA Threshold and Minimum Transfer Amount.">
 
 	party string (1..1) <"The elective party.">
-		[synonym ISDA_Create_1_0 set to "partyA" when path = "partyA_threshold", 
-								 set to "partyB" when path = "partyB_threshold"]
-		[synonym ISDA_Create_1_0 set to "partyA" when path = "partyA_minimum_transfer_amount", 
-								 set to "partyB" when path = "partyB_minimum_transfer_amount"]
 	amount Money (0..1) <"The elective amount when expressed as a currency amount. The associated PartyElectiveAmount_amount data rule enforces that the currency amount is actually greater than 0.">
 	customElection string (0..1) <"The elective amount when expressed as a custom election by the party.">
-		[synonym ISDA_Create_1_0 value "partyA_minimum_transfer_amount"]
-		[synonym ISDA_Create_1_0 value "partyB_minimum_transfer_amount"]
-		[synonym ISDA_Create_1_0 value "partyA_threshold"]
-		[synonym ISDA_Create_1_0 value "partyB_threshold"]
 	noAmount int (0..1) <"The elective amount when specified as 0 with no associated currency. The associated PartyElectiveAmount_noAmount data rule enforces that the number is actually equal to 0.">
-        // noAmount mapped by MinimumTransferAmount mapping processor
 
 	condition ElectiveAmountElection_choice: <"The elective amount is specified either as a currency amount, a custom election or a 0 amount with no associated currency.">
 		required choice amount, customElection, noAmount
