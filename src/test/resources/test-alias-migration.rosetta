@@ -7,6 +7,7 @@ import org.isda.cdm.*
 //	WorkflowEvent -> effectiveDate = novatedContractEffectiveDate
 //
 //
+
 func TestPartialNovationFunc: <"">
 	inputs: wEvent WorkflowEvent (0..1)
 	output: result boolean (0..1)
@@ -19,7 +20,7 @@ func NovatedContractEffectiveDate2:
 
 	alias eTerms: workflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> contractualProduct -> economicTerms
 
-	assign-output result -> date: [
+	assign-output result -> date: [ 
 			eTerms -> effectiveDate -> adjustableDate -> adjustedDate,
 			eTerms -> effectiveDate -> adjustableDate -> unadjustedDate,
 			eTerms -> effectiveDate -> relativeDate -> adjustedDate,
@@ -45,3 +46,55 @@ type TypeToGroup:
 	numAttr number (0..1)
 	strAttr string (0..1)
 	manyAttr TypeToGroup (1..*)
+
+type Foo:
+	bar Bar (0..*)
+	bar2 Bar (0..*)
+	baz Baz (0..1)
+
+type Bar:
+	before number (0..1)
+	after number (0..1)
+
+type Baz:
+	bazValue number (0..1)
+	other number (0..1)
+	
+func FeatureCallEqualToLiteral:
+	inputs: foo Foo(1..1)
+	output: is_event boolean (1..1)
+	assign-output is_event:
+		foo -> bar -> before = 5
+
+func FeatureCallEqualToFeatureCall:
+	inputs: foo Foo(1..1)
+	output: is_event boolean (1..1)
+	assign-output is_event:
+		foo -> bar -> before = foo -> bar -> after
+
+func FeatureCallsEqualToLiteralOr:
+	inputs: foo Foo(1..1)
+	output: is_event boolean (1..1)
+	assign-output is_event:
+		foo -> bar -> before = 5 or foo -> baz -> other = 5
+
+func FeatureCallListEqualToFeatureCall:
+	inputs: foo Foo(1..1)
+	output: is_event boolean (1..1)
+	assign-output is_event:
+		foo -> bar -> before = foo -> baz -> other
+
+func FeatureCallListNotEqualToFeatureCall:
+	inputs: foo Foo(1..1)
+	output: is_event boolean (1..1)
+	assign-output is_event:
+		foo -> bar -> before <> foo -> baz -> other
+		
+		
+func MultipleOrFeatureCallsEqualToMultipleOrFeatureCalls:
+	inputs: foo Foo(1..1)
+	output: is_event boolean (1..1)
+	alias values: [foo -> bar -> before, foo -> baz -> other]
+	assign-output is_event:
+		values contains foo -> bar -> after
+		or values contains foo -> baz -> bazValue
