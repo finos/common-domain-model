@@ -53,7 +53,6 @@ public class PartyInformationMappingProcessor extends MappingProcessor {
 			getMappings().add(new Mapping(inputPath, partyName, Path.parse("LegalAgreement.partyInformation.name"), partyName, null, false, false));
 			getMappings().add(new Mapping(inputPath, partyName, Path.parse("LegalAgreement.contractualParty.meta.externalKey"), partyName, null, false, false));
 		});
-
 	}
 
 	private PartyBuilder getParty(String partyId, String partyName) {
