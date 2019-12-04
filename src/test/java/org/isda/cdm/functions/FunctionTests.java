@@ -22,6 +22,11 @@ import org.junit.jupiter.api.Test;
 
 import com.google.inject.Inject;
 
+/**
+ * 
+ * 
+ * see test-alias-migration.rosetta model file
+ */
 public class FunctionTests extends AbstractFunctionTest {
 
 	@Inject
@@ -70,7 +75,7 @@ public class FunctionTests extends AbstractFunctionTest {
 		assertEquals(true, featureCallEqualToLiteral.evaluate(fooInstance));
 		assertEquals(true, featureCallEqualToFeatureCall.evaluate(fooInstance));
 		assertEquals(true, featureCallsEqualToLiteralOr.evaluate(fooInstance));
-		
+
 		assertEquals(true, featureCallListEqualToFeatureCall.evaluate(fooInstance));
 		assertEquals(false, featureCallListNotEqualToFeatureCall.evaluate(fooInstance));
 		assertEquals(true, multipleOrFeatureCallsEqualToMultipleOrFeatureCalls.evaluate(fooInstance));
