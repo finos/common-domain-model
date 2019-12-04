@@ -30,8 +30,8 @@ public class PartyInformationMappingProcessor extends MappingProcessor {
 	@Override
 	protected void map(List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
 		LegalAgreementBuilder legalAgreementBuilder = (LegalAgreementBuilder) parent;
-		addPartyInformation(legalAgreementBuilder, Path.parse("answers.parties.partyA_name"), "partyA");
-		addPartyInformation(legalAgreementBuilder, Path.parse("answers.parties.partyB_name"), "partyB");
+		addPartyInformation(legalAgreementBuilder, Path.parse("answers.partyA.parties.partyA_name"), "partyA");
+		addPartyInformation(legalAgreementBuilder, Path.parse("answers.partyA.parties.partyB_name"), "partyB");
 	}
 
 	private void addPartyInformation(LegalAgreementBuilder legalAgreementBuilder, Path inputPath, String partyId) {
