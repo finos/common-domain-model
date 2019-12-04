@@ -1,11 +1,10 @@
-# ISDA Create Projection
+# ISDA Create Document Structure
 
 _What is being released_
 
-- Bug Fix - small bug related to the Projection mapping of CDM type `CustodyArrangements` for `CsaInitialMargin2016NewYorkLaw` documents.
+- Update `ISDA Create` synonyms and ingestion to use their latest document structure.
 
 _Review Directions_
 
-In the Projection Panel in Rosetta Core, see:
-
-- Drag and drop any ISDA Create Initial Margin 2016 NY Law CDM document and will now be projected into JSON.
+In the Ingestion Panel, see:
+- ISDA-Create > any file, and see that the new document structure is now mapped into the CDM.
