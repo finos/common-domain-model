@@ -1066,13 +1066,10 @@ type SimmCalculationCurrency: <"A class to specify the ISDA SIMM Calculation Cur
 		[synonym ISDA_Create_1_0 value "partyA_use_other_currency"]
 		[synonym ISDA_Create_1_0 value "partyB_use_other_currency"]
 
-	condition SimmCalculationCurrency_baseCurrency: <"A data rule to enforce that, when the SIMM calculation currency is specified as the Base Currency, the currency attribute should not be specified.">
+	condition SimmCalculationCurrency_baseCurrency: <"A data rule to enforce that, when the SIMM calculation currency is specified as the Base Currency and vice versa">
 		if SimmCalculationCurrency -> isBaseCurrency = True
 		then SimmCalculationCurrency -> currency is absent
-
-	condition SimmCalculationCurrency_notBaseCurrency: <"A data rule to enforce that, when the SIMM calculation currency is specified as distinct from the Base Currency, the currency attribute should be specified.">
-		if SimmCalculationCurrency -> isBaseCurrency = False
-		then SimmCalculationCurrency -> currency exists
+		else SimmCalculationCurrency -> currency exists
 
 type SimmException: <"A class to specify the SIMM exception to the regulatory regime clause of the ISDA 2016 and 2018 CSA for Initial Margin as either a normalized value specified as part of an enumeration or a customized value specified of type string. ISDA 2016 Credit Support Annex for Initial Margin paragraph 13, Regime: SIMM Exception.">
 
