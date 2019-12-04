@@ -653,11 +653,12 @@ func Increase: <"The qualification of a increase event from the fact that (i) th
 	output: is_event boolean (1..1)
 	assign-output is_event:
 		(workflowEvent -> intent is absent or workflowEvent -> intent = IntentEnum -> Increase)
-		and (workflowEvent -> businessEvent -> primitives count = 1
-		and workflowEvent -> businessEvent -> primitives -> quantityChange exists
-		or (workflowEvent -> businessEvent -> primitives -> quantityChange
-		and workflowEvent -> businessEvent -> primitives -> transfer -> cashTransfer
-		) exists)
+		and (
+			workflowEvent -> businessEvent -> primitives count = 1
+			and workflowEvent -> businessEvent -> primitives -> quantityChange exists
+			or (workflowEvent -> businessEvent -> primitives -> quantityChange exists
+				and workflowEvent -> businessEvent -> primitives -> transfer -> cashTransfer exists
+			))
 		and QuantityBeforeQuantityChange(workflowEvent) -> numbers < QuantityAfterQuantityChange(workflowEvent) -> numbers
 		and workflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> closedState is absent
 
@@ -690,7 +691,7 @@ func Novation: <"The qualification of a novation event from the fact that (i) th
 		and workflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> closedState -> state = ClosedStateEnum -> Novated
 		and workflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> contractIdentifier <> workflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractIdentifier
 		and workflowEvent -> eventDate = workflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> tradeDate -> date
-		and workflowEvent -> effectiveDate = NovatedContractEffectiveDate(workflowEvent) -> date
+		and workflowEvent -> effectiveDate = NovatedContractEffectiveDate(workflowEvent) -> dates only-element
 
 //	and originalContractParties <> newContractParties
 func Observation: <"The qualification of an observation event from the fact that (i) the only primitive is the observation, and (ii) that there is only a single instance of such observation.">
@@ -709,7 +710,7 @@ func PartialNovation: <"The qualification of a novation event from the fact that
 		and workflowEvent -> businessEvent -> primitives -> inception exists
 		and workflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> contractIdentifier <> workflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractIdentifier
 		and workflowEvent -> eventDate = workflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> tradeDate -> date
-		and workflowEvent -> effectiveDate = NovatedContractEffectiveDate(workflowEvent) -> date
+		and workflowEvent -> effectiveDate = NovatedContractEffectiveDate(workflowEvent) -> dates
 		and QuantityBeforeQuantityChange(workflowEvent) -> numbers > QuantityAfterQuantityChange(workflowEvent) -> numbers
 		and QuantityAfterQuantityChange(workflowEvent) -> numbers > 0.0
 
@@ -722,14 +723,17 @@ func PartialTermination: <"The qualification of a partial termination event from
 		(workflowEvent -> intent is absent or workflowEvent -> intent = IntentEnum -> PartialTermination)
 		and (workflowEvent -> businessEvent -> primitives count = 1
 		and workflowEvent -> businessEvent -> primitives -> quantityChange exists
-		or (workflowEvent -> businessEvent -> primitives -> quantityChange and workflowEvent -> businessEvent -> primitives -> transfer -> cashTransfer) exists)
+			or (workflowEvent -> businessEvent -> primitives -> quantityChange exists
+				and workflowEvent -> businessEvent -> primitives -> transfer -> cashTransfer exists
+			))
+			// FIXME  Quantity Before/After QuantityChange uses group by which value could not be transfered as a List
 		and QuantityBeforeQuantityChange(workflowEvent) -> numbers > QuantityAfterQuantityChange(workflowEvent) -> numbers
 		and QuantityAfterQuantityChange(workflowEvent) -> numbers > 0.0
 		and workflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> closedState is absent
 
 func IsReset: <"The qualification of a reset event from the fact that the only primitive is the reset.">
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		workflowEvent WorkflowEvent (1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
 		workflowEvent -> businessEvent -> primitives count = 1
@@ -764,7 +768,9 @@ func Termination: <"The qualification of a termination event from the fact that 
 		(workflowEvent -> intent is absent or workflowEvent -> intent = IntentEnum -> Termination)
 		and (workflowEvent -> businessEvent -> primitives count = 1
 		and workflowEvent -> businessEvent -> primitives -> quantityChange exists
-		or (workflowEvent -> businessEvent -> primitives -> quantityChange and workflowEvent -> businessEvent -> primitives -> transfer -> cashTransfer) exists)
+			or (workflowEvent -> businessEvent -> primitives -> quantityChange exists 
+				and workflowEvent -> businessEvent -> primitives -> transfer -> cashTransfer exists)
+			)
 		and QuantityAfterQuantityChange(workflowEvent) -> numbers = 0.0
 		and workflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> closedState -> state = ClosedStateEnum -> Terminated
 

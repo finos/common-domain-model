@@ -1578,11 +1578,13 @@ func InterestRate_Fra:
 	inputs: eTerms EconomicTerms(1..1)
 	output: result boolean(1..1)
 		[synonym ISDA_Taxonomy_v1 value "InterestRate_Fra"]
+	alias effectiveDate: EffectiveDate(eTerms)
 	assign-output result:
 		eTerms -> payout -> interestRatePayout count = 2
 		and eTerms -> payout -> creditDefaultPayout is absent
 		and eTerms -> payout -> cashflow is absent
-		and EffectiveDate(eTerms) -> date contains PaymentDate(eTerms)
+		and effectiveDate -> dates exists
+		and effectiveDate -> dates contains PaymentDate(eTerms)
 
 func ForeignExchange: 
 	inputs: economicTerms EconomicTerms (1..1)

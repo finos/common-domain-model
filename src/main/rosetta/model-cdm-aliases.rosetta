@@ -13,8 +13,8 @@ func ForwardFX:
 func EffectiveDate:
 	inputs:
 		economicTerms EconomicTerms(1..1)
-	output: result DateList(0..1)
-	assign-output result -> date: [
+	output: result ListOfDates(1..1)
+	assign-output result -> dates: [
 			economicTerms -> effectiveDate -> adjustableDate -> adjustedDate,
 			economicTerms -> effectiveDate -> adjustableDate -> unadjustedDate,
 			economicTerms -> effectiveDate -> relativeDate -> adjustedDate,
@@ -31,14 +31,14 @@ func EffectiveDate:
 func NovatedContractEffectiveDate:
 	inputs:
 		workflowEvent WorkflowEvent(1..1)
-	output: result DateList(0..1)
+	output: result ListOfDates(1..1)
 	
-	alias eTerms: workflowEvent -> businessEvent -> primitives only-element -> inception -> after -> contract -> contractualProduct -> economicTerms
-	alias effectiveDate: eTerms -> effectiveDate
-	alias interestRatePayoutDate: eTerms -> payout -> interestRatePayout only-element -> calculationPeriodDates -> effectiveDate
-	alias equityPayoutDate: eTerms -> payout -> equityPayout only-element -> calculationPeriodDates -> effectiveDate
+	alias eTerms: workflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> contractualProduct -> economicTerms
+	alias effectiveDate: eTerms only-element -> effectiveDate
+	alias interestRatePayoutDate: eTerms only-element-> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate
+	alias equityPayoutDate: eTerms only-element-> payout -> equityPayout -> calculationPeriodDates -> effectiveDate
 	
-	assign-output result -> date: [
+	assign-output result -> dates: [
 			effectiveDate -> adjustableDate -> adjustedDate,
 			effectiveDate -> adjustableDate -> unadjustedDate,
 			effectiveDate -> relativeDate -> adjustedDate,
@@ -55,14 +55,19 @@ func PaymentDate: // Scope limited to interestPayout until such time that we pos
 	output: result date(0..1)
 	assign-output result: economicTerms -> payout -> interestRatePayout only-element -> paymentDate -> adjustedDate
 
-type NumberList:
-	numbers number(1..*)
+
+type ListOfDates:
+	dates date(0..*)
+
+type ListOfNumbers:
+	numbers number(0..*)
 
 func QuantityAfterQuantityChange: <"The alias to represent the quantity or notional amount in terms of number of units (i.e. ignoring the currency or units denomination) after a quantity change primitive.">
 	inputs:
 		workflowEvent WorkflowEvent(1..1)
-	output: result NumberList(1..1)
-	assign-output result -> numbers: [ 
+	output: result ListOfNumbers(1..1)
+	alias notionalAmountGroup: empty
+	assign-output result -> numbers: [
 		workflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity -> amount,
 		( workflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount group by currency ) -> amount,
 		( workflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule group by currency ) -> initialValue,
@@ -77,7 +82,7 @@ func QuantityAfterQuantityChange: <"The alias to represent the quantity or notio
 func QuantityBeforeQuantityChange: <"The alias to represent the quantity or notional amount in terms of number of units (i.e. ignoring the currency or units denomination) before a quantity change primitive.">
 	inputs:
 		workflowEvent WorkflowEvent(1..1)
-	output: result NumberList(1..1)
+	output: result ListOfNumbers(1..1)
 	assign-output result -> numbers: [
 		( workflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> quantity) -> amount,
 		( workflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount group by currency) -> amount,
@@ -92,11 +97,11 @@ func QuantityBeforeQuantityChange: <"The alias to represent the quantity or noti
 
 func TerminationDate: // Scope limited to interestPayout until such time that we position it to the economicTerms level
 	inputs: economicTerms EconomicTerms(1..1)
-	output: result DateList(0..1)
+	output: result ListOfDates(1..1)
 	alias interestRateTerminationDate: economicTerms -> payout -> interestRatePayout only-element -> calculationPeriodDates -> terminationDate
 	alias equityPayoutTerminationDate: economicTerms -> payout -> equityPayout only-element -> calculationPeriodDates -> terminationDate
 	
-	assign-output result -> date:
+	assign-output result -> dates:
 		[
 			economicTerms -> terminationDate -> adjustableDate -> adjustedDate,
 			economicTerms -> terminationDate -> adjustableDate -> unadjustedDate,

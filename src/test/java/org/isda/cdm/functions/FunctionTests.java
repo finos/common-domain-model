@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.math.BigDecimal;
 
-import org.isda.cdm.NumberList;
+import org.isda.cdm.ListOfNumbers;
 import org.isda.cdm.test.Bar;
 import org.isda.cdm.test.Bar.BarBuilder;
 import org.isda.cdm.test.Baz;
@@ -36,7 +36,7 @@ public class FunctionTests extends AbstractFunctionTest {
 	void collectGroupedItems() {
 		TypeToGroupBuilder input = TypeToGroup.builder().addManyAttr(createTypeToGroup("group1", 1))
 				.addManyAttr(createTypeToGroup("group1", 2));
-		NumberList evaluate = func.evaluate(input.build());
+		ListOfNumbers evaluate = func.evaluate(input.build());
 		assertEquals(2, evaluate.getNumbers().size(), "Do flatten");
 	}
 

@@ -11,16 +11,16 @@ import org.isda.cdm.*
 func TestPartialNovationFunc: <"">
 	inputs: wEvent WorkflowEvent (0..1)
 	output: result boolean (0..1)
-	assign-output result: NovatedContractEffectiveDate(wEvent) -> date only-element = wEvent -> effectiveDate
+	assign-output result: NovatedContractEffectiveDate(wEvent) -> dates only-element = wEvent -> effectiveDate
 
 func NovatedContractEffectiveDate2:
 
 	inputs: workflowEvent WorkflowEvent(1..1)
-	output: result DateList(0..1)
+	output: result ListOfDates(0..1)
 
 	alias eTerms: workflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> contractualProduct -> economicTerms
 
-	assign-output result -> date: [ 
+	assign-output result -> dates: [ 
 			eTerms -> effectiveDate -> adjustableDate -> adjustedDate,
 			eTerms -> effectiveDate -> adjustableDate -> unadjustedDate,
 			eTerms -> effectiveDate -> relativeDate -> adjustedDate,
@@ -35,7 +35,7 @@ func NovatedContractEffectiveDate2:
 func TestGroupBy:
 	inputs:
 		input1 TypeToGroup (0..1)
-	output: out NumberList (1..1)
+	output: out ListOfNumbers (1..1)
 	assign-output out -> numbers: [
 		(input1 -> manyAttr group by strAttr)-> numAttr 
 	]
