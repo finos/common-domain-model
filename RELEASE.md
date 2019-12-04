@@ -2,7 +2,7 @@
 
 _What is being released_
 
-- Update ISDA Create synonyms and ingestion to use their latest document structure.
+- Update `ISDA Create` synonyms and ingestion to use their latest document structure.
 - Bug fix for `ISDA Create` synonyms mapping of `MinimumTransferAmount` and `Threshold`.
 
 _Review Directions_
