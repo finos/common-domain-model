@@ -4,6 +4,7 @@ import com.regnosys.rosetta.common.translation.Mapping;
 import com.rosetta.model.lib.path.RosettaPath;
 import org.isda.cdm.ElectiveAmountElection;
 import org.isda.cdm.MinimumTransferAmount;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 
+@Disabled
 class MinimumTransferAmountMappingProcessorTest {
 
 	private static final String PARTY_A = "partyA";
@@ -27,6 +29,7 @@ class MinimumTransferAmountMappingProcessorTest {
 		// set up
 		RosettaPath rosettaPath = RosettaPath.valueOf("LegalAgreement.csdInitialMargin2016EnglishLaw.creditSupportObligations.minimumTransferAmount");
 		List<Mapping> mappings = new ArrayList<>();
+
 		MinimumTransferAmountBuilder builder = MinimumTransferAmount.builder()
 				.addPartyElectionBuilder(ElectiveAmountElection.builder()
 						.setParty(PARTY_A)
