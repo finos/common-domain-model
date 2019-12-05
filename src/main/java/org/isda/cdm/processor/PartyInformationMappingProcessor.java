@@ -40,18 +40,18 @@ public class PartyInformationMappingProcessor extends MappingProcessor {
 	}
 
 	private void addPartyInformation(LegalAgreementBuilder legalAgreementBuilder, String partyId) {
-		Path namePath = Path.parse(partyId + ".entity.name");
+		Path namePath = Path.parse("answers.partyA.parties." + partyId + "_name");
 		Optional<String> nameMapping = findMapping(namePath);
 
 		if (nameMapping.isPresent()) {
 			String name = nameMapping.get();
-			Path idPath = Path.parse(partyId + ".entity.id");
-			String id = findMapping(idPath).orElse(partyId);
-			updateModelAndMappings(legalAgreementBuilder, partyId, namePath, name, idPath, id);
+			String id = findMapping(Path.parse(partyId + ".entity.id"))
+					.orElse(findMapping(Path.parse(partyId + ".id")).orElse(partyId));
+			updateModelAndMappings(legalAgreementBuilder, partyId, namePath, name, id);
 		}
 	}
 
-	private void updateModelAndMappings(LegalAgreementBuilder legalAgreementBuilder, String partyId, Path namePath, String name, Path idPath, String id) {
+	private void updateModelAndMappings(LegalAgreementBuilder legalAgreementBuilder, String partyId, Path namePath, String name, String id) {
 		// Update model
 		legalAgreementBuilder
 				.addPartyInformationBuilder(getParty(partyId, id, name))
@@ -60,7 +60,6 @@ public class PartyInformationMappingProcessor extends MappingProcessor {
 		// Update mappings
 		getMappings().removeIf(m -> namePath.fullStartMatches(m.getXmlPath()));
 		getMappings().add(new Mapping(namePath, name, Path.parse("LegalAgreement.partyInformation.meta.id"), partyId, null, false, false));
-		getMappings().add(new Mapping(idPath, name, Path.parse("LegalAgreement.partyInformation.partyId"), id, null, false, false));
 		getMappings().add(new Mapping(namePath, name, Path.parse("LegalAgreement.partyInformation.name"), name, null, false, false));
 	}
 
