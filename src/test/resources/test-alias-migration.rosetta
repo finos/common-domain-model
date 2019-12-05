@@ -32,19 +32,36 @@ func NovatedContractEffectiveDate2:
 			eTerms -> payout -> equityPayout -> calculationPeriodDates -> effectiveDate -> relativeDate -> adjustedDate
 	]
 
-func TestGroupBy:
+func TestGroupBy: 
 	inputs:
 		input1 TypeToGroup (0..1)
 	output: out ListOfNumbers (1..1)
 	assign-output out -> numbers: [
-		(input1 -> manyAttr group by strAttr)-> numAttr 
+		(input1 -> manyAttr group by currency) -> amount 
 	]
+
+func TestBinaryOpGroupBy:
+	inputs:
+		op CompareOp (1..1)
+		input1 TypeToGroup (0..1)
+		input2 TypeToGroup (0..1)
+	output: out boolean (1..1)
+	assign-output out :  ListsCompare (op, TestGroupBy(input1), TestGroupBy(input2), empty)
+	
+	
+func TestBinaryOpWithNumberGroupBy:
+	inputs:
+		op CompareOp (1..1)
+		input1 TypeToGroup (0..1)
+		numberIn number (0..1)
+	output: out boolean (1..1)
+	assign-output out : ListsCompare (op, TestGroupBy(input1), empty, numberIn)
 	
 
 type TypeToGroup:
 	boolAttr boolean (0..1)
-	numAttr number (0..1)
-	strAttr string (0..1)
+	amount number (0..1)
+	currency string (0..1)
 	manyAttr TypeToGroup (1..*)
 
 type Foo:

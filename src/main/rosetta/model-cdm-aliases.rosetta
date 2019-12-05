@@ -61,6 +61,8 @@ type ListOfDates:
 
 type ListOfNumbers:
 	numbers number(0..*)
+	
+	
 
 func QuantityAfterQuantityChange: <"The alias to represent the quantity or notional amount in terms of number of units (i.e. ignoring the currency or units denomination) after a quantity change primitive.">
 	inputs:
@@ -94,6 +96,18 @@ func QuantityBeforeQuantityChange: <"The alias to represent the quantity or noti
 		( workflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount group by currency ) -> amount,
 		( workflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualQuantity -> quantityNotation group by assetIdentifier -> currency ) -> quantity -> amount
 	]
+
+func ListsCompare:
+	inputs:
+		compareOp CompareOp(1..1)
+		left ListOfNumbers (1..1)
+		right ListOfNumbers(0..1)
+		rightNumber number(0..1)
+	output: result boolean (1..1)
+
+enum CompareOp:
+	Greater
+	Equal
 
 func TerminationDate: // Scope limited to interestPayout until such time that we position it to the economicTerms level
 	inputs: economicTerms EconomicTerms(1..1)

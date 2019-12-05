@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.math.BigDecimal;
 
+import org.isda.cdm.CompareOp;
 import org.isda.cdm.ListOfNumbers;
 import org.isda.cdm.test.Bar;
 import org.isda.cdm.test.Bar.BarBuilder;
@@ -17,6 +18,8 @@ import org.isda.cdm.test.functions.FeatureCallListEqualToFeatureCall;
 import org.isda.cdm.test.functions.FeatureCallListNotEqualToFeatureCall;
 import org.isda.cdm.test.functions.FeatureCallsEqualToLiteralOr;
 import org.isda.cdm.test.functions.MultipleOrFeatureCallsEqualToMultipleOrFeatureCalls;
+import org.isda.cdm.test.functions.TestBinaryOpGroupBy;
+import org.isda.cdm.test.functions.TestBinaryOpWithNumberGroupBy;
 import org.isda.cdm.test.functions.TestGroupBy;
 import org.junit.jupiter.api.Test;
 
@@ -31,13 +34,31 @@ public class FunctionTests extends AbstractFunctionTest {
 
 	@Inject
 	TestGroupBy func;
+	@Inject
+	TestBinaryOpGroupBy testBinaryOpGroupBy;
+	@Inject
+	TestBinaryOpWithNumberGroupBy numberGroupBy;
 
 	@Test
 	void collectGroupedItems() {
-		TypeToGroupBuilder input = TypeToGroup.builder().addManyAttr(createTypeToGroup("group1", 1))
-				.addManyAttr(createTypeToGroup("group1", 2));
+		TypeToGroupBuilder input = TypeToGroup.builder().addManyAttr(createTypeToGroup("EU", 100))
+				.addManyAttr(createTypeToGroup("USD", 10)).addManyAttr(createTypeToGroup("A", 1));
 		ListOfNumbers evaluate = func.evaluate(input.build());
-		assertEquals(2, evaluate.getNumbers().size(), "Do flatten");
+		assertEquals(3, evaluate.getNumbers().size(), "Do flatten");
+	}
+
+	@Test
+	void compareGroupedItems() {
+		TypeToGroupBuilder input1 = TypeToGroup.builder().addManyAttr(createTypeToGroup("EU", 500))
+				.addManyAttr(createTypeToGroup("USD", 50)).addManyAttr(createTypeToGroup("A", 5));
+		TypeToGroupBuilder input2 = TypeToGroup.builder().addManyAttr(createTypeToGroup("EU", 200))
+				.addManyAttr(createTypeToGroup("USD", 20)).addManyAttr(createTypeToGroup("A", 2));
+
+		Boolean compareBoth = testBinaryOpGroupBy.evaluate(CompareOp.GREATER, input1.build(), input2.build());
+		assertEquals(true, compareBoth, "Compare grouped");
+		
+		Boolean compareWithNum = numberGroupBy.evaluate(CompareOp.GREATER, input1.build(), BigDecimal.valueOf(4));
+		assertEquals(true, compareWithNum, "Compare grouped");
 	}
 
 	@Inject
@@ -82,6 +103,6 @@ public class FunctionTests extends AbstractFunctionTest {
 	}
 
 	private TypeToGroup createTypeToGroup(String strAttr, int number) {
-		return TypeToGroup.builder().setStrAttr(strAttr).setNumAttr(BigDecimal.valueOf(number)).build();
+		return TypeToGroup.builder().setCurrency(strAttr).setAmount(BigDecimal.valueOf(number)).build();
 	}
 }
