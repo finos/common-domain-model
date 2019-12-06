@@ -212,13 +212,13 @@ func TransferCash: <"Function specification to build a transfer event following 
 		transferEvent WorkflowEvent (1..1)
 
 	alias contractState:
-		resetEvent -> businessEvent -> primitives only-element -> reset -> after
+		resetEvent -> businessEvent -> primitives -> reset -> after
 
 	condition: <"There must be a reset primitive on the event input, and the contract being referenced must be consistent between those events.">
 		resetEvent -> businessEvent -> primitives -> reset exists
 
 	assign-output transferEvent -> businessEvent -> primitives -> transfer:
-		NewCashTransferPrimitive(contractState, resetEvent -> eventDate)
+		NewCashTransferPrimitive(contractState only-element , resetEvent -> eventDate)
 
 	assign-output transferEvent -> lineage -> contractReference: <"Event lineage must point to the contract that generated the cashflow and the reset event.">
 		contractState -> contract as-key
