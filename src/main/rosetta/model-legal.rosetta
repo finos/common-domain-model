@@ -37,8 +37,8 @@ type AdditionalRightsEvent: <"A class to specify the Pledgor/Obligor/Chargor Add
 		[synonym ISDA_Create_1_0 value "specify"]
 
 	condition AdditionalRightsEvent_qualification: <"The Pledgor/Obligor/ChargorAdditional Rights should be qualified only when the Pledgor Additional Rights Event election is specified as applicable.">
-		if AdditionalRightsEvent -> qualification exists
-		then AdditionalRightsEvent -> isApplicable = True
+		if qualification exists
+		then isApplicable = True
 
 type AdditionalType: <"The specification of the Additional Type of transaction that can require the collection or delivery of initial margin under a given regulatory regime for the purposes of Covered Transactions, as specified in ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (b)(B).">
 
@@ -48,12 +48,12 @@ type AdditionalType: <"The specification of the Additional Type of transaction t
 		[synonym ISDA_Create_1_0 value "additional_type_specify"]
 
 	condition AdditionalType_customValue: <"The specification of a custom value by the parties to the legal agreement takes place alongside the qualification of the `Other` value as part of the AdditionalTypeEnum.">
-		if AdditionalType -> standardValue = AdditionalTypeEnum -> Other
-		then AdditionalType -> customValue exists
+		if standardValue = AdditionalTypeEnum -> Other
+		then customValue exists
 
 	condition AdditionalType_standardValue: <"The specification of a standard value by the parties to the legal agreement is done through the qualification of a value distinct than `Other` as part of the AdditionalTypeEnum, and implies that the customerValue is not being qualified.">
-		if AdditionalType -> standardValue <> AdditionalTypeEnum -> Other
-		then AdditionalType -> customValue is absent
+		if standardValue <> AdditionalTypeEnum -> Other
+		then customValue is absent
 
 type AmendmentEffectiveDate: <"A class to specify the effective date of the Amendment to Termination Currency. This date can be specified as either an actual date, a specific date (e.g. the annex date) or as a custom provision. ">
 
@@ -178,12 +178,12 @@ type AppropriatedCollateralValuation: <"A class to specify the Valuation of Appr
 		[synonym ISDA_Create_1_0 value "specify"]
 
 	condition AppropriatedCollateralValuation_specified: <"The Valuation of Appropriate Collateral election must be specified when it is applicable.">
-		if AppropriatedCollateralValuation -> isSpecified = True
-		then AppropriatedCollateralValuation -> election exists
+		if isSpecified = True
+		then election exists
 
 	condition AppropriatedCollateralValuation_notSpecified: <"The Valuation of Appropriate Collateral election cannot be specified when it is not applicable.">
-		if AppropriatedCollateralValuation -> isSpecified = False
-		then AppropriatedCollateralValuation -> election is absent
+		if isSpecified = False
+		then election is absent
 
 type CollateralManager: <"A class to specify the Collateral Manager election by the respective parties to a Japanese Law ISDA CSA. ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (b)(ii): Collateral Manager.">
 
@@ -492,8 +492,8 @@ type CustodianRisk: <"A class to specify the Custodian Risk (English Law and New
 		[synonym ISDA_Create_1_0 value "partyB_specify" set when "partyB_custodian_risk" = "other"]
 
 	condition CustodianRisk_specified: <"The Custodian Risk (English Law and New York Law ISDA CSA) or Collateral Manager Risk (Japanese Law ISDA CSA) should only be qualified if that risk is deemed 'specified'.">
-		if CustodianRisk -> isSpecified = False
-		then CustodianRisk -> qualification is absent
+		if isSpecified = False
+		then qualification is absent
 
 type CustodianTerms: <"A class to specify the requirements applicable to the custodian with respect to the holding of posted collateral. ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (h)(i): Eligibility to Hold Posted Collateral (VM) Custodians (VM).">
 	[synonym FpML_5_10 value "CustodianTerms"]
@@ -596,12 +596,12 @@ type ElectiveAmountElection: <"A class to specify the party elective amounts whi
 		required choice amount, customElection, noAmount
 
 	condition ElectiveAmountElection_noAmount: <"The noAmount attribute specifies a 0 amount election, with no associated currency.">
-		if ElectiveAmountElection -> noAmount exists
-		then ElectiveAmountElection -> noAmount = 0
+		if noAmount exists
+		then noAmount = 0
 
 	condition ElectiveAmountElection_amount: <"The amount attribute specifies a currency amount greater than 0.">
-		if ElectiveAmountElection -> amount exists
-		then ElectiveAmountElection -> amount -> amount > 0
+		if amount exists
+		then amount -> amount > 0
 
 type EligibilityToHoldCollateral: <"A class to specify the conditions under which a party and its custodian(s) are entitled to hold collateral. ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (h)(i): Eligibility to Hold Posted Collateral (VM) Custodians (VM).">
 	[synonym FpML_5_10 value "EligibilityToHoldCollateral"]
@@ -646,9 +646,9 @@ type EligibleCollateral: <"The collateral eligibility as a function of the types
 		[synonym ISDA_Create_1_0 value "valuation_percentage" path "partyB_eligible_currencies"]
 
 	condition EligibleCollateral_valuationPercentage: <"The valuation percentage should be specified as a value between 0 and 1.">
-		if EligibleCollateral -> valuationPercentage exists
-		then EligibleCollateral -> valuationPercentage >= 0
-			and EligibleCollateral -> valuationPercentage <= 1
+		if valuationPercentage exists
+		then valuationPercentage >= 0
+			and valuationPercentage <= 1
 
 type EligibleCollateralVariationMarginElection: <"A class to specify the parties' elections with respect to the eligible collateral for each of the respective parties when acting as a pledgor/chargor/obligor. ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (c)(ii): Eligible Collateral (VM).">
 
@@ -684,12 +684,12 @@ type FxHaircutCurrency: <"A class to specify the reference currency for the purp
 	condition: one-of
 
 	condition FxHaircutCurrency_terminationCurrency: <"The FX Designated Currency shouldn't be specified when the reference currency for the purpose of specifying the FX Haircut relating to a posting obligation is specified as the Termination Currency.">
-		if FxHaircutCurrency -> isTerminationCurrency = True
-		then FxHaircutCurrency -> fxDesignatedCurrency is absent
+		if isTerminationCurrency = True
+		then fxDesignatedCurrency is absent
 
 	condition FxHaircut_fxDesignatedCurrency: <"The FX Designated Currency should be specified when the reference currency for the purpose of specifying the FX Haircut relating to a posting obligation is specified as not being the Termination Currency.">
-		if FxHaircutCurrency -> isTerminationCurrency = False
-		then FxHaircutCurrency -> fxDesignatedCurrency exists
+		if isTerminationCurrency = False
+		then fxDesignatedCurrency exists
 
 type HoldingAndUsingPostedCollateral: <"A class to specify the elections for the holding and using of posted collateral by the respective parties to the Credit Support Annex for Variation Margin. ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (h): Holding and Using Posted Collateral (VM).">
 
@@ -878,12 +878,12 @@ type OneWayProvisions: <"A class to specify whether One Way Provisions apply in 
 		[synonym ISDA_Create_1_0 value "posting_party"]
 
 	condition OneWayProvisions_postingPartyReference_exists: <"A data rule to enforce that the Posting Party must be specified in the case where the One Way Provision is deemed applicable.">
-		if OneWayProvisions -> isApplicable = True
-		then OneWayProvisions -> postingParty exists
+		if isApplicable = True
+		then postingParty exists
 
 	condition OneWayProvisions_postingPartyReference_absent: <"A data rule to enforce that the Posting Party must not be specified in the case where the One Way Provision is not deemed applicable.">
-		if OneWayProvisions -> isApplicable = False
-		then OneWayProvisions -> postingParty is absent
+		if isApplicable = False
+		then postingParty is absent
 
 // TODO - Need to associate a more meaningful definition to the below class and attribute.  I couldn't find anything as part of the CSA terms.
 type OtherEligibleAndPostedSupport: <"A class to specify the Other Eligible Support elections associated with Japanese and New York Law Initial and Variation margin agreements. ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (p): Other Eligible Support (IM) and Other Posted Support (IM). | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (p): Other Eligible Support (IM) and Other Posted Support (IM). | ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (l): Other Eligible Support (VM) and Other Posted Support (VM).">
@@ -935,12 +935,12 @@ type PostingObligationsElection: <"A class to specify the collateral posting obl
 		[synonym ISDA_Create_1_0 value "partyB_additional_language"]
 
 	condition PostingObligationsElection_asPermitted: <"A data rule to enforce that the eligible collateral should be specified when the Control Agreement is a Credit Support Document with respect to the party(ies).">
-		if PostingObligationsElection -> asPermitted = True
-		then PostingObligationsElection -> eligibleCollateral is absent
+		if asPermitted = True
+		then eligibleCollateral is absent
 
 	condition PostingObligationsElection_eligibleCollateral: <"A data rule to enforce that the eligible collateral shouldn't be specified when the Control Agreement isn't deemed a Credit Support Document with respect to the party(ies).">
-		if PostingObligationsElection -> asPermitted = False
-		then PostingObligationsElection -> eligibleCollateral exists
+		if asPermitted = False
+		then eligibleCollateral exists
 
 
 type ProcessAgent: <"A class to specify the Process Agent that might be appointed by the parties to the agreement in accordance with the ISDA 2016 English Law CSA, paragraph 11(h). ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (t): Process Agent.">
@@ -965,12 +965,12 @@ type ProcessAgentElection: <"A class to specify the parties' respective election
 		[synonym ISDA_Create_1_0 value "partyB_specify" set when "partyB_process_agent" = "other"]
 
 	condition ProcessAgentElection_applicable: <"A data rule to enforce that the Process Agent must be specified when it is applicable.">
-		if ProcessAgentElection -> isApplicable = True
-		then ProcessAgentElection -> specification exists
+		if isApplicable = True
+		then specification exists
 
 	condition ProcessAgentElection_notApplicable: <"A data rule to enforce that the Process Agent cannot be specified if deemed not applicable.">
-		if ProcessAgentElection -> isApplicable = False
-		then ProcessAgentElection -> specification is absent
+		if isApplicable = False
+		then specification is absent
 
 type Regime: <"A class to specify the regulatory regimes elections by the respective parties a legal agreement. 2016 ISDA Credit Support Annex for Initial Margin: Regime.">
 	[synonym AcadiaSoft_AM_1_0 value "Regime"]
@@ -1014,12 +1014,12 @@ type RelatedAgreement: <"A class to specify a related legal agreement. ISDA 2016
 		[synonym ISDA_Create_1_0 value "specify"]
 
 	condition RelatedAgreement_notSpecified: <"A data rule to enforce that the related legal agreement should not be referenced if it is deemed as not specified as part of the boolean attribute.">
-		if RelatedAgreement -> isSpecified = False
-		then RelatedAgreement -> legalDocument is absent
+		if isSpecified = False
+		then legalDocument is absent
 
 	condition RelatedAgreement_specified: <"A data rule to enforce that the related legal agreement should be referenced if it is deemed as specified as part of the boolean attribute.">
-		if RelatedAgreement -> isSpecified = True
-		then RelatedAgreement -> legalDocument exists
+		if isSpecified = True
+		then legalDocument exists
 
 type ReturnAmount: <"A class to specify the application of Interest Amount with respect the Return Amount. ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(ii).">
 
@@ -1037,12 +1037,12 @@ type RightsEvent: <"A class to specify the Pledgor/Obligor/Chargor Rights Event 
 		[synonym ISDA_Create_1_0 value "specify"]
 
 	condition RightsEvent_includeCoolingOffLanguage: <"A data rule to enforce that, when the Rights Event election includes cooling off language, no custom election should be specified.">
-		if RightsEvent -> includeCoolingOffLanguage = True
-		then RightsEvent -> customElection is absent
+		if includeCoolingOffLanguage = True
+		then customElection is absent
 
 	condition RightsEvent_customElection: <"A data rule to enforce that, when the Rights Event is specified through a custom election, no standard cooling off language should be specified.">
-		if RightsEvent -> customElection exists
-		then RightsEvent -> includeCoolingOffLanguage = False
+		if customElection exists
+		then includeCoolingOffLanguage = False
 
 type SensitivityMethodology: <"A class to specify the methodology according to which sensitivities to (i) equity indices, funds and ETFs, and (ii) commodity indices are computed. This specification is done either through a normalized election as part of the specifiedMethodology, or through a custom election via the customMethodology attribute. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (gg)(2).">
 
@@ -1067,12 +1067,12 @@ type SimmCalculationCurrency: <"A class to specify the ISDA SIMM Calculation Cur
 		[synonym ISDA_Create_1_0 value "partyB_use_other_currency"]
 
 	condition SimmCalculationCurrency_baseCurrency: <"A data rule to enforce that, when the SIMM calculation currency is specified as the Base Currency, the currency attribute should not be specified.">
-		if SimmCalculationCurrency -> isBaseCurrency = True
-		then SimmCalculationCurrency -> currency is absent
+		if isBaseCurrency = True
+		then currency is absent
 
 	condition SimmCalculationCurrency_notBaseCurrency: <"A data rule to enforce that, when the SIMM calculation currency is specified as distinct from the Base Currency, the currency attribute should be specified.">
-		if SimmCalculationCurrency -> isBaseCurrency = False
-		then SimmCalculationCurrency -> currency exists
+		if isBaseCurrency = False
+		then currency exists
 
 type SimmException: <"A class to specify the SIMM exception to the regulatory regime clause of the ISDA 2016 and 2018 CSA for Initial Margin as either a normalized value specified as part of an enumeration or a customized value specified of type string. ISDA 2016 Credit Support Annex for Initial Margin paragraph 13, Regime: SIMM Exception.">
 
@@ -1093,12 +1093,12 @@ type SimmVersion: <"A class to specify the ISDA SIMM version that applies to the
 	version SpecifiedSimmVersion (0..1) <"When the SIMM version is specified, it will reference the party that uses such version.">
 
 	condition SimmVersion_version1: <"A data rule to enforce that the version attribute should be absent when the SIMM version is stated as not specified for the CSA.">
-		if SimmVersion -> isSpecified = False
-		then SimmVersion -> version is absent
+		if isSpecified = False
+		then version is absent
 
 	condition SimmVersion_version2: <"A data rule to enforce that the version attribute should be specified when the SIMM version is stated as specified for the CSA.">
-		if SimmVersion -> isSpecified = True
-		then SimmVersion -> version exists
+		if isSpecified = True
+		then version exists
 
 type SpecifiedSimmVersion: <"A class to specify the ISDA SIMM version applicable to one of the parties to the CSA agreement that will then be the relevant version for that CSA.">
 
@@ -1126,10 +1126,10 @@ type TerminationCurrencyAmendment: <"A class to specify the Amendment to Termina
 		[metadata scheme]
 		[synonym ISDA_Create_1_0 value "both_parties_termination_currency"]
 	condition TerminationCurrencyAmendment_applicable: <"The Amendment to Termination Currency elections only apply when the Amendment to Termination Currency is deemed applicable by the parties.">
-		if TerminationCurrencyAmendment -> isApplicable = False
-		then ( TerminationCurrencyAmendment -> effectiveDate 
-		and TerminationCurrencyAmendment -> terminationCurrency
-		and TerminationCurrencyAmendment -> bothPartiesCurrency	) is absent // TODO - Logic to be confirmed by testing NotApplicable
+		if isApplicable = False
+		then ( effectiveDate 
+		and terminationCurrency
+		and bothPartiesCurrency	) is absent // TODO - Logic to be confirmed by testing NotApplicable
 
 type TerminationCurrencyElection: <"A class to specify the Amendment to Termination Currency election by the parties to the agreement. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (t) (A) & (B).">
 

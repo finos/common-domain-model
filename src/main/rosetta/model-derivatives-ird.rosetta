@@ -111,31 +111,31 @@ type CalculationPeriodDates: <"A data for:  defining the parameters used to gene
 		[synonym FpML_5_10 value "calculationPeriodFrequency" path "interestLegCalculationPeriodDates->interestLegPaymentDates->periodicDates"]
 
 	condition FpML_ird_16: <"FpML validation rule ird-16 - If firstRegularPeriodStartDate exists within any element of type CalculationPeriodDates, then terminationDate/unadjustedDate must be after firstRegularPeriodStartDate. This data rule applies within a given interest rate payout component.">
-		if CalculationPeriodDates -> firstRegularPeriodStartDate exists
-		then CalculationPeriodDates -> terminationDate -> adjustableDate -> unadjustedDate > CalculationPeriodDates -> firstRegularPeriodStartDate
+		if firstRegularPeriodStartDate exists
+		then terminationDate -> adjustableDate -> unadjustedDate > firstRegularPeriodStartDate
 
 	condition FpML_ird_17: <"FpML validation rule ird-17 - If lastRegularPeriodEndDate exists, then terminationDate/unadjustedDate must be after lastRegularPeriodEndDate. This data rule applies within a given interest rate payout component.">
-		if CalculationPeriodDates -> lastRegularPeriodEndDate exists
-		then CalculationPeriodDates -> terminationDate -> adjustableDate -> unadjustedDate > CalculationPeriodDates -> lastRegularPeriodEndDate
+		if lastRegularPeriodEndDate exists
+		then terminationDate -> adjustableDate -> unadjustedDate > lastRegularPeriodEndDate
 
 	condition FpML_ird_18: <"FpML validation rule ird-18 - If firstRegularPeriodStartDate exists, and if lastRegularPeriodEndDate exists, then lastRegularPeriodEndDate must be after firstRegularPeriodStartDate. This data rule applies within a given interest rate payout component.">
-		if CalculationPeriodDates -> firstRegularPeriodStartDate exists
-			and CalculationPeriodDates -> lastRegularPeriodEndDate exists
-		then CalculationPeriodDates -> lastRegularPeriodEndDate > CalculationPeriodDates -> firstRegularPeriodStartDate
+		if firstRegularPeriodStartDate exists
+			and lastRegularPeriodEndDate exists
+		then lastRegularPeriodEndDate > firstRegularPeriodStartDate
 
 	condition FpML_ird_20: <"FpML validation rule ird-20 - If lastRegularPeriodEndDate exists, then lastRegularPeriodEndDate must be after effectiveDate/unadjustedDate. This data rule applies within a given interest rate payout component.">
-		if CalculationPeriodDates -> lastRegularPeriodEndDate exists
-		then CalculationPeriodDates -> lastRegularPeriodEndDate > CalculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
+		if lastRegularPeriodEndDate exists
+		then lastRegularPeriodEndDate > effectiveDate -> adjustableDate -> unadjustedDate
 
 	condition FpML_ird_21: <"FpML validation rule ird-21 - If firstPeriodStartDate exists, then firstPeriodStartDate/unadjustedDate must be before effectiveDate/unadjustedDate. This data rule applies within a given interest rate payout component.">
-		if CalculationPeriodDates -> firstPeriodStartDate exists
-			and CalculationPeriodDates -> effectiveDate exists
-		then CalculationPeriodDates -> firstPeriodStartDate -> unadjustedDate < CalculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
+		if firstPeriodStartDate exists
+			and effectiveDate exists
+		then firstPeriodStartDate -> unadjustedDate < effectiveDate -> adjustableDate -> unadjustedDate
 
 	condition FpML_ird_22: <"FpML validation rule ird-22 - If firstPeriodStartDate exists, and if firstRegularPeriodStartDate exists, then firstPeriodStartDate/unadjustedDate must be before firstRegularPeriodStartDate. This data rule applies within a given interest rate payout component.">
-		if CalculationPeriodDates -> firstPeriodStartDate exists
-			and CalculationPeriodDates -> firstRegularPeriodStartDate exists
-		then CalculationPeriodDates -> firstPeriodStartDate -> unadjustedDate < CalculationPeriodDates -> firstRegularPeriodStartDate
+		if firstPeriodStartDate exists
+			and firstRegularPeriodStartDate exists
+		then firstPeriodStartDate -> unadjustedDate < firstRegularPeriodStartDate
 
 type CancelableProvision extends BuyerSeller: <"A data defining:  the right of a party to cancel a swap transaction on the specified exercise dates. The provision is for 'walk-away' cancellation (i.e. the fair value of the swap is not paid). A fee payable on exercise can be specified. As a difference from the FpML construct, the canonical model extends the BuyerSeller class.">
 	[synonym FpML_5_10 value "CancelableProvision"]
@@ -255,8 +255,8 @@ type DiscountingMethod: <"A data defining:  discounting information. The 2000 IS
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "discountRateDayCountFraction" meta "dayCountFractionScheme"]
 
 	condition Discounting_discountRate: <"In FpML discountingRate and discountRateDayCountFraction are part of an optional node, with discountingRate as the required element as part of that node.">
-		if DiscountingMethod -> discountRateDayCountFraction exists
-		then DiscountingMethod -> discountRate exists
+		if discountRateDayCountFraction exists
+		then discountRate exists
 
 type EarlyTerminationEvent: <"A data to:  define the adjusted dates associated with an early termination provision.">
 	[metadata key]
@@ -276,15 +276,15 @@ type EarlyTerminationEvent: <"A data to:  define the adjusted dates associated w
 
 	condition FpML_ird_39: <"FpML validation rule ird-39 - AdjustedExerciseDate must be before or equal to adjustedEarlyTerminationDate.">
 		if EarlyTerminationEvent exists
-		then EarlyTerminationEvent -> adjustedExerciseDate <= EarlyTerminationEvent -> adjustedEarlyTerminationDate
+		then adjustedExerciseDate <= adjustedEarlyTerminationDate
 
 	condition FpML_ird_40: <"FpML validation rule ird-40 - AdjustedExerciseDate must be before or equal to adjustedCashSettlementValuationDate.">
 		if EarlyTerminationEvent exists
-		then EarlyTerminationEvent -> adjustedExerciseDate <= EarlyTerminationEvent -> adjustedCashSettlementValuationDate
+		then adjustedExerciseDate <= adjustedCashSettlementValuationDate
 
 	condition FpML_ird_41: <"FpML validation rule ird-41 - AdjustedCashSettlementValuationDate must be before or equal to adjustedCashSettlementPaymentDate.">
 		if EarlyTerminationEvent exists
-		then EarlyTerminationEvent -> adjustedCashSettlementValuationDate <= EarlyTerminationEvent -> adjustedCashSettlementPaymentDate
+		then adjustedCashSettlementValuationDate <= adjustedCashSettlementPaymentDate
 
 type EarlyTerminationProvision: <"A data defining:  an early termination provision for a swap. This early termination is at fair value, i.e. on termination the fair value of the product must be settled between the parties.">
 	[metadata key]
@@ -300,8 +300,8 @@ type EarlyTerminationProvision: <"A data defining:  an early termination provisi
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "optionalEarlyTerminationParameters"]
 	condition EarlyTerminationProvision_mandatoryEarlyTermination: <"The FpML MandatoryEarlyTermination.model specifies a required choice node. The choice node associated with the FpML EarlyTerminationProvision is quite complex and using the data rule provides a more flexible approach than adding complexity to the condition grammar.">
 		if EarlyTerminationProvision exists
-		then (EarlyTerminationProvision -> mandatoryEarlyTermination or EarlyTerminationProvision -> optionalEarlyTermination) exists
-			or (EarlyTerminationProvision -> mandatoryEarlyTermination and EarlyTerminationProvision -> optionalEarlyTermination) exists
+		then ( mandatoryEarlyTermination or optionalEarlyTermination) exists
+			or ( mandatoryEarlyTermination and optionalEarlyTermination) exists
 
 type ExerciseEvent: <"A data defining:  the adjusted dates associated with a particular exercise event.">
 	[metadata key]
@@ -366,7 +366,7 @@ type ExtensionEvent: <"A data to:  define the adjusted dates associated with an 
 
 	condition FpML_ird_42: <"FpML validation rule ird-42 - adjustedExerciseDate must be before adjustedExtendedTerminationDate.">
 		if ExtensionEvent exists
-		then ExtensionEvent -> adjustedExerciseDate < ExtensionEvent -> adjustedExtendedTerminationDate
+		then adjustedExerciseDate < adjustedExtendedTerminationDate
 
 type FallbackReferencePrice: <"The method, prioritised by the order it is listed in this element, to get a replacement rate for the disrupted settlement rate option.">
 	[synonym FpML_5_10 value "FallbackReferencePrice"]
@@ -381,8 +381,8 @@ type FallbackReferencePrice: <"The method, prioritised by the order it is listed
 	calculationAgentDetermination CalculationAgent (0..1) <"The calculation agent will decide the rate.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17, DTCC_11_0, DTCC_9_0 value "calculationAgentDetermination"]
 	condition ValuationPostponement_MaximumDaysOfPostponement: <"FpML specifies maximumDaysOfPostponement as a positive integer.">
-		if FallbackReferencePrice -> valuationPostponement exists
-		then FallbackReferencePrice -> valuationPostponement -> maximumDaysOfPostponement > 0
+		if valuationPostponement exists
+		then valuationPostponement -> maximumDaysOfPostponement > 0
 
 type FinalCalculationPeriodDateAdjustment: <"A data to:  define business date convention adjustment to final payment period per leg.">
 	[synonym FpML_5_10 value "FinalCalculationPeriodDateAdjustment"]
@@ -414,8 +414,8 @@ type FloatingRateDefinition: <"A data defining:  parameters associated with a fl
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "floorRate"]
 
 	condition FloatingRateDefinition_FloatingRateMultiplier: <"FpML specifies that the floatingRateMultiplier should only be included if different from 1.">
-		if FloatingRateDefinition -> floatingRateMultiplier exists
-		then FloatingRateDefinition -> floatingRateMultiplier <> 1
+		if floatingRateMultiplier exists
+		then floatingRateMultiplier <> 1
 
 type FxFixingDate extends Offset: <"A data that:  is extending the Offset structure for providing the ability to specify an FX fixing date as an offset to dates specified somewhere else in the document.">
 	[synonym FpML_5_10 value "FxFixingDate"]
@@ -505,8 +505,8 @@ type MandatoryEarlyTermination: <"A data to:  define an early termination provis
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "mandatoryEarlyTerminationAdjustedDates"]
 
 	condition FpML_ird_27: <"FpML validation rule ird-27 - cashSettlement/cashSettlementPaymentDate must not exist.">
-		if MandatoryEarlyTermination -> cashSettlement exists
-		then MandatoryEarlyTermination -> cashSettlement -> cashSettlementPaymentDate is absent
+		if cashSettlement exists
+		then cashSettlement -> cashSettlementPaymentDate is absent
 
 type MandatoryEarlyTerminationAdjustedDates: <"A data defining:  the adjusted dates associated with a mandatory early termination provision.">
 	[synonym FpML_5_10 value "MandatoryEarlyTerminationAdjustedDates"]
@@ -520,8 +520,8 @@ type MandatoryEarlyTerminationAdjustedDates: <"A data defining:  the adjusted da
 
 	condition FpML_ird_44: <"FpML validation rule ird-44 - AdjustedEarlyTerminationDate must be before or equal to adjustedCashSettlementValuationDate must be before or the same as adjustedCashSettlementPaymentDate">
 		if MandatoryEarlyTerminationAdjustedDates exists
-		then MandatoryEarlyTerminationAdjustedDates -> adjustedEarlyTerminationDate <= MandatoryEarlyTerminationAdjustedDates -> adjustedCashSettlementValuationDate
-			and MandatoryEarlyTerminationAdjustedDates -> adjustedCashSettlementValuationDate <= MandatoryEarlyTerminationAdjustedDates -> adjustedCashSettlementPaymentDate
+		then adjustedEarlyTerminationDate <= adjustedCashSettlementValuationDate
+			and adjustedCashSettlementValuationDate <= adjustedCashSettlementPaymentDate
 
 type NonDeliverableSettlement: <"A data defining:  the parameters used when the reference currency of the payout is non-deliverable.">
 	[synonym FpML_5_10 value "NonDeliverableSettlement"]
@@ -562,14 +562,14 @@ type NotionalStepRule: <"A data defining:  a parametric representation for the n
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "stepRelativeTo"]
 
 	condition NotionalStepRule_notionalStepAmount: <"FpML specifies a choice as part of the NotionalStepRule construct between the notionalStepAmount and the combination of notionalStepRate and stepRelativeTo.">
-		if NotionalStepRule -> notionalStepAmount exists
-		then NotionalStepRule -> notionalStepRate is absent
-			and NotionalStepRule -> stepRelativeTo is absent
+		if notionalStepAmount exists
+		then notionalStepRate is absent
+			and stepRelativeTo is absent
 
 	condition NotionalStepRule_notionalStepRate: <"FpML specifies a choice as part of the NotionalStepRule construct between the notionalStepAmount and the combination of notionalStepRate and stepRelativeTo.">
-		if NotionalStepRule -> notionalStepAmount is absent
-		then NotionalStepRule -> notionalStepRate exists
-			and NotionalStepRule -> stepRelativeTo exists
+		if notionalStepAmount is absent
+		then notionalStepRate exists
+			and stepRelativeTo exists
 
 type OptionalEarlyTermination: <"A data defining:  an early termination provision where either or both parties have the right to exercise.">
 	[synonym FpML_5_10 value "OptionalEarlyTermination"]
@@ -651,16 +651,16 @@ type PaymentCalculationPeriod: <"A data defining:  the adjusted payment date and
 	presentValueAmount Money (0..1) <"A monetary amount representing the present value of the forecast payment.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "presentValueAmount"]
 	condition CalculationPeriod_calculationPeriodNumberOfDays: <"FpML specifies calculationPeriodNumberOfDays as a positive integer.">
-		if PaymentCalculationPeriod -> calculationPeriod -> calculationPeriodNumberOfDays exists
-		then PaymentCalculationPeriod -> calculationPeriod -> calculationPeriodNumberOfDays >= 0
+		if calculationPeriod -> calculationPeriodNumberOfDays exists
+		then calculationPeriod -> calculationPeriodNumberOfDays >= 0
 
 	condition PaymentCalculationPeriod_choice: <"condition to represent an FpML choice construct.">
 		required choice calculationPeriod, fixedPaymentAmount
 
 	condition FpML_ird_34: <"FpML validation rule ird-34 - Either unadjustedPaymentDate or adjustedPaymentDate must exist.">
 		if PaymentCalculationPeriod exists
-		then PaymentCalculationPeriod -> unadjustedPaymentDate exists
-			or PaymentCalculationPeriod -> adjustedPaymentDate exists
+		then unadjustedPaymentDate exists
+			or adjustedPaymentDate exists
 
 type PriceSourceDisruption: <"A data defining:  the parameters used to get a price quote to replace the settlement rate option that is disrupted.">
 	[synonym FpML_5_10 value "PriceSourceDisruption"]
@@ -710,16 +710,16 @@ type ResetDates: <"A data defining:  the parameters used to generate the reset d
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "resetDatesAdjustments" path "resetDates"]
 
 	condition ResetDates_rateCutOffDaysOffset: <"FpML specifies that the rate cut-off number of days must be a negative integer with a value of zero would implying that no rate cut off applies, in which case the rateCutOffDaysOffset element should not be included.">
-		if ResetDates -> rateCutOffDaysOffset exists
-		then ResetDates -> rateCutOffDaysOffset -> periodMultiplier < 0
+		if rateCutOffDaysOffset exists
+		then rateCutOffDaysOffset -> periodMultiplier < 0
 
 	condition ResetFrequency_weekly: <"FpML specifies that the weeklyRollConvention must be specified as part of the reset frequency if and only if the reset frequency is defined as weekly. This data rule is focused on the first part of the assertion.">
-		if ResetDates -> resetFrequency -> period = PeriodExtendedEnum -> W
-		then ResetDates -> resetFrequency -> weeklyRollConvention exists
+		if resetFrequency -> period = PeriodExtendedEnum -> W
+		then resetFrequency -> weeklyRollConvention exists
 
 	condition ResetFrequency_notWeekly: <"FpML specifies that the weeklyRollConvention must be specified as part of the reset frequency if and only if the reset frequency is defined as weekly. This data rule is focused on the latter part of the assertion.">
-		if ResetDates -> resetFrequency -> period <> PeriodExtendedEnum -> W
-		then ResetDates -> resetFrequency -> weeklyRollConvention is absent
+		if resetFrequency -> period <> PeriodExtendedEnum -> W
+		then resetFrequency -> weeklyRollConvention is absent
 
 type SettlementProvision: <"A data defining:  the specification of settlement terms, occurring when the settlement currency is different to the notional currency of the trade.">
 	[synonym FpML_5_10 value "SettlementProvision"]

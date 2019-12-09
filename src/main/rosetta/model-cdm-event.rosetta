@@ -18,11 +18,11 @@ type AllocationOutcome: <"A class to specify the allocated outcome as the combin
 		[synonym Workflow_Event value "allocatedTrade"]
 	// TODO: move these data rule as a "post-condition" to the Allocation "Function Spec"
 	condition AllocationOutcome_executionClosed: <"The allocation outcome must result in execution state of 'Allocated' for an execution.">
-		if AllocationOutcome exists and AllocationOutcome -> originalTrade -> execution exists
-		then AllocationOutcome -> originalTrade -> execution -> closedState -> state = ClosedStateEnum -> Allocated
+		if AllocationOutcome exists and originalTrade -> execution exists
+		then originalTrade -> execution -> closedState -> state = ClosedStateEnum -> Allocated
 	condition AllocationOutcome_contractClosed: <"The allocation outcome must result in a contract state of 'Allocated' for a contract.">
-		if AllocationOutcome exists and AllocationOutcome -> originalTrade -> contract exists
-		then AllocationOutcome -> originalTrade -> contract -> closedState -> state = ClosedStateEnum -> Allocated
+		if AllocationOutcome exists and originalTrade -> contract exists
+		then originalTrade -> contract -> closedState -> state = ClosedStateEnum -> Allocated
 
 type CashTransferBreakdown extends TransferBreakdown:
 	payerReceiver PayerReceiver (1..1) <"The payer and receiver party information.">
@@ -221,12 +221,12 @@ type WorkflowEvent: <"A class to specify the lifecycle event. The associated ros
 	workflowEventState WorkflowEventState (0..1) <"The event workflow information, i.e. the workflow status, the associated comment and the partyCustomisedWorkflow which purpose is to provide the ability to associate custom workflow information to the CDM.">
 
 	condition Event_intent: <"The intent should only be associated with the primitives which use can lead to ambiguity with respect to the qualification of the event.">
-		if (WorkflowEvent -> businessEvent -> primitives -> allocation exists
-			or WorkflowEvent -> businessEvent -> primitives -> exercise exists
-			or WorkflowEvent -> businessEvent -> primitives -> inception exists
-			or WorkflowEvent -> businessEvent -> primitives -> observation exists
-			or WorkflowEvent -> businessEvent -> primitives -> reset exists)
-		then WorkflowEvent -> intent is absent
+		if ( businessEvent -> primitives -> allocation exists
+			or businessEvent -> primitives -> exercise exists
+			or businessEvent -> primitives -> inception exists
+			or businessEvent -> primitives -> observation exists
+			or businessEvent -> primitives -> reset exists)
+		then intent is absent
 
 type BusinessEvent: <"A business event is a collection of primitive events.">
 	primitives PrimitiveEvent (1..*) <"The elemental component(s) that specify the lifecycle events. Each of the primitive/elemental components listed as part of the PrimitiveEvent class has distinctive features that allow to specify the lifecycle event, either by itself or in combination with some other of such components.">
@@ -400,9 +400,9 @@ type ObservationSource: <"The observation source can be composed of an curve and
 		[synonym Workflow_Event value "informationSource"]
 	condition ObservationSource_content: <"ObservationSource should not be empty, although the attribute cardinality would allow that.">
 		if ObservationSource exists
-		then (ObservationSource -> curve exists and ObservationSource -> informationSource exists)
-			or ObservationSource -> curve exists
-			or ObservationSource -> informationSource exists
+		then ( curve exists and informationSource exists)
+			or curve exists
+			or informationSource exists
 
 type PartyCustomisedWorkflow: <"A class to specify a party-related, non-standardized data in a generic form.">
 	partyReference Party (0..1) <"Reference to the party to which the workflow pertains to.">
@@ -426,8 +426,8 @@ type PhysicalExercise: <"The physical exercise results into a financial product 
 	cashflow Cashflow (0..1) <"The cashflow component of the physical exercise.">
 		[synonym Workflow_Event value "cashflow"]
 	condition PhysicalExercise_quantity: <"The quantity attribute should only be associated with non-contractual products, as it is then expressed as part of the contractual terms.">
-		if PhysicalExercise -> product -> contractualProduct exists
-		then PhysicalExercise -> quantity is absent
+		if product -> contractualProduct exists
+		then quantity is absent
 
 type PostInceptionState extends ContractState:
 	creditLimitInformation CreditLimitInformation (0..1) <"Credit limit utilization information.">
@@ -583,15 +583,15 @@ func ClearedTrade:
 
 //isEvent ClearedTrade <"The cleared trade at the CCP.">
 //	WorkflowEvent -> businessEvent -> primitives count = 1
-//	and WorkflowEvent -> businessEvent -> primitives -> inception exists
-//	and WorkflowEvent -> workflowEventState -> workflowStatus = WorkflowStatusEnum -> Cleared
+//	and businessEvent -> primitives -> inception exists
+//	and workflowEventState -> workflowStatus = WorkflowStatusEnum -> Cleared
 /*
  * It is proposed to remove the below qualification for 2 reasons
  *  - Limit the scope of event qualification to evaluating what is available within the event, while the workflow rule evaluated across events
  *  - Not introduce the distinction between agency and principal model (with this latter having contracts between clearing members and clients)
  */
-//	and Event -> lineage -> @rosettaKey -> Event -> eventQualifier = eventQualifier.ClearingSubmission
-//	and Event -> lineage -> @rosettaKey -> Event -> eventQualifier = eventQualifier.ClearedTrade
+//	and lineage -> @rosettaKey -> eventQualifier = eventQualifier.ClearingSubmission
+//	and lineage -> @rosettaKey -> eventQualifier = eventQualifier.ClearedTrade
 func ClearingRejection: <"The rejection of an alpha trade submission by a CCP, which is qualified by the fact that (i) termsChange is the only primitive, the workflow status is `rejected`, and (iii) the CCP is positioned as a partyRole to the execution or contract in the after state, while it didn't exist in the before state.">
 	inputs:
 		workflowEvent WorkflowEvent(1..1)
@@ -805,7 +805,7 @@ func ContractFormationEvent: <"The qualification of a contractFormation event fr
  * workflow rule ClearedContractAgency_Participant <"The cross-events validity constraints to specify that a contract has been cleared according to the agency model from the perspective of the involved clearing member or client.">
  *    
  *    Event <beta> is ClearingSubmission
- * 	relatedTo <alpha> where Event -> lineage -> @rosettaKey -> Event -> eventQualifier = eventQualifier.ClearingSubmission
+ * 	relatedTo <alpha> where lineage -> @rosettaKey -> eventQualifier = eventQualifier.ClearingSubmission
  * 
  *    constraint is economicTerms are the same except for payerReceiver or buyerSeller
  *    and <alpha> contract/execution is terminated  *Difference*
@@ -816,8 +816,8 @@ func ContractFormationEvent: <"The qualification of a contractFormation event fr
  * workflow rule ClearedContractAgency_CCP <"The cross-events validity constraints to specify that a contract has been cleared according to the agency model from the perspective of the involved clearing member or client.">
  *    
  *    Event <beta> is ClearingSubmission
- * 	relatedTo <alpha> where Event -> lineage -> @rosettaKey -> Event -> eventQualifier = eventQualifier.ClearingSubmission
- * 	and relatedTo <gamma> where Event -> lineage -> @rosettaKey -> Event -> eventQualifier = eventQualifier.ClearedTrade *Difference*
+ * 	relatedTo <alpha> where lineage -> @rosettaKey -> eventQualifier = eventQualifier.ClearingSubmission
+ * 	and relatedTo <gamma> where lineage -> @rosettaKey -> eventQualifier = eventQualifier.ClearedTrade *Difference*
  * 	
  *    constraint is economicTerms are the same except for payerReceiver or buyerSeller
  *    and event date of <alpha> submission = trade date of <beta>
@@ -827,8 +827,8 @@ func ContractFormationEvent: <"The qualification of a contractFormation event fr
  * workflow rule ClearedContractPrincipal_Participant <"The cross-events validity constraints to specify that a contract has been cleared according to the principal model from the perspective of the involved clearing member or client.">
  *   
  *   Event <beta> is ClearingSubmission
- * 	relatedTo <alpha> where Event -> lineage -> @rosettaKey -> Event -> eventQualifier = eventQualifier.ClearingSubmission
- * 	relatedTo <theta> where Event -> lineage -> @rosettaKey -> Event -> eventQualifier = eventQualifier.NewTrade or eventQualifier.ClearedTrade???? *Difference*
+ * 	relatedTo <alpha> where lineage -> @rosettaKey -> eventQualifier = eventQualifier.ClearingSubmission
+ * 	relatedTo <theta> where lineage -> @rosettaKey -> eventQualifier = eventQualifier.NewTrade or eventQualifier.ClearedTrade???? *Difference*
 
  *   constraint is economicTerms are the same except for payerReceiver or buyerSeller
  *   and <alpha> contract/execution is terminated  *Difference*
@@ -839,8 +839,8 @@ func ContractFormationEvent: <"The qualification of a contractFormation event fr
  * workflow rule ClearedContractPrincipal_CCP <"The cross-events validity constraints to specify that a contract has been cleared according to the principal model from the perspective of the involved clearing member or client.">
  *    
  *    Event <beta> is ClearingSubmission
- * 	relatedTo <alpha> where Event -> lineage -> @rosettaKey -> Event -> eventQualifier = eventQualifier.ClearingSubmission
- * 	and relatedTo <gamma> where Event -> lineage -> @rosettaKey -> Event -> eventQualifier = eventQualifier.ClearedTrade *Difference*
+ * 	relatedTo <alpha> where lineage -> @rosettaKey -> eventQualifier = eventQualifier.ClearingSubmission
+ * 	and relatedTo <gamma> where lineage -> @rosettaKey -> eventQualifier = eventQualifier.ClearedTrade *Difference*
  * 	
  *    constraint is economicTerms are the same except for payerReceiver or buyerSeller
  *    and event date of <alpha> submission = trade date of <beta>
