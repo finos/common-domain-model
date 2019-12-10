@@ -5,7 +5,6 @@ import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 import org.isda.cdm.ElectiveAmountElection;
-import org.isda.cdm.MinimumTransferAmount.MinimumTransferAmountBuilder;
 import org.isda.cdm.Money;
 import org.isda.cdm.metafields.FieldWithMetaString;
 
@@ -14,24 +13,22 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import static org.isda.cdm.Threshold.ThresholdBuilder;
+
 /**
  * ISDA Create mapping processor.
- *
- * If partyElection.customElection is "zero" then set partyElection.noAmount to 0.
  */
-public class MinimumTransferAmountMappingProcessor extends MappingProcessor {
+public class ThresholdMappingProcessor extends MappingProcessor {
 
-	private static final String ZERO = "zero";
-
-	public MinimumTransferAmountMappingProcessor(RosettaPath rosettaPath, List<Mapping> mappings) {
+	public ThresholdMappingProcessor(RosettaPath rosettaPath, List<Mapping> mappings) {
 		super(rosettaPath, mappings);
 	}
 
 	@Override
 	public void map(RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
-		MinimumTransferAmountBuilder minimumTransferAmountBuilder = (MinimumTransferAmountBuilder) builder;
-		addMinimumTransferAmount(minimumTransferAmountBuilder, "partyA");
-		addMinimumTransferAmount(minimumTransferAmountBuilder, "partyB");
+		ThresholdBuilder thresholdBuilder = (ThresholdBuilder) builder;
+		addThreshold(thresholdBuilder, "partyA");
+		addThreshold(thresholdBuilder, "partyB");
 	}
 
 	@Override
@@ -39,21 +36,18 @@ public class MinimumTransferAmountMappingProcessor extends MappingProcessor {
 		// Do nothing
 	}
 
-	private void addMinimumTransferAmount(MinimumTransferAmountBuilder minimumTransferAmountBuilder, String party) {
+	private void addThreshold(ThresholdBuilder thresholdBuilder, String party) {
 		Money.MoneyBuilder moneyBuilder = Money.builder();
-		findMapping(Path.parse(String.format("answers.partyA.minimum_transfer_amount.%s_amount", party))).map(BigDecimal::new).ifPresent(moneyBuilder::setAmount);
-		findMapping(Path.parse(String.format("answers.partyA.minimum_transfer_amount.%s_currency", party))).map(this::toFieldWithMetaString).ifPresent(moneyBuilder::setCurrency);
+		findMapping(Path.parse(String.format("answers.partyA.threshold.%s_amount", party))).map(BigDecimal::new).ifPresent(moneyBuilder::setAmount);
+		findMapping(Path.parse(String.format("answers.partyA.threshold.%s_currency", party))).map(this::toFieldWithMetaString).ifPresent(moneyBuilder::setCurrency);
 
 		ElectiveAmountElection.ElectiveAmountElectionBuilder electiveAmountElectionBuilder = ElectiveAmountElection.builder().setAmountBuilder(moneyBuilder);
-		findMapping(Path.parse(String.format("answers.partyA.minimum_transfer_amount.%s_minimum_transfer_amount", party))).ifPresent(t -> {
+		findMapping(Path.parse(String.format("answers.partyA.threshold.%s_threshold", party))).ifPresent(t -> {
 			electiveAmountElectionBuilder.setParty(party);
 			electiveAmountElectionBuilder.setCustomElection(t);
-			if (ZERO.equals(t)) {
-				electiveAmountElectionBuilder.setNoAmount(0);
-			}
 		});
 
-		minimumTransferAmountBuilder.addPartyElectionBuilder(electiveAmountElectionBuilder);
+		thresholdBuilder.addPartyElectionBuilder(electiveAmountElectionBuilder);
 	}
 
 	private FieldWithMetaString toFieldWithMetaString(String c) {

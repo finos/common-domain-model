@@ -15,6 +15,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * ISDA Create mapping processor.
+ * <p>
+ * Sets LegalAgreement.partyInformation and LegalAgreement.contractualParty
+ */
 @SuppressWarnings("unused")
 public class PartyInformationMappingProcessor extends MappingProcessor {
 
@@ -30,31 +35,38 @@ public class PartyInformationMappingProcessor extends MappingProcessor {
 	@Override
 	protected void map(List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
 		LegalAgreementBuilder legalAgreementBuilder = (LegalAgreementBuilder) parent;
-		addPartyInformation(legalAgreementBuilder, Path.parse("answers.parties.partyA_name"), "partyA");
-		addPartyInformation(legalAgreementBuilder, Path.parse("answers.parties.partyB_name"), "partyB");
+		addPartyInformation(legalAgreementBuilder, "partyA");
+		addPartyInformation(legalAgreementBuilder, "partyB");
 	}
 
-	private void addPartyInformation(LegalAgreementBuilder legalAgreementBuilder, Path inputPath, String partyId) {
-		findMapping(inputPath).ifPresent(partyName -> {
-			// Update model
-			legalAgreementBuilder
-					.addPartyInformationBuilder(getParty(partyId, partyName))
-					.addContractualParty(ReferenceWithMetaParty.builder().setExternalReference(partyId).build());
+	private void addPartyInformation(LegalAgreementBuilder legalAgreementBuilder, String partyId) {
+		Path namePath = Path.parse("answers.partyA.parties." + partyId + "_name");
+		Optional<String> nameMapping = findMapping(namePath);
 
-			// Update mappings
-			getMappings().removeIf(m -> inputPath.fullStartMatches(m.getXmlPath()));
-			getMappings().add(new Mapping(inputPath, partyName, Path.parse("LegalAgreement.partyInformation.meta.id"), partyId, null, false, false));
-			getMappings().add(new Mapping(inputPath, partyName, Path.parse("LegalAgreement.partyInformation.partyId"), partyId, null, false, false));
-			getMappings().add(new Mapping(inputPath, partyName, Path.parse("LegalAgreement.partyInformation.name"), partyName, null, false, false));
-			getMappings().add(new Mapping(inputPath, partyName, Path.parse("LegalAgreement.contractualParty.meta.externalKey"), partyName, null, false, false));
-		});
-
+		if (nameMapping.isPresent()) {
+			String name = nameMapping.get();
+			String id = findMapping(Path.parse(partyId + ".entity.id"))
+					.orElse(findMapping(Path.parse(partyId + ".id")).orElse(partyId));
+			updateModelAndMappings(legalAgreementBuilder, partyId, namePath, name, id);
+		}
 	}
 
-	private PartyBuilder getParty(String partyId, String partyName) {
+	private void updateModelAndMappings(LegalAgreementBuilder legalAgreementBuilder, String partyId, Path namePath, String name, String id) {
+		// Update model
+		legalAgreementBuilder
+				.addPartyInformationBuilder(getParty(partyId, id, name))
+				.addContractualParty(ReferenceWithMetaParty.builder().setExternalReference(partyId).build());
+
+		// Update mappings
+		getMappings().removeIf(m -> namePath.fullStartMatches(m.getXmlPath()));
+		getMappings().add(new Mapping(namePath, name, Path.parse("LegalAgreement.partyInformation.meta.id"), partyId, null, false, false));
+		getMappings().add(new Mapping(namePath, name, Path.parse("LegalAgreement.partyInformation.name"), name, null, false, false));
+	}
+
+	private PartyBuilder getParty(String externalReference, String id, String partyName) {
 		return Party.builder()
-				.setMetaBuilder(MetaFields.builder().setExternalKey(partyId))
-				.addPartyId(FieldWithMetaString.builder().setValue(partyId).build())
+				.setMetaBuilder(MetaFields.builder().setExternalKey(externalReference))
+				.addPartyId(FieldWithMetaString.builder().setValue(id).build())
 				.setNameRef(partyName);
 	}
 

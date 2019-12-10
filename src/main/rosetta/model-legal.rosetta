@@ -299,7 +299,7 @@ type CreditRatingDebt: <"The credit rating debt type(s) associated with the cred
 type CreditSupportObligationsInitialMargin: <"A class to specify the Credit Support Obligations applicable to the Initial Margin Credit Support Annex and which are common among the English, Japanese and New York governing laws. This excludes the Other Eligible Support election (which only applies to the Japanese Law and New York Law agreements) and the Transfer Timing election (which only applies to the English Law and the New York Law agreements). ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (c): Credit Support Obligations. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d): Credit Support Obligations. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (c): Credit Support Obligations.">
 
 	threshold Threshold (1..1) <"The amount of net exposure that a party is willing to bear in relation to the other party before it requires asking for collateral. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (c)(vi)(A): Threshold. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d)(vi)(A): Threshold. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (c)(vi)(A): Threshold.">
-		[synonym ISDA_Create_1_0 value "threshold"]
+		[synonym ISDA_Create_1_0 value "threshold" mapper "Threshold"]
 	minimumTransferAmount MinimumTransferAmount (1..1) <"The net amount of exposure reached before collateral has to be posted or returned. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (c)(vi)(B): Minimum Transfer Amount. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d)(vi)(B): Minimum Transfer Amount. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (c)(vi)(B): Minimum Transfer Amount.">
 		[synonym ISDA_Create_1_0 value "minimum_transfer_amount" mapper "MinimumTransferAmount"]
 	rounding CollateralRounding (1..1) <"The rounding methodology applicable to the Delivery Amount and the Return Amount in terms of nearest integral multiple of Base Currency units. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (c)(vi)(C): Rounding. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d)(vi)(C): Rounding. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (c)(vi)(C): Rounding.">
@@ -318,8 +318,12 @@ type CreditSupportObligationsVariationMargin: <"A class to specify the Credit Su
 	minimumTransferAmount MinimumTransferAmount (1..1) <"The net amount of exposure reached before collateral has to be posted or returned. ISDA 2016 New York Law Credit Support Annex for Variation Margin, paragraph 13, (c)(vii)(A): Minimum Transfer Amount.">
 	rounding CollateralRounding (1..1) <"The rounding methodology applicable to the Delivery Amount and the Return Amount in terms of nearest integral multiple of Base Currency units. ISDA 2016 New York Law Credit Support Annex for Variation Margin, paragraph 13, (c)(vii)(B): Rounding.">
 
+type Csa: <"An abstract class to specify the provisions for a ISDA Credit Support Annex that are common among vintages, governing laws and across IM and VM.">
 
-type Csa2016: <"An abstract class to specify the provisions for the 2016 ISDA Credit Support Annex that are common among governing laws and across Initial and Variation Margin.">
+	documentationIdentification DocumentationIdentification (0..1) <"The identification of the legal document(s) that govern the contract through some of the key terms of such document(s): type of document, the document identifier, the publisher, the document vintage and the agreement date.">
+
+
+type Csa2016 extends Csa: <"An abstract class to specify the provisions for the 2016 ISDA Credit Support Annex that are common among governing laws and across Initial and Variation Margin.">
 
 	baseCurrency string (1..1) <"The base currency for the Credit Support Annex document as elected by the parties to the agreement. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes. ISDA 2016 CSA for Initial Margin, Paragraph 13 (a) | ISDA 2016 CSA for Variation Margin, Paragraph 13 (a).">
 		[metadata scheme]
@@ -579,18 +583,9 @@ type DistributionAndInterestPayment: <"A class to specify the Distributions and 
 type ElectiveAmountElection: <"A class to specify the party elective amounts which can be used for the purpose of specifying elections such as the ISDA CSA Threshold and Minimum Transfer Amount.">
 
 	party string (1..1) <"The elective party.">
-		[synonym ISDA_Create_1_0 set to "partyA" when path = "partyA_threshold", 
-								 set to "partyB" when path = "partyB_threshold"]
-		[synonym ISDA_Create_1_0 set to "partyA" when path = "partyA_minimum_transfer_amount", 
-								 set to "partyB" when path = "partyB_minimum_transfer_amount"]
 	amount Money (0..1) <"The elective amount when expressed as a currency amount. The associated PartyElectiveAmount_amount data rule enforces that the currency amount is actually greater than 0.">
 	customElection string (0..1) <"The elective amount when expressed as a custom election by the party.">
-		[synonym ISDA_Create_1_0 value "partyA_minimum_transfer_amount"]
-		[synonym ISDA_Create_1_0 value "partyB_minimum_transfer_amount"]
-		[synonym ISDA_Create_1_0 value "partyA_threshold"]
-		[synonym ISDA_Create_1_0 value "partyB_threshold"]
 	noAmount int (0..1) <"The elective amount when specified as 0 with no associated currency. The associated PartyElectiveAmount_noAmount data rule enforces that the number is actually equal to 0.">
-        // noAmount mapped by MinimumTransferAmount mapping processor
 
 	condition ElectiveAmountElection_choice: <"The elective amount is specified either as a currency amount, a custom election or a 0 amount with no associated currency.">
 		required choice amount, customElection, noAmount
@@ -754,11 +749,11 @@ type MasterConfirmationBase: <"Legal agreement specification for General Terms a
 type LegalAgreement extends LegalAgreementBase: <"A class to specify the elections and variables that characterize a legal agreement.">
 	[metadata key]
 	csdInitialMargin2016EnglishLaw CsdInitialMargin2016EnglishLaw (0..1) <"The elections and variables specified in Paragraph 13 of the ISDA 2016 Credit Support Deed for Initial Margin, English Law.">
-		[synonym ISDA_Create_1_0 value "answers" set when "document->governingLaw" = "English"]
+		[synonym ISDA_Create_1_0 value "partyA" path "answers" set when "document->abbreviation" = "2016 IM CSD (Eng Law)"]
 	csaInitialMargin2016JapaneseLaw CsaInitialMargin2016JapaneseLaw (0..1) <"The elections and variables specified in Paragraph 13 of the ISDA 2016 Credit Support Annex for Initial Margin, Japanese Law.">
-		[synonym ISDA_Create_1_0 value "answers" set when "document->governingLaw" = "Japanese"]
+		[synonym ISDA_Create_1_0 value "partyA" path "answers" set when "document->abbreviation" = "2016 IM CSA (Jpn Law)"]
 	csaInitialMargin2016NewYorkLaw CsaInitialMargin2016NewYorkLaw (0..1) <"The elections and variables specified in Paragraph 13 of the ISDA 2016 Credit Support Annex for Initial Margin, New York Law.">
-		[synonym ISDA_Create_1_0 value "answers" set when "document->governingLaw" = "New York"]
+		[synonym ISDA_Create_1_0 value "partyA" path "answers" set when "document->abbreviation" = "2016 IM CSA (NY Law)"]
 	csaVariationMargin2016NewYorkLaw CsaVariationMargin2016NewYorkLaw (0..1) <"The elections and variables specified in Paragraph 13 of the ISDA 2016 Credit Support Annex for Variation Margin, New York Law.">
 		[synonym ISDA_Create_1_0 value "ignore"]
 	equitySwapMasterConfirmation2018 EquitySwapMasterConfirmation2018 (0..1) <"The General Terms and Relationship Supplement Elections specified in the 2018 ISDA CDM Equity Confirmation for Security Equity Swap.">
@@ -769,12 +764,11 @@ type LegalAgreementBase: <"A class describing the legal agreement baseline infor
 
 	agreementDate date (1..1) <"The date on which the legal agreement has been agreed between the parties. This corresponds to the Date of Deed in an English Law document.">
 		[synonym FpML_5_10 value "agreementDate" path "legalDocumentHeader"]
-		[synonym ISDA_Create_1_0 value "executionDate" path "answers->execution_date"]
+		[synonym ISDA_Create_1_0 value "executionDate" path "answers->partyA->execution_date"]
 	effectiveDate date (0..1) <"The date on which the agreement is effective, if different from the agreement date. It is expected that it will most often correspond to the agreement date, although there could be situations where the parties will explicitly agree on a distinct effective date.">
 		[synonym FpML_5_10 value "effectiveDate" path "legalDocumentHeader"]
 	identifier Identifier (0..*) <"The legal agreement identifier. Several identifiers can be specified.">
 		[synonym FpML_5_10 value "partyDocumentIdentifier" path "legalDocumentHeader"]
-		[synonym ISDA_Create_1_0 value "document"]
 	/*
 	 * The ISDA Create template for the Japanese Law 2016 CSA includes an election that qualifies whether the related master agreement pertains to the 1992 or the 2002 vintage.
 	 * This election hasn't been included so far as part of the CDM because it is felt that it introduces a risk of inconsistency with respect to the actual document reference,
