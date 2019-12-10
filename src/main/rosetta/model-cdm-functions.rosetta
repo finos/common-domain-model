@@ -121,18 +121,18 @@ func NewContractFormationPrimitive: <"Function specification to create a fully-f
 
 	assign-output contract -> partyRole:
 		execution -> partyRole
-
+ 
 	assign-output contract -> party:
 		execution -> party
 
 	assign-output contract -> contractualQuantity:
 		execution -> executionQuantity
 
-//	assign-output contract -> contractualPrice:
-//		if execution -> price exists then execution -> price
+	assign-output contract -> contractualPrice:
+		if execution -> price exists then execution -> price
 
-//	assign-output contract -> documentation -> legalAgreement: <"When an overlaying legal agreement exists, the contract must reference it.">
-//		if legalAgreement exists then legalAgreement
+	assign-output contract -> documentation -> legalAgreement: <"When an overlaying legal agreement exists, the contract must reference it.">
+		if legalAgreement exists then legalAgreement
 
 func Reset:
 	inputs:
@@ -375,7 +375,7 @@ func NewQuantityChangePrimitive: <"A specification of the inputs, outputs and co
 		if quantityChangePrimitive -> before -> execution exists then quantityChangePrimitive -> after -> execution exists
 			and if quantityChangePrimitive -> before -> contract exists then quantityChangePrimitive -> after -> contract exists
 
-func NewTerminatedContractPrimitive: <"A specification ">
+func NewTerminatedContractPrimitive: <"A specification for terminating a contract. A QuantityChangePrimitive is created with the after set with quantity of 0, and the closed state to be Terminated.">
 	inputs:
 		contract Contract (1..1)
 
@@ -396,30 +396,44 @@ func EvaluatePortfolioState: <"Function specification to evaluate a portfolio's 
 	output:
 		portfolioState PortfolioState (1..1) <"Portfolio state containing the aggregated positions based on the input aggregation parameters.">
 
-func TerminateExecution:
-	inputs:
-		execution Execution (1..1)
-
-	output:
-		terminatedExecution Execution (1..1)
-
-	assign-output terminatedExecution: <"Correctly populate the before attributes on the Primitive Event">
-        execution
-
-	assign-output terminatedExecution -> executionQuantity -> quantityNotation -> quantity -> amount: <"Correctly populate the before attributes on the Primitive Event">
-        0.0
-
 func TerminateContract:
 	inputs:
 		contract Contract (1..1)
 
 	output:
 		terminatedContract Contract (1..1)
+				
+	assign-output terminatedContract -> contractIdentifier:
+		contract -> contractIdentifier
+	assign-output terminatedContract -> tradeDate:
+		contract -> tradeDate
+	assign-output terminatedContract -> clearedDate:
+		contract -> clearedDate
+	assign-output terminatedContract -> contractualProduct:
+		contract -> contractualProduct
+	assign-output terminatedContract -> contractualPrice:
+		contract -> contractualPrice
+	assign-output terminatedContract -> collateral:
+		contract -> collateral
+	assign-output terminatedContract -> documentation:
+		contract -> documentation
+	assign-output terminatedContract -> governingLaw:
+		contract -> governingLaw
+	assign-output terminatedContract -> party:
+		contract -> party
+	assign-output terminatedContract -> account:
+		contract -> account
+	assign-output terminatedContract -> partyRole:
+		contract -> partyRole
+	assign-output terminatedContract -> calculationAgent:
+		contract -> calculationAgent
+	assign-output terminatedContract -> partyContractInformation:
+		contract -> partyContractInformation
 
-	assign-output terminatedContract: <"Correctly populate the before attributes on the Primitive Event">
-        contract
-
-	assign-output terminatedContract -> contractualQuantity -> quantityNotation -> quantity -> amount: <"Correctly populate the before attributes on the Primitive Event">
+	assign-output terminatedContract -> closedState -> state: <"Set the closed state on the terminatedContract">
+		ClosedStateEnum -> Terminated
+				
+	assign-output terminatedContract -> contractualQuantity -> quantityNotation -> quantity -> amount: <"Set the quantity amount to 0">
         0.0
 
 func PartyByIndex:
@@ -467,6 +481,9 @@ func Clear:
 		
 	alias party1: PartyByIndex(alpha -> partyContractInformation -> partyReference, 0)
 	alias party2: PartyByIndex(alpha -> partyContractInformation -> partyReference, 1)
+
+//	alias party1: PartyByIndex(alpha -> party, 0)
+//	alias party2: PartyByIndex(alpha -> party, 1)
 
 	alias alphaTerminated: NewTerminatedContractPrimitive(alpha)
 	alias alphaTerminatedPrimitives: NewQuantityChangePrimitiveEvent(alphaTerminated)
