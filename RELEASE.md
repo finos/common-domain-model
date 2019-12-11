@@ -1,16 +1,14 @@
-# Clear and Terminate Functions
+# CDM Instance Viewer and Projection Tiles
 
 _What is being released_
 
-- Added `Terminate` function spec to the CDM. The `Terminate` function takes a `Contract` as an input and return a `Contract` with a `0` `quantity` an the closed state enum set to `Terminated`.
+CDM Instance Viewer and Projection Tiles are now available in the CDM Portal.
 
-- Added a `Clear` function to replicate the agency clear model that will create an `Event` with 5 primitives: `QuantityChange` to terminate the alpha, an `Execution` and `ContractFormation` for the creation of the beta and an `Execution` and `ContractFormation` for the creation of the gamma. This is fully implemented in the CDM and code generated in `Java`.
+The CDM Instance Viewer Tile visually represents CDM Event and CDM Event Sequences. Users drag-and-drop CDM JSON documents in to the UI, which generates the corresponding visual representation. The visualisation displays relationships between Events in a sequence and key CDM objects within each Event.
+
+Projection Tile translates CDM Documents into FpML 5.10. Users again drag-and-drop CDM JSON documents in to the UI, which generates the FpML document. 
 
 _Review Directions_
 
-In the Textual Browser, see:
-- `Terminate` function def
-- `Clear` function def
-
-In the Instance Viewer, open the `IRS CLEARING` example and see the visualisation of the execution of the `Clear` function.
+Users are invited to navigate to the CDM Portal where the above Tiles are available.
 
