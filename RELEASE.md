@@ -1,14 +1,13 @@
-# CDM Instance Viewer and Projection Tiles
+# Infrastructure / Regression Test Improvements
 
 _What is being released_
 
-CDM Instance Viewer and Projection Tiles are now available in the CDM Portal.
+Regression test changes to allow more granular model validation test assertions.
 
-The CDM Instance Viewer Tile visually represents CDM Event and CDM Event Sequences. Users drag-and-drop CDM JSON documents in to the UI, which generates the corresponding visual representation. The visualisation displays relationships between Events in a sequence and key CDM objects within each Event.
+# Instance Viewer Changes
 
-Projection Tile translates CDM Documents into FpML 5.10. Users again drag-and-drop CDM JSON documents in to the UI, which generates the FpML document. 
+_What is being released_
 
-_Review Directions_
-
-Users are invited to navigate to the CDM Portal where the above Tiles are available.
-
+- Fixed bug where some edges where self referencing so they would leave empty arrows on the nodes in the graph.
+- Switched to a unified approach to word wrapping inside each node in the graph.
+- Implemented a change that will pass the node ancestry on to the UI thereby allowing us to populate edges with parent access fields such as ‘before’ and ‘after’.
