@@ -313,10 +313,10 @@ type ContractualQuantity: <" [SCHEDULED FOR DEPRECATION: Class to be emptied-out
 	quantity Quantity (0..1) <"The contractual quantity when specified as an amount/number of securities or tangible assets. The quantity attribute is typical used in the equity and commodity asset classes.">
 	notionalAmount Money (0..1) <"The contractual quantity when specified as an amount and a currency units without associated schedule or FX terms. When applied to Credit default Swaps, this is the notional amount of protection coverage. ISDA 2003 Term: Floating Rate Payer Calculation Amount.">
 		[metadata reference]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "initialValue" path "calculationPeriodAmount->calculation"]
+//		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "initialValue" path "calculationPeriodAmount->calculation"]
 		[synonym Workflow_Event value "notionalAmount"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notionalAmount"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notional"]
+//		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notionalAmount"]
+//		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notional"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notionalReference" meta "href"]
 		[synonym FpML_5_10 value "settlementAmount" path "nearLeg"]
 	notionalSchedule NotionalSchedule (0..1) <"The contractual quantity when specified as a notional amount with an associated schedule, as used in the case of an amortizing swap where the notional amount decreases over time.">
@@ -1026,6 +1026,7 @@ type Payout: <" A class to represent the set of future cashflow methodologies in
 	 * 			and Payout -> equityPayout -> payoutQuantity -> quantitySchedule -> amount = 1.0 )
 	 *  		or (	Payout -> interestRatePayout -> payoutQuantity -> quantitySchedule exists
 	 and Payout -> interestRatePayout -> payoutQuantity -> quantitySchedule -> amount = 1.0 )*/
+	
 	condition PaymentDates_payRelativeTo: <"FpML specifies a required payRelativeTo element as part of the PaymentDates. As standardized CDS don't have such payRelativeTo provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
 		if Payout -> interestRatePayout count = 2
 			and Payout -> interestRatePayout -> paymentDates exists
@@ -1040,11 +1041,13 @@ type Payout: <" A class to represent the set of future cashflow methodologies in
 		if Payout -> interestRatePayout count = 2
 			and Payout -> interestRatePayout -> paymentDates exists
 		then Payout -> interestRatePayout -> paymentDates -> paymentFrequency exists
+	
 	condition InterestRatePayout_quantity: <"When there an InterestRatePayout but no creditDefaultPayout nor optionPayout, the notional must be specified. The notional of a credit default swap is expressed as part of the protection terms.">
 		if Payout -> interestRatePayout exists
 			and Payout -> creditDefaultPayout is absent
 			and Payout -> optionPayout is absent
 		then (Payout -> interestRatePayout -> quantity exists or Payout -> interestRatePayout -> payoutQuantity exists)
+	
 	condition InterestRatePayout_dayCountFraction: <"FpML specifies a required dayCountFraction element as part of the swapStream/calculationPeriodAmount/calculation. As standardized CDS don't have such specified day count fraction, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
 		if Payout -> interestRatePayout count = 2
 		then Payout -> interestRatePayout -> dayCountFraction exists
@@ -1052,6 +1055,7 @@ type Payout: <" A class to represent the set of future cashflow methodologies in
 	condition InterestRatePayout_paymentDates: <"FpML specifies a required paymentDates element as part of the swapStream. As standardized CDS may not have specified payment dates, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
 		if Payout -> interestRatePayout count = 2
 		then Payout -> interestRatePayout -> dayCountFraction exists
+	
 	condition TransactedPrice_marketPrice: <"FpML specifies that marketFixedRate and marketPrice only have meaning in a credit index trade">
 		if Payout -> creditDefaultPayout -> generalTerms -> indexReferenceInformation is absent
 		then Payout -> creditDefaultPayout -> transactedPrice -> marketFixedRate is absent
