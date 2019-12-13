@@ -11,6 +11,14 @@ import java.util.Optional;
 
 import static org.isda.cdm.AssetIdentifier.AssetIdentifierBuilder;
 
+/**
+ * Custom mapping processor for ResolvablePayoutQuantity used to set the assetIdentifier.currency.
+ *
+ * The currency to be set is the FpML id/href attribute relativeNotionalAmount.
+ *
+ * E.g. find id at path "relativeNotionalAmount.href", and use that id to find the anchor at
+ * path "notionalAmount.id", from there use currency from path "notionalAmount.currency".
+ */
 @SuppressWarnings("unused")
 public class RelativeNotionalAmountCurrencyMappingProcessor extends MappingProcessor {
 
@@ -27,7 +35,7 @@ public class RelativeNotionalAmountCurrencyMappingProcessor extends MappingProce
 								.flatMap(this::findMappingForId)
 								.ifPresent(mapping -> {
 									Path notionalCurrencyPath = toNotionalCurrencyPath(mapping);
-									findValue(notionalCurrencyPath).ifPresent(currency -> {
+									findXmlValue(notionalCurrencyPath).ifPresent(currency -> {
 										AssetIdentifierBuilder assetIdentifierBuilder = (AssetIdentifierBuilder) builder;
 										assetIdentifierBuilder.getOrCreateCurrency().setValue(currency);
 									});
@@ -38,31 +46,9 @@ public class RelativeNotionalAmountCurrencyMappingProcessor extends MappingProce
 	protected void map(List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
 	}
 
-
-	private Path toNotionalCurrencyPath(Mapping mapping) {
-		return mapping.getXmlPath().getParent().append(Path.parse("currency"));
-	}
-
-	private Optional<String> findValue(Path path) {
-		return getMappings().stream()
-				.filter(m -> m.getXmlPath().fullStartMatches(path))
-				.map(Mapping::getXmlValue)
-				.map(Object::toString)
-				.distinct()
-				.findFirst();
-	}
-
 	private Optional<Mapping> findHrefMapping() {
 		return getMappings().stream()
 				.filter(m -> m.getXmlPath().endsWith("relativeNotionalAmount", "href"))
-				.findFirst();
-	}
-
-	private Optional<String> findHrefValue() {
-		return getMappings().stream()
-				.filter(m -> m.getXmlPath().endsWith("relativeNotionalAmount", "href"))
-				.map(Mapping::getXmlValue)
-				.map(Object::toString)
 				.findFirst();
 	}
 
@@ -70,6 +56,19 @@ public class RelativeNotionalAmountCurrencyMappingProcessor extends MappingProce
 		return getMappings().stream()
 				.filter(m -> m.getXmlPath().endsWith("notionalAmount", "id"))
 				.filter(m -> id.equals(String.valueOf(m.getXmlValue())))
+				.findFirst();
+	}
+
+	private Path toNotionalCurrencyPath(Mapping mapping) {
+		return mapping.getXmlPath().getParent().append(Path.parse("currency"));
+	}
+
+	private Optional<String> findXmlValue(Path xmlPath) {
+		return getMappings().stream()
+				.filter(m -> m.getXmlPath().fullStartMatches(xmlPath))
+				.map(Mapping::getXmlValue)
+				.map(Object::toString)
+				.distinct()
 				.findFirst();
 	}
 }
