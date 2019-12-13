@@ -8,7 +8,7 @@ type AllocationInstructions:
 type AllocationBreakdown:
 	partyReference Party (1..1) <"Reference to the party to specify the account.">
 		[metadata reference]
-	quantity Quantity (1..1) <"The quantity to be allocated to the party.">
+	quantity NonNegativeQuantity (1..1) <"The quantity to be allocated to the party.">
 
 
 type AllocationOutcome: <"A class to specify the allocated outcome as the combination of the previous Trade, which is either an execution or a contract and which state is specified as 'Allocated', and a set of Trade(s) of the same execution or contract type as before allocation. The allocation to one single trade is deemed appropriate: e.g. the trade could be effectively allocated from the fund manager doing the execution to a single fund entity.">
@@ -520,7 +520,7 @@ type Velocity:
  */
 func Allocation: <"The qualification of allocation event from the fact that (i) the intent is Allocation when specified, (ii) the only primitive is the allocation, (iii) the sum of quantities/notional before = after, and (iv) there is a single contractualProduct before (ensured through cardinality). Note: it is accepted that an allocation can result in a single contract.">
 	inputs:
-		workflowEvent WorkflowEvent(1..1) 
+		workflowEvent WorkflowEvent(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
 		workflowEvent -> businessEvent -> primitives count = 1
@@ -579,6 +579,7 @@ func ClearedTrade:
 		and workflowEvent -> businessEvent -> primitives -> execution count = 2
 		and workflowEvent -> businessEvent -> primitives -> contractFormation count = 2
 		and workflowEvent -> businessEvent -> primitives -> execution -> after = workflowEvent -> businessEvent -> primitives -> contractFormation -> before
+		// TODO - Add this back in when we correctly map the ClearingOrganization
 		and workflowEvent -> businessEvent -> primitives -> contractFormation -> after -> contract -> partyRole -> role contains PartyRoleEnum -> ClearingOrganization
 
 //isEvent ClearedTrade <"The cleared trade at the CCP.">
@@ -768,7 +769,7 @@ func Termination: <"The qualification of a termination event from the fact that 
 		(workflowEvent -> intent is absent or workflowEvent -> intent = IntentEnum -> Termination)
 		and (workflowEvent -> businessEvent -> primitives count = 1
 		and workflowEvent -> businessEvent -> primitives -> quantityChange exists
-			or (workflowEvent -> businessEvent -> primitives -> quantityChange exists 
+			or (workflowEvent -> businessEvent -> primitives -> quantityChange exists
 				and workflowEvent -> businessEvent -> primitives -> transfer -> cashTransfer exists)
 			)
 		and True = ListsCompare(CompareOp -> Equal, QuantityAfterQuantityChange(workflowEvent), empty, 0.0)
@@ -803,10 +804,10 @@ func ContractFormationEvent: <"The qualification of a contractFormation event fr
  */
 /*
  * workflow rule ClearedContractAgency_Participant <"The cross-events validity constraints to specify that a contract has been cleared according to the agency model from the perspective of the involved clearing member or client.">
- *    
+ *
  *    Event <beta> is ClearingSubmission
  * 	relatedTo <alpha> where Event -> lineage -> @rosettaKey -> Event -> eventQualifier = eventQualifier.ClearingSubmission
- * 
+ *
  *    constraint is economicTerms are the same except for payerReceiver or buyerSeller
  *    and <alpha> contract/execution is terminated  *Difference*
  *    and event date of <alpha> submission = trade date of <beta>
@@ -814,18 +815,18 @@ func ContractFormationEvent: <"The qualification of a contractFormation event fr
  */
 /*
  * workflow rule ClearedContractAgency_CCP <"The cross-events validity constraints to specify that a contract has been cleared according to the agency model from the perspective of the involved clearing member or client.">
- *    
+ *
  *    Event <beta> is ClearingSubmission
  * 	relatedTo <alpha> where Event -> lineage -> @rosettaKey -> Event -> eventQualifier = eventQualifier.ClearingSubmission
  * 	and relatedTo <gamma> where Event -> lineage -> @rosettaKey -> Event -> eventQualifier = eventQualifier.ClearedTrade *Difference*
- * 	
+ *
  *    constraint is economicTerms are the same except for payerReceiver or buyerSeller
  *    and event date of <alpha> submission = trade date of <beta>
  *    and CCP which is in the party role in after state of <alpha> submission is the same as the CCP which is counterparty to <beta> and <gamma> *Difference*
  */
 /*
  * workflow rule ClearedContractPrincipal_Participant <"The cross-events validity constraints to specify that a contract has been cleared according to the principal model from the perspective of the involved clearing member or client.">
- *   
+ *
  *   Event <beta> is ClearingSubmission
  * 	relatedTo <alpha> where Event -> lineage -> @rosettaKey -> Event -> eventQualifier = eventQualifier.ClearingSubmission
  * 	relatedTo <theta> where Event -> lineage -> @rosettaKey -> Event -> eventQualifier = eventQualifier.NewTrade or eventQualifier.ClearedTrade???? *Difference*
@@ -837,11 +838,11 @@ func ContractFormationEvent: <"The qualification of a contractFormation event fr
  */
 /*
  * workflow rule ClearedContractPrincipal_CCP <"The cross-events validity constraints to specify that a contract has been cleared according to the principal model from the perspective of the involved clearing member or client.">
- *    
+ *
  *    Event <beta> is ClearingSubmission
  * 	relatedTo <alpha> where Event -> lineage -> @rosettaKey -> Event -> eventQualifier = eventQualifier.ClearingSubmission
  * 	and relatedTo <gamma> where Event -> lineage -> @rosettaKey -> Event -> eventQualifier = eventQualifier.ClearedTrade *Difference*
- * 	
+ *
  *    constraint is economicTerms are the same except for payerReceiver or buyerSeller
  *    and event date of <alpha> submission = trade date of <beta>
  *    and CCP which is in the party role in after state of <alpha> submission is the same as the CCP which is counterparty to <beta> and <gamma> *Difference*
