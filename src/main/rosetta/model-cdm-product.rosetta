@@ -79,7 +79,8 @@ type Contract: <" A class to specify a financial contract object, which can be i
 		// For CapFloor:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "capFloor" path "trade" ]
 		// For FRA:
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "trade"]
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "trade"]
+		[synonym CME_SubmissionIRS_1_0 value "trade" path "Instrmt->SecXML->FpML"]
 		// For CDS:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "creditDefaultSwap" ]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "creditDefaultSwap" path "trade" ]
@@ -315,9 +316,11 @@ type ContractualQuantity: <" [SCHEDULED FOR DEPRECATION: Class to be emptied-out
 		[metadata reference]
 //		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "initialValue" path "calculationPeriodAmount->calculation"]
 		[synonym Workflow_Event value "notionalAmount"]
-//		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notionalAmount"]
-//		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notional"]
+		// For Bond Option
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notionalAmount"]
+		// For CDS, Option, Swaption
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notionalReference" meta "href"]
+		// For Repo
 		[synonym FpML_5_10 value "settlementAmount" path "nearLeg"]
 	notionalSchedule NotionalSchedule (0..1) <"The contractual quantity when specified as a notional amount with an associated schedule, as used in the case of an amortizing swap where the notional amount decreases over time.">
 		[synonym DTCC_11_0, DTCC_9_0 value "calculationElements"]
@@ -382,6 +385,8 @@ type ResolvablePayoutQuantity: <" Generic class to specify the quantity for diff
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "calculationAmount"]
 		// For FX:
 		[synonym FpML_5_10 value "paymentAmount"]
+		// For Equity
+		[synonym FpML_5_10 value "relativeNotionalAmount" mapper "RelativeNotionalAmountCurrency"]
 	quantityReference ResolvablePayoutQuantity (0..1) <"Reference quantity when resolvable quantity is defined as relative to another (resolvable) quantity. A resolvable quantity needs to contain either an absolute quantity or a reference to another (resolvable) quantity. This requirement is captured by a choice rule on the class.">
 		[metadata reference]
 	quantityMultiplier QuantityMultiplier (0..1) <"Quantity multiplier is specified on top of a reference quantity and is used as a multiplying factor when resolving the quantity. A quantity multiplier can only exist when the resolvable quantity specifies a reference quantity.">
@@ -947,7 +952,8 @@ type PayoutBase: <" Base class that all payout types should extend. Use case is 
 
 	payoutQuantity ResolvablePayoutQuantity (1..1) <"Each payout leg must implement the quantity concept as a 'resolvable' type, which allows for different payout legs to be linked to each other (e.g. in the case of cross-curreny products).">
 		// For Equity Swap:
-		[synonym FpML_5_10 value "notional", "rateOfReturn"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "notional"]
+		[synonym FpML_5_10 value "rateOfReturn"]
 		// For Swap Stream:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notionalSchedule" path "calculationPeriodAmount->calculation"]
 		// For CDS:
