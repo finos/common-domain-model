@@ -360,7 +360,7 @@ type ExecutionQuantity: <" Class to specify the executed quantity of a product, 
 		[synonym FpML_5_10 value "notionalAdjustments"]
 
 
-type QuantityMultiplier /*one of*/ : <" Class to specify a mechanism for a quantity to be set as a multiplier to another (reference) quantity, based on a price observation. At the moment this class only supports FX or Equity-linked notional and re-uses existing building blocks for those 2 cases, until such time when component can be made more generic. This captures the case of resetting cross-currency swaps and resetting equity swaps.">
+type QuantityMultiplier: <" Class to specify a mechanism for a quantity to be set as a multiplier to another (reference) quantity, based on a price observation. At the moment this class only supports FX or Equity-linked notional and re-uses existing building blocks for those 2 cases, until such time when component can be made more generic. This captures the case of resetting cross-currency swaps and resetting equity swaps.">
 
 	fxLinkedNotionalSchedule FxLinkedNotionalSchedule (0..1) <"Multiplier specified as an FX-linked schedule, e.g. for a resetting cross-currency swap..">
 	// equityValuation EquityValuation (0..1) <"Multiplier specified as an equity valuation schedule, e.g. for a resetting equity swap.">
@@ -387,6 +387,7 @@ type ResolvablePayoutQuantity: <" Generic class to specify the quantity for diff
 	quantityReference ResolvablePayoutQuantity (0..1) <"Reference quantity when resolvable quantity is defined as relative to another (resolvable) quantity. A resolvable quantity needs to contain either an absolute quantity or a reference to another (resolvable) quantity. This requirement is captured by a choice rule on the class.">
 		[metadata reference]
 		[synonym FpML_5_10 value "relativeNotionalAmount" meta "href"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "constantNotionalScheduleReference" meta "href"]
 	quantityMultiplier QuantityMultiplier (0..1) <"Quantity multiplier is specified on top of a reference quantity and is used as a multiplying factor when resolving the quantity. A quantity multiplier can only exist when the resolvable quantity specifies a reference quantity.">
 	reset boolean (0..1) <"Whether the quantity is resettable">
 		[synonym FpML_5_10 value "notionalReset"]
@@ -394,10 +395,10 @@ type ResolvablePayoutQuantity: <" Generic class to specify the quantity for diff
 	condition ResolvablePayoutQuantity_choice1: <"A payout quantity can be resolved either (i) by fetching its actual quantity from a higher-level quantity notation specification referenced via an asset identifier, or (ii) by reference to another (resolvable) quantity.">
 		optional choice assetIdentifier, quantityReference
 
-	condition ResolvablePayoutQuantity_quantityMultiplier: <"When a quantity multiplier exists there must be either a quantity reference or, in the case of resetting cross-currency swaps, the fx-linked notional schedule must have a reference to the constant notional schedule.">
+	condition ResolvablePayoutQuantity_quantityMultiplier: <"A quantity reference must exist when there is a quantity multiplier on a resolvable quantity.">
 		if ResolvablePayoutQuantity -> quantityMultiplier exists
-		then ResolvablePayoutQuantity -> quantityReference exists
-			or ResolvablePayoutQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> constantNotionalScheduleReference -> reference exists
+		then ResolvablePayoutQuantity -> quantityReference -> reference exists
+
 
 type CrossCurrencyTerms:
 
