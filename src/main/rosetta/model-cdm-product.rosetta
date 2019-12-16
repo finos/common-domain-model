@@ -324,7 +324,6 @@ type ContractualQuantity: <" [SCHEDULED FOR DEPRECATION: Class to be emptied-out
 	notionalSchedule NotionalSchedule (0..1) <"The contractual quantity when specified as a notional amount with an associated schedule, as used in the case of an amortizing swap where the notional amount decreases over time.">
 		[synonym DTCC_11_0, DTCC_9_0 value "calculationElements"]
 	fxLinkedNotional FxLinkedNotionalSchedule (0..1) <"The contractual quantity when specified as a notional amount which value is a function of FX parameters.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "fxLinkedNotionalSchedule" path "calculationPeriodAmount->calculation" /*set when "calculationPeriodAmount->calculation->fxLinkedNotionalSchedule->initialValue" exists*/ ]
 	futureValueNotional FutureValueAmount (0..1) <"The future value notional is specific to BRL CDI swaps, and is specified alongside the notional amount. The value is calculated as follows: Future Value Notional = Notional Amount * (1 + Fixed Rate) ^ (Fixed Rate Day Count Fraction). The currency should always match that expressed in the notional schedule. The value date should match the adjusted termination date.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "futureValueNotional" path "calculationPeriodAmount->calculation"]
 
@@ -365,7 +364,8 @@ type QuantityMultiplier /*one of*/ : <" Class to specify a mechanism for a quant
 
 	fxLinkedNotionalSchedule FxLinkedNotionalSchedule (0..1) <"Multiplier specified as an FX-linked schedule, e.g. for a resetting cross-currency swap..">
 	// equityValuation EquityValuation (0..1) <"Multiplier specified as an equity valuation schedule, e.g. for a resetting equity swap.">
-	multiplierValue number (1..1)
+	multiplierValue number (0..1)
+	condition: one-of
 
 
 type ResolvablePayoutQuantity: <" Generic class to specify the quantity for different payout legs in a contractual product, when that quantity can vary across payout legs or across time. A resolvable quantity can always be resolved into one number based on: (i) the quantity notation that must be specified alongside the contractual product description and (ii) a given date, where applicable. In addition to the base case where quantity is directly specified as a number as part of the quantity notation, the use cases are: (i) quantity based on some pre-defined schedule (eg amortising notional), (ii) quantity based on some pre-defined events (eg resetting cross-currency notional), or quantity set as reference to another quantity (eg equity notional as no. securities x price).">
@@ -395,9 +395,10 @@ type ResolvablePayoutQuantity: <" Generic class to specify the quantity for diff
 	condition ResolvablePayoutQuantity_choice1: <"A payout quantity can be resolved either (i) by fetching its actual quantity from a higher-level quantity notation specification referenced via an asset identifier, or (ii) by reference to another (resolvable) quantity.">
 		optional choice assetIdentifier, quantityReference
 
-	condition ResolvablePayoutQuantity_quantityMultiplier: <"A quantity reference must exist when there is a quantity multiplier on a resolvable quantity">
+	condition ResolvablePayoutQuantity_quantityMultiplier: <"When a quantity multiplier exists there must be either a quantity reference or, in the case of resetting cross-currency swaps, the fx-linked notional schedule must have a reference to the constant notional schedule.">
 		if ResolvablePayoutQuantity -> quantityMultiplier exists
 		then ResolvablePayoutQuantity -> quantityReference exists
+			or ResolvablePayoutQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> constantNotionalScheduleReference -> reference exists
 
 type CrossCurrencyTerms:
 
@@ -965,6 +966,7 @@ type PayoutBase: <" Base class that all payout types should extend. Use case is 
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "fixedAmount"]
 		// For FX:
 		[synonym FpML_5_10 hint "paymentAmount"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "fxLinkedNotionalSchedule" path "calculationPeriodAmount->calculation"]
 
 
 type Payout: <" A class to represent the set of future cashflow methodologies in the form of specific payout class(es) that can be associated for the purpose of specifying a financial product. For example, two interest rate payouts can be combined to specify an interest rate swap, or one interest rate payout can be combined with a credit default payout to specify a credit default swap.">
