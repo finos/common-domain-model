@@ -519,6 +519,7 @@ type Velocity:
  * Event Qualification
  */
 func Allocation: <"The qualification of allocation event from the fact that (i) the intent is Allocation when specified, (ii) the only primitive is the allocation, (iii) the sum of quantities/notional before = after, and (iv) there is a single contractualProduct before (ensured through cardinality). Note: it is accepted that an allocation can result in a single contract.">
+	[qualification event]
 	inputs:
 		workflowEvent WorkflowEvent(1..1)
 	output: is_event boolean (1..1)
@@ -535,6 +536,7 @@ func Allocation: <"The qualification of allocation event from the fact that (i) 
  * Temporary event qualification until such time that we firm out the proper qualification and the way to infer it
  */
 func CashflowCalculationNotification:
+	[qualification event]
 	inputs:
 		workflowEvent WorkflowEvent(1..1)
 	output: is_event boolean (1..1)
@@ -544,6 +546,7 @@ func CashflowCalculationNotification:
 		and workflowEvent -> messageInformation -> sentBy = "DTCC"
 
 func CashTransfer: <"The qualification of a cash transfer from the fact that the only component is a cashTransfer.">
+	[qualification event]
 	inputs:
 		workflowEvent WorkflowEvent(1..1)
 	output: is_event boolean (1..1)
@@ -556,6 +559,7 @@ func CashTransfer: <"The qualification of a cash transfer from the fact that the
 		and workflowEvent -> messageInformation -> sentBy <> "DTCC" // This is a kludge related to the CashflowCalculationNotification qualification
 
 func CashAndSecurityTransfer: <"The qualification of a security settlement from the fact that (i) it is composed of a cashTransfer component and a securityTransfer component, and (ii) the cash and security move in the same direction.">
+	[qualification event]
 	inputs:
 		workflowEvent WorkflowEvent(1..1)
 	output: is_event boolean (1..1)
@@ -568,6 +572,7 @@ func CashAndSecurityTransfer: <"The qualification of a security settlement from 
 
 // Simple Agency model for clearing
 func ClearedTrade:
+	[qualification event]
 	inputs:
 		workflowEvent WorkflowEvent(1..1)
 	output: is_event boolean (1..1)
@@ -594,6 +599,7 @@ func ClearedTrade:
 //	and Event -> lineage -> @rosettaKey -> Event -> eventQualifier = eventQualifier.ClearingSubmission
 //	and Event -> lineage -> @rosettaKey -> Event -> eventQualifier = eventQualifier.ClearedTrade
 func ClearingRejection: <"The rejection of an alpha trade submission by a CCP, which is qualified by the fact that (i) termsChange is the only primitive, the workflow status is `rejected`, and (iii) the CCP is positioned as a partyRole to the execution or contract in the after state, while it didn't exist in the before state.">
+	[qualification event]
 	inputs:
 		workflowEvent WorkflowEvent(1..1)
 	output: is_event boolean (1..1)
@@ -610,6 +616,7 @@ func ClearingRejection: <"The rejection of an alpha trade submission by a CCP, w
 		and True = ListsCompare(CompareOp -> Equal, QuantityAfterQuantityChange(workflowEvent), QuantityBeforeQuantityChange(workflowEvent), empty)
 
 func ClearingSubmission: <"The submission of a contract to a CCP, which is qualified by the fact that (i) the termsChange is the only primitive, and (ii) the CCP is positioned as a partyRole to the execution or contract in the after state, while it didn't exist in the before state.">
+	[qualification event]
 	inputs:
 		workflowEvent WorkflowEvent(1..1)
 	output: is_event boolean (1..1)
@@ -625,6 +632,7 @@ func ClearingSubmission: <"The submission of a contract to a CCP, which is quali
 		or workflowEvent -> businessEvent -> primitives -> termsChange -> after -> execution -> partyRole -> role = PartyRoleEnum -> ClearingOrganization)
 
 func Compression: <"The qualification of a compression event from the fact that (i) the quantityChange primitive exists, and (ii) there are multiple contracts (or contract references) specified in the before state.">
+	[qualification event]
 	inputs:
 		workflowEvent WorkflowEvent(1..1)
 	output: is_event boolean (1..1)
@@ -633,6 +641,7 @@ func Compression: <"The qualification of a compression event from the fact that 
 		and workflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract multiple exists
 
 func DerivedObservation: <"The qualification of a derived observation event from the fact that (i) the only primitive is the observation, (ii) there are multiple instances of such observations, and (iii) there is an associated call function to compute, say, an interpolation.">
+	[qualification event]
 	inputs:
 		workflowEvent WorkflowEvent(1..1)
 	output: is_event boolean (1..1)
@@ -641,6 +650,7 @@ func DerivedObservation: <"The qualification of a derived observation event from
 		and workflowEvent -> functionCall exists
 
 func Exercise: <"The qualification of an exercise event from the fact that (i) the only primitive is the exercise, and (ii) the remaining quantity = 0, and (iv) the closedState of the contract is Terminated.">
+	[qualification event]
 	inputs:
 		workflowEvent WorkflowEvent(1..1)
 	output: is_event boolean (1..1)
@@ -649,6 +659,7 @@ func Exercise: <"The qualification of an exercise event from the fact that (i) t
 		and workflowEvent -> businessEvent -> primitives -> exercise exists
 
 func Increase: <"The qualification of a increase event from the fact that (i) the intent is Increase when specified, (ii) the associated primitives are the quantityChange and the cash transfer, the (iii) the quantity associated with the contract increases.">
+	[qualification event]
 	inputs:
 		workflowEvent WorkflowEvent(1..1)
 	output: is_event boolean (1..1)
@@ -664,6 +675,7 @@ func Increase: <"The qualification of a increase event from the fact that (i) th
 		and workflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> closedState is absent
 
 func MultipleTransfers: <"The qualification an event that combines multiple transfers from the fact that multiple transfer primitives exist.">
+	[qualification event]
 	inputs:
 		workflowEvent WorkflowEvent(1..1)
 	output: is_event boolean (1..1)
@@ -671,6 +683,7 @@ func MultipleTransfers: <"The qualification an event that combines multiple tran
 		workflowEvent -> businessEvent -> primitives -> transfer multiple exists
 
 func NewTrade:
+	[qualification event]
 	inputs:
 		workflowEvent WorkflowEvent(1..1)
 	output: is_event boolean (1..1)
@@ -682,6 +695,7 @@ func NewTrade:
 		and workflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> clearedDate is absent
 
 func Novation: <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and inception exist, (iii) the remaining quantity = 0, (iv) the closedState of the contract is Novated, (v) the stepped-in contract has a different contract identifier than the novated contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
+	[qualification event]
 	inputs:
 		workflowEvent WorkflowEvent(1..1)
 	output: is_event boolean (1..1)
@@ -696,6 +710,7 @@ func Novation: <"The qualification of a novation event from the fact that (i) th
 
 //	and originalContractParties <> newContractParties
 func Observation: <"The qualification of an observation event from the fact that (i) the only primitive is the observation, and (ii) that there is only a single instance of such observation.">
+	[qualification event]
 	inputs:
 		workflowEvent WorkflowEvent(1..1)
 	output: is_event boolean (1..1)
@@ -703,6 +718,7 @@ func Observation: <"The qualification of an observation event from the fact that
 		workflowEvent -> businessEvent -> primitives -> observation only single exists
 
 func PartialNovation: <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and inception exist, (iii) the contract quantity/notional has decreased as part of the quantityChange primitive, while (iv) there is a remaining quantity/notional, (v) the stepped-in contract has a different contract identifier than the original contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
+	[qualification event]
 	inputs:
 		workflowEvent WorkflowEvent(1..1)
 	output: is_event boolean (1..1)
@@ -717,6 +733,7 @@ func PartialNovation: <"The qualification of a novation event from the fact that
 
 // and originalContractParties <> newContractParties
 func PartialTermination: <"The qualification of a partial termination event from the fact that (i) the intent is Partial Termination when specified, (ii) the associated primitives are the quantityChange and the cash transfer, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
+	[qualification event]
 	inputs:
 		workflowEvent WorkflowEvent(1..1)
 	output: is_event boolean (1..1)
@@ -733,6 +750,7 @@ func PartialTermination: <"The qualification of a partial termination event from
 		and workflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> closedState is absent
 
 func IsReset: <"The qualification of a reset event from the fact that the only primitive is the reset.">
+	[qualification event]
 	inputs:
 		workflowEvent WorkflowEvent (1..1)
 	output: is_event boolean (1..1)
@@ -741,6 +759,7 @@ func IsReset: <"The qualification of a reset event from the fact that the only p
 		and workflowEvent -> businessEvent -> primitives -> reset exists
 
 func SecurityTransfer: <"The qualification of a security transfer from the fact that the only component is a securityTransfer.">
+	[qualification event]
 	inputs:
 		workflowEvent WorkflowEvent(1..1)
 	output: is_event boolean (1..1)
@@ -752,6 +771,7 @@ func SecurityTransfer: <"The qualification of a security transfer from the fact 
 		and workflowEvent -> businessEvent -> primitives -> transfer -> commodityTransfer is absent
 
 func SecuritySettlement: <"The qualification of a security settlement from the fact that (i) it is composed of a cashTransfer component and a securityTransfer component, and (ii) the cash and security move in opposite directions.">
+	[qualification event]
 	inputs:
 		workflowEvent WorkflowEvent(1..1)
 	output: is_event boolean (1..1)
@@ -762,6 +782,7 @@ func SecuritySettlement: <"The qualification of a security settlement from the f
 		and workflowEvent -> businessEvent -> primitives -> transfer -> commodityTransfer is absent
 
 func Termination: <"The qualification of a termination event from the fact that (i) the intent is Termination when specified, (ii) the only primitive is the quantityChange and there is only one such primitive involved, the (iii) the remaining quantity is null, and (iv) the closedState of the contract is Terminated.">
+	[qualification event]
 	inputs:
 		workflowEvent WorkflowEvent(1..1)
 	output: is_event boolean (1..1)
@@ -776,6 +797,7 @@ func Termination: <"The qualification of a termination event from the fact that 
 		and workflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> closedState -> state = ClosedStateEnum -> Terminated
 
 func TradeWarehousePositionNotification:
+	[qualification event]
 	inputs:
 		workflowEvent WorkflowEvent(1..1)
 	output: is_event boolean (1..1)
@@ -784,6 +806,7 @@ func TradeWarehousePositionNotification:
 		and workflowEvent -> businessEvent -> primitives -> inception -> after -> tradeWarehouseWorkflow exists
 
 func Execution: <"The qualification of an execution event from the fact that the only component is an execution.">
+	[qualification event]
 	inputs:
 		workflowEvent WorkflowEvent(1..1)
 	output: is_event boolean (1..1)
@@ -792,6 +815,7 @@ func Execution: <"The qualification of an execution event from the fact that the
 		and workflowEvent -> businessEvent -> primitives -> execution exists
 
 func ContractFormationEvent: <"The qualification of a contractFormation event from the fact that the only component is a contractFormation.">
+	[qualification event]
 	inputs:
 		workflowEvent WorkflowEvent(1..1)
 	output: is_event boolean (1..1)
