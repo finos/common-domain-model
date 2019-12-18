@@ -5,13 +5,14 @@ func FixedAmount: <"2006 ISDA Definition Article 5 Section 5.1. Calculation of a
 	[calculation]
 	inputs:
 		interestRatePayout InterestRatePayout (1..1)
+		quantity NonNegativeQuantity (1..1)
 		date date (1..1)
 
 	output:
 		fixedAmount number (1..1)
 
 	alias calculationAmount:
-		interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
+		quantity -> amount
 
 	alias fixedRate:
 		interestRatePayout -> rateSpecification -> fixedRate -> initialValue
@@ -30,10 +31,11 @@ func FloatingAmount: <"2006 ISDA Definition Article 6 Section 6.1. Calculation o
 	[calculation]
 	inputs:
 		interestRatePayout InterestRatePayout (1..1)
+		quantity NonNegativeQuantity (1..1)
 		date date (1..1)
 	output: floatingAmount number (1..1)
 
-	alias calculationAmount: interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
+	alias calculationAmount: quantity -> amount
 	alias floatingRate: ResolveRateIndex(interestRatePayout -> rateSpecification -> floatingRate -> floatingRateIndex)
 	// TODO: question to group: why can a float rate calculation node in FpML contain multiple rate schedules?
 	alias spread: GetRateSchedule( interestRatePayout -> rateSpecification -> floatingRate ) -> initialValue

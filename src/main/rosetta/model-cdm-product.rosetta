@@ -313,23 +313,12 @@ type ContractualProduct: <" A class to specify the contractual products' economi
 
 type ContractualQuantity: <" [SCHEDULED FOR DEPRECATION: Class to be emptied-out as products get progressively migrated to the restructured quantity mechanism.] A class to specify the quantity or notional amount that is associated with a contractual product and that is the base for the payout calculation. The quantity attribute applies to products relating to securities or tangible assets (such as equities or commodities), while the notional amount applies to products pertaining to interest rate, FX or credit products.">
 
-	quantity Quantity (0..1) <"The contractual quantity when specified as an amount/number of securities or tangible assets. The quantity attribute is typical used in the equity and commodity asset classes.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "ignore"]
 	notionalAmount Money (0..1) <"The contractual quantity when specified as an amount and a currency units without associated schedule or FX terms. When applied to Credit default Swaps, this is the notional amount of protection coverage. ISDA 2003 Term: Floating Rate Payer Calculation Amount.">
 		[metadata reference]
 		// For Bond Option
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, Workflow_Event value "notionalAmount"]
 		// For CDS, Option, Swaption
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notionalReference" meta "href"]
-	notionalSchedule NotionalSchedule (0..1) <"The contractual quantity when specified as a notional amount with an associated schedule, as used in the case of an amortizing swap where the notional amount decreases over time.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "ignore"]
-	fxLinkedNotional FxLinkedNotionalSchedule (0..1) <"The contractual quantity when specified as a notional amount which value is a function of FX parameters.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "ignore"]
-	futureValueNotional FutureValueAmount (0..1) <"The future value notional is specific to BRL CDI swaps, and is specified alongside the notional amount. The value is calculated as follows: Future Value Notional = Notional Amount * (1 + Fixed Rate) ^ (Fixed Rate Day Count Fraction). The currency should always match that expressed in the notional schedule. The value date should match the adjusted termination date.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "ignore"]
-
-	condition ContractualQuantity_choice: <"The below set of notional values are exclusive, while some of those could be associated with the futureValueNotional.">
-		optional choice quantity, notionalAmount , notionalSchedule , fxLinkedNotional
 
 /*condition ContractualQuantity_notionalReset: <"As the notionalReset attribute applies to return swaps, the equity payout needs to be present alongside it.">
  * 	if ContractualProduct -> economicTerms -> quantity -> notionalReset exists
@@ -338,6 +327,8 @@ type ContractualQuantity: <" [SCHEDULED FOR DEPRECATION: Class to be emptied-out
  * condition ContractualQuantity_notionalAdjustments: <"As the notionalAdjustments attribute applies to return swaps, the equity payout needs to be present alongside it.">
  * 	if ContractualProduct -> economicTerms -> quantity -> notionalAdjustments exists
  then ContractualProduct -> economicTerms -> payout -> equityPayout exists*/
+
+
 type ExecutionQuantity: <" Class to specify the executed quantity of a product, provided as (possibly multiple) quantity notations, plus additional information regarding potential future quantity adjustments. Should be remaned as, and supersede, 'ContractualQuantity' once the latter can be deprecated.">
 
 	quantityNotation QuantityNotation (1..*) <"Quantity of the underlying contractual product that the contract is written on, defined as a single, non-negative number, a (mandatory) notation tag and an (optional) unit. Products, including contractual products, are designed to be defined as a unit in CDM (with quantity schedule and cross-referencing mechanisms handled as part of the underlying payout legs), so that the overall quantity can be abstracted away from the product definition. The notation tag (e.g. 'Notional') is meant to be referenced by the underlying payout legs and used to resolve the product, by fetching the actual amount from the appropriate quantity notation.">
@@ -398,7 +389,7 @@ type ResolvablePayoutQuantity: <" Generic class to specify the quantity for diff
 		[synonym FpML_5_10 value "notionalReset"]
 	futureValueNotional FutureValueAmount (0..1) <"The future value notional is specific to BRL CDI swaps, and is specified alongside the notional amount. The value is calculated as follows: Future Value Notional = Notional Amount * (1 + Fixed Rate) ^ (Fixed Rate Day Count Fraction). The currency should always match that expressed in the notional schedule. The value date should match the adjusted termination date.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "futureValueNotional"]
-		
+
 	condition ResolvablePayoutQuantity_choice1: <"A payout quantity can be resolved either (i) by fetching its actual quantity from a higher-level quantity notation specification referenced via an asset identifier, or (ii) by reference to another (resolvable) quantity.">
 		optional choice assetIdentifier, quantityReference
 
@@ -706,15 +697,11 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
 
 	condition InterestRatePayout_futureValueNotional: <"The BRL CDI future value notional only applies to a fixed Rate Schedule.">
 		if InterestRatePayout -> rateSpecification -> fixedRate is absent
-		then InterestRatePayout -> quantity -> futureValueNotional is absent
+		then InterestRatePayout -> payoutQuantity -> futureValueNotional is absent
 
 	condition FutureValueNotional_terminationDate: <"FpML states that the value date associated with the future value notional should match the adjusted termination date.">
-		if InterestRatePayout -> quantity -> futureValueNotional exists
-		then InterestRatePayout -> quantity -> futureValueNotional -> valueDate = InterestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate -> adjustedDate
-
-	condition InterestRatePayout_actualQuantity: <"The quantity associated to an interest rate payout should not be expressed as a quantity, but rather as a notional (which can itself be expressed in a number of distinct ways).">
-		if InterestRatePayout exists
-		then InterestRatePayout -> quantity -> quantity is absent
+		if InterestRatePayout -> payoutQuantity -> futureValueNotional exists
+		then InterestRatePayout -> payoutQuantity -> futureValueNotional -> valueDate = InterestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate -> adjustedDate
 
 	condition FpML_ird_6: <"FpML validation rule ird-6 - If paymentDates/firstPaymentDate exists, and if calculationPeriodDates/effectiveDate exists, then paymentDates/firstPaymentDate must be after calculationPeriodDates/effectiveDate/unadjustedDate.">
 		if InterestRatePayout -> paymentDates -> firstPaymentDate exists
@@ -742,8 +729,8 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
 	condition SettlementProvision_settlementCurrency: <"FpML specifies that the SettlementProvision exists when the settlement currency is different to the notional currency of the trade.">
 		if InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> nonDeliverableSettlement exists
 		then InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> settlementCurrency <> InterestRatePayout -> quantity -> notionalAmount -> currency
-			or InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> settlementCurrency <> InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> currency
-			or InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> settlementCurrency <> InterestRatePayout -> quantity -> fxLinkedNotional -> varyingNotionalCurrency
+			or InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> settlementCurrency <> InterestRatePayout -> payoutQuantity -> assetIdentifier -> currency
+			or InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> settlementCurrency <> InterestRatePayout -> payoutQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> varyingNotionalCurrency
 
 	/*
 	 * TODO - Need for an associated logic that will parse the respective legs of the swap, as this is not made explicit at present as part of the syntax
@@ -772,15 +759,6 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
 		if InterestRatePayout -> compoundingMethod is absent
 			or InterestRatePayout -> compoundingMethod = CompoundingMethodEnum -> None
 		then InterestRatePayout -> calculationPeriodDates -> firstCompoundingPeriodEndDate is absent
-
-
-type NotionalSchedule: <" A class specifying the notional amount or notional amount schedule associated with a contractual product. The notional schedule will be captured explicitly, specifying the dates that the notional changes and the outstanding notional amount that applies from that date. A parametric representation of the rules defining the notional step schedule can optionally be included.">
-	[metadata key]
-	notionalStepSchedule NonNegativeAmountSchedule (1..1) <"The notional amount when expressed as a varying notional alongside a date schedule. The step dates may be subject to adjustments in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notionalStepSchedule"]
-		[synonym DTCC_11_0, DTCC_9_0 value "notional"]
-	notionalStepParameters NotionalStepRule (0..1) <"A parametric representation of the notional step schedule, to be used when the notional schedule is not just specified as a set of dates and notional amount. Those parameters include the step frequency, the first and last notional step dates, the step rate, ...">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notionalStepParameters"]
 
 
 type OptionExercise: <" A class to represent the applicable terms to qualify an option exercise: the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">
@@ -1388,8 +1366,6 @@ isProduct InterestRate_IRSwap_FixedFloat_PlainVanilla <"This product qualificati
 	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule -> step is absent
 	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate -> step is absent
 	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> floatingRateMultiplierSchedule is absent
-	and EconomicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step is absent
-	and EconomicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepParameters is absent
 	and EconomicTerms -> payout -> interestRatePayout -> payoutQuantity -> quantitySchedule -> stepSchedule -> step is absent
 	and EconomicTerms -> payout -> interestRatePayout -> stubPeriod is absent
 	and EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> stubPeriodType is absent
@@ -1443,8 +1419,6 @@ isProduct InterestRate_IRSwap_FixedFloat
 	and EconomicTerms -> payout -> optionPayout is absent
 	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period <> PeriodExtendedEnum -> T
 	and ( EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule -> step exists
-		or EconomicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step exists
-		or EconomicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepParameters exists
 		or EconomicTerms -> payout -> interestRatePayout -> payoutQuantity -> quantitySchedule -> stepSchedule -> step exists
 		or EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> floatingRateMultiplierSchedule exists
 		or EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate -> step exists
