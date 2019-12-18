@@ -313,8 +313,6 @@ type ContractualProduct: <" A class to specify the contractual products' economi
 
 type ContractualQuantity: <" [SCHEDULED FOR DEPRECATION: Class to be emptied-out as products get progressively migrated to the restructured quantity mechanism.] A class to specify the quantity or notional amount that is associated with a contractual product and that is the base for the payout calculation. The quantity attribute applies to products relating to securities or tangible assets (such as equities or commodities), while the notional amount applies to products pertaining to interest rate, FX or credit products.">
 
-	quantity Quantity (0..1) <"The contractual quantity when specified as an amount/number of securities or tangible assets. The quantity attribute is typical used in the equity and commodity asset classes.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "ignore"]
 	notionalAmount Money (0..1) <"The contractual quantity when specified as an amount and a currency units without associated schedule or FX terms. When applied to Credit default Swaps, this is the notional amount of protection coverage. ISDA 2003 Term: Floating Rate Payer Calculation Amount.">
 		[metadata reference]
 		// For Bond Option
@@ -704,11 +702,7 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
 	condition FutureValueNotional_terminationDate: <"FpML states that the value date associated with the future value notional should match the adjusted termination date.">
 		if InterestRatePayout -> payoutQuantity -> futureValueNotional exists
 		then InterestRatePayout -> payoutQuantity -> futureValueNotional -> valueDate = InterestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate -> adjustedDate
-
-	condition InterestRatePayout_actualQuantity: <"The quantity associated to an interest rate payout should not be expressed as a quantity, but rather as a notional (which can itself be expressed in a number of distinct ways).">
-		if InterestRatePayout exists
-		then InterestRatePayout -> quantity -> quantity is absent
-
+	
 	condition FpML_ird_6: <"FpML validation rule ird-6 - If paymentDates/firstPaymentDate exists, and if calculationPeriodDates/effectiveDate exists, then paymentDates/firstPaymentDate must be after calculationPeriodDates/effectiveDate/unadjustedDate.">
 		if InterestRatePayout -> paymentDates -> firstPaymentDate exists
 			and InterestRatePayout -> calculationPeriodDates -> effectiveDate exists
