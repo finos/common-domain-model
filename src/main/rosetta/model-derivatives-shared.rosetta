@@ -581,8 +581,9 @@ type Frequency: <"A class for defining a date frequency, e.g. one day, three mon
 		if Frequency exists
 		then Frequency -> periodMultiplier >= 0
 
-type FutureValueAmount extends Money: <"A class defining a currency amount as at a future value date.">
+type FutureValueAmount extends Money: <"SCHEDULED FOR DEPRECATION: A class defining a currency amount as at a future value date.">
 	[synonym FpML_5_10 value "FutureValueAmount"]
+	
 	calculationPeriodNumberOfDays int (1..1) <"The number of days from the adjusted calculation period start date to the adjusted value date, calculated in accordance with the applicable day count fraction.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "calculationPeriodNumberOfDays"]
 	valueDate date (1..1) <"Adjusted value date of the future value amount.">
@@ -595,6 +596,19 @@ type FutureValueAmount extends Money: <"A class defining a currency amount as at
 		if FutureValueAmount exists
 		then FutureValueAmount -> calculationPeriodNumberOfDays >= 0
 
+type FutureValueNotional: <"A class defining a currency and a future value date.">
+	
+	currency string (1..1) <"The currency in which the an amount is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
+		[metadata scheme]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "currency" maps 2 meta "currencyScheme"]
+	calculationPeriodNumberOfDays int (1..1) <"The number of days from the adjusted calculation period start date to the adjusted value date, calculated in accordance with the applicable day count fraction.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "calculationPeriodNumberOfDays"]
+	valueDate date (1..1) <"Adjusted value date of the future value amount.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "valueDate"]
+
+	condition FutureValueNotional_calculationPeriodNumberOfDays: <"FpML specifies calculationPeriodNumberOfDays as a positiveInteger.">
+		if FutureValueNotional exists
+		then FutureValueNotional -> calculationPeriodNumberOfDays >= 0
 
 type FxRate: <"A class describing the rate of a currency conversion: pair of currency, quotation mode and exchange rate.">
 	[synonym FpML_5_10 value "FxRate"]
