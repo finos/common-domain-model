@@ -321,15 +321,8 @@ type ContractualQuantity: <" [SCHEDULED FOR DEPRECATION: Class to be emptied-out
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, Workflow_Event value "notionalAmount"]
 		// For CDS, Option, Swaption
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notionalReference" meta "href"]
-	notionalSchedule NotionalSchedule (0..1) <"The contractual quantity when specified as a notional amount with an associated schedule, as used in the case of an amortizing swap where the notional amount decreases over time.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "ignore"]
-	fxLinkedNotional FxLinkedNotionalSchedule (0..1) <"The contractual quantity when specified as a notional amount which value is a function of FX parameters.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "ignore"]
 	futureValueNotional FutureValueAmount (0..1) <"The future value notional is specific to BRL CDI swaps, and is specified alongside the notional amount. The value is calculated as follows: Future Value Notional = Notional Amount * (1 + Fixed Rate) ^ (Fixed Rate Day Count Fraction). The currency should always match that expressed in the notional schedule. The value date should match the adjusted termination date.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "ignore"]
-
-	condition ContractualQuantity_choice: <"The below set of notional values are exclusive, while some of those could be associated with the futureValueNotional.">
-		optional choice quantity, notionalAmount , notionalSchedule , fxLinkedNotional
 
 /*condition ContractualQuantity_notionalReset: <"As the notionalReset attribute applies to return swaps, the equity payout needs to be present alongside it.">
  * 	if ContractualProduct -> economicTerms -> quantity -> notionalReset exists
@@ -742,8 +735,8 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
 	condition SettlementProvision_settlementCurrency: <"FpML specifies that the SettlementProvision exists when the settlement currency is different to the notional currency of the trade.">
 		if InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> nonDeliverableSettlement exists
 		then InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> settlementCurrency <> InterestRatePayout -> quantity -> notionalAmount -> currency
-			or InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> settlementCurrency <> InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> currency
-			or InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> settlementCurrency <> InterestRatePayout -> quantity -> fxLinkedNotional -> varyingNotionalCurrency
+			or InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> settlementCurrency <> InterestRatePayout -> payoutQuantity -> assetIdentifier -> currency
+			or InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> settlementCurrency <> InterestRatePayout -> payoutQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> varyingNotionalCurrency
 
 	/*
 	 * TODO - Need for an associated logic that will parse the respective legs of the swap, as this is not made explicit at present as part of the syntax
@@ -1388,8 +1381,6 @@ isProduct InterestRate_IRSwap_FixedFloat_PlainVanilla <"This product qualificati
 	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule -> step is absent
 	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate -> step is absent
 	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> floatingRateMultiplierSchedule is absent
-	and EconomicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step is absent
-	and EconomicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepParameters is absent
 	and EconomicTerms -> payout -> interestRatePayout -> payoutQuantity -> quantitySchedule -> stepSchedule -> step is absent
 	and EconomicTerms -> payout -> interestRatePayout -> stubPeriod is absent
 	and EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> stubPeriodType is absent
@@ -1443,8 +1434,6 @@ isProduct InterestRate_IRSwap_FixedFloat
 	and EconomicTerms -> payout -> optionPayout is absent
 	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period <> PeriodExtendedEnum -> T
 	and ( EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule -> step exists
-		or EconomicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> step exists
-		or EconomicTerms -> payout -> interestRatePayout -> quantity -> notionalSchedule -> notionalStepParameters exists
 		or EconomicTerms -> payout -> interestRatePayout -> payoutQuantity -> quantitySchedule -> stepSchedule -> step exists
 		or EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> floatingRateMultiplierSchedule exists
 		or EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate -> step exists

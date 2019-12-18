@@ -12,13 +12,11 @@ import org.isda.cdm.BusinessDayAdjustments;
 import org.isda.cdm.BusinessDayConventionEnum;
 import org.isda.cdm.CalculationPeriodDates;
 import org.isda.cdm.CalculationPeriodFrequency;
-import org.isda.cdm.ContractualQuantity;
 import org.isda.cdm.DayCountFractionEnum;
 import org.isda.cdm.FloatingRateIndexEnum;
 import org.isda.cdm.FloatingRateSpecification;
 import org.isda.cdm.InterestRatePayout;
-import org.isda.cdm.NonNegativeAmountSchedule;
-import org.isda.cdm.NotionalSchedule;
+import org.isda.cdm.NonNegativeQuantity;
 import org.isda.cdm.PeriodExtendedEnum;
 import org.isda.cdm.RateSpecification;
 import org.isda.cdm.RollConventionEnum;
@@ -26,7 +24,6 @@ import org.isda.cdm.functions.AbstractFunctionTest;
 import org.isda.cdm.functions.FloatingAmount;
 import org.isda.cdm.metafields.FieldWithMetaDayCountFractionEnum;
 import org.isda.cdm.metafields.FieldWithMetaFloatingRateIndexEnum;
-import org.isda.cdm.metafields.FieldWithMetaString;
 import org.isda.cdm.metafields.ReferenceWithMetaBusinessCenters;
 import org.junit.jupiter.api.Test;
 
@@ -38,15 +35,10 @@ class FloatingAmountTest extends AbstractFunctionTest{
 	
 	@Inject Provider<FloatingAmount> floatingAmount;
     
+	private static final NonNegativeQuantity QUANTITY = NonNegativeQuantity.builder().setAmount(BigDecimal.valueOf(50_000_000)).build();
+	
+	
 	private static final InterestRatePayout INTEREST_RATE_PAYOUT = InterestRatePayout.builder()
-            .setQuantity(ContractualQuantity.builder()
-                    .setNotionalSchedule(NotionalSchedule.builder()
-                            .setNotionalStepSchedule((NonNegativeAmountSchedule) NonNegativeAmountSchedule.builder()
-                                    .setCurrency(FieldWithMetaString.builder().setValue("EUR").build())
-                                    .setInitialValue(BigDecimal.valueOf(50_000_000))
-                                    .build())
-                            .build())
-                    .build())
             .setRateSpecificationBuilder(RateSpecification.builder()
                     .setFloatingRateBuilder(FloatingRateSpecification.builder()
                             .setFloatingRateIndex(FieldWithMetaFloatingRateIndexEnum.builder()
@@ -94,7 +86,7 @@ class FloatingAmountTest extends AbstractFunctionTest{
     @Test
     void shouldApplyMultiplication() {
     	FloatingAmount floatingAmount = this.floatingAmount.get();
-        BigDecimal result = floatingAmount.evaluate(INTEREST_RATE_PAYOUT, DateImpl.of(2018, 1, 3));
+        BigDecimal result = floatingAmount.evaluate(INTEREST_RATE_PAYOUT, QUANTITY, DateImpl.of(2018, 1, 3));
         assertThat(result, closeTo(BigDecimal.valueOf(1093750), BigDecimal.valueOf(0.0000001)));
     }
 
