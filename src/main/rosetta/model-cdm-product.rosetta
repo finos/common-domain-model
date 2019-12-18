@@ -389,7 +389,7 @@ type ResolvablePayoutQuantity: <" Generic class to specify the quantity for diff
 		[synonym FpML_5_10 value "notionalReset"]
 	futureValueNotional FutureValueAmount (0..1) <"The future value notional is specific to BRL CDI swaps, and is specified alongside the notional amount. The value is calculated as follows: Future Value Notional = Notional Amount * (1 + Fixed Rate) ^ (Fixed Rate Day Count Fraction). The currency should always match that expressed in the notional schedule. The value date should match the adjusted termination date.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "futureValueNotional"]
-		
+
 	condition ResolvablePayoutQuantity_choice1: <"A payout quantity can be resolved either (i) by fetching its actual quantity from a higher-level quantity notation specification referenced via an asset identifier, or (ii) by reference to another (resolvable) quantity.">
 		optional choice assetIdentifier, quantityReference
 
@@ -702,7 +702,7 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
 	condition FutureValueNotional_terminationDate: <"FpML states that the value date associated with the future value notional should match the adjusted termination date.">
 		if InterestRatePayout -> payoutQuantity -> futureValueNotional exists
 		then InterestRatePayout -> payoutQuantity -> futureValueNotional -> valueDate = InterestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate -> adjustedDate
-	
+
 	condition FpML_ird_6: <"FpML validation rule ird-6 - If paymentDates/firstPaymentDate exists, and if calculationPeriodDates/effectiveDate exists, then paymentDates/firstPaymentDate must be after calculationPeriodDates/effectiveDate/unadjustedDate.">
 		if InterestRatePayout -> paymentDates -> firstPaymentDate exists
 			and InterestRatePayout -> calculationPeriodDates -> effectiveDate exists
