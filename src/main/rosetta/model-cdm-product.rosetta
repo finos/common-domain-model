@@ -1439,23 +1439,24 @@ func InterestRate_IRSwap_FixedFloat:
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
 	[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_FixedFloat"]
-	EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
-	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
-	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
-	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
-	and EconomicTerms -> payout -> optionPayout is absent
-	and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period <> PeriodExtendedEnum -> T
-	and ( EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule -> step exists
-		or EconomicTerms -> payout -> interestRatePayout -> payoutQuantity -> quantitySchedule -> stepSchedule -> step exists
-		or EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> floatingRateMultiplierSchedule exists
-		or EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate -> step exists
-		or EconomicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier <>
-		EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> indexTenor -> periodMultiplier
-		or EconomicTerms -> payout -> interestRatePayout -> compoundingMethod exists
-		or EconomicTerms -> payout -> interestRatePayout -> stubPeriod exists
-		or EconomicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> stubPeriodType exists
-		or EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> settlementProvision exists )
-	and EconomicTerms -> payout -> interestRatePayout -> paymentDates exists
+	assign-output is_product:
+	economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
+		and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
+		and economicTerms -> payout -> optionPayout is absent
+		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period <> PeriodExtendedEnum -> T
+		and ( economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule -> step exists
+			or economicTerms -> payout -> interestRatePayout -> payoutQuantity -> quantitySchedule -> stepSchedule -> step exists
+			or economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> floatingRateMultiplierSchedule exists
+			or economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate -> step exists
+			or economicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier <>
+			economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> indexTenor -> periodMultiplier
+			or economicTerms -> payout -> interestRatePayout -> compoundingMethod exists
+			or economicTerms -> payout -> interestRatePayout -> stubPeriod exists
+			or economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> stubPeriodType exists
+			or economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> settlementProvision exists )
+		and economicTerms -> payout -> interestRatePayout -> paymentDates exists
 
 func InterestRate_IRSwap_FixedFixed:
 	[qualification product]
