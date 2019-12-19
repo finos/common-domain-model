@@ -5,7 +5,7 @@ version "${project.version}"
  * Aliases (other than those embedded in the calculation syntax)
  */
 func ForwardFX:
-	inputs: 
+	inputs:
 		forwardPayout ForwardPayout(1..1)
 	output: result ForeignExchange (1..1)
 	assign-output result: forwardPayout -> underlier -> singleUnderlier -> underlyingProduct -> foreignExchange
@@ -32,12 +32,12 @@ func NovatedContractEffectiveDate:
 	inputs:
 		workflowEvent WorkflowEvent(1..1)
 	output: result ListOfDates(1..1)
-	
+
 	alias eTerms: workflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> contractualProduct -> economicTerms
 	alias effectiveDate: eTerms only-element -> effectiveDate
 	alias interestRatePayoutDate: eTerms only-element-> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate
 	alias equityPayoutDate: eTerms only-element-> payout -> equityPayout -> calculationPeriodDates -> effectiveDate
-	
+
 	assign-output result -> dates: [
 			effectiveDate -> adjustableDate -> adjustedDate,
 			effectiveDate -> adjustableDate -> unadjustedDate,
@@ -59,10 +59,21 @@ func PaymentDate: // Scope limited to interestPayout until such time that we pos
 type ListOfDates:
 	dates date(0..*)
 
+alias quantityAfterQuantityChange <"The alias to represent the quantity or notional amount in terms of number of units (i.e. ignoring the currency or units denomination) after a quantity change primitive.">
+	( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount group by currency ) -> amount
+	and ( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> notionalAmount group by currency ) -> amount
+	and ( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount group by currency ) -> amount
+	and ( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> contractualQuantity -> quantityNotation group by assetIdentifier -> currency ) -> quantity -> amount
+
 type ListOfNumbers:
 	numbers number(0..*)
-	
-	
+
+alias quantityBeforeQuantityChange <"The alias to represent the quantity or notional amount in terms of number of units (i.e. ignoring the currency or units denomination) before a quantity change primitive.">
+	( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount group by currency) -> amount
+	and ( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> notionalAmount group by currency ) -> amount
+	and ( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount group by currency ) -> amount
+	and ( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualQuantity -> quantityNotation group by assetIdentifier -> currency ) -> quantity -> amount
+
 
 func QuantityAfterQuantityChange: <"The alias to represent the quantity or notional amount in terms of number of units (i.e. ignoring the currency or units denomination) after a quantity change primitive.">
 	inputs:
@@ -115,7 +126,7 @@ func TerminationDate: // Scope limited to interestPayout until such time that we
 	output: result ListOfDates(1..1)
 	alias interestRateTerminationDate: economicTerms -> payout -> interestRatePayout only-element -> calculationPeriodDates -> terminationDate
 	alias equityPayoutTerminationDate: economicTerms -> payout -> equityPayout only-element -> calculationPeriodDates -> terminationDate
-	
+
 	assign-output result -> dates:
 		[
 			economicTerms -> terminationDate -> adjustableDate -> adjustedDate,
