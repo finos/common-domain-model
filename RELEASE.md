@@ -1,4 +1,4 @@
-Model Optimisation: Quantity Refactor for Resetting Xccy Swaps, Repo and BRL CDI Swaps
+# *Model Optimisation: Quantity Refactor for Resetting Xccy Swaps, Repo and BRL CDI Swaps*
 
 _What is being released_
 
