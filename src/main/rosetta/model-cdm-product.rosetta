@@ -316,15 +316,6 @@ type ContractualProduct: <" A class to specify the contractual products' economi
 	economicTerms EconomicTerms (1..1) <"The economic terms associated with a contractual product, i.e. the set of features that are price-forming.">
 
 
-/*condition ContractualQuantity_notionalReset: <"As the notionalReset attribute applies to return swaps, the equity payout needs to be present alongside it.">
- * 	if ContractualProduct -> economicTerms -> quantity -> notionalReset exists
- * 	then ContractualProduct -> economicTerms -> payout -> equityPayout exists
-
- * condition ContractualQuantity_notionalAdjustments: <"As the notionalAdjustments attribute applies to return swaps, the equity payout needs to be present alongside it.">
- * 	if ContractualProduct -> economicTerms -> quantity -> notionalAdjustments exists
- then ContractualProduct -> economicTerms -> payout -> equityPayout exists*/
-
-
 type ExecutionQuantity: <" Class to specify the executed quantity of a product, provided as (possibly multiple) quantity notations, plus additional information regarding potential future quantity adjustments. Should be remaned as, and supersede, 'ContractualQuantity' once the latter can be deprecated.">
 
 	quantityNotation QuantityNotation (1..*) <"Quantity of the underlying contractual product that the contract is written on, defined as a single, non-negative number, a (mandatory) notation tag and an (optional) unit. Products, including contractual products, are designed to be defined as a unit in CDM (with quantity schedule and cross-referencing mechanisms handled as part of the underlying payout legs), so that the overall quantity can be abstracted away from the product definition. The notation tag (e.g. 'Notional') is meant to be referenced by the underlying payout legs and used to resolve the product, by fetching the actual amount from the appropriate quantity notation.">
@@ -397,6 +388,13 @@ type ResolvablePayoutQuantity: <" Generic class to specify the quantity for diff
 		if ResolvablePayoutQuantity -> quantityMultiplier exists
 		then ResolvablePayoutQuantity -> quantityReference -> reference exists
 
+//	condition ContractualQuantity_notionalReset: <"As the notionalReset attribute applies to return swaps, the equity payout needs to be present alongside it.">
+// 		if ContractualProduct -> economicTerms -> quantity -> notionalReset exists
+// 		then ContractualProduct -> economicTerms -> payout -> equityPayout exists
+
+// 	condition ContractualQuantity_notionalAdjustments: <"As the notionalAdjustments attribute applies to return swaps, the equity payout needs to be present alongside it.">
+// 		if ContractualProduct -> economicTerms -> quantity -> notionalAdjustments exists
+//		then ContractualProduct -> economicTerms -> payout -> equityPayout exists
 
 type CrossCurrencyTerms:
 
@@ -1039,13 +1037,13 @@ type Payout: <" A class to represent the set of future cashflow methodologies in
 			and Payout -> interestRatePayout -> stubPeriod -> finalStub exists
 		then Payout -> interestRatePayout count = 2
 
-	/*condition Payout_quantity: <"There must be at least 1 anchor quantity defined in absolute across all payout legs, that other legs can reference. Currently only implemented for interest rate or equity payout. As an additional constraint the (initial) value should be 1.0, which means payout is defined for a single unit. This constraint may be relaxed in future where the initial value could be used as a unit divider, to facilitate the step notional case where using large numbers is more readable.">
-	 * 	if Payout -> equityPayout exists
-	 * 		or Payout -> interestRatePayout exists
-	 * 	then (	Payout -> equityPayout -> payoutQuantity -> quantitySchedule exists
-	 * 			and Payout -> equityPayout -> payoutQuantity -> quantitySchedule -> amount = 1.0 )
-	 *  		or (	Payout -> interestRatePayout -> payoutQuantity -> quantitySchedule exists
-	 and Payout -> interestRatePayout -> payoutQuantity -> quantitySchedule -> amount = 1.0 )*/
+//	condition Payout_quantity: <"There must be at least 1 anchor quantity defined in absolute across all payout legs, that other legs can reference. Currently only implemented for interest rate or equity payout. As an additional constraint the (initial) value should be 1.0, which means payout is defined for a single unit. This constraint may be relaxed in future where the initial value could be used as a unit divider, to facilitate the step notional case where using large numbers is more readable.">
+//	 	if Payout -> equityPayout exists
+//	 		or Payout -> interestRatePayout exists
+//	 	then ( Payout -> equityPayout -> payoutQuantity -> quantitySchedule exists
+//	 			and Payout -> equityPayout -> payoutQuantity -> quantitySchedule -> amount = 1.0 )
+//	  		or ( Payout -> interestRatePayout -> payoutQuantity -> quantitySchedule exists
+//	 and Payout -> interestRatePayout -> payoutQuantity -> quantitySchedule -> amount = 1.0 )
 
 	condition PaymentDates_payRelativeTo: <"FpML specifies a required payRelativeTo element as part of the PaymentDates. As standardized CDS don't have such payRelativeTo provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
 		if Payout -> interestRatePayout count = 2
