@@ -305,7 +305,8 @@ type Contract: <" A class to specify a financial contract object, which can be i
 	condition FpML_cd_32: <"FpML validation rule cd-32 - If condition LongForm is true, and if fixedAmountCalculation/calculationAmount exists, then fixedAmountCalculation/dayCountFraction must exist.">
 		if ( Contract -> documentation -> documentationIdentification -> masterConfirmation and Contract -> documentation -> documentationIdentification -> contractualMatrix ) is absent
 			and Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
-			and Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount exists
+			and Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity -> assetIdentifier -> currency exists
+			and Contract -> contractualQuantity -> quantityNotation -> quantity -> amount exists
 		then Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> dayCountFraction exists
 
 type ContractualProduct: <" A class to specify the contractual products' economic terms, alongside their product identification and product taxonomy. The contractual product class is meant to be used across the pre-execution, execution and (as part of the Contract) post-execution lifecycle contexts.">
@@ -314,11 +315,6 @@ type ContractualProduct: <" A class to specify the contractual products' economi
 	productTaxonomy ProductTaxonomy (0..*) <"The product taxonomy value(s) associated with a contractual product.">
 	economicTerms EconomicTerms (1..1) <"The economic terms associated with a contractual product, i.e. the set of features that are price-forming.">
 
-
-type ContractualQuantity: <" [SCHEDULED FOR DEPRECATION: Class to be emptied-out as products get progressively migrated to the restructured quantity mechanism.] A class to specify the quantity or notional amount that is associated with a contractual product and that is the base for the payout calculation. The quantity attribute applies to products relating to securities or tangible assets (such as equities or commodities), while the notional amount applies to products pertaining to interest rate, FX or credit products.">
-
-	notionalAmount Money (0..1) <"The contractual quantity when specified as an amount and a currency units without associated schedule or FX terms. When applied to Credit default Swaps, this is the notional amount of protection coverage. ISDA 2003 Term: Floating Rate Payer Calculation Amount.">
-		[metadata reference]
 
 /*condition ContractualQuantity_notionalReset: <"As the notionalReset attribute applies to return swaps, the equity payout needs to be present alongside it.">
  * 	if ContractualProduct -> economicTerms -> quantity -> notionalReset exists
@@ -662,7 +658,6 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta "id"]
 
 	payerReceiver PayerReceiver (0..1) <"The payer/seller paradigm applies to swap products, whether interest rate swaps or the fee leg of credit default swaps.">
-	quantity ContractualQuantity (0..1) <"The specification of the notional amount that is associated with a contractual product and that is the base for the payout calculation, through the ContractualQuantity class which provides a generic approach that is applicable across all asset classes. The quantity attribute applies to products relating to securities or tangible assets (such as equities or commodities), while the notional amount applies to products pertaining to interest rate, FX or credit products.">
 	rateSpecification RateSpecification (1..1) <"The specification of the rate value(s) applicable to the contract using either a floating rate calculation, a single fixed rate, a fixed rate schedule, or an inflation rate calculation.">
 	dayCountFraction DayCountFractionEnum (0..1) <"The day count fraction. The cardinality has been relaxed when compared with the FpML interest rate swap for the purpose of accommodating standardized credit default swaps which DCF is not explicitly stated as part of the economic terms. The data rule InterestRatePayout_dayCountFraction requires that the DCF be stated for interest rate products.">
 		[metadata scheme]
@@ -732,8 +727,7 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
 
 	condition SettlementProvision_settlementCurrency: <"FpML specifies that the SettlementProvision exists when the settlement currency is different to the notional currency of the trade.">
 		if InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> nonDeliverableSettlement exists
-		then InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> settlementCurrency <> InterestRatePayout -> quantity -> notionalAmount -> currency
-			or InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> settlementCurrency <> InterestRatePayout -> payoutQuantity -> assetIdentifier -> currency
+		then InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> settlementCurrency <> InterestRatePayout -> payoutQuantity -> assetIdentifier -> currency
 			or InterestRatePayout -> crossCurrencyTerms -> settlementProvision -> settlementCurrency <> InterestRatePayout -> payoutQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> varyingNotionalCurrency
 
 	/*
@@ -786,7 +780,6 @@ type OptionPayout extends PayoutBase: <" The option payout specification terms. 
 	feature OptionFeature (0..1) <"The option feature, such as quanto, Asian, barrier, knock.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "feature"]
 	denomination OptionDenomination (0..1) <"The denomination qualifies the number of units of underlier per option and the number of options comprised in the option transaction. FpML represents this information as part of the OptionDenomination.model.">
-	quantity ContractualQuantity (0..1) <"The option notional amount. The CDM uses the generic term quantity rather than notional amount. The number of options is specified as part of the denomination attribute.">
 	exerciseTerms OptionExercise (1..1) <"The terms for exercising the option, which include the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">
 	underlier Underlier (1..1) <"The product underlying the option, which can be of any type including ContractualProduct or Security.">
 
@@ -1053,7 +1046,7 @@ type Payout: <" A class to represent the set of future cashflow methodologies in
 		if Payout -> interestRatePayout exists
 			and Payout -> creditDefaultPayout is absent
 			and Payout -> optionPayout is absent
-		then (Payout -> interestRatePayout -> quantity exists or Payout -> interestRatePayout -> payoutQuantity exists)
+		then Payout -> interestRatePayout -> payoutQuantity exists
 
 	condition InterestRatePayout_dayCountFraction: <"FpML specifies a required dayCountFraction element as part of the swapStream/calculationPeriodAmount/calculation. As standardized CDS don't have such specified day count fraction, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
 		if Payout -> interestRatePayout count = 2
