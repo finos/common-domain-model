@@ -79,8 +79,11 @@ type Contract: <" A class to specify a financial contract object, which can be i
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "premium" path "swaption"]
 		// For CapFloor:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "capFloor" path "trade" ]
-		// For FRA:
+		// For FRA and Bond Options:
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "trade"]
+		// For Bond Options:
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint "bondOption"]
+		// For FRA:
 		[synonym CME_SubmissionIRS_1_0 value "trade" path "Instrmt->SecXML->FpML"]
 		// For CDS:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "creditDefaultSwap" ]
@@ -128,9 +131,9 @@ type Contract: <" A class to specify a financial contract object, which can be i
 
 	condition ContractualQuantity_equityPayout_resolvable:
 		if Contract -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> assetIdentifier exists
-		then Contract -> contractualQuantity -> quantityNotation -> assetIdentifier exists 
+		then Contract -> contractualQuantity -> quantityNotation -> assetIdentifier exists
 			and Contract -> contractualQuantity -> quantityNotation -> assetIdentifier contains Contract -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> assetIdentifier
-	
+
 //	condition ContractualQuantity_cashflow_resolvable:
 //		if Contract -> contractualProduct -> economicTerms -> payout -> cashflow -> payoutQuantity -> assetIdentifier exists
 //		then Contract -> contractualQuantity -> quantityNotation -> assetIdentifier exists
@@ -316,10 +319,6 @@ type ContractualQuantity: <" [SCHEDULED FOR DEPRECATION: Class to be emptied-out
 
 	notionalAmount Money (0..1) <"The contractual quantity when specified as an amount and a currency units without associated schedule or FX terms. When applied to Credit default Swaps, this is the notional amount of protection coverage. ISDA 2003 Term: Floating Rate Payer Calculation Amount.">
 		[metadata reference]
-		// For Bond Option
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, Workflow_Event value "notionalAmount"]
-		// For CDS, Option, Swaption
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notionalReference" meta "href"]
 
 /*condition ContractualQuantity_notionalReset: <"As the notionalReset attribute applies to return swaps, the equity payout needs to be present alongside it.">
  * 	if ContractualProduct -> economicTerms -> quantity -> notionalReset exists
@@ -353,6 +352,9 @@ type ExecutionQuantity: <" Class to specify the executed quantity of a product, 
 		[synonym Workflow_Event value "cashflow"]
 		// For Repo:
 		[synonym FpML_5_10 value "nearLeg"]
+		// For Bond Option:
+		[synonym FpML_5_10 value "notionalAmount" path "bondOption"]
+		[synonym FpML_5_10 value "paymentAmount" path "bondOption->premium"]
 	adjustment NotionalAdjustmentEnum (0..1) <"Specifies the conditions that govern the adjustment to the quantity of a contractual product being traded: e.g. execution, portfolio rebalancing etc. It is typically used in the context of Equity Swaps.">
 		[synonym FpML_5_10 value "notionalAdjustments"]
 
@@ -375,7 +377,7 @@ type ResolvablePayoutQuantity: <" Generic class to specify the quantity for diff
 	assetIdentifier AssetIdentifier (0..1) <"Identifier for the asset being quantified.">
 		// For Swap Stream:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notionalAmount", "notionalStepSchedule"]
-		// For FRA, CDS single fee and Repo:
+		// For FRA, CDS Single Fee, Repo, and Bond Option:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint "currency"]
 		// For CDS:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "calculationAmount"]
@@ -385,6 +387,8 @@ type ResolvablePayoutQuantity: <" Generic class to specify the quantity for diff
 		[metadata reference]
 		[synonym FpML_5_10 value "relativeNotionalAmount" meta "href"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "constantNotionalScheduleReference" meta "href"]
+		// For CDS Option, CDX Index Option, Bond Option, Swaption:
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notionalReference" meta "href"]
 	quantityMultiplier QuantityMultiplier (0..1) <"Quantity multiplier is specified on top of a reference quantity and is used as a multiplying factor when resolving the quantity. A quantity multiplier can only exist when the resolvable quantity specifies a reference quantity.">
 	reset boolean (0..1) <"Whether the quantity is resettable">
 		[synonym FpML_5_10 value "notionalReset"]
@@ -597,22 +601,22 @@ type Execution: <" A class to specify an execution, which consists essentially i
 	condition Execution_settlementTerms: <"When the executed product is a security, the settlement terms must be specified.">
 		if Execution -> product -> security exists
 		then Execution -> settlementTerms exists
-		
+
 	condition ExecutionQuantity_interestRatePayout_resolvable:
 		if Execution -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity -> assetIdentifier exists
-		then Execution -> executionQuantity -> quantityNotation -> assetIdentifier exists 
+		then Execution -> executionQuantity -> quantityNotation -> assetIdentifier exists
 			and Execution -> executionQuantity -> quantityNotation -> assetIdentifier contains Execution -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity -> assetIdentifier
 
 	condition ExecutionQuantity_equityPayout_resolvable:
 		if Execution -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> assetIdentifier exists
 		then Execution -> executionQuantity -> quantityNotation -> assetIdentifier exists
 			and Execution -> executionQuantity -> quantityNotation -> assetIdentifier contains Execution -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> assetIdentifier
-	
+
 //	condition ExecutionQuantity_cashflow_resolvable:
 //		if Execution -> product -> contractualProduct -> economicTerms -> payout -> cashflow -> payoutQuantity -> assetIdentifier exists
 //		then Execution -> executionQuantity -> quantityNotation -> assetIdentifier exists
 //			and Execution -> executionQuantity -> quantityNotation -> assetIdentifier contains Execution -> product -> contractualProduct -> economicTerms -> payout -> cashflow -> payoutQuantity -> assetIdentifier
-	
+
 	condition ExecutionQuantity_bond_resolvable:
 		if Execution -> product -> security -> bond -> productIdentifier exists
 		then Execution -> executionQuantity -> quantityNotation -> assetIdentifier -> productIdentifier exists
@@ -772,7 +776,7 @@ type OptionExercise: <" A class to represent the applicable terms to qualify an 
 	settlement OptionSettlement (0..1) <"The option settlement terms, such as cash vs. physical, the settlement date, the settlement currency and/or amount. FpML represents this information as part of the OptionSettlement.model.">
 
 
-type OptionPayout: <" The option payout specification terms. The associated rosettaKey denotes the ability to associate a hash value to the respective OptionPayout instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+type OptionPayout extends PayoutBase: <" The option payout specification terms. The associated rosettaKey denotes the ability to associate a hash value to the respective OptionPayout instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta "id"]
 
@@ -957,6 +961,10 @@ type PayoutBase: <" Base class that all payout types should extend. Use case is 
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "settlementAmount" path "nearLeg"]
 		// For BRL CDI swaps:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "calculation" path "calculationPeriodAmount"]
+		// For CDS Option:
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint "notionalReference"]
+		// For Bond Option:
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notionalAmount"]
 
 
 type Payout: <" A class to represent the set of future cashflow methodologies in the form of specific payout class(es) that can be associated for the purpose of specifying a financial product. For example, two interest rate payouts can be combined to specify an interest rate swap, or one interest rate payout can be combined with a credit default payout to specify a credit default swap.">
@@ -1026,7 +1034,7 @@ type Payout: <" A class to represent the set of future cashflow methodologies in
 	 * 			and Payout -> equityPayout -> payoutQuantity -> quantitySchedule -> amount = 1.0 )
 	 *  		or (	Payout -> interestRatePayout -> payoutQuantity -> quantitySchedule exists
 	 and Payout -> interestRatePayout -> payoutQuantity -> quantitySchedule -> amount = 1.0 )*/
-	
+
 	condition PaymentDates_payRelativeTo: <"FpML specifies a required payRelativeTo element as part of the PaymentDates. As standardized CDS don't have such payRelativeTo provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
 		if Payout -> interestRatePayout count = 2
 			and Payout -> interestRatePayout -> paymentDates exists
@@ -1041,13 +1049,13 @@ type Payout: <" A class to represent the set of future cashflow methodologies in
 		if Payout -> interestRatePayout count = 2
 			and Payout -> interestRatePayout -> paymentDates exists
 		then Payout -> interestRatePayout -> paymentDates -> paymentFrequency exists
-	
+
 	condition InterestRatePayout_quantity: <"When there an InterestRatePayout but no creditDefaultPayout nor optionPayout, the notional must be specified. The notional of a credit default swap is expressed as part of the protection terms.">
 		if Payout -> interestRatePayout exists
 			and Payout -> creditDefaultPayout is absent
 			and Payout -> optionPayout is absent
 		then (Payout -> interestRatePayout -> quantity exists or Payout -> interestRatePayout -> payoutQuantity exists)
-	
+
 	condition InterestRatePayout_dayCountFraction: <"FpML specifies a required dayCountFraction element as part of the swapStream/calculationPeriodAmount/calculation. As standardized CDS don't have such specified day count fraction, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
 		if Payout -> interestRatePayout count = 2
 		then Payout -> interestRatePayout -> dayCountFraction exists
@@ -1055,7 +1063,7 @@ type Payout: <" A class to represent the set of future cashflow methodologies in
 	condition InterestRatePayout_paymentDates: <"FpML specifies a required paymentDates element as part of the swapStream. As standardized CDS may not have specified payment dates, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
 		if Payout -> interestRatePayout count = 2
 		then Payout -> interestRatePayout -> dayCountFraction exists
-	
+
 	condition TransactedPrice_marketPrice: <"FpML specifies that marketFixedRate and marketPrice only have meaning in a credit index trade">
 		if Payout -> creditDefaultPayout -> generalTerms -> indexReferenceInformation is absent
 		then Payout -> creditDefaultPayout -> transactedPrice -> marketFixedRate is absent
@@ -1124,7 +1132,7 @@ type ProductIdentification: <" A class to combine the CDM product qualifier with
 		[synonym DTCC_11_0, DTCC_9_0 value "instrumentId" path "payment->calculationDetails->calculationElements->underlier->index" meta "instrumentIdScheme"]
 
 
-type  Quantity: <" A class to specify an amount/number of securities or tangible assets such as a commodity product. The units qualifier is not used if the Quantity class is applied to securities.">
+type Quantity: <" A class to specify an amount/number of securities or tangible assets such as a commodity product. The units qualifier is not used if the Quantity class is applied to securities.">
 
 	amount number (1..1) <"The amount to quantify ">
 		[synonym FpML_5_10, Workflow_Event, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "amount"]
@@ -1135,8 +1143,8 @@ type  Quantity: <" A class to specify an amount/number of securities or tangible
 	currency string (0..1) <"ATTRIBUTE TO BE DEPRECATED. The currency in which the associated amount is denominated, if applicable. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
 		[metadata scheme]
 
-		condition Quantity_unit: <"Quantity can be either specified as: (i) a raw number (no unit, e.g. to describe a no. securities), (ii) a number with a unit (to describe physical assets, e.g. MWh or MMBTU) or (iii) a number and a currency (to describe a notional amount). Case (i) implies that choice is optional.">
-			optional choice unit, currency
+	condition Quantity_unit: <"Quantity can be either specified as: (i) a raw number (no unit, e.g. to describe a no. securities), (ii) a number with a unit (to describe physical assets, e.g. MWh or MMBTU) or (iii) a number and a currency (to describe a notional amount). Case (i) implies that choice is optional.">
+		optional choice unit, currency
 
 type NonNegativeQuantity extends Quantity: <" Class to specify a quantity as a non-negative number, which condition is enforced through a data rule that only applies to the extending class.">
 
@@ -1159,7 +1167,7 @@ type NonNegativeQuantitySchedule: <"Class to specify a non-negative quantity sch
 type AssetIdentifier: <"Generic object to specify an identifier for a quantifiable object, which can either be a product or a currency.">
 
 	productIdentifier ProductIdentifier (0..1) <"Product identifier, when the quantifiable asset is a product.">
-	 	[synonym FpML_5_10 value "equity"]
+		[synonym FpML_5_10 value "equity"]
 		[synonym DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "ignore"]
 	currency string (0..1) <"Currency identifier, when the quantifiable asset is a currency.">
 		[metadata scheme]
@@ -1172,10 +1180,12 @@ type QuantityNotation: <"Class to specify the quantity of a product as a single,
 	quantity NonNegativeQuantity (1..1) <"The quantity as a non-negative amount.">
 		// For Swap Streams:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notionalStepSchedule"]
+		// For Swap Streams, Equity Swaps and Bond Options:
+		[synonym FpML_5_10 value "notionalAmount"]
 		// For BRL CDI swaps:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint "amount"]
 		// For Equity Swaps:
-		[synonym FpML_5_10 value "notionalAmount", "singleUnderlyer"]
+		[synonym FpML_5_10 value "singleUnderlyer"]
 		// For FRA:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notional"]
 		// For CDS:
@@ -1186,7 +1196,9 @@ type QuantityNotation: <"Class to specify the quantity of a product as a single,
 		[synonym FpML_5_10 value "settlementAmount"]
 	assetIdentifier AssetIdentifier (1..1) <"identifier for the asset being quantified, allowing it to be positioned in the product definition.">
 		// For Swap Stream:
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notionalAmount", "notionalStepSchedule"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notionalStepSchedule"]
+		// For Swap Streams, Equity Swaps and Bond Options:
+		[synonym FpML_5_10 value "notionalAmount"]
 		// For BRL CDI swaps:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint "currency"]
 		// For Equity Swaps
@@ -1200,7 +1212,7 @@ type QuantityNotation: <"Class to specify the quantity of a product as a single,
 		[synonym Workflow_Event value "cashflow"]
 		// For Repo:
 		[synonym FpML_5_10 value "settlementAmount"]
-		
+
 	condition CurrencyAmount: <"When quantity type is specified as a currency amount, the quantity must be specified without unit.">
 		if QuantityNotation -> assetIdentifier -> currency exists then QuantityNotation -> quantity -> unit is absent
 
