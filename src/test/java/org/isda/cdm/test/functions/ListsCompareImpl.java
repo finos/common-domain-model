@@ -1,11 +1,11 @@
-package org.isda.cdm.functions;
+package org.isda.cdm.test.functions;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.function.BiFunction;
 
-import org.isda.cdm.CompareOp;
-import org.isda.cdm.ListOfNumbers;
+import org.isda.cdm.test.CompareOp;
+import org.isda.cdm.test.ListOfNumbers;
 
 public class ListsCompareImpl extends ListsCompare {
 

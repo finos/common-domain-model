@@ -579,8 +579,7 @@ func ClearedTrade:
 	assign-output is_event:
 		workflowEvent -> businessEvent -> primitives count = 5
 		and workflowEvent -> businessEvent -> primitives -> quantityChange count = 1
-		and True = ListsCompare(CompareOp -> Greater, QuantityBeforeQuantityChange(workflowEvent), empty, 0.0)
-		and True = ListsCompare(CompareOp -> Equal, QuantityAfterQuantityChange(workflowEvent), empty, 0.0)
+		and QuantityDecreasedToZero(workflowEvent -> businessEvent -> primitives -> quantityChange) = True
 		and workflowEvent -> businessEvent -> primitives -> execution count = 2
 		and workflowEvent -> businessEvent -> primitives -> contractFormation count = 2
 		and workflowEvent -> businessEvent -> primitives -> execution -> after = workflowEvent -> businessEvent -> primitives -> contractFormation -> before
@@ -613,7 +612,7 @@ func ClearingRejection: <"The rejection of an alpha trade submission by a CCP, w
 		or workflowEvent -> businessEvent -> primitives -> termsChange -> before -> contract -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization)
 		and (workflowEvent -> businessEvent -> primitives -> termsChange -> after -> execution -> partyRole -> role = PartyRoleEnum -> ClearingOrganization
 		or workflowEvent -> businessEvent -> primitives -> termsChange -> after -> contract -> partyRole -> role = PartyRoleEnum -> ClearingOrganization)
-		and True = ListsCompare(CompareOp -> Equal, QuantityAfterQuantityChange(workflowEvent), QuantityBeforeQuantityChange(workflowEvent), empty)
+		and NoQuantityChange(workflowEvent -> businessEvent -> primitives -> quantityChange) = True
 
 func ClearingSubmission: <"The submission of a contract to a CCP, which is qualified by the fact that (i) the termsChange is the only primitive, and (ii) the CCP is positioned as a partyRole to the execution or contract in the after state, while it didn't exist in the before state.">
 	[qualification event]
@@ -671,7 +670,7 @@ func Increase: <"The qualification of a increase event from the fact that (i) th
 			or (workflowEvent -> businessEvent -> primitives -> quantityChange exists
 				and workflowEvent -> businessEvent -> primitives -> transfer -> cashTransfer exists
 			))
-		and True = ListsCompare(CompareOp -> Greater, QuantityAfterQuantityChange(workflowEvent), QuantityBeforeQuantityChange(workflowEvent), empty)
+		and QuantityIncreased(workflowEvent -> businessEvent -> primitives -> quantityChange) = True
 		and workflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> closedState is absent
 
 func MultipleTransfers: <"The qualification an event that combines multiple transfers from the fact that multiple transfer primitives exist.">
@@ -702,7 +701,7 @@ func Novation: <"The qualification of a novation event from the fact that (i) th
 	assign-output is_event:
 		workflowEvent -> businessEvent -> primitives -> quantityChange exists
 		and workflowEvent -> businessEvent -> primitives -> inception exists
-		and True = ListsCompare(CompareOp -> Equal, QuantityAfterQuantityChange(workflowEvent), empty, 0.0)
+		and QuantityDecreasedToZero(workflowEvent -> businessEvent -> primitives -> quantityChange) = True
 		and workflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> closedState -> state = ClosedStateEnum -> Novated
 		and workflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> contractIdentifier <> workflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractIdentifier
 		and workflowEvent -> eventDate = workflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> tradeDate -> date
@@ -727,9 +726,8 @@ func PartialNovation: <"The qualification of a novation event from the fact that
 		and workflowEvent -> businessEvent -> primitives -> inception exists
 		and workflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> contractIdentifier <> workflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractIdentifier
 		and workflowEvent -> eventDate = workflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> tradeDate -> date
-		and workflowEvent -> effectiveDate = NovatedContractEffectiveDate(workflowEvent) -> dates
-		and True = ListsCompare(CompareOp -> Greater, QuantityBeforeQuantityChange(workflowEvent), QuantityAfterQuantityChange(workflowEvent), empty)
-		and True = ListsCompare(CompareOp -> Greater, QuantityAfterQuantityChange(workflowEvent), empty, 0.0)
+		and workflowEvent -> effectiveDate = NovatedContractEffectiveDate(workflowEvent) -> dates		
+		and QuantityDecreasedToZero(workflowEvent -> businessEvent -> primitives -> quantityChange) = True
 
 // and originalContractParties <> newContractParties
 func PartialTermination: <"The qualification of a partial termination event from the fact that (i) the intent is Partial Termination when specified, (ii) the associated primitives are the quantityChange and the cash transfer, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
@@ -744,9 +742,7 @@ func PartialTermination: <"The qualification of a partial termination event from
 			or (workflowEvent -> businessEvent -> primitives -> quantityChange exists
 				and workflowEvent -> businessEvent -> primitives -> transfer -> cashTransfer exists
 			))
-			// FIXME  Quantity Before/After QuantityChange uses group by which value could not be transfered as a List
-		and True = ListsCompare(CompareOp -> Greater, QuantityBeforeQuantityChange(workflowEvent), QuantityAfterQuantityChange(workflowEvent), empty)
-		and True = ListsCompare(CompareOp -> Greater, QuantityAfterQuantityChange(workflowEvent), empty, 0.0)
+		and QuantityDecreased(workflowEvent -> businessEvent -> primitives -> quantityChange) = True
 		and workflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> closedState is absent
 
 func IsReset: <"The qualification of a reset event from the fact that the only primitive is the reset.">
@@ -793,7 +789,7 @@ func Termination: <"The qualification of a termination event from the fact that 
 			or (workflowEvent -> businessEvent -> primitives -> quantityChange exists
 				and workflowEvent -> businessEvent -> primitives -> transfer -> cashTransfer exists)
 			)
-		and True = ListsCompare(CompareOp -> Equal, QuantityAfterQuantityChange(workflowEvent), empty, 0.0)
+		and QuantityDecreasedToZero(workflowEvent -> businessEvent -> primitives -> quantityChange) = True
 		and workflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> closedState -> state = ClosedStateEnum -> Terminated
 
 func TradeWarehousePositionNotification:

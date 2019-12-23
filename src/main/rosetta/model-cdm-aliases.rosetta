@@ -59,58 +59,84 @@ func PaymentDate: // Scope limited to interestPayout until such time that we pos
 type ListOfDates:
 	dates date(0..*)
 
-alias quantityAfterQuantityChangeX <"The alias to represent the quantity or notional amount in terms of number of units (i.e. ignoring the currency or units denomination) after a quantity change primitive.">
-	( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount group by currency ) -> amount
-	and ( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> notionalAmount group by currency ) -> amount
-	and ( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount group by currency ) -> amount
-	and ( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> contractualQuantity -> quantityNotation group by assetIdentifier -> currency ) -> quantity -> amount
-
-type ListOfNumbers:
-	numbers number(0..*)
-
-alias quantityBeforeQuantityChangeX <"The alias to represent the quantity or notional amount in terms of number of units (i.e. ignoring the currency or units denomination) before a quantity change primitive.">
-	( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount group by currency) -> amount
-	and ( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> notionalAmount group by currency ) -> amount
-	and ( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount group by currency ) -> amount
-	and ( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualQuantity -> quantityNotation group by assetIdentifier -> currency ) -> quantity -> amount
-
-
-func QuantityAfterQuantityChange: <"The alias to represent the quantity or notional amount in terms of number of units (i.e. ignoring the currency or units denomination) after a quantity change primitive.">
-	inputs:
-		workflowEvent WorkflowEvent(1..1)
-	output: result ListOfNumbers(1..1)
+type QuantityGroups:
+	quantityGroups QuantityGroup(0..*)
 	
-	assign-output result -> numbers: [
-		( workflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount group by currency ) -> amount,
-		( workflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> notionalAmount group by currency ) -> amount,
-		( workflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount group by currency ) -> amount,
-		( workflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> contractualQuantity -> quantityNotation group by assetIdentifier -> currency ) -> quantity -> amount
+type QuantityGroup:
+	currency string(0..1)
+	amount number(0..*)
+
+func QuantityChange: <"The alias to represent the quantity or notional amount in terms of number of units (i.e. ignoring the currency or units denomination) before a quantity change primitive.">
+	inputs:
+		contract Contract(1..*)
+	output: 
+		quantityChange QuantityGroups(1..1)
+	
+	// TODO - Support group by structures.
+	assign-output quantityChange -> quantityGroups -> amount: [
+		( contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount group by currency) -> amount,
+		( contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> notionalAmount group by currency ) -> amount,
+		( contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount group by currency ) -> amount,
+		( contract -> contractualQuantity -> quantityNotation group by assetIdentifier -> currency ) -> quantity -> amount
 	]
 
-func QuantityBeforeQuantityChange: <"The alias to represent the quantity or notional amount in terms of number of units (i.e. ignoring the currency or units denomination) before a quantity change primitive.">
+func QuantityIncreased:
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
-	output: result ListOfNumbers(1..1)
+		quantityChangePrimitive QuantityChangePrimitive(1..*)
+	output: result boolean(1..1)
 	
-	assign-output result -> numbers: [
-		( workflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> quantity -> notionalAmount group by currency) -> amount,
-		( workflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> notionalAmount group by currency ) -> amount,
-		( workflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualProduct -> economicTerms -> payout -> optionPayout -> quantity -> notionalAmount group by currency ) -> amount,
-		( workflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualQuantity -> quantityNotation group by assetIdentifier -> currency ) -> quantity -> amount
-	]
+	alias beforeQuantity:
+		QuantityChange(quantityChangePrimitive -> before -> contract)
+	alias afterQuantity:
+		QuantityChange(quantityChangePrimitive -> after -> contract)
+	
+	// TODO - Support operators for groupings.
+	//	assign-output result:
+	//		afterQuantity > beforeQuantity
 
-//  FIXME create and use new Map built-i n type. See https://github.com/REGnosys/rosetta-dsl/issues/129
-func ListsCompare:
+func QuantityDecreased:
 	inputs:
-		compareOp CompareOp(1..1)
-		left ListOfNumbers (1..1)
-		right ListOfNumbers(0..1)
-		rightNumber number(0..1)
-	output: result boolean (1..1)
+		quantityChangePrimitive QuantityChangePrimitive(1..*)
+	output: result boolean(1..1)
 
-enum CompareOp:
-	Greater
-	Equal
+	alias beforeQuantity:
+		QuantityChange(quantityChangePrimitive -> before -> contract)
+	alias afterQuantity:
+		QuantityChange(quantityChangePrimitive -> after -> contract)
+	
+	// TODO - Support operators for groupings.
+	//	assign-output result:
+	//		afterQuantity < beforeQuantity and afterQuantity > 0
+
+func QuantityDecreasedToZero:
+	inputs:
+		quantityChangePrimitive QuantityChangePrimitive(1..*)
+	output: result boolean(1..1)
+
+	alias beforeQuantity:
+		QuantityChange(quantityChangePrimitive -> before -> contract)
+	alias afterQuantity:
+		QuantityChange(quantityChangePrimitive -> after -> contract)
+
+	// TODO - Support operators for groupings.
+	//	assign-output result:
+	//		beforeQuantity > 0 and afterQuantity = 0
+
+
+func NoQuantityChange:
+	inputs:
+		quantityChangePrimitive QuantityChangePrimitive(1..*)
+	output: 
+		result boolean(1..1)
+	
+	alias beforeQuantity:
+		QuantityChange(quantityChangePrimitive -> before -> contract)
+	alias afterQuantity:
+		QuantityChange(quantityChangePrimitive -> after -> contract)
+
+	// TODO - Support operators for groupings.
+	//	assign-output result:
+	//		beforeQuantity = afterQuantity
 
 func TerminationDate: // Scope limited to interestPayout until such time that we position it to the economicTerms level
 	inputs: economicTerms EconomicTerms(1..1)

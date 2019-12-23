@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.math.BigDecimal;
 
-import org.isda.cdm.CompareOp;
-import org.isda.cdm.ListOfNumbers;
+import org.isda.cdm.test.CompareOp;
+import org.isda.cdm.test.ListOfNumbers;
 import org.isda.cdm.test.Bar;
 import org.isda.cdm.test.Bar.BarBuilder;
 import org.isda.cdm.test.Baz;
@@ -17,12 +17,16 @@ import org.isda.cdm.test.functions.FeatureCallEqualToLiteral;
 import org.isda.cdm.test.functions.FeatureCallListEqualToFeatureCall;
 import org.isda.cdm.test.functions.FeatureCallListNotEqualToFeatureCall;
 import org.isda.cdm.test.functions.FeatureCallsEqualToLiteralOr;
+import org.isda.cdm.test.functions.ListsCompare;
+import org.isda.cdm.test.functions.ListsCompare.ListsCompareDefault;
+import org.isda.cdm.test.functions.ListsCompareImpl;
 import org.isda.cdm.test.functions.MultipleOrFeatureCallsEqualToMultipleOrFeatureCalls;
 import org.isda.cdm.test.functions.TestBinaryOpGroupBy;
 import org.isda.cdm.test.functions.TestBinaryOpWithNumberGroupBy;
 import org.isda.cdm.test.functions.TestGroupBy;
 import org.junit.jupiter.api.Test;
 
+import com.google.inject.Binder;
 import com.google.inject.Inject;
 
 /**
@@ -39,6 +43,11 @@ public class FunctionTests extends AbstractFunctionTest {
 	@Inject
 	TestBinaryOpWithNumberGroupBy numberGroupBy;
 
+	@Override
+	protected void bindTestingMocks(Binder binder) {
+		binder.bind(ListsCompare.class).to(ListsCompareImpl.class);
+	}
+	
 	@Test
 	void collectGroupedItems() {
 		TypeToGroupBuilder input = TypeToGroup.builder().addManyAttr(createTypeToGroup("EU", 100))
@@ -53,8 +62,9 @@ public class FunctionTests extends AbstractFunctionTest {
 				.addManyAttr(createTypeToGroup("USD", 50)).addManyAttr(createTypeToGroup("A", 5));
 		TypeToGroupBuilder input2 = TypeToGroup.builder().addManyAttr(createTypeToGroup("EU", 200))
 				.addManyAttr(createTypeToGroup("USD", 20)).addManyAttr(createTypeToGroup("A", 2));
-
+		
 		Boolean compareBoth = testBinaryOpGroupBy.evaluate(CompareOp.GREATER, input1.build(), input2.build());
+		
 		assertEquals(true, compareBoth, "Compare grouped");
 		
 		Boolean compareWithNum = numberGroupBy.evaluate(CompareOp.GREATER, input1.build(), BigDecimal.valueOf(4));

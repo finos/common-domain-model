@@ -3,8 +3,6 @@ package org.isda.cdm;
 import org.isda.cdm.functions.Abs;
 import org.isda.cdm.functions.AbsImpl;
 import org.isda.cdm.functions.CalculationPeriodImpl;
-import org.isda.cdm.functions.ListsCompare;
-import org.isda.cdm.functions.ListsCompareImpl;
 import org.isda.cdm.functions.Sum;
 import org.isda.cdm.functions.SumImpl;
 
@@ -25,7 +23,6 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(Abs.class).to(bindAbs());
 		bind(org.isda.cdm.functions.CalculationPeriod.class).to(bindCalculationPeriod());
 		bind(Sum.class).to(bindSum());
-		bind(ListsCompare.class).to(bindListsCompare());
 	}
 
 	protected Class<? extends ModelObjectValidator> bindModelObjectValidator() {
@@ -48,7 +45,5 @@ public class CdmRuntimeModule extends AbstractModule {
 	protected Class<? extends Sum> bindSum() {
 		return SumImpl.class;
 	}
-	protected Class<? extends ListsCompare> bindListsCompare() {
-		return ListsCompareImpl.class;
-	}
+
 }
