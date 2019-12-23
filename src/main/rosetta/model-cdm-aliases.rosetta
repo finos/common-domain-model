@@ -10,11 +10,16 @@ func ForwardFX:
 	output: result ForeignExchange (1..1)
 	assign-output result: forwardPayout -> underlier -> singleUnderlier -> underlyingProduct -> foreignExchange
 
-func EffectiveDate:
+
+func EffectiveDateContainsPaymentDate:
 	inputs:
 		economicTerms EconomicTerms(1..1)
-	output: result ListOfDates(1..1)
-	assign-output result -> dates: [
+	output:
+		result boolean(1..1)
+
+	alias paymentDate: PaymentDate(economicTerms)
+	
+	alias effectiveDates: [
 			economicTerms -> effectiveDate -> adjustableDate -> adjustedDate,
 			economicTerms -> effectiveDate -> adjustableDate -> unadjustedDate,
 			economicTerms -> effectiveDate -> relativeDate -> adjustedDate,
@@ -25,13 +30,16 @@ func EffectiveDate:
 			economicTerms -> payout -> equityPayout only-element-> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate,
 			economicTerms -> payout -> equityPayout only-element-> calculationPeriodDates -> effectiveDate -> relativeDate -> adjustedDate
 	]
+	assign-output result:
+		effectiveDates exists and effectiveDates contains paymentDate
 
 // TODO - Providing the ability to embed aliases would provide the ability to ensure consistency between this alias and the effectiveDate one, while also simplify the syntax
 // See Trello card https://trello.com/c/89Lv8rAn
 func NovatedContractEffectiveDate:
 	inputs:
 		workflowEvent WorkflowEvent(1..1)
-	output: result ListOfDates(1..1)
+	output: 
+		result DateGroup(1..1)
 
 	alias eTerms: workflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> contractualProduct -> economicTerms
 	alias effectiveDate: eTerms only-element -> effectiveDate
@@ -56,13 +64,11 @@ func PaymentDate: // Scope limited to interestPayout until such time that we pos
 	assign-output result: economicTerms -> payout -> interestRatePayout only-element -> paymentDate -> adjustedDate
 
 
-type ListOfDates:
+type DateGroup:
 	dates date(0..*)
 
 type QuantityGroups:
 	quantityGroups QuantityGroup(0..*)
-
-
 
 type QuantityGroup:
 	currency string(0..1)
@@ -158,7 +164,7 @@ func NoQuantityChange:
 
 func TerminationDate: // Scope limited to interestPayout until such time that we position it to the economicTerms level
 	inputs: economicTerms EconomicTerms(1..1)
-	output: result ListOfDates(1..1)
+	output: result DateGroup(1..1)
 	alias interestRateTerminationDate: economicTerms -> payout -> interestRatePayout only-element -> calculationPeriodDates -> terminationDate
 	alias equityPayoutTerminationDate: economicTerms -> payout -> equityPayout only-element -> calculationPeriodDates -> terminationDate
 
