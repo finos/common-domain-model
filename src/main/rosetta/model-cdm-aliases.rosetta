@@ -68,11 +68,11 @@ type QuantityGroup:
 	currency string(0..1)
 	amount number(0..*)
 
-alias quantityAfterQuantityChange <"The alias to represent the quantity or notional amount in terms of number of units (i.e. ignoring the currency or units denomination) after a quantity change primitive.">
-
-
-alias quantityBeforeQuantityChange <"The alias to represent the quantity or notional amount in terms of number of units (i.e. ignoring the currency or units denomination) before a quantity change primitive.">
-	( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualQuantity -> quantityNotation group by assetIdentifier -> currency ) -> quantity -> amount
+//alias quantityAfterQuantityChange <"The alias to represent the quantity or notional amount in terms of number of units (i.e. ignoring the currency or units denomination) after a quantity change primitive.">
+//
+//
+//alias quantityBeforeQuantityChange <"The alias to represent the quantity or notional amount in terms of number of units (i.e. ignoring the currency or units denomination) before a quantity change primitive.">
+//	( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualQuantity -> quantityNotation group by assetIdentifier -> currency ) -> quantity -> amount
 
 func QuantityChange: <"The alias to represent the quantity or notional amount in terms of number of units (i.e. ignoring the currency or units denomination) before a quantity change primitive.">
 	inputs:
@@ -94,6 +94,9 @@ func QuantityIncreased:
 		QuantityChange(quantityChangePrimitive -> before -> contract)
 	alias afterQuantity:
 		QuantityChange(quantityChangePrimitive -> after -> contract)
+		
+	assign-output result:
+		ListsCompare(CompareOp -> Greater, afterQuantity -> quantityGroups -> amount, beforeQuantity -> quantityGroups -> amount, empty)
 
 	// TODO - Support operators for groupings.
 	//	assign-output result:
@@ -109,6 +112,9 @@ func QuantityDecreased:
 	alias afterQuantity:
 		QuantityChange(quantityChangePrimitive -> after -> contract)
 
+	assign-output result:
+		ListsCompare(CompareOp -> Greater, beforeQuantity -> quantityGroups -> amount, afterQuantity -> quantityGroups -> amount, empty)
+
 	// TODO - Support operators for groupings.
 	//	assign-output result:
 	//		afterQuantity < beforeQuantity and afterQuantity > 0
@@ -122,6 +128,10 @@ func QuantityDecreasedToZero:
 		QuantityChange(quantityChangePrimitive -> before -> contract)
 	alias afterQuantity:
 		QuantityChange(quantityChangePrimitive -> after -> contract)
+
+	assign-output result:
+		ListsCompare(CompareOp -> Greater, beforeQuantity -> quantityGroups -> amount, empty, 0.0) = True
+		and ListsCompare(CompareOp -> Equal, afterQuantity -> quantityGroups -> amount, empty, 0.0) = True
 
 	// TODO - Support operators for groupings.
 	//	assign-output result:
@@ -138,6 +148,9 @@ func NoQuantityChange:
 		QuantityChange(quantityChangePrimitive -> before -> contract)
 	alias afterQuantity:
 		QuantityChange(quantityChangePrimitive -> after -> contract)
+
+	assign-output result:
+		ListsCompare(CompareOp -> Equal, beforeQuantity -> quantityGroups -> amount, beforeQuantity -> quantityGroups -> amount, empty) = True
 
 	// TODO - Support operators for groupings.
 	//	assign-output result:
@@ -161,3 +174,16 @@ func TerminationDate: // Scope limited to interestPayout until such time that we
 			equityPayoutTerminationDate -> adjustableDate -> unadjustedDate,
 			equityPayoutTerminationDate -> relativeDate -> adjustedDate
 		]
+
+//  FIXME create and use new Map built-i n type. See https://github.com/REGnosys/rosetta-dsl/issues/129
+func ListsCompare:
+	inputs:
+		compareOp CompareOp(1..1)
+		left number (1..*)
+		right number(0..*)
+		rightNumber number(0..1)
+	output: result boolean (1..1)
+
+enum CompareOp:
+	Greater
+	Equal

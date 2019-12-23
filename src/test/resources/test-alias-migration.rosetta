@@ -11,19 +11,6 @@ import org.isda.cdm.*
 type ListOfNumbers:
 	numbers number(0..*)
 
-//  FIXME create and use new Map built-i n type. See https://github.com/REGnosys/rosetta-dsl/issues/129
-func ListsCompare:
-	inputs:
-		compareOp CompareOp(1..1)
-		left ListOfNumbers (1..1)
-		right ListOfNumbers(0..1)
-		rightNumber number(0..1)
-	output: result boolean (1..1)
-
-enum CompareOp:
-	Greater
-	Equal
-
 func TestPartialNovationFunc: <"">
 	inputs: wEvent WorkflowEvent (0..1)
 	output: result boolean (0..1)
@@ -55,15 +42,15 @@ func TestGroupBy:
 	assign-output out -> numbers: [
 		(input1 -> manyAttr group by currency) -> amount 
 	]
-
+ 
 func TestBinaryOpGroupBy:
 	inputs:
 		op CompareOp (1..1)
 		input1 TypeToGroup (0..1)
 		input2 TypeToGroup (0..1)
 	output: out boolean (1..1)
-	assign-output out :  ListsCompare (op, TestGroupBy(input1), TestGroupBy(input2), empty)
-	
+	assign-output out :  ListsCompare (op, TestGroupBy(input1) -> numbers, TestGroupBy(input2) -> numbers, empty)
+	 
 	
 func TestBinaryOpWithNumberGroupBy:
 	inputs:
@@ -71,7 +58,7 @@ func TestBinaryOpWithNumberGroupBy:
 		input1 TypeToGroup (0..1)
 		numberIn number (0..1)
 	output: out boolean (1..1)
-	assign-output out : ListsCompare (op, TestGroupBy(input1), empty, numberIn)
+	assign-output out : ListsCompare (op, TestGroupBy(input1) -> numbers, empty, numberIn)
 	
 
 type TypeToGroup:

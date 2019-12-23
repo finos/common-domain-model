@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.math.BigDecimal;
 
-import org.isda.cdm.test.CompareOp;
+import org.isda.cdm.CompareOp;
 import org.isda.cdm.test.ListOfNumbers;
 import org.isda.cdm.test.Bar;
 import org.isda.cdm.test.Bar.BarBuilder;
@@ -17,9 +17,7 @@ import org.isda.cdm.test.functions.FeatureCallEqualToLiteral;
 import org.isda.cdm.test.functions.FeatureCallListEqualToFeatureCall;
 import org.isda.cdm.test.functions.FeatureCallListNotEqualToFeatureCall;
 import org.isda.cdm.test.functions.FeatureCallsEqualToLiteralOr;
-import org.isda.cdm.test.functions.ListsCompare;
-import org.isda.cdm.test.functions.ListsCompare.ListsCompareDefault;
-import org.isda.cdm.test.functions.ListsCompareImpl;
+import org.isda.cdm.functions.ListsCompare;
 import org.isda.cdm.test.functions.MultipleOrFeatureCallsEqualToMultipleOrFeatureCalls;
 import org.isda.cdm.test.functions.TestBinaryOpGroupBy;
 import org.isda.cdm.test.functions.TestBinaryOpWithNumberGroupBy;
