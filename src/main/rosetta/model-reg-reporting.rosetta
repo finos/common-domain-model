@@ -391,12 +391,10 @@ reporting rule UnderlyingIndexName
     ContractForEvent then
  	extract Contract -> contractualProduct -> economicTerms -> payout -> equityPayout -> underlier then
  		extract
- 			if Underlier -> singleUnderlier exists
-	then Underlier -> singleUnderlier -> underlyingProduct -> contractualProduct -> productIdentification -> productId
-	else if Underlier -> basket exists
-		then "Add basket id path here"
-		else "NOAP" // TODO NOAP isn't a basket
-	as "Underlying Index Name"
+ 			if Underlier exists
+			then Underlier -> underlyingProduct -> contractualProduct -> productIdentification -> productId
+			else "NOAP" // TODO NOAP isn't a basket
+			as "Underlying Index Name"
 
 
 reporting rule UnderlyingIndexTermPeriod <"Term of the underlying index period (DAYS, WEEK, MNTH, YEAR)">
