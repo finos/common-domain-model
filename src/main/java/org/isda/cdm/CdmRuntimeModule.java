@@ -14,6 +14,7 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(Abs.class).to(bindAbs());
 		bind(org.isda.cdm.functions.CalculationPeriod.class).to(bindCalculationPeriod());
 		bind(Sum.class).to(bindSum());
+		bind(ResolvePayoutQuantity.class).to(bindResolvePayoutQuantity());
 	}
 
 	protected Class<? extends ModelObjectValidator> bindModelObjectValidator() {
@@ -32,5 +33,9 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends Sum> bindSum() {
 		return SumImpl.class;
+	}
+
+	protected Class<? extends ResolvePayoutQuantity> bindResolvePayoutQuantity() {
+		return ResolvePayoutQuantityImpl.class;
 	}
 }
