@@ -14,9 +14,9 @@ As part of on-going improvements, the Rosetta syntax has been upgraded to consol
 
 _Review Directions_
 
-In the Textual Browser, review func `Allocation`.
+In the Textual Browser, review func `InterestRate_IRSwap_Basis` for product qualification and `Allocation` for event qualification.  
 
-The change for 'Allocation' expresses the same logic but defines the input and output types consistent with other parts of the model.:
+The change for 'Allocation' expresses the same logic but defines the input and output types consistent with other parts of the model:
 
 Previous syntax:
 ```
@@ -38,4 +38,55 @@ func Allocation: <"...">
 
 ```
 
-Similarly, see func `NewTrade` for an event qualification example.
+The change for 'InterestRate_IRSwap_Basis' expresses the same logic but defines the input and output types consistent with other parts of the model:
+
+Previous syntax:
+```
+isProduct InterestRate_IRSwap_Basis
+	[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_Basis"]
+	EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 2
+	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate is absent
+	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
+	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
+	and EconomicTerms -> payout -> optionPayout is absent
+```
+Updated syntax:
+```
+func InterestRate_IRSwap_Basis:
+	[qualification product]
+	inputs: economicTerms EconomicTerms (1..1)
+	
+	output: is_product boolean (1..1)
+		[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_Basis"]
+		
+	assign-output is_product:
+		economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 2
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate is absent
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
+		and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
+		and economicTerms -> payout -> optionPayout is absent
+
+```
+
+The change for 'forwardFX' alias also expresses the same logic but defines the input and output types consistent with other parts of the model:
+
+Previous syntax:
+
+```
+alias forwardFX
+	ForwardPayout -> underlier -> underlyingProduct -> foreignExchange
+```
+	
+Updated syntax:
+
+```
+func ForwardFX:
+	inputs:
+		forwardPayout ForwardPayout(1..1)
+	output: result ForeignExchange (1..1)
+	assign-output result: forwardPayout -> underlier -> underlyingProduct -> foreignExchange
+```
+
+	
+	
+
