@@ -532,11 +532,11 @@ type EquityPayout extends PayoutBase: <" The equity payout specification terms. 
 			and EquityPayout -> dividendReturnTerms exists
 
 	condition EquityPayout_singleUnderlier: <"In the case of an equity payout with a single underlier, that underlier needs to be an equity product.">
-		if EquityPayout -> underlier -> singleUnderlier exists
-		then (EquityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> equity
-			or EquityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> exchangeTradedFund
-			or EquityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> mutualFund
-			or EquityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> warrant) exists
+		if EquityPayout -> underlier exists
+		then (EquityPayout -> underlier -> underlyingProduct -> security -> equity
+			or EquityPayout -> underlier -> underlyingProduct -> security -> exchangeTradedFund
+			or EquityPayout -> underlier -> underlyingProduct -> security -> mutualFund
+			or EquityPayout -> underlier -> underlyingProduct -> security -> warrant) exists
 
 
 type Execution: <" A class to specify an execution, which consists essentially in the economic terms which are agreed between the parties, alongside with the qualification of the type of execution. The associated rosettaKey denotes the ability to associate a hash value to the respective Execution instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
@@ -1150,11 +1150,7 @@ type Quantity: <" A class to specify an amount/number of securities or tangible 
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "initialValue"]
 	unit UnitEnum (0..1) <"The unit of measure, applicable to physical assets, e.g. MWh or MMBTU.">
 		[synonym Workflow_Event value "unit"]
-	currency string (0..1) <"ATTRIBUTE TO BE DEPRECATED. The currency in which the associated amount is denominated, if applicable. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
-		[metadata scheme]
 
-	condition Quantity_unit: <"Quantity can be either specified as: (i) a raw number (no unit, e.g. to describe a no. securities), (ii) a number with a unit (to describe physical assets, e.g. MWh or MMBTU) or (iii) a number and a currency (to describe a notional amount). Case (i) implies that choice is optional.">
-		optional choice unit, currency
 
 type NonNegativeQuantity extends Quantity: <" Class to specify a quantity as a non-negative number, which condition is enforced through a data rule that only applies to the extending class.">
 
@@ -1350,12 +1346,12 @@ func CreditDefaultSwaption: <"This product qualification is temporary until such
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
 	assign-output is_product:
-		economicTerms -> payout -> optionPayout exists
-		and economicTerms -> payout -> optionPayout -> underlier -> singleUnderlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout exists
-		and ( economicTerms -> payout -> optionPayout -> underlier -> singleUnderlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> interestRatePayout
-			or economicTerms -> payout -> optionPayout -> underlier -> singleUnderlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> cashflow ) exists
-		and economicTerms -> payout -> optionPayout -> underlier -> singleUnderlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> equityPayout is absent
-		and economicTerms -> payout -> optionPayout -> underlier -> singleUnderlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> optionPayout is absent
+        economicTerms -> payout -> optionPayout exists
+        and economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout exists
+        and ( economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> interestRatePayout
+            or economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> cashflow ) exists
+        and economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> equityPayout is absent
+        and economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> optionPayout is absent
 
 func EquitySwap_PriceReturnBasicPerformance_SingleName: <"The Price Return Basic Performance equity swap specified in the ISDA taxonomy V2.0 corresponds to the price and total return swaps.">
 	[qualification product]
@@ -1363,14 +1359,14 @@ func EquitySwap_PriceReturnBasicPerformance_SingleName: <"The Price Return Basic
 	output: is_product boolean (1..1)
 		[synonym ISDA_Taxonomy_v1 value "EquitySwap_PriceReturnBasicPerformance_SingleName"]
 	assign-output is_product:
-	economicTerms -> payout -> interestRatePayout exists
-	and ( economicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum -> Price
-		or economicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum -> Total )
-	and ( economicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> equity
-		or economicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> exchangeTradedFund
-		or economicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> mutualFund
-		or economicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> warrant
-		) exists
+        economicTerms -> payout -> interestRatePayout exists
+        and ( economicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum -> Price
+            or economicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum -> Total )
+        and ( economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> equity
+            or economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> exchangeTradedFund
+            or economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> mutualFund
+            or economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> warrant
+            ) exists
 
 func EquitySwap_ParameterReturnDividend_SingleName: <"The Parameter Return Dividend equity swap specified in the ISDA taxonomy V2.0 corresponds to the dividend return swap.">
 	[qualification product]
@@ -1378,13 +1374,13 @@ func EquitySwap_ParameterReturnDividend_SingleName: <"The Parameter Return Divid
 	output: is_product boolean (1..1)
 		[synonym ISDA_Taxonomy_v1 value "EquitySwap_ParameterReturnDividend_SingleName"]
 	assign-output is_product:
-		economicTerms -> payout -> interestRatePayout exists
-		and economicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum -> Dividend
-		and ( economicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> equity
-			or economicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> exchangeTradedFund
-			or economicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> mutualFund
-			or economicTerms -> payout -> equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> warrant
-			) exists
+        economicTerms -> payout -> interestRatePayout exists
+        and economicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum -> Dividend
+        and ( economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> equity
+            or economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> exchangeTradedFund
+            or economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> mutualFund
+            or economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> warrant
+            ) exists
 
 func InterestRate_IRSwap_Basis:
 	[qualification product]
@@ -1635,8 +1631,8 @@ func InterestRate_Option_Swaption:
 	output: is_product boolean (1..1)
 		[synonym ISDA_Taxonomy_v1 value "InterestRate_Option_Swaption"]
 	assign-output is_product:
-		economicTerms -> payout -> optionPayout exists
-		and economicTerms -> payout -> optionPayout -> underlier -> singleUnderlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> interestRatePayout count = 2
+        economicTerms -> payout -> optionPayout exists
+        and economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> interestRatePayout count = 2
 
 func InterestRate_Option_DebtOption:
 	[qualification product]
@@ -1644,8 +1640,8 @@ func InterestRate_Option_DebtOption:
 	output: is_product boolean (1..1)
 		[synonym ISDA_Taxonomy_v1 value "InterestRate_DebtOption"]
 	assign-output is_product:
-		economicTerms -> payout -> optionPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> bond exists
-		or economicTerms -> payout -> optionPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> convertibleBond exists
+        economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> security -> bond exists
+        or economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> security -> convertibleBond exists
 
 func InterestRate_CapFloor:
 	[qualification product]
@@ -1675,8 +1671,8 @@ func ForeignExchange:
 		[synonym ISDA_Taxonomy_v1 value "ForeignExchange_Forward"]
 		[synonym ISDA_Taxonomy_v1 value "ForeignExchange_Spot"]
 	assign-output is_product:
-		economicTerms -> payout -> forwardPayout -> underlier -> singleUnderlier -> underlyingProduct -> foreignExchange exists and
-		economicTerms -> payout -> forwardPayout -> settlementTerms -> fxSettlementTerms is absent
+        economicTerms -> payout -> forwardPayout -> underlier -> underlyingProduct -> foreignExchange exists and
+        economicTerms -> payout -> forwardPayout -> settlementTerms -> fxSettlementTerms is absent
 
 func ForeignExchange_NDF:
 	[qualification product]

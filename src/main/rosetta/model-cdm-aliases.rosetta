@@ -8,7 +8,7 @@ func ForwardFX:
 	inputs:
 		forwardPayout ForwardPayout(1..1)
 	output: result ForeignExchange (1..1)
-	assign-output result: forwardPayout -> underlier -> singleUnderlier -> underlyingProduct -> foreignExchange
+	assign-output result: forwardPayout -> underlier -> underlyingProduct -> foreignExchange
 
 
 func EffectiveDateContainsPaymentDate:
@@ -18,7 +18,7 @@ func EffectiveDateContainsPaymentDate:
 		result boolean(1..1)
 
 	alias paymentDate: PaymentDate(economicTerms)
-	
+
 	alias effectiveDates: [
 			economicTerms -> effectiveDate -> adjustableDate -> adjustedDate,
 			economicTerms -> effectiveDate -> adjustableDate -> unadjustedDate,
@@ -38,7 +38,7 @@ func EffectiveDateContainsPaymentDate:
 func NovatedContractEffectiveDate:
 	inputs:
 		workflowEvent WorkflowEvent(1..1)
-	output: 
+	output:
 		result DateGroup(1..1)
 
 	alias eTerms: workflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> contractualProduct -> economicTerms
@@ -100,7 +100,7 @@ func QuantityIncreased:
 		QuantityChange(quantityChangePrimitive -> before -> contract)
 	alias afterQuantity:
 		QuantityChange(quantityChangePrimitive -> after -> contract)
-		
+
 	assign-output result:
 		ListsCompare(CompareOp -> Greater, afterQuantity -> quantityGroups -> amount, beforeQuantity -> quantityGroups -> amount, empty)
 
