@@ -3,7 +3,7 @@ package org.isda.cdm.functions;
 import com.rosetta.model.lib.GlobalKey;
 import com.rosetta.model.lib.meta.MetaFieldsI;
 import org.isda.cdm.*;
-import org.isda.cdm.ResolvablePayoutQuantity.ResolvablePayoutQuantityBuilder;
+import org.isda.cdm.NonNegativeQuantity.NonNegativeQuantityBuilder;
 import org.isda.cdm.metafields.ReferenceWithMetaResolvablePayoutQuantity;
 
 import java.util.ArrayList;
@@ -15,26 +15,107 @@ import java.util.stream.Collectors;
 public class ResolvePayoutQuantityImpl extends ResolvePayoutQuantity {
 
 	@Override
-	protected ResolvablePayoutQuantityBuilder doEvaluate(ResolvablePayoutQuantity resolvableQuantity, Contract contract) {
-		NonNegativeQuantity quantity;
+	protected NonNegativeQuantityBuilder doEvaluate(
+			ResolvablePayoutQuantity resolvableQuantity,
+			List<QuantityNotation> quantityNotations,
+			ContractualProduct contractualProduct) {
 
 		if (resolvableQuantity.getAssetIdentifier() != null) {
-			quantity = resolveQuantityFromAssetIdentifier(resolvableQuantity.getAssetIdentifier(), contract);
+			return resolveQuantityFromAssetIdentifier(resolvableQuantity.getAssetIdentifier(), quantityNotations);
 		} else if (resolvableQuantity.getQuantityReference() != null) {
-			quantity = resolveQuantityFromReference(resolvableQuantity.getQuantityReference(), contract);
+			return resolveQuantityFromReference(resolvableQuantity.getQuantityReference(), quantityNotations, contractualProduct);
 		} else {
 			throw new RuntimeException("No assetIdentifier nor quantityReference found");
 		}
-
-		return resolvableQuantity.toBuilder()
-				.setQuantitySchedule(NonNegativeQuantitySchedule.builder()
-						.setQuantity(quantity)
-						.build());
 	}
 
-	private List<PayoutBase> getPayouts(Contract contract) {
-		return Optional.ofNullable(contract)
-				.map(Contract::getContractualProduct)
+	/**
+	 * Get the QuantityNotation corresponding to the given assetIdentifier.
+	 */
+	private NonNegativeQuantityBuilder resolveQuantityFromAssetIdentifier(AssetIdentifier assetIdentifier, List<QuantityNotation> quantityNotations) {
+		List<NonNegativeQuantity> matchingQuantities = quantityNotations
+				.stream()
+				.filter(qn -> qn.getAssetIdentifier().equals(assetIdentifier))
+				.distinct()
+				.map(QuantityNotation::getQuantity)
+				.collect(Collectors.toList());
+
+		if (matchingQuantities.isEmpty()) {
+			throw new RuntimeException("No quantity found for assetIdentifier " + assetIdentifier);
+		}
+		if (matchingQuantities.size() > 1) {
+			throw new RuntimeException("Multiple quantity found for assetIdentifier " + assetIdentifier);
+		}
+
+		return matchingQuantities.get(0).toBuilder();
+	}
+
+	/**
+	 * Find referenced assetIdentifier, then get the QuantityNotation corresponding to the given assetIdentifier.
+	 */
+	private NonNegativeQuantityBuilder resolveQuantityFromReference(
+			ReferenceWithMetaResolvablePayoutQuantity quantityReference,
+			List<QuantityNotation> quantityNotations,
+			ContractualProduct contractualProduct) {
+		return getReferencedAssetIdentifier(contractualProduct, quantityReference.getExternalReference())
+				.map(assetIdentifier -> resolveQuantityFromAssetIdentifier(assetIdentifier, quantityNotations))
+				.orElseThrow(() -> new RuntimeException("No assetIdentifier found for external reference " + quantityReference.getExternalReference()));
+	}
+
+	/**
+	 * Find the referenced assetIdentifier based on the given external reference.
+	 */
+	private Optional<AssetIdentifier> getReferencedAssetIdentifier(ContractualProduct contractualProduct, String externalReference) {
+		// Look in all the payouts that extend PayoutBase
+		Optional<AssetIdentifier> assetIdentifierFromPayoutBase = getAssetIdentifierFromPayoutBase(contractualProduct, externalReference);
+		if (assetIdentifierFromPayoutBase.isPresent()) {
+			return assetIdentifierFromPayoutBase;
+		}
+		// Look in the CDS Protection Terms
+		Optional<AssetIdentifier> assetIdentifierFromCdsProtectionTerms = getAssetIdentifierFromCdsProtectionTerms(contractualProduct, externalReference);
+		if (assetIdentifierFromCdsProtectionTerms.isPresent()) {
+			return assetIdentifierFromCdsProtectionTerms;
+		}
+		// Get all the ContractualProducts from any Underliers
+		List<ContractualProduct> underlierContractualProducts = getUnderlierContractualProducts(contractualProduct.getEconomicTerms().getPayout());
+		for (ContractualProduct underlierContractualProduct : underlierContractualProducts) {
+			// Look in each ContractualProduct (E.g. recurse)
+			Optional<AssetIdentifier> assetIdentifierFromUnderlier = getReferencedAssetIdentifier(underlierContractualProduct, externalReference);
+			if (assetIdentifierFromUnderlier.isPresent()) {
+				return assetIdentifierFromUnderlier;
+			}
+		}
+		return Optional.empty();
+	}
+
+	private Optional<AssetIdentifier> getAssetIdentifierFromPayoutBase(ContractualProduct contractualProduct, String externalReference) {
+		return getPayoutBases(contractualProduct)
+				.stream()
+				.map(PayoutBase::getPayoutQuantity)
+				.filter(q -> externalKeyMatches(q, externalReference))
+				.map(ResolvablePayoutQuantity::getAssetIdentifier)
+				.findFirst();
+	}
+
+	private Optional<AssetIdentifier> getAssetIdentifierFromCdsProtectionTerms(ContractualProduct contractualProduct, String externalReference) {
+		return Optional.ofNullable(contractualProduct)
+				.map(ContractualProduct::getEconomicTerms)
+				.map(EconomicTerms::getPayout)
+				.map(Payout::getCreditDefaultPayout)
+				.map(CreditDefaultPayout::getProtectionTerms)
+				.orElse(Collections.emptyList())
+				.stream()
+				.map(ProtectionTerms::getPayoutQuantity)
+				.filter(q -> externalKeyMatches(q, externalReference))
+				.map(ResolvablePayoutQuantity::getAssetIdentifier)
+				.findFirst();
+	}
+
+	/**
+	 * Get all payouts that extend PayoutBase.
+	 */
+	private List<PayoutBase> getPayoutBases(ContractualProduct contractualProduct) {
+		return Optional.ofNullable(contractualProduct)
 				.map(ContractualProduct::getEconomicTerms)
 				.map(EconomicTerms::getPayout)
 				.map(p -> {
@@ -48,38 +129,49 @@ public class ResolvePayoutQuantityImpl extends ResolvePayoutQuantity {
 				.orElse(Collections.emptyList());
 	}
 
-	private NonNegativeQuantity resolveQuantityFromAssetIdentifier(AssetIdentifier assetIdentifier, Contract contract) {
-		List<NonNegativeQuantity> matchingQuantities = contract.getContractualQuantity().getQuantityNotation()
-				.stream()
-				.filter(qn -> qn.getAssetIdentifier().equals(assetIdentifier))
-				.distinct()
-				.map(QuantityNotation::getQuantity)
-				.collect(Collectors.toList());
-		if (matchingQuantities.isEmpty()) {
-			throw new RuntimeException("No quantity found for assetIdentifier " + assetIdentifier);
-		}
-		if (matchingQuantities.size() > 1) {
-			throw new RuntimeException("Multiple quantity found for assetIdentifier " + assetIdentifier);
-		}
-		return matchingQuantities.get(0);
+	/**
+	 * Get ContractualProduct for any Underliers
+	 */
+	private List<ContractualProduct> getUnderlierContractualProducts(Payout payout) {
+		List<ContractualProduct> contractualProducts = new ArrayList<>();
+		// Equity underlier
+		Optional.ofNullable(payout)
+				.map(Payout::getEquityPayout)
+				.map(equityPayout -> equityPayout
+						.stream()
+						.map(EquityPayout::getUnderlier)
+						.map(Underlier::getUnderlyingProduct)
+						.map(Product::getContractualProduct)
+						.collect(Collectors.toList()))
+				.ifPresent(contractualProducts::addAll);
+		// Option underlier
+		Optional.ofNullable(payout)
+				.map(Payout::getOptionPayout)
+				.map(optionPayout -> optionPayout
+						.stream()
+						.map(OptionPayout::getUnderlier)
+						.map(Underlier::getUnderlyingProduct)
+						.map(Product::getContractualProduct)
+						.collect(Collectors.toList()))
+				.ifPresent(contractualProducts::addAll);
+		// Forward underlier
+		Optional.ofNullable(payout)
+				.map(Payout::getForwardPayout)
+				.map(forwardPayout -> forwardPayout
+						.stream()
+						.map(ForwardPayout::getUnderlier)
+						.map(Underlier::getUnderlyingProduct)
+						.map(Product::getContractualProduct)
+						.collect(Collectors.toList()))
+				.ifPresent(contractualProducts::addAll);
+
+		return contractualProducts;
 	}
 
-	private NonNegativeQuantity resolveQuantityFromReference(ReferenceWithMetaResolvablePayoutQuantity quantityReference, Contract contract) {
-		String globalReference = quantityReference.getGlobalReference();
-		AssetIdentifier referencedAssetIdentifier = getPayouts(contract)
-				.stream()
-				.map(PayoutBase::getPayoutQuantity)
-				.filter(q -> globalKeyMatches(q, globalReference))
-				.map(ResolvablePayoutQuantity::getAssetIdentifier)
-				.findFirst()
-				.orElseThrow(() -> new RuntimeException("No assetIdentifier found for global reference " + globalReference));
-		return resolveQuantityFromAssetIdentifier(referencedAssetIdentifier, contract);
-	}
-
-	private boolean globalKeyMatches(GlobalKey key, String reference) {
+	private boolean externalKeyMatches(GlobalKey key, String reference) {
 		return Optional.ofNullable(key)
 				.map(GlobalKey::getMeta)
-				.map(MetaFieldsI::getGlobalKey)
+				.map(MetaFieldsI::getExternalKey)
 				.map(reference::equals)
 				.orElse(false);
 	}

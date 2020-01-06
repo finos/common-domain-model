@@ -4,12 +4,13 @@ version "${project.version}"
 func ResolvePayoutQuantity: <"Function specification to resolve a payout quantity, specified as a resolvable quantity with inputs for the resolution, into a basic quantity with just a number and a unit.">
 	inputs:
 		resolvableQuantity ResolvablePayoutQuantity (1..1) <"The quantity to resolve.">
-		contract Contract (1..1)
+		quantityNotations QuantityNotation (1..*)
+		contractualProduct ContractualProduct (1..1)
 	output:
-		resolvedQuantity ResolvablePayoutQuantity (1..1) <"The resolved quantity, containing just a number and (optionally) a unit or currency.">
+		resolvedQuantity NonNegativeQuantity (1..1) <"The resolved quantity, containing just a number and (optionally) a unit or currency.">
 
 	post-condition:
-		resolvedQuantity -> quantitySchedule -> quantity exists
+		resolvedQuantity -> amount exists
 
 func ResolveQuantity: <"Function specification to resolve a payout quantity, specified as a resolvable quantity with inputs for the resolution, into a basic quantity with just a number and a unit.">
 	inputs:
