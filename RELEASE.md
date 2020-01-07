@@ -21,20 +21,20 @@ The change for 'Allocation' expresses the same logic but defines the input and o
 Previous syntax:
 ```
 isEvent Allocation <"...">
-	WorkflowEvent -> businessEvent -> primitives count = 1
-	and WorkflowEvent -> businessEvent -> primitives -> allocation exists
+    WorkflowEvent -> businessEvent -> primitives count = 1
+    and WorkflowEvent -> businessEvent -> primitives -> allocation exists
 ```
 
 Updated syntax:
 ```
 func Allocation: <"...">
-	[qualification event]
-	inputs: workflowEvent WorkflowEvent(1..1)
-	output: is_event boolean (1..1)
+    [qualification event]
+    inputs: workflowEvent WorkflowEvent(1..1)
+    output: is_event boolean (1..1)
   
-	assign-output is_event:
-		workflowEvent -> businessEvent -> primitives count = 1
-		and workflowEvent -> businessEvent -> primitives -> allocation exists
+    assign-output is_event:
+        workflowEvent -> businessEvent -> primitives count = 1
+        and workflowEvent -> businessEvent -> primitives -> allocation exists
 
 ```
 
@@ -43,28 +43,28 @@ The change for `InterestRate_IRSwap_Basis` expresses the same logic but defines 
 Previous syntax:
 ```
 isProduct InterestRate_IRSwap_Basis
-	[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_Basis"]
-	EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 2
-	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate is absent
-	and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
-	and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
-	and EconomicTerms -> payout -> optionPayout is absent
+    [synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_Basis"]
+    EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 2
+    and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate is absent
+    and EconomicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
+    and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
+    and EconomicTerms -> payout -> optionPayout is absent
 ```
 Updated syntax:
 ```
 func InterestRate_IRSwap_Basis:
-	[qualification product]
-	inputs: economicTerms EconomicTerms (1..1)
-	
-	output: is_product boolean (1..1)
-		[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_Basis"]
-		
-	assign-output is_product:
-		economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 2
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate is absent
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
-		and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
-		and economicTerms -> payout -> optionPayout is absent
+    [qualification product]
+    inputs: economicTerms EconomicTerms (1..1)
+    
+    output: is_product boolean (1..1)
+        [synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_Basis"]
+        
+    assign-output is_product:
+        economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 2
+        and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate is absent
+        and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
+        and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
+        and economicTerms -> payout -> optionPayout is absent
 
 ```
 
@@ -74,19 +74,19 @@ Previous syntax:
 
 ```
 alias forwardFX
-	ForwardPayout -> underlier -> underlyingProduct -> foreignExchange
+    ForwardPayout -> underlier -> underlyingProduct -> foreignExchange
 ```
-	
+    
 Updated syntax:
 
 ```
 func ForwardFX:
-	inputs:
-		forwardPayout ForwardPayout(1..1)
-	output: result ForeignExchange (1..1)
-	assign-output result: forwardPayout -> underlier -> underlyingProduct -> foreignExchange
+    inputs:
+        forwardPayout ForwardPayout(1..1)
+    output: result ForeignExchange (1..1)
+    assign-output result: forwardPayout -> underlier -> underlyingProduct -> foreignExchange
 ```
 
-	
-	
+    
+    
 
