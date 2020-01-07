@@ -38,7 +38,7 @@ func Allocation: <"...">
 
 ```
 
-The change for 'InterestRate_IRSwap_Basis' expresses the same logic but defines the input and output types consistent with other parts of the model:
+The change for `InterestRate_IRSwap_Basis` expresses the same logic but defines the input and output types consistent with other parts of the model:
 
 Previous syntax:
 ```
@@ -68,7 +68,7 @@ func InterestRate_IRSwap_Basis:
 
 ```
 
-The change for 'forwardFX' alias also expresses the same logic but defines the input and output types consistent with other parts of the model:
+The change for `forwardFX` alias also expresses the same logic but defines the input and output types consistent with other parts of the model:
 
 Previous syntax:
 
