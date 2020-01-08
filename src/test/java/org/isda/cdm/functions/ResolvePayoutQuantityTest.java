@@ -14,11 +14,15 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
+import static org.hamcrest.CoreMatchers.startsWith;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 class ResolvePayoutQuantityTest extends AbstractFunctionTest {
 
@@ -30,6 +34,33 @@ class ResolvePayoutQuantityTest extends AbstractFunctionTest {
 
 	@Inject
 	private ResolvePayoutQuantity resolveFunc;
+
+	@Test
+	void shouldThrowExceptionForEmptyResolvablePayoutQuantity() {
+		ResolvablePayoutQuantity resolvablePayoutQuantity = ResolvablePayoutQuantity.builder().build();
+		ContractualProduct contractualProduct = ContractualProduct.builder().build();
+
+		try {
+			resolveFunc.evaluate(resolvablePayoutQuantity, Collections.emptyList(), contractualProduct);
+			fail("Expected exception for empty ResolvablePayoutQuantity");
+		} catch (RuntimeException expected) {
+			assertEquals("No assetIdentifier nor quantityReference found", expected.getMessage());
+		}
+	}
+
+	@Test
+	void shouldThrowExceptionForMissingQuantityNotation() throws IOException {
+		Contract contract = getContract(RATES_DIR + "GBP-Vanilla-uti.json");
+		ContractualProduct contractualProduct = contract.getContractualProduct();
+		PayoutBase fixedLegPayout = getPayout(getInterestRatePayouts(contract), "fixedLeg1");
+
+		try {
+			resolveFunc.evaluate(fixedLegPayout.getPayoutQuantity(), Collections.emptyList(), contractualProduct);
+			fail("Expected exception for missing QuantityNotation");
+		} catch (RuntimeException expected) {
+			assertThat(expected.getMessage(), startsWith("No quantity found for assetIdentifier AssetIdentifier"));
+		}
+	}
 
 	/**
 	 * Each interest rate payout has resolvablePayoutQuantity containing an AssetIdentifier with currency key.

@@ -14,12 +14,15 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.hamcrest.CoreMatchers.startsWith;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.fail;
 
 class ResolvePayoutTest extends AbstractFunctionTest {
 
@@ -31,6 +34,19 @@ class ResolvePayoutTest extends AbstractFunctionTest {
 
 	@Inject
 	private ResolvePayout resolveFunc;
+
+	@Test
+	void shouldThrowExceptionForMissingQuantityNotation() throws IOException {
+		Contract contract = getContract(RATES_DIR + "GBP-Vanilla-uti.json");
+		ContractualProduct contractualProduct = contract.getContractualProduct();
+
+		try {
+			resolveFunc.evaluate(Collections.emptyList(), contractualProduct);
+			fail("Expected exception for missing QuantityNotation");
+		} catch (RuntimeException expected) {
+			assertThat(expected.getMessage(), startsWith("No quantity found for assetIdentifier AssetIdentifier"));
+		}
+	}
 
 	/**
 	 * Each interest rate payout has resolvablePayoutQuantity containing an AssetIdentifier with currency key.
