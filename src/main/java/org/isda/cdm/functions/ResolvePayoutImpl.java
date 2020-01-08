@@ -1,0 +1,37 @@
+package org.isda.cdm.functions;
+
+import com.google.inject.Inject;
+import com.regnosys.rosetta.common.util.RosettaObjectBuilderCollectorProcessStep;
+import org.isda.cdm.*;
+import org.isda.cdm.ContractualProduct.ContractualProductBuilder;
+
+import java.util.List;
+
+import static org.isda.cdm.ResolvablePayoutQuantity.ResolvablePayoutQuantityBuilder;
+
+public class ResolvePayoutImpl extends ResolvePayout {
+
+	@Inject
+	private ResolvePayoutQuantity resolvePayoutQuantityFunc;
+
+	@Override
+	protected ContractualProductBuilder doEvaluate(List<QuantityNotation> quantityNotations, ContractualProduct contractualProduct) {
+		ContractualProductBuilder contractualProductBuilder = contractualProduct.toBuilder();
+		// Find all ResolvablePayoutQuantity instances
+		List<ResolvablePayoutQuantityBuilder> resolvablePayoutQuantityBuilders = new RosettaObjectBuilderCollectorProcessStep<>(ResolvablePayoutQuantityBuilder.class)
+				.runProcessStep(ContractualProduct.class, contractualProductBuilder)
+				.getCollectedObjects();
+		// Resolve each instance
+		resolvablePayoutQuantityBuilders.forEach(b -> resolveQuantity(b, quantityNotations, contractualProduct));
+
+		return contractualProductBuilder;
+	}
+
+	private ResolvablePayoutQuantityBuilder resolveQuantity(ResolvablePayoutQuantityBuilder builder, List<QuantityNotation> quantityNotations, ContractualProduct contractualProduct) {
+		NonNegativeQuantity quantity = resolvePayoutQuantityFunc.evaluate(builder.build(), quantityNotations, contractualProduct);
+		return builder.setQuantitySchedule(NonNegativeQuantitySchedule.builder()
+				.setQuantity(quantity)
+				.build());
+	}
+
+}
