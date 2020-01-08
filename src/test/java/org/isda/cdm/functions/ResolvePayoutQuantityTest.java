@@ -20,7 +20,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class ResolvePayoutQuantityImplTest extends AbstractFunctionTest {
+class ResolvePayoutQuantityTest extends AbstractFunctionTest {
 
 	private static final String PRODUCTS_DIR = "result-json-files/products/";
 	private static final String RATES_DIR = PRODUCTS_DIR + "rates/";
