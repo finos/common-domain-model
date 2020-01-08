@@ -1,12 +1,13 @@
 package org.isda.cdm;
 
-import com.rosetta.model.lib.validation.ModelObjectValidator;
 import org.isda.cdm.calculation.functions.GetRateScheduleImpl;
 import org.isda.cdm.calculation.functions.ResolveRateIndexImpl;
 import org.isda.cdm.functions.CalculationPeriod;
 import org.isda.cdm.functions.GetRateSchedule;
 import org.isda.cdm.functions.ResolveRateIndex;
 import org.isda.cdm.functions.TestableCalculationPeriod;
+
+import com.rosetta.model.lib.validation.ModelObjectValidator;
 
 public class CdmTestsModule extends CdmRuntimeModule {
 
@@ -15,6 +16,7 @@ public class CdmTestsModule extends CdmRuntimeModule {
 		super.configure();
 		bind(ResolveRateIndex.class).to(bindResolveRateIndex());
 		bind(GetRateSchedule.class).to(bindGetRateSchedule());
+		
 	}
 
 	@Override
