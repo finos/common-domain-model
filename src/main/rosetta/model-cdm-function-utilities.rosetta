@@ -1,24 +1,27 @@
 namespace "org.isda.cdm"
 version "${project.version}"
 
-func ResolvePayout: <"Function specification to resolve a payout quantity, specified as a resolvable quantity with inputs for the resolution, into a basic quantity with just a number and a unit.">
+func ResolvePayout: <"Function to resolve all ResolvablePayoutQuantity instances on the given ContractualProduct.">
 	inputs:
 		quantityNotations QuantityNotation (1..*)
 		contractualProduct ContractualProduct (1..1)
+	
 	output:
 		resolvedContractualProduct ContractualProduct (1..1) <"The resolved quantity, containing just a number and (optionally) a unit or currency.">
 
-// TODO comments etc
-func ResolvePayoutQuantity: <"Function specification to resolve a payout quantity, specified as a resolvable quantity with inputs for the resolution, into a basic quantity with just a number and a unit.">
+
+func ResolvePayoutQuantity: <"Function to find the quantity for the given ResolvablePayoutQuantity.">
 	inputs:
-		resolvableQuantity ResolvablePayoutQuantity (1..1) <"The quantity to resolve.">
+		resolvableQuantity ResolvablePayoutQuantity (1..1) <"The payout quantity to resolve.">
 		quantityNotations QuantityNotation (1..*)
 		contractualProduct ContractualProduct (1..1)
+	
 	output:
 		resolvedQuantity NonNegativeQuantity (1..1) <"The resolved quantity, containing just a number and (optionally) a unit or currency.">
 
 	post-condition:
 		resolvedQuantity -> amount exists
+
 
 func ResolveQuantity: <"Function specification to resolve a payout quantity, specified as a resolvable quantity with inputs for the resolution, into a basic quantity with just a number and a unit.">
 	inputs:
