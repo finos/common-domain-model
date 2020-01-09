@@ -1,26 +1,23 @@
 namespace "org.isda.cdm"
 version "${project.version}"
 
-func ResolvePayout: <"Function to resolve all ResolvablePayoutQuantity instances on the given ContractualProduct.">
+func ResolvePayout: <"For a given ContractualProduct, the function finds all ResolvablePayoutQuantity instances, then for each instance, resolves the quantity, populates the quantity attribute on ResolvablePayoutQuantity, and finally returns the updated ContractualProduct.">
 	inputs:
-		quantityNotations QuantityNotation (1..*)
-		contractualProduct ContractualProduct (1..1)
+		quantityNotations QuantityNotation (1..*) <"All QuantityNotations associated with the given ContractualProduct, that will be resolved based on their AssetIdentifier.">
+		contractualProduct ContractualProduct (1..1) <"The ContractualProduct to be resolved.">
 	
 	output:
-		resolvedContractualProduct ContractualProduct (1..1) <"The resolved quantity, containing just a number and (optionally) a unit or currency.">
+		resolvedContractualProduct ContractualProduct (1..1) <"The updated ContractualProduct with all ResolvablePayoutQuantity instances resolved and updated with the corresponding quantity.">
 
 
-func ResolvePayoutQuantity: <"Function to find the quantity for the given ResolvablePayoutQuantity.">
+func ResolvePayoutQuantity: <"For a given ResolvablePayoutQuantity, the function resolves and returns the corresponding quantity from the QuantityNotations by matching on AssetIdentifier.">
 	inputs:
-		resolvableQuantity ResolvablePayoutQuantity (1..1) <"The payout quantity to resolve.">
-		quantityNotations QuantityNotation (1..*)
-		contractualProduct ContractualProduct (1..1)
+		resolvableQuantity ResolvablePayoutQuantity (1..1) <"The ResolvablePayoutQuantity to resolve.">
+		quantityNotations QuantityNotation (1..*) <"All QuantityNotations associated with the given ContractualProduct, that will be resolved based on their AssetIdentifier.">
+		contractualProduct ContractualProduct (1..1) <"Provided to allow any references to be resolved.">
 	
 	output:
-		resolvedQuantity NonNegativeQuantity (1..1) <"The resolved quantity, containing just a number and (optionally) a unit or currency.">
-
-	post-condition:
-		resolvedQuantity -> amount exists
+		resolvedQuantity NonNegativeQuantity (1..1) <"The resolved NonNegativeQuantity.">
 
 
 func ResolveQuantity: <"Function specification to resolve a payout quantity, specified as a resolvable quantity with inputs for the resolution, into a basic quantity with just a number and a unit.">
