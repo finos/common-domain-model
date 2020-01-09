@@ -1,17 +1,10 @@
 package org.isda.cdm;
 
-import org.isda.cdm.functions.Abs;
-import org.isda.cdm.functions.AbsImpl;
-import org.isda.cdm.functions.CalculationPeriodImpl;
-import org.isda.cdm.functions.ListsCompare;
-import org.isda.cdm.functions.ListsCompareImpl;
-import org.isda.cdm.functions.Sum;
-import org.isda.cdm.functions.SumImpl;
-
 import com.google.inject.AbstractModule;
 import com.regnosys.rosetta.common.validation.RosettaTypeValidator;
 import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
 import com.rosetta.model.lib.validation.ModelObjectValidator;
+import org.isda.cdm.functions.*;
 
 public class CdmRuntimeModule extends AbstractModule {
 
@@ -26,7 +19,8 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(org.isda.cdm.functions.CalculationPeriod.class).to(bindCalculationPeriod());
 		bind(Sum.class).to(bindSum());
 		bind(ListsCompare.class).to(bindListsCompare());
-
+		bind(ResolvePayoutQuantity.class).to(bindResolvePayoutQuantity());
+		bind(ResolveContractualProduct.class).to(bindResolveContractualProduct());
 	}
 
 	protected Class<? extends ListsCompare> bindListsCompare() {
@@ -36,6 +30,7 @@ public class CdmRuntimeModule extends AbstractModule {
 	protected Class<? extends ModelObjectValidator> bindModelObjectValidator() {
 		return RosettaTypeValidator.class;
 	}
+
 	protected Class<? extends QualifyFunctionFactory> bindQualifyFunctionFactory() {
 		return QualifyFunctionFactory.Default.class;
 	}
@@ -54,4 +49,11 @@ public class CdmRuntimeModule extends AbstractModule {
 		return SumImpl.class;
 	}
 
+	protected Class<? extends ResolvePayoutQuantity> bindResolvePayoutQuantity() {
+		return ResolvePayoutQuantityImpl.class;
+	}
+
+	protected Class<? extends ResolveContractualProduct> bindResolveContractualProduct() {
+		return ResolveContractualProductImpl.class;
+	}
 }
