@@ -24,7 +24,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.fail;
 
-class ResolvePayoutTest extends AbstractFunctionTest {
+class ResolveContractualProductTest extends AbstractFunctionTest {
 
 	private static final String PRODUCTS_DIR = "result-json-files/products/";
 	private static final String RATES_DIR = PRODUCTS_DIR + "rates/";
@@ -33,7 +33,7 @@ class ResolvePayoutTest extends AbstractFunctionTest {
 	private static final String CREDIT_DIR = PRODUCTS_DIR + "credit/";
 
 	@Inject
-	private ResolvePayout resolveFunc;
+	private ResolveContractualProduct resolveFunc;
 
 	@Test
 	void shouldThrowExceptionForMissingQuantityNotation() throws IOException {
@@ -41,7 +41,7 @@ class ResolvePayoutTest extends AbstractFunctionTest {
 		ContractualProduct contractualProduct = contract.getContractualProduct();
 
 		try {
-			resolveFunc.evaluate(Collections.emptyList(), contractualProduct);
+			resolveFunc.evaluate(contractualProduct, Collections.emptyList());
 			fail("Expected exception for missing QuantityNotation");
 		} catch (RuntimeException expected) {
 			assertThat(expected.getMessage(), startsWith("No quantity found for assetIdentifier AssetIdentifier"));
@@ -58,7 +58,7 @@ class ResolvePayoutTest extends AbstractFunctionTest {
 		List<QuantityNotation> quantityNotations = contract.getContractualQuantity().getQuantityNotation();
 		ContractualProduct contractualProduct = contract.getContractualProduct();
 
-		ContractualProduct resolved = resolveFunc.evaluate(quantityNotations, contractualProduct);
+		ContractualProduct resolved = resolveFunc.evaluate(contractualProduct, quantityNotations);
 
 		assertNotNull(resolved);
 
@@ -79,7 +79,7 @@ class ResolvePayoutTest extends AbstractFunctionTest {
 		List<QuantityNotation> quantityNotations = contract.getContractualQuantity().getQuantityNotation();
 		ContractualProduct contractualProduct = contract.getContractualProduct();
 
-		ContractualProduct resolved = resolveFunc.evaluate(quantityNotations, contractualProduct);
+		ContractualProduct resolved = resolveFunc.evaluate(contractualProduct, quantityNotations);
 
 		ResolvablePayoutQuantity fixedLegQuantity = getPayout(getInterestRatePayouts(resolved), 0).getPayoutQuantity();
 		assertEquals(BigDecimal.valueOf(25000000), getResolvedQuantityAmount(fixedLegQuantity));
@@ -104,7 +104,7 @@ class ResolvePayoutTest extends AbstractFunctionTest {
 		List<QuantityNotation> quantityNotations = contract.getContractualQuantity().getQuantityNotation();
 		ContractualProduct contractualProduct = contract.getContractualProduct();
 
-		ContractualProduct resolved = resolveFunc.evaluate(quantityNotations, contractualProduct);
+		ContractualProduct resolved = resolveFunc.evaluate(contractualProduct, quantityNotations);
 
 		ResolvablePayoutQuantity equityQuantity = getPayout(getEquityPayouts(resolved)).getPayoutQuantity();
 		assertEquals(BigDecimal.valueOf(28469376), getResolvedQuantityAmount(equityQuantity));
@@ -124,7 +124,7 @@ class ResolvePayoutTest extends AbstractFunctionTest {
 		List<QuantityNotation> quantityNotations = contract.getContractualQuantity().getQuantityNotation();
 		ContractualProduct contractualProduct = contract.getContractualProduct();
 
-		ContractualProduct resolved = resolveFunc.evaluate(quantityNotations, contractualProduct);
+		ContractualProduct resolved = resolveFunc.evaluate(contractualProduct, quantityNotations);
 
 		ResolvablePayoutQuantity fixedLegQuantity = getPayout(getInterestRatePayouts(resolved), 0).getPayoutQuantity();
 		assertEquals(BigDecimal.valueOf(1000000000L), getResolvedQuantityAmount(fixedLegQuantity));
@@ -141,7 +141,7 @@ class ResolvePayoutTest extends AbstractFunctionTest {
 		List<QuantityNotation> quantityNotations = contract.getContractualQuantity().getQuantityNotation();
 		ContractualProduct contractualProduct = contract.getContractualProduct();
 
-		ContractualProduct resolved = resolveFunc.evaluate(quantityNotations, contractualProduct);
+		ContractualProduct resolved = resolveFunc.evaluate(contractualProduct, quantityNotations);
 
 		ResolvablePayoutQuantity fixedLegQuantity = getPayout(getInterestRatePayouts(resolved)).getPayoutQuantity();
 		assertEquals(BigDecimal.valueOf(1292748), getResolvedQuantityAmount(fixedLegQuantity));
@@ -168,7 +168,7 @@ class ResolvePayoutTest extends AbstractFunctionTest {
 		List<QuantityNotation> quantityNotations = contract.getContractualQuantity().getQuantityNotation();
 		ContractualProduct contractualProduct = contract.getContractualProduct();
 
-		ContractualProduct resolved = resolveFunc.evaluate(quantityNotations, contractualProduct);
+		ContractualProduct resolved = resolveFunc.evaluate(contractualProduct, quantityNotations);
 
 		ResolvablePayoutQuantity optionQuantity = getPayout(getOptionPayouts(resolved)).getPayoutQuantity();
 		assertEquals(BigDecimal.valueOf(10000000000L), getResolvedQuantityAmount(optionQuantity));
@@ -183,7 +183,7 @@ class ResolvePayoutTest extends AbstractFunctionTest {
 		List<QuantityNotation> quantityNotations = contract.getContractualQuantity().getQuantityNotation();
 		ContractualProduct contractualProduct = contract.getContractualProduct();
 
-		ContractualProduct resolved = resolveFunc.evaluate(quantityNotations, contractualProduct);
+		ContractualProduct resolved = resolveFunc.evaluate(contractualProduct, quantityNotations);
 
 		ResolvablePayoutQuantity optionQuantity = getPayout(getOptionPayouts(resolved)).getPayoutQuantity();
 		assertEquals(BigDecimal.valueOf(10000000), getResolvedQuantityAmount(optionQuantity));

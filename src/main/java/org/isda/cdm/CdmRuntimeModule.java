@@ -20,7 +20,7 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(Sum.class).to(bindSum());
 		bind(ListsCompare.class).to(bindListsCompare());
 		bind(ResolvePayoutQuantity.class).to(bindResolvePayoutQuantity());
-		bind(ResolvePayout.class).to(bindResolvePayout());
+		bind(ResolveContractualProduct.class).to(bindResolveContractualProduct());
 	}
 
 	protected Class<? extends ListsCompare> bindListsCompare() {
@@ -53,7 +53,7 @@ public class CdmRuntimeModule extends AbstractModule {
 		return ResolvePayoutQuantityImpl.class;
 	}
 
-	protected Class<? extends ResolvePayout> bindResolvePayout() {
-		return ResolvePayoutImpl.class;
+	protected Class<? extends ResolveContractualProduct> bindResolveContractualProduct() {
+		return ResolveContractualProductImpl.class;
 	}
 }

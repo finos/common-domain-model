@@ -9,13 +9,13 @@ import java.util.List;
 
 import static org.isda.cdm.ResolvablePayoutQuantity.ResolvablePayoutQuantityBuilder;
 
-public class ResolvePayoutImpl extends ResolvePayout {
+public class ResolveContractualProductImpl extends ResolveContractualProduct {
 
 	@Inject
 	private ResolvePayoutQuantity resolvePayoutQuantityFunc;
 
 	@Override
-	protected ContractualProductBuilder doEvaluate(List<QuantityNotation> quantityNotations, ContractualProduct contractualProduct) {
+	protected ContractualProductBuilder doEvaluate(ContractualProduct contractualProduct, List<QuantityNotation> quantityNotations) {
 		ContractualProductBuilder contractualProductBuilder = contractualProduct.toBuilder();
 		// Find all ResolvablePayoutQuantity instances
 		List<ResolvablePayoutQuantityBuilder> resolvablePayoutQuantityBuilders = new RosettaObjectBuilderCollectorProcessStep<>(ResolvablePayoutQuantityBuilder.class)
@@ -27,9 +27,9 @@ public class ResolvePayoutImpl extends ResolvePayout {
 		return contractualProductBuilder;
 	}
 
-	private ResolvablePayoutQuantityBuilder resolveQuantity(ResolvablePayoutQuantityBuilder builder, List<QuantityNotation> quantityNotations, ContractualProduct contractualProduct) {
+	private void resolveQuantity(ResolvablePayoutQuantityBuilder builder, List<QuantityNotation> quantityNotations, ContractualProduct contractualProduct) {
 		NonNegativeQuantity quantity = resolvePayoutQuantityFunc.evaluate(builder.build(), quantityNotations, contractualProduct);
-		return builder.setQuantitySchedule(NonNegativeQuantitySchedule.builder()
+		builder.setQuantitySchedule(NonNegativeQuantitySchedule.builder()
 				.setQuantity(quantity)
 				.build());
 	}
