@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.isda.cdm.PrimitiveEvent.PrimitiveEventBuilder;
-import org.isda.cdm.WorkflowEvent;
-import org.isda.cdm.WorkflowEvent.WorkflowEventBuilder;
+import org.isda.cdm.WorkflowStep;
+import org.isda.cdm.WorkflowStep.WorkflowStepBuilder;
 import org.isda.cdm.test.functions.TestPartialNovationFunc;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -24,8 +24,8 @@ class MapperTreeOrTest extends AbstractFunctionTest {
 		Date effDate = DateImpl.of(2019, 11, 29);
 		Date otherDate = DateImpl.of(2019, 11, 28);
 
-		assertTrue(func.evaluate(createEvent(effDate, effDate)), "Only one matching date");
-		assertFalse(func.evaluate(createEvent(effDate, otherDate)), "Only one not matching date");
+		assertTrue(func.evaluate(createWorkflowStep(effDate, effDate)), "Only one matching date");
+		assertFalse(func.evaluate(createWorkflowStep(effDate, otherDate)), "Only one not matching date");
 	}
 
 	@Test @Disabled("Currently workflowEvent -> businessEvent -> primitives will be translated as workflowEvent -> businessEvent -> primitives[0]")
@@ -33,9 +33,9 @@ class MapperTreeOrTest extends AbstractFunctionTest {
 		Date effDate = DateImpl.of(2019, 11, 29);
 		Date otherDate = DateImpl.of(2019, 11, 28);
 
-		assertTrue(func.evaluate(createEvent(effDate, effDate, effDate)), "Two matching dates");
-		assertFalse(func.evaluate(createEvent(effDate, effDate, otherDate)), "One matching and one not matching date");
-		assertFalse(func.evaluate(createEvent(effDate, otherDate, effDate)), "One not matching and one matching date");
+		assertTrue(func.evaluate(createWorkflowStep(effDate, effDate, effDate)), "Two matching dates");
+		assertFalse(func.evaluate(createWorkflowStep(effDate, effDate, otherDate)), "One matching and one not matching date");
+		assertFalse(func.evaluate(createWorkflowStep(effDate, otherDate, effDate)), "One not matching and one matching date");
 	}
 
 	/*
@@ -64,11 +64,11 @@ class MapperTreeOrTest extends AbstractFunctionTest {
 	}
 	 */
 
-	private WorkflowEvent createEvent(Date effDate, Date... otherDates) {
+	private WorkflowStep createWorkflowStep(Date effDate, Date... otherDates) {
 		// businessEvent -> primitives -> inception -> after -> contract ->
 		// contractualProduct -> economicTerms -> effectiveDate -> adjustableDate ->
 		// adjustedDate
-		WorkflowEventBuilder builder = WorkflowEvent.builder().setEffectiveDate(effDate);
+		WorkflowStepBuilder builder = WorkflowStep.builder().setEffectiveDate(effDate);
 		for (int i = 0; i < otherDates.length; i++) {
 			withAdjustedDate(builder.getOrCreateBusinessEvent().getOrCreatePrimitives(i), otherDates[i]);
 		}

@@ -164,7 +164,7 @@ type CustomisedWorkflow: <"In its initial iteration, this class is meant to supp
 		[synonym CME_SubmissionIRS_1_0 set to "Customer Account" when "Pty->R" = "24"]
 		[synonym CME_SubmissionIRS_1_0 set to "Custom" when "Pty->Src" = "D"]
 
-type WorkflowEvent: <"A class to specify the lifecycle event. The associated rosettaKey denotes the ability to associate a hash value to the Event instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+type WorkflowStep: <"A class to specify the lifecycle event. The associated rosettaKey denotes the ability to associate a hash value to the Event instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
 	[rootType]
 	[synonym Workflow_Event meta "id"]
@@ -219,15 +219,15 @@ type WorkflowEvent: <"A class to specify the lifecycle event. The associated ros
 	functionCall string (0..1) <"This is placeholder concept for a function call into a calculation that will return an outcome. This concept needs to be further firmed out.">
 		[synonym Workflow_Event value "functionCall"]
 	eventEffect EventEffect (0..1) <"The set of effects associated with the lifecycle event, i.e. generated cashflows, contracts (from, say, novation events), listed products (from, say, a bond option exercise event) values and more. Those are represented through a set of rosettaKey references. This attribute is optional in order to provide implementers with the ability not to make use of this feature.">
-	workflowEventState WorkflowEventState (0..1) <"The event workflow information, i.e. the workflow status, the associated comment and the partyCustomisedWorkflow which purpose is to provide the ability to associate custom workflow information to the CDM.">
+	workflowEventState WorkflowStepState (0..1) <"The event workflow information, i.e. the workflow status, the associated comment and the partyCustomisedWorkflow which purpose is to provide the ability to associate custom workflow information to the CDM.">
 
 	condition Event_intent: <"The intent should only be associated with the primitives which use can lead to ambiguity with respect to the qualification of the event.">
-		if (WorkflowEvent -> businessEvent -> primitives -> allocation exists
-			or WorkflowEvent -> businessEvent -> primitives -> exercise exists
-			or WorkflowEvent -> businessEvent -> primitives -> inception exists
-			or WorkflowEvent -> businessEvent -> primitives -> observation exists
-			or WorkflowEvent -> businessEvent -> primitives -> reset exists)
-		then WorkflowEvent -> intent is absent
+		if (WorkflowStep -> businessEvent -> primitives -> allocation exists
+			or WorkflowStep -> businessEvent -> primitives -> exercise exists
+			or WorkflowStep -> businessEvent -> primitives -> inception exists
+			or WorkflowStep -> businessEvent -> primitives -> observation exists
+			or WorkflowStep -> businessEvent -> primitives -> reset exists)
+		then WorkflowStep -> intent is absent
 
 type BusinessEvent: <"A business event is a collection of primitive events.">
 	primitives PrimitiveEvent (1..*) <"The elemental component(s) that specify the lifecycle events. Each of the primitive/elemental components listed as part of the PrimitiveEvent class has distinctive features that allow to specify the lifecycle event, either by itself or in combination with some other of such components.">
@@ -249,7 +249,7 @@ type EventEffect: <"The set of operational and positional effects associated wit
 
 /* USED in downstrem */
 type EventTestBundle: <"A class which combines several events for testing purposes.">
-	event WorkflowEvent (2..*)
+	event WorkflowStep (2..*)
 		[synonym Workflow_Event value "event"]
 	computedAmount ComputedAmount (0..*)
 		[synonym Workflow_Event value "computedAmount"]
@@ -272,7 +272,7 @@ type EventTimestamp: <"A class to represent the various set of timestamps that c
 		[synonym CME_SubmissionIRS_1_0 set to EventTimestampQualificationEnum -> eventSentDateTime when path= "TrdCaptRpt->Hdr->Snt"]
 		[synonym CME_SubmissionIRS_1_0 set to EventTimestampQualificationEnum -> executionDateTime when path= "TrdCaptRpt->TrdRegTS->TS" and "TrdCaptRpt->TrdRegTS->Typ" = 1]
 
-type WorkflowEventState: <"A class to specify workflow information, which is conceptually applicable to all lifecycle events.">
+type WorkflowStepState: <"A class to specify workflow information, which is conceptually applicable to all lifecycle events.">
 	workflowStatus WorkflowStatusEnum (0..*) <"The workflow status indicator, e.g. Accepted, Rejected, ...">
 		[synonym CME_SubmissionIRS_1_0 value "RptTyp" path "TrdCaptRpt"]
 		[synonym Workflow_Event value "workflowStatus"]
@@ -344,7 +344,7 @@ type Lineage: <"A class to provide lineage information across lifecycle events t
 	contractReference Contract (0..*) <"The reference to the instantiation of a Contract object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
 		[synonym Workflow_Event value "contractReference" meta "href"]
-	eventReference WorkflowEvent (0..*) <"The reference to the instantiation of an Event object, either through a rosettaKey or an xml-derived id/href mechanism. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
+	eventReference WorkflowStep (0..*) <"The reference to the instantiation of an Event object, either through a rosettaKey or an xml-derived id/href mechanism. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
 		[synonym Workflow_Event value "eventReference" meta "href"]
 	executionReference Execution (0..*) <"The reference to the instantiation of a Execution object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
@@ -522,7 +522,7 @@ type Velocity:
 func Allocation: <"The qualification of allocation event from the fact that (i) the intent is Allocation when specified, (ii) the only primitive is the allocation, (iii) the sum of quantities/notional before = after, and (iv) there is a single contractualProduct before (ensured through cardinality). Note: it is accepted that an allocation can result in a single contract.">
 	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		workflowEvent WorkflowStep(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
 		workflowEvent -> businessEvent -> primitives count = 1
@@ -539,7 +539,7 @@ func Allocation: <"The qualification of allocation event from the fact that (i) 
 func CashflowCalculationNotification:
 	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		workflowEvent WorkflowStep(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
 		workflowEvent -> businessEvent -> primitives count = 1
@@ -549,7 +549,7 @@ func CashflowCalculationNotification:
 func CashTransfer: <"The qualification of a cash transfer from the fact that the only component is a cashTransfer.">
 	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		workflowEvent WorkflowStep(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
 		workflowEvent -> businessEvent -> primitives count = 1
@@ -562,7 +562,7 @@ func CashTransfer: <"The qualification of a cash transfer from the fact that the
 func CashAndSecurityTransfer: <"The qualification of a security settlement from the fact that (i) it is composed of a cashTransfer component and a securityTransfer component, and (ii) the cash and security move in the same direction.">
 	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		workflowEvent WorkflowStep(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
 		workflowEvent -> businessEvent -> primitives -> transfer -> cashTransfer exists
@@ -575,7 +575,7 @@ func CashAndSecurityTransfer: <"The qualification of a security settlement from 
 func ClearedTrade:
 	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		workflowEvent WorkflowStep(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
 		workflowEvent -> businessEvent -> primitives count = 5
@@ -601,7 +601,7 @@ func ClearedTrade:
 func ClearingRejection: <"The rejection of an alpha trade submission by a CCP, which is qualified by the fact that (i) termsChange is the only primitive, the workflow status is `rejected`, and (iii) the CCP is positioned as a partyRole to the execution or contract in the after state, while it didn't exist in the before state.">
 	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		workflowEvent WorkflowStep(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
 		workflowEvent -> businessEvent -> primitives count = 1
@@ -618,7 +618,7 @@ func ClearingRejection: <"The rejection of an alpha trade submission by a CCP, w
 func ClearingSubmission: <"The submission of a contract to a CCP, which is qualified by the fact that (i) the termsChange is the only primitive, and (ii) the CCP is positioned as a partyRole to the execution or contract in the after state, while it didn't exist in the before state.">
 	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		workflowEvent WorkflowStep(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
 		workflowEvent -> businessEvent -> primitives count = 1
@@ -634,7 +634,7 @@ func ClearingSubmission: <"The submission of a contract to a CCP, which is quali
 func Compression: <"The qualification of a compression event from the fact that (i) the quantityChange primitive exists, and (ii) there are multiple contracts (or contract references) specified in the before state.">
 	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		workflowEvent WorkflowStep(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
 		workflowEvent -> businessEvent -> primitives -> quantityChange exists
@@ -643,7 +643,7 @@ func Compression: <"The qualification of a compression event from the fact that 
 func DerivedObservation: <"The qualification of a derived observation event from the fact that (i) the only primitive is the observation, (ii) there are multiple instances of such observations, and (iii) there is an associated call function to compute, say, an interpolation.">
 	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		workflowEvent WorkflowStep(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
 		workflowEvent -> businessEvent -> primitives -> observation only multiple exists
@@ -652,7 +652,7 @@ func DerivedObservation: <"The qualification of a derived observation event from
 func Exercise: <"The qualification of an exercise event from the fact that (i) the only primitive is the exercise, and (ii) the remaining quantity = 0, and (iv) the closedState of the contract is Terminated.">
 	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		workflowEvent WorkflowStep(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
 		workflowEvent -> businessEvent -> primitives count = 1
@@ -661,7 +661,7 @@ func Exercise: <"The qualification of an exercise event from the fact that (i) t
 func Increase: <"The qualification of a increase event from the fact that (i) the intent is Increase when specified, (ii) the associated primitives are the quantityChange and the cash transfer, the (iii) the quantity associated with the contract increases.">
 	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		workflowEvent WorkflowStep(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
 		(workflowEvent -> intent is absent or workflowEvent -> intent = IntentEnum -> Increase)
@@ -677,7 +677,7 @@ func Increase: <"The qualification of a increase event from the fact that (i) th
 func MultipleTransfers: <"The qualification an event that combines multiple transfers from the fact that multiple transfer primitives exist.">
 	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		workflowEvent WorkflowStep(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
 		workflowEvent -> businessEvent -> primitives -> transfer multiple exists
@@ -685,7 +685,7 @@ func MultipleTransfers: <"The qualification an event that combines multiple tran
 func NewTrade:
 	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		workflowEvent WorkflowStep(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
 		workflowEvent -> businessEvent -> primitives count = 1
@@ -697,7 +697,7 @@ func NewTrade:
 func Novation: <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and inception exist, (iii) the remaining quantity = 0, (iv) the closedState of the contract is Novated, (v) the stepped-in contract has a different contract identifier than the novated contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
 	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		workflowEvent WorkflowStep(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
 		workflowEvent -> businessEvent -> primitives -> quantityChange exists
@@ -712,7 +712,7 @@ func Novation: <"The qualification of a novation event from the fact that (i) th
 func Observation: <"The qualification of an observation event from the fact that (i) the only primitive is the observation, and (ii) that there is only a single instance of such observation.">
 	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		workflowEvent WorkflowStep(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
 		workflowEvent -> businessEvent -> primitives -> observation only single exists
@@ -720,7 +720,7 @@ func Observation: <"The qualification of an observation event from the fact that
 func PartialNovation: <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and inception exist, (iii) the contract quantity/notional has decreased as part of the quantityChange primitive, while (iv) there is a remaining quantity/notional, (v) the stepped-in contract has a different contract identifier than the original contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
 	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		workflowEvent WorkflowStep(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
 		workflowEvent -> businessEvent -> primitives -> quantityChange exists
@@ -734,7 +734,7 @@ func PartialNovation: <"The qualification of a novation event from the fact that
 func PartialTermination: <"The qualification of a partial termination event from the fact that (i) the intent is Partial Termination when specified, (ii) the associated primitives are the quantityChange and the cash transfer, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
 	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		workflowEvent WorkflowStep(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
 		(workflowEvent -> intent is absent or workflowEvent -> intent = IntentEnum -> PartialTermination)
@@ -749,7 +749,7 @@ func PartialTermination: <"The qualification of a partial termination event from
 func IsReset: <"The qualification of a reset event from the fact that the only primitive is the reset.">
 	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent (1..1)
+		workflowEvent WorkflowStep (1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
 		workflowEvent -> businessEvent -> primitives count = 1
@@ -758,7 +758,7 @@ func IsReset: <"The qualification of a reset event from the fact that the only p
 func SecurityTransfer: <"The qualification of a security transfer from the fact that the only component is a securityTransfer.">
 	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		workflowEvent WorkflowStep(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
 		workflowEvent -> businessEvent -> primitives count = 1
@@ -770,7 +770,7 @@ func SecurityTransfer: <"The qualification of a security transfer from the fact 
 func SecuritySettlement: <"The qualification of a security settlement from the fact that (i) it is composed of a cashTransfer component and a securityTransfer component, and (ii) the cash and security move in opposite directions.">
 	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		workflowEvent WorkflowStep(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
 		workflowEvent -> businessEvent -> primitives -> transfer -> cashTransfer exists
@@ -781,7 +781,7 @@ func SecuritySettlement: <"The qualification of a security settlement from the f
 func Termination: <"The qualification of a termination event from the fact that (i) the intent is Termination when specified, (ii) the only primitive is the quantityChange and there is only one such primitive involved, the (iii) the remaining quantity is null, and (iv) the closedState of the contract is Terminated.">
 	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		workflowEvent WorkflowStep(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
 		(workflowEvent -> intent is absent or workflowEvent -> intent = IntentEnum -> Termination)
@@ -796,7 +796,7 @@ func Termination: <"The qualification of a termination event from the fact that 
 func TradeWarehousePositionNotification:
 	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		workflowEvent WorkflowStep(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
 		workflowEvent -> businessEvent -> primitives -> inception exists
@@ -805,7 +805,7 @@ func TradeWarehousePositionNotification:
 func Execution: <"The qualification of an execution event from the fact that the only component is an execution.">
 	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		workflowEvent WorkflowStep(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
 		workflowEvent -> businessEvent -> primitives count = 1
@@ -814,7 +814,7 @@ func Execution: <"The qualification of an execution event from the fact that the
 func ContractFormationEvent: <"The qualification of a contractFormation event from the fact that the only component is a contractFormation.">
 	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		workflowEvent WorkflowStep(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
 		workflowEvent -> businessEvent -> primitives count = 1

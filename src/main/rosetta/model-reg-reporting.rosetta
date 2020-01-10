@@ -101,7 +101,7 @@ eligibility rule ReportableTransaction <"When eligible for rts 22">
 eligibility rule NewTrade
 	[regulatoryReference ESMA MiFIR RTS_22 article "26" paragraph "2"
 		provision "An acquisition referred to in paragraph 1 shall include the following:  (b) entering into a derivative contract; (c) an increase in the notional amount of a derivative contract. 5. A transaction for the purposes of Article 26 of Regulation (EU) No 600/2014 shall not include the following:  (b) a contract arising exclusively for clearing or settlement purposes; (c) a settlement of mutual obligations between parties where the net obligation is carried forward;  (e) a post-trade assignment or novation of a derivative contract where one of the parties to the derivative contract is replaced by a third party (f) a portfolio compression;  (h) the exercise of a right embedded in a financial instrument, or the conversion of a convertible bond and the resultant transaction in the underlying financial instrument; (i) the creation, expiration or redemption of a financial instrument as a result of pre-determined contractual terms, or as a result of mandatory events which are beyond the control of the investor where no investment decision by the investor takes place at the point in time of the creation, expiration or redemption of the financial instrument; (j) a decrease or increase in the notional amount of a derivative contract as a result of pre-determined contractual terms or mandatory events where no investment decision by the investor takes place at the point in time of the change in the notional amount; (k) a change in the composition of an index or a basket that occurs after the execution of a transaction;  "]
-				filter when WorkflowEvent -> businessEvent -> primitives -> inception only exists
+				filter when WorkflowStep -> businessEvent -> primitives -> inception only exists
 
 
 eligibility rule BusinessEventNotInScopeOfMifir
@@ -109,17 +109,17 @@ eligibility rule BusinessEventNotInScopeOfMifir
 	structured_provision "A business event that contains an inception primitive must be reported  Unless the business event is in { Allocation, ClearedTrade,Novation,PartialNovation, Compression} [Note: can be expressed as IsEvent = newTrade] < but this is not so directly traceable to the regs"
 		provision ""]
 	filter when
-		WorkflowEvent -> eventQualifier <> "Allocation" and
-WorkflowEvent -> eventQualifier <> "ClearedTrade" and
-WorkflowEvent -> eventQualifier <> "Novation" and
-WorkflowEvent -> eventQualifier <> "PartialNovation" and
-WorkflowEvent -> eventQualifier <> "Compression"
+		WorkflowStep -> eventQualifier <> "Allocation" and
+WorkflowStep -> eventQualifier <> "ClearedTrade" and
+WorkflowStep -> eventQualifier <> "Novation" and
+WorkflowStep -> eventQualifier <> "PartialNovation" and
+WorkflowStep -> eventQualifier <> "Compression"
 
 eligibility rule QuantityChange
 	[regulatoryReference ESMA MiFIR RTS_22 article "26" paragraph "2"
 		structured_provision "A business event that contains a quantityChange primitive must be reported if the business event is in {Increase, partialTermination, Termination}"
 		provision " An acquisition referred to in paragraph 1 shall include the following:  (c) an increase in the notional amount of a derivative contract. 3. A disposal referred to in paragraph 1 shall include the following:  (b) closing out of a derivative contract; (c) a decrease in the notional amount of a derivative 5. A transaction for the purposes of Article 26 of Regulation (EU) No 600/2014 shall not include the following:  (e) a post-trade assignment or novation of a derivative contract where one of the parties to the derivative contract is replaced by a third party (f) a portfolio compression;  (h) the exercise of a right embedded in a financial instrument, or the conversion of a convertible bond and the resultant transaction in the underlying financial instrument; (i) the creation, expiration or redemption of a financial instrument as a result of pre-determined contractual terms, or as a result of mandatory events which are beyond the control of the investor where no investment decision by the investor takes place at the point in time of the creation, expiration or redemption of the financial instrument; (j) a decrease or increase in the notional amount of a derivative contract as a result of pre-determined contractual terms or mandatory events where no investment decision by the investor takes place at the point in time of the change in the notional amount; (k) a change in the composition of an index or a basket that occurs after the execution of a transaction; "]
-	filter when WorkflowEvent -> businessEvent -> primitives -> quantityChange exists
+	filter when WorkflowStep -> businessEvent -> primitives -> quantityChange exists
 
 eligibility rule MifirInvestmentFirm <"Identify as an investment firm which has executed the trade">
 	[regulatoryReference ESMA MiFIR RTS_22 section "Context of the Delegation Act"
@@ -193,11 +193,11 @@ reporting rule ReportStatus <"Indication as to whether the transaction report is
 			rationale "Article 2 means that each reportable event is treated as an independent transaction. The practical implementation of corrections is: A New event is a NEWT, A new, non-reportable version of a previously-reported event, that renders the previous version of the same event non-reportable, is a CANC, A new, non-reportable version of a non-reportable event is not reported, A new, reportable version of a previously-reported event, that supersedes the previous version of the same event is a CANC followed by a NEWT"
 			structured_provision "MiFIR.ReportStatus is by definition ‘NEWT’ unless the report is a Cancellation when MiFIR.ReportStatus is by definition ‘CANC’"
 			provision "Indication as to whether the transaction report is new or a cancellation."]
- 	extract if WorkflowEvent -> businessEvent -> primitives -> inception exists or WorkflowEvent -> businessEvent -> primitives -> quantityChange exists
+ 	extract if WorkflowStep -> businessEvent -> primitives -> inception exists or WorkflowStep -> businessEvent -> primitives -> quantityChange exists
 then "NEWT"
-	else if WorkflowEvent -> action = ActionEnum -> Cancel
+	else if WorkflowStep -> action = ActionEnum -> Cancel
 		then "CANC"
-		else if WorkflowEvent -> eventQualifier = "Termination"
+		else if WorkflowStep -> eventQualifier = "Termination"
 			then "CANC"
 			else ""
  			as "Report Status"
@@ -208,7 +208,7 @@ reporting rule TransactionReferenceNumber
 			annex "I" table "2" field "2"
 			provision "Identification number that is unique to the executing firm for each transaction report. Where, pursuant to Article 26(5) of Regulation (EU) No 600/2014, a trading venue submits a transaction report on behalf of a firm that is not subject to Regulation (EU) No 600/2014, the trading venue shall populate this field with a number that has been internally generated by the trading venue and that is unique for each transaction report submitted by the trading venue"
 		]
-		extract WorkflowEvent -> eventIdentifier -> assignedIdentifier -> identifier
+		extract WorkflowStep -> eventIdentifier -> assignedIdentifier -> identifier
  			as "Transaction Reference Number"
 
 
@@ -262,7 +262,7 @@ reporting rule TransmissionOfOrderIndicator <"Transmission of order indicator">
 reporting rule TradingDateTime <"Trading date time">
 		[regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "28"
 			provision "Date and time when the transaction was executed. For transactions executed on a trading venue, the level of granularity shall be in accordance with the requirements set out in Article of Commission Delegated Regulation (EU) 2017/574 (2). For transactions not executed on a trading venue, the date and time shall be when the parties agree the content of the following fields: quantity, price, currencies in fields 31, 34 and 44, instrument identification code, instrument classification and underlying instrument code, where applicable. For transactions not executed on a trading venue the time reported shall be at least to the nearest second. Where the transaction results from an order transmitted by the executing firm on behalf of a client to a third party where the conditions for transmission set out in Article 4 were not satisfied, this shall be the date and time of the transaction rather than the time of the order transmission."]
- 	extract WorkflowEvent -> timestamp then
+ 	extract WorkflowStep -> timestamp then
  		filter when EventTimestamp -> qualification = EventTimestampQualificationEnum -> executionDateTime then
  		extract EventTimestamp -> dateTime
  		as "Trading Date Time"
@@ -477,11 +477,11 @@ reporting rule SecuritiesFinancingTransactionIndicator <"Securities financing tr
 
 reporting rule ContractForEvent
  	extract
- 		if WorkflowEvent -> businessEvent -> primitives -> inception -> after -> contract only exists
-	then WorkflowEvent -> businessEvent -> primitives -> inception -> after -> contract
-	else if WorkflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract  exists
-		then WorkflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract
-		else WorkflowEvent -> businessEvent -> primitives -> inception -> after -> contract
+ 		if WorkflowStep -> businessEvent -> primitives -> inception -> after -> contract only exists
+	then WorkflowStep -> businessEvent -> primitives -> inception -> after -> contract
+	else if WorkflowStep -> businessEvent -> primitives -> quantityChange -> after -> contract  exists
+		then WorkflowStep -> businessEvent -> primitives -> quantityChange -> after -> contract
+		else WorkflowStep -> businessEvent -> primitives -> inception -> after -> contract
  	as "Contract"
 
 reporting rule RateSpecification

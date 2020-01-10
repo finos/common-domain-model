@@ -10,7 +10,7 @@ func Execute:
 		partyB Party (1..1) <"The parties to that execution, for now assumed Principal-Principal, i.e. no Agent.">
 
 	output:
-		executionEvent WorkflowEvent (1..1)
+		executionEvent WorkflowStep (1..1)
 
 	assign-output executionEvent -> businessEvent -> primitives -> execution:
 		NewExecutionPrimitive(product -> contractualProduct, partyA, partyB, price, quantity)
@@ -55,11 +55,11 @@ func NewExecutionPrimitive: <"Function specification to compose an execution bas
 
 func FormContract: <"Function specification to create the fully-formed business event of entering into a new contract, as a combination of an execution primitive and a contract formation primitive, when there is no allocation involved and the contractual parties are the execution parties. This specification is meant to replace the 'Inception' primitive that previously co-mingled these 2 primitives.">
 	inputs:
-		executionEvent WorkflowEvent (1..1)
+		executionEvent WorkflowStep (1..1)
 		legalAgreement LegalAgreement (0..1)
 
 	output:
-		contractFormationEvent WorkflowEvent (1..1)
+		contractFormationEvent WorkflowStep (1..1)
 
 	alias execution:
 		executionEvent -> businessEvent -> primitives -> execution -> after -> execution
@@ -136,12 +136,12 @@ func NewContractFormationPrimitive: <"Function specification to create a fully-f
 
 func Reset:
 	inputs:
-		previousEvent WorkflowEvent (1..1)
-		observationEvent WorkflowEvent (1..1)
+		previousEvent WorkflowStep (1..1)
+		observationEvent WorkflowStep (1..1)
 		date date (1..1)
 
 	output:
-		reset WorkflowEvent (1..1)
+		reset WorkflowStep (1..1)
 
 	alias contractState: <"Extract the Contract State from the Event.">
 		ExtractContractState(previousEvent)
@@ -219,9 +219,9 @@ func ResolveUpdatedContract: <"The updated contract should be generated differen
 
 func TransferCash: <"Function specification to build a transfer event following a reset on a contract">
 	inputs:
-		resetEvent WorkflowEvent (1..1)
+		resetEvent WorkflowStep (1..1)
 	output:
-		transferEvent WorkflowEvent (1..1)
+		transferEvent WorkflowStep (1..1)
 
 	alias contractState:
 		resetEvent -> businessEvent -> primitives -> reset -> after
@@ -294,10 +294,10 @@ func Allocate: <"Function specification to create the fully-formed business even
 	inputs:
 		execution Execution (1..1) <"Block trade to be allocated.">
 		allocationInstructions AllocationInstructions (1..1) <"Allocation instructions to be applied.">
-		previousEvent WorkflowEvent (1..1) <"Previous event for lineage purposes.">
+		previousEvent WorkflowStep (1..1) <"Previous event for lineage purposes.">
 
 	output:
-		allocationEvent WorkflowEvent (1..1) <"Allocation event containing both the original block trade (with the status set to Allocated) and the set of allocated trades.">
+		allocationEvent WorkflowStep (1..1) <"Allocation event containing both the original block trade (with the status set to Allocated) and the set of allocated trades.">
 
 	assign-output allocationEvent -> businessEvent -> primitives -> allocation:
 		NewAllocationPrimitive(execution, allocationInstructions)
@@ -320,10 +320,10 @@ func Settle: <"Function specification to create the Transfer event based on an e
 	// TODO Never referenced in CDM
 	inputs:
 		execution Execution (1..1) <"Execution to be settled.">
-		previousEvent WorkflowEvent (1..1) <"Previous event for lineage purposes.">
+		previousEvent WorkflowStep (1..1) <"Previous event for lineage purposes.">
 
 	output:
-		transferEvent WorkflowEvent (1..1) <"Transfer event composed of cash and security components created from a security settled via delivery vs payment.">
+		transferEvent WorkflowStep (1..1) <"Transfer event composed of cash and security components created from a security settled via delivery vs payment.">
 
 	condition:
 		execution -> product -> security exists
@@ -477,7 +477,7 @@ func Clear:
 		clearer Party(1..1)
 
 	output:
-		clearedTradeEvent WorkflowEvent (1..1)
+		clearedTradeEvent WorkflowStep (1..1)
 
 	alias party1: PartyByIndex(alpha -> partyContractInformation -> partyReference, 0)
 	alias party2: PartyByIndex(alpha -> partyContractInformation -> partyReference, 1)
