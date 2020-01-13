@@ -1,6 +1,25 @@
 namespace "org.isda.cdm"
 version "${project.version}"
 
+func ResolveContractualProduct: <"For a given ContractualProduct, the function finds all ResolvablePayoutQuantity instances, then for each instance, resolves the quantity, populates the quantity attribute on ResolvablePayoutQuantity, and finally returns the updated ContractualProduct.">
+	inputs:
+		contractualProduct ContractualProduct (1..1) <"The ContractualProduct to be resolved.">
+		quantityNotations QuantityNotation (1..*) <"All QuantityNotations associated with the given ContractualProduct, that will be resolved based on their AssetIdentifier.">
+		
+	output:
+		resolvedContractualProduct ContractualProduct (1..1) <"The updated ContractualProduct with all ResolvablePayoutQuantity instances resolved and updated with the corresponding quantity.">
+
+
+func ResolvePayoutQuantity: <"For a given ResolvablePayoutQuantity, the function resolves and returns the corresponding quantity from the QuantityNotations by matching on AssetIdentifier.">
+	inputs:
+		resolvableQuantity ResolvablePayoutQuantity (1..1) <"The ResolvablePayoutQuantity to resolve.">
+		quantityNotations QuantityNotation (1..*) <"All QuantityNotations associated with the given ContractualProduct, that will be resolved based on their AssetIdentifier.">
+		contractualProduct ContractualProduct (1..1) <"Provided to allow any references to be resolved.">
+	
+	output:
+		resolvedQuantity NonNegativeQuantity (1..1) <"The resolved NonNegativeQuantity.">
+
+
 func ResolveQuantity: <"Function specification to resolve a payout quantity, specified as a resolvable quantity with inputs for the resolution, into a basic quantity with just a number and a unit.">
 	inputs:
 		resolvableQuantity ResolvablePayoutQuantity (1..1) <"The quantity to resolve.">
