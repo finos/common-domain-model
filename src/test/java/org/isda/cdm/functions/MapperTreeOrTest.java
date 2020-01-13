@@ -1,8 +1,9 @@
 package org.isda.cdm.functions;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import com.google.inject.Inject;
+import com.rosetta.model.lib.records.Date;
+import com.rosetta.model.lib.records.DateImpl;
+import org.isda.cdm.BusinessEvent.BusinessEventBuilder;
 import org.isda.cdm.PrimitiveEvent.PrimitiveEventBuilder;
 import org.isda.cdm.WorkflowStep;
 import org.isda.cdm.WorkflowStep.WorkflowStepBuilder;
@@ -10,9 +11,8 @@ import org.isda.cdm.test.functions.TestPartialNovationFunc;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import com.google.inject.Inject;
-import com.rosetta.model.lib.records.Date;
-import com.rosetta.model.lib.records.DateImpl;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MapperTreeOrTest extends AbstractFunctionTest {
 
@@ -68,9 +68,11 @@ class MapperTreeOrTest extends AbstractFunctionTest {
 		// businessEvent -> primitives -> inception -> after -> contract ->
 		// contractualProduct -> economicTerms -> effectiveDate -> adjustableDate ->
 		// adjustedDate
-		WorkflowStepBuilder builder = WorkflowStep.builder().setEffectiveDate(effDate);
+		WorkflowStepBuilder builder = WorkflowStep.builder();
+		BusinessEventBuilder businessEventBuilder = builder.getOrCreateBusinessEvent();
+		businessEventBuilder.setEffectiveDate(effDate);
 		for (int i = 0; i < otherDates.length; i++) {
-			withAdjustedDate(builder.getOrCreateBusinessEvent().getOrCreatePrimitives(i), otherDates[i]);
+			withAdjustedDate(businessEventBuilder.getOrCreatePrimitives(i), otherDates[i]);
 		}
 		return builder.build();
 	}
