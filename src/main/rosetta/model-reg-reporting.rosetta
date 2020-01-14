@@ -109,11 +109,11 @@ eligibility rule BusinessEventNotInScopeOfMifir
 	structured_provision "A business event that contains an inception primitive must be reported  Unless the business event is in { Allocation, ClearedTrade,Novation,PartialNovation, Compression} [Note: can be expressed as IsEvent = newTrade] < but this is not so directly traceable to the regs"
 		provision ""]
 	filter when
-		WorkflowStep -> eventQualifier <> "Allocation" and
-WorkflowStep -> eventQualifier <> "ClearedTrade" and
-WorkflowStep -> eventQualifier <> "Novation" and
-WorkflowStep -> eventQualifier <> "PartialNovation" and
-WorkflowStep -> eventQualifier <> "Compression"
+		WorkflowStep -> businessEvent -> eventQualifier <> "Allocation" and
+		WorkflowStep -> businessEvent -> eventQualifier <> "ClearedTrade" and
+		WorkflowStep -> businessEvent -> eventQualifier <> "Novation" and
+		WorkflowStep -> businessEvent -> eventQualifier <> "PartialNovation" and
+		WorkflowStep -> businessEvent -> eventQualifier <> "Compression"
 
 eligibility rule QuantityChange
 	[regulatoryReference ESMA MiFIR RTS_22 article "26" paragraph "2"
@@ -197,7 +197,7 @@ reporting rule ReportStatus <"Indication as to whether the transaction report is
 then "NEWT"
 	else if WorkflowStep -> action = ActionEnum -> Cancel
 		then "CANC"
-		else if WorkflowStep -> eventQualifier = "Termination"
+		else if WorkflowStep -> businessEvent -> eventQualifier = "Termination"
 			then "CANC"
 			else ""
  			as "Report Status"
