@@ -35,7 +35,7 @@ steps:
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.dsl.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.common.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.code-generators.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
-      - mvn -U -s /settings.xml clean deploy -P daml
+      - mvn -U -s /settings.xml clean deploy -P daml,scala
 
   BuildRelease:
     title: Maven build for release
@@ -52,7 +52,7 @@ steps:
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.dsl.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.common.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.code-generators.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
-      - mvn -s /settings.xml clean deploy -P daml,full
+      - mvn -s /settings.xml clean deploy -P daml,scala,full
 
   BuildDaml:
     title: DAML build and deploy
@@ -66,6 +66,18 @@ steps:
       - tar -cvzf cdm-daml.tar.gz cdm-daml-${{RELEASE_NAME}}.dar
       - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}" -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-daml/${{RELEASE_NAME}}/cdm-daml-${{RELEASE_NAME}}.tar.gz" -T cdm-daml.tar.gz
 
+  BuildScala:
+    title: Scala build and deploy
+    fail_fast: false
+    image: mozilla/sbt
+    working_directory: ./target/classes/cdm/scala
+    shell: bash
+    commands:
+      - sbt compile
+      - sbt package
+      - cd /codefresh/volume/rosetta-cdm/target/classes/cdm/scala/target/scala-2.12
+      - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-scala/${{RELEASE_NAME}}/cdm-scala-${{RELEASE_NAME}}.jar" -T cdm-scala_2.12-0.0.0.snapshot.jar
+
   NotifySlackOnFail:
     title: Trigger Slack dev channel notification if master build failed
     image: codefresh/cli
@@ -78,6 +90,7 @@ steps:
           buildNormalFailed: steps.BuildNormal.result == 'error'
           buildReleaseFailed: steps.BuildRelease.result == 'error'
           buildDamlFailed: steps.BuildDaml.result == 'error'
+          buildScalaFailed: steps.BuildScala.result == 'error'
     commands:
       - export SAFE_COMMIT_AUTHOR='${{CF_COMMIT_AUTHOR}}'
       - export COMMIT_AUTHOR=${SAFE_COMMIT_AUTHOR:-MissingAuthor}
@@ -98,6 +111,7 @@ steps:
           normalBuildFailure: steps.BuildNormal.result == 'failure'
           releaseBuildFailure: steps.BuildRelease.result == 'failure'
           damlBuildFailure: steps.BuildDaml.result == 'failure'
+          scalaBuildFailure: steps.BuildScala.result == 'failure'
     commands:
       - exit 1
 
