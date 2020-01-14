@@ -1,7 +1,7 @@
 import Dependencies._
 
 ThisBuild / scalaVersion     := "2.12.8"
-ThisBuild / version          := "0.0.0.master"
+ThisBuild / version          := "0.0.0.snapshot"
 ThisBuild / organization     := "org.isda.cdm"
 ThisBuild / organizationName := "cdm-scala"
 
