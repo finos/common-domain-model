@@ -66,6 +66,18 @@ steps:
       - tar -cvzf cdm-daml.tar.gz cdm-daml-${{RELEASE_NAME}}.dar
       - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}" -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-daml/${{RELEASE_NAME}}/cdm-daml-${{RELEASE_NAME}}.tar.gz" -T cdm-daml.tar.gz
 
+  BuildScala:
+    title: Scala build and deploy
+    fail_fast: false
+    image: mozilla/sbt
+    working_directory: ./codefresh/volume/rosetta-cdm/classes/cdm/scala
+    shell: bash
+    commands:
+      - sbt compile
+      - sbt package
+      - cd /codefresh/volume/rosetta-cdm/target/classes/cdm/scala/target/scala-2.12
+      - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-scala/${{RELEASE_NAME}}/cdm-scala-${{RELEASE_NAME}}.tar.gz" -T cdm-scala_2.12-0.0.0.master.jar
+
   NotifySlackOnFail:
     title: Trigger Slack dev channel notification if master build failed
     image: codefresh/cli
