@@ -169,7 +169,6 @@ type WorkflowStep: <"A class to specify the lifecycle event. The associated rose
 	[rootType]
 	[synonym Workflow_Event meta "id"]
 	businessEvent BusinessEvent (0..1)
-		[synonym Workflow_Event hint "primitive"]
 	messageInformation MessageInformation (0..1)
 		[synonym DTCC_11_0, DTCC_9_0 value "FpML" path "Body->OTC_Matching->Trade"]
 		[synonym DTCC_11_0, DTCC_9_0 value "FpML" path "Body->OTC_Matching->Payment"]
@@ -221,7 +220,6 @@ type WorkflowStep: <"A class to specify the lifecycle event. The associated rose
 type BusinessEvent: <"A business event is a collection of primitive events.">
 	primitives PrimitiveEvent (1..*) <"The elemental component(s) that specify the lifecycle events. Each of the primitive/elemental components listed as part of the PrimitiveEvent class has distinctive features that allow to specify the lifecycle event, either by itself or in combination with some other of such components.">
 		[synonym Workflow_Event hint "primitive"]
-		
 	intent IntentEnum (0..1) <"The intent attribute is meant to be specified when the event qualification cannot be programmatically inferred from the event features. As a result it is only associated with those primitives that can give way to such ambiguity, the quantityChange being one of those. An example of such is a reduction in the trade notional, which could be interpreted as either a trade correction (unless a maximum period of time post-event is specified as part of the qualification), a partial termination or a portfolio rebalancing in the case of an equity swap. On the other hand, an event such as the exercise is not expected to have an associated intent as there should not be ambiguity.">
 		[synonym Workflow_Event value "intent"]
 	functionCall string (0..1) <"This is placeholder concept for a function call into a calculation that will return an outcome. This concept needs to be further firmed out.">
@@ -542,15 +540,15 @@ func Allocation: <"The qualification of allocation event from the fact that (i) 
 /*
  * Temporary event qualification until such time that we firm out the proper qualification and the way to infer it
  */
-func CashflowCalculationNotification:
-	[qualification event]
-	inputs:
-		businessEvent BusinessEvent(1..1)
-	output: is_event boolean (1..1)
-	assign-output is_event:
-		businessEvent -> primitives count = 1
-		and businessEvent -> primitives -> transfer exists
-		// and workflowEvent -> messageInformation -> sentBy = "DTCC"
+//func CashflowCalculationNotification:
+//	// [qualification event]
+//	inputs:
+//		businessEvent BusinessEvent(1..1)
+//	output: is_event boolean (1..1)
+//	assign-output is_event:
+//		businessEvent -> primitives count = 1
+//		and businessEvent -> primitives -> transfer exists
+//		// and workflowEvent -> messageInformation -> sentBy = "DTCC"
 
 func CashTransfer: <"The qualification of a cash transfer from the fact that the only component is a cashTransfer.">
 	[qualification event]
