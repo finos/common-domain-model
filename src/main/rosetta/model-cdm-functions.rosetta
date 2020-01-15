@@ -475,6 +475,7 @@ func Clear:
 	inputs:
 		alpha Contract (1..1)
 		clearer Party(1..1)
+		previousEvent WorkflowEvent(1..1)
 
 	output:
 		clearedTradeEvent WorkflowEvent (1..1)
@@ -499,6 +500,12 @@ func Clear:
 
 	alias gammaContract: NewContractFormationPrimitive(gammaExecution -> after, empty)
 	alias gammaContractPrimitives: NewContractFormationPrimitiveEvent(gammaContract)
+
+	assign-output clearedTradeEvent -> lineage -> eventReference:
+		previousEvent as-key
+
+	assign-output clearedTradeEvent -> lineage -> contractReference:
+		alpha as-key
 
 	assign-output clearedTradeEvent -> businessEvent -> primitives:
 		[
