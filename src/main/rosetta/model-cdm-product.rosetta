@@ -516,15 +516,15 @@ type EquityPayout extends PayoutBase: <" The equity payout specification terms. 
 	rateOfReturn number (0..1) <"Rate of Return calculation, in accordance with Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 139. 'Rate Of Return'.">
 	performance number (0..1) <"Performance calculation, in accordance with Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance'. Cumulative performance is used as a notional multiplier factor on both legs of an Equity Swap.">
 
-	condition EquityPayout_dividendReturn: <"An equity price return specifies price return terms, but no dividend terms.">
-		if EquityPayout -> returnType = ReturnTypeEnum -> Price
-		then EquityPayout -> priceReturnTerms exists
-			and EquityPayout -> dividendReturnTerms is absent
-
-	condition EquityPayout_priceReturn: <"An equity dividend return specifies dividend return terms, but no price terms.">
+	condition EquityPayout_dividendReturn: <"An equity dividend return specifies dividend return terms, but no price terms.">
 		if EquityPayout -> returnType = ReturnTypeEnum -> Dividend
 		then EquityPayout -> dividendReturnTerms exists
 			and EquityPayout -> priceReturnTerms is absent
+
+	condition EquityPayout_priceReturn: <"An equity price return specifies price return terms, but no dividend terms.">
+		if EquityPayout -> returnType = ReturnTypeEnum -> Price
+		then EquityPayout -> priceReturnTerms exists
+			and EquityPayout -> dividendReturnTerms is absent
 
 	condition EquityPayout_totalReturn: <"An equity total return specifies price return as well as dividend terms.">
 		if EquityPayout -> returnType = ReturnTypeEnum -> Total

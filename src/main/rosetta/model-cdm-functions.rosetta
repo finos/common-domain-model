@@ -139,6 +139,7 @@ func Reset:
 		previousEvent WorkflowEvent (1..1)
 		observationEvent WorkflowEvent (1..1)
 		date date (1..1)
+		declaredDividendObservationEvent WorkflowEvent (0..1)
 
 	output:
 		reset WorkflowEvent (1..1)
@@ -152,6 +153,9 @@ func Reset:
 	alias observation:
 		observationEvent -> businessEvent -> primitives  only-element -> observation
 
+	alias declaredDividendObservation:
+		declaredDividendObservationEvent -> businessEvent -> primitives  only-element -> observation
+
 	condition: <"ExtractContractState would result in nothing (empty), check we have something.">
 		contractState exists
 
@@ -159,7 +163,7 @@ func Reset:
 		observation exists
 
 	assign-output reset -> businessEvent -> primitives -> reset:
-		NewResetPrimitive(contractState, observation, date)
+		NewResetPrimitive(contractState, observation, date, declaredDividendObservation)
 
 	assign-output reset -> lineage -> eventReference:
 		previousEvent as-key
@@ -186,6 +190,7 @@ func NewResetPrimitive: <"Specifies how a Reset Primitive should be constructed.
 		contractState ContractState (1..1)
 		observation ObservationPrimitive (1..1)
 		date date (1..1)
+		declaredDividendObservation ObservationPrimitive (0..1)
 
 	output:
 		resetPrimitive ResetPrimitive (1..1)
@@ -200,13 +205,14 @@ func NewResetPrimitive: <"Specifies how a Reset Primitive should be constructed.
 		contractState -> contract
 
 	assign-output resetPrimitive -> after -> updatedContract: <"To handle the various ways Contracts can change over time, ">
-		ResolveUpdatedContract(contractState, observation, date)
+		ResolveUpdatedContract(contractState, observation, date, declaredDividendObservation)
 
 func ResolveUpdatedContract: <"The updated contract should be generated differently in different reset scenarios. This function handles how the contract should update according to which payouts are present within the Economic Terms.">
 	inputs:
 		contractState ContractState (1..1)
 		observation ObservationPrimitive (1..1)
 		date date (1..1)
+		declaredDividendObservation ObservationPrimitive (0..1)
 
 	output:
 		updatedContract Contract (1..1) <"An object that follows the structure of the Contract with only the updated values are set.">
@@ -215,7 +221,7 @@ func ResolveUpdatedContract: <"The updated contract should be generated differen
 		contractState -> contract -> contractualProduct -> economicTerms -> payout
 
 	assign-output updatedContract:
-		if payout -> equityPayout exists then ResolveEquityContract(contractState, observation, date)
+		if payout -> equityPayout exists then ResolveEquityContract(contractState, observation, date, declaredDividendObservation)
 
 func TransferCash: <"Function specification to build a transfer event following a reset on a contract">
 	inputs:
