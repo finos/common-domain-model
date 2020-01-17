@@ -1,0 +1,161 @@
+namespace "org.isda.cdm"
+version "${project.version}"
+
+enum AccountTypeEnum: <"The enumeration values to qualify the type of account.">
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "accountTypeScheme_1_1"]
+	AggregateClient <"Aggregate client account, as defined under ESMA MiFIR.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "AggregateClient"]
+	Client <"The account contains trading activity or positions that belong to a client of the firm that opened the account.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "Client"]
+	House <"The account contains proprietary trading activity or positions, belonging to the firm that is the owner of the account.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "House"]
+
+
+enum NaturalPersonRoleEnum: <"The enumerated values for the natural person's role.">
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "personRoleScheme_1_2"]
+	Broker <"The person who arranged with a client to execute the trade.">
+		[synonym FpML_5_10 , CME_SubmissionIRS_1_0 , DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "Broker"]
+	Buyer <"Acquirer of the legal title to the financial instrument.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "Buyer"]
+	DecisionMaker <"The party or person with legal responsibility for authorization of the execution of the transaction.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "DecisionMaker"]
+	ExecutionWithinFirm <"Person within the firm who is responsible for execution of the transaction.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "ExecutionWithinFirm"]
+	InvestmentDecisionMaker <"Person who is responsible for making the investment decision.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "InvestmentDecisionMaker"]
+	Seller <"Seller of the legal title to the financial instrument.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "Seller"]
+	Trader <"The person who executed the trade.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "Trader"]
+
+enum PartyIdSourceEnum: <"The enumeration values associated with party identifier sources.">
+
+// TODO Never referenced in CDM
+	BIC <"The Bank Identifier Code.">
+	LEI <"The ISO 17442:2012 Legal Entity Identifier.">
+		[synonym Workflow_Event value "LEI"]
+	ARNU <"Alien Registration Number, number assigned by a social security agency to identify a non-resident person.">
+		[synonym ISO20022 value "ARNU"]
+	CCPT <"Passport Number, number assigned by an authority to identify the passport number of a person.">
+		[synonym ISO20022 value "CCPT"]
+	CUST <"Customer Identification Number, number assigned by an issuer to identify a customer.">
+		[synonym ISO20022 value "CUST"]
+	DRLC <"Drivers License Number, number assigned by an authority to identify a driver's license.">
+		[synonym ISO20022 value "DRLC"]
+	EMPL <"Employee Identification Number, number assigned by a registration authority to an employee.">
+		[synonym ISO20022 value "EMPL"]
+	NIDN <"National Identity Number, number assigned by an authority to identify the national identity number of a person..">
+		[synonym ISO20022 value "NIDN"]
+	SOSE <"Social Security Number, number assigned by an authority to identify the social security number of a person.">
+		[synonym ISO20022 value "SOSE"]
+	TXID <"Tax Identification Number, number assigned by a tax authority to identify a person.">
+		[synonym ISO20022 value "TXID"]
+
+
+enum PartyRoleEnum: <"The enumerated values for the party role. The enumerated values go beyond the FpML partyRoleScheme as they also include elements that are part of the FpML Trade, such as the Barrier Determination Agent and the Hedging Party.">
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "partyRoleScheme_3_8"]
+	Accountant <"Organization responsible for preparing the accounting for the trade.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "Accountant"]
+	AllocationAgent <"The organization responsible for supplying the allocations for a trade to be allocated to multiple accounts/organizations.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "AllocationAgent"]
+	ArrangingBroker <"The organization that arranged the trade, i.e. brought together the counterparties.  Synonyms/Alternatives: Inter-dealer broker, agent.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "ArrangingBroker"]
+	BarrierDeterminationAgent <"The party specified in the related confirmation as Barrier Determination Agent.">
+	Beneficiary <"Organization that suffers the economic benefit of the trade.  The beneficiary may be distinct from the principal/counterparty - an example occurs when a hedge fund trades via a prime broker; in this case the principal is the prime broker, but the beneficiary is the hedge fund.  This can be represented as a payer/receiver account in the name of the hedge fund, but it is also possible to add the party role of 'Beneficiary' at the partyTradeInformation level.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "Beneficiary"]
+	BookingParty <"The entity for which the organization supporting the trade's processing has booked/recorded the trade. This is used in non-reporting workflows situations in which the trade doesn\'t need to be reported but a firm still wants to specify their own side.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "BookingParty"]
+	Buyer <"Acquirer of the legal title to the financial instrument. In the case of an option, the buyer is the holder of the option. In the case of a swap or forward, the buyer will be determined by industry best practice.  This does not refer to an investor or investment manager or other organization on what is typically called  the 'Buy side'; for that, see the 'Client' role. Corresponds to 'Buyer' as defined in certain regulations such as ESMA MiFID II/MIFIR RTS 22 field 9.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "Buyer"]
+	BuyerDecisionMaker <"The party or person who, having legal authority to act on behalf of the trade counterparty acting as Buyer as defined in this coding scheme, made the decision to acquire the financial instrument. Corresponds to 'buyer decision maker' as defined in ESMA\'s MIFIR RTS 23 report. This does not refer to the decision maker for what is traditionally called the 'Buy side'; for that, see the 'Client Decision Maker' role.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "BuyerDecisionMaker"]
+	Chargor <"The party that provides credit support under English Law.">
+	ClearingClient <"An organization that clears trades through a clearing house, via a clearing broker (member of the clearing house) who acts as an agent on its behalf. The term 'client' refers to the organization\'s role in the clearing process in relation to its clearing broker, and not whether it is a price maker or taker in the execution process.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "ClearingClient"]
+	ClearingExceptionParty <"A party to the trade that claims a clearing exception, such as an end-user exception under Dodd-Frank Act provisions.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "ClearingExceptionParty"]
+	ClearingFirm <"Organization that submits the trade to a clearing house on behalf of the principal. Synonyms/alternates: Futures Commission Merchant (FCM), Clearing Broker, Clearing Member Firm. Some implementations use 'Clearing Broker' as synonym.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "ClearingFirm"]
+	ClearingOrganization <"The organization that acts as a central counterparty to clear a derivatives contract.  This is used to represent the role of Central Counterparties (CCPs) or Derivative Clearing Organizations (DCOs).  Sometimes called 'ClearingService'. Some implementations also use the term 'Clearer'.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "ClearingOrganization"]
+	Client <"Client as defined under ESMA MIFIR. This is generally the investor or other client of an investment firm, and is synonymous with the Beneficiary in many circumstances.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "Client"]
+	ClientDecisionMaker <"The party or person who, having legal authority to act on behalf of a trade counterparty, made the decision to acquire or sell the financial instrument.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "ClientDecisionMaker"]
+	ConfirmationPlatform <"Organization serving as a financial intermediary for the purposes of electronic confirmation or providing services for post-processing of transactional data.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "ConfirmationPlatform"]
+	ContractualParty <"A party to a contractual document.  If the intended usage relates to the context of the trade lifecycle, more specific annotations have been defined which might be more appropriate.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "ContractualParty"]
+	CounterPartyAffiliate <"Organization officially attached to the counterparty. e.g. partner, branch, subsidiary.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "CounterPartyAffiliate"]
+	CounterPartyUltimateParent <"The topmost entity or organization, within the corporate hierarchy, responsible for the reporting party.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "CounterPartyUltimateParent"]
+	Counterparty <"An economic counterparty to the trade. Synonym: principal.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "Counterparty"]
+	CreditSupportProvider <"Organization that enhances the credit of another organization (similar to guarantor, but may not fully guarantee the obligation).">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "CreditSupportProvider"]
+	Custodian <"Organization that maintains custody of the asset represented by the trade on behalf of the owner/principal.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "Custodian"]
+	DataSubmitter <"Entity submitting the transaction report to the competent authority.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "DataSubmitter"]
+		[synonym CME_ClearedConfirm_1_17 value "InputSource"]
+	DeterminingParty <"The party referenced is specified in the contract confirmation as Determination Party.">
+	DisputingParty <"Organization that is disputing the trade or transaction.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "DisputingParty"]
+	DocumentRepository <"A marketplace organization which purpose is to maintain document records.  If the intended usage relates to the context of the trade lifecycle, more specific annotations have been defined which might be more appropriate.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "DocumentRepository"]
+	ExecutingBroker <"The (generally sell-side) organization that executed the trade; the price-making party.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "ExecutingBroker"]
+	ExecutingEntity <"Entity executing the transaction.  If the transaction is executed directly by the reporting party, it will be the reporting party.  If it is executed by an execution agent or an affiliated party on behalf of the reporting party, it will be that affiliate or agent.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "ExecutingEntity"]
+	ExecutionAgent <"The (generally buy-side) organization that acts to execute trades on behalf of an investor. Typically this is an investment manager or asset manager, and also makes the investment decisions for the investor. If required, a separate InvestmentDecision role can be specified to distinguish that the party making the investment decision is different.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "ExecutionAgent"]
+	ExecutionFacility <"The facility, exchange, or market where the trade was executed. Synonym: Swap Execution Facility, Designated Contract Market, Execution Venue.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "ExecutionFacility"]
+	Guarantor <"Organization that backs (guarantees) the credit risk of the trade.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "Guarantor"]
+	HedgingParty <"The ISDA Hedging Party that is specified in the related confirmation as Hedging, or if no Hedging Party is specified, either party to the contract.">
+	OrderTransmitter <"The entity transmitting the order to the reporting firm. Synonym: Transmitting Firm.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "OrderTransmitter"]
+	Pledgor <"The party that provides credit support under New York Law.">
+	PrimeBroker <"The organization that takes on or took on the credit risk for this trade by stepping in between the two economic parties (without a central counterparty clearing mechanism).">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "PrimeBroker"]
+	PriorTradeRepository <"The trade repository at which the trade was reported previous to the current trade repository.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "PriorTradeRepository"]
+	PublicationVenue <"The reporting service (whether trade repository, market data service, or exchange/facility/venue data distribution service) that published the report of this trade.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "PublicationVenue"]
+	ReportingParty <"The party with the regulatory responsibility to report this trade.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "ReportingParty"]
+	ReportingPartyAffiliate <"Organization officially attached to the reporting party  e.g. partner, branch, subsidiary.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "ReportingPartyAffiliate"]
+	ReportingPartyUltimateParent <"The topmost entity or organization, within the corporate hierarchy, responsible for the reporting party.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "ReportingPartyUltimateParent"]
+	Seller <"A counterparty in a trade, which performs in one of the following capacities: 1) it transfers or agrees to transfer in the future an instrument or title to that instrument in exchange for payment, 2) it writes a derivatives instrument such as an option or a swap in which it provides risk protection to the buyer. This does not refer to the broker/dealer or other organization on what is typically called  the 'Sell side'; for that, see the 'Executing Broker' role. Corresponds to 'Seller' as defined in certain regulations such as ESMA MiFID II/MIFIR RTS 22 field 16.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "Seller"]
+	SellerDecisionMaker <"The party or person who, having legal authority to act on behalf of the trade counterparty acting as Seller as defined in this coding scheme, made the decision to sell the financial instrument. Corresponds to 'seller decision maker' as defined in ESMA\'s MIFIR RTS 23 report. This does not refer to the decision maker for what is traditionally called the 'Sell side'; for that, see the 'Trader' person role.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "SellerDecisionMaker"]
+	SecuredParty <"The party that receives credit support under New York or English Law.">
+	SettlementAgent <"The organization that makes or receives payments on behalf of the given principal party.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "SettlementAgent"]
+	TradeRepository <"An organization that maintains records of the trade for regulatory reporting purposes.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "TradeRepository"]
+	TradeSource <"The organization that originally supplied the record of the trade. In the context of regulatory reporting, it is the submitter of the trade record to a regulator or TR.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "TradeSource"]
+	TradingManager <"The entity responsible for managing the assets/investments of this party.  Synonym:  Asset Manager, Investment Manager, Trading Advisory.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "TradingManager"]
+	TradingPartner <"An entity with which this party trades from time to time, ie. with which it acts as a counterparty on some transactions.   This role is used for static reference data, not individual transactions.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "TradingPartner"]
+
+
+enum TelephoneTypeEnum: <"The enumerated values to specify the type of telephone number, e.g. work vs. mobile.">
+	[synonym FpML_5_10 value "TelephoneTypeEnum"]
+	Work <"A number used primarily for work-related calls. Includes home office numbers used primarily for work purposes.">
+		[synonym FpML_5_10 value "Work"]
+	Mobile <"A number on a mobile telephone that is often or usually used for work-related calls. This type of number can be used for urgent work related business when a work number is not sufficient to contact the person or firm.">
+		[synonym FpML_5_10 value "Mobile"]
+	Fax <"A number used primarily for work-related facsimile transmissions.">
+		[synonym FpML_5_10 value "Fax"]
+	Personal <"A number used primarily for non work-related calls. (Normally this type of number would be used only as an emergency backup number, not as a regular course of business).">
+		[synonym FpML_5_10 value "Personal"]
+
+
