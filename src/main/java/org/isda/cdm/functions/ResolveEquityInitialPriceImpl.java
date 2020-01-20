@@ -43,7 +43,7 @@ public class ResolveEquityInitialPriceImpl extends ResolveEquityInitialPrice {
 		return Optional.ofNullable(priceNotation)
 				.map(PriceNotation::getAssetIdentifier)
 				.map(AssetIdentifier::getProductIdentifier)
-				.map(p -> p.equals(underlierProductIdentifier))
+				.map(underlierProductIdentifier::equals)
 				.orElse(false);
 	}
 }
