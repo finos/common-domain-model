@@ -102,7 +102,9 @@ type Contract: <" A class to specify a financial contract object, which can be i
 		[synonym FpML_5_10, CME_ClearedConfirm_1_17, DTCC_11_0 value "bondOption", "bondOption" path "trade"]
 		[synonym FpML_5_10, CME_ClearedConfirm_1_17, DTCC_11_0 value "otherPartyPayment", "otherPartyPayment" path "trade"]
 		[synonym FpML_5_10, CME_ClearedConfirm_1_17, DTCC_11_0 value "fxSingleLeg", "fxSingleLeg" path "trade"]
-	// TODO: make quantity and price attribute non-optional
+		// For Equity Swap:
+		[synonym FpML_5_10 value "returnLeg" path "trade->returnSwap", "returnLeg" path "trade->equitySwapTransactionSupplement"]
+		// TODO: make quantity and price attribute non-optional
 	collateral Collateral (0..1) <"Defines the collateral obligations of a party.">
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "collateral" path "trade"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "collateral"]
@@ -1173,7 +1175,10 @@ type NonNegativeQuantitySchedule: <"Class to specify a non-negative quantity sch
 type AssetIdentifier: <"Generic object to specify an identifier for a quantifiable object, which can either be a product or a currency.">
 
 	productIdentifier ProductIdentifier (0..1) <"Product identifier, when the quantifiable asset is a product.">
-		[synonym FpML_5_10 value "equity"]
+		// For QuantityNotation only set productIdentifier if openUnits exists
+		[synonym FpML_5_10 value "equity" set when "openUnits" exists]
+		// For PriceNotation always set productIdentifier
+		[synonym FpML_5_10 value "equity" set when rosettaPath = PriceNotation -> assetIdentifier]
 		[synonym DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "ignore"]
 	currency string (0..1) <"Currency identifier, when the quantifiable asset is a currency.">
 		[metadata scheme]
@@ -1226,10 +1231,22 @@ type PriceNotation: <"Object to specify the price of a product as a single numbe
 
 	price Price (1..1) <"Price expressed as a number.">
 	assetIdentifier AssetIdentifier (0..1) <"Identifier for the asset being priced.">
+		// For Equity Swaps
+		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "singleUnderlyer"]
 
 type ExecutionPrice: <"Generic object to specify the price of an execution, regardless of the type of product: securitries, contractual products etc.">
 
 	priceNotation PriceNotation (1..*) <"Price of the underlying product for an execution defined using the PriceNotation objec. Contractual products are defined as price-less in the CDM, with the actual price number(s) abstracted away from the product definition, and possibly multiple. The notation specifies the coordinates allowing price to be then appropriately positioned in the contractual product.">
+		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 hint "paymentAmount"]
+		// For Equity Swaps
+		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "initialPrice" path "rateOfReturn", "underlyer"]
+		// For CD Index and CDS
+		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "initialPayment" path "feeLeg"]
+		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "singlePayment" path "feeLeg"]
+		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "additionalPayment"]
+		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "premium"]
+		// For FX
+		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 hint "exchangeRate"]
 
 type RateSpecification: <" A class to specify the fixed interest rate, floating interest rate or inflation rate.">
 
