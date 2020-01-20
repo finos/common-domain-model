@@ -195,6 +195,7 @@ func EquityCashSettlementAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity
 func ResolveEquityPeriodStartPrice: <"Resolves the price from the end of the previous period. If first period, then take the initial price.">
 	inputs:
 		equityPayout EquityPayout (1..1)
+		priceNotations PriceNotation (0..*)
 		date date (1..1)
 	output:
 		price number (1..1)
@@ -207,7 +208,7 @@ func ResolveEquityPeriodStartPrice: <"Resolves the price from the end of the pre
 
 	assign-output price: <"The initial price is taken from the original contract if we are Resetting for the first time i.e. when the number of updated contracts is one.">
 		if calculationPeriod -> isFirstPeriod
-		then priceReturnTerms -> initialPrice -> netPrice -> amount
+		then ResolveEquityInitialPrice( equityPayout -> underlier, priceNotations )
 		else priceReturnTerms -> valuationPriceInterim -> netPrice -> amount
 
 
@@ -243,7 +244,7 @@ func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirma
 		contractState -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
 
 	alias periodStartPrice:
-		ResolveEquityPeriodStartPrice(equityPayout, date)
+		ResolveEquityPeriodStartPrice(equityPayout, contractState -> contract -> contractualPrice -> priceNotation, date)
 
 	alias periodEndPrice:
 		observation
@@ -287,3 +288,11 @@ func EquityNotionalAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confi
 	assign-output equityNotionalAmount:
 		numberOfSecurities * price
 
+
+func ResolveEquityInitialPrice:
+	inputs:
+		underlier Underlier (1..1)
+		priceNotations PriceNotation (0..*)
+
+	output:
+		initialPrice number (1..1)
