@@ -21,6 +21,7 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(ListsCompare.class).to(bindListsCompare());
 		bind(ResolvePayoutQuantity.class).to(bindResolvePayoutQuantity());
 		bind(ResolveContractualProduct.class).to(bindResolveContractualProduct());
+		bind(ResolveEquityInitialPrice.class).to(bindResolveEquityInitialPrice());
 	}
 
 	protected Class<? extends ListsCompare> bindListsCompare() {
@@ -55,5 +56,9 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends ResolveContractualProduct> bindResolveContractualProduct() {
 		return ResolveContractualProductImpl.class;
+	}
+
+	protected Class<? extends ResolveEquityInitialPrice> bindResolveEquityInitialPrice() {
+		return ResolveEquityInitialPriceImpl.class;
 	}
 }
