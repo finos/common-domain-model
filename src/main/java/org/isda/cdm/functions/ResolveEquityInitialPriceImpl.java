@@ -1,12 +1,11 @@
 package org.isda.cdm.functions;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-import org.isda.cdm.ActualPrice;
 import org.isda.cdm.AssetIdentifier;
 import org.isda.cdm.CashPrice;
+import org.isda.cdm.CashPrice.CashPriceBuilder;
 import org.isda.cdm.Equity;
 import org.isda.cdm.Price;
 import org.isda.cdm.PriceNotation;
@@ -21,7 +20,7 @@ import org.isda.cdm.Underlier;
 public class ResolveEquityInitialPriceImpl extends ResolveEquityInitialPrice {
 
 	@Override
-	protected BigDecimal doEvaluate(Underlier underlier, List<PriceNotation> priceNotations) {
+	protected CashPriceBuilder doEvaluate(Underlier underlier, List<PriceNotation> priceNotations) {
 		ProductIdentifier underlierProductIdentifier = Optional.ofNullable(underlier)
 				.map(Underlier::getUnderlyingProduct)
 				.map(Product::getSecurity)
@@ -33,8 +32,7 @@ public class ResolveEquityInitialPriceImpl extends ResolveEquityInitialPrice {
 				.filter(n -> matches(n, underlierProductIdentifier))
 				.map(PriceNotation::getPrice)
 				.map(Price::getCashPrice)
-				.map(CashPrice::getNetPrice)
-				.map(ActualPrice::getAmount)
+				.map(CashPrice::toBuilder)
 				.findFirst()
 				.orElseThrow(() -> new RuntimeException("No price found for product identifier " + underlierProductIdentifier));
 	}
