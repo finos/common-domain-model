@@ -8,22 +8,23 @@ func Execute:
 		quantity ExecutionQuantity (1..1) <"The quantity of the financial product being executed.">
 		partyA Party (1..1) <"The parties to that execution, for now assumed Principal-Principal, i.e. no Agent.">
 		partyB Party (1..1) <"The parties to that execution, for now assumed Principal-Principal, i.e. no Agent.">
+		partyRoles PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the execution.">
 
 	output:
 		executionEvent WorkflowEvent (1..1)
 
 	assign-output executionEvent -> businessEvent -> primitives -> execution:
-		NewExecutionPrimitive(product -> contractualProduct, partyA, partyB, price, quantity)
+		NewExecutionPrimitive(product -> contractualProduct, partyA, partyB, price, quantity, partyRoles)
 
 	assign-output executionEvent -> eventEffect -> execution:
 		executionEvent -> businessEvent -> primitives -> execution -> after -> execution
 
 	assign-output executionEvent -> party:
-		[ partyA, partyB ]
+		[partyA, partyB]
 
 	post-condition:
 		executionEvent -> lineage is absent
-		
+
 func NewExecutionPrimitive: <"Function specification to compose an execution based on a minimum required set of inputs: product, quantity, parties etc.">
 	inputs:
 		contractualProduct ContractualProduct (1..1) <"The financial contractual product.">
@@ -31,27 +32,31 @@ func NewExecutionPrimitive: <"Function specification to compose an execution bas
 		partyB Party (1..1) <"The parties to that execution, for now assumed Principal-Principal, i.e. no Agent.">
 		price ExecutionPrice (1..1) <"The price of the financial product being executed.">
 		quantity ExecutionQuantity (1..1) <"The quantity of the financial product being executed.">
+		partyRoles PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the execution.">
 
 	output:
-		execution ExecutionPrimitive (1..1)
+		executionPrimitive ExecutionPrimitive (1..1)
 
 	condition: <"Parties must be different, and match the contractual parties to the legal agreement when the latter exists.">
 		partyA <> partyB
 
-	assign-output execution -> after -> execution -> product -> contractualProduct:
+	assign-output executionPrimitive -> after -> execution -> product -> contractualProduct:
 		contractualProduct
 
-	assign-output execution -> after -> execution -> party:
-		[ partyA, partyB ] // TODO assign partyA and partyB as references when the as-key syntax support lists of values
+	assign-output executionPrimitive -> after -> execution -> party:
+		[partyA, partyB] // TODO assign partyA and partyB as references when the as-key syntax support lists of values
+
+	assign-output executionPrimitive -> after -> execution -> partyRole: 
+ 		partyRoles
 
 //	assign-output execution -> after -> execution -> price:
 //		if price exists then price
 
-	assign-output execution -> after -> execution -> executionQuantity:
+	assign-output executionPrimitive -> after -> execution -> executionQuantity:
 		quantity
 
 	post-condition: <"The execution will be the first event in any post-trade life cycle and therefore does not have a before state. Once pre-trade elements are brought into CDM, the 'before' will be used to refer to the last of the pre-trade event states.">
-		execution -> before is absent
+		executionPrimitive -> before is absent
 
 func FormContract: <"Function specification to create the fully-formed business event of entering into a new contract, as a combination of an execution primitive and a contract formation primitive, when there is no allocation involved and the contractual parties are the execution parties. This specification is meant to replace the 'Inception' primitive that previously co-mingled these 2 primitives.">
 	inputs:
@@ -72,7 +77,7 @@ func FormContract: <"Function specification to create the fully-formed business 
 		if legalAgreement exists then legalAgreement -> contractualParty contains execution -> party
 
 	assign-output contractFormationEvent -> businessEvent -> primitives -> contractFormation: <"Event must contain a contract formation primitive based on the execution primitive and an optional legal agreement.">
-		NewContractFormationPrimitive(executionEvent -> businessEvent -> primitives -> execution -> after only-element, legalAgreement)
+		NewContractFormationPrimitive(executionEvent -> businessEvent -> primitives only-element -> execution -> after, legalAgreement)
 
 	assign-output contractFormationEvent -> party: <"The parties on the output Event must match the parties on the input Execution.">
 		execution -> party
@@ -121,7 +126,7 @@ func NewContractFormationPrimitive: <"Function specification to create a fully-f
 
 	assign-output contract -> partyRole:
 		execution -> partyRole
- 
+
 	assign-output contract -> party:
 		execution -> party
 
@@ -150,7 +155,7 @@ func Reset:
 		contractState -> contract
 
 	alias observation:
-		observationEvent -> businessEvent -> primitives -> observation only-element
+		observationEvent -> businessEvent -> primitives  only-element -> observation
 
 	condition: <"ExtractContractState would result in nothing (empty), check we have something.">
 		contractState exists
@@ -224,13 +229,13 @@ func TransferCash: <"Function specification to build a transfer event following 
 		transferEvent WorkflowEvent (1..1)
 
 	alias contractState:
-		resetEvent -> businessEvent -> primitives -> reset -> after only-element
+		resetEvent -> businessEvent -> primitives -> reset -> after
 
 	condition: <"There must be a reset primitive on the event input, and the contract being referenced must be consistent between those events.">
 		resetEvent -> businessEvent -> primitives -> reset exists
 
 	assign-output transferEvent -> businessEvent -> primitives -> transfer:
-		NewCashTransferPrimitive(contractState, resetEvent -> eventDate)
+		NewCashTransferPrimitive(contractState only-element , resetEvent -> eventDate)
 
 	assign-output transferEvent -> lineage -> contractReference: <"Event lineage must point to the contract that generated the cashflow and the reset event.">
 		contractState -> contract as-key
@@ -402,7 +407,7 @@ func TerminateContract:
 
 	output:
 		terminatedContract Contract (1..1)
-				
+
 	assign-output terminatedContract -> contractIdentifier:
 		contract -> contractIdentifier
 	assign-output terminatedContract -> tradeDate:
@@ -432,7 +437,7 @@ func TerminateContract:
 
 	assign-output terminatedContract -> closedState -> state: <"Set the closed state on the terminatedContract">
 		ClosedStateEnum -> Terminated
-				
+
 	assign-output terminatedContract -> contractualQuantity -> quantityNotation -> quantity -> amount: <"Set the quantity amount to 0">
         0.0
 
@@ -443,6 +448,20 @@ func PartyByIndex:
 
 	output:
 		party Party (1..1)
+
+func PartyRoleForParty:
+ 	inputs:
+ 		party Party (1..1)
+ 		role PartyRoleEnum (1..1)
+
+  	output:
+ 		partyRole PartyRole (1..1)
+
+  	assign-output partyRole -> partyReference:
+ 		party
+
+  	assign-output partyRole -> role:
+ 		role
 
 func NewExecutionPrimitiveEvent:
 	inputs:
@@ -478,7 +497,7 @@ func Clear:
 
 	output:
 		clearedTradeEvent WorkflowEvent (1..1)
-		
+
 	alias party1: PartyByIndex(alpha -> partyContractInformation -> partyReference, 0)
 	alias party2: PartyByIndex(alpha -> partyContractInformation -> partyReference, 1)
 
@@ -488,13 +507,15 @@ func Clear:
 	alias alphaTerminated: NewTerminatedContractPrimitive(alpha)
 	alias alphaTerminatedPrimitives: NewQuantityChangePrimitiveEvent(alphaTerminated)
 
-	alias betaExecution: NewExecutionPrimitive(alpha -> contractualProduct, clearer, party1, alpha -> contractualPrice, alpha -> contractualQuantity)
+	alias clearerRole: PartyRoleForParty(clearer, PartyRoleEnum -> ClearingOrganization)
+
+	alias betaExecution: NewExecutionPrimitive(alpha -> contractualProduct, clearer, party1, alpha -> contractualPrice, alpha -> contractualQuantity, [clearerRole])
 	alias betaExecutionPrimitives: NewExecutionPrimitiveEvent(betaExecution)
 
 	alias betaContract: NewContractFormationPrimitive(betaExecution -> after, empty)
 	alias betaContractPrimitives: NewContractFormationPrimitiveEvent(betaContract)
 
-	alias gammaExecution: NewExecutionPrimitive(alpha -> contractualProduct, clearer, party2, alpha -> contractualPrice, alpha -> contractualQuantity)
+	alias gammaExecution: NewExecutionPrimitive(alpha -> contractualProduct, clearer, party2, alpha -> contractualPrice, alpha -> contractualQuantity, [clearerRole])
 	alias gammaExecutionPrimitives: NewExecutionPrimitiveEvent(gammaExecution)
 
 	alias gammaContract: NewContractFormationPrimitive(gammaExecution -> after, empty)

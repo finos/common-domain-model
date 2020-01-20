@@ -285,17 +285,17 @@ reporting rule Quantity <"The number of units of the financial instrument, or th
  	ContractForEvent then
  	extract Contract -> contractualQuantity -> quantityNotation -> quantity -> amount
 		as "Quantity"
-
-reporting rule DerivativeNotionalIncreaseDecrease
-		[regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "32"
-   	provision "Indication as to whether the transaction is an increase or decrease of notional of a derivative contract.
-				Field only applies when there is change in notional for a derivative contract."]
- 	extract
-	 	if quantityAfterQuantityChange >= quantityBeforeQuantityChange
-	then "INCR"
-	else if quantityAfterQuantityChange < quantityBeforeQuantityChange
-		then "DECR"
-		else ""
+// FIXME Functioncalls not supported
+//reporting rule DerivativeNotionalIncreaseDecrease
+//		[regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "32"
+//   	provision "Indication as to whether the transaction is an increase or decrease of notional of a derivative contract.
+//				Field only applies when there is change in notional for a derivative contract."]
+// 	extract
+//	 	if quantityAfterQuantityChange >= quantityBeforeQuantityChange
+//	then "INCR"
+//	else if quantityAfterQuantityChange < quantityBeforeQuantityChange
+//		then "DECR"
+//		else ""
 
  reporting rule FixedRatePrice
  	ContractForEvent then
@@ -391,12 +391,10 @@ reporting rule UnderlyingIndexName
     ContractForEvent then
  	extract Contract -> contractualProduct -> economicTerms -> payout -> equityPayout -> underlier then
  		extract
- 			if Underlier -> singleUnderlier exists
-	then Underlier -> singleUnderlier -> underlyingProduct -> contractualProduct -> productIdentification -> productId
-	else if Underlier -> basket exists
-		then "Add basket id path here"
-		else "NOAP" // TODO NOAP isn't a basket
-	as "Underlying Index Name"
+ 			if Underlier exists
+			then Underlier -> underlyingProduct -> contractualProduct -> productIdentification -> productId
+			else "NOAP" // TODO NOAP isn't a basket
+			as "Underlying Index Name"
 
 
 reporting rule UnderlyingIndexTermPeriod <"Term of the underlying index period (DAYS, WEEK, MNTH, YEAR)">
@@ -525,7 +523,7 @@ reporting rule FixedFloatBuyerSeller
 reporting rule FixedFixedBuyerSeller
 	filter when rule IsFixedFixed then
 	extract Payout -> interestRatePayout then
-	filter when InterestRatePayout -> quantity -> notionalAmount exists then//this is my interpretation of "Filter Fixed Rate amount exists"
+	filter when InterestRatePayout -> payoutQuantity exists then//this is my interpretation of "Filter Fixed Rate amount exists"
 	extract InterestRatePayout -> payerReceiver then
 	PayerReceiverToBuyerSeller
 
@@ -595,7 +593,7 @@ reporting rule CrossCurrencySwapBuyerSeller
 
 	filter when rule IsXCCYSwap then
 	 extract Payout -> interestRatePayout then
-	 minBy InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> currency then
+	 minBy InterestRatePayout -> payoutQuantity -> assetIdentifier -> currency then
 	 extract InterestRatePayout -> payerReceiver then
 	  PayerReceiverToBuyerSeller
 

@@ -1,19 +1,32 @@
 package org.isda.cdm.calculation;
 
-import com.google.inject.Inject;
-import com.rosetta.model.lib.records.DateImpl;
-import org.isda.cdm.*;
-import org.isda.cdm.functions.AbstractFunctionTest;
-import org.isda.cdm.functions.FixedAmount;
-import org.isda.cdm.metafields.FieldWithMetaDayCountFractionEnum;
-import org.isda.cdm.metafields.FieldWithMetaString;
-import org.isda.cdm.metafields.ReferenceWithMetaBusinessCenters;
-import org.junit.jupiter.api.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 
 import java.math.BigDecimal;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
+import org.isda.cdm.AdjustableDate;
+import org.isda.cdm.AdjustableOrRelativeDate;
+import org.isda.cdm.BusinessCenters;
+import org.isda.cdm.BusinessDayAdjustments;
+import org.isda.cdm.BusinessDayConventionEnum;
+import org.isda.cdm.CalculationPeriodDates;
+import org.isda.cdm.CalculationPeriodFrequency;
+import org.isda.cdm.DayCountFractionEnum;
+import org.isda.cdm.InterestRatePayout;
+import org.isda.cdm.NonNegativeQuantity;
+import org.isda.cdm.PeriodExtendedEnum;
+import org.isda.cdm.RateSpecification;
+import org.isda.cdm.RollConventionEnum;
+import org.isda.cdm.Schedule;
+import org.isda.cdm.functions.AbstractFunctionTest;
+import org.isda.cdm.functions.FixedAmount;
+import org.isda.cdm.metafields.FieldWithMetaDayCountFractionEnum;
+import org.isda.cdm.metafields.ReferenceWithMetaBusinessCenters;
+import org.junit.jupiter.api.Test;
+
+import com.google.inject.Inject;
+import com.rosetta.model.lib.records.DateImpl;
 
 class FixedAmountTest extends AbstractFunctionTest {
 
@@ -21,15 +34,10 @@ class FixedAmountTest extends AbstractFunctionTest {
     
     @Test
     void shouldCalculate() {
-        InterestRatePayout interestRatePayout = InterestRatePayout.builder()
-                .setQuantity(ContractualQuantity.builder()
-                        .setNotionalSchedule(NotionalSchedule.builder()
-                                .setNotionalStepSchedule((NonNegativeAmountSchedule) NonNegativeAmountSchedule.builder()
-                                        .setCurrency(FieldWithMetaString.builder().setValue("EUR").build())
-                                        .setInitialValue(BigDecimal.valueOf(50_000_000))
-                                        .build())
-                                .build())
-                        .build())
+        NonNegativeQuantity quantity = NonNegativeQuantity.builder()
+        		.setAmount(BigDecimal.valueOf(50_000_000))
+        		.build();
+		InterestRatePayout interestRatePayout = InterestRatePayout.builder()
                 .setRateSpecification(RateSpecification.builder()
                         .setFixedRate(Schedule.builder()
                                 .setInitialValue(BigDecimal.valueOf(0.06))
@@ -74,7 +82,7 @@ class FixedAmountTest extends AbstractFunctionTest {
                         .build())
                 .build();
         
-        assertThat(fixedAmount.evaluate(interestRatePayout, DateImpl.of(2018, 8, 22)), is(new BigDecimal("750000.0000")));
+        assertThat(fixedAmount.evaluate(interestRatePayout, quantity, DateImpl.of(2018, 8, 22)), is(new BigDecimal("750000.0000")));
     }
 
 }

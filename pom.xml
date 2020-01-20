@@ -169,11 +169,9 @@
 			<id>daml</id>
 			<build>
 				<plugins>
-
 					<plugin>
 						<groupId>org.eclipse.xtext</groupId>
 						<artifactId>xtext-maven-plugin</artifactId>
-						<version>${xtext.version}</version>
 						<executions>
 							<execution>
 								<id>generate-daml-src</id>
@@ -181,25 +179,26 @@
 								<goals>
 									<goal>generate</goal>
 								</goals>
+								<configuration>
+									<sourceRoots>
+										<sourceRoot>${project.build.directory}/classes/cdm/rosetta</sourceRoot>
+									</sourceRoots>
+									<classPathLookupFilter>.*com\.regnosys\.rosetta.*</classPathLookupFilter>
+									<languages>
+										<language>
+											<setup>org.isda.cdm.generators.CDMRosettaSetup</setup>
+											<outputConfigurations>
+												<!-- DAML output folder -->
+												<outputConfiguration>
+													<name>SRC_GEN_DAML_OUTPUT</name>
+													<outputDirectory>src/generated/daml</outputDirectory>
+												</outputConfiguration>
+											</outputConfigurations>
+										</language>
+									</languages>
+								</configuration>
 							</execution>
 						</executions>
-						<configuration>
-							<sourceRoots>
-								<sourceRoot>${project.build.directory}/classes/cdm/rosetta</sourceRoot>
-							</sourceRoots>
-							<languages>
-								<language>
-									<setup>org.isda.cdm.generators.CDMRosettaSetup</setup>
-									<outputConfigurations>
-										<!-- DAML output folder -->
-										<outputConfiguration>
-											<name>SRC_GEN_DAML_OUTPUT</name>
-											<outputDirectory>src/generated/daml</outputDirectory>
-										</outputConfiguration>
-									</outputConfigurations>
-								</language>
-							</languages>
-						</configuration>
 						<dependencies>
 							<dependency>
 								<groupId>com.regnosys.rosetta.code-generators</groupId>
@@ -255,6 +254,94 @@
 				</plugins>
 			</build>
 		</profile>
+		<profile>
+			<id>scala</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.eclipse.xtext</groupId>
+						<artifactId>xtext-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>generate-scala-src</id>
+								<phase>generate-sources</phase>
+								<goals>
+									<goal>generate</goal>
+								</goals>
+								<configuration>
+									<sourceRoots>
+										<sourceRoot>${project.build.directory}/classes/cdm/rosetta</sourceRoot>
+									</sourceRoots>
+									<classPathLookupFilter>.*com\.regnosys\.rosetta.*</classPathLookupFilter>
+									<languages>
+										<language>
+											<setup>org.isda.cdm.generators.CDMRosettaSetup</setup>
+											<outputConfigurations>
+												<!-- Scala output folder -->
+												<outputConfiguration>
+													<name>SRC_GEN_SCALA_OUTPUT</name>
+													<outputDirectory>src/generated/scala</outputDirectory>
+												</outputConfiguration>
+											</outputConfigurations>
+										</language>
+									</languages>
+								</configuration>
+							</execution>
+						</executions>
+						<dependencies>
+							<dependency>
+								<groupId>com.regnosys.rosetta.code-generators</groupId>
+								<artifactId>default-cdm-generators</artifactId>
+								<version>${rosetta.code-generators.version}</version>
+							</dependency>
+						</dependencies>
+					</plugin>
+					<plugin>
+						<artifactId>maven-resources-plugin</artifactId>
+						<version>3.1.0</version>
+						<executions>
+							<execution>
+								<id>copy-src-generated-scala</id>
+								<phase>process-resources</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${project.build.directory}/classes/cdm/scala</outputDirectory>
+									<resources>
+										<resource>
+											<directory>${basedir}/src/generated/scala</directory>
+											<includes>
+												<include>**/*.scala</include>
+											</includes>
+											<filtering>true</filtering>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
+							<execution>
+								<id>copy-scala-build-resources</id>
+								<phase>process-resources</phase>
+								<goals>
+                                    <goal>copy-resources</goal>
+                                </goals>
+								<configuration>
+									<outputDirectory>${project.build.directory}/classes/cdm/scala</outputDirectory>
+									<resources>
+										<resource>
+											<directory>${basedir}/src/main/resources/scala-build-resources</directory>
+											<includes>
+												<include>**/*</include>
+											</includes>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 	</profiles>
 
 	<build>
@@ -276,6 +363,13 @@
 								</fileset>
 								<fileset>
 									<directory>src/generated</directory>
+									<includes>
+										<include>**/**</include>
+									</includes>
+									<followSymlinks>false</followSymlinks>
+								</fileset>
+								<fileset>
+									<directory>src/test/generated/java</directory>
 									<includes>
 										<include>**/**</include>
 									</includes>
@@ -328,85 +422,54 @@
 							</sources>
 						</configuration>
 					</execution>
+					<execution>
+						<id>add-test-source</id>
+						<phase>generate-test-sources</phase>
+						<goals>
+							<goal>add-test-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>src/test/generated/java/</source>
+							</sources>
+						</configuration>
+					</execution>
 				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.eclipse.xtext</groupId>
 				<artifactId>xtext-maven-plugin</artifactId>
-				<version>${xtext.version}</version>
 				<executions>
 					<execution>
+						<id>generate-rosetta</id>
 						<phase>generate-sources</phase>
 						<goals>
 							<goal>generate</goal>
 						</goals>
+						<configuration>
+							<sourceRoots>
+								<sourceRoot>${project.build.directory}/classes/cdm/rosetta</sourceRoot>
+								<sourceRoot>src/test/resources/</sourceRoot>
+							</sourceRoots>
+							<classPathLookupFilter>.*com\.regnosys\.rosetta.*</classPathLookupFilter>
+							<languages>
+								<language>
+									<setup>com.regnosys.rosetta.RosettaStandaloneSetup</setup>
+									<outputConfigurations>
+										<!-- Default output folder -->
+										<outputConfiguration>
+											<outputDirectory>src/generated/java/</outputDirectory>
+										</outputConfiguration>
+										<outputConfiguration>
+											<name>SRC_TEST_GEN_JAVA_OUTPUT</name>
+											<outputDirectory>src/test/generated/java/</outputDirectory>
+										</outputConfiguration>
+									</outputConfigurations>
+								</language>
+							</languages>
+						</configuration>
 					</execution>
 				</executions>
-				<configuration>
-					<sourceRoots>
-						<sourceRoot>${project.build.directory}/classes/cdm/rosetta</sourceRoot>
-					</sourceRoots>
-					<languages>
-						<language>
-                            <setup>com.regnosys.rosetta.RosettaStandaloneSetup</setup>
-							<outputConfigurations>
-								<!-- Default output folder -->
-								<outputConfiguration>
-									<outputDirectory>src/generated/java/</outputDirectory>
-								</outputConfiguration>
-							</outputConfigurations>
-						</language>
-					</languages>
-				</configuration>
-				<dependencies>
-					<dependency>
-						<groupId>com.regnosys.rosetta</groupId>
-						<artifactId>com.regnosys.rosetta</artifactId>
-						<version>${rosetta.dsl.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>com.regnosys.rosetta</groupId>
-						<artifactId>com.regnosys.rosetta.lib</artifactId>
-						<version>${rosetta.dsl.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.maven</groupId>
-						<artifactId>maven-core</artifactId>
-						<version>3.2.5</version>
-						<exclusions>
-							<exclusion>
-								<groupId>com.google.guava</groupId>
-								<artifactId>guava</artifactId>
-							</exclusion>
-						</exclusions>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.commons</groupId>
-						<artifactId>commons-lang3</artifactId>
-						<version>${apache.commons.lang3.version}</version>
-					</dependency>
-					<!-- See https://github.com/eclipse/xtext-xtend/issues/493 -->
-					<dependency>
-						<groupId>org.eclipse.jdt</groupId>
-						<artifactId>org.eclipse.jdt.core</artifactId>
-						<version>3.15.0</version>
-					</dependency>
-					<dependency>
-						<groupId>org.eclipse.jdt</groupId>
-						<artifactId>org.eclipse.jdt.compiler.apt</artifactId>
-						<version>1.3.300</version>
-					</dependency>
-					<dependency>
-						<groupId>org.eclipse.jdt</groupId>
-						<artifactId>org.eclipse.jdt.compiler.tool</artifactId>
-						<version>1.2.300</version>
-					</dependency>
-					<dependency>
-						<groupId>org.eclipse.platform</groupId>
-						<artifactId>org.eclipse.equinox.common</artifactId>
-						<version>3.10.100</version>
-					</dependency>
-				</dependencies>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -426,6 +489,65 @@
 				<version>2.22.1</version>
 			</plugin>
 		</plugins>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.eclipse.xtext</groupId>
+					<artifactId>xtext-maven-plugin</artifactId>
+					<version>${xtext.version}</version>
+		
+					<dependencies>
+						<dependency>
+							<groupId>com.regnosys.rosetta</groupId>
+							<artifactId>com.regnosys.rosetta</artifactId>
+							<version>${rosetta.dsl.version}</version>
+						</dependency>
+						<dependency>
+							<groupId>com.regnosys.rosetta</groupId>
+							<artifactId>com.regnosys.rosetta.lib</artifactId>
+							<version>${rosetta.dsl.version}</version>
+						</dependency>
+						<dependency>
+							<groupId>org.apache.maven</groupId>
+							<artifactId>maven-core</artifactId>
+							<version>3.2.5</version>
+							<exclusions>
+								<exclusion>
+									<groupId>com.google.guava</groupId>
+									<artifactId>guava</artifactId>
+								</exclusion>
+							</exclusions>
+						</dependency>
+						<dependency>
+							<groupId>org.apache.commons</groupId>
+							<artifactId>commons-lang3</artifactId>
+							<version>${apache.commons.lang3.version}</version>
+						</dependency>
+						<!-- See https://github.com/eclipse/xtext-xtend/issues/493 -->
+						<dependency>
+							<groupId>org.eclipse.jdt</groupId>
+							<artifactId>org.eclipse.jdt.core</artifactId>
+							<version>3.15.0</version>
+						</dependency>
+						<dependency>
+							<groupId>org.eclipse.jdt</groupId>
+							<artifactId>org.eclipse.jdt.compiler.apt</artifactId>
+							<version>1.3.300</version>
+						</dependency>
+						<dependency>
+							<groupId>org.eclipse.jdt</groupId>
+							<artifactId>org.eclipse.jdt.compiler.tool</artifactId>
+							<version>1.2.300</version>
+						</dependency>
+						<dependency>
+							<groupId>org.eclipse.platform</groupId>
+							<artifactId>org.eclipse.equinox.common</artifactId>
+							<version>3.10.100</version>
+						</dependency>
+					</dependencies>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 	</build>
 
 	<dependencyManagement>

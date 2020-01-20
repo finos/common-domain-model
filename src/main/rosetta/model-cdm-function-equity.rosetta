@@ -57,7 +57,7 @@ func NewSingleNameEquityPayout: <"Function specification to create the equity pa
 		masterConfirmation -> settlementTerms
 
 	post-condition: <"Equity payout must be single name on the provided equity underlier.">
-		equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> equity = underlier
+		equityPayout -> underlier -> underlyingProduct -> security -> equity = underlier
 
 
 func NewFloatingPayout: <"Function specification to create the interest rate (floating) payout part of an Equity Swap according to the 2018 ISDA CDM Equity Confirmation template.">
@@ -183,13 +183,13 @@ func EquityCashSettlementAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity
 
 	// Consider moving this as a data rule on EquityPayout
 	condition:
-		equityPayout -> payoutQuantity -> assetIdentifier -> productIdentifier = equityPayout -> underlier -> singleUnderlier -> underlyingProduct -> security -> equity -> productIdentifier
+		equityPayout -> payoutQuantity -> assetIdentifier -> productIdentifier = equityPayout -> underlier -> underlyingProduct -> security -> equity -> productIdentifier
 	
 	assign-output equityCashSettlementAmount -> amount: <"Equity Cash Settlement Amount is defined here as Abs( Equity Performance ). Per the ISDA Definitions: Equity Performance = (Rate Of Return) × Equity Notional Amount and Equity Cash Settlement Amount = ABS(Rate Of Return) × Equity Notional Amount; so the calculation for Equity Cash Settlement Amount in the CDM is mathematically equivalent, with the added benefit that Rate of Return does not need to be recomputed, since it was already computed in the Reset Event."> 
-		Abs(contractState -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> performance only-element)
+		Abs(contractState -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout only-element -> performance)
 
 	assign-output equityCashSettlementAmount -> currency: <"Does not handle the cross currency case, currently.">
-		equityPayout -> priceReturnTerms -> initialPrice -> netPrice -> currency only-element
+		equityPayout only-element -> priceReturnTerms -> initialPrice -> netPrice -> currency
 
 
 func ResolveEquityPeriodStartPrice: <"Resolves the price from the end of the previous period. If first period, then take the initial price.">
