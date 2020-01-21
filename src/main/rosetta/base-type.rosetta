@@ -330,10 +330,114 @@ type NonNegativeQuantitySchedule: <"Class to specify a non-negative quantity sch
 	stepSchedule NonNegativeStepSchedule (0..1) <"The schedule specified as a set of date-value pairs. Attribute is optional, to represent the case where no schedule is specified so quantity is just constant over time.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notionalStepSchedule"]
 
+
+type PercentageRule: <"A class defining a content model for a calculation rule defined as percentage of the notional amount.">
+	[synonym FpML_5_10 value "PercentageRule"]
+	paymentPercent number (1..1) <"A percentage of the notional amount.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "paymentPercent"]
+	notionalAmountReference Money (1..1) <"A reference to the notional amount.">
+		[metadata reference]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notionalAmountReference" meta "href"]
+
+
+type NonNegativeStep: <"A class defining a step date and non-negative step value pair. This step definitions are used to define varying rate or amount schedules, e.g. a notional amortisation or a step-up coupon schedule.">
+	[metadata key]
+
+	stepDate date (1..1) <"The date on which the associated stepValue becomes effective. This day may be subject to adjustment in accordance with a business day convention.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "stepDate"]
+	stepValue number (1..1) <"The non-negative rate or amount which becomes effective on the associated stepDate. A rate of 5% would be represented as 0.05.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "stepValue"]
+
+	condition NonNegativeStep_stepValue: <"FpML specified stepValue as a NonNegativeDecimal.">
+		if NonNegativeStep exists
+		then NonNegativeStep -> stepValue >= 0.0
+
+
+
+type Rounding: <"A class defining a rounding direction and precision to be used in the rounding of a rate.">
+	[synonym FpML_5_10 value "Rounding"]
+
+	roundingDirection RoundingDirectionEnum (1..1) <"Specifies the rounding direction.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "roundingDirection"]
+	precision int (0..1) <"Specifies the rounding precision in terms of a number of decimal places. Note how a percentage rate rounding of 5 decimal places is expressed as a rounding precision of 7 in the FpML document since the percentage is expressed as a decimal, e.g. 9.876543% (or 0.09876543) being rounded to the nearest 5 decimal places is 9.87654% (or 0.0987654).">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "precision"]
+
+
+type Schedule: <"A class defining a schedule of rates or amounts in terms of an initial value and then a series of step date and value pairs. On each step date the rate or amount changes to the new step value. The series of step date and value pairs are optional. If not specified, this implies that the initial value remains unchanged over time.">
+	[metadata key]
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "Schedule" meta "id" path "periodicPayment->fixedAmountCalculation->fixedRate"]
+
+	initialValue number (1..1) <"The initial rate or amount, as the case may be. An initial rate of 5% would be represented as 0.05.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "initialValue"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "initialValue" path "calculationPeriodAmount->calculation->fixedRateSchedule"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "initialValue" path "calculationPeriodAmount->calculation->floatingRateCalculation"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "fixedRate" path "periodicPayment->fixedAmountCalculation"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "fixedRate"]
+		[synonym FpML_5_10 value "initialValue" path "fixedRateSchedule"]
+	step Step (0..*) <"The schedule of step date and value pairs. On each step date the associated step value becomes effective A list of steps may be ordered in the document by ascending step date. An FpML document containing an unordered list of steps is still regarded as a conformant document.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "step" path "calculationPeriodAmount->calculation->fixedRateSchedule"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "step"]
+
+	condition FpML_ird_25: <"FpML validation rule ird-25 - If step does not exist, then initialValue must not be equal to 0.">
+		if Schedule -> step is absent
+		then Schedule -> initialValue <> 0.0
+
+
+type Step: <"A class defining a step date and step value pair. This step definitions are used to define varying rate or amount schedules, e.g. a notional amortisation or a step-up coupon schedule.">
+	[metadata key]
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "Step" meta "id"]
+
+	stepDate date (1..1) <"The date on which the associated step value becomes effective.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "stepDate"]
+	stepValue number (1..1) <"The rate of amount which becomes effective on the associated step date. A rate of 5% would be represented as 0.05.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "stepValue"]
+
  
 /**
  * ======== base.static
  */	
+
+type AssignedIdentifier: <"A class to specify the identifier value and its associated version.">
+	identifier string (1..1) <"The identifier value.">
+		[metadata scheme]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0 value "tradeId" meta "tradeIdScheme"]
+		[synonym FpML_5_10 value "tradeId" path "versionedTradeId" meta "tradeIdScheme"]
+		[synonym Workflow_Event value "identifier"]
+		[synonym DTCC_11_0, DTCC_9_0 value "tradeId" path "partyTradeIdentifier" maps 2
+			set when "partyTradeIdentifier->tradeId->tradeIdScheme" = "EventProcessingId" and rosettaPath = WorkflowEvent -> eventIdentifier -> assignedIdentifier -> identifier,
+			set when "partyTradeIdentifier->tradeId->tradeIdScheme" = "TradeRefNbr" and rosettaPath = Contract -> contractIdentifier -> assignedIdentifier -> identifier meta "tradeIdScheme"]
+		[synonym DTCC_11_0, DTCC_9_0 value "USITradeId" meta "tradeIdScheme"]
+		[synonym DTCC_11_0, DTCC_9_0 value "UTITradeId" meta "tradeIdScheme"]
+		[synonym DTCC_11_0, DTCC_9_0 value "identifier" path "payment" meta "paymentIdScheme"]
+		[synonym CME_ClearedConfirm_1_17 value "tradeId" meta "tradeIdScheme"]
+		[synonym CME_ClearedConfirm_1_17 value "usi" meta "usiScheme"]
+		[synonym CME_SubmissionIRS_1_0 value "RptID" path "TrdCaptRpt"]
+		[synonym FpML_5_10 value "businessUnitId" meta "unitScheme"]
+		[synonym ISDA_Create_1_0 value "id"]
+	version int (0..1) <"The identifier version, which is specified as an integer and is meant to be incremented each time the transaction terms (whether contract or event) change. This version is made option to support the use case where the identifier is referenced without the version. The constraint that a contract and a lifecycle event need to have an associated version is enforced through data rules.">
+		[synonym FpML_5_10 value "version" path "versionedTradeId"]
+		[synonym FpML_5_10 value "version"]
+
+type Identifier: <"A class to specify a generic identifier, applicable to CDM artefacts such as executions, contracts, lifecycle events and legal documents. An issuer can be associated with the actual identifier value as a way to properly qualify it.">
+	[metadata key]
+	[synonym FpML_5_10 meta "id"]
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0 meta "id" path "versionedTradeId->tradeId"]
+	issuerReference Party (0..1) <"The identifier issuer, when specified by reference to a party specified as part of the transaction.">
+		[metadata reference]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0 value "issuer" meta "href"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0 value "partyReference" meta "href"]
+		[synonym DTCC_11_0, DTCC_9_0 value "partyReference" path "partyTradeIdentifier" maps 2 meta "href"]
+		[synonym CME_ClearedConfirm_1_17 value "partyReference" meta "href"]
+	issuer string (0..1) <"The identifier issuer, when specified explicitly alongside the identifier value (instead of being specified by reference to a party).">
+		[metadata scheme]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0 value "issuer" meta "issuerIdScheme"]
+		[synonym DTCC_11_0, DTCC_9_0 value "USIIssuer" meta "issuerIdScheme"]
+		[synonym DTCC_11_0, DTCC_9_0 value "UTIIssuer" meta "issuerIdScheme"]
+		[synonym CME_ClearedConfirm_1_17 value "issuer" meta "issuerIdScheme"]
+	assignedIdentifier AssignedIdentifier (1..*) <"The identifier value. This level of indirection between the issuer and the identifier and its version provides the ability to associate multiple identifiers to one issuer, consistently with the FpML PartyTradeIdentifier.">
+	condition Identifier_choice: <"The identifier issuer is specified either explicitly or by reference to one of the parties.">
+		required choice issuerReference, issuer
+
  
 /**
  * ======== base.static.asset
@@ -342,6 +446,68 @@ type NonNegativeQuantitySchedule: <"Class to specify a non-negative quantity sch
 /**
  * ======== base.static.asset.credit
  */ 	   
+
+
+type NotDomesticCurrency: <"A class to specify the ISDA 2003 Term: Not Domestic Currency.">
+	[synonym FpML_5_10 value "NotDomesticCurrency"]
+	applicable boolean (1..1) <"Indicates whether the Not Domestic Currency provision is applicable.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "applicable"]
+	currency string (0..1) <"An explicit specification of the domestic currency. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
+		[metadata scheme]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "currency" meta "currencyScheme"]
+
+type Obligations: <"A class to specify the underlying obligations of the reference entity on which protection is purchased or sold through the Credit Default Swap.">
+	[synonym FpML_5_10 value "Obligations"]
+	category ObligationCategoryEnum (1..1) <"Used in both obligations and deliverable obligations to represent a class or type of securities which apply. ISDA 2003 Term: Obligation Category/Deliverable Obligation Category.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "category"]
+	notSubordinated boolean (0..1) <"An obligation and deliverable obligation characteristic. An obligation that ranks at least equal with the most senior Reference Obligation in priority of payment or, if no Reference Obligation is specified in the related Confirmation, the obligations of the Reference Entity that are senior. ISDA 2003 Term: Not Subordinated.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notSubordinated"]
+	specifiedCurrency SpecifiedCurrency (0..1) <"An obligation and deliverable obligation characteristic. The currency or currencies in which an obligation or deliverable obligation must be payable. ISDA 2003 Term: Specified Currency.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "specifiedCurrency"]
+	notSovereignLender boolean (0..1) <"An obligation and deliverable obligation characteristic. Any obligation that is not primarily (majority) owed to a Sovereign or Supranational Organisation. ISDA 2003 Term: Not Sovereign Lender.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notSovereignLender"]
+	notDomesticCurrency NotDomesticCurrency (0..1) <"An obligation and deliverable obligation characteristic. Any obligation that is payable in any currency other than the domestic currency. Domestic currency is either the currency so specified or, if no currency is specified, the currency of (a) the reference entity, if the reference entity is a sovereign, or (b) the jurisdiction in which the relevant reference entity is organised, if the reference entity is not a sovereign. ISDA 2003 Term: Not Domestic Currency.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notDomesticCurrency"]
+	notDomesticLaw boolean (0..1) <"An obligation and deliverable obligation characteristic. If the reference entity is a Sovereign, this means any obligation that is not subject to the laws of the reference entity. If the reference entity is not a sovereign, this means any obligation that is not subject to the laws of the jurisdiction of the reference entity. ISDA 2003 Term: Not Domestic Law.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notDomesticLaw"]
+	listed boolean (0..1) <"An obligation and deliverable obligation characteristic. Indicates whether or not the obligation is quoted, listed or ordinarily purchased and sold on an exchange. ISDA 2003 Term: Listed.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "listed"]
+	notDomesticIssuance boolean (0..1) <"An obligation and deliverable obligation characteristic. Any obligation other than an obligation that was intended to be offered for sale primarily in the domestic market of the relevant Reference Entity. This specifies that the obligation must be an internationally recognised bond. ISDA 2003 Term: Not Domestic Issuance.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notDomesticIssuance"]
+	fullFaithAndCreditObLiability boolean (0..1) <"An obligation and deliverable obligation characteristic. Defined in the ISDA published additional provisions for U.S. Municipal as Reference Entity. ISDA 2003 Term: Full Faith and Credit Obligation Liability.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "fullFaithAndCreditObLiability"]
+	generalFundObligationLiability boolean (0..1) <"An obligation and deliverable obligation characteristic. Defined in the ISDA published additional provisions for U.S. Municipal as Reference Entity. ISDA 2003 Term: General Fund Obligation Liability.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "generalFundObligationLiability"]
+	revenueObligationLiability boolean (0..1) <"An obligation and deliverable obligation characteristic. Defined in the ISDA published additional provisions for U.S. Municipal as Reference Entity. ISDA 2003 Term: Revenue Obligation Liability.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "revenueObligationLiability"]
+	notContingent boolean (0..1) <"OTE: Only allowed as an obligation characteristic under ISDA Credit 1999. In essence Not Contingent means the repayment of principal cannot be dependent on a formula/index, i.e. to prevent the risk of being delivered an instrument that may never pay any element of principal, and to ensure that the obligation is interest bearing (on a regular schedule). ISDA 2003 Term: Not Contingent.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notContingent"]
+	excluded string (0..1) <"A free format string to specify any excluded obligations or deliverable obligations, as the case may be, of the reference entity or excluded types of obligations or deliverable obligations. ISDA 2003 Term: Excluded Obligations/Excluded Deliverable Obligations.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "excluded"]
+	othReferenceEntityObligations string (0..1) <"This element is used to specify any other obligations of a reference entity in both obligations and deliverable obligations. The obligations can be specified free-form. ISDA 2003 Term: Other Obligations of a Reference Entity.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "othReferenceEntityObligations"]
+	designatedPriority string (0..1) <"Applies to Loan CDS, to indicate what lien level is appropriate for a deliverable obligation. Applies to European Loan CDS, to indicate the Ranking of the obligation. Example: a 2nd lien Loan CDS would imply that the deliverable obligations are 1st or 2nd lien loans.">
+		[metadata scheme]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "designatedPriority" meta "lienScheme"]
+	cashSettlementOnly boolean (0..1) <"An obligation and deliverable obligation characteristic. Defined in the ISDA published Standard Terms Supplement for use with CDS Transactions on Leveraged Loans. ISDA 2003 Term: Cash Settlement Only.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "cashSettlementOnly"]
+	deliveryOfCommitments boolean (0..1) <"An obligation and deliverable obligation characteristic. Defined in the ISDA published Standard Terms Supplement for use with CDS Transactions on Leveraged Loans. ISDA 2003 Term: Delivery of Commitments.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "deliveryOfCommitments"]
+	continuity boolean (0..1) <"An obligation and deliverable obligation characteristic. Defined in the ISDA published Standard Terms Supplement for use with CDS Transactions on Leveraged Loans. ISDA 2003 Term: Continuity.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "continuity"]
+
+	condition Obligations_choice: <"Choice rule to represent an FpML choice construct.">
+		optional choice fullFaithAndCreditObLiability, generalFundObligationLiability, revenueObligationLiability
+
+
+type SpecifiedCurrency:
+	[synonym FpML_5_10 value "SpecifiedCurrency"]
+	applicable boolean (1..1) <"Indicates whether the specified currency provision is applicable.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "applicable"]
+	currency string (0..1) <"The currency in which the the specified currency is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
+		[metadata scheme]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "currency" meta "currencyScheme"]
+
 
 /**
  * ======== base.static.party
