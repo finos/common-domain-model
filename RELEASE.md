@@ -1,14 +1,21 @@
-# *CDM Code Generation: Scala*
+# *CDM Model: Collateral Eligibility Schedules*
 
 _What is being released_
 
-New code generator that projects the CDM into Scala.
-- Scala code generated for all CDM types and enums.
-- JSON serializer / deserializer provided in Scala distribution.  
-- Interoperability with other generated CDM code - E.g. serialized CDM Scala artefacts are identical to serialized Java CDM artefacts.
-- Injected into CDM build pipeline so all new CDM releases will include Scala code artefacts.
-- Scala download tile added to the ISDA CDM Portal Downloads page.
+CDM model representation of data relevant for collateral eligibility schedules has been enhanced. This is found under `EligibleCollateral`. 
+
+There are 6 key attributes relevant for this feature of collateral documentation:
+- issueInformation `CollateralIssueInformation` 
+- underlyingCurrency `UnderlyingCurrency`
+- maturityRange `MaturityRange` 
+- issuerAgencyRating `IssuerAgencyRating` 
+- issueAgencyRating `IssueAgencyRating`
+- haircut `CollateralHaircut` 
+    
+For reference purposes, the previous model have has been renamed to `EligibleCollateralFpMLMapped`.  This will be removed once the new model is complete.
 
 _Review Directions_
 
-- In the CDM Portal, go to Downloads section and download Scala distribution.  
+- Review enhancements to `EligibleCollateral` and associated types and enums. 
+- Review new values in enum ProductIdSourceEnum (added under "//added new").
+- Review additional text to reference `EligibleCollateralFpMLMapped`.
