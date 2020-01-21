@@ -17,7 +17,12 @@ public class PartyByRoleImpl extends PartyByRole {
 				.map(partyRole -> partyRole.getPartyReference().getValue().toBuilder())
 				.collect(Collectors.toList());
 		
-		if (partyBuilders.size() > 1) throw new RuntimeException("Multiple roles of the same type found");
+		if (partyBuilders.size() > 1) {
+			List<String> partyIds = partyBuilders.stream().map(partyBuilder -> partyBuilder.getPartyId().toString()).collect(Collectors.toList());
+			
+			throw new RuntimeException("Multiple roles of the same type found: " + String.join(",", partyIds));
+			
+		}
 		
 		return partyBuilders.size() == 0 ? Party.builder() : partyBuilders.get(0);
 	}
