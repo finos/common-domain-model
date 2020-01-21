@@ -612,10 +612,9 @@ type EligibilityToHoldCollateral: <"A class to specify the conditions under whic
 		[metadata scheme]
 		[synonym FpML_5_10 value "eligibleCountry"]
 
-
-type EligibleCollateral: <"The collateral eligibility as a function of the types of asset, the maturity and rating terms.">
+//Old version 2019 see new version EligibleCollateral
+type EligibleCollateralFpMLMapped: <"The collateral eligibility as a function of the types of asset, the maturity and rating terms.">
 	[synonym FpML_5_10 value "EligibleCollateral"]
-
 	/*
 	 * ISDA Create specifies the eligible collateral as well as the valuation % as a string. Let's discuss if there is room a for better approach.
 	 * The below approach which combines the asset, the tenor and the credit rating qualification is extremely comprehensive and was vetted extensively as part of the
@@ -640,10 +639,22 @@ type EligibleCollateral: <"The collateral eligibility as a function of the types
 		[synonym ISDA_Create_1_0 value "valuation_percentage" path "partyA_eligible_currencies"]
 		[synonym ISDA_Create_1_0 value "valuation_percentage" path "partyB_eligible_currencies"]
 
-	condition EligibleCollateral_valuationPercentage: <"The valuation percentage should be specified as a value between 0 and 1.">
-		if EligibleCollateral -> valuationPercentage exists
-		then EligibleCollateral -> valuationPercentage >= 0
-			and EligibleCollateral -> valuationPercentage <= 1
+	condition EligibleCollateralFpMLMapped_valuationPercentage: <"The valuation percentage should be specified as a value between 0 and 1.">
+		if EligibleCollateralFpMLMapped -> valuationPercentage exists
+		then EligibleCollateralFpMLMapped -> valuationPercentage >= 0
+			and EligibleCollateralFpMLMapped -> valuationPercentage <= 1
+
+// New version Jan 2020
+type EligibleCollateral: <"The collateral eligibility as a function of the types of asset, the maturity and rating terms.">
+	[synonym FpML_5_10 value "EligibleCollateral"]
+
+	issueInformation CollateralIssueInformation (1..1) <"">
+	underlyingCurrency UnderlyingCurrency (1..1) <"">
+	maturityRange MaturityRange (1..1) <"">
+	issuerAgencyRating IssuerAgencyRating (1..1) <"">
+	issueAgencyRating IssueAgencyRating (1..1) <"">
+	haircut CollateralHaircut (1..1) <"">
+
 
 type EligibleCollateralVariationMarginElection: <"A class to specify the parties' elections with respect to the eligible collateral for each of the respective parties when acting as a pledgor/chargor/obligor. ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (c)(ii): Eligible Collateral (VM).">
 
@@ -828,6 +839,7 @@ type MultipleCreditNotations: <"A class to specify multiple credit notations alo
 	creditNotation string (2..*) <"At least two credit notations much be specified.">
 		[metadata scheme]
 		[synonym FpML_5_10 value "debtType" meta "creditNotation"]
+	mismatchResolution CreditNotationMismatchResolutionEnum (0..1)
 
 
 type MultipleDebtTypes: <"A class to specify multiple credit debt types alongside a conditional 'any' or 'all' qualifier.">
@@ -1150,3 +1162,46 @@ type UmbrellaAgreement: <"A class to specify a set of legal entities which are p
 type UmbrellaAgreementEntity extends LegalEntity: <"A class to specify the legal entities that are part of the umbrella agreement.">
 	terms string (0..1) <"The terms that might be associated with each party to the umbrella agreement.">
 		[synonym ISDA_Create_1_0 value "additional"]
+
+// TODO: part of eligible collateral refactoring - re order in file once fully agreed
+
+type CollateralIssueInformation: <"COLLATERAL ISSUE INFORMATION.">
+    issuerType CollateralIssuerTypeClassificationEnum (1..1) <"Origin of entity issuing the asset.">
+    issuerCountryOfOrigin string (1..1) <"The ISO 3166 standard code for the country of origin of issue entity.">
+		[metadata scheme]
+    assetType CollateralTypeEnum (1..1) <"Definition of collateral type.">
+	collateralIdentifier ProductIdentifier (0..*)
+    counterpartyOwnIssue boolean (1..1) <"Is asset issued by posting entity or member of corporate family - note: not permitted under specific regulations.">
+
+type UnderlyingCurrency: <"COLLATERAL UNDERLYING CURRENCY.">
+    eligibleCurrencyForSubstitutionPurposes string (0..1) <"Eligible currency for substitution purposes - if asset substituted it may be a requirement for replacement asset to be denominated in the same currency.">
+        [metadata scheme]
+    terminationCurrency string (1..1) <"Termination currency - cross currency haircuts apply when denomination currency of collateral securities is different to stated termination currency.">
+        [metadata scheme]
+    denominatedCurrency string (1..1) <"Denominated currency - underlying denominated currency of asset."> // working group? is there a need to a fall back,could there be more than one ccy
+        [metadata scheme]
+
+type MaturityRange: <"COLLATERAL MATURITY RANGE.">
+//should date range account for inclusion of boundary? ask working group?
+    dateRange DateRange (0..1) <"Asset issue date and end date at redemption."> 
+    periodRange PeriodRange (0..1) <"Range of time to elapse until final maturity of asset.">
+	condition: one-of
+
+type IssuerAgencyRating: <"COLLATERAL ISSUER AGENCY RATINGS."> // Ask working group - is this naming convention appropriate (prone to errors)
+    issuerAgencyRating CreditNotations (1..1) <"Agency rating based on default risk and creditors claim in event of default associated with issuer of asset.">
+
+type IssueAgencyRating: <"COLLATERAL ISSUE AGENCY RATINGS."> // Ask working group - is this naming convention appropriate (prone to errors)
+    issueAgencyRating CreditNotations (1..1) <"Agency rating based on default risk and creditors claim in event of default associated with specific asset.">
+
+type CollateralHaircut: <"COLLATERAL HAIRCUT.">
+    discountedValuePercentageHaircut number (1..1) <"Percentage value of asset to be used as collateral once assets discounted haircut take into consideration, expressed as a value comprised between 0.0 and 100.0."> 
+    fxHaircutPercentage number (0..1) <"If pledgor eligible collateral is not denominated in the termination currency of the secured parties agreement an FX haircut is applied, expressed as a value comprised between 0.0 and 100.0">
+
+type PeriodRange:
+	lowerBound PeriodBound (0..1) <"Temporal lower boundary">
+	upperBound PeriodBound (0..1) <"Temporal upper boundary">
+
+type PeriodBound: <"">
+    period Period (0..1)
+    inclusive boolean (1..1)
+
