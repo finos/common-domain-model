@@ -540,15 +540,16 @@ func Allocation: <"The qualification of allocation event from the fact that (i) 
 /*
  * Temporary event qualification until such time that we firm out the proper qualification and the way to infer it
  */
-//func CashflowCalculationNotification:
-//	// [qualification event]
-//	inputs:
-//		businessEvent BusinessEvent(1..1)
-//	output: is_event boolean (1..1)
-//	assign-output is_event:
-//		businessEvent -> primitives count = 1
-//		and businessEvent -> primitives -> transfer exists
-//		// and workflowEvent -> messageInformation -> sentBy = "DTCC"
+func CashflowCalculationNotification:
+	[qualification event]
+	inputs:
+		businessEvent BusinessEvent(1..1)
+	output: is_event boolean (1..1)
+	assign-output is_event:
+		businessEvent -> primitives count = 1
+		and businessEvent -> primitives -> transfer -> cashTransfer -> transferCalculation exists
+		and businessEvent -> primitives -> transfer -> identifier -> scheme = "DTCCCashflowId"
+		
 
 func CashTransfer: <"The qualification of a cash transfer from the fact that the only component is a cashTransfer.">
 	[qualification event]
@@ -561,7 +562,7 @@ func CashTransfer: <"The qualification of a cash transfer from the fact that the
 		and businessEvent -> primitives -> transfer -> cashTransfer exists
 		and businessEvent -> primitives -> transfer -> securityTransfer is absent
 		and businessEvent -> primitives -> transfer -> commodityTransfer is absent
-		// and workflowEvent -> messageInformation -> sentBy <> "DTCC" // This is a kludge related to the CashflowCalculationNotification qualification
+		and businessEvent -> primitives -> transfer -> identifier -> scheme <> "DTCCCashflowId"
 
 func CashAndSecurityTransfer: <"The qualification of a security settlement from the fact that (i) it is composed of a cashTransfer component and a securityTransfer component, and (ii) the cash and security move in the same direction.">
 	[qualification event]
