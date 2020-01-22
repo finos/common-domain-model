@@ -614,7 +614,7 @@ type EligibilityToHoldCollateral: <"A class to specify the conditions under whic
 		[metadata scheme]
 		[synonym FpML_5_10 value "eligibleCountry"]
 
-//Old version 2019 see new version EligibleCollateral
+// Old version 2019 see new version EligibleCollateral
 type EligibleCollateralFpMLMapped: <"The collateral eligibility as a function of the types of asset, the maturity and rating terms.">
 	[synonym FpML_5_10 value "EligibleCollateral"]
 	/*
@@ -650,12 +650,12 @@ type EligibleCollateralFpMLMapped: <"The collateral eligibility as a function of
 type EligibleCollateral: <"The collateral eligibility as a function of the types of asset, the maturity and rating terms.">
 	[synonym FpML_5_10 value "EligibleCollateral"]
 
-	issueInformation CollateralIssueInformation (1..1) <"">
-	underlyingCurrency UnderlyingCurrency (1..1) <"">
-	maturityRange MaturityRange (1..1) <"">
-	issuerAgencyRating IssuerAgencyRating (1..1) <"">
-	issueAgencyRating IssueAgencyRating (1..1) <"">
-	haircut CollateralHaircut (1..1) <"">
+	issueInformation CollateralIssueInformation (1..1)
+	underlyingCurrency UnderlyingCurrency (1..1)
+	maturityRange MaturityRange (1..1)
+	issuerAgencyRating IssuerAgencyRating (1..1)
+	issueAgencyRating IssueAgencyRating (1..1)
+	haircut CollateralHaircut (1..1)
 
 
 type EligibleCollateralVariationMarginElection: <"A class to specify the parties' elections with respect to the eligible collateral for each of the respective parties when acting as a pledgor/chargor/obligor. ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (c)(ii): Eligible Collateral (VM).">
@@ -935,7 +935,7 @@ type PostingObligationsElection: <"A class to specify the collateral posting obl
 	asPermitted boolean (1..1) <"If set to True, the Control Agreement is a Credit Support Document with respect to the party(ies). ISDA 2016 Credit Support Annex for Initial Margin, paragraph 6, (e).">
 		[synonym ISDA_Create_1_0 set to True when "partyA_type" = "control_agreement", set to False when "partyA_type" = "specify"]
 		[synonym ISDA_Create_1_0 set to True when "partyB_type" = "control_agreement", set to False when "partyB_type" = "specify"]
-	eligibleCollateral EligibleCollateral (0..*) <"The eligible collateral as specified in relation to the pledgor/chargor/obligor(s) posting obligation. ISDA 2016 Credit Support Annex for Initial Margin, Eligible Credit Support (IM) Schedule.">
+	eligibleCollateral EligibleCollateralFpMLMapped (0..*) <"The eligible collateral as specified in relation to the pledgor/chargor/obligor(s) posting obligation. ISDA 2016 Credit Support Annex for Initial Margin, Eligible Credit Support (IM) Schedule.">
 	excludedCollateral string (0..1) <"The excluded collateral as specified in relation to the pledgor/chargor/obligor(s) posting obligation. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (ii)(B)(i)."> // This representation matches the current ISDA Create one, but should be aligned with the eligibleCollateral representation once that one is confirmed
 		[synonym ISDA_Create_1_0 value "partyA_control_agreement_specify" set when "partyA_control_agreement" = "yey"]
 		[synonym ISDA_Create_1_0 value "partyB_control_agreement_specify" set when "partyB_control_agreement" = "yey"]
@@ -1165,7 +1165,7 @@ type UmbrellaAgreementEntity extends LegalEntity: <"A class to specify the legal
 	terms string (0..1) <"The terms that might be associated with each party to the umbrella agreement.">
 		[synonym ISDA_Create_1_0 value "additional"]
 
-// TODO: part of eligible collateral refactoring - re order in file once fully agreed
+// TODO: part of eligible collateral refactoring - re-order in file once fully agreed
 
 type CollateralIssueInformation: <"COLLATERAL ISSUE INFORMATION.">
     issuerType CollateralIssuerTypeClassificationEnum (1..1) <"Origin of entity issuing the asset.">
@@ -1184,15 +1184,17 @@ type UnderlyingCurrency: <"COLLATERAL UNDERLYING CURRENCY.">
         [metadata scheme]
 
 type MaturityRange: <"COLLATERAL MATURITY RANGE.">
-//should date range account for inclusion of boundary? ask working group?
+    // TODO: Ask working group - should dateRange include attribute to specify whether boundary is inclusive.
     dateRange DateRange (0..1) <"Asset issue date and end date at redemption."> 
     periodRange PeriodRange (0..1) <"Range of time to elapse until final maturity of asset.">
 	condition: one-of
 
-type IssuerAgencyRating: <"COLLATERAL ISSUER AGENCY RATINGS."> // Ask working group - is this naming convention appropriate (prone to errors)
+type IssuerAgencyRating: <"COLLATERAL ISSUER AGENCY RATINGS.">
+    // TODO: Ask working group - is this naming convention appropriate (prone to errors)
     issuerAgencyRating CreditNotations (1..1) <"Agency rating based on default risk and creditors claim in event of default associated with issuer of asset.">
 
-type IssueAgencyRating: <"COLLATERAL ISSUE AGENCY RATINGS."> // Ask working group - is this naming convention appropriate (prone to errors)
+type IssueAgencyRating: <"COLLATERAL ISSUE AGENCY RATINGS.">
+    // TODO: Ask working group - is this naming convention appropriate (prone to errors)
     issueAgencyRating CreditNotations (1..1) <"Agency rating based on default risk and creditors claim in event of default associated with specific asset.">
 
 type CollateralHaircut: <"COLLATERAL HAIRCUT.">
@@ -1203,7 +1205,7 @@ type PeriodRange:
 	lowerBound PeriodBound (0..1) <"Temporal lower boundary">
 	upperBound PeriodBound (0..1) <"Temporal upper boundary">
 
-type PeriodBound: <"">
+type PeriodBound:
     period Period (0..1)
     inclusive boolean (1..1)
 
