@@ -4,6 +4,10 @@ import com.google.inject.AbstractModule;
 import com.regnosys.rosetta.common.validation.RosettaTypeValidator;
 import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
 import com.rosetta.model.lib.validation.ModelObjectValidator;
+
+import cdm.base.maths.functions.Abs;
+import cdm.base.maths.functions.Sum;
+
 import org.isda.cdm.functions.*;
 
 public class CdmRuntimeModule extends AbstractModule {

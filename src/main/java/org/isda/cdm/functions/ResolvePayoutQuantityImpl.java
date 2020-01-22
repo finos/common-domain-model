@@ -1,8 +1,10 @@
 package org.isda.cdm.functions;
 
 import com.regnosys.rosetta.common.hashing.ReferenceResolverProcessStep;
+
+import cdm.base.maths.NonNegativeQuantity.NonNegativeQuantityBuilder;
+
 import org.isda.cdm.*;
-import org.isda.cdm.NonNegativeQuantity.NonNegativeQuantityBuilder;
 import org.isda.cdm.metafields.ReferenceWithMetaResolvablePayoutQuantity;
 
 import java.util.List;
