@@ -1,7 +1,7 @@
 namespace "org.isda.cdm"
 version "${project.version}"
 
-type AllocationInstructions:
+type AllocationInstruction:
 	// TODO: add other allocation context
 	breakdowns AllocationBreakdown (1..*) <"The set of allocation breakdowns to be applied to a block trade">
 
@@ -164,8 +164,8 @@ type CustomisedWorkflow: <"In its initial iteration, this class is meant to supp
 		[synonym CME_SubmissionIRS_1_0 set to "Customer Account" when "Pty->R" = "24"]
 		[synonym CME_SubmissionIRS_1_0 set to "Custom" when "Pty->Src" = "D"]
 
-type Instruction: <"Instruction to a function that will be used to perform a workflow step">
-	allocation AllocationInstructions (0..1) <"Instruction to allocate">
+type BusinessEventInstruction: <"Instruction to a function that will be used to perform a business event">
+	allocation AllocationInstruction (0..1) <"Instruction to allocate">
     clearing ClearingInstruction (0..1) <"Instruction to clear">
 	
 	condition OneOfInstruction: one-of
@@ -174,7 +174,7 @@ type Instruction: <"Instruction to a function that will be used to perform a wor
 type WorkflowStepInstruction:
 	// TODO - This should be updated to either use a cross reference to a func type or use an annotation.
 	instructionFunction string (1..1) <"Name of the function that will be called to ">
-	instruction Instruction (0..1) <"Input instruction to the instructionFunction">
+	instruction BusinessEventInstruction (0..1) <"Input instruction to the instructionFunction">
 
 type WorkflowStep: <"A workflow step represents the state of a business event. The workflow step contains a reference to a previous WorkflowStep in order to preserve lineage. A workflow step is accepted if it contains a business event, proposed if proposedInstruction is present and is rejected if the rejected flag is set.">
 	[metadata key]
@@ -246,7 +246,7 @@ type WorkflowStep: <"A workflow step represents the state of a business event. T
 			or WorkflowStep -> businessEvent -> primitives -> reset exists)
 		then WorkflowStep -> businessEvent -> intent is absent
 
-type BusinessEvent: <"A business represents a life cycle event of a trade and consists of a series of primitive events. The combination of the state changes results in a qualifiable life cycle event. An example of a Business Event is a PartialTermination which is a defined by a quantity change primitive event.">
+type BusinessEvent: <"A business event represents a life cycle event of a trade and consists of a series of primitive events. The combination of the state changes results in a qualifiable life cycle event. An example of a Business Event is a PartialTermination which is a defined by a quantity change primitive event.">
 	primitives PrimitiveEvent (1..*) <"The elemental component(s) that specify the lifecycle events. Each of the primitive/elemental components listed as part of the PrimitiveEvent class has distinctive features that allow to specify the lifecycle event, either by itself or in combination with some other of such components.">
 		[synonym Workflow_Event hint "primitive"]
 	intent IntentEnum (0..1) <"The intent attribute is meant to be specified when the event qualification cannot be programmatically inferred from the event features. As a result it is only associated with those primitives that can give way to such ambiguity, the quantityChange being one of those. An example of such is a reduction in the trade notional, which could be interpreted as either a trade correction (unless a maximum period of time post-event is specified as part of the qualification), a partial termination or a portfolio rebalancing in the case of an equity swap. On the other hand, an event such as the exercise is not expected to have an associated intent as there should not be ambiguity.">
