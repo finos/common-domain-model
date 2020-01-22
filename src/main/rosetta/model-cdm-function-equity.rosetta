@@ -296,3 +296,45 @@ func ResolveEquityInitialPrice:
 
 	output:
 		initialPrice CashPrice (1..1)
+
+
+func EquityPriceQuantityTriangulation:
+	inputs:
+		product ContractualProduct (1..1)
+		price ExecutionPrice (1..1)
+		quantity ExecutionQuantity (1..1)
+
+	output:
+		success boolean (1..1)
+		
+	alias equityPayout:
+		product -> economicTerms -> payout -> equityPayout only-element
+		
+	alias initialPrice:
+		ResolveEquityInitialPrice(equityPayout -> underlier, price -> priceNotation) -> netPrice -> amount
+		
+	alias quantityNotional:
+		ResolvePayoutQuantity(equityPayout -> payoutQuantity, quantity -> quantityNotation, product) -> amount
+	
+	alias quantityNoOfUnits:
+		ResolveEquityNoOfUnits(equityPayout -> underlier, quantity -> quantityNotation)
+	
+	// TODO: This alias is a workaround due to bug in if/then expression generation
+	alias quantityNoOfUnitsAmount:
+		if quantityNoOfUnits -> amount exists
+		then quantityNoOfUnits -> amount
+		else 0.0
+	
+	assign-output success:
+		if quantityNoOfUnits -> amount exists
+		then initialPrice * quantityNoOfUnitsAmount = quantityNotional
+	
+
+func ResolveEquityNoOfUnits:
+	inputs:
+		underlier Underlier (1..1)
+		quantityNotations QuantityNotation (0..*)
+
+	output:
+		noOfUnits NonNegativeQuantity (1..1)
+	
