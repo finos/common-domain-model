@@ -489,10 +489,13 @@ func PartyByRole: <"Given a collection of party role containers and a party role
 	output:
 		party Party (1..1)
 
+type ClearingInstruction:
+	clearingParty Party(1..1)
+
 func Clear:
 	inputs:
 		alpha Contract (1..1)
-		clearer Party(1..1)
+		clearingInstruction ClearingInstruction(1..1)
 
 	output:
 		clearedTradeEvent WorkflowStep (1..1)
@@ -503,15 +506,15 @@ func Clear:
 	alias alphaTerminated: NewTerminatedContractPrimitive(alpha)
 	alias alphaTerminatedPrimitives: NewQuantityChangePrimitiveEvent(alphaTerminated)
 
-	alias clearerRole: PartyRoleForParty(clearer, PartyRoleEnum -> ClearingOrganization)
+	alias clearerRole: PartyRoleForParty(clearingInstruction -> clearingParty, PartyRoleEnum -> ClearingOrganization)
 
-	alias betaExecution: NewExecutionPrimitive(alpha -> contractualProduct, clearer, party1, alpha -> contractualPrice, alpha -> contractualQuantity, [clearerRole])
+	alias betaExecution: NewExecutionPrimitive(alpha -> contractualProduct, clearingInstruction -> clearingParty, party1, alpha -> contractualPrice, alpha -> contractualQuantity, [clearerRole])
 	alias betaExecutionPrimitives: NewExecutionPrimitiveEvent(betaExecution)
 
 	alias betaContract: NewContractFormationPrimitive(betaExecution -> after, empty)
 	alias betaContractPrimitives: NewContractFormationPrimitiveEvent(betaContract)
 
-	alias gammaExecution: NewExecutionPrimitive(alpha -> contractualProduct, clearer, party2, alpha -> contractualPrice, alpha -> contractualQuantity, [clearerRole])
+	alias gammaExecution: NewExecutionPrimitive(alpha -> contractualProduct, clearingInstruction -> clearingParty, party2, alpha -> contractualPrice, alpha -> contractualQuantity, [clearerRole])
 	alias gammaExecutionPrimitives: NewExecutionPrimitiveEvent(gammaExecution)
 
 	alias gammaContract: NewContractFormationPrimitive(gammaExecution -> after, empty)
