@@ -298,14 +298,14 @@ func ResolveCashSettlementDate: <"A product agnostic function that resolves the 
 func Allocate: <"Function specification to create the fully-formed business event of allocating an execution based on allocation instructions.">
 	inputs:
 		execution Execution (1..1) <"Block trade to be allocated.">
-		allocationInstructions AllocationInstruction (1..1) <"Allocation instructions to be applied.">
+		allocationInstruction AllocationInstruction (1..1) <"Allocation instructions to be applied.">
 		previousEvent WorkflowStep (1..1) <"Previous event for lineage purposes.">
 
 	output:
 		allocationEvent WorkflowStep (1..1) <"Allocation event containing both the original block trade (with the status set to Allocated) and the set of allocated trades.">
 
 	assign-output allocationEvent -> businessEvent -> primitives -> allocation:
-		NewAllocationPrimitive(execution, allocationInstructions)
+		NewAllocationPrimitive(execution, allocationInstruction)
 
 	assign-output allocationEvent -> lineage -> eventReference:
 		previousEvent as-key
