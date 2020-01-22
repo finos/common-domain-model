@@ -164,11 +164,25 @@ type CustomisedWorkflow: <"In its initial iteration, this class is meant to supp
 		[synonym CME_SubmissionIRS_1_0 set to "Customer Account" when "Pty->R" = "24"]
 		[synonym CME_SubmissionIRS_1_0 set to "Custom" when "Pty->Src" = "D"]
 
-type WorkflowStep: <"A class to specify the lifecycle event. The associated rosettaKey denotes the ability to associate a hash value to the Event instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+type Instruction:
+	instruction AllocationInstructions (0..1)
+	condition OneOfInstruction: one-of
+
+type WorkflowStepInstruction:
+	instructionFunction string (1..1)
+	instruction Instruction (0..1)
+
+type WorkflowStep: <"A workflow step represents the state of a business event. The workflow step contains a reference to a previous WorkflowStep in order to preserve lineage. A workflow step is accepted if it contains a business event, proposed if proposedInstruction is present and is rejected if the rejected flag is set.">
 	[metadata key]
 	[rootType]
 	[synonym Workflow_Event meta "id"]
 	businessEvent BusinessEvent (0..1)
+	proposedInstruction WorkflowStepInstruction (0..1)
+	rejected boolean (0..1)
+	
+	previousWorkflowStep WorkflowStep (0..1)
+		[metadata reference]
+	
 	messageInformation MessageInformation (0..1)
 		[synonym DTCC_11_0, DTCC_9_0 value "FpML" path "Body->OTC_Matching->Trade"]
 		[synonym DTCC_11_0, DTCC_9_0 value "FpML" path "Body->OTC_Matching->Payment"]
@@ -208,7 +222,14 @@ type WorkflowStep: <"A class to specify the lifecycle event. The associated rose
 	lineage Lineage (0..1) <"The lineage attribute provides a linkage among lifecycle events through the rosettaKey hash value. One example is when a given lifecycle event is being corrected or cancelled. In such case, each subsequent event will have lineage into the prior version of that event. The second broad use case is when an event has a dependency upon either another event (e.g. the regular payment associated with a fix/float swap will have a lineage into the reset event, which will in turn have a lineage into the observation event for the floating rate and the contract) or a contract (e.g. the exercise of an option has a lineage into that option).">
 		[synonym Workflow_Event value "lineage"]
 	eventEffect EventEffect (0..1) <"The set of effects associated with the lifecycle event, i.e. generated cashflows, contracts (from, say, novation events), listed products (from, say, a bond option exercise event) values and more. Those are represented through a set of rosettaKey references. This attribute is optional in order to provide implementers with the ability not to make use of this feature.">
-
+	
+	condition WorkflowStepStatus:
+		(WorkflowStep -> businessEvent exists and WorkflowStep -> proposedInstruction is absent and WorkflowStep -> rejected is absent)
+		or
+		(WorkflowStep -> proposedInstruction exists and WorkflowStep -> businessEvent is absent and WorkflowStep -> rejected is absent)
+		or
+		(WorkflowStep -> rejected exists and WorkflowStep -> businessEvent is absent and WorkflowStep -> proposedInstruction is absent)
+		
 	condition Event_intent: <"The intent should only be associated with the primitives which use can lead to ambiguity with respect to the qualification of the event.">
 		if (WorkflowStep -> businessEvent -> primitives -> allocation exists
 			or WorkflowStep -> businessEvent -> primitives -> exercise exists
@@ -217,7 +238,7 @@ type WorkflowStep: <"A class to specify the lifecycle event. The associated rose
 			or WorkflowStep -> businessEvent -> primitives -> reset exists)
 		then WorkflowStep -> businessEvent -> intent is absent
 
-type BusinessEvent: <"A business event is a collection of primitive events.">
+type BusinessEvent: <"A business represents a life cycle event of a trade and consists of a series of primitive events. The combination of the state changes results in a qualifiable life cycle event. An example of a Business Event is a PartialTermination which is a defined by a quantity change primitive event.">
 	primitives PrimitiveEvent (1..*) <"The elemental component(s) that specify the lifecycle events. Each of the primitive/elemental components listed as part of the PrimitiveEvent class has distinctive features that allow to specify the lifecycle event, either by itself or in combination with some other of such components.">
 		[synonym Workflow_Event hint "primitive"]
 	intent IntentEnum (0..1) <"The intent attribute is meant to be specified when the event qualification cannot be programmatically inferred from the event features. As a result it is only associated with those primitives that can give way to such ambiguity, the quantityChange being one of those. An example of such is a reduction in the trade notional, which could be interpreted as either a trade correction (unless a maximum period of time post-event is specified as part of the qualification), a partial termination or a portfolio rebalancing in the case of an equity swap. On the other hand, an event such as the exercise is not expected to have an associated intent as there should not be ambiguity.">
@@ -233,9 +254,9 @@ type BusinessEvent: <"A business event is a collection of primitive events.">
 	effectiveDate date (0..1) <"The date on which the event contractually takes effect, when different from the event date.">
 		[synonym Workflow_Event value "effectiveDate"]
 
-	// TODO - this needs to be moved into the WorkflowStep	
+	// TODO - this needs to be moved/merged into the WorkflowStep	
 	workflowEventState WorkflowStepState (0..1) <"The event workflow information, i.e. the workflow status, the associated comment and the partyCustomisedWorkflow which purpose is to provide the ability to associate custom workflow information to the CDM.">
-
+		[deprecated]
 
 type EventEffect: <"The set of operational and positional effects associated with a lifecycle event, alongside the reference to the contract reference(s) that is subject to the event (and is positioned in the before state of the event primitive).">
 	effectedContract Contract (0..*) <"A pointer to the contract(s) to which the event effect(s) apply, i.e. in the before event state.">
@@ -873,3 +894,4 @@ func ContractFormationEvent: <"The qualification of a contractFormation event fr
  *    and event date of <alpha> submission = trade date of <beta>
  *    and CCP which is in the party role in after state of <alpha> submission is the same as the CCP which is counterparty to <beta> and <gamma> *Difference*
  */
+ 
