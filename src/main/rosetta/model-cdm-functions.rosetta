@@ -441,14 +441,6 @@ func TerminateContract:
 	assign-output terminatedContract -> contractualQuantity -> quantityNotation -> quantity -> amount: <"Set the quantity amount to 0">
         0.0
 
-func PartyByIndex:
-	inputs:
-		parties Party (2..2)
-		index int (1..1)
-
-	output:
-		party Party (1..1)
-
 func PartyRoleForParty:
  	inputs:
  		party Party (1..1)
@@ -490,6 +482,13 @@ func NewQuantityChangePrimitiveEvent:
 	assign-output primitiveEvent -> quantityChange:
 	quantityChangePrimitive
 
+func PartyByRole: <"Given a collection of party role containers and a party role, return the party for that role if found in the collection">
+	inputs:
+		roles PartyRole(1..*)
+		role PartyRoleEnum(1..1)
+	output:
+		party Party (1..1)
+
 func Clear:
 	inputs:
 		alpha Contract (1..1)
@@ -498,11 +497,8 @@ func Clear:
 	output:
 		clearedTradeEvent WorkflowStep (1..1)
 
-	alias party1: PartyByIndex(alpha -> partyContractInformation -> partyReference, 0)
-	alias party2: PartyByIndex(alpha -> partyContractInformation -> partyReference, 1)
-
-//	alias party1: PartyByIndex(alpha -> party, 0)
-//	alias party2: PartyByIndex(alpha -> party, 1)
+	alias party1: PartyByRole(alpha -> partyRole, PartyRoleEnum -> ExecutingEntity)
+	alias party2: PartyByRole(alpha -> partyRole, PartyRoleEnum -> Counterparty)
 
 	alias alphaTerminated: NewTerminatedContractPrimitive(alpha)
 	alias alphaTerminatedPrimitives: NewQuantityChangePrimitiveEvent(alphaTerminated)
