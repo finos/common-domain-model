@@ -7,6 +7,7 @@ import cdm.base.staticdata.party.Party;
 import cdm.base.staticdata.party.Party.PartyBuilder;
 import cdm.base.staticdata.party.PartyRole;
 import cdm.base.staticdata.party.PartyRoleEnum;
+import cdm.base.staticdata.party.functions.PartyByRole;
 
 
 public class PartyByRoleImpl extends PartyByRole {

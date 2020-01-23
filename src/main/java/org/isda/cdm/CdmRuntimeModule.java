@@ -6,6 +6,7 @@ import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
 import com.rosetta.model.lib.validation.ModelObjectValidator;
 
 import cdm.base.maths.functions.Abs;
+import cdm.base.maths.functions.ListsCompare;
 import cdm.base.maths.functions.Sum;
 
 import org.isda.cdm.functions.*;
