@@ -300,41 +300,45 @@ func ResolveEquityInitialPrice:
 
 func EquityPriceQuantityTriangulation:
 	inputs:
-		product ContractualProduct (1..1)
 		price ExecutionPrice (1..1)
 		quantity ExecutionQuantity (1..1)
 
 	output:
 		success boolean (1..1)
-		
-	alias equityPayout:
-		product -> economicTerms -> payout -> equityPayout only-element
-		
+	
+	alias applicable:
+		price -> priceNotation -> price -> cashPrice -> netPrice -> amount exists 
+			and quantity -> quantityNotation -> assetIdentifier -> productIdentifier exists 
+			and quantity -> quantityNotation -> assetIdentifier -> currency exists 
+	
 	alias initialPrice:
-		ResolveEquityInitialPrice(equityPayout -> underlier, price -> priceNotation) -> netPrice -> amount
+		price -> priceNotation only-element -> price -> cashPrice -> netPrice -> amount
 		
 	alias quantityNotional:
-		ResolvePayoutQuantity(equityPayout -> payoutQuantity, quantity -> quantityNotation, product) -> amount
+		EquityNotional(quantity -> quantityNotation)
 	
 	alias quantityNoOfUnits:
-		ResolveEquityNoOfUnits(equityPayout -> underlier, quantity -> quantityNotation)
-	
-	// TODO: This alias is a workaround due to bug in if/then expression generation
-	alias quantityNoOfUnitsAmount:
-		if quantityNoOfUnits -> amount exists
-		then quantityNoOfUnits -> amount
-		else 0.0
+		EquityNoOfUnits(quantity -> quantityNotation)
 	
 	assign-output success:
-		if quantityNoOfUnits -> amount exists
-		then initialPrice * quantityNoOfUnitsAmount = quantityNotional
+		if applicable
+		then initialPrice * quantityNoOfUnits = quantityNotional
+		else True
 	
 
-func ResolveEquityNoOfUnits:
+func EquityNoOfUnits: <"Get quantity associated with product identifier, or zero if not present.">
 	inputs:
-		underlier Underlier (1..1)
 		quantityNotations QuantityNotation (0..*)
 
 	output:
-		noOfUnits NonNegativeQuantity (1..1)
+		noOfUnits number (1..1)
+
+
+func EquityNotional: <"Get quantity associated with currency, or zero if not present.">
+	inputs:
+		quantityNotations QuantityNotation (0..*)
+
+	output:
+		notional number (1..1)
+
 	

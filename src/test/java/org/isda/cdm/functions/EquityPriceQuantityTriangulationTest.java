@@ -24,7 +24,7 @@ public class EquityPriceQuantityTriangulationTest extends AbstractFunctionTest {
 	void shouldTriangulateEquityPriceNotionalAndNoOfUnitsAndReturnSuccess() throws IOException {
 		Contract contract = getContract(EQUITY_DIR + "eqs-ex01-single-underlyer-execution-long-form.json");
 		
-		boolean success = func.evaluate(contract.getContractualProduct(), contract.getContractualPrice(), contract.getContractualQuantity());
+		boolean success = func.evaluate(contract.getContractualPrice(), contract.getContractualQuantity());
 		
 		assertTrue(success);
 	}
@@ -33,7 +33,7 @@ public class EquityPriceQuantityTriangulationTest extends AbstractFunctionTest {
 	void shouldReturnSuccessNotApplicableBecauseNoOfUnitsNotDefined() throws IOException {
 		Contract contract = getContract(EQUITY_DIR + "eqs-ex10-short-form-interestLeg-driving-schedule-dates.json");
 		
-		boolean success = func.evaluate(contract.getContractualProduct(), contract.getContractualPrice(), contract.getContractualQuantity());
+		boolean success = func.evaluate(contract.getContractualPrice(), contract.getContractualQuantity());
 		
 		assertTrue(success);
 	}
