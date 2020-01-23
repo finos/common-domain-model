@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.isda.cdm.InterestRatePayout.InterestRatePayoutBuilder;
-import org.isda.cdm.PayerReceiver.PayerReceiverBuilder;
 import org.isda.cdm.RateSpecification.RateSpecificationBuilder;
 import org.isda.cdm.metafields.ReferenceWithMetaAccount.ReferenceWithMetaAccountBuilder;
 import org.isda.cdm.metafields.ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder;
@@ -13,6 +12,8 @@ import com.regnosys.rosetta.common.translation.Mapping;
 import com.rosetta.model.lib.RosettaModelObject;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
+
+import cdm.base.staticdata.party.PayerReceiver.PayerReceiverBuilder;
 
 public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
 

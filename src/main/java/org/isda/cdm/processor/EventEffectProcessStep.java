@@ -12,10 +12,12 @@ import com.rosetta.model.lib.path.RosettaPath;
 import com.rosetta.model.lib.process.AttributeMeta;
 import com.rosetta.model.lib.process.BuilderProcessor.Report;
 import com.rosetta.model.lib.process.PostProcessStep;
+
+import cdm.base.staticdata.asset.commons.ProductIdentifier.ProductIdentifierBuilder;
+
 import org.isda.cdm.Contract.ContractBuilder;
 import org.isda.cdm.EventEffect.EventEffectBuilder;
 import org.isda.cdm.Execution.ExecutionBuilder;
-import org.isda.cdm.ProductIdentifier.ProductIdentifierBuilder;
 import org.isda.cdm.TransferPrimitive.TransferPrimitiveBuilder;
 import org.isda.cdm.WorkflowEvent.WorkflowEventBuilder;
 import org.isda.cdm.metafields.ReferenceWithMetaContract;

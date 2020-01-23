@@ -2,9 +2,10 @@ package org.isda.cdm.functions;
 
 import com.rosetta.model.lib.validation.ValidationResult;
 
+import cdm.base.staticdata.party.PartyRole;
+import cdm.base.staticdata.party.PartyRoleEnum;
+
 import org.isda.cdm.Contract;
-import org.isda.cdm.PartyRole;
-import org.isda.cdm.PartyRoleEnum;
 import org.isda.cdm.meta.ContractMeta;
 import org.isda.cdm.metafields.ReferenceWithMetaParty;
 import org.junit.jupiter.api.Test;
