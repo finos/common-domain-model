@@ -296,49 +296,4 @@ func ResolveEquityInitialPrice:
 
 	output:
 		initialPrice CashPrice (1..1)
-
-
-func EquityPriceQuantityTriangulation:
-	inputs:
-		price ExecutionPrice (1..1)
-		quantity ExecutionQuantity (1..1)
-
-	output:
-		success boolean (1..1)
-	
-	alias applicable:
-		price -> priceNotation -> price -> cashPrice -> netPrice -> amount exists 
-			and quantity -> quantityNotation -> assetIdentifier -> productIdentifier exists 
-			and quantity -> quantityNotation -> assetIdentifier -> currency exists 
-	
-	alias initialPrice:
-		price -> priceNotation only-element -> price -> cashPrice -> netPrice -> amount
-		
-	alias quantityNotional:
-		EquityNotional(quantity -> quantityNotation)
-	
-	alias quantityNoOfUnits:
-		EquityNoOfUnits(quantity -> quantityNotation)
-	
-	assign-output success:
-		if applicable
-		then initialPrice * quantityNoOfUnits = quantityNotional
-		else True
-	
-
-func EquityNoOfUnits: <"Get quantity associated with product identifier, or zero if not present.">
-	inputs:
-		quantityNotations QuantityNotation (0..*)
-
-	output:
-		noOfUnits number (1..1)
-
-
-func EquityNotional: <"Get quantity associated with currency, or zero if not present.">
-	inputs:
-		quantityNotations QuantityNotation (0..*)
-
-	output:
-		notional number (1..1)
-
 	

@@ -8,25 +8,28 @@ import org.isda.cdm.AssetIdentifier;
 import org.isda.cdm.NonNegativeQuantity;
 import org.isda.cdm.QuantityNotation;
 
+import com.rosetta.model.lib.meta.FieldWithMeta;
+
 /**
- * Extracts the quantity amount associated with the product identifier.
+ * Extracts the quantity amount associated with the currency.
  */
-public class EquityNoOfUnitsImpl extends EquityNoOfUnits {
+public class NotionalImpl extends Notional {
 
 	@Override
 	protected BigDecimal doEvaluate(List<QuantityNotation> quantityNotations) {
 		return quantityNotations.stream()
-				.filter(this::isProductAssetIdentifier)
+				.filter(this::isCurrencyAssetIdentifier)
 				.map(QuantityNotation::getQuantity)
 				.map(NonNegativeQuantity::getAmount)
 				.findFirst()
 				.orElse(BigDecimal.ZERO);
 	}
 
-	private boolean isProductAssetIdentifier(QuantityNotation quantityNotation) {
+	private boolean isCurrencyAssetIdentifier(QuantityNotation quantityNotation) {
 		return Optional.ofNullable(quantityNotation)
 				.map(QuantityNotation::getAssetIdentifier)
-				.map(AssetIdentifier::getProductIdentifier)
+				.map(AssetIdentifier::getCurrency)
+				.map(FieldWithMeta::getValue)
 				.isPresent();
 	}
 }
