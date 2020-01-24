@@ -2,10 +2,10 @@ package org.isda.cdm.functions.example.services.identification;
 
 
 import com.google.inject.Singleton;
+import com.rosetta.model.metafields.FieldWithMetaString;
 
 import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
-import cdm.base.staticdata.identifier.metafields.FieldWithMetaString;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 
 import java.util.TreeSet;

@@ -14,6 +14,8 @@ import com.rosetta.model.lib.process.BuilderProcessor.Report;
 import com.rosetta.model.lib.process.PostProcessStep;
 
 import cdm.base.staticdata.asset.commons.ProductIdentifier.ProductIdentifierBuilder;
+import cdm.base.staticdata.asset.commons.metafields.ReferenceWithMetaProductIdentifier;
+import cdm.base.staticdata.asset.commons.metafields.ReferenceWithMetaProductIdentifier.ReferenceWithMetaProductIdentifierBuilder;
 
 import org.isda.cdm.Contract.ContractBuilder;
 import org.isda.cdm.EventEffect.EventEffectBuilder;
@@ -24,8 +26,6 @@ import org.isda.cdm.metafields.ReferenceWithMetaContract;
 import org.isda.cdm.metafields.ReferenceWithMetaContract.ReferenceWithMetaContractBuilder;
 import org.isda.cdm.metafields.ReferenceWithMetaExecution;
 import org.isda.cdm.metafields.ReferenceWithMetaExecution.ReferenceWithMetaExecutionBuilder;
-import org.isda.cdm.metafields.ReferenceWithMetaProductIdentifier;
-import org.isda.cdm.metafields.ReferenceWithMetaProductIdentifier.ReferenceWithMetaProductIdentifierBuilder;
 import org.isda.cdm.metafields.ReferenceWithMetaTransferPrimitive;
 import org.isda.cdm.metafields.ReferenceWithMetaTransferPrimitive.ReferenceWithMetaTransferPrimitiveBuilder;
 
