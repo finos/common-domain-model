@@ -4,10 +4,10 @@ import com.rosetta.model.lib.validation.ValidationResult;
 
 import cdm.base.staticdata.party.PartyRole;
 import cdm.base.staticdata.party.PartyRoleEnum;
+import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 
 import org.isda.cdm.Contract;
 import org.isda.cdm.meta.ContractMeta;
-import org.isda.cdm.metafields.ReferenceWithMetaParty;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
