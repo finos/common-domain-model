@@ -1,7 +1,7 @@
 namespace "org.isda.cdm"
 version "${project.version}"
 
-type PrimitiveEvent: <"A type to specify the one and only one of the elemental/primitives components that are used to specify lifecycle events. Lifecycle events make use of one or several of those elemental components specified as part of this class.">
+type PrimitiveEvent: <"A primitive event is defined by one and only one atomic change in state of a trade. An example of this is a contract formation where the legal terms of the contact are added to the trade. A Primitive event contains a before and after state where the before is a reference to another after state of a primitive event in order to preserve lineage.">
 	execution ExecutionPrimitive (0..1)
 		[synonym Workflow_Event value "executionPrimitive" path "primitive"]
 		[synonym DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0, FpML_5_10 value "ignore"]
@@ -42,7 +42,7 @@ type ExecutionPrimitive: <"Specification of the primitive event for an execution
 		[synonym Workflow_Event value "after"]
 
 type ContractFormationPrimitive: <"Specification of the primitive event for the formation of a contract, with 'before' state being an 'ExecutionState' and 'after' state being a 'PostInceptionState'. This primitive combined with the 'ExecutionPrimitive' supersedes the earlier 'Inception' primitive, which had both the the execution and the contract formation bundled together, and as such was only applicable to contractual products. This intends to provide for properly atomic primitives.">
-	before ExecutionState (1..1) <"The before state corresponds to the output of an execution between the parties.">
+	before ExecutionState (0..1) <"The before state corresponds to the output of an execution between the parties.">
 		[synonym Workflow_Event value "before"]
 	after PostInceptionState (1..1) <"The after state corresponds to the new contract being formed between the parties, plus some additional trade workflow information.">
 		[synonym Workflow_Event value "after"]
