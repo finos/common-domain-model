@@ -4,6 +4,54 @@ version "${project.version}"
 import cdm.base.maths.*
 import cdm.base.staticdata.asset.commons.*
 
+func CashPriceQuantityNoOfUnitsTriangulation: <"Data rule to check the relationship between cash price, notional and number of units.">
+	inputs:
+		price ExecutionPrice (1..1)
+		quantity ExecutionQuantity (1..1)
+
+	output:
+		success boolean (1..1)
+
+	alias applicable:
+		price -> priceNotation -> assetIdentifier -> productIdentifier exists
+			and quantity -> quantityNotation -> assetIdentifier -> productIdentifier exists
+			and quantity -> quantityNotation -> assetIdentifier -> currency exists
+			and price -> priceNotation -> price -> cashPrice -> netPrice -> amount exists
+			// price and no of units product identifiers should match
+			and price -> priceNotation -> assetIdentifier -> productIdentifier = quantity -> quantityNotation -> assetIdentifier -> productIdentifier
+
+	alias cashPrice:
+		if price -> priceNotation only-element -> price -> cashPrice -> netPrice -> amount exists
+		then price -> priceNotation only-element -> price -> cashPrice -> netPrice -> amount
+		else 0.0
+
+	alias notional:
+		Notional(quantity -> quantityNotation)
+
+	alias noOfUnits:
+		NoOfUnits(quantity -> quantityNotation)
+
+	assign-output success:
+		if applicable
+		then cashPrice * noOfUnits = notional
+		else True
+
+
+func NoOfUnits: <"Get quantity associated with product identifier, or zero if not present.">
+	inputs:
+		quantityNotations QuantityNotation (0..*)
+
+	output:
+		noOfUnits number (1..1)
+
+
+func Notional: <"Get quantity associated with currency, or zero if not present.">
+	inputs:
+		quantityNotations QuantityNotation (0..*)
+
+	output:
+		notional number (1..1)
+
 
 func ResolveContractualProduct: <"For a given ContractualProduct, the function finds all ResolvablePayoutQuantity instances, then for each instance, resolves the quantity, populates the quantity attribute on ResolvablePayoutQuantity, and finally returns the updated ContractualProduct.">
 	inputs:
@@ -71,7 +119,6 @@ func Equals:
 		scalar number (1..1)
 	output:
 		result boolean (1..1)
-
 
 // TODO: turn these functions into language level operators i.e. '>'
 func GreaterThan:
