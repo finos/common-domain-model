@@ -2,20 +2,27 @@
 
 _What is being released_
 
-CDM model representation of data relevant for collateral eligibility schedules has been enhanced. This is found under `EligibleCollateral`. 
+Further changes to the collateral eligibility schedules following a workshop with Acadia. 
 
-There are 6 key attributes relevant for this feature of collateral documentation:
-- issueInformation `CollateralIssueInformation` 
-- underlyingCurrency `UnderlyingCurrency`
-- maturityRange `MaturityRange` 
-- issuerAgencyRating `IssuerAgencyRating` 
-- issueAgencyRating `IssueAgencyRating`
-- haircut `CollateralHaircut` 
-    
-For reference purposes, the previous model have has been renamed to `EligibleCollateralFpMLMapped`.  This will be removed once the new model is complete.
+- New enum values added to `CollateralIssuerTypeClassification` and `CollateralType`, and new enum `CollateralSubType` added.
+- `EligibleCollateral` attribute of type `UnderlyingCurrency` removed and replaced by `denominatedCurrency`.
+- Existing enum `ProductIdSourceEnum` value `ICAD` has moved to `TaxonomySourceEnum`.
+- `MultipleCreditNotations` has attributes `mismatchResolution` and `referenceAgency` added to specify how to resolve mismatches between ratings. 
+
+The type `EligibleCollateral` now has 5 attributes:
+
+```
+    issueInformation CollateralIssueInformation (1..1)
+    denominatedCurrency string (1..*)
+        [metadata scheme]
+    maturityRange MaturityRange (1..1)
+    agencyRating AgencyRating (0..1)
+    valuationPercentage CollateralValuationPercentage (1..1)
+```
 
 _Review Directions_
 
-- Review enhancements to `EligibleCollateral` and associated types and enums. 
-- Review new values in enum ProductIdSourceEnum (added under "//added new").
-- Review additional text to reference `EligibleCollateralFpMLMapped`.
+In the Textual Browser, review the following:
+
+- types: `EligibleCollateral`, `MultipleCreditNotations`, `CollateralIssueInformation`, `CollateralType`, `AgencyRating` and `CollateralValuationPercentage`.
+- enums: `CollateralIssuerTypeClassificationEnum`, `CollateralTypeEnum` and `CollateralSubTypeEnum`.
