@@ -1,14 +1,14 @@
 namespace "org.isda.cdm"
 version "${project.version}"
 
-type AllocationInstructions:
+type AllocationInstruction:
 	// TODO: add other allocation context
 	breakdowns AllocationBreakdown (1..*) <"The set of allocation breakdowns to be applied to a block trade">
 
 type AllocationBreakdown:
 	partyReference Party (1..1) <"Reference to the party to specify the account.">
 		[metadata reference]
-	quantity Quantity (1..1) <"The quantity to be allocated to the party.">
+	quantity NonNegativeQuantity (1..1) <"The quantity to be allocated to the party.">
 
 
 type AllocationOutcome: <"A class to specify the allocated outcome as the combination of the previous Trade, which is either an execution or a contract and which state is specified as 'Allocated', and a set of Trade(s) of the same execution or contract type as before allocation. The allocation to one single trade is deemed appropriate: e.g. the trade could be effectively allocated from the fund manager doing the execution to a single fund entity.">
@@ -122,7 +122,7 @@ type CreditLimitUtilisationPosition:
 	global number (0..1) <"Global credit limit utilisation amount, agnostic of long/short position direction.">
 		[synonym FpML_5_10 value "global"]
 
-type Curve: //one of
+type Curve:
 	interestRateCurve InterestRateCurve (0..1)
 		[synonym Workflow_Event value "interestRateCurve"]
 	commodityCurve CommodityReferencePriceEnum (0..1) // This is just an illustrative alternative curve instance, which implementation needs to be refined and confirmed
@@ -164,12 +164,34 @@ type CustomisedWorkflow: <"In its initial iteration, this class is meant to supp
 		[synonym CME_SubmissionIRS_1_0 set to "Customer Account" when "Pty->R" = "24"]
 		[synonym CME_SubmissionIRS_1_0 set to "Custom" when "Pty->Src" = "D"]
 
-type WorkflowEvent: <"A class to specify the lifecycle event. The associated rosettaKey denotes the ability to associate a hash value to the Event instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+type BusinessEventInstruction: <"Instruction to a function that will be used to perform a business event">
+	allocation AllocationInstruction (0..1) <"Instruction to allocate">
+    clearing ClearingInstruction (0..1) <"Instruction to clear">
+
+	condition OneOfInstruction: one-of
+
+
+type WorkflowStepInstruction:
+	// TODO - This should be updated to either use a cross reference to a func type or use an annotation.
+	instructionFunction string (1..1) <"Name of the function that will be called to ">
+	instruction BusinessEventInstruction (0..1) <"Input instruction to the instructionFunction">
+
+type WorkflowStep: <"A workflow step represents the state of a business event. The workflow step contains a reference to a previous WorkflowStep in order to preserve lineage. A workflow step is accepted if it contains a business event, proposed if proposedInstruction is present and is rejected if the rejected flag is set.">
 	[metadata key]
+	[rootType]
 	[synonym Workflow_Event meta "id"]
-	businessEvent BusinessEvent (1..1)
-		[synonym Workflow_Event hint "primitive"]
-	messageInformation MessageInformation (0..1)
+	businessEvent BusinessEvent (0..1) <"Life cycle event for the step. The businessEvent is optional when a proposedInstruction or rejection are present.">
+	proposedInstruction WorkflowStepInstruction (0..1) <"The proposed instruction for the workflow step. The proposedInstruction is optional when the businessEvent or rejection are present">
+		[synonym Workflow_Event value "proposedInstruction"]
+	// TODO - This will be replaced with a list of signatories that must sign off the 'previousWorkflowStep' and any operational reasons why it may be rejected.
+	rejected boolean (0..1) <"Flags this step as rejected.">
+		[synonym Workflow_Event value "rejected"]
+
+	previousWorkflowStep WorkflowStep (0..1) <"Optional previous workflow step that provides lineage to workflow steps that precedes it.">
+		[metadata reference]
+		[synonym Workflow_Event value "previousWorkflowStep"]
+
+	messageInformation MessageInformation (0..1) <"Contains all information pertaining the FpML messaging header ">
 		[synonym DTCC_11_0, DTCC_9_0 value "FpML" path "Body->OTC_Matching->Trade"]
 		[synonym DTCC_11_0, DTCC_9_0 value "FpML" path "Body->OTC_Matching->Payment"]
 		[synonym DTCC_11_0, DTCC_9_0 value "RouteInfo" path "Header->OTC_RM->Delivery"]
@@ -188,12 +210,6 @@ type WorkflowEvent: <"A class to specify the lifecycle event. The associated ros
 		[synonym DTCC_11_0, DTCC_9_0 value "ContraTradeId" path "Header->OTC_RM->Manifest->TradeMsg"]
 		[synonym DTCC_11_0, DTCC_9_0 value "YourTradeId" path "Header->OTC_RM->Manifest->TradeMsg"]
 		[synonym DTCC_11_0, DTCC_9_0 value "tradeIdentifyingItems" path "Header->OTC_RM->Manifest->TradeMsg"]
-	eventQualifier eventType (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic which qualifies the lifecycle event as a function of its features (e.g. PartialTermination, ClearingSubmission, Novation, ...).">
-	eventDate date (1..1) <"The date on which the event is taking place. This is the equivalent of the trade date in the case of an execution or a contract.">
-		[synonym Workflow_Event value "eventDate"]
-		[synonym CME_ClearedConfirm_1_17 value "clearedDate" path "clearingConfirmed->trade->tradeHeader" maps 2]
-	effectiveDate date (0..1) <"The date on which the event contractually takes effect, when different from the event date.">
-		[synonym Workflow_Event value "effectiveDate"]
 	action ActionEnum (1..1) <"Specifies whether the event is a new, a correction or a cancellation.">
 		[synonym Workflow_Event
 			set to ActionEnum -> New when "isCorrection" = False,
@@ -204,8 +220,6 @@ type WorkflowEvent: <"A class to specify the lifecycle event. The associated ros
 			set to ActionEnum -> Correct when "isCorrection" = True]
 		[synonym DTCC_11_0, DTCC_9_0 value "Activity" path "Header->OTC_RM->Manifest->TradeMsg"]
 		[synonym CME_SubmissionIRS_1_0 value "TransTyp" path "TrdCaptRpt"]
-	intent IntentEnum (0..1) <"The intent attribute is meant to be specified when the event qualification cannot be programmatically inferred from the event features. As a result it is only associated with those primitives that can give way to such ambiguity, the quantityChange being one of those. An example of such is a reduction in the trade notional, which could be interpreted as either a trade correction (unless a maximum period of time post-event is specified as part of the qualification), a partial termination or a portfolio rebalancing in the case of an equity swap. On the other hand, an event such as the exercise is not expected to have an associated intent as there should not be ambiguity.">
-		[synonym Workflow_Event value "intent"]
 	party Party (0..*) <"The specification of the event parties. This attribute is optional, as not applicable to certain events (e.g. most of the observations).">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "party"]
 		[synonym DTCC_11_0, DTCC_9_0 value "party" path "Body->OTC_Matching->Trade->FpML" ]
@@ -215,22 +229,42 @@ type WorkflowEvent: <"A class to specify the lifecycle event. The associated ros
 		[synonym CME_ClearedConfirm_1_17 value "account" path "clearingConfirmed"]
 	lineage Lineage (0..1) <"The lineage attribute provides a linkage among lifecycle events through the rosettaKey hash value. One example is when a given lifecycle event is being corrected or cancelled. In such case, each subsequent event will have lineage into the prior version of that event. The second broad use case is when an event has a dependency upon either another event (e.g. the regular payment associated with a fix/float swap will have a lineage into the reset event, which will in turn have a lineage into the observation event for the floating rate and the contract) or a contract (e.g. the exercise of an option has a lineage into that option).">
 		[synonym Workflow_Event value "lineage"]
-	functionCall string (0..1) <"This is placeholder concept for a function call into a calculation that will return an outcome. This concept needs to be further firmed out.">
-		[synonym Workflow_Event value "functionCall"]
 	eventEffect EventEffect (0..1) <"The set of effects associated with the lifecycle event, i.e. generated cashflows, contracts (from, say, novation events), listed products (from, say, a bond option exercise event) values and more. Those are represented through a set of rosettaKey references. This attribute is optional in order to provide implementers with the ability not to make use of this feature.">
-	workflowEventState WorkflowEventState (0..1) <"The event workflow information, i.e. the workflow status, the associated comment and the partyCustomisedWorkflow which purpose is to provide the ability to associate custom workflow information to the CDM.">
+
+	condition WorkflowStepStatus:
+		(WorkflowStep -> businessEvent exists and WorkflowStep -> proposedInstruction is absent and WorkflowStep -> rejected is absent)
+		or
+		(WorkflowStep -> proposedInstruction exists and WorkflowStep -> businessEvent is absent and WorkflowStep -> rejected is absent)
+		or
+		(WorkflowStep -> rejected exists and WorkflowStep -> businessEvent is absent and WorkflowStep -> proposedInstruction is absent)
 
 	condition Event_intent: <"The intent should only be associated with the primitives which use can lead to ambiguity with respect to the qualification of the event.">
-		if ( businessEvent -> primitives -> allocation exists
+		if (businessEvent -> primitives -> allocation exists
 			or businessEvent -> primitives -> exercise exists
 			or businessEvent -> primitives -> inception exists
 			or businessEvent -> primitives -> observation exists
 			or businessEvent -> primitives -> reset exists)
-		then intent is absent
+		then businessEvent -> intent is absent
 
-type BusinessEvent: <"A business event is a collection of primitive events.">
+type BusinessEvent: <"A business event represents a life cycle event of a trade and consists of a series of primitive events. The combination of the state changes results in a qualifiable life cycle event. An example of a Business Event is a PartialTermination which is a defined by a quantity change primitive event.">
 	primitives PrimitiveEvent (1..*) <"The elemental component(s) that specify the lifecycle events. Each of the primitive/elemental components listed as part of the PrimitiveEvent class has distinctive features that allow to specify the lifecycle event, either by itself or in combination with some other of such components.">
 		[synonym Workflow_Event hint "primitive"]
+	intent IntentEnum (0..1) <"The intent attribute is meant to be specified when the event qualification cannot be programmatically inferred from the event features. As a result it is only associated with those primitives that can give way to such ambiguity, the quantityChange being one of those. An example of such is a reduction in the trade notional, which could be interpreted as either a trade correction (unless a maximum period of time post-event is specified as part of the qualification), a partial termination or a portfolio rebalancing in the case of an equity swap. On the other hand, an event such as the exercise is not expected to have an associated intent as there should not be ambiguity.">
+		[synonym Workflow_Event value "intent"]
+	functionCall string (0..1) <"This is placeholder concept for a function call into a calculation that will return an outcome. This concept needs to be further firmed out.">
+		[synonym Workflow_Event value "functionCall"]
+
+	eventQualifier eventType (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic which qualifies the lifecycle event as a function of its features (e.g. PartialTermination, ClearingSubmission, Novation, ...).">
+
+	eventDate date (1..1) <"The date on which the event is taking place. This is the equivalent of the trade date in the case of an execution or a contract.">
+		[synonym Workflow_Event value "eventDate"]
+		[synonym CME_ClearedConfirm_1_17 value "clearedDate" path "clearingConfirmed->trade->tradeHeader" maps 2]
+	effectiveDate date (0..1) <"The date on which the event contractually takes effect, when different from the event date.">
+		[synonym Workflow_Event value "effectiveDate"]
+
+	// TODO - this needs to be moved/merged into the WorkflowStep
+	workflowEventState WorkflowStepState (0..1) <"The event workflow information, i.e. the workflow status, the associated comment and the partyCustomisedWorkflow which purpose is to provide the ability to associate custom workflow information to the CDM.">
+		[deprecated]
 
 type EventEffect: <"The set of operational and positional effects associated with a lifecycle event, alongside the reference to the contract reference(s) that is subject to the event (and is positioned in the before state of the event primitive).">
 	effectedContract Contract (0..*) <"A pointer to the contract(s) to which the event effect(s) apply, i.e. in the before event state.">
@@ -248,7 +282,7 @@ type EventEffect: <"The set of operational and positional effects associated wit
 
 /* USED in downstrem */
 type EventTestBundle: <"A class which combines several events for testing purposes.">
-	event WorkflowEvent (2..*)
+	event WorkflowStep (2..*)
 		[synonym Workflow_Event value "event"]
 	computedAmount ComputedAmount (0..*)
 		[synonym Workflow_Event value "computedAmount"]
@@ -271,7 +305,7 @@ type EventTimestamp: <"A class to represent the various set of timestamps that c
 		[synonym CME_SubmissionIRS_1_0 set to EventTimestampQualificationEnum -> eventSentDateTime when path= "TrdCaptRpt->Hdr->Snt"]
 		[synonym CME_SubmissionIRS_1_0 set to EventTimestampQualificationEnum -> executionDateTime when path= "TrdCaptRpt->TrdRegTS->TS" and "TrdCaptRpt->TrdRegTS->Typ" = 1]
 
-type WorkflowEventState: <"A class to specify workflow information, which is conceptually applicable to all lifecycle events.">
+type WorkflowStepState: <"A class to specify workflow information, which is conceptually applicable to all lifecycle events.">
 	workflowStatus WorkflowStatusEnum (0..*) <"The workflow status indicator, e.g. Accepted, Rejected, ...">
 		[synonym CME_SubmissionIRS_1_0 value "RptTyp" path "TrdCaptRpt"]
 		[synonym Workflow_Event value "workflowStatus"]
@@ -343,7 +377,7 @@ type Lineage: <"A class to provide lineage information across lifecycle events t
 	contractReference Contract (0..*) <"The reference to the instantiation of a Contract object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
 		[synonym Workflow_Event value "contractReference" meta "href"]
-	eventReference WorkflowEvent (0..*) <"The reference to the instantiation of an Event object, either through a rosettaKey or an xml-derived id/href mechanism. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
+	eventReference WorkflowStep (0..*) <"The reference to the instantiation of an Event object, either through a rosettaKey or an xml-derived id/href mechanism. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
 		[synonym Workflow_Event value "eventReference" meta "href"]
 	executionReference Execution (0..*) <"The reference to the instantiation of a Execution object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
@@ -519,12 +553,13 @@ type Velocity:
  * Event Qualification
  */
 func Allocation: <"The qualification of allocation event from the fact that (i) the intent is Allocation when specified, (ii) the only primitive is the allocation, (iii) the sum of quantities/notional before = after, and (iv) there is a single contractualProduct before (ensured through cardinality). Note: it is accepted that an allocation can result in a single contract.">
+	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1) 
+		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
-		workflowEvent -> businessEvent -> primitives count = 1
-		and workflowEvent -> businessEvent -> primitives -> allocation exists
+		businessEvent -> primitives count = 1
+		and businessEvent -> primitives -> allocation exists
 
 /*
  * TODO - The below syntax needs to be expanded to specify a summation
@@ -535,51 +570,56 @@ func Allocation: <"The qualification of allocation event from the fact that (i) 
  * Temporary event qualification until such time that we firm out the proper qualification and the way to infer it
  */
 func CashflowCalculationNotification:
+	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
-		workflowEvent -> businessEvent -> primitives count = 1
-		and workflowEvent -> businessEvent -> primitives -> transfer exists
-		and workflowEvent -> messageInformation -> sentBy = "DTCC"
+		businessEvent -> primitives count = 1
+		and businessEvent -> primitives -> transfer -> cashTransfer -> transferCalculation exists
+		and businessEvent -> primitives -> transfer -> identifier -> scheme = "DTCCCashflowId"
+
 
 func CashTransfer: <"The qualification of a cash transfer from the fact that the only component is a cashTransfer.">
+	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
-		workflowEvent -> businessEvent -> primitives count = 1
-		and workflowEvent -> businessEvent -> primitives -> transfer exists
-		and workflowEvent -> businessEvent -> primitives -> transfer -> cashTransfer exists
-		and workflowEvent -> businessEvent -> primitives -> transfer -> securityTransfer is absent
-		and workflowEvent -> businessEvent -> primitives -> transfer -> commodityTransfer is absent
-		and workflowEvent -> messageInformation -> sentBy <> "DTCC" // This is a kludge related to the CashflowCalculationNotification qualification
+		businessEvent -> primitives count = 1
+		and businessEvent -> primitives -> transfer exists
+		and businessEvent -> primitives -> transfer -> cashTransfer exists
+		and businessEvent -> primitives -> transfer -> securityTransfer is absent
+		and businessEvent -> primitives -> transfer -> commodityTransfer is absent
+		and businessEvent -> primitives -> transfer -> identifier -> scheme <> "DTCCCashflowId"
 
 func CashAndSecurityTransfer: <"The qualification of a security settlement from the fact that (i) it is composed of a cashTransfer component and a securityTransfer component, and (ii) the cash and security move in the same direction.">
+	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
-		workflowEvent -> businessEvent -> primitives -> transfer -> cashTransfer exists
-		and workflowEvent -> businessEvent -> primitives -> transfer -> securityTransfer exists
-		and workflowEvent -> businessEvent -> primitives -> transfer -> cashTransfer -> payerReceiver -> payerPartyReference
-		-> reference = workflowEvent -> businessEvent -> primitives -> transfer -> securityTransfer -> transferorTransferee -> transferorPartyReference -> reference
-		and workflowEvent -> businessEvent -> primitives -> transfer -> commodityTransfer is absent
+		businessEvent -> primitives -> transfer -> cashTransfer exists
+		and businessEvent -> primitives -> transfer -> securityTransfer exists
+		and businessEvent -> primitives -> transfer -> cashTransfer -> payerReceiver -> payerPartyReference
+		-> reference = businessEvent -> primitives -> transfer -> securityTransfer -> transferorTransferee -> transferorPartyReference -> reference
+		and businessEvent -> primitives -> transfer -> commodityTransfer is absent
 
 // Simple Agency model for clearing
 func ClearedTrade:
+	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
-		workflowEvent -> businessEvent -> primitives count = 5
-		and workflowEvent -> businessEvent -> primitives -> quantityChange count = 1
-		and True = ListsCompare(CompareOp -> Greater, QuantityBeforeQuantityChange(workflowEvent), empty, 0.0)
-		and True = ListsCompare(CompareOp -> Equal, QuantityAfterQuantityChange(workflowEvent), empty, 0.0)
-		and workflowEvent -> businessEvent -> primitives -> execution count = 2
-		and workflowEvent -> businessEvent -> primitives -> contractFormation count = 2
-		and workflowEvent -> businessEvent -> primitives -> execution -> after = workflowEvent -> businessEvent -> primitives -> contractFormation -> before
-		and workflowEvent -> businessEvent -> primitives -> contractFormation -> after -> contract -> partyRole -> role contains PartyRoleEnum -> ClearingOrganization
+		businessEvent -> primitives count = 5
+		and businessEvent -> primitives -> quantityChange count = 1
+		and QuantityDecreasedToZero(businessEvent -> primitives -> quantityChange) = True
+		and businessEvent -> primitives -> execution count = 2
+		and businessEvent -> primitives -> contractFormation count = 2
+		and businessEvent -> primitives -> execution -> after = businessEvent -> primitives -> contractFormation -> before
+		// TODO - Add this back in when we correctly map the ClearingOrganization
+		and businessEvent -> primitives -> contractFormation -> after -> contract -> partyRole -> role contains PartyRoleEnum -> ClearingOrganization
 
 //isEvent ClearedTrade <"The cleared trade at the CCP.">
 //	WorkflowEvent -> businessEvent -> primitives count = 1
@@ -593,220 +633,236 @@ func ClearedTrade:
 //	and lineage -> @rosettaKey -> eventQualifier = eventQualifier.ClearingSubmission
 //	and lineage -> @rosettaKey -> eventQualifier = eventQualifier.ClearedTrade
 func ClearingRejection: <"The rejection of an alpha trade submission by a CCP, which is qualified by the fact that (i) termsChange is the only primitive, the workflow status is `rejected`, and (iii) the CCP is positioned as a partyRole to the execution or contract in the after state, while it didn't exist in the before state.">
+	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
-		workflowEvent -> businessEvent -> primitives count = 1
-		and workflowEvent -> businessEvent -> primitives -> termsChange exists
-		and workflowEvent -> workflowEventState -> workflowStatus = WorkflowStatusEnum -> Rejected
-		and (workflowEvent -> businessEvent -> primitives -> termsChange -> before -> execution -> partyRole is absent
-		or workflowEvent -> businessEvent -> primitives -> termsChange -> before -> execution -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization
-		or workflowEvent -> businessEvent -> primitives -> termsChange -> before -> contract -> partyRole is absent
-		or workflowEvent -> businessEvent -> primitives -> termsChange -> before -> contract -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization)
-		and (workflowEvent -> businessEvent -> primitives -> termsChange -> after -> execution -> partyRole -> role = PartyRoleEnum -> ClearingOrganization
-		or workflowEvent -> businessEvent -> primitives -> termsChange -> after -> contract -> partyRole -> role = PartyRoleEnum -> ClearingOrganization)
-		and True = ListsCompare(CompareOp -> Equal, QuantityAfterQuantityChange(workflowEvent), QuantityBeforeQuantityChange(workflowEvent), empty)
+		businessEvent -> primitives count = 1
+		and businessEvent -> primitives -> termsChange exists
+		and businessEvent -> workflowEventState -> workflowStatus = WorkflowStatusEnum -> Rejected
+		and (businessEvent -> primitives -> termsChange -> before -> execution -> partyRole is absent
+		or businessEvent -> primitives -> termsChange -> before -> execution -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization
+		or businessEvent -> primitives -> termsChange -> before -> contract -> partyRole is absent
+		or businessEvent -> primitives -> termsChange -> before -> contract -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization)
+		and (businessEvent -> primitives -> termsChange -> after -> execution -> partyRole -> role = PartyRoleEnum -> ClearingOrganization
+		or businessEvent -> primitives -> termsChange -> after -> contract -> partyRole -> role = PartyRoleEnum -> ClearingOrganization)
+		and NoQuantityChange(businessEvent -> primitives -> quantityChange) = True
 
 func ClearingSubmission: <"The submission of a contract to a CCP, which is qualified by the fact that (i) the termsChange is the only primitive, and (ii) the CCP is positioned as a partyRole to the execution or contract in the after state, while it didn't exist in the before state.">
+	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
-		workflowEvent -> businessEvent -> primitives count = 1
-		and workflowEvent -> businessEvent -> primitives -> termsChange exists
-		and workflowEvent -> workflowEventState -> workflowStatus = WorkflowStatusEnum -> Submitted
-		and (workflowEvent -> businessEvent -> primitives -> termsChange -> before -> execution -> partyRole is absent
-		or workflowEvent -> businessEvent -> primitives -> termsChange -> before -> execution -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization
-		or workflowEvent -> businessEvent -> primitives -> termsChange -> before -> contract -> partyRole is absent
-		or workflowEvent -> businessEvent -> primitives -> termsChange -> before -> contract -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization)
-		and (workflowEvent -> businessEvent -> primitives -> termsChange -> after -> contract -> partyRole -> role = PartyRoleEnum -> ClearingOrganization
-		or workflowEvent -> businessEvent -> primitives -> termsChange -> after -> execution -> partyRole -> role = PartyRoleEnum -> ClearingOrganization)
+		businessEvent -> primitives count = 1
+		and businessEvent -> primitives -> termsChange exists
+		and businessEvent -> workflowEventState -> workflowStatus = WorkflowStatusEnum -> Submitted
+		and (businessEvent -> primitives -> termsChange -> before -> execution -> partyRole is absent
+		or businessEvent -> primitives -> termsChange -> before -> execution -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization
+		or businessEvent -> primitives -> termsChange -> before -> contract -> partyRole is absent
+		or businessEvent -> primitives -> termsChange -> before -> contract -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization)
+		and (businessEvent -> primitives -> termsChange -> after -> contract -> partyRole -> role = PartyRoleEnum -> ClearingOrganization
+		or businessEvent -> primitives -> termsChange -> after -> execution -> partyRole -> role = PartyRoleEnum -> ClearingOrganization)
 
 func Compression: <"The qualification of a compression event from the fact that (i) the quantityChange primitive exists, and (ii) there are multiple contracts (or contract references) specified in the before state.">
+	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
-		workflowEvent -> businessEvent -> primitives -> quantityChange exists
-		and workflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract multiple exists
+		businessEvent -> primitives -> quantityChange exists
+		and businessEvent -> primitives -> quantityChange -> before -> contract multiple exists
 
 func DerivedObservation: <"The qualification of a derived observation event from the fact that (i) the only primitive is the observation, (ii) there are multiple instances of such observations, and (iii) there is an associated call function to compute, say, an interpolation.">
+	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
-		workflowEvent -> businessEvent -> primitives -> observation only multiple exists
-		and workflowEvent -> functionCall exists
+		businessEvent -> primitives -> observation only multiple exists
+		and businessEvent -> functionCall exists
 
 func Exercise: <"The qualification of an exercise event from the fact that (i) the only primitive is the exercise, and (ii) the remaining quantity = 0, and (iv) the closedState of the contract is Terminated.">
+	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
-		workflowEvent -> businessEvent -> primitives count = 1
-		and workflowEvent -> businessEvent -> primitives -> exercise exists
+		businessEvent -> primitives count = 1
+		and businessEvent -> primitives -> exercise exists
 
 func Increase: <"The qualification of a increase event from the fact that (i) the intent is Increase when specified, (ii) the associated primitives are the quantityChange and the cash transfer, the (iii) the quantity associated with the contract increases.">
+	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
-		(workflowEvent -> intent is absent or workflowEvent -> intent = IntentEnum -> Increase)
+		(businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> Increase)
 		and (
-			workflowEvent -> businessEvent -> primitives count = 1
-			and workflowEvent -> businessEvent -> primitives -> quantityChange exists
-			or (workflowEvent -> businessEvent -> primitives -> quantityChange exists
-				and workflowEvent -> businessEvent -> primitives -> transfer -> cashTransfer exists
+			businessEvent -> primitives count = 1
+			and businessEvent -> primitives -> quantityChange exists
+			or (businessEvent -> primitives -> quantityChange exists
+				and businessEvent -> primitives -> transfer -> cashTransfer exists
 			))
-		and True = ListsCompare(CompareOp -> Greater, QuantityAfterQuantityChange(workflowEvent), QuantityBeforeQuantityChange(workflowEvent), empty)
-		and workflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> closedState is absent
+		and QuantityIncreased(businessEvent -> primitives -> quantityChange) = True
+		and businessEvent -> primitives -> quantityChange -> after -> contract -> closedState is absent
 
 func MultipleTransfers: <"The qualification an event that combines multiple transfers from the fact that multiple transfer primitives exist.">
+	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
-		workflowEvent -> businessEvent -> primitives -> transfer multiple exists
+		businessEvent -> primitives -> transfer multiple exists
 
 func NewTrade:
+	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
-		workflowEvent -> businessEvent -> primitives count = 1
-		and workflowEvent -> businessEvent -> primitives -> inception exists
-		and workflowEvent -> businessEvent -> primitives -> inception -> after -> tradeWarehouseWorkflow is absent
-		and workflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> closedState is absent
-		and workflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> clearedDate is absent
+		businessEvent -> primitives count = 1
+		and businessEvent -> primitives -> inception exists
+		and businessEvent -> primitives -> inception -> after -> tradeWarehouseWorkflow is absent
+		and businessEvent -> primitives -> quantityChange -> after -> contract -> closedState is absent
+		and businessEvent -> primitives -> inception -> after -> contract -> clearedDate is absent
 
 func Novation: <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and inception exist, (iii) the remaining quantity = 0, (iv) the closedState of the contract is Novated, (v) the stepped-in contract has a different contract identifier than the novated contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
+	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
-		workflowEvent -> businessEvent -> primitives -> quantityChange exists
-		and workflowEvent -> businessEvent -> primitives -> inception exists
-		and True = ListsCompare(CompareOp -> Equal, QuantityAfterQuantityChange(workflowEvent), empty, 0.0)
-		and workflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> closedState -> state = ClosedStateEnum -> Novated
-		and workflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> contractIdentifier <> workflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractIdentifier
-		and workflowEvent -> eventDate = workflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> tradeDate -> date
-		and workflowEvent -> effectiveDate = NovatedContractEffectiveDate(workflowEvent) -> dates only-element
+		businessEvent -> primitives -> quantityChange exists
+		and businessEvent -> primitives -> inception exists
+		and QuantityDecreasedToZero(businessEvent -> primitives -> quantityChange) = True
+		and businessEvent -> primitives -> quantityChange -> after -> contract -> closedState -> state = ClosedStateEnum -> Novated
+		and businessEvent -> primitives -> inception -> after -> contract -> contractIdentifier <> businessEvent -> primitives -> quantityChange -> before -> contract -> contractIdentifier
+		and businessEvent -> eventDate = businessEvent -> primitives -> inception -> after -> contract -> tradeDate -> date
+		and businessEvent -> effectiveDate = NovatedContractEffectiveDate(businessEvent) -> dates only-element
 
 //	and originalContractParties <> newContractParties
 func Observation: <"The qualification of an observation event from the fact that (i) the only primitive is the observation, and (ii) that there is only a single instance of such observation.">
+	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
-		workflowEvent -> businessEvent -> primitives -> observation only single exists
+		businessEvent -> primitives -> observation only single exists
 
 func PartialNovation: <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and inception exist, (iii) the contract quantity/notional has decreased as part of the quantityChange primitive, while (iv) there is a remaining quantity/notional, (v) the stepped-in contract has a different contract identifier than the original contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
+	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
-		workflowEvent -> businessEvent -> primitives -> quantityChange exists
-		and workflowEvent -> businessEvent -> primitives -> inception exists
-		and workflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> contractIdentifier <> workflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractIdentifier
-		and workflowEvent -> eventDate = workflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> tradeDate -> date
-		and workflowEvent -> effectiveDate = NovatedContractEffectiveDate(workflowEvent) -> dates
-		and True = ListsCompare(CompareOp -> Greater, QuantityBeforeQuantityChange(workflowEvent), QuantityAfterQuantityChange(workflowEvent), empty)
-		and True = ListsCompare(CompareOp -> Greater, QuantityAfterQuantityChange(workflowEvent), empty, 0.0)
+		businessEvent -> primitives -> quantityChange exists
+		and businessEvent -> primitives -> inception exists
+		and businessEvent -> primitives -> inception -> after -> contract -> contractIdentifier <> businessEvent -> primitives -> quantityChange -> before -> contract -> contractIdentifier
+		and businessEvent -> eventDate = businessEvent -> primitives -> inception -> after -> contract -> tradeDate -> date
+		and businessEvent -> effectiveDate = NovatedContractEffectiveDate(businessEvent) -> dates
+		and QuantityDecreased(businessEvent -> primitives -> quantityChange) = True
 
 // and originalContractParties <> newContractParties
 func PartialTermination: <"The qualification of a partial termination event from the fact that (i) the intent is Partial Termination when specified, (ii) the associated primitives are the quantityChange and the cash transfer, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
+	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
-		(workflowEvent -> intent is absent or workflowEvent -> intent = IntentEnum -> PartialTermination)
-		and (workflowEvent -> businessEvent -> primitives count = 1
-		and workflowEvent -> businessEvent -> primitives -> quantityChange exists
-			or (workflowEvent -> businessEvent -> primitives -> quantityChange exists
-				and workflowEvent -> businessEvent -> primitives -> transfer -> cashTransfer exists
+		(businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> PartialTermination)
+		and (businessEvent -> primitives count = 1
+		and businessEvent -> primitives -> quantityChange exists
+			or (businessEvent -> primitives -> quantityChange exists
+				and businessEvent -> primitives -> transfer -> cashTransfer exists
 			))
-			// FIXME  Quantity Before/After QuantityChange uses group by which value could not be transfered as a List
-		and True = ListsCompare(CompareOp -> Greater, QuantityBeforeQuantityChange(workflowEvent), QuantityAfterQuantityChange(workflowEvent), empty)
-		and True = ListsCompare(CompareOp -> Greater, QuantityAfterQuantityChange(workflowEvent), empty, 0.0)
-		and workflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> closedState is absent
+		and QuantityDecreased(businessEvent -> primitives -> quantityChange) = True
+		and businessEvent -> primitives -> quantityChange -> after -> contract -> closedState is absent
 
 func IsReset: <"The qualification of a reset event from the fact that the only primitive is the reset.">
+	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent (1..1)
+		businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
-		workflowEvent -> businessEvent -> primitives count = 1
-		and workflowEvent -> businessEvent -> primitives -> reset exists
+		businessEvent -> primitives count = 1
+		and businessEvent -> primitives -> reset exists
 
 func SecurityTransfer: <"The qualification of a security transfer from the fact that the only component is a securityTransfer.">
+	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
-		workflowEvent -> businessEvent -> primitives count = 1
-		and workflowEvent -> businessEvent -> primitives -> transfer exists
-		and workflowEvent -> businessEvent -> primitives -> transfer -> securityTransfer exists
-		and workflowEvent -> businessEvent -> primitives -> transfer -> cashTransfer is absent
-		and workflowEvent -> businessEvent -> primitives -> transfer -> commodityTransfer is absent
+		businessEvent -> primitives count = 1
+		and businessEvent -> primitives -> transfer exists
+		and businessEvent -> primitives -> transfer -> securityTransfer exists
+		and businessEvent -> primitives -> transfer -> cashTransfer is absent
+		and businessEvent -> primitives -> transfer -> commodityTransfer is absent
 
 func SecuritySettlement: <"The qualification of a security settlement from the fact that (i) it is composed of a cashTransfer component and a securityTransfer component, and (ii) the cash and security move in opposite directions.">
+	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
-		workflowEvent -> businessEvent -> primitives -> transfer -> cashTransfer exists
-		and workflowEvent -> businessEvent -> primitives -> transfer -> securityTransfer exists
-		and workflowEvent -> businessEvent -> primitives -> transfer -> cashTransfer -> payerReceiver -> payerPartyReference -> reference = workflowEvent -> businessEvent -> primitives -> transfer -> securityTransfer -> transferorTransferee -> transfereePartyReference -> reference
-		and workflowEvent -> businessEvent -> primitives -> transfer -> commodityTransfer is absent
+		businessEvent -> primitives -> transfer -> cashTransfer exists
+		and businessEvent -> primitives -> transfer -> securityTransfer exists
+		and businessEvent -> primitives -> transfer -> cashTransfer -> payerReceiver -> payerPartyReference -> reference = businessEvent -> primitives -> transfer -> securityTransfer -> transferorTransferee -> transfereePartyReference -> reference
+		and businessEvent -> primitives -> transfer -> commodityTransfer is absent
 
 func Termination: <"The qualification of a termination event from the fact that (i) the intent is Termination when specified, (ii) the only primitive is the quantityChange and there is only one such primitive involved, the (iii) the remaining quantity is null, and (iv) the closedState of the contract is Terminated.">
+	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
-		(workflowEvent -> intent is absent or workflowEvent -> intent = IntentEnum -> Termination)
-		and (workflowEvent -> businessEvent -> primitives count = 1
-		and workflowEvent -> businessEvent -> primitives -> quantityChange exists
-			or (workflowEvent -> businessEvent -> primitives -> quantityChange exists 
-				and workflowEvent -> businessEvent -> primitives -> transfer -> cashTransfer exists)
+		(businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> Termination)
+		and (businessEvent -> primitives count = 1
+		and businessEvent -> primitives -> quantityChange exists
+			or (businessEvent -> primitives -> quantityChange exists
+				and businessEvent -> primitives -> transfer -> cashTransfer exists)
 			)
-		and True = ListsCompare(CompareOp -> Equal, QuantityAfterQuantityChange(workflowEvent), empty, 0.0)
-		and workflowEvent -> businessEvent -> primitives -> quantityChange -> after -> contract -> closedState -> state = ClosedStateEnum -> Terminated
+		and QuantityDecreasedToZero(businessEvent -> primitives -> quantityChange) = True
+		and businessEvent -> primitives -> quantityChange -> after -> contract -> closedState -> state = ClosedStateEnum -> Terminated
 
 func TradeWarehousePositionNotification:
+	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
-		workflowEvent -> businessEvent -> primitives -> inception exists
-		and workflowEvent -> businessEvent -> primitives -> inception -> after -> tradeWarehouseWorkflow exists
+		businessEvent -> primitives -> inception exists
+		and businessEvent -> primitives -> inception -> after -> tradeWarehouseWorkflow exists
 
 func Execution: <"The qualification of an execution event from the fact that the only component is an execution.">
+	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
-		workflowEvent -> businessEvent -> primitives count = 1
-		and workflowEvent -> businessEvent -> primitives -> execution exists
+		businessEvent -> primitives count = 1
+		and businessEvent -> primitives -> execution exists
 
 func ContractFormationEvent: <"The qualification of a contractFormation event from the fact that the only component is a contractFormation.">
+	[qualification event]
 	inputs:
-		workflowEvent WorkflowEvent(1..1)
+		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
-		workflowEvent -> businessEvent -> primitives count = 1
-		and workflowEvent -> businessEvent -> primitives -> contractFormation exists
+		businessEvent -> primitives count = 1
+		and businessEvent -> primitives -> contractFormation exists
 
 /****************
  * Workflow rules
  */
 /*
  * workflow rule ClearedContractAgency_Participant <"The cross-events validity constraints to specify that a contract has been cleared according to the agency model from the perspective of the involved clearing member or client.">
- *    
+ *
  *    Event <beta> is ClearingSubmission
  * 	relatedTo <alpha> where lineage -> @rosettaKey -> eventQualifier = eventQualifier.ClearingSubmission
- * 
+ *
  *    constraint is economicTerms are the same except for payerReceiver or buyerSeller
  *    and <alpha> contract/execution is terminated  *Difference*
  *    and event date of <alpha> submission = trade date of <beta>
@@ -814,18 +870,18 @@ func ContractFormationEvent: <"The qualification of a contractFormation event fr
  */
 /*
  * workflow rule ClearedContractAgency_CCP <"The cross-events validity constraints to specify that a contract has been cleared according to the agency model from the perspective of the involved clearing member or client.">
- *    
+ *
  *    Event <beta> is ClearingSubmission
  * 	relatedTo <alpha> where lineage -> @rosettaKey -> eventQualifier = eventQualifier.ClearingSubmission
  * 	and relatedTo <gamma> where lineage -> @rosettaKey -> eventQualifier = eventQualifier.ClearedTrade *Difference*
- * 	
+ *
  *    constraint is economicTerms are the same except for payerReceiver or buyerSeller
  *    and event date of <alpha> submission = trade date of <beta>
  *    and CCP which is in the party role in after state of <alpha> submission is the same as the CCP which is counterparty to <beta> and <gamma> *Difference*
  */
 /*
  * workflow rule ClearedContractPrincipal_Participant <"The cross-events validity constraints to specify that a contract has been cleared according to the principal model from the perspective of the involved clearing member or client.">
- *   
+ *
  *   Event <beta> is ClearingSubmission
  * 	relatedTo <alpha> where lineage -> @rosettaKey -> eventQualifier = eventQualifier.ClearingSubmission
  * 	relatedTo <theta> where lineage -> @rosettaKey -> eventQualifier = eventQualifier.NewTrade or eventQualifier.ClearedTrade???? *Difference*
@@ -837,11 +893,11 @@ func ContractFormationEvent: <"The qualification of a contractFormation event fr
  */
 /*
  * workflow rule ClearedContractPrincipal_CCP <"The cross-events validity constraints to specify that a contract has been cleared according to the principal model from the perspective of the involved clearing member or client.">
- *    
+ *
  *    Event <beta> is ClearingSubmission
  * 	relatedTo <alpha> where lineage -> @rosettaKey -> eventQualifier = eventQualifier.ClearingSubmission
  * 	and relatedTo <gamma> where lineage -> @rosettaKey -> eventQualifier = eventQualifier.ClearedTrade *Difference*
- * 	
+ *
  *    constraint is economicTerms are the same except for payerReceiver or buyerSeller
  *    and event date of <alpha> submission = trade date of <beta>
  *    and CCP which is in the party role in after state of <alpha> submission is the same as the CCP which is counterparty to <beta> and <gamma> *Difference*

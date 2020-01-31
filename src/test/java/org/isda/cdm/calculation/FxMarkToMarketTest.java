@@ -35,7 +35,7 @@ class FxMarkToMarketTest extends AbstractFunctionTest {
             @Override
             protected QuantityNotation.QuantityNotationBuilder doEvaluate(List<QuantityNotation> quantities, String currency) {
                 for (QuantityNotation quantity : quantities) {
-                    if (quantity.getQuantity().getCurrency().getValue().equals(currency)) {
+                    if (quantity.getAssetIdentifier().getCurrency().getValue().equals(currency)) {
                         return quantity.toBuilder();
                     }
                 }
@@ -70,12 +70,14 @@ class FxMarkToMarketTest extends AbstractFunctionTest {
         return Contract.builder()
                 .setContractualQuantityBuilder(ExecutionQuantity.builder()
                         .addQuantityNotationBuilder(QuantityNotation.builder()
+                        		.setAssetIdentifierBuilder(AssetIdentifier.builder()
+                        				.setCurrency(FieldWithMetaString.builder().setValue(curr1).build()))
                                 .setQuantityBuilder(NonNegativeQuantity.builder()
-                                        .setCurrency(FieldWithMetaString.builder().setValue(curr1).build())
                                         .setAmount(BigDecimal.valueOf(price1))))
                         .addQuantityNotationBuilder(QuantityNotation.builder()
+                        		.setAssetIdentifierBuilder(AssetIdentifier.builder()
+                        				.setCurrency(FieldWithMetaString.builder().setValue(curr2).build()))
                                 .setQuantityBuilder(NonNegativeQuantity.builder()
-                                        .setCurrency(FieldWithMetaString.builder().setValue(curr2).build())
                                         .setAmount(BigDecimal.valueOf(price2)))))
                 .setContractualPriceBuilder(ExecutionPrice.builder()
                         .addPriceNotationBuilder(PriceNotation.builder()

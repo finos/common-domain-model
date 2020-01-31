@@ -16,6 +16,7 @@ public class CdmTestsModule extends CdmRuntimeModule {
 		super.configure();
 		bind(ResolveRateIndex.class).to(bindResolveRateIndex());
 		bind(GetRateSchedule.class).to(bindGetRateSchedule());
+		
 	}
 
 	@Override

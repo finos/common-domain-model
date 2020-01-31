@@ -5,23 +5,21 @@ import java.util.List;
 import java.util.function.BiFunction;
 
 import org.isda.cdm.CompareOp;
-import org.isda.cdm.ListOfNumbers;
+import org.isda.cdm.functions.ListsCompare;
 
 public class ListsCompareImpl extends ListsCompare {
 
 	@Override
-	protected Boolean doEvaluate(CompareOp compareOp, ListOfNumbers left, ListOfNumbers right, BigDecimal rightNumber) {
+	protected Boolean doEvaluate(CompareOp compareOp, List<BigDecimal> left, List<BigDecimal> right, BigDecimal rightNumber) {
 		if (left == null)
 			return false;
 		if (rightNumber != null) {
-			return left.getNumbers().stream().allMatch(leftNumber -> operation(compareOp).apply(leftNumber, rightNumber));
+			return left.stream().allMatch(leftNumber -> operation(compareOp).apply(leftNumber, rightNumber));
 		}
 		if (right != null) {
-			List<BigDecimal> numbersLeft = left.getNumbers();
-			List<BigDecimal> numbersRight = right.getNumbers();
-			for (int i = 0; i < numbersLeft.size(); i++) {
-				if (i < numbersRight.size()) {
-					if (!operation(compareOp).apply(numbersLeft.get(i), numbersRight.get(i))) {
+			for (int i = 0; i < left.size(); i++) {
+				if (i < right.size()) {
+					if (!operation(compareOp).apply(left.get(i), right.get(i))) {
 						return false;
 					}
 				}

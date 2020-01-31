@@ -28,12 +28,6 @@ type AssetPool: <"Characterizes the asset pool behind an asset backed bond.">
 		if version is absent
 		then effectiveDate is absent
 
-/*
- * This class needs to be further developed.  When doing this, we should look to develop commonality with the credit basket representation
- */
-type Basket:
-	[synonym FpML_5_10 value "Basket"]
-
 type Bond extends IdentifiedProduct: <"A class to specify a bond as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
 
 /*
@@ -161,19 +155,12 @@ type Security:
 		[synonym FpML_5_10 value "warrant"]
 	condition: one-of
 
-type SingleUnderlier:
-	[synonym FpML_5_10 value "SingleUnderlyer"]
-	underlyingProduct Product (1..1) <"Specifies the underlying product. As a difference with FpML, and for the purpose of also supporting swaption and options on CDS through a generic construct, its scope also includes the contract and contractualProduct.">
-	quantity ResolvablePayoutQuantity (0..1) <"Quantity of the underlying product in the underlier, as a resolvable type so that it can be specified outside of the product description.">
 
-/*data rule SingleUnderlier_openUnits <"The open units should not be a negative number.">
- * 	when quantity exists
- then quantity -> amount >= 0*/
 type Underlier: <"A class describing the whole set of possible underliers: single underliers or multiple underliers, each of these having either security or index components.">
 	[synonym FpML_5_10 value "Underlyer"]
-	singleUnderlier SingleUnderlier (0..1)
-	basket Basket (0..1)
-	condition: one-of
+
+	underlyingProduct Product (1..1) <"Specifies the underlying product. As a difference with FpML, and for the purpose of also supporting swaption and options on CDS through a generic construct, its scope also includes the contract and contractualProduct.">
+
 
 type Warrant extends IdentifiedProduct: <"A class to specify a warrant as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
 	[synonym FpML_5_10 value "Warrant"]

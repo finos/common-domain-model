@@ -282,9 +282,9 @@ type CreditNotation: <"A class to specify the credit notation as the combination
 type CreditNotations: <"The credit rating notation higher level construct, which provides the ability to specify multiple rating notations.">
 	[synonym FpML_5_10 value "CreditNotations"]
 
-	creditNotation CreditNotation (1..1) <"This attribute is specified when only one credit notation is determined.">
+	creditNotation CreditNotation (0..1) <"This attribute is specified when only one credit notation is determined.">
 		[synonym FpML_5_10 value "creditNotation"]
-	creditNotations MultipleCreditNotations (2..*) <"This attribute provides the ability to specify several credit notations, alongside an 'any' or 'all' or all condition.">
+	creditNotations MultipleCreditNotations (0..1) <"This attribute provides the ability to specify several credit notations, alongside an 'any' or 'all' or all condition.">
 	condition: one-of
 
 type CreditRatingDebt: <"The credit rating debt type(s) associated with the credit rating notation and scale. When several debt types are specified, they must be qualified through an 'any' or 'all'.">
@@ -299,7 +299,7 @@ type CreditRatingDebt: <"The credit rating debt type(s) associated with the cred
 type CreditSupportObligationsInitialMargin: <"A class to specify the Credit Support Obligations applicable to the Initial Margin Credit Support Annex and which are common among the English, Japanese and New York governing laws. This excludes the Other Eligible Support election (which only applies to the Japanese Law and New York Law agreements) and the Transfer Timing election (which only applies to the English Law and the New York Law agreements). ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (c): Credit Support Obligations. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d): Credit Support Obligations. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (c): Credit Support Obligations.">
 
 	threshold Threshold (1..1) <"The amount of net exposure that a party is willing to bear in relation to the other party before it requires asking for collateral. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (c)(vi)(A): Threshold. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d)(vi)(A): Threshold. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (c)(vi)(A): Threshold.">
-		[synonym ISDA_Create_1_0 value "threshold"]
+		[synonym ISDA_Create_1_0 value "threshold" mapper "Threshold"]
 	minimumTransferAmount MinimumTransferAmount (1..1) <"The net amount of exposure reached before collateral has to be posted or returned. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (c)(vi)(B): Minimum Transfer Amount. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d)(vi)(B): Minimum Transfer Amount. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (c)(vi)(B): Minimum Transfer Amount.">
 		[synonym ISDA_Create_1_0 value "minimum_transfer_amount" mapper "MinimumTransferAmount"]
 	rounding CollateralRounding (1..1) <"The rounding methodology applicable to the Delivery Amount and the Return Amount in terms of nearest integral multiple of Base Currency units. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (c)(vi)(C): Rounding. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d)(vi)(C): Rounding. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (c)(vi)(C): Rounding.">
@@ -318,8 +318,12 @@ type CreditSupportObligationsVariationMargin: <"A class to specify the Credit Su
 	minimumTransferAmount MinimumTransferAmount (1..1) <"The net amount of exposure reached before collateral has to be posted or returned. ISDA 2016 New York Law Credit Support Annex for Variation Margin, paragraph 13, (c)(vii)(A): Minimum Transfer Amount.">
 	rounding CollateralRounding (1..1) <"The rounding methodology applicable to the Delivery Amount and the Return Amount in terms of nearest integral multiple of Base Currency units. ISDA 2016 New York Law Credit Support Annex for Variation Margin, paragraph 13, (c)(vii)(B): Rounding.">
 
+type Csa: <"An abstract class to specify the provisions for a ISDA Credit Support Annex that are common among vintages, governing laws and across IM and VM.">
 
-type Csa2016: <"An abstract class to specify the provisions for the 2016 ISDA Credit Support Annex that are common among governing laws and across Initial and Variation Margin.">
+	documentationIdentification DocumentationIdentification (0..1) <"The identification of the legal document(s) that govern the contract through some of the key terms of such document(s): type of document, the document identifier, the publisher, the document vintage and the agreement date.">
+
+
+type Csa2016 extends Csa: <"An abstract class to specify the provisions for the 2016 ISDA Credit Support Annex that are common among governing laws and across Initial and Variation Margin.">
 
 	baseCurrency string (1..1) <"The base currency for the Credit Support Annex document as elected by the parties to the agreement. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes. ISDA 2016 CSA for Initial Margin, Paragraph 13 (a) | ISDA 2016 CSA for Variation Margin, Paragraph 13 (a).">
 		[metadata scheme]
@@ -579,18 +583,9 @@ type DistributionAndInterestPayment: <"A class to specify the Distributions and 
 type ElectiveAmountElection: <"A class to specify the party elective amounts which can be used for the purpose of specifying elections such as the ISDA CSA Threshold and Minimum Transfer Amount.">
 
 	party string (1..1) <"The elective party.">
-		[synonym ISDA_Create_1_0 set to "partyA" when path = "partyA_threshold", 
-								 set to "partyB" when path = "partyB_threshold"]
-		[synonym ISDA_Create_1_0 set to "partyA" when path = "partyA_minimum_transfer_amount", 
-								 set to "partyB" when path = "partyB_minimum_transfer_amount"]
 	amount Money (0..1) <"The elective amount when expressed as a currency amount. The associated PartyElectiveAmount_amount data rule enforces that the currency amount is actually greater than 0.">
 	customElection string (0..1) <"The elective amount when expressed as a custom election by the party.">
-		[synonym ISDA_Create_1_0 value "partyA_minimum_transfer_amount"]
-		[synonym ISDA_Create_1_0 value "partyB_minimum_transfer_amount"]
-		[synonym ISDA_Create_1_0 value "partyA_threshold"]
-		[synonym ISDA_Create_1_0 value "partyB_threshold"]
 	noAmount int (0..1) <"The elective amount when specified as 0 with no associated currency. The associated PartyElectiveAmount_noAmount data rule enforces that the number is actually equal to 0.">
-        // noAmount mapped by MinimumTransferAmount mapping processor
 
 	condition ElectiveAmountElection_choice: <"The elective amount is specified either as a currency amount, a custom election or a 0 amount with no associated currency.">
 		required choice amount, customElection, noAmount
@@ -617,10 +612,9 @@ type EligibilityToHoldCollateral: <"A class to specify the conditions under whic
 		[metadata scheme]
 		[synonym FpML_5_10 value "eligibleCountry"]
 
-
-type EligibleCollateral: <"The collateral eligibility as a function of the types of asset, the maturity and rating terms.">
+// Old version 2019 see new version EligibleCollateral
+type EligibleCollateralFpMLMapped: <"The collateral eligibility as a function of the types of asset, the maturity and rating terms.">
 	[synonym FpML_5_10 value "EligibleCollateral"]
-
 	/*
 	 * ISDA Create specifies the eligible collateral as well as the valuation % as a string. Let's discuss if there is room a for better approach.
 	 * The below approach which combines the asset, the tenor and the credit rating qualification is extremely comprehensive and was vetted extensively as part of the
@@ -645,10 +639,23 @@ type EligibleCollateral: <"The collateral eligibility as a function of the types
 		[synonym ISDA_Create_1_0 value "valuation_percentage" path "partyA_eligible_currencies"]
 		[synonym ISDA_Create_1_0 value "valuation_percentage" path "partyB_eligible_currencies"]
 
-	condition EligibleCollateral_valuationPercentage: <"The valuation percentage should be specified as a value between 0 and 1.">
+	condition EligibleCollateralFpMLMapped_valuationPercentage: <"The valuation percentage should be specified as a value between 0 and 1.">
 		if valuationPercentage exists
 		then valuationPercentage >= 0
 			and valuationPercentage <= 1
+
+// New version Jan 2020
+type EligibleCollateral: <"The collateral eligibility as a function of the types of asset, the maturity and rating terms.">
+	[synonym FpML_5_10 value "EligibleCollateral"]
+
+	issueInformation CollateralIssueInformation (1..1)
+	// TODO: Ask working group - is there a need for a fall back currency?  Could there be more than one currency?
+    denominatedCurrency string (1..*) <"Underlying denominated currency of asset.">
+	    [metadata scheme]
+	maturityRange MaturityRange (1..1)
+	agencyRating AgencyRating (0..1)
+	valuationPercentage CollateralValuationPercentage (1..1)
+
 
 type EligibleCollateralVariationMarginElection: <"A class to specify the parties' elections with respect to the eligible collateral for each of the respective parties when acting as a pledgor/chargor/obligor. ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (c)(ii): Eligible Collateral (VM).">
 
@@ -753,12 +760,13 @@ type MasterConfirmationBase: <"Legal agreement specification for General Terms a
 
 type LegalAgreement extends LegalAgreementBase: <"A class to specify the elections and variables that characterize a legal agreement.">
 	[metadata key]
+	[rootType]
 	csdInitialMargin2016EnglishLaw CsdInitialMargin2016EnglishLaw (0..1) <"The elections and variables specified in Paragraph 13 of the ISDA 2016 Credit Support Deed for Initial Margin, English Law.">
-		[synonym ISDA_Create_1_0 value "answers" set when "document->governingLaw" = "English"]
+		[synonym ISDA_Create_1_0 value "partyA" path "answers" set when "document->abbreviation" = "2016 IM CSD (Eng Law)"]
 	csaInitialMargin2016JapaneseLaw CsaInitialMargin2016JapaneseLaw (0..1) <"The elections and variables specified in Paragraph 13 of the ISDA 2016 Credit Support Annex for Initial Margin, Japanese Law.">
-		[synonym ISDA_Create_1_0 value "answers" set when "document->governingLaw" = "Japanese"]
+		[synonym ISDA_Create_1_0 value "partyA" path "answers" set when "document->abbreviation" = "2016 IM CSA (Jpn Law)"]
 	csaInitialMargin2016NewYorkLaw CsaInitialMargin2016NewYorkLaw (0..1) <"The elections and variables specified in Paragraph 13 of the ISDA 2016 Credit Support Annex for Initial Margin, New York Law.">
-		[synonym ISDA_Create_1_0 value "answers" set when "document->governingLaw" = "New York"]
+		[synonym ISDA_Create_1_0 value "partyA" path "answers" set when "document->abbreviation" = "2016 IM CSA (NY Law)"]
 	csaVariationMargin2016NewYorkLaw CsaVariationMargin2016NewYorkLaw (0..1) <"The elections and variables specified in Paragraph 13 of the ISDA 2016 Credit Support Annex for Variation Margin, New York Law.">
 		[synonym ISDA_Create_1_0 value "ignore"]
 	equitySwapMasterConfirmation2018 EquitySwapMasterConfirmation2018 (0..1) <"The General Terms and Relationship Supplement Elections specified in the 2018 ISDA CDM Equity Confirmation for Security Equity Swap.">
@@ -769,12 +777,11 @@ type LegalAgreementBase: <"A class describing the legal agreement baseline infor
 
 	agreementDate date (1..1) <"The date on which the legal agreement has been agreed between the parties. This corresponds to the Date of Deed in an English Law document.">
 		[synonym FpML_5_10 value "agreementDate" path "legalDocumentHeader"]
-		[synonym ISDA_Create_1_0 value "executionDate" path "answers->execution_date"]
+		[synonym ISDA_Create_1_0 value "executionDate" path "answers->partyA->execution_date"]
 	effectiveDate date (0..1) <"The date on which the agreement is effective, if different from the agreement date. It is expected that it will most often correspond to the agreement date, although there could be situations where the parties will explicitly agree on a distinct effective date.">
 		[synonym FpML_5_10 value "effectiveDate" path "legalDocumentHeader"]
 	identifier Identifier (0..*) <"The legal agreement identifier. Several identifiers can be specified.">
 		[synonym FpML_5_10 value "partyDocumentIdentifier" path "legalDocumentHeader"]
-		[synonym ISDA_Create_1_0 value "document"]
 	/*
 	 * The ISDA Create template for the Japanese Law 2016 CSA includes an election that qualifies whether the related master agreement pertains to the 1992 or the 2002 vintage.
 	 * This election hasn't been included so far as part of the CDM because it is felt that it introduces a risk of inconsistency with respect to the actual document reference,
@@ -830,10 +837,15 @@ type MultipleCreditNotations: <"A class to specify multiple credit notations alo
 
 	condition QuantifierEnum (1..1) <"An enumerated element, to qualify whether All or Any credit notation applies.">
 		[synonym FpML_5_10 value "condition"]
-	creditNotation string (2..*) <"At least two credit notations much be specified.">
+	creditNotation CreditNotation (2..*) <"At least two credit notations much be specified.">
 		[metadata scheme]
 		[synonym FpML_5_10 value "debtType" meta "creditNotation"]
+	mismatchResolution CreditNotationMismatchResolutionEnum (0..1)
+	referenceAgency CreditRatingAgencyEnum (0..1)
 
+	condition MultipleCreditNotations_referenceAgency: <"If the mismatch resolution is ReferenceAgency, ensure that the reference agency is specified.">
+		if MultipleCreditNotations -> mismatchResolution = CreditNotationMismatchResolutionEnum -> ReferenceAgency
+		then MultipleCreditNotations -> referenceAgency exists
 
 type MultipleDebtTypes: <"A class to specify multiple credit debt types alongside a conditional 'any' or 'all' qualifier.">
 
@@ -1066,13 +1078,10 @@ type SimmCalculationCurrency: <"A class to specify the ISDA SIMM Calculation Cur
 		[synonym ISDA_Create_1_0 value "partyA_use_other_currency"]
 		[synonym ISDA_Create_1_0 value "partyB_use_other_currency"]
 
-	condition SimmCalculationCurrency_baseCurrency: <"A data rule to enforce that, when the SIMM calculation currency is specified as the Base Currency, the currency attribute should not be specified.">
+	condition SimmCalculationCurrency_baseCurrency: <"A data rule to enforce that, when the SIMM calculation currency is specified as the Base Currency and vice versa">
 		if isBaseCurrency = True
 		then currency is absent
-
-	condition SimmCalculationCurrency_notBaseCurrency: <"A data rule to enforce that, when the SIMM calculation currency is specified as distinct from the Base Currency, the currency attribute should be specified.">
-		if isBaseCurrency = False
-		then currency exists
+		else currency exists
 
 type SimmException: <"A class to specify the SIMM exception to the regulatory regime clause of the ISDA 2016 and 2018 CSA for Initial Margin as either a normalized value specified as part of an enumeration or a customized value specified of type string. ISDA 2016 Credit Support Annex for Initial Margin paragraph 13, Regime: SIMM Exception.">
 
@@ -1127,7 +1136,7 @@ type TerminationCurrencyAmendment: <"A class to specify the Amendment to Termina
 		[synonym ISDA_Create_1_0 value "both_parties_termination_currency"]
 	condition TerminationCurrencyAmendment_applicable: <"The Amendment to Termination Currency elections only apply when the Amendment to Termination Currency is deemed applicable by the parties.">
 		if isApplicable = False
-		then ( effectiveDate 
+		then ( effectiveDate
 		and terminationCurrency
 		and bothPartiesCurrency	) is absent // TODO - Logic to be confirmed by testing NotApplicable
 
@@ -1158,3 +1167,53 @@ type UmbrellaAgreement: <"A class to specify a set of legal entities which are p
 type UmbrellaAgreementEntity extends LegalEntity: <"A class to specify the legal entities that are part of the umbrella agreement.">
 	terms string (0..1) <"The terms that might be associated with each party to the umbrella agreement.">
 		[synonym ISDA_Create_1_0 value "additional"]
+
+// TODO: part of eligible collateral refactoring - re-order in file once fully agreed
+
+// TODO: rename to "Issue" to Instrument or Asset or Collateral?
+type CollateralIssueInformation: <"COLLATERAL ISSUE INFORMATION.">
+    issuerType CollateralIssuerTypeClassificationEnum (1..1) <"Origin of entity issuing the asset.">
+    issuerCountryOfOrigin string (1..1) <"The ISO 3166 standard code for the country of origin of issue entity.">
+		[metadata scheme]
+    collateralType CollateralType (1..1) <"Definition of collateral type.">
+	collateralIdentifier ProductIdentifier (0..*)
+    counterpartyOwnIssue boolean (1..1) <"Is asset issued by posting entity or member of corporate family - note: not permitted under specific regulations."> // Explore options to infer this from one way risk
+
+type CollateralType:
+	collateralType CollateralTypeEnum (1..1)
+	collateralSubType CollateralSubTypeEnum (0..1)
+
+	// TODO: add further constraints to this data rule
+	condition CollateralType_subType:
+		if CollateralType -> collateralType = CollateralTypeEnum -> Security or CollateralType -> collateralType = CollateralTypeEnum -> Equity
+		then CollateralType -> collateralSubType exists
+		else CollateralType -> collateralSubType is absent
+
+type MaturityRange: <"COLLATERAL MATURITY RANGE.">
+    periodRange PeriodRange (0..1) <"Range of time to elapse until final maturity of asset.">
+	// TODO: Ask working group - should dateRange include attribute to specify whether boundary is inclusive.
+    // TODO: is this necessary / remove?
+	dateRange DateRange (0..1) <"Asset issue date and end date at redemption.">
+
+	condition: one-of
+
+type AgencyRating:
+	issuerAgencyRating CreditNotations (0..1) <"Agency rating based on default risk and creditors claim in event of default associated with issuer of asset.">
+	issueAgencyRating CreditNotations (0..1) <"Agency rating based on default risk and creditors claim in event of default associated with specific asset.">
+	sovereignAgencyRating CreditNotations (0..1) <"Agency rating based on default risk of country.">
+
+	condition AgencyRating_choice:
+		required choice issuerAgencyRating, issueAgencyRating, sovereignAgencyRating
+
+
+type CollateralValuationPercentage: <"COLLATERAL HAIRCUT.">
+    valuationPercentage number (1..1) <"Percentage value of asset to be used as collateral once assets discounted haircut take into consideration, expressed as a valuation comprised between 0.0 and 100.0.">
+    valuationPercentageFxHaircut number (0..1) <"If pledgor eligible collateral is not denominated in the termination currency of the secured parties agreement an FX haircut is applied, expressed as a valuation comprised between 0.0 and 100.0">
+
+type PeriodRange:
+	lowerBound PeriodBound (0..1) <"Period lower boundary.">
+	upperBound PeriodBound (0..1) <"Period upper boundary.">
+
+type PeriodBound:
+    period Period (0..1)
+    inclusive boolean (1..1)

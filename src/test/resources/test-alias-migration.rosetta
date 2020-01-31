@@ -8,15 +8,18 @@ import org.isda.cdm.*
 //
 //
 
+type ListOfNumbers:
+	numbers number(0..*)
+
 func TestPartialNovationFunc: <"">
-	inputs: wEvent WorkflowEvent (0..1)
+	inputs: workflowStep WorkflowStep (0..1)
 	output: result boolean (0..1)
-	assign-output result: NovatedContractEffectiveDate(wEvent) -> dates only-element = wEvent -> effectiveDate
+	assign-output result: NovatedContractEffectiveDate(workflowStep -> businessEvent) -> dates only-element = workflowStep -> businessEvent -> effectiveDate
 
 func NovatedContractEffectiveDate2:
 
-	inputs: workflowEvent WorkflowEvent(1..1)
-	output: result ListOfDates(0..1)
+	inputs: workflowEvent WorkflowStep(1..1)
+	output: result DateGroup(0..1)
 
 	alias eTerms: workflowEvent -> businessEvent -> primitives -> inception -> after -> contract -> contractualProduct -> economicTerms
 
@@ -39,15 +42,15 @@ func TestGroupBy:
 	assign-output out -> numbers: [
 		(input1 -> manyAttr group by currency) -> amount 
 	]
-
+ 
 func TestBinaryOpGroupBy:
 	inputs:
 		op CompareOp (1..1)
 		input1 TypeToGroup (0..1)
 		input2 TypeToGroup (0..1)
 	output: out boolean (1..1)
-	assign-output out :  ListsCompare (op, TestGroupBy(input1), TestGroupBy(input2), empty)
-	
+	assign-output out :  ListsCompare (op, TestGroupBy(input1) -> numbers, TestGroupBy(input2) -> numbers, empty)
+	 
 	
 func TestBinaryOpWithNumberGroupBy:
 	inputs:
@@ -55,7 +58,7 @@ func TestBinaryOpWithNumberGroupBy:
 		input1 TypeToGroup (0..1)
 		numberIn number (0..1)
 	output: out boolean (1..1)
-	assign-output out : ListsCompare (op, TestGroupBy(input1), empty, numberIn)
+	assign-output out : ListsCompare (op, TestGroupBy(input1) -> numbers, empty, numberIn)
 	
 
 type TypeToGroup:
@@ -78,30 +81,35 @@ type Baz:
 	other number (0..1)
 	
 func FeatureCallEqualToLiteral:
+	[qualification event]
 	inputs: foo Foo(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
 		foo -> bar -> before = 5
 
 func FeatureCallEqualToFeatureCall:
+	[qualification event]
 	inputs: foo Foo(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
 		foo -> bar -> before = foo -> bar -> after
 
 func FeatureCallsEqualToLiteralOr:
+	[qualification event]
 	inputs: foo Foo(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
 		foo -> bar -> before = 5 or foo -> baz -> other = 5
 
 func FeatureCallListEqualToFeatureCall:
+	[qualification event]
 	inputs: foo Foo(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
 		foo -> bar -> before = foo -> baz -> other
 
 func FeatureCallListNotEqualToFeatureCall:
+	[qualification event]
 	inputs: foo Foo(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
@@ -109,6 +117,7 @@ func FeatureCallListNotEqualToFeatureCall:
 		
 		
 func MultipleOrFeatureCallsEqualToMultipleOrFeatureCalls:
+	[qualification event]
 	inputs: foo Foo(1..1)
 	output: is_event boolean (1..1)
 	alias values: [foo -> bar -> before, foo -> baz -> other]

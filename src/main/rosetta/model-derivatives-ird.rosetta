@@ -454,9 +454,6 @@ type FxLinkedNotionalAmount: <"A data to:  describe the cashflow representation 
 type FxLinkedNotionalSchedule: <"A data to:  describe a notional schedule where each notional that applies to a calculation period is calculated with reference to a notional amount or notional amount schedule in a different currency by means of a spot currency exchange rate which is normally observed at the beginning of each period.">
 	[synonym FpML_5_10 value "FxLinkedNotionalSchedule" path "fxLinkedNotionalSchedule"]
 
-	constantNotionalScheduleReference NotionalSchedule (1..1) <"A pointer style reference to the associated constant notional schedule defined elsewhere in the document which contains the currency amounts which will be converted into the varying notional currency amounts using the spot currency exchange rate.">
-		[metadata reference]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "constantNotionalScheduleReference" meta "href"]
 	initialValue number (0..1) <"The initial currency amount for the varying notional. This may be omitted for a forward starting swap if the FX-linked notional value is not known at deal inception.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "initialValue"]
 	varyingNotionalCurrency string (1..1) <"The currency of the varying notional amount, i.e. the notional amount being determined periodically based on observation of a spot currency exchange rate. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
@@ -541,35 +538,6 @@ type NonDeliverableSettlement: <"A data defining:  the parameters used when the 
 
 	condition NonDeliverableSettlement_choice: <"condition to represent an FpML choice construct.">
 		required choice fxFixingDate, fxFixingSchedule
-
-type NotionalStepRule: <"A data defining:  a parametric representation for the notional step schedule, i.e. parameters used to generate the notional amount on each step date. This parametric representation is intended to cover the more common amortizing/accreting variations of swaps.">
-	[synonym FpML_5_10 value "NotionalStepRule"]
-
-	calculationPeriodDatesReference CalculationPeriodDates (1..1) <"A pointer style reference to the associated calculation period dates component defined elsewhere in the document.">
-		[metadata reference]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "calculationPeriodDatesReference" meta "href"]
-	stepFrequency Frequency (1..1) <"The frequency at which the notional step changes occur. This frequency must be an integer multiple of the stream calculation period frequency.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "stepFrequency"]
-	firstNotionalStepDate date (1..1) <"Effective date of the first change in notional (i.e. a calculation period start date).">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "firstNotionalStepDate"]
-	lastNotionalStepDate date (1..1) <"Effective date of the last change in notional (i.e. a calculation period start date).">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "lastNotionalStepDate"]
-	notionalStepAmount number (0..1) <"The explicit amount that the notional changes on each step date. This can be a positive or negative amount.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notionalStepAmount"]
-	notionalStepRate number (0..1) <"The percentage amount by which the notional changes on each step date. The percentage is either a percentage applied to the initial notional amount or the previous outstanding notional, depending of the value of the attribute stepRelativeTo. The percentage can be either positive or negative. A percentage of 5% would be represented as 0.05.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notionalStepRate"]
-	stepRelativeTo StepRelativeToEnum (0..1) <"Specifies whether the notionalStepRate should be applied to the initial notional or the previous notional in order to calculate the notional step change amount.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "stepRelativeTo"]
-
-	condition NotionalStepRule_notionalStepAmount: <"FpML specifies a choice as part of the NotionalStepRule construct between the notionalStepAmount and the combination of notionalStepRate and stepRelativeTo.">
-		if notionalStepAmount exists
-		then notionalStepRate is absent
-			and stepRelativeTo is absent
-
-	condition NotionalStepRule_notionalStepRate: <"FpML specifies a choice as part of the NotionalStepRule construct between the notionalStepAmount and the combination of notionalStepRate and stepRelativeTo.">
-		if notionalStepAmount is absent
-		then notionalStepRate exists
-			and stepRelativeTo exists
 
 type OptionalEarlyTermination: <"A data defining:  an early termination provision where either or both parties have the right to exercise.">
 	[synonym FpML_5_10 value "OptionalEarlyTermination"]
