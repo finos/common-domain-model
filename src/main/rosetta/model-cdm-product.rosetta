@@ -48,6 +48,7 @@ type Contract: <" A class to specify a financial contract object, which can be i
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 meta "id" path "trade"]
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17, Workflow_Event meta "id"]
 
+	contractualDate ExecutionDate (1..1)
 	contractIdentifier Identifier (1..*) <"The identifier(s) that uniquely identify a contract, and which can be qualified by referencing or defining the issuer(s) of such identifier(s). There can be several contract identifier, an example of such being a contract is reportable to both the CFTC and ESMA and then has an associated USI (Unique Swap Identifier) UTI (Unique Trade Identifier).">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0 value "partyTradeIdentifier" path "trade->tradeHeader"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0 value "partyTradeIdentifier" path "tradeHeader"]
@@ -543,6 +544,25 @@ type EquityPayout extends PayoutBase: <" The equity payout specification terms. 
 			or EquityPayout -> underlier -> underlyingProduct -> security -> mutualFund
 			or EquityPayout -> underlier -> underlyingProduct -> security -> warrant) exists
 
+type ExecutionDate: <"...">
+	effectiveDate date (1..1) <"...">
+	//[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "unadjustedDate" maps 2]
+	[synonym FpML_5_10 value "unadjustedDate" path "trade->swap->swapStream->calculationPeriodDates->effectiveDate"]
+	terminationDate AdjustableOrRelativeDate (0..1)
+	initialTenor Period (0..1)
+		
+	// condition: if ExecutionDate -> terminationDate is absent then ExecutionDate -> initialTenor exists
+	// 	and if ExecutionDate -> initialTenor is absent then ExecutionDate -> terminationDate exists
+
+	//condition: TenorMaturityTriangulation(ExecutionDate -> effectiveDate, ExecutionDate -> terminationDate, ExecutionDate -> initialTenor)
+
+// func TenorMaturityTriangulation:
+// 	inputs: effectiveDate date (1..1)
+// 			terminationDate AdjustableOrRelativeDate (1..1)
+// 			initialTenor Period (1..1)
+// 	output: triangulationresult boolean (1..1)
+
+
 
 type Execution: <" A class to specify an execution, which consists essentially in the economic terms which are agreed between the parties, alongside with the qualification of the type of execution. The associated rosettaKey denotes the ability to associate a hash value to the respective Execution instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
@@ -550,6 +570,7 @@ type Execution: <" A class to specify an execution, which consists essentially i
 		[synonym Workflow_Event value "executionType"]
 		[synonym CME_SubmissionIRS_1_0 value "VenuTyp"]
 	executionVenue LegalEntity (0..1) <"The execution venue identification, when applicable.">
+	executionDate ExecutionDate (1..1) <"Execution Date">
 	identifier Identifier (1..*) <"The identifier(s) associated with the execution.">
 		[synonym FpML_5_10 value "partyTradeIdentifier" path "tradeHeader"]
 		[synonym DTCC_11_0, DTCC_9_0 value "partyTradeIdentifier" path "Submitter"]
