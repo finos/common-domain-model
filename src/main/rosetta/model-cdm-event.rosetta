@@ -17,10 +17,10 @@ type AllocationOutcome: <"A class to specify the allocated outcome as the combin
 	allocatedTrade Trade (1..*)
 		[synonym Workflow_Event value "allocatedTrade"]
 	// TODO: move these data rule as a "post-condition" to the Allocation "Function Spec"
-	condition AllocationOutcome_executionClosed: <"The allocation outcome must result in execution state of 'Allocated' for an execution.">
+	condition ExecutionClosed: <"The allocation outcome must result in execution state of 'Allocated' for an execution.">
 		if AllocationOutcome exists and originalTrade -> execution exists
 		then originalTrade -> execution -> closedState -> state = ClosedStateEnum -> Allocated
-	condition AllocationOutcome_contractClosed: <"The allocation outcome must result in a contract state of 'Allocated' for a contract.">
+	condition ContractClosed: <"The allocation outcome must result in a contract state of 'Allocated' for a contract.">
 		if AllocationOutcome exists and originalTrade -> contract exists
 		then originalTrade -> contract -> closedState -> state = ClosedStateEnum -> Allocated
 
@@ -168,7 +168,7 @@ type BusinessEventInstruction: <"Instruction to a function that will be used to 
 	allocation AllocationInstruction (0..1) <"Instruction to allocate">
     clearing ClearingInstruction (0..1) <"Instruction to clear">
 
-	condition OneOfInstruction: one-of
+	condition: one-of
 
 
 type WorkflowStepInstruction:
@@ -238,7 +238,7 @@ type WorkflowStep: <"A workflow step represents the state of a business event. T
 		or
 		(WorkflowStep -> rejected exists and WorkflowStep -> businessEvent is absent and WorkflowStep -> proposedInstruction is absent)
 
-	condition Event_intent: <"The intent should only be associated with the primitives which use can lead to ambiguity with respect to the qualification of the event.">
+	condition Intent: <"The intent should only be associated with the primitives which use can lead to ambiguity with respect to the qualification of the event.">
 		if (businessEvent -> primitives -> allocation exists
 			or businessEvent -> primitives -> exercise exists
 			or businessEvent -> primitives -> inception exists
@@ -326,7 +326,7 @@ type ExerciseOutcome: <"The exercise outcome combines the option contract (which
 		[synonym Workflow_Event value "physicalExercise"]
 	cashExercise CashExercise (0..1)
 		[synonym Workflow_Event value "cashExercise"]
-	condition ExerciseOutcome_choice: <"A option exercise results in either a physical or a cash exercise.">
+	condition Choice: <"A option exercise results in either a physical or a cash exercise.">
 		required choice physicalExercise, cashExercise
 
 type ExecutionState: <"A class to specify an execution instantiation with respect to the before and/or after state of lifecycle events.">
@@ -359,7 +359,7 @@ type LimitApplicable:
 		[synonym FpML_5_10, CME_ClearedConfirm_1_17, Workflow_Event value "currency" meta "currencyScheme"]
 	velocity Velocity (0..1)
 		[synonym FpML_5_10 value "velocity"]
-	condition LimitApplicable_choice: <"Choice rule to represent an FpML choice construct.">
+	condition Choice: <"Choice rule to represent an FpML choice construct.">
 		optional choice amountUtilized, utilization
 
 
@@ -432,7 +432,7 @@ type ObservationSource: <"The observation source can be composed of an curve and
 		[synonym Workflow_Event value "curve"]
 	informationSource InformationSource (0..1)
 		[synonym Workflow_Event value "informationSource"]
-	condition ObservationSource_content: <"ObservationSource should not be empty, although the attribute cardinality would allow that.">
+	condition CurveInformationSource: <"ObservationSource should not be empty, although the attribute cardinality would allow that.">
 		if ObservationSource exists
 		then ( curve exists and informationSource exists)
 			or curve exists
@@ -445,7 +445,7 @@ type PartyCustomisedWorkflow: <"A class to specify a party-related, non-standard
 	partyName string (0..1) <"The party name to which the workflow pertains to.">
 		[synonym CME_SubmissionIRS_1_0 value "ID" path "Pty"]
 	customisedWorkflow CustomisedWorkflow (1..*) <"Non-standardized data in a generic form.">
-	condition PartyCustomisedWorkflow_choice: <"The identification of the party to which the PartyCustomisedWorkflow pertains to can be done through either a party reference or the party name.">
+	condition Choice: <"The identification of the party to which the PartyCustomisedWorkflow pertains to can be done through either a party reference or the party name.">
 		required choice partyName, partyReference
 
 type PhysicalExercise: <"The physical exercise results into a financial product which is represented through the Product class, with an associated quantity and cashflow (e.g. a physical exercise of a bond option will result into a bond with a cash proceed which will be a function of the option strike price).">
@@ -459,7 +459,7 @@ type PhysicalExercise: <"The physical exercise results into a financial product 
 		[synonym Workflow_Event hint "cashflow"]
 	cashflow Cashflow (0..1) <"The cashflow component of the physical exercise.">
 		[synonym Workflow_Event value "cashflow"]
-	condition PhysicalExercise_quantity: <"The quantity attribute should only be associated with non-contractual products, as it is then expressed as part of the contractual terms.">
+	condition PhysicalExerciseQuantity: <"The quantity attribute should only be associated with non-contractual products, as it is then expressed as part of the contractual terms.">
 		if product -> contractualProduct exists
 		then quantity is absent
 

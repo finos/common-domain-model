@@ -54,12 +54,12 @@ type AllocationPrimitive: <"The primitive event to represent a split/allocation 
 		[synonym Workflow_Event value "after"]
 
 	// TODO: move these data rule as a "post-condition" to the Allocation "Function Spec"
-	condition AllocationPrimitive_executionType: <"If the trade type pre-allocation is an execution, then the trade type post-allocation must also be an execution.">
+	condition ExecutionType: <"If the trade type pre-allocation is an execution, then the trade type post-allocation must also be an execution.">
 		if AllocationPrimitive exists and before -> execution exists
 		then after -> originalTrade -> execution exists
 			and after -> allocatedTrade -> execution exists
 			and after -> allocatedTrade -> contract is absent
-	condition AllocationPrimitive_contractType: <"If the trade type pre-allocation is a contract, then the trade type post-allocation must also be a contract.">
+	condition ContractType: <"If the trade type pre-allocation is a contract, then the trade type post-allocation must also be a contract.">
 		if AllocationPrimitive exists and before -> contract exists
 		then after -> originalTrade -> contract exists
 			and after -> allocatedTrade -> contract exists
@@ -112,7 +112,7 @@ type ResetPrimitive: <"The primitive event to represent a reset.">
 		[synonym Workflow_Event value "ignore"]
 	after ContractState (1..1) <"Contract state after the reset, that embeds the reset value as an updated field on the contract state.">
 		[synonym Workflow_Event value "ignore"]
-	condition ResetPrimitive_contract: <"The original contract in the before/after state of a reset should match.">
+	condition Contract: <"The original contract in the before/after state of a reset should match.">
 		if ResetPrimitive exists
 		then before -> contract = after -> contract
 

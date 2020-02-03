@@ -33,14 +33,14 @@ type BasketReferenceInformation: <"CDS Basket Reference Information.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "mthToDefault"]
 	tranche Tranche (0..1) <"This element contains CDS tranche terms.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "tranche"]
-	condition BasketReferenceInformation_choice: <"Choice rule to represent an FpML choice construct. This choice rule is complemented by the data rule BasketReferenceInformation_nthToDefault to represent the FpML construct where there is a choice between a tranche element and a [required nthToDefault, optional mthToDefault] branch.">
+	condition Choice: <"Choice rule to represent an FpML choice construct. This choice rule is complemented by the data rule BasketReferenceInformation_nthToDefault to represent the FpML construct where there is a choice between a tranche element and a [required nthToDefault, optional mthToDefault] branch.">
 		required choice nthToDefault, tranche
 
-	condition BasketReferenceInformation_nthToDefault: <"As part of the branch of the choice node, FpML requires the nthToDefault element to be present, while the mthToDefault one is optional.">
+	condition NthToDefault: <"As part of the branch of the choice node, FpML requires the nthToDefault element to be present, while the mthToDefault one is optional.">
 		if mthToDefault exists
 		then nthToDefault exists
 
-	condition BasketReferenceInformation_nthToDefault_mthToDefault: <"FpML validation rule cd-39 - Context: BasketReferenceInformation (complex type). If nthToDefault exists, and if mthToDefault exists, then nthToDefault must be less than mthToDefault.">
+	condition MthToDefault: <"FpML validation rule cd-39 - Context: BasketReferenceInformation (complex type). If nthToDefault exists, and if mthToDefault exists, then nthToDefault must be less than mthToDefault.">
 		if ( nthToDefault exists and mthToDefault exists)
 		then nthToDefault < mthToDefault
 
@@ -77,14 +77,14 @@ type CashSettlementTerms extends SettlementBase: <"In FpML, PhysicalSettlementTe
 	valuationMethod ValuationMethodEnum (0..1) <"The ISDA defined methodology for determining the final price of the reference obligation for purposes of cash settlement. (ISDA 2003 Term: Valuation Method). For example, Market, Highest etc.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "valuationMethod"]
 
-	condition CashSettlementTerms_choice: <"Choice rule to represent an FpML choice construct.">
+	condition Choice: <"Choice rule to represent an FpML choice construct.">
 		optional choice cashSettlementAmount, recoveryFactor
 
-	condition CashSettlementTerms_cashSettlementBusinessDays: <"FpML specifies cashSettlementBusinessDays as a nonNegativeInteger.">
+	condition CashSettlementBusinessDays: <"FpML specifies cashSettlementBusinessDays as a nonNegativeInteger.">
 		if cashSettlementBusinessDays exists
 		then cashSettlementBusinessDays >= 0
 
-	condition  CashSettlementTerms_recoveryFactor: <"FpML specifies recoveryFactor as a RestrictedPercentage, meaning that it is a decimal which value is restricted between 0 and 1.">
+	condition  RecoveryFactor: <"FpML specifies recoveryFactor as a RestrictedPercentage, meaning that it is a decimal which value is restricted between 0 and 1.">
 		if recoveryFactor exists
 		then recoveryFactor >= 0.0 and recoveryFactor <= 1.0
 
@@ -142,7 +142,7 @@ type DeliverableObligations: <"A class to specify all the ISDA terms relevant to
 	othReferenceEntityObligations string (0..1) <"This element is used to specify any other obligations of a reference entity in both obligations and deliverable obligations. The obligations can be specified free-form. ISDA 2003 Term: Other Obligations of a Reference Entity.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "othReferenceEntityObligations"]
 
-	condition DeliverableObligations_choice: <"Choice rule to represent an FpML choice construct.">
+	condition Choice: <"Choice rule to represent an FpML choice construct.">
 		optional choice fullFaithAndCreditObLiability, generalFundObligationLiability, revenueObligationLiability
 
 	condition FpML_cd_34: <"FpML validation rule cd-34 - Context: DeliverableObligations. If category is equal to 'ReferenceObligationsOnly', then no other elements may be contained in the deliverable obligations element.">
@@ -219,11 +219,11 @@ type IndexReferenceInformation: <"A class defining a Credit Default Swap Index."
 	settledEntityMatrix SettledEntityMatrix (0..1) <"Used to specify the Relevant Settled Entity Matrix when there are settled entities at the time of the trade.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "settledEntityMatrix"]
 
-	condition IndexReferenceInformation_indexSeries: <"FpML specifies the type associated to indexSeries as a positive integer.">
+	condition IndexSeries: <"FpML specifies the type associated to indexSeries as a positive integer.">
 		if indexSeries exists
 		then indexSeries >= 0
 
-	condition IndexReferenceInformation_indexAnnexVersion: <"FpML specifies the type associated to indexVersion as a positive integer.">
+	condition IndexAnnexVersion: <"FpML specifies the type associated to indexVersion as a positive integer.">
 		if indexAnnexVersion exists
 		then indexAnnexVersion >= 0
 
@@ -250,11 +250,11 @@ type MultipleValuationDates extends SingleValuationDate:
 	numberValuationDates int (0..1) <"Where multiple valuation dates are specified as being applicable for cash settlement, this element specifies (a) the number of applicable valuation dates, and (b) the number of business days after satisfaction of all conditions to settlement when the first such valuation date occurs, and (c) the number of business days thereafter of each successive valuation date. ISDA 2003 Term: Multiple Valuation Dates.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "numberValuationDates"]
 
-	condition MultipleValuationDates_businessDaysThereafter: <"FpML specifies businessDaysThereafter as a PositiveInteger.">
+	condition BusinessDaysThereafter: <"FpML specifies businessDaysThereafter as a PositiveInteger.">
 		if businessDaysThereafter exists
 		then businessDaysThereafter >= 0
 
-	condition MultipleValuationDates_numberValuationDates: <"FpML specifies numberValuationDates as a PositiveInteger.">
+	condition NumberValuationDates: <"FpML specifies numberValuationDates as a PositiveInteger.">
 		if numberValuationDates exists
 		then numberValuationDates >= 0
 
@@ -306,7 +306,7 @@ type Obligations: <"A class to specify the underlying obligations of the referen
 	continuity boolean (0..1) <"An obligation and deliverable obligation characteristic. Defined in the ISDA published Standard Terms Supplement for use with CDS Transactions on Leveraged Loans. ISDA 2003 Term: Continuity.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "continuity"]
 
-	condition Obligations_choice: <"Choice rule to represent an FpML choice construct.">
+	condition Choice: <"Choice rule to represent an FpML choice construct.">
 		optional choice fullFaithAndCreditObLiability, generalFundObligationLiability, revenueObligationLiability
 
 type PCDeliverableObligationCharac: <"A class to specify the Partial Cash Deliverable Obligation Characteristic.">
@@ -325,10 +325,10 @@ type PhysicalSettlementPeriod:
 	maximumBusinessDays int (0..1) <"A maximum number of business days. Its precise meaning is dependant on the context in which this element is used. Intended to be used to limit a particular ISDA fallback provision.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "maximumBusinessDays"]
 	condition: one-of
-	condition PhysicalSettlementPeriod_businessDays: <"FpML specifies businessDays as a NonNegativeInteger.">
+	condition BusinessDays: <"FpML specifies businessDays as a NonNegativeInteger.">
 		if businessDays exists
 		then businessDays >= 0
-	condition PhysicalSettlementPeriod_maximumBusinessDays: <"FpML specifies maximumBusinessDays as a NonNegativeInteger.">
+	condition MaximumBusinessDays: <"FpML specifies maximumBusinessDays as a NonNegativeInteger.">
 		if maximumBusinessDays exists
 		then maximumBusinessDays >= 0
 
@@ -370,7 +370,7 @@ type ReferenceInformation: <"A class specifying the Credit Default Swap Referenc
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "referencePolicy"]
 	securedList boolean (0..1) <"With respect to any day, the list of Syndicated Secured Obligations of the Designated Priority of the Reference Entity published by Markit Group Limited or any successor thereto appointed by the Specified Dealers (the 'Secured List Publisher') on or most recently before such day, which list is currently available at [http://www.markit.com]. ISDA 2003 Term: Relevant Secured List.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "securedList"]
-	condition ReferenceInformation_choice: <"Choice rule to represent an FpML choice construct.">
+	condition Choice: <"Choice rule to represent an FpML choice construct.">
 		required choice referenceObligation, noReferenceObligation , unknownReferenceObligation
 
 
@@ -395,10 +395,11 @@ type ReferenceObligation: <"A class to specify the reference obligation that is 
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "guarantorReference"]
 	standardReferenceObligation boolean (0..1) <"Indicates if the reference obligation is a Standard Reference Obligation. ISDA 2014 Term: Standard Reference Obligation.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "standardReferenceObligation"]
-	condition ReferenceObligation_choice1: <"Choice rule to represent an FpML choice construct.">
+	
+	condition AssetChoice: <"Choice rule to represent an FpML choice construct.">
 		required choice bond, convertibleBond , loan , mortgageBackedSecurity
 
-	condition ReferenceObligation_choice2 : <"Choice rule to represent an FpML choice construct.">
+	condition LegalEntityChoice : <"Choice rule to represent an FpML choice construct.">
 		optional choice primaryObligor, primaryObligorReference
 
 
@@ -412,7 +413,7 @@ type ReferencePair:
 	entityType EntityTypeEnum (1..1) <"Defines the reference entity types corresponding to a list of types in the ISDA First to Default documentation.">
 		[metadata scheme]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "entityType" meta "entityTypeScheme"]
-	condition ReferencePair_choice: <"Choice rule to represent an FpML choice construct.">
+	condition ReferenceChoice: <"Choice rule to represent an FpML choice construct.">
 		required choice referenceObligation, noReferenceObligation
 
 
@@ -445,7 +446,7 @@ type ReferencePoolItem: <"This type contains all the constituent weight and refe
 	physicalSettlementTermsReference PhysicalSettlementTerms (0..1) <"Reference to the physical settlement terms applicable to this item.">
 		[metadata reference]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "settlementTermsReference" maps 2 meta "href"]
-	condition ReferencePoolItem_choice: <"A choice rule between a reference to the cash or physical settlement terms.">
+	condition SettlementChoice: <"A choice rule between a reference to the cash or physical settlement terms.">
 		optional choice cashSettlementTermsReference, physicalSettlementTermsReference
 
 
@@ -461,7 +462,7 @@ type SingleValuationDate: <"A class to specify the number of business days after
 	[synonym FpML_5_10 value "SingleValuationDate"]
 	businessDays int (0..1) <"A number of business days. Its precise meaning is dependant on the context in which this element is used. ISDA 2003 Term: Business Day.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "businessDays"]
-	condition SingleValuationDate_businessDays: <"FpML specifies businessDays as a NonNegativeInteger.">
+	condition NonNegativeBusinessDays: <"FpML specifies businessDays as a NonNegativeInteger.">
 		if businessDays exists
 		then businessDays >= 0
 
@@ -482,15 +483,15 @@ type Tranche: <"The class to represent a CDS Tranche.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "exhaustionPoint"]
 	incurredRecoveryApplicable boolean (0..1) <"Outstanding Swap Notional Amount is defined at any time on any day, as the greater of: (a) Zero; If Incurred Recovery Amount Applicable: (b) The Original Swap Notional Amount minus the sum of all Incurred Loss Amounts and all Incurred Recovery Amounts (if any) determined under this Confirmation at or prior to such time.Incurred Recovery Amount not populated: (b) The Original Swap Notional Amount minus the sum of all Incurred Loss Amounts determined under this Confirmation at or prior to such time.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "incurredRecoveryApplicable"]
-	condition Tranche_attachmentPoint: <"FpML definition associated with the attachmentPoint element specifies that a schema facet to constraint the value between 0 to 1 will be introduced in FpML 4.3.">
+	condition AttachmentPoint: <"FpML definition associated with the attachmentPoint element specifies that a schema facet to constraint the value between 0 to 1 will be introduced in FpML 4.3.">
 		if Tranche exists
 		then attachmentPoint >= 0.0 and attachmentPoint <= 1.0
 
-	condition Tranche_exhaustionPoint: <"FpML definition associated with the exhaustionPoint element specifies that a schema facet to constraint the value between 0 to 1 will be introduced in FpML 4.3.">
+	condition ExhaustionPoint: <"FpML definition associated with the exhaustionPoint element specifies that a schema facet to constraint the value between 0 to 1 will be introduced in FpML 4.3.">
 		if Tranche exists
 		then exhaustionPoint >= 0.0 and exhaustionPoint <= 1.0
 
-	condition Tranche_attachmentPoint_exhaustionPoint: <"FpML validation rule cd-40 - Context: Tranche (complex type) attachmentPoint must be less or equal to exhaustionPoint.">
+	condition AttachmentPointLessThanExhaustionPoint: <"FpML validation rule cd-40 - Context: Tranche (complex type) attachmentPoint must be less or equal to exhaustionPoint.">
 		if Tranche exists
 		then attachmentPoint <= exhaustionPoint
 
