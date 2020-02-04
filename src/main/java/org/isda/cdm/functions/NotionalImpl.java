@@ -22,7 +22,7 @@ public class NotionalImpl extends Notional {
 				.map(QuantityNotation::getQuantity)
 				.map(NonNegativeQuantity::getAmount)
 				.findFirst()
-				.orElse(BigDecimal.ZERO);
+				.orElse(null);
 	}
 
 	private boolean isCurrencyAssetIdentifier(QuantityNotation quantityNotation) {
