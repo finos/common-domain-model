@@ -20,7 +20,7 @@ public class NoOfUnitsImpl extends NoOfUnits {
 				.map(QuantityNotation::getQuantity)
 				.map(NonNegativeQuantity::getAmount)
 				.findFirst()
-				.orElse(BigDecimal.ZERO);
+				.orElse(null);
 	}
 
 	private boolean isProductAssetIdentifier(QuantityNotation quantityNotation) {

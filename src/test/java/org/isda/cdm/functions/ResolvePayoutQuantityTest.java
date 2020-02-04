@@ -14,6 +14,9 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -68,7 +71,8 @@ class ResolvePayoutQuantityTest extends AbstractFunctionTest {
 	 */
 	@Test
 	void shouldResolveQuantityForFixFloatVanilla() throws IOException {
-		Contract contract = getContract(RATES_DIR + "GBP-Vanilla-uti.json");
+		String fileName = "GBP-Vanilla-uti.json";
+		Contract contract = getContract(RATES_DIR + fileName);
 		List<QuantityNotation> quantityNotations = contract.getContractualQuantity().getQuantityNotation();
 		ContractualProduct contractualProduct = contract.getContractualProduct();
 
@@ -82,6 +86,8 @@ class ResolvePayoutQuantityTest extends AbstractFunctionTest {
 		NonNegativeQuantity resolvedFloatingLegQuantity = resolveFunc.evaluate(floatingLegPayout.getPayoutQuantity(), quantityNotations, contractualProduct);
 
 		assertEquals(BigDecimal.valueOf(4352000), getResolvedQuantityAmount(resolvedFloatingLegQuantity));
+
+		writeOutput(contract, contractualProduct, fileName);
 	}
 
 	/**
@@ -90,7 +96,8 @@ class ResolvePayoutQuantityTest extends AbstractFunctionTest {
 	 */
 	@Test
 	void shouldResolveQuantityForFra() throws IOException {
-		Contract contract = getContract(RATES_DIR + "ird-ex08-fra-no-discounting.json");
+		String fileName = "ird-ex08-fra-no-discounting.json";
+		Contract contract = getContract(RATES_DIR + fileName);
 		List<QuantityNotation> quantityNotations = contract.getContractualQuantity().getQuantityNotation();
 		ContractualProduct contractualProduct = contract.getContractualProduct();
 
@@ -104,6 +111,8 @@ class ResolvePayoutQuantityTest extends AbstractFunctionTest {
 		NonNegativeQuantity resolvedFloatingLegQuantity = resolveFunc.evaluate(floatingLegPayout.getPayoutQuantity(), quantityNotations, contractualProduct);
 
 		assertEquals(BigDecimal.valueOf(25000000), getResolvedQuantityAmount(resolvedFloatingLegQuantity));
+
+		writeOutput(contract, contractualProduct, fileName);
 	}
 
 	/**
@@ -118,7 +127,8 @@ class ResolvePayoutQuantityTest extends AbstractFunctionTest {
 	 */
 	@Test
 	void shouldResolveQuantityForEquitySwap() throws IOException {
-		Contract contract = getContract(EQUITY_DIR + "eqs-ex01-single-underlyer-execution-long-form.json");
+		String fileName = "eqs-ex01-single-underlyer-execution-long-form.json";
+		Contract contract = getContract(EQUITY_DIR + fileName);
 		List<QuantityNotation> quantityNotations = contract.getContractualQuantity().getQuantityNotation();
 		ContractualProduct contractualProduct = contract.getContractualProduct();
 
@@ -131,6 +141,8 @@ class ResolvePayoutQuantityTest extends AbstractFunctionTest {
 		NonNegativeQuantity resolvedInterestRateQuantity = resolveFunc.evaluate(interestRatePayout.getPayoutQuantity(), quantityNotations, contractualProduct);
 
 		assertEquals(BigDecimal.valueOf(28469376), getResolvedQuantityAmount(resolvedInterestRateQuantity));
+
+		writeOutput(contract, contractualProduct, fileName);
 	}
 
 	/**
@@ -140,7 +152,8 @@ class ResolvePayoutQuantityTest extends AbstractFunctionTest {
 	 */
 	@Test
 	void shouldResolveQuantityForResettingXccySwaps() throws IOException {
-		Contract contract = getContract(RATES_DIR + "ird-ex25-fxnotional-swap-usi-uti.json");
+		String fileName = "ird-ex25-fxnotional-swap-usi-uti.json";
+		Contract contract = getContract(RATES_DIR + fileName);
 		List<QuantityNotation> quantityNotations = contract.getContractualQuantity().getQuantityNotation();
 		ContractualProduct contractualProduct = contract.getContractualProduct();
 
@@ -148,6 +161,8 @@ class ResolvePayoutQuantityTest extends AbstractFunctionTest {
 		NonNegativeQuantity resolvedFixedLegQuantity = resolveFunc.evaluate(fixedLegPayout.getPayoutQuantity(), quantityNotations, contractualProduct);
 
 		assertEquals(BigDecimal.valueOf(1000000000L), getResolvedQuantityAmount(resolvedFixedLegQuantity));
+
+		writeOutput(contract, contractualProduct, fileName);
 	}
 
 	/**
@@ -157,7 +172,8 @@ class ResolvePayoutQuantityTest extends AbstractFunctionTest {
 	 */
 	@Test
 	void shouldResolveQuantityForRepo() throws IOException {
-		Contract contract = getContract(REPO_DIR + "repo-ex01-repo-fixed-rate.json");
+		String fileName = "repo-ex01-repo-fixed-rate.json";
+		Contract contract = getContract(REPO_DIR + fileName);
 		List<QuantityNotation> quantityNotations = contract.getContractualQuantity().getQuantityNotation();
 		ContractualProduct contractualProduct = contract.getContractualProduct();
 
@@ -165,6 +181,8 @@ class ResolvePayoutQuantityTest extends AbstractFunctionTest {
 		NonNegativeQuantity resolvedFixedLegQuantity = resolveFunc.evaluate(fixedLegPayout.getPayoutQuantity(), quantityNotations, contractualProduct);
 
 		assertEquals(BigDecimal.valueOf(1292748), getResolvedQuantityAmount(resolvedFixedLegQuantity));
+
+		writeOutput(contract, contractualProduct, fileName);
 	}
 
 	/**
@@ -184,7 +202,8 @@ class ResolvePayoutQuantityTest extends AbstractFunctionTest {
 	 */
 	@Test
 	void shouldResolveQuantityForBondOption() throws IOException {
-		Contract contract = getContract(RATES_DIR + "bond-option-uti.json");
+		String fileName = "bond-option-uti.json";
+		Contract contract = getContract(RATES_DIR + fileName);
 		List<QuantityNotation> quantityNotations = contract.getContractualQuantity().getQuantityNotation();
 		ContractualProduct contractualProduct = contract.getContractualProduct();
 
@@ -192,6 +211,8 @@ class ResolvePayoutQuantityTest extends AbstractFunctionTest {
 		NonNegativeQuantity resolvedOptionQuantity = resolveFunc.evaluate(optionPayout.getPayoutQuantity(), quantityNotations, contractualProduct);
 
 		assertEquals(BigDecimal.valueOf(10000000000L), getResolvedQuantityAmount(resolvedOptionQuantity));
+
+		writeOutput(contract, contractualProduct, fileName);
 	}
 
 	/**
@@ -199,7 +220,8 @@ class ResolvePayoutQuantityTest extends AbstractFunctionTest {
 	 */
 	@Test
 	void shouldResolveQuantityForCreditSwaption() throws IOException {
-		Contract contract = getContract(CREDIT_DIR + "cd-swaption-usi.json");
+		String fileName = "cd-swaption-usi.json";
+		Contract contract = getContract(CREDIT_DIR + fileName);
 		List<QuantityNotation> quantityNotations = contract.getContractualQuantity().getQuantityNotation();
 		ContractualProduct contractualProduct = contract.getContractualProduct();
 
@@ -207,6 +229,8 @@ class ResolvePayoutQuantityTest extends AbstractFunctionTest {
 		NonNegativeQuantity resolvedOptionQuantity = resolveFunc.evaluate(optionPayout.getPayoutQuantity(), quantityNotations, contractualProduct);
 
 		assertEquals(BigDecimal.valueOf(10000000), getResolvedQuantityAmount(resolvedOptionQuantity));
+
+		writeOutput(contract, contractualProduct, fileName);
 	}
 
 	private BigDecimal getResolvedQuantityAmount(NonNegativeQuantity resolvedQuantity) {
@@ -272,4 +296,15 @@ class ResolvePayoutQuantityTest extends AbstractFunctionTest {
 				.map(key::equals)
 				.orElse(false);
 	}
+
+	private static final String OUTPUT_DIR = System.getProperty("user.home") + "/Downloads/resolved-quantity-json/";
+
+	private void writeOutput(Contract contract, ContractualProduct contractualProduct, String fileName) throws IOException {
+		Contract resolvedContract = contract.toBuilder().setContractualProduct(contractualProduct).build();
+		String json = RosettaObjectMapper.getNewRosettaObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(resolvedContract);
+		Path path = Paths.get(OUTPUT_DIR);
+		Files.createDirectories(path);
+		Files.write(path.resolve(fileName), json.getBytes());
+	}
+
 }

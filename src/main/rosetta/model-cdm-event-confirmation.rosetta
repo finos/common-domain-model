@@ -8,9 +8,9 @@ type Confirmation: <"A class to specify a trade confirmation.">
 	lineage Lineage (0..1) <"The lineage attribute provides a linkage to previous lifecycle events and associated data.">
 	status ConfirmationStatusEnum (1..1)
 
-	condition Confirmation_partyRole_buyerSeller: <"For an security confirmation, both buyer and seller party roles must exist.">
-		if Confirmation -> lineage -> executionReference -> product -> security exists
-		then Confirmation -> partyRole -> role contains PartyRoleEnum -> Buyer or Confirmation -> partyRole -> role contains PartyRoleEnum -> Seller
+	condition BothBuyerAndSellerPartyRolesMustExist: <"For an security confirmation, both buyer and seller party roles must exist.">
+		if lineage -> executionReference -> product -> security exists
+		then partyRole -> role contains PartyRoleEnum -> Buyer or partyRole -> role contains PartyRoleEnum -> Seller
 
 enum ConfirmationStatusEnum: <"Enumeration for the different types of confirmation status.">
 	Confirmed
@@ -22,9 +22,9 @@ type Affirmation: <"A class to specify a trade affirmation.">
 	partyRole PartyRole (1..*) <"The role(s) that party(ies) may have in relation to the trade">
 	lineage Lineage (0..1) <"The lineage attribute provides a linkage to previous lifecycle events and associated data.">
 	status AffirmationStatusEnum (1..1)
-	condition Affirmation_partyRole_buyerSeller: <"For an security affirmation, both buyer and seller party roles must exist.">
-		if Affirmation -> lineage -> executionReference -> product -> security exists
-		then Affirmation -> partyRole -> role contains PartyRoleEnum -> Buyer or Affirmation -> partyRole -> role contains PartyRoleEnum -> Seller
+	condition BothBuyerAndSellerPartyRolesMustExist: <"For an security affirmation, both buyer and seller party roles must exist.">
+		if lineage -> executionReference -> product -> security exists
+		then partyRole -> role contains PartyRoleEnum -> Buyer or partyRole -> role contains PartyRoleEnum -> Seller
 
 enum AffirmationStatusEnum: <"Enumeration for the different types of affirmation status.">
 	Affirmed

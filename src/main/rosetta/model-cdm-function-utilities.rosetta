@@ -8,7 +8,7 @@ func PriceQuantityTriangulation:
 
 	output:
 		success boolean (1..1)
-		
+
 	assign-output success:
 		if price -> priceNotation -> price -> cashPrice exists
 		then CashPriceQuantityNoOfUnitsTriangulation( price, quantity )
@@ -24,30 +24,20 @@ func CashPriceQuantityNoOfUnitsTriangulation: <"Data rule to check the relations
 
 	output:
 		success boolean (1..1)
-	
-	alias applicable:
-		price -> priceNotation -> assetIdentifier -> productIdentifier exists 
-			and quantity -> quantityNotation -> assetIdentifier -> productIdentifier exists 
-			and quantity -> quantityNotation -> assetIdentifier -> currency exists 
-			and price -> priceNotation -> price -> cashPrice -> netPrice -> amount exists 
-			// price and no of units product identifiers should match
-			and price -> priceNotation -> assetIdentifier -> productIdentifier = quantity -> quantityNotation -> assetIdentifier -> productIdentifier
-		
-	alias cashPrice:
-		if price -> priceNotation only-element -> price -> cashPrice -> netPrice -> amount exists
-		then price -> priceNotation only-element -> price -> cashPrice -> netPrice -> amount
-		else 0.0
-		
+
 	alias notional:
 		Notional(quantity -> quantityNotation, empty)
 	
 	alias noOfUnits:
 		NoOfUnits(quantity -> quantityNotation)
 	
+	alias cashPrice:
+		price -> priceNotation only-element -> price -> cashPrice -> netPrice -> amount
+
 	assign-output success:
-		if applicable
+		if ( cashPrice and noOfUnits and notional ) exists
 		then cashPrice * noOfUnits = notional
-		else True
+
 
 func ExchangeRateQuantityTriangulation:
 	inputs:
@@ -55,18 +45,18 @@ func ExchangeRateQuantityTriangulation:
 		quantity ExecutionQuantity (1..1)
 
 	output:
-		success boolean (1..1)	
-		
+		success boolean (1..1)
+
 	alias applicable:
-		quantity -> quantityNotation -> assetIdentifier -> currency count = 2 
+		quantity -> quantityNotation -> assetIdentifier -> currency count = 2
 		and price -> priceNotation -> price -> exchangeRate -> quotedCurrencyPair -> quoteBasis exists
 		and price -> priceNotation -> price -> exchangeRate -> quotedCurrencyPair -> currency1 exists
 		and price -> priceNotation -> price -> exchangeRate -> quotedCurrencyPair -> currency2 exists
 		and ( price -> priceNotation -> price -> exchangeRate -> spotRate or price -> priceNotation -> price -> exchangeRate -> rate ) exists
-	
+
 	alias exchangeRate:
 		price -> priceNotation only-element -> price -> exchangeRate
-	
+
 	alias rate:
 		if exchangeRate -> rate exists
 		then exchangeRate -> rate
@@ -76,15 +66,15 @@ func ExchangeRateQuantityTriangulation:
 
 	alias quotedCurrency:
 		exchangeRate -> quotedCurrencyPair
-		
+
 	alias quantity1:
 		Notional( quantity -> quantityNotation, quotedCurrency -> currency1 )
-		
+
 	alias quantity2:
 		Notional( quantity -> quantityNotation, quotedCurrency -> currency2 )
 
 	assign-output success:
-		if applicable then 
+		if applicable then
 			if quotedCurrency -> quoteBasis = QuoteBasisEnum -> Currency1PerCurrency2
 			then quantity1 / quantity2 = rate
 			else if quotedCurrency -> quoteBasis = QuoteBasisEnum -> Currency2PerCurrency1
