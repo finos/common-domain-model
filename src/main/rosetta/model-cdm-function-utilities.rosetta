@@ -10,29 +10,19 @@ func CashPriceQuantityNoOfUnitsTriangulation: <"Data rule to check the relations
 	output:
 		success boolean (1..1)
 	
-	alias applicable:
-		price -> priceNotation -> assetIdentifier -> productIdentifier exists 
-			and quantity -> quantityNotation -> assetIdentifier -> productIdentifier exists 
-			and quantity -> quantityNotation -> assetIdentifier -> currency exists 
-			and price -> priceNotation -> price -> cashPrice -> netPrice -> amount exists 
-			// price and no of units product identifiers should match
-			and price -> priceNotation -> assetIdentifier -> productIdentifier = quantity -> quantityNotation -> assetIdentifier -> productIdentifier
-		
-	alias cashPrice:
-		if price -> priceNotation only-element -> price -> cashPrice -> netPrice -> amount exists
-		then price -> priceNotation only-element -> price -> cashPrice -> netPrice -> amount
-		else 0.0
-		
 	alias notional:
 		Notional(quantity -> quantityNotation)
 	
 	alias noOfUnits:
 		NoOfUnits(quantity -> quantityNotation)
 	
+	alias cashPrice:
+		if price -> priceNotation count = 1
+		then price -> priceNotation only-element -> price -> cashPrice -> netPrice -> amount
+	
 	assign-output success:
-		if applicable
+		if ( cashPrice and noOfUnits and notional ) exists
 		then cashPrice * noOfUnits = notional
-		else True
 	
 
 func NoOfUnits: <"Get quantity associated with product identifier, or zero if not present.">
