@@ -21,3 +21,21 @@ In the Ingestion Panel, try one of the following samples:
 - `products > fx > fx-ex06-fx-fwd-w-splits.xml`
 - `products > fx > fx-ex07-non-deliverable-forward.xml`
 - `products > fx > fx-ex28-non-deliverable-w-disruption.xml`
+
+# *Model Optimisation: Increase readability of condition names and simply the path expressions*
+
+_What is being released_
+
+- The names of all of the type conditions in the CDM have been renamed to increase readability.
+- The paths defined in the conditions no longer need to start with the type of the condition. This greatly increases the readability of the conditions.
+
+_Review Directions_
+
+- Navigate to the `Frequency` type and see the condition named `PositivePeriodMultiplier`. This was previously named `Frequency_periodMultiplier`.
+
+- See that the path that the path is simpliefied:
+  - Before: `if Frequency -> period = PeriodExtendedEnum -> T then Frequency -> periodMultiplier = 1`
+  - After: `if period = PeriodExtendedEnum -> T then periodMultiplier = 1`
+  
+ All conditions throughout the CDM have been updatged in similar ways.
+ 
