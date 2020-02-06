@@ -16,20 +16,22 @@ import com.rosetta.model.lib.meta.FieldWithMeta;
 public class NotionalImpl extends Notional {
 
 	@Override
-	protected BigDecimal doEvaluate(List<QuantityNotation> quantityNotations) {
+	protected BigDecimal doEvaluate(List<QuantityNotation> quantityNotations, String currency) {
 		return quantityNotations.stream()
-				.filter(this::isCurrencyAssetIdentifier)
+				.filter(q -> isCurrencyAssetIdentifier(q, Optional.ofNullable(currency)))
 				.map(QuantityNotation::getQuantity)
 				.map(NonNegativeQuantity::getAmount)
+				.distinct()
 				.findFirst()
-				.orElse(BigDecimal.ZERO);
+				.orElse(null);
 	}
 
-	private boolean isCurrencyAssetIdentifier(QuantityNotation quantityNotation) {
+	private boolean isCurrencyAssetIdentifier(QuantityNotation quantityNotation, Optional<String> currency) {
 		return Optional.ofNullable(quantityNotation)
 				.map(QuantityNotation::getAssetIdentifier)
 				.map(AssetIdentifier::getCurrency)
 				.map(FieldWithMeta::getValue)
+				.filter(c -> currency.map(c::equals).orElse(true))
 				.isPresent();
 	}
 }
