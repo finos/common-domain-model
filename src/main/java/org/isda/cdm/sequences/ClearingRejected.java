@@ -9,12 +9,13 @@ import org.isda.cdm.Workflow;
 import org.isda.cdm.WorkflowStep;
 import org.isda.cdm.functions.example.services.identification.IdentifierService;
 
-public class ClearingReject implements Sequence<Contract, Workflow> {
+public class ClearingRejected implements Sequence<Contract, Workflow> {
 	@Inject
 	private IdentifierService identifierService;
 	@Inject
 	private PostProcessorRunner runner;
 
+	@Override
 	public Workflow enrich(Contract contract) {
 		Contract contractWithRoles = ClearingUtils.addPartyRoles(contract);
 
