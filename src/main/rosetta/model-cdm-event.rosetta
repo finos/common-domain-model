@@ -164,24 +164,22 @@ type CustomisedWorkflow: <"In its initial iteration, this class is meant to supp
 		[synonym CME_SubmissionIRS_1_0 set to "Customer Account" when "Pty->R" = "24"]
 		[synonym CME_SubmissionIRS_1_0 set to "Custom" when "Pty->Src" = "D"]
 
-type BusinessEventInstruction: <"Instruction to a function that will be used to perform a business event">
+type Instruction: <"Instruction to a function that will be used to perform a business event">
+	// TODO - This should be updated to either use a cross reference to a func type or use an annotation.
+	instructionFunction string (1..1) <"Name of the function that will be called">
+	
 	allocation AllocationInstruction (0..1) <"Instruction to allocate">
     clearing ClearingInstruction (0..1) <"Instruction to clear">
 
-	condition: one-of
+	condition OneOfInstruction: required choice allocation, clearing
 
-
-type WorkflowStepInstruction:
-	// TODO - This should be updated to either use a cross reference to a func type or use an annotation.
-	instructionFunction string (1..1) <"Name of the function that will be called to ">
-	instruction BusinessEventInstruction (0..1) <"Input instruction to the instructionFunction">
 
 type WorkflowStep: <"A workflow step represents the state of a business event. The workflow step contains a reference to a previous WorkflowStep in order to preserve lineage. A workflow step is accepted if it contains a business event, proposed if proposedInstruction is present and is rejected if the rejected flag is set.">
 	[metadata key]
 	[rootType]
 	[synonym Workflow_Event meta "id"]
 	businessEvent BusinessEvent (0..1) <"Life cycle event for the step. The businessEvent is optional when a proposedInstruction or rejection are present.">
-	proposedInstruction WorkflowStepInstruction (0..1) <"The proposed instruction for the workflow step. The proposedInstruction is optional when the businessEvent or rejection are present">
+	proposedInstruction Instruction (0..1) <"The proposed instruction for the next workflow step. The proposedInstruction is optional when the businessEvent or rejection are present">
 		[synonym Workflow_Event value "proposedInstruction"]
 	// TODO - This will be replaced with a list of signatories that must sign off the 'previousWorkflowStep' and any operational reasons why it may be rejected.
 	rejected boolean (0..1) <"Flags this step as rejected.">
