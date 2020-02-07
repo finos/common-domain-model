@@ -1,6 +1,21 @@
 namespace "org.isda.cdm"
 version "${project.version}"
 
+func PriceQuantityTriangulation:
+	inputs:
+		price ExecutionPrice (1..1)
+		quantity ExecutionQuantity (1..1)
+
+	output:
+		success boolean (1..1)
+
+	assign-output success:
+		if price -> priceNotation -> price -> cashPrice exists
+		then CashPriceQuantityNoOfUnitsTriangulation( price, quantity )
+		else if price -> priceNotation -> price -> exchangeRate exists
+		then ExchangeRateQuantityTriangulation( price, quantity )
+		else True
+
 
 func CashPriceQuantityNoOfUnitsTriangulation: <"Data rule to check the relationship between cash price, notional and number of units.">
 	inputs:
@@ -9,31 +24,54 @@ func CashPriceQuantityNoOfUnitsTriangulation: <"Data rule to check the relations
 
 	output:
 		success boolean (1..1)
-	
-	alias applicable:
-		price -> priceNotation -> assetIdentifier -> productIdentifier exists 
-			and quantity -> quantityNotation -> assetIdentifier -> productIdentifier exists 
-			and quantity -> quantityNotation -> assetIdentifier -> currency exists 
-			and price -> priceNotation -> price -> cashPrice -> netPrice -> amount exists 
-			// price and no of units product identifiers should match
-			and price -> priceNotation -> assetIdentifier -> productIdentifier = quantity -> quantityNotation -> assetIdentifier -> productIdentifier
-		
-	alias cashPrice:
-		if price -> priceNotation only-element -> price -> cashPrice -> netPrice -> amount exists
-		then price -> priceNotation only-element -> price -> cashPrice -> netPrice -> amount
-		else 0.0
-		
+
 	alias notional:
-		Notional(quantity -> quantityNotation)
+		Notional(quantity -> quantityNotation, empty)
 	
 	alias noOfUnits:
 		NoOfUnits(quantity -> quantityNotation)
 	
+	alias cashPrice:
+		price -> priceNotation only-element -> price -> cashPrice -> netPrice -> amount
+
 	assign-output success:
-		if applicable
+		if ( cashPrice and noOfUnits and notional ) exists
 		then cashPrice * noOfUnits = notional
-		else True
+
+
+func ExchangeRateQuantityTriangulation:
+	inputs:
+		price ExecutionPrice (1..1)
+		quantity ExecutionQuantity (1..1)
+
+	output:
+		success boolean (1..1)
+
+	alias exchangeRate:
+		price -> priceNotation only-element -> price -> exchangeRate
+
+	alias rate:
+		if exchangeRate -> rate exists
+		then exchangeRate -> rate
+		else exchangeRate -> spotRate
 	
+	alias quotedCurrency:
+		exchangeRate -> quotedCurrencyPair
+
+	alias quantity1:
+		Notional( quantity -> quantityNotation, quotedCurrency -> currency1 )
+
+	alias quantity2:
+		Notional( quantity -> quantityNotation, quotedCurrency -> currency2 )
+	
+	assign-output success:
+		if ( quantity1 and quantity2 and rate ) exists 
+		then
+			if quotedCurrency -> quoteBasis = QuoteBasisEnum -> Currency1PerCurrency2
+			then quantity1 / quantity2 = rate
+			else if quotedCurrency -> quoteBasis = QuoteBasisEnum -> Currency2PerCurrency1
+			then quantity2 / quantity1 = rate
+
 
 func NoOfUnits: <"Get quantity associated with product identifier, or zero if not present.">
 	inputs:
@@ -46,6 +84,7 @@ func NoOfUnits: <"Get quantity associated with product identifier, or zero if no
 func Notional: <"Get quantity associated with currency, or zero if not present.">
 	inputs:
 		quantityNotations QuantityNotation (0..*)
+		currency string (0..1)
 
 	output:
 		notional number (1..1)

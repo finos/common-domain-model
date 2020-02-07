@@ -54,16 +54,16 @@ type AllocationPrimitive: <"The primitive event to represent a split/allocation 
 		[synonym Workflow_Event value "after"]
 
 	// TODO: move these data rule as a "post-condition" to the Allocation "Function Spec"
-	condition AllocationPrimitive_executionType: <"If the trade type pre-allocation is an execution, then the trade type post-allocation must also be an execution.">
-		if AllocationPrimitive exists and AllocationPrimitive -> before -> execution exists
-		then AllocationPrimitive -> after -> originalTrade -> execution exists
-			and AllocationPrimitive -> after -> allocatedTrade -> execution exists
-			and AllocationPrimitive -> after -> allocatedTrade -> contract is absent
-	condition AllocationPrimitive_contractType: <"If the trade type pre-allocation is a contract, then the trade type post-allocation must also be a contract.">
-		if AllocationPrimitive exists and AllocationPrimitive -> before -> contract exists
-		then AllocationPrimitive -> after -> originalTrade -> contract exists
-			and AllocationPrimitive -> after -> allocatedTrade -> contract exists
-			and AllocationPrimitive -> after -> allocatedTrade -> execution is absent
+	condition ExecutionType: <"If the trade type pre-allocation is an execution, then the trade type post-allocation must also be an execution.">
+		if AllocationPrimitive exists and before -> execution exists
+		then after -> originalTrade -> execution exists
+			and after -> allocatedTrade -> execution exists
+			and after -> allocatedTrade -> contract is absent
+	condition ContractType: <"If the trade type pre-allocation is a contract, then the trade type post-allocation must also be a contract.">
+		if AllocationPrimitive exists and before -> contract exists
+		then after -> originalTrade -> contract exists
+			and after -> allocatedTrade -> contract exists
+			and after -> allocatedTrade -> execution is absent
 
 type ExercisePrimitive: <"This primitive leverages the FpML OptionExercise construct, except for the exerciseTiming which is deemed as associated to a request for exercise that is meant to take place, as opposed to the actual exercise event.">
 	exerciseDate AdjustableOrAdjustedDate (0..1)
@@ -112,9 +112,9 @@ type ResetPrimitive: <"The primitive event to represent a reset.">
 		[synonym Workflow_Event value "ignore"]
 	after ContractState (1..1) <"Contract state after the reset, that embeds the reset value as an updated field on the contract state.">
 		[synonym Workflow_Event value "ignore"]
-	condition ResetPrimitive_contract: <"The original contract in the before/after state of a reset should match.">
+	condition Contract: <"The original contract in the before/after state of a reset should match.">
 		if ResetPrimitive exists
-		then ResetPrimitive -> before -> contract = ResetPrimitive -> after -> contract
+		then before -> contract = after -> contract
 
 type TermsChangePrimitive: <"The primitive event to represent change(s) to the contractual terms and the clearing submission and acceptance process.">
 	before Trade (1..1)
