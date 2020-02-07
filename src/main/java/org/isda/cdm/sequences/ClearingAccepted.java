@@ -20,7 +20,9 @@ public class ClearingAccepted implements Sequence<Contract, Workflow> {
 
 	@Override
 	public Workflow enrich(Contract contract) {
-		Contract contractWithParties = ClearingUtils.addPartyRoles(contract);
+		Contract.ContractBuilder contractBuilder = contract.toBuilder();
+		runner.postProcess(Contract.class, contractBuilder);  // TODO: is this needed here?
+		Contract contractWithParties = ClearingUtils.addPartyRoles(contractBuilder.build());
 
 		String externalReference = contractWithParties.getMeta().getGlobalKey();
 
