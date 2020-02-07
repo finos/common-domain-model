@@ -2,7 +2,7 @@ package org.isda.cdm.sequences;
 
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
-import com.rosetta.model.lib.process.PostProcessorRunner;
+import com.rosetta.model.lib.process.PostProcessorRunnerI;
 import com.rosetta.model.lib.sequence.Sequence;
 import org.isda.cdm.Contract;
 import org.isda.cdm.Workflow;
@@ -16,7 +16,7 @@ public class ClearingAccepted implements Sequence<Contract, Workflow> {
 	@Inject
 	private Clear clear;
 	@Inject
-	private PostProcessorRunner runner;
+	private PostProcessorRunnerI runner;
 
 	@Override
 	public Workflow enrich(Contract contract) {

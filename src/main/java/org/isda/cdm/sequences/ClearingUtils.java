@@ -1,6 +1,6 @@
 package org.isda.cdm.sequences;
 
-import com.rosetta.model.lib.process.PostProcessorRunner;
+import com.rosetta.model.lib.process.PostProcessorRunnerI;
 import org.isda.cdm.*;
 import org.isda.cdm.functions.Clear;
 import org.isda.cdm.functions.example.services.identification.IdentifierService;
@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 public class ClearingUtils {
 
-	static WorkflowStep buildRejectStep(PostProcessorRunner runner, WorkflowStep previous, String externalReference, IdentifierService identifierService) {
+	static WorkflowStep buildRejectStep(PostProcessorRunnerI runner, WorkflowStep previous, String externalReference, IdentifierService identifierService) {
 		WorkflowStep.WorkflowStepBuilder stepBuilder = WorkflowStep.builder();
 		stepBuilder
 			.setPreviousWorkflowStep(ReferenceWithMetaWorkflowStep.builder()
@@ -31,7 +31,7 @@ public class ClearingUtils {
 		return stepBuilder.build();
 	}
 
-	static WorkflowStep buildProposeStep(PostProcessorRunner runner, WorkflowStep previous, String externalReference, IdentifierService identifierService) {
+	static WorkflowStep buildProposeStep(PostProcessorRunnerI runner, WorkflowStep previous, String externalReference, IdentifierService identifierService) {
 		WorkflowStep.WorkflowStepBuilder stepBuilder = WorkflowStep.builder();
 		stepBuilder
 			.setPreviousWorkflowStep(ReferenceWithMetaWorkflowStep.builder()
@@ -77,7 +77,7 @@ public class ClearingUtils {
 		return contract.toBuilder().addPartyRole(partyRole1).addPartyRole(partyRole2).build();
 	}
 
-	static WorkflowStep buildClear(PostProcessorRunner runner, Contract contract, String externalReference, WorkflowStep previous, ClearingInstruction clearingInstruction, Clear clear, IdentifierService identifierService) {
+	static WorkflowStep buildClear(PostProcessorRunnerI runner, Contract contract, String externalReference, WorkflowStep previous, ClearingInstruction clearingInstruction, Clear clear, IdentifierService identifierService) {
 
 		BusinessEvent.BusinessEventBuilder businessEventBuilder = clear.evaluate(contract, clearingInstruction).toBuilder();
 
@@ -133,7 +133,7 @@ public class ClearingUtils {
 		});
 	}
 
-	static WorkflowStep buildContractFormationStep(PostProcessorRunner runner, Contract contract, String externalReference, IdentifierService identifierService) {
+	static WorkflowStep buildContractFormationStep(PostProcessorRunnerI runner, Contract contract, String externalReference, IdentifierService identifierService) {
 		WorkflowStep.WorkflowStepBuilder stepBuilder = WorkflowStep.builder();
 		stepBuilder.getOrCreateBusinessEvent()
 			.addPrimitives(PrimitiveEvent.builder()
