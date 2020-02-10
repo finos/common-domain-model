@@ -1,22 +1,23 @@
-package org.isda.cdm.sequences;
+package org.isda.cdm.workflows;
 
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
-import com.rosetta.model.lib.process.PostProcessorRunnerI;
-import com.rosetta.model.lib.sequence.Sequence;
+import com.rosetta.model.lib.process.PostProcessor;
 import org.isda.cdm.Contract;
 import org.isda.cdm.Workflow;
 import org.isda.cdm.WorkflowStep;
 import org.isda.cdm.functions.example.services.identification.IdentifierService;
 
-public class ClearingRejected implements Sequence<Contract, Workflow> {
+import java.util.function.Function;
+
+public class ClearingRejected implements Function<Contract, Workflow> {
 	@Inject
 	private IdentifierService identifierService;
 	@Inject
-	private PostProcessorRunnerI runner;
+	private PostProcessor runner;
 
 	@Override
-	public Workflow enrich(Contract contract) {
+	public Workflow apply(Contract contract) {
 		Contract contractWithRoles = ClearingUtils.addPartyRoles(contract);
 
 		String externalReference = contractWithRoles.getMeta().getGlobalKey();
