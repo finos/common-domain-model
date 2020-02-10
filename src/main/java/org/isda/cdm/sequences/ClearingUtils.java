@@ -76,7 +76,7 @@ public class ClearingUtils {
 		return contract.toBuilder().addPartyRole(partyRole1).addPartyRole(partyRole2).build();
 	}
 
-	static WorkflowStep buildClear(PostProcessorRunnerI runner, Contract contract, String externalReference, WorkflowStep previous, ClearingInstruction clearingInstruction, Clear clear, IdentifierService identifierService) {
+	static WorkflowStep buildClear(PostProcessorRunnerI runner, String externalReference, WorkflowStep previous, ClearingInstruction clearingInstruction, Clear clear, IdentifierService identifierService) {
 
 		BusinessEvent.BusinessEventBuilder businessEventBuilder = clear.evaluate(clearingInstruction).toBuilder();
 
