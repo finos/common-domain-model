@@ -491,14 +491,18 @@ func PartyByRole: <"Given a collection of party role containers and a party role
 
 type ClearingInstruction: <"All information required to perform the clear life cycle event">
 	clearingParty Party(1..1)
+	alphaContract Contract (1..1)
+		[metadata reference]
 
 func Clear: <"Clear function that inputs the alpha contract and clearingInstruction, resulting in the cleared BusinessEvent">
 	inputs:
-		alpha Contract (1..1) <"Affirmed contract">
-		clearingInstruction ClearingInstruction(1..1) <"Affirmed contract">
+		clearingInstruction ClearingInstruction(1..1) <"Clearing Instruction with all information to clear the trade including the alpha contract and the clearing party.">
 
 	output:
 		clearedEvent BusinessEvent (1..1) <"Business event qualified as a cleared trade">
+
+	alias alpha:
+		clearingInstruction -> alphaContract
 
 	alias party1: <"Executing entity">
 		PartyByRole(alpha -> partyRole, PartyRoleEnum -> ExecutingEntity)
