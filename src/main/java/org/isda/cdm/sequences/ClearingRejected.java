@@ -25,7 +25,7 @@ public class ClearingRejected implements Sequence<Contract, Workflow> {
 		WorkflowStep contractFormationStep = ClearingUtils.buildContractFormationStep(runner, contractWithRoles, externalReference, identifierService);
 
 		// propose clear step
-		WorkflowStep proposeStep = ClearingUtils.buildProposeStep(runner, contractFormationStep, externalReference, identifierService);
+		WorkflowStep proposeStep = ClearingUtils.buildProposeStep(runner, contractFormationStep, contractWithRoles, externalReference, identifierService);
 
 		WorkflowStep rejectStep = ClearingUtils.buildRejectStep(runner, proposeStep, externalReference, identifierService);
 

@@ -30,9 +30,9 @@ public class ClearingAccepted implements Sequence<Contract, Workflow> {
 		WorkflowStep contractFormationStep = ClearingUtils.buildContractFormationStep(runner, contractWithParties, externalReference, identifierService);
 
 		// propose clear step
-		WorkflowStep proposeStep = ClearingUtils.buildProposeStep(runner, contractFormationStep, externalReference, identifierService);
+		WorkflowStep proposeStep = ClearingUtils.buildProposeStep(runner, contractFormationStep, contractWithParties, externalReference, identifierService);
 
-		WorkflowStep clearStep = ClearingUtils.buildClear(runner, contractWithParties, externalReference, proposeStep, proposeStep.getProposedInstruction().getInstruction().getClearing(), clear, identifierService);
+		WorkflowStep clearStep = ClearingUtils.buildClear(runner, contractWithParties, externalReference, proposeStep, proposeStep.getProposedInstruction().getClearing(), clear, identifierService);
 
 		return Workflow.builder().addSteps(Lists.newArrayList(contractFormationStep, proposeStep, clearStep)).build();
 	}
