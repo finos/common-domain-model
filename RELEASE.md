@@ -2,10 +2,11 @@
 
 _What is being released_
 
- * Added new enum options for DividendDateReferenceEnum:
+ * Added new enum options for `DividendDateReferenceEnum`:
    * `CumulativeEquityExDivBeforeReset`
    * `CumulativeEquityPaidBeforeReset`
    * `CumulativeEquityPaidInclReset`
+   * `CumulativeLiborPaid` renamed as `CumulativeInterestPaid`, including for ExDiv type.
    * `CumulativeInterestPaidInclReset`
    * `CumulativeInterestPaidBeforeReset`
    * `UnwindOrEquityExDiv`
@@ -14,10 +15,10 @@ _What is being released_
    * `UnwindOrInterestPaid`
    * `UnwindExDiv`
    * `UnwindPaid`
-   
- * Updated AllocationBreakdown to have a quantity of type QuantityNotation wherease previously it was NonNegativeQuantity
+ 
+ * Updated `AllocationBreakdown` to have a quantity of type `QuantityNotation` wherease previously it was `NonNegativeQuantity`
 
- * Added additional details to AllocationBreakdown including account, collateral and allocationTradeId in order to ensure that AllocationBreakdown is more consistent with its FpML specification - https://www.fpml.org/spec/fpml-5-10-5-rec-1/html/confirmation/schemaDocumentation/schemas/fpml-doc-5-10_xsd/complexTypes/Allocations/allocation.html
+ * Added additional details to `AllocationBreakdown` including account, collateral and allocationTradeId in order to ensure that AllocationBreakdown is more consistent with its FpML specification - https://www.fpml.org/spec/fpml-5-10-5-rec-1/html/confirmation/schemaDocumentation/schemas/fpml-doc-5-10_xsd/complexTypes/Allocations/allocation.html
 
 _Review Directions_
 
