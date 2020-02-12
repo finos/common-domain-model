@@ -3,17 +3,17 @@
 _What is being released_
 
  * Added new enum options for DividendDateReferenceEnum:
-   * CumulativeEquityExDivBeforeReset
-   * CumulativeEquityPaidBeforeReset
-   * CumulativeEquityPaidInclReset
-   * CumulativeInterestPaidInclIntPay
-   * CumulativeInterestPaidBeforeInt
-   * UnwindOrEquityExDiv
-   * UnwindOrEquityPaid
-   * UnwindOrInterestExDiv
-   * UnwindOrInterestPaid
-   * UnwindExDiv
-   * UnwindPaid
+   * `CumulativeEquityExDivBeforeReset`
+   * `CumulativeEquityPaidBeforeReset`
+   * `CumulativeEquityPaidInclReset`
+   * `CumulativeInterestPaidInclReset`
+   * `CumulativeInterestPaidBeforeReset`
+   * `UnwindOrEquityExDiv`
+   * `UnwindOrEquityPaid`
+   * `UnwindOrInterestExDiv`
+   * `UnwindOrInterestPaid`
+   * `UnwindExDiv`
+   * `UnwindPaid`
    
  * Updated AllocationBreakdown to have a quantity of type QuantityNotation wherease previously it was NonNegativeQuantity
 
