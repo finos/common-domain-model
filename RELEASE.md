@@ -63,5 +63,16 @@ _Review Directions_
 
 In the Textual Browser, review the following the above types.
 
+# *Repo Model: Open Repo Handling*
 
- 
+_What is being released_
+
+Following initial workshop with ICMA focusing on the open repo use-case, the CDM has been updated to handle the `Call` feature of open repos, using the same callable/extendible provision component as for Swaps.
+
+The `CallableProvision` and `ExtendibleProvision` have been factored into a common `OptionProvision` component, existing FpML `synonyms` have been updated and the corresponding `Call` component in FpML for open repo has been mapped.
+
+_Review Directions_
+
+In the Textual / Graphical Browser, see: `EconomicTerms` > `OptionProvision`.
+
+In the Ingestion Panel, see Product > Repo > "repo-ex02-repo-open-fixed-rate"
