@@ -39,7 +39,7 @@ type AveragingPeriod: <"Period over which an average value is taken.">
 	marketDisruption MarketDisruptionEnum (0..1) <"The market disruption event as defined by ISDA 2002 Definitions.">
 		[metadata scheme]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "marketDisruption" meta "marketDisruptionScheme"]
-	condition AveragingPeriod_choice: <" Choice rule to represent an FpML choice construct between unweighted and weighted averaging date and times.">
+	condition Choice: <" Choice rule to represent an FpML choice construct between unweighted and weighted averaging date and times.">
 		optional choice averagingDateTimes, averagingObservations
 
 
@@ -156,12 +156,12 @@ type FeaturePayment: <"Payment made following trigger occurrence.">
 	paymentDate AdjustableOrRelativeDate (0..1) <"The feature payment date.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "featurePaymentDate"]
 
-	condition FeaturePayment_choice: <" Choice rule to represent an FpML choice construct.">
+	condition Choice: <" Choice rule to represent an FpML choice construct.">
 		required choice levelPercentage, amount
 
-	condition FeaturePayment_amount: <" The amount attribute is specified in FpML as non-negative decimal.">
-		if FeaturePayment -> amount exists
-		then FeaturePayment -> amount >= 0.0
+	condition Amount: <" The amount attribute is specified in FpML as non-negative decimal.">
+		if amount exists
+		then amount >= 0.0
 
 type FxFeature: <"A type for defining FX Features.">
 	[synonym FpML_5_10 value "FxFeature"]
@@ -180,7 +180,7 @@ type FxFeature: <"A type for defining FX Features.">
 	crossCurrency Composite (0..1) <"If 'Cross-Currency' is specified as the Settlement Type in the relevant Transaction Supplement, an amount in the Settlement Currency, determined by the Calculation Agent as being equal to the number of Options exercised or deemed exercised, multiplied by: (Settlement Price – Strike Price) / (Strike Price – Settlement Price) x Multiplier x one unit of the Reference Currency converted into an amount in the Settlement Currency using the rate of exchange of the Settlement Currency as quoted on the Reference Price Source on the Valuation Date, provided that if the above is equal to a negative amount the Option Cash Settlement Amount shall be deemed to be zero.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "crossCurrency"]
 
-	condition FxFeature_choice: <" Choice rule to represent an FpML choice construct.">
+	condition Choice: <" Choice rule to represent an FpML choice construct.">
 		required choice composite, quanto, crossCurrency
 
 type GracePeriodExtension:
@@ -222,13 +222,13 @@ type OptionDenomination: <"Class which corresponds to the FpML OptionDenominatio
 	numberOfOptions number (0..1) <"The number of options comprised in the option transaction.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "numberOfOptions"]
 
-	condition OptionDenomination_optionEntitlement: <" In FpML the optionEntitlement element is specified as a positive decimal.">
-		if OptionDenomination -> optionEntitlement exists
-		then OptionDenomination -> optionEntitlement >= 0.0
+	condition PositiveOptionEntitlement: <" In FpML the optionEntitlement element is specified as a positive decimal.">
+		if optionEntitlement exists
+		then optionEntitlement >= 0.0
 
-	condition OptionDenomination_numberOfOptions: <" In FpML the numberOfOptions element is specified as a positive decimal.">
-		if OptionDenomination -> numberOfOptions exists
-		then OptionDenomination -> numberOfOptions >= 0.0
+	condition PositiveNumberOfOptions: <" In FpML the numberOfOptions element is specified as a positive decimal.">
+		if numberOfOptions exists
+		then numberOfOptions >= 0.0
 
 type OptionFeature: <"A class for defining option features.">
 	[synonym FpML_5_10 value "OptionFeature"]
@@ -246,6 +246,14 @@ type OptionFeature: <"A class for defining option features.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "passThrough"]
 
 
+type OptionProvision: <"A class for defining option provisions.">
+	cancelableProvision CancelableProvision (0..1) <"A provision that allows the specification of an embedded option within a swap giving the buyer of the option the right to terminate the swap, in whole or in part, on the early termination date.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "cancelableProvision"]
+		[synonym FpML_5_10 hint "callingParty"]
+	extendibleProvision ExtendibleProvision (0..1) <"A provision that allows the specification of an embedded option with a swap giving the buyer of the option the right to extend the swap, in whole or in part, to the extended termination date.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "extendibleProvision"]
+
+
 type OptionSettlement extends SettlementTerms: <"The option settlement terms, which can either be cash, physical, or fx-based cash-settlement. This class can be used for both the settlement of options or forwards.">
 	// TBD: refactor OptionCashSettlement and FxCashSettlement to be a unique class, where cash settlement can be specified in a given currency?
 	cashSettlementTerms OptionCashSettlement (0..1) <"Specifies the parameters associated with the cash settlement procedure.">
@@ -255,16 +263,17 @@ type OptionSettlement extends SettlementTerms: <"The option settlement terms, wh
 	fxSettlementTerms FxCashSettlement (0..1) <"Specifies the cash settlement of a non deliverable fx option / forward. It includes the currency to settle into together with the fixings required to calculate the currency amount">
 		[synonym FpML_5_10 value "nonDeliverableSettlement"]
 
-	condition OptionSettlement_choice: <"The option settlement cannot combine both physical and cash terms specification.">
+	condition Choice: <"The option settlement cannot combine both physical and cash terms specification.">
 		optional choice cashSettlementTerms, physicalSettlementTerms, fxSettlementTerms
 
-	condition OptionSettlement_cashSettlementTerms: <"If the cash settlement terms are specified, then the settlementType can either be Cash, Election or CashOrPhysical">
-		if OptionSettlement -> cashSettlementTerms exists
-		then OptionSettlement -> settlementType <> SettlementTypeEnum -> Physical
+	condition CashSettlementTerms: <"If the cash settlement terms are specified, then the settlementType can either be Cash, Election or CashOrPhysical">
+		if cashSettlementTerms exists
+		then settlementType <> SettlementTypeEnum -> Physical
 
-	condition OptionSettlement_physicalSettlementTerms: <"If the physical settlement terms are specified, then the settlementType can either be Physical, Election or CashOrPhysical">
-		if OptionSettlement -> physicalSettlementTerms exists
-		then OptionSettlement -> settlementType <> SettlementTypeEnum -> Cash
+	condition PhysicalSettlementTerms: <"If the physical settlement terms are specified, then the settlementType can either be Physical, Election or CashOrPhysical">
+		if physicalSettlementTerms exists
+		then settlementType <> SettlementTypeEnum -> Cash
+
 
 type OptionStrike: <"A class to specify the option strike.">
 	[synonym FpML_5_10 value "CreditOptionStrike"]
@@ -324,12 +333,12 @@ type PubliclyAvailableInformation:
 	specifiedNumber int (0..1) <"The minimum number of the specified public information sources that must publish information that reasonably confirms that a credit event has occurred. The market convention is two. ISDA 2003 Term: Specified Number.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "specifiedNumber"]
 
-	condition PubliclyAvailableInformation_choice: <" FpML validation rule cd-36 - Context: PubliclyAvailableInformation (complex type). Either standardPublicSources or at least one publicSource element must exist.">
+	condition SourceChoice: <" FpML validation rule cd-36 - Context: PubliclyAvailableInformation (complex type). Either standardPublicSources or at least one publicSource element must exist.">
 		required choice standardPublicSources, publicSource
 
-	condition PubliclyAvailableInformation_specifiedNumber: <" FpML specifies specifiedNumber as a positiveInteger.">
-		if PubliclyAvailableInformation -> specifiedNumber exists
-		then PubliclyAvailableInformation -> specifiedNumber >= 0
+	condition PositiveSpecifiedNumber: <" FpML specifies specifiedNumber as a positiveInteger.">
+		if specifiedNumber exists
+		then specifiedNumber >= 0
 
 /*
  * The below definition originating from FpML probably needs to be updated, as it is very equity-specific.
@@ -391,10 +400,10 @@ type Trigger: <"Trigger point at which feature is effective.">
 	triggerTimeType TriggerTimeTypeEnum (0..1) <"The valuation time type of knock condition.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "triggerTimeType"]
 
-	condition Trigger_choice1: <" Choice rule to represent an FpML choice construct.">
+	condition Choice1: <" Choice rule to represent an FpML choice construct.">
 		required choice level, levelPercentage , creditEvents , creditEventsReference
 
-	condition Trigger_choice2: <" Choice rule to represent an FpML choice construct.">
+	condition Choice2: <" Choice rule to represent an FpML choice construct.">
 		required choice creditEvents, creditEventsReference
 
 
@@ -421,13 +430,13 @@ type WeightedAveragingObservation: <"A single weighted averaging observation.">
 	weight number (1..1) <"Observation weight, which is used as a multiplier for the observation value.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "weight"]
 
-	condition WeightedAveragingObservation_choice: <" Choice rule to represent an FpML choice construct between date times for literal date values, and observation numbers for schedule generated observations.">
+	condition Choice: <" Choice rule to represent an FpML choice construct between date times for literal date values, and observation numbers for schedule generated observations.">
 		required choice dateTime, observationNumber
 
-	condition WeightedAveragingObservation_observationNumber: <" FpML specifies observationNumber as a positive integer.">
-		if WeightedAveragingObservation -> observationNumber exists
-		then WeightedAveragingObservation -> observationNumber >= 0
+	condition PositiveObservationNumber: <" FpML specifies observationNumber as a positive integer.">
+		if observationNumber exists
+		then observationNumber >= 0
 
-	condition WeightedAveragingObservation_weight: <" FpML specifies observationNumber as a non-negative decimal.">
-		if WeightedAveragingObservation -> weight exists
-		then WeightedAveragingObservation -> weight >= 0.0
+	condition PositiveWeight: <" FpML specifies observationNumber as a non-negative decimal.">
+		if weight exists
+		then weight >= 0.0

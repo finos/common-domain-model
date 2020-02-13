@@ -7,6 +7,7 @@ import org.isda.cdm.functions.NoOfUnits;
 import org.isda.cdm.functions.NoOfUnitsImpl;
 import org.isda.cdm.functions.Notional;
 import org.isda.cdm.functions.NotionalImpl;
+import org.isda.cdm.functions.PartyByRoleImpl;
 import org.isda.cdm.functions.ResolveContractualProduct;
 import org.isda.cdm.functions.ResolveContractualProductImpl;
 import org.isda.cdm.functions.ResolveEquityInitialPrice;
@@ -23,6 +24,7 @@ import com.rosetta.model.lib.validation.ModelObjectValidator;
 import cdm.base.maths.functions.Abs;
 import cdm.base.maths.functions.ListsCompare;
 import cdm.base.maths.functions.Sum;
+import cdm.base.staticdata.party.functions.PartyByRole;
 
 public class CdmRuntimeModule extends AbstractModule {
 
@@ -42,6 +44,8 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(ResolveEquityInitialPrice.class).to(bindResolveEquityInitialPrice());
 		bind(NoOfUnits.class).to(bindNoOfUnits());
 		bind(Notional.class).to(bindNotional());
+		bind(PartyByRole.class).to(PartyByRoleImpl.class);
+
 	}
 
 	protected Class<? extends ListsCompare> bindListsCompare() {
