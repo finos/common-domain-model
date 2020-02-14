@@ -8,7 +8,13 @@ type AllocationInstruction:
 type AllocationBreakdown:
 	partyReference Party (1..1) <"Reference to the party to specify the account.">
 		[metadata reference]
-	quantity NonNegativeQuantity (1..1) <"The quantity to be allocated to the party.">
+	quantity QuantityNotation (1..1) <"The quantity to be allocated to the party.">
+	allocationTradeId Identifier (1..*)<"The identifier to be assigned to the new trade post allocation">
+	[synonym FpML_5_10 value "allocationTradeId"]
+	account Account (0..1)<"The account to allocate the trade into">
+	collateral Collateral (0..1)<"The sum that must be posted upfront to collateralize against counterparty credit risk.">
+	[synonym FpML_5_10 value "collateral"]
+
 
 
 type AllocationOutcome: <"A class to specify the allocated outcome as the combination of the previous Trade, which is either an execution or a contract and which state is specified as 'Allocated', and a set of Trade(s) of the same execution or contract type as before allocation. The allocation to one single trade is deemed appropriate: e.g. the trade could be effectively allocated from the fund manager doing the execution to a single fund entity.">
@@ -73,6 +79,7 @@ type ComputedAmount: <"A class to specify the outcome of a computed amount, for 
 		[synonym Workflow_Event value "currency" meta "currencyScheme"]
 
 type ContractState: <"A class to specify a contract state instantiation with respect to the before and/or after state of lifecycle events.">
+	[metadata key] 
 	contract Contract (1..1) <"Reference to the original contract, such that the contract state can be resolved by super-imposing the updated values on top of the original contract.">
 		// [synonym Workflow_Event value "trade"]
 		[synonym DTCC_11_0, DTCC_9_0 value "FpML" path "Trade"]
@@ -164,24 +171,22 @@ type CustomisedWorkflow: <"In its initial iteration, this class is meant to supp
 		[synonym CME_SubmissionIRS_1_0 set to "Customer Account" when "Pty->R" = "24"]
 		[synonym CME_SubmissionIRS_1_0 set to "Custom" when "Pty->Src" = "D"]
 
-type BusinessEventInstruction: <"Instruction to a function that will be used to perform a business event">
+type Instruction: <"Instruction to a function that will be used to perform a business event">
+	// TODO - This should be updated to either use a cross reference to a func type or use an annotation.
+	instructionFunction string (1..1) <"Name of the function that will be called">
+	
 	allocation AllocationInstruction (0..1) <"Instruction to allocate">
     clearing ClearingInstruction (0..1) <"Instruction to clear">
 
-	condition: one-of
+	condition OneOfInstruction: required choice allocation, clearing
 
-
-type WorkflowStepInstruction:
-	// TODO - This should be updated to either use a cross reference to a func type or use an annotation.
-	instructionFunction string (1..1) <"Name of the function that will be called to ">
-	instruction BusinessEventInstruction (0..1) <"Input instruction to the instructionFunction">
 
 type WorkflowStep: <"A workflow step represents the state of a business event. The workflow step contains a reference to a previous WorkflowStep in order to preserve lineage. A workflow step is accepted if it contains a business event, proposed if proposedInstruction is present and is rejected if the rejected flag is set.">
 	[metadata key]
 	[rootType]
 	[synonym Workflow_Event meta "id"]
 	businessEvent BusinessEvent (0..1) <"Life cycle event for the step. The businessEvent is optional when a proposedInstruction or rejection are present.">
-	proposedInstruction WorkflowStepInstruction (0..1) <"The proposed instruction for the workflow step. The proposedInstruction is optional when the businessEvent or rejection are present">
+	proposedInstruction Instruction (0..1) <"The proposed instruction for the next workflow step. The proposedInstruction is optional when the businessEvent or rejection are present">
 		[synonym Workflow_Event value "proposedInstruction"]
 	// TODO - This will be replaced with a list of signatories that must sign off the 'previousWorkflowStep' and any operational reasons why it may be rejected.
 	rejected boolean (0..1) <"Flags this step as rejected.">
@@ -245,6 +250,9 @@ type WorkflowStep: <"A workflow step represents the state of a business event. T
 			or businessEvent -> primitives -> observation exists
 			or businessEvent -> primitives -> reset exists)
 		then businessEvent -> intent is absent
+		
+type Workflow: <"A collection of workflow steps which together makeup an entire workflow sequence.">
+	steps WorkflowStep (1..*)
 
 type BusinessEvent: <"A business event represents a life cycle event of a trade and consists of a series of primitive events. The combination of the state changes results in a qualifiable life cycle event. An example of a Business Event is a PartialTermination which is a defined by a quantity change primitive event.">
 	primitives PrimitiveEvent (1..*) <"The elemental component(s) that specify the lifecycle events. Each of the primitive/elemental components listed as part of the PrimitiveEvent class has distinctive features that allow to specify the lifecycle event, either by itself or in combination with some other of such components.">
@@ -330,6 +338,7 @@ type ExerciseOutcome: <"The exercise outcome combines the option contract (which
 		required choice physicalExercise, cashExercise
 
 type ExecutionState: <"A class to specify an execution instantiation with respect to the before and/or after state of lifecycle events.">
+	[metadata key] 
 	execution Execution (1..1)
 		[synonym Workflow_Event value "execution"]
 
@@ -491,6 +500,7 @@ type SecurityTransferComponent extends TransferBase:
 
 //one of
 type Trade: <"A class to represent the general trade concept, which can either be an execution or a contract. The execution consists essentially in the economic terms which are agreed between the parties. The contract will further qualify those with the legal entities (think of the allocation case, which execution state can involve the investment adviser rather not the actual funds) while not specify the master agreement or collateral terms which might be associated with the subsequent contract.">
+	[metadata key] 
 	execution Execution (0..1) <"The execution corresponds to economic terms that are agreed between parties, but which legal terms are not yet specified. The execution attribute applies to the post-execution scenario of a product that is subject to the clearing mandate and is then routed to the CCP as an execution.">
 		[synonym CME_SubmissionIRS_1_0 value "TrdCaptRpt" set when "TrdCaptRpt->VenuTyp" exists]
 		// [synonym Workflow_Event value "trade" set when "trade->executionType" exists]
