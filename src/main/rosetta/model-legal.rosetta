@@ -1170,13 +1170,12 @@ type UmbrellaAgreementEntity extends LegalEntity: <"A class to specify the legal
 
 // TODO: part of eligible collateral refactoring - re-order in file once fully agreed
 
-// TODO: rename to "Issue" to Instrument or Asset or Collateral?
-type CollateralIssueInformation: <"COLLATERAL ISSUE INFORMATION.">
+type CollateralInstrumentInformation: <"COLLATERAL ISSUE INFORMATION.">
     issuerType CollateralIssuerTypeClassificationEnum (1..1) <"Origin of entity issuing the asset.">
     issuerCountryOfOrigin string (1..1) <"The ISO 3166 standard code for the country of origin of issue entity.">
 		[metadata scheme]
-    collateralType CollateralType (1..1) <"Definition of collateral type.">
-	collateralIdentifier ProductIdentifier (0..*)
+    instrumentType CollateralType (1..1) <"Definition of collateral type.">
+	instrumentIdentifier ProductIdentifier (0..*)
     counterpartyOwnIssue boolean (1..1) <"Is asset issued by posting entity or member of corporate family - note: not permitted under specific regulations."> // Explore options to infer this from one way risk
 
 type CollateralType:
@@ -1191,19 +1190,19 @@ type CollateralType:
 
 type MaturityRange: <"COLLATERAL MATURITY RANGE.">
     periodRange PeriodRange (0..1) <"Range of time to elapse until final maturity of asset.">
-	// TODO: Ask working group - should dateRange include attribute to specify whether boundary is inclusive.
-    // TODO: is this necessary / remove?
+	// TODO: Ask working group - should dateRange include attribute to specify whether boundary is inclusive. answer from working group is to be able to specify if boundary is inclusive
+    // TODO: is this necessary / remove?- answer from working group to keep option of specific date range 
 	dateRange DateRange (0..1) <"Asset issue date and end date at redemption.">
 
 	condition: one-of
 
 type AgencyRating:
 	issuerAgencyRating CreditNotations (0..1) <"Agency rating based on default risk and creditors claim in event of default associated with issuer of asset.">
-	issueAgencyRating CreditNotations (0..1) <"Agency rating based on default risk and creditors claim in event of default associated with specific asset.">
+	instrumentAgencyRating CreditNotations (0..1) <"Agency rating based on default risk and creditors claim in event of default associated with specific instrument.">
 	sovereignAgencyRating CreditNotations (0..1) <"Agency rating based on default risk of country.">
 
 	condition Choice:
-		required choice issuerAgencyRating, issueAgencyRating, sovereignAgencyRating
+		required choice issuerAgencyRating, instrumentAgencyRating, sovereignAgencyRating
 
 
 type CollateralValuationPercentage: <"COLLATERAL HAIRCUT.">
@@ -1217,3 +1216,67 @@ type PeriodRange:
 type PeriodBound:
     period Period (0..1)
     inclusive boolean (1..1)
+
+// TODO -collateral schdeules extensions see list below
+// Issuer Region - EU zone or G20 (add to collateral issue information)
+// wrong way risk/ concentration limits
+// Industry types in relation to corporate bonds (NAIC standards?)- check CDM current representation
+// equity - stock index definitions (iso standards used for stock index types?) - check CDM current representation
+// equity - exchange definitions (stock exchange codes) - check CDM current representation
+// custody documentation -tax documentation required (boolean) 
+// custody documentation -held location(string/ country code?)
+// custody documentation -eligible location(string)
+// lend or pledge (japan only) - research!
+// security redemption - callable y/n, non callable y/n
+// Issued after? date after which collateral can be used/ period after issue/ seasoning?
+// Issuance amount- Certain amount that has to be issued before used as collateral (difference ways of representing this ( >,< or % , number)
+// Guarantors, (string) types of non govt guaranteed by government other entity ?
+// Security trading- certified / non certified 
+// Third party pricing available (Boolean) – viable 3rd party pricing of physical assets?
+// Letter of Credit – various options a)expiration substitution b) issue date (legacy agreements only)
+// Tranche level types – in bankruptcy event bigger % h/c due to tranche types
+// ABS asset class - Acceptance of Binds Convertible to shares 
+// Municipal Bonds functions a)sinkable b)index linked c)seasoning y/n
+// Reference to seperate lists of IN eligible/ NOT IN eligible collateral 
+
+// ADDITIONAL IM COLLATERAL DOCUMENTATION MODELLING - The below are additional extensions of (CsaInitialMargin2016) and (Csa2016)
+
+type csdInitialMarginISDA2018EnglishLaw <"The elections and variables specified in Paragraph 13 of the ISDA 2018 Credit Support Deed for Initial Margin, English Law.">
+
+type CsaInitialMarginISDA2018NewYorkLaw <"A class to specify the provisions that are specific to the New York Law version of the ISDA 2018 Credit Support Annex for Initial Margin.">
+
+type CtaInitialMarginEuroclear2019 <"A class to specify the provisions that are specific to the New York and English Law version of the Euroclear 2019 Collateral Transfer Agreement for Initial Margin.">
+
+type SaInitialMarginEuroclear2019BelgianLaw <"A class to specify the provisions that are specific to the Belgian Law version of the Euroclear 2019 Security Agreement for Initial Margin.">
+
+type CtaInitialMarginClearstream2019 <"A class to specify the provisions that are specific to the New York and English Law version of the Clearstream 2019 Collateral Transfer Agreement for Initial Margin.">
+
+type SaInitialMarginSecurityProviderClearstream2019LuxembourgLaw <"A class to specify the provisions that are specific to the Luxembourg Law version of the Clearsteam 2019 Security Agreement for Initial Margin of the security provider.">
+
+type SaInitialMarginSecurityTakerClearstream2019LuxembourgLaw <"A class to specify the provisions that are specific to the Luxembourg Law version of the Clearsteam 2019 Security Agreement for Initial Margin of the security taker.">
+
+type CtaInitialMarginISDABankCustodian2019 <"A class to specify the provisions that are specific to the ISDA 2019 Bank Custodian Collateral Transfer Agreement for Initial Margin.">
+
+type SaInitialMarginISDABankCustodian2019NewYorkLaw <"A class to specify the provisions that are specific to the New York law ISDA 2019 Bank Custodian Security Agreement for Initial Margin.">
+
+type SaInitialMarginISDABankCustodian2019EnglishYorkLaw <"A class to specify the provisions that are specific to the English law ISDA 2019 Bank Custodian Security Agreement for Initial Margin.">
+
+type CtaInitialMarginEuroclear2018EnglishLaw <"A class to specify the provisions that are specific to the English Law version of the Euroclear 2018 Collateral Transfer Agreement for Initial Margin.">
+
+type CtaInitialMarginEuroclear2018NewYorkLaw <"A class to specify the provisions that are specific to the New York Law version of the Euroclear 2018 Collateral Transfer Agreement for Initial Margin.">
+
+type CtaInitialMarginEuroclear2018BelgianLaw <"A class to specify the provisions that are specific to the Belgian Law version of the Euroclear 2018 Collateral Transfer Agreement for Initial Margin.">
+
+type CtaInitialMarginClearstream2016EnglishLaw <"A class to specify the provisions that are specific to the English Law version of the Clearstream 2016 Collateral Transfer Agreement for Initial Margin.">
+
+type CtaInitialMarginClearstream2016NewYorkLaw <"A class to specify the provisions that are specific to the New York Law version of the Clearstream 2016 Collateral Transfer Agreement for Initial Margin.">
+
+type SaInitialMarginClearstream2016LuxembourgYorkLaw <"A class to specify the provisions that are specific to the Luxembourg Law version of the Clearstream 2016 Security Agreement for Initial Margin.">
+
+type SaInitialMarginClearstream2017LuxembourgYorkLaw <"A class to specify the provisions that are specific to the Luxembourg Law version of the Clearstream 2017 Security Agreement for Initial Margin.">
+
+type CtaInitialMarginEuroclear2017NewYorkLaw <"A class to specify the provisions that are specific to the New York Law version of the Euroclear 2017 Collateral Transfer Agreement for Initial Margin.">
+
+type CtaInitialMarginEuroclear2017EnglishYorkLaw <"A class to specify the provisions that are specific to the English Law version of the Euroclear 2017 Collateral Transfer Agreement for Initial Margin.">
+
+type SaInitialMarginEuroclear2016BelgianLaw <"A class to specify the provisions that are specific to the Belgian Law version of the Euroclear 2016 Security Agreement for Initial Margin.">
