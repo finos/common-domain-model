@@ -85,10 +85,10 @@ func ResolveEquityContract: <"Specifies how the updated contract should be const
 		observation -> observation
 
 	alias equityPayout:
-		contractState -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
+		contractState -> contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
 
 	alias updatedEquityPayout:
-		updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
+		updatedContract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
 
 	alias periodEndDate:
 		CalculationPeriod( equityPayout -> calculationPeriodDates, date ) -> endDate
@@ -105,11 +105,11 @@ func ResolveEquityContract: <"Specifies how the updated contract should be const
 	assign-output updatedEquityPayout -> priceReturnTerms -> valuationPriceInterim -> netPrice -> amount:
 		if CalculationPeriod( equityPayout -> calculationPeriodDates, periodEndDate ) -> isLastPeriod = False then price
 
-	assign-output updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> performance:
+	assign-output updatedContract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> performance:
 		<"Reset primitive after state must be correctly populated with the equity payout including the performance.">
 		equityPerformance
 
-	assign-output updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> quantityMultiplier -> multiplierValue:
+	assign-output updatedContract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> quantityMultiplier -> multiplierValue:
 		<"Using the Rate of Return we 'reset' the multiplier, which is used to resolve the ultimate notional amount for the equity swap.">  
 		1 + equityPerformance / 100
 
@@ -179,17 +179,17 @@ func EquityCashSettlementAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity
 		equityCashSettlementAmount Money (1..1)
 
 	alias equityPayout:
-		contractState -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout
+		contractState -> contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout
 
 	// Consider moving this as a data rule on EquityPayout
 	condition:
 		equityPayout -> payoutQuantity -> assetIdentifier -> productIdentifier = equityPayout -> underlier -> underlyingProduct -> security -> equity -> productIdentifier
 	
 	assign-output equityCashSettlementAmount -> amount: <"Equity Cash Settlement Amount is defined here as Abs( Equity Performance ). Per the ISDA Definitions: Equity Performance = (Rate Of Return) × Equity Notional Amount and Equity Cash Settlement Amount = ABS(Rate Of Return) × Equity Notional Amount; so the calculation for Equity Cash Settlement Amount in the CDM is mathematically equivalent, with the added benefit that Rate of Return does not need to be recomputed, since it was already computed in the Reset Event."> 
-		Abs(contractState -> updatedContract -> contractualProduct -> economicTerms -> payout -> equityPayout only-element -> performance)
+		Abs(contractState -> updatedContract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element -> performance)
 
 	assign-output equityCashSettlementAmount -> currency: <"Does not handle the cross currency case, currently.">
-		ResolveEquityInitialPrice( equityPayout only-element -> underlier, contractState -> contract -> contractualPrice -> priceNotation ) -> netPrice -> currency
+		ResolveEquityInitialPrice( equityPayout only-element -> underlier, contractState -> contract -> tradableProduct -> priceNotation ) -> netPrice -> currency
 
 
 func ResolveEquityPeriodStartPrice: <"Resolves the price from the end of the previous period. If first period, then take the initial price.">
@@ -241,10 +241,10 @@ func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirma
 		equityPerformance number (1..1)
 
 	alias equityPayout:
-		contractState -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
+		contractState -> contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
 
 	alias periodStartPrice:
-		ResolveEquityPeriodStartPrice(equityPayout, contractState -> contract -> contractualPrice -> priceNotation, date)
+		ResolveEquityPeriodStartPrice(equityPayout, contractState -> contract -> tradableProduct -> priceNotation, date)
 
 	alias periodEndPrice:
 		observation
@@ -253,7 +253,7 @@ func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirma
 		equityPayout -> payoutQuantity -> assetIdentifier
 	
 	alias numberOfSecurities:
-		ExtractQuantityByAsset( contractState -> contract -> contractualQuantity -> quantityNotation, assetIdentifier ) -> quantity -> amount
+		ExtractQuantityByAsset( contractState -> contract -> tradableProduct -> quantityNotation, assetIdentifier ) -> quantity -> amount
 
 	alias rateOfReturn:
 		RateOfReturn(periodStartPrice, periodEndPrice)

@@ -4,8 +4,8 @@ version "${project.version}"
 func Execute:
 	inputs:
 		product Product (1..1) <"The financial product, either contractual or fungible, that is the subject of the execution.">
-		price ExecutionPrice (1..1) <"The price of the financial product being executed.">
-		quantity ExecutionQuantity (1..1) <"The quantity of the financial product being executed.">
+		priceNotation PriceNotation (1..*) <"The price of the financial product being executed.">
+		quantityNotation QuantityNotation (1..*) <"The quantity of the financial product being executed.">
 		partyA Party (1..1) <"The parties to that execution, for now assumed Principal-Principal, i.e. no Agent.">
 		partyB Party (1..1) <"The parties to that execution, for now assumed Principal-Principal, i.e. no Agent.">
 		partyRoles PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the execution.">
@@ -14,7 +14,7 @@ func Execute:
 		executionEvent WorkflowStep (1..1)
 
 	assign-output executionEvent -> businessEvent -> primitives -> execution:
-		NewExecutionPrimitive(product -> contractualProduct, partyA, partyB, price, quantity, partyRoles)
+		NewExecutionPrimitive(product -> contractualProduct, partyA, partyB, priceNotation, quantityNotation, partyRoles)
 
 	assign-output executionEvent -> eventEffect -> execution:
 		executionEvent -> businessEvent -> primitives -> execution -> after -> execution
@@ -30,8 +30,8 @@ func NewExecutionPrimitive: <"Function specification to compose an execution bas
 		contractualProduct ContractualProduct (1..1) <"The financial contractual product.">
 		partyA Party (1..1) <"The parties to that execution, for now assumed Principal-Principal, i.e. no Agent.">
 		partyB Party (1..1) <"The parties to that execution, for now assumed Principal-Principal, i.e. no Agent.">
-		price ExecutionPrice (1..1) <"The price of the financial product being executed.">
-		quantity ExecutionQuantity (1..1) <"The quantity of the financial product being executed.">
+		priceNotation PriceNotation (1..*) <"The price of the financial product being executed.">
+		quantityNotation QuantityNotation (1..*) <"The quantity of the financial product being executed.">
 		partyRoles PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the execution.">
 
 	output:
@@ -40,7 +40,7 @@ func NewExecutionPrimitive: <"Function specification to compose an execution bas
 	condition: <"Parties must be different, and match the contractual parties to the legal agreement when the latter exists.">
 		partyA <> partyB
 
-	assign-output executionPrimitive -> after -> execution -> product -> contractualProduct:
+	assign-output executionPrimitive -> after -> execution -> tradableProduct -> product -> contractualProduct:
 		contractualProduct
 
 	assign-output executionPrimitive -> after -> execution -> party:
@@ -49,11 +49,11 @@ func NewExecutionPrimitive: <"Function specification to compose an execution bas
 	assign-output executionPrimitive -> after -> execution -> partyRole:
  		partyRoles
 
-	assign-output executionPrimitive -> after -> execution -> price:
-		price
+	assign-output executionPrimitive -> after -> execution -> tradableProduct -> priceNotation:
+		priceNotation
 
-	assign-output executionPrimitive -> after -> execution -> executionQuantity:
-		quantity
+	assign-output executionPrimitive -> after -> execution -> tradableProduct -> quantityNotation:
+		quantityNotation
 
 	post-condition: <"The execution will be the first event in any post-trade life cycle and therefore does not have a before state. Once pre-trade elements are brought into CDM, the 'before' will be used to refer to the last of the pre-trade event states.">
 		executionPrimitive -> before is absent
@@ -71,7 +71,7 @@ func FormContract: <"Function specification to create the fully-formed business 
 
 	condition : <"Input event must be an execution must be on a contractual product.">
 		execution exists and
-		execution -> product -> contractualProduct exists
+		execution -> tradableProduct -> product -> contractualProduct exists
 
 	condition : <"Ensures that parties to the Contract are defined in the Legal Agreement, if one is provided.">
 		if legalAgreement exists then legalAgreement -> contractualParty contains execution -> party
@@ -95,6 +95,7 @@ func FormContract: <"Function specification to create the fully-formed business 
 		and contractFormationEvent -> eventEffect -> productIdentifier is absent
 		and contractFormationEvent -> eventEffect -> transfer is absent
 
+
 func NewContractFormationPrimitive: <"Function specification to create a fully-formed contract following execution on a contractual product. The contract can optionally reference a further legal agreement (such as a CSA or a Master Confirmation).">
 	inputs:
 		executionState ExecutionState (1..1)
@@ -112,11 +113,8 @@ func NewContractFormationPrimitive: <"Function specification to create a fully-f
 	assign-output contractFormation -> before: <"Before state must be the execution, and the contractual product in the after state must be the underlying product of the contract being formed.">
 		executionState
 
-	assign-output contract -> contractualProduct:
-		execution -> product -> contractualProduct
-
-	assign-output contract -> contractualQuantity:
-		execution -> executionQuantity
+	assign-output contract -> tradableProduct:
+		execution -> tradableProduct
 
 	assign-output contract -> contractIdentifier:
 		execution -> identifier
@@ -130,14 +128,9 @@ func NewContractFormationPrimitive: <"Function specification to create a fully-f
 	assign-output contract -> party:
 		execution -> party
 
-	assign-output contract -> contractualQuantity:
-		execution -> executionQuantity
-
-	assign-output contract -> contractualPrice:
-		if execution -> price exists then execution -> price
-
 	assign-output contract -> documentation -> legalAgreement: <"When an overlaying legal agreement exists, the contract must reference it.">
 		if legalAgreement exists then legalAgreement
+
 
 func Reset:
 	inputs:
@@ -217,7 +210,7 @@ func ResolveUpdatedContract: <"The updated contract should be generated differen
 		updatedContract Contract (1..1) <"An object that follows the structure of the Contract with only the updated values are set.">
 
 	alias payout:
-		contractState -> contract -> contractualProduct -> economicTerms -> payout
+		contractState -> contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout
 
 	assign-output updatedContract:
 		if payout -> equityPayout exists then ResolveEquityContract(contractState, observation, date)
@@ -285,7 +278,7 @@ func ResolveCashflow: <"A product agnostic function that calculates the amount d
 		cashflow Cashflow (1..1)
 
 	assign-output cashflow -> cashflowAmount:
-		if contractState -> contract -> contractualProduct -> economicTerms -> payout -> equityPayout exists
+		if contractState -> contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout exists
 		then EquityCashSettlementAmount(contractState, date)
 
 	assign-output cashflow -> cashflowDate -> adjustedDate:
@@ -321,6 +314,7 @@ func NewAllocationPrimitive: <"Function specification to create the fully-formed
 	output:
 		primitive AllocationPrimitive (1..1) <"Allocation primitive containing both the original block trade (with the status set to Allocated) and the set of allocated trades.">
 
+
 func Settle: <"Function specification to create the Transfer event based on an execution's settlement terms. Initial implementation only supports securities settled via delivery vs payment.">
 	// TODO Never referenced in CDM
 	inputs:
@@ -331,7 +325,7 @@ func Settle: <"Function specification to create the Transfer event based on an e
 		transferEvent WorkflowStep (1..1) <"Transfer event composed of cash and security components created from a security settled via delivery vs payment.">
 
 	condition:
-		execution -> product -> security exists
+		execution -> tradableProduct -> product -> security exists
 
 	assign-output transferEvent -> businessEvent -> primitives -> transfer:
 		NewTransferPrimitive(execution)
@@ -341,6 +335,7 @@ func Settle: <"Function specification to create the Transfer event based on an e
 
 	assign-output transferEvent -> lineage -> executionReference:
 		execution as-key
+
 
 func NewTransferPrimitive: <"Function specification to create the Transfer primitive based on an execution's settlement terms and instructions. Initial implementation only supports creating transfer primitives from securities settled via delivery vs payment.">
 	inputs:
@@ -353,10 +348,11 @@ func NewTransferPrimitive: <"Function specification to create the Transfer primi
 		TransferStatusEnum -> Instructed
 
 	post-condition:
-		if execution -> product -> security exists and execution -> settlementTerms -> transferSettlementType = TransferSettlementEnum -> DeliveryVersusPayment
+		if execution -> tradableProduct -> product -> security exists and execution -> settlementTerms -> transferSettlementType = TransferSettlementEnum -> DeliveryVersusPayment
 		then transferPrimitive -> cashTransfer exists
 			and transferPrimitive -> securityTransfer exists
 			and transferPrimitive -> commodityTransfer is absent
+
 
 func NewQuantityChangePrimitive: <"A specification of the inputs, outputs and constraints when calculating the after state of a Quantity Change Primitive Event">
 	// TODO Never referenced in CDM
@@ -380,6 +376,7 @@ func NewQuantityChangePrimitive: <"A specification of the inputs, outputs and co
 		if quantityChangePrimitive -> before -> execution exists then quantityChangePrimitive -> after -> execution exists
 			and if quantityChangePrimitive -> before -> contract exists then quantityChangePrimitive -> after -> contract exists
 
+
 func NewTerminatedContractPrimitive: <"A specification for terminating a contract. A QuantityChangePrimitive is created with the after set with quantity of 0, and the closed state to be Terminated.">
 	inputs:
 		contract Contract (1..1)
@@ -393,6 +390,7 @@ func NewTerminatedContractPrimitive: <"A specification for terminating a contrac
 	assign-output quantityChangePrimitive -> after -> contract: <"Correctly populate the after attributes on the Primitive Event">
 		TerminateContract(contract)
 
+
 func EvaluatePortfolioState: <"Function specification to evaluate a portfolio's aggregation parameters and return a new portfolio state containing aggregated positions.">
 	// TODO Never referenced in CDM
 	inputs:
@@ -400,6 +398,7 @@ func EvaluatePortfolioState: <"Function specification to evaluate a portfolio's 
 
 	output:
 		portfolioState PortfolioState (1..1) <"Portfolio state containing the aggregated positions based on the input aggregation parameters.">
+
 
 func TerminateContract:
 	inputs:
@@ -414,10 +413,10 @@ func TerminateContract:
 		contract -> tradeDate
 	assign-output terminatedContract -> clearedDate:
 		contract -> clearedDate
-	assign-output terminatedContract -> contractualProduct:
-		contract -> contractualProduct
-	assign-output terminatedContract -> contractualPrice:
-		contract -> contractualPrice
+	assign-output terminatedContract -> tradableProduct -> product:
+		contract -> tradableProduct -> product
+	assign-output terminatedContract -> tradableProduct -> priceNotation:
+		contract -> tradableProduct -> priceNotation
 	assign-output terminatedContract -> collateral:
 		contract -> collateral
 	assign-output terminatedContract -> documentation:
@@ -438,7 +437,7 @@ func TerminateContract:
 	assign-output terminatedContract -> closedState -> state: <"Set the closed state on the terminatedContract">
 		ClosedStateEnum -> Terminated
 
-	assign-output terminatedContract -> contractualQuantity -> quantityNotation -> quantity -> amount: <"Set the quantity amount to 0">
+	assign-output terminatedContract -> tradableProduct -> quantityNotation -> quantity -> amount: <"Set the quantity amount to 0">
         0.0
 
 func PartyRoleForParty:
@@ -518,7 +517,7 @@ func Clear: <"Clear function that inputs the alpha contract and clearingInstruct
 		PartyRoleForParty(clearingInstruction -> clearingParty, PartyRoleEnum -> ClearingOrganization)
 
 	alias betaExecution: <"Beta execution">
-		NewExecutionPrimitive(alpha -> contractualProduct, clearingInstruction -> clearingParty, party1, alpha -> contractualPrice, alpha -> contractualQuantity, [clearerRole])
+		NewExecutionPrimitive(alpha -> tradableProduct -> product -> contractualProduct, clearingInstruction -> clearingParty, party1, alpha -> tradableProduct -> priceNotation, alpha -> tradableProduct -> quantityNotation, [clearerRole])
 	alias betaExecutionPrimitives: NewExecutionPrimitiveEvent(betaExecution)
 
 	alias betaContract: <"Beta contract">
@@ -526,7 +525,7 @@ func Clear: <"Clear function that inputs the alpha contract and clearingInstruct
 	alias betaContractPrimitives: NewContractFormationPrimitiveEvent(betaContract)
 
 	alias gammaExecution: <"Gamma execution">
-		NewExecutionPrimitive(alpha -> contractualProduct, clearingInstruction -> clearingParty, party2, alpha -> contractualPrice, alpha -> contractualQuantity, [clearerRole])
+		NewExecutionPrimitive(alpha -> tradableProduct -> product -> contractualProduct, clearingInstruction -> clearingParty, party2, alpha -> tradableProduct -> priceNotation, alpha -> tradableProduct -> quantityNotation, [clearerRole])
 	alias gammaExecutionPrimitives: NewExecutionPrimitiveEvent(gammaExecution)
 
 	alias gammaContract: <"Gamma contract">
