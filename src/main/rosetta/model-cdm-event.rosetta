@@ -668,12 +668,16 @@ func ClearingSubmission: <"The submission of a contract to a CCP, which is quali
 		businessEvent -> primitives count = 1
 		and businessEvent -> primitives -> termsChange exists
 		and businessEvent -> workflowEventState -> workflowStatus = WorkflowStatusEnum -> Submitted
-		and (businessEvent -> primitives -> termsChange -> before -> execution -> partyRole is absent
-		or businessEvent -> primitives -> termsChange -> before -> execution -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization
-		or businessEvent -> primitives -> termsChange -> before -> contract -> partyRole is absent
-		or businessEvent -> primitives -> termsChange -> before -> contract -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization)
-		and (businessEvent -> primitives -> termsChange -> after -> contract -> partyRole -> role = PartyRoleEnum -> ClearingOrganization
-		or businessEvent -> primitives -> termsChange -> after -> execution -> partyRole -> role = PartyRoleEnum -> ClearingOrganization)
+		and (
+			businessEvent -> primitives -> termsChange -> before -> execution -> partyRole is absent
+			or businessEvent -> primitives -> termsChange -> before -> execution -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization
+			or businessEvent -> primitives -> termsChange -> before -> contract -> partyRole is absent
+			or businessEvent -> primitives -> termsChange -> before -> contract -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization
+		)
+		and (
+			businessEvent -> primitives -> termsChange -> after -> contract -> partyRole -> role = PartyRoleEnum -> ClearingOrganization
+			or businessEvent -> primitives -> termsChange -> after -> execution -> partyRole -> role = PartyRoleEnum -> ClearingOrganization
+		)
 
 func Compression: <"The qualification of a compression event from the fact that (i) the quantityChange primitive exists, and (ii) there are multiple contracts (or contract references) specified in the before state.">
 	[qualification event]

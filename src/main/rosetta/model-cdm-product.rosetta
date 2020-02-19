@@ -94,6 +94,7 @@ type Contract: <" A class to specify a financial contract object, which can be i
 	account Account (0..*) <"Optional account information.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0 value "account"]
 	partyRole PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the contract, further to the principal parties (i.e payer/receive or buyer/seller) to it.">
+		[synonym Workflow_Event value "trade" set when "trade->executionType" is absent]
 	calculationAgent CalculationAgent (0..1) <"The ISDA calculation agent responsible for performing duties as defined in the applicable product definitions.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "calculationAgent" path "trade", "calculationAgent" path "contract"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "calculationAgent" path "trade->swaption", "calculationAgent" path "contract->swaption"]
@@ -158,7 +159,7 @@ type Contract: <" A class to specify a financial contract object, which can be i
 
 	condition CreditEventsPhysicalSettlementMatrix: <"The below set of credit events are specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that those provisions can only be omitted if the Physical Settlement Matrix governs the terms of the contract. This data rule also applies to cash settled contracts because those could still end-up being physically settled, in the case where an auction could not take place because of, say, liquidity considerations.">
 		if ( documentation -> documentationIdentification -> contractualMatrix -> matrixType <> MatrixTypeEnum -> CreditDerivativesPhysicalSettlementMatrix
-			or documentation -> documentationIdentification -> contractualMatrix -> matrixType is absent)
+			or documentation -> documentationIdentification -> contractualMatrix -> matrixType is absent )
 			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents exists
 		then ( tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> bankruptcy
 			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> obligationDefault
@@ -169,7 +170,7 @@ type Contract: <" A class to specify a financial contract object, which can be i
 
 	condition RestructuringPhysicalSettlementMatrix: <"The below multiple holder obligation restructuring provisions is specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that this provision can only be omitted if the Physical Settlement Matrix governs the terms of the contract. This data rule also applies to cash settled contracts because those could still end-up being physically settled, in the case where an auction could not take place because of, say, liquidity considerations.">
 		if ( documentation -> documentationIdentification -> contractualMatrix -> matrixType <> MatrixTypeEnum -> CreditDerivativesPhysicalSettlementMatrix
-			or documentation -> documentationIdentification -> contractualMatrix -> matrixType is absent)
+			or documentation -> documentationIdentification -> contractualMatrix -> matrixType is absent )
 			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring exists
 		then tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleHolderObligation exists
 
@@ -535,6 +536,7 @@ type Execution: <" A class to specify an execution, which consists essentially i
 		[metadata reference]
 		[synonym CME_SubmissionIRS_1_0 value "party" path "Instrmt->SecXML->FpML"]
 	partyRole PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the execution, further to the principal parties (i.e payer/receive or buyer/seller) to it.">
+		[synonym Workflow_Event value "trade" set when "trade->executionType" exists]
 	closedState ClosedState (0..1) <"The qualification of what led to the execution closure alongside with the dates on which this closure takes effect.">
 		[synonym Workflow_Event value "closedState"]
 //	executionQuantity ExecutionQuantity (0..1) <"Complex attribute to specify the quantity of the contractual product that is being executed. This temporarily makes uses of the 'ExecutionQuantity' class, until such time when the latter can be renamed as, and supersede, the existing 'ContractualQuantity' class. To be later merged with the 'quantity' attribute to have consistent mechanism between contractual and non-contractual products.">
