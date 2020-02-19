@@ -90,7 +90,6 @@ class ResolvePayoutQuantityTest extends AbstractFunctionTest {
 	 * Look up corresponding QuantityNotation based on AssetIdentifier.
 	 */
 	@Test
-	@Disabled
 	void shouldResolveQuantityForFra() throws IOException {
 		Contract contract = getContract(RATES_DIR + "ird-ex08-fra-no-discounting.json");
 		TradableProduct tradableProduct = contract.getTradableProduct();
