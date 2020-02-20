@@ -499,7 +499,6 @@ type SecurityTransferComponent extends TransferBase:
 		[synonym Workflow_Event value "breakdown"]
 
 
-//one of
 type Trade: <"A class to represent the general trade concept, which can either be an execution or a contract. The execution consists essentially in the economic terms which are agreed between the parties. The contract will further qualify those with the legal entities (think of the allocation case, which execution state can involve the investment adviser rather not the actual funds) while not specify the master agreement or collateral terms which might be associated with the subsequent contract.">
 	[metadata key] 
 	execution Execution (0..1) <"The execution corresponds to economic terms that are agreed between parties, but which legal terms are not yet specified. The execution attribute applies to the post-execution scenario of a product that is subject to the clearing mandate and is then routed to the CCP as an execution.">
@@ -634,6 +633,7 @@ func ClearedTrade:
 		// TODO - Add this back in when we correctly map the ClearingOrganization
 		and businessEvent -> primitives -> contractFormation -> after -> contract -> partyRole -> role contains PartyRoleEnum -> ClearingOrganization
 
+
 //isEvent ClearedTrade <"The cleared trade at the CCP.">
 //	WorkflowEvent -> businessEvent -> primitives count = 1
 //	and businessEvent -> primitives -> inception exists
@@ -645,6 +645,8 @@ func ClearedTrade:
  */
 //	and lineage -> @rosettaKey -> eventQualifier = eventQualifier.ClearingSubmission
 //	and lineage -> @rosettaKey -> eventQualifier = eventQualifier.ClearedTrade
+
+
 func ClearingRejection: <"The rejection of an alpha trade submission by a CCP, which is qualified by the fact that (i) termsChange is the only primitive, the workflow status is `rejected`, and (iii) the CCP is positioned as a partyRole to the execution or contract in the after state, while it didn't exist in the before state.">
 	[qualification event]
 	inputs:
@@ -759,8 +761,8 @@ func Novation: <"The qualification of a novation event from the fact that (i) th
 		and businessEvent -> primitives -> inception -> after -> contract -> contractIdentifier <> businessEvent -> primitives -> quantityChange -> before -> contract -> contractIdentifier
 		and businessEvent -> eventDate = businessEvent -> primitives -> inception -> after -> contract -> tradeDate -> date
 		and businessEvent -> effectiveDate = NovatedContractEffectiveDate(businessEvent) -> dates only-element
+		//and originalContractParties <> newContractParties
 
-//	and originalContractParties <> newContractParties
 func Observation: <"The qualification of an observation event from the fact that (i) the only primitive is the observation, and (ii) that there is only a single instance of such observation.">
 	[qualification event]
 	inputs:
@@ -781,8 +783,8 @@ func PartialNovation: <"The qualification of a novation event from the fact that
 		and businessEvent -> eventDate = businessEvent -> primitives -> inception -> after -> contract -> tradeDate -> date
 		and businessEvent -> effectiveDate = NovatedContractEffectiveDate(businessEvent) -> dates
 		and QuantityDecreased(businessEvent -> primitives -> quantityChange) = True
+		//and originalContractParties <> newContractParties
 
-// and originalContractParties <> newContractParties
 func PartialTermination: <"The qualification of a partial termination event from the fact that (i) the intent is Partial Termination when specified, (ii) the associated primitives are the quantityChange and the cash transfer, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
 	[qualification event]
 	inputs:
