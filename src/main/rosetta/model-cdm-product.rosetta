@@ -49,7 +49,6 @@ type Contract: <" A class to specify a financial contract object, which can be i
 	
 	contractIdentifier Identifier (1..*) <"The identifier(s) that uniquely identify a contract, and which can be qualified by referencing or defining the issuer(s) of such identifier(s). There can be several contract identifier, an example of such being a contract is reportable to both the CFTC and ESMA and then has an associated USI (Unique Swap Identifier) UTI (Unique Trade Identifier).">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "partyTradeIdentifier" path "trade->tradeHeader"]
-		//[synonym FpML_5_10, CME_SubmissionIRS_1_0 value "partyTradeIdentifier" path "contract->tradeHeader"] // Workflow_Event?
 		[synonym CME_ClearedConfirm_1_17 value "universalSwapIdentifier" path "trade->tradeHeader"]
 		[synonym CME_SubmissionIRS_1_0 value "partyTradeIdentifier" path "Instrmt->SecXML->FpML->trade->tradeHeader"]
 		[synonym DTCC_11_0, DTCC_9_0 value "Submitter"]
@@ -59,28 +58,16 @@ type Contract: <" A class to specify a financial contract object, which can be i
 		[synonym DTCC_11_0, DTCC_9_0 value "USI"]
 		[synonym DTCC_11_0, DTCC_9_0 value "OriginatingUSI"]
 		[synonym DTCC_11_0, DTCC_9_0 value "UTI"]
-		//[synonym Workflow_Event value "partyTradeIdentifier" path "tradeHeader"]
 	tradeDate TradeDate (1..1) <"The date on which the contract has been executed.">
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "tradeHeader" path "trade"] //, "tradeHeader" path "contract"
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "tradeHeader" path "trade"]
 		[synonym CME_SubmissionIRS_1_0 value "tradeHeader" path "Instrmt->SecXML->FpML->trade"]
-		//[synonym Workflow_Event value "tradeHeader"]
 	clearedDate date (0..1) <"If the trade was cleared (novated) through a central counterparty clearing service, this represents the date the trade was cleared (transferred to the central counterparty).">
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "clearedDate" path "trade->tradeHeader"]
 		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value "clearedDate" path "tradeHeader"]
-	//contractualProduct ContractualProduct (0..1) <"The contractual product information that is associated with the contract, which combines the economic terms, the product identification and the product taxonomy. The corresponding FpML construct is the product abstract element and the associated substitution group.">
-		// [synonym CME_SubmissionIRS_1_0 value "trade" path "Instrmt->SecXML->FpML"]
-	//	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "ignore"]
 	tradableProduct TradableProduct (1..1) <"The tradable product information that is associated with the contract, which combines quantity and price together with the product's economic terms, identification and taxonomy. The corresponding FpML construct is the product abstract element and the associated substitution group.">
 		[synonym FpML_5_10, CME_ClearedConfirm_1_17, DTCC_11_0, DTCC_9_0 value "trade"]
-		//[synonym Workflow_Event value "contract"]
 		[synonym DTCC_11_0, DTCC_9_0 hint "ProductType"]
 		[synonym CME_SubmissionIRS_1_0 value "trade" path "Instrmt->SecXML->FpML"]
-		//[synonym Workflow_Event hint "swap", "creditDefaultSwap", "swaption", "repo", "fxSingleLeg", "bondOption", "otherPartyPayment"]
-//	contractualQuantity ExecutionQuantity (0..1) <"Complex attribute to specify the quantity of the contractual product that the contract is written on. This temporarily makes uses of the 'ExecutionQuantity' class, until such time when the latter can be renamed as, and supersede, the existing 'ContractualQuantity' class.">
-//		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "ignore"]
-//	contractualPrice ExecutionPrice (0..1) <"Complex attribute to specify the price of the contractual product that the contract is written on. This temporarily makes uses of the 'ExecutionPrice' class, until such time when the latter can be renamed as, and supersede, the existing 'ContractualQuantity' class.">
-//		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "ignore"]
-//		// TODO: make quantity and price attribute non-optional
 	collateral Collateral (0..1) <"Defines the collateral obligations of a party.">
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "collateral" path "trade"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "collateral"]
@@ -92,17 +79,13 @@ type Contract: <" A class to specify a financial contract object, which can be i
 	party Party (0..*) <"The parties to the contract. The cardinality is optional to address the case where the contract object is part of an event record, in which case the party is specified as part of that object. In that respect, the CDM approach is distinct from FpML, where party information is specified as part of a wrapper alongside the trade object.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "party"]
 		[synonym CME_SubmissionIRS_1_0 value "party" path "Instrmt->SecXML->FpML"]
-		//[synonym Workflow_Event hint "tradeHeader"]
 	account Account (0..*) <"Optional account information.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0 value "account"]
 	partyRole PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the contract, further to the principal parties (i.e payer/receive or buyer/seller) to it.">
-		//[synonym Workflow_Event value "trade"]
 	calculationAgent CalculationAgent (0..1) <"The ISDA calculation agent responsible for performing duties as defined in the applicable product definitions.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "calculationAgent" path "trade", "calculationAgent" path "contract"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "calculationAgent" path "trade->swaption", "calculationAgent" path "contract->swaption"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "trade"]
-//		[synonym Workflow_Event hint "calculationAgentBusinessCenter"]
-//		[synonym Workflow_Event value "calculationAgent", "calculationAgent" path "swaption"]
 	partyContractInformation PartyContractInformation (0..*) <"Additional contract information that may be provided by each involved party.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0 value "partyTradeInformation" path "trade->tradeHeader"]
 		[synonym CME_ClearedConfirm_1_17 value "partyTradeInformation" path "trade->tradeHeader"]
@@ -335,7 +318,6 @@ type ExecutionQuantity: <" Class to specify the executed quantity of a product, 
 type QuantityMultiplier: <" Class to specify a mechanism for a quantity to be set as a multiplier to another (reference) quantity, based on a price observation. At the moment this class only supports FX or Equity-linked notional and re-uses existing building blocks for those 2 cases, until such time when component can be made more generic. This captures the case of resetting cross-currency swaps and resetting equity swaps.">
 
 	fxLinkedNotionalSchedule FxLinkedNotionalSchedule (0..1) <"Multiplier specified as an FX-linked schedule, e.g. for a resetting cross-currency swap..">
-	// equityValuation EquityValuation (0..1) <"Multiplier specified as an equity valuation schedule, e.g. for a resetting equity swap.">
 	multiplierValue number (0..1)
 	condition: one-of
 
@@ -526,13 +508,9 @@ type Execution: <" A class to specify an execution, which consists essentially i
 		[metadata id]
 		[synonym FpML_5_10 value "tradeDate" path "trade->tradeHeader" meta "id"]
 		[synonym CME_SubmissionIRS_1_0 value "tradeDate" path "Instrmt->SecXML->FpML->trade->tradeHeader" meta "id"]
-//	product Product (0..1) <"The product traded as part of this execution">
-//		// [synonym CME_SubmissionIRS_1_0 value "FpML" path "Instrmt->SecXML"]
-//		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "ignore" ]
 	tradableProduct TradableProduct (1..1) <"The product traded as part of this execution, including quantity and price">
 		[synonym FpML_5_10, CME_ClearedConfirm_1_17, DTCC_11_0, DTCC_9_0 value "trade"]
 		[synonym CME_SubmissionIRS_1_0 value "trade" path "Instrmt->SecXML->FpML"]
-		// [synonym CME_SubmissionIRS_1_0 value "swaption" path "Instrmt->SecXML->FpML->trade"]
 	party Party (0..*) <"The party reference is optional because positioned as part of the Event class when the execution is specified as part of such context.">
 		[metadata reference]
 		[synonym CME_SubmissionIRS_1_0 value "party" path "Instrmt->SecXML->FpML"]
@@ -540,40 +518,6 @@ type Execution: <" A class to specify an execution, which consists essentially i
 		[synonym Workflow_Event value "trade"]
 	closedState ClosedState (0..1) <"The qualification of what led to the execution closure alongside with the dates on which this closure takes effect.">
 		[synonym Workflow_Event value "closedState" path "trade"]
-//	executionQuantity ExecutionQuantity (0..1) <"Complex attribute to specify the quantity of the contractual product that is being executed. This temporarily makes uses of the 'ExecutionQuantity' class, until such time when the latter can be renamed as, and supersede, the existing 'ContractualQuantity' class. To be later merged with the 'quantity' attribute to have consistent mechanism between contractual and non-contractual products.">
-//		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "ignore" ]
-		/*// For Swap Stream:
-		[synonym Workflow_Event value "swap"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "swap", "swap" path "trade" ]
-		[synonym CME_SubmissionIRS_1_0 value "swap" path "Instrmt->SecXML->FpML->trade"]
-		[synonym CME_SubmissionIRS_1_0 value "swap" path "Instrmt->SecXML->FpML->trade->swaption"]
-		// For CDS:
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "creditDefaultSwap" ]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "creditDefaultSwap" path "trade" ]
-		// For FRA:
-		[synonym CME_SubmissionIRS_1_0 value "trade" path "Instrmt->SecXML->FpML"]
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "trade"]
-		// For Equity Swap:
-		[synonym FpML_5_10 value "returnLeg" path "trade->returnSwap", "returnLeg" path "trade->equitySwapTransactionSupplement"]
-		// For Swaption:
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "swap" path "trade->swaption"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "swap" path "swaption"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "premium" path "swaption"]
-		// For CapFloor:
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "capFloor" path "trade" ]
-		// For FRA and Bond Options:
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "trade"]
-		// For Bond Options:
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint "bondOption"]
-		// For CDS Option
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "creditDefaultSwap" path "trade->creditDefaultSwapOption" ]
-		// For FX:
-		[synonym FpML_5_10 value "fxSingleLeg", "fxSingleLeg" path "trade"]
-		// For Repo:
-		[synonym FpML_5_10 value "repo", "repo" path "trade"]*/
-//	price ExecutionPrice (0..1) <"The transacted price of the execution, which is applicable across product types such as securities or contractual products.">
-//		// [synonym CME_SubmissionIRS_1_0 value "swaption" path "Instrmt->SecXML->FpML->trade"]
-//		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "ignore" ]
 	settlementTerms SettlementTerms (0..1) <"The execution settlement terms, which is applicable for products such as securities">
 
 	condition ExecutionVenue: <"When the execution type is set to 'Electronically', the execution venue must be specified.">
@@ -781,7 +725,7 @@ type OptionPayout extends PayoutBase: <" The option payout specification terms. 
 	denomination OptionDenomination (0..1) <"The denomination qualifies the number of units of underlier per option and the number of options comprised in the option transaction. FpML represents this information as part of the OptionDenomination.model.">
 	exerciseTerms OptionExercise (1..1) <"The terms for exercising the option, which include the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">
 	underlier Underlier (1..1) <"The product underlying the option, which can be of any type including ContractualProduct or Security.">
-		[synonym /*FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0,*/ CME_ClearedConfirm_1_17 hint "swap"]
+		[synonym CME_ClearedConfirm_1_17 hint "swap"]
 
 type SecurityLeg: <" Terms defining a security leg in a securities financing transaction, which can either be the near leg or the far leg and is closely modelled onto the nearLeg and farLeg types in FpML">
 	[metadata key]
@@ -1362,6 +1306,7 @@ type Portfolio: <" A Portfolio represents an aggregation of multiple Positions, 
 	portfolioState PortfolioState (1..1) <"Describes the state of the Portfolio as a list of Positions resulting from the aggregation.">
 
 // TO ADD: PortfolioState calculation based on EventEffect
+
 /***********************
  * Product Qualification
  */
