@@ -358,7 +358,7 @@ func NewQuantityChangePrimitive: <"A specification of the inputs, outputs and co
 	// TODO Never referenced in CDM
 	inputs:
 		trade Trade (1..1)
-		quantityChange ExecutionQuantity (1..1)
+		quantityChange QuantityNotation (1..*)
 
 	output:
 		quantityChangePrimitive QuantityChangePrimitive (1..1)
@@ -370,7 +370,8 @@ func NewQuantityChangePrimitive: <"A specification of the inputs, outputs and co
 		trade
 
 	post-condition: <"The resulting quantity must equal the original quantity plus the quantity change.">
-		ExtractQuantity(quantityChangePrimitive -> after) = Plus(ExtractQuantity( trade ), quantityChange)
+		// TODO: add support for funcs to return multiple cardinality
+		ExtractQuantity(quantityChangePrimitive -> after) = Plus(ExtractQuantity( trade ), quantityChange only-element)
 
 	post-condition: <"The input and output types need to be consistent, if we started with an Execution, we should end with an Execution, likewise with Contract.">
 		if quantityChangePrimitive -> before -> execution exists then quantityChangePrimitive -> after -> execution exists
