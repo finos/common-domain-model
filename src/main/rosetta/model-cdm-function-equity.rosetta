@@ -1,6 +1,78 @@
 namespace "org.isda.cdm"
 version "${project.version}"
 
+func StockSplit:
+	inputs:
+		trade Trade (1..1)
+		adjustmentRatio number (1..1)
+		date date (1..1)
+	
+	output:
+		workflowStep WorkflowStep (1..1)
+	
+	// calculate adjusted number of securities based on adjustmentRatio
+	alias adjustedNumberOfSecurities:
+		AdjustedNumberOfSecurities( trade -> contract -> contractualQuantity -> quantityNotation, adjustmentRatio )
+
+	// calculate adjusted price based on adjustmentRatio
+	alias adjustedPrice:
+		AdjustedPrice( trade -> contract -> contractualPrice -> priceNotation, adjustmentRatio )
+
+	// build QuantityChangePrimitive and add to WorkflowStep
+	assign-output workflowStep -> businessEvent -> primitives -> quantityChange:
+		NewQuantityChangePrimitive( trade, adjustedNumberOfSecurities )
+	
+	// build TermsChangePrimitive (for price) and add to WorkflowStep
+	assign-output workflowStep -> businessEvent -> primitives -> termsChange:
+		NewPriceChangePrimitive( trade, adjustedPrice )
+
+
+func AdjustedNumberOfSecurities:
+	inputs:
+		quantityNotation QuantityNotation (1..*) // quantities from contract
+		adjustmentRatio number (1..1)
+
+	output:
+		adjustedQuantity ExecutionQuantity (1..1) // ExecutionQuantity will be deprecated soon, so will need to be changed to priceNotations
+
+	alias noOfSecurites:
+		NoOfUnits( quantityNotation )
+
+	alias adjustedNumberOfSecurities:
+		noOfSecurites * adjustmentRatio
+
+	// TODO: update quantityNotation related to no. of units
+	assign-output adjustedQuantity -> quantityNotation -> quantity -> amount:
+		adjustedNumberOfSecurities
+
+
+func NewPriceChangePrimitive:
+	inputs:
+		trade Trade (1..1)
+		price ExecutionPrice (1..1) // ExecutionPrice will be deprecated soon, so will need to be changed to priceNotations
+
+	output:
+		termsChangePrimitive TermsChangePrimitive (1..1)
+
+
+func AdjustedPrice:
+	inputs:
+		priceNotation PriceNotation (1..*) // price from contract
+		adjustmentRatio number (1..1)
+
+	output:
+		adjustedExecutionPrice ExecutionPrice (1..1) // ExecutionPrice will be deprecated soon, so will need to be changed to priceNotations
+
+	alias price:
+		priceNotation only-element -> price -> cashPrice -> netPrice -> amount
+
+	alias adjustedPrice:
+		price / adjustmentRatio
+
+	// TODO: ensure the priceNotation is fully populated, not just the amount
+	assign-output adjustedExecutionPrice -> priceNotation -> price -> cashPrice -> netPrice -> amount:
+		adjustedPrice
+
 /*
  * Function Specifications for Equity Swap product creation
  * 
