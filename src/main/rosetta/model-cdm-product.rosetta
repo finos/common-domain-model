@@ -93,19 +93,19 @@ type Contract: <" A class to specify a financial contract object, which can be i
 		[synonym Workflow_Event value "closedState" path "trade"]
 
 	condition InterestRatePayoutResolvable:
-		if Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity -> assetIdentifier exists
-		then Contract -> tradableProduct -> quantityNotation -> assetIdentifier exists
-			and Contract -> tradableProduct -> quantityNotation -> assetIdentifier contains Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity -> assetIdentifier
+		if tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity -> assetIdentifier exists
+		then tradableProduct -> quantityNotation -> assetIdentifier exists
+			and tradableProduct -> quantityNotation -> assetIdentifier contains tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity -> assetIdentifier
 
 	condition EquityPayoutResolvable:
-		if Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> assetIdentifier exists
-		then Contract -> tradableProduct -> quantityNotation -> assetIdentifier exists
-			and Contract -> tradableProduct -> quantityNotation -> assetIdentifier contains Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> assetIdentifier
+		if tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> assetIdentifier exists
+		then tradableProduct -> quantityNotation -> assetIdentifier exists
+			and tradableProduct -> quantityNotation -> assetIdentifier contains tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> assetIdentifier
 
 //	condition ContractualQuantity_cashflow_resolvable:
-//		if Contract -> contractualProduct -> economicTerms -> payout -> cashflow -> payoutQuantity -> assetIdentifier exists
-//		then Contract -> contractualQuantity -> quantityNotation -> assetIdentifier exists
-//			and Contract -> contractualQuantity -> quantityNotation -> assetIdentifier contains Contract -> contractualProduct -> economicTerms -> payout -> cashflow -> payoutQuantity -> assetIdentifier
+//		if contractualProduct -> economicTerms -> payout -> cashflow -> payoutQuantity -> assetIdentifier exists
+//		then contractualQuantity -> quantityNotation -> assetIdentifier exists
+//			and contractualQuantity -> quantityNotation -> assetIdentifier contains contractualProduct -> economicTerms -> payout -> cashflow -> payoutQuantity -> assetIdentifier
 
 	condition DeliverableObligationsPhysicalSettlementMatrix: <"The below set of credit deliverable obligation provisions are specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that those provisions cannot be omitted if the Credit Derivatives Physical Settlement Matrix doesn't governs the terms of the contract.">
 		if ( documentation -> documentationIdentification -> contractualMatrix -> matrixType <> MatrixTypeEnum -> CreditDerivativesPhysicalSettlementMatrix
@@ -139,7 +139,7 @@ type Contract: <" A class to specify a financial contract object, which can be i
 			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notDomesticIssuance
 			) exists
 			and (
-			Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> fullFaithAndCreditObLiability
+			tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> fullFaithAndCreditObLiability
 			or tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> generalFundObligationLiability
 			or tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> revenueObligationLiability
 			) exists
@@ -209,6 +209,9 @@ type Contract: <" A class to specify a financial contract object, which can be i
 	condition ClearedDate: <"If the cleared date exists, it needs to be on or after the trade date.">
 		if clearedDate exists
 		then clearedDate >= tradeDate -> date
+
+	condition ContractualProductExists:
+		tradableProduct -> product -> contractualProduct exists
 
 	condition FpML_cd_1: <"FpML validation rule cd-1 - If referenceInformation exists, tradeDate must be before effectiveDate/unadjustedDate.">
 		if tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
