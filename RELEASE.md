@@ -2,7 +2,7 @@
 
 _What is being released_
 
-As preparation for the upcoming model price refactor, refactor `Contract` and `Execution` to represent product, quantity and price consistently, which also enables a significant consolidation and simplification of synonyms.
+As preparation for the upcoming model price work, refactor `Contract` and `Execution` to represent product, quantity and price consistently, which also enables a significant consolidation and simplification of synonyms.
 
 `Contract` and `Execution` refactored to introduce type `TradableProduct` which groups together `Product`, `QuantityNotation` and `PriceNotation`, and remove the following deprecated types and attributes:
 
