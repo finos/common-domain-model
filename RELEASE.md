@@ -1,13 +1,16 @@
-# *CDM Model: CSA Initial Margin 2018 (Paragraph 3) Calculations*
+# *CDM Model: Price Model Refactor Preparation*
 
 _What is being released_
 
-Added calculations related to CSA Initial Margin 2018 documents, paragraph 3.  These functions are still under active development and have been released so they can be more easily shared with a wider audience.  
-   
+As preparation for the upcoming model price refactor, refactor `Contract` and `Execution` to represent product, quantity and price consistently, which also enables a significant consolidation and simplification of synonyms.
+
+`Contract` and `Execution` refactored to introduce type `TradableProduct` which groups together `Product`, `QuantityNotation` and `PriceNotation`, and remove the following deprecated types and attributes:
+
+- Removed type `ExecutionPrice` and related attributes `Contract.executionPrice` and `Execution.price`.
+- Removed type `ExecutionQuantity` and related attributes `Contract.contractualQuantity` and `Execution.executionQuantity`.
+- Removed attributes `Contract.contractualProduct` and `Execution.product`.
+- Added `Contract` data rule `ContractualProductExists`.
+
 _Review Directions_
 
-In the Textual Browser, review the following functions:
-- `PostedCreditSupportAmount_IM`
-- `CreditSupportAmount_IM`
-- `DeliveryAmount_IM`
-- `ReturnAmount_IM`
+In the Textual Browser, review type `TradableProduct`.
