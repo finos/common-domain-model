@@ -4,8 +4,9 @@ import com.google.common.io.Resources;
 import com.google.inject.Inject;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import org.isda.cdm.Contract;
-import org.isda.cdm.ExecutionPrice;
-import org.isda.cdm.ExecutionQuantity;
+import org.isda.cdm.PriceNotation;
+import org.isda.cdm.QuantityNotation;
+import org.isda.cdm.TradableProduct;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -13,6 +14,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -67,15 +69,16 @@ public class ExchangeRateQuantityTriangulationTest extends AbstractFunctionTest 
 
 	void shouldTriangulateFxRateAndNotionalAndReturnSuccess(String filename, int quantity1, int quantity2, double rate, int scale) throws IOException {
 		Contract contract = getContract(FX_DIR + filename);
-		ExecutionPrice price = contract.getContractualPrice();
-		ExecutionQuantity quantity = contract.getContractualQuantity();
+		TradableProduct tradableProduct = contract.getTradableProduct();
+		List<PriceNotation> priceNotation = tradableProduct.getPriceNotation();
+		List<QuantityNotation> quantityNotation = tradableProduct.getQuantityNotation();
 
 		// check result
-		assertTrue(func.evaluate(price, quantity));
+		assertTrue(func.evaluate(priceNotation, quantityNotation));
 		// check aliases
-		assertThat(func.quantity1(price, quantity).get(), is(BigDecimal.valueOf(quantity1)));
-		assertThat(func.quantity2(price, quantity).get(), is(BigDecimal.valueOf(quantity2)));
-		assertThat(func.rate(price, quantity).get().setScale(scale, RoundingMode.HALF_UP), is(BigDecimal.valueOf(rate).setScale(scale, RoundingMode.HALF_UP)));
+		assertThat(func.quantity1(priceNotation, quantityNotation).get(), is(BigDecimal.valueOf(quantity1)));
+		assertThat(func.quantity2(priceNotation, quantityNotation).get(), is(BigDecimal.valueOf(quantity2)));
+		assertThat(func.rate(priceNotation, quantityNotation).get().setScale(scale, RoundingMode.HALF_UP), is(BigDecimal.valueOf(rate).setScale(scale, RoundingMode.HALF_UP)));
 	}
 
 	private Contract getContract(String resourceName) throws IOException {
