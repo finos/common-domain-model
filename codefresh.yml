@@ -78,6 +78,16 @@ steps:
       - cd /codefresh/volume/rosetta-cdm/target/classes/cdm/scala/target/scala-2.12
       - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-scala/${{RELEASE_NAME}}/cdm-scala-${{RELEASE_NAME}}.jar" -T cdm-scala_2.12-0.0.0.snapshot.jar
 
+  BuildTypeScript:
+    title: TypeScript build and deploy
+    fail_fast: false
+    working_directory: ./codefresh/volume/rosetta-cdm/
+    shell: bash
+    commands:
+      - cd /codefresh/volume/rosetta-cdm/target/classes/cdm/typescript
+      - tar -czvf cdm-typescript-${{RELEASE_NAME}}.zip .
+      - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-typescript/${{RELEASE_NAME}}/cdm-typescript-${{RELEASE_NAME}}.zip" -T cdm-typescript.zip
+
   NotifySlackOnFail:
     title: Trigger Slack dev channel notification if master build failed
     image: codefresh/cli
@@ -91,6 +101,8 @@ steps:
           buildReleaseFailed: steps.BuildRelease.result == 'error'
           buildDamlFailed: steps.BuildDaml.result == 'error'
           buildScalaFailed: steps.BuildScala.result == 'error'
+          buildTypeScript: steps.BuildTypeScript.result == 'error'
+
     commands:
       - export SAFE_COMMIT_AUTHOR='${{CF_COMMIT_AUTHOR}}'
       - export COMMIT_AUTHOR=${SAFE_COMMIT_AUTHOR:-MissingAuthor}
@@ -112,6 +124,7 @@ steps:
           releaseBuildFailure: steps.BuildRelease.result == 'failure'
           damlBuildFailure: steps.BuildDaml.result == 'failure'
           scalaBuildFailure: steps.BuildScala.result == 'failure'
+          typeScriptBuildFailure: steps.BuildTypeScript.result == 'failure'
     commands:
       - exit 1
 
