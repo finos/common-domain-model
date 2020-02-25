@@ -81,11 +81,12 @@ steps:
   BuildTypeScript:
     title: TypeScript build and deploy
     fail_fast: false
+    image: alpine
     working_directory: ./codefresh/volume/rosetta-cdm/
     shell: bash
     commands:
       - cd /codefresh/volume/rosetta-cdm/target/classes/cdm/typescript
-      - tar -czvf cdm-typescript-${{RELEASE_NAME}}.zip .
+      - tar -czvf cdm-typescript.zip .
       - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-typescript/${{RELEASE_NAME}}/cdm-typescript-${{RELEASE_NAME}}.zip" -T cdm-typescript.zip
 
   NotifySlackOnFail:
