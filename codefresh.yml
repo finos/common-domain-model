@@ -66,18 +66,6 @@ steps:
       - tar -cvzf cdm-daml.tar.gz cdm-daml-${{RELEASE_NAME}}.dar
       - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}" -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-daml/${{RELEASE_NAME}}/cdm-daml-${{RELEASE_NAME}}.tar.gz" -T cdm-daml.tar.gz
 
-  BuildScala:
-    title: Scala build and deploy
-    fail_fast: false
-    image: mozilla/sbt
-    working_directory: ./target/classes/cdm/scala
-    shell: bash
-    commands:
-      - sbt compile
-      - sbt package
-      - cd /codefresh/volume/rosetta-cdm/target/classes/cdm/scala/target/scala-2.12
-      - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-scala/${{RELEASE_NAME}}/cdm-scala-${{RELEASE_NAME}}.jar" -T cdm-scala_2.12-0.0.0.snapshot.jar
-
   BuildTypeScript:
     title: TypeScript build and deploy
     fail_fast: false
@@ -88,6 +76,18 @@ steps:
       - cd /codefresh/volume/rosetta-cdm/target/classes/cdm/typescript
       - tar -cvzf cdm-typescript.tar.gz .
       - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-typescript/${{RELEASE_NAME}}/cdm-typescript-${{RELEASE_NAME}}.tar.gz" -T cdm-typescript.tar.gz
+
+  BuildScalaa:
+    title: Scalas build and deploy
+    fail_fast: false
+    image: mozilla/sbt
+    working_directory: ./target/classes/cdm/scala
+    shell: bash
+    commands:
+      - sbt compile
+      - sbt package
+      - cd /codefresh/volume/rosetta-cdm/target/classes/cdm/scala/target/scala-2.12
+      - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-scala/${{RELEASE_NAME}}/cdm-scala-${{RELEASE_NAME}}.jar" -T cdm-scala_2.12-0.0.0.snapshot.jar
 
   NotifySlackOnFail:
     title: Trigger Slack dev channel notification if master build failed
