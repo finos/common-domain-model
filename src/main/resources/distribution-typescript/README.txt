@@ -17,8 +17,5 @@ New starters should begin with the Contract and Event classes as these are found
 
 The file names in the common-domain-model folder should be considered in aggregate, as classes in one file can and do reference classes in other files.  The names of files should not be used as indication of the nature of its contents.  Classes are unique across files.
 
-/documentation
-Contains both the CDM documentation in html format.  In each on the sub-folders there is an index.html file.  Open this file to use the documentation.  You must extract the .zip archive before your browser can assess all the files and render them correctly.
-
 /typescript
 The Typescript source code generated from the CDM.
