@@ -23,7 +23,7 @@ public class Inception implements Function<Contract, Workflow> {
 				contract.getTradableProduct(), 
 				contract.getParty(), 
 				Optional.ofNullable(contract.getPartyRole()).orElse(Lists.newArrayList()), 
-				LegalAgreement.builder().build());
+				null);
 		
 		WorkflowBuilder workflowBuilder = Workflow.builder().addSteps(WorkflowStep.builder().setBusinessEvent(businessEvent).build());
 		runner.postProcess(Workflow.class, workflowBuilder);
