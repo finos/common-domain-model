@@ -1,17 +1,14 @@
 package org.isda.cdm.workflows;
 
-import java.util.function.Function;
-
-import org.isda.cdm.BusinessEvent;
-import org.isda.cdm.Contract;
-import org.isda.cdm.LegalAgreement;
-import org.isda.cdm.Workflow;
-import org.isda.cdm.Workflow.WorkflowBuilder;
-import org.isda.cdm.WorkflowStep;
-import org.isda.cdm.functions.InceptionBusinessEvent;
-
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.process.PostProcessor;
+import org.isda.cdm.*;
+import org.isda.cdm.Workflow.WorkflowBuilder;
+import org.isda.cdm.functions.InceptionBusinessEvent;
+
+import java.util.Optional;
+import java.util.function.Function;
 
 public class Inception implements Function<Contract, Workflow> {
 	@Inject
@@ -25,7 +22,7 @@ public class Inception implements Function<Contract, Workflow> {
 		BusinessEvent businessEvent = inception.evaluate(
 				contract.getTradableProduct(), 
 				contract.getParty(), 
-				contract.getPartyRole(), 
+				Optional.ofNullable(contract.getPartyRole()).orElse(Lists.newArrayList()), 
 				LegalAgreement.builder().build());
 		
 		WorkflowBuilder workflowBuilder = Workflow.builder().addSteps(WorkflowStep.builder().setBusinessEvent(businessEvent).build());
