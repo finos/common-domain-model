@@ -2,7 +2,7 @@ package org.isda.cdm.workflows;
 
 import com.rosetta.model.lib.process.PostProcessor;
 import org.isda.cdm.*;
-import org.isda.cdm.functions.ClearBusinessEvent;
+import org.isda.cdm.functions.Clear;
 import org.isda.cdm.functions.example.services.identification.IdentifierService;
 import org.isda.cdm.metafields.FieldWithMetaString;
 import org.isda.cdm.metafields.MetaFields;
@@ -76,7 +76,7 @@ public class ClearingUtils {
 		return contract.toBuilder().addPartyRole(partyRole1).addPartyRole(partyRole2).build();
 	}
 
-	static WorkflowStep buildClear(PostProcessor runner, String externalReference, WorkflowStep previous, ClearingInstruction clearingInstruction, ClearBusinessEvent clear, IdentifierService identifierService) {
+	static WorkflowStep buildClear(PostProcessor runner, String externalReference, WorkflowStep previous, ClearingInstruction clearingInstruction, Clear clear, IdentifierService identifierService) {
 
 		BusinessEvent.BusinessEventBuilder businessEventBuilder = clear.evaluate(clearingInstruction).toBuilder();
 
@@ -90,7 +90,7 @@ public class ClearingUtils {
 
 		addExternalKeysToClearingParties(contractFormationBuilders);
 
-		clearedTradeWorkflowEventBuilder.addEventIdentifier(identifierService.nextType(externalReference, ClearBusinessEvent.class.getSimpleName()));
+		clearedTradeWorkflowEventBuilder.addEventIdentifier(identifierService.nextType(externalReference, Clear.class.getSimpleName()));
 
 		clearedTradeWorkflowEventBuilder.getOrCreateLineage().getOrCreateEventReference(0).setGlobalReference(previous.getMeta().getGlobalKey());
 

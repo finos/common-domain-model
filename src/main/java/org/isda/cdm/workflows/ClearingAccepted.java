@@ -6,7 +6,7 @@ import com.rosetta.model.lib.process.PostProcessor;
 import org.isda.cdm.Contract;
 import org.isda.cdm.Workflow;
 import org.isda.cdm.WorkflowStep;
-import org.isda.cdm.functions.ClearBusinessEvent;
+import org.isda.cdm.functions.Clear;
 import org.isda.cdm.functions.example.services.identification.IdentifierService;
 
 import java.util.function.Function;
@@ -15,7 +15,7 @@ public class ClearingAccepted implements Function<Contract, Workflow> {
 	@Inject
 	private IdentifierService identifierService;
 	@Inject
-	private ClearBusinessEvent clear;
+	private Clear clear;
 	@Inject
 	private PostProcessor runner;
 
