@@ -46,12 +46,9 @@ type Contract: <" A class to specify a financial contract object, which can be i
 	[metadata key]
 	[rootType]
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 meta "id" path "trade"]
-	[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17, Workflow_Event meta "id"]
-
+	
 	contractIdentifier Identifier (1..*) <"The identifier(s) that uniquely identify a contract, and which can be qualified by referencing or defining the issuer(s) of such identifier(s). There can be several contract identifier, an example of such being a contract is reportable to both the CFTC and ESMA and then has an associated USI (Unique Swap Identifier) UTI (Unique Trade Identifier).">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0 value "partyTradeIdentifier" path "trade->tradeHeader"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0 value "partyTradeIdentifier" path "tradeHeader"]
-		[synonym CME_ClearedConfirm_1_17 value "partyTradeIdentifier" path "trade->tradeHeader"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "partyTradeIdentifier" path "trade->tradeHeader"]
 		[synonym CME_ClearedConfirm_1_17 value "universalSwapIdentifier" path "trade->tradeHeader"]
 		[synonym CME_SubmissionIRS_1_0 value "partyTradeIdentifier" path "Instrmt->SecXML->FpML->trade->tradeHeader"]
 		[synonym DTCC_11_0, DTCC_9_0 value "Submitter"]
@@ -62,49 +59,15 @@ type Contract: <" A class to specify a financial contract object, which can be i
 		[synonym DTCC_11_0, DTCC_9_0 value "OriginatingUSI"]
 		[synonym DTCC_11_0, DTCC_9_0 value "UTI"]
 	tradeDate TradeDate (1..1) <"The date on which the contract has been executed.">
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "tradeHeader" path "trade"]
+		[synonym CME_SubmissionIRS_1_0 value "tradeHeader" path "Instrmt->SecXML->FpML->trade"]
 	clearedDate date (0..1) <"If the trade was cleared (novated) through a central counterparty clearing service, this represents the date the trade was cleared (transferred to the central counterparty).">
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "clearedDate" path "trade->tradeHeader"]
 		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value "clearedDate" path "tradeHeader"]
-	contractualProduct ContractualProduct (1..1) <"The contractual product information that is associated with the contract, which combines the economic terms, the product identification and the product taxonomy. The corresponding FpML construct is the product abstract element and the associated substitution group.">
+	tradableProduct TradableProduct (1..1) <"The tradable product information that is associated with the contract, which combines quantity and price together with the product's economic terms, identification and taxonomy. The corresponding FpML construct is the product abstract element and the associated substitution group.">
+		[synonym FpML_5_10, CME_ClearedConfirm_1_17, DTCC_11_0, DTCC_9_0 value "trade"]
+		[synonym DTCC_11_0, DTCC_9_0 hint "ProductType"]
 		[synonym CME_SubmissionIRS_1_0 value "trade" path "Instrmt->SecXML->FpML"]
-	contractualQuantity ExecutionQuantity (0..1) <"Complex attribute to specify the quantity of the contractual product that the contract is written on. This temporarily makes uses of the 'ExecutionQuantity' class, until such time when the latter can be renamed as, and supersede, the existing 'ContractualQuantity' class.">
-		// For Equity Swap:
-		[synonym FpML_5_10 value "returnLeg" path "trade->returnSwap", "returnLeg" path "trade->equitySwapTransactionSupplement"]
-		// For Swap Stream:
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "swap", "swap" path "trade" ]
-		[synonym CME_SubmissionIRS_1_0 value "swap" path "Instrmt->SecXML->FpML->trade"]
-		// For Swaption:
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "swap" path "trade->swaption"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "swap" path "swaption"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "premium" path "swaption"]
-		// For CapFloor:
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "capFloor" path "trade" ]
-		// For FRA and Bond Options:
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "trade"]
-		// For Bond Options:
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint "bondOption"]
-		// For FRA:
-		[synonym CME_SubmissionIRS_1_0 value "trade" path "Instrmt->SecXML->FpML"]
-		// For CDS:
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "creditDefaultSwap" ]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "creditDefaultSwap" path "trade" ]
-		// For CDS Option
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "creditDefaultSwap" path "trade->creditDefaultSwapOption" ]
-		// For FX:
-		[synonym FpML_5_10 value "fxSingleLeg", "fxSingleLeg" path "trade"]
-		// For Repo:
-		[synonym FpML_5_10 value "repo", "repo" path "trade"]
-	contractualPrice ExecutionPrice (0..1) <"Complex attribute to specify the price of the contractual product that the contract is written on. This temporarily makes uses of the 'ExecutionPrice' class, until such time when the latter can be renamed as, and supersede, the existing 'ContractualQuantity' class.">
-		[synonym FpML_5_10, CME_ClearedConfirm_1_17, DTCC_11_0 value "swap", "swap" path "trade"]
-		[synonym FpML_5_10, CME_ClearedConfirm_1_17, DTCC_11_0 value "swaption", "swaption" path "trade"]
-		[synonym FpML_5_10, CME_ClearedConfirm_1_17, DTCC_11_0 value "creditDefaultSwapOption", "creditDefaultSwapOption" path "trade"]
-		[synonym FpML_5_10, CME_ClearedConfirm_1_17, DTCC_11_0 value "creditDefaultSwap", "creditDefaultSwap" path "trade"]
-		[synonym FpML_5_10, CME_ClearedConfirm_1_17, DTCC_11_0 value "bondOption", "bondOption" path "trade"]
-		[synonym FpML_5_10, CME_ClearedConfirm_1_17, DTCC_11_0 value "otherPartyPayment", "otherPartyPayment" path "trade"]
-		[synonym FpML_5_10, CME_ClearedConfirm_1_17, DTCC_11_0 value "fxSingleLeg", "fxSingleLeg" path "trade"]
-		// For Equity Swap:
-		[synonym FpML_5_10 value "returnLeg" path "trade->returnSwap", "returnLeg" path "trade->equitySwapTransactionSupplement"]
-		// TODO: make quantity and price attribute non-optional
 	collateral Collateral (0..1) <"Defines the collateral obligations of a party.">
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "collateral" path "trade"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "collateral"]
@@ -120,112 +83,115 @@ type Contract: <" A class to specify a financial contract object, which can be i
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0 value "account"]
 	partyRole PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the contract, further to the principal parties (i.e payer/receive or buyer/seller) to it.">
 	calculationAgent CalculationAgent (0..1) <"The ISDA calculation agent responsible for performing duties as defined in the applicable product definitions.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "calculationAgent" path "trade", "calculationAgent" path "contract"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "calculationAgent" path "trade->swaption", "calculationAgent" path "contract->swaption"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "trade"]
 	partyContractInformation PartyContractInformation (0..*) <"Additional contract information that may be provided by each involved party.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0 value "partyTradeInformation" path "trade->tradeHeader"]
 		[synonym CME_ClearedConfirm_1_17 value "partyTradeInformation" path "trade->tradeHeader"]
 	closedState ClosedState (0..1) <"The qualification of what led to the contract closure alongside with the dates on which this closure took effect.">
-		[synonym Workflow_Event value "closedState"]
+		[synonym Workflow_Event value "closedState" path "trade"]
 
 	condition InterestRatePayoutResolvable:
-		if Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity -> assetIdentifier exists
-		then Contract -> contractualQuantity -> quantityNotation -> assetIdentifier exists
-			and Contract -> contractualQuantity -> quantityNotation -> assetIdentifier contains Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity -> assetIdentifier
+		if tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity -> assetIdentifier exists
+		then tradableProduct -> quantityNotation -> assetIdentifier exists
+			and tradableProduct -> quantityNotation -> assetIdentifier contains tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity -> assetIdentifier
 
 	condition EquityPayoutResolvable:
-		if Contract -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> assetIdentifier exists
-		then Contract -> contractualQuantity -> quantityNotation -> assetIdentifier exists
-			and Contract -> contractualQuantity -> quantityNotation -> assetIdentifier contains Contract -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> assetIdentifier
+		if tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> assetIdentifier exists
+		then tradableProduct -> quantityNotation -> assetIdentifier exists
+			and tradableProduct -> quantityNotation -> assetIdentifier contains tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> assetIdentifier
 
-//	condition ContractualQuantity_cashflow_resolvable:
-//		if Contract -> contractualProduct -> economicTerms -> payout -> cashflow -> payoutQuantity -> assetIdentifier exists
-//		then Contract -> contractualQuantity -> quantityNotation -> assetIdentifier exists
-//			and Contract -> contractualQuantity -> quantityNotation -> assetIdentifier contains Contract -> contractualProduct -> economicTerms -> payout -> cashflow -> payoutQuantity -> assetIdentifier
+//	condition CashflowResolvable:
+//		if contractualProduct -> economicTerms -> payout -> cashflow -> payoutQuantity -> assetIdentifier exists
+//		then contractualQuantity -> quantityNotation -> assetIdentifier exists
+//			and contractualQuantity -> quantityNotation -> assetIdentifier contains contractualProduct -> economicTerms -> payout -> cashflow -> payoutQuantity -> assetIdentifier
 
 	condition DeliverableObligationsPhysicalSettlementMatrix: <"The below set of credit deliverable obligation provisions are specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that those provisions cannot be omitted if the Credit Derivatives Physical Settlement Matrix doesn't governs the terms of the contract.">
 		if ( documentation -> documentationIdentification -> contractualMatrix -> matrixType <> MatrixTypeEnum -> CreditDerivativesPhysicalSettlementMatrix
 			or documentation -> documentationIdentification -> contractualMatrix -> matrixType is absent)
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations exists
-		then ( contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> notSubordinated
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> specifiedCurrency
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> notSovereignLender
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> notDomesticCurrency
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> notDomesticLaw
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> notContingent
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> notDomesticIssuance
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> assignableLoan
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> consentRequiredLoan
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> transferable
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> maximumMaturity
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> notBearer
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations exists
+		then ( tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> notSubordinated
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> specifiedCurrency
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> notSovereignLender
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> notDomesticCurrency
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> notDomesticLaw
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> notContingent
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> notDomesticIssuance
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> assignableLoan
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> consentRequiredLoan
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> transferable
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> maximumMaturity
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> notBearer
 			) exists
-			and ( contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> fullFaithAndCreditObLiability
-			or contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> generalFundObligationLiability
-			or contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> revenueObligationLiability
+			and ( tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> fullFaithAndCreditObLiability
+			or tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> generalFundObligationLiability
+			or tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> revenueObligationLiability
 			) exists
 
 	condition ObligationsPhysicalSettlementMatrix: <"The below set of obligation of the reference entity are specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that those provisions cannot be omitted if the Physical Settlement Matrix governs the terms of the contract. This data rule also applies to cash settled contracts because those could still end-up being physically settled, in case the case where an auction could not take place because of, say, liquidity considerations.">
 		if ( documentation -> documentationIdentification -> contractualMatrix -> matrixType <> MatrixTypeEnum -> CreditDerivativesPhysicalSettlementMatrix
 			or documentation -> documentationIdentification -> contractualMatrix -> matrixType is absent)
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations exists
-		then ( contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notSubordinated
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notSovereignLender
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notDomesticLaw
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notDomesticIssuance
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations exists
+		then ( tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notSubordinated
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notSovereignLender
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notDomesticLaw
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notDomesticIssuance
 			) exists
 			and (
-			Contract -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> fullFaithAndCreditObLiability
-			or contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> generalFundObligationLiability
-			or contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> revenueObligationLiability
+			tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> fullFaithAndCreditObLiability
+			or tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> generalFundObligationLiability
+			or tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> revenueObligationLiability
 			) exists
 
 	condition CreditEventsPhysicalSettlementMatrix: <"The below set of credit events are specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that those provisions can only be omitted if the Physical Settlement Matrix governs the terms of the contract. This data rule also applies to cash settled contracts because those could still end-up being physically settled, in the case where an auction could not take place because of, say, liquidity considerations.">
 		if ( documentation -> documentationIdentification -> contractualMatrix -> matrixType <> MatrixTypeEnum -> CreditDerivativesPhysicalSettlementMatrix
-			or documentation -> documentationIdentification -> contractualMatrix -> matrixType is absent)
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents exists
-		then ( contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> bankruptcy
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> obligationDefault
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> obligationAcceleration
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> repudiationMoratorium
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> governmentalIntervention
+			or documentation -> documentationIdentification -> contractualMatrix -> matrixType is absent )
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents exists
+		then ( tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> bankruptcy
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> obligationDefault
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> obligationAcceleration
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> repudiationMoratorium
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> governmentalIntervention
 			) exists
 
 	condition RestructuringPhysicalSettlementMatrix: <"The below multiple holder obligation restructuring provisions is specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that this provision can only be omitted if the Physical Settlement Matrix governs the terms of the contract. This data rule also applies to cash settled contracts because those could still end-up being physically settled, in the case where an auction could not take place because of, say, liquidity considerations.">
 		if ( documentation -> documentationIdentification -> contractualMatrix -> matrixType <> MatrixTypeEnum -> CreditDerivativesPhysicalSettlementMatrix
-			or documentation -> documentationIdentification -> contractualMatrix -> matrixType is absent)
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring exists
-		then contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleHolderObligation exists
+			or documentation -> documentationIdentification -> contractualMatrix -> matrixType is absent )
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring exists
+		then tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleHolderObligation exists
 
 	/*
 	 * TODO - Confirm the set of Contractual Terms Supplements that qualify mortgage products
 	 */
 	condition AdditionalFixedPaymentsMortgages: <"The below set of additional fixed payment provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlier is a mortgage index.">
-		if ( contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> mortgageBackedSecurity exists
+		if ( tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> mortgageBackedSecurity exists
 			or documentation -> documentationIdentification -> contractualTermsSupplement -> contractualTermsSupplementType = ContractualSupplementEnum -> CDSonMBS)
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents exists
-		then ( contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> additionalFixedPayments -> interestShortfallReimbursement
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> additionalFixedPayments -> principalShortfallReimbursement
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> additionalFixedPayments -> writedownReimbursement
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents exists
+		then ( tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> additionalFixedPayments -> interestShortfallReimbursement
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> additionalFixedPayments -> principalShortfallReimbursement
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> additionalFixedPayments -> writedownReimbursement
 			) exists
 
 	condition FloatingAmountEventsMortgages: <"The below set of floating amount events provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlier is a mortgage index.">
-		if ( contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> mortgageBackedSecurity exists
+		if ( tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> mortgageBackedSecurity exists
 			or documentation -> documentationIdentification -> contractualTermsSupplement -> contractualTermsSupplementType = ContractualSupplementEnum -> CDSonMBS)
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents exists
-		then ( contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> failureToPayPrincipal
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> writedown
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> impliedWritedown
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents exists
+		then ( tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> failureToPayPrincipal
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> writedown
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> impliedWritedown
 			) exists
 
 	condition CreditEventsMortgages: <"The below set of credit events provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlier is a mortgage index.">
-		if ( contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> mortgageBackedSecurity exists
+		if ( tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> mortgageBackedSecurity exists
 			or documentation -> documentationIdentification -> contractualTermsSupplement -> contractualTermsSupplementType = ContractualSupplementEnum -> CDSonMBS)
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents exists
-		then ( contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> failureToPayPrincipal
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> failureToPayInterest
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> distressedRatingsDowngrade
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> maturityExtension
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> writedown
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> impliedWritedown
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents exists
+		then ( tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> failureToPayPrincipal
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> failureToPayInterest
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> distressedRatingsDowngrade
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> maturityExtension
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> writedown
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> impliedWritedown
 			) exists
 
 	condition HedgingParty: <"FpML specifies that there cannot be more than 2 hedging parties.">
@@ -244,75 +210,76 @@ type Contract: <" A class to specify a financial contract object, which can be i
 		if clearedDate exists
 		then clearedDate >= tradeDate -> date
 
+	condition ContractualProductExists:
+		tradableProduct -> product -> contractualProduct only exists
+
 	condition FpML_cd_1: <"FpML validation rule cd-1 - If referenceInformation exists, tradeDate must be before effectiveDate/unadjustedDate.">
-		if contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
-		then tradeDate -> date < contractualProduct -> economicTerms -> effectiveDate -> adjustableDate -> unadjustedDate
-			or tradeDate -> date < contractualProduct -> economicTerms -> effectiveDate -> adjustableDate -> adjustedDate
+		if tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
+		then tradeDate -> date < tradableProduct -> product -> contractualProduct -> economicTerms -> effectiveDate -> adjustableDate -> unadjustedDate
+			or tradeDate -> date < tradableProduct -> product -> contractualProduct -> economicTerms -> effectiveDate -> adjustableDate -> adjustedDate
 
 	condition FpML_cd_7: <"FpML validation rule cd-7 - If condition LongForm is true, then effectiveDate/dateAdjustments exists.">
 		if ( documentation -> documentationIdentification -> masterConfirmation and documentation -> documentationIdentification -> contractualMatrix ) is absent
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
-		then contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> dateAdjustments exists
-			or tradeDate -> date < contractualProduct -> economicTerms -> effectiveDate -> adjustableDate -> adjustedDate
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
+		then tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> dateAdjustments exists
+			or tradeDate -> date < tradableProduct -> product -> contractualProduct -> economicTerms -> effectiveDate -> adjustableDate -> adjustedDate
 
 	condition FpML_cd_8: <"FpML validation rule cd-8 - If condition LongForm is true, and if scheduledTerminationDate exists then scheduledTerminationDate/dateAdjustments exists.">
 		if ( documentation -> documentationIdentification -> masterConfirmation and documentation -> documentationIdentification -> contractualMatrix ) is absent
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
-		then contractualProduct -> economicTerms -> terminationDate -> adjustableDate -> dateAdjustments exists
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
+		then tradableProduct -> product -> contractualProduct -> economicTerms -> terminationDate -> adjustableDate -> dateAdjustments exists
 
 	condition FpML_cd_11: <"FpML validation rule cd-11 - If condition LongForm is true, and if condition ISDA2003 is true, then allGuarantees must exist.">
 		if ( documentation -> documentationIdentification -> masterConfirmation and documentation -> documentationIdentification -> contractualMatrix ) is absent
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
 			and documentation -> documentationIdentification -> contractualDefinitions = ContractualDefinitionsEnum -> ISDA2003Credit
-		then contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> allGuarantees exists
+		then tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> allGuarantees exists
 
 	condition FpML_cd_19: <"FpML validation rule cd-19 - If the condition ISDA1999Credit is true, then the following elements must not exist: protectionTerms/creditEvents/creditEventNotice/businessCenter, protectionTerms/creditEvents/restructuring/multipleHolderObligation, protectionTerms/creditEvents/restructuring/multipleCreditEventNotices, generalTerms/referenceInformation/allGuarantees, generalTerms/indexReferenceInformation, generalTerms/substitution, generalTerms/modifiedEquityDelivery.">
 		if documentation -> documentationIdentification -> contractualDefinitions = ContractualDefinitionsEnum -> ISDA1999Credit
-		then ( contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> creditEventNotice -> businessCenter
-		and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleHolderObligation
-		and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleCreditEventNotices
-		and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> allGuarantees
-		and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> indexReferenceInformation
-		and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> substitution
-		and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> modifiedEquityDelivery )
+		then ( tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> creditEventNotice -> businessCenter
+		and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleHolderObligation
+		and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleCreditEventNotices
+		and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> allGuarantees
+		and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> indexReferenceInformation
+		and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> substitution
+		and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> modifiedEquityDelivery )
 	is absent
 
 	condition FpML_cd_20: <"FpML validation rule cd-20 - If the condition ISDA2003 is true, then protectionTerms/obligations/notContingent must not exist.">
 		if documentation -> documentationIdentification -> contractualDefinitions = ContractualDefinitionsEnum -> ISDA2003Credit
-		then contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notContingent is absent
+		then tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notContingent is absent
 
 	condition FpML_cd_23: <"FpML validation rule cd-23 - If the condition LongForm is true, then cashSettlementTerms or physicalSettlementTerms must exist.">
 		if ( documentation -> documentationIdentification -> masterConfirmation and documentation -> documentationIdentification -> contractualMatrix ) is absent
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
-		then ( contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> cashSettlementTerms or contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms) exists
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
+		then ( tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> cashSettlementTerms or tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms) exists
 
 	condition FpML_cd_24: <"FpML validation rule cd-24 - If the condition LongForm is true, then the following elements must exist: protectionTerms/creditEvents/creditEventNotice, protectionTerms/obligations, generalTerms/referenceInformation/referencePrice.">
 		if ( documentation -> documentationIdentification -> masterConfirmation and documentation -> documentationIdentification -> contractualMatrix ) is absent
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
-		then ( contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> creditEventNotice
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout ->generalTerms -> referenceInformation -> referencePrice
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
+		then ( tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> creditEventNotice
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout ->generalTerms -> referenceInformation -> referencePrice
 			) exists
 
 	condition FpML_cd_25: <"FpML validation rule cd-25 - If the condition LongForm is true, and if physicalSettlementTerms exists, then physicalSettlementTerms must contain settlementCurrency, physicalSettlementPeriod, escrow and deliverableObligations/accruedInterest.">
 		if ( documentation -> documentationIdentification -> masterConfirmation and documentation -> documentationIdentification -> contractualMatrix ) is absent
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms exists
-		then ( contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> settlementCurrency
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> physicalSettlementPeriod
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> escrow
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> accruedInterest
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms exists
+		then ( tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> settlementCurrency
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> physicalSettlementPeriod
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> escrow
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> accruedInterest
 			) exists
 
 	condition FpML_cd_32: <"FpML validation rule cd-32 - If condition LongForm is true, and if fixedAmountCalculation/calculationAmount exists, then fixedAmountCalculation/dayCountFraction must exist.">
 		if ( documentation -> documentationIdentification -> masterConfirmation and documentation -> documentationIdentification -> contractualMatrix ) is absent
-			and contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
-			and contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity -> assetIdentifier -> currency exists
-			and contractualQuantity -> quantityNotation -> quantity -> amount exists
-		then contractualProduct -> economicTerms -> payout -> interestRatePayout -> dayCountFraction exists
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity -> assetIdentifier -> currency exists
+			and tradableProduct -> quantityNotation -> quantity -> amount exists
+		then tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> dayCountFraction exists
 
-	condition ContractPriceQuantityTriangulation:
-		PriceQuantityTriangulation( Contract -> contractualPrice, Contract -> contractualQuantity ) = True
 
 type ContractualProduct: <" A class to specify the contractual products' economic terms, alongside their product identification and product taxonomy. The contractual product class is meant to be used across the pre-execution, execution and (as part of the Contract) post-execution lifecycle contexts.">
 
@@ -321,39 +288,9 @@ type ContractualProduct: <" A class to specify the contractual products' economi
 	economicTerms EconomicTerms (1..1) <"The economic terms associated with a contractual product, i.e. the set of features that are price-forming.">
 
 
-type ExecutionQuantity: <" Class to specify the executed quantity of a product, provided as (possibly multiple) quantity notations, plus additional information regarding potential future quantity adjustments. Should be remaned as, and supersede, 'ContractualQuantity' once the latter can be deprecated.">
-
-	quantityNotation QuantityNotation (1..*) <"Quantity of the underlying contractual product that the contract is written on, defined as a single, non-negative number, a (mandatory) notation tag and an (optional) unit. Products, including contractual products, are designed to be defined as a unit in CDM (with quantity schedule and cross-referencing mechanisms handled as part of the underlying payout legs), so that the overall quantity can be abstracted away from the product definition. The notation tag (e.g. 'Notional') is meant to be referenced by the underlying payout legs and used to resolve the product, by fetching the actual amount from the appropriate quantity notation.">
-		// For Equity Swap:
-		[synonym FpML_5_10 value "notional"]
-		[synonym FpML_5_10 value "underlyer"]
-		// For Swap Stream, incl. Swaption and CapFloor:
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notionalSchedule" path "swapStream->calculationPeriodAmount->calculation"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notionalSchedule" path "capFloorStream->calculationPeriodAmount->calculation"]
-		// For BRL CDI swaps
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "futureValueNotional" path "swapStream->calculationPeriodAmount->calculation"]
-		// For FRA:
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "fra"]
-		// For CDS
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "protectionTerms"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "fixedAmountCalculation" path "feeLeg->periodicPayment"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "floatingAmountCalculation" path "feeLeg->periodicPayment"]
-		// For FX:
-		[synonym FpML_5_10 value "exchangedCurrency1"]
-		[synonym FpML_5_10 value "exchangedCurrency2"]
-		[synonym Workflow_Event value "cashflow"]
-		// For Repo:
-		[synonym FpML_5_10 value "nearLeg"]
-		// For Bond Option:
-		[synonym FpML_5_10 value "notionalAmount" path "bondOption"]
-	adjustment NotionalAdjustmentEnum (0..1) <"Specifies the conditions that govern the adjustment to the quantity of a contractual product being traded: e.g. execution, portfolio rebalancing etc. It is typically used in the context of Equity Swaps.">
-		[synonym FpML_5_10 value "notionalAdjustments"]
-
-
 type QuantityMultiplier: <" Class to specify a mechanism for a quantity to be set as a multiplier to another (reference) quantity, based on a price observation. At the moment this class only supports FX or Equity-linked notional and re-uses existing building blocks for those 2 cases, until such time when component can be made more generic. This captures the case of resetting cross-currency swaps and resetting equity swaps.">
 
 	fxLinkedNotionalSchedule FxLinkedNotionalSchedule (0..1) <"Multiplier specified as an FX-linked schedule, e.g. for a resetting cross-currency swap..">
-	// equityValuation EquityValuation (0..1) <"Multiplier specified as an equity valuation schedule, e.g. for a resetting equity swap.">
 	multiplierValue number (0..1)
 	condition: one-of
 
@@ -411,24 +348,15 @@ type CrossCurrencyTerms:
 
 type CreditDefaultPayout: <" The credit default payout specification provides the details necessary for determining when a credit payout will be triggered as well as the parameters for calculating the payout and the settlement terms. The associated rosettaKey denotes the ability to associate a hash value to the CreditDefaultPayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
-	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta "id" path "trade->creditDefaultSwap"]
-	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta "id" path "creditDefaultSwap"]
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta "id"]
 
 	generalTerms GeneralTerms (1..1) <"The specification of the non-monetary terms for the Credit Derivative Transaction, including the buyer and seller and selected items from the ISDA 2014 Credit Definition article II, such as the reference obligation and related terms.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "generalTerms" path "trade->creditDefaultSwap"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "generalTerms" path "creditDefaultSwap"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "generalTerms"]
 	protectionTerms ProtectionTerms (1..*) <"Specifies the terms for calculating a payout to protect the buyer of the swap in the case of a qualified credit event. These terms include the notional amount, the applicable credit events, the reference obligation, and in the case of a CDS on mortgage-backed securities, the floatingAmountEvents.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "protectionTerms" path "trade->creditDefaultSwap"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "protectionTerms" path "creditDefaultSwap"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "protectionTerms"]
 	cashSettlementTerms CashSettlementTerms (0..*) <"Specifies the terms applicable to the cash settlement of a credit event.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "cashSettlementTerms" path "trade->creditDefaultSwap"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "cashSettlementTerms" path "creditDefaultSwap"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "cashSettlementTerms"]
 	physicalSettlementTerms PhysicalSettlementTerms (0..*) <"Specifies the terms applicable to the physical settlement of a credit event.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "physicalSettlementTerms" path "trade->creditDefaultSwap"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "physicalSettlementTerms" path "creditDefaultSwap"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "physicalSettlementTerms"]
 	transactedPrice TransactedPrice (0..1) <"The qualification of the price at which the contract has been transacted, in terms of market fixed rate, initial points, market price and/or quotation style. In FpML, those attributes are positioned as part of the fee leg.">
 
@@ -451,22 +379,17 @@ type CreditDefaultPayout: <" The credit default payout specification provides th
 type EconomicTerms: <" This class represents the full set of price-forming features associated with a contractual product: the payout component, the notional/quantity, the effective and termination date and the date adjustment provisions when applying uniformily across the payout components. This class also includes the legal provisions which have valuation implications: cancelable provision, extendible provision, early termination provision and extraordinary events specification. A rosettaKeyValue is associated to the contractual product economic terms for the purpose of supporting hash-based reconciliations thanks to the fact that its computation doesn't include meta data, such as identifiers, references, schemes and other rosettaKey artefacts. The rosettaKeyValue default implementation is available as part of the generated code as org.isda.cdm.rosettakey.RosettaKeyValueHashFunction.">
 	[partialKey]
 	effectiveDate AdjustableOrRelativeDate (0..1) <"The first day of the terms of the trade. This day may be subject to adjustment in accordance with a business day convention.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "effectiveDate" path "trade->creditDefaultSwap->generalTerms", "effectiveDate" path "generalTerms"]
-		[synonym Workflow_Event value "effectiveDate" path "creditDefaultSwap->generalTerms", "effectiveDate" path "creditDefaultSwapOption->creditDefaultSwap->generalTerms"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "effectiveDate" path "generalTerms"]
 	terminationDate AdjustableOrRelativeDate (0..1) <"The last day of the terms of the trade. This date may be subject to adjustments in accordance with the business day convention. It can also be specified in relation to another scheduled date (e.g. the last payment date).">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "scheduledTerminationDate" path "trade->creditDefaultSwap->generalTerms", "scheduledTerminationDate" path "generalTerms"]
-		[synonym Workflow_Event value "scheduledTerminationDate" path "creditDefaultSwap->generalTerms", "scheduledTerminationDate" path "creditDefaultSwapOption->creditDefaultSwap->generalTerms"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "scheduledTerminationDate" path "generalTerms"]
 	dateAdjustments BusinessDayAdjustments (0..1) <"The business day adjustment convention when it applies across all the payout components. This specification of the business day convention and financial business centers is used for adjusting any calculation period date if it would otherwise fall on a day that is not a business day in the specified business center.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "dateAdjustments" path "trade->creditDefaultSwap->generalTerms", "dateAdjustments" path "generalTerms"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "dateAdjustments" path "generalTerms"]
 	payout Payout (1..1) <"The payout specifies the future cashflow computation methodology which characterizes a financial product.">
 	earlyTerminationProvision EarlyTerminationProvision (0..1) <"Parameters specifying provisions relating to the optional and mandatory early termination of a swap transaction.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "earlyTerminationProvision" path "trade->swap", "earlyTerminationProvision" path "trade->capFloor"]
-	cancelableProvision CancelableProvision (0..1) <"A provision that allows the specification of an embedded option within a swap giving the buyer of the option the right to terminate the swap, in whole or in part, on the early termination date.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "cancelableProvision" path "trade->swap"]
-	extendibleProvision ExtendibleProvision (0..1) <"A provision that allows the specification of an embedded option with a swap giving the buyer of the option the right to extend the swap, in whole or in part, to the extended termination date.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "extendibleProvision" path "trade->swap"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "earlyTerminationProvision"]
+	optionProvision OptionProvision (0..1) <"Cancelable and/or extendible provisions.">
 	extraordinaryEvents ExtraordinaryEvents (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Extraordinary Events.">
-		[synonym FpML_5_10 value "extraordinaryEvents" path "trade->returnSwap"]
+		[synonym FpML_5_10 value "extraordinaryEvents"]
 
 	condition ExtraordinaryEvents: <"Extraordinary events provisions must be associated with an equity payout.">
 		if extraordinaryEvents exists
@@ -547,57 +470,27 @@ type EquityPayout extends PayoutBase: <" The equity payout specification terms. 
 type Execution: <" A class to specify an execution, which consists essentially in the economic terms which are agreed between the parties, alongside with the qualification of the type of execution. The associated rosettaKey denotes the ability to associate a hash value to the respective Execution instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
 	executionType ExecutionTypeEnum (1..1) <"Specifies the type of execution, e.g. via voice, electronically...">
-		[synonym Workflow_Event value "executionType"]
+		[synonym Workflow_Event value "executionType" path "trade"]
 		[synonym CME_SubmissionIRS_1_0 value "VenuTyp"]
 	executionVenue LegalEntity (0..1) <"The execution venue identification, when applicable.">
 	identifier Identifier (1..*) <"The identifier(s) associated with the execution.">
-		[synonym FpML_5_10 value "partyTradeIdentifier" path "tradeHeader"]
+		[synonym FpML_5_10 value "partyTradeIdentifier" path "trade->tradeHeader"]
 		[synonym DTCC_11_0, DTCC_9_0 value "partyTradeIdentifier" path "Submitter"]
 		[synonym CME_SubmissionIRS_1_0 value "partyTradeIdentifier" path "Instrmt->SecXML->FpML->trade->tradeHeader"]
 	tradeDate date (1..1) <"The trade/execution date.">
 		[metadata id]
-		[synonym FpML_5_10 value "tradeDate" path "tradeHeader" meta "id"]
+		[synonym FpML_5_10 value "tradeDate" path "trade->tradeHeader" meta "id"]
 		[synonym CME_SubmissionIRS_1_0 value "tradeDate" path "Instrmt->SecXML->FpML->trade->tradeHeader" meta "id"]
-	product Product (1..1) <"The product traded as part of this execution">
-		[synonym CME_SubmissionIRS_1_0 value "FpML" path "Instrmt->SecXML"]
+	tradableProduct TradableProduct (1..1) <"The product traded as part of this execution, including quantity and price">
+		[synonym FpML_5_10, CME_ClearedConfirm_1_17, DTCC_11_0, DTCC_9_0 value "trade"]
+		[synonym CME_SubmissionIRS_1_0 value "trade" path "Instrmt->SecXML->FpML"]
 	party Party (0..*) <"The party reference is optional because positioned as part of the Event class when the execution is specified as part of such context.">
 		[metadata reference]
 		[synonym CME_SubmissionIRS_1_0 value "party" path "Instrmt->SecXML->FpML"]
 	partyRole PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the execution, further to the principal parties (i.e payer/receive or buyer/seller) to it.">
+		[synonym Workflow_Event value "trade"]
 	closedState ClosedState (0..1) <"The qualification of what led to the execution closure alongside with the dates on which this closure takes effect.">
-		[synonym Workflow_Event value "closedState"]
-	executionQuantity ExecutionQuantity (0..1) <"Complex attribute to specify the quantity of the contractual product that is being executed. This temporarily makes uses of the 'ExecutionQuantity' class, until such time when the latter can be renamed as, and supersede, the existing 'ContractualQuantity' class. To be later merged with the 'quantity' attribute to have consistent mechanism between contractual and non-contractual products.">
-		// For Swap Stream:
-		[synonym Workflow_Event value "swap"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "swap", "swap" path "trade" ]
-		[synonym CME_SubmissionIRS_1_0 value "swap" path "Instrmt->SecXML->FpML->trade"]
-		[synonym CME_SubmissionIRS_1_0 value "swap" path "Instrmt->SecXML->FpML->trade->swaption"]
-		// For CDS:
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "creditDefaultSwap" ]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "creditDefaultSwap" path "trade" ]
-		// For FRA:
-		[synonym CME_SubmissionIRS_1_0 value "trade" path "Instrmt->SecXML->FpML"]
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "trade"]
-		// For Equity Swap:
-		[synonym FpML_5_10 value "returnLeg" path "trade->returnSwap", "returnLeg" path "trade->equitySwapTransactionSupplement"]
-		// For Swaption:
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "swap" path "trade->swaption"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "swap" path "swaption"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "premium" path "swaption"]
-		// For CapFloor:
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "capFloor" path "trade" ]
-		// For FRA and Bond Options:
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "trade"]
-		// For Bond Options:
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint "bondOption"]
-		// For CDS Option
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "creditDefaultSwap" path "trade->creditDefaultSwapOption" ]
-		// For FX:
-		[synonym FpML_5_10 value "fxSingleLeg", "fxSingleLeg" path "trade"]
-		// For Repo:
-		[synonym FpML_5_10 value "repo", "repo" path "trade"]
-	price ExecutionPrice (0..1) <"The transacted price of the execution, which is applicable across product types such as securities or contractual products.">
-		[synonym CME_SubmissionIRS_1_0 value "swaption" path "Instrmt->SecXML->FpML->trade"]
+		[synonym Workflow_Event value "closedState" path "trade"]
 	settlementTerms SettlementTerms (0..1) <"The execution settlement terms, which is applicable for products such as securities">
 
 	condition ExecutionVenue: <"When the execution type is set to 'Electronically', the execution venue must be specified.">
@@ -605,30 +498,30 @@ type Execution: <" A class to specify an execution, which consists essentially i
 		then executionVenue exists
 
 	condition SecurityPartyRole: <"When the executed product is a security, both ExecutingEntity and Counterparty party roles must exist.">
-		if product -> security exists
+		if tradableProduct -> product -> security exists
 		then partyRole -> role contains PartyRoleEnum -> ExecutingEntity and partyRole -> role contains PartyRoleEnum -> Counterparty
 
 	condition SecurityPartyRoleBuyerSeller: <"When the executed product is a security, both buyer and seller party roles must exist.">
-		if product -> security exists
+		if tradableProduct -> product -> security exists
 		then partyRole -> role contains PartyRoleEnum -> Buyer and partyRole -> role contains PartyRoleEnum -> Seller
 
 	condition SecurityPrice: <"When the executed product is a security, the price must be specified.">
-		if product -> security exists
-		then price exists
+		if tradableProduct -> product -> security exists
+		then tradableProduct -> priceNotation -> price exists
 
 	condition SettlementTerms: <"When the executed product is a security, the settlement terms must be specified.">
-		if product -> security exists
+		if tradableProduct -> product -> security exists
 		then settlementTerms exists
 
 	condition QuantityInterestRatePayoutResolvable:
-		if Execution -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity -> assetIdentifier exists
-		then Execution -> executionQuantity -> quantityNotation -> assetIdentifier exists
-			and Execution -> executionQuantity -> quantityNotation -> assetIdentifier contains Execution -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity -> assetIdentifier
+		if Execution -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity -> assetIdentifier exists
+		then Execution -> tradableProduct -> quantityNotation -> assetIdentifier exists
+			and Execution -> tradableProduct -> quantityNotation -> assetIdentifier contains Execution -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity -> assetIdentifier
 
 	condition QuantityEquityPayoutResolvable:
-		if Execution -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> assetIdentifier exists
-		then Execution -> executionQuantity -> quantityNotation -> assetIdentifier exists
-			and Execution -> executionQuantity -> quantityNotation -> assetIdentifier contains Execution -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> assetIdentifier
+		if Execution -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> assetIdentifier exists
+		then Execution -> tradableProduct -> quantityNotation -> assetIdentifier exists
+			and Execution -> tradableProduct -> quantityNotation -> assetIdentifier contains Execution -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> assetIdentifier
 
 //	condition ExecutionQuantity_cashflow_resolvable:
 //		if Execution -> product -> contractualProduct -> economicTerms -> payout -> cashflow -> payoutQuantity -> assetIdentifier exists
@@ -636,12 +529,10 @@ type Execution: <" A class to specify an execution, which consists essentially i
 //			and Execution -> executionQuantity -> quantityNotation -> assetIdentifier contains Execution -> product -> contractualProduct -> economicTerms -> payout -> cashflow -> payoutQuantity -> assetIdentifier
 
 	condition QuantityBondResolvable:
-		if Execution -> product -> security -> bond -> productIdentifier exists
-		then Execution -> executionQuantity -> quantityNotation -> assetIdentifier -> productIdentifier exists
-			and Execution -> executionQuantity -> quantityNotation -> assetIdentifier -> productIdentifier contains Execution -> product -> security -> bond -> productIdentifier
+		if Execution -> tradableProduct -> product -> security -> bond -> productIdentifier exists
+		then Execution -> tradableProduct -> quantityNotation -> assetIdentifier -> productIdentifier exists
+			and Execution -> tradableProduct -> quantityNotation -> assetIdentifier -> productIdentifier contains Execution -> tradableProduct -> product -> security -> bond -> productIdentifier
 
-	condition ExecutionPriceQuantityTriangulation:
-		PriceQuantityTriangulation( Execution -> price, Execution -> executionQuantity ) = True
 
 type GeneralTerms: <" A class specifying a set of non-monetary terms for the Credit Derivative Transaction, including the buyer and seller and selected items from the ISDA 2014 Credit Definition article II, such as the reference obligation and related terms. The CDM GeneralTerms class corresponds to the FpML GeneralTerms complex type, except that the effectiveDate and scheduledTerminationDate have been positioned as part of the InterestRatePayout class in the CDM instead of in GeneralTerms.">
 
@@ -807,7 +698,7 @@ type OptionPayout extends PayoutBase: <" The option payout specification terms. 
 	denomination OptionDenomination (0..1) <"The denomination qualifies the number of units of underlier per option and the number of options comprised in the option transaction. FpML represents this information as part of the OptionDenomination.model.">
 	exerciseTerms OptionExercise (1..1) <"The terms for exercising the option, which include the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">
 	underlier Underlier (1..1) <"The product underlying the option, which can be of any type including ContractualProduct or Security.">
-
+		[synonym CME_ClearedConfirm_1_17 hint "swap"]
 
 type SecurityLeg: <" Terms defining a security leg in a securities financing transaction, which can either be the near leg or the far leg and is closely modelled onto the nearLeg and farLeg types in FpML">
 	[metadata key]
@@ -966,6 +857,7 @@ type PayoutBase: <" Base class that all payout types should extend. Use case is 
 		[synonym FpML_5_10 value "rateOfReturn"]
 		// For Swap Stream:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notionalSchedule" path "calculationPeriodAmount->calculation"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "fxLinkedNotionalSchedule" path "calculationPeriodAmount->calculation"]
 		// For CDS:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "calculationAmount"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "calculationAmount" path "periodicPayment->fixedAmountCalculation"]
@@ -973,7 +865,6 @@ type PayoutBase: <" Base class that all payout types should extend. Use case is 
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "fixedAmount"]
 		// For FX:
 		[synonym FpML_5_10 hint "paymentAmount"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "fxLinkedNotionalSchedule" path "calculationPeriodAmount->calculation"]
 		// For Repo:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "settlementAmount" path "nearLeg"]
 		// For BRL CDI swaps:
@@ -983,60 +874,46 @@ type PayoutBase: <" Base class that all payout types should extend. Use case is 
 		// For Bond Option:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notionalAmount"]
 
-
 type Payout: <" A class to represent the set of future cashflow methodologies in the form of specific payout class(es) that can be associated for the purpose of specifying a financial product. For example, two interest rate payouts can be combined to specify an interest rate swap, or one interest rate payout can be combined with a credit default payout to specify a credit default swap.">
 
 	interestRatePayout InterestRatePayout (0..*) <"All of the terms necessary to define and calculate a cash flow based on a fixed, a floating or an inflation index rate. The interest rate payout can be applied to interest rate swaps and FRA (which both have two associated interest rate payouts), credit default swaps (to represent the fee leg when subject to periodic payments) and equity swaps (to represent the funding leg).">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "swapStream" path "trade->swap" ]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "swapStream" path "swap"]
+		// For Swap Stream
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "swapStream"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "generalTerms" path "trade->creditDefaultSwap", "feeLeg" path "trade->creditDefaultSwap" set when "trade->creditDefaultSwap->feeLeg->periodicPayment" exists]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "generalTerms" path "creditDefaultSwap", "feeLeg" path "creditDefaultSwap" set when "creditDefaultSwap->feeLeg->periodicPayment" exists]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "feeLeg", "generalTerms"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "capFloorStream" path "trade->capFloor"]
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "fra" path "trade" mapper "FRAIRPSplitter"]
-		[synonym CME_SubmissionIRS_1_0 value "fra" mapper "FRAIRPSplitter"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "interestLeg" path "trade->returnSwap", "interestLeg" path "trade->equitySwapTransactionSupplement"]
-		[synonym FpML_5_10 value "repo" path "trade"]
+		// For CapFloor:
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "capFloorStream"]
+		// For FRA:
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value "fra" mapper "FRAIRPSplitter"]
+		// For CDS:
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "generalTerms", "feeLeg" set when "feeLeg->periodicPayment" exists]
+		// For Equity Swap
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "interestLeg"]
+		// For Repo:
 		[synonym FpML_5_10 value "repo"]
 	creditDefaultPayout CreditDefaultPayout (0..1) <"The credit default payout, which provides the details necessary for determining when a credit payout will be triggered as well as the parameters for calculating the payout and the settlement terms.">
 	equityPayout EquityPayout (0..*) <"The equity payout, which encompasses the equity price returns, dividend returns, volatility and variance return provisions.">
-		[synonym FpML_5_10 value "returnLeg" path "trade->returnSwap", "returnLeg" path "trade->equitySwapTransactionSupplement"]
+		[synonym FpML_5_10 value "returnLeg"]
 		[synonym CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0 value "ignore"]
 	optionPayout OptionPayout (0..*) <"The option payout.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "swaption" path "trade"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "swaption"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "creditDefaultSwapOption" path "trade"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "creditDefaultSwapOption"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "bondOption" path "trade"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "bondOption"]
 	forwardPayout ForwardPayout (0..*)
-		[synonym FpML_5_10 value "fxSingleLeg" path "trade"]
 		[synonym FpML_5_10 value "fxSingleLeg"]
 		[synonym CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0 value "ignore"]
 	securityPayout SecurityPayout (0..*) <"The security payout when the product involves some form of securities, such as collateral in a securities financing transaction">
-		[synonym FpML_5_10 value "repo" path "trade"]
 		[synonym FpML_5_10 value "repo"]
+		[synonym CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0 value "ignore"]
 	cashflow Cashflow (0..*) <"A cashflow between the parties to the trade. For interest rate and equity products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the FpML initialPayment element and the singlePayment element of the fee leg. For option products, it represents the FpML premium element.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "additionalPayment" path "trade->swap"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "additionalPayment" path "swap"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "additionalPayment"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "initialPayment" path "trade->creditDefaultSwap->feeLeg"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "initialPayment" path "creditDefaultSwap->feeLeg"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "singlePayment" path "trade->creditDefaultSwap->feeLeg"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "singlePayment" path "creditDefaultSwap->feeLeg"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "initialPayment" path "feeLeg"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "singlePayment" path "feeLeg"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "singlePayment"]
 		// TODO - The below 2 attributes are not properly mapped.  This needs to be addressed as part of this Trello card https://trello.com/c/488uoZcS
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint "paymentDelay"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint "payerReceiver"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "premium" path "trade->swaption"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "premium" path "swaption"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "premium" path "trade->creditDefaultSwapOption"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "premium" path "creditDefaultSwapOption"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "premium" path "trade->bondOption"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "premium" path "bondOption"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "premium" path "trade->capFloor", "additionalPayment" path "trade->capFloor"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "otherPartyPayment" path "trade"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "premium" path "creditDefaultSwapOption"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "otherPartyPayment"]
 
 	condition LastRegularPaymentDate: <"FpML specifies that lastRegularPaymentDate must only be included if there is a final stub. As part of the CDM, this data rule has been adjusted to specify that it only applies to interest rate swaps, as the credit derivatives products can have a specified lastRegularPaymentDate while the stub is typically not applicable to those.">
@@ -1089,12 +966,33 @@ type Payout: <" A class to represent the set of future cashflow methodologies in
 type Product: <" A class to represent a financial product. With respect to contractual products, this class specifies the pre-execution product characteristics (the ContractualProduct class). This class is used as underlying for the option exercise representation, which makes use of the contractualProduct attribute to support the swaption use case, with the exercise into a swap. In a complete workflow, the swaption contract itself then needs to be superseded by a swap contract underpinned by the exercised swap as a contractualProduct.">
 	[metadata key]
 
-	// contract Contract (0..1)
-	// [synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "contract"]
 	contractualProduct ContractualProduct (0..1)
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "creditDefaultSwap"]
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "swap"]
-		[synonym CME_SubmissionIRS_1_0 value "trade"]
+		// For Equity Swap:
+		[synonym FpML_5_10 value "returnSwap", "equitySwapTransactionSupplement"]
+		// For Swap Stream:
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "swap"]
+		// For Swaption:
+		[synonym FpML_5_10 value "swaption"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint "swaption"]
+		// For CapFloor:
+		[synonym FpML_5_10 value "capFloor"]
+		// For FRA:
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint "fra"]
+		// For Bond Options:
+		[synonym FpML_5_10 hint "bondOption"]
+		// For CDS:
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "creditDefaultSwap"]
+		// For CDS Option
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 hint "creditDefaultSwapOption"]
+		// For FX:
+		[synonym FpML_5_10 hint "fxSingleLeg"]
+		// For Repo:
+		[synonym FpML_5_10 hint "repo"]
+		// To handle the case when addition payments are part of the trade - TODO: should be part of the event,  not the contract
+		[synonym FpML_5_10 hint "otherPartyPayment"]
+	
+		[synonym DTCC_11_0, DTCC_9_0 hint "ProductType"]
+		
 	index Index (0..1)
 		[synonym FpML_5_10 value "index"]
 	loan Loan (0..1)
@@ -1103,51 +1001,83 @@ type Product: <" A class to represent a financial product. With respect to contr
 	security Security (0..1)
 	condition: one-of
 
+type TradableProduct: <"Definition of a product as ready to be traded, i.e. included in an execution or contract, by associating a specific price and quantity to this product plus an (optional) mechanism for any potential future quantity adjustment.">
+	product Product (1..1) <"The underlying product to be included in a contract or execution.">
+	// TODO: Make quantity and price notations non optional, once migration complete
+	quantityNotation QuantityNotation (1..*) <"Quantity of the underlying product to be included in a contract or execution. Products, including contractual products, are defined as a unit in CDM, with quantity schedule and cross-referencing mechanisms handled as part of the underlying payout legs, so that the overall quantity can be abstracted away from the product definition. Multiple quantity notations can be specified, as in the case of cross-currency products. Each quantity notation includes a tag (e.g. asset identifier) that can referenced by the underlying payout legs to resolve that product by fetching the actual amount from the appropriate quantity notation. The synonym paths to FpML will tend to be quite deep, as we need to extact those values from where they are embedded within the product definition.">
+		// For Equity Swap:
+		[synonym FpML_5_10 value "notional" path "returnSwap->returnLeg", "notional" path "equitySwapTransactionSupplement->returnLeg"]
+		[synonym FpML_5_10 value "underlyer" path "returnSwap->returnLeg", "underlyer" path "equitySwapTransactionSupplement->returnLeg"]
+		// For Swap Stream, incl. Swaption and CapFloor:
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notionalSchedule" path "swap->swapStream->calculationPeriodAmount->calculation"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notionalSchedule" path "capFloor->capFloorStream->calculationPeriodAmount->calculation"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notionalSchedule" path "swaption->swap->swapStream->calculationPeriodAmount->calculation"]
+		// For BRL CDI swaps
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "futureValueNotional" path "swap->swapStream->calculationPeriodAmount->calculation"]
+		// For FRA:
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "fra"]
+		// For CDS
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "protectionTerms" path "creditDefaultSwap"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "fixedAmountCalculation" path "creditDefaultSwap->feeLeg->periodicPayment"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "floatingAmountCalculation" path "creditDefaultSwap->feeLeg->periodicPayment"]
+		// For CD Swaption
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "protectionTerms" path "creditDefaultSwapOption->creditDefaultSwap"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "fixedAmountCalculation" path "creditDefaultSwapOption->creditDefaultSwap->feeLeg->periodicPayment"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "floatingAmountCalculation" path "creditDefaultSwapOption->creditDefaultSwap->feeLeg->periodicPayment"]
+		// For FX:
+		[synonym FpML_5_10 value "exchangedCurrency1" path "fxSingleLeg"]
+		[synonym FpML_5_10 value "exchangedCurrency2" path "fxSingleLeg"]
+		[synonym Workflow_Event value "cashflow"]
+		// For Repo:
+		[synonym FpML_5_10 value "nearLeg" path "repo"]
+		// For Bond Option:
+		[synonym FpML_5_10 value "notionalAmount" path "bondOption"]
+	priceNotation PriceNotation (0..*) <"Price of the underlying product to be included in a contract or execution. Contractual products are defined as price-less in the CDM, with the actual price number(s) abstracted away from the product definition. Multiple price notations can be specified and the notation specifies the tags (e.g. asset identifier) allowing price to be then appropriately positioned in the contractual product. The synonym paths to FpML will tend to be quite deep, as we are extacting those values from where they are embedded within the product definition.">
+		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 hint "paymentAmount"]
+		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "otherPartyPayment"]
+		// For Equity Swaps
+		[synonym FpML_5_10 value "initialPrice" path "returnSwap->returnLeg->rateOfReturn", "underlyer" path "returnSwap->returnLeg"]
+		[synonym FpML_5_10 value "initialPrice" path "equitySwapTransactionSupplement->returnLeg->rateOfReturn", "underlyer" path "equitySwapTransactionSupplement->returnLeg"]
+		// For Swaps:
+		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "additionalPayment" path "swap"]
+		// For Swaptions:
+		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "premium" path "swaption"]
+		// For CD Index and CDS
+		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "initialPayment" path "creditDefaultSwap->feeLeg"]
+		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "singlePayment" path "creditDefaultSwap->feeLeg"]
+		// For CD Swaption:
+		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "premium" path "creditDefaultSwapOption"]
+		// For Bond Options:
+		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "premium" path "bondOption"]
+		// For FX
+		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "fxSingleLeg"]
+	// TBD: make quantity and price notation optional, and only validate that it exists as part of an execution / contract?
+	// TBD: positioning of future DateNotation (Effective Date, Termination Date) - only applicable to contractual products. In EconomicTerms?
+	// TBD: positioning of future PartyNotation - as part of this type, or higher-up in the Execution / Contract?
+	// The latter would align the concept of TradeableProduct across securities and contractual products (securities do not require any party specification to be "tradeable")
+	adjustment NotionalAdjustmentEnum (0..1) <"Specifies the conditions that govern the adjustment to the quantity of a product being traded: e.g. execution, portfolio rebalancing etc. It is typically used in the context of Equity Swaps.">
+		[synonym FpML_5_10 value "notionalAdjustments" path "returnSwap->returnLeg", "notionalAdjustments" path "equitySwapTransactionSupplement->returnLeg"]
+
+	condition PriceQuantityTriangulation:
+		PriceQuantityTriangulation( priceNotation, quantityNotation ) = True
+
 type ProductIdentification: <" A class to combine the CDM product qualifier with other product qualifiers, such as the FpML ones. While the CDM product qualifier is derived by the CDM from the product payout features, the other product identification elements are assigned by some external sources and correspond to values specified by other data representation protocols.">
 
 	productQualifier productType (0..1) <"The CDM product qualifier, which corresponds to the outcome of the isProduct qualification logic. This value is derived by the CDM from the product payout features.">
 	primaryAssetdata AssetClassEnum (0..1) <" A classification of the most important risk class of the trade. FpML defines a simple asset class categorisation using a coding scheme.">
 		[metadata scheme]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "primaryAssetClass" path "trade->swap" meta "assetClassScheme"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "primaryAssetClass" path "swap" meta "assetClassScheme"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "primaryAssetClass" path "trade->creditDefaultSwap" meta "assetClassScheme"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "primaryAssetClass" path "creditDefaultSwap" meta "assetClassScheme"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "primaryAssetClass" path "trade->swaption" meta "assetClassScheme"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "primaryAssetClass" path "swaption" meta "assetClassScheme"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "primaryAssetClass" meta "assetClassScheme"]
 	secondaryAssetdata AssetClassEnum (0..*) <" A classification of additional risk classes of the trade, if any. FpML defines a simple asset class categorisation using a coding scheme.">
 		[metadata scheme]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "secondaryAssetClass" path "trade->swap" meta "assetClassScheme"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "secondaryAssetClass" path "swap" meta "assetClassScheme"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "secondaryAssetClass" path "trade->creditDefaultSwap" meta "assetClassScheme"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "secondaryAssetClass" path "creditDefaultSwap" meta "assetClassScheme"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "secondaryAssetClass" path "trade->swaption" meta "assetClassScheme"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "secondaryAssetClass" path "swaption" meta "assetClassScheme"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "secondaryAssetClass" meta "assetClassScheme"]
 	productType string (0..*) <"A classification of the type of product. FpML defines a simple product categorisation using a coding scheme.">
 		[metadata scheme]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "productType" path "trade->swap" meta "productTypeScheme"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "productType" path "swap" meta "productTypeScheme"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "productType" path "trade->creditDefaultSwap" meta "productTypeScheme"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "productType" path "creditDefaultSwap" meta "productTypeScheme"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "productType" path "trade->swaption" meta "productTypeScheme"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "productType" path "swaption" meta "productTypeScheme"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "productType" path "trade->swaption->swap" meta "productTypeScheme"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "productType" path "swaption->swap" meta "productTypeScheme"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "productType" meta "productTypeScheme"]
 		[synonym DTCC_11_0, DTCC_9_0 value "ProductType"]
-		[synonym FpML_5_10 value "productType" path "trade->returnSwap" meta "productTypeScheme"]
-		[synonym FpML_5_10 value "productType" path "trade->equitySwapTransactionSupplement" meta "productTypeScheme"]
 	productId string (0..*) <"A product reference identifier. The product Id is an identifier that describes the key economic characteristics of the trade type, with the exception of concepts such as size (notional, quantity, number of units) and price (fixed rate, strike, etc.) that are negotiated for each transaction. It can be used to hold identifiers such as the 'UPI' (universal product identifier) required by certain regulatory reporting rules. It can also be used to hold identifiers of benchmark products or product temnplates used by certain trading systems or facilities. FpML does not define the domain values associated with this element. Note that the domain values for this element are not strictly an enumerated list.">
 		[metadata scheme]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "productId" path "trade->swap" meta "productIdScheme"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "productId" path "swap" meta "productIdScheme"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "productId" path "trade->creditDefaultSwap" meta "productIdScheme"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "productId" path "creditDefaultSwap" meta "productIdScheme"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "productId" path "trade->swaption" meta "productIdScheme"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "productId" path "swaption" meta "productIdScheme"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "productId" path "trade->swaption->swap" meta "productIdScheme"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "productId" path "swaption->swap" meta "productIdScheme"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "productId" meta "productIdScheme"]
 		[synonym DTCC_11_0, DTCC_9_0 value "instrumentId" path "payment->calculationDetails->calculationElements->underlier->index" meta "instrumentIdScheme"]
-
 
 type Quantity: <" A class to specify an amount/number of securities or tangible assets such as a commodity product. The units qualifier is not used if the Quantity class is applied to securities.">
 
@@ -1191,7 +1121,7 @@ type AssetIdentifier: <"Generic object to specify an identifier for a quantifiab
 
 	condition: one-of
 
-type QuantityNotation: <"Class to specify the quantity of a product as a single, non-negative amount, characterised with a notation enumeration to indicate the type of quantity being specified. For some product cases, several quantity notations can be associated with a single product: e.g. for an Equity Swap, both the notional and (optionally) the number of securities can be specified, with a validation to check that they are consistent in relation to the equity price.">
+type QuantityNotation: <"Specification of a product's quantity as a single, non-negative amount. The asset identifier qualifies the quantity being specified and can be used as a referencing mechanism in the underlying payout legs to 'resolve' the product, by fetching the actual amount from the appropriate quantity notation. For some product cases, several quantity notations can be associated with a single product: e.g. for an Equity Swap, both the notional and (optionally) the number of securities can be specified, with a validation to check that they are consistent in relation to the equity price. ">
 
 	quantity NonNegativeQuantity (1..1) <"The quantity as a non-negative amount.">
 		// For Swap Streams:
@@ -1225,7 +1155,6 @@ type QuantityNotation: <"Class to specify the quantity of a product as a single,
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "calculationAmount"]
 		// For FX:
 		[synonym FpML_5_10 value "paymentAmount"]
-		[synonym Workflow_Event value "cashflow"]
 		// For Repo:
 		[synonym FpML_5_10 value "settlementAmount"]
 
@@ -1238,20 +1167,6 @@ type PriceNotation: <"Object to specify the price of a product as a single numbe
 	assetIdentifier AssetIdentifier (0..1) <"Identifier for the asset being priced.">
 		// For Equity Swaps
 		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "singleUnderlyer"]
-
-type ExecutionPrice: <"Generic object to specify the price of an execution, regardless of the type of product: securitries, contractual products etc.">
-
-	priceNotation PriceNotation (1..*) <"Price of the underlying product for an execution defined using the PriceNotation objec. Contractual products are defined as price-less in the CDM, with the actual price number(s) abstracted away from the product definition, and possibly multiple. The notation specifies the coordinates allowing price to be then appropriately positioned in the contractual product.">
-		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 hint "paymentAmount"]
-		// For Equity Swaps
-		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "initialPrice" path "rateOfReturn", "underlyer"]
-		// For CD Index and CDS
-		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "initialPayment" path "feeLeg"]
-		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "singlePayment" path "feeLeg"]
-		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "additionalPayment"]
-		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "premium"]
-		// For FX
-		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 hint "exchangeRate"]
 
 type RateSpecification: <" A class to specify the fixed interest rate, floating interest rate or inflation rate.">
 
@@ -1349,6 +1264,7 @@ type Portfolio: <" A Portfolio represents an aggregation of multiple Positions, 
 	portfolioState PortfolioState (1..1) <"Describes the state of the Portfolio as a list of Positions resulting from the aggregation.">
 
 // TO ADD: PortfolioState calculation based on EventEffect
+
 /***********************
  * Product Qualification
  */
