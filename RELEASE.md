@@ -2,8 +2,8 @@
 
 _What is being released_
 
-Added configuration to run `ISDA Create` integration tests in Rosetta Core.
+Added a new TypeScript CDM Distribution in CDM Portal.
 
 _Review Directions_
 
-In the Rosetta Core, open ingestion panel and run integration tests.  ISDA Create samples will now be included.
+In Portal, navigate to the downloads page. You should see the new TypeScript download tile.
