@@ -12,6 +12,7 @@ import com.rosetta.model.lib.path.RosettaPath;
 import com.rosetta.model.lib.process.AttributeMeta;
 import com.rosetta.model.lib.process.BuilderProcessor.Report;
 import com.rosetta.model.lib.process.PostProcessStep;
+import org.isda.cdm.BusinessEvent.BusinessEventBuilder;
 
 import cdm.base.staticdata.asset.commons.ProductIdentifier.ProductIdentifierBuilder;
 import cdm.base.staticdata.asset.commons.metafields.ReferenceWithMetaProductIdentifier;
@@ -21,7 +22,6 @@ import org.isda.cdm.Contract.ContractBuilder;
 import org.isda.cdm.EventEffect.EventEffectBuilder;
 import org.isda.cdm.Execution.ExecutionBuilder;
 import org.isda.cdm.TransferPrimitive.TransferPrimitiveBuilder;
-import org.isda.cdm.WorkflowStep.WorkflowStepBuilder;
 import org.isda.cdm.metafields.ReferenceWithMetaContract;
 import org.isda.cdm.metafields.ReferenceWithMetaContract.ReferenceWithMetaContractBuilder;
 import org.isda.cdm.metafields.ReferenceWithMetaExecution;
@@ -121,8 +121,8 @@ public class EventEffectProcessStep implements PostProcessStep{
 		@Override
 		public <R extends RosettaModelObject> boolean processRosetta(RosettaPath path, Class<? extends R> rosettaType,
 				RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent, AttributeMeta... metas) {
-			if (builder instanceof WorkflowStepBuilder && builder.hasData()) {
-				((WorkflowStepBuilder) builder).getOrCreateEventEffect();
+			if (builder instanceof BusinessEventBuilder && builder.hasData()) {
+				((BusinessEventBuilder) builder).getOrCreateEventEffect();
 			}
 			if (builder instanceof EventEffectBuilder) {
 				EventEffectBuilder eventEffect = (EventEffectBuilder) builder;
