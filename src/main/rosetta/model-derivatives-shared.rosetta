@@ -699,7 +699,6 @@ type MasterConfirmation: <"A class for defining the master confirmation agreemen
 		[metadata scheme]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "masterConfirmationAnnexType" meta "masterConfirmationAnnexTypeScheme"]
 
-
 type Money: <"A class defining a currency amount.">
 	[metadata key]
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "Money" meta "id"]
@@ -894,6 +893,18 @@ type Period: <"A class to define recurring periods or time offsets.">
 	condition DayPeriod: <"FpML specifies that if the periodMultiplier value is 0 (zero) then period must contain the value D (day).">
 		if periodMultiplier = 0
 		then period = PeriodEnum -> D
+
+
+type PeriodBound: <"The period bound is defined as a period and whether the bound is inclusive.">
+    period Period (1..1) <"The period to be used as the bound, e.g. 5Y.">
+    inclusive boolean (1..1) <"Whether the period bound is inclusive, e.g. for a lower bound, false would indicate greater than, whereas true would indicate greater than or equal to.">
+
+
+type PeriodRange: <"The period range defined as either a lower and upper period bound, or both.">
+	lowerBound PeriodBound (0..1) <"The lower bound of a period range, e.g. greater than or equal to 5Y.">
+	upperBound PeriodBound (0..1) <"The upper bound of a period range, e.g. less than to 10Y.">
+	condition: one-of
+
 
 type PremiumExpression: <"This class corresponds to the FpML Premium.model group for representing the option premium when expressed in a way other than an amount.">
 
