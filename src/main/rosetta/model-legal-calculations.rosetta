@@ -1,0 +1,170 @@
+namespace org.isda.cdm
+version "${project.version}"
+
+import cdm.base.maths.*
+
+func PostedCreditSupportAmount_IM:
+	[calculation]
+	
+	inputs:
+		cashOrSecurityValue Money (1..1)
+		valuationPercentage number (1..1)
+		fxHaircutPercentage number (1..1)
+		baseCurrency string (1..1)
+
+	output:
+		result Money (1..1)
+
+	condition:
+		baseCurrency = cashOrSecurityValue -> currency
+
+	condition:
+		cashOrSecurityValue -> amount exists
+
+	assign-output result -> amount:
+		cashOrSecurityValue -> amount * ( valuationPercentage - fxHaircutPercentage ) / 100.0
+
+	assign-output result -> currency:
+			baseCurrency
+
+
+func CreditSupportAmount_IM:
+	[calculation]
+	
+	inputs:
+		marginAmount Money (1..1) <"The pledgor margin amount">
+		threshold Money (1..1)
+		baseCurrency string (1..1)
+		marginApproach MarginApproachEnum (1..1)
+		marginAmountIA Money (0..1)
+		
+	output: 
+		result Money (1..1)
+
+	alias creditSupportAmountIM:
+		Max( marginAmount -> amount - threshold -> amount, 0.0 )
+	
+	condition:
+		if marginApproach = MarginApproachEnum -> Distinct or marginApproach = MarginApproachEnum -> Allocated
+		then marginAmountIA is absent
+		else if marginApproach = MarginApproachEnum -> GreaterOf
+		then marginAmountIA exists
+
+	assign-output result -> amount:
+		if marginApproach = MarginApproachEnum -> Distinct or marginApproach = MarginApproachEnum -> Allocated 
+		// TODO if allocated the CreditSupportAmount_IM is used in further calculations for the marginAmountIA
+		then creditSupportAmountIM
+		else if marginApproach = MarginApproachEnum -> GreaterOf
+		then Max( creditSupportAmountIM, marginAmountIA -> amount )
+
+	assign-output result -> currency:
+			baseCurrency
+
+
+func DeliveryAmount_IM: 
+	[calculation]
+	
+	inputs:
+		creditSupportAmount Money (1..1)
+		postedCreditSupportAmount Money (1..1)
+		minimumTransferAmount Money (1..1)
+		rounding CollateralRounding (1..1)
+		baseCurrency string (1..1)
+		
+	output:
+		result Money (1..1)
+
+	alias deliveryAmount:
+		Max( creditSupportAmount -> amount - postedCreditSupportAmount -> amount, 0.0 )
+
+	condition:
+		baseCurrency = 
+			( creditSupportAmount -> currency 
+				and postedCreditSupportAmount -> currency 
+				and minimumTransferAmount -> currency )
+
+	condition:
+		creditSupportAmount -> amount exists
+		and postedCreditSupportAmount -> amount exists
+		and minimumTransferAmount -> amount exists
+
+	assign-output result -> amount:
+		if deliveryAmount >= minimumTransferAmount -> amount
+		then RoundToNearest( deliveryAmount, rounding -> deliveryAmount, RoundingModeEnum -> Up )
+		else 0.0
+	
+	assign-output result -> currency:
+		baseCurrency
+
+// Credit Support Obligations (para 3)- TODO model "Demamd" and other fields ?
+// Scenario A: trading relationship ceases, security interest released all collateral return (even if under MTA), see paragraph 2
+// Scenario B: trading relationship falls below 50M IM threshold, security interest released all collateral return (even if under MTA), see paragraph 2
+
+func ReturnAmount_IM:
+	[calculation]
+	
+	inputs:
+		postedCreditSupportAmount Money (1..1)
+		creditSupportAmount Money (1..1)
+		minimumTransferAmount Money (1..1)
+		rounding CollateralRounding (1..1)
+		baseCurrency string (1..1)
+		
+	output:
+		result Money (1..1)
+
+	alias returnAmount:
+		Max( postedCreditSupportAmount -> amount - creditSupportAmount -> amount, 0.0 )
+
+	assign-output result -> amount:
+		if returnAmount >= minimumTransferAmount -> amount
+		then RoundToNearest( returnAmount, rounding -> returnAmount, RoundingModeEnum -> Down )
+		else 0.0
+
+	assign-output result -> currency:
+		baseCurrency
+
+// Alternative approach to ReturnAmount_IM func where instead of CreditSupportAmount passed as an input, the CreditSupportAmount is calculated in this function
+
+func ReturnAmount_IM_Alt: 
+	[calculation]
+	
+	inputs:
+		marginAmount Money (1..1)
+		threshold Money (1..1)
+		baseCurrency string (1..1)
+		marginApproach MarginApproachEnum (1..1)
+		marginAmountIA Money (0..1)
+		postedCreditSupportAmount Money (1..1)
+		minimumTransferAmount Money (1..1)
+		rounding CollateralRounding (1..1)
+		
+	output:
+		result Money (1..1)
+
+	alias creditSupportAmount:
+		CreditSupportAmount_IM( marginAmount, threshold, baseCurrency, marginApproach, marginAmountIA )
+ 
+	alias returnAmount:
+		Max( postedCreditSupportAmount -> amount - creditSupportAmount -> amount, 0.0 )
+
+	assign-output result -> amount:
+		if returnAmount >= minimumTransferAmount -> amount
+		then RoundToNearest( returnAmount, rounding -> returnAmount, RoundingModeEnum -> Down )
+		else 0.0
+
+	assign-output result -> currency:
+		baseCurrency
+
+
+func ValidateReturnAmount:
+	
+	inputs:
+		returnAmountCalculated Money (1..1)
+		returnAmountTransferred Money (1..1)
+
+	output:
+		valid boolean (1..1)
+	
+	assign-output valid:
+		returnAmountTransferred -> amount <= returnAmountCalculated -> amount

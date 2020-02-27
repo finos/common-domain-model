@@ -255,6 +255,76 @@
 			</build>
 		</profile>
 		<profile>
+			<id>typescript</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.eclipse.xtext</groupId>
+						<artifactId>xtext-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>generate-typescript-src</id>
+								<phase>generate-sources</phase>
+								<goals>
+									<goal>generate</goal>
+								</goals>
+								<configuration>
+									<sourceRoots>
+										<sourceRoot>${project.build.directory}/classes/cdm/rosetta</sourceRoot>
+									</sourceRoots>
+									<classPathLookupFilter>.*com\.regnosys\.rosetta.*</classPathLookupFilter>
+									<languages>
+										<language>
+											<setup>org.isda.cdm.generators.CDMRosettaSetup</setup>
+											<outputConfigurations>
+												<!-- TypeScript output folder -->
+												<outputConfiguration>
+													<name>SRC_GEN_TYPESCRIPT_OUTPUT</name>
+													<outputDirectory>src/generated/typescript</outputDirectory>
+												</outputConfiguration>
+											</outputConfigurations>
+										</language>
+									</languages>
+								</configuration>
+							</execution>
+						</executions>
+						<dependencies>
+							<dependency>
+								<groupId>com.regnosys.rosetta.code-generators</groupId>
+								<artifactId>default-cdm-generators</artifactId>
+								<version>${rosetta.code-generators.version}</version>
+							</dependency>
+						</dependencies>
+					</plugin>
+					<plugin>
+						<artifactId>maven-resources-plugin</artifactId>
+						<version>3.1.0</version>
+						<executions>
+							<execution>
+								<id>copy-src-generated-typescript</id>
+								<phase>process-resources</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${project.build.directory}/classes/cdm/typescript</outputDirectory>
+									<resources>
+										<resource>
+											<directory>${basedir}/src/generated/typescript</directory>
+											<includes>
+												<include>**/*.ts</include>
+											</includes>
+											<filtering>true</filtering>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
 			<id>scala</id>
 			<build>
 				<plugins>
