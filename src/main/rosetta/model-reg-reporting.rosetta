@@ -90,7 +90,7 @@ eligibility rule HasContract <"When eligible for rts 22">
 	[regulatoryReference ESMA MiFIR RTS_22 article "2"
    		provision "For the purposes of Article 26 of Regulation (EU) No 600/2014, the conclusion of an acquisition or disposal of a financial instrument referred to in Article 26(2) of Regulation (EU) No 600/2014 shall constitute a transaction."]
 		ContractForEvent then
-		extract Contract -> contractualProduct exists
+		extract Contract -> tradableProduct -> product -> contractualProduct exists
 
 eligibility rule ReportableTransaction <"When eligible for rts 22">
 	[regulatoryReference ESMA MiFIR RTS_22 article "26"
@@ -171,7 +171,7 @@ eligibility rule ExecutingEntityForReportingParty
 reporting rule MaturityDate <"Date of maturity of the financial instrument. Field only applies to debt instruments with defined maturity">
 	[regulatoryReference ESMA MiFIR RTS_22 annex "1. Table 2. Field 54" provision "Date of maturity of the financial instrument. Field only applies to debt instruments with defined maturity."]
 	[regulatoryReference ESMA EMIR ITS_9 field "2.27" provision "Original date of expiry of the reported contract."]
- 	ContractForEvent then extract Contract -> contractualProduct -> economicTerms -> terminationDate -> adjustableDate -> unadjustedDate
+ 	ContractForEvent then extract Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> terminationDate -> adjustableDate -> unadjustedDate
 
 reporting rule ReportingCounterpartyID
 	[regulatoryReference ESMA EMIR ITS_9 field "1.2"
@@ -283,7 +283,7 @@ reporting rule Quantity <"The number of units of the financial instrument, or th
 					For increase or decrease in notional amount derivative contracts, the number shall reflect the absolute value of the change and shall be expressed as a positive number.
 					The information reported in this field shall be consistent with the values provided in fields 33 and 46."]
  	ContractForEvent then
- 	extract Contract -> contractualQuantity -> quantityNotation -> quantity -> amount
+ 	extract Contract -> tradableProduct -> quantityNotation -> quantity -> amount
 		as "Quantity"
 // FIXME Functioncalls not supported
 //reporting rule DerivativeNotionalIncreaseDecrease
@@ -300,14 +300,14 @@ reporting rule Quantity <"The number of units of the financial instrument, or th
  reporting rule FixedRatePrice
  	ContractForEvent then
  	//filter when RateSpecification -> fixedRate count > 0 then
- 		filter when Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate exists then
- 		extract Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate -> rateSchedule -> initialValue
+ 		filter when Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate exists then
+ 		extract Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate -> rateSchedule -> initialValue
  		// extract max value
 	 as "Price"
 
   reporting rule FloatingRatePrice
  	ContractForEvent then
- 	extract Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification then
+ 	extract Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification then
  	//filter when RateSpecification -> fixedRate count = 0 then
  		extract RateSpecification -> floatingRate -> spreadSchedule -> initialValue
  		// extract max value
@@ -389,7 +389,7 @@ reporting rule UnderlyingIndexName
    	provision "When the underlying is an index, the name of the Index"
    ]
     ContractForEvent then
- 	extract Contract -> contractualProduct -> economicTerms -> payout -> equityPayout -> underlier then
+ 	extract Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> underlier then
  		extract
  			if Underlier exists
 			then Underlier -> underlyingProduct -> contractualProduct -> productIdentification -> productId
@@ -485,7 +485,7 @@ reporting rule ContractForEvent
  	as "Contract"
 
 reporting rule RateSpecification
- 	extract Contract -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification
+ 	extract Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification
  	as "Rate Specification"
 
 reporting rule BuyerSeller
@@ -494,7 +494,7 @@ reporting rule BuyerSeller
 		[regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "16"
 			provision "Code used to identify the disposer of the financial instrument.Where the disposer is a legal entity, the LEI code of the disposer shall be used.Where the disposer is a non-legal entity, the identifier specified in Article 6 shall be used.Where the transaction was executed on a trading venue or on an organised trading platform outside of the Union that utilises a CCP and where the identity of the disposer is not disclosed, the LEI code of the CCP shall be used.Where the transaction was executed on a trading venue or on an organised trading platform outside of the Union that does not utilise a CCP and where the identity of the disposer is not disclosed, the MIC code of the trading venue or of the organised trading platform outside of the Union shall be used.Where the disposer is an investment firm acting as a SI, the LEI code of the SI shall be used‘INTC’ shall be used to designate an aggregate client account within the investment firm in order to report a transfer into or out of that account with an associated allocation to the individual client(s) out of or into that account respectively.In case of options and swaptions, the buyer shall be the counterparty that holds the right to exercise the option and the seller shall be the counterparty that sells the option and receives a premium.In case of futures and forwards other than futures and forwards relating to currencies, the buyer shall be the counterparty buying the instrument and the seller the counterparty selling the instrument.In the case of swaps relating to securities, the buyer shall be the counterparty that gets the risk of price movement of the underlying security and receives the security amount. The seller shall be the counterparty paying the security amount.In the case of swaps related to interest rates or inflation indices, the buyer shall be the counterparty paying the fixed rate. The seller shall be the counterparty receiving the fixed rate. In case of basis swaps (float-to-float interest rate swaps), the buyer shall be the counterparty that pays the spread and the seller the counterparty that receives the spread.In the case of swaps and forwards related to currencies and of cross currency swaps, the buyer shall be the counterparty receiving the currency which is first when sorted alphabetically by ISO 4217 standard and the seller shall be the counterparty delivering this currency.In the case of swap related to dividends, the buyer shall be the counterparty receiving the equivalent actual dividend payments. The seller is the counterparty paying the dividend and receiving the fixed rate.In the case of derivative instruments for the transfer of credit risk except options and swaptions, the buyer shall be the counterparty buying the protection. The seller is the counterparty selling the protection.In case of derivative contracts related to commodities, the buyer shall be the counterparty that receives the commodity specified in the report and the seller the counterparty delivering this commodity.In case of forward rate agreements, the buyer shall be the counterparty paying the fixed rate and the seller the counterparty receiving the fixed rate.For an increase in notional, the seller shall be the same as the disposer in the original transaction.For a decrease in notional the seller shall be the same as the acquirer of the financial instrument in the original transaction."]
 	ContractForEvent then
-	extract Contract -> contractualProduct -> economicTerms -> payout then
+	extract Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout then
 	(
 		FixedFloatBuyerSeller,
 		FixedFixedBuyerSeller,
@@ -635,7 +635,7 @@ reporting rule Price
 		[regulatoryReference ESMA MiFIR RTS_22 annex "1" table "2" field "33"
  	   	provision "For credit default swaps (CDS) it shall be the coupon in basis points. The information reported in this field shall be consistent with the values provided in fields 30 and 46."]
 	ContractForEvent then
-	extract Contract -> contractualProduct -> economicTerms -> payout then
+	extract Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout then
 	(
 		FixedFixedPrice,
 		FixedFloatPrice,

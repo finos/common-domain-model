@@ -13,6 +13,7 @@ import org.isda.cdm.BusinessDayConventionEnum;
 import org.isda.cdm.CalculationPeriodDates;
 import org.isda.cdm.CalculationPeriodFrequency;
 import org.isda.cdm.DayCountFractionEnum;
+import org.isda.cdm.FixedRateSpecification;
 import org.isda.cdm.InterestRatePayout;
 import org.isda.cdm.NonNegativeQuantity;
 import org.isda.cdm.PeriodExtendedEnum;
@@ -37,12 +38,15 @@ class FixedAmountTest extends AbstractFunctionTest {
         NonNegativeQuantity quantity = NonNegativeQuantity.builder()
         		.setAmount(BigDecimal.valueOf(50_000_000))
         		.build();
+        
 		InterestRatePayout interestRatePayout = InterestRatePayout.builder()
                 .setRateSpecification(RateSpecification.builder()
-                        .setFixedRate(Schedule.builder()
-                                .setInitialValue(BigDecimal.valueOf(0.06))
-                                .build())
-                        .build())
+                        .setFixedRate(FixedRateSpecification.builder()
+                        		.setRateSchedule(Schedule.builder()
+                        				.setInitialValue(BigDecimal.valueOf(0.06))
+                        				.build())
+                        		.build())
+                    	.build())
                 .setDayCountFraction(FieldWithMetaDayCountFractionEnum.builder().setValue(DayCountFractionEnum._30E_360).build())
                 .setCalculationPeriodDates(CalculationPeriodDates.builder()
                         .setEffectiveDate((AdjustableOrRelativeDate.builder()

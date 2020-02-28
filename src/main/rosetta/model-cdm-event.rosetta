@@ -81,7 +81,7 @@ type ComputedAmount: <"A class to specify the outcome of a computed amount, for 
 type ContractState: <"A class to specify a contract state instantiation with respect to the before and/or after state of lifecycle events.">
 	[metadata key] 
 	contract Contract (1..1) <"Reference to the original contract, such that the contract state can be resolved by super-imposing the updated values on top of the original contract.">
-		[synonym Workflow_Event value "trade"]
+		[synonym Workflow_Event value "fpmlTrade"]
 		[synonym DTCC_11_0, DTCC_9_0 value "FpML" path "Trade"]
 		[synonym DTCC_11_0, DTCC_9_0 value "TradeMsg" path "Manifest"]
 		[synonym DTCC_11_0, DTCC_9_0 value "ReportingJurisdiction" path "ReportingData->ReportingHeader"]
@@ -234,7 +234,6 @@ type WorkflowStep: <"A workflow step represents the state of a business event. T
 		[synonym CME_ClearedConfirm_1_17 value "account" path "clearingConfirmed"]
 	lineage Lineage (0..1) <"The lineage attribute provides a linkage among lifecycle events through the rosettaKey hash value. One example is when a given lifecycle event is being corrected or cancelled. In such case, each subsequent event will have lineage into the prior version of that event. The second broad use case is when an event has a dependency upon either another event (e.g. the regular payment associated with a fix/float swap will have a lineage into the reset event, which will in turn have a lineage into the observation event for the floating rate and the contract) or a contract (e.g. the exercise of an option has a lineage into that option).">
 		[synonym Workflow_Event value "lineage"]
-	eventEffect EventEffect (0..1) <"The set of effects associated with the lifecycle event, i.e. generated cashflows, contracts (from, say, novation events), listed products (from, say, a bond option exercise event) values and more. Those are represented through a set of rosettaKey references. This attribute is optional in order to provide implementers with the ability not to make use of this feature.">
 
 	condition WorkflowStepStatus:
 		(WorkflowStep -> businessEvent exists and WorkflowStep -> proposedInstruction is absent and WorkflowStep -> rejected is absent)
@@ -263,12 +262,12 @@ type BusinessEvent: <"A business event represents a life cycle event of a trade 
 		[synonym Workflow_Event value "functionCall"]
 
 	eventQualifier eventType (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic which qualifies the lifecycle event as a function of its features (e.g. PartialTermination, ClearingSubmission, Novation, ...).">
-
 	eventDate date (1..1) <"The date on which the event is taking place. This is the equivalent of the trade date in the case of an execution or a contract.">
 		[synonym Workflow_Event value "eventDate"]
 		[synonym CME_ClearedConfirm_1_17 value "clearedDate" path "clearingConfirmed->trade->tradeHeader" maps 2]
 	effectiveDate date (0..1) <"The date on which the event contractually takes effect, when different from the event date.">
 		[synonym Workflow_Event value "effectiveDate"]
+	eventEffect EventEffect (0..1) <"The set of effects associated with the lifecycle event, i.e. generated cashflows, contracts (from, say, novation events), listed products (from, say, a bond option exercise event) values and more. Those are represented through a set of rosettaKey references. This attribute is optional in order to provide implementers with the ability not to make use of this feature.">
 
 	// TODO - this needs to be moved/merged into the WorkflowStep
 	workflowEventState WorkflowStepState (0..1) <"The event workflow information, i.e. the workflow status, the associated comment and the partyCustomisedWorkflow which purpose is to provide the ability to associate custom workflow information to the CDM.">
@@ -329,7 +328,7 @@ type CashExercise: <"The cash exercise specifies the cashflow using the cashflow
 
 type ExerciseOutcome: <"The exercise outcome combines the option contract (which states would be 'Exercised' in case of a full exercise and which would have a reduced notional in case of partial exercise) and either a physical or partial exercise.">
 	contract Contract (1..1)
-		[synonym Workflow_Event value "contract"]
+		[synonym Workflow_Event value "fpmlContract"]
 	physicalExercise PhysicalExercise (0..1)
 		[synonym Workflow_Event value "physicalExercise"]
 	cashExercise CashExercise (0..1)
@@ -340,7 +339,7 @@ type ExerciseOutcome: <"The exercise outcome combines the option contract (which
 type ExecutionState: <"A class to specify an execution instantiation with respect to the before and/or after state of lifecycle events.">
 	[metadata key] 
 	execution Execution (1..1)
-		[synonym Workflow_Event value "execution"]
+		[synonym Workflow_Event value "fpmlExecution"]
 
 
 type InterestRateCurve:
@@ -462,10 +461,10 @@ type PhysicalExercise: <"The physical exercise results into a financial product 
 		[synonym Workflow_Event value "product"]
 	quantity Quantity (0..1) <"The quantity associated the asset that is physically settled. This quantity should only be associated with non-contractual products, as it is then expressed as part of the contractual terms.">
 		[synonym Workflow_Event value "quantity"]
-	contractualQuantity ExecutionQuantity (0..1) <"Complex attribute to specify the quantity of the contractual product that is being exercised. This temporarily makes uses of the 'ExecutionQuantity' class, until such time when the latter can be renamed as, and supersede, the existing 'ContractualQuantity' class. To be later merged with the 'quantity' attribute to have consistent mechanism between contractual and non-contractual products.">
+	quantityNotation QuantityNotation (0..*) <"Complex attribute to specify the quantity of the contractual product that is being exercised. This temporarily makes uses of the 'ExecutionQuantity' class, until such time when the latter can be renamed as, and supersede, the existing 'ContractualQuantity' class. To be later merged with the 'quantity' attribute to have consistent mechanism between contractual and non-contractual products.">
 		// For Swap Stream:
-		[synonym Workflow_Event value "swap" path "product"]
-		[synonym Workflow_Event hint "cashflow"]
+		[synonym Workflow_Event value "notionalSchedule" path "product->swap->swapStream->calculationPeriodAmount->calculation"]
+		[synonym Workflow_Event value "cashflow"]
 	cashflow Cashflow (0..1) <"The cashflow component of the physical exercise.">
 		[synonym Workflow_Event value "cashflow"]
 	condition PhysicalExerciseQuantity: <"The quantity attribute should only be associated with non-contractual products, as it is then expressed as part of the contractual terms.">
@@ -498,17 +497,18 @@ type SecurityTransferComponent extends TransferBase:
 		[synonym Workflow_Event value "breakdown"]
 
 
-//one of
 type Trade: <"A class to represent the general trade concept, which can either be an execution or a contract. The execution consists essentially in the economic terms which are agreed between the parties. The contract will further qualify those with the legal entities (think of the allocation case, which execution state can involve the investment adviser rather not the actual funds) while not specify the master agreement or collateral terms which might be associated with the subsequent contract.">
 	[metadata key] 
 	execution Execution (0..1) <"The execution corresponds to economic terms that are agreed between parties, but which legal terms are not yet specified. The execution attribute applies to the post-execution scenario of a product that is subject to the clearing mandate and is then routed to the CCP as an execution.">
 		[synonym CME_SubmissionIRS_1_0 value "TrdCaptRpt" set when "TrdCaptRpt->VenuTyp" exists]
-		[synonym Workflow_Event value "trade" set when "trade->executionType" exists]
+		[synonym Workflow_Event value "fpmlTrade" set when "fpmlTrade->trade->executionType" exists]
+		[synonym Workflow_Event value "fpmlExecution"]
 	contract Contract (0..1) <"The contract differs from the execution by the fact that its legal terms are fully specified. This includes the legal entities that are associated to it as well as any associated legal agreement, e.g. master agreement, credit and collateral terms, ... ">
 		[synonym DTCC_11_0, DTCC_9_0 value "FpML" path "Trade"]
 		[synonym DTCC_11_0, DTCC_9_0 value "TradeMsg" path "Manifest"]
 		[synonym DTCC_11_0, DTCC_9_0 value "ReportingJurisdiction" path "ReportingData->ReportingHeader"]
-		[synonym Workflow_Event value "trade" set when "trade->executionType" is absent]
+		[synonym Workflow_Event value "fpmlTrade" set when "fpmlTrade->trade->executionType" is absent]
+		[synonym Workflow_Event value "fpmlContract"]
 		[synonym CME_SubmissionIRS_1_0 value "TrdCaptRpt" set when "TrdCaptRpt->VenuTyp" is absent]
 	condition Trade: one-of
 
@@ -631,6 +631,7 @@ func ClearedTrade:
 		// TODO - Add this back in when we correctly map the ClearingOrganization
 		and businessEvent -> primitives -> contractFormation -> after -> contract -> partyRole -> role contains PartyRoleEnum -> ClearingOrganization
 
+
 //isEvent ClearedTrade <"The cleared trade at the CCP.">
 //	WorkflowEvent -> businessEvent -> primitives count = 1
 //	and businessEvent -> primitives -> inception exists
@@ -642,6 +643,8 @@ func ClearedTrade:
  */
 //	and lineage -> @rosettaKey -> eventQualifier = eventQualifier.ClearingSubmission
 //	and lineage -> @rosettaKey -> eventQualifier = eventQualifier.ClearedTrade
+
+
 func ClearingRejection: <"The rejection of an alpha trade submission by a CCP, which is qualified by the fact that (i) termsChange is the only primitive, the workflow status is `rejected`, and (iii) the CCP is positioned as a partyRole to the execution or contract in the after state, while it didn't exist in the before state.">
 	[qualification event]
 	inputs:
@@ -668,12 +671,17 @@ func ClearingSubmission: <"The submission of a contract to a CCP, which is quali
 		businessEvent -> primitives count = 1
 		and businessEvent -> primitives -> termsChange exists
 		and businessEvent -> workflowEventState -> workflowStatus = WorkflowStatusEnum -> Submitted
-		and (businessEvent -> primitives -> termsChange -> before -> execution -> partyRole is absent
-		or businessEvent -> primitives -> termsChange -> before -> execution -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization
-		or businessEvent -> primitives -> termsChange -> before -> contract -> partyRole is absent
-		or businessEvent -> primitives -> termsChange -> before -> contract -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization)
-		and (businessEvent -> primitives -> termsChange -> after -> contract -> partyRole -> role = PartyRoleEnum -> ClearingOrganization
-		or businessEvent -> primitives -> termsChange -> after -> execution -> partyRole -> role = PartyRoleEnum -> ClearingOrganization)
+		and (
+			businessEvent -> primitives -> termsChange -> before -> execution -> partyRole is absent
+			or businessEvent -> primitives -> termsChange -> before -> execution -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization
+			or businessEvent -> primitives -> termsChange -> before -> contract -> partyRole is absent
+			or businessEvent -> primitives -> termsChange -> before -> contract -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization
+		)
+		and (
+			businessEvent -> primitives -> termsChange -> after -> contract -> partyRole -> role = PartyRoleEnum -> ClearingOrganization
+			or businessEvent -> primitives -> termsChange -> after -> contract -> partyContractInformation -> relatedParty -> role = PartyRoleEnum -> ClearingOrganization
+			or businessEvent -> primitives -> termsChange -> after -> execution -> partyRole -> role = PartyRoleEnum -> ClearingOrganization
+		)
 
 func Compression: <"The qualification of a compression event from the fact that (i) the quantityChange primitive exists, and (ii) there are multiple contracts (or contract references) specified in the before state.">
 	[qualification event]
@@ -751,8 +759,8 @@ func Novation: <"The qualification of a novation event from the fact that (i) th
 		and businessEvent -> primitives -> inception -> after -> contract -> contractIdentifier <> businessEvent -> primitives -> quantityChange -> before -> contract -> contractIdentifier
 		and businessEvent -> eventDate = businessEvent -> primitives -> inception -> after -> contract -> tradeDate -> date
 		and businessEvent -> effectiveDate = NovatedContractEffectiveDate(businessEvent) -> dates only-element
+		//and originalContractParties <> newContractParties
 
-//	and originalContractParties <> newContractParties
 func Observation: <"The qualification of an observation event from the fact that (i) the only primitive is the observation, and (ii) that there is only a single instance of such observation.">
 	[qualification event]
 	inputs:
@@ -773,8 +781,8 @@ func PartialNovation: <"The qualification of a novation event from the fact that
 		and businessEvent -> eventDate = businessEvent -> primitives -> inception -> after -> contract -> tradeDate -> date
 		and businessEvent -> effectiveDate = NovatedContractEffectiveDate(businessEvent) -> dates
 		and QuantityDecreased(businessEvent -> primitives -> quantityChange) = True
+		//and originalContractParties <> newContractParties
 
-// and originalContractParties <> newContractParties
 func PartialTermination: <"The qualification of a partial termination event from the fact that (i) the intent is Partial Termination when specified, (ii) the associated primitives are the quantityChange and the cash transfer, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
 	[qualification event]
 	inputs:
