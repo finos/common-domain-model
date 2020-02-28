@@ -620,51 +620,6 @@ type EligibilityToHoldCollateral: <"A class to specify the conditions under whic
 		[metadata scheme]
 		[synonym FpML_5_10 value "eligibleCountry"]
 
-// Old version 2019 see new version EligibleCollateral
-type EligibleCollateralFpMLMapped: <"The collateral eligibility as a function of the types of asset, the maturity and rating terms.">
-	[synonym FpML_5_10 value "EligibleCollateral"]
-	/*
-	 * ISDA Create specifies the eligible collateral as well as the valuation % as a string. Let's discuss if there is room a for better approach.
-	 * The below approach which combines the asset, the tenor and the credit rating qualification is extremely comprehensive and was vetted extensively as part of the
-	 * FpML standard CSA initiative.
-	 * It should however be noted that one of the limitations of this approach is that the ISDA 2003 Collateral Assets Definitions have not been effectively used by
-	 * market participants as far as we understand.
-	 */
-	eligibleAsset CollateralAssetDefinitionsEnum (1..1) <"The eligible asset is specified by reference to the ISDA 2003 Collateral Assets Definitions.">
-		[synonym FpML_5_10 value "eligibleAsset"]
-		// TDOD: not sure how we can map ISDA_CREATE cases where items is a specific stock, i.e. "items": "BT stock"
-		[synonym ISDA_Create_1_0 value "items" path "partyA_eligible_currencies"]
-		[synonym ISDA_Create_1_0 value "items" path "partyB_eligible_currencies"]
-	lowerMaturity Period (0..1) <"The (optional) lower maturity band of the eligible collateral assets.">
-		[synonym FpML_5_10 value "lowerMaturity"]
-	higherMaturity Period (0..1) <"The (optional) higher maturity band of the eligible collateral assets.">
-		[synonym FpML_5_10 value "higherMaturity"]
-	minimumRating CreditNotations (0..1) <"The (optional) minimal rating terms that can be specified as part of the eligible collateral.">
-		[synonym FpML_5_10 value "minimumRating"]
-	valuationPercentage number (0..1) <"Specifies the haircut associated to the collateral asset, expressed as a value comprised between 0 and 1. A value of 0.9 means that 90% of the value of the applicable asset is considered as collateral. Absence of this element implies that the valuation percentage is 1, i.e. 100%.">
-		[synonym FpML_5_10 value "valuationPercentage"]
-		// This mapping will not work in a number of cases, as the ISDA Credit field is specified as a string
-		[synonym ISDA_Create_1_0 value "valuation_percentage" path "partyA_eligible_currencies"]
-		[synonym ISDA_Create_1_0 value "valuation_percentage" path "partyB_eligible_currencies"]
-
-	condition ValuationPercentage: <"The valuation percentage should be specified as a value between 0 and 1.">
-		if valuationPercentage exists
-		then valuationPercentage >= 0
-			and valuationPercentage <= 1
-
-// New version Jan 2020
-type EligibleCollateral: <"The collateral eligibility as a function of the types of asset, the maturity and rating terms.">
-	[synonym FpML_5_10 value "EligibleCollateral"]
-
-	issueInformation CollateralIssueInformation (1..1)
-	// TODO: Ask working group - is there a need for a fall back currency?  Could there be more than one currency?
-    denominatedCurrency string (1..*) <"Underlying denominated currency of asset.">
-	    [metadata scheme]
-	maturityRange MaturityRange (1..1)
-	agencyRating AgencyRating (0..1)
-	valuationPercentage CollateralValuationPercentage (1..1)
-
-
 type EligibleCollateralVariationMarginElection: <"A class to specify the parties' elections with respect to the eligible collateral for each of the respective parties when acting as a pledgor/chargor/obligor. ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (c)(ii): Eligible Collateral (VM).">
 
 	party Party (1..1) <"The elective party.">
@@ -1175,37 +1130,3 @@ type UmbrellaAgreement: <"A class to specify a set of legal entities which are p
 type UmbrellaAgreementEntity extends LegalEntity: <"A class to specify the legal entities that are part of the umbrella agreement.">
 	terms string (0..1) <"The terms that might be associated with each party to the umbrella agreement.">
 		[synonym ISDA_Create_1_0 value "additional"]
-
-// TODO: part of eligible collateral refactoring - re-order in file once fully agreed
-
-// TODO: rename to "Issue" to Instrument or Asset or Collateral?
-type CollateralIssueInformation: <"COLLATERAL ISSUE INFORMATION.">
-    issuerType CollateralIssuerTypeClassificationEnum (1..1) <"Origin of entity issuing the asset.">
-    issuerCountryOfOrigin string (1..1) <"The ISO 3166 standard code for the country of origin of issue entity.">
-		[metadata scheme]
-    collateralType CollateralType (1..1) <"Definition of collateral type.">
-	collateralIdentifier ProductIdentifier (0..*)
-    counterpartyOwnIssue boolean (1..1) <"Is asset issued by posting entity or member of corporate family - note: not permitted under specific regulations."> // Explore options to infer this from one way risk
-
-type CollateralType:
-	collateralType CollateralTypeEnum (1..1)
-	collateralSubType CollateralSubTypeEnum (0..1)
-
-	// TODO: add further constraints to this data rule
-	condition SubType:
-		if CollateralType -> collateralType = CollateralTypeEnum -> Security or CollateralType -> collateralType = CollateralTypeEnum -> Equity
-		then CollateralType -> collateralSubType exists
-		else CollateralType -> collateralSubType is absent
-
-type AgencyRating:
-	issuerAgencyRating CreditNotations (0..1) <"Agency rating based on default risk and creditors claim in event of default associated with issuer of asset.">
-	issueAgencyRating CreditNotations (0..1) <"Agency rating based on default risk and creditors claim in event of default associated with specific asset.">
-	sovereignAgencyRating CreditNotations (0..1) <"Agency rating based on default risk of country.">
-
-	condition Choice:
-		required choice issuerAgencyRating, issueAgencyRating, sovereignAgencyRating
-
-
-type CollateralValuationPercentage: <"COLLATERAL HAIRCUT.">
-    valuationPercentage number (1..1) <"Percentage value of asset to be used as collateral once assets discounted haircut take into consideration, expressed as a valuation comprised between 0.0 and 100.0.">
-    valuationPercentageFxHaircut number (0..1) <"If pledgor eligible collateral is not denominated in the termination currency of the secured parties agreement an FX haircut is applied, expressed as a valuation comprised between 0.0 and 100.0">
