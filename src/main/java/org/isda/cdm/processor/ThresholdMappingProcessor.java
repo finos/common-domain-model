@@ -4,9 +4,10 @@ import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
+import com.rosetta.model.metafields.FieldWithMetaString;
+
 import org.isda.cdm.ElectiveAmountElection;
 import org.isda.cdm.Money;
-import org.isda.cdm.metafields.FieldWithMetaString;
 
 import java.math.BigDecimal;
 import java.util.List;

@@ -5,6 +5,9 @@ import com.google.inject.Inject;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.rosetta.model.lib.GlobalKey;
 import com.rosetta.model.lib.meta.MetaFieldsI;
+
+import cdm.base.maths.NonNegativeQuantity;
+
 import org.isda.cdm.*;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
