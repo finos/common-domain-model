@@ -5,6 +5,8 @@ import cdm.base.*
 import cdm.base.datetime.*
 import cdm.base.staticdata.asset.commons.*
 
+// Note: All Eligible Collateral modelling/representation is still under development and discussion with ISDA Working groups
+
 type AgencyRating:
 	issuerAgencyRating CreditNotations (0..1) <"Agency rating based on default risk and creditors claim in event of default associated with issuer of asset.">
 	instrumentAgencyRating CreditNotations (0..1) <"Agency rating based on default risk and creditors claim in event of default associated with specific instrument.">
@@ -15,7 +17,7 @@ type AgencyRating:
 
 
 type CollateralInstrumentInformation: <"COLLATERAL ISSUE INFORMATION.">
-    issuerType IssuerTypeClassificationEnum (1..1) <"Origin of entity issuing the asset.">
+    issuerType CollateralIssuerTypeClassification (1..1) <"Origin of entity issuing the asset.">
     issuerCountryOfOrigin string (1..1) <"The issuer entity country of origin.">
 		[metadata scheme]
     instrumentType CollateralProductType (1..1) <"Definition of collateral type.">
@@ -35,20 +37,30 @@ type CollateralIssuerTypeClassification:
 	
 	condition RegionalGovernmentSubType:
 		if issuerType <> IssuerTypeClassificationEnum -> RegionalGovernment
-		then quasiGovernmentType is absent
+		then regionalGovernmentType is absent
 	
-	condition RegionalGovernmentSubType:
+	condition SupraNationalSubType:
 		if issuerType <> IssuerTypeClassificationEnum -> SupraNational
 		then supraNationalType is absent
 
 
 type CollateralProductType:
-	productType ProductTypeEnum (1..1)
-	securityType SecurityTypeEnum (0..1)
+	productType CollateralProductTypeEnum (1..1)
+	securityType SecurityTypeEnum (0..1) 
+	bondType BondTypeEnum (0..1)
+	equityType EquityTypeEnum (0..1)
 
 	condition SecuritySubType:
-		if productType <> ProductTypeEnum -> Security
-		then securityType is absent
+		if productType <> CollateralProductTypeEnum -> Security
+		then ( securityType and bondType and equityType ) is absent 
+	
+	condition BondSubType:
+		if securityType <> SecurityTypeEnum -> Bond
+		then bondType is absent
+	
+	condition EquitySubType:
+		if securityType <> SecurityTypeEnum -> Equity
+		then equityType is absent
 
 
 type CollateralValuationPercentage: <"COLLATERAL HAIRCUT.">
