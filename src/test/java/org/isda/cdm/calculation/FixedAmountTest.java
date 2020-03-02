@@ -5,28 +5,29 @@ import static org.hamcrest.core.Is.is;
 
 import java.math.BigDecimal;
 
-import org.isda.cdm.AdjustableDate;
-import org.isda.cdm.AdjustableOrRelativeDate;
-import org.isda.cdm.BusinessCenters;
-import org.isda.cdm.BusinessDayAdjustments;
-import org.isda.cdm.BusinessDayConventionEnum;
 import org.isda.cdm.CalculationPeriodDates;
 import org.isda.cdm.CalculationPeriodFrequency;
 import org.isda.cdm.DayCountFractionEnum;
 import org.isda.cdm.InterestRatePayout;
-import org.isda.cdm.NonNegativeQuantity;
-import org.isda.cdm.PeriodExtendedEnum;
 import org.isda.cdm.RateSpecification;
 import org.isda.cdm.RollConventionEnum;
-import org.isda.cdm.Schedule;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.isda.cdm.functions.FixedAmount;
 import org.isda.cdm.metafields.FieldWithMetaDayCountFractionEnum;
-import org.isda.cdm.metafields.ReferenceWithMetaBusinessCenters;
 import org.junit.jupiter.api.Test;
 
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.DateImpl;
+
+import cdm.base.datetime.AdjustableDate;
+import cdm.base.datetime.AdjustableOrRelativeDate;
+import cdm.base.datetime.BusinessCenters;
+import cdm.base.datetime.BusinessDayAdjustments;
+import cdm.base.datetime.BusinessDayConventionEnum;
+import cdm.base.datetime.PeriodExtendedEnum;
+import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
+import cdm.base.maths.NonNegativeQuantity;
+import cdm.base.maths.Schedule;
 
 class FixedAmountTest extends AbstractFunctionTest {
 

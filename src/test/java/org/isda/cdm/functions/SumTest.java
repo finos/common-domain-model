@@ -10,11 +10,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.isda.cdm.Quantity;
-import org.isda.cdm.UnitEnum;
+
 import org.junit.jupiter.api.Test;
 
 import com.google.inject.Inject;
+
+import cdm.base.maths.Quantity;
+import cdm.base.maths.UnitEnum;
+import cdm.base.maths.functions.Sum;
 
 class SumTest extends AbstractFunctionTest {
 
