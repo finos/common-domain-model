@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--View is confirmation-->
+<!--Version is 5-7-->
+<!--NS is http://www.fpml.org/FpML-5/confirmation-->
+<!--
+  == Copyright (c) 2002-2015 All rights reserved.
+  == Financial Products Markup Language is subject to the FpML public license.
+  == A copy of this license is available at http://www.fpml.org/license/license.html
+-->
+<!--5.0:Message type is a Root of the message-->
+<!--5.0 Messaging: changed <TradeCancelled> -> <executionRetracted> -->
+<executionRetracted xmlns="http://www.fpml.org/FpML-5/confirmation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" fpmlVersion="5-7" xsi:schemaLocation="http://www.fpml.org/FpML-5/confirmation ../../fpml-main-5-7.xsd http://www.w3.org/2000/09/xmldsig# ../../xmldsig-core-schema.xsd">
+  <header>
+    <messageId messageIdScheme="http://www.example.com/messageId">MS/2006/04/02/15-38</messageId>
+    <sentBy>PartyAXXX</sentBy>
+    <sendTo>PartyBXXX</sendTo>
+    <creationTimestamp>2006-04-02T15:38:00Z</creationTimestamp>
+  </header>
+<!--5.0 Messaging: added
+                <correlationId>
+                <sequenceNumber>
+        -->
+  <correlationId correlationIdScheme="http://www.example.com/correlationId">CS/2006/04/02/15-38</correlationId>
+  <sequenceNumber>7</sequenceNumber>
+  <trade>
+    <tradeHeader>
+      <partyTradeIdentifier>
+        <partyReference href="party1" />
+        <tradeId tradeIdScheme="http://www.Party1.com/eqd-trade-id">1234</tradeId>
+      </partyTradeIdentifier>
+      <tradeDate id="TradeDate">2001-07-13</tradeDate>
+    </tradeHeader>
+    <equityForward>
+      <productType>forwardStock</productType>
+      <buyerPartyReference href="party2" />
+      <sellerPartyReference href="party1" />
+<!--FpML 5-0 issue - Below value is incorrect - optionType = Forward was deprecated in 4.x and the field is required. optionType cannot be optional as it reused by other Eqd Options. Temp Created union of PutCallEnum and Forward value-->
+      <optionType>Forward</optionType>
+      <underlyer>
+        <singleUnderlyer>
+          <equity>
+            <instrumentId instrumentIdScheme="http://www.fpml.org/schemes/4.1/instrumentId">STM-FP</instrumentId>
+            <description>STMicroelectronics N.V. ordinary shares</description>
+            <currency>EUR</currency>
+            <exchangeId exchangeIdScheme="http://www.fpml.org/schemes/4.1/exchangeId">XLDN</exchangeId>
+          </equity>
+          <openUnits>31000</openUnits>
+          <dividendPayout>
+            <dividendPayoutRatio>1</dividendPayoutRatio>
+          </dividendPayout>
+        </singleUnderlyer>
+      </underlyer>
+      <equityExercise>
+        <equityEuropeanExercise>
+          <expirationDate>
+            <adjustableDate>
+              <unadjustedDate>2004-07-13</unadjustedDate>
+              <dateAdjustments>
+                <businessDayConvention>NONE</businessDayConvention>
+              </dateAdjustments>
+            </adjustableDate>
+          </expirationDate>
+          <equityExpirationTimeType>OSP</equityExpirationTimeType>
+        </equityEuropeanExercise>
+        <prePayment>
+          <payerPartyReference href="party2" />
+          <receiverPartyReference href="party1" />
+          <prePayment>true</prePayment>
+          <prePaymentAmount>
+            <currency>EUR</currency>
+            <amount>40500</amount>
+          </prePaymentAmount>
+          <prePaymentDate>
+            <unadjustedDate>2004-07-13</unadjustedDate>
+            <dateAdjustments>
+              <businessDayConvention>NONE</businessDayConvention>
+            </dateAdjustments>
+          </prePaymentDate>
+        </prePayment>
+        <equityValuation>
+          <valuationDate id="FinalValuationDate">
+            <adjustableDate>
+              <unadjustedDate>2004-07-13</unadjustedDate>
+              <dateAdjustments>
+                <businessDayConvention>NotApplicable</businessDayConvention>
+              </dateAdjustments>
+            </adjustableDate>
+          </valuationDate>
+          <valuationTimeType>Close</valuationTimeType>
+        </equityValuation>
+        <settlementDate>
+          <relativeDate>
+            <periodMultiplier>2</periodMultiplier>
+            <period>D</period>
+            <dayType>CurrencyBusiness</dayType>
+            <businessDayConvention>NotApplicable</businessDayConvention>
+            <dateRelativeTo href="FinalValuationDate" />
+          </relativeDate>
+        </settlementDate>
+        <settlementCurrency>EUR</settlementCurrency>
+        <settlementPriceSource>OfficialClose</settlementPriceSource>
+        <settlementType>Physical</settlementType>
+      </equityExercise>
+<!--FpML 5.0: Use this "feature", as "equityFeatures" ofType "OptionFeatures" was removed because Option Features content is accessible in the complex type EquityDerivativeBase through the model group Feature.model.  -->
+      <feature>
+        <asian>
+          <averagingInOut>Out</averagingInOut>
+          <averagingPeriodOut>
+            <averagingDateTimes>
+              <dateTime>2000-08-01T08:57:00</dateTime>
+              <dateTime>2000-09-01T08:57:00</dateTime>
+              <dateTime>2000-10-01T08:57:00</dateTime>
+              <dateTime>2000-11-01T08:57:00</dateTime>
+              <dateTime>2000-12-01T08:57:00</dateTime>
+              <dateTime>2001-01-04T08:57:00</dateTime>
+              <dateTime>2001-02-01T08:57:00</dateTime>
+              <dateTime>2001-03-01T08:57:00</dateTime>
+            </averagingDateTimes>
+            <marketDisruption>ModifiedPostponement</marketDisruption>
+          </averagingPeriodOut>
+        </asian>
+      </feature>
+      <dividendConditions>
+        <dividendReinvestment>false</dividendReinvestment>
+        <dividendEntitlement>ExDate</dividendEntitlement>
+        <dividendPaymentDate>
+          <dividendDateReference>ExDate</dividendDateReference>
+        </dividendPaymentDate>
+        <dividendPeriodEffectiveDate href="TradeDate" />
+        <dividendPeriodEndDate href="FinalValuationDate" />
+        <extraOrdinaryDividends href="party1" />
+        <excessDividendAmount>RecordAmount</excessDividendAmount>
+        <determinationMethod>DividendCurrency</determinationMethod>
+      </dividendConditions>
+      <methodOfAdjustment>CalculationAgent</methodOfAdjustment>
+      <extraordinaryEvents>
+        <mergerEvents>
+          <shareForShare>ModifiedCalculationAgent</shareForShare>
+          <shareForOther>ModifiedCalculationAgent</shareForOther>
+          <shareForCombined>ModifiedCalculationAgent</shareForCombined>
+        </mergerEvents>
+        <tenderOffer>true</tenderOffer>
+        <tenderOfferEvents>
+          <shareForShare>ModifiedCalculationAgent</shareForShare>
+          <shareForOther>ModifiedCalculationAgent</shareForOther>
+          <shareForCombined>ModifiedCalculationAgent</shareForCombined>
+        </tenderOfferEvents>
+        <compositionOfCombinedConsideration>true</compositionOfCombinedConsideration>
+        <additionalDisruptionEvents>
+          <changeInLaw>true</changeInLaw>
+          <failureToDeliver>true</failureToDeliver>
+          <insolvencyFiling>false</insolvencyFiling>
+          <hedgingDisruption>true</hedgingDisruption>
+          <lossOfStockBorrow>true</lossOfStockBorrow>
+          <increasedCostOfStockBorrow>false</increasedCostOfStockBorrow>
+          <increasedCostOfHedging>false</increasedCostOfHedging>
+          <determiningPartyReference href="party1" />
+        </additionalDisruptionEvents>
+        <representations>
+          <nonReliance>true</nonReliance>
+          <agreementsRegardingHedging>true</agreementsRegardingHedging>
+          <additionalAcknowledgements>true</additionalAcknowledgements>
+        </representations>
+        <nationalisationOrInsolvency>CancellationAndPayment</nationalisationOrInsolvency>
+      </extraordinaryEvents>
+      <forwardPrice>
+        <currency>EUR</currency>
+        <amount>10.20</amount>
+      </forwardPrice>
+    </equityForward>
+    <calculationAgent>
+      <calculationAgentPartyReference href="party1" />
+    </calculationAgent>
+    <documentation>
+      <masterAgreement>
+        <masterAgreementType>ISDA</masterAgreementType>
+        <masterAgreementVersion>2002</masterAgreementVersion>
+      </masterAgreement>
+      <contractualDefinitions>ISDA2002Equity</contractualDefinitions>
+    </documentation>
+    <governingLaw>GBEN</governingLaw>
+  </trade>
+  <party id="party1">
+    <partyId>PartyA</partyId>
+  </party>
+  <party id="party2">
+    <partyId>PartyB</partyId>
+  </party>
+</executionRetracted>
+
