@@ -1,60 +1,64 @@
 namespace "org.isda.cdm"
 version "${project.version}"
 
-enum IssuerTypeClassificationEnum: <"The type of entity issuing the collateral.">
-	QuasiGovernment
-	SovereignCentralBank
-	Corporate
-	RegionalGovernment
-	PublicSector // proxy to sovereign / guaranteed?
-	SupraNational
-	Bank // ?
+
+enum IssuerTypeClassificationEnum: <"Origin of entity issuing the collateral.">
+    SovereignGovernmentCentralBank <"Sovereign, Government Debt Securities including Central Banks">
+	QuasiGovernment <"Debt issues by institutions or bodies, typically constituted by statute, with a function mandated by the government and subject to government supervision inclusive of profit- and non-profit making bodies. Includes the US Agencies and GSEs and the EU concept of public sector entities.  Excluding any entities which are also Regional Government">
+	Corporate <"Debt issued Securities by corporate bodies including Banks">
+	RegionalGovernment <"Regional Government Issued Debt including states within countries, local authorities and municipalities">
+	SupraNational <"Debt issued by international organisations and multilateral banks, entities constituted by treaties or with multiple sovereign members includes Multilateral development Banks">
 
 enum QuasiGovernmentIssuerTypeClassificationEnum:
-	AgencyCreditInstitution
-	AgencyNonCreditInstitution
-	GovernmentSponsoredEnterprise // guaranteed?
-	UsAgency // guaranteed?
+    AgencyCreditInstitution <"Debt issued by government backed agency credit institution">
+    AgencyNonCreditInstitution <"Debt issued by private agency non-credit institution">
+    GovernmentSponsoredEnterprise <"Debt issued by government sponsored enterprise GSE">  // guaranteed?
+    UsAgency <"Debt issued by US Agency department"> // guaranteed?
+    PublicSector <"Debt issued by Public Sector bodies"> // proxy to sovereign / guaranteed?
 
 enum RegionalGovernmentIssuerTypeClassificationEnum:
-	LocalAuthority
-	MunicipalServices
+    LocalAuthority <"Local Authority - debt security issued by a government agency">
+    MunicipalServices <"Municipal Services- debt issued by municipality to fund specific public projects">
 
 enum SupraNationalIssuerTypeClassificationEnum:
-	MultilateralBank //MultilateralDevelopmentBank
-	InternationalOrganisation
-	
-enum ProductTypeEnum:
-	ContractualProduct
-	Index
-	Loan
-	ForeignExchange
-	Security
-	Cash
-	MoneyMarketFunds // TODO: should this be a sub-type of Cash
-	Physical // e.g. Commoditites
-	Other
+    MultilateralBank <"Multilateral Bank "> // do we require both ‘multilateral bank’ and ‘multilateral development bank’?
+    MultilateralDevelopmentBank <"Multilateral Development Bank">
+    InternationalFinancialInstitutions <"International Financial Institution">
 
-enum SecurityTypeEnum:
-	AssetBacked
-	Bond <"Corresponds to CDM type Security -> Bond.">
-	CertificateOfDeposit
-	CoveredBonds
-	Common <"Equity: Common">
-	ConvertibleCommon <"Equity: Convertible Common">
-	ConvertibleBond <"Corresponds to CDM type Security -> ConvertibleBond.">
-	DepositoryReceipts <"Equity: Depository Receipts">
-	Equity <"Corresponds to CDM type Security -> Equity.">
-	ExchangeTradedFund <"Corresponds to CDM type Security -> ExchangeTradedFund.">
-	FreelyTransferableMutualFund
-	MortgageBackedSecurity <"Corresponds to CDM type Security -> MortgageBackedSecurity.">
-	MunicipalBonds
-	MutualFund <"Corresponds to CDM type Security -> MutualFund.">
-	NonConvertiblePreference <"Equity: Non Convertible Preference">
-	Rights <"Equity: Rights">
-	TreasuryBonds
-	Warrant <"Corresponds to CDM type Security -> Warrant.">
-	Warranties
+// below references collateral types >>>
+
+enum CollateralProductTypeEnum:
+	Security <"Negotiable financial instrument of monetary value with an issue ownership postiton">
+	Cash <" Cash in a currency form">
+	MoneyMarketFunds <" Money Market Funds"> // TODO: should this be a sub-type of Cash or Equity? 
+	Physical <"Physical"> // e.g. Commoditites
+	Other <"Other Collateral Products"> // possible place holder to use for other collateral types such as land, machinery, property 
+
+enum SecurityTypeEnum: 
+	Bond <"Security: Bonds- Fixed income instrument of debt issued and securitized as a tradable asset"> 
+	Equity <"Security: Equity value of holding of shares in listed company">
+	CertificateOfDeposit <"Security: Certificate of Deposit- Agreed fixed maturity and interest rate deposit">
+	//Other types ?	
+
+enum BondTypeEnum:
+	CoveredBonds <"Security: Secured Bond backed by a separate entity or group of assets to cover exposure in the event of insolvency."> 
+	ConvertibleBond <"Security: Bond that can be converted into a set of common shares or equities"> 
+	MortgageBackedSecurity <"Security: Asset secured by collection of mortgage loans"> 
+	AssetBacked <"Security: Asset Backed (ABS) A security which income payments and value derived from or backed by a specified pool of underlying assets"> 
+	TreasuryBonds <"Security: Treasury Bonds- Government issued Fixed income instrument of debt issued and securitized as a tradable asset"> // Do we need  sub list with potential to include (Treasury G20 /G7/ EUzone/ G10) ?
+	MunicipalBonds <"Security: Municipal Bonds"> // possible duplication under regional govt
+ 
+enum EquityTypeEnum:
+	Common <"Equity type: Common stocks and shares">
+	NonConvertiblePreference <"Equity type: Non-Convertible Preference, Shares which hold priority to receive capital return in event of issuer liquidation">
+	ConvertibleCommon <"Equity type: Convertible Common, preference stock that can be converted by the election of the holder into common shares">
+	DepositoryReceipts <"Equity type: Depository Receipts – certificate to represent a share holding in a foreign listed company">
+	Rightsissue <"Equity type: Rights issue dividend of subscription right to additional shares in a company to existing holders">
+	Warrants <"Equity type: Warrants –options on shares issued by issuer allowing holder to purchase a specified allocation of shares at determined price and time">
+	ExchangeTradedFund <"Equity type: Exchange Traded Fund- Investment fund traded on a stock exchange"> 
+	MutualFund <"Equity type: Mutual Fund"> // see notation below
+	FreelyTransferableMutualFund <"Equity type:  Freely Transferable Mutual Fund"> 
+
 
 enum CreditNotationMismatchResolutionEnum: <"If several agency issue ratings but not equivalent, reference will be made to the lowest/highest available.">
 	Lowest
@@ -65,3 +69,4 @@ enum MarginApproachEnum:
 	Distinct
 	Allocated
 	GreaterOf
+
