@@ -884,7 +884,7 @@ type Payout: <" A class to represent the set of future cashflow methodologies in
 		// For FRA:
 		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value "fra" mapper "FRAIRPSplitter"]
 		// For CDS:
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "generalTerms", "feeLeg" set when "feeLeg->periodicPayment" exists]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "generalTerms", "feeLeg" set when "feeLeg->periodicPayment" exists] //, "calculationAmount" path "protectionTerms"
 		// For Equity Swap
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "interestLeg"]
 		// For Repo:
@@ -1036,21 +1036,29 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
 		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 hint "paymentAmount"]
 		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "otherPartyPayment"]
 		// For Equity Swaps
-		[synonym FpML_5_10 value "initialPrice" path "returnSwap->returnLeg->rateOfReturn", "underlyer" path "returnSwap->returnLeg"]
-		[synonym FpML_5_10 value "initialPrice" path "equitySwapTransactionSupplement->returnLeg->rateOfReturn", "underlyer" path "equitySwapTransactionSupplement->returnLeg"]
+		[synonym FpML_5_10 value "returnLeg" path "returnSwap", "returnLeg" path "returnLeg"]
+		[synonym FpML_5_10 value "returnLeg" path "equitySwapTransactionSupplement", "returnLeg" path "equitySwapTransactionSupplement"]
 		// For Swaps:
 		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "additionalPayment" path "swap"]
+		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "swapStream" path "swap"]
 		// For Swaptions:
 		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "premium" path "swaption"]
 		// For CD Index and CDS
 		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "initialPayment" path "creditDefaultSwap->feeLeg"]
 		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "singlePayment" path "creditDefaultSwap->feeLeg"]
+		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "periodicPayment" path "creditDefaultSwap->feeLeg"] // , "protectionTerms" path "creditDefaultSwap"
+		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "periodicPayment" path "creditDefaultSwapOption->creditDefaultSwap->feeLeg"]
+		//[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "protectionTerms" path "creditDefaultSwap" set when "creditDefaultSwap->feeLeg->periodicPayment->fixedAmountCalculation->calculationAmount" is absent]
+		//[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "protectionTerms" path "creditDefaultSwap"]
 		// For CD Swaption:
 		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "premium" path "creditDefaultSwapOption"]
 		// For Bond Options:
 		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "premium" path "bondOption"]
 		// For FX
 		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "fxSingleLeg"]
+		// For Repo:
+		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "repo"]
+		
 	// TBD: make quantity and price notation optional, and only validate that it exists as part of an execution / contract?
 	// TBD: positioning of future DateNotation (Effective Date, Termination Date) - only applicable to contractual products. In EconomicTerms?
 	// TBD: positioning of future PartyNotation - as part of this type, or higher-up in the Execution / Contract?
@@ -1166,19 +1174,45 @@ type PriceNotation: <"Object to specify the price of a product as a single numbe
 
 	price Price (1..1) <"Price expressed as a number.">
 	assetIdentifier AssetIdentifier (0..1) <"Identifier for the asset being priced.">
+		// For IR Swaps
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notionalStepSchedule" path "calculationPeriodAmount->calculation->notionalSchedule" set when "calculationPeriodAmount->calculation->fixedRateSchedule" exists]
 		// For Equity Swaps
-		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "singleUnderlyer"]
+		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "singleUnderlyer" path "underlyer"]
+		// For CDS
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "calculationAmount"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "calculationAmount" path "fixedAmountCalculation"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "fixedAmount"]
+		// For CD Index
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "paymentAmount"]
+		
+		
+//	condition CurrencyAssetIdentifier: <"The asset identifier for a fixed interest rate must be a currency.">
+//		if price -> fixedInterestRate exists 
+//		then assetIdentifier -> currency only exists
+	
+//	condition RateOptionAssetIdentifier: <"The asset identifier for an interest rate spread must be a rate option.">
+//		if price -> interestRateSpread exists 
+//		then assetIdentifier -> rateOption only exists
 
 // TODO: Create "RateSpecificationBase" and position "assetIdentifier" as an attribute, then each of the 3 rate specifications below should inherit from it.
 // NOTE: floating rates will no longer inherit from "FloatingRateOption", instead the rate option will be contained in "assetIdentifier"
 // Then implement data rules to verify that we have the right type of "AssetIdentifier" for a fixed or floating rate
+type RateSpecificationBase:
+	assetIdentifier AssetIdentifier (0..1)
+		// For IR Swaps
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notionalStepSchedule" path "calculationPeriodAmount->calculation->notionalSchedule" set when "calculationPeriodAmount->calculation->fixedRateSchedule" exists]
+		// For CDS
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "calculationAmount" path "periodicPayment->fixedAmountCalculation"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint "currency"]
+		
+
 type RateSpecification: <" A class to specify the fixed interest rate, floating interest rate or inflation rate.">
 
 	fixedRate FixedRateSpecification (0..1) <"The fixed rate or fixed rate specification expressed as explicit fixed rates and dates.">
 	floatingRate FloatingRateSpecification (0..1) <"The floating interest rate specification, which includes the definition of the floating rate index. the tenor, the initial value, and, when applicable, the spread, the rounding convention, the averaging method and the negative interest rate treatment.">
 	inflationRate InflationRateSpecification (0..1) <"An inflation rate calculation definition.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "inflationRateCalculation" path "calculationPeriodAmount->calculation"]
-	condition: one-of
+	//condition: one-of
 
 type StubPeriod: <" A class defining how the initial or final stub calculation period amounts is calculated. For example, the rate to be applied to the initial or final stub calculation period may be the linear interpolation of two different tenors for the floating rate index specified in the calculation period amount component, e.g. A two month stub period may used the linear interpolation of a one month and three month floating rate. The different rate tenors would be specified in this component. Note that a maximum of two rate tenors can be specified. If a stub period uses a single index tenor and this is the same as that specified in the calculation period amount component then the initial stub or final stub component, as the case may be, must not be included.">
 	[synonym FpML_5_10 value "StubCalculationPeriodAmount"]

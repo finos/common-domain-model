@@ -183,12 +183,21 @@ type IndexAdjustmentEvents: <"Defines the specification of the consequences of I
 type Price: <"Generic description of the price concept applicable across product types, which can be expressed in a number of ways other than simply cash price">
 
 	cashPrice CashPrice (0..1) <"Price specified in cash terms, e.g. for securities proceeds or fee payment in a contractual product.">
+		[synonym FpML_5_10 value "initialPrice" path "rateOfReturn", "underlyer"]
+		[synonym FpML_5_10 hint "paymentAmount"]
+		[synonym FpML_5_10 hint "fixedAmount"]
 	exchangeRate ExchangeRate (0..1) <"Price specified as an exchange rate between two currencies.">
 		[synonym FpML_5_10 value "exchangeRate"]
-	fixedInterestRate FixedInterestRate (0..1) <"Price specified as a fixed interest rate.">
-	interestRateSpread InterestRateSpread (0..1) <"Price specified as a spread on top of a floating interest rate.">
-
+	fixedInterestRate InterestRateBase (0..1) <"Price specified as a fixed interest rate.">
+		// For IR Swaps
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "fixedRateSchedule" path "calculationPeriodAmount->calculation"]
+		// For CDS
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "fixedAmountCalculation"]
+	interestRateSpread InterestRateBase (0..1) <"Price specified as a spread on top of a floating interest rate.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "ignore" path "calculationPeriodAmount->calculation"]
+	
 	condition: one-of
+
 
 // TODO - Look for further synergies with the SecurityValuation class
 type CashPrice: <"Describes a price component as a cash amount, which can either represent cash proceeds for a security purchase or a cashflow that is embedded as part of a contractual product: for instance an upfront fee.">
