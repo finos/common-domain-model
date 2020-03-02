@@ -1,38 +1,40 @@
-namespace "org.isda.cdm"
+namespace org.isda.cdm
 version "${project.version}"
+
+import cdm.base.maths.*
+import cdm.base.staticdata.asset.commons.*
 
 func PriceQuantityTriangulation:
 	inputs:
-		price ExecutionPrice (1..1)
-		quantity ExecutionQuantity (1..1)
+		priceNotation PriceNotation (0..*)
+		quantityNotation QuantityNotation (0..*)
 
 	output:
 		success boolean (1..1)
 
 	assign-output success:
-		if price -> priceNotation -> price -> cashPrice exists
-		then CashPriceQuantityNoOfUnitsTriangulation( price, quantity )
-		else if price -> priceNotation -> price -> exchangeRate exists
-		then ExchangeRateQuantityTriangulation( price, quantity )
+		if priceNotation -> price -> cashPrice exists
+		then CashPriceQuantityNoOfUnitsTriangulation( priceNotation, quantityNotation )
+		else if priceNotation -> price -> exchangeRate exists
+		then ExchangeRateQuantityTriangulation( priceNotation, quantityNotation )
 		else True
-
 
 func CashPriceQuantityNoOfUnitsTriangulation: <"Data rule to check the relationship between cash price, notional and number of units.">
 	inputs:
-		price ExecutionPrice (1..1)
-		quantity ExecutionQuantity (1..1)
+		priceNotation PriceNotation (0..*)
+		quantityNotation QuantityNotation (0..*)
 
 	output:
 		success boolean (1..1)
 
 	alias notional:
-		Notional(quantity -> quantityNotation, empty)
-	
+		Notional( quantityNotation, empty )
+
 	alias noOfUnits:
-		NoOfUnits(quantity -> quantityNotation)
-	
+		NoOfUnits( quantityNotation )
+
 	alias cashPrice:
-		price -> priceNotation only-element -> price -> cashPrice -> netPrice -> amount
+		priceNotation only-element -> price -> cashPrice -> netPrice -> amount
 
 	assign-output success:
 		if ( cashPrice and noOfUnits and notional ) exists
@@ -41,31 +43,31 @@ func CashPriceQuantityNoOfUnitsTriangulation: <"Data rule to check the relations
 
 func ExchangeRateQuantityTriangulation:
 	inputs:
-		price ExecutionPrice (1..1)
-		quantity ExecutionQuantity (1..1)
+		priceNotation PriceNotation (0..*)
+		quantityNotation QuantityNotation (0..*)
 
 	output:
 		success boolean (1..1)
 
 	alias exchangeRate:
-		price -> priceNotation only-element -> price -> exchangeRate
+		priceNotation only-element -> price -> exchangeRate
 
 	alias rate:
 		if exchangeRate -> rate exists
 		then exchangeRate -> rate
 		else exchangeRate -> spotRate
-	
+
 	alias quotedCurrency:
 		exchangeRate -> quotedCurrencyPair
 
 	alias quantity1:
-		Notional( quantity -> quantityNotation, quotedCurrency -> currency1 )
+		Notional( quantityNotation, quotedCurrency -> currency1 )
 
 	alias quantity2:
-		Notional( quantity -> quantityNotation, quotedCurrency -> currency2 )
-	
+		Notional( quantityNotation, quotedCurrency -> currency2 )
+
 	assign-output success:
-		if ( quantity1 and quantity2 and rate ) exists 
+		if ( quantity1 and quantity2 and rate ) exists
 		then
 			if quotedCurrency -> quoteBasis = QuoteBasisEnum -> Currency1PerCurrency2
 			then quantity1 / quantity2 = rate
@@ -126,15 +128,10 @@ func ResolvePrice: <"Function specification to return the price on a valuation d
 	output:
 		price number  (1..1)
 
-
-func ResolveAdjustableDate:
-	inputs: terminationDate AdjustableOrRelativeDate (1..1)
-	output: adjustedDate date (1..1)
-
 func ExtractContractState: <"Extracts a single Contract State, given an Event. This function navigates all the possible paths to product and extracts a single value.">
-	inputs: event WorkflowStep (1..1)
+	inputs: event BusinessEvent (1..1)
 	output: contractState ContractState (1..1)
-	alias primitive: event -> businessEvent -> primitives  only-element
+	alias primitive: event -> primitives  only-element
 	assign-output contractState:
 		if primitive -> contractFormation exists then primitive -> contractFormation -> after
 		else if primitive -> reset exists then primitive -> reset -> after
@@ -143,26 +140,21 @@ func ExtractQuantity: <"A function that abstracts away the details of how to ret
 	inputs:
 		trade Trade (1..1)
 	output:
-		quantity ExecutionQuantity (1..1)
-
-func ToDateTime:
-	inputs: date date (1..1)
-	output: datetime zonedDateTime (1..1)
+		quantity QuantityNotation (1..1) // TODO: add support for returning lists
 
 // TODO: turn these functions into language level operators i.e. '+'
 func Plus:
 	inputs:
-		q1 ExecutionQuantity (1..1)
-		q2 ExecutionQuantity (1..1)
+		q1 QuantityNotation (1..1)
+		q2 QuantityNotation (1..1)
 	output:
-		result ExecutionQuantity (1..1)
-
+		result QuantityNotation (1..1)
 
 // TODO: turn these functions into language level operators i.e. '='
 func Equals:
 	// TODO Never referenced in CDM
 	inputs:
-		contractualQuantity ExecutionQuantity (1..1)
+		quantity QuantityNotation (1..*)
 		scalar number (1..1)
 	output:
 		result boolean (1..1)
@@ -170,7 +162,7 @@ func Equals:
 // TODO: turn these functions into language level operators i.e. '>'
 func GreaterThan:
 	inputs:
-		contractualQuantity ExecutionQuantity (1..1)
+		quantity QuantityNotation (1..*)
 		scalar number (1..1)
 	output:
 		result boolean (1..1)
@@ -179,25 +171,12 @@ func GreaterThan:
 func GreaterThanEquals:
 	// TODO Never referenced in CDM
 	inputs:
-		contractualQuantity ExecutionQuantity (1..1)
+		quantity QuantityNotation (1..*)
 		scalar number (1..1)
 	output:
 		result boolean (1..1)
 
-func Sum:
-	// TODO Never referenced in CDM
-	inputs: quantities Quantity (1..*)
-	output: sum Quantity (1..1)
 
-// TODO: turn these functions into language level operators i.e. 'sum', 'abs', '<'
-func QuantityEquals:
-// TODO Never referenced in CDM
-	inputs:
-		q1 Quantity (1..1)
-		q2 Quantity (1..1)
-		precision number (1..1)
-	output:
-		result boolean (1..1)
 
 func ExtractQuantityByAsset:
 	inputs:
@@ -212,4 +191,4 @@ func ExtractQuantityByCurrency:
 		currency string (1..1)
 	output:
 		quantity QuantityNotation (1..1)
-		
+

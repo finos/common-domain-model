@@ -2,12 +2,16 @@ package org.isda.cdm.calculation;
 
 import com.google.inject.Binder;
 import com.google.inject.Inject;
+import com.rosetta.model.metafields.FieldWithMetaString;
+
+import cdm.base.maths.NonNegativeQuantity;
+import cdm.base.staticdata.asset.commons.AssetIdentifier;
+
 import org.isda.cdm.*;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.isda.cdm.functions.ExtractQuantityByCurrency;
 import org.isda.cdm.functions.FxMarkToMarket;
 import org.isda.cdm.functions.InterpolateForwardRate;
-import org.isda.cdm.metafields.FieldWithMetaString;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -68,29 +72,29 @@ class FxMarkToMarketTest extends AbstractFunctionTest {
 
     private static Contract createFxContract(String curr1, String curr2, int price1, int price2, QuoteBasisEnum basisEnum) {
         return Contract.builder()
-                .setContractualQuantityBuilder(ExecutionQuantity.builder()
-                        .addQuantityNotationBuilder(QuantityNotation.builder()
-                        		.setAssetIdentifierBuilder(AssetIdentifier.builder()
-                        				.setCurrency(FieldWithMetaString.builder().setValue(curr1).build()))
-                                .setQuantityBuilder(NonNegativeQuantity.builder()
-                                        .setAmount(BigDecimal.valueOf(price1))))
-                        .addQuantityNotationBuilder(QuantityNotation.builder()
-                        		.setAssetIdentifierBuilder(AssetIdentifier.builder()
-                        				.setCurrency(FieldWithMetaString.builder().setValue(curr2).build()))
-                                .setQuantityBuilder(NonNegativeQuantity.builder()
-                                        .setAmount(BigDecimal.valueOf(price2)))))
-                .setContractualPriceBuilder(ExecutionPrice.builder()
-                        .addPriceNotationBuilder(PriceNotation.builder()
-                                .setPriceBuilder(Price.builder()
-                                        .setExchangeRateBuilder(ExchangeRate.builder()
-                                                .setQuotedCurrencyPairBuilder(QuotedCurrencyPair.builder()
-                                                        .setCurrency1(FieldWithMetaString.builder().setValue(curr1).build())
-                                                        .setCurrency2(FieldWithMetaString.builder().setValue(curr2).build())
-                                                        .setQuoteBasis(basisEnum))))))
-                .setContractualProductBuilder(ContractualProduct.builder()
-                        .setEconomicTermsBuilder(EconomicTerms.builder()
-                                .setPayoutBuilder(Payout.builder()
-                                        .addForwardPayoutBuilder(ForwardPayout.builder()))))
+                .setTradableProductBuilder(TradableProduct.builder()
+                	.setProductBuilder(Product.builder()
+		                .setContractualProductBuilder(ContractualProduct.builder()
+		                        .setEconomicTermsBuilder(EconomicTerms.builder()
+		                                .setPayoutBuilder(Payout.builder()
+		                                        .addForwardPayoutBuilder(ForwardPayout.builder())))))
+                	.addQuantityNotationBuilder(QuantityNotation.builder()
+                    		.setAssetIdentifierBuilder(AssetIdentifier.builder()
+                    				.setCurrency(FieldWithMetaString.builder().setValue(curr1).build()))
+                            .setQuantityBuilder(NonNegativeQuantity.builder()
+                                    .setAmount(BigDecimal.valueOf(price1))))
+                    .addQuantityNotationBuilder(QuantityNotation.builder()
+                    		.setAssetIdentifierBuilder(AssetIdentifier.builder()
+                    				.setCurrency(FieldWithMetaString.builder().setValue(curr2).build()))
+                            .setQuantityBuilder(NonNegativeQuantity.builder()
+                                    .setAmount(BigDecimal.valueOf(price2))))
+	                .addPriceNotationBuilder(PriceNotation.builder()
+	                        .setPriceBuilder(Price.builder()
+	                                .setExchangeRateBuilder(ExchangeRate.builder()
+	                                        .setQuotedCurrencyPairBuilder(QuotedCurrencyPair.builder()
+	                                                .setCurrency1(FieldWithMetaString.builder().setValue(curr1).build())
+	                                                .setCurrency2(FieldWithMetaString.builder().setValue(curr2).build())
+	                                                .setQuoteBasis(basisEnum))))))
                 .build();
     }
 

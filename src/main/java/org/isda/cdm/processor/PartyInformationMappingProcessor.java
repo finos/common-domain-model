@@ -4,12 +4,14 @@ import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
+import com.rosetta.model.metafields.FieldWithMetaString;
+import com.rosetta.model.metafields.MetaFields;
+
+import cdm.base.staticdata.party.Party;
+import cdm.base.staticdata.party.Party.PartyBuilder;
+import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
+
 import org.isda.cdm.LegalAgreement.LegalAgreementBuilder;
-import org.isda.cdm.Party;
-import org.isda.cdm.Party.PartyBuilder;
-import org.isda.cdm.metafields.FieldWithMetaString;
-import org.isda.cdm.metafields.MetaFields;
-import org.isda.cdm.metafields.ReferenceWithMetaParty;
 
 import java.util.List;
 import java.util.Objects;

@@ -7,6 +7,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 
 import org.isda.cdm.Contract;
+import org.isda.cdm.TradableProduct;
 import org.junit.jupiter.api.Test;
 
 import com.google.common.io.Resources;
@@ -23,8 +24,9 @@ public class CashPriceQuantityNoOfUnitsTriangulationTest extends AbstractFunctio
 	@Test
 	void shouldTriangulateEquityPriceNotionalAndNoOfUnitsAndReturnSuccess() throws IOException {
 		Contract contract = getContract(EQUITY_DIR + "eqs-ex01-single-underlyer-execution-long-form.json");
+		TradableProduct tradableProduct = contract.getTradableProduct();
 		
-		boolean success = func.evaluate(contract.getContractualPrice(), contract.getContractualQuantity());
+		boolean success = func.evaluate(tradableProduct.getPriceNotation(), tradableProduct.getQuantityNotation());
 		
 		assertTrue(success);
 	}
@@ -32,8 +34,9 @@ public class CashPriceQuantityNoOfUnitsTriangulationTest extends AbstractFunctio
 	@Test
 	void shouldReturnSuccessNotApplicableBecauseNoOfUnitsNotDefined() throws IOException {
 		Contract contract = getContract(EQUITY_DIR + "eqs-ex10-short-form-interestLeg-driving-schedule-dates.json");
+		TradableProduct tradableProduct = contract.getTradableProduct();
 		
-		boolean success = func.evaluate(contract.getContractualPrice(), contract.getContractualQuantity());
+		boolean success = func.evaluate(tradableProduct.getPriceNotation(), tradableProduct.getQuantityNotation());
 		
 		assertTrue(success);
 	}

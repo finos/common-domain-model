@@ -1,5 +1,8 @@
-namespace "org.isda.cdm"
+namespace org.isda.cdm
 version "${project.version}"
+
+import cdm.base.*
+import cdm.base.datetime.*
 
 type PrimitiveEvent: <"A primitive event is defined by one and only one atomic change in state of a trade. An example of this is a contract formation where the legal terms of the contact are added to the trade. A Primitive event contains a before and after state where the before is a reference to another after state of a primitive event in order to preserve lineage.">
 	execution ExecutionPrimitive (0..1)
@@ -37,18 +40,21 @@ type PrimitiveEvent: <"A primitive event is defined by one and only one atomic c
 
 type ExecutionPrimitive: <"Specification of the primitive event for an execution, with 'after' state being an ExecutionState and the 'before' state being Null. It is expected that the 'before' state will be adjusted or deprecated once the CDM scope is extended to the pre-execution space.">
 	before ExecutionState (0..0) <"The 0 cardinality reflects the fact that there is no execution in the before state of an execution primitive. As noted in the definition associated with the class, this is expected to change once the CDM scope is extended to the pre-execution space.">
+		[metadata reference]
 		[synonym Workflow_Event value "before"]
 	after ExecutionState (1..1) <"The after state corresponds to the execution between the parties. In the case of an execution on a contractual product, some additional characteristics may need to be specified to get a fully-formed contract, for instance when the executing party acts as an agent, as is the case in an allocation scenario. This is the purpose of the 'ContractFormation' primitive event.">
 		[synonym Workflow_Event value "after"]
 
 type ContractFormationPrimitive: <"Specification of the primitive event for the formation of a contract, with 'before' state being an 'ExecutionState' and 'after' state being a 'PostInceptionState'. This primitive combined with the 'ExecutionPrimitive' supersedes the earlier 'Inception' primitive, which had both the the execution and the contract formation bundled together, and as such was only applicable to contractual products. This intends to provide for properly atomic primitives.">
 	before ExecutionState (0..1) <"The before state corresponds to the output of an execution between the parties.">
+		[metadata reference]
 		[synonym Workflow_Event value "before"]
 	after PostInceptionState (1..1) <"The after state corresponds to the new contract being formed between the parties, plus some additional trade workflow information.">
 		[synonym Workflow_Event value "after"]
 
 type AllocationPrimitive: <"The primitive event to represent a split/allocation of a trade. As part of this primitive event the type of trade, either an execution or a contract, does not get altered. In the case of an execution, the further transformation of each split execution into a contract will be the purpose of the ContractFormation primitive.">
 	before Trade (1..1) <"The trade before allocation, which is either an execution if allocation happens before the contract is formed, or an already formed contract.">
+		[metadata reference]
 		[synonym Workflow_Event value "before"]
 	after AllocationOutcome (1..1) <"Outcome of the allocation as a list of Trades, which is either a split execution or a split contract, plus a pointer to the previous execution or contract marked as 'Allocated'.">
 		[synonym Workflow_Event value "after"]
@@ -73,6 +79,7 @@ type ExercisePrimitive: <"This primitive leverages the FpML OptionExercise const
 	fullExercise boolean (1..1)
 		[synonym Workflow_Event value "fullExercise"]
 	before ContractState (1..1)
+		[metadata reference]
 		[synonym Workflow_Event value "before"]
 	after ExerciseOutcome (1..1)
 		[synonym Workflow_Event value "after"]
@@ -81,6 +88,7 @@ type ExercisePrimitive: <"This primitive leverages the FpML OptionExercise const
 // TODO: deprecate that class, now superseded by a combination of 'ExecutionPrimitive' and 'ContractFormation'
 type InceptionPrimitive: <"The primitive event for the inception of a new contract between parties. It is expected that this primitive will be adjusted or deprecated once the CDM scope is extended to the pre-execution space.">
 	before ContractState (0..0) <"The (0..0) cardinality reflects the fact that there is no contract in the before state of an inception primitive. As noted in the definition associated with the class, this is expected to change once the CDM scope is extended to the pre-execution space.">
+		[metadata reference]
 		[synonym Workflow_Event value "before"]
 	after PostInceptionState (1..1) <"The after state corresponds to the new contract between the parties.">
 		[synonym Workflow_Event value "after"]
@@ -103,12 +111,14 @@ type ObservationPrimitive: <"A class to specify the primitive object to specify 
 
 type QuantityChangePrimitive: <"The primitive event to represent a change in quantity or notional.">
 	before Trade (1..1) <"The state of the trade (either an execution or a contract, before the event.">
+		[metadata reference]
 		[synonym Workflow_Event value "before"]
 	after Trade (1..1) <"The state of the trade (either an execution or a contract, as a follow-up from the event.">
 		[synonym Workflow_Event value "after"]
 
 type ResetPrimitive: <"The primitive event to represent a reset.">
 	before ContractState (1..1) <"Contract state before the reset, as per previous events processed on the contract.">
+		[metadata reference]
 		[synonym Workflow_Event value "ignore"]
 	after ContractState (1..1) <"Contract state after the reset, that embeds the reset value as an updated field on the contract state.">
 		[synonym Workflow_Event value "ignore"]
@@ -118,6 +128,7 @@ type ResetPrimitive: <"The primitive event to represent a reset.">
 
 type TermsChangePrimitive: <"The primitive event to represent change(s) to the contractual terms and the clearing submission and acceptance process.">
 	before Trade (1..1)
+		[metadata reference]
 		[synonym Workflow_Event value "before"]
 		[synonym CME_SubmissionIRS_1_0 value "ignore"]
 	after Trade (1..1)

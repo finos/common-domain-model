@@ -2,11 +2,12 @@ package org.isda.cdm.functions;
 
 import com.rosetta.model.lib.validation.ValidationResult;
 
+import cdm.base.staticdata.party.PartyRole;
+import cdm.base.staticdata.party.PartyRoleEnum;
+import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
+
 import org.isda.cdm.Contract;
-import org.isda.cdm.PartyRole;
-import org.isda.cdm.PartyRoleEnum;
 import org.isda.cdm.meta.ContractMeta;
-import org.isda.cdm.metafields.ReferenceWithMetaParty;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -29,7 +30,7 @@ public class ModelClassValidationTest {
 
 		ValidationResult<? super Contract> result = new ContractMeta().validator().validate(null, contract);
 		assertEquals(
-				"contractIdentifier - Expected cardinality lower bound of [1] found [0]; tradeDate - Expected cardinality lower bound of [1] found [0]; contractualProduct - Expected cardinality lower bound of [1] found [0]",
+				"contractIdentifier - Expected cardinality lower bound of [1] found [0]; tradeDate - Expected cardinality lower bound of [1] found [0]; tradableProduct - Expected cardinality lower bound of [1] found [0]",
 				result.getFailureReason().orElse("No error message"));
 	}
 
