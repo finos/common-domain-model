@@ -5,7 +5,7 @@ import cdm.base.*
 import cdm.base.datetime.*
 import cdm.base.staticdata.asset.commons.*
 
-// Note: All Eligible Collateral modelling/representation is still under development and dicsussion with ISDA Working groups
+// Note: All Eligible Collateral modelling/representation is still under development and discussion with ISDA Working groups
 
 type AgencyRating:
 	issuerAgencyRating CreditNotations (0..1) <"Agency rating based on default risk and creditors claim in event of default associated with issuer of asset.">
@@ -45,16 +45,22 @@ type CollateralIssuerTypeClassification:
 
 
 type CollateralProductType:
-	productType CollateralProductTypeEnum (1..1) // ProductTypeEnum.Cash
-	securityType SecuritySubType (0..1) //
+	productType CollateralProductTypeEnum (1..1)
+	securityType SecurityTypeEnum (0..1) 
+	bondType BondTypeEnum (0..1)
+	equityType EquityTypeEnum (0..1)
 
 	condition SecuritySubType:
 		if productType <> CollateralProductTypeEnum -> Security
-		then securityType is absent
-
-type SecuritySubType:
-	bondType BondTypeEnum (0..1) //
-	equityType EquityTypeEnum (0..1)
+		then ( securityType and bondType and equityType ) is absent 
+	
+	condition BondSubType:
+		if securityType <> SecurityTypeEnum -> Bond
+		then bondType is absent
+	
+	condition EquitySubType:
+		if securityType <> SecurityTypeEnum -> Equity
+		then equityType is absent
 
 
 type CollateralValuationPercentage: <"COLLATERAL HAIRCUT.">
