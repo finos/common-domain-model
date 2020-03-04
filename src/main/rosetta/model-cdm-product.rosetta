@@ -23,7 +23,7 @@ type AssetIdentifier: <"Generic object to specify an identifier for a quantifiab
 		[metadata scheme]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "currency" maps 2 meta "currencyScheme"]
 	rateOption FloatingRateOption (0..1) <"Rate option identifier, when the quantifiable asset is a floating rate.">
-
+		
 	condition: one-of
 
 
@@ -1073,16 +1073,17 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
 		// For Equity Swaps
 		[synonym FpML_5_10 value "returnLeg" path "returnSwap", "returnLeg" path "returnLeg"]
 		[synonym FpML_5_10 value "returnLeg" path "equitySwapTransactionSupplement", "returnLeg" path "equitySwapTransactionSupplement"]
-		// For Swaps:
+		// For Swap Streams:
 		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "additionalPayment" path "swap"]
 		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "swapStream" path "swap"]
+		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "capFloorStream" path "capFloor"]
 		// For Swaptions:
 		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "premium" path "swaption"]
 		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "swapStream" path "swaption->swap"]
 		// For CD Index and CDS
 		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "initialPayment" path "creditDefaultSwap->feeLeg"]
 		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "singlePayment" path "creditDefaultSwap->feeLeg"]
-		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "periodicPayment" path "creditDefaultSwap->feeLeg"] // , "protectionTerms" path "creditDefaultSwap"
+		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "periodicPayment" path "creditDefaultSwap->feeLeg"]
 		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "periodicPayment" path "creditDefaultSwapOption->creditDefaultSwap->feeLeg"]
 		// For FRA:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "fra"]
@@ -1094,6 +1095,11 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
 		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "fxSingleLeg"]
 		// For Repo:
 		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "repo"]
+		
+		// 
+		
+		
+		
 
 	// TBD: make quantity and price notation optional, and only validate that it exists as part of an execution / contract?
 	// TBD: positioning of future DateNotation (Effective Date, Termination Date) - only applicable to contractual products. In EconomicTerms?
@@ -1163,6 +1169,7 @@ type QuantityNotation: <"Specification of a product's quantity as a single, non-
 	condition CurrencyAmount: <"When quantity type is specified as a currency amount, the quantity must be specified without unit.">
 		if assetIdentifier -> currency exists then quantity -> unit is absent
 
+
 type PriceNotation: <"Object to specify the price of a product as a single number, which can be negative in some cases, and asset identifier so that it can be positioned in the product. For some product cases, several price notations can be associated with a single product: e.g. for an Equity Swap, both the initial equity price and the rate spread can be specified, which allows factoring of the product definition.">
 
 	price Price (1..1) <"Price expressed as a number.">
@@ -1177,9 +1184,13 @@ type PriceNotation: <"Object to specify the price of a product as a single numbe
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "fixedAmount"]
 		// For FRA
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notional"]
-		// For CD Index
-		//[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "paymentAmount"]
+		
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "floatingRateCalculation" path "calculationPeriodAmount->calculation"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "floatingRateCalculation" path "interestCalculation"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "floatingRateCalculation"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "floatingAmountCalculation" path "periodicPayment->floatingAmountCalculation"]
 
+	
 
 //	condition CurrencyAssetIdentifier: <"The asset identifier for a fixed interest rate must be a currency.">
 //		if price -> fixedInterestRate exists
@@ -1194,19 +1205,32 @@ type PriceNotation: <"Object to specify the price of a product as a single numbe
 // Then implement data rules to verify that we have the right type of "AssetIdentifier" for a fixed or floating rate
 type RateSpecificationBase:
 	assetIdentifier AssetIdentifier (0..1)
-		// For IR Swaps
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notionalStepSchedule" path "calculationPeriodAmount->calculation->notionalSchedule" set when "calculationPeriodAmount->calculation->fixedRateSchedule" exists]
+		// For Swap Streams
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notionalStepSchedule" path "notionalSchedule"]
 		// For CDS
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "calculationAmount" path "periodicPayment->fixedAmountCalculation"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "calculationAmount"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint "currency"]
 		// For FRA
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notional"]
 		
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint "floatingRateIndex"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint "indexTenor"]
+	
 
 type RateSpecification: <" A class to specify the fixed interest rate, floating interest rate or inflation rate.">
 
 	fixedRate FixedRateSpecification (0..1) <"The fixed rate or fixed rate specification expressed as explicit fixed rates and dates.">
+		// For Swap Streams
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "calculation" path "calculationPeriodAmount" set when "calculationPeriodAmount->calculation->fixedRateSchedule" exists]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "fixedAmountCalculation" path "periodicPayment"]
+		
 	floatingRate FloatingRateSpecification (0..1) <"The floating interest rate specification, which includes the definition of the floating rate index. the tenor, the initial value, and, when applicable, the spread, the rounding convention, the averaging method and the negative interest rate treatment.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "floatingRateCalculation" path "calculationPeriodAmount->calculation"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "floatingRateCalculation" path "interestCalculation"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "floatingRateCalculation"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "floatingAmountCalculation" path "periodicPayment->floatingAmountCalculation"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint "floatingRateIndex"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint "indexTenor"]
 	inflationRate InflationRateSpecification (0..1) <"An inflation rate calculation definition.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "inflationRateCalculation" path "calculationPeriodAmount->calculation"]
 	//condition: one-of
@@ -1392,7 +1416,7 @@ func InterestRate_IRSwap_FixedFloat_PlainVanilla: <"This product qualification d
 //	and economicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period =
 //		economicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> indexTenor -> period
 		and economicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier =
-		economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> indexTenor -> periodMultiplier
+		economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> assetIdentifier -> rateOption -> indexTenor -> periodMultiplier
 		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period <> PeriodExtendedEnum -> T
 		and economicTerms -> payout -> interestRatePayout -> compoundingMethod is absent
 	// TODO comment out data rules that should only apply to qualification (and not be applied as part of general validation)
@@ -1443,7 +1467,7 @@ func InterestRate_IRSwap_FixedFloat:
 			or economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> floatingRateMultiplierSchedule exists
 			or economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate -> rateSchedule -> step exists
 			or economicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier <>
-			economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> indexTenor -> periodMultiplier
+			economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> assetIdentifier -> rateOption -> indexTenor -> periodMultiplier
 			or economicTerms -> payout -> interestRatePayout -> compoundingMethod exists
 			or economicTerms -> payout -> interestRatePayout -> stubPeriod exists
 			or economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> stubPeriodType exists
@@ -1526,7 +1550,7 @@ func InterestRate_IRSwap_FixedFloat_OIS:
 		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
 		and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 		and economicTerms -> payout -> optionPayout is absent
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> floatingRateIndex = FloatingRateIndexEnum -> AUD_AONIA_OIS_COMPOUND
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> assetIdentifier -> rateOption -> floatingRateIndex = FloatingRateIndexEnum -> AUD_AONIA_OIS_COMPOUND
 
 func InterestRate_IRSwap_Basis_OIS:
 	[qualification product]
@@ -1539,7 +1563,7 @@ func InterestRate_IRSwap_Basis_OIS:
 		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
 		and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 		and economicTerms -> payout -> optionPayout is absent
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> floatingRateIndex = FloatingRateIndexEnum -> AUD_AONIA_OIS_COMPOUND
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> assetIdentifier -> rateOption -> floatingRateIndex = FloatingRateIndexEnum -> AUD_AONIA_OIS_COMPOUND
 
 
 func InterestRate_InflationSwap_FixedFloat_YearOn_Year:
