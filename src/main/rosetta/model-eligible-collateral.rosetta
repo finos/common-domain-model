@@ -1,0 +1,119 @@
+namespace org.isda.cdm
+version "${project.version}"
+
+import cdm.base.*
+import cdm.base.datetime.*
+import cdm.base.staticdata.asset.commons.*
+
+// Note: All Eligible Collateral modelling/representation is still under development and discussion with ISDA Working groups
+
+type AgencyRating:
+	issuerAgencyRating CreditNotations (0..1) <"Agency rating based on default risk and creditors claim in event of default associated with issuer of asset.">
+	instrumentAgencyRating CreditNotations (0..1) <"Agency rating based on default risk and creditors claim in event of default associated with specific instrument.">
+	sovereignAgencyRating CreditNotations (0..1) <"Agency rating based on default risk of country.">
+
+	condition OneOrMoreExists:
+		( issuerAgencyRating or instrumentAgencyRating or sovereignAgencyRating ) exists
+
+
+type CollateralInstrumentInformation: <"COLLATERAL ISSUE INFORMATION.">
+    issuerType CollateralIssuerTypeClassification (1..1) <"Origin of entity issuing the asset.">
+    issuerCountryOfOrigin string (1..1) <"The issuer entity country of origin.">
+		[metadata scheme]
+    instrumentType CollateralProductType (1..1) <"Definition of collateral type.">
+	instrumentIdentifier ProductIdentifier (0..*)
+    counterpartyOwnIssue boolean (1..1) <"Is asset issued by posting entity or member of corporate family - note: not permitted under specific regulations."> // Explore options to infer this from one way risk
+
+
+type CollateralIssuerTypeClassification:
+	issuerType IssuerTypeClassificationEnum (1..1)
+	quasiGovernmentType QuasiGovernmentIssuerTypeClassificationEnum (0..1)
+	regionalGovernmentType RegionalGovernmentIssuerTypeClassificationEnum (0..1)
+	supraNationalType SupraNationalIssuerTypeClassificationEnum (0..1)
+	
+	condition QuasiGovernmentSubType:
+		if issuerType <> IssuerTypeClassificationEnum -> QuasiGovernment
+		then quasiGovernmentType is absent
+	
+	condition RegionalGovernmentSubType:
+		if issuerType <> IssuerTypeClassificationEnum -> RegionalGovernment
+		then regionalGovernmentType is absent
+	
+	condition SupraNationalSubType:
+		if issuerType <> IssuerTypeClassificationEnum -> SupraNational
+		then supraNationalType is absent
+
+
+type CollateralProductType:
+	productType CollateralProductTypeEnum (1..1)
+	securityType SecurityTypeEnum (0..1) 
+	bondType BondTypeEnum (0..1)
+	equityType EquityTypeEnum (0..1)
+
+	condition SecuritySubType:
+		if productType <> CollateralProductTypeEnum -> Security
+		then ( securityType and bondType and equityType ) is absent 
+	
+	condition BondSubType:
+		if securityType <> SecurityTypeEnum -> Bond
+		then bondType is absent
+	
+	condition EquitySubType:
+		if securityType <> SecurityTypeEnum -> Equity
+		then equityType is absent
+
+
+type CollateralValuationPercentage: <"COLLATERAL HAIRCUT.">
+    valuationPercentage number (1..1) <"Percentage value of asset to be used as collateral once assets discounted haircut take into consideration, expressed as a valuation comprised between 0.0 and 100.0.">
+    fxHaircutPercentage number (0..1) <"If pledgor eligible collateral is not denominated in the termination currency of the secured parties agreement an FX haircut is applied, expressed as a valuation comprised between 0.0 and 100.0">
+
+
+type EligibleCollateral: <"The collateral eligibility as a function of the types of asset, the maturity and rating terms.">
+	[synonym FpML_5_10 value "EligibleCollateral"]
+
+	instrumentInformation CollateralInstrumentInformation (1..1)
+	denominatedCurrency string (1..*) <"Underlying denominated currency of instrument.">
+	    [metadata scheme]
+	maturityRange PeriodRange (1..1)
+	agencyRating AgencyRating (0..1)
+	valuationPercentage CollateralValuationPercentage (1..1)
+
+/* 
+// Previous version, temporarily kept for reference purposes
+type EligibleCollateral: <"The collateral eligibility as a function of the types of asset, the maturity and rating terms.">
+	[synonym FpML_5_10 value "EligibleCollateral"]
+	// ISDA Create specifies the eligible collateral as well as the valuation % as a string. Let's discuss if there is room a for better approach.
+	// The below approach which combines the asset, the tenor and the credit rating qualification is extremely comprehensive and was vetted extensively as part of the
+	// FpML standard CSA initiative.
+	// It should however be noted that one of the limitations of this approach is that the ISDA 2003 Collateral Assets Definitions have not been effectively used by
+	// market participants as far as we understand.
+	eligibleAsset CollateralAssetDefinitionsEnum (1..1) <"The eligible asset is specified by reference to the ISDA 2003 Collateral Assets Definitions.">
+		[synonym FpML_5_10 value "eligibleAsset"]
+		// TDOD: not sure how we can map ISDA_CREATE cases where items is a specific stock, i.e. "items": "BT stock"
+		[synonym ISDA_Create_1_0 value "items" path "partyA_eligible_currencies"]
+		[synonym ISDA_Create_1_0 value "items" path "partyB_eligible_currencies"]
+	lowerMaturity Period (0..1) <"The (optional) lower maturity band of the eligible collateral assets.">
+		[synonym FpML_5_10 value "lowerMaturity"]
+	higherMaturity Period (0..1) <"The (optional) higher maturity band of the eligible collateral assets.">
+		[synonym FpML_5_10 value "higherMaturity"]
+	minimumRating CreditNotations (0..1) <"The (optional) minimal rating terms that can be specified as part of the eligible collateral.">
+		[synonym FpML_5_10 value "minimumRating"]
+	valuationPercentage number (0..1) <"Specifies the haircut associated to the collateral asset, expressed as a value comprised between 0 and 1. A value of 0.9 means that 90% of the value of the applicable asset is considered as collateral. Absence of this element implies that the valuation percentage is 1, i.e. 100%.">
+		[synonym FpML_5_10 value "valuationPercentage"]
+		// This mapping will not work in a number of cases, as the ISDA Credit field is specified as a string
+		[synonym ISDA_Create_1_0 value "valuation_percentage" path "partyA_eligible_currencies"]
+		[synonym ISDA_Create_1_0 value "valuation_percentage" path "partyB_eligible_currencies"]
+
+	condition ValuationPercentage: <"The valuation percentage should be specified as a value between 0 and 1.">
+		if valuationPercentage exists
+		then valuationPercentage >= 0
+			and valuationPercentage <= 1
+*/
+
+
+
+
+
+
+
+

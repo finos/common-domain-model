@@ -1,142 +1,11 @@
-namespace "org.isda.cdm"
+namespace org.isda.cdm
 version "${project.version}"
 
-type AdjustableDate: <"A class for defining a date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
-	[metadata key]
-	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "AdjustableDate" meta "id" path "adjustableDate"]
-	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "AdjustableDate2" meta "id" path "adjustableDate"]
-
-	unadjustedDate date (0..1 ) <"A date subject to adjustment. While in FpML this date is required, this cardinality constraint has been relaxed as part of the CDM in order to support the FRA representation, which effective and termination dates are specified in FpML as adjusted dates.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "unadjustedDate" maps 2]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "unadjustedDate" path "adjustableDate"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "unadjustedDate" path "paymentDate"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "unadjustedDate" path "paymentDate->adjustableDate"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "firstPeriodStartDate"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "adjustablePaymentDate"]
-	dateAdjustments BusinessDayAdjustments (0..1) <"The business day convention and financial business centers used for adjusting the date if it would otherwise fall on a day that is not a business date in the specified business centers.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "dateAdjustments"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "dateAdjustments" path "calculationPeriodDates->terminationDate"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "dateAdjustments" path "calculationPeriodDates->effectiveDate"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "dateAdjustments" path "paymentDate->adjustableDate"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "dateAdjustments" path "adjustableDate"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "dateAdjustments" path "paymentDate"]
-	dateAdjustmentsReference BusinessDayAdjustments (0..1) <"A pointer style reference to date adjustments defined elsewhere in the document.">
-		[metadata reference]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "dateAdjustmentsReference" meta "href"]
-	adjustedDate date (0..1) <"The date once the adjustment has been performed. (Note that this date may change if the business center holidays change).">
-		[metadata id]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "adjustedDate" meta "id"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "adjustedDate" path "paymentDate" meta "id"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "adjustedDate" path "adjustableDate" meta "id"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "adjustedDate" path "paymentDate->adjustableDate" meta "id"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "adjustedTerminationDate"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "adjustedEffectiveDate"]
-
-	condition Choice: <"Choice rule to represent an FpML choice construct.">
-		optional choice dateAdjustments, dateAdjustmentsReference
-
-type AdjustableDates: <"A class for defining a series of dates that shall be subject to adjustment if they would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the dates.">
-	[metadata key]
-	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "AdjustableDates" meta "id"]
-
-	unadjustedDate date (1..*) <"A date subject to adjustment.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "unadjustedDate"]
-	dateAdjustments BusinessDayAdjustments (1..1) <"The business day convention and financial business centers used for adjusting the date if it would otherwise fall on a day that is not a business date in the specified business centers.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "dateAdjustments"]
-	adjustedDate date (0..*) <"The date(s) once the adjustment has been performed. (Note that this date may change if the business center holidays change).">
-		[metadata id]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "adjustedDate" meta "id"]
-
-
-type AdjustableOrAdjustedDate: <"A class for defining a date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
-	[metadata key]
-	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "AdjustableOrAdjustedDate" meta "id"]
-
-	unadjustedDate date (0..1 ) <"A date subject to adjustment.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "unadjustedDate"]
-	dateAdjustments BusinessDayAdjustments (0..1) <"The business day convention and financial business centers used for adjusting the date if it would otherwise fall on a day that is not a business date in the specified business centers.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "dateAdjustments"]
-	adjustedDate date (0..1) <"The date once the adjustment has been performed. (Note that this date may change if the business center holidays change).">
-		[metadata id]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "adjustedDate" meta "id"]
-
-	condition AdjustedDate: <"FpML specifies a choice between adjustedDate and [unadjustedDate (required), dateAdjutsments (required), adjustedDate (optional)].">
-		if AdjustableOrAdjustedDate exists
-		then adjustedDate exists
-			or ( unadjustedDate and dateAdjustments and adjustedDate) exists
-			or (( unadjustedDate and dateAdjustments) exists
-			and adjustedDate is absent)
-
-type AdjustableOrAdjustedOrRelativeDate: <"This Rosetta class specifies the date as either an unadjusted, adjusted or relative date. It supplements the features of the AdjustableOrAdjustedDate to support the credit default swap option premium, which uses the relative date construct.">
-
-	unadjustedDate date (0..1 ) <"A date subject to adjustment.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "unadjustedDate"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "adjustablePaymentDate"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "unadjustedDate" path "paymentDate->adjustableDate"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "unadjustedDate" path "paymentDate"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "unadjustedDate" path "adjustableDate"]
-	dateAdjustments BusinessDayAdjustments (0..1) <"The business day convention and financial business centers used for adjusting the date if it would otherwise fall on a day that is not a business date in the specified business centers.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "dateAdjustments"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "dateAdjustments" path "paymentDate->adjustableDate"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "dateAdjustments" path "paymentDate"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "dateAdjustments" path "adjustableDate"]
-	adjustedDate date (0..1) <"The date once the adjustment has been performed. (Note that this date may change if the business center holidays change).">
-		[metadata id]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "adjustedDate" meta "id"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "adjustedDate" path "paymentDate" meta "id"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "adjustedDate" path "adjustableDate" meta "id"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "adjustedPaymentDate" meta "id"]
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value "adjustedPaymentDate" path "FpML"]
-	relativeDate RelativeDateOffset (0..1) <"A date specified as some offset to another date (the anchor date).">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "relativeDate"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "relativeDate" path "paymentDate"]
-
-	condition AdjustedDate: <"This data rule extends the data rule AdjustableOrAdjustedDate_adjustedDate by specifying logic applicable to the relative date.">
-		if AdjustableOrAdjustedOrRelativeDate exists
-		then adjustedDate exists
-			or relativeDate exists
-			or ( unadjustedDate) exists
-			or (( unadjustedDate and dateAdjustments) exists
-			and adjustedDate is absent)
-
-type AdjustableOrRelativeDate: <"A class giving the choice between defining a date as an explicit date together with applicable adjustments or as relative to some other (anchor) date.">
-	[metadata key]
-	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta "id"]
-	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta "id" path "adjustedEffectiveDate"]
-
-	adjustableDate AdjustableDate (0..1) <"A date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
-	relativeDate AdjustedRelativeDateOffset (0..1) <"A date specified as some offset to another date (the anchor date).">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "relativeDate"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "relativeDate" path "paymentDate"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint "periodMultiplier"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint "period"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint "dayType"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint "businessDayConvention"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint "businessCenters"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint "dateRelativeTo"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint "relativeDateAdjustments"]
-		[synonym FpML_5_10 value "relativeDate" path "paymentDateFinal"]
-
-	condition Choice: <"Choice rule to represent an FpML choice construct.">
-		required choice adjustableDate, relativeDate
-
-type AdjustableOrRelativeDates: <"A class giving the choice between defining a series of dates as an explicit list of dates together with applicable adjustments or as relative to some other series of (anchor) dates.">
-	[metadata key]
-	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta "id"]
-
-	adjustableDates AdjustableDates (0..1) <"A series of dates that shall be subject to adjustment if they would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "adjustableDates"]
-	relativeDates RelativeDates (0..1) <"A series of dates specified as some offset to another series of dates (the anchor dates).">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "relativeDates"]
-		[synonym FpML_5_10 value "relativeDateSequence"]
-
-	condition Choice: <"Choice rule to represent an FpML choice construct.">
-		required choice adjustableDates, relativeDates
-
-type AdjustedRelativeDateOffset extends RelativeDateOffset: <"A type defining a date (referred to as the derived date) as a relative offset from another date (referred to as the anchor date) plus optional date adjustments.">
-	[synonym FpML_5_10 value "AdjustedRelativeDateOffset"]
-	relativeDateAdjustments BusinessDayAdjustments (0..1) <"The business day convention and financial business centers used for adjusting the relative date if it would otherwise fall on a day that is not a business date in the specified business centers.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "relativeDateAdjustments"]
+import cdm.base.*
+import cdm.base.datetime.*
+import cdm.base.maths.*
+import cdm.base.staticdata.asset.rates.*
+import cdm.base.staticdata.party.*
 
 type AmericanExercise: <"A class defining the exercise period for an American style option together with any rules governing the notional amount of the underlying which can be exercised on any given exercise date and any associated exercise fees.">
 	[metadata key]
@@ -203,88 +72,17 @@ type BrokerConfirmation: <"Identifies the market sector in which the trade has b
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "brokerConfirmationType" meta "brokerConfirmationTypeScheme"]
 
 
-type BusinessCenters: <"A class for specifying the business day calendar location used in determining whether a day is a business day or not, either by specifying this business center by reference to an enumerated list that is maintained by the FpML standard, or by reference to such specification when it exists elsewhere as part of the instance document. This class corresponds to the FpML BusinessCentersOrReference.model.">
-	[metadata key]
-	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta "id" path "businessCenters"]
-	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta "id"]
-
-	businessCenter BusinessCenterEnum (0..*) <"A code identifying one or several business day calendar location(s). The set of business day calendar locations are specified by the business day calendar location enumeration which is maintained by the FpML standard.">
-		[metadata scheme]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "businessCenter" meta "businessCenterScheme"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "businessCenter" path "businessCenters" meta "businessCenterScheme"]
-	businessCentersReference BusinessCenters (0..1) <"A reference to a financial business center location specified elsewhere in the instance document.">
-		[metadata reference]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "businessCentersReference" meta "href"]
-
-	condition Choice: <"Choice rule to represent an FpML choice construct.">
-		required choice businessCenter, businessCentersReference
-
-type BusinessCenterTime: <"A class for defining a time with respect to a business day calendar location. For example, 11:00:00 GBLO.">
-	[synonym FpML_5_10 value "BusinessCenterTime"]
-
-	hourMinuteTime time (1..1) <"A time specified in hh:mm:ss format where the second component must be '00', e.g. 11am would be represented as 11:00:00.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "hourMinuteTime"]
-		[synonym ISDA_Create_1_0 value "partyA_time"]
-		[synonym ISDA_Create_1_0 value "partyB_time"]
-		[synonym ISDA_Create_1_0 value "time"]
-	businessCenter BusinessCenterEnum (1..1) <"A code identifying a business day calendar location. A business day calendar location is drawn from the list identified by the business day calendar location enumeration.">
-		[metadata scheme]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "businessCenter" meta "businessCenterScheme"]
-		[synonym ISDA_Create_1_0 value "partyA_location"]
-		[synonym ISDA_Create_1_0 value "partyB_location"]
-		[synonym ISDA_Create_1_0 value "location"]
-
-
-type BusinessDateRange extends DateRange: <"A class defining a range of contiguous business days by defining an unadjusted first date, an unadjusted last date and a business day convention and business centers for adjusting the first and last dates if they would otherwise fall on a non business day in the specified business centers. The days between the first and last date must also be good business days in the specified centers to be counted in the range.">
-	[synonym FpML_5_10 value "BusinessDateRange"]
-
-	businessDayConvention BusinessDayConventionEnum (1..1) <"The convention for adjusting a date if it would otherwise fall on a day that is not a business day, as specified by an ISDA convention (e.g. Following, Precedent).">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "businessDayConvention"]
-	businessCenters BusinessCenters (0..1) <"The business center(s), specified either explicitly or by reference to those specified somewhere else in the instance document.">
-
-
-type BusinessDayAdjustments: <"A class defining the business day convention and financial business centers used for adjusting any relevant date if it would otherwise fall on a day that is not a business day in the specified business center.">
-	[metadata key]
-	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "BusinessDayAdjustments" meta "id"]
-
-	businessDayConvention BusinessDayConventionEnum (1..1) <"The convention for adjusting a date if it would otherwise fall on a day that is not a business day.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "businessDayConvention" maps 2]
-	businessCenters BusinessCenters (0..1) <"The business center(s), specified either explicitly or by reference to those specified somewhere else in the instance document.">
-
-
-type BuyerSeller: <"This class corresponds to the FpML BuyerSeller.model construct.">
-	buyerPartyReference Party (1..1) <"A reference to the party that buys this instrument, i.e. pays for this instrument and receives the rights defined by it. ISDA 2002 Equity Definitions section 1.18: `Buyer` means the party specified as such in the related Confirmation. | ISDA 2006 Definitions article 12.1 (b)(i) relating to a Swaption: 'Buyer' means the party that will, on each Premium Payment Date, pay to Seller the Premium | ISDA 2006 Definitions article 12.1 (b)(ii) relating to Swap Transactions with applicable Early Termination: the party specified as such in the related Confirmation, or the Exercising Party if neither party is specified | ISDA 2006 Definitions article 12.1 (b)(iii) relating to any other Option Transaction: the party specified as such in the related Confirmation. | ISDA 2014 Credit Definition article 1.4: `Buyer` means the Fixed Rate Payer.">
-		[metadata reference]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "buyerPartyReference" meta "href"]
-	buyerAccountReference Account (0..1) <"A reference to the account that buys this instrument.">
-		[metadata reference]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "buyerAccountReference" meta "href"]
-	sellerPartyReference Party (1..1) <"A reference to the party that sells ('writes') this instrument, i.e. that grants the rights defined by this instrument and in return receives a payment for it. ISDA 2002 Equity Definitions section 1.19: `Seller` means the party specified as such in the related Confirmation. | ISDA 2006 Definitions article 12.1 (a)(i) relating to a Swaption: 'Seller' means the party the party specified as such or as writer in the related Confirmation | ISDA 2006 Definitions article 12.1 (a)(ii) relating to Swap Transactions with applicable Early Termination: the party specified as such or as writer in the related Confirmation or, if neither party is specified as such, the Non-exercising Party | ISDA 2006 Definitions article 12.1 (a)(iii) relating to any other Option Transaction: the party specified as such in the related Confirmation. | ISDA 2014 Credit Definition article 1.4: `Seller` means the Floating Rate Payer.">
-		[metadata reference]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "sellerPartyReference" meta "href"]
-	sellerAccountReference Account (0..1) <"A reference to the account that sells this instrument.">
-		[metadata reference]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "sellerAccountReference" meta "href"]
-
-
 type CalculationAgent: <"A class defining the ISDA calculation agent responsible for performing duties as defined in the applicable product definitions.">
 	[synonym FpML_5_10 value "CalculationAgent"]
 
 	calculationAgentPartyReference Party (0..*) <"In FpML, a pointer style reference to a party identifier defined elsewhere in the document. The party referenced is the ISDA Calculation Agent for the trade. If more than one party is referenced then the parties are assumed to be co-calculation agents, i.e. they have joint responsibility.">
 		[metadata reference]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "calculationAgentPartyReference" path "trade->calculationAgent" meta "href"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "calculationAgentPartyReference" path "calculationAgent" meta "href"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "calculationAgentPartyReference" path "trade->swaption->calculationAgent" meta "href"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "calculationAgentPartyReference" path "swaption->calculationAgent" meta "href"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "calculationAgentPartyReference" meta "href"]
 	calculationAgentParty CalculationAgentPartyEnum (0..1) <"The ISDA calculation agent responsible for performing duties as defined in the applicable product definitions. For example, the Calculation Agent may be defined as being the Non-exercising Party.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "calculationAgentParty" path "trade->calculationAgent"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "calculationAgentParty" path "calculationAgent"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "calculationAgentParty" path "trade->swaption->calculationAgent"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "calculationAgentParty" path "swaption->calculationAgent"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "calculationAgentParty"]
 	calculationAgentBusinessCenter BusinessCenterEnum (0..1) <"The city in which the office through which ISDA Calculation Agent is acting for purposes of the transaction is located The short-form confirm for a trade that is executed under a Sovereign or Asia Pacific Master Confirmation Agreement ( MCA ), does not need to specify the Calculation Agent. However, the confirm does need to specify the Calculation Agent City. This is due to the fact that the MCA sets the value for Calculation Agent but does not set the value for Calculation Agent City.">
 		[metadata scheme]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "calculationAgentBusinessCenter" path "trade" meta "businessCenterScheme"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "calculationAgentBusinessCenter"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "calculationAgentBusinessCenter" meta "businessCenterScheme"]
 
 	condition Choice: <"Choice rule to represent an FpML choice construct.">
 		optional choice calculationAgentPartyReference, calculationAgentParty
@@ -371,29 +169,6 @@ type CreditSupportAgreement: <"The agreement executed between the parties and in
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "date"]
 	identifierValue string (0..1) <"An identifier used to uniquely identify the CSA. FpML specifies the type as creditSupportAgreementIdScheme, but without proposing any value.  As far as e understand, no scheme has yet been developed at this point.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "identifier"]
-
-
-type DateRange: <"A class defining a contiguous series of calendar dates. The date range is defined as all the dates between and including the first and the last date. The first date must fall before the last date.">
-	[synonym FpML_5_10 value "DateRange"]
-
-	unadjustedFirstDate date (1..1) <"The first date of a date range.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "unadjustedFirstDate"]
-	unadjustedLastDate date (1..1) <"The last date of a date range.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "unadjustedLastDate"]
-
-
-type DateList: <"List of dates.">
-	[synonym FpML_5_10 value "DateList"]
-
-	date date (1..*)
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "date"]
-
-
-type DateTimeList: <"List of dateTimes.">
-	[synonym FpML_5_10 value "DateTimeList"]
-
-	dateTime zonedDateTime (1..*) <"The CDM specifies that the zoned date time is to be expressed in accordance with ISO 8601, either as UTC as an offset to UTC.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "dateTime"]
 
 
 type Documentation: <"A class for specifying the legal agreements that govern the contract, either as a reference to such agreements when specified as part of the CDM, or through identification of some of the key terms of those documents, such as the type of document, the document identifier, the publisher, the document vintage and the agreement date.">
@@ -563,25 +338,6 @@ type FloatingRateSpecification extends FloatingRate: <"A class to specify the fl
 	negativeInterestRateTreatment NegativeInterestRateTreatmentEnum (0..1) <"The specification of any provisions for calculating payment obligations when a floating rate is negative (either due to a quoted negative floating rate or by operation of a spread that is subtracted from the floating rate).">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "negativeInterestRateTreatment" path "calculationPeriodAmount->calculation->floatingRateCalculation", "negativeInterestRateTreatment" path "periodicPayment->floatingAmountCalculation->floatingRate"]
 
-type Frequency: <"A class for defining a date frequency, e.g. one day, three months, through the combination of an integer value and a standardized period value that is specified as part of an enumeration.">
-	[metadata key]
-	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "Frequency" meta "id"]
-
-	periodMultiplier int (1..1) <"A time period multiplier, e.g. 1, 2, or 3. If the period value is T (Term) then period multiplier must contain the value 1.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "periodMultiplier"]
-		[synonym FpML_5_10 value "periodMultiplier" path "paymentDatesInterim->relativeDates"]
-	period PeriodExtendedEnum (1..1) <"A time period, e.g. a day, week, month, year or term of the stream.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "period"]
-		[synonym FpML_5_10 value "period" path "paymentDatesInterim->relativeDates"]
-
-	condition TermPeriod: <"FpML specifies that if period value is T (Term) then periodMultiplier must contain the value 1.">
-		if period = PeriodExtendedEnum -> T
-		then periodMultiplier = 1
-
-	condition PositivePeriodMultiplier: <"FpML specifies periodMultiplier as a positive integer.">
-		if Frequency exists
-		then periodMultiplier >= 0
-
 type FutureValueAmount: <"A class defining a currency and a future value date.">
 	[synonym FpML_5_10 value "FutureValueAmount"]
 
@@ -706,7 +462,6 @@ type MasterConfirmation: <"A class for defining the master confirmation agreemen
 		[metadata scheme]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "masterConfirmationAnnexType" meta "masterConfirmationAnnexTypeScheme"]
 
-
 type Money: <"A class defining a currency amount.">
 	[metadata key]
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "Money" meta "id"]
@@ -732,30 +487,6 @@ type MultipleExercise extends PartialExercise: <"A class defining multiple exerc
 		if minimumNumberOfOptions exists
 		then minimumNumberOfOptions >= 0
 
-
-type NonNegativeStep: <"A class defining a step date and non-negative step value pair. This step definitions are used to define varying rate or amount schedules, e.g. a notional amortisation or a step-up coupon schedule.">
-	[metadata key]
-
-	stepDate date (1..1) <"The date on which the associated stepValue becomes effective. This day may be subject to adjustment in accordance with a business day convention.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "stepDate"]
-	stepValue number (1..1) <"The non-negative rate or amount which becomes effective on the associated stepDate. A rate of 5% would be represented as 0.05.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "stepValue"]
-
-	condition StepValue: <"FpML specified stepValue as a NonNegativeDecimal.">
-		if NonNegativeStep exists
-		then stepValue >= 0.0
-
-type Offset extends Period: <"A class defining an offset used in calculating a new date relative to a reference date, e.g. calendar days, business days, commodity Business days, etc.">
-	[synonym FpML_5_10 value "Offset"]
-	dayType DayTypeEnum (0..1) <"In the case of an offset specified as a number of days, this element defines whether consideration is given as to whether a day is a good business day or not. If a day type of business days is specified then non-business days are ignored when calculating the offset. The financial business centers to use for determination of business days are implied by the context in which this element is used. This element must only be included when the offset is specified as a number of days. If the offset is zero days then the dayType element should not be included.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "dayType"]
-		[synonym ISDA_Create_1_0 set to DayTypeEnum -> Calendar when "release_date" = "days"]
-	condition DayType: <"FpML specifies that the dayType must only be included when the offset is specified as a number of days, while should not be included if the offset is zero days.">
-		if period <> PeriodEnum -> D
-			or periodMultiplier = 0
-		then dayType is absent
-
-
 type OptionPhysicalSettlement:
 	[synonym FpML_5_10 value "SwaptionPhysicalSettlement"]
 
@@ -764,7 +495,6 @@ type OptionPhysicalSettlement:
 	predeterminedClearingOrganizationPartyReference Party (0..1) <"A reference to the clearing organization (CCP, DCO) to which the trade should be cleared.">
 		[metadata reference]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "predeterminedClearingOrganizationPartyReference" meta "href"]
-
 
 type OtherAgreement: <"A class for defining an agreement executed between parties.">
 	[synonym FpML_5_10 value "OtherAgreement"]
@@ -781,7 +511,6 @@ type OtherAgreement: <"A class for defining an agreement executed between partie
 	date date (0..1) <"The date on which the agreement was signed.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "date"]
 
-
 type PartialExercise: <"A class defining partial exercise. As defined in the 2000 ISDA Definitions, Section 12.3 Partial Exercise, the buyer of the option may exercise all or less than all the notional amount of the underlying swap but may not be less than the minimum notional amount (if specified) and must be an integral multiple of the integral multiple amount if specified.">
 	[synonym FpML_5_10 value "PartialExercise"]
 
@@ -796,32 +525,6 @@ type PartialExercise: <"A class defining partial exercise. As defined in the 200
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "minimumNumberOfOptions"]
 	condition MinimumChoice: <"Choice rule to represent an FpML choice construct.">
 		required choice minimumNotionalAmount, minimumNumberOfOptions
-
-
-type PayerReceiver: <"A class to represent the FpML PayerReceiver.model.">
-	payerPartyReference Party (1..1) <"A reference to the party responsible for making the payments defined by this structure.">
-		[metadata reference]
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "payerPartyReference" meta "href"]
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "buyerPartyReference" maps 2 meta "href"]
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "buyerPartyReference" path "trade->creditDefaultSwap->generalTerms" maps 2 meta "href"]
-		[synonym CME_SubmissionIRS_1_0 value "payerPartyReference" meta "href" mapper "TradeSideToParty"]
-		[synonym CME_SubmissionIRS_1_0 value "buyerPartyReference" maps 2 meta "href" mapper "TradeSideToParty"]
-	payerAccountReference Account (0..1) <"A reference to the account responsible for making the payments defined by this structure.">
-		[metadata reference]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "payerAccountReference" meta "href"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "buyerAccountReference" maps 2 meta "href"]
-	receiverPartyReference Party (1..1) <"A reference to the party that receives the payments corresponding to this structure.">
-		[metadata reference]
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "receiverPartyReference" meta "href"]
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "sellerPartyReference" maps 2 meta "href"]
-		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "sellerPartyReference" path "trade->creditDefaultSwap->generalTerms" maps 2 meta "href"]
-		[synonym CME_SubmissionIRS_1_0 value "receiverPartyReference" meta "href" mapper "TradeSideToParty"]
-		[synonym CME_SubmissionIRS_1_0 value "sellerPartyReference" maps 2 meta "href" mapper "TradeSideToParty"]
-	receiverAccountReference Account (0..1) <"A reference to the account that receives the payments corresponding to this structure.">
-		[metadata reference]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "receiverAccountReference" meta "href"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "sellerAccountReference" maps 2 meta "href"]
-
 
 type PaymentDates: <"A class to specify the parameters to generate the payment date schedule, either through a parametric representation or by reference to other dates specified in the instance document (e.g. the reset dates or valuation dates). The CDM representation combines the FpML payment dates representation for interest rate and total return swap products by providing the ability to specify the payment dates as a function of some other dates specified in the instance document.">
 	[metadata key]
@@ -884,23 +587,6 @@ type PaymentRule: <"A class defining the payment calculation rule. As of FpML 5.
 	[synonym FpML_5_10 value "PaymentRule"]
 
 	percentageRule PercentageRule (0..1) <"This attribute is not present as part of the FpML construct, as the payment rule is specialised by means of runtime type extension through the xsi:type.">
-
-
-type Period: <"A class to define recurring periods or time offsets.">
-	[metadata key]
-	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "Period" meta "id"]
-	periodMultiplier int (1..1) <"A time period multiplier, e.g. 1, 2 or 3 etc. A negative value can be used when specifying an offset relative to another date, e.g. -2 days.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "periodMultiplier"]
-		[synonym FpML_5_10 value "periodMultiplier" path "dateOffset"]
-		[synonym FpML_5_10 value "periodMultiplier" path "calculationPeriodDates->relativeEffectiveDate"]
-		[synonym ISDA_Create_1_0 value "timely_days", "release_days", "after_days"]
-	period PeriodEnum (1..1) <"A time period, e.g. a day, week, month or year of the stream. If the periodMultiplier value is 0 (zero) then period must contain the value D (day).">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "period"]
-		[synonym FpML_5_10 value "period" path "dateOffset"]
-	// [synonym ISDA_Create_1_0 set to PeriodEnum -> D]
-	condition DayPeriod: <"FpML specifies that if the periodMultiplier value is 0 (zero) then period must contain the value D (day).">
-		if periodMultiplier = 0
-		then period = PeriodEnum -> D
 
 type PremiumExpression: <"This class corresponds to the FpML Premium.model group for representing the option premium when expressed in a way other than an amount.">
 
@@ -965,56 +651,6 @@ type RateObservation: <"A class defining parameters associated with an individua
 		if observationWeight exists
 		then observationWeight >= 0
 
-type ReferenceBank: <"A class to describe an institution (party) identified by means of a coding scheme and an optional name.">
-	[synonym FpML_5_10 value "ReferenceBank"]
-
-	referenceBankId string (1..1) <"An institution (party) identifier, e.g. a bank identifier code (BIC). FpML specifies a referenceBankIdScheme.">
-		[metadata scheme]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "referenceBankId" meta "referenceBankIdScheme"]
-	referenceBankName string (0..1) <"The name of the institution (party). A free format string. FpML does not define usage rules for the element.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "referenceBankName"]
-
-
-type RelatedParty:
-	[synonym FpML_5_10 value "RelatedParty"]
-
-	partyReference Party (1..1) <"Reference to a party.">
-		[metadata reference]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "partyReference" meta "href"]
-	accountReference Account (0..1) <"Reference to an account.">
-		[metadata reference]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "accountReference" meta "href"]
-	role PartyRoleEnum (1..1) <"The category of the relationship. The related party performs the role specified in this field for the base party. For example, if the role is ,Guarantor,, the related party acts as a guarantor for the base party.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "role"]
-
-
-type RelativeDates extends RelativeDateOffset: <"A class describing a set of dates defined as relative to another set of dates.">
-	[synonym FpML_5_10 value "RelativeDates"]
-	periodSkip int (0..1) <"The number of periods in the referenced date schedule that are between each date in the relative date schedule. Thus a skip of 2 would mean that dates are relative to every second date in the referenced schedule. If present this should have a value greater than 1.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "periodSkip"]
-	scheduleBounds DateRange (0..1) <"The first and last dates of a schedule. This can be used to restrict the range of values in a reference series of dates.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "scheduleBounds"]
-
-	condition PeriodSkipGreaterThanOne: <"FpML specifies that, if present, the period skip should have a value greater than 1.">
-		if periodSkip exists
-		then periodSkip > 1
-
-type RelativeDateOffset extends Offset: <"A class defining a date (referred to as the derived date) as a relative offset from another date (referred to as the anchor date). If the anchor date is itself an adjustable date then the offset is assumed to be calculated from the adjusted anchor date. A number of different scenarios can be supported, namely; 1) the derived date may simply be a number of calendar periods (days, weeks, months or years) preceding or following the anchor date; 2) the unadjusted derived date may be a number of calendar periods (days, weeks, months or years) preceding or following the anchor date with the resulting unadjusted derived date subject to adjustment in accordance with a specified business day convention, i.e. the derived date must fall on a good business day; 3) the derived date may be a number of business days preceding or following the anchor date. Note that the businessDayConvention specifies any required adjustment to the unadjusted derived date. A negative or positive value in the periodMultiplier indicates whether the unadjusted derived precedes or follows the anchor date. The businessDayConvention should contain a value NONE if the day type element contains a value of Business (since specifying a negative or positive business days offset would already guarantee that the derived date would fall on a good business day in the specified business centers).">
-	[synonym FpML_5_10 value "RelativeDateOffset"]
-	businessDayConvention BusinessDayConventionEnum (1..1) <"The convention for adjusting a date if it would otherwise fall on a day that is not a business day, as specified by an ISDA convention (e.g. Following, Precedent).">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "businessDayConvention"]
-		[synonym FpML_5_10 value "businessDayConvention" path "dateOffset"]
-	businessCenters BusinessCenters (0..1)
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "businessCenters"]
-	businessCentersReference BusinessCenters (0..1) <"A pointer style reference to a set of financial business centers defined elsewhere in the document. This set of business centers is used to determine whether a particular day is a business day or not.">
-		[metadata reference]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "businessCentersReference" meta "href"]
-	dateRelativeTo date (0..1) <"Specifies the anchor as an href attribute. The href attribute value is a pointer style reference to the element or component elsewhere in the document where the anchor date is defined.">
-		[metadata reference]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "dateRelativeTo" meta "href"]
-	adjustedDate date (0..1) <"The date once the adjustment has been performed. (Note that this date may change if the business center holidays change).">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "adjustedDate"]
-
 type ResetFrequency extends Frequency: <"A class defining the reset frequency. In the case of a weekly reset, also specifies the day of the week that the reset occurs. If the reset frequency is greater than the calculation period frequency the this implies that more or more reset dates is established for each calculation period and some form of rate averaging is applicable. The specific averaging method of calculation is specified in FloatingRateCalculation. In case the reset frequency is of value T (term), the period is defined by the swap/swapStream/calculationPerioDates/effectiveDate and the swap/swapStream/calculationPerioDates/terminationDate.">
 	[synonym FpML_5_10 value "ResetFrequency"]
 
@@ -1065,35 +701,6 @@ type ResourceLength: <"A class to indicate the length of the resource.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "lengthUnit"]
 	lengthValue number (1..1) <"The length value of the resource.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "lengthValue"]
-
-
-type Rounding: <"A class defining a rounding direction and precision to be used in the rounding of a rate.">
-	[synonym FpML_5_10 value "Rounding"]
-
-	roundingDirection RoundingDirectionEnum (1..1) <"Specifies the rounding direction.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "roundingDirection"]
-	precision int (0..1) <"Specifies the rounding precision in terms of a number of decimal places. Note how a percentage rate rounding of 5 decimal places is expressed as a rounding precision of 7 in the FpML document since the percentage is expressed as a decimal, e.g. 9.876543% (or 0.09876543) being rounded to the nearest 5 decimal places is 9.87654% (or 0.0987654).">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "precision"]
-
-
-type Schedule: <"A class defining a schedule of rates or amounts in terms of an initial value and then a series of step date and value pairs. On each step date the rate or amount changes to the new step value. The series of step date and value pairs are optional. If not specified, this implies that the initial value remains unchanged over time.">
-	[metadata key]
-	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "Schedule" meta "id" path "periodicPayment->fixedAmountCalculation->fixedRate"]
-
-	initialValue number (1..1) <"The initial rate or amount, as the case may be. An initial rate of 5% would be represented as 0.05.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "initialValue"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "initialValue" path "calculationPeriodAmount->calculation->fixedRateSchedule"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "initialValue" path "calculationPeriodAmount->calculation->floatingRateCalculation"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "fixedRate" path "periodicPayment->fixedAmountCalculation"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "fixedRate"]
-		[synonym FpML_5_10 value "initialValue" path "fixedRateSchedule"]
-	step Step (0..*) <"The schedule of step date and value pairs. On each step date the associated step value becomes effective A list of steps may be ordered in the document by ascending step date. An FpML document containing an unordered list of steps is still regarded as a conformant document.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "step" path "calculationPeriodAmount->calculation->fixedRateSchedule"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "step"]
-
-	condition FpML_ird_25: <"FpML validation rule ird-25 - If step does not exist, then initialValue must not be equal to 0.">
-		if step is absent
-		then initialValue <> 0.0
 
 type SettlementBase: <"A base class to be extended by the SettlementTerms, CashSettlementTerms and PhysicalSettlementTerms classes.">
 	[metadata key]
@@ -1149,16 +756,6 @@ type SpreadSchedule extends Schedule: <"Adds an optional spread type element to 
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "SpreadScheduleType" meta "spreadScheduleTypeScheme"]
 
 
-type Step: <"A class defining a step date and step value pair. This step definitions are used to define varying rate or amount schedules, e.g. a notional amortisation or a step-up coupon schedule.">
-	[metadata key]
-	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "Step" meta "id"]
-
-	stepDate date (1..1) <"The date on which the associated step value becomes effective.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "stepDate"]
-	stepValue number (1..1) <"The rate of amount which becomes effective on the associated step date. A rate of 5% would be represented as 0.05.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "stepValue"]
-
-
 type Strike: <"A class describing a single cap or floor rate.">
 	[metadata key]
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "Strike" meta "id"]
@@ -1211,21 +808,11 @@ type StubValue: <"A type defining how a stub calculation period amount is calcul
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "stubAmount"]
 	condition: one-of
 
-type TimeZone: <"The time alongside with the timezone location information. This class makes use of the FpML TimezoneLocation construct.">
-
-	time time (1..1) <"The observation time.">
-		[synonym Workflow_Event value "time"]
-	location string (0..1) <"FpML specifies the timezoneLocationScheme by reference to the Time Zone Database (a.k.a. tz database) maintained by IANA, the Internet Assigned Numbers Authority.">
-		[metadata scheme]
-		[synonym Workflow_Event value "location" meta "timezoneLocationScheme"]
-
 
 type TradeDate: <"A class to specify the contract's trade date alongside an identifier.">
 	[metadata key]
-	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta "id" path "trade->tradeHeader->tradeDate"]
-	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta "id" path "tradeHeader->tradeDate"]
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta "id" path "tradeDate"]
 
 	date date (1..1) <"The trade date associated with the contract. In the case of a novated trade, this date corresponds to the novation date.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "tradeDate" path "trade->tradeHeader"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "tradeDate" path "tradeHeader"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "tradeDate"]
 		[synonym CME_SubmissionIRS_1_0 value "tradeDate" path "Instrmt->SecXML->FpML->trade->tradeHeader" meta "id"]
