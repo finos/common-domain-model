@@ -1,23 +1,26 @@
 package org.isda.cdm.functions;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
 import org.isda.cdm.QuantityNotation;
 
+import cdm.base.maths.NonNegativeQuantity;
 import cdm.base.staticdata.asset.commons.AssetIdentifier;
 
 /**
  * Extracts the quantity amount associated with the product identifier.
  */
-public class NoOfUnitsImpl extends NoOfUnits {
+public class NoOfUnitsAmountImpl extends NoOfUnitsAmount {
 
 	@Override
-	protected QuantityNotation.QuantityNotationBuilder doEvaluate(List<QuantityNotation> quantityNotations) {
+	protected BigDecimal doEvaluate(List<QuantityNotation> quantityNotations) {
 		return quantityNotations.stream()
 				.filter(this::isProductAssetIdentifier)
+				.map(QuantityNotation::getQuantity)
+				.map(NonNegativeQuantity::getAmount)
 				.findFirst()
-				.map(QuantityNotation::toBuilder)
 				.orElse(null);
 	}
 

@@ -4,6 +4,7 @@ version "${project.version}"
 import cdm.base.maths.*
 import cdm.base.staticdata.asset.commons.*
 
+
 func PriceQuantityTriangulation:
 	inputs:
 		priceNotation PriceNotation (0..*)
@@ -19,6 +20,7 @@ func PriceQuantityTriangulation:
 		then ExchangeRateQuantityTriangulation( priceNotation, quantityNotation )
 		else True
 
+
 func CashPriceQuantityNoOfUnitsTriangulation: <"Data rule to check the relationship between cash price, notional and number of units.">
 	inputs:
 		priceNotation PriceNotation (0..*)
@@ -28,11 +30,11 @@ func CashPriceQuantityNoOfUnitsTriangulation: <"Data rule to check the relations
 		success boolean (1..1)
 
 	alias notional:
-		Notional( quantityNotation, empty )
-
+		NotionalAmount( quantityNotation, empty )
+		
 	alias noOfUnits:
-		NoOfUnits( quantityNotation )
-
+		NoOfUnitsAmount( quantityNotation )
+		
 	alias cashPrice:
 		priceNotation only-element -> price -> cashPrice -> netPrice -> amount
 
@@ -61,11 +63,11 @@ func ExchangeRateQuantityTriangulation:
 		exchangeRate -> quotedCurrencyPair
 
 	alias quantity1:
-		Notional( quantityNotation, quotedCurrency -> currency1 )
-
+		NotionalAmount( quantityNotation, quotedCurrency -> currency1 )
+		
 	alias quantity2:
-		Notional( quantityNotation, quotedCurrency -> currency2 )
-
+		NotionalAmount( quantityNotation, quotedCurrency -> currency2 )
+		
 	assign-output success:
 		if ( quantity1 and quantity2 and rate ) exists
 		then
@@ -75,7 +77,15 @@ func ExchangeRateQuantityTriangulation:
 			then quantity2 / quantity1 = rate
 
 
-func NoOfUnits: <"Get quantity associated with product identifier, or zero if not present.">
+func NoOfUnits: <"Get quantity(as a QuantityNotation) associated with product identifier.">
+	inputs:
+		quantityNotations QuantityNotation (0..*)
+
+	output:
+		noOfUnits QuantityNotation (1..1)
+
+
+func NoOfUnitsAmount: <"Get quantity amount associated with product identifier.">
 	inputs:
 		quantityNotations QuantityNotation (0..*)
 
@@ -83,7 +93,16 @@ func NoOfUnits: <"Get quantity associated with product identifier, or zero if no
 		noOfUnits number (1..1)
 
 
-func Notional: <"Get quantity associated with currency, or zero if not present.">
+func Notional: <"Get quantity (as a QuantityNotation) associated with currency.">
+	inputs:
+		quantityNotations QuantityNotation (0..*)
+		currency string (0..1)
+
+	output:
+		notional QuantityNotation (1..1)
+
+
+func NotionalAmount: <"Get quantity amount associated with currency.">
 	inputs:
 		quantityNotations QuantityNotation (0..*)
 		currency string (0..1)

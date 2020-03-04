@@ -1,5 +1,6 @@
 package org.isda.cdm.functions;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -7,20 +8,22 @@ import org.isda.cdm.QuantityNotation;
 
 import com.rosetta.model.lib.meta.FieldWithMeta;
 
+import cdm.base.maths.NonNegativeQuantity;
 import cdm.base.staticdata.asset.commons.AssetIdentifier;
 
 /**
  * Extracts the quantity amount associated with the currency.
  */
-public class NotionalImpl extends Notional {
+public class NotionalAmountImpl extends NotionalAmount {
 
 	@Override
-	protected QuantityNotation.QuantityNotationBuilder doEvaluate(List<QuantityNotation> quantityNotations, String currency) {
+	protected BigDecimal doEvaluate(List<QuantityNotation> quantityNotations, String currency) {
 		return quantityNotations.stream()
 				.filter(q -> isCurrencyAssetIdentifier(q, Optional.ofNullable(currency)))
+				.map(QuantityNotation::getQuantity)
+				.map(NonNegativeQuantity::getAmount)
 				.distinct()
 				.findFirst()
-				.map(QuantityNotation::toBuilder)
 				.orElse(null);
 	}
 
