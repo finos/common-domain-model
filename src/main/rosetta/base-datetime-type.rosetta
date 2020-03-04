@@ -1,0 +1,308 @@
+namespace cdm.base.datetime
+version "${project.version}"
+
+import cdm.base.*
+
+/**
+ * ======== base.datetime
+ */	
+
+type AdjustableDate: <"A class for defining a date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
+	[metadata key]
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "AdjustableDate" meta "id" path "adjustableDate"]
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "AdjustableDate2" meta "id" path "adjustableDate"]
+
+	unadjustedDate date (0..1 ) <"A date subject to adjustment. While in FpML this date is required, this cardinality constraint has been relaxed as part of the CDM in order to support the FRA representation, which effective and termination dates are specified in FpML as adjusted dates.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "unadjustedDate" maps 2]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "unadjustedDate" path "adjustableDate"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "unadjustedDate" path "paymentDate"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "unadjustedDate" path "paymentDate->adjustableDate"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "firstPeriodStartDate"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "adjustablePaymentDate"]
+	dateAdjustments BusinessDayAdjustments (0..1) <"The business day convention and financial business centers used for adjusting the date if it would otherwise fall on a day that is not a business date in the specified business centers.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "dateAdjustments"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "dateAdjustments" path "calculationPeriodDates->terminationDate"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "dateAdjustments" path "calculationPeriodDates->effectiveDate"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "dateAdjustments" path "paymentDate->adjustableDate"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "dateAdjustments" path "adjustableDate"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "dateAdjustments" path "paymentDate"]
+	dateAdjustmentsReference BusinessDayAdjustments (0..1) <"A pointer style reference to date adjustments defined elsewhere in the document.">
+		[metadata reference]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "dateAdjustmentsReference" meta "href"]
+	adjustedDate date (0..1) <"The date once the adjustment has been performed. (Note that this date may change if the business center holidays change).">
+		[metadata id]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "adjustedDate" meta "id"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "adjustedDate" path "paymentDate" meta "id"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "adjustedDate" path "adjustableDate" meta "id"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "adjustedDate" path "paymentDate->adjustableDate" meta "id"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "adjustedTerminationDate"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "adjustedEffectiveDate"]
+
+	condition Choice: <"Choice rule to represent an FpML choice construct.">
+		optional choice dateAdjustments, dateAdjustmentsReference
+
+
+type AdjustableDates: <"A class for defining a series of dates that shall be subject to adjustment if they would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the dates.">
+	[metadata key]
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "AdjustableDates" meta "id"]
+
+	unadjustedDate date (1..*) <"A date subject to adjustment.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "unadjustedDate"]
+	dateAdjustments BusinessDayAdjustments (1..1) <"The business day convention and financial business centers used for adjusting the date if it would otherwise fall on a day that is not a business date in the specified business centers.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "dateAdjustments"]
+	adjustedDate date (0..*) <"The date(s) once the adjustment has been performed. (Note that this date may change if the business center holidays change).">
+		[metadata id]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "adjustedDate" meta "id"]
+
+
+type AdjustableOrAdjustedDate: <"A class for defining a date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
+	[metadata key]
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "AdjustableOrAdjustedDate" meta "id"]
+
+	unadjustedDate date (0..1 ) <"A date subject to adjustment.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "unadjustedDate"]
+	dateAdjustments BusinessDayAdjustments (0..1) <"The business day convention and financial business centers used for adjusting the date if it would otherwise fall on a day that is not a business date in the specified business centers.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "dateAdjustments"]
+	adjustedDate date (0..1) <"The date once the adjustment has been performed. (Note that this date may change if the business center holidays change).">
+		[metadata id]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "adjustedDate" meta "id"]
+
+	condition AdjustedDate: <"FpML specifies a choice between adjustedDate and [unadjustedDate (required), dateAdjutsments (required), adjustedDate (optional)].">
+		if AdjustableOrAdjustedDate exists
+		then adjustedDate exists
+			or ( unadjustedDate and dateAdjustments and adjustedDate) exists
+			or (( unadjustedDate and dateAdjustments) exists
+			and adjustedDate is absent)
+
+type AdjustableOrAdjustedOrRelativeDate: <"This Rosetta class specifies the date as either an unadjusted, adjusted or relative date. It supplements the features of the AdjustableOrAdjustedDate to support the credit default swap option premium, which uses the relative date construct.">
+
+	unadjustedDate date (0..1 ) <"A date subject to adjustment.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "unadjustedDate"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "adjustablePaymentDate"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "unadjustedDate" path "paymentDate->adjustableDate"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "unadjustedDate" path "paymentDate"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "unadjustedDate" path "adjustableDate"]
+	dateAdjustments BusinessDayAdjustments (0..1) <"The business day convention and financial business centers used for adjusting the date if it would otherwise fall on a day that is not a business date in the specified business centers.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "dateAdjustments"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "dateAdjustments" path "paymentDate->adjustableDate"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "dateAdjustments" path "paymentDate"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "dateAdjustments" path "adjustableDate"]
+	adjustedDate date (0..1) <"The date once the adjustment has been performed. (Note that this date may change if the business center holidays change).">
+		[metadata id]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "adjustedDate" meta "id"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "adjustedDate" path "paymentDate" meta "id"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "adjustedDate" path "adjustableDate" meta "id"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "adjustedPaymentDate" meta "id"]
+		[synonym FpML_5_10, DTCC_11_0, DTCC_9_0 value "adjustedPaymentDate" path "FpML"]
+	relativeDate RelativeDateOffset (0..1) <"A date specified as some offset to another date (the anchor date).">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "relativeDate"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "relativeDate" path "paymentDate"]
+
+	condition AdjustedDate: <"This data rule extends the data rule AdjustableOrAdjustedDate_adjustedDate by specifying logic applicable to the relative date.">
+		if AdjustableOrAdjustedOrRelativeDate exists
+		then adjustedDate exists
+			or relativeDate exists
+			or ( unadjustedDate) exists
+			or (( unadjustedDate and dateAdjustments) exists
+			and adjustedDate is absent)
+
+type AdjustableOrRelativeDate: <"A class giving the choice between defining a date as an explicit date together with applicable adjustments or as relative to some other (anchor) date.">
+	[metadata key]
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta "id"]
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta "id" path "adjustedEffectiveDate"]
+
+	adjustableDate AdjustableDate (0..1) <"A date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
+	relativeDate AdjustedRelativeDateOffset (0..1) <"A date specified as some offset to another date (the anchor date).">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "relativeDate"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "relativeDate" path "paymentDate"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint "periodMultiplier"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint "period"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint "dayType"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint "businessDayConvention"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint "businessCenters"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint "dateRelativeTo"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint "relativeDateAdjustments"]
+		[synonym FpML_5_10 value "relativeDate" path "paymentDateFinal"]
+
+	condition Choice: <"Choice rule to represent an FpML choice construct.">
+		required choice adjustableDate, relativeDate
+
+type AdjustableOrRelativeDates: <"A class giving the choice between defining a series of dates as an explicit list of dates together with applicable adjustments or as relative to some other series of (anchor) dates.">
+	[metadata key]
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta "id"]
+
+	adjustableDates AdjustableDates (0..1) <"A series of dates that shall be subject to adjustment if they would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "adjustableDates"]
+	relativeDates RelativeDates (0..1) <"A series of dates specified as some offset to another series of dates (the anchor dates).">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "relativeDates"]
+		[synonym FpML_5_10 value "relativeDateSequence"]
+
+	condition Choice: <"Choice rule to represent an FpML choice construct.">
+		required choice adjustableDates, relativeDates
+
+type AdjustedRelativeDateOffset extends RelativeDateOffset: <"A type defining a date (referred to as the derived date) as a relative offset from another date (referred to as the anchor date) plus optional date adjustments.">
+	[synonym FpML_5_10 value "AdjustedRelativeDateOffset"]
+	relativeDateAdjustments BusinessDayAdjustments (0..1) <"The business day convention and financial business centers used for adjusting the relative date if it would otherwise fall on a day that is not a business date in the specified business centers.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "relativeDateAdjustments"]
+
+type BusinessCenters: <"A class for specifying the business day calendar location used in determining whether a day is a business day or not, either by specifying this business center by reference to an enumerated list that is maintained by the FpML standard, or by reference to such specification when it exists elsewhere as part of the instance document. This class corresponds to the FpML BusinessCentersOrReference.model.">
+	[metadata key]
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta "id" path "businessCenters"]
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 meta "id"]
+
+	businessCenter BusinessCenterEnum (0..*) <"A code identifying one or several business day calendar location(s). The set of business day calendar locations are specified by the business day calendar location enumeration which is maintained by the FpML standard.">
+		[metadata scheme]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "businessCenter" meta "businessCenterScheme"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "businessCenter" path "businessCenters" meta "businessCenterScheme"]
+	businessCentersReference BusinessCenters (0..1) <"A reference to a financial business center location specified elsewhere in the instance document.">
+		[metadata reference]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "businessCentersReference" meta "href"]
+
+	condition Choice: <"Choice rule to represent an FpML choice construct.">
+		required choice businessCenter, businessCentersReference
+
+type BusinessCenterTime: <"A class for defining a time with respect to a business day calendar location. For example, 11:00:00 GBLO.">
+	[synonym FpML_5_10 value "BusinessCenterTime"]
+
+	hourMinuteTime time (1..1) <"A time specified in hh:mm:ss format where the second component must be '00', e.g. 11am would be represented as 11:00:00.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "hourMinuteTime"]
+		[synonym ISDA_Create_1_0 value "partyA_time"]
+		[synonym ISDA_Create_1_0 value "partyB_time"]
+		[synonym ISDA_Create_1_0 value "time"]
+	businessCenter BusinessCenterEnum (1..1) <"A code identifying a business day calendar location. A business day calendar location is drawn from the list identified by the business day calendar location enumeration.">
+		[metadata scheme]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "businessCenter" meta "businessCenterScheme"]
+		[synonym ISDA_Create_1_0 value "partyA_location"]
+		[synonym ISDA_Create_1_0 value "partyB_location"]
+		[synonym ISDA_Create_1_0 value "location"]
+
+
+type BusinessDateRange extends DateRange: <"A class defining a range of contiguous business days by defining an unadjusted first date, an unadjusted last date and a business day convention and business centers for adjusting the first and last dates if they would otherwise fall on a non business day in the specified business centers. The days between the first and last date must also be good business days in the specified centers to be counted in the range.">
+	[synonym FpML_5_10 value "BusinessDateRange"]
+
+	businessDayConvention BusinessDayConventionEnum (1..1) <"The convention for adjusting a date if it would otherwise fall on a day that is not a business day, as specified by an ISDA convention (e.g. Following, Precedent).">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "businessDayConvention"]
+	businessCenters BusinessCenters (0..1) <"The business center(s), specified either explicitly or by reference to those specified somewhere else in the instance document.">
+
+type BusinessDayAdjustments: <"A class defining the business day convention and financial business centers used for adjusting any relevant date if it would otherwise fall on a day that is not a business day in the specified business center.">
+	[metadata key]
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "BusinessDayAdjustments" meta "id"]
+
+	businessDayConvention BusinessDayConventionEnum (1..1) <"The convention for adjusting a date if it would otherwise fall on a day that is not a business day.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "businessDayConvention" maps 2]
+	businessCenters BusinessCenters (0..1) <"The business center(s), specified either explicitly or by reference to those specified somewhere else in the instance document.">
+
+type DateRange: <"A class defining a contiguous series of calendar dates. The date range is defined as all the dates between and including the first and the last date. The first date must fall before the last date.">
+	[synonym FpML_5_10 value "DateRange"]
+
+	unadjustedFirstDate date (1..1) <"The first date of a date range.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "unadjustedFirstDate"]
+	unadjustedLastDate date (1..1) <"The last date of a date range.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "unadjustedLastDate"]
+
+
+type DateList: <"List of dates.">
+	[synonym FpML_5_10 value "DateList"]
+
+	date date (1..*)
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "date"]
+
+
+type DateTimeList: <"List of dateTimes.">
+	[synonym FpML_5_10 value "DateTimeList"]
+
+	dateTime zonedDateTime (1..*) <"The CDM specifies that the zoned date time is to be expressed in accordance with ISO 8601, either as UTC as an offset to UTC.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "dateTime"]
+
+type Frequency: <"A class for defining a date frequency, e.g. one day, three months, through the combination of an integer value and a standardized period value that is specified as part of an enumeration.">
+	[metadata key]
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "Frequency" meta "id"]
+
+	periodMultiplier int (1..1) <"A time period multiplier, e.g. 1, 2, or 3. If the period value is T (Term) then period multiplier must contain the value 1.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "periodMultiplier"]
+		[synonym FpML_5_10 value "periodMultiplier" path "paymentDatesInterim->relativeDates"]
+	period PeriodExtendedEnum (1..1) <"A time period, e.g. a day, week, month, year or term of the stream.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "period"]
+		[synonym FpML_5_10 value "period" path "paymentDatesInterim->relativeDates"]
+
+	condition TermPeriod: <"FpML specifies that if period value is T (Term) then periodMultiplier must contain the value 1.">
+		if period = PeriodExtendedEnum -> T
+		then periodMultiplier = 1
+
+	condition PositivePeriodMultiplier: <"FpML specifies periodMultiplier as a positive integer.">
+		if Frequency exists
+		then periodMultiplier >= 0
+
+type Offset extends Period: <"A class defining an offset used in calculating a new date relative to a reference date, e.g. calendar days, business days, commodity Business days, etc.">
+	[synonym FpML_5_10 value "Offset"]
+	dayType DayTypeEnum (0..1) <"In the case of an offset specified as a number of days, this element defines whether consideration is given as to whether a day is a good business day or not. If a day type of business days is specified then non-business days are ignored when calculating the offset. The financial business centers to use for determination of business days are implied by the context in which this element is used. This element must only be included when the offset is specified as a number of days. If the offset is zero days then the dayType element should not be included.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "dayType"]
+		[synonym ISDA_Create_1_0 set to DayTypeEnum -> Calendar when "release_date" = "days"]
+	condition DayType: <"FpML specifies that the dayType must only be included when the offset is specified as a number of days, while should not be included if the offset is zero days.">
+		if period <> PeriodEnum -> D
+			or periodMultiplier = 0
+		then dayType is absent
+
+type Period: <"A class to define recurring periods or time offsets.">
+	[metadata key]
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "Period" meta "id"]
+	periodMultiplier int (1..1) <"A time period multiplier, e.g. 1, 2 or 3 etc. A negative value can be used when specifying an offset relative to another date, e.g. -2 days.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "periodMultiplier" maps 2]
+		[synonym FpML_5_10 value "periodMultiplier" path "dateOffset"]
+		[synonym FpML_5_10 value "periodMultiplier" path "calculationPeriodDates->relativeEffectiveDate"]
+		[synonym ISDA_Create_1_0 value "timely_days", "release_days", "after_days"]
+	period PeriodEnum (1..1) <"A time period, e.g. a day, week, month or year of the stream. If the periodMultiplier value is 0 (zero) then period must contain the value D (day).">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "period" maps 2]
+		[synonym FpML_5_10 value "period" path "dateOffset"]
+	// [synonym ISDA_Create_1_0 set to PeriodEnum -> D]
+	condition DayPeriod: <"FpML specifies that if the periodMultiplier value is 0 (zero) then period must contain the value D (day).">
+		if periodMultiplier = 0
+		then period = PeriodEnum -> D
+
+type RelativeDates extends RelativeDateOffset: <"A class describing a set of dates defined as relative to another set of dates.">
+	[synonym FpML_5_10 value "RelativeDates"]
+	periodSkip int (0..1) <"The number of periods in the referenced date schedule that are between each date in the relative date schedule. Thus a skip of 2 would mean that dates are relative to every second date in the referenced schedule. If present this should have a value greater than 1.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "periodSkip"]
+	scheduleBounds DateRange (0..1) <"The first and last dates of a schedule. This can be used to restrict the range of values in a reference series of dates.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "scheduleBounds"]
+
+	condition PeriodSkipGreaterThanOne: <"FpML specifies that, if present, the period skip should have a value greater than 1.">
+		if periodSkip exists
+		then periodSkip > 1
+
+type RelativeDateOffset extends Offset: <"A class defining a date (referred to as the derived date) as a relative offset from another date (referred to as the anchor date). If the anchor date is itself an adjustable date then the offset is assumed to be calculated from the adjusted anchor date. A number of different scenarios can be supported, namely; 1) the derived date may simply be a number of calendar periods (days, weeks, months or years) preceding or following the anchor date; 2) the unadjusted derived date may be a number of calendar periods (days, weeks, months or years) preceding or following the anchor date with the resulting unadjusted derived date subject to adjustment in accordance with a specified business day convention, i.e. the derived date must fall on a good business day; 3) the derived date may be a number of business days preceding or following the anchor date. Note that the businessDayConvention specifies any required adjustment to the unadjusted derived date. A negative or positive value in the periodMultiplier indicates whether the unadjusted derived precedes or follows the anchor date. The businessDayConvention should contain a value NONE if the day type element contains a value of Business (since specifying a negative or positive business days offset would already guarantee that the derived date would fall on a good business day in the specified business centers).">
+	[synonym FpML_5_10 value "RelativeDateOffset"]
+	businessDayConvention BusinessDayConventionEnum (1..1) <"The convention for adjusting a date if it would otherwise fall on a day that is not a business day, as specified by an ISDA convention (e.g. Following, Precedent).">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "businessDayConvention"]
+		[synonym FpML_5_10 value "businessDayConvention" path "dateOffset"]
+	businessCenters BusinessCenters (0..1)
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "businessCenters"]
+	businessCentersReference BusinessCenters (0..1) <"A pointer style reference to a set of financial business centers defined elsewhere in the document. This set of business centers is used to determine whether a particular day is a business day or not.">
+		[metadata reference]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "businessCentersReference" meta "href"]
+	dateRelativeTo date (0..1) <"Specifies the anchor as an href attribute. The href attribute value is a pointer style reference to the element or component elsewhere in the document where the anchor date is defined.">
+		[metadata reference]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "dateRelativeTo" meta "href"]
+	adjustedDate date (0..1) <"The date once the adjustment has been performed. (Note that this date may change if the business center holidays change).">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "adjustedDate"]
+
+type TimeZone: <"The time alongside with the timezone location information. This class makes use of the FpML TimezoneLocation construct.">
+
+	time time (1..1) <"The observation time.">
+		[synonym Workflow_Event value "time"]
+	location string (0..1) <"FpML specifies the timezoneLocationScheme by reference to the Time Zone Database (a.k.a. tz database) maintained by IANA, the Internet Assigned Numbers Authority.">
+		[metadata scheme]
+		[synonym Workflow_Event value "location" meta "timezoneLocationScheme"]
+
+type DateGroup:
+	dates date(0..*)
+
+type PeriodRange: <"The period range defined as either a lower and upper period bound, or both.">
+	lowerBound PeriodBound (0..1) <"The lower bound of a period range, e.g. greater than or equal to 5Y.">
+	upperBound PeriodBound (0..1) <"The upper bound of a period range, e.g. less than to 10Y.">
+	condition: one-of
+
+type PeriodBound: <"The period bound is defined as a period and whether the bound is inclusive.">
+    period Period (1..1) <"The period to be used as the bound, e.g. 5Y.">
+    inclusive boolean (1..1) <"Whether the period bound is inclusive, e.g. for a lower bound, false would indicate greater than, whereas true would indicate greater than or equal to.">
+

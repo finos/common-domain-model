@@ -1,5 +1,8 @@
-namespace "org.isda.cdm"
+namespace org.isda.cdm
 version "${project.version}"
+
+import cdm.base.maths.*
+import cdm.base.staticdata.asset.commons.*
 
 func PriceQuantityTriangulation:
 	inputs:
@@ -16,7 +19,6 @@ func PriceQuantityTriangulation:
 		then ExchangeRateQuantityTriangulation( priceNotation, quantityNotation )
 		else True
 
-
 func CashPriceQuantityNoOfUnitsTriangulation: <"Data rule to check the relationship between cash price, notional and number of units.">
 	inputs:
 		priceNotation PriceNotation (0..*)
@@ -27,10 +29,10 @@ func CashPriceQuantityNoOfUnitsTriangulation: <"Data rule to check the relations
 
 	alias notional:
 		Notional( quantityNotation, empty )
-	
+
 	alias noOfUnits:
 		NoOfUnits( quantityNotation )
-	
+
 	alias cashPrice:
 		priceNotation only-element -> price -> cashPrice -> netPrice -> amount
 
@@ -54,7 +56,7 @@ func ExchangeRateQuantityTriangulation:
 		if exchangeRate -> rate exists
 		then exchangeRate -> rate
 		else exchangeRate -> spotRate
-	
+
 	alias quotedCurrency:
 		exchangeRate -> quotedCurrencyPair
 
@@ -63,9 +65,9 @@ func ExchangeRateQuantityTriangulation:
 
 	alias quantity2:
 		Notional( quantityNotation, quotedCurrency -> currency2 )
-	
+
 	assign-output success:
-		if ( quantity1 and quantity2 and rate ) exists 
+		if ( quantity1 and quantity2 and rate ) exists
 		then
 			if quotedCurrency -> quoteBasis = QuoteBasisEnum -> Currency1PerCurrency2
 			then quantity1 / quantity2 = rate
@@ -126,11 +128,6 @@ func ResolvePrice: <"Function specification to return the price on a valuation d
 	output:
 		price number  (1..1)
 
-
-func ResolveAdjustableDate:
-	inputs: terminationDate AdjustableOrRelativeDate (1..1)
-	output: adjustedDate date (1..1)
-
 func ExtractContractState: <"Extracts a single Contract State, given an Event. This function navigates all the possible paths to product and extracts a single value.">
 	inputs: event BusinessEvent (1..1)
 	output: contractState ContractState (1..1)
@@ -145,10 +142,6 @@ func ExtractQuantity: <"A function that abstracts away the details of how to ret
 	output:
 		quantity QuantityNotation (1..1) // TODO: add support for returning lists
 
-func ToDateTime:
-	inputs: date date (1..1)
-	output: datetime zonedDateTime (1..1)
-
 // TODO: turn these functions into language level operators i.e. '+'
 func Plus:
 	inputs:
@@ -156,7 +149,6 @@ func Plus:
 		q2 QuantityNotation (1..1)
 	output:
 		result QuantityNotation (1..1)
-
 
 // TODO: turn these functions into language level operators i.e. '='
 func Equals:
@@ -184,20 +176,7 @@ func GreaterThanEquals:
 	output:
 		result boolean (1..1)
 
-func Sum:
-	// TODO Never referenced in CDM
-	inputs: quantities Quantity (1..*)
-	output: sum Quantity (1..1)
 
-// TODO: turn these functions into language level operators i.e. 'sum', 'abs', '<'
-func QuantityEquals:
-// TODO Never referenced in CDM
-	inputs:
-		q1 Quantity (1..1)
-		q2 Quantity (1..1)
-		precision number (1..1)
-	output:
-		result boolean (1..1)
 
 func ExtractQuantityByAsset:
 	inputs:
@@ -212,32 +191,4 @@ func ExtractQuantityByCurrency:
 		currency string (1..1)
 	output:
 		quantity QuantityNotation (1..1)
-
-func Max:
-	inputs:
-		a number (1..1)
-		b number (1..1)
-	output:
-		max number (1..1)
-	
-	assign-output max:
-		if a > b 
-		then a 
-		else b
-		
-func RoundToNearest:
-	inputs:
-		amount number (1..1)
-		nearest number (1..1)
-		roundingMode RoundingModeEnum (1..1)
-	
-	output:
-		roundedAmount number (1..1)	
-
-// TODO: move to different namespace when available
-enum RoundingModeEnum:
-	Down
-	Up
-	// TODO: add other rounding modes
-
 

@@ -1,12 +1,18 @@
 package org.isda.cdm.workflows;
 
 import com.rosetta.model.lib.process.PostProcessor;
+import com.rosetta.model.metafields.FieldWithMetaString;
+import com.rosetta.model.metafields.MetaFields;
+
+import cdm.base.staticdata.identifier.Identifier;
+import cdm.base.staticdata.party.Party;
+import cdm.base.staticdata.party.PartyRole;
+import cdm.base.staticdata.party.PartyRoleEnum;
+import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
+
 import org.isda.cdm.*;
 import org.isda.cdm.functions.Clear;
 import org.isda.cdm.functions.example.services.identification.IdentifierService;
-import org.isda.cdm.metafields.FieldWithMetaString;
-import org.isda.cdm.metafields.MetaFields;
-import org.isda.cdm.metafields.ReferenceWithMetaParty;
 import org.isda.cdm.metafields.ReferenceWithMetaWorkflowStep;
 
 import java.util.List;
