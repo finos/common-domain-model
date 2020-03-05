@@ -69,6 +69,47 @@ func NewFloatingPayout: <"Function specification to create the interest rate (fl
 		then interestRatePayout -> calculationPeriodDates = masterConfirmation -> equityCalculationPeriod
 			and interestRatePayout -> paymentDates = masterConfirmation -> equityCashSettlementDates
 
+
+func ResolveInterestRateContract: <"">
+	inputs:
+		contractState ContractState (1..1)
+		observationPrimitive ObservationPrimitive (1..1)
+		date date (1..1)
+
+	output:
+		updatedContract Contract (1..1)
+		
+	alias floatingInterestRatePayout:
+		FloatingInterestRatePayout(contractState -> contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout)
+						
+	alias quantity:
+		ResolveQuantity(floatingInterestRatePayout -> payoutQuantity, date)
+		
+	alias updatedInterestRatePayout:
+		updatedContract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout only-element
+	
+	assign-output updatedInterestRatePayout -> floatingAmount:
+		if floatingInterestRatePayout -> rateSpecification -> floatingRate exists 
+			then CalculateFloatingAmount(floatingInterestRatePayout, quantity, observationPrimitive -> date, observationPrimitive -> observation)
+
+	assign-output updatedInterestRatePayout -> cashflowRepresentation -> paymentCalculationPeriod -> calculationPeriod -> floatingRateDefinition -> rateObservation -> observedRate:
+		observationPrimitive -> observation
+
+func FixedInterestRatePayout: <"">
+	inputs:
+		interestRatePayouts InterestRatePayout (0..*)
+		
+	output:
+		fixedInterestRatePayout InterestRatePayout (0..1)
+
+
+func FloatingInterestRatePayout: <"">
+	inputs:
+		interestRatePayouts InterestRatePayout (0..*)
+		
+	output:
+		floatingInterestRatePayout InterestRatePayout (0..1)
+
 /**
  * Function specifications that are used in the Equity Reset process 
  */

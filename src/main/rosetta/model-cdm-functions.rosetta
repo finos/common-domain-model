@@ -221,7 +221,8 @@ func ResolveUpdatedContract: <"The updated contract should be generated differen
 
 	assign-output updatedContract:
 		if payout -> equityPayout exists then ResolveEquityContract(contractState, observation, date)
-
+		else if payout -> interestRatePayout exists then ResolveInterestRateContract(contractState, observation, date)
+		
 func TransferCash: <"Function specification to build a transfer event following a reset on a contract">
 	[funcType businessEvent]
 	inputs:
@@ -283,9 +284,20 @@ func ResolveCashflow: <"A product agnostic function that calculates the amount d
 	assign-output cashflow -> cashflowAmount:
 		if contractState -> contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout exists
 		then EquityCashSettlementAmount(contractState, date)
+		else if contractState -> contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout exists
+		then InterestRateCashSettlementAmount(contractState, date)
 
 	assign-output cashflow -> cashflowDate -> adjustedDate:
 		ResolveCashSettlementDate(contractState)
+
+func InterestRateCashSettlementAmount:
+	inputs:
+		contractState ContractState (1..1)
+		date date (1..1)
+
+	output:
+		settlementAmount Money (1..1)
+
 
 func ResolveCashSettlementDate: <"A product agnostic function that resolves the settlement date of the payout for the period in question">
 	inputs: contractState ContractState (1..1)

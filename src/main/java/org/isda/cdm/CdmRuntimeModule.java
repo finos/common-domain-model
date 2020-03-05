@@ -25,7 +25,7 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(NoOfUnits.class).to(bindNoOfUnits());
 		bind(Notional.class).to(bindNotional());
 		bind(PartyByRole.class).to(PartyByRoleImpl.class);
-
+		bind(FloatingInterestRatePayout.class).to(FloatingInterestRatePayoutImpl.class);
 	}
 
 	protected Class<? extends ListsCompare> bindListsCompare() {
