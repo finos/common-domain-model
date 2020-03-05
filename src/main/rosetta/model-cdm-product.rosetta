@@ -320,9 +320,8 @@ type FixedRateSpecification extends RateSpecificationBase: <"Type defining the s
 	
 	rateSchedule Schedule (0..1) <"The fixed rate or fixed rate schedule expressed as explicit fixed rates and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">
 
-// TODO: null pointer exception
-//	condition CurrencyAssetIdentifier: <"The asset identifier for a fixed interest rate must be a currency.">
-//		assetIdentifier -> currency only exists
+	condition CurrencyAssetIdentifier: <"The asset identifier for a fixed interest rate must be a currency.">
+		assetIdentifier -> currency only exists
 
 
 type QuantityMultiplier: <" Class to specify a mechanism for a quantity to be set as a multiplier to another (reference) quantity, based on a price observation. At the moment this class only supports FX or Equity-linked notional and re-uses existing building blocks for those 2 cases, until such time when component can be made more generic. This captures the case of resetting cross-currency swaps and resetting equity swaps.">
@@ -1198,15 +1197,13 @@ type PriceNotation: <"Object to specify the price of a product as a single numbe
 		// For CD Index
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "floatingAmountCalculation" set when "floatingAmountCalculation->floatingRate" exists]
 
-	
+	condition CurrencyAssetIdentifier: <"The asset identifier for a fixed interest rate must be a currency.">
+		if price -> fixedInterestRate exists
+		then assetIdentifier -> currency only exists
 
-//	condition CurrencyAssetIdentifier: <"The asset identifier for a fixed interest rate must be a currency.">
-//		if price -> fixedInterestRate exists
-//		then assetIdentifier -> currency only exists
-
-//	condition RateOptionAssetIdentifier: <"The asset identifier for an interest rate spread must be a rate option.">
-//		if price -> interestRateSpread exists
-//		then assetIdentifier -> rateOption only exists
+	condition RateOptionAssetIdentifier: <"The asset identifier for an interest rate spread must be a rate option.">
+		if price -> interestRateSpread exists
+		then assetIdentifier -> rateOption only exists
 
 // TODO: Create "RateSpecificationBase" and position "assetIdentifier" as an attribute, then each of the 3 rate specifications below should inherit from it.
 // NOTE: floating rates will no longer inherit from "FloatingRateOption", instead the rate option will be contained in "assetIdentifier"
@@ -1232,7 +1229,6 @@ type RateSpecification: <" A class to specify the fixed interest rate, floating 
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "fixedRate" path "periodicPayment->fixedAmountCalculation"]
 		// For FRA
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notional"]
-		
 	floatingRate FloatingRateSpecification (0..1) <"The floating interest rate specification, which includes the definition of the floating rate index. the tenor, the initial value, and, when applicable, the spread, the rounding convention, the averaging method and the negative interest rate treatment.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "floatingRateCalculation" path "calculationPeriodAmount->calculation"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "floatingRateCalculation" path "interestCalculation"]
@@ -1242,7 +1238,7 @@ type RateSpecification: <" A class to specify the fixed interest rate, floating 
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint "indexTenor"]
 	inflationRate InflationRateSpecification (0..1) <"An inflation rate calculation definition.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "inflationRateCalculation" path "calculationPeriodAmount->calculation"]
-	//condition: one-of
+	condition: one-of
 
 type StubPeriod: <" A class defining how the initial or final stub calculation period amounts is calculated. For example, the rate to be applied to the initial or final stub calculation period may be the linear interpolation of two different tenors for the floating rate index specified in the calculation period amount component, e.g. A two month stub period may used the linear interpolation of a one month and three month floating rate. The different rate tenors would be specified in this component. Note that a maximum of two rate tenors can be specified. If a stub period uses a single index tenor and this is the same as that specified in the calculation period amount component then the initial stub or final stub component, as the case may be, must not be included.">
 	[synonym FpML_5_10 value "StubCalculationPeriodAmount"]

@@ -428,6 +428,7 @@ type FloatingRateDefinition: <"A data defining:  parameters associated with a fl
 		if floatingRateMultiplier exists
 		then floatingRateMultiplier <> 1
 
+
 type FxFixingDate extends Offset: <"A data that:  is extending the Offset structure for providing the ability to specify an FX fixing date as an offset to dates specified somewhere else in the document.">
 	[synonym FpML_5_10 value "FxFixingDate"]
 
@@ -448,6 +449,7 @@ type FxFixingDate extends Offset: <"A data that:  is extending the Offset struct
 
 	condition DateRelativeChoice: <"condition to represent an FpML choice construct.">
 		required choice dateRelativeToPaymentDates, dateRelativeToCalculationPeriodDates
+
 
 type FxLinkedNotionalAmount: <"A data to:  describe the cashflow representation for FX linked notionals.">
 	[synonym FpML_5_10 value "FxLinkedNotionalAmount"]
@@ -497,27 +499,20 @@ type InflationRateSpecification extends FloatingRateSpecification: <"A data to: 
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "initialIndexLevel"]
 	fallbackBondApplicable boolean (1..1) <"The applicability of a fallback bond as defined in the 2006 ISDA Inflation Derivatives Definitions, sections 1.3 and 1.8.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "fallbackBondApplicable"]
-
-
-//type InterestRateBase: <"Data to specify an interest rate price, which can be either a fixed rate or a spread.">
-//	rate number (1..1) // This is where you put the "initial value" of rate schedules
-//		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "initialValue", "fixedRate"]
-//		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "initialRate", "initialRate" path "floatingRate"]
+	
+	condition RateOptionAssetIdentifier: <"The asset identifier for an interest rate spread must be a rate option.">
+		assetIdentifier -> rateOption only exists
 
 
 type FixedInterestRate: <"Data to specify a fixed interest rate price.">
 	
-	rate number (1..1) // This is where you put the "initial value" of rate schedules
+	rate number (1..1)
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "initialValue", "fixedRate"]
-		
-//	condition CurrencyAssetIdentifier: <"The asset identifier for a fixed interest rate must be a currency.">
-//		if assetIdentifier exists 
-//		then assetIdentifier -> currency only exists
 
 
 type InterestRateSpread: <"Data to specify an interest rate spread.">
 
-	rate number (0..1) // This is where you put the "initial value" of rate schedules
+	rate number (0..1)
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "initialRate", "initialRate" path "floatingRate"]
 	spread number (0..1)
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "initialValue" path "spreadSchedule", "initialValue" path "floatingRate->spreadSchedule"]
@@ -528,10 +523,6 @@ type InterestRateSpread: <"Data to specify an interest rate spread.">
 	
 	condition AtLeastOneOf:
 		( rate or spread or capRate or floorRate ) exists
-	
-//	condition RateOptionAssetIdentifier: <"The asset identifier for an interest rate spread must be a rate option.">
-//		if assetIdentifier exists 
-//		then assetIdentifier -> rateOption only exists
 
 
 type MandatoryEarlyTermination: <"A data to:  define an early termination provision for which exercise is mandatory.">
