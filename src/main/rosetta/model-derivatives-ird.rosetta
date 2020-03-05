@@ -517,15 +517,17 @@ type FixedInterestRate: <"Data to specify a fixed interest rate price.">
 
 type InterestRateSpread: <"Data to specify an interest rate spread.">
 
-	rate number (1..1) // This is where you put the "initial value" of rate schedules
+	rate number (0..1) // This is where you put the "initial value" of rate schedules
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "initialRate", "initialRate" path "floatingRate"]
-	spread number (1..1)
+	spread number (0..1)
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "initialValue" path "spreadSchedule", "initialValue" path "floatingRate->spreadSchedule"]
-	capRate number (1..1)
+	capRate number (0..1)
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "initialValue" path "capRateSchedule"]
-	floorRate number (1..1)
+	floorRate number (0..1)
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "initialValue" path "floorRateSchedule"]
 	
+	condition AtLeastOneOf:
+		( rate or spread or capRate or floorRate ) exists
 	
 //	condition RateOptionAssetIdentifier: <"The asset identifier for an interest rate spread must be a rate option.">
 //		if assetIdentifier exists 
