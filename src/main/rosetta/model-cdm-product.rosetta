@@ -1171,7 +1171,8 @@ type PriceNotation: <"Object to specify the price of a product as a single numbe
 
 	price Price (1..1) <"Price expressed as a number.">
 	assetIdentifier AssetIdentifier (0..1) <"Identifier for the asset being priced.">
-		// For IR Swaps
+		// FixedRate
+		// For Swap Streams etc
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notionalStepSchedule" path "calculationPeriodAmount->calculation->notionalSchedule" set when "calculationPeriodAmount->calculation->fixedRateSchedule" exists]
 		// For Equity Swaps
 		[synonym FpML_5_10, DTCC_11_0, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "singleUnderlyer" path "underlyer"]
@@ -1182,10 +1183,20 @@ type PriceNotation: <"Object to specify the price of a product as a single numbe
 		// For FRA
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "notional"]
 		
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "floatingRateCalculation" path "calculationPeriodAmount->calculation"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "floatingRateCalculation" path "interestCalculation"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "floatingRateCalculation"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "floatingAmountCalculation"]
+		// FloatingRate
+		// For Swap Streams etc
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "floatingRateCalculation" path "calculationPeriodAmount->calculation" 
+			set when "calculationPeriodAmount->calculation->floatingRateCalculation->floatingRate" exists,
+			set when "calculationPeriodAmount->calculation->floatingRateCalculation->initialRate" exists,
+			set when "calculationPeriodAmount->calculation->floatingRateCalculation->spreadSchedule" exists,
+			set when "calculationPeriodAmount->calculation->floatingRateCalculation->capRateSchedule" exists,
+			set when "calculationPeriodAmount->calculation->floatingRateCalculation->floorRateSchedule" exists]
+		// For Equity Swaps
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "floatingRateCalculation" path "interestCalculation" set when "interestCalculation->floatingRateCalculation->spreadSchedule" exists]
+		// For Repo
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "floatingRateCalculation" set when "floatingRateCalculation->spreadSchedule" exists]
+		// For CD Index
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "floatingAmountCalculation" set when "floatingAmountCalculation->floatingRate" exists]
 
 	
 
