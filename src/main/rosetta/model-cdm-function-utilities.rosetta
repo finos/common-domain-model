@@ -33,8 +33,11 @@ func CashPriceQuantityNoOfUnitsTriangulation: <"Data rule to check the relations
 	alias noOfUnits:
 		NoOfUnits( quantityNotation )
 
+	alias cashPrices:
+		priceNotation -> price -> cashPrice -> netPrice -> amount
+		
 	alias cashPrice:
-		priceNotation only-element -> price -> cashPrice -> netPrice -> amount
+		cashPrices only-element
 
 	assign-output success:
 		if ( cashPrice and noOfUnits and notional ) exists
@@ -49,8 +52,11 @@ func ExchangeRateQuantityTriangulation:
 	output:
 		success boolean (1..1)
 
+	alias exchangeRates:
+		priceNotation -> price -> exchangeRate
+
 	alias exchangeRate:
-		priceNotation only-element -> price -> exchangeRate
+		exchangeRates only-element
 
 	alias rate:
 		if exchangeRate -> rate exists
@@ -75,7 +81,7 @@ func ExchangeRateQuantityTriangulation:
 			then quantity2 / quantity1 = rate
 
 
-func NoOfUnits: <"Get quantity associated with product identifier, or zero if not present.">
+func NoOfUnits: <"Get quantity associated with product identifier.">
 	inputs:
 		quantityNotations QuantityNotation (0..*)
 
@@ -83,7 +89,7 @@ func NoOfUnits: <"Get quantity associated with product identifier, or zero if no
 		noOfUnits number (1..1)
 
 
-func Notional: <"Get quantity associated with currency, or zero if not present.">
+func Notional: <"Get quantity associated with currency.">
 	inputs:
 		quantityNotations QuantityNotation (0..*)
 		currency string (0..1)
