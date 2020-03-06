@@ -188,24 +188,18 @@ func Reset:
 func NewResetPrimitive: <"Specifies how a Reset Primitive should be constructed.">
 	[funcType primitiveEvent]
 	inputs:
-		contractState ContractState (1..1)
+		before ContractState (1..1)
 		observation ObservationPrimitive (1..1)
 		date date (1..1)
 
 	output:
-		resetPrimitive ResetPrimitive (1..1)
+		reset ResetPrimitive (1..1)
 
-	alias contract:
-		contractState -> contract
+	alias payout:
+		reset -> after -> updatedContract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout  
 
-	assign-output resetPrimitive -> before:
-		contractState
-
-	assign-output resetPrimitive -> after -> contract:
-		contractState -> contract
-
-	assign-output resetPrimitive -> after -> updatedContract: <"To handle the various ways Contracts can change over time, ">
-		ResolveUpdatedContract(contractState, observation, date)
+	assign-output reset -> after -> updatedContract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout: 
+		if payout -> cashflow exists then ResolveUpdatedContract(before, observation, date)
 
 func ResolveUpdatedContract: <"The updated contract should be generated differently in different reset scenarios. This function handles how the contract should update according to which payouts are present within the Economic Terms.">
 	inputs:
@@ -221,6 +215,8 @@ func ResolveUpdatedContract: <"The updated contract should be generated differen
 
 	assign-output updatedContract:
 		if payout -> equityPayout exists then ResolveEquityContract(contractState, observation, date)
+	
+
 
 func TransferCash: <"Function specification to build a transfer event following a reset on a contract">
 	[funcType businessEvent]
