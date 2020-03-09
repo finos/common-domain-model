@@ -12,6 +12,7 @@ import org.isda.cdm.DayCountFractionEnum;
 import org.isda.cdm.FloatingRateOption;
 import org.isda.cdm.FloatingRateSpecification;
 import org.isda.cdm.InterestRatePayout;
+import org.isda.cdm.InterestRateSpread;
 import org.isda.cdm.RateSpecification;
 import org.isda.cdm.RollConventionEnum;
 import org.isda.cdm.functions.AbstractFunctionTest;
@@ -39,8 +40,9 @@ class FloatingAmountTest extends AbstractFunctionTest{
 	@Inject Provider<FloatingAmount> floatingAmount;
     
 	
-	private static final NonNegativeQuantity QUANTITY = NonNegativeQuantity.builder().setAmount(BigDecimal.valueOf(50_000_000)).build();
+	private static final InterestRateSpread SPREAD = InterestRateSpread.builder().setSpread(BigDecimal.valueOf(0)).build();
 	
+	private static final NonNegativeQuantity QUANTITY = NonNegativeQuantity.builder().setAmount(BigDecimal.valueOf(50_000_000)).build();
 	
 	private static final InterestRatePayout INTEREST_RATE_PAYOUT = InterestRatePayout.builder()
             .setRateSpecification(RateSpecification.builder()
@@ -96,7 +98,7 @@ class FloatingAmountTest extends AbstractFunctionTest{
     @Test
     void shouldApplyMultiplication() {
     	FloatingAmount floatingAmount = this.floatingAmount.get();
-        BigDecimal result = floatingAmount.evaluate(INTEREST_RATE_PAYOUT, QUANTITY, DateImpl.of(2018, 1, 3));
+        BigDecimal result = floatingAmount.evaluate(INTEREST_RATE_PAYOUT, SPREAD, QUANTITY, DateImpl.of(2018, 1, 3));
         assertThat(result, closeTo(BigDecimal.valueOf(1093750), BigDecimal.valueOf(0.0000001)));
     }
 
