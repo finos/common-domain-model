@@ -5,9 +5,11 @@ import static org.hamcrest.number.BigDecimalCloseTo.closeTo;
 
 import java.math.BigDecimal;
 
+import org.isda.cdm.AssetIdentifier;
 import org.isda.cdm.CalculationPeriodDates;
 import org.isda.cdm.CalculationPeriodFrequency;
 import org.isda.cdm.DayCountFractionEnum;
+import org.isda.cdm.FloatingRateOption;
 import org.isda.cdm.FloatingRateSpecification;
 import org.isda.cdm.InterestRatePayout;
 import org.isda.cdm.RateSpecification;
@@ -36,16 +38,22 @@ class FloatingAmountTest extends AbstractFunctionTest{
 	
 	@Inject Provider<FloatingAmount> floatingAmount;
     
+	
 	private static final NonNegativeQuantity QUANTITY = NonNegativeQuantity.builder().setAmount(BigDecimal.valueOf(50_000_000)).build();
 	
 	
 	private static final InterestRatePayout INTEREST_RATE_PAYOUT = InterestRatePayout.builder()
-            .setRateSpecificationBuilder(RateSpecification.builder()
-                    .setFloatingRateBuilder(FloatingRateSpecification.builder()
-//                            .setFloatingRateIndex(FieldWithMetaFloatingRateIndexEnum.builder()
-//                                    .setValue(FloatingRateIndexEnum.GBP_LIBOR_BBA)
-//                                    .build()))
-                    ))
+            .setRateSpecification(RateSpecification.builder()
+                    .setFloatingRate(FloatingRateSpecification.builder()
+                    		.setAssetIdentifier(AssetIdentifier.builder()
+                    				.setRateOption(FloatingRateOption.builder()
+                                          .setFloatingRateIndex(FieldWithMetaFloatingRateIndexEnum.builder()
+                                        		  .setValue(FloatingRateIndexEnum.GBP_LIBOR_BBA)
+                                        		  .build())
+                                          .build())
+                    				.build())
+                    		.build())
+                    .build())
             .setDayCountFraction(FieldWithMetaDayCountFractionEnum.builder().setValue(DayCountFractionEnum._30E_360).build())
             .setCalculationPeriodDates(CalculationPeriodDates.builder()
                     .setEffectiveDate((AdjustableOrRelativeDate.builder()

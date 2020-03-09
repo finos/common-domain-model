@@ -9,6 +9,7 @@ func FixedAmount: <"2006 ISDA Definition Article 5 Section 5.1. Calculation of a
 	[calculation]
 	inputs:
 		interestRatePayout InterestRatePayout (1..1)
+		price FixedInterestRate (1..1)
 		quantity NonNegativeQuantity (1..1)
 		date date (1..1)
 
@@ -19,7 +20,7 @@ func FixedAmount: <"2006 ISDA Definition Article 5 Section 5.1. Calculation of a
 		quantity -> amount
 
 	alias fixedRate:
-		interestRatePayout -> rateSpecification -> fixedRate -> rateSchedule -> initialValue
+		price -> rate
 
 	alias dayCountFraction:
 		DayCountFraction(interestRatePayout, interestRatePayout -> dayCountFraction, date)
@@ -40,9 +41,9 @@ func FloatingAmount: <"2006 ISDA Definition Article 6 Section 6.1. Calculation o
 	output: floatingAmount number (1..1)
 
 	alias calculationAmount: quantity -> amount
-	alias floatingRate: ResolveRateIndex(interestRatePayout -> rateSpecification -> floatingRate -> assetIdentifier -> rateOption -> floatingRateIndex)
+	alias floatingRate: ResolveRateIndex( interestRatePayout -> rateSpecification -> floatingRate -> assetIdentifier -> rateOption -> floatingRateIndex )
 	// TODO: question to group: why can a float rate calculation node in FpML contain multiple rate schedules?
-	alias spread: GetRateSchedule( interestRatePayout -> rateSpecification -> floatingRate ) -> initialValue
+	alias spread: GetRateSchedule( interestRatePayout -> rateSpecification -> floatingRate )
 	alias dayCountFraction: DayCountFraction(interestRatePayout, interestRatePayout -> dayCountFraction, date)
 
 	assign-output floatingAmount: calculationAmount * (floatingRate + spread) * dayCountFraction
@@ -211,12 +212,12 @@ func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> ACT_365L): <
 
 func GetRateSchedule:
 	inputs: floatingRateCalculation FloatingRateSpecification (1..1)
-	output: schedule SpreadSchedule (1..1)
+	output: spread number (1..1)
 
 
 func ResolveRateIndex: <"The function to specify that the floating rate index enumeration will be expressed as a number once the rate is observed.">
 	inputs: index FloatingRateIndexEnum (1..1)
-	output: rate number(1..1)
+	output: rate number (1..1)
 
 
 func PeriodsInYear:
