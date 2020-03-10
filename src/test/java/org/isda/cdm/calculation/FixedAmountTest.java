@@ -8,8 +8,8 @@ import java.math.BigDecimal;
 import org.isda.cdm.CalculationPeriodDates;
 import org.isda.cdm.CalculationPeriodFrequency;
 import org.isda.cdm.DayCountFractionEnum;
+import org.isda.cdm.FixedInterestRate;
 import org.isda.cdm.InterestRatePayout;
-import org.isda.cdm.RateSpecification;
 import org.isda.cdm.RollConventionEnum;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.isda.cdm.functions.FixedAmount;
@@ -27,7 +27,6 @@ import cdm.base.datetime.BusinessDayConventionEnum;
 import cdm.base.datetime.PeriodExtendedEnum;
 import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
 import cdm.base.maths.NonNegativeQuantity;
-import cdm.base.maths.Schedule;
 
 class FixedAmountTest extends AbstractFunctionTest {
 
@@ -35,15 +34,15 @@ class FixedAmountTest extends AbstractFunctionTest {
     
     @Test
     void shouldCalculate() {
-        NonNegativeQuantity quantity = NonNegativeQuantity.builder()
+    	FixedInterestRate price = FixedInterestRate.builder()
+        		.setRate(BigDecimal.valueOf(0.06))
+        		.build();
+        
+		NonNegativeQuantity quantity = NonNegativeQuantity.builder()
         		.setAmount(BigDecimal.valueOf(50_000_000))
         		.build();
-		InterestRatePayout interestRatePayout = InterestRatePayout.builder()
-                .setRateSpecification(RateSpecification.builder()
-                        .setFixedRate(Schedule.builder()
-                                .setInitialValue(BigDecimal.valueOf(0.06))
-                                .build())
-                        .build())
+        
+        InterestRatePayout interestRatePayout = InterestRatePayout.builder()
                 .setDayCountFraction(FieldWithMetaDayCountFractionEnum.builder().setValue(DayCountFractionEnum._30E_360).build())
                 .setCalculationPeriodDates(CalculationPeriodDates.builder()
                         .setEffectiveDate((AdjustableOrRelativeDate.builder()
@@ -83,7 +82,6 @@ class FixedAmountTest extends AbstractFunctionTest {
                         .build())
                 .build();
         
-        assertThat(fixedAmount.evaluate(interestRatePayout, quantity, DateImpl.of(2018, 8, 22)), is(new BigDecimal("750000.0000")));
+        assertThat(fixedAmount.evaluate(interestRatePayout, price, quantity, DateImpl.of(2018, 8, 22)), is(new BigDecimal("750000.0000")));
     }
-
 }
