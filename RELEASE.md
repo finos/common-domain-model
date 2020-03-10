@@ -4,7 +4,7 @@ _What is being released_
 
 Following the recent price refactor, migrate synonyms to the new model for all products including rates, equity, FX, credit and repo, and also all other event, DTCC and CME synonyms.
 
-Remove synonyms from model attributes from `InterestRatePayout.rateSpecification` and mark as deprecated:
+Remove synonyms from model attributes from `InterestRatePayout.rateSpecification`:
 
 - `fixedRate.initialValue`
 - `floatingRate.initialRate`
@@ -27,6 +27,7 @@ The `RateSpecification` type on `InterestRatePayout` now has three attributes of
 _Review Directions_
 
 In the Textual Browser, review the following types:
+
 - `PriceNotation`, `Price`, `FixedInterestRate` and `InterestRateSpread`.
 - `RateSpecification`, `FixedRateSpecification`, `FloatingRateSpecification` and `InflationRateSpecification`.
 
