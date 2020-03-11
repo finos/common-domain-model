@@ -10,14 +10,27 @@ import cdm.base.maths.*
 import cdm.base.staticdata.party.*
 import cdm.base.staticdata.identifier.*
 import cdm.base.staticdata.asset.rates.*
-	
-synonym source DTCC_11_0 extends FpML_5_10
+	 
+synonym source DTCC_9_0 extends DTCC_BASE {
+	InceptionPrimitive:
+		+ after
+			[value "OTC_Matching" path "Body" set when "Header->OTC_RM->Manifest->TradeMsg->TransType" = "Trade"]
+}
+
+synonym source DTCC_11_0 extends DTCC_BASE {
+	InceptionPrimitive:
+		+ after
+			[value "OTC_RM" path "Header", "OTC_Matching" path "Body" set when "Header->OTC_RM->Manifest->TradeMsg->TransType" = "Trade"]	
+}
+
+synonym source DTCC_BASE extends FpML_5_10
 {
 	CalculationAgentModel:
 		+ calculationAgentBusinessCenter
 			[value "calculationAgentBusinessCenter" path "Body->OTC_Matching->Trade->FpML->trade"]
 
 	Contract:
+		- contractIdentifier
 		+ contractIdentifier
 			[value "Submitter"]
 			[value "ContraTradeId"]
@@ -46,8 +59,9 @@ synonym source DTCC_11_0 extends FpML_5_10
 			[hint "ProductType"]
 
 	ProductIdentification:
-//		+ productType
-//			[value "ProductType"]
+		- productType
+		+ productType
+			[value "ProductType"]
 		+ productId
 			[value "instrumentId" path "payment->calculationDetails->calculationElements->underlier->index" meta "instrumentIdScheme"]
 
@@ -64,10 +78,6 @@ synonym source DTCC_11_0 extends FpML_5_10
 			[value "ignore"]
 		+ transfer
 			[value "Payment" path "Body->OTC_Matching"]
-
-	InceptionPrimitive:
-		+ after
-			[value "OTC_RM" path "Header", "OTC_Matching" path "Body" set when "Header->OTC_RM->Manifest->TradeMsg->TransType" = "Trade"]
 
 	ObservationPrimitive:
 		+ date
@@ -217,45 +227,35 @@ synonym source DTCC_11_0 extends FpML_5_10
 			[value "calculationPeriod" path "calculationElements"]
 		
 	enums
+
 	ActionEnum:
 		+ New
-		
-				[value "New"]
+			[value "New"]
 		+ Correct
-		
-				[value "Modify"]
+			[value "Modify"]
 		+ Cancel
-		
-				[value "Disable"]
-		
+			[value "Disable"]
+
 	TransferSettlementEnum:
 		+ PaymentVersusPayment
-		
-				[value "CentralSettlement"]
+			[value "CentralSettlement"]
 		+ NotCentralSettlement
-		
-				[value "NotCentralSettlement"]
-		
+			[value "NotCentralSettlement"]
+
 	WarehouseIdentityEnum:
 		+ DTCC_TIW_Gold
-		
-				[value "Gold"]
-		
+			[value "Gold"]
+
 	WorkflowStatusEnum:
 		+ Alleged
-		
-				[value "Alleged"]
+			[value "Alleged"]
 		+ Certain
-		
-				[value "Certain"]
+			[value "Certain"]
 		+ Submitted
-		
-				[value "Submit"]
+			[value "Submit"]
 		+ Uncertain
-		
-				[value "Uncertain"]
+			[value "Uncertain"]
 		+ Unconfirmed
-		
-				[value "Unconfirmed"]
+			[value "Unconfirmed"]
 }
 
