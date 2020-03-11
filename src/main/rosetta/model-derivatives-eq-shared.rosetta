@@ -183,13 +183,32 @@ type IndexAdjustmentEvents: <"Defines the specification of the consequences of I
 
 // TODO - #1 Look for further synergies with the option strike
 // TODO - #2 Move class to .rosetta file that is not specific to an asset class
-type Price : <"Generic description of the price concept applicable across product types, which can be expressed in a number of ways other than simply cash price">
+// TODO - #3: Create "PriceBase" that all of CashPrice, ExchangeRate etc should extend, and position the "assetIdentifier" attribute in "PriceBase" (currently in "InterestRateBase")
+type Price: <"Generic description of the price concept applicable across product types, which can be expressed in a number of ways other than simply cash price">
 
 	cashPrice CashPrice (0..1) <"Price specified in cash terms, e.g. for securities proceeds or fee payment in a contractual product.">
+		[synonym FpML_5_10 value "initialPrice" path "rateOfReturn", "underlyer"]
+		[synonym FpML_5_10 hint "paymentAmount"]
+		[synonym FpML_5_10 hint "fixedAmount"]
 	exchangeRate ExchangeRate (0..1) <"Price specified as an exchange rate between two currencies.">
 		[synonym FpML_5_10 value "exchangeRate"]
+	fixedInterestRate FixedInterestRate (0..1) <"Price specified as a fixed interest rate.">
+		// For IR Swaps
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "fixedRateSchedule" path "calculationPeriodAmount->calculation"]
+		// For CDS
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "fixedAmountCalculation"]
+		// For Repo
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "fixedRateSchedule"]
+		// For FRA:
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 hint "fixedRate"]
+	interestRateSpread InterestRateSpread (0..1) <"Price specified as a spread on top of a floating interest rate.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "floatingRateCalculation" path "calculationPeriodAmount->calculation"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "floatingRateCalculation" path "interestCalculation"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "floatingRateCalculation"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "floatingAmountCalculation"]
 
 	condition: one-of
+
 
 // TODO - Look for further synergies with the SecurityValuation class
 type CashPrice: <"Describes a price component as a cash amount, which can either represent cash proceeds for a security purchase or a cashflow that is embedded as part of a contractual product: for instance an upfront fee.">

@@ -1,13 +1,11 @@
-# *CDM Model: Collateral Eligibility Schedules*
+# *Infrastructure: ISDA Create*
 
 _What is being released_
 
-Further changes to Eligible Collateral model focusing on defining the issuer and instrument type.
+Infrastructure changes to support ingestion of ISDA Create IM CSD English Law 2018 documents.
 
 _Review Directions_
 
-In the Textual Browser, review the following:
+In the Ingestion Panel, try the following sample:
 
-- types: `CollateralIssuerTypeClassification` and `CollateralProductType`.
-- `CollateralIssuerTypeClassification` related enums: `IssuerTypeClassificationEnum`, `QuasiGovernmentIssuerTypeClassificationEnum`, `RegionalGovernmentIssuerTypeClassificationEnum` and `SupraNationalIssuerTypeClassificationEnum`.
-- `CollateralProductType` related enums: `CollateralProductTypeEnum`, `SecurityTypeEnum`, `BondTypeEnum` and `EquityTypeEnum`.
+- `isda-create > im-csd-eng-law-2018 > sample1.json`

@@ -5,7 +5,6 @@ import com.google.inject.Inject;
 import com.rosetta.model.metafields.FieldWithMetaString;
 
 import cdm.base.maths.NonNegativeQuantity;
-import cdm.base.staticdata.asset.commons.AssetIdentifier;
 
 import org.isda.cdm.*;
 import org.isda.cdm.functions.AbstractFunctionTest;
