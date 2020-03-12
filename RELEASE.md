@@ -10,5 +10,5 @@ The DTCC synonyms have been moved to a seperate namespace `cdm.synonyms.dtcc` al
 
 _Review Directions_
 
-In the Textual Browser, navigate to `synonym source DTCC_BASE` and see all of the synonym mapping.
+In the Textual Browser, search (use control-f) for the text `synonym source DTCC_BASE` and see all of the synonym mapping.
 Observe that there are no longer any DTCC synonyms defined within the types (i.e. attributes of `type Contract` do not have any `DTCC` synonyms.
