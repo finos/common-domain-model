@@ -129,11 +129,11 @@ type CalculationDateLocationElection: <"A class to specify each of the party ele
 
 	businessCenter BusinessCenterEnum (0..1) <"The Calculation Date Location when specified as a business center which corresponds to the FpML list of business centers or can be mapped to it.">
 		[metadata scheme]
-		[synonym ISDA_Create_1_0 value "partyA_location" set when "partyA_calculation_date_location" = "select_location"]
-		[synonym ISDA_Create_1_0 value "partyB_location" set when "partyB_calculation_date_location" = "select_location"]
 	customLocation string (0..1) <"The Calculation Date Location when specified a location which doesn't correspond to the FpML list of business centers or cannot be mapped to it.">
-		[synonym ISDA_Create_1_0 value "partyA_specify" set when "partyA_calculation_date_location" = "other"]
-		[synonym ISDA_Create_1_0 value "partyB_specify" set when "partyB_calculation_date_location" = "other"]
+		[synonym ISDA_Create_1_0 value "partyA_location"]
+		[synonym ISDA_Create_1_0 value "partyB_location"]
+		[synonym ISDA_Create_1_0 value "partyA_specify"]
+		[synonym ISDA_Create_1_0 value "partyB_specify"]
 
 	condition Choice : <"The Calculation Date Location is specified either as a standard business center or as a custom location.">
 		required choice businessCenter, customLocation
@@ -150,7 +150,7 @@ type ChargorPostingObligations: <"A class to specify the chargor(s) collateral p
 type CollateralManagementAgreement: <"A class to specify the Collateral Management Agreement election by the respective parties to a Japanese Law ISDA CSA. ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (b)(i): Collateral Management Agreement.">
 
 	// TODO: change cardinality to (2..2) when Ingestion process is able to support normalising external models (https://trello.com/c/TnJWvKes)
-	partyElection CollateralManagementAgreementElection (1..1 ) <"The parties' Collateral Management Agreement election.">
+	partyElection CollateralManagementAgreementElection (2..2) <"The parties' Collateral Management Agreement election.">
 
 
 type CollateralManagementAgreementElection: <"A class to specify the Collateral Management Agreement election by each party as the Obligee. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (b(i): Collateral Management Agreement.">
@@ -318,9 +318,11 @@ type CreditRatingDebt: <"The credit rating debt type(s) associated with the cred
 type CreditSupportObligationsInitialMargin: <"A class to specify the Credit Support Obligations applicable to the Initial Margin Credit Support Annex and which are common among the English, Japanese and New York governing laws. This excludes the Other Eligible Support election (which only applies to the Japanese Law and New York Law agreements) and the Transfer Timing election (which only applies to the English Law and the New York Law agreements). ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (c): Credit Support Obligations. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d): Credit Support Obligations. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (c): Credit Support Obligations.">
 
 	threshold Threshold (1..1) <"The amount of net exposure that a party is willing to bear in relation to the other party before it requires asking for collateral. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (c)(vi)(A): Threshold. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d)(vi)(A): Threshold. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (c)(vi)(A): Threshold.">
-		[synonym ISDA_Create_1_0 value "threshold" mapper "Threshold"]
+//		[synonym ISDA_Create_1_0 value "threshold" mapper "Threshold"]
+		[synonym ISDA_Create_1_0 value "threshold"]
 	minimumTransferAmount MinimumTransferAmount (1..1) <"The net amount of exposure reached before collateral has to be posted or returned. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (c)(vi)(B): Minimum Transfer Amount. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d)(vi)(B): Minimum Transfer Amount. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (c)(vi)(B): Minimum Transfer Amount.">
-		[synonym ISDA_Create_1_0 value "minimum_transfer_amount" mapper "MinimumTransferAmount"]
+//		[synonym ISDA_Create_1_0 value "minimum_transfer_amount" mapper "MinimumTransferAmount"]
+		[synonym ISDA_Create_1_0 value "minimum_transfer_amount"]
 	rounding CollateralRounding (1..1) <"The rounding methodology applicable to the Delivery Amount and the Return Amount in terms of nearest integral multiple of Base Currency units. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (c)(vi)(C): Rounding. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d)(vi)(C): Rounding. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (c)(vi)(C): Rounding.">
 		[synonym ISDA_Create_1_0 value "rounding"]
 
@@ -364,6 +366,8 @@ type Csa2016 extends Csa: <"An abstract class to specify the provisions for the 
 		[synonym ISDA_Create_1_0 value "addresses_for_transfers"]
 	bespokeProvision string (0..1) <"The bespoke provision that might be specified by the parties to the agreement. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (u)(iii): Other Provisions. | ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (p): Other Provisions.">
 		[synonym ISDA_Create_1_0 value "specify" path "bespoke_provisions" set when "bespoke_provisions->is_applicable" = "applicable"]
+	umbrellaAgreement UmbrellaAgreement (0..1) <"The determination of whether Umbrella Agreement terms are applicable (True) or Not Applicable (False).">
+		[synonym ISDA_Create_1_0 value "umbrella_agreement_and_principal_identification"]
 
 
 type CsaInitialMargin2016 extends Csa2016: <"An abstract class to specify the provisions for the 2016 ISDA Credit Support Annex for Initial Margin that are common among governing laws.">
@@ -444,7 +448,7 @@ type CsdInitialMargin2016EnglishLaw extends CsaInitialMargin2016: <"A class to s
 
 	chargorPostingObligations ChargorPostingObligations (1..1) <"The chargor's posting obligations. This term of chargor is the equivalent of the pledgor in the New York Law CSA and the obligor in the Japanese Law CSA, i.e. it's the party that will post/pledge collateral to the other party. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (ii).">
 		[synonym ISDA_Create_1_0 value "chargor_posting_obligations"]
-	transferTiming string (0..1) <"The time by which the transfer of collateral must take place when different from the Regular Settlement Day as a result of parties' election. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (c)(vii): Transfer Timing.">
+	transferTiming string (0..1) <"The time by which the transfer of collateral must take place when different from the Regular Settlement Day as a result of parties' election. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (c)(vii): Transfer Timing. | ISDA 2018 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (c)(vii): Transfer Timing.">
 		[synonym ISDA_Create_1_0 value "settlement_day_specify" path "transfer_timing" set when "transfer_timing->specified" = "true" ]
 	chargorRightsEvent RightsEvent (1..1) <"The Chargor Rights Event election. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (j): Chargor Rights Event.">
 		[synonym ISDA_Create_1_0 value "chargor_rights_event"]
@@ -505,6 +509,7 @@ type CustodianRisk: <"A class to specify the Custodian Risk (English Law and New
 	isSpecified boolean (1..1) <"The qualification as to whether the risk is deemed as Specified.">
 		[synonym ISDA_Create_1_0 set to True when "partyA_custodian_risk" = "other", set to False when "partyA_custodian_risk" = "not_specified"]
 		[synonym ISDA_Create_1_0 set to True when "partyB_custodian_risk" = "other", set to False when "partyB_custodian_risk" = "not_specified"]
+		[synonym ISDA_Create_1_0 set to True when "paragraph_6b" = "specified", set to False when "paragraph_6b" = "not_specified"]
 	/*
 	 * set to True when "partyA_collateral_manager_risk" = "other",
 	 * set to False when "partyA_collateral_manager_risk" = "not_specified",
@@ -565,19 +570,24 @@ type CustodyArrangementsElection: <"A class to specify the Custody Arrangements 
 	// TODO - Need for a mapping logic that will parse the ISDA Create suffix to identify cash vs. security with custodian_and_segregated_account_details as a path
 	custodianRisk CustodianRisk (1..1) <"The qualification of the Custodian Risk. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(ii): Custodian (IM) Risk.">
 		[synonym ISDA_Create_1_0 value "custodian_risk"]
-	isControlAgreementAsCsd boolean (0..1) <"The identification of whether the Control Agreement is a Credit Support Document with respect to each party">
+	controlAgreementAsCsd boolean (1..1) <"The identification of whether the Control Agreement is a Credit Support Document with respect to each party">
 		[synonym ISDA_Create_1_0 set to True when "control_agreement_as_a_credit_support_document->partyA_control_agreement_as_a_credit_support_document" = "yes",
 									set to False when "control_agreement_as_a_credit_support_document->partyA_control_agreement_as_a_credit_support_document" = "no"]
 		[synonym ISDA_Create_1_0 set to True when "control_agreement_as_a_credit_support_document->partyB_control_agreement_as_a_credit_support_document" = "yes",
 									set to False when "control_agreement_as_a_credit_support_document->partyB_control_agreement_as_a_credit_support_document" = "no"]
 	// TODO - add Condition - include when 2018 CSD English Law, exclude when 2016 (captured under CustodyArrangements)
-	isInconsistencyWithControlAgreement boolean (0..1) <"Unless specified as inapplicable in the event of any inconsistency between this Deed and the Control Agreement, this Deed will prevail over the Control Agreement">
+	consistencyWithControlAgreement boolean (1..1) <"Unless specified as inapplicable in the event of any inconsistency between this Deed and the Control Agreement, this Deed will prevail over the Control Agreement">
 		[synonym ISDA_Create_1_0 set to True when "inconsistency_with_the_control_agreement->partyA_inconsistency_with_the_control_agreement" = "applicable",
 									set to False when "inconsistency_with_the_control_agreement->partyA_inconsistency_with_the_control_agreement" = "not_applicable"]
 		[synonym ISDA_Create_1_0 set to True when "inconsistency_with_the_control_agreement->partyB_inconsistency_with_the_control_agreement" = "applicable",
 									set to False when "inconsistency_with_the_control_agreement->partyB_inconsistency_with_the_control_agreement" = "not_applicable"]
 	// TODO - add Condition - only include when 2018 CSD English Law
-
+	relationshipWithControlAgreement boolean (1..1) <"Unless specified as inapplicable the parties recognise that the Control Agreement is a means by which the parties can perform their obligations.">
+		[synonym ISDA_Create_1_0 set to True when "relationship_with_the_control_agreement->partyA_control_agreement_relationship" = "applicable",
+									set to False when "relationship_with_the_control_agreement->partyB_control_agreement_relationship" = "not_applicable"]
+		[synonym ISDA_Create_1_0 set to True when "relationship_with_the_control_agreement->partyA_control_agreement_relationship" = "applicable",
+									set to False when "relationship_with_the_control_agreement->partyB_control_agreement_relationship" = "not_applicable"]
+	// TODO - add Condition - only include when 2018 CSD English Law
 
 type DeliveryAmount: <"A class to specify the application of Interest Amount with respect the Delivery Amount. ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(ii).">
 
@@ -618,8 +628,12 @@ type ElectiveAmountElection: <"A class to specify the party elective amounts whi
 
 	party string (1..1) <"The elective party.">
 		[synonym ISDA_Create_1_0 set to "PartyA" when "threshold" = "PartyA_threshold", set to "PartyB" when "threshold" = "PartyB_threshold"]
-		[synonym ISDA_Create_1_0 set to "PartyA" when "minimum_transfer_amount" = "partyA_minimum_transfer_amount", set to "PartyB" when "minimum_transfer_amount" = "partyB_minimum_transfer_amount"]
+		[synonym ISDA_Create_1_0 set to "PartyA" when "partyA_minimum_transfer_amount" = "specify", set to "PartyB" when "partyB_minimum_transfer_amount" = "specify"]
+		[synonym ISDA_Create_1_0 set to "PartyA" when "partyA_amendment_to_minimum_transfer_amount" = "specify", set to "PartyB" when "partyB_amendment_to_minimum_transfer_amount" = "specify"]
+		[synonym ISDA_Create_1_0 set to "PartyA" when "partyA_threshold" = "specify", set to "PartyB" when "partyB_threshold" = "specify"]
 	amount Money (0..1) <"The elective amount when expressed as a currency amount. The associated PartyElectiveAmount_amount data rule enforces that the currency amount is actually greater than 0.">
+		[synonym ISDA_Create_1_0 value "PartyA_amount"]
+		[synonym ISDA_Create_1_0 value "PartyB_amount"]
 	customElection string (0..1) <"The elective amount when expressed as a custom election by the party.">
 	noAmount int (0..1) <"The elective amount when specified as 0 with no associated currency. The associated PartyElectiveAmount_noAmount data rule enforces that the number is actually equal to 0.">
 
@@ -787,8 +801,6 @@ type LegalAgreementBase: <"A class describing the legal agreement baseline infor
 		[metadata reference]
 		[synonym FpML_5_10 value "party"]
 	otherParty PartyRole (0..*) <"The role(s) that other party(ies) may have in relation to the legal agreement, further to the contractual parties.">
-	umbrellaAgreement UmbrellaAgreement (1..1) <"The determination of whether Umbrella Agreement terms are applicable (True) or Not Applicable (False).">
-		[synonym ISDA_Create_1_0 value "umbrella_agreement_and_principal_identification"]
 	partyInformation Party (2..*) <"The information about the parties involved with the legal agreements, which consists of both the contractual parties and the parties that might be involved in relation to some other roles (e.g. custody agent).">
 		[synonym ISDA_Create_1_0 value "answers" mapper "PartyInformation"]
 
@@ -911,9 +923,9 @@ type PartyAgreementIdentifier: <"A class defining a legal agreement identifier i
 		[synonym FpML_5_10 value "documentId" meta "legalDocumentIdScheme"]
 
 
-type PartyTerminationCurrency: <"A class to specify the Termination Currency election by the respective parties to the agreement.">
+type TerminationAmendmentCurrency: <"A class to specify the Termination Amendment Currency election by the respective parties to the agreement.">
 
-	partyElection TerminationCurrencyElection (2..2) <"The parties' Termination Currency election.">
+	partyElection TerminationCurrencyElection (2..2) <"The parties' Amendment Currency election.">
 
 
 type PledgorPostingObligations: <"A class to specify the pledgor(s) collateral posting obligations as specified under the terms of the New York Law ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (ii).">
@@ -1041,8 +1053,13 @@ type ReturnAmount: <"A class to specify the application of Interest Amount with 
 
 type RightsEvent: <"A class to specify the Pledgor/Obligor/Chargor Rights Event election. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (j): Chargor Rights Event. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (j): Obligor Rights Event. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (j): Pledgor Rights Event.">
 
+	partyElection ChargorRightsEventElection (2..2)
 	includeCoolingOffLanguage boolean (1..1) <"The Pledgor/Obligor/Chargor Rights Event election includes cooling off language when the attribute is set of True.">
 		[synonym ISDA_Create_1_0 set to True when "cooling_off_language" = "include", set to False when "cooling_off_language" = "not_specified"]
+		[synonym ISDA_Create_1_0 set to True when "cooling_off_period_condition_is_applicable" = "applicable", set to False when "cooling_off_period_condition_is_applicable" = "not_applicable"]
+	chargorFullDischarge boolean (0..1) <"If specified as applicable here, a Chargor Rights Event will not occur unless the Chargor (A) has provided a statement to the Secured Party in respect of such Early 											Termination Date">
+		[synonym ISDA_Create_1_0 set to True when "chargor_full_discharge_condition_is_applicable" = "applicable", set to False when "chargor_full_discharge_condition_is_applicable" = "not_applicable"]
+
 	customElection string (0..1) <"A custom Pledgor/Obligor/Chargor Rights Event election might be specified by the parties.">
 		[synonym ISDA_Create_1_0 value "specify"]
 
@@ -1107,6 +1124,8 @@ type SimmVersion: <"A class to specify the ISDA SIMM version that applies to the
 	isSpecified boolean (1..1) <"A boolean attribute to determine whether the SIMM version is specified for the purpose of the legal agreement.">
 		[synonym ISDA_Create_1_0 set to True when "is_specified" = "specified", set to False when "is_specified" = "not_specified"]
 	version SpecifiedSimmVersion (0..1) <"When the SIMM version is specified, it will reference the party that uses such version.">
+//	TODO - ISDA Create export has a blank value type referencing party.  Feedback to ISDA
+//		[synonym ISDA_Create_1_0 set to "PartyA" when " " = "PartyA", set to "PartyB" when " " = "PartyB"]
 
 	condition VersionNotSpecified: <"A data rule to enforce that the version attribute should be absent when the SIMM version is stated as not specified for the CSA.">
 		if isSpecified = False
@@ -1139,7 +1158,7 @@ type TerminationCurrencyAmendment: <"A class to specify the Amendment to Termina
 		[synonym ISDA_Create_1_0 set to True when "is_applicable" = "applicable", set to False when "is_applicable" = "not_applicable"]
 		[synonym ISDA_Create_1_0 set to True when "amendment_to_termination_currency_is" = "applicable", set to False when "amendment_to_termination_currency_is" = "not_applicable" ]
 	effectiveDate AmendmentEffectiveDate (0..1) <"The effective date of the Amendment to Termination Currency. This date can be specified as either an actual date, a specific date (e.g. the annex date) or as a custom provision.">
-	terminationCurrency PartyTerminationCurrency (0..1) <"The parties' election with respect to the Termination Currency.">
+	terminationCurrency TerminationAmendmentCurrency (0..1) <"The parties' election with respect to the Termination Currency.">
 	bothPartiesCurrency BothPartiesElection (0..1) <"The election in the case of a Termination Event where there are two Affected Parties.">
 //		[metadata scheme]
 //		[synonym ISDA_Create_1_0 value "both_parties_termination_currency"]
@@ -1232,15 +1251,12 @@ type CsdInitialMargin2018EnglishLaw extends CsdInitialMargin2016EnglishLaw: <"A 
 	controlAgreementNecEvent ControlAgreementNecEvent (1..1) <"Description to be added">
 		[synonym ISDA_Create_1_0 value "control_agreement_nec_event"]
 
-	// chargorRightsEvent ChargorRightsEvent (1..1) <"Description to be added">
-	// 	[synonym ISDA_Create_1_0 value "chargor_rights_event"]
-
 	additionalInformation boolean (1..1) <"The qualification of whether Additional Information related to Regulatory Compliance and Concentration Limits is applicable or not">
 		[synonym ISDA_Create_1_0 set to True when "regulatory_compliance_and_concentration_limits->additional_information" = "applicable",
 									set to False when "regulatory_compliance_and_concentration_limits->additional_information" = "not_applicable"]
 
 	minimumTransferAmountAmendment MinimumTransferAmountAmendment (1..1) <"Description to be added">
-		[synonym ISDA_Create_1_0 value "amendments"]
+		[synonym ISDA_Create_1_0 value "amendment_to_minimum_transfer_amount"]
 
 	interpretationParagraphEleven string (0..1) <"The bespoke provision that might be specified by the parties to the agreement applicable to Paragraph 11(j).">
 		[synonym ISDA_Create_1_0 value "specify" path "interpretation" set when "interpretation->paragraph_11j_is" = "specified"]
@@ -1389,15 +1405,16 @@ type ControlAgreementNecEvent: <"A class to specify Control Agreement language r
 		[synonym ISDA_Create_1_0 set to True when "partyA_control_agreement_nec_event" = "applicable", set to False when "partyA_control_agreement_nec_event" = "not_applicable"]
 		[synonym ISDA_Create_1_0 set to True when "partyB_control_agreement_nec_event" = "applicable", set to False when "partyB_control_agreement_nec_event" = "not_applicable"]
 
-type ChargorRightsEvent: <"A class to specify Chargor Rights Event language">
+// TODO Review 2018 vs 2016 Eng Law Credit Support Deed to capture different election choices
+// type ChargorRightsEvent: <"A class to specify Chargor Rights Event language specific to the 2018 Credit Support Deed English Law.">
 
-	chargorRightsEventElection ChargorRightsEventElection (2..2)
+// 	chargorRightsEventElection ChargorRightsEventElection (2..2)
 
-	chargorFullDischarge boolean (1..1)
-		[synonym ISDA_Create_1_0 set to True when "chargor_full_discharge_condition_is_applicable" = "applicable", set to False when "chargor_full_discharge_condition_is_applicable" = "not_applicable"]
+// 	chargorFullDischarge boolean (1..1)
+// 		[synonym ISDA_Create_1_0 set to True when "chargor_full_discharge_condition_is_applicable" = "applicable", set to False when "chargor_full_discharge_condition_is_applicable" = "not_applicable"]
 
-	coolingOffPeriod boolean (1..1)
-		[synonym ISDA_Create_1_0 set to True when "cooling_off_period_condition_is_applicable" = "applicable", set to False when "cooling_off_period_condition_is_applicable" = "not_applicable"]
+// 	coolingOffPeriod boolean (1..1)
+// 		[synonym ISDA_Create_1_0 set to True when "cooling_off_period_condition_is_applicable" = "applicable", set to False when "cooling_off_period_condition_is_applicable" = "not_applicable"]
 
 type ChargorRightsEventElection: <"A class to specify party specific Secured Party Rights Event language.">
 	
@@ -1413,9 +1430,14 @@ type CollateralAccessBreach: <"A class to specify Collateral Access Breach langu
 
 	isApplicable boolean (1..1) <"Collateral Access Breach terms are applicable when True and not applicable when False">
 		[synonym ISDA_Create_1_0 set to True when "collateral_access_breach" = "applicable", set to False when "collateral_access_breach" = "not_applicable"]
+	cabEndDateElection boolean (1..1) <"Determination of whether the Collateral Access Breach end date is a number of days (True) or specified (False)">
+		[synonym ISDA_Create_1_0 set to True when "cab_end_date" = "days", set to False when "cab_end_date" = "other"]
 	cabEndDate number (0..1) <"The business date following the related Collateral Access Breach when the additional terms end ">
-		[synonym ISDA_Create_1_0 value "cab_end_date_days" path "cab_end_date->cab_end_date_days"]
+		[synonym ISDA_Create_1_0 value "cab_end_date_days"]
 	cabEndDateTerms string (0..1) <"Specific terms for when Collateral Access Breach terms end">
+
+	condition CabEndDateTerms: <"A condition to require Collateral Access Breach End Date Terms when a specification is required">
+		if cabEndDateElection = True then cabEndDateTerms is absent
 
 
 //TODO - Condition required cabEndDate OR cabEndDateTerms required if CollateralAccessBreach is applicable
@@ -1423,7 +1445,11 @@ type CollateralAccessBreach: <"A class to specify Collateral Access Breach langu
 type MinimumTransferAmountAmendment: <" A class to specify whether Minimum Transfer Amount language is applicable or not">
 
 	isApplicable boolean (1..1) <"Minimum Transfer Amount terms are applicable when True and Not Applicable when False">
-		[synonym ISDA_Create_1_0 set to True when "is_applicable" = "applicable", set to False when "is_applicable" = "not_applicable"]
+		[synonym ISDA_Create_1_0 set to True when "amendment_to_minimum_transfer_amount_is" = "applicable", set to False when "amendment_to_minimum_transfer_amount_is" = "not_applicable"]
+	effectiveDate AmendmentEffectiveDate (1..1)
+	partyElections ElectiveAmountElection (2..2)
+
+//TODO condition required that effectiveDate and partyElections should only exist when isApplicable is True
 
 type JapaneseSecuritiesProvisions: <"A class to specify Japanese Securities Provision elections.">
 	
