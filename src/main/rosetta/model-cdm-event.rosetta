@@ -31,7 +31,6 @@ type AllocationBreakdown:
 	[synonym FpML_5_10 value "collateral"]
 
 
-
 type AllocationOutcome: <"A class to specify the allocated outcome as the combination of the previous Trade, which is either an execution or a contract and which state is specified as 'Allocated', and a set of Trade(s) of the same execution or contract type as before allocation. The allocation to one single trade is deemed appropriate: e.g. the trade could be effectively allocated from the fund manager doing the execution to a single fund entity.">
 	originalTrade Trade (1..1)
 		[synonym Workflow_Event value "originalTrade"]
@@ -496,6 +495,12 @@ type SecurityTransferComponent extends TransferBase:
 		[synonym Workflow_Event value "breakdown"]
 
 
+type StockSplitInstruction: <"Data required to perform a stock split business event.">
+	trade Trade (1..1) <"Contract to be split.">
+	adjustmentRatio number (1..1)
+	date date (1..1)
+
+
 type Trade: <"A class to represent the general trade concept, which can either be an execution or a contract. The execution consists essentially in the economic terms which are agreed between the parties. The contract will further qualify those with the legal entities (think of the allocation case, which execution state can involve the investment adviser rather not the actual funds) while not specify the master agreement or collateral terms which might be associated with the subsequent contract.">
 	[metadata key] 
 	execution Execution (0..1) <"The execution corresponds to economic terms that are agreed between parties, but which legal terms are not yet specified. The execution attribute applies to the post-execution scenario of a product that is subject to the clearing mandate and is then routed to the CCP as an execution.">
@@ -503,9 +508,6 @@ type Trade: <"A class to represent the general trade concept, which can either b
 		[synonym Workflow_Event value "fpmlTrade" set when "fpmlTrade->trade->executionType" exists]
 		[synonym Workflow_Event value "fpmlExecution"]
 	contract Contract (0..1) <"The contract differs from the execution by the fact that its legal terms are fully specified. This includes the legal entities that are associated to it as well as any associated legal agreement, e.g. master agreement, credit and collateral terms, ... ">
-		
-		
-		
 		[synonym Workflow_Event value "fpmlTrade" set when "fpmlTrade->trade->executionType" is absent]
 		[synonym Workflow_Event value "fpmlContract"]
 		[synonym CME_SubmissionIRS_1_0 value "TrdCaptRpt" set when "TrdCaptRpt->VenuTyp" is absent]
@@ -870,6 +872,76 @@ func ContractFormationEvent: <"The qualification of a contractFormation event fr
 	assign-output is_event:
 		businessEvent -> primitives count = 1
 		and businessEvent -> primitives -> contractFormation exists
+
+func StockSplit: <"The qualification of StockSplit business event based on (i) an unchanged before/after currency amount (ii) the same adjustment ratio applied to the before/after cash price and number of units.">
+	[qualification event]
+	inputs:
+		businessEvent BusinessEvent (1..1)
+		
+	output: is_event boolean (1..1)
+
+	alias beforeQuantityNotation:
+		businessEvent -> primitives -> quantityChange -> before -> contract -> tradableProduct -> quantityNotation
+	
+	alias beforeNoOfUnits:
+		if beforeQuantityNotation exists
+		then NoOfUnits( beforeQuantityNotation )
+	
+	alias afterQuantityNotation:
+		businessEvent -> primitives -> quantityChange -> before -> contract -> tradableProduct -> quantityNotation
+	
+	alias afterNoOfUnits:
+		if afterQuantityNotation exists
+		then NoOfUnits( afterQuantityNotation )
+	
+	alias beforeCurrencyAmount: 
+		if beforeQuantityNotation exists
+		then CurrencyAmount( beforeQuantityNotation, empty )
+	
+	alias afterCurrencyAmount:
+		if afterQuantityNotation exists
+		then CurrencyAmount( afterQuantityNotation, empty )
+	
+	alias beforeCashPrices:
+		businessEvent -> primitives -> termsChange -> before -> contract -> tradableProduct -> priceNotation -> price -> cashPrice -> netPrice -> amount
+	
+	alias beforeCashPrice:
+		beforeCashPrices only-element 
+		
+	alias afterCashPrices:
+		businessEvent -> primitives -> termsChange -> after -> contract -> tradableProduct -> priceNotation -> price -> cashPrice -> netPrice -> amount
+	
+	alias afterCashPrice:
+		afterCashPrices only-element
+		
+	alias currencyAmountUnchanged:
+		if ( beforeCurrencyAmount and afterCurrencyAmount ) exists
+		then beforeCurrencyAmount = afterCurrencyAmount
+		else False
+	
+	alias noOfUnitsChanged:
+		if ( beforeNoOfUnits and afterNoOfUnits ) exists
+		then afterNoOfUnits <> beforeNoOfUnits
+		else False
+	
+	alias cashPriceChanged:
+		if ( beforeCashPrice and afterCashPrice ) exists
+		then beforeCashPrice <> afterCashPrice
+		else False
+	
+	alias adjustmentRatioMatches:
+		if ( beforeNoOfUnits and afterNoOfUnits and beforeCashPrice and afterCashPrice ) exists
+		then afterNoOfUnits / beforeNoOfUnits = beforeCashPrice / afterCashPrice
+		else False
+	
+	assign-output is_event:
+		// TODO: check product type is equity?
+		businessEvent -> primitives count = 2
+		and currencyAmountUnchanged = True
+		and noOfUnitsChanged = True
+		and cashPriceChanged = True 
+		and adjustmentRatioMatches = True
+		
 
 /****************
  * Workflow rules

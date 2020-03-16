@@ -14,7 +14,7 @@ import cdm.base.maths.NonNegativeQuantity;
 /**
  * Extracts the quantity amount associated with the currency.
  */
-public class NotionalImpl extends Notional {
+public class CurrencyAmountImpl extends CurrencyAmount {
 
 	@Override
 	protected BigDecimal doEvaluate(List<QuantityNotation> quantityNotations, String currency) {

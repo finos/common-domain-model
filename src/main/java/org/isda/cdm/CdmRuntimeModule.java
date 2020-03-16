@@ -1,20 +1,6 @@
 package org.isda.cdm;
 
-import org.isda.cdm.functions.AbsImpl;
-import org.isda.cdm.functions.CalculationPeriodImpl;
-import org.isda.cdm.functions.ListsCompareImpl;
-import org.isda.cdm.functions.NoOfUnits;
-import org.isda.cdm.functions.NoOfUnitsImpl;
-import org.isda.cdm.functions.Notional;
-import org.isda.cdm.functions.NotionalImpl;
-import org.isda.cdm.functions.PartyByRoleImpl;
-import org.isda.cdm.functions.ResolveContractualProduct;
-import org.isda.cdm.functions.ResolveContractualProductImpl;
-import org.isda.cdm.functions.ResolveEquityInitialPrice;
-import org.isda.cdm.functions.ResolveEquityInitialPriceImpl;
-import org.isda.cdm.functions.ResolvePayoutQuantity;
-import org.isda.cdm.functions.ResolvePayoutQuantityImpl;
-import org.isda.cdm.functions.SumImpl;
+import org.isda.cdm.functions.*;
 
 import com.google.inject.AbstractModule;
 import com.regnosys.rosetta.common.validation.RosettaTypeValidator;
@@ -43,7 +29,7 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(ResolveContractualProduct.class).to(bindResolveContractualProduct());
 		bind(ResolveEquityInitialPrice.class).to(bindResolveEquityInitialPrice());
 		bind(NoOfUnits.class).to(bindNoOfUnits());
-		bind(Notional.class).to(bindNotional());
+		bind(CurrencyAmount.class).to(bindCurrencyAmount());
 		bind(PartyByRole.class).to(PartyByRoleImpl.class);
 
 	}
@@ -89,8 +75,8 @@ public class CdmRuntimeModule extends AbstractModule {
 	protected Class<? extends NoOfUnits> bindNoOfUnits() {
 		return NoOfUnitsImpl.class;
 	}
-	
-	protected Class<? extends Notional> bindNotional() {
-		return NotionalImpl.class;
+
+	protected Class<? extends CurrencyAmount> bindCurrencyAmount() {
+		return CurrencyAmountImpl.class;
 	}
 }
