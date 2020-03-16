@@ -3,11 +3,10 @@ package org.isda.cdm.functions;
 import java.util.List;
 import java.util.Optional;
 
+import org.isda.cdm.AssetIdentifier;
 import org.isda.cdm.QuantityNotation;
 
 import com.rosetta.model.lib.meta.FieldWithMeta;
-
-import cdm.base.staticdata.asset.commons.AssetIdentifier;
 
 /**
  * Extracts the quantity amount associated with the currency.

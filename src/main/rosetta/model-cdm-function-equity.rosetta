@@ -314,7 +314,7 @@ func StockSplit:
 
 	assign-output workflowStep -> businessEvent -> primitives -> quantityChange: <"Build QuantityChangePrimitive and add to WorkflowStep.">
 		NewQuantityChangePrimitive( trade, empty /* adjustedNumberOfSecurities */ ) // TODO: convert from single to list
-		
+
 	assign-output workflowStep -> businessEvent -> primitives -> termsChange: <"Build TermsChangePrimitive (for price) and add to WorkflowStep.">
 		NewPriceChangePrimitive( trade, adjustedPrice )
 
@@ -356,8 +356,21 @@ func AdjustedPrice:
 
 	assign-output result:
 		priceAsPriceNotation
-	
+
 	assign-output result -> price -> cashPrice -> netPrice -> amount:
 		adjustedPriceAmount
 
-	
+
+
+// MdM comments: this is the Dividend Cash Settlement Amount as defined in the SES1 legal document.  The cash dividend will be paid on the relevant DividendDateReferenceEnum. I did not include a function to monitor when the dividends are declared (i.e a dividend observation).
+func DividendCashSettlementAmount: <"Based on the following legal text: means, in respect of a Dividend Period and the related Dividend Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent for such Dividend Period to which the Dividend Cash Settlement Amount relates, pursuant to the following formula: Dividend Cash Settlement Amount = Record Amount × Number Of Securities.">
+
+	inputs:
+		numberOfSecurities number (1..1)
+		declaredDividend number (1..1)
+
+	output:
+		dividendCashSettlementAmount number (1..1)
+
+	assign-output dividendCashSettlementAmount:
+		declaredDividend * numberOfSecurities

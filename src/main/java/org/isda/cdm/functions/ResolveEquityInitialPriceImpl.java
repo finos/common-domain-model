@@ -3,6 +3,7 @@ package org.isda.cdm.functions;
 import java.util.List;
 import java.util.Optional;
 
+import org.isda.cdm.AssetIdentifier;
 import org.isda.cdm.CashPrice;
 import org.isda.cdm.CashPrice.CashPriceBuilder;
 import org.isda.cdm.Price;
@@ -10,7 +11,6 @@ import org.isda.cdm.PriceNotation;
 import org.isda.cdm.Product;
 import org.isda.cdm.Underlier;
 
-import cdm.base.staticdata.asset.commons.AssetIdentifier;
 import cdm.base.staticdata.asset.commons.Equity;
 import cdm.base.staticdata.asset.commons.ProductIdentifier;
 import cdm.base.staticdata.asset.commons.Security;

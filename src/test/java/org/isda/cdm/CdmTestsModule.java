@@ -1,9 +1,7 @@
 package org.isda.cdm;
 
-import org.isda.cdm.calculation.functions.GetRateScheduleImpl;
 import org.isda.cdm.calculation.functions.ResolveRateIndexImpl;
 import org.isda.cdm.functions.CalculationPeriod;
-import org.isda.cdm.functions.GetRateSchedule;
 import org.isda.cdm.functions.ResolveRateIndex;
 import org.isda.cdm.functions.TestableCalculationPeriod;
 
@@ -15,8 +13,6 @@ public class CdmTestsModule extends CdmRuntimeModule {
 	protected void configure() {
 		super.configure();
 		bind(ResolveRateIndex.class).to(bindResolveRateIndex());
-		bind(GetRateSchedule.class).to(bindGetRateSchedule());
-		
 	}
 
 	@Override
@@ -31,9 +27,5 @@ public class CdmTestsModule extends CdmRuntimeModule {
 
 	protected Class<? extends ResolveRateIndex> bindResolveRateIndex() {
 		return ResolveRateIndexImpl.class;
-	}
-
-	protected Class<? extends GetRateSchedule> bindGetRateSchedule() {
-		return GetRateScheduleImpl.class;
 	}
 }

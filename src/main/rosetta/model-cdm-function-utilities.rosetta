@@ -31,12 +31,15 @@ func CashPriceQuantityNoOfUnitsTriangulation: <"Data rule to check the relations
 
 	alias notional:
 		NotionalAmount( quantityNotation, empty )
-		
+
 	alias noOfUnits:
 		NoOfUnitsAmount( quantityNotation )
-		
+
+	alias cashPrices:
+		priceNotation -> price -> cashPrice -> netPrice -> amount
+
 	alias cashPrice:
-		priceNotation only-element -> price -> cashPrice -> netPrice -> amount
+		cashPrices only-element
 
 	assign-output success:
 		if ( cashPrice and noOfUnits and notional ) exists
@@ -51,8 +54,11 @@ func ExchangeRateQuantityTriangulation:
 	output:
 		success boolean (1..1)
 
+	alias exchangeRates:
+		priceNotation -> price -> exchangeRate
+
 	alias exchangeRate:
-		priceNotation only-element -> price -> exchangeRate
+		exchangeRates only-element
 
 	alias rate:
 		if exchangeRate -> rate exists
@@ -64,10 +70,10 @@ func ExchangeRateQuantityTriangulation:
 
 	alias quantity1:
 		NotionalAmount( quantityNotation, quotedCurrency -> currency1 )
-		
+
 	alias quantity2:
 		NotionalAmount( quantityNotation, quotedCurrency -> currency2 )
-		
+
 	assign-output success:
 		if ( quantity1 and quantity2 and rate ) exists
 		then
@@ -85,7 +91,7 @@ func NoOfUnits: <"Get quantity(as a QuantityNotation) associated with product id
 		noOfUnits QuantityNotation (1..1)
 
 
-func NoOfUnitsAmount: <"Get quantity amount associated with product identifier.">
+func NoOfUnitsAmount: <"Get quantity associated with product identifier.">
 	inputs:
 		quantityNotations QuantityNotation (0..*)
 
@@ -102,7 +108,7 @@ func Notional: <"Get quantity (as a QuantityNotation) associated with currency."
 		notional QuantityNotation (1..1)
 
 
-func NotionalAmount: <"Get quantity amount associated with currency.">
+func NotionalAmount: <"Get quantity associated with currency.">
 	inputs:
 		quantityNotations QuantityNotation (0..*)
 		currency string (0..1)
