@@ -297,29 +297,27 @@ func ResolveEquityInitialPrice:
 		initialPrice CashPrice (1..1)
 
 
-func StockSplit:
+func SplitStock:
 	inputs:
-		trade Trade (1..1)
-		adjustmentRatio number (1..1)
-		date date (1..1)
+		instruction StockSplitInstruction (1..1)
 
 	output:
 		businessEvent BusinessEvent (1..1)
 
 	alias adjustedNumberOfSecurities: <"Calculate adjusted number of securities based on adjustmentRatio.">
-		AdjustedNumberOfSecurities( trade -> contract -> tradableProduct -> quantityNotation, adjustmentRatio )
+		AdjustedNumberOfSecurities( instruction -> trade -> contract -> tradableProduct -> quantityNotation, instruction -> adjustmentRatio )
 
 	alias adjustedCashPrice: <"Calculate adjusted price based on adjustmentRatio.">
-		AdjustedCashPrice( trade -> contract -> tradableProduct -> priceNotation, adjustmentRatio )
+		AdjustedCashPrice( instruction -> trade -> contract -> tradableProduct -> priceNotation, instruction -> adjustmentRatio )
 
 	condition:
-		trade -> contract exists
+		instruction -> trade -> contract exists
 
 	assign-output businessEvent -> primitives -> quantityChange: <"Build QuantityChangePrimitive and add to WorkflowStep.">
-		NewQuantityChangePrimitive( trade, empty, adjustedNumberOfSecurities )
+		NewQuantityChangePrimitive( instruction -> trade, empty, adjustedNumberOfSecurities )
 
 	assign-output businessEvent -> primitives -> termsChange: <"Build TermsChangePrimitive (for price) and add to WorkflowStep.">
-		NewPriceChangePrimitive( trade, adjustedCashPrice )
+		NewPriceChangePrimitive( instruction -> trade, adjustedCashPrice )
 
 
 func AdjustedNumberOfSecurities:
