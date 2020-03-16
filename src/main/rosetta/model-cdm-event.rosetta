@@ -503,9 +503,6 @@ type Trade: <"A class to represent the general trade concept, which can either b
 		[synonym Workflow_Event value "fpmlTrade" set when "fpmlTrade->trade->executionType" exists]
 		[synonym Workflow_Event value "fpmlExecution"]
 	contract Contract (0..1) <"The contract differs from the execution by the fact that its legal terms are fully specified. This includes the legal entities that are associated to it as well as any associated legal agreement, e.g. master agreement, credit and collateral terms, ... ">
-		
-		
-		
 		[synonym Workflow_Event value "fpmlTrade" set when "fpmlTrade->trade->executionType" is absent]
 		[synonym Workflow_Event value "fpmlContract"]
 		[synonym CME_SubmissionIRS_1_0 value "TrdCaptRpt" set when "TrdCaptRpt->VenuTyp" is absent]
@@ -870,6 +867,16 @@ func ContractFormationEvent: <"The qualification of a contractFormation event fr
 	assign-output is_event:
 		businessEvent -> primitives count = 1
 		and businessEvent -> primitives -> contractFormation exists
+
+func StockSplitEvent:
+	inputs:
+		businessEvent BusinessEvent (1..1)
+	output: is_event boolean (1..1)
+	assign-output is_event:
+		businessEvent -> primitives count = 2
+		and businessEvent -> primitives -> quantityChange exists
+		and businessEvent -> primitives -> termsChange exists
+		
 
 /****************
  * Workflow rules

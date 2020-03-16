@@ -30,10 +30,10 @@ func CashPriceQuantityNoOfUnitsTriangulation: <"Data rule to check the relations
 		success boolean (1..1)
 
 	alias notional:
-		NotionalAmount( quantityNotation, empty )
+		CurrencyAmount( quantityNotation, empty )
 
 	alias noOfUnits:
-		NoOfUnitsAmount( quantityNotation )
+		NoOfUnits( quantityNotation )
 
 	alias cashPrices:
 		priceNotation -> price -> cashPrice -> netPrice -> amount
@@ -69,10 +69,10 @@ func ExchangeRateQuantityTriangulation:
 		exchangeRate -> quotedCurrencyPair
 
 	alias quantity1:
-		NotionalAmount( quantityNotation, quotedCurrency -> currency1 )
+		CurrencyAmount( quantityNotation, quotedCurrency -> currency1 )
 
 	alias quantity2:
-		NotionalAmount( quantityNotation, quotedCurrency -> currency2 )
+		CurrencyAmount( quantityNotation, quotedCurrency -> currency2 )
 
 	assign-output success:
 		if ( quantity1 and quantity2 and rate ) exists
@@ -83,15 +83,7 @@ func ExchangeRateQuantityTriangulation:
 			then quantity2 / quantity1 = rate
 
 
-func NoOfUnits: <"Get quantity(as a QuantityNotation) associated with product identifier.">
-	inputs:
-		quantityNotations QuantityNotation (0..*)
-
-	output:
-		noOfUnits QuantityNotation (1..1)
-
-
-func NoOfUnitsAmount: <"Get quantity associated with product identifier.">
+func NoOfUnits: <"Get quantity associated with product identifier.">
 	inputs:
 		quantityNotations QuantityNotation (0..*)
 
@@ -99,22 +91,13 @@ func NoOfUnitsAmount: <"Get quantity associated with product identifier.">
 		noOfUnits number (1..1)
 
 
-func Notional: <"Get quantity (as a QuantityNotation) associated with currency.">
+func CurrencyAmount: <"Get quantity associated with currency.">
 	inputs:
 		quantityNotations QuantityNotation (0..*)
 		currency string (0..1)
 
 	output:
-		notional QuantityNotation (1..1)
-
-
-func NotionalAmount: <"Get quantity associated with currency.">
-	inputs:
-		quantityNotations QuantityNotation (0..*)
-		currency string (0..1)
-
-	output:
-		notional number (1..1)
+		currencyAmount number (1..1)
 
 
 func ResolveContractualProduct: <"For a given ContractualProduct, the function finds all ResolvablePayoutQuantity instances, then for each instance, resolves the quantity, populates the quantity attribute on ResolvablePayoutQuantity, and finally returns the updated ContractualProduct.">
@@ -161,11 +144,6 @@ func ExtractContractState: <"Extracts a single Contract State, given an Event. T
 		if primitive -> contractFormation exists then primitive -> contractFormation -> after
 		else if primitive -> reset exists then primitive -> reset -> after
 
-func ExtractQuantity: <"A function that abstracts away the details of how to retrieve quantity from a given product">
-	inputs:
-		trade Trade (1..1)
-	output:
-		quantity QuantityNotation (1..1) // TODO: add support for returning lists
 
 // TODO: turn these functions into language level operators i.e. '+'
 func Plus:
@@ -202,14 +180,14 @@ func GreaterThanEquals:
 		result boolean (1..1)
 
 
-
 func ExtractQuantityByAsset:
 	inputs:
 		quantities QuantityNotation (1..*)
 		asset AssetIdentifier (1..1)
 	output:
 		quantity QuantityNotation (1..1)
-		
+
+
 func ExtractQuantityByCurrency:
 	inputs:
 		quantities QuantityNotation (1..*)

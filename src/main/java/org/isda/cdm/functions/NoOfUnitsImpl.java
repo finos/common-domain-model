@@ -1,10 +1,13 @@
 package org.isda.cdm.functions;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
 import org.isda.cdm.AssetIdentifier;
 import org.isda.cdm.QuantityNotation;
+
+import cdm.base.maths.NonNegativeQuantity;
 
 /**
  * Extracts the quantity amount associated with the product identifier.
@@ -12,11 +15,12 @@ import org.isda.cdm.QuantityNotation;
 public class NoOfUnitsImpl extends NoOfUnits {
 
 	@Override
-	protected QuantityNotation.QuantityNotationBuilder doEvaluate(List<QuantityNotation> quantityNotations) {
+	protected BigDecimal doEvaluate(List<QuantityNotation> quantityNotations) {
 		return quantityNotations.stream()
 				.filter(this::isProductAssetIdentifier)
+				.map(QuantityNotation::getQuantity)
+				.map(NonNegativeQuantity::getAmount)
 				.findFirst()
-				.map(QuantityNotation::toBuilder)
 				.orElse(null);
 	}
 

@@ -29,9 +29,7 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(ResolveContractualProduct.class).to(bindResolveContractualProduct());
 		bind(ResolveEquityInitialPrice.class).to(bindResolveEquityInitialPrice());
 		bind(NoOfUnits.class).to(bindNoOfUnits());
-		bind(NoOfUnitsAmount.class).to(bindNoOfUnitsAmount());
-		bind(Notional.class).to(bindNotional());
-		bind(NotionalAmount.class).to(bindNotionalAmount());
+		bind(CurrencyAmount.class).to(bindCurrencyAmount());
 		bind(PartyByRole.class).to(PartyByRoleImpl.class);
 
 	}
@@ -78,15 +76,7 @@ public class CdmRuntimeModule extends AbstractModule {
 		return NoOfUnitsImpl.class;
 	}
 
-	protected Class<? extends NoOfUnitsAmount> bindNoOfUnitsAmount() {
-		return NoOfUnitsAmountImpl.class;
-	}
-
-	protected Class<? extends Notional> bindNotional() {
-		return NotionalImpl.class;
-	}
-
-	protected Class<? extends NotionalAmount> bindNotionalAmount() {
-		return NotionalAmountImpl.class;
+	protected Class<? extends CurrencyAmount> bindCurrencyAmount() {
+		return CurrencyAmountImpl.class;
 	}
 }

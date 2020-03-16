@@ -304,19 +304,22 @@ func StockSplit:
 		date date (1..1)
 
 	output:
-		workflowStep WorkflowStep (1..1)
+		businessEvent BusinessEvent (1..1)
 
 	alias adjustedNumberOfSecurities: <"Calculate adjusted number of securities based on adjustmentRatio.">
 		AdjustedNumberOfSecurities( trade -> contract -> tradableProduct -> quantityNotation, adjustmentRatio )
 
-	alias adjustedPrice: <"Calculate adjusted price based on adjustmentRatio.">
-		AdjustedPrice( trade -> contract -> tradableProduct -> priceNotation, adjustmentRatio )
+	alias adjustedCashPrice: <"Calculate adjusted price based on adjustmentRatio.">
+		AdjustedCashPrice( trade -> contract -> tradableProduct -> priceNotation, adjustmentRatio )
 
-	assign-output workflowStep -> businessEvent -> primitives -> quantityChange: <"Build QuantityChangePrimitive and add to WorkflowStep.">
-		NewQuantityChangePrimitive( trade, empty /* adjustedNumberOfSecurities */ ) // TODO: convert from single to list
+	condition:
+		trade -> contract exists
 
-	assign-output workflowStep -> businessEvent -> primitives -> termsChange: <"Build TermsChangePrimitive (for price) and add to WorkflowStep.">
-		NewPriceChangePrimitive( trade, adjustedPrice )
+	assign-output businessEvent -> primitives -> quantityChange: <"Build QuantityChangePrimitive and add to WorkflowStep.">
+		NewQuantityChangePrimitive( trade, empty, adjustedNumberOfSecurities )
+
+	assign-output businessEvent -> primitives -> termsChange: <"Build TermsChangePrimitive (for price) and add to WorkflowStep.">
+		NewPriceChangePrimitive( trade, adjustedCashPrice )
 
 
 func AdjustedNumberOfSecurities:
@@ -325,41 +328,28 @@ func AdjustedNumberOfSecurities:
 		adjustmentRatio number (1..1)
 
 	output:
-		result QuantityNotation (1..1)
-
-	alias noOfSecuritiesAsQuantityNotation:
-		NoOfUnits( quantityNotation )
-
-	alias adjustedNoOfSecuritiesAmount: <"Calculate adjusted number of securities based on adjustmentRatio.">
-		noOfSecuritiesAsQuantityNotation -> quantity -> amount * adjustmentRatio
+		result number (1..1)
 
 	assign-output result:
-		noOfSecuritiesAsQuantityNotation
-
-	assign-output result -> quantity -> amount:
-		adjustedNoOfSecuritiesAmount
+		NoOfUnits( quantityNotation ) * adjustmentRatio
 
 
-func AdjustedPrice:
+func AdjustedCashPrice:
 	inputs:
 		priceNotation PriceNotation (1..*)
 		adjustmentRatio number (1..1)
 
 	output:
-		result PriceNotation (1..1)
+		result number (1..1)
 
-	alias priceAsPriceNotation:
-		priceNotation only-element
+	alias cashPrices:
+		priceNotation -> price -> cashPrice -> netPrice -> amount
 
-	alias adjustedPriceAmount: <"Calculate adjusted price based on adjustmentRatio.">
-		priceAsPriceNotation -> price -> cashPrice -> netPrice -> amount / adjustmentRatio
-
+	alias cashPrice:
+		cashPrices only-element
+	
 	assign-output result:
-		priceAsPriceNotation
-
-	assign-output result -> price -> cashPrice -> netPrice -> amount:
-		adjustedPriceAmount
-
+		cashPrice / adjustmentRatio
 
 
 // MdM comments: this is the Dividend Cash Settlement Amount as defined in the SES1 legal document.  The cash dividend will be paid on the relevant DividendDateReferenceEnum. I did not include a function to monitor when the dividends are declared (i.e a dividend observation).
