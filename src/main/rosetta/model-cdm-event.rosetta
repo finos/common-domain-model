@@ -917,16 +917,30 @@ func StockSplit: <"The qualification of StockSplit business event based on (i) a
 	alias currencyAmountUnchanged:
 		if ( beforeCurrencyAmount and afterCurrencyAmount ) exists
 		then beforeCurrencyAmount = afterCurrencyAmount
+		else False
+	
+	alias noOfUnitsChanged:
+		if ( beforeNoOfUnits and afterNoOfUnits ) exists
+		then afterNoOfUnits <> beforeNoOfUnits
+		else False
+	
+	alias cashPriceChanged:
+		if ( beforeCashPrice and afterCashPrice ) exists
+		then beforeCashPrice <> afterCashPrice
+		else False
 	
 	alias adjustmentRatioMatches:
 		if ( beforeNoOfUnits and afterNoOfUnits and beforeCashPrice and afterCashPrice ) exists
 		then afterNoOfUnits / beforeNoOfUnits = beforeCashPrice / afterCashPrice
+		else False
 	
 	assign-output is_event:
 		// TODO: check product type is equity?
 		businessEvent -> primitives count = 2
-		and currencyAmountUnchanged exists and currencyAmountUnchanged = True 
-		and adjustmentRatioMatches exists and adjustmentRatioMatches = True
+		and currencyAmountUnchanged = True
+		and noOfUnitsChanged = True
+		and cashPriceChanged = True 
+		and adjustmentRatioMatches = True
 		
 
 /****************
