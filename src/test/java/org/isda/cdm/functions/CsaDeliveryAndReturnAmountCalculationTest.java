@@ -17,14 +17,15 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ImCsaCalculationTest extends AbstractFunctionTest {
+class CsaDeliveryAndReturnAmountCalculationTest extends AbstractFunctionTest {
 
 	@Inject private DeliveryAmount deliveryAmountCalc;
 	@Inject private ReturnAmount returnAmountCalc;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ImCsaCalculationTest.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(CsaDeliveryAndReturnAmountCalculationTest.class);
 	private static final String BASE_CURRENCY_USD = "EUR";
 	private static final String CURRENCY_SCHEME = "http://www.fpml.org/coding-scheme/external/iso4217";
+	private static final BigDecimal ROUND_TO_NEAREST = BigDecimal.valueOf(0.5);
 	private static final double EPSILON = 1e-10;
 
 	@Test
@@ -72,7 +73,7 @@ public class ImCsaCalculationTest extends AbstractFunctionTest {
 	}
 
 	/**
-	 * @param message
+	 * @param message - assert message
 	 * @param marginAmount - column D
 	 * @param postedCreditSupportAmount - column H
 	 * @param priorDeliveryAmountAdjustment - column R
@@ -106,8 +107,8 @@ public class ImCsaCalculationTest extends AbstractFunctionTest {
 		double threshold = 0;
 		double minimumTransferAmount = 0;
 		CollateralRounding rounding = CollateralRounding.builder()
-				.setDeliveryAmount(BigDecimal.valueOf(0.0))
-				.setReturnAmount(BigDecimal.valueOf(0.0))
+				.setDeliveryAmount(ROUND_TO_NEAREST)
+				.setReturnAmount(ROUND_TO_NEAREST)
 				.build();
 		double disputedDeliveryAmount = 0;
 		Money deliveryAmountMoney = deliveryAmountCalc.evaluate(postedCreditSupportItems,
@@ -136,8 +137,8 @@ public class ImCsaCalculationTest extends AbstractFunctionTest {
 		double threshold = 0;
 		double minimumTransferAmount = 0;
 		CollateralRounding rounding = CollateralRounding.builder()
-				.setDeliveryAmount(BigDecimal.valueOf(0.0))
-				.setReturnAmount(BigDecimal.valueOf(0.0))
+				.setDeliveryAmount(ROUND_TO_NEAREST)
+				.setReturnAmount(ROUND_TO_NEAREST)
 				.build();
 		double disputedReturnAmount = 0;
 		Money returnAmountMoney = returnAmountCalc.evaluate(postedCreditSupportItems,

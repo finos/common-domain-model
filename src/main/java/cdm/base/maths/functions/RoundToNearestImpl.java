@@ -1,15 +1,27 @@
 package cdm.base.maths.functions;
 
-import java.math.BigDecimal;
-
 import cdm.base.maths.RoundingModeEnum;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public class RoundToNearestImpl extends RoundToNearest {
 
 	@Override
-	protected BigDecimal doEvaluate(BigDecimal amount, BigDecimal nearest, RoundingModeEnum roundingMode) {
-		// TODO: implement rounding
-		return amount;
+	protected BigDecimal doEvaluate(BigDecimal value, BigDecimal nearest, RoundingModeEnum roundingMode) {
+		return value.divide(nearest)
+				.setScale(0, toRoundingMode(roundingMode))
+				.multiply(nearest);
 	}
 
+	private RoundingMode toRoundingMode(RoundingModeEnum roundingMode) {
+		switch (roundingMode) {
+		case UP:
+			return RoundingMode.UP;
+		case DOWN:
+			return RoundingMode.DOWN;
+		default:
+			throw new IllegalArgumentException("Unsupported RoundingModeEnum " + roundingMode);
+		}
+	}
 }

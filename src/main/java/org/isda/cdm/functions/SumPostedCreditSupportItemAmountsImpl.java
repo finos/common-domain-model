@@ -19,7 +19,7 @@ public class SumPostedCreditSupportItemAmountsImpl extends SumPostedCreditSuppor
 		BigDecimal sum = BigDecimal.valueOf(0.0);
 		for (PostedCreditSupportItem item : postedCreditSupportItems) {
 			sum = sum.add(postedCreditSupportItemAmount.evaluate(item, baseCurrency).getAmount());
-		};
+		}
 		return Money.builder()
 				.setAmount(sum)
 				.setCurrency(FieldWithMetaString.builder()
