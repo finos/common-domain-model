@@ -17,15 +17,14 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class CsaDeliveryAndReturnAmountCalculationTest extends AbstractFunctionTest {
+public class ImCsaCalculationTest extends AbstractFunctionTest {
 
 	@Inject private DeliveryAmount deliveryAmountCalc;
 	@Inject private ReturnAmount returnAmountCalc;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(CsaDeliveryAndReturnAmountCalculationTest.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ImCsaCalculationTest.class);
 	private static final String BASE_CURRENCY_USD = "EUR";
 	private static final String CURRENCY_SCHEME = "http://www.fpml.org/coding-scheme/external/iso4217";
-	private static final BigDecimal ROUND_TO_NEAREST = BigDecimal.valueOf(0.5);
 	private static final double EPSILON = 1e-10;
 
 	@Test
@@ -73,7 +72,7 @@ class CsaDeliveryAndReturnAmountCalculationTest extends AbstractFunctionTest {
 	}
 
 	/**
-	 * @param message - assert message
+	 * @param message
 	 * @param marginAmount - column D
 	 * @param postedCreditSupportAmount - column H
 	 * @param priorDeliveryAmountAdjustment - column R
@@ -107,8 +106,8 @@ class CsaDeliveryAndReturnAmountCalculationTest extends AbstractFunctionTest {
 		double threshold = 0;
 		double minimumTransferAmount = 0;
 		CollateralRounding rounding = CollateralRounding.builder()
-				.setDeliveryAmount(ROUND_TO_NEAREST)
-				.setReturnAmount(ROUND_TO_NEAREST)
+				.setDeliveryAmount(BigDecimal.valueOf(0.0))
+				.setReturnAmount(BigDecimal.valueOf(0.0))
 				.build();
 		double disputedDeliveryAmount = 0;
 		Money deliveryAmountMoney = deliveryAmountCalc.evaluate(postedCreditSupportItems,
@@ -137,8 +136,8 @@ class CsaDeliveryAndReturnAmountCalculationTest extends AbstractFunctionTest {
 		double threshold = 0;
 		double minimumTransferAmount = 0;
 		CollateralRounding rounding = CollateralRounding.builder()
-				.setDeliveryAmount(ROUND_TO_NEAREST)
-				.setReturnAmount(ROUND_TO_NEAREST)
+				.setDeliveryAmount(BigDecimal.valueOf(0.0))
+				.setReturnAmount(BigDecimal.valueOf(0.0))
 				.build();
 		double disputedReturnAmount = 0;
 		Money returnAmountMoney = returnAmountCalc.evaluate(postedCreditSupportItems,
