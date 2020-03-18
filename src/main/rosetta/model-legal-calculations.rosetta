@@ -59,7 +59,7 @@ func ReturnAmount:
 		postedCreditSupportItems PostedCreditSupportItem (0..*)
 		priorDeliveryAmountAdjustment Money (1..1)
 		priorReturnAmountAdjustment Money (1..1)
-		disputedPostedCreditSupportAmount Money (1..1)
+		disputedTransferredPostedCreditSupportAmount Money (1..1)
 		marginAmount Money (1..1)
 		threshold Money (1..1)
 		marginApproach MarginApproachEnum (1..1)
@@ -73,7 +73,7 @@ func ReturnAmount:
 		result Money (1..1)
 
 	alias undisputedAdjustedPostedCreditSupportAmount:
-		UndisputedAdjustedPostedCreditSupportAmount( postedCreditSupportItems, priorDeliveryAmountAdjustment, priorReturnAmountAdjustment, disputedPostedCreditSupportAmount, baseCurrency )
+		UndisputedAdjustedPostedCreditSupportAmount( postedCreditSupportItems, priorDeliveryAmountAdjustment, priorReturnAmountAdjustment, disputedTransferredPostedCreditSupportAmount, baseCurrency )
 
 	alias creditSupportAmount:
 		CreditSupportAmount( marginAmount, threshold, marginApproach, marginAmountIA, baseCurrency )
@@ -142,7 +142,7 @@ func UndisputedAdjustedPostedCreditSupportAmount:
 		postedCreditSupportItems PostedCreditSupportItem (0..*)
 		priorDeliveryAmountAdjustment Money (1..1)
 		priorReturnAmountAdjustment Money (1..1)
-		disputedPostedCreditSupportAmount Money (1..1)
+		disputedTransferredPostedCreditSupportAmount Money (1..1)
 		baseCurrency string (1..1)
 
 	output:
@@ -154,13 +154,16 @@ func UndisputedAdjustedPostedCreditSupportAmount:
 	alias adjustedPostedCreditSupportAmount:
 		totalPostedCreditSupportAmount -> amount + priorDeliveryAmountAdjustment -> amount - priorReturnAmountAdjustment -> amount
 
+	alias undisputedAdjustedPostedCreditSupportAmount:
+		adjustedPostedCreditSupportAmount - disputedTransferredPostedCreditSupportAmount -> amount
+	
 	condition:
 		( baseCurrency = priorDeliveryAmountAdjustment -> currency )
 		and ( baseCurrency = priorReturnAmountAdjustment -> currency )
-		and ( baseCurrency = disputedPostedCreditSupportAmount -> currency )
+		and ( baseCurrency = disputedTransferredPostedCreditSupportAmount -> currency )
 	
 	assign-output result -> amount:
-		adjustedPostedCreditSupportAmount - disputedPostedCreditSupportAmount -> amount
+		undisputedAdjustedPostedCreditSupportAmount
 	
 	assign-output result -> currency:
 		baseCurrency
