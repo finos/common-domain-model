@@ -10,6 +10,9 @@ import org.isda.cdm.PostedCreditSupportItem;
 import com.google.inject.Inject;
 import com.rosetta.model.metafields.FieldWithMetaString;
 
+/**
+ * For each postedCreditSupportItem call the PostedCreditSupportItemAmount func and return the summed total.
+ */
 public class SumPostedCreditSupportItemAmountsImpl extends SumPostedCreditSupportItemAmounts {
 
 	@Inject private PostedCreditSupportItemAmount postedCreditSupportItemAmount;
