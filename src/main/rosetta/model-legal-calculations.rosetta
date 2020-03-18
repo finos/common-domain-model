@@ -147,7 +147,7 @@ func UndisputedAdjustedPostedCreditSupportAmount:
 
 	output:
 		result Money (1..1)
-
+		
 	alias totalPostedCreditSupportAmount:
 		SumPostedCreditSupportItemAmounts( postedCreditSupportItems, baseCurrency )
 
@@ -158,10 +158,10 @@ func UndisputedAdjustedPostedCreditSupportAmount:
 		( baseCurrency = priorDeliveryAmountAdjustment -> currency )
 		and ( baseCurrency = priorReturnAmountAdjustment -> currency )
 		and ( baseCurrency = disputedPostedCreditSupportAmount -> currency )
-
+	
 	assign-output result -> amount:
 		adjustedPostedCreditSupportAmount - disputedPostedCreditSupportAmount -> amount
-
+	
 	assign-output result -> currency:
 		baseCurrency
 
@@ -199,16 +199,11 @@ func PostedCreditSupportItemAmount:
 	alias postedCreditSupportAmount:
 		cashOrSecurityValue * ( valuationPercentage - fxHaircutPercentage ) / 100.0
 
-	alias disputedCashOrSecurityValue:
-		if item -> disputedCashOrSecurityValue -> amount exists
-		then item -> disputedCashOrSecurityValue -> amount
-		else 0.0
-
 	alias undisputedPostedCreditSupportAmount:
 		postedCreditSupportAmount - item -> disputedCashOrSecurityValue -> amount
 
 	condition:
-		( baseCurrency = item -> cashOrSecurityValue -> currency )
+		( baseCurrency = item -> cashOrSecurityValue -> currency ) 
 		and ( baseCurrency = item -> disputedCashOrSecurityValue -> currency )
 
 	assign-output result -> amount:
