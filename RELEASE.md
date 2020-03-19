@@ -1,13 +1,16 @@
-# *CDM Model: Equity Stock Split Function*
+# *CDM Model: CSA Initial Margin 2018 (Paragraph 3 & 5) Calculations*
 
 _What is being released_
 
-Function added to create a split stock business event based on a `SplitStockInstruction`.  The `SplitStockInstruction.adjustmentRatio` is applied to the number of securities and cash price resulting in the a `QuantityChangePrimitive` and `TermsChangePrimitive` respectively.
+Further modelling of the calculations described in CSA Initial Margin 2018 paragraphs 3 and 5.
+
+These functions are still under active development and have been released so they can be more easily shared with a wider audience.  
+
+Note that the ISDA definitions will be added to the function documentation in an upcoming release.
 
 _Review Directions_
 
 In the Textual Browser, review the following:
 
-- Business event func `SplitStock`.
-- Type `StockSplitInstruction`.
-- Qualification func `StockSplit`.
+- Functions: `DeliveryAmount`, `ReturnAmount`, `CreditSupportAmount`, `UndisputedAdjustedPostedCreditSupportAmount`, `SumPostedCreditSupportItemAmounts`, `PostedCreditSupportItemAmount`
+- Types: `PostedCreditSupportItem`
