@@ -6,8 +6,6 @@ Further modelling of the calculations described in CSA Initial Margin 2018 parag
 
 These functions are still under active development and have been released so they can be more easily shared with a wider audience.  
 
-Note that the ISDA definitions will be added to the function documentation in an upcoming release.
-
 _Review Directions_
 
 In the Textual Browser, review the following:
