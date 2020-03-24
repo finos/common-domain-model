@@ -15,8 +15,6 @@ import static org.isda.cdm.processor.MappingProcessorUtils.*;
 
 /**
  * ISDA Create mapping processor.
- *
- * If partyElection.customElection is "zero" then set partyElection.noAmount to 0.
  */
 public class MinimumTransferAmountAmendmentMappingProcessor extends MappingProcessor {
 
