@@ -1,0 +1,260 @@
+namespace cdm.synonyms.dtcc
+version "${project.version}"
+
+import cdm.base.datetime.*
+import org.isda.cdm.*
+import cdm.base.staticdata.asset.commons.*
+import cdm.base.*
+import cdm.base.staticdata.asset.credit.*
+import cdm.base.maths.*
+import cdm.base.staticdata.party.*
+import cdm.base.staticdata.identifier.*
+import cdm.base.staticdata.asset.rates.*
+	 
+synonym source DTCC_9_0 extends DTCC_BASE {
+	InceptionPrimitive:
+		+ after
+			[value "OTC_Matching" path "Body" set when "Header->OTC_RM->Manifest->TradeMsg->TransType" = "Trade"]
+}
+
+synonym source DTCC_11_0 extends DTCC_BASE {
+	InceptionPrimitive:
+		+ after
+			[value "OTC_RM" path "Header", "OTC_Matching" path "Body" set when "Header->OTC_RM->Manifest->TradeMsg->TransType" = "Trade"]	
+}
+
+synonym source DTCC_BASE extends FpML_5_10
+{
+	CalculationAgentModel:
+		+ calculationAgentBusinessCenter
+			[value "calculationAgentBusinessCenter" path "Body->OTC_Matching->Trade->FpML->trade"]
+
+	Contract:
+		- contractIdentifier
+		+ contractIdentifier
+			[value "Submitter"]
+			[value "ContraTradeId"]
+			[value "YourTradeId"]
+			[value "tradeIdentifyingItems"]
+			[value "USI"]
+			[value "OriginatingUSI"]
+			[value "UTI"]
+		+ tradableProduct
+			[hint "ProductType"]
+
+	Execution:
+		+ identifier
+			[value "partyTradeIdentifier" path "Submitter"]
+
+	Payout:
+		+ equityPayout
+			[value "ignore"]
+		+ forwardPayout
+			[value "ignore"]
+		+ securityPayout
+			[value "ignore"]
+
+	Product:
+		+ contractualProduct
+			[hint "ProductType"]
+
+	ProductIdentification:
+		- productType
+		+ productType
+			[value "ProductType"]
+		+ productId
+			[value "instrumentId" path "payment->calculationDetails->calculationElements->underlier->index" meta "instrumentIdScheme"]
+
+	PrimitiveEvent:
+		+ allocation
+			[value "ignore"]
+		+ exercise
+			[value "ignore"]
+		+ quantityChange
+			[value "ignore"]
+		+ reset
+			[value "ignore"]
+		+ termsChange
+			[value "ignore"]
+		+ transfer
+			[value "Payment" path "Body->OTC_Matching"]
+
+	ObservationPrimitive:
+		+ date
+			[value "observationDate"]
+
+	TransferPrimitive:
+		+ identifier
+			[value "tradeCashflowsId" path "FpML" meta "tradeCashflowsIdScheme"]
+		+ settlementType
+			[value "SettlementType" path "PaymentDetails"]
+		+ cashTransfer
+			[value "payment" path "FpML"]
+
+	AssetIdentifier:
+		+ productIdentifier
+			// For PriceNotation always set productIdentifier
+			// TODO: NAMESPACE changes. Removed the rosettaPath and moved the check one level up
+			// [synonym FpML_5_10 value "equity" set when rosettaPath = PriceNotation -> assetIdentifier]
+			[value "ignore"]
+
+	Party:
+		+ partyId
+			[value "partyId" maps 2 meta "partyIdScheme"]
+
+	AssignedIdentifier:
+		+ identifier
+			 [value "tradeId" path "partyTradeIdentifier" maps 2
+			 set when "partyTradeIdentifier->tradeId->tradeIdScheme" = "EventProcessingId" and rosettaPath = WorkflowStep -> eventIdentifier -> assignedIdentifier -> identifier,
+			 set when "partyTradeIdentifier->tradeId->tradeIdScheme" = "TradeRefNbr" and rosettaPath = Contract -> contractIdentifier -> assignedIdentifier -> identifier meta "tradeIdScheme"]
+			[value "USITradeId" meta "tradeIdScheme"]
+			[value "UTITradeId" meta "tradeIdScheme"]
+			[value "identifier" path "payment" meta "paymentIdScheme"]
+
+	Identifier:
+		+ issuerReference
+			[value "partyReference" path "partyTradeIdentifier" maps 2 meta "href"]
+		+ issuer
+			[value "USIIssuer" meta "issuerIdScheme"]
+			[value "UTIIssuer" meta "issuerIdScheme"]
+
+	InterestShortFall:
+		+ rateSource
+			[value "rateSource" meta "floatingRateIndexScheme"]
+
+	CashTransferComponent:
+		+ amount
+			[value "paymentAmount"]
+		+ cashflowType
+			[value "cashflowType" path "calculationDetails->grossCashflow" meta "cashflowTypeScheme"]
+		+ breakdown
+			[value "breakdown"]
+
+	ContractState:
+		+ contract
+			[value "FpML" path "Trade"]
+			[value "TradeMsg" path "Manifest"]
+			[value "ReportingJurisdiction" path "ReportingData->ReportingHeader"]
+
+	CustomisedWorkflow:
+		+ itemName
+			[set to "comment" when path = "PartyWorkflowFields->comment"]
+			[set to "superId" when path = "PartyWorkflowFields->superId"]
+			[set to "deskId" when path = "PartyWorkflowFields->deskId"]
+			[set to "eTradeId" when path = "PartyWorkflowFields->eTradeId"]
+			[set to "designatedParty" when path = "PartyWorkflowFields->designatedParty"]
+			[set to "brokerName" when path = "PartyWorkflowFields->brokerName"]
+			[set to "branchLocation" when path = "PartyWorkflowFields->branchLocation"]
+			[set to "midMarketPriceType" when path = "PartyWorkflowFields->midMarketPrice->midMarketPriceType"]
+			[set to "amount" when path = "PartyWorkflowFields->midMarketPrice->amount"]
+		+ itemValue
+			[value "comment" path "PartyWorkflowFields"]
+			[value "superId" path "PartyWorkflowFields"]
+			[value "deskId" path "PartyWorkflowFields"]
+			[value "eTradeId" path "PartyWorkflowFields"]
+			[value "designatedParty" path "PartyWorkflowFields"]
+			[value "brokerName" path "PartyWorkflowFields"]
+			[value "branchLocation" path "PartyWorkflowFields"]
+			[value "midMarketPriceType" path "PartyWorkflowFields->midMarketPrice"]
+			[value "amount" path "PartyWorkflowFields->midMarketPrice"]
+
+	WorkflowStep:
+		+ messageInformation
+			[value "FpML" path "Body->OTC_Matching->Trade"]
+			[value "FpML" path "Body->OTC_Matching->Payment"]
+			[value "RouteInfo" path "Header->OTC_RM->Delivery"]
+			[value "Manifest" path "Header->OTC_RM"]
+		+ timestamp
+			[value "header" path "Body->OTC_Matching->Trade->FpML"]
+			[value "Route" path "Header->OTC_RM->Delivery->RouteHist"]
+			[value "header" path "Body->OTC_Matching->Payment->FpML"]
+		+ eventIdentifier
+			[value "Submitter" path "Header->OTC_RM->Manifest->TradeMsg"]
+			[value "ContraTradeId" path "Header->OTC_RM->Manifest->TradeMsg"]
+			[value "YourTradeId" path "Header->OTC_RM->Manifest->TradeMsg"]
+			[value "tradeIdentifyingItems" path "Header->OTC_RM->Manifest->TradeMsg"]
+		+ action
+			[value "Activity" path "Header->OTC_RM->Manifest->TradeMsg"]
+		+ party
+			[value "party" path "Body->OTC_Matching->Trade->FpML" ]
+			[value "party" path "Body->OTC_Matching->Payment->FpML" ]
+
+	EventTimestamp:
+		+ dateTime
+			[value "creationTimestamp"]
+			[value "expiryTimestamp"]
+			[value "ReceiveTime"]
+		+ qualification
+			[set to EventTimestampQualificationEnum -> eventCreationDateTime when "creationTimestamp" exists]
+			[set to EventTimestampQualificationEnum -> eventExpirationDateTime when "expiryTimestamp" exists]
+			[set to EventTimestampQualificationEnum -> eventSubmittedDateTime when "ReceiveTime" exists]
+
+	MessageInformation:
+		+ messageId
+			[value "messageId" path "header" meta "messageIdScheme"]
+		+ sentBy
+			[value "From"]
+		+ sentTo
+			[value "To"]
+
+	PartyCustomisedWorkflow:
+		+ partyReference
+			[value "partyReference" meta "href"]
+
+	Trade:
+		+ contract
+			[value "FpML" path "Trade"]
+			[value "TradeMsg" path "Manifest"]
+			[value "ReportingJurisdiction" path "ReportingData->ReportingHeader"]
+
+	TradeWarehouseWorkflow:
+		+ warehouseIdentity
+			[value "WarehousePositionType" path "WarehouseState"]
+		+ warehouseStatus
+			[value "WarehouseStatus" path "WarehouseState"]
+		+ partyCustomisedWorkflow
+			[value "WorkflowData"]
+
+	TransferBase:
+		+ identifier
+			[value "identifier" meta "paymentIdScheme"]
+		+ transferCalculation
+			[value "calculationDetails"]
+
+	TransferCalculation:
+		+ period
+			[value "calculationPeriod" path "calculationElements"]
+		
+	enums
+
+	ActionEnum:
+		+ New
+			[value "New"]
+		+ Correct
+			[value "Modify"]
+		+ Cancel
+			[value "Disable"]
+
+	TransferSettlementEnum:
+		+ PaymentVersusPayment
+			[value "CentralSettlement"]
+		+ NotCentralSettlement
+			[value "NotCentralSettlement"]
+
+	WarehouseIdentityEnum:
+		+ DTCC_TIW_Gold
+			[value "Gold"]
+
+	WorkflowStatusEnum:
+		+ Alleged
+			[value "Alleged"]
+		+ Certain
+			[value "Certain"]
+		+ Submitted
+			[value "Submit"]
+		+ Uncertain
+			[value "Uncertain"]
+		+ Unconfirmed
+			[value "Unconfirmed"]
+}
+

@@ -1,5 +1,10 @@
-namespace "org.isda.cdm"
+namespace org.isda.cdm
 version "${project.version}"
+
+import cdm.base.maths.*
+import cdm.base.datetime.*
+import cdm.base.staticdata.asset.commons.*
+import cdm.base.staticdata.party.*
 
 /*
  * Function Specifications for Equity Swap product creation
@@ -196,12 +201,6 @@ func EquitySpot: <"An external market data lookup for the spot equity price of t
 
 	output: spot number (1..1)
 
-
-func TimeZoneFromBusinessCenterTime: <"Function to resolve a time passed as BusinessCenterTime into a TimeZone time.">
-	inputs: time BusinessCenterTime (1..1)
-	output: result TimeZone (1..1)
-
-
 func ResolveTimeZoneFromTimeType: <"Function to resolve a TimeType into a TimeZone based on a determination method.">
 	inputs:
 		timeType TimeTypeEnum (1..1)
@@ -337,4 +336,70 @@ func ResolveEquityInitialPrice:
 
 	output:
 		initialPrice CashPrice (1..1)
+
+
+func SplitStock:
+	inputs:
+		instruction StockSplitInstruction (1..1)
+
+	output:
+		businessEvent BusinessEvent (1..1)
+
+	alias adjustedNumberOfSecurities: <"Calculate adjusted number of securities based on adjustmentRatio.">
+		AdjustedNumberOfSecurities( instruction -> trade -> contract -> tradableProduct -> quantityNotation, instruction -> adjustmentRatio )
+
+	alias adjustedCashPrice: <"Calculate adjusted price based on adjustmentRatio.">
+		AdjustedCashPrice( instruction -> trade -> contract -> tradableProduct -> priceNotation, instruction -> adjustmentRatio )
+
+	condition:
+		instruction -> trade -> contract exists
+
+	assign-output businessEvent -> primitives -> quantityChange: <"Build QuantityChangePrimitive and add to WorkflowStep.">
+		NewQuantityChangePrimitive( instruction -> trade, empty, adjustedNumberOfSecurities )
+
+	assign-output businessEvent -> primitives -> termsChange: <"Build TermsChangePrimitive (for price) and add to WorkflowStep.">
+		NewPriceChangePrimitive( instruction -> trade, adjustedCashPrice )
+
+
+func AdjustedNumberOfSecurities:
+	inputs:
+		quantityNotation QuantityNotation (1..*)
+		adjustmentRatio number (1..1)
+
+	output:
+		result number (1..1)
+
+	assign-output result:
+		NoOfUnits( quantityNotation ) * adjustmentRatio
+
+
+func AdjustedCashPrice:
+	inputs:
+		priceNotation PriceNotation (1..*)
+		adjustmentRatio number (1..1)
+
+	output:
+		result number (1..1)
+
+	alias cashPrices:
+		priceNotation -> price -> cashPrice -> netPrice -> amount
+
+	alias cashPrice:
+		cashPrices only-element
 	
+	assign-output result:
+		cashPrice / adjustmentRatio
+
+
+// MdM comments: this is the Dividend Cash Settlement Amount as defined in the SES1 legal document.  The cash dividend will be paid on the relevant DividendDateReferenceEnum. I did not include a function to monitor when the dividends are declared (i.e a dividend observation).
+func DividendCashSettlementAmount: <"Based on the following legal text: means, in respect of a Dividend Period and the related Dividend Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent for such Dividend Period to which the Dividend Cash Settlement Amount relates, pursuant to the following formula: Dividend Cash Settlement Amount = Record Amount × Number Of Securities.">
+
+	inputs:
+		numberOfSecurities number (1..1)
+		declaredDividend number (1..1)
+
+	output:
+		dividendCashSettlementAmount number (1..1)
+
+	assign-output dividendCashSettlementAmount:
+		declaredDividend * numberOfSecurities

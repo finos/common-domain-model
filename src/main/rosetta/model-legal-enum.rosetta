@@ -1,5 +1,7 @@
-namespace "org.isda.cdm"
+namespace org.isda.cdm
 version "${project.version}"
+
+import cdm.base.*
 
 enum AdditionalTypeEnum: <"The enumerated values to specify the Additional Type of transaction that can require the collection or delivery of initial margin under a given regulatory regime for the purposes of Covered Transactions, as specified in ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (b)(B).">
 
@@ -14,6 +16,10 @@ enum AmendmentEffectiveDateEnum: <"The enumerated values to specify the effectiv
 
 	AnnexDate <"The effective date corresponds to the Annex date.">
 		[synonym ISDA_Create_1_0 value "annex"]
+	DeedDate <"The effective date corresponds to the Deed date.">
+		[synonym ISDA_Create_1_0 value "deed"]
+	AmendmentEffectiveDate <"The effective date corresponds to the Amendment Effective Date (IM)">
+		[synonym ISDA_Create_1_0 value "amendment_effective_date"]
 
 
 enum CollateralAssetDefinitionsEnum: <"The ISDA Collateral Assets Definitions as published by ISDA in the 2003 ISDA Collateral Asset Definitions.">
@@ -457,18 +463,19 @@ enum LegalAgreementPublisherEnum: <"The enumerated values to specify the legal a
 	ISDA <"International Swaps and Derivatives Association, Inc.">
 		[synonym FpML_5_10, AcadiaSoft_AM_1_0, ISDA_Create_1_0 value "ISDA"]
 
+	
+enum MarginApproachEnum: <"2018 Credit Suport Annex For Initial Margin, Paragraph 3: Credit Support Obligations. (c) (iii) Margin Approach.">
+	Distinct <"(A) If the 'Distinct Margin Flow (IM) Approach' is specified as applicable in Paragraph 13, the following provisions will apply: (1) 'Credit Support Amount (IM)' means, with respect to a party as the Pledgor, for any Calculation Date (IM), (i) the Margin Amount (IM) applicable to the Pledgor, if any, minus (ii) the Pledgor’s Threshold (IM); provided, however, that the Credit Support Amount (IM) will be deemed to be zero whenever the calculation of the Credit Support Amount (IM) yields a number less than zero. (2) No Amendment to Obligations in respect of Margin Amount (IA). The posting obligation of a Pledgor in respect of any amount that constitutes a Margin Amount (IA) under any Other CSA shall not be affected or amended in any way by the provisions of this Annex.">
+		[synonym ISDA_Create_1_0 value "distinct"]
+	Allocated <"(B) If the 'Allocated Margin Flow (IM/IA) Approach' is specified as applicable in Paragraph 13, the following provisions will apply: (1) 'Credit Support Amount (IM)' means, with respect to a party as the Pledgor, for any Calculation Date (IM), (i) the Margin Amount (IM) applicable to the Pledgor, if any, minus (ii) the Pledgor’s Threshold (IM); provided, however, that the Credit Support Amount (IM) will be deemed to be zero whenever the calculation of the Credit Support Amount (IM) yields a number less than zero. (2) Amendment to Obligations in respect of Margin Amount (IA). The posting obligation of a Pledgor in respect of any amount that constitutes a Margin Amount (IA) under any Other CSA shall be reduced on an aggregate basis by the amount of the Pledgor’s Credit Support Amount (IM); provided, however, that if, after such reduction, any such Margin Amount (IA) would be a negative amount, such Margin Amount (IA) will be deemed to be zero.">
+		[synonym ISDA_Create_1_0 value "allocated"]	
+	GreaterOf <"(C) If the 'Greater of Margin Flow (IM/IA) Approach' is specified as applicable in Paragraph 13, the following provisions will apply: (1) 'Credit Support Amount (IM)' means, with respect to a party as the Pledgor, for any Calculation Date (IM), the greater of (i)(A) the Margin Amount (IM) applicable to the Pledgor, if any, minus (B) the Pledgor’s Threshold (IM) and (ii) the Margin Amount (IA); provided, however, that the Credit Support Amount (IM) will be deemed to be zero whenever the calculation of the Credit Support Amount (IM) yields a number less than zero. (2) Amendment to Obligations in respect of Margin Amount (IA).  The posting obligation of a Pledgor in respect of any amount that constitutes a Margin Amount (IA) under any Other CSA, other than such obligations of a Pledgor under this Annex, shall be reduced to zero.">
+		[synonym ISDA_Create_1_0 value "greaterof"]
+
 
 enum NoThresholdEnum: <"The enumerated value to specify the fact that no threshold applies.">
 // TODO Never referenced in CDM
 	zero
-
-
-enum QuantifierEnum: <"The enumerated values to specify a logical quantification, i.e. either All or Any.">
-	[synonym FpML_5_10 value "QuantifierEnum"]
-	All <"The condition in the scope of the quantifier is true of every member of the domain i.e. every one of the elements in scope.">
-		[synonym FpML_5_10 value "All"]
-	Any <"The condition in the scope of the quantifier is true of at least one member of the domain i.e. one or more of the elements in scope.">
-		[synonym FpML_5_10 value "Any"]
 
 
 /*
@@ -503,66 +510,38 @@ enum SensitivitiesEnum: <"The enumerated values to specify the methodology accor
 		[synonym ISDA_Create_1_0 value "alternative"]
 	Standard <"The relevant sensitivities are addressed by the standard preferred approach where the entire delta is put into the applicable asset class/category.">
 		[synonym ISDA_Create_1_0 value "standard"]
+		[synonym ISDA_Create_1_0 value "not_specified"]
 
 
 enum SimmExceptionEnum: <"The enumerated values to specify the SIMM normalized exceptions applicable to the ISDA 2018 Standard CSA. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles. | ISDA 2018 Credit Support Annex for Initial Margin, paragraph 13, General Principles.">
 
 	Applicable <"The ISDA Standard Initial Margin Model exception is applicable. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles. | ISDA 2018 Credit Support Annex for Initial Margin, paragraph 13, General Principles.">
+		[synonym ISDA_Create_1_0 value "applicable"]
 	NotApplicable <"The ISDA Standard Initial Margin Model exception is not applicable. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles. | ISDA 2018 Credit Support Annex for Initial Margin, paragraph 13, General Principles.">
+		[synonym ISDA_Create_1_0 value "not_applicable"]
+
+enum SimmExceptionApplicableEnum: <"...">
 	FallBackToMandatoryMethod <"The ISDA Standard Initial Margin Model exception is applicable as a Fallback to Mandatory Method. ISDA 2018 Credit Support Annex for Initial Margin, paragraph 13, General Principles.">
+		[synonym ISDA_Create_1_0 value "fallback"]
 	MandatoryMethod <"The ISDA Standard Initial Margin Model exception is applicable as a Mandatory Method. This means that the method applicable is to determine the Margin Amount (IM) by reference to the methodology prescribed pursuant to the applicable regulatory regime which uses a standardized initial margin schedule (such that prescribed percentages are applied to notional amounts before being adjusted, including by a net-to-gross ratio (NGR)). ISDA 2018 Credit Support Annex for Initial Margin, paragraph 13, General Principles.">
+		[synonym ISDA_Create_1_0 value "mandatory"]
 
+enum RecalculationOfValueElectionEnum: <"The enumerated values to specify the Recalculation of Value Terms applicable to the...">
 
-// TODO: part of eligible collateral refactoring - re-order in file once fully agreed
+	ConsulationProcedure <"The parties agree to consult">
+		[synonym ISDA_Create_1_0 value "consultation_procedure"]
+	OtherRegulatoryCSAProcedure <"The procedures specified in an Other Regulatory CSA">
+		[synonym ISDA_Create_1_0 value "other_regulatory_CSA_procedure"]
+	NotApplicable <"Description to be added">
+		[synonym ISDA_Create_1_0 value "not_appplicable"]
 
-enum CollateralIssuerTypeClassificationEnum: <"Origin of entity issuing the collateral.">
-    AgencyCreditInstitution <"Agency Credit Institution">
-	AgencyNonCreditInstitution <"Agency Non-Credit Institution">
-	CentralBank <"Central Bank (e.g. UK Government GILTS)">
-	CentralGovernment <"Central Government (e.g. US Federal)">
-    Corporate <"Corporate">
-	CreditInstitutionNonAgency <"Credit Institution Non-Agency">
-	GovernmentSponsoredEnterprise <"Government Sponsored Enterprise"> // Not in Acadia
-    InternationalOrganisation <"International Organisation">
-    LocalAuthority <"Local Authority">
-    MultilateralDevelopmentBank <"Multilateral Development Bank (e.g. IBRD, IMF)">
-    MunicipalServices <"Municipal Services"> // Not in Acadia
-	PublicSector <"Public Sector">
-    RegionalGovernment <"Regional Government (e.g. US States)">
-    SupraNational <"Supra National (e.g. KFW)"> // Not in Acadia 
+enum ConditionsPrecedentEnum: <"The enumerated values to specify the Conditions Precedent applicanle to the...">
+
+	NotSpecified <"Conditions Precedent are not specified">
+		[synonym ISDA_Create_1_0 value "not_specified"]
+	Paragraph4WillNotApply <"Paragraph 4(a) will not apply">
+		[synonym ISDA_Create_1_0 value "paragraph_4a_will_not_apply"]
+	Specified <"Other Conditions Precedent are specified">
+		[synonym ISDA_Create_1_0 value "specify"]
 	
-enum CollateralTypeEnum: <"Definition of collateral type.">
-   	Cash
-	Equity
-	Security
-	LetterOfCredit
-	TermDeposit
-	Other
 
-enum CollateralSubTypeEnum:
-	Bonds <"Security: Bonds">
-	MortgageBonds <"Security: Mortgage Bonds">
-	ConvertibleBonds <"Security: Convertible Bonds">
-	CoveredBonds <"Security: Covered Bonds">
-	CertificateOfDeposit <"Security: Certificate of Deposit">
-	TreasuryBonds <"Security: Treasury Bonds">
-	MunicipalBonds <"Security: Municipal Bonds">
-	Warranties <"Security: Warranties">
-	FreelyTransferableMutualFund <"Security: Freely Transferable Mutual Fund">
-	Asset Backed <"Security: Asset Backed">
-	ConvertibleCommon <"Equity: Convertible Common">
-	Common <"Equity: Common">
-	NonConvertiblePreference <"Equity: Non Convertible Preference">
-	DepositoryReceipts <"Equity: Depository Receipts">
-	Rights <"Equity: Rights">
-	Warrants <"Equity: Warrants">
-
-enum CreditNotationMismatchResolutionEnum: <"If several agency issue ratings but not equivalent, reference will be made to the lowest/highest available.">
-	Lowest
-	Highest
-	ReferenceAgency
-	
-enum MarginApproachEnum:
-	Distinct
-	Allocated
-	GreaterOf

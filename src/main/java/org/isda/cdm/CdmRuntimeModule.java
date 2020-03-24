@@ -1,10 +1,14 @@
 package org.isda.cdm;
 
+import cdm.base.maths.functions.*;
+import org.isda.cdm.functions.*;
+
 import com.google.inject.AbstractModule;
 import com.regnosys.rosetta.common.validation.RosettaTypeValidator;
 import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
 import com.rosetta.model.lib.validation.ModelObjectValidator;
-import org.isda.cdm.functions.*;
+
+import cdm.base.staticdata.party.functions.PartyByRole;
 
 public class CdmRuntimeModule extends AbstractModule {
 
@@ -23,9 +27,11 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(ResolveContractualProduct.class).to(bindResolveContractualProduct());
 		bind(ResolveEquityInitialPrice.class).to(bindResolveEquityInitialPrice());
 		bind(NoOfUnits.class).to(bindNoOfUnits());
-		bind(Notional.class).to(bindNotional());
+		bind(CurrencyAmount.class).to(bindCurrencyAmount());
 		bind(PartyByRole.class).to(PartyByRoleImpl.class);
 		bind(FloatingInterestRatePayout.class).to(FloatingInterestRatePayoutImpl.class);
+		bind(SumPostedCreditSupportItemAmounts.class).to(bindSumPostedCreditSupportItemAmounts());
+		bind(RoundToNearest.class).to(bindRoundToNearest());
 	}
 
 	protected Class<? extends ListsCompare> bindListsCompare() {
@@ -41,7 +47,7 @@ public class CdmRuntimeModule extends AbstractModule {
 	}
 
 	// Functions
-	
+
 	protected Class<? extends Abs> bindAbs() {
 		return AbsImpl.class;
 	}
@@ -65,12 +71,20 @@ public class CdmRuntimeModule extends AbstractModule {
 	protected Class<? extends ResolveEquityInitialPrice> bindResolveEquityInitialPrice() {
 		return ResolveEquityInitialPriceImpl.class;
 	}
-	
+
 	protected Class<? extends NoOfUnits> bindNoOfUnits() {
 		return NoOfUnitsImpl.class;
 	}
-	
-	protected Class<? extends Notional> bindNotional() {
-		return NotionalImpl.class;
+
+	protected Class<? extends CurrencyAmount> bindCurrencyAmount() {
+		return CurrencyAmountImpl.class;
+	}
+
+	protected Class<? extends SumPostedCreditSupportItemAmounts> bindSumPostedCreditSupportItemAmounts() {
+		return SumPostedCreditSupportItemAmountsImpl.class;
+	}
+
+	protected Class<? extends RoundToNearest> bindRoundToNearest() {
+		return RoundToNearestImpl.class;
 	}
 }
