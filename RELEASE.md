@@ -1,13 +1,13 @@
-# *CDM Model: Equity Stock Split Function*
+# *CDM Model: IM CSA New York Law 2018 Modelling*
 
 _What is being released_
 
-Function added to create a split stock business event based on a `SplitStockInstruction`.  The `SplitStockInstruction.adjustmentRatio` is applied to the number of securities and cash price resulting in the a `QuantityChangePrimitive` and `TermsChangePrimitive` respectively.
+IM CSA New York Law 2018 document modelled and synonyms added to map to ISDA Create negotiation data.
+
+CSA document model refactored to better support combination of 2016 and 2018 IM documents.
 
 _Review Directions_
 
-In the Textual Browser, review the following:
+In the Ingestion Panel, try samples in folder:
 
-- Business event func `SplitStock`.
-- Type `StockSplitInstruction`.
-- Qualification func `StockSplit`.
+- `isda-create > im-csd-ny-law-2018`
