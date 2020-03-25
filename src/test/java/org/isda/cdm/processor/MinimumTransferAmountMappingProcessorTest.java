@@ -1,9 +1,11 @@
 package org.isda.cdm.processor;
 
 import com.regnosys.rosetta.common.translation.Mapping;
+import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.path.RosettaPath;
 import org.isda.cdm.ElectiveAmountElection;
 import org.isda.cdm.MinimumTransferAmount;
+import org.isda.cdm.Money;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -16,27 +18,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 
-@Disabled
 class MinimumTransferAmountMappingProcessorTest {
 
 	private static final String PARTY_A = "partyA";
 	private static final String PARTY_B = "partyB";
-	private static final String SPECIFY = "specify";
 	private static final String ZERO = "zero";
 
 	@Test
-	void shouldSetNoAmountWhenCustomElectionIsZero() {
+	void shouldMapMta() {
 		// set up
 		RosettaPath rosettaPath = RosettaPath.valueOf("LegalAgreement.csdInitialMargin2016EnglishLaw.creditSupportObligations.minimumTransferAmount");
 		List<Mapping> mappings = new ArrayList<>();
+		mappings.add(new Mapping(Path.parse("answers.partyA.minimum_transfer_amount.partyA_minimum_transfer_amount"), "specify", null, null, "no destination", false, false));
+		mappings.add(new Mapping(Path.parse("answers.partyA.minimum_transfer_amount.partyA_amount"), "10000", null, null, "no destination", false, false));
+		mappings.add(new Mapping(Path.parse("answers.partyA.minimum_transfer_amount.partyA_currency"), "Euro", null, null, "no destination", false, false));
+		mappings.add(new Mapping(Path.parse("answers.partyA.minimum_transfer_amount.partyB_minimum_transfer_amount"), ZERO, null, null, "no destination", false, false));
 
-		MinimumTransferAmountBuilder builder = MinimumTransferAmount.builder()
-				.addPartyElectionBuilder(ElectiveAmountElection.builder()
-						.setParty(PARTY_A)
-						.setCustomElection(SPECIFY))
-				.addPartyElectionBuilder(ElectiveAmountElection.builder()
-						.setParty(PARTY_B)
-						.setCustomElection(ZERO));
+		MinimumTransferAmountBuilder builder = MinimumTransferAmount.builder();
 		CreditSupportObligationsInitialMarginBuilder parent = mock(CreditSupportObligationsInitialMarginBuilder.class);
 
 		// test
@@ -47,12 +45,14 @@ class MinimumTransferAmountMappingProcessorTest {
 		// assert
 
 		ElectiveAmountElection partyA = getPartyElection(minimumTransferAmount, PARTY_A);
-		assertEquals(SPECIFY, partyA.getCustomElection());
-		assertNull(partyA.getNoAmount());
+		assertNull(partyA.getCustomElection());
+		Money amount = partyA.getAmount();
+		assertEquals(10000, amount.getAmount().intValue());
+		assertEquals("Euro", amount.getCurrency().getValue());
 
 		ElectiveAmountElection partyB = getPartyElection(minimumTransferAmount, PARTY_B);
-		assertEquals(ZERO, partyB.getCustomElection());
-		assertEquals(Integer.valueOf(0), partyB.getNoAmount());
+		assertNull(partyB.getCustomElection());
+		assertEquals(0, partyB.getAmount().getAmount().intValue());
 	}
 
 	private ElectiveAmountElection getPartyElection(MinimumTransferAmount minimumTransferAmount, String party) {
