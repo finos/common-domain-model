@@ -3,44 +3,37 @@ version "${project.version}"
 
 import cdm.base.*
 import cdm.base.datetime.*
+import cdm.base.maths.*
 import cdm.base.staticdata.asset.commons.*
+import cdm.base.staticdata.party.*
 
 // Note: All Eligible Collateral modelling/representation is still under development and discussion with ISDA Working groups
 
 type AgencyRating:
-	issuerAgencyRating CreditNotations (0..1) <"Agency rating based on default risk and creditors claim in event of default associated with issuer of asset.">
-	instrumentAgencyRating CreditNotations (0..1) <"Agency rating based on default risk and creditors claim in event of default associated with specific instrument.">
-	sovereignAgencyRating CreditNotations (0..1) <"Agency rating based on default risk of country.">
+	issuerAgencyRating AgencyRatingCriteria (0..1) <"Agency rating based on default risk and creditors claim in event of default associated with issuer of asset.">
+	instrumentAgencyRating AgencyRatingCriteria (0..1) <"Agency rating based on default risk and creditors claim in event of default associated with specific instrument.">
+	sovereignAgencyRating AgencyRatingCriteria (0..1) <"Agency rating based on default risk of country.">
 
 	condition OneOrMoreExists:
 		( issuerAgencyRating or instrumentAgencyRating or sovereignAgencyRating ) exists
 
 
-type CollateralInstrumentInformation: <"COLLATERAL ISSUE INFORMATION.">
-    issuerType CollateralIssuerTypeClassification (1..1) <"Origin of entity issuing the asset.">
-    issuerCountryOfOrigin string (1..1) <"The issuer entity country of origin.">
-		[metadata scheme]
-    collateralProductType CollateralProductType (1..1) <"Definition of collateral type.">
-	instrumentIdentifier ProductIdentifier (0..*)
-    counterpartyOwnIssue boolean (1..1) <"Is asset issued by posting entity or member of corporate family - note: not permitted under specific regulations."> // Explore options to infer this from one way risk
-
-
-type CollateralIssuerTypeClassification:
-	issuerType IssuerTypeClassificationEnum (1..1)
-	quasiGovernmentType QuasiGovernmentIssuerTypeClassificationEnum (0..1)
-	regionalGovernmentType RegionalGovernmentIssuerTypeClassificationEnum (0..1)
-	supraNationalType SupraNationalIssuerTypeClassificationEnum (0..1)
+type CollateralIssuerType:
+	issuerType IssuerTypeEnum (1..1)
+	quasiGovernmentType QuasiGovernmentIssuerTypeEnum (0..1)
+	regionalGovernmentType RegionalGovernmentIssuerTypeEnum (0..1)
+	supraNationalType SupraNationalIssuerTypeEnum (0..1)
 	
 	condition QuasiGovernmentSubType:
-		if issuerType <> IssuerTypeClassificationEnum -> QuasiGovernment
+		if issuerType <> IssuerTypeEnum -> QuasiGovernment
 		then quasiGovernmentType is absent
 	
 	condition RegionalGovernmentSubType:
-		if issuerType <> IssuerTypeClassificationEnum -> RegionalGovernment
+		if issuerType <> IssuerTypeEnum -> RegionalGovernment
 		then regionalGovernmentType is absent
 	
 	condition SupraNationalSubType:
-		if issuerType <> IssuerTypeClassificationEnum -> SupraNational
+		if issuerType <> IssuerTypeEnum -> SupraNational
 		then supraNationalType is absent
 
 
@@ -67,16 +60,62 @@ type CollateralValuationPercentage: <"COLLATERAL HAIRCUT.">
     valuationPercentage number (1..1) <"Percentage value of asset to be used as collateral once assets discounted haircut take into consideration, expressed as a valuation comprised between 0.0 and 100.0.">
     fxHaircutPercentage number (0..1) <"If pledgor eligible collateral is not denominated in the termination currency of the secured parties agreement an FX haircut is applied, expressed as a valuation comprised between 0.0 and 100.0">
 
+//=========
 
-type EligibleCollateral: <"The collateral eligibility as a function of the types of asset, the maturity and rating terms.">
+type EligibleCollateral_: <"The collateral eligibility as a function of the types of asset, the maturity and rating terms.">
 	[synonym FpML_5_10 value "EligibleCollateral"]
 
 	instrumentInformation CollateralInstrumentInformation (1..1)
-	denominatedCurrency string (1..*) <"Underlying denominated currency of instrument.">
+	denominatedCurrency string (1..1) <"Underlying denominated currency of instrument.">
 	    [metadata scheme]
 	maturityRange PeriodRange (1..1)
 	agencyRating AgencyRating (0..1)
 	valuationPercentage CollateralValuationPercentage (1..1)
+
+type CollateralInstrumentInformation: <"COLLATERAL ISSUE INFORMATION.">
+    issuerType CollateralIssuerType (1..1) <"Origin of entity issuing the asset.">
+    issuerCountryOfOrigin string (1..1) <"The issuer entity country of origin.">
+		[metadata scheme]
+	issuerName LegalEntity (0..1)
+    collateralProductType CollateralProductType (0..*) <"Definition of collateral type.">
+	instrumentIdentifier ProductIdentifier (0..*)
+    counterpartyOwnIssue boolean (1..1) <"Is asset issued by posting entity or member of corporate family - note: not permitted under specific regulations."> // Explore options to infer this from one way risk
+
+//=========
+
+type EligibleCollateral: <"The collateral eligibility as a function of the types of asset, the maturity and rating terms.">
+	criteria EligibleCollateralCriteria (1..*)
+
+
+type EligibleCollateralCriteria: <"The collateral eligibility as a function of the types of asset, the maturity and rating terms.">
+	issuerType CollateralIssuerType (0..*) <"Origin of entity issuing the asset.">
+    issuerCountryOfOrigin string (0..*) <"The issuer entity country of origin.">
+		[metadata scheme]
+	issuerName LegalEntity (0..*)
+    denominatedCurrency string (0..*) <"Underlying denominated currency of instrument.">
+	    [metadata scheme]
+	collateralProductType CollateralProductType (0..*) <"Definition of collateral type.">
+	instrumentIdentifier ProductIdentifier (0..*)
+    counterpartyOwnIssue boolean (1..1) <"Is asset issued by posting entity or member of corporate family - note: not permitted under specific regulations."> // Explore options to infer this from one way risk
+	maturityType MaturityTypeEnum (0..1)
+	maturityRange PeriodRange (0..1)
+	agencyRating AgencyRating (0..1)
+	valuationPercentage CollateralValuationPercentage (1..1)
+
+
+type AgencyRatingCriteria: <"A class to specify multiple credit notations alongside a conditional 'any' or 'all' qualifier.">
+
+	allOrAny QuantifierEnum (1..1) <"An enumerated element, to qualify whether All or Any credit notation applies.">
+	creditNotation CreditNotation (1..*)
+		[metadata scheme]
+	mismatchResolution CreditNotationMismatchResolutionEnum (0..1)
+	referenceAgency CreditRatingAgencyEnum (0..1)
+
+	condition ReferenceAgency: <"If the mismatch resolution is ReferenceAgency, ensure that the reference agency is specified.">
+		if AgencyRatingCriteria -> mismatchResolution = CreditNotationMismatchResolutionEnum -> ReferenceAgency
+		then AgencyRatingCriteria -> referenceAgency exists
+
+//==============
 
 /* 
 // Previous version, temporarily kept for reference purposes
