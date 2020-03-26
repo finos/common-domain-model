@@ -1,5 +1,20 @@
-namespace "org.isda.cdm"
+namespace org.isda.cdm
 version "${project.version}"
+
+import cdm.base.*
+import cdm.base.maths.*
+import cdm.base.datetime.*
+import cdm.base.staticdata.identifier.*
+import cdm.base.staticdata.party.*
+import cdm.base.staticdata.asset.commons.*
+import cdm.base.staticdata.asset.rates.*
+
+
+/**********************************************************
+ * Qualifiable functions isProduct and isEvent root classes
+ */
+isEvent root BusinessEvent;
+isProduct root EconomicTerms;
 
 type AllocationInstruction:
 	// TODO: add other allocation context
@@ -41,12 +56,12 @@ type CashTransferComponent extends TransferBase:
 	payerReceiver PayerReceiver (1..1) <"The payer and receiver party information.">
 	amount Money (1..1) <"The currency amount.">
 		[synonym Workflow_Event value "amount"]
-		[synonym DTCC_11_0, DTCC_9_0 value "paymentAmount"]
+		
 	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">
 		[synonym Workflow_Event value "cashflowType"]
-		[synonym DTCC_11_0, DTCC_9_0 value "cashflowType" path "calculationDetails->grossCashflow" meta "cashflowTypeScheme"]
+		
 	breakdown CashTransferBreakdown (0..*) <"The cash transfer breakdown, when the transfer corresponds to a net amount across several components which breakdown is deemed relevant (e.g. the net cash transfer related to several contracts, or to the net proceeds across several payout components).">
-		[synonym Workflow_Event, DTCC_11_0, DTCC_9_0 value "breakdown"]
+		[synonym Workflow_Event value "breakdown"]
 
 /*
  * TODO - The commodity transfer component and its associated breakdown should be deemed as sample implementations,
@@ -82,12 +97,12 @@ type ContractState: <"A class to specify a contract state instantiation with res
 	[metadata key] 
 	contract Contract (1..1) <"Reference to the original contract, such that the contract state can be resolved by super-imposing the updated values on top of the original contract.">
 		[synonym Workflow_Event value "fpmlTrade"]
-		[synonym DTCC_11_0, DTCC_9_0 value "FpML" path "Trade"]
-		[synonym DTCC_11_0, DTCC_9_0 value "TradeMsg" path "Manifest"]
-		[synonym DTCC_11_0, DTCC_9_0 value "ReportingJurisdiction" path "ReportingData->ReportingHeader"]
+		
+		
+		
 		[synonym CME_SubmissionIRS_1_0 value "FpML" path "Instrmt->SecXML"]
 	updatedContract Contract (0..1) <"The state of the contract, represented as a replica of the original contract with updated values where applicable, e.g. in the case of resets.">
-		[synonym FpML_5_10, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0 value "ignore"]
+		[synonym FpML_5_10, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value "ignore"]
 
 //TODO: Check that the updated contract in the contract state matches the original reference contract, except for updated (reset) values.
 // data rule ContractState_contract
@@ -139,15 +154,6 @@ type Curve:
 
 type CustomisedWorkflow: <"In its initial iteration, this class is meant to support the DTCC TIW workflow information.">
 	itemName string (1..1) <"In this initial iteration, this corresponds to the DTCC TIW element name.">
-		[synonym DTCC_11_0, DTCC_9_0 set to "comment" when path = "PartyWorkflowFields->comment"]
-		[synonym DTCC_11_0, DTCC_9_0 set to "superId" when path = "PartyWorkflowFields->superId"]
-		[synonym DTCC_11_0, DTCC_9_0 set to "deskId" when path = "PartyWorkflowFields->deskId"]
-		[synonym DTCC_11_0, DTCC_9_0 set to "eTradeId" when path = "PartyWorkflowFields->eTradeId"]
-		[synonym DTCC_11_0, DTCC_9_0 set to "designatedParty" when path = "PartyWorkflowFields->designatedParty"]
-		[synonym DTCC_11_0, DTCC_9_0 set to "brokerName" when path = "PartyWorkflowFields->brokerName"]
-		[synonym DTCC_11_0, DTCC_9_0 set to "branchLocation" when path = "PartyWorkflowFields->branchLocation"]
-		[synonym DTCC_11_0, DTCC_9_0 set to "midMarketPriceType" when path = "PartyWorkflowFields->midMarketPrice->midMarketPriceType"]
-		[synonym DTCC_11_0, DTCC_9_0 set to "amount" when path = "PartyWorkflowFields->midMarketPrice->amount"]
 		[synonym CME_SubmissionIRS_1_0 set to "ClientOrderId" when path = "ClOrdID"]
 		[synonym CME_SubmissionIRS_1_0 set to "TradeOriginationSystem" when path = "InptSrc"]
 		[synonym CME_SubmissionIRS_1_0 set to "OriginatingTradeId" when path = "OrigTrdID"]
@@ -155,15 +161,6 @@ type CustomisedWorkflow: <"In its initial iteration, this class is meant to supp
 		[synonym CME_SubmissionIRS_1_0 set to "PartyType" when path = "Pty->R"]
 		[synonym CME_SubmissionIRS_1_0 set to "PartyIdentifier" when path = "Pty->Src"]
 	itemValue string (1..1) <"In this initial iteration, this corresponds to the DTCC value.">
-		[synonym DTCC_11_0, DTCC_9_0 value "comment" path "PartyWorkflowFields"]
-		[synonym DTCC_11_0, DTCC_9_0 value "superId" path "PartyWorkflowFields"]
-		[synonym DTCC_11_0, DTCC_9_0 value "deskId" path "PartyWorkflowFields"]
-		[synonym DTCC_11_0, DTCC_9_0 value "eTradeId" path "PartyWorkflowFields"]
-		[synonym DTCC_11_0, DTCC_9_0 value "designatedParty" path "PartyWorkflowFields"]
-		[synonym DTCC_11_0, DTCC_9_0 value "brokerName" path "PartyWorkflowFields"]
-		[synonym DTCC_11_0, DTCC_9_0 value "branchLocation" path "PartyWorkflowFields"]
-		[synonym DTCC_11_0, DTCC_9_0 value "midMarketPriceType" path "PartyWorkflowFields->midMarketPrice"]
-		[synonym DTCC_11_0, DTCC_9_0 value "amount" path "PartyWorkflowFields->midMarketPrice"]
 		[synonym CME_SubmissionIRS_1_0 value "ClOrdID"]
 		[synonym CME_SubmissionIRS_1_0 value "InptSrc"]
 		[synonym CME_SubmissionIRS_1_0 value "OrigTrdID"]
@@ -197,24 +194,24 @@ type WorkflowStep: <"A workflow step represents the state of a business event. T
 		[synonym Workflow_Event value "previousWorkflowStep"]
 
 	messageInformation MessageInformation (0..1) <"Contains all information pertaining the FpML messaging header ">
-		[synonym DTCC_11_0, DTCC_9_0 value "FpML" path "Body->OTC_Matching->Trade"]
-		[synonym DTCC_11_0, DTCC_9_0 value "FpML" path "Body->OTC_Matching->Payment"]
-		[synonym DTCC_11_0, DTCC_9_0 value "RouteInfo" path "Header->OTC_RM->Delivery"]
-		[synonym DTCC_11_0, DTCC_9_0 value "Manifest" path "Header->OTC_RM"]
+		
+		
+		
+		
 		[synonym CME_ClearedConfirm_1_17 value "header" path "clearingConfirmed"]
 	timestamp EventTimestamp (1..*) <"The set of timestamp(s) associated with the event as a collection of [dateTime, qualifier].">
 		[synonym Workflow_Event value "timestamp"]
-		[synonym DTCC_11_0, DTCC_9_0 value "header" path "Body->OTC_Matching->Trade->FpML"]
-		[synonym DTCC_11_0, DTCC_9_0 value "Route" path "Header->OTC_RM->Delivery->RouteHist"]
-		[synonym DTCC_11_0, DTCC_9_0 value "header" path "Body->OTC_Matching->Payment->FpML"]
+		
+		
+		
 		[synonym CME_ClearedConfirm_1_17 value "timestamps" path "clearingConfirmed->trade->tradeHeader"]
 		[synonym CME_ClearedConfirm_1_17 value "header" path "clearingConfirmed"]
 	eventIdentifier Identifier (1..*) <"The identifier(s) that uniquely identify a lifecycle event. The unbounded cardinality is meant to provide the ability to associate identifiers that are issued by distinct parties. As an example, each of the parties to the event may choose to associate their own identifiers to the event.">
 		[synonym Workflow_Event value "eventIdentifier"]
-		[synonym DTCC_11_0, DTCC_9_0 value "Submitter" path "Header->OTC_RM->Manifest->TradeMsg"]
-		[synonym DTCC_11_0, DTCC_9_0 value "ContraTradeId" path "Header->OTC_RM->Manifest->TradeMsg"]
-		[synonym DTCC_11_0, DTCC_9_0 value "YourTradeId" path "Header->OTC_RM->Manifest->TradeMsg"]
-		[synonym DTCC_11_0, DTCC_9_0 value "tradeIdentifyingItems" path "Header->OTC_RM->Manifest->TradeMsg"]
+		
+		
+		
+		
 	action ActionEnum (1..1) <"Specifies whether the event is a new, a correction or a cancellation.">
 		[synonym Workflow_Event
 			set to ActionEnum -> New when "isCorrection" = False,
@@ -223,14 +220,14 @@ type WorkflowStep: <"A workflow step represents the state of a business event. T
 		[synonym FpML_5_10
 			set to ActionEnum -> New when "isCorrection" = False,
 			set to ActionEnum -> Correct when "isCorrection" = True]
-		[synonym DTCC_11_0, DTCC_9_0 value "Activity" path "Header->OTC_RM->Manifest->TradeMsg"]
+		
 		[synonym CME_SubmissionIRS_1_0 value "TransTyp" path "TrdCaptRpt"]
 	party Party (0..*) <"The specification of the event parties. This attribute is optional, as not applicable to certain events (e.g. most of the observations).">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "party"]
-		[synonym DTCC_11_0, DTCC_9_0 value "party" path "Body->OTC_Matching->Trade->FpML" ]
-		[synonym DTCC_11_0, DTCC_9_0 value "party" path "Body->OTC_Matching->Payment->FpML" ]
+		
+		
 	account Account (0..*) <"Optional account information that could be associated to the event.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0 value "account"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0 value "account"]
 		[synonym CME_ClearedConfirm_1_17 value "account" path "clearingConfirmed"]
 	lineage Lineage (0..1) <"The lineage attribute provides a linkage among lifecycle events through the rosettaKey hash value. One example is when a given lifecycle event is being corrected or cancelled. In such case, each subsequent event will have lineage into the prior version of that event. The second broad use case is when an event has a dependency upon either another event (e.g. the regular payment associated with a fix/float swap will have a lineage into the reset event, which will in turn have a lineage into the observation event for the floating rate and the contract) or a contract (e.g. the exercise of an option has a lineage into that option).">
 		[synonym Workflow_Event value "lineage"]
@@ -296,18 +293,17 @@ type EventTestBundle: <"A class which combines several events for testing purpos
 
 type EventTimestamp: <"A class to represent the various set of timestamps that can be associated with lifecycle events, as a collection of [dateTime, qualifier].">
 	dateTime zonedDateTime (1..1) <"The CDM specifies that the zoned date time is to be expressed in accordance with ISO 8601, either as UTC as an offset to UTC.">
-		[synonym Workflow_Event, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "creationTimestamp"]
-		[synonym Workflow_Event, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "expiryTimestamp"]
-		[synonym DTCC_11_0, DTCC_9_0 value "ReceiveTime"]
+		[synonym Workflow_Event, CME_ClearedConfirm_1_17 value "creationTimestamp"]
+		[synonym Workflow_Event, CME_ClearedConfirm_1_17 value "expiryTimestamp"]
+		
 		[synonym CME_ClearedConfirm_1_17 value "submittedForClearing"]
 		[synonym CME_SubmissionIRS_1_0 value "TxnTm" path "TrdCaptRpt"]
 		[synonym CME_SubmissionIRS_1_0 value "Snt" path "TrdCaptRpt->Hdr"]
 		[synonym CME_SubmissionIRS_1_0 value "TS" path "TrdCaptRpt->TrdRegTS"]
 	qualification EventTimestampQualificationEnum (1..1) <"The timestamp qualifier is specified through an enumeration because the experience of integrating the DTCC and CME data representations suggests that a wide set of timestamps are currently utilized among service providers, while there is not at present an objective set of criteria that could help suggest a defined set of timestamps as part of the CDM. At some future point, one possible baseline could be developed from the review of the set of timestamps specified across regulatory regimes and regulations (incl. regulations such as high frequency trading). Also, the integration with a further set of implementations and the specification of business workflows such as clearing as part of the CDM development should help confirm the implementation approach in this respect.">
-		[synonym Workflow_Event, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 set to EventTimestampQualificationEnum -> eventCreationDateTime when "creationTimestamp" exists]
-		[synonym Workflow_Event, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 set to EventTimestampQualificationEnum -> eventExpirationDateTime when "expiryTimestamp" exists]
+		[synonym Workflow_Event, CME_ClearedConfirm_1_17 set to EventTimestampQualificationEnum -> eventCreationDateTime when "creationTimestamp" exists]
+		[synonym Workflow_Event, CME_ClearedConfirm_1_17 set to EventTimestampQualificationEnum -> eventExpirationDateTime when "expiryTimestamp" exists]
 		[synonym CME_ClearedConfirm_1_17, Workflow_Event set to EventTimestampQualificationEnum -> clearingSubmissionDateTime when "submittedForClearing" exists]
-		[synonym DTCC_11_0, DTCC_9_0 set to EventTimestampQualificationEnum -> eventSubmittedDateTime when "ReceiveTime" exists]
 		[synonym CME_SubmissionIRS_1_0 set to EventTimestampQualificationEnum -> transactionCreationDateTime when path = "TrdCaptRpt->TxnTm"]
 		[synonym CME_SubmissionIRS_1_0 set to EventTimestampQualificationEnum -> eventSentDateTime when path= "TrdCaptRpt->Hdr->Snt"]
 		[synonym CME_SubmissionIRS_1_0 set to EventTimestampQualificationEnum -> executionDateTime when path= "TrdCaptRpt->TrdRegTS->TS" and "TrdCaptRpt->TrdRegTS->Typ" = 1]
@@ -418,19 +414,19 @@ type MessageInformation: <"This class corresponds to the components of the FpML 
 	messageId string (1..1) <"A unique identifier assigned to the message.">
 		[metadata scheme]
 		[synonym Workflow_Event value "messageId" path "messageInformation" meta "messageIdScheme"]
-		[synonym DTCC_11_0, DTCC_9_0 value "messageId" path "header" meta "messageIdScheme"]
+		
 		[synonym CME_ClearedConfirm_1_17 value "messageId" meta "messageIdScheme"]
 	sentBy string (0..1) <"The identifier for the originator of a message instance.">
 		[metadata scheme]
 		[synonym Workflow_Event value "sentBy" path "messageInformation" meta "messageAddressScheme"]
-		[synonym DTCC_11_0, DTCC_9_0 value "From"]
+		
 		[synonym CME_ClearedConfirm_1_17 value "sentBy" meta "messageAddressScheme"]
 		[synonym CME_SubmissionIRS_1_0 value "SSub" path "TrdCaptRpt->Hdr"]
 	sentTo string (0..*) <"The identifier(s) for the recipient(s) of a message instance.">
 		[metadata scheme]
 		[synonym Workflow_Event value "sentTo" path "messageInformation" meta "messageAddressScheme"]
 		[synonym CME_ClearedConfirm_1_17 value "sendTo" meta "messageAddressScheme"]
-		[synonym DTCC_11_0, DTCC_9_0 value "To"]
+		
 		[synonym CME_SubmissionIRS_1_0 value "TID" path "TrdCaptRpt->Hdr"]
 	copyTo string (0..*) <"A unique identifier (within the specified coding scheme) giving the details of some party to whom a copy of this message will be sent for reference.">
 		[metadata scheme]
@@ -449,7 +445,7 @@ type ObservationSource: <"The observation source can be composed of an curve and
 type PartyCustomisedWorkflow: <"A class to specify a party-related, non-standardized data in a generic form.">
 	partyReference Party (0..1) <"Reference to the party to which the workflow pertains to.">
 		[metadata reference]
-		[synonym DTCC_11_0, DTCC_9_0 value "partyReference" meta "href"]
+		
 	partyName string (0..1) <"The party name to which the workflow pertains to.">
 		[synonym CME_SubmissionIRS_1_0 value "ID" path "Pty"]
 	customisedWorkflow CustomisedWorkflow (1..*) <"Non-standardized data in a generic form.">
@@ -504,9 +500,9 @@ type Trade: <"A class to represent the general trade concept, which can either b
 		[synonym Workflow_Event value "fpmlTrade" set when "fpmlTrade->trade->executionType" exists]
 		[synonym Workflow_Event value "fpmlExecution"]
 	contract Contract (0..1) <"The contract differs from the execution by the fact that its legal terms are fully specified. This includes the legal entities that are associated to it as well as any associated legal agreement, e.g. master agreement, credit and collateral terms, ... ">
-		[synonym DTCC_11_0, DTCC_9_0 value "FpML" path "Trade"]
-		[synonym DTCC_11_0, DTCC_9_0 value "TradeMsg" path "Manifest"]
-		[synonym DTCC_11_0, DTCC_9_0 value "ReportingJurisdiction" path "ReportingData->ReportingHeader"]
+		
+		
+		
 		[synonym Workflow_Event value "fpmlTrade" set when "fpmlTrade->trade->executionType" is absent]
 		[synonym Workflow_Event value "fpmlContract"]
 		[synonym CME_SubmissionIRS_1_0 value "TrdCaptRpt" set when "TrdCaptRpt->VenuTyp" is absent]
@@ -514,23 +510,23 @@ type Trade: <"A class to represent the general trade concept, which can either b
 
 type TradeWarehouseWorkflow: <"A class to specify trade warehouse workflow information: the identity of the trade warehouse, the contract status at the warehouse and party-specific workflow information.">
 	warehouseIdentity WarehouseIdentityEnum (1..1)
-		[synonym DTCC_11_0, DTCC_9_0 value "WarehousePositionType" path "WarehouseState"]
+		
 	warehouseStatus WorkflowStatusEnum (1..1)
-		[synonym DTCC_11_0, DTCC_9_0 value "WarehouseStatus" path "WarehouseState"]
+		
 	partyCustomisedWorkflow PartyCustomisedWorkflow (0..*) <"Non-standardized workflow data related to a party.">
-		[synonym DTCC_11_0, DTCC_9_0 value "WorkflowData"]
+		
 		[synonym CME_SubmissionIRS_1_0 value "ignore"]
 
 type TransferBase:
 	identifier string (0..1) <"The identifier that can be associated with each of the transfer components">
 		[metadata scheme]
-		[synonym DTCC_11_0, DTCC_9_0 value "identifier" meta "paymentIdScheme"]
+		
 	transferCalculation TransferCalculation (0..1) <"The calculation details underlying the transfer amount, when applicable.">
-		[synonym DTCC_11_0, DTCC_9_0 value "calculationDetails"]
+		
 
 type TransferCalculation:
 	period CalculationPeriodBase (0..1 ) <"The period adjusted start and end dates.">
-		[synonym DTCC_11_0, DTCC_9_0 value "calculationPeriod" path "calculationElements"]
+		
 	lineage Lineage (0..*) <"The lineage into the components used for the calculation.">
 	calculationOutcome calculation (0..1) <"This is a conceptual placeholder for providing the breakdown into the cashflow calculation components, leveraging the fact that the CDM provides calculation components, starting with the FixedAmount and the FloatingAmount. Further evaluation of expected usage needs to take place to confirm and prioritize such implementation.">
 		[synonym Workflow_Event value "transferCalculation"]
@@ -543,16 +539,16 @@ type TransferBreakdown extends TransferBase:
 type TransferorTransferee: <"A class mimicking the PayerReceiver, which is itself derived from the FpML PayerReceiver.model, to represent the transferee and transferor party information in relation to the transfer of security or commodities.">
 	transferorPartyReference Party (1..1) <"A reference to the party responsible for making the payments defined by this structure.">
 		[metadata reference]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "payerPartyReference" meta "href"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "payerPartyReference" meta "href"]
 	transferorAccountReference Account (0..1) <"A reference to the account responsible for making the payments defined by this structure.">
 		[metadata reference]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "payerAccountReference" meta "href"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "payerAccountReference" meta "href"]
 	transfereePartyReference Party (1..1) <"A reference to the party that receives the payments corresponding to this structure.">
 		[metadata reference]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "receiverPartyReference" meta "href"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "receiverPartyReference" meta "href"]
 	transfereeAccountReference Account (0..1) <"A reference to the account that receives the payments corresponding to this structure.">
 		[metadata reference]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, DTCC_11_0, DTCC_9_0, CME_ClearedConfirm_1_17 value "receiverAccountReference" meta "href"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "receiverAccountReference" meta "href"]
 
 type Velocity:
 	[synonym FpML_5_10 value "Velocity"]

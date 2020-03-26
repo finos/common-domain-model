@@ -1,5 +1,9 @@
-namespace "org.isda.cdm"
+namespace org.isda.cdm
 version "${project.version}"
+
+import cdm.base.maths.*
+import cdm.base.datetime.*
+import cdm.base.staticdata.party.*
 
 annotation funcType: <"Annotation to describe the intent of a function">
      primitiveEvent PrimitiveEvent (0..1) <"A primitive event function should take as an input all of the types required to construct the event and produce a new PrimitiveEvent type.">
@@ -26,7 +30,7 @@ func Inception: <"Function specification to perform an execution and a contract 
 
 	assign-output inceptionEvent -> primitives -> execution: <"Add the execution primitive to the resulting inception business event">
 		executionPrimitive
-		
+
 	assign-output inceptionEvent -> primitives -> contractFormation: <"Add the contract formation to the resulting inception business event">
 		contractFormationPrimitive
 
@@ -443,19 +447,7 @@ func TerminateContract:
 	assign-output terminatedContract -> tradableProduct -> quantityNotation -> quantity -> amount: <"Set the quantity amount to 0">
         0.0
 
-func PartyRoleForParty:
- 	inputs:
- 		party Party (1..1)
- 		role PartyRoleEnum (1..1)
 
-  	output:
- 		partyRole PartyRole (1..1)
-
-  	assign-output partyRole -> partyReference:
- 		party
-
-  	assign-output partyRole -> role:
- 		role
 
 func NewExecutionPrimitiveEvent:
 	inputs:
@@ -483,13 +475,6 @@ func NewQuantityChangePrimitiveEvent:
 
 	assign-output primitiveEvent -> quantityChange:
 	quantityChangePrimitive
-
-func PartyByRole: <"Given a collection of party role containers and a party role, return the party for that role if found in the collection">
-	inputs:
-		roles PartyRole(1..*)
-		role PartyRoleEnum(1..1)
-	output:
-		party Party (1..1)
 
 type ClearingInstruction: <"All information required to perform the clear life cycle event">
 	clearingParty Party(1..1)

@@ -2,12 +2,15 @@ package org.isda.cdm.calculation;
 
 import com.google.inject.Binder;
 import com.google.inject.Inject;
+import com.rosetta.model.metafields.FieldWithMetaString;
+
+import cdm.base.maths.NonNegativeQuantity;
+
 import org.isda.cdm.*;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.isda.cdm.functions.ExtractQuantityByCurrency;
 import org.isda.cdm.functions.FxMarkToMarket;
 import org.isda.cdm.functions.InterpolateForwardRate;
-import org.isda.cdm.metafields.FieldWithMetaString;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;

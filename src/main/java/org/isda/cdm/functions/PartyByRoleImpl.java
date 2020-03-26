@@ -3,10 +3,12 @@ package org.isda.cdm.functions;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.isda.cdm.Party.PartyBuilder;
-import org.isda.cdm.Party;
-import org.isda.cdm.PartyRole;
-import org.isda.cdm.PartyRoleEnum;
+import cdm.base.staticdata.party.Party;
+import cdm.base.staticdata.party.Party.PartyBuilder;
+import cdm.base.staticdata.party.PartyRole;
+import cdm.base.staticdata.party.PartyRoleEnum;
+import cdm.base.staticdata.party.functions.PartyByRole;
+
 
 public class PartyByRoleImpl extends PartyByRole {
 
