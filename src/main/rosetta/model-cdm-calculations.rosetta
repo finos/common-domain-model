@@ -1,10 +1,15 @@
-namespace "org.isda.cdm"
+namespace org.isda.cdm
 version "${project.version}"
+
+import cdm.base.datetime.*
+import cdm.base.maths.*
+import cdm.base.staticdata.asset.rates.*
 
 func FixedAmount: <"2006 ISDA Definition Article 5 Section 5.1. Calculation of a Fixed Amount: The Fixed Amount payable by a party on a Payment Date will be: (a) if an amount is specified for the Swap Transaction as the Fixed Amount payable by that party for that Payment Date or for the related Calculation Period, that amount; or (b) if an amount is not specified for the Swap Transaction as the Fixed Amount payable by that party for that Payment Date or for the related Calculation Period, an amount calculated on a formula basis for that Payment Date or for the related Calculation Period as follows: Fixed Amount = Calculation Amount × Fixed Rate × Day Count Fraction.">
 	[calculation]
 	inputs:
 		interestRatePayout InterestRatePayout (1..1)
+		fixedRate FixedInterestRate (1..1)
 		quantity NonNegativeQuantity (1..1)
 		date date (1..1)
 
@@ -14,14 +19,14 @@ func FixedAmount: <"2006 ISDA Definition Article 5 Section 5.1. Calculation of a
 	alias calculationAmount:
 		quantity -> amount
 
-	alias fixedRate:
-		interestRatePayout -> rateSpecification -> fixedRate -> initialValue
+	alias fixedRateAmount:
+		fixedRate -> rate
 
 	alias dayCountFraction:
 		DayCountFraction(interestRatePayout, interestRatePayout -> dayCountFraction, date)
 
 	assign-output fixedAmount:
-		calculationAmount * fixedRate * dayCountFraction
+		calculationAmount * fixedRateAmount * dayCountFraction
 
 
 func FloatingAmount: <"2006 ISDA Definition Article 6 Section 6.1. Calculation of a Floating Amount: Subject to the provisions of Section 6.4 (Negative Interest Rates), the Floating Amount payable by a party on a Payment Date will be: (a) if Compounding is not specified for the Swap Transaction or that party, an amount calculated on a formula basis for that Payment Date or for the related Calculation Period as follows: Floating Amount = Calculation Amount × Floating Rate + Spread × Floating Rate Day Count Fraction (b) if “Compounding” is specified to be applicable to the Swap Transaction or that party and 'Flat Compounding' is not specified, an amount equal to the sum of the Compounding Period Amounts for each of the Compounding Periods in the related Calculation Period; or (c) if 'Flat Compounding' is specified to be applicable to the Swap Transaction or that party, an amount equal to the sum of the Basic Compounding Period Amounts for each of the Compounding Periods in the related Calculation Period plus the sum of the Additional Compounding Period Amounts for each such Compounding Period.">
@@ -31,17 +36,17 @@ func FloatingAmount: <"2006 ISDA Definition Article 6 Section 6.1. Calculation o
 	[calculation]
 	inputs:
 		interestRatePayout InterestRatePayout (1..1)
+		spread InterestRateSpread (1..1)
 		quantity NonNegativeQuantity (1..1)
 		date date (1..1)
 	output: floatingAmount number (1..1)
 
 	alias calculationAmount: quantity -> amount
-	alias floatingRate: ResolveRateIndex(interestRatePayout -> rateSpecification -> floatingRate -> floatingRateIndex)
-	// TODO: question to group: why can a float rate calculation node in FpML contain multiple rate schedules?
-	alias spread: GetRateSchedule( interestRatePayout -> rateSpecification -> floatingRate ) -> initialValue
+	alias floatingRate: ResolveRateIndex( interestRatePayout -> rateSpecification -> floatingRate -> assetIdentifier -> rateOption -> floatingRateIndex )
+	alias spreadRate: spread -> spread
 	alias dayCountFraction: DayCountFraction(interestRatePayout, interestRatePayout -> dayCountFraction, date)
 
-	assign-output floatingAmount: calculationAmount * (floatingRate + spread) * dayCountFraction
+	assign-output floatingAmount: calculationAmount * (floatingRate + spreadRate) * dayCountFraction
 
 func DayCountFraction: <"A description of inputs and outputs for all day count fraction calculations">
 	[calculation]
@@ -205,24 +210,14 @@ func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> ACT_365L): <
 		daysInPeriod / daysInYear
 
 
-func GetRateSchedule:
-	inputs: floatingRateCalculation FloatingRateSpecification (1..1)
-	output: schedule SpreadSchedule (1..1)
-
-
 func ResolveRateIndex: <"The function to specify that the floating rate index enumeration will be expressed as a number once the rate is observed.">
 	inputs: index FloatingRateIndexEnum (1..1)
-	output: rate number(1..1)
+	output: rate number (1..1)
 
 
 func PeriodsInYear:
 	inputs: frequency CalculationPeriodFrequency (1..1)
 	output: numberOfPeriods int (1..1)
-
-
-func Abs:
-	inputs: x number (1..1)
-	output: result number (1..1)
 
 
 func CalculationPeriod: <"2006 ISDA Definition Section 4.13. 'Calculation Period' means, in respect of a Swap Transaction and a party, each period from, and including, one Period End Date of that party to, but excluding, the next following applicable Period End Date during the Term of the Swap Transaction, except that (a) the initial Calculation Period for the party will commence on, and include, the Effective Date and (b) the final Calculation Period for the party will end on, but exclude, the Termination Date.">
