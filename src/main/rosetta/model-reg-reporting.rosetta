@@ -1,5 +1,9 @@
-namespace "org.isda.cdm"
+namespace org.isda.cdm
 version "${project.version}"
+
+import cdm.base.maths.*
+import cdm.base.staticdata.party.*
+
 
 body Authority ESMA <"ESMA is an independent EU Authority that contributes to safeguarding the stability of the European Union's financial system by enhancing the protection of investors and promoting stable and orderly financial markets.">
 body Authority FCA <"The Financial Conduct Authority is the conduct regulator for 58,000 financial services firms and financial markets in the UK and the prudential regulator for over 18,000 of those firms. ">
@@ -301,7 +305,7 @@ reporting rule Quantity <"The number of units of the financial instrument, or th
  	ContractForEvent then
  	//filter when RateSpecification -> fixedRate count > 0 then
  		filter when Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate exists then
- 		extract Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate -> initialValue
+ 		extract Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate -> rateSchedule -> initialValue
  		// extract max value
 	 as "Price"
 
@@ -650,7 +654,7 @@ reporting rule FixedFloatPrice
 	 	   	structured_provision "The regulatoryPrice of a Fixed-Float or Fixed-Inflation Swap is by definition the highest Fixed Rate"
 	 	   	provision "Questions and Answers On MiFIR data reporting. Section 14 Financial instruments’ volatile attributes [Last update: 05/10/2017]. Question 1; Answer 1 (a) Where a swap rate or forward rate financial contract is quoted as the fixed rate and it is considered to be an attribute of the transaction rather than an attribute of the financial instrument, the respective reports should be completed as follows: Transaction report - the price (field 33) of the transaction should be populated with the fixed rate value. Question 2; Example 1: CFI code SRC*S* fixed-floating with single currency"]
 	filter when rule IsFixedFloat then
-	extract Payout -> interestRatePayout -> rateSpecification -> fixedRate then
+	extract Payout -> interestRatePayout -> rateSpecification -> fixedRate -> rateSchedule then
 	maxBy Schedule -> initialValue then
 	extract Schedule -> initialValue as "Price"
 
@@ -667,7 +671,7 @@ reporting rule BasisSwapPrice
 
 reporting rule FixedFixedPrice
 	filter when rule IsFixedFixed then
-	extract Payout -> interestRatePayout -> rateSpecification -> fixedRate then
+	extract Payout -> interestRatePayout -> rateSpecification -> fixedRate -> rateSchedule then
 	maxBy Schedule -> initialValue then
 	extract Schedule -> initialValue as "Price"
 
@@ -681,8 +685,8 @@ reporting rule CDSPrice
 	filter when rule IsCreditDefaultSwap then
 	extract Payout -> interestRatePayout -> rateSpecification then
 	if (
-		filter when RateSpecification -> fixedRate -> initialValue <> 0
-			=> extract RateSpecification -> fixedRate -> initialValue as "Price",
+		filter when RateSpecification -> fixedRate -> rateSchedule -> initialValue <> 0
+			=> extract RateSpecification -> fixedRate -> rateSchedule -> initialValue as "Price",
 		extract RateSpecification -> floatingRate -> initialRate
 			=> extract RateSpecification -> floatingRate -> initialRate as "Price",
 		=> return 0 as "Price"
