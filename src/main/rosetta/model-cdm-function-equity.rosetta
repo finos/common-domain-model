@@ -304,8 +304,11 @@ func StockSplit: <"Function specification to create the fully-formed business ev
 	output:
 		businessEvent BusinessEvent (1..1)
 
+	alias preSplitNumberOfShares:
+		NoOfUnits( instruction -> trade -> contract -> tradableProduct -> quantityNotation )
+
 	alias postSplitNumberOfShares: <"The adjustment ratio is be multiplied by existing shares in an equity derivative contract or other positions to determine the post-split number of shares.">
-		NoOfUnits( instruction -> trade -> contract -> tradableProduct -> quantityNotation ) * instruction -> adjustmentRatio
+		preSplitNumberOfShares * instruction -> adjustmentRatio
 
 	alias preSplitPrices:
 		instruction -> trade -> contract -> tradableProduct -> priceNotation -> price -> cashPrice -> netPrice -> amount
