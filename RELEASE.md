@@ -1,13 +1,23 @@
-# *CDM Model: IM CSA New York Law 2018 Modelling*
+# *Model Optimisation: Price Refactor*
 
 _What is being released_
 
-IM CSA New York Law 2018 document modelled and synonyms added to map to ISDA Create negotiation data.
+Clean up tasks following the recent model price refactor:
 
-CSA document model refactored to better support combination of 2016 and 2018 IM documents.
+- Add FpML synonym mappings logic to populate `Schedule.initialValue` when a price schedule exists.
+- Rename type `InterestRateSpread` to `FloatingInterestRate`.
+- Add `[deprecated]` annotation to deprecated attributes.
+- Fix minimum cardinality for `TradableProduct.priceNotation`.
 
 _Review Directions_
 
-In the Ingestion Panel, try samples in folder:
+In the Ingestion Panel, try the following samples which contain price step schedules in folder `products > rates`:
 
-- `isda-create > im-csd-ny-law-2018`
+- `EUR-variable-notional-uti.xml`
+- `ird-ex04-arrears-stepup-fee-swap-usi-uti.xml`
+- `ird-ex22-cap.xml`
+- `ird-ex23-floor.xml`
+- `ird-ex24-collar.xml`
+- `GBP-VNS-uti.xml`
+- `USD-VNS-uti.xml`
+
