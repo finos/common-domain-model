@@ -9,20 +9,29 @@ import cdm.base.staticdata.party.*
 
 // Note: All Eligible Collateral modelling/representation is still under development and discussion with ISDA Working groups
 
-type AgencyRating:
-	issuerAgencyRating AgencyRatingCriteria (0..1) <"Agency rating based on default risk and creditors claim in event of default associated with issuer of asset.">
-	instrumentAgencyRating AgencyRatingCriteria (0..1) <"Agency rating based on default risk and creditors claim in event of default associated with specific instrument.">
-	sovereignAgencyRating AgencyRatingCriteria (0..1) <"Agency rating based on default risk of country.">
+type AgencyRatingCriteria: <"A class to specify multiple credit notations alongside a conditional 'any' or 'all' qualifier.">
+	qualifier QuantifierEnum (1..1) <"Indicates whether all or any agency ratings apply.">
+	creditNotation CreditNotation (1..*)
+		[metadata scheme]
+	mismatchResolution CreditNotationMismatchResolutionEnum (0..1)
+	referenceAgency CreditRatingAgencyEnum (0..1)
 
-	condition OneOrMoreExists:
-		( issuerAgencyRating or instrumentAgencyRating or sovereignAgencyRating ) exists
-
+	condition ReferenceAgency: <"If the mismatch resolution is ReferenceAgency, ensure that the reference agency is specified.">
+		if AgencyRatingCriteria -> mismatchResolution = CreditNotationMismatchResolutionEnum -> ReferenceAgency
+		then AgencyRatingCriteria -> referenceAgency exists
 
 type CollateralIssuerType:
 	issuerType IssuerTypeEnum (1..1)
-	quasiGovernmentType QuasiGovernmentIssuerTypeEnum (0..1)
-	regionalGovernmentType RegionalGovernmentIssuerTypeEnum (0..1)
+	
 	supraNationalType SupraNationalIssuerTypeEnum (0..1)
+	quasiGovernmentType QuasiGovernmentIssuerType (0..1) <"Government or quasi-government entity.">
+	regionalGovernmentType RegionalGovernmentIssuerType (0..1) <"Regional government, local authority or municipal.">
+	specialPurposeVehicleType SpecialPurposeVehicleIssuerType (0..1)
+	fundType FundIssuerType (0..1)
+	
+	condition SupraNationalSubType:
+		if issuerType <> IssuerTypeEnum -> SupraNational		
+		then supraNationalType is absent
 	
 	condition QuasiGovernmentSubType:
 		if issuerType <> IssuerTypeEnum -> QuasiGovernment
@@ -32,13 +41,44 @@ type CollateralIssuerType:
 		if issuerType <> IssuerTypeEnum -> RegionalGovernment
 		then regionalGovernmentType is absent
 	
-	condition SupraNationalSubType:
-		if issuerType <> IssuerTypeEnum -> SupraNational
-		then supraNationalType is absent
+	condition SpecialPurposeVehicleSubType:
+		if issuerType <> IssuerTypeEnum -> SpecialPurposeVehicle
+		then specialPurposeVehicleType is absent
+		
+	condition FundSubType:
+		if issuerType <> IssuerTypeEnum -> Fund
+		then fundType is absent
 
+type QuasiGovernmentIssuerType: <"Government or quasi-government entities.">
+	sovereignEntity boolean (1..1) <"True if sovereign entity (e.g. not separate legal personality from sovereign) or false if non-sovereign entity (e.g. separate legal personality from sovereign)."> // sovereignEntity: US Treasury, GILTs, Bank of England. nonSovereignEntity: Ginnie Mae
+	sovereignRecourse boolean (0..1) <"Applies to non-sovereign entity (e.g. separate legal personality from sovereign).  True if entity has recourse to sovereign (e.g. debt guaranteed by government).  False if entity does not have recourse to sovereign.">
+	// Eligible sovereigns specified by IssuerCriteria.issuerCountryOfOrigin
+	// Eligible issuers specified by IssuerCriteria.issuerName
+	// TODO: other (non-exhaustive) criteria e.g. GSEs with/without government support, EMIR public sector entities, US agencies
+	
+	condition NonSovereignEntityRecourse:
+		if sovereignRecourse exists then sovereignEntity = False
+
+type RegionalGovernmentIssuerType: <"Regional government, local authority or municipal.">
+	sovereignRecourse boolean (1..1) <"Applies to regional governments, local authorities or municipals.  True if entity has recourse to sovereign (e.g. debt guaranteed by government).  False if entity does not have recourse to sovereign.">
+	// Eligible sovereigns specified by IssuerCriteria.issuerCountryOfOrigin
+	// Eligible issuers specified by IssuerCriteria.issuerName
+	// TODO: other (non-exhaustive) criteria e.g. US municipals, Canadian provinces, German Lander
+
+type SpecialPurposeVehicleIssuerType: <"A special purpose vehicle (SPV), also called a special purpose entity (SPE), is a subsidiary created by a parent company to isolate financial risk. Its legal status as a separate company makes its obligations secure even if the parent company goes bankrupt.">
+	creditRisk CreditRiskEnum (0..1) <"Tranched or untranched credit risk."> // Not required?  If tranched credit risk then specified ProductCriteria.agencyRating. 
+	// Eligible jurisdictions of incorporation is specified by IssuerCriteria.issuerCountryOfOrigin
+	// TODO: other (non-exhaustive) criteria e.g. by asset class (RMBS, CMBS, CLO, by regional risk focus, by guarantor (e.g. Ginnie Mae))
+
+type FundIssuerType:
+	fundCountryOfOrigin string (0..*) <"Fund country of origin.  Note that fund manager country of origin is specified by IssuerCriteria.issuerCountryOfOrigin.">
+		[metadata scheme]
+	// exchangeTraded is specified by EquityTypeEnum.ExchangeTradedFund
+	// TODO: other (non-exhaustive) criteria e.g. UCITS, Mutual funds, Hedge funds, Private Equity)
 
 type CollateralProductType:
 	productType CollateralProductTypeEnum (1..1)
+	
 	securityType SecurityTypeEnum (0..1) 
 	bondType BondTypeEnum (0..1)
 	equityType EquityTypeEnum (0..1)
@@ -55,67 +95,38 @@ type CollateralProductType:
 		if securityType <> SecurityTypeEnum -> Equity
 		then equityType is absent
 
-
-type CollateralValuationPercentage: <"COLLATERAL HAIRCUT.">
+type CollateralValuationPercentage:
     valuationPercentage number (1..1) <"Percentage value of asset to be used as collateral once assets discounted haircut take into consideration, expressed as a valuation comprised between 0.0 and 100.0.">
-    fxHaircutPercentage number (0..1) <"If pledgor eligible collateral is not denominated in the termination currency of the secured parties agreement an FX haircut is applied, expressed as a valuation comprised between 0.0 and 100.0">
+    fxHaircutPercentage number (0..1) <"FX haircut applied to specific asset which is agreed between the parties outside of regulatory-specific initial margin haircuts. For example, if pledgor eligible collateral is not denominated in the termination currency or under other specified cases in collateral support documents both for initial margin and variation margin.  The value is expressed as the FX haircut percentage to be discounted, e.g. a number between 0.0 and 100.0.">
 
-//=========
-
-type EligibleCollateral_: <"The collateral eligibility as a function of the types of asset, the maturity and rating terms.">
-	[synonym FpML_5_10 value "EligibleCollateral"]
-
-	instrumentInformation CollateralInstrumentInformation (1..1)
-	denominatedCurrency string (1..1) <"Underlying denominated currency of instrument.">
-	    [metadata scheme]
-	maturityRange PeriodRange (1..1)
-	agencyRating AgencyRating (0..1)
-	valuationPercentage CollateralValuationPercentage (1..1)
-
-type CollateralInstrumentInformation: <"COLLATERAL ISSUE INFORMATION.">
-    issuerType CollateralIssuerType (1..1) <"Origin of entity issuing the asset.">
-    issuerCountryOfOrigin string (1..1) <"The issuer entity country of origin.">
-		[metadata scheme]
-	issuerName LegalEntity (0..1)
-    collateralProductType CollateralProductType (0..*) <"Definition of collateral type.">
-	instrumentIdentifier ProductIdentifier (0..*)
-    counterpartyOwnIssue boolean (1..1) <"Is asset issued by posting entity or member of corporate family - note: not permitted under specific regulations."> // Explore options to infer this from one way risk
-
-//=========
-
-type EligibleCollateral: <"The collateral eligibility as a function of the types of asset, the maturity and rating terms.">
+type EligibleCollateral: <"Set of criteria used to specify eligible collateral.">
 	criteria EligibleCollateralCriteria (1..*)
 
+type EligibleCollateralCriteria: <"Criteria used to specify eligible collateral.">
+	issuer IssuerCriteria (0..*) <"Filter based on the issuer.">
+	product ProductCriteria (0..*) <"Filter based on the product.">
+	valuationPercentage CollateralValuationPercentage (0..1) <"Filter based on the valuation percentage or FX haircut percentage.">
 
-type EligibleCollateralCriteria: <"The collateral eligibility as a function of the types of asset, the maturity and rating terms.">
-	issuerType CollateralIssuerType (0..*) <"Origin of entity issuing the asset.">
-    issuerCountryOfOrigin string (0..*) <"The issuer entity country of origin.">
+type IssuerCriteria: <"Criteria used to specify eligible collateral issuers.">
+	issuerType CollateralIssuerType (0..*) <"Filter based on the type of entity issuing the asset.">
+    issuerCountryOfOrigin string (0..*) <"Filter based on the issuing entity country of origin."> // Same as list of eligible Sorvereigns
 		[metadata scheme]
-	issuerName LegalEntity (0..*)
-    denominatedCurrency string (0..*) <"Underlying denominated currency of instrument.">
+	issuerName LegalEntity (0..*) <"Filter based on the issuing entity name or LEI.">
+	issuerAgencyRating AgencyRatingCriteria (0..*) <"Agency rating based on default risk and creditors claim in event of default associated with asset issuer.">
+	sovereignAgencyRating AgencyRatingCriteria (0..*) <"Agency rating based on default risk of country.">
+	counterpartyOwnIssuePermitted boolean (0..1) <"Filter based on whether it is permitted for the the underlying asset to be issued by the posting entity or part of their corporate family."> // Explore options to infer this from one way risk
+	
+type ProductCriteria: <"Criteria used to specify eligible collateral assets.">
+	collateralProductType CollateralProductType (0..*) <"Filter based on the asset product type.">
+	denominatedCurrency string (0..*) <"Filter based on the underlying asset denominated currency.">
 	    [metadata scheme]
-	collateralProductType CollateralProductType (0..*) <"Definition of collateral type.">
-	instrumentIdentifier ProductIdentifier (0..*)
-    counterpartyOwnIssue boolean (1..1) <"Is asset issued by posting entity or member of corporate family - note: not permitted under specific regulations."> // Explore options to infer this from one way risk
-	maturityType MaturityTypeEnum (0..1)
-	maturityRange PeriodRange (0..1)
-	agencyRating AgencyRating (0..1)
-	valuationPercentage CollateralValuationPercentage (1..1)
-
-
-type AgencyRatingCriteria: <"A class to specify multiple credit notations alongside a conditional 'any' or 'all' qualifier.">
-
-	allOrAny QuantifierEnum (1..1) <"An enumerated element, to qualify whether All or Any credit notation applies.">
-	creditNotation CreditNotation (1..*)
-		[metadata scheme]
-	mismatchResolution CreditNotationMismatchResolutionEnum (0..1)
-	referenceAgency CreditRatingAgencyEnum (0..1)
-
-	condition ReferenceAgency: <"If the mismatch resolution is ReferenceAgency, ensure that the reference agency is specified.">
-		if AgencyRatingCriteria -> mismatchResolution = CreditNotationMismatchResolutionEnum -> ReferenceAgency
-		then AgencyRatingCriteria -> referenceAgency exists
-
-//==============
+	agencyRating AgencyRatingCriteria (0..*) <"Agency rating based on default risk and creditors claim in event of default associated with specific instrument.">
+	maturityType MaturityTypeEnum (0..1) <"Specifies whether the maturity range is the remaining or original maturity.">
+	maturityRange PeriodRange (0..1) <"Filter based on the underlying asset maturity.">
+	identifier ProductIdentifier (0..*) <"Filter based on specific instrument identifiers (e.g. specific ISINs, CUSIPs etc).">
+    seasoned boolean (0..1) <"Filter based on whether underlying security is seasoned.">
+	sinkable boolean (0..1) <"Filter based on whether underlying security is sinkable.">
+	indexLinked boolean (0..1) <"Filter based on whether underlying security is index linked.">
 
 /* 
 // Previous version, temporarily kept for reference purposes
@@ -148,11 +159,3 @@ type EligibleCollateral: <"The collateral eligibility as a function of the types
 		then valuationPercentage >= 0
 			and valuationPercentage <= 1
 */
-
-
-
-
-
-
-
-
