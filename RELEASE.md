@@ -1,13 +1,17 @@
-# *CDM Model: Equity Stock Split Function*
+# *Product/Event Model: Collateral Eligibility*
 
 _What is being released_
 
-Function added to create a split stock business event based on a `SplitStockInstruction`.  The `SplitStockInstruction.adjustmentRatio` is applied to the number of securities and cash price resulting in the a `QuantityChangePrimitive` and `TermsChangePrimitive` respectively.
+Eligible Collateral model refactoring focusing on attribute cardinality to allow the eligibility criteria to be specified.
 
 _Review Directions_
 
 In the Textual Browser, review the following:
 
-- Business event func `SplitStock`.
-- Type `StockSplitInstruction`.
-- Qualification func `StockSplit`.
+- Type `EligibleCollateralCriteria`, `IssuerCriteria` and `ProductCriteria`.
+
+# *Product/Event Model: Collateral Documentation*
+
+_What is being released_
+
+ISDA Create schemas and sample files added for Security Agreement documents: Euroclear SA 2019 Belgium Law, ISDA SA IM 2019 English Law and ISDA SA IM 2019 New York Law.

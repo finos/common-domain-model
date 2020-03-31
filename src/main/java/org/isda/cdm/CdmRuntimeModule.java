@@ -1,5 +1,6 @@
 package org.isda.cdm;
 
+import cdm.base.maths.functions.*;
 import org.isda.cdm.functions.*;
 
 import com.google.inject.AbstractModule;
@@ -7,9 +8,6 @@ import com.regnosys.rosetta.common.validation.RosettaTypeValidator;
 import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
 import com.rosetta.model.lib.validation.ModelObjectValidator;
 
-import cdm.base.maths.functions.Abs;
-import cdm.base.maths.functions.ListsCompare;
-import cdm.base.maths.functions.Sum;
 import cdm.base.staticdata.party.functions.PartyByRole;
 
 public class CdmRuntimeModule extends AbstractModule {
@@ -31,7 +29,8 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(NoOfUnits.class).to(bindNoOfUnits());
 		bind(CurrencyAmount.class).to(bindCurrencyAmount());
 		bind(PartyByRole.class).to(PartyByRoleImpl.class);
-
+		bind(SumPostedCreditSupportItemAmounts.class).to(bindSumPostedCreditSupportItemAmounts());
+		bind(RoundToNearest.class).to(bindRoundToNearest());
 	}
 
 	protected Class<? extends ListsCompare> bindListsCompare() {
@@ -47,7 +46,7 @@ public class CdmRuntimeModule extends AbstractModule {
 	}
 
 	// Functions
-	
+
 	protected Class<? extends Abs> bindAbs() {
 		return AbsImpl.class;
 	}
@@ -71,12 +70,20 @@ public class CdmRuntimeModule extends AbstractModule {
 	protected Class<? extends ResolveEquityInitialPrice> bindResolveEquityInitialPrice() {
 		return ResolveEquityInitialPriceImpl.class;
 	}
-	
+
 	protected Class<? extends NoOfUnits> bindNoOfUnits() {
 		return NoOfUnitsImpl.class;
 	}
 
 	protected Class<? extends CurrencyAmount> bindCurrencyAmount() {
 		return CurrencyAmountImpl.class;
+	}
+
+	protected Class<? extends SumPostedCreditSupportItemAmounts> bindSumPostedCreditSupportItemAmounts() {
+		return SumPostedCreditSupportItemAmountsImpl.class;
+	}
+
+	protected Class<? extends RoundToNearest> bindRoundToNearest() {
+		return RoundToNearestImpl.class;
 	}
 }
