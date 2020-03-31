@@ -1,0 +1,5680 @@
+{
+  "children": [
+    {
+      "nr": 1,
+      "name": "parties",
+      "type": "election",
+      "label": "Parties",
+      "style": "inline",
+      "children": [
+        [
+          [
+            {
+              "name": {
+                "suffix": "_name",
+                "position": "partyA"
+              },
+              "type": "editor",
+              "label": "Party A",
+              "placeholder": "Entity to be specified in the next step"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "name": {
+                "suffix": "_name",
+                "position": "partyB"
+              },
+              "type": "editor",
+              "label": "Party B",
+              "placeholder": "Entity to be specified in the next step"
+            }
+          ]
+        ]
+      ],
+      "description": "Introduction"
+    },
+    {
+      "nr": 2,
+      "name": "execution_date",
+      "type": "election",
+      "label": "Date of Agreement",
+      "style": "annex-date-provision",
+      "children": [
+        {
+          "name": "executionDate",
+          "type": "datePicker",
+          "hideWhen": {
+            "executionDate": null
+          },
+          "validate": {
+            "max": 0
+          },
+          "placeholder": "Specify date"
+        },
+        {
+          "type": "view",
+          "label": "Date of the Agreement will be agreed separately during the execution stage",
+          "showWhen": {
+            "executionDate": null
+          }
+        }
+      ],
+      "description": "Introduction"
+    },
+    {
+      "nr": 3,
+      "name": "date_of_isda_master_agreement",
+      "type": "election",
+      "amend": true,
+      "label": "Date of ISDA Master Agreement",
+      "children": [
+        {
+          "name": "master_agreement_date",
+          "type": "datePicker",
+          "label": "Date of ISDA Master Agreement",
+          "validate": {
+            "max": 0
+          },
+          "placeholder": "Specify date"
+        }
+      ],
+      "description": "Introduction"
+    },
+    {
+      "nr": 4,
+      "name": "umbrella_agreement_and_principal_identification",
+      "type": "election",
+      "label": "Umbrella Agreement and Principal Identification",
+      "children": [
+        {
+          "name": "is_applicable",
+          "type": "radio",
+          "options": [
+            {
+              "label": "Not Applicable",
+              "value": "not_applicable"
+            },
+            {
+              "label": "Umbrella Agreement",
+              "value": "applicable"
+            }
+          ]
+        },
+        {
+          "name": "language",
+          "type": "editor",
+          "label": "Umbrella preamble language",
+          "showWhen": {
+            "is_applicable": "applicable"
+          }
+        },
+        {
+          "type": "group",
+          "label": "Principal Identification Schedule",
+          "children": [
+            [
+              {
+                "type": "view",
+                "label": "Principal name",
+                "style": "flex-padding"
+              },
+              {
+                "type": "view",
+                "label": "Legal Entity Identifier (LEI)",
+                "style": "flex-padding"
+              },
+              {
+                "type": "view",
+                "label": "Party A and Party B Elections",
+                "style": "flex-padding"
+              }
+            ],
+            {
+              "name": "principal_identification_schedule",
+              "type": "multi",
+              "showWhen": {
+                "is_applicable": "applicable"
+              },
+              "bulkUpload": [
+                {
+                  "label": "Principal name",
+                  "value": "principal_name",
+                  "validate": {
+                    "name": "name",
+                    "type": "matchReference",
+                    "preFill": true,
+                    "warning": true,
+                    "required": true
+                  }
+                },
+                {
+                  "label": "Legal Entity Identifier",
+                  "value": "lei",
+                  "validate": {
+                    "name": "lei",
+                    "type": "matchReference",
+                    "unique": "true",
+                    "maxLength": 20,
+                    "minLength": 20
+                  }
+                }
+              ],
+              "scrollable": true,
+              "defaultValue": [
+                {},
+                {}
+              ],
+              "repeatChildren": [
+                [
+                  {
+                    "name": "principal_name",
+                    "type": "text"
+                  },
+                  {
+                    "name": "lei",
+                    "type": "text"
+                  },
+                  {
+                    "name": "additional",
+                    "type": "editor"
+                  }
+                ]
+              ]
+            }
+          ],
+          "scrollTo": "umbrella_agreement_and_principal_identification_part2",
+          "showWhen": {
+            "is_applicable": "applicable"
+          }
+        }
+      ],
+      "description": "Introduction"
+    },
+    {
+      "nr": 5,
+      "name": "emir",
+      "type": "election",
+      "label": "EMIR",
+      "children": [
+        [
+          [
+            {
+              "name": {
+                "suffix": "_security_taker",
+                "position": "partyA"
+              },
+              "type": "radio",
+              "label": "Party A as Security-taker (Party B as Security-provider)",
+              "options": [
+                {
+                  "label": "Applicable",
+                  "value": "applicable"
+                },
+                {
+                  "label": "Not Applicable",
+                  "value": "not_applicable"
+                },
+                {
+                  "label": "Other / specify",
+                  "value": "other",
+                  "children": [
+                    {
+                      "name": {
+                        "suffix": "_security_taker_specify",
+                        "position": "partyA"
+                      },
+                      "type": "editor",
+                      "label": "Specify",
+                      "showWhen": [
+                        {
+                          "partyA_security_taker": "other"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": {
+                "suffix": "_SIMM",
+                "position": "partyA"
+              },
+              "type": "radio",
+              "label": "SIMM Exception",
+              "options": [
+                {
+                  "label": "Applicable",
+                  "value": "applicable",
+                  "children": [
+                    {
+                      "name": {
+                        "suffix": "_SIMM_applicable_specify",
+                        "position": "partyA"
+                      },
+                      "type": "editor",
+                      "label": "Specify",
+                      "showWhen": [
+                        {
+                          "partyA_SIMM": "applicable"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "label": "Not Applicable",
+                  "value": "not_applicable"
+                },
+                {
+                  "label": "Other / specify",
+                  "value": "other",
+                  "children": [
+                    {
+                      "name": {
+                        "suffix": "_SIMM_specify",
+                        "position": "partyA"
+                      },
+                      "type": "editor",
+                      "label": "Specify",
+                      "showWhen": [
+                        {
+                          "partyA_SIMM": "other"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "showWhen": [
+                {
+                  "partyA_security_taker": "applicable"
+                },
+                {
+                  "partyA_security_taker": "other"
+                }
+              ]
+            },
+            {
+              "name": {
+                "suffix": "_retrospective",
+                "position": "partyA"
+              },
+              "type": "radio",
+              "label": "Retrospective Effect",
+              "options": [
+                {
+                  "label": "Applicable",
+                  "value": "applicable"
+                },
+                {
+                  "label": "Not Applicable",
+                  "value": "not_applicable"
+                },
+                {
+                  "label": "Other / specify",
+                  "value": "other",
+                  "children": [
+                    {
+                      "name": {
+                        "suffix": "_retrospective_specify",
+                        "position": "partyA"
+                      },
+                      "type": "editor",
+                      "label": "Specify",
+                      "showWhen": [
+                        {
+                          "partyA_retrospective": "other"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "showWhen": [
+                {
+                  "partyA_security_taker": "applicable"
+                },
+                {
+                  "partyA_security_taker": "other"
+                }
+              ]
+            }
+          ],
+          [
+            {
+              "name": {
+                "suffix": "_security_taker",
+                "position": "partyB"
+              },
+              "type": "radio",
+              "label": "Party B as Security-taker (Party A as Security-provider)",
+              "options": [
+                {
+                  "label": "Applicable",
+                  "value": "applicable"
+                },
+                {
+                  "label": "Not Applicable",
+                  "value": "not_applicable"
+                },
+                {
+                  "label": "Other / specify",
+                  "value": "other",
+                  "children": [
+                    {
+                      "name": {
+                        "suffix": "_security_taker_specify",
+                        "position": "partyB"
+                      },
+                      "type": "editor",
+                      "label": "Specify",
+                      "showWhen": [
+                        {
+                          "partyB_security_taker": "other"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": {
+                "suffix": "_SIMM",
+                "position": "partyB"
+              },
+              "type": "radio",
+              "label": "SIMM Exception",
+              "options": [
+                {
+                  "label": "Applicable",
+                  "value": "applicable",
+                  "children": [
+                    {
+                      "name": {
+                        "suffix": "_SIMM_applicable_specify",
+                        "position": "partyB"
+                      },
+                      "type": "editor",
+                      "label": "Specify",
+                      "showWhen": [
+                        {
+                          "partyB_SIMM": "applicable"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "label": "Not Applicable",
+                  "value": "not_applicable"
+                },
+                {
+                  "label": "Other / specify",
+                  "value": "other",
+                  "children": [
+                    {
+                      "name": {
+                        "suffix": "_SIMM_specify",
+                        "position": "partyB"
+                      },
+                      "type": "editor",
+                      "label": "Specify",
+                      "showWhen": [
+                        {
+                          "partyB_SIMM": "other"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "showWhen": [
+                {
+                  "partyB_security_taker": "applicable"
+                },
+                {
+                  "partyB_security_taker": "other"
+                }
+              ]
+            },
+            {
+              "name": {
+                "suffix": "_retrospective",
+                "position": "partyB"
+              },
+              "type": "radio",
+              "label": "Retrospective Effect",
+              "options": [
+                {
+                  "label": "Applicable",
+                  "value": "applicable"
+                },
+                {
+                  "label": "Not Applicable",
+                  "value": "not_applicable"
+                },
+                {
+                  "label": "Other / specify",
+                  "value": "other",
+                  "children": [
+                    {
+                      "name": {
+                        "suffix": "_retrospective_specify",
+                        "position": "partyB"
+                      },
+                      "type": "editor",
+                      "label": "Specify",
+                      "showWhen": [
+                        {
+                          "partyB_retrospective": "other"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "showWhen": [
+                {
+                  "partyB_security_taker": "applicable"
+                },
+                {
+                  "partyB_security_taker": "other"
+                }
+              ]
+            }
+          ],
+          [
+            {
+              "name": "additional_type",
+              "type": "radio",
+              "label": "Additional Type for the purposes of Covered Transactions",
+              "options": [
+                {
+                  "label": "Not Applicable",
+                  "value": "not_applicable"
+                },
+                {
+                  "label": "Single stock equity option or index option transaction",
+                  "value": "single_stock_equity_option_or_index_option_transaction"
+                },
+                {
+                  "label": "Other / specify",
+                  "value": "other",
+                  "children": [
+                    {
+                      "name": "additional_type_specify",
+                      "type": "editor",
+                      "label": "Specify",
+                      "showWhen": [
+                        {
+                          "additional_type": "other"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "disableWhen": [
+                {
+                  "partyA_security_taker": "not_applicable",
+                  "partyB_security_taker": "not_applicable"
+                }
+              ]
+            }
+          ]
+        ]
+      ],
+      "description": "General Principles"
+    },
+    {
+      "nr": 6,
+      "$ref": "#regime",
+      "name": "prudential",
+      "label": "Prudential"
+    },
+    {
+      "nr": 7,
+      "$ref": "#regime",
+      "name": "cftc",
+      "label": "CFTC"
+    },
+    {
+      "nr": 8,
+      "$ref": "#regime",
+      "name": "sec",
+      "label": "SEC"
+    },
+    {
+      "nr": 9,
+      "$ref": "#regime",
+      "name": "canada",
+      "label": "Canada"
+    },
+    {
+      "nr": 10,
+      "$ref": "#regime",
+      "name": "switzerland",
+      "label": "Switzerland"
+    },
+    {
+      "nr": 11,
+      "$ref": "#regime",
+      "name": "japan",
+      "label": "Japan"
+    },
+    {
+      "nr": 12,
+      "name": "additional_regimes",
+      "type": "election",
+      "label": "Additional Regimes",
+      "children": [
+        {
+          "name": "is_applicable",
+          "type": "radio",
+          "label": "Additional regime",
+          "options": [
+            {
+              "label": "Applicable",
+              "value": "applicable"
+            },
+            {
+              "label": "Not Applicable",
+              "value": "not_applicable"
+            }
+          ]
+        },
+        {
+          "name": "regimes",
+          "type": "multi",
+          "addLabel": "Add additional Regime",
+          "optional": true,
+          "showWhen": {
+            "is_applicable": "applicable"
+          },
+          "defaultValue": [
+            {}
+          ],
+          "repeatChildren": [
+            {
+              "name": "regime_name",
+              "type": "text",
+              "label": "Regime name",
+              "placeholder": "Specify name"
+            },
+            [
+              [
+                {
+                  "name": {
+                    "suffix": "_security_taker",
+                    "position": "partyA"
+                  },
+                  "type": "radio",
+                  "label": "Party A as Security-taker (Party B as Security-provider)",
+                  "options": [
+                    {
+                      "label": "Applicable",
+                      "value": "applicable"
+                    },
+                    {
+                      "label": "Not Applicable",
+                      "value": "not_applicable"
+                    },
+                    {
+                      "label": "Other / specify",
+                      "value": "other",
+                      "children": [
+                        {
+                          "name": {
+                            "suffix": "_security_taker_specify",
+                            "position": "partyA"
+                          },
+                          "type": "editor",
+                          "label": "Specify",
+                          "showWhen": {
+                            "partyA_security_taker": "other"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": {
+                    "suffix": "_SIMM",
+                    "position": "partyA"
+                  },
+                  "type": "radio",
+                  "label": "SIMM Exception",
+                  "options": [
+                    {
+                      "label": "Applicable",
+                      "value": "applicable",
+                      "children": [
+                        {
+                          "name": {
+                            "suffix": "_SIMM_applicable_specify",
+                            "position": "partyA"
+                          },
+                          "type": "editor",
+                          "label": "Specify",
+                          "showWhen": {
+                            "partyA_SIMM": "applicable"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "label": "Not Applicable",
+                      "value": "not_applicable"
+                    },
+                    {
+                      "label": "Other / specify",
+                      "value": "other",
+                      "children": [
+                        {
+                          "name": {
+                            "suffix": "_SIMM_specify",
+                            "position": "partyA"
+                          },
+                          "type": "editor",
+                          "label": "Specify",
+                          "showWhen": {
+                            "partyA_SIMM": "other"
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "showWhen": [
+                    {
+                      "partyA_security_taker": "applicable"
+                    },
+                    {
+                      "partyA_security_taker": "other"
+                    }
+                  ]
+                },
+                {
+                  "name": {
+                    "suffix": "_retrospective",
+                    "position": "partyA"
+                  },
+                  "type": "radio",
+                  "label": "Retrospective Effect",
+                  "options": [
+                    {
+                      "label": "Applicable",
+                      "value": "applicable"
+                    },
+                    {
+                      "label": "Not Applicable",
+                      "value": "not_applicable"
+                    },
+                    {
+                      "label": "Other / specify",
+                      "value": "other",
+                      "children": [
+                        {
+                          "name": {
+                            "suffix": "_retrospective_specify",
+                            "position": "partyA"
+                          },
+                          "type": "editor",
+                          "label": "Specify",
+                          "showWhen": {
+                            "partyA_retrospective": "other"
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "showWhen": [
+                    {
+                      "partyA_security_taker": "applicable"
+                    },
+                    {
+                      "partyA_security_taker": "other"
+                    }
+                  ]
+                }
+              ],
+              [
+                {
+                  "name": {
+                    "suffix": "_security_taker",
+                    "position": "partyB"
+                  },
+                  "type": "radio",
+                  "label": "Party B as Security-taker (Party A as Security-provider)",
+                  "options": [
+                    {
+                      "label": "Applicable",
+                      "value": "applicable"
+                    },
+                    {
+                      "label": "Not Applicable",
+                      "value": "not_applicable"
+                    },
+                    {
+                      "label": "Other / specify",
+                      "value": "other",
+                      "children": [
+                        {
+                          "name": {
+                            "suffix": "_security_taker_specify",
+                            "position": "partyB"
+                          },
+                          "type": "editor",
+                          "label": "Specify",
+                          "showWhen": {
+                            "partyB_security_taker": "other"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": {
+                    "suffix": "_SIMM",
+                    "position": "partyB"
+                  },
+                  "type": "radio",
+                  "label": "SIMM Exception",
+                  "options": [
+                    {
+                      "label": "Applicable",
+                      "value": "applicable",
+                      "children": [
+                        {
+                          "name": {
+                            "suffix": "_SIMM_applicable_specify",
+                            "position": "partyB"
+                          },
+                          "type": "editor",
+                          "label": "Specify",
+                          "showWhen": {
+                            "partyB_SIMM": "applicable"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "label": "Not Applicable",
+                      "value": "not_applicable"
+                    },
+                    {
+                      "label": "Other / specify",
+                      "value": "other",
+                      "children": [
+                        {
+                          "name": {
+                            "suffix": "_SIMM_specify",
+                            "position": "partyB"
+                          },
+                          "type": "editor",
+                          "label": "Specify",
+                          "showWhen": {
+                            "partyB_SIMM": "other"
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "showWhen": [
+                    {
+                      "partyB_security_taker": "applicable"
+                    },
+                    {
+                      "partyB_security_taker": "other"
+                    }
+                  ]
+                },
+                {
+                  "name": {
+                    "suffix": "_retrospective",
+                    "position": "partyB"
+                  },
+                  "type": "radio",
+                  "label": "Retrospective Effect",
+                  "options": [
+                    {
+                      "label": "Applicable",
+                      "value": "applicable"
+                    },
+                    {
+                      "label": "Not Applicable",
+                      "value": "not_applicable"
+                    },
+                    {
+                      "label": "Other / specify",
+                      "value": "other",
+                      "children": [
+                        {
+                          "name": {
+                            "suffix": "_retrospective_specify",
+                            "position": "partyB"
+                          },
+                          "type": "editor",
+                          "label": "Specify",
+                          "showWhen": {
+                            "partyB_retrospective": "other"
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "showWhen": [
+                    {
+                      "partyB_security_taker": "applicable"
+                    },
+                    {
+                      "partyB_security_taker": "other"
+                    }
+                  ]
+                }
+              ],
+              [
+                {
+                  "name": "additional_type",
+                  "type": "radio",
+                  "label": "Additional Type for the purposes of Covered Transactions",
+                  "options": [
+                    {
+                      "label": "Not Applicable",
+                      "value": "not_applicable"
+                    },
+                    {
+                      "label": "Other / specify",
+                      "value": "other",
+                      "children": [
+                        {
+                          "name": "additional_type_specify",
+                          "type": "editor",
+                          "label": "Specify",
+                          "showWhen": {
+                            "additional_type": "other"
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "disableWhen": [
+                    {
+                      "partyA_security_taker": "not_applicable",
+                      "partyB_security_taker": "not_applicable"
+                    }
+                  ]
+                }
+              ]
+            ]
+          ]
+        }
+      ],
+      "description": "General Principles"
+    },
+    {
+      "nr": 13,
+      "name": "one_way_provisions",
+      "type": "election",
+      "amend": true,
+      "label": "One Way Provisions",
+      "children": [
+        {
+          "name": "is_applicable",
+          "type": "radio",
+          "options": [
+            {
+              "label": "Applicable",
+              "value": "applicable"
+            },
+            {
+              "label": "Not Applicable",
+              "value": "not_applicable"
+            }
+          ]
+        },
+        {
+          "name": "posting_party",
+          "type": "radio",
+          "label": "Posting Party",
+          "options": [
+            {
+              "label": "Party A",
+              "value": "partyA",
+              "position": "partyA"
+            },
+            {
+              "label": "Party B",
+              "value": "partyB",
+              "position": "partyB"
+            }
+          ],
+          "showWhen": [
+            {
+              "is_applicable": "applicable"
+            }
+          ]
+        }
+      ],
+      "description": "General Principles"
+    },
+    {
+      "nr": 14,
+      "name": "simm_calculation_currency",
+      "type": "election",
+      "amend": true,
+      "label": "SIMM Calculation Currency",
+      "children": [
+        [
+          [
+            {
+              "name": {
+                "suffix": "_use_base_currency",
+                "position": "partyA"
+              },
+              "type": "radio",
+              "label": "Party A",
+              "options": [
+                {
+                  "label": "Base Currency",
+                  "value": "true"
+                },
+                {
+                  "label": "Specify other currency",
+                  "value": "false"
+                }
+              ]
+            },
+            {
+              "$ref": "#currencies",
+              "name": {
+                "suffix": "_use_other_currency",
+                "position": "partyA"
+              },
+              "label": "Currency",
+              "showWhen": [
+                {
+                  "partyA_use_base_currency": "false"
+                }
+              ]
+            }
+          ],
+          [
+            {
+              "name": {
+                "suffix": "_use_base_currency",
+                "position": "partyB"
+              },
+              "type": "radio",
+              "label": "Party B",
+              "options": [
+                {
+                  "label": "Base Currency",
+                  "value": "true"
+                },
+                {
+                  "label": "Specify other currency",
+                  "value": "false"
+                }
+              ]
+            },
+            {
+              "$ref": "#currencies",
+              "name": {
+                "suffix": "_use_other_currency",
+                "position": "partyB"
+              },
+              "label": "Currency",
+              "showWhen": [
+                {
+                  "partyB_use_base_currency": "false"
+                }
+              ]
+            }
+          ]
+        ]
+      ],
+      "description": "General Principles"
+    },
+    {
+      "nr": 15,
+      "name": "cross_currency_swap",
+      "type": "election",
+      "amend": true,
+      "label": "Covered Transaction - cross currency swap",
+      "children": [
+        {
+          "name": "yey_ney",
+          "type": "radio",
+          "label": "“Cross currency swap” required to be identified in Confirmation",
+          "options": [
+            {
+              "label": "Yes",
+              "value": "true"
+            },
+            {
+              "label": "No",
+              "value": "false"
+            }
+          ]
+        }
+      ],
+      "description": "General Principles"
+    },
+    {
+      "nr": 16,
+      "name": "sensitivities_to_equity_indices_funds_etfs",
+      "type": "election",
+      "amend": true,
+      "label": "Sensitivities to equity indices, funds and ETFs",
+      "children": [
+        {
+          "name": "sensitivities_equity_indices_funds_etfs",
+          "type": "radio",
+          "label": "Sensitivities to equity indices, funds and ETFs",
+          "options": [
+            {
+              "label": "Standard Approach",
+              "value": "standard"
+            },
+            {
+              "label": "Alternative Approach",
+              "value": "alternative"
+            },
+            {
+              "label": "Other / specify",
+              "value": "other"
+            }
+          ]
+        },
+        {
+          "name": "sensitivities_equity_indices_funds_etfs_specify",
+          "type": "editor",
+          "label": "Specify",
+          "showWhen": [
+            {
+              "sensitivities_equity_indices_funds_etfs": "other"
+            }
+          ]
+        }
+      ],
+      "description": "General Principles"
+    },
+    {
+      "nr": 17,
+      "name": "sensitivities_to_commodity_indices",
+      "type": "election",
+      "amend": true,
+      "label": "Sensitivities to commodity indices",
+      "children": [
+        {
+          "name": "sensitivities_commodity_indices",
+          "type": "radio",
+          "label": "Sensitivities to commodity indices",
+          "options": [
+            {
+              "label": "Standard Approach",
+              "value": "standard"
+            },
+            {
+              "label": "Alternative Approach",
+              "value": "alternative"
+            },
+            {
+              "label": "Other / specify",
+              "value": "other"
+            }
+          ]
+        },
+        {
+          "name": "sensitivities_commodity_indices_specify",
+          "type": "editor",
+          "label": "Specify",
+          "showWhen": [
+            {
+              "sensitivities_commodity_indices": "other"
+            }
+          ]
+        }
+      ],
+      "description": "General Principles"
+    },
+    {
+      "nr": 18,
+      "name": "fx_haircut_percentage",
+      "type": "election",
+      "amend": true,
+      "label": "FX Haircut Percentage",
+      "children": [
+        {
+          "name": "is_termination_currency",
+          "type": "radio",
+          "options": [
+            {
+              "label": "Termination Currency",
+              "value": "terminationCurrency"
+            },
+            {
+              "label": "FX Designated Currency",
+              "value": "fxCurrency"
+            }
+          ]
+        },
+        {
+          "$ref": "#currencies",
+          "name": "fx_designated_currency",
+          "label": "\"FX Designated Currency\"",
+          "showWhen": {
+            "is_termination_currency": "fxCurrency"
+          }
+        }
+      ],
+      "description": "General Principles"
+    },
+    {
+      "nr": 19,
+      "name": "base_currency",
+      "type": "election",
+      "amend": true,
+      "label": "Base Currency",
+      "children": [
+        {
+          "$ref": "#currencies",
+          "name": "currency",
+          "label": "\"Base Currency\""
+        }
+      ],
+      "description": "Base Currency"
+    },
+    {
+      "nr": 20,
+      "name": "minimum_transfer_amount",
+      "type": "election",
+      "amend": true,
+      "label": "Minimum Transfer Amount ",
+      "children": [
+        [
+          {
+            "name": {
+              "suffix": "_minimum_transfer_amount",
+              "position": "partyA"
+            },
+            "type": "radio",
+            "label": "Party A",
+            "options": [
+              {
+                "label": "Specify amount and currency",
+                "value": "specify",
+                "children": [
+                  {
+                    "name": {
+                      "suffix": "_amount",
+                      "position": "partyA"
+                    },
+                    "type": "text",
+                    "label": "Amount",
+                    "showWhen": [
+                      {
+                        "partyA_minimum_transfer_amount": "specify"
+                      }
+                    ],
+                    "validate": {
+                      "pattern": "^[-+]?[0-9]*?[0-9]+$",
+                      "maxLength": 15
+                    }
+                  },
+                  {
+                    "$ref": "#currencies",
+                    "name": {
+                      "suffix": "_currency",
+                      "position": "partyA"
+                    },
+                    "label": "Currency",
+                    "showWhen": [
+                      {
+                        "partyA_minimum_transfer_amount": "specify"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "label": "Other / specify",
+                "value": "other",
+                "children": [
+                  {
+                    "name": {
+                      "suffix": "_specify",
+                      "position": "partyA"
+                    },
+                    "type": "editor",
+                    "label": "Specify",
+                    "showWhen": [
+                      {
+                        "partyA_minimum_transfer_amount": "other"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": {
+                  "suffix": "_zero",
+                  "position": "partyA"
+                },
+                "label": "Zero",
+                "value": "zero"
+              }
+            ]
+          },
+          {
+            "name": {
+              "suffix": "_minimum_transfer_amount",
+              "position": "partyB"
+            },
+            "type": "radio",
+            "label": "Party B",
+            "options": [
+              {
+                "label": "Specify amount and currency",
+                "value": "specify",
+                "children": [
+                  {
+                    "name": {
+                      "suffix": "_amount",
+                      "position": "partyB"
+                    },
+                    "type": "text",
+                    "label": "Amount",
+                    "showWhen": [
+                      {
+                        "partyB_minimum_transfer_amount": "specify"
+                      }
+                    ],
+                    "validate": {
+                      "pattern": "^[-+]?[0-9]*?[0-9]+$",
+                      "maxLength": 15
+                    }
+                  },
+                  {
+                    "$ref": "#currencies",
+                    "name": {
+                      "suffix": "_currency",
+                      "position": "partyB"
+                    },
+                    "label": "Currency",
+                    "showWhen": [
+                      {
+                        "partyB_minimum_transfer_amount": "specify"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "label": "Other / specify",
+                "value": "other",
+                "children": [
+                  {
+                    "name": {
+                      "suffix": "_specify",
+                      "position": "partyB"
+                    },
+                    "type": "editor",
+                    "label": "Specify",
+                    "showWhen": [
+                      {
+                        "partyB_minimum_transfer_amount": "other"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": {
+                  "suffix": "_zero",
+                  "position": "partyB"
+                },
+                "label": "Zero",
+                "value": "zero"
+              }
+            ]
+          }
+        ]
+      ],
+      "description": "Credit Support Obligations"
+    },
+    {
+      "nr": 21,
+      "name": "threshold",
+      "type": "election",
+      "amend": true,
+      "label": "Threshold",
+      "children": [
+        [
+          {
+            "name": {
+              "suffix": "_threshold",
+              "position": "partyA"
+            },
+            "type": "radio",
+            "label": "Party A",
+            "options": [
+              {
+                "label": "Specify amount and currency",
+                "value": "specify",
+                "children": [
+                  {
+                    "name": {
+                      "suffix": "_amount",
+                      "position": "partyA"
+                    },
+                    "type": "text",
+                    "label": "Amount",
+                    "showWhen": [
+                      {
+                        "partyA_threshold": "specify"
+                      }
+                    ],
+                    "validate": {
+                      "pattern": "^[-+]?[0-9]*?[0-9]+$",
+                      "maxLength": 15
+                    }
+                  },
+                  {
+                    "$ref": "#currencies",
+                    "name": {
+                      "suffix": "_currency",
+                      "position": "partyA"
+                    },
+                    "label": "Currency",
+                    "showWhen": [
+                      {
+                        "partyA_threshold": "specify"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "label": "Other / specify",
+                "value": "other",
+                "children": [
+                  {
+                    "name": {
+                      "suffix": "_specify",
+                      "position": "partyA"
+                    },
+                    "type": "editor",
+                    "label": "Specify",
+                    "showWhen": [
+                      {
+                        "partyA_threshold": "other"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": {
+                  "suffix": "_zero",
+                  "position": "partyA"
+                },
+                "label": "Zero",
+                "value": "zero"
+              }
+            ]
+          },
+          {
+            "name": {
+              "suffix": "_threshold",
+              "position": "partyB"
+            },
+            "type": "radio",
+            "label": "Party B",
+            "options": [
+              {
+                "label": "Specify amount and currency",
+                "value": "specify",
+                "children": [
+                  {
+                    "name": {
+                      "suffix": "_amount",
+                      "position": "partyB"
+                    },
+                    "type": "text",
+                    "label": "Amount",
+                    "showWhen": [
+                      {
+                        "partyB_threshold": "specify"
+                      }
+                    ],
+                    "validate": {
+                      "pattern": "^[-+]?[0-9]*?[0-9]+$",
+                      "maxLength": 15
+                    }
+                  },
+                  {
+                    "$ref": "#currencies",
+                    "name": {
+                      "suffix": "_currency",
+                      "position": "partyB"
+                    },
+                    "label": "Currency",
+                    "showWhen": [
+                      {
+                        "partyB_threshold": "specify"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "label": "Other / specify",
+                "value": "other",
+                "children": [
+                  {
+                    "name": {
+                      "suffix": "_specify",
+                      "position": "partyB"
+                    },
+                    "type": "editor",
+                    "label": "Specify",
+                    "showWhen": [
+                      {
+                        "partyB_threshold": "other"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": {
+                  "suffix": "_zero",
+                  "position": "partyB"
+                },
+                "label": "Zero",
+                "value": "zero"
+              }
+            ]
+          }
+        ]
+      ],
+      "description": "Credit Support Obligations"
+    },
+    {
+      "nr": 22,
+      "name": "collateral_valuation_agent",
+      "type": "election",
+      "amend": true,
+      "label": "Collateral Valuation Agent",
+      "children": [
+        [
+          {
+            "name": {
+              "suffix": "_collateral_valuation_agent",
+              "position": "partyA"
+            },
+            "type": "radio",
+            "label": "Party A",
+            "options": [
+              {
+                "label": "Not specified",
+                "value": "not_specified"
+              },
+              {
+                "label": "Other / specify",
+                "value": "other",
+                "children": [
+                  {
+                    "name": {
+                      "suffix": "_specify",
+                      "position": "partyA"
+                    },
+                    "type": "editor",
+                    "label": "Specify",
+                    "showWhen": [
+                      {
+                        "partyA_collateral_valuation_agent": "other"
+                      }
+                    ],
+                    "placeholder": "Specify text"
+                  }
+                ]
+              }
+            ],
+            "defaultValue": "not_specified"
+          },
+          {
+            "name": {
+              "suffix": "_collateral_valuation_agent",
+              "position": "partyB"
+            },
+            "type": "radio",
+            "label": "Party B",
+            "options": [
+              {
+                "label": "Not specified",
+                "value": "not_specified"
+              },
+              {
+                "label": "Other / specify",
+                "value": "other",
+                "children": [
+                  {
+                    "name": {
+                      "suffix": "_specify",
+                      "position": "partyB"
+                    },
+                    "type": "editor",
+                    "label": "Specify",
+                    "showWhen": [
+                      {
+                        "partyB_collateral_valuation_agent": "other"
+                      }
+                    ],
+                    "placeholder": "Specify text"
+                  }
+                ]
+              }
+            ],
+            "defaultValue": "not_specified"
+          }
+        ]
+      ],
+      "description": "Valuation and Timing"
+    },
+    {
+      "nr": 23,
+      "name": "designated_city",
+      "type": "election",
+      "amend": true,
+      "label": "Designated City",
+      "children": [
+        [
+          {
+            "name": {
+              "suffix": "_designated_city",
+              "position": "partyA"
+            },
+            "type": "radio",
+            "label": "Party A",
+            "options": [
+              {
+                "label": "Select location",
+                "value": "select_location",
+                "children": [
+                  {
+                    "$ref": "#locations",
+                    "name": {
+                      "suffix": "_location",
+                      "position": "partyA"
+                    },
+                    "label": "Location",
+                    "showWhen": [
+                      {
+                        "partyA_designated_city": "select_location"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "label": "Other / specify",
+                "value": "other",
+                "children": [
+                  {
+                    "name": {
+                      "suffix": "_specify",
+                      "position": "partyA"
+                    },
+                    "type": "editor",
+                    "label": "Specify",
+                    "showWhen": [
+                      {
+                        "partyA_designated_city": "other"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": {
+              "suffix": "_designated_city",
+              "position": "partyB"
+            },
+            "type": "radio",
+            "label": "Party B",
+            "options": [
+              {
+                "label": "Select location",
+                "value": "select_location",
+                "children": [
+                  {
+                    "$ref": "#locations",
+                    "name": {
+                      "suffix": "_location",
+                      "position": "partyB"
+                    },
+                    "label": "Location",
+                    "showWhen": [
+                      {
+                        "partyB_designated_city": "select_location"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "label": "Other / specify",
+                "value": "other",
+                "children": [
+                  {
+                    "name": {
+                      "suffix": "_specify",
+                      "position": "partyB"
+                    },
+                    "type": "editor",
+                    "label": "Specify",
+                    "showWhen": [
+                      {
+                        "partyB_designated_city": "other"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      ],
+      "description": "Valuation and Timing"
+    },
+    {
+      "nr": 24,
+      "name": "notification_time",
+      "type": "election",
+      "amend": true,
+      "label": "Notification Time",
+      "children": [
+        [
+          {
+            "name": {
+              "suffix": "_notification_time",
+              "position": "partyA"
+            },
+            "type": "radio",
+            "label": "Party A",
+            "options": [
+              {
+                "label": "Specify time and location",
+                "value": "true",
+                "children": [
+                  {
+                    "name": {
+                      "suffix": "_time",
+                      "position": "partyA"
+                    },
+                    "type": "time",
+                    "label": "Time (24 hour time) ",
+                    "showWhen": [
+                      {
+                        "partyA_notification_time": "true"
+                      }
+                    ]
+                  },
+                  {
+                    "$ref": "#locations",
+                    "name": {
+                      "suffix": "_location",
+                      "position": "partyA"
+                    },
+                    "label": "Location",
+                    "showWhen": [
+                      {
+                        "partyA_notification_time": "true"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "label": "Other / specify",
+                "value": "false",
+                "children": [
+                  {
+                    "name": {
+                      "suffix": "_specify",
+                      "position": "partyA"
+                    },
+                    "type": "editor",
+                    "label": "Specify",
+                    "showWhen": [
+                      {
+                        "partyA_notification_time": "false"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": {
+              "suffix": "_notification_time",
+              "position": "partyB"
+            },
+            "type": "radio",
+            "label": "Party B",
+            "options": [
+              {
+                "label": "Specify time and location",
+                "value": "true",
+                "children": [
+                  {
+                    "name": {
+                      "suffix": "_time",
+                      "position": "partyB"
+                    },
+                    "type": "time",
+                    "label": "Time (24 hour time) ",
+                    "showWhen": [
+                      {
+                        "partyB_notification_time": "true"
+                      }
+                    ]
+                  },
+                  {
+                    "$ref": "#locations",
+                    "name": {
+                      "suffix": "_location",
+                      "position": "partyB"
+                    },
+                    "label": "Location",
+                    "showWhen": [
+                      {
+                        "partyB_notification_time": "true"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "label": "Other / specify",
+                "value": "false",
+                "children": [
+                  {
+                    "name": {
+                      "suffix": "_specify",
+                      "position": "partyB"
+                    },
+                    "type": "editor",
+                    "label": "Specify",
+                    "showWhen": [
+                      {
+                        "partyB_notification_time": "false"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      ],
+      "description": "Valuation and Timing"
+    },
+    {
+      "nr": 25,
+      "name": "conditions_precedent",
+      "type": "election",
+      "amend": true,
+      "label": "Paragraph 3.1",
+      "children": [
+        {
+          "name": "specified",
+          "type": "radio",
+          "options": [
+            {
+              "label": "Not specified",
+              "value": "false"
+            },
+            {
+              "label": "Other / specify",
+              "value": "true",
+              "children": [
+                {
+                  "name": "specify",
+                  "type": "editor",
+                  "label": "Specify",
+                  "showWhen": [
+                    {
+                      "specified": "true"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "defaultValue": "false"
+        }
+      ],
+      "description": "Conditions Precedent"
+    },
+    {
+      "nr": 26,
+      "name": "access_conditions",
+      "type": "election",
+      "amend": true,
+      "label": "Access Conditions",
+      "children": [
+        {
+          "type": "group",
+          "style": "table",
+          "header": [
+            "Name",
+            "Party A",
+            "Party B"
+          ],
+          "children": [
+            [
+              {
+                "type": "view",
+                "label": "Illegality"
+              },
+              {
+                "name": {
+                  "suffix": "_illegality",
+                  "position": "partyA"
+                },
+                "type": "radio",
+                "options": [
+                  {
+                    "label": "Applicable",
+                    "value": "applicable"
+                  },
+                  {
+                    "label": "Not Applicable",
+                    "value": "not_applicable"
+                  }
+                ],
+                "defaultValue": "applicable"
+              },
+              {
+                "name": {
+                  "suffix": "_illegality",
+                  "position": "partyB"
+                },
+                "type": "radio",
+                "options": [
+                  {
+                    "label": "Applicable",
+                    "value": "applicable"
+                  },
+                  {
+                    "label": "Not Applicable",
+                    "value": "not_applicable"
+                  }
+                ],
+                "defaultValue": "applicable"
+              }
+            ],
+            [
+              {
+                "type": "view",
+                "label": "Force Majeure Event"
+              },
+              {
+                "name": {
+                  "suffix": "_force_majeure",
+                  "position": "partyA"
+                },
+                "type": "radio",
+                "options": [
+                  {
+                    "label": "Applicable",
+                    "value": "applicable"
+                  },
+                  {
+                    "label": "Not Applicable",
+                    "value": "not_applicable"
+                  }
+                ],
+                "defaultValue": "applicable"
+              },
+              {
+                "name": {
+                  "suffix": "_force_majeure",
+                  "position": "partyB"
+                },
+                "type": "radio",
+                "options": [
+                  {
+                    "label": "Applicable",
+                    "value": "applicable"
+                  },
+                  {
+                    "label": "Not Applicable",
+                    "value": "not_applicable"
+                  }
+                ],
+                "defaultValue": "applicable"
+              }
+            ],
+            [
+              {
+                "type": "view",
+                "label": "Tax Event"
+              },
+              {
+                "name": {
+                  "suffix": "_tax_event",
+                  "position": "partyA"
+                },
+                "type": "radio",
+                "options": [
+                  {
+                    "label": "Applicable",
+                    "value": "applicable"
+                  },
+                  {
+                    "label": "Not Applicable",
+                    "value": "not_applicable"
+                  }
+                ],
+                "defaultValue": "applicable"
+              },
+              {
+                "name": {
+                  "suffix": "_tax_event",
+                  "position": "partyB"
+                },
+                "type": "radio",
+                "options": [
+                  {
+                    "label": "Applicable",
+                    "value": "applicable"
+                  },
+                  {
+                    "label": "Not Applicable",
+                    "value": "not_applicable"
+                  }
+                ],
+                "defaultValue": "applicable"
+              }
+            ],
+            [
+              {
+                "type": "view",
+                "label": "Tax Event Upon Merger"
+              },
+              {
+                "name": {
+                  "suffix": "_tax_event_upon_merger",
+                  "position": "partyA"
+                },
+                "type": "radio",
+                "options": [
+                  {
+                    "label": "Applicable",
+                    "value": "applicable"
+                  },
+                  {
+                    "label": "Not Applicable",
+                    "value": "not_applicable"
+                  }
+                ],
+                "defaultValue": "applicable"
+              },
+              {
+                "name": {
+                  "suffix": "_tax_event_upon_merger",
+                  "position": "partyB"
+                },
+                "type": "radio",
+                "options": [
+                  {
+                    "label": "Applicable",
+                    "value": "applicable"
+                  },
+                  {
+                    "label": "Not Applicable",
+                    "value": "not_applicable"
+                  }
+                ],
+                "defaultValue": "applicable"
+              }
+            ],
+            [
+              {
+                "type": "view",
+                "label": "Credit Event Upon Merger"
+              },
+              {
+                "name": {
+                  "suffix": "_credit_event_upon_merger",
+                  "position": "partyA"
+                },
+                "type": "radio",
+                "options": [
+                  {
+                    "label": "Applicable",
+                    "value": "applicable"
+                  },
+                  {
+                    "label": "Not Applicable",
+                    "value": "not_applicable"
+                  }
+                ],
+                "defaultValue": "applicable"
+              },
+              {
+                "name": {
+                  "suffix": "_credit_event_upon_merger",
+                  "position": "partyB"
+                },
+                "type": "radio",
+                "options": [
+                  {
+                    "label": "Applicable",
+                    "value": "applicable"
+                  },
+                  {
+                    "label": "Not Applicable",
+                    "value": "not_applicable"
+                  }
+                ],
+                "defaultValue": "applicable"
+              }
+            ],
+            [
+              {
+                "type": "view",
+                "label": "Additional Termination Event(s)"
+              },
+              {
+                "name": {
+                  "suffix": "_additional_termination_events",
+                  "position": "partyA"
+                },
+                "type": "radio",
+                "options": [
+                  {
+                    "label": "Applicable",
+                    "value": "applicable"
+                  },
+                  {
+                    "label": "Not Applicable",
+                    "value": "not_applicable"
+                  }
+                ],
+                "defaultValue": "applicable"
+              },
+              {
+                "name": {
+                  "suffix": "_additional_termination_events",
+                  "position": "partyB"
+                },
+                "type": "radio",
+                "options": [
+                  {
+                    "label": "Applicable",
+                    "value": "applicable"
+                  },
+                  {
+                    "label": "Not Applicable",
+                    "value": "not_applicable"
+                  }
+                ],
+                "defaultValue": "applicable"
+              }
+            ],
+            {
+              "name": "additional_termination_event",
+              "type": "multi",
+              "-label": "Additional Termination Event(s)",
+              "addLabel": "Add Additional Termination Event",
+              "optional": true,
+              "repeatChildren": [
+                [
+                  {
+                    "name": "name",
+                    "type": "text"
+                  },
+                  {
+                    "name": {
+                      "suffix": "_additional_termination_event",
+                      "position": "partyA"
+                    },
+                    "type": "radio",
+                    "options": [
+                      {
+                        "label": "Applicable",
+                        "value": "applicable"
+                      },
+                      {
+                        "label": "Not Applicable",
+                        "value": "not_applicable"
+                      }
+                    ],
+                    "defaultValue": "applicable"
+                  },
+                  {
+                    "name": {
+                      "suffix": "_additional_termination_event",
+                      "position": "partyB"
+                    },
+                    "type": "radio",
+                    "options": [
+                      {
+                        "label": "Applicable",
+                        "value": "applicable"
+                      },
+                      {
+                        "label": "Not Applicable",
+                        "value": "not_applicable"
+                      }
+                    ],
+                    "defaultValue": "applicable"
+                  }
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "name": "specify",
+          "type": "editor",
+          "label": "Specify additional language",
+          "optional": true,
+          "placeholder": "Specify text"
+        }
+      ],
+      "description": "Conditions Precedent"
+    },
+    {
+      "nr": 27,
+      "name": "resolution_time",
+      "type": "election",
+      "amend": true,
+      "label": "Resolution Time",
+      "children": [
+        {
+          "name": "specified",
+          "type": "radio",
+          "options": [
+            {
+              "label": "Specify time and location",
+              "value": "true",
+              "children": [
+                {
+                  "name": "time",
+                  "type": "time",
+                  "label": "Time (24 hour time)",
+                  "showWhen": [
+                    {
+                      "specified": "true"
+                    }
+                  ],
+                  "defaultValue": "13:00"
+                },
+                {
+                  "$ref": "#locations",
+                  "name": "location",
+                  "label": "Location",
+                  "showWhen": [
+                    {
+                      "specified": "true"
+                    }
+                  ],
+                  "defaultValue": "London, United Kingdom"
+                }
+              ]
+            },
+            {
+              "label": "Other / specify",
+              "value": "false",
+              "children": [
+                {
+                  "name": "specify",
+                  "type": "editor",
+                  "label": "Specify",
+                  "showWhen": [
+                    {
+                      "specified": "false"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "defaultValue": "true"
+        }
+      ],
+      "description": "Dispute Resolution"
+    },
+    {
+      "nr": 28,
+      "name": "clearstream_risk",
+      "type": "election",
+      "amend": true,
+      "label": "Paragraph 5.2",
+      "children": [
+        [
+          {
+            "name": {
+              "suffix": "_clearstream_risk",
+              "position": "partyA"
+            },
+            "type": "radio",
+            "label": "Party A",
+            "options": [
+              {
+                "label": "Not specified",
+                "value": "not_specified"
+              },
+              {
+                "label": "Other / specify",
+                "value": "other",
+                "children": [
+                  {
+                    "name": {
+                      "suffix": "_specify",
+                      "position": "partyA"
+                    },
+                    "type": "editor",
+                    "label": "Specify",
+                    "showWhen": [
+                      {
+                        "partyA_clearstream_risk": "other"
+                      }
+                    ],
+                    "placeholder": "Specify text"
+                  }
+                ]
+              }
+            ],
+            "defaultValue": "not_specified"
+          },
+          {
+            "name": {
+              "suffix": "_clearstream_risk",
+              "position": "partyB"
+            },
+            "type": "radio",
+            "label": "Party B",
+            "options": [
+              {
+                "label": "Not specified",
+                "value": "not_specified"
+              },
+              {
+                "label": "Other / specify",
+                "value": "other",
+                "children": [
+                  {
+                    "name": {
+                      "suffix": "_specify",
+                      "position": "partyB"
+                    },
+                    "type": "editor",
+                    "label": "Specify",
+                    "showWhen": [
+                      {
+                        "partyB_clearstream_risk": "other"
+                      }
+                    ],
+                    "placeholder": "Specify text"
+                  }
+                ]
+              }
+            ],
+            "defaultValue": "not_specified"
+          }
+        ]
+      ],
+      "description": "Clearstream Risk"
+    },
+    {
+      "nr": 29,
+      "name": "clearstream_event",
+      "type": "election",
+      "amend": true,
+      "label": "Clearstream Event",
+      "children": [
+        {
+          "name": "definition",
+          "type": "radio",
+          "options": [
+            {
+              "label": "Applicable",
+              "value": "applicable"
+            },
+            {
+              "label": "Not Applicable",
+              "value": "not_applicable"
+            }
+          ],
+          "defaultValue": "applicable"
+        }
+      ],
+      "description": "clearstream Risk"
+    },
+    {
+      "nr": 30,
+      "name": "ce_end_date",
+      "type": "election",
+      "amend": true,
+      "label": "CE End Date",
+      "children": [
+        {
+          "name": "days_after_clearstream_event",
+          "type": "radio",
+          "label": "Days after Clearstream Event",
+          "options": [
+            {
+              "label": "Specify number of days after Clearstream Event",
+              "value": "days",
+              "children": [
+                {
+                  "name": "after_days",
+                  "type": "text",
+                  "label": "No. of days",
+                  "showWhen": [
+                    {
+                      "days_after_clearstream_event": "days"
+                    }
+                  ],
+                  "validate": {
+                    "pattern": "^[-+]?[0-9]*?[0-9]+$",
+                    "maxLength": 15
+                  },
+                  "placeholder": "Specify amount"
+                },
+                {
+                  "name": "after_days_type",
+                  "type": "radio",
+                  "label": "Type of day",
+                  "options": [
+                    {
+                      "label": "Days",
+                      "value": "days_after_days"
+                    },
+                    {
+                      "label": "Calendar days",
+                      "value": "calendar_days_after_days"
+                    },
+                    {
+                      "label": "Other / specify",
+                      "value": "other",
+                      "children": [
+                        {
+                          "name": "specify_after_days",
+                          "type": "editor",
+                          "label": "Specify",
+                          "showWhen": [
+                            {
+                              "after_days_type": "other"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "showWhen": [
+                    {
+                      "days_after_clearstream_event": "days"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "label": "Other / specify",
+              "value": "other",
+              "children": [
+                {
+                  "name": "after_specify",
+                  "type": "editor",
+                  "label": "Specify",
+                  "showWhen": [
+                    {
+                      "days_after_clearstream_event": "other"
+                    }
+                  ],
+                  "placeholder": "Specify text"
+                }
+              ]
+            }
+          ],
+          "optional": true
+        },
+        {
+          "name": "release_date_i",
+          "type": "radio",
+          "label": "Release Date (I) (CMSA termination)",
+          "options": [
+            {
+              "label": "Specify number of days prior to termination of CMSA",
+              "value": "days",
+              "children": [
+                {
+                  "name": "release_i_days",
+                  "type": "text",
+                  "label": "No. of days",
+                  "showWhen": [
+                    {
+                      "release_date_i": "days"
+                    }
+                  ],
+                  "validate": {
+                    "pattern": "^[-+]?[0-9]*?[0-9]+$",
+                    "maxLength": 15
+                  },
+                  "placeholder": "Specify amount"
+                },
+                {
+                  "name": "release_date_i_type",
+                  "type": "radio",
+                  "label": "Type of day",
+                  "options": [
+                    {
+                      "label": "Day",
+                      "value": "day_release_date_i"
+                    },
+                    {
+                      "label": "Calendar day",
+                      "value": "calendar_day_release_date_i"
+                    },
+                    {
+                      "label": "Other / specify",
+                      "value": "other",
+                      "children": [
+                        {
+                          "name": "specify_release_date_i",
+                          "type": "editor",
+                          "label": "Specify",
+                          "showWhen": [
+                            {
+                              "release_date_i_type": "other"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "showWhen": [
+                    {
+                      "release_date_i": "days"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "label": "Other / specify",
+              "value": "other",
+              "children": [
+                {
+                  "name": "release_i_specify",
+                  "type": "editor",
+                  "label": "Specify",
+                  "showWhen": [
+                    {
+                      "release_date_i": "other"
+                    }
+                  ],
+                  "placeholder": "Specify text"
+                }
+              ]
+            }
+          ],
+          "optional": true
+        },
+        {
+          "name": "release_date_ii",
+          "type": "radio",
+          "label": "Release Date (II) (safekeeping period expiry)",
+          "options": [
+            {
+              "label": "Specify number of days prior to safekeeping period expiry",
+              "value": "days",
+              "children": [
+                {
+                  "name": "release_date_ii_days",
+                  "type": "text",
+                  "label": "No. of days",
+                  "showWhen": [
+                    {
+                      "release_date_ii": "days"
+                    }
+                  ],
+                  "validate": {
+                    "pattern": "^[-+]?[0-9]*?[0-9]+$",
+                    "maxLength": 15
+                  },
+                  "placeholder": "Specify amount"
+                },
+                {
+                  "name": "release_date_ii_type",
+                  "type": "radio",
+                  "label": "Type of day",
+                  "options": [
+                    {
+                      "label": "Day",
+                      "value": "day_release_date_ii"
+                    },
+                    {
+                      "label": "Calendar day",
+                      "value": "calendar_day_release_date_ii"
+                    },
+                    {
+                      "label": "Other / specify",
+                      "value": "other",
+                      "children": [
+                        {
+                          "name": "specify_release_date_ii",
+                          "type": "editor",
+                          "label": "Specify",
+                          "showWhen": [
+                            {
+                              "release_date_ii_type": "other"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "showWhen": [
+                    {
+                      "release_date_ii": "days"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "label": "Other / specify",
+              "value": "other",
+              "children": [
+                {
+                  "name": "release_date_ii_specify",
+                  "type": "editor",
+                  "label": "Specify",
+                  "showWhen": [
+                    {
+                      "release_date_ii": "other"
+                    }
+                  ],
+                  "placeholder": "Specify text"
+                }
+              ]
+            }
+          ],
+          "optional": true
+        },
+        {
+          "name": "date_of_timely_statement",
+          "type": "radio",
+          "label": "Date of Timely Statement",
+          "options": [
+            {
+              "label": "Specify number of days prior to Release Date",
+              "value": "days",
+              "children": [
+                {
+                  "name": "timely_days",
+                  "type": "text",
+                  "label": "No. of days",
+                  "showWhen": [
+                    {
+                      "date_of_timely_statement": "days"
+                    }
+                  ],
+                  "validate": {
+                    "pattern": "^[-+]?[0-9]*?[0-9]+$",
+                    "maxLength": 15
+                  },
+                  "placeholder": "Specify amount"
+                },
+                {
+                  "name": "timely_days_type",
+                  "type": "radio",
+                  "label": "Type of day",
+                  "options": [
+                    {
+                      "label": "Days",
+                      "value": "days_timely_days"
+                    },
+                    {
+                      "label": "Calendar days",
+                      "value": "calendar_days_timely_days"
+                    },
+                    {
+                      "label": "Other / specify",
+                      "value": "other",
+                      "children": [
+                        {
+                          "name": "specify_timely_days",
+                          "type": "editor",
+                          "label": "Specify",
+                          "showWhen": [
+                            {
+                              "timely_days_type": "other"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "showWhen": [
+                    {
+                      "date_of_timely_statement": "days"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "label": "Other / specify",
+              "value": "other",
+              "children": [
+                {
+                  "name": "timely_specify",
+                  "type": "editor",
+                  "label": "Specify",
+                  "showWhen": [
+                    {
+                      "date_of_timely_statement": "other"
+                    }
+                  ],
+                  "placeholder": "Specify text"
+                }
+              ]
+            }
+          ],
+          "optional": true
+        }
+      ],
+      "description": "Clearstream Risk"
+    },
+    {
+      "nr": 31,
+      "name": "clearstream_agreements_as_credit_support_documents",
+      "type": "election",
+      "amend": true,
+      "label": "Clearstream Agreements as Credit Support Documents",
+      "children": [
+        {
+          "name": "definition",
+          "type": "radio",
+          "options": [
+            {
+              "label": "Not specified",
+              "value": "not_specified"
+            },
+            {
+              "label": "Clearstream Agreements are Credit Support Documents",
+              "value": "creditSupportDocument"
+            }
+          ],
+          "defaultValue": "not_specified"
+        }
+      ],
+      "description": "Clearstream Agreements as Credit Support Documents"
+    },
+    {
+      "nr": 32,
+      "name": "additional_representations",
+      "type": "election",
+      "amend": true,
+      "label": "Additional Representation(s)",
+      "children": [
+        {
+          "type": "group",
+          "style": "with-multi",
+          "header": [
+            "",
+            "Party A",
+            "Party B"
+          ],
+          "children": [
+            [
+              {
+                "type": "view",
+                "label": "Additional Representation(s)"
+              },
+              {
+                "name": {
+                  "suffix": "_additional_representations",
+                  "position": "partyA"
+                },
+                "type": "radio",
+                "style": "inline",
+                "options": [
+                  {
+                    "label": "Applicable",
+                    "value": "applicable"
+                  },
+                  {
+                    "label": "Not Applicable",
+                    "value": "not_applicable"
+                  }
+                ]
+              },
+              {
+                "name": {
+                  "suffix": "_additional_representations",
+                  "position": "partyB"
+                },
+                "type": "radio",
+                "style": "inline",
+                "options": [
+                  {
+                    "label": "Applicable",
+                    "value": "applicable"
+                  },
+                  {
+                    "label": "Not Applicable",
+                    "value": "not_applicable"
+                  }
+                ]
+              }
+            ]
+          ]
+        },
+        [
+          {
+            "name": "specify",
+            "type": "editor",
+            "label": "Specify",
+            "hideWhen": {
+              "partyA_additional_representations": "not_applicable",
+              "partyB_additional_representations": "not_applicable"
+            },
+            "optional": true,
+            "placeholder": "Specify text"
+          }
+        ]
+      ],
+      "description": "Additional Representation(s)"
+    },
+    {
+      "nr": 33,
+      "name": "demands_and_notices",
+      "type": "election",
+      "label": "Demands and Notices",
+      "children": [
+        [
+          {
+            "type": "group",
+            "label": "Party A",
+            "children": [
+              {
+                "name": {
+                  "suffix": "_specify",
+                  "position": "partyA"
+                },
+                "type": "editor",
+                "label": "Specify demand and notice details",
+                "optional": true,
+                "placeholder": "Specify text"
+              }
+            ]
+          },
+          {
+            "type": "group",
+            "label": "Party B",
+            "children": [
+              {
+                "name": {
+                  "suffix": "_specify",
+                  "position": "partyB"
+                },
+                "type": "editor",
+                "label": "Specify demand and notice details",
+                "optional": true,
+                "placeholder": "Specify text"
+              }
+            ]
+          }
+        ]
+      ],
+      "description": "Demands and Notices"
+    },
+    {
+      "nr": 34,
+      "name": "addresses_for_transfers",
+      "type": "election",
+      "label": "Addresses for Transfers",
+      "children": [
+        [
+          {
+            "type": "group",
+            "label": "Party A",
+            "children": [
+              {
+                "name": {
+                  "suffix": "_specify",
+                  "position": "partyA"
+                },
+                "type": "editor",
+                "label": "Specify addresses for transfers",
+                "optional": true,
+                "placeholder": "Specify text"
+              }
+            ]
+          },
+          {
+            "type": "group",
+            "label": "Party B",
+            "children": [
+              {
+                "name": {
+                  "suffix": "_specify",
+                  "position": "partyB"
+                },
+                "type": "editor",
+                "label": "Specify addresses for transfers",
+                "optional": true,
+                "placeholder": "Specify text"
+              }
+            ]
+          }
+        ]
+      ],
+      "description": "Addresses for Transfers"
+    },
+    {
+      "nr": 35,
+      "name": "other_csa",
+      "type": "election",
+      "amend": true,
+      "label": "Other CSA",
+      "children": [
+        {
+          "name": "specified",
+          "type": "radio",
+          "options": [
+            {
+              "label": "Not specified",
+              "value": "false"
+            },
+            {
+              "label": "Other / specify",
+              "value": "true",
+              "children": [
+                {
+                  "name": "other_csa_specify",
+                  "type": "editor",
+                  "label": "Specify",
+                  "showWhen": [
+                    {
+                      "specified": "true"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "description": "Other CSA"
+    },
+    {
+      "nr": 36,
+      "name": "amendment_to_termination_currency",
+      "type": "election",
+      "amend": true,
+      "label": "Amendment to Termination Currency",
+      "children": [
+        {
+          "name": "is_applicable",
+          "type": "radio",
+          "options": [
+            {
+              "label": "Applicable",
+              "value": "applicable"
+            },
+            {
+              "label": "Not Applicable",
+              "value": "not_applicable"
+            }
+          ]
+        },
+        {
+          "name": "agreement_date",
+          "type": "radio",
+          "label": "Effective date of amendment",
+          "options": [
+            {
+              "label": "Date of this Agreement",
+              "value": "agreement"
+            },
+            {
+              "label": "Specify date",
+              "value": "specify_date",
+              "children": [
+                {
+                  "name": "date_of_agreement",
+                  "type": "datePicker",
+                  "label": "Date",
+                  "showWhen": [
+                    {
+                      "is_applicable": "applicable",
+                      "agreement_date": "specify_date"
+                    }
+                  ],
+                  "placeholder": "Specify date"
+                }
+              ]
+            },
+            {
+              "label": "Other / specify",
+              "value": "other",
+              "children": [
+                {
+                  "name": "specify",
+                  "type": "editor",
+                  "label": "Specify",
+                  "showWhen": [
+                    {
+                      "is_applicable": "applicable",
+                      "agreement_date": "other"
+                    }
+                  ],
+                  "placeholder": "Specify text"
+                }
+              ]
+            }
+          ],
+          "showWhen": {
+            "is_applicable": "applicable"
+          }
+        },
+        [
+          {
+            "type": "group",
+            "label": "Party A",
+            "children": [
+              {
+                "$ref": "#currencies",
+                "name": {
+                  "suffix": "_termination_currency",
+                  "position": "partyA"
+                },
+                "label": "Termination Currency",
+                "showWhen": {
+                  "is_applicable": "applicable"
+                }
+              }
+            ],
+            "showWhen": {
+              "is_applicable": "applicable"
+            }
+          },
+          {
+            "type": "group",
+            "label": "Party B",
+            "children": [
+              {
+                "$ref": "#currencies",
+                "name": {
+                  "suffix": "_termination_currency",
+                  "position": "partyB"
+                },
+                "label": "Termination Currency",
+                "showWhen": {
+                  "is_applicable": "applicable"
+                }
+              }
+            ],
+            "showWhen": {
+              "is_applicable": "applicable"
+            }
+          },
+          {
+            "type": "group",
+            "label": "Two Affected Parties",
+            "children": [
+              {
+                "$ref": "#currencies",
+                "name": "both_parties_termination_currency",
+                "label": "Termination Currency",
+                "showWhen": {
+                  "is_applicable": "applicable"
+                }
+              }
+            ],
+            "showWhen": {
+              "is_applicable": "applicable"
+            }
+          }
+        ]
+      ],
+      "description": "Amendment to Termination Currency"
+    },
+    {
+      "nr": 37,
+      "name": "process_agent",
+      "type": "election",
+      "amend": true,
+      "label": "Process Agent",
+      "children": [
+        [
+          {
+            "name": {
+              "suffix": "_process_agent",
+              "position": "partyA"
+            },
+            "type": "radio",
+            "label": "Party A",
+            "options": [
+              {
+                "label": "Not applicable",
+                "value": "not_applicable"
+              },
+              {
+                "label": "Specify Process Agent",
+                "value": "other",
+                "children": [
+                  {
+                    "name": {
+                      "suffix": "_specify",
+                      "position": "partyA"
+                    },
+                    "type": "editor",
+                    "label": "Specify Party A Process Agent",
+                    "showWhen": [
+                      {
+                        "partyA_process_agent": "other"
+                      }
+                    ],
+                    "placeholder": "Specify text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": {
+              "suffix": "_process_agent",
+              "position": "partyB"
+            },
+            "type": "radio",
+            "label": "Party B",
+            "options": [
+              {
+                "label": "Not applicable",
+                "value": "not_applicable"
+              },
+              {
+                "label": "Specify Process Agent",
+                "value": "other",
+                "children": [
+                  {
+                    "name": {
+                      "suffix": "_specify",
+                      "position": "partyB"
+                    },
+                    "type": "editor",
+                    "label": "Specify Party B Process Agent",
+                    "showWhen": [
+                      {
+                        "partyB_process_agent": "other"
+                      }
+                    ],
+                    "placeholder": "Specify text"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      ],
+      "description": "Process Agent"
+    },
+    {
+      "nr": 38,
+      "name": "bespoke_provisions",
+      "type": "election",
+      "label": "Bespoke Provisions",
+      "children": [
+        {
+          "name": "is_applicable",
+          "type": "radio",
+          "options": [
+            {
+              "label": "Add bespoke provisions",
+              "value": "applicable",
+              "children": [
+                {
+                  "name": "specify",
+                  "type": "editor",
+                  "label": "Specify",
+                  "showWhen": [
+                    {
+                      "is_applicable": "applicable"
+                    }
+                  ],
+                  "placeholder": "Specify text"
+                }
+              ]
+            },
+            {
+              "label": "Not Applicable",
+              "value": "not_applicable"
+            }
+          ],
+          "defaultValue": "not_applicable"
+        }
+      ],
+      "description": "Other Provisions"
+    },
+    {
+      "nr": 39,
+      "name": "japanese_collateral_provisions",
+      "type": "election",
+      "amend": true,
+      "label": "Japanese Collateral Provisions",
+      "children": [
+        {
+          "name": "is_applicable",
+          "type": "radio",
+          "options": [
+            {
+              "label": "Applicable",
+              "value": "applicable",
+              "children": [
+                {
+                  "name": "japanese_collateral_provisions_is_applicable",
+                  "type": "radio",
+                  "options": [
+                    {
+                      "label": "Include sub-paragraph (d)",
+                      "value": "include"
+                    },
+                    {
+                      "label": "Exclude sub-paragraph (d)",
+                      "value": "exclude"
+                    }
+                  ],
+                  "showWhen": {
+                    "is_applicable": "applicable"
+                  }
+                }
+              ]
+            },
+            {
+              "label": "Not Applicable",
+              "value": "not_applicable"
+            }
+          ]
+        }
+      ],
+      "amendValues": {
+        "is_applicable": "applicable"
+      },
+      "description": "Additional Provisions"
+    },
+    {
+      "nr": 40,
+      "name": "execution_language",
+      "type": "election",
+      "label": "Execution Language",
+      "children": [
+        {
+          "name": "execution_language",
+          "type": "editor",
+          "label": "Specify execution language",
+          "defaultValue": "<strong>IN WITNESS</strong> whereof this Agreement has been entered into on the date stated at its beginning."
+        }
+      ],
+      "description": "Signature pages"
+    },
+    {
+      "nr": 41,
+      "name": "signature_blocks",
+      "type": "election",
+      "label": "Signature Blocks",
+      "children": [
+        {
+          "type": "group",
+          "label": "Party A",
+          "children": [
+            {
+              "name": {
+                "suffix": "_standard",
+                "position": "partyA"
+              },
+              "type": "editor",
+              "label": "Specify signature block",
+              "defaultValue": "<strong>SIGNED</strong> for and on behalf of<br><br>...............................<br><br><br>By:...............................<br><br>Name:...............................<br><br>Title:...............................<br><br><br>By:...............................<br><br>Name:...............................<br><br>Title:...............................<br><br>"
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": "Party B",
+          "children": [
+            {
+              "name": {
+                "suffix": "_standard",
+                "position": "partyB"
+              },
+              "type": "editor",
+              "label": "Specify signature block",
+              "defaultValue": "<strong>SIGNED</strong> for and on behalf of<br><br>...............................<br><br><br>By:...............................<br><br>Name:...............................<br><br>Title:...............................<br><br><br>By:...............................<br><br>Name:...............................<br><br>Title:...............................<br><br>"
+            }
+          ]
+        }
+      ],
+      "description": "Signature pages"
+    }
+  ],
+  "definitions": {
+    "regime": {
+      "type": "election",
+      "children": [
+        [
+          [
+            {
+              "name": {
+                "suffix": "_security_taker",
+                "position": "partyA"
+              },
+              "type": "radio",
+              "label": "Party A as Security-taker (Party B as Security-provider)",
+              "options": [
+                {
+                  "label": "Applicable",
+                  "value": "applicable"
+                },
+                {
+                  "label": "Not Applicable",
+                  "value": "not_applicable"
+                },
+                {
+                  "label": "Other / specify",
+                  "value": "other",
+                  "children": [
+                    {
+                      "name": {
+                        "suffix": "_security_taker_specify",
+                        "position": "partyA"
+                      },
+                      "type": "editor",
+                      "label": "Specify",
+                      "showWhen": [
+                        {
+                          "partyA_security_taker": "other"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": {
+                "suffix": "_SIMM",
+                "position": "partyA"
+              },
+              "type": "radio",
+              "label": "SIMM Exception",
+              "options": [
+                {
+                  "label": "Applicable",
+                  "value": "applicable",
+                  "children": [
+                    {
+                      "name": {
+                        "suffix": "_SIMM_applicable_specify",
+                        "position": "partyA"
+                      },
+                      "type": "editor",
+                      "label": "Specify",
+                      "showWhen": [
+                        {
+                          "partyA_SIMM": "applicable"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "label": "Not Applicable",
+                  "value": "not_applicable"
+                },
+                {
+                  "label": "Other / specify",
+                  "value": "other",
+                  "children": [
+                    {
+                      "name": {
+                        "suffix": "_SIMM_specify",
+                        "position": "partyA"
+                      },
+                      "type": "editor",
+                      "label": "Specify",
+                      "showWhen": [
+                        {
+                          "partyA_SIMM": "other"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "showWhen": [
+                {
+                  "partyA_security_taker": "applicable"
+                },
+                {
+                  "partyA_security_taker": "other"
+                }
+              ]
+            },
+            {
+              "name": {
+                "suffix": "_retrospective",
+                "position": "partyA"
+              },
+              "type": "radio",
+              "label": "Retrospective Effect",
+              "options": [
+                {
+                  "label": "Applicable",
+                  "value": "applicable"
+                },
+                {
+                  "label": "Not Applicable",
+                  "value": "not_applicable"
+                },
+                {
+                  "label": "Other / specify",
+                  "value": "other",
+                  "children": [
+                    {
+                      "name": {
+                        "suffix": "_retrospective_specify",
+                        "position": "partyA"
+                      },
+                      "type": "editor",
+                      "label": "Specify",
+                      "showWhen": [
+                        {
+                          "partyA_retrospective": "other"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "showWhen": [
+                {
+                  "partyA_security_taker": "applicable"
+                },
+                {
+                  "partyA_security_taker": "other"
+                }
+              ]
+            }
+          ],
+          [
+            {
+              "name": {
+                "suffix": "_security_taker",
+                "position": "partyB"
+              },
+              "type": "radio",
+              "label": "Party B as Security-taker (Party A as Security-provider)",
+              "options": [
+                {
+                  "label": "Applicable",
+                  "value": "applicable"
+                },
+                {
+                  "label": "Not Applicable",
+                  "value": "not_applicable"
+                },
+                {
+                  "label": "Other / specify",
+                  "value": "other",
+                  "children": [
+                    {
+                      "name": {
+                        "suffix": "_security_taker_specify",
+                        "position": "partyB"
+                      },
+                      "type": "editor",
+                      "label": "Specify",
+                      "showWhen": [
+                        {
+                          "partyB_security_taker": "other"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": {
+                "suffix": "_SIMM",
+                "position": "partyB"
+              },
+              "type": "radio",
+              "label": "SIMM Exception",
+              "options": [
+                {
+                  "label": "Applicable",
+                  "value": "applicable",
+                  "children": [
+                    {
+                      "name": {
+                        "suffix": "_SIMM_applicable_specify",
+                        "position": "partyB"
+                      },
+                      "type": "editor",
+                      "label": "Specify",
+                      "showWhen": [
+                        {
+                          "partyB_SIMM": "applicable"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "label": "Not Applicable",
+                  "value": "not_applicable"
+                },
+                {
+                  "label": "Other / specify",
+                  "value": "other",
+                  "children": [
+                    {
+                      "name": {
+                        "suffix": "_SIMM_specify",
+                        "position": "partyB"
+                      },
+                      "type": "editor",
+                      "label": "Specify",
+                      "showWhen": [
+                        {
+                          "partyB_SIMM": "other"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "showWhen": [
+                {
+                  "partyB_security_taker": "applicable"
+                },
+                {
+                  "partyB_security_taker": "other"
+                }
+              ]
+            },
+            {
+              "name": {
+                "suffix": "_retrospective",
+                "position": "partyB"
+              },
+              "type": "radio",
+              "label": "Retrospective Effect",
+              "options": [
+                {
+                  "label": "Applicable",
+                  "value": "applicable"
+                },
+                {
+                  "label": "Not Applicable",
+                  "value": "not_applicable"
+                },
+                {
+                  "label": "Other / specify",
+                  "value": "other",
+                  "children": [
+                    {
+                      "name": {
+                        "suffix": "_retrospective_specify",
+                        "position": "partyB"
+                      },
+                      "type": "editor",
+                      "label": "Specify",
+                      "showWhen": [
+                        {
+                          "partyB_retrospective": "other"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "showWhen": [
+                {
+                  "partyB_security_taker": "applicable"
+                },
+                {
+                  "partyB_security_taker": "other"
+                }
+              ]
+            }
+          ],
+          [
+            {
+              "name": "additional_type",
+              "type": "radio",
+              "label": "Additional Type for the purposes of Covered Transactions",
+              "options": [
+                {
+                  "label": "Not Applicable",
+                  "value": "not_applicable"
+                },
+                {
+                  "label": "Other / specify",
+                  "value": "other",
+                  "children": [
+                    {
+                      "name": "additional_type_specify",
+                      "type": "editor",
+                      "label": "Specify",
+                      "showWhen": [
+                        {
+                          "additional_type": "other"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "disableWhen": [
+                {
+                  "partyA_security_taker": "not_applicable",
+                  "partyB_security_taker": "not_applicable"
+                }
+              ]
+            }
+          ]
+        ]
+      ],
+      "description": "General Principles"
+    },
+    "locations": {
+      "type": "selectGroup",
+      "options": [
+        {
+          "group": "main",
+          "label": "Amsterdam, Netherlands",
+          "value": "Amsterdam, Netherlands"
+        },
+        {
+          "group": "main",
+          "label": "Beijing, China",
+          "value": "Beijing, China"
+        },
+        {
+          "group": "main",
+          "label": "Brussels, Belgium",
+          "value": "Brussels, Belgium"
+        },
+        {
+          "group": "main",
+          "label": "Frankfurt, Germany",
+          "value": "Frankfurt, Germany"
+        },
+        {
+          "group": "main",
+          "label": "Hong Kong, China",
+          "value": "Hong Kong, China"
+        },
+        {
+          "group": "main",
+          "label": "London, United Kingdom",
+          "value": "London, United Kingdom"
+        },
+        {
+          "group": "main",
+          "label": "Madrid, Spain",
+          "value": "Madrid, Spain"
+        },
+        {
+          "group": "main",
+          "label": "New York, United States of America",
+          "value": "New York, United States of America"
+        },
+        {
+          "group": "main",
+          "label": "Paris, France",
+          "value": "Paris, France"
+        },
+        {
+          "group": "main",
+          "label": "Seoul, Republic of Korea",
+          "value": "Seoul, Republic of Korea"
+        },
+        {
+          "group": "main",
+          "label": "Shanghai, China",
+          "value": "Shanghai, China"
+        },
+        {
+          "group": "main",
+          "label": "Singapore, Singapore",
+          "value": "Singapore, Singapore"
+        },
+        {
+          "group": "main",
+          "label": "Sydney, Australia",
+          "value": "Sydney, Australia"
+        },
+        {
+          "group": "main",
+          "label": "Tokyo, Japan",
+          "value": "Tokyo, Japan"
+        },
+        {
+          "group": "main",
+          "label": "Toronto, Canada",
+          "value": "Toronto, Canada"
+        },
+        {
+          "label": "Abidjan, Côte d'Ivoire",
+          "value": "Abidjan, Côte d'Ivoire"
+        },
+        {
+          "label": "Abu Dhabi, United Arab Emirates",
+          "value": "Abu Dhabi, United Arab Emirates"
+        },
+        {
+          "label": "Abuja, Nigeria",
+          "value": "Abuja, Nigeria"
+        },
+        {
+          "label": "Accra, Ghana",
+          "value": "Accra, Ghana"
+        },
+        {
+          "label": "Addis Ababa, Ethiopia",
+          "value": "Addis Ababa, Ethiopia"
+        },
+        {
+          "label": "Algiers, Algeria",
+          "value": "Algiers, Algeria"
+        },
+        {
+          "label": "Alofi, Niue",
+          "value": "Alofi, Niue"
+        },
+        {
+          "label": "Amman, Jordan",
+          "value": "Amman, Jordan"
+        },
+        {
+          "label": "Amsterdam, Netherlands",
+          "value": "Amsterdam, Netherlands"
+        },
+        {
+          "label": "Andorra la Vella, Andorra",
+          "value": "Andorra la Vella, Andorra"
+        },
+        {
+          "label": "Ankara, Turkey",
+          "value": "Ankara, Turkey"
+        },
+        {
+          "label": "Antananarivo, Madagascar",
+          "value": "Antananarivo, Madagascar"
+        },
+        {
+          "label": "Apia, Samoa",
+          "value": "Apia, Samoa"
+        },
+        {
+          "label": "Ashgabat, Turkmenistan",
+          "value": "Ashgabat, Turkmenistan"
+        },
+        {
+          "label": "Asmara, Eritrea",
+          "value": "Asmara, Eritrea"
+        },
+        {
+          "label": "Astana, Kazakhstan",
+          "value": "Astana, Kazakhstan"
+        },
+        {
+          "label": "Asunción, Paraguay",
+          "value": "Asunción, Paraguay"
+        },
+        {
+          "label": "Athens, Greece",
+          "value": "Athens, Greece"
+        },
+        {
+          "label": "Baghdad, Iraq",
+          "value": "Baghdad, Iraq"
+        },
+        {
+          "label": "Baku, Azerbaijan",
+          "value": "Baku, Azerbaijan"
+        },
+        {
+          "label": "Bamako, Mali",
+          "value": "Bamako, Mali"
+        },
+        {
+          "label": "Bandar Seri Begawan, Brunei Darussalam",
+          "value": "Bandar Seri Begawan, Brunei Darussalam"
+        },
+        {
+          "label": "Bangkok, Thailand",
+          "value": "Bangkok, Thailand"
+        },
+        {
+          "label": "Bangui, Central African Republic",
+          "value": "Bangui, Central African Republic"
+        },
+        {
+          "label": "Banjul, Gambia",
+          "value": "Banjul, Gambia"
+        },
+        {
+          "label": "Basse-Terre, Guadeloupe",
+          "value": "Basse-Terre, Guadeloupe"
+        },
+        {
+          "label": "Basseterre, Saint Kitts and Nevis",
+          "value": "Basseterre, Saint Kitts and Nevis"
+        },
+        {
+          "label": "Beijing, China",
+          "value": "Beijing, China"
+        },
+        {
+          "label": "Beirut, Lebanon",
+          "value": "Beirut, Lebanon"
+        },
+        {
+          "label": "Belgrade, Serbia",
+          "value": "Belgrade, Serbia"
+        },
+        {
+          "label": "Belmopan, Belize",
+          "value": "Belmopan, Belize"
+        },
+        {
+          "label": "Bern, Switzerland",
+          "value": "Bern, Switzerland"
+        },
+        {
+          "label": "Bishkek, Kyrgyzstan",
+          "value": "Bishkek, Kyrgyzstan"
+        },
+        {
+          "label": "Bissau, Guinea-Bissau",
+          "value": "Bissau, Guinea-Bissau"
+        },
+        {
+          "label": "Bloemfontein, South Africa",
+          "value": "Bloemfontein, South Africa"
+        },
+        {
+          "label": "Bogotá, Colombia",
+          "value": "Bogotá, Colombia"
+        },
+        {
+          "label": "Brades Estate, Montserrat",
+          "value": "Brades Estate, Montserrat"
+        },
+        {
+          "label": "Brasília, Brazil",
+          "value": "Brasília, Brazil"
+        },
+        {
+          "label": "Bratislava, Slovakia",
+          "value": "Bratislava, Slovakia"
+        },
+        {
+          "label": "Brazzaville, Congo",
+          "value": "Brazzaville, Congo"
+        },
+        {
+          "label": "Bridgetown, Barbados",
+          "value": "Bridgetown, Barbados"
+        },
+        {
+          "label": "Brussels, Belgium",
+          "value": "Brussels, Belgium"
+        },
+        {
+          "label": "Bucharest, Romania",
+          "value": "Bucharest, Romania"
+        },
+        {
+          "label": "Budapest, Hungary",
+          "value": "Budapest, Hungary"
+        },
+        {
+          "label": "Buenos Aires, Argentina",
+          "value": "Buenos Aires, Argentina"
+        },
+        {
+          "label": "Bujumbura, Burundi",
+          "value": "Bujumbura, Burundi"
+        },
+        {
+          "label": "Cairo, Egypt",
+          "value": "Cairo, Egypt"
+        },
+        {
+          "label": "Canberra, Australia",
+          "value": "Canberra, Australia"
+        },
+        {
+          "label": "Caracas, Venezuela (Bolivarian Republic of)",
+          "value": "Caracas, Venezuela (Bolivarian Republic of)"
+        },
+        {
+          "label": "Castries, Saint Lucia",
+          "value": "Castries, Saint Lucia"
+        },
+        {
+          "label": "Cayenne, French Guiana",
+          "value": "Cayenne, French Guiana"
+        },
+        {
+          "label": "Charlotte Amalie, United States Virgin Islands",
+          "value": "Charlotte Amalie, United States Virgin Islands"
+        },
+        {
+          "label": "Chişinău, Republic of Moldova",
+          "value": "Chişinău, Republic of Moldova"
+        },
+        {
+          "label": "Cockburn Town, Turks and Caicos Islands",
+          "value": "Cockburn Town, Turks and Caicos Islands"
+        },
+        {
+          "label": "Colombo, Sri Lanka",
+          "value": "Colombo, Sri Lanka"
+        },
+        {
+          "label": "Conakry, Guinea",
+          "value": "Conakry, Guinea"
+        },
+        {
+          "label": "Copenhagen, Denmark",
+          "value": "Copenhagen, Denmark"
+        },
+        {
+          "label": "Cotonou, Benin",
+          "value": "Cotonou, Benin"
+        },
+        {
+          "label": "Dakar, Senegal",
+          "value": "Dakar, Senegal"
+        },
+        {
+          "label": "Damascus, Syrian Arab Republic",
+          "value": "Damascus, Syrian Arab Republic"
+        },
+        {
+          "label": "Dhaka, Bangladesh",
+          "value": "Dhaka, Bangladesh"
+        },
+        {
+          "label": "Dili, Timor-Leste",
+          "value": "Dili, Timor-Leste"
+        },
+        {
+          "label": "Djibouti, Djibouti",
+          "value": "Djibouti, Djibouti"
+        },
+        {
+          "label": "Dodoma, United Republic of Tanzania",
+          "value": "Dodoma, United Republic of Tanzania"
+        },
+        {
+          "label": "Doha, Qatar",
+          "value": "Doha, Qatar"
+        },
+        {
+          "label": "Douglas, Isle of Man",
+          "value": "Douglas, Isle of Man"
+        },
+        {
+          "label": "Dublin, Ireland",
+          "value": "Dublin, Ireland"
+        },
+        {
+          "label": "Dushanbe, Tajikistan",
+          "value": "Dushanbe, Tajikistan"
+        },
+        {
+          "label": "East Jerusalem, State of Palestine",
+          "value": "East Jerusalem, State of Palestine"
+        },
+        {
+          "label": "El Aaiún, Western Sahara",
+          "value": "El Aaiún, Western Sahara"
+        },
+        {
+          "label": "Fort-de-France, Martinique",
+          "value": "Fort-de-France, Martinique"
+        },
+        {
+          "label": "Frankfurt, Germany",
+          "value": "Frankfurt, Germany"
+        },
+        {
+          "label": "Freetown, Sierra Leone",
+          "value": "Freetown, Sierra Leone"
+        },
+        {
+          "label": "Funafuti, Tuvalu",
+          "value": "Funafuti, Tuvalu"
+        },
+        {
+          "label": "Gaborone, Botswana",
+          "value": "Gaborone, Botswana"
+        },
+        {
+          "label": "George Town, Cayman Islands",
+          "value": "George Town, Cayman Islands"
+        },
+        {
+          "label": "Georgetown, Guyana",
+          "value": "Georgetown, Guyana"
+        },
+        {
+          "label": "Gibraltar, Gibraltar",
+          "value": "Gibraltar, Gibraltar"
+        },
+        {
+          "label": "Godthåb, Greenland",
+          "value": "Godthåb, Greenland"
+        },
+        {
+          "label": "Guatemala City, Guatemala",
+          "value": "Guatemala City, Guatemala"
+        },
+        {
+          "label": "Hagåtña, Guam",
+          "value": "Hagåtña, Guam"
+        },
+        {
+          "label": "Hamilton, Bermuda",
+          "value": "Hamilton, Bermuda"
+        },
+        {
+          "label": "Harare, Zimbabwe",
+          "value": "Harare, Zimbabwe"
+        },
+        {
+          "label": "Havana, Cuba",
+          "value": "Havana, Cuba"
+        },
+        {
+          "label": "Helsinki, Finland",
+          "value": "Helsinki, Finland"
+        },
+        {
+          "label": "Hong Kong, China",
+          "value": "Hong Kong, China"
+        },
+        {
+          "label": "Honiara, Solomon Islands",
+          "value": "Honiara, Solomon Islands"
+        },
+        {
+          "label": "Hà Noi, Viet Nam",
+          "value": "Hà Noi, Viet Nam"
+        },
+        {
+          "label": "Islamabad, Pakistan",
+          "value": "Islamabad, Pakistan"
+        },
+        {
+          "label": "Jakarta, Indonesia",
+          "value": "Jakarta, Indonesia"
+        },
+        {
+          "label": "Jamestown, Saint Helena",
+          "value": "Jamestown, Saint Helena"
+        },
+        {
+          "label": "Jerusalem, Israel",
+          "value": "Jerusalem, Israel"
+        },
+        {
+          "label": "Juba, South Sudan",
+          "value": "Juba, South Sudan"
+        },
+        {
+          "label": "Kabul, Afghanistan",
+          "value": "Kabul, Afghanistan"
+        },
+        {
+          "label": "Kampala, Uganda",
+          "value": "Kampala, Uganda"
+        },
+        {
+          "label": "Kathmandu, Nepal",
+          "value": "Kathmandu, Nepal"
+        },
+        {
+          "label": "Khartoum, Sudan",
+          "value": "Khartoum, Sudan"
+        },
+        {
+          "label": "Kiev, Ukraine",
+          "value": "Kiev, Ukraine"
+        },
+        {
+          "label": "Kigali, Rwanda",
+          "value": "Kigali, Rwanda"
+        },
+        {
+          "label": "Kingston, Jamaica",
+          "value": "Kingston, Jamaica"
+        },
+        {
+          "label": "Kingstown, Saint Vincent and the Grenadines",
+          "value": "Kingstown, Saint Vincent and the Grenadines"
+        },
+        {
+          "label": "Kinshasa, Democratic Republic of the Congo",
+          "value": "Kinshasa, Democratic Republic of the Congo"
+        },
+        {
+          "label": "Koror, Palau",
+          "value": "Koror, Palau"
+        },
+        {
+          "label": "Kralendijk, Caribbean Netherlands",
+          "value": "Kralendijk, Caribbean Netherlands"
+        },
+        {
+          "label": "Kuala Lumpur, Malaysia",
+          "value": "Kuala Lumpur, Malaysia"
+        },
+        {
+          "label": "Kuwait City, Kuwait",
+          "value": "Kuwait City, Kuwait"
+        },
+        {
+          "label": "La Paz, Bolivia",
+          "value": "La Paz, Bolivia"
+        },
+        {
+          "label": "Libreville, Gabon",
+          "value": "Libreville, Gabon"
+        },
+        {
+          "label": "Lilongwe, Malawi",
+          "value": "Lilongwe, Malawi"
+        },
+        {
+          "label": "Lima, Peru",
+          "value": "Lima, Peru"
+        },
+        {
+          "label": "Lisbon, Portugal",
+          "value": "Lisbon, Portugal"
+        },
+        {
+          "label": "Ljubljana, Slovenia",
+          "value": "Ljubljana, Slovenia"
+        },
+        {
+          "label": "Lomé, Togo",
+          "value": "Lomé, Togo"
+        },
+        {
+          "label": "London, United Kingdom",
+          "value": "London, United Kingdom"
+        },
+        {
+          "label": "Luanda, Angola",
+          "value": "Luanda, Angola"
+        },
+        {
+          "label": "Lusaka, Zambia",
+          "value": "Lusaka, Zambia"
+        },
+        {
+          "label": "Luxembourg, Luxembourg",
+          "value": "Luxembourg, Luxembourg"
+        },
+        {
+          "label": "Macao, China, Macao SAR",
+          "value": "Macao, China, Macao SAR"
+        },
+        {
+          "label": "Madrid, Spain",
+          "value": "Madrid, Spain"
+        },
+        {
+          "label": "Majuro, Marshall Islands",
+          "value": "Majuro, Marshall Islands"
+        },
+        {
+          "label": "Malabo, Equatorial Guinea",
+          "value": "Malabo, Equatorial Guinea"
+        },
+        {
+          "label": "Male, Maldives",
+          "value": "Male, Maldives"
+        },
+        {
+          "label": "Mamoudzou, Mayotte",
+          "value": "Mamoudzou, Mayotte"
+        },
+        {
+          "label": "Managua, Nicaragua",
+          "value": "Managua, Nicaragua"
+        },
+        {
+          "label": "Manama, Bahrain",
+          "value": "Manama, Bahrain"
+        },
+        {
+          "label": "Manila, Philippines",
+          "value": "Manila, Philippines"
+        },
+        {
+          "label": "Maputo, Mozambique",
+          "value": "Maputo, Mozambique"
+        },
+        {
+          "label": "Maseru, Lesotho",
+          "value": "Maseru, Lesotho"
+        },
+        {
+          "label": "Masqat (Muscat), Oman",
+          "value": "Masqat (Muscat), Oman"
+        },
+        {
+          "label": "Matu-Utu, Wallis and Futuna Islands",
+          "value": "Matu-Utu, Wallis and Futuna Islands"
+        },
+        {
+          "label": "Mbabane, Swaziland",
+          "value": "Mbabane, Swaziland"
+        },
+        {
+          "label": "Mexico City, Mexico",
+          "value": "Mexico City, Mexico"
+        },
+        {
+          "label": "Minsk, Belarus",
+          "value": "Minsk, Belarus"
+        },
+        {
+          "label": "Mogadishu, Somalia",
+          "value": "Mogadishu, Somalia"
+        },
+        {
+          "label": "Monaco, Monaco",
+          "value": "Monaco, Monaco"
+        },
+        {
+          "label": "Monrovia, Liberia",
+          "value": "Monrovia, Liberia"
+        },
+        {
+          "label": "Montevideo, Uruguay",
+          "value": "Montevideo, Uruguay"
+        },
+        {
+          "label": "Moroni, Comoros",
+          "value": "Moroni, Comoros"
+        },
+        {
+          "label": "Moscow, Russian Federation",
+          "value": "Moscow, Russian Federation"
+        },
+        {
+          "label": "N'Djaména, Chad",
+          "value": "N'Djaména, Chad"
+        },
+        {
+          "label": "Nairobi, Kenya",
+          "value": "Nairobi, Kenya"
+        },
+        {
+          "label": "Nassau, Bahamas",
+          "value": "Nassau, Bahamas"
+        },
+        {
+          "label": "Nauru, Nauru",
+          "value": "Nauru, Nauru"
+        },
+        {
+          "label": "Nay Pyi Taw, Myanmar",
+          "value": "Nay Pyi Taw, Myanmar"
+        },
+        {
+          "label": "New Delhi, India",
+          "value": "New Delhi, India"
+        },
+        {
+          "label": "New York, United States of America",
+          "value": "New York, United States of America"
+        },
+        {
+          "label": "Niamey, Niger",
+          "value": "Niamey, Niger"
+        },
+        {
+          "label": "Nicosia, Cyprus",
+          "value": "Nicosia, Cyprus"
+        },
+        {
+          "label": "Nouakchott, Mauritania",
+          "value": "Nouakchott, Mauritania"
+        },
+        {
+          "label": "Nouméa, New Caledonia",
+          "value": "Nouméa, New Caledonia"
+        },
+        {
+          "label": "Nuku'alofa, Tonga",
+          "value": "Nuku'alofa, Tonga"
+        },
+        {
+          "label": "Oranjestad, Aruba",
+          "value": "Oranjestad, Aruba"
+        },
+        {
+          "label": "Oslo, Norway",
+          "value": "Oslo, Norway"
+        },
+        {
+          "label": "Ottawa-Gatineau, Canada",
+          "value": "Ottawa-Gatineau, Canada"
+        },
+        {
+          "label": "Ouagadougou, Burkina Faso",
+          "value": "Ouagadougou, Burkina Faso"
+        },
+        {
+          "label": "P'yongyang, Dem. People's Republic of Korea",
+          "value": "P'yongyang, Dem. People's Republic of Korea"
+        },
+        {
+          "label": "Pago Pago, American Samoa",
+          "value": "Pago Pago, American Samoa"
+        },
+        {
+          "label": "Palikir, Micronesia (Fed. States of)",
+          "value": "Palikir, Micronesia (Fed. States of)"
+        },
+        {
+          "label": "Panama City, Panama",
+          "value": "Panama City, Panama"
+        },
+        {
+          "label": "Papeete, French Polynesia",
+          "value": "Papeete, French Polynesia"
+        },
+        {
+          "label": "Paramaribo, Suriname",
+          "value": "Paramaribo, Suriname"
+        },
+        {
+          "label": "Paris, France",
+          "value": "Paris, France"
+        },
+        {
+          "label": "Philipsburg, Sint Maarten (Dutch part)",
+          "value": "Philipsburg, Sint Maarten (Dutch part)"
+        },
+        {
+          "label": "Phnom Penh, Cambodia",
+          "value": "Phnom Penh, Cambodia"
+        },
+        {
+          "label": "Podgorica, Montenegro",
+          "value": "Podgorica, Montenegro"
+        },
+        {
+          "label": "Port Louis, Mauritius",
+          "value": "Port Louis, Mauritius"
+        },
+        {
+          "label": "Port Moresby, Papua New Guinea",
+          "value": "Port Moresby, Papua New Guinea"
+        },
+        {
+          "label": "Port Vila, Vanuatu",
+          "value": "Port Vila, Vanuatu"
+        },
+        {
+          "label": "Port of Spain, Trinidad and Tobago",
+          "value": "Port of Spain, Trinidad and Tobago"
+        },
+        {
+          "label": "Port-au-Prince, Haiti",
+          "value": "Port-au-Prince, Haiti"
+        },
+        {
+          "label": "Porto-Novo, Benin",
+          "value": "Porto-Novo, Benin"
+        },
+        {
+          "label": "Prague, Czechia",
+          "value": "Prague, Czechia"
+        },
+        {
+          "label": "Praia, Cabo Verde",
+          "value": "Praia, Cabo Verde"
+        },
+        {
+          "label": "Pretoria, South Africa",
+          "value": "Pretoria, South Africa"
+        },
+        {
+          "label": "Quito, Ecuador",
+          "value": "Quito, Ecuador"
+        },
+        {
+          "label": "Rabat, Morocco",
+          "value": "Rabat, Morocco"
+        },
+        {
+          "label": "Rarotonga, Cook Islands",
+          "value": "Rarotonga, Cook Islands"
+        },
+        {
+          "label": "Reykjavík, Iceland",
+          "value": "Reykjavík, Iceland"
+        },
+        {
+          "label": "Riga, Latvia",
+          "value": "Riga, Latvia"
+        },
+        {
+          "label": "Riyadh, Saudi Arabia",
+          "value": "Riyadh, Saudi Arabia"
+        },
+        {
+          "label": "Road Town, British Virgin Islands",
+          "value": "Road Town, British Virgin Islands"
+        },
+        {
+          "label": "Roseau, Dominica",
+          "value": "Roseau, Dominica"
+        },
+        {
+          "label": "Saint-Denis, Réunion",
+          "value": "Saint-Denis, Réunion"
+        },
+        {
+          "label": "Saint-Pierre, Saint Pierre and Miquelon",
+          "value": "Saint-Pierre, Saint Pierre and Miquelon"
+        },
+        {
+          "label": "Saipan, Northern Mariana Islands",
+          "value": "Saipan, Northern Mariana Islands"
+        },
+        {
+          "label": "San José, Costa Rica",
+          "value": "San José, Costa Rica"
+        },
+        {
+          "label": "San Juan, Puerto Rico",
+          "value": "San Juan, Puerto Rico"
+        },
+        {
+          "label": "San Marino, San Marino",
+          "value": "San Marino, San Marino"
+        },
+        {
+          "label": "San Salvador, El Salvador",
+          "value": "San Salvador, El Salvador"
+        },
+        {
+          "label": "Sana'a', Yemen",
+          "value": "Sana'a', Yemen"
+        },
+        {
+          "label": "Santiago, Chile",
+          "value": "Santiago, Chile"
+        },
+        {
+          "label": "Santo Domingo, Dominican Republic",
+          "value": "Santo Domingo, Dominican Republic"
+        },
+        {
+          "label": "Sarajevo, Bosnia and Herzegovina",
+          "value": "Sarajevo, Bosnia and Herzegovina"
+        },
+        {
+          "label": "Seoul, Republic of Korea",
+          "value": "Seoul, Republic of Korea"
+        },
+        {
+          "label": "Shanghai, China",
+          "value": "Shanghai, China"
+        },
+        {
+          "label": "Singapore, Singapore",
+          "value": "Singapore, Singapore"
+        },
+        {
+          "label": "Skopje, TFYR Macedonia",
+          "value": "Skopje, TFYR Macedonia"
+        },
+        {
+          "label": "Sofia, Bulgaria",
+          "value": "Sofia, Bulgaria"
+        },
+        {
+          "label": "Sri Jayewardenepura Kotte, Sri Lanka",
+          "value": "Sri Jayewardenepura Kotte, Sri Lanka"
+        },
+        {
+          "label": "St. Helier, Channel Islands",
+          "value": "St. Helier, Channel Islands"
+        },
+        {
+          "label": "St. John's, Antigua and Barbuda",
+          "value": "St. John's, Antigua and Barbuda"
+        },
+        {
+          "label": "St. Peter Port, Channel Islands",
+          "value": "St. Peter Port, Channel Islands"
+        },
+        {
+          "label": "St.George's, Grenada",
+          "value": "St.George's, Grenada"
+        },
+        {
+          "label": "Stanley, Falkland Islands (Malvinas)",
+          "value": "Stanley, Falkland Islands (Malvinas)"
+        },
+        {
+          "label": "Stockholm, Sweden",
+          "value": "Stockholm, Sweden"
+        },
+        {
+          "label": "Sucre, Bolivia",
+          "value": "Sucre, Bolivia"
+        },
+        {
+          "label": "Suva, Fiji",
+          "value": "Suva, Fiji"
+        },
+        {
+          "label": "Sydney, Australia",
+          "value": "Sydney, Australia"
+        },
+        {
+          "label": "São Tomé, Sao Tome and Principe",
+          "value": "São Tomé, Sao Tome and Principe"
+        },
+        {
+          "label": "Taibei, China, Taiwan Province of China",
+          "value": "Taibei, China, Taiwan Province of China"
+        },
+        {
+          "label": "Tallinn, Estonia",
+          "value": "Tallinn, Estonia"
+        },
+        {
+          "label": "Tarawa, Kiribati",
+          "value": "Tarawa, Kiribati"
+        },
+        {
+          "label": "Tashkent, Uzbekistan",
+          "value": "Tashkent, Uzbekistan"
+        },
+        {
+          "label": "Tbilisi, Georgia",
+          "value": "Tbilisi, Georgia"
+        },
+        {
+          "label": "Tegucigalpa, Honduras",
+          "value": "Tegucigalpa, Honduras"
+        },
+        {
+          "label": "Tehran, Iran (Islamic Republic of)",
+          "value": "Tehran, Iran (Islamic Republic of)"
+        },
+        {
+          "label": "The Hague, Netherlands",
+          "value": "The Hague, Netherlands"
+        },
+        {
+          "label": "The Valley, Anguilla",
+          "value": "The Valley, Anguilla"
+        },
+        {
+          "label": "Thimphu, Bhutan",
+          "value": "Thimphu, Bhutan"
+        },
+        {
+          "label": "Tirana, Albania",
+          "value": "Tirana, Albania"
+        },
+        {
+          "label": "Tokelau, Tokelau",
+          "value": "Tokelau, Tokelau"
+        },
+        {
+          "label": "Tokyo, Japan",
+          "value": "Tokyo, Japan"
+        },
+        {
+          "label": "Toronto, Canada",
+          "value": "Toronto, Canada"
+        },
+        {
+          "label": "Tripoli, Libya",
+          "value": "Tripoli, Libya"
+        },
+        {
+          "label": "Tunis, Tunisia",
+          "value": "Tunis, Tunisia"
+        },
+        {
+          "label": "Tórshavn, Faeroe Islands",
+          "value": "Tórshavn, Faeroe Islands"
+        },
+        {
+          "label": "Ulaanbaatar, Mongolia",
+          "value": "Ulaanbaatar, Mongolia"
+        },
+        {
+          "label": "Vaduz, Liechtenstein",
+          "value": "Vaduz, Liechtenstein"
+        },
+        {
+          "label": "Valletta, Malta",
+          "value": "Valletta, Malta"
+        },
+        {
+          "label": "Vatican City, Holy See",
+          "value": "Vatican City, Holy See"
+        },
+        {
+          "label": "Victoria, Seychelles",
+          "value": "Victoria, Seychelles"
+        },
+        {
+          "label": "Vienna, Austria",
+          "value": "Vienna, Austria"
+        },
+        {
+          "label": "Vientiane, Lao People's Democratic Republic",
+          "value": "Vientiane, Lao People's Democratic Republic"
+        },
+        {
+          "label": "Vilnius, Lithuania",
+          "value": "Vilnius, Lithuania"
+        },
+        {
+          "label": "Warsaw, Poland",
+          "value": "Warsaw, Poland"
+        },
+        {
+          "label": "Washington, D.C., United States of America",
+          "value": "Washington, D.C., United States of America"
+        },
+        {
+          "label": "Wellington, New Zealand",
+          "value": "Wellington, New Zealand"
+        },
+        {
+          "label": "Willemstad, Curaçao",
+          "value": "Willemstad, Curaçao"
+        },
+        {
+          "label": "Windhoek, Namibia",
+          "value": "Windhoek, Namibia"
+        },
+        {
+          "label": "Yamoussoukro, Côte d'Ivoire",
+          "value": "Yamoussoukro, Côte d'Ivoire"
+        },
+        {
+          "label": "Yaoundé, Cameroon",
+          "value": "Yaoundé, Cameroon"
+        },
+        {
+          "label": "Yerevan, Armenia",
+          "value": "Yerevan, Armenia"
+        },
+        {
+          "label": "Zagreb, Croatia",
+          "value": "Zagreb, Croatia"
+        }
+      ],
+      "groupField": "group",
+      "groupLabel": {
+        "main": "Common locations"
+      },
+      "groupOtherLabel": "All locations"
+    },
+    "currencies": {
+      "type": "selectGroup",
+      "options": [
+        {
+          "group": "g20",
+          "label": "Euro",
+          "value": "Euro"
+        },
+        {
+          "group": "g20",
+          "label": "Japanese Yen",
+          "value": "Japanese Yen"
+        },
+        {
+          "group": "g20",
+          "label": "Pound Sterling",
+          "value": "Pound Sterling"
+        },
+        {
+          "group": "g20",
+          "label": "United States Dollar",
+          "value": "United States Dollar"
+        },
+        {
+          "label": "Afghan Afghani",
+          "value": "Afghan Afghani"
+        },
+        {
+          "label": "Albanian Lek",
+          "value": "Albanian Lek"
+        },
+        {
+          "label": "Algerian Dinar",
+          "value": "Algerian Dinar"
+        },
+        {
+          "label": "Angolan Kwanza",
+          "value": "Angolan Kwanza"
+        },
+        {
+          "label": "Argentine Peso",
+          "value": "Argentine Peso"
+        },
+        {
+          "label": "Armenian Dram",
+          "value": "Armenian Dram"
+        },
+        {
+          "label": "Aruban Florin",
+          "value": "Aruban Florin"
+        },
+        {
+          "label": "Australian Dollar",
+          "value": "Australian Dollar"
+        },
+        {
+          "label": "Azerbaijani Manat",
+          "value": "Azerbaijani Manat"
+        },
+        {
+          "label": "Bahamian Dollar",
+          "value": "Bahamian Dollar"
+        },
+        {
+          "label": "Bahraini Dinar",
+          "value": "Bahraini Dinar"
+        },
+        {
+          "label": "Bangladeshi Taka",
+          "value": "Bangladeshi Taka"
+        },
+        {
+          "label": "Barbados Dollar",
+          "value": "Barbados Dollar"
+        },
+        {
+          "label": "Belarusian Ruble",
+          "value": "Belarusian Ruble"
+        },
+        {
+          "label": "Belize Dollar",
+          "value": "Belize Dollar"
+        },
+        {
+          "label": "Bermudian Dollar",
+          "value": "Bermudian Dollar"
+        },
+        {
+          "label": "Bhutanese Ngultrum",
+          "value": "Bhutanese Ngultrum"
+        },
+        {
+          "label": "Bolivian Mvdol",
+          "value": "Bolivian Mvdol"
+        },
+        {
+          "label": "Boliviano",
+          "value": "Boliviano"
+        },
+        {
+          "label": "Bosnia and Herzegovina Convertible Mark",
+          "value": "Bosnia and Herzegovina Convertible Mark"
+        },
+        {
+          "label": "Botswana Pula",
+          "value": "Botswana Pula"
+        },
+        {
+          "label": "Brazilian Real",
+          "value": "Brazilian Real"
+        },
+        {
+          "label": "Brunei Dollar",
+          "value": "Brunei Dollar"
+        },
+        {
+          "label": "Bulgarian Lev",
+          "value": "Bulgarian Lev"
+        },
+        {
+          "label": "Burundian Franc",
+          "value": "Burundian Franc"
+        },
+        {
+          "label": "CFA Franc BCEAO",
+          "value": "CFA Franc BCEAO"
+        },
+        {
+          "label": "CFA Franc BEAC",
+          "value": "CFA Franc BEAC"
+        },
+        {
+          "label": "CFP Franc (Franc Pacifique)",
+          "value": "CFP Franc (Franc Pacifique)"
+        },
+        {
+          "label": "Cambodian Riel",
+          "value": "Cambodian Riel"
+        },
+        {
+          "label": "Canadian Dollar",
+          "value": "Canadian Dollar"
+        },
+        {
+          "label": "Cape Verde Escudo",
+          "value": "Cape Verde Escudo"
+        },
+        {
+          "label": "Cayman Islands Dollar",
+          "value": "Cayman Islands Dollar"
+        },
+        {
+          "label": "Chilean Peso",
+          "value": "Chilean Peso"
+        },
+        {
+          "label": "Chinese Yuan/Renminbi",
+          "value": "Chinese Yuan/Renminbi"
+        },
+        {
+          "label": "Colombian Peso",
+          "value": "Colombian Peso"
+        },
+        {
+          "label": "Comoro Franc",
+          "value": "Comoro Franc"
+        },
+        {
+          "label": "Congolese Franc",
+          "value": "Congolese Franc"
+        },
+        {
+          "label": "Costa Rican Cólon",
+          "value": "Costa Rican Cólon"
+        },
+        {
+          "label": "Croatian Kuna",
+          "value": "Croatian Kuna"
+        },
+        {
+          "label": "Cuban Peso",
+          "value": "Cuban Peso"
+        },
+        {
+          "label": "Cuban convertible Peso",
+          "value": "Cuban convertible Peso"
+        },
+        {
+          "label": "Czech Koruna",
+          "value": "Czech Koruna"
+        },
+        {
+          "label": "Danish Krone",
+          "value": "Danish Krone"
+        },
+        {
+          "label": "Djiboutian Franc",
+          "value": "Djiboutian Franc"
+        },
+        {
+          "label": "Dominican Peso",
+          "value": "Dominican Peso"
+        },
+        {
+          "label": "East Caribbean Dollar",
+          "value": "East Caribbean Dollar"
+        },
+        {
+          "label": "Egyptian Pound",
+          "value": "Egyptian Pound"
+        },
+        {
+          "label": "Eritrean Nakfa",
+          "value": "Eritrean Nakfa"
+        },
+        {
+          "label": "Ethiopian Birr",
+          "value": "Ethiopian Birr"
+        },
+        {
+          "label": "Euro",
+          "value": "Euro"
+        },
+        {
+          "label": "Falkland Islands Pound",
+          "value": "Falkland Islands Pound"
+        },
+        {
+          "label": "Fiji Dollar",
+          "value": "Fiji Dollar"
+        },
+        {
+          "label": "Gambian Dalasi",
+          "value": "Gambian Dalasi"
+        },
+        {
+          "label": "Georgian Lari",
+          "value": "Georgian Lari"
+        },
+        {
+          "label": "Ghanaian Cedi",
+          "value": "Ghanaian Cedi"
+        },
+        {
+          "label": "Gibraltar Pound",
+          "value": "Gibraltar Pound"
+        },
+        {
+          "label": "Guatemalan Quetzal",
+          "value": "Guatemalan Quetzal"
+        },
+        {
+          "label": "Guinean Franc",
+          "value": "Guinean Franc"
+        },
+        {
+          "label": "Guyanese Dollar",
+          "value": "Guyanese Dollar"
+        },
+        {
+          "label": "Haitian Gourde",
+          "value": "Haitian Gourde"
+        },
+        {
+          "label": "Honduran Lempira",
+          "value": "Honduran Lempira"
+        },
+        {
+          "label": "Hong Kong Dollar",
+          "value": "Hong Kong Dollar"
+        },
+        {
+          "label": "Hungarian Forint",
+          "value": "Hungarian Forint"
+        },
+        {
+          "label": "Icelandic Króna",
+          "value": "Icelandic Króna"
+        },
+        {
+          "label": "Indian Rupee",
+          "value": "Indian Rupee"
+        },
+        {
+          "label": "Indonesian Rupiah",
+          "value": "Indonesian Rupiah"
+        },
+        {
+          "label": "Iranian Rial",
+          "value": "Iranian Rial"
+        },
+        {
+          "label": "Iraqi Dinar",
+          "value": "Iraqi Dinar"
+        },
+        {
+          "label": "Israeli New Shekel",
+          "value": "Israeli New Shekel"
+        },
+        {
+          "label": "Jamaican Dollar",
+          "value": "Jamaican Dollar"
+        },
+        {
+          "label": "Japanese Yen",
+          "value": "Japanese Yen"
+        },
+        {
+          "label": "Jordanian Dinar",
+          "value": "Jordanian Dinar"
+        },
+        {
+          "label": "Kazakhstani Tenge",
+          "value": "Kazakhstani Tenge"
+        },
+        {
+          "label": "Kenyan Shilling",
+          "value": "Kenyan Shilling"
+        },
+        {
+          "label": "Kuwaiti Dinar",
+          "value": "Kuwaiti Dinar"
+        },
+        {
+          "label": "Kyrgyzstani Som",
+          "value": "Kyrgyzstani Som"
+        },
+        {
+          "label": "Lao Kip",
+          "value": "Lao Kip"
+        },
+        {
+          "label": "Lebanese Pound",
+          "value": "Lebanese Pound"
+        },
+        {
+          "label": "Lesotho Loti",
+          "value": "Lesotho Loti"
+        },
+        {
+          "label": "Liberian Dollar",
+          "value": "Liberian Dollar"
+        },
+        {
+          "label": "Libyan Dinar",
+          "value": "Libyan Dinar"
+        },
+        {
+          "label": "Macanese Pataca",
+          "value": "Macanese Pataca"
+        },
+        {
+          "label": "Macedonian Denar",
+          "value": "Macedonian Denar"
+        },
+        {
+          "label": "Malagasy Ariary",
+          "value": "Malagasy Ariary"
+        },
+        {
+          "label": "Malawian Kwacha",
+          "value": "Malawian Kwacha"
+        },
+        {
+          "label": "Malaysian Ringgit",
+          "value": "Malaysian Ringgit"
+        },
+        {
+          "label": "Maldivian Rufiyaa",
+          "value": "Maldivian Rufiyaa"
+        },
+        {
+          "label": "Mauritanian Ouguiya",
+          "value": "Mauritanian Ouguiya"
+        },
+        {
+          "label": "Mauritian Rupee",
+          "value": "Mauritian Rupee"
+        },
+        {
+          "label": "Mexican Peso",
+          "value": "Mexican Peso"
+        },
+        {
+          "label": "Mexican Unidad de Inversion (UDI)",
+          "value": "Mexican Unidad de Inversion (UDI)"
+        },
+        {
+          "label": "Moldovan Leu",
+          "value": "Moldovan Leu"
+        },
+        {
+          "label": "Mongolian Tögrög",
+          "value": "Mongolian Tögrög"
+        },
+        {
+          "label": "Moroccan Dirham",
+          "value": "Moroccan Dirham"
+        },
+        {
+          "label": "Mozambican Metical",
+          "value": "Mozambican Metical"
+        },
+        {
+          "label": "Myanmar Kyat",
+          "value": "Myanmar Kyat"
+        },
+        {
+          "label": "Namibian Dollar",
+          "value": "Namibian Dollar"
+        },
+        {
+          "label": "Nepalese Rupee",
+          "value": "Nepalese Rupee"
+        },
+        {
+          "label": "Netherlands Antillean Guilder",
+          "value": "Netherlands Antillean Guilder"
+        },
+        {
+          "label": "New Taiwan Dollar",
+          "value": "New Taiwan Dollar"
+        },
+        {
+          "label": "New Zealand Dollar",
+          "value": "New Zealand Dollar"
+        },
+        {
+          "label": "Nicaraguan Córdoba",
+          "value": "Nicaraguan Córdoba"
+        },
+        {
+          "label": "Nigerian Naira",
+          "value": "Nigerian Naira"
+        },
+        {
+          "label": "North Korean Won",
+          "value": "North Korean Won"
+        },
+        {
+          "label": "Norwegian Krone",
+          "value": "Norwegian Krone"
+        },
+        {
+          "label": "Omani Rial",
+          "value": "Omani Rial"
+        },
+        {
+          "label": "Pakistani Rupee",
+          "value": "Pakistani Rupee"
+        },
+        {
+          "label": "Panamanian Balboa",
+          "value": "Panamanian Balboa"
+        },
+        {
+          "label": "Papua New Guinean Kina",
+          "value": "Papua New Guinean Kina"
+        },
+        {
+          "label": "Paraguayan Guaraní",
+          "value": "Paraguayan Guaraní"
+        },
+        {
+          "label": "Peruvian Sol",
+          "value": "Peruvian Sol"
+        },
+        {
+          "label": "Philippine Peso",
+          "value": "Philippine Peso"
+        },
+        {
+          "label": "Polish Złoty",
+          "value": "Polish Złoty"
+        },
+        {
+          "label": "Pound Sterling",
+          "value": "Pound Sterling"
+        },
+        {
+          "label": "Qatari Riyal",
+          "value": "Qatari Riyal"
+        },
+        {
+          "label": "Romanian Leu",
+          "value": "Romanian Leu"
+        },
+        {
+          "label": "Russian Ruble",
+          "value": "Russian Ruble"
+        },
+        {
+          "label": "Rwandan Franc",
+          "value": "Rwandan Franc"
+        },
+        {
+          "label": "Saint Helena Pound",
+          "value": "Saint Helena Pound"
+        },
+        {
+          "label": "Salvadoran Colón",
+          "value": "Salvadoran Colón"
+        },
+        {
+          "label": "Samoan Tala",
+          "value": "Samoan Tala"
+        },
+        {
+          "label": "São Tomé and Príncipe Dobra",
+          "value": "São Tomé and Príncipe Dobra"
+        },
+        {
+          "label": "Saudi Riyal",
+          "value": "Saudi Riyal"
+        },
+        {
+          "label": "Serbian Dinar",
+          "value": "Serbian Dinar"
+        },
+        {
+          "label": "Seychelles Rupee",
+          "value": "Seychelles Rupee"
+        },
+        {
+          "label": "Sierra Leonean Leone",
+          "value": "Sierra Leonean Leone"
+        },
+        {
+          "label": "Singapore Dollar",
+          "value": "Singapore Dollar"
+        },
+        {
+          "label": "Solomon Islands Dollar",
+          "value": "Solomon Islands Dollar"
+        },
+        {
+          "label": "Somali Shilling",
+          "value": "Somali Shilling"
+        },
+        {
+          "label": "South African Rand",
+          "value": "South African Rand"
+        },
+        {
+          "label": "South Korean Won",
+          "value": "South Korean Won"
+        },
+        {
+          "label": "South Sudanese Pound",
+          "value": "South Sudanese Pound"
+        },
+        {
+          "label": "Sri Lankan Rupee",
+          "value": "Sri Lankan Rupee"
+        },
+        {
+          "label": "Sudanese Pound",
+          "value": "Sudanese Pound"
+        },
+        {
+          "label": "Surinamese Dollar",
+          "value": "Surinamese Dollar"
+        },
+        {
+          "label": "Swazi Lilangeni",
+          "value": "Swazi Lilangeni"
+        },
+        {
+          "label": "Swedish Krona/Kronor",
+          "value": "Swedish Krona/Kronor"
+        },
+        {
+          "label": "Swiss Franc",
+          "value": "Swiss Franc"
+        },
+        {
+          "label": "Syrian Pound",
+          "value": "Syrian Pound"
+        },
+        {
+          "label": "Tajikistani Somoni",
+          "value": "Tajikistani Somoni"
+        },
+        {
+          "label": "Tanzanian Shilling",
+          "value": "Tanzanian Shilling"
+        },
+        {
+          "label": "Thai Baht",
+          "value": "Thai Baht"
+        },
+        {
+          "label": "Tongan Paʻanga",
+          "value": "Tongan Paʻanga"
+        },
+        {
+          "label": "Trinidad and Tobago Dollar",
+          "value": "Trinidad and Tobago Dollar"
+        },
+        {
+          "label": "Tunisian Dinar",
+          "value": "Tunisian Dinar"
+        },
+        {
+          "label": "Turkish Lira",
+          "value": "Turkish Lira"
+        },
+        {
+          "label": "Turkmenistan Manat",
+          "value": "Turkmenistan Manat"
+        },
+        {
+          "label": "Ugandan Shilling",
+          "value": "Ugandan Shilling"
+        },
+        {
+          "label": "Ukrainian Hryvnia",
+          "value": "Ukrainian Hryvnia"
+        },
+        {
+          "label": "Unidad de Fomento",
+          "value": "Unidad de Fomento"
+        },
+        {
+          "label": "Unidad de Valor Real (UVR)",
+          "value": "Unidad de Valor Real (UVR)"
+        },
+        {
+          "label": "Unidad Previsional",
+          "value": "Unidad Previsional"
+        },
+        {
+          "label": "United Arab Emirates Dirham",
+          "value": "United Arab Emirates Dirham"
+        },
+        {
+          "label": "United States Dollar",
+          "value": "United States Dollar"
+        },
+        {
+          "label": "Uruguay Peso en Unidades Indexadas (URUIURUI)",
+          "value": "Uruguay Peso en Unidades Indexadas (URUIURUI)"
+        },
+        {
+          "label": "Uruguayan Peso",
+          "value": "Uruguayan Peso"
+        },
+        {
+          "label": "Uzbekistan Som",
+          "value": "Uzbekistan Som"
+        },
+        {
+          "label": "Vanuatu Vatu",
+          "value": "Vanuatu Vatu"
+        },
+        {
+          "label": "Venezuelan Bolívar Soberano",
+          "value": "Venezuelan Bolívar Soberano"
+        },
+        {
+          "label": "Vietnamese đồng",
+          "value": "Vietnamese đồng"
+        },
+        {
+          "label": "Yemeni Rial",
+          "value": "Yemeni Rial"
+        },
+        {
+          "label": "Zambian Kwacha",
+          "value": "Zambian Kwacha"
+        },
+        {
+          "label": "Zimbabwean Dollar",
+          "value": "Zimbabwean Dollar"
+        }
+      ],
+      "groupField": "group",
+      "groupLabel": {
+        "g20": "Common currencies"
+      },
+      "groupOtherLabel": "All currencies"
+    },
+    "regimeChildren": [
+      [
+        {
+          "name": {
+            "suffix": "_security_taker",
+            "position": "partyA"
+          },
+          "type": "radio",
+          "label": "Party A as Security-taker (Party B as Security-provider)",
+          "options": [
+            {
+              "label": "Applicable",
+              "value": "applicable"
+            },
+            {
+              "label": "Not Applicable",
+              "value": "not_applicable"
+            },
+            {
+              "label": "Other / specify",
+              "value": "other",
+              "children": [
+                {
+                  "name": {
+                    "suffix": "_security_taker_specify",
+                    "position": "partyA"
+                  },
+                  "type": "editor",
+                  "label": "Specify",
+                  "showWhen": {
+                    "is_applicable": "applicable",
+                    "partyA_security_taker": "other"
+                  }
+                }
+              ]
+            }
+          ],
+          "showWhen": {
+            "is_applicable": "applicable"
+          }
+        },
+        {
+          "name": {
+            "suffix": "_SIMM",
+            "position": "partyA"
+          },
+          "type": "radio",
+          "label": "SIMM Exception",
+          "options": [
+            {
+              "label": "Applicable",
+              "value": "applicable",
+              "children": [
+                {
+                  "name": {
+                    "suffix": "_SIMM_applicable_specify",
+                    "position": "partyA"
+                  },
+                  "type": "editor",
+                  "label": "Specify",
+                  "showWhen": {
+                    "partyA_SIMM": "applicable",
+                    "is_applicable": "applicable"
+                  }
+                }
+              ]
+            },
+            {
+              "label": "Not Applicable",
+              "value": "not_applicable"
+            },
+            {
+              "label": "Other / specify",
+              "value": "other",
+              "children": [
+                {
+                  "name": {
+                    "suffix": "_SIMM_specify",
+                    "position": "partyA"
+                  },
+                  "type": "editor",
+                  "label": "Specify",
+                  "showWhen": {
+                    "partyA_SIMM": "other",
+                    "is_applicable": "applicable"
+                  }
+                }
+              ]
+            }
+          ],
+          "showWhen": [
+            {
+              "partyA_security_taker": "applicable"
+            },
+            {
+              "partyA_security_taker": "other"
+            }
+          ]
+        },
+        {
+          "name": {
+            "suffix": "_retrospective",
+            "position": "partyA"
+          },
+          "type": "radio",
+          "label": "Retrospective Effect",
+          "options": [
+            {
+              "label": "Applicable",
+              "value": "applicable"
+            },
+            {
+              "label": "Not Applicable",
+              "value": "not_applicable"
+            },
+            {
+              "label": "Other / specify",
+              "value": "other",
+              "children": [
+                {
+                  "name": {
+                    "suffix": "_retrospective_specify",
+                    "position": "partyA"
+                  },
+                  "type": "editor",
+                  "label": "Specify",
+                  "showWhen": {
+                    "is_applicable": "applicable",
+                    "partyA_retrospective": "other"
+                  }
+                }
+              ]
+            }
+          ],
+          "showWhen": [
+            {
+              "partyA_security_taker": "applicable"
+            },
+            {
+              "partyA_security_taker": "other"
+            }
+          ]
+        }
+      ],
+      [
+        {
+          "name": {
+            "suffix": "_security_taker",
+            "position": "partyB"
+          },
+          "type": "radio",
+          "label": "Party B as Security-taker (Party A as Security-provider)",
+          "options": [
+            {
+              "label": "Applicable",
+              "value": "applicable"
+            },
+            {
+              "label": "Not Applicable",
+              "value": "not_applicable"
+            },
+            {
+              "label": "Other / specify",
+              "value": "other",
+              "children": [
+                {
+                  "name": {
+                    "suffix": "_security_taker_specify",
+                    "position": "partyB"
+                  },
+                  "type": "editor",
+                  "label": "Specify",
+                  "showWhen": {
+                    "is_applicable": "applicable",
+                    "partyB_security_taker": "other"
+                  }
+                }
+              ]
+            }
+          ],
+          "showWhen": {
+            "is_applicable": "applicable"
+          }
+        },
+        {
+          "name": {
+            "suffix": "_SIMM",
+            "position": "partyB"
+          },
+          "type": "radio",
+          "label": "SIMM Exception",
+          "options": [
+            {
+              "label": "Applicable",
+              "value": "applicable",
+              "children": [
+                {
+                  "name": {
+                    "suffix": "_SIMM_applicable_specify",
+                    "position": "partyB"
+                  },
+                  "type": "editor",
+                  "label": "Specify",
+                  "showWhen": {
+                    "partyB_SIMM": "applicable",
+                    "is_applicable": "applicable"
+                  }
+                }
+              ]
+            },
+            {
+              "label": "Not Applicable",
+              "value": "not_applicable"
+            },
+            {
+              "label": "Other / specify",
+              "value": "other",
+              "children": [
+                {
+                  "name": {
+                    "suffix": "_SIMM_specify",
+                    "position": "partyB"
+                  },
+                  "type": "editor",
+                  "label": "Specify",
+                  "showWhen": {
+                    "partyB_SIMM": "other",
+                    "is_applicable": "applicable"
+                  }
+                }
+              ]
+            }
+          ],
+          "showWhen": [
+            {
+              "partyB_security_taker": "applicable"
+            },
+            {
+              "partyB_security_taker": "other"
+            }
+          ]
+        },
+        {
+          "name": {
+            "suffix": "_retrospective",
+            "position": "partyB"
+          },
+          "type": "radio",
+          "label": "Retrospective Effect",
+          "options": [
+            {
+              "label": "Applicable",
+              "value": "applicable"
+            },
+            {
+              "label": "Not Applicable",
+              "value": "not_applicable"
+            },
+            {
+              "label": "Other / specify",
+              "value": "other",
+              "children": [
+                {
+                  "name": {
+                    "suffix": "_retrospective_specify",
+                    "position": "partyB"
+                  },
+                  "type": "editor",
+                  "label": "Specify",
+                  "showWhen": {
+                    "is_applicable": "applicable",
+                    "partyB_retrospective": "other"
+                  }
+                }
+              ]
+            }
+          ],
+          "showWhen": [
+            {
+              "partyB_security_taker": "applicable"
+            },
+            {
+              "partyB_security_taker": "other"
+            }
+          ]
+        }
+      ],
+      [
+        {
+          "name": "additional_type",
+          "type": "radio",
+          "label": "Additional Type for the purposes of Covered Transactions",
+          "options": [
+            {
+              "label": "Not Applicable",
+              "value": "not_applicable"
+            },
+            {
+              "label": "Other / specify",
+              "value": "other",
+              "children": [
+                {
+                  "name": "additional_type_specify",
+                  "type": "editor",
+                  "label": "Specify",
+                  "showWhen": {
+                    "is_applicable": "applicable",
+                    "additional_type": "other"
+                  }
+                }
+              ]
+            }
+          ],
+          "showWhen": {
+            "is_applicable": "applicable"
+          },
+          "disableWhen": [
+            {
+              "partyA_security_taker": "not_applicable",
+              "partyB_security_taker": "not_applicable"
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}
