@@ -361,7 +361,7 @@ type Csa2016 extends Csa: <"An abstract class to specify the provisions for the 
 	bespokeProvision string (0..1) <"The bespoke provision that might be specified by the parties to the agreement. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (u)(iii): Other Provisions. | ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (p): Other Provisions.">
 		[synonym ISDA_Create_1_0 value "specify" path "bespoke_provisions" set when "bespoke_provisions->is_applicable" = "applicable"]
 	umbrellaAgreement UmbrellaAgreement (0..1) <"The determination of whether Umbrella Agreement terms are applicable (True) or Not Applicable (False).">
-		[synonym ISDA_Create_1_0 value "umbrella_agreement_and_principal_identification"]
+		[synonym ISDA_Create_1_0 value "umbrella_agreement_and_principal_identification", "principal_identification_schedule" path "umbrella_agreement_and_principal_identification"]
 
 
 type CsaInitialMargin2016 extends Csa2016: <"An abstract class to specify the provisions for the 2016 ISDA Credit Support Annex for Initial Margin that are common among governing laws.">
@@ -471,7 +471,7 @@ type Csa2018 extends Csa: <"An abstract class to specify the provisions for the 
 	demandsAndNotices ContactElection (1..1) <"The address where the demands, specifications and notices will be communicated to within each of the parties to the agreement. ISDA 2018 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (q): Demands and Notices. | ISDA 2018 Credit Support Annex for Variation Margin, paragraph 13, (m): Demands and Notices.">
 		[synonym ISDA_Create_1_0 value "demands_and_notices"]
 	umbrellaAgreement UmbrellaAgreement (0..1) <"The determination of whether Umbrella Agreement terms are applicable (True) or Not Applicable (False).">
-		[synonym ISDA_Create_1_0 value "umbrella_agreement_and_principal_identification"]
+		[synonym ISDA_Create_1_0 value "umbrella_agreement_and_principal_identification", "principal_identification_schedule" path "umbrella_agreement_and_principal_identification"]
 
 
 type CsaInitialMargin2018 extends Csa2018: <"An abstract class to specify the provisions for the 2018 ISDA Credit Support Annex for Initial Margin that are common among governing laws.">
@@ -1250,6 +1250,7 @@ type UmbrellaAgreement: <"A class to specify a set of legal entities which are p
 	language string (1..1) <"The language associated with the umbrella agreement, and which applies to all the parties to the umbrella agreement.">
 		[synonym ISDA_Create_1_0 value "language" maps 2] // TODO: remove "maps 2" once migration complete
 	parties UmbrellaAgreementEntity (2..*) <"The parties to the umbrella agreement.">
+		// TODO: fix synonym mapping - see cardinality issues in json 
 	
 	condition UmbrellaAgreementExists: <"Umbrella Agreement language and parties should not exist when Umbrella Agreement terms are Not Applicable.">
 		if isApplicable = False
