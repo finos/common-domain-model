@@ -11,9 +11,9 @@ import org.isda.cdm.PriceNotation;
 import org.isda.cdm.Product;
 import org.isda.cdm.Underlier;
 
-import cdm.base.staticdata.asset.commons.Equity;
-import cdm.base.staticdata.asset.commons.ProductIdentifier;
-import cdm.base.staticdata.asset.commons.Security;
+import cdm.base.staticdata.asset.common.Equity;
+import cdm.base.staticdata.asset.common.ProductIdentifier;
+import cdm.base.staticdata.asset.common.Security;
 
 /**
  * To be replaced by full resolve price function implementation.

@@ -7,10 +7,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import cdm.base.maths.Quantity;
-import cdm.base.maths.Quantity.QuantityBuilder;
-import cdm.base.maths.UnitEnum;
-import cdm.base.maths.functions.Sum;
+import cdm.base.math.Quantity;
+import cdm.base.math.Quantity.QuantityBuilder;
+import cdm.base.math.UnitEnum;
+import cdm.base.math.functions.Sum;
 
 /**
  * Sums the given quantities together if the currencies and units are equal.  Make no attempt to convert between units or currencies.

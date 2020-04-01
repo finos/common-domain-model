@@ -4,7 +4,7 @@ import com.google.inject.Binder;
 import com.google.inject.Inject;
 import com.rosetta.model.metafields.FieldWithMetaString;
 
-import cdm.base.maths.NonNegativeQuantity;
+import cdm.base.math.NonNegativeQuantity;
 
 import org.isda.cdm.*;
 import org.isda.cdm.functions.AbstractFunctionTest;

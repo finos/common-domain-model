@@ -1,6 +1,6 @@
 package cdm.base.maths.functions;
 
-import cdm.base.maths.RoundingModeEnum;
+import cdm.base.math.RoundingModeEnum;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
