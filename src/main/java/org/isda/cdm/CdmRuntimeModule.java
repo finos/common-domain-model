@@ -1,6 +1,5 @@
 package org.isda.cdm;
 
-import cdm.base.maths.functions.*;
 import org.isda.cdm.functions.*;
 
 import com.google.inject.AbstractModule;
@@ -8,6 +7,7 @@ import com.regnosys.rosetta.common.validation.RosettaTypeValidator;
 import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
 import com.rosetta.model.lib.validation.ModelObjectValidator;
 
+import cdm.base.math.functions.*;
 import cdm.base.staticdata.party.functions.PartyByRole;
 
 public class CdmRuntimeModule extends AbstractModule {

@@ -14,9 +14,9 @@ import com.rosetta.model.lib.process.BuilderProcessor.Report;
 import com.rosetta.model.lib.process.PostProcessStep;
 import org.isda.cdm.BusinessEvent.BusinessEventBuilder;
 
-import cdm.base.staticdata.asset.commons.ProductIdentifier.ProductIdentifierBuilder;
-import cdm.base.staticdata.asset.commons.metafields.ReferenceWithMetaProductIdentifier;
-import cdm.base.staticdata.asset.commons.metafields.ReferenceWithMetaProductIdentifier.ReferenceWithMetaProductIdentifierBuilder;
+import cdm.base.staticdata.asset.common.ProductIdentifier.ProductIdentifierBuilder;
+import cdm.base.staticdata.asset.common.metafields.ReferenceWithMetaProductIdentifier;
+import cdm.base.staticdata.asset.common.metafields.ReferenceWithMetaProductIdentifier.ReferenceWithMetaProductIdentifierBuilder;
 
 import org.isda.cdm.Contract.ContractBuilder;
 import org.isda.cdm.EventEffect.EventEffectBuilder;

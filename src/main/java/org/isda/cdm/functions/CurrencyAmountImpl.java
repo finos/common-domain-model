@@ -9,7 +9,7 @@ import org.isda.cdm.QuantityNotation;
 
 import com.rosetta.model.lib.meta.FieldWithMeta;
 
-import cdm.base.maths.NonNegativeQuantity;
+import cdm.base.math.NonNegativeQuantity;
 
 /**
  * Extracts the quantity amount associated with the currency.
