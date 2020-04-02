@@ -25,8 +25,8 @@ import org.junit.jupiter.api.Test;
 import com.google.inject.Binder;
 import com.google.inject.Inject;
 
-import cdm.base.maths.CompareOp;
-import cdm.base.maths.functions.ListsCompare;
+import cdm.base.math.CompareOp;
+import cdm.base.math.functions.ListsCompare;
 
 /**
  * 

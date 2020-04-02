@@ -6,7 +6,7 @@ import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.rosetta.model.lib.GlobalKey;
 import com.rosetta.model.lib.meta.MetaFieldsI;
 
-import cdm.base.maths.NonNegativeQuantity;
+import cdm.base.math.NonNegativeQuantity;
 
 import org.isda.cdm.*;
 import org.junit.jupiter.api.Disabled;

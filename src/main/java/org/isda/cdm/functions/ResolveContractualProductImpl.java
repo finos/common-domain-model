@@ -3,8 +3,8 @@ package org.isda.cdm.functions;
 import com.google.inject.Inject;
 import com.regnosys.rosetta.common.util.RosettaObjectBuilderCollectorProcessStep;
 
-import cdm.base.maths.NonNegativeQuantity;
-import cdm.base.maths.NonNegativeQuantitySchedule;
+import cdm.base.math.NonNegativeQuantity;
+import cdm.base.math.NonNegativeQuantitySchedule;
 
 import org.isda.cdm.*;
 import org.isda.cdm.ContractualProduct.ContractualProductBuilder;

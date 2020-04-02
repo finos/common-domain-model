@@ -2,7 +2,7 @@ package org.isda.cdm.calculation;
 
 import cdm.base.datetime.*;
 import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
-import cdm.base.maths.NonNegativeQuantity;
+import cdm.base.math.NonNegativeQuantity;
 import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
 import cdm.base.staticdata.asset.rates.metafields.FieldWithMetaFloatingRateIndexEnum;
 import com.google.inject.Inject;
