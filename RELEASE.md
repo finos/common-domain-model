@@ -1,23 +1,19 @@
-# *Model Optimisation: Price Refactor*
+# *Model Enhancements: Adding description to the CDM Model*
 
 _What is being released_
 
-Clean up tasks following the recent model price refactor:
+Added the ability to provide descriptions for a CDM Namespace. Additionally added the description for the cdm.base package.
 
-- Add FpML synonym mappings logic to populate `Schedule.initialValue` when a price schedule exists.
-- Rename type `InterestRateSpread` to `FloatingInterestRate`.
-- Add `[deprecated]` annotation to deprecated attributes.
-- Fix minimum cardinality for `TradableProduct.priceNotation`.
+- `base.rosetta`
+- `base-staticdata.rosetta`
+- `base-staticdata-party-enum.rosetta`
+- `base-staticdata-identifier-type.rosetta`
+- `base-staticdata-asset.rosetta`
+- `base-staticdata-asset-common-enum.rosetta`
+- `base-math-enum.rosetta`
+- `base-datetime-enum.rosetta`
 
 _Review Directions_
 
-In the Ingestion Panel, try the following samples which contain price step schedules in folder `products > rates`:
-
-- `EUR-variable-notional-uti.xml`
-- `ird-ex04-arrears-stepup-fee-swap-usi-uti.xml`
-- `ird-ex22-cap.xml`
-- `ird-ex23-floor.xml`
-- `ird-ex24-collar.xml`
-- `GBP-VNS-uti.xml`
-- `USD-VNS-uti.xml`
+View any of the above mentioned files, right next to their namespace label, there is a description.
 
