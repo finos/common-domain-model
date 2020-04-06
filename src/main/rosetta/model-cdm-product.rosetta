@@ -956,8 +956,8 @@ type Payout: <" A class to represent the set of future cashflow methodologies in
 			and creditDefaultPayout -> transactedPrice -> marketPrice is absent
 
 	condition NotionalReset: <"Notional reset only applies to return swaps, and therefore can only exist on an InterestRatePayout.">
-		creditDefaultPayout -> protectionTerms -> payoutQuantity -> reset is absent
-			and equityPayout -> payoutQuantity -> reset is absent
+		interestRatePayout -> payoutQuantity -> reset is absent
+			and creditDefaultPayout -> protectionTerms -> payoutQuantity -> reset is absent
 			and optionPayout -> payoutQuantity -> reset is absent
 			and cashflow -> payoutQuantity -> reset is absent
 
@@ -1065,9 +1065,9 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
 	condition PriceQuantityTriangulation:
 		PriceQuantityTriangulation( priceNotation, quantityNotation ) = True
 		
-	condition NotionalReset: <"As the InterestRatePayout.payoutQuantity.reset attribute applies to return swaps, the equity payout needs to be present alongside it.">
- 		if product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity -> reset = True 
- 		then product -> contractualProduct -> economicTerms -> payout -> equityPayout exists
+	condition NotionalReset: <"As the EquityPayout.payoutQuantity.reset attribute applies to return swaps, the interest rate payout needs to be present alongside it.">
+ 		if product -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> reset = True 
+ 		then product -> contractualProduct -> economicTerms -> payout -> interestRatePayout exists
 
  	condition NotionalAdjustment: <"As the adjustment attribute applies to return swaps, the equity payout needs to be present alongside it.">
  		if adjustment exists
