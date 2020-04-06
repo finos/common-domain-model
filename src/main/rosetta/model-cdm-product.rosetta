@@ -307,15 +307,15 @@ type QuantityMultiplier: <" Class to specify a mechanism for a quantity to be se
 	condition: one-of
 
 
-type ResolvablePayoutQuantity: <" Generic class to specify the quantity for different payout legs in a contractual product, when that quantity can vary across payout legs or across time. A resolvable quantity can always be resolved into one number based on: (i) the quantity notation that must be specified alongside the contractual product description and (ii) a given date, where applicable. In addition to the base case where quantity is directly specified as a number as part of the quantity notation, the use cases are: (i) quantity based on some pre-defined schedule (eg amortising notional), (ii) quantity based on some pre-defined events (eg resetting cross-currency notional), or quantity set as reference to another quantity (eg equity notional as no. securities x price).">
+type ResolvablePayoutQuantity: <"Generic class to specify the quantity for different payout legs in a contractual product, when that quantity can vary across payout legs or across time. A resolvable quantity can always be resolved into a single quantity from the quantity notation which has a corresponding asset identifier. In addition to the base case, where quantity is directly specified as a number as part of the quantity notation, the other use cases are: (i) quantity based on some pre-defined schedule (eg amortising notional), (ii) quantity based on some pre-defined events (eg resetting cross-currency notional), or quantity set as reference to another quantity (eg equity notional as no. securities x price).">
 	[metadata key]
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 meta "id"]
 	[synonym FpML_5_10 meta "id" path "notionalAmount"]
 	[synonym FpML_5_10 meta "id" path "notionalStepSchedule"]
 
-	resolvedQuantity NonNegativeQuantity (0..1) <"This attribute is optional, as long as the asset identifier is specified so that quantity can be resolved. There needs to be at least 1 such absolutely defined quantity across payout legs of a product, to define an anchor that other payout quantities can refer to. This is enforced by a data rule on the Payout class.  This attribute is ignored when mapping existing FpML messages, where quantity is abstracted away at a higher level.">
+	resolvedQuantity NonNegativeQuantity (0..1) <"A product's quantity as a single, non-negative amount.  When specified as part of a product definition, this quantity attribute would not be set.  Instead it is specified on the quantity notation along with an asset identifier matching this payout's asset identifier.  This allows the the quantity to be resolved for a payout leg, which can then be specified here for convenience during data processing.  There needs to be at least one resolvable quantity across payout legs of a product to define an anchor that other payout quantities can refer to.  This attribute is ignored when mapping existing FpML messages.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "ignore"]
-	quantitySchedule NonNegativeQuantitySchedule (0..1) <"Initial quantity specified as an absolute number as part of a quantity step schedule, and (possibly) with some unit, such as the currency in the case of a notional.">
+	quantitySchedule NonNegativeQuantitySchedule (0..1) <"Quantity step schedule, including an initial quantity specified as an absolute number.">
 	assetIdentifier AssetIdentifier (0..1) <"Identifier for the asset being quantified.">
 		// For Swap Stream:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "notionalAmount", "notionalStepSchedule"]
@@ -348,6 +348,7 @@ type ResolvablePayoutQuantity: <" Generic class to specify the quantity for diff
 //	condition ResolvedQuantity: <"The resolved quantity must exist if the quantity is not specified elsewhere.">
 //		if quantityReference is absent and assetIdentifier is absent
 //		then resolvedQuantity -> amount exists
+
 
 type CrossCurrencyTerms:
 
@@ -953,6 +954,12 @@ type Payout: <" A class to represent the set of future cashflow methodologies in
 		if creditDefaultPayout -> generalTerms -> indexReferenceInformation is absent
 		then creditDefaultPayout -> transactedPrice -> marketFixedRate is absent
 			and creditDefaultPayout -> transactedPrice -> marketPrice is absent
+
+	condition NotionalReset: <"Notional reset only applies to return swaps, and therefore can only exist on an InterestRatePayout.">
+		creditDefaultPayout -> protectionTerms -> payoutQuantity -> reset is absent
+			and equityPayout -> payoutQuantity -> reset is absent
+			and optionPayout -> payoutQuantity -> reset is absent
+			and cashflow -> payoutQuantity -> reset is absent
 
 type Product: <" A class to represent a financial product. With respect to contractual products, this class specifies the pre-execution product characteristics (the ContractualProduct class). This class is used as underlying for the option exercise representation, which makes use of the contractualProduct attribute to support the swaption use case, with the exercise into a swap. In a complete workflow, the swaption contract itself then needs to be superseded by a swap contract underpinned by the exercised swap as a contractualProduct.">
 	[metadata key]
