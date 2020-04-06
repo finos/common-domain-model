@@ -1,16 +1,13 @@
-# *CDM Model: Legal Documents Modelling*
+# *Model Optimisation: Quantity Refactor*
 
 _What is being released_
 
-First phase of refactoring to support new legal documents modelling approach.
+Clean up tasks following the recent model quantity refactor:
 
-- Change to `LegalAgreement` to look for `ContractualTerms`.
-- Addition of `ContractualTerms` to define an `Agreement` and `RelatedAgreements`
-- Addition of `RelatedAgreements` for specification of related agreements terms
-- Rename `Documentation->RelatedAgreement` in `model-derivatives-shared` and update reference in `model-cdm-product`.
-- Addition of types to support Credit Support, Collateral Transfer and Security Agreements.
-- Modelling of clauses in Security Agreement and addition of synonyms.
+- Rename attribute `NonNegativeQuantitySchedule.quantity` to `NonNegativeQuantitySchedule.initialQuantity`.
+- Add FpML synonym mappings logic to populate `NonNegativeQuantitySchedule.initialQuantity` only when a quantity schedule exists.
+- Add attribute `ResolvablePayoutQuantity.resolvedQuantity` to be populated when the quantity is resolved (based on the aseet identifier).
 
 _Review Directions_
 
-In the Textual Browser, review `LegalAgreement` and related types. 
+In the Textual Browser, review types `NonNegativeQuantitySchedule` and `ResolvablePayoutQuantity`. 
