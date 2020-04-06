@@ -23,40 +23,80 @@ enum CreditRiskEnum:
 // below references collateral instrument types >>>
 
 enum CollateralProductTypeEnum:
-	Security <"Negotiable financial instrument of monetary value with an issue ownership position.">
-	Cash <"Cash in a currency form.">
-	MoneyMarketFunds <"Money Market Funds."> // TODO: should this be a sub-type of Cash or Equity? 
-	Physical <"Physical e.g. commoditites.">
-	Other <"Other Collateral Products."> // possible place holder to use for other collateral types such as land, machinery, property 
+	Security <"Negotiable financial instrument of monetary value with an issue ownership position">
+	Cash <"Cash in a currency form">
+	Commodity <"A basic good used in commerce that is interchangeable with other goods of the same type.">
+	Other <"Other Collateral Products"> // possible place holder to use for other collateral types such as land, machinery, property 
+	// MoneyMarketFunds <" Money Market Funds"> // Now specified under CollateralProductType.fundType.fundProductTypeEnum
 
 enum SecurityTypeEnum: 
-	Bond <"Fixed income instrument of debt issued and securitized as a tradable asset."> 
-	Equity <"Equity value of holding of shares in listed company.">
-	CertificateOfDeposit <"Agreed fixed maturity and interest rate deposit.">
+	Bond <"Security: Bonds - Fixed income instrument of debt issued and securitized as a tradable asset"> 
+	Equity <"Security: Equity value of holding of shares in listed company">
+	Fund <"Security: Fund – Instrument representing holding in an investment fund.">
+	Warrant <"Security: Warrant - a security that give the right, but not the obligation, to buy or sell a security — most commonly an equity — at a certain price before expiration, or to receive the cash 			equivalent.">
+	Certificate <"Security: Certificates – a security that offers a derivative-based economic return which is not structured as a bond, an equity or a warrant."> // (Not Certificates of Deposit)
+	// CertificateOfDeposit <"Security: Certificate of Deposit- Agreed fixed maturity and interest rate deposit"> All References to CDs removed from model
 
 enum BondTypeEnum:
-	CoveredBonds <"Secured Bond backed by a separate entity or group of assets to cover exposure in the event of insolvency."> 
-	ConvertibleBond <"Bond that can be converted into a set of common shares or equities."> 
-	MortgageBackedSecurity <"Asset secured by collection of mortgage loans."> 
-	AssetBacked <"A security which income payments and value derived from or backed by a specified pool of underlying assets."> 
-	TreasuryBonds <"Government issued Fixed income instrument of debt issued and securitized as a tradable asset.">
-	MunicipalBonds <"Municipal Bonds.">
-	RMBS <"Residential Mortgage Backed Security.">
-	CMBS <"Commerical Mortgage Backed Security.">
+	Vanilla <"Bond: A bond with a fixed coupon and a defined maturity and is usually issued and redeemed at the face value.">
+	RegCap <"Bond: A security issued by financial institutions to count towards regulatory capital, including term and perpetual subordinated debt, contingently convertible and others.  Excludes preferred share 	capital.">
+	Structured <"Bond: Structured – A bond with non-standard interest or principal features, with full recourse to the issuer.">
+	AssetBacked <"Security: Asset Backed (ABS) A security which income payments and value derived from or backed by a specified pool of underlying assets"> 
+	// TODO: other (non-exhaustive) criteria e.g. by asset class (RMBS, CMBS, CLO, by regional risk focus, by guarantor (e.g. Ginnie Mae)). Can the existing FpML framework be leveraged.  See type MortgageBackedSecurity
+
+
+// Now referenced in taxonomy through combination of Issuer and Product classfication
+	// CoveredBonds <"Security: Secured Bond backed by a separate entity or group of assets to cover exposure in the event of insolvency."> 
+	// ConvertibleBond <"Security: Bond that can be converted into a set of common shares or equities"> 
+	// MortgageBackedSecurity <"Security: Asset secured by collection of mortgage loans"> 
+	// TreasuryBonds <"Security: Treasury Bonds- Government issued Fixed income instrument of debt issued and securitized as a tradable asset"> // Do we need  sub list with potential to include (Treasury G20 /G7/ EUzone/ G10) ?
+	// MunicipalBonds <"Security: Municipal Bonds"> // possible duplication under regional govt
 
 enum EquityTypeEnum:
-	Common <"Common stocks and shares.">
-	NonConvertiblePreference <"Shares which hold priority to receive capital return in event of issuer liquidation.">
-	ConvertibleCommon <"Preference stock that can be converted by the election of the holder into common shares.">
-	DepositoryReceipts <"Certificate to represent a share holding in a foreign listed company.">
-	RightsIssue <"Dividend of subscription right to additional shares in a company to existing holders.">
-	Warrants <"Options on shares issued by issuer allowing holder to purchase a specified allocation of shares at determined price and time.">
-	ExchangeTradedFund <"Investment fund traded on a stock exchange."> 
-	MutualFund <"Mutual Fund.">
-	FreelyTransferableMutualFund <"Freely Transferable Mutual Fund."> 
+	Ordinary <"Equity type: Common stocks and shares">
+	NonConvertiblePreference <"Equity type: Non-Convertible Preference, Shares which hold priority to receive capital return in event of issuer liquidation">
+	Convertible <"Equity type: Convertible, debt securities that can be converted into common shares">
+	IssuerConvertible <"Equity type: Convertible, debt securities that can be converted at the election of the Issuer into common shares of the Issuer.  Also known as reverse convertible.">
+	HolderConvertible <"Equity type: Convertible, debt securities that can be converted primarily at the election of the holder into common shares of the Issuer">
+	IssuerExchangeable <"Equity type: Convertible, debt securities that can be converted at the election of the Issuer into common shares of a party other than the Issuer.  Also known as reverse exchangeable ">
+	HolderExchangeable <"Equity type: Convertible, debt securities that can be converted primarily at the election of the holder into common shares of a party other than the Issuer">
+// Now referenced in taxonomy through combination of Issuer and Product classfication
+	// ConvertibleExchangeable <"Equity type: Convertible Common, preference stock that can be converted by the election of the holder into common shares">
+	// DepositoryReceipts <"Equity type: Depository Receipts – certificate to represent a share holding in a foreign listed company">
+	// Rightsissue <"Equity type: Rights issue dividend of subscription right to additional shares in a company to existing holders">
+	// Warrants <"Equity type: Warrants –options on shares issued by issuer allowing holder to purchase a specified allocation of shares at determined price and time">
+	// ExchangeTradedFund <"Equity type: Exchange Traded Fund- Investment fund traded on a stock exchange"> 
+	// MutualFund <"Equity type: Mutual Fund"> // see notation below
+	// FreelyTransferableMutualFund <"Equity type:  Freely Transferable Mutual Fund"> 
+
+enum BondSeniorityEnum:
+	Secured <"Security: Bond Economics Seniority: Debt which is secured over assets of the issuer or a related party (eg guarantor).">
+	Senior <"Security: Bond Economics Seniority: Debt which ranks pari passu with all other unsecured creditors of the issuer.">
+	Subordinated <"Security: Bond Economics Seniority: a debt owed to an unsecured creditor that in the event of a liquidation can only be paid after the claims of secured and senior creditors have been met.">
+
+enum BondInterestEnum:
+	Fixed <"Security: Bond Economics Interest: Calculated with reference to a fixed interest rate.">
+	Floating <"Security: Bond Economics Interest: Calculated with reference to a floating interest rate.">
+	InflationLinked <"Security: Bond Economics Interest: Calculated with reference to one or more specified inflation rates.">
+	IndexLinked <"Security: Bond Economics Interest: Calculated with reference to one or more price or other indices (other than inflation rates).">
+	OtherStructured  <"Security: Bond Economics Interest: Calculated with reference to other underlyings (not being floating interest rates, inflation rates or indices) or with a non-linear relationship to 				floating interest rates, inflation rates or indices.">
+
+enum BondPrincipalEnum:
+	Bullet <"Security: Bond Economics Principal: The principal is paid all at once on maturity of the bond. Bullet bonds cannot be redeemed early by an issuer, which means they are non-callable.">
+	Callable <"Security: Bond Economics Principal: The principal on the debt can be repaid early, in whole or in part, at the option of the Issuer.">
+	Puttable <"Security: Bond Economics Principal: The principal on the debt can be repaid early, in whole or in part, at the option of the holder.">
+	Amortising <"Security: Bond Economics Principal: The principal on the debt is paid down regularly, along with its interest expense over the life of the bond.  Includes amortising bonds with a bullet balance 		repayment at maturity.">
+	InflationLinked <"Security: Bond Economics Principal: The principal on the debt is calculated with reference to one or more specified inflation rates.">
+	IndexLinked <"Security: Bond Economics Principal: The principal on the debt is calculated with reference to one or more price or other indices (other than inflation rates).">
+	OtherStructured <"Security: Bond Economics Principal: The principal on the debt is calculated with reference to other underlyings (not being floating interest rates, inflation rates or indices) or with a 				non-linear relationship to floating interest rates, inflation rates or indices.">
+
+enum FundProductTypeEnum:
+	MoneyMarketFund <"Equity: Fund type: Money Market Fund – A fund that invests only in highly liquid near-term instruments such as cash, cash equivalent securities, and high credit rating debt-based 						securities with a short-term, maturity">
+	ExchangeTradedFund <"Equity: Fund type: Exchange Traded Fund- Investment fund traded on a stock exchange">
+	OtherFund <"Equity: Fund type: A fund which  is not an Exchange Traded Fund or a Money Market Fund.">
+	// TODO: other (non-exhaustive) criteria e.g. UCITS, Mutual funds, Hedge funds, Private Equity)
 
 
-// other eligible collateral enums >>>
 
 enum CreditNotationMismatchResolutionEnum: <"If several agency issue ratings but not equivalent, reference will be made to the lowest/highest available.">
 	Lowest
