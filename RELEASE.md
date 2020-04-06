@@ -1,13 +1,16 @@
-# *CDM Model: IM CSA New York Law 2018 Modelling*
+# *CDM Model: Legal Documents Modelling*
 
 _What is being released_
 
-IM CSA New York Law 2018 document modelled and synonyms added to map to ISDA Create negotiation data.
+First phase of refactoring to support new legal documents modelling approach.
 
-CSA document model refactored to better support combination of 2016 and 2018 IM documents.
+- Change to `LegalAgreement` to look for `ContractualTerms`.
+- Addition of `ContractualTerms` to define an `Agreement` and `RelatedAgreements`
+- Addition of `RelatedAgreements` for specification of related agreements terms
+- Rename `Documentation->RelatedAgreement` in `model-derivatives-shared` and update reference in `model-cdm-product`.
+- Addition of types to support Credit Support, Collateral Transfer and Security Agreements.
+- Modelling of clauses in Security Agreement and addition of synonyms.
 
 _Review Directions_
 
-In the Ingestion Panel, try samples in folder:
-
-- `isda-create > im-csd-ny-law-2018`
+In the Textual Browser, review `LegalAgreement` and related types. 

@@ -15,9 +15,9 @@ import org.junit.jupiter.api.Test;
 
 import com.google.inject.Inject;
 
-import cdm.base.maths.Quantity;
-import cdm.base.maths.UnitEnum;
-import cdm.base.maths.functions.Sum;
+import cdm.base.math.Quantity;
+import cdm.base.math.UnitEnum;
+import cdm.base.math.functions.Sum;
 
 class SumTest extends AbstractFunctionTest {
 

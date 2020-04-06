@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.function.BiFunction;
 
-import cdm.base.maths.CompareOp;
-import cdm.base.maths.functions.ListsCompare;
+import cdm.base.math.CompareOp;
+import cdm.base.math.functions.ListsCompare;
 
 public class ListsCompareImpl extends ListsCompare {
 

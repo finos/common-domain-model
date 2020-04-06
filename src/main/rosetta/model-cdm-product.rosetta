@@ -2,11 +2,11 @@ namespace org.isda.cdm
 version "${project.version}"
 
 import cdm.base.*
-import cdm.base.maths.*
+import cdm.base.math.*
 import cdm.base.datetime.*
 import cdm.base.staticdata.identifier.*
 import cdm.base.staticdata.asset.rates.*
-import cdm.base.staticdata.asset.commons.*
+import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.party.*
 
 
@@ -87,7 +87,7 @@ type Contract: <" A class to specify a financial contract object, which can be i
 	collateral Collateral (0..1) <"Defines the collateral obligations of a party.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "collateral" path "trade"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "collateral"]
-	documentation Documentation (0..1) <"Specifies the document(s) that govern the document, either as a reference to such documents when specified as part of the CDM, or through identification of some of the key terms of those documents, such as the type of document, the document identifier, the publisher, the document vintage and the agreement date.">
+	documentation RelatedAgreement (0..1) <"Specifies the document(s) that govern the document, either as a reference to such documents when specified as part of the CDM, or through identification of some of the key terms of those documents, such as the type of document, the document identifier, the publisher, the document vintage and the agreement date.">
 	governingLaw GoverningLawEnum (0..1) <"Identification of the law governing the contract.">
 		[metadata scheme]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "governingLaw" path "trade" meta "governingLawScheme"]
@@ -306,10 +306,11 @@ type ContractualProduct: <" A class to specify the contractual products' economi
 
 type FixedRateSpecification extends RateSpecificationBase: <"Type defining the specification for a fixed rate.">
 	[metadata key]
-	[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "Schedule" meta "id"]
-
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 meta "id" path "fixedRate"]
+	
 	rateSchedule Schedule (0..1) <"The fixed rate or fixed rate schedule expressed as explicit fixed rates and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">
-
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "fixedRateSchedule"]
+	
 	condition CurrencyAssetIdentifier: <"The asset identifier for a fixed interest rate must be a currency.">
 		assetIdentifier -> currency only exists
 
@@ -1026,7 +1027,6 @@ type Product: <" A class to represent a financial product. With respect to contr
 
 type TradableProduct: <"Definition of a product as ready to be traded, i.e. included in an execution or contract, by associating a specific price and quantity to this product plus an (optional) mechanism for any potential future quantity adjustment.">
 	product Product (1..1) <"The underlying product to be included in a contract or execution.">
-	// TODO: Make quantity and price notations non optional, once migration complete
 	quantityNotation QuantityNotation (1..*) <"Quantity of the underlying product to be included in a contract or execution. Products, including contractual products, are defined as a unit in CDM, with quantity schedule and cross-referencing mechanisms handled as part of the underlying payout legs, so that the overall quantity can be abstracted away from the product definition. Multiple quantity notations can be specified, as in the case of cross-currency products. Each quantity notation includes a tag (e.g. asset identifier) that can referenced by the underlying payout legs to resolve that product by fetching the actual amount from the appropriate quantity notation. The synonym paths to FpML will tend to be quite deep, as we need to extact those values from where they are embedded within the product definition.">
 		// For Equity Swap:
 		[synonym FpML_5_10 value "notional" path "returnSwap->returnLeg", "notional" path "equitySwapTransactionSupplement->returnLeg"]
@@ -1055,7 +1055,7 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
 		[synonym FpML_5_10 value "nearLeg" path "repo"]
 		// For Bond Option:
 		[synonym FpML_5_10 value "notionalAmount" path "bondOption"]
-	priceNotation PriceNotation (0..*) <"Price of the underlying product to be included in a contract or execution. Contractual products are defined as price-less in the CDM, with the actual price number(s) abstracted away from the product definition. Multiple price notations can be specified and the notation specifies the tags (e.g. asset identifier) allowing price to be then appropriately positioned in the contractual product. The synonym paths to FpML will tend to be quite deep, as we are extacting those values from where they are embedded within the product definition.">
+	priceNotation PriceNotation (1..*) <"Price of the underlying product to be included in a contract or execution. Contractual products are defined as price-less in the CDM, with the actual price number(s) abstracted away from the product definition. Multiple price notations can be specified and the notation specifies the tags (e.g. asset identifier) allowing price to be then appropriately positioned in the contractual product. The synonym paths to FpML will tend to be quite deep, as we are extacting those values from where they are embedded within the product definition.">
 		// For Swap Streams:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "swapStream" path "swap"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "additionalPayment" path "swap"]
@@ -1189,7 +1189,7 @@ type PriceNotation: <"Object to specify the price of a product as a single numbe
 		then assetIdentifier -> currency only exists
 
 	condition RateOptionAssetIdentifier: <"The asset identifier for an interest rate spread must be a rate option.">
-		if price -> interestRateSpread exists
+		if price -> floatingInterestRate exists
 		then assetIdentifier -> rateOption only exists
 
 
@@ -1199,7 +1199,7 @@ type PriceNotation: <"Object to specify the price of a product as a single numbe
 type RateSpecificationBase:
 	assetIdentifier AssetIdentifier (0..1)
 		// For fixedRate:
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "notionalStepSchedule" path "notionalSchedule"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "notionalStepSchedule" path "notionalSchedule" set when "fixedRateSchedule" exists]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 hint "currency"]
 		// For floatingRate:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 hint "floatingRateIndex"]
@@ -1210,9 +1210,9 @@ type RateSpecification: <" A class to specify the fixed interest rate, floating 
 
 	fixedRate FixedRateSpecification (0..1) <"The fixed rate or fixed rate specification expressed as explicit fixed rates and dates.">
 		// For Swap Streams etc
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "calculation" path "calculationPeriodAmount" set when "calculationPeriodAmount->calculation->fixedRateSchedule" exists]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "calculation" path "calculationPeriodAmount"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "calculationAmount" path "periodicPayment->fixedAmountCalculation"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "fixedRate" path "periodicPayment->fixedAmountCalculation"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "fixedAmountCalculation" path "periodicPayment"]
 		// For FRA
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "notional"]
 	floatingRate FloatingRateSpecification (0..1) <"The floating interest rate specification, which includes the definition of the floating rate index. the tenor, the initial value, and, when applicable, the spread, the rounding convention, the averaging method and the negative interest rate treatment.">

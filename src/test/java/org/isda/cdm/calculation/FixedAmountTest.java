@@ -26,7 +26,7 @@ import cdm.base.datetime.BusinessDayAdjustments;
 import cdm.base.datetime.BusinessDayConventionEnum;
 import cdm.base.datetime.PeriodExtendedEnum;
 import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
-import cdm.base.maths.NonNegativeQuantity;
+import cdm.base.math.NonNegativeQuantity;
 
 class FixedAmountTest extends AbstractFunctionTest {
 

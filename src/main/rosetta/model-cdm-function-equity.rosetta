@@ -1,9 +1,9 @@
 namespace org.isda.cdm
 version "${project.version}"
 
-import cdm.base.maths.*
+import cdm.base.math.*
 import cdm.base.datetime.*
-import cdm.base.staticdata.asset.commons.*
+import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.party.*
 
 /*
@@ -297,57 +297,33 @@ func ResolveEquityInitialPrice:
 		initialPrice CashPrice (1..1)
 
 
-func SplitStock:
+func StockSplit: <"Function specification to create the fully-formed business event which represents the impact of a stock split (or a reverse stock split) on an Equity Derivatives contract on a certain date.  The function uses the defined adjustmentRatio to adjust the quantity and price as represented in two business events: QuantityChange and termsChange. ">
 	inputs:
 		instruction StockSplitInstruction (1..1)
 
 	output:
 		businessEvent BusinessEvent (1..1)
 
-	alias adjustedNumberOfSecurities: <"Calculate adjusted number of securities based on adjustmentRatio.">
-		AdjustedNumberOfSecurities( instruction -> trade -> contract -> tradableProduct -> quantityNotation, instruction -> adjustmentRatio )
+	alias preSplitNumberOfShares:
+		NoOfUnits( instruction -> trade -> contract -> tradableProduct -> quantityNotation )
 
-	alias adjustedCashPrice: <"Calculate adjusted price based on adjustmentRatio.">
-		AdjustedCashPrice( instruction -> trade -> contract -> tradableProduct -> priceNotation, instruction -> adjustmentRatio )
+	alias postSplitNumberOfShares: <"The adjustment ratio is be multiplied by existing shares in an equity derivative contract or other positions to determine the post-split number of shares.">
+		preSplitNumberOfShares * instruction -> adjustmentRatio
+
+	alias preSplitPrices:
+		instruction -> trade -> contract -> tradableProduct -> priceNotation -> price -> cashPrice -> netPrice -> amount
+
+	alias postSplitPrice: <"The pre-split price is be divided by the adjustment ratio to determine the post-split price.">
+		preSplitPrices only-element / instruction -> adjustmentRatio
 
 	condition:
 		instruction -> trade -> contract exists
 
 	assign-output businessEvent -> primitives -> quantityChange: <"Build QuantityChangePrimitive and add to WorkflowStep.">
-		NewQuantityChangePrimitive( instruction -> trade, empty, adjustedNumberOfSecurities )
+		NewQuantityChangePrimitive( instruction -> trade, empty, postSplitNumberOfShares )
 
 	assign-output businessEvent -> primitives -> termsChange: <"Build TermsChangePrimitive (for price) and add to WorkflowStep.">
-		NewPriceChangePrimitive( instruction -> trade, adjustedCashPrice )
-
-
-func AdjustedNumberOfSecurities:
-	inputs:
-		quantityNotation QuantityNotation (1..*)
-		adjustmentRatio number (1..1)
-
-	output:
-		result number (1..1)
-
-	assign-output result:
-		NoOfUnits( quantityNotation ) * adjustmentRatio
-
-
-func AdjustedCashPrice:
-	inputs:
-		priceNotation PriceNotation (1..*)
-		adjustmentRatio number (1..1)
-
-	output:
-		result number (1..1)
-
-	alias cashPrices:
-		priceNotation -> price -> cashPrice -> netPrice -> amount
-
-	alias cashPrice:
-		cashPrices only-element
-	
-	assign-output result:
-		cashPrice / adjustmentRatio
+		NewPriceChangePrimitive( instruction -> trade, postSplitPrice )
 
 
 // MdM comments: this is the Dividend Cash Settlement Amount as defined in the SES1 legal document.  The cash dividend will be paid on the relevant DividendDateReferenceEnum. I did not include a function to monitor when the dividends are declared (i.e a dividend observation).
