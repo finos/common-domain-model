@@ -7,6 +7,7 @@ Clean up tasks following the recent model quantity refactor:
 - Rename attribute `NonNegativeQuantitySchedule.quantity` to `NonNegativeQuantitySchedule.initialQuantity`.
 - Add FpML synonym mappings logic to populate `NonNegativeQuantitySchedule.initialQuantity` only when a quantity schedule exists.
 - Add attribute `ResolvablePayoutQuantity.resolvedQuantity` to be populated when the quantity is resolved (based on the aseet identifier).
+- Add conditions to type `TradableProduct` - `NotionalReset`, `NotionalAdjustment`, `InterestRatePayoutResolvable`, `EquityPayoutResolvable`, `CreditDefaultPayoutResolvable`, `CashflowResolvable` and `BondQuantityResolvable`. 
 
 _Review Directions_
 
