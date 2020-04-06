@@ -1,16 +1,14 @@
-# *CDM Model: Legal Documents Modelling*
+# *CDM Model: Currency Enum*
 
 _What is being released_
 
-First phase of refactoring to support new legal documents modelling approach.
+Adding two currency code enumerated sets to the file base-staticdata-asset-commons-enum:
+ - enum ISOCurrencyCodeEnum
+ - enum CurrencyCodeEnum extends ISOCurrencyCodeEnum
 
-- Change to `LegalAgreement` to look for `ContractualTerms`.
-- Addition of `ContractualTerms` to define an `Agreement` and `RelatedAgreements`
-- Addition of `RelatedAgreements` for specification of related agreements terms
-- Rename `Documentation->RelatedAgreement` in `model-derivatives-shared` and update reference in `model-cdm-product`.
-- Addition of types to support Credit Support, Collateral Transfer and Security Agreements.
-- Modelling of clauses in Security Agreement and addition of synonyms.
+The `CurrencyCodeEnum` will be used in place of string as the date type for all currency fields. The work of updating the data type will be completed in one or more subsequent releases.
+The new `CurrencyCodeEnum` is materialized version of the `FpML` external scheme for currency codes and includes an applicable synonym.
 
 _Review Directions_
 
-In the Textual Browser, review `LegalAgreement` and related types. 
+In the Textual Browser, review `ISOCurrencyCodeEnum` and `CurrencyCodeEnum`. 
