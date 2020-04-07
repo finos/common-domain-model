@@ -153,9 +153,6 @@ func UndisputedAdjustedPostedCreditSupportAmount:
 
 	alias adjustedPostedCreditSupportAmount:
 		totalPostedCreditSupportAmount -> amount + priorDeliveryAmountAdjustment -> amount - priorReturnAmountAdjustment -> amount
-
-	alias undisputedAdjustedPostedCreditSupportAmount:
-		adjustedPostedCreditSupportAmount - disputedTransferredPostedCreditSupportAmount -> amount
 	
 	condition:
 		( baseCurrency = priorDeliveryAmountAdjustment -> currency )
@@ -163,13 +160,13 @@ func UndisputedAdjustedPostedCreditSupportAmount:
 		and ( baseCurrency = disputedTransferredPostedCreditSupportAmount -> currency )
 	
 	assign-output result -> amount:
-		undisputedAdjustedPostedCreditSupportAmount
+		adjustedPostedCreditSupportAmount - disputedTransferredPostedCreditSupportAmount -> amount
 	
 	assign-output result -> currency:
 		baseCurrency
 
 
-func SumPostedCreditSupportItemAmounts:
+func SumPostedCreditSupportItemAmounts: <"Loops through each PostedCreditSupportItem, calculating the PostedCreditSupportItemAmount (by executing func PostedCreditSupportItemAmount), and summing the result.  Currently loops are not supported in the syntax so the loop must be implemented in code.">
 	[calculation]
 
 	inputs:
@@ -202,15 +199,12 @@ func PostedCreditSupportItemAmount: <"Calculates the Value for the given Posted 
 	alias postedCreditSupportAmount:
 		cashOrSecurityValue * ( valuationPercentage - fxHaircutPercentage ) / 100.0
 
-	alias undisputedPostedCreditSupportAmount:
-		postedCreditSupportAmount - item -> disputedCashOrSecurityValue -> amount
-
 	condition:
 		( baseCurrency = item -> cashOrSecurityValue -> currency ) 
 		and ( baseCurrency = item -> disputedCashOrSecurityValue -> currency )
 
 	assign-output result -> amount:
-		undisputedPostedCreditSupportAmount
+		postedCreditSupportAmount - item -> disputedCashOrSecurityValue -> amount
 
 	assign-output result -> currency:
 		baseCurrency
