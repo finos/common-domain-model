@@ -48,6 +48,10 @@ type Cashflow extends PayoutBase: <"Class to specify a cashflow, i.e. the outcom
 	condition CashflowAmount: <"The cashflow amount should be a positive number, as the cashflow direction is indeed implied by the payer/receiver attribute.">
 		if cashflowAmount exists
 		then cashflowAmount -> amount >= 0.0
+	
+	condition QuantityAssetIdentifier:
+		if payoutQuantity -> assetIdentifier exists
+		then payoutQuantity -> assetIdentifier -> currency exists
 
 /*
  * TODO - Follow-up to evaluate an alternative approach consisting in referencing those data points rather than specifying them.
@@ -344,10 +348,9 @@ type ResolvablePayoutQuantity: <"Generic class to specify the quantity for diffe
 		if quantityMultiplier exists
 		then ResolvablePayoutQuantity -> quantityReference -> reference exists
 
-	// TODO: "is absent" evaluate to true when reference actually exists
-//	condition ResolvedQuantity: <"The resolved quantity must exist if the quantity is not specified elsewhere.">
-//		if quantityReference is absent and assetIdentifier is absent
-//		then resolvedQuantity -> amount exists
+	condition ResolvedQuantity: <"The resolved quantity must exist if the quantity is not specified elsewhere.">
+		if ResolvablePayoutQuantity -> quantityReference -> reference is absent and assetIdentifier is absent
+		then resolvedQuantity -> amount exists
 
 
 type CrossCurrencyTerms:
@@ -1089,12 +1092,15 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
 			and quantityNotation -> assetIdentifier contains product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> payoutQuantity -> assetIdentifier
 
 	condition CashflowQuantityResolvable:
-		if product -> contractualProduct -> economicTerms -> payout -> cashflow -> payoutQuantity -> assetIdentifier exists
-		then quantityNotation -> assetIdentifier exists
-			and ( quantityNotation -> assetIdentifier contains product -> contractualProduct -> economicTerms -> payout -> cashflow -> payoutQuantity -> assetIdentifier
-				or priceNotation -> assetIdentifier contains product -> contractualProduct -> economicTerms -> payout -> cashflow -> payoutQuantity -> assetIdentifier )
+		if product -> contractualProduct -> economicTerms -> payout -> cashflow -> payoutQuantity -> assetIdentifier -> currency exists
+		then 
+			( quantityNotation -> assetIdentifier exists 
+				and quantityNotation -> assetIdentifier contains product -> contractualProduct -> economicTerms -> payout -> cashflow -> payoutQuantity -> assetIdentifier )
+			or 
+			( priceNotation -> price -> cashPrice -> cashflowAmount -> currency exists 
+				and product -> contractualProduct -> economicTerms -> payout -> cashflow -> payoutQuantity -> assetIdentifier -> currency = priceNotation -> price -> cashPrice -> cashflowAmount -> currency )
 
-	condition BondQuantityResolvable:
+	condition SecurityQuantityResolvable:
 		if product -> security -> bond -> productIdentifier exists
 		then quantityNotation -> assetIdentifier -> productIdentifier exists
 			and quantityNotation -> assetIdentifier -> productIdentifier contains product -> security -> bond -> productIdentifier
