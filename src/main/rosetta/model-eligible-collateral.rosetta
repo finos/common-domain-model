@@ -20,10 +20,10 @@ type AgencyRatingCriteria: <"A class to specify multiple credit notations alongs
 		if AgencyRatingCriteria -> mismatchResolution = CreditNotationMismatchResolutionEnum -> ReferenceAgency
 		then AgencyRatingCriteria -> referenceAgency exists
 
-type CollateralIssuerType:
-	issuerType IssuerTypeEnum (1..1)
-	supraNationalType SupraNationalIssuerTypeEnum (0..1)
-	quasiGovernmentType QuasiGovernmentIssuerType (0..1) <"Government or quasi-government entity.">
+type CollateralIssuerType: <"A class to allow specification of the type of entity issuing the collateral.">
+	issuerType IssuerTypeEnum (1..1) <"Origin of entity issuing the collateral.">
+	supraNationalType SupraNationalIssuerTypeEnum (0..1) <"Debt issued by international organisations and multilateral banks.">
+	quasiGovernmentType QuasiGovernmentIssuerType (0..1) <"Debt issues by institutions or bodies, typically constituted by statute, with a function mandated by the government and subject to government supervision inclusive of profit- and non-profit making bodies. Includes the US Agencies and GSEs and the EU concept of public sector entities. Excluding any entities which are also Regional Government">
 	regionalGovernmentType RegionalGovernmentIssuerType (0..1) <"Regional government, local authority or municipal.">
 	specialPurposeVehicleType SpecialPurposeVehicleIssuerType (0..1)
 	// fundType FundIssuerType (0..1) // NO LONGER REQUIRED - specified fund country of origin which now sits under ProductCriteria.productCountryOfOrigin
@@ -48,8 +48,8 @@ type CollateralIssuerType:
 	// 	if issuerType <> IssuerTypeEnum -> Fund
 	// 	then fundType is absent
 
-type QuasiGovernmentIssuerType: <"Government or quasi-government entities.">
-	sovereignEntity boolean (1..1) <"True if sovereign entity (e.g. not separate legal personality from sovereign) or false if non-sovereign entity (e.g. separate legal personality from sovereign)."> // sovereignEntity: US Treasury, GILTs, Bank of England. nonSovereignEntity: Ginnie Mae
+type QuasiGovernmentIssuerType: <"A class to allow specification of different types of Quasi Government collateral.">
+	sovereignEntity boolean (1..1) <"True if sovereign entity (e.g. not separate legal personality from sovereign) or false if non-sovereign entity (e.g. separate legal personality from sovereign).">
 	sovereignRecourse boolean (0..1) <"Applies to non-sovereign entity (e.g. separate legal personality from sovereign).  True if entity has recourse to sovereign (e.g. debt guaranteed by government).  False if entity does not have recourse to sovereign.">
 	// Eligible sovereigns specified by IssuerCriteria.issuerCountryOfOrigin
 	// Eligible issuers specified by IssuerCriteria.issuerName
@@ -58,13 +58,13 @@ type QuasiGovernmentIssuerType: <"Government or quasi-government entities.">
 	condition NonSovereignEntityRecourse:
 		if sovereignRecourse exists then sovereignEntity = False
 
-type RegionalGovernmentIssuerType: <"Regional government, local authority or municipal.">
+type RegionalGovernmentIssuerType: <"A class to allow specification of different type of Regional government collateral.">
 	sovereignRecourse boolean (1..1) <"Applies to regional governments, local authorities or municipals.  True if entity has recourse to sovereign (e.g. debt guaranteed by government).  False if entity does not have recourse to sovereign.">
 	// Eligible sovereigns specified by IssuerCriteria.issuerCountryOfOrigin
 	// Eligible issuers specified by IssuerCriteria.issuerName
 	// TODO: other (non-exhaustive) criteria e.g. US municipals, Canadian provinces, German Lander
 
-type SpecialPurposeVehicleIssuerType: <"A special purpose vehicle (SPV), also called a special purpose entity (SPE), is a subsidiary created by a parent company to isolate financial risk. Its legal status as a separate company makes its obligations secure even if the parent company goes bankrupt.">
+type SpecialPurposeVehicleIssuerType: <"A class to allow specification of different types of special purpose vehicle (SPV) collateral.">
 	creditRisk CreditRiskEnum (0..1) <"Tranched or untranched credit risk."> // Not required?  If tranched credit risk then specified ProductCriteria.agencyRating. 
 	// Eligible jurisdictions of incorporation is specified by IssuerCriteria.issuerCountryOfOrigin
 	// TODO: other (non-exhaustive) criteria e.g. by asset class (RMBS, CMBS, CLO, by regional risk focus, by guarantor (e.g. Ginnie Mae)). Can the existing FpML framework be leveraged.  See type MortgageBackedSecurity
@@ -75,12 +75,12 @@ type SpecialPurposeVehicleIssuerType: <"A special purpose vehicle (SPV), also ca
 // NOW Captured under ProductCriteria.productCountryOfOrigin
 	// exchangeTraded is specified by EquityTypeEnum.ExchangeTradedFund
 
-type CollateralProductType:
-	productType CollateralProductTypeEnum (1..1)
-	securityType SecurityTypeEnum (0..1) 
-	bondType BondType (0..1)
-	equityType EquityTypeEnum (0..1)
-	fundType FundProductTypeEnum (0..1)
+type CollateralProductType: <"A class to allow specification of the asset product type.">
+	productType CollateralProductTypeEnum (1..1) <"The type of collateral product.">
+	securityType SecurityTypeEnum (0..1) <"Filter based on the type of security.">
+	bondType BondType (0..1) <"Filter based on the type of bond."> 
+	equityType EquityTypeEnum (0..1) <"Filter based on the type of equity.">
+	fundType FundProductTypeEnum (0..1) <"Filter based on the type of fund.">
 	// productCountryOfOrigin string (0..*) <"Filter based on the issuing entity country of origin."> // Now sits under ProductCriteria, consistent with IssuerCriteria
 	// 	[metadata scheme]
 
@@ -136,8 +136,8 @@ type ProductCriteria: <"Criteria used to specify eligible collateral assets.">
 	sinkable boolean (0..1) <"Filter based on whether underlying security is sinkable."> // IS THIS REQUIRED - ISDA feedback is that this should be removed
 //	indexLinked boolean (0..1) <"Filter based on whether underlying security is index linked."> NO LONGER REQUIRED - Captured under BondType.bondEconomics
 
-type BondType: <"Specification of the characteristics of the bond">
-	bondType BondTypeEnum (0..1) <"Specification of the type of bond">
+type BondType: <"Specification of the type of bond">
+	bondCharacteristics BondCharacteristicsEnum (0..1) <"Specification of the characteristics of bond">
 	bondEconomics BondEconomics (0..*) <"Specification of the financial terms of the bond">
 
 type BondEconomics: <"Specification of the economics of the bond">
