@@ -1,14 +1,16 @@
-# *CDM Model: Currency Enum*
+# *Model Optimisation: Quantity Refactor*
 
 _What is being released_
 
-Adding two currency code enumerated sets to the file base-staticdata-asset-commons-enum:
- - enum `ISOCurrencyCodeEnum`
- - enum `CurrencyCodeEnum` extends `ISOCurrencyCodeEnum`
+Clean up tasks following the recent model quantity refactor:
 
-The `CurrencyCodeEnum` will be used in place of string as the date type for all currency fields. The work of updating the data type will be completed in one or more subsequent releases.
-The new `CurrencyCodeEnum` is materialized version of the `FpML` external scheme for currency codes and includes an applicable synonym.
+- Rename attribute `NonNegativeQuantitySchedule.quantity` to `NonNegativeQuantitySchedule.initialQuantity`.
+- Add FpML synonym mappings logic to populate `NonNegativeQuantitySchedule.initialQuantity` only when a quantity schedule exists.
+- Add attribute `ResolvablePayoutQuantity.resolvedQuantity` to be populated when the quantity is resolved (based on the aseet identifier).
+- Add conditions to type `TradableProduct` -  `NotionalAdjustment`, `InterestRatePayoutQuantityResolvable`, `EquityPayoutQuantityResolvable`, `CreditDefaultPayoutQuantityResolvable`, `CashflowQuantityResolvable` and `SecurityQuantityResolvable`.
+- Add conditions to type `Payout` - `NotionalResetOnEquityPayout` and `NotionalResetInterestRatePayoutExists`.
+- Add condition to type `ResolvablePayoutQuantity` - `ResolvedQuantity`.
 
 _Review Directions_
 
-In the Textual Browser, review `ISOCurrencyCodeEnum` and `CurrencyCodeEnum`. 
+In the Textual Browser, review type `ResolvablePayoutQuantity`. 

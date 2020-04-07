@@ -48,6 +48,10 @@ type Cashflow extends PayoutBase: <"Class to specify a cashflow, i.e. the outcom
 	condition CashflowAmount: <"The cashflow amount should be a positive number, as the cashflow direction is indeed implied by the payer/receiver attribute.">
 		if cashflowAmount exists
 		then cashflowAmount -> amount >= 0.0
+	
+	condition QuantityAssetIdentifier:
+		if payoutQuantity -> assetIdentifier exists
+		then payoutQuantity -> assetIdentifier -> currency exists
 
 /*
  * TODO - Follow-up to evaluate an alternative approach consisting in referencing those data points rather than specifying them.
@@ -107,22 +111,7 @@ type Contract: <" A class to specify a financial contract object, which can be i
 		[synonym CME_ClearedConfirm_1_17 value "partyTradeInformation" path "trade->tradeHeader"]
 	closedState ClosedState (0..1) <"The qualification of what led to the contract closure alongside with the dates on which this closure took effect.">
 		[synonym Workflow_Event value "closedState" path "trade"]
-
-	condition InterestRatePayoutResolvable:
-		if tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity -> assetIdentifier exists
-		then tradableProduct -> quantityNotation -> assetIdentifier exists
-			and tradableProduct -> quantityNotation -> assetIdentifier contains tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity -> assetIdentifier
-
-	condition EquityPayoutResolvable:
-		if tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> assetIdentifier exists
-		then tradableProduct -> quantityNotation -> assetIdentifier exists
-			and tradableProduct -> quantityNotation -> assetIdentifier contains tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> assetIdentifier
-
-//	condition CashflowResolvable:
-//		if contractualProduct -> economicTerms -> payout -> cashflow -> payoutQuantity -> assetIdentifier exists
-//		then contractualQuantity -> quantityNotation -> assetIdentifier exists
-//			and contractualQuantity -> quantityNotation -> assetIdentifier contains contractualProduct -> economicTerms -> payout -> cashflow -> payoutQuantity -> assetIdentifier
-
+	
 	condition DeliverableObligationsPhysicalSettlementMatrix: <"The below set of credit deliverable obligation provisions are specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that those provisions cannot be omitted if the Credit Derivatives Physical Settlement Matrix doesn't governs the terms of the contract.">
 		if ( documentation -> documentationIdentification -> contractualMatrix -> matrixType <> MatrixTypeEnum -> CreditDerivativesPhysicalSettlementMatrix
 			or documentation -> documentationIdentification -> contractualMatrix -> matrixType is absent)
@@ -322,13 +311,15 @@ type QuantityMultiplier: <" Class to specify a mechanism for a quantity to be se
 	condition: one-of
 
 
-type ResolvablePayoutQuantity: <" Generic class to specify the quantity for different payout legs in a contractual product, when that quantity can vary across payout legs or across time. A resolvable quantity can always be resolved into one number based on: (i) the quantity notation that must be specified alongside the contractual product description and (ii) a given date, where applicable. In addition to the base case where quantity is directly specified as a number as part of the quantity notation, the use cases are: (i) quantity based on some pre-defined schedule (eg amortising notional), (ii) quantity based on some pre-defined events (eg resetting cross-currency notional), or quantity set as reference to another quantity (eg equity notional as no. securities x price).">
+type ResolvablePayoutQuantity: <"Generic class to specify the quantity for different payout legs in a contractual product, when that quantity can vary across payout legs or across time. A resolvable quantity can always be resolved into a single quantity from the quantity notation which has a corresponding asset identifier. In addition to the base case, where quantity is directly specified as a number as part of the quantity notation, the other use cases are: (i) quantity based on some pre-defined schedule (eg amortising notional), (ii) quantity based on some pre-defined events (eg resetting cross-currency notional), or quantity set as reference to another quantity (eg equity notional as no. securities x price).">
 	[metadata key]
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 meta "id"]
 	[synonym FpML_5_10 meta "id" path "notionalAmount"]
 	[synonym FpML_5_10 meta "id" path "notionalStepSchedule"]
 
-	quantitySchedule NonNegativeQuantitySchedule (0..1) <"Quantity specified as an absolute number, (possibly) with some step schedule, (possibly) with some unit, such as the currency in the case of a notional. This attribute is optional, as long as a quantity notation tag is specified so that quantity can be resolved. There needs to be at least 1 such absolutely defined quantity across payout legs of a product, to define an anchor that other payout quantities can refer to. This is enforced by a data rule on the Payout class.">
+	resolvedQuantity NonNegativeQuantity (0..1) <"A product's quantity as a single, non-negative amount.  When specified as part of a product definition, this quantity attribute would not be set.  Instead it is specified on the quantity notation along with an asset identifier matching this payout's asset identifier.  This allows the the quantity to be resolved for a payout leg, which can then be specified here for convenience during data processing.  There needs to be at least one resolvable quantity across payout legs of a product to define an anchor that other payout quantities can refer to.  This attribute is ignored when mapping existing FpML messages.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "ignore"]
+	quantitySchedule NonNegativeQuantitySchedule (0..1) <"Quantity step schedule, including an initial quantity specified as an absolute number.">
 	assetIdentifier AssetIdentifier (0..1) <"Identifier for the asset being quantified.">
 		// For Swap Stream:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "notionalAmount", "notionalStepSchedule"]
@@ -357,13 +348,10 @@ type ResolvablePayoutQuantity: <" Generic class to specify the quantity for diff
 		if quantityMultiplier exists
 		then ResolvablePayoutQuantity -> quantityReference -> reference exists
 
-//	condition ContractualQuantity_notionalReset: <"As the notionalReset attribute applies to return swaps, the equity payout needs to be present alongside it.">
-// 		if ContractualProduct -> economicTerms -> quantity -> notionalReset exists
-// 		then ContractualProduct -> economicTerms -> payout -> equityPayout exists
+	condition ResolvedQuantity: <"The resolved quantity must exist if the quantity is not specified elsewhere.">
+		if ResolvablePayoutQuantity -> quantityReference -> reference is absent and assetIdentifier is absent
+		then resolvedQuantity -> amount exists
 
-// 	condition ContractualQuantity_notionalAdjustments: <"As the notionalAdjustments attribute applies to return swaps, the equity payout needs to be present alongside it.">
-// 		if ContractualProduct -> economicTerms -> quantity -> notionalAdjustments exists
-//		then ContractualProduct -> economicTerms -> payout -> equityPayout exists
 
 type CrossCurrencyTerms:
 
@@ -539,26 +527,6 @@ type Execution: <" A class to specify an execution, which consists essentially i
 	condition SettlementTerms: <"When the executed product is a security, the settlement terms must be specified.">
 		if tradableProduct -> product -> security exists
 		then settlementTerms exists
-
-	condition QuantityInterestRatePayoutResolvable:
-		if Execution -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity -> assetIdentifier exists
-		then Execution -> tradableProduct -> quantityNotation -> assetIdentifier exists
-			and Execution -> tradableProduct -> quantityNotation -> assetIdentifier contains Execution -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity -> assetIdentifier
-
-	condition QuantityEquityPayoutResolvable:
-		if Execution -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> assetIdentifier exists
-		then Execution -> tradableProduct -> quantityNotation -> assetIdentifier exists
-			and Execution -> tradableProduct -> quantityNotation -> assetIdentifier contains Execution -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> assetIdentifier
-
-//	condition ExecutionQuantity_cashflow_resolvable:
-//		if Execution -> product -> contractualProduct -> economicTerms -> payout -> cashflow -> payoutQuantity -> assetIdentifier exists
-//		then Execution -> executionQuantity -> quantityNotation -> assetIdentifier exists
-//			and Execution -> executionQuantity -> quantityNotation -> assetIdentifier contains Execution -> product -> contractualProduct -> economicTerms -> payout -> cashflow -> payoutQuantity -> assetIdentifier
-
-	condition QuantityBondResolvable:
-		if Execution -> tradableProduct -> product -> security -> bond -> productIdentifier exists
-		then Execution -> tradableProduct -> quantityNotation -> assetIdentifier -> productIdentifier exists
-			and Execution -> tradableProduct -> quantityNotation -> assetIdentifier -> productIdentifier contains Execution -> tradableProduct -> product -> security -> bond -> productIdentifier
 
 
 type GeneralTerms: <" A class specifying a set of non-monetary terms for the Credit Derivative Transaction, including the buyer and seller and selected items from the ISDA 2014 Credit Definition article II, such as the reference obligation and related terms. The CDM GeneralTerms class corresponds to the FpML GeneralTerms complex type, except that the effectiveDate and scheduledTerminationDate have been positioned as part of the InterestRatePayout class in the CDM instead of in GeneralTerms.">
@@ -990,6 +958,17 @@ type Payout: <" A class to represent the set of future cashflow methodologies in
 		then creditDefaultPayout -> transactedPrice -> marketFixedRate is absent
 			and creditDefaultPayout -> transactedPrice -> marketPrice is absent
 
+	condition NotionalResetOnEquityPayout: <"Notional reset only applies to return swaps, and therefore can only exist on an equityPayout.">
+		interestRatePayout -> payoutQuantity -> reset is absent
+			and creditDefaultPayout -> protectionTerms -> payoutQuantity -> reset is absent
+			and optionPayout -> payoutQuantity -> reset is absent
+			and cashflow -> payoutQuantity -> reset is absent
+	
+	condition NotionalResetInterestRatePayoutExists: <"As the equityPayout -> payoutQuantity -> reset attribute applies to return swaps, the interestRatePayout needs to be present alongside it.">
+ 		if equityPayout -> payoutQuantity -> reset = True 
+ 		then interestRatePayout exists
+	
+
 type Product: <" A class to represent a financial product. With respect to contractual products, this class specifies the pre-execution product characteristics (the ContractualProduct class). This class is used as underlying for the option exercise representation, which makes use of the contractualProduct attribute to support the swaption use case, with the exercise into a swap. In a complete workflow, the swaption contract itself then needs to be superseded by a swap contract underpinned by the exercised swap as a contractualProduct.">
 	[metadata key]
 
@@ -1083,16 +1062,50 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "fxSingleLeg"]
 		// For Repo:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "repo"]
-
 	// TBD: make quantity and price notation optional, and only validate that it exists as part of an execution / contract?
 	// TBD: positioning of future DateNotation (Effective Date, Termination Date) - only applicable to contractual products. In EconomicTerms?
 	// TBD: positioning of future PartyNotation - as part of this type, or higher-up in the Execution / Contract?
 	// The latter would align the concept of TradeableProduct across securities and contractual products (securities do not require any party specification to be "tradeable")
+
 	adjustment NotionalAdjustmentEnum (0..1) <"Specifies the conditions that govern the adjustment to the quantity of a product being traded: e.g. execution, portfolio rebalancing etc. It is typically used in the context of Equity Swaps.">
 		[synonym FpML_5_10 value "notionalAdjustments" path "returnSwap->returnLeg", "notionalAdjustments" path "equitySwapTransactionSupplement->returnLeg"]
 
 	condition PriceQuantityTriangulation:
 		PriceQuantityTriangulation( priceNotation, quantityNotation ) = True
+		
+	condition NotionalAdjustment: <"As the adjustment attribute applies to return swaps, the equity payout needs to be present alongside it.">
+ 		if adjustment exists
+		then product -> contractualProduct -> economicTerms -> payout -> equityPayout exists
+	
+	condition InterestRatePayoutQuantityResolvable:
+		if product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity -> assetIdentifier exists
+		then quantityNotation -> assetIdentifier exists
+			and quantityNotation -> assetIdentifier contains product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity -> assetIdentifier
+
+	condition EquityPayoutQuantityResolvable:
+		if product -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> assetIdentifier exists
+		then quantityNotation -> assetIdentifier exists
+			and quantityNotation -> assetIdentifier contains product -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> assetIdentifier
+
+	condition CreditDefaultPayoutQuantityResolvable:
+		if product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> payoutQuantity -> assetIdentifier exists
+		then quantityNotation -> assetIdentifier exists
+			and quantityNotation -> assetIdentifier contains product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> payoutQuantity -> assetIdentifier
+
+	condition CashflowQuantityResolvable:
+		if product -> contractualProduct -> economicTerms -> payout -> cashflow -> payoutQuantity -> assetIdentifier -> currency exists
+		then 
+			( quantityNotation -> assetIdentifier exists 
+				and quantityNotation -> assetIdentifier contains product -> contractualProduct -> economicTerms -> payout -> cashflow -> payoutQuantity -> assetIdentifier )
+			or 
+			( priceNotation -> price -> cashPrice -> cashflowAmount -> currency exists 
+				and product -> contractualProduct -> economicTerms -> payout -> cashflow -> payoutQuantity -> assetIdentifier -> currency = priceNotation -> price -> cashPrice -> cashflowAmount -> currency )
+
+	condition SecurityQuantityResolvable:
+		if product -> security -> bond -> productIdentifier exists
+		then quantityNotation -> assetIdentifier -> productIdentifier exists
+			and quantityNotation -> assetIdentifier -> productIdentifier contains product -> security -> bond -> productIdentifier
+
 
 type ProductIdentification: <" A class to combine the CDM product qualifier with other product qualifiers, such as the FpML ones. While the CDM product qualifier is derived by the CDM from the product payout features, the other product identification elements are assigned by some external sources and correspond to values specified by other data representation protocols.">
 

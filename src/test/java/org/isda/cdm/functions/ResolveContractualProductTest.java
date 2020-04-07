@@ -197,7 +197,7 @@ class ResolveContractualProductTest extends AbstractFunctionTest {
 	}
 
 	private BigDecimal getResolvedQuantityAmount(ResolvablePayoutQuantity resolvedQuantity) {
-		return resolvedQuantity.getQuantitySchedule().getQuantity().getAmount().setScale(0, RoundingMode.HALF_UP);
+		return resolvedQuantity.getResolvedQuantity().getAmount().setScale(0, RoundingMode.HALF_UP);
 	}
 
 	private Contract getContract(String resourceName) throws IOException {
