@@ -32,10 +32,9 @@ public class ResolveContractualProductImpl extends ResolveContractualProduct {
 	}
 
 	private void resolveQuantity(ResolvablePayoutQuantityBuilder builder, List<QuantityNotation> quantityNotations, ContractualProduct contractualProduct) {
-		NonNegativeQuantity quantity = resolvePayoutQuantityFunc.evaluate(builder.build(), quantityNotations, contractualProduct);
-		builder.setQuantitySchedule(NonNegativeQuantitySchedule.builder()
-				.setQuantity(quantity)
-				.build());
+		builder
+			.setResolvedQuantity(resolvePayoutQuantityFunc.evaluate(builder.build(), quantityNotations, contractualProduct))
+			.build();
 	}
 
 }
