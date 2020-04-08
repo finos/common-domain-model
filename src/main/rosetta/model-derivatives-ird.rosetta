@@ -523,9 +523,15 @@ type FloatingInterestRate: <"Data to specify a floating interest rate price.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "initialValue" path "capRateSchedule" maps 2]
 	floorRate number (0..1)
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "initialValue" path "floorRateSchedule" maps 2]
+	multiplier number (0..1)
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "initialValue" path "floatingRateMultiplierSchedule" maps 2]
 
 	condition AtLeastOneOf:
 		( rate or spread or capRate or floorRate ) exists
+
+	condition FloatingRateMultiplierSchedule: <"FpML specifies that the floatingRateMultiplierSchedule should only be included if the multiplier is not equal to 1 for the term of the stream.">
+		if multiplier exists
+		then multiplier <> 1.0
 
 
 type MandatoryEarlyTermination: <"A data to:  define an early termination provision for which exercise is mandatory.">
