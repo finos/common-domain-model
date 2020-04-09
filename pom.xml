@@ -95,6 +95,28 @@
 						</executions>
 					</plugin>
 					<plugin>
+						<artifactId>exec-maven-plugin</artifactId>
+						<groupId>org.codehaus.mojo</groupId>
+						<version>1.6.0</version>
+						<executions>
+							<execution>
+								<id>Check code snippets vs cdm model</id>
+								<phase>validate</phase>
+								<goals>
+								<goal>exec</goal>
+								</goals>
+								<configuration>
+									<executable>documentation/source/code-snippets/tools/check-files.sh</executable>
+									<arguments>
+										<argument>documentation/source/code-snippets</argument>
+										<argument>documentation/source</argument>
+										<argument>src/main/rosetta</argument>
+									</arguments>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
 						<groupId>kr.motd.maven</groupId>
 						<artifactId>sphinx-maven-plugin</artifactId>
 						<version>2.2.2</version>
@@ -123,13 +145,12 @@
 									<goal>javadoc</goal>
 								</goals>
 								<configuration>
-									<reportOutputDirectory>${project.build.directory}/classes/cdm
-									</reportOutputDirectory>
+									<reportOutputDirectory>${project.build.directory}/classes/cdm</reportOutputDirectory>
+									<javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
 								</configuration>
 							</execution>
 						</executions>
 					</plugin>
-
 					<plugin>
                         <artifactId>maven-assembly-plugin</artifactId>
                         <configuration>
@@ -565,7 +586,7 @@
 					<groupId>org.eclipse.xtext</groupId>
 					<artifactId>xtext-maven-plugin</artifactId>
 					<version>${xtext.version}</version>
-		
+
 					<dependencies>
 						<dependency>
 							<groupId>com.regnosys.rosetta</groupId>
