@@ -1251,7 +1251,7 @@ type UmbrellaAgreement: <"A class to specify a set of legal entities which are p
 	language string (1..1) <"The language associated with the umbrella agreement, and which applies to all the parties to the umbrella agreement.">
 		[synonym ISDA_Create_1_0 value "language" maps 2] // TODO: remove "maps 2" once migration complete
 	parties UmbrellaAgreementEntity (2..*) <"The parties to the umbrella agreement.">
-		// TODO: fix synonym mapping - see cardinality issues in json 
+		[synonym ISDA_Create_1_0 value "principal_identification_schedule" mapper "UmbrellaAgreementEntity"] 
 	
 	condition UmbrellaAgreementExists: <"Umbrella Agreement language and parties should not exist when Umbrella Agreement terms are Not Applicable.">
 		if isApplicable = False
@@ -1259,7 +1259,7 @@ type UmbrellaAgreement: <"A class to specify a set of legal entities which are p
 
 type UmbrellaAgreementEntity extends LegalEntity: <"A class to specify the legal entities that are part of the umbrella agreement.">
 	terms string (0..1) <"The terms that might be associated with each party to the umbrella agreement.">
-		[synonym ISDA_Create_1_0 value "additional" maps 2]
+		//[synonym ISDA_Create_1_0 value "additional" maps 2]
 
 type CsdInitialMargin2018EnglishLaw extends CsaInitialMargin2018: <"A class to specify the provisions that are specific to the English Law version of the ISDA 2018 Credit Support Deed for Initial Margin.">
 
@@ -1498,9 +1498,10 @@ type JapaneseSecuritiesProvisions: <"A class to specify Japanese Securities Prov
 type LegalAgreement extends LegalAgreementBase: <"A class to specify the elections and variables that characterize a legal agreement.">
 	[metadata key]
  	[rootType]
-	// agreementQualifier agreementType (0..1) <"The CDM agreement qualifier, which corresponds to the outcome of the isContract qualification logic. This value is derived by the CDM from the contract features.">
+ 	
+ 	// agreementQualifier agreementType (0..1) <"The CDM agreement qualifier, which corresponds to the outcome of the isContract qualification logic. This value is derived by the CDM from the contract features.">
 	agreementTerms AgreementTerms (0..1) <"The set of elections specific to the contract">
-		[synonym ISDA_Create_1_0 value "answers"]
+		//[synonym ISDA_Create_1_0 value "answers"]
 //TODO Move DocumentationIdentification from RelatedAgreement to here or should this be LegalAgreementBase??  What does DocumentationIdentification do?
 	// documentationIdentification DocumentationIdentification (0..1) <"The identification of the legal document(s) that govern the contract through some of the key terms of such document(s): type of document, the document identifier, the publisher, the document vintage and the agreement date.">
 	// 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "documentation" path "trade"]
@@ -1530,9 +1531,8 @@ type AgreementTerms: <"A class to specify the elections and variables that chara
 //	baseTerms LegalAgreementBase (1..1) <"The base terms of the contract">
 // TODO should LegalAgreementBase sit here rather than have LegalAgreement extend.
 	relatedAgreement RelatedAgreement (1..1) <"Additional agreements specific to the terms of the contract">
-		[synonym ISDA_Create_1_0 value "collateral_transfer_agreement"]
 	umbrellaAgreement UmbrellaAgreement (0..1) <"The determination of whether Umbrella Agreement terms are applicable (True) or Not Applicable (False).">
-		[synonym ISDA_Create_1_0 value "umbrella_agreement_and_principal_identification", "principal_identification_schedule" path "partyA->umbrella_agreement_and_principal_identification"]
+		[synonym ISDA_Create_1_0 value "umbrella_agreement_and_principal_identification", "umbrella_agreement_and_principal_identification" path "answers->partyA"]
 
 // type RelatedAgreements: <"A class to specify additional agreements specific to the terms of the contract">
 
@@ -1547,7 +1547,7 @@ type Agreement: <"A class to specify elections specific to a certain type of agr
 // TODO Understand current CreditSupportAgreement type.   Can this be repurposed.
 	collateralTransferAgreement CollateralTransferAgreement (0..1) <"A collateral transfer agreeement">
 	securityAgreement SecurityAgreement (0..1) <"A security agreement">
-		[synonym ISDA_Create_1_0 value "partyA" set when "document->documentType" = "Security Agreement"]
+		[synonym ISDA_Create_1_0 value "partyA" path "answers" set when "document->documentType" = "Security Agreement"]
 	transactionConfirmation TransactionConfirmation (0..1) <"A transaction confirmation">
 	condition: one-of
 
@@ -1650,7 +1650,7 @@ type ExecutionLocation: <"A class to specify execution location terms of a Secur
 	dutyPayerLanguage string (0..1) <"Bespoke terms specific to the payment of documentary duty">
 		[synonym ISDA_Create_1_0 value "specify_documentary_duty_payer" path "documentary_duty_payer"]
 	dutyPaymentDate date (0..1) <"The date that documentary duty will be paid">
-		[synonym ISDA_Create_1_0 value "select_documentary_duty_date" set when "documentary_duty_date" = "select"]
+		[synonym ISDA_Create_1_0 value "select_documentary_duty_date"] // set when "documentary_duty_date" = "select"
 	dutyPaymentLanguage string (0..1) <"Bespoke terms specific to the date that documentary duty will be paid">
 		[synonym ISDA_Create_1_0 value "specify_documentary_duty_date_datepicker" set when "documentary_duty_date" = "other"]
 
