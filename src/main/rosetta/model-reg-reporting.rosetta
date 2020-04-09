@@ -665,7 +665,7 @@ reporting rule BasisSwapPrice
 	 	   	provision "09April 2019|ESMA70-1861941480-56. Questions and Answers On MiFIR data reporting. Section 16 Interest Rate Swaps reporting [Last update: 26/09/2018]. Question 2 Answer 2 CFI SRA*S*, Tenor basis swap (float-to-float single currency). 10 Years EUR EURIBOR 3 months + 2 basis points VS EURIBOR 6 MONTHS. 33 Price 2: If the spread was negative i.e. Firm X was paying 3 month EUR EURIBOR - 2 basis points then Firm X should still be reported as the buyer but the price would be reported as ‘-2’ in the reports of X and Y."]
 	filter when rule IsIRSwapBasis then
 	extract TradableProduct -> priceNotation -> price -> floatingInterestRate then
-	extract FloatingInterestRate -> rate as "Price"
+	extract FloatingInterestRate -> initialRate as "Price"
 
 reporting rule FixedFixedPrice
 	filter when rule IsFixedFixed then
@@ -685,8 +685,8 @@ reporting rule CDSPrice
 	if (
 		filter when Price -> fixedInterestRate -> rate <> 0
 			=> extract Price -> fixedInterestRate -> rate as "Price",
-		extract Price -> floatingInterestRate -> rate
-			=> extract Price -> floatingInterestRate -> rate as "Price",
+		extract Price -> floatingInterestRate -> initialRate
+			=> extract Price -> floatingInterestRate -> initialRate as "Price",
 		=> return 0 as "Price"
 	)
 
