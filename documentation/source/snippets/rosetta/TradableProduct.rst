@@ -1,0 +1,9 @@
+.. code-block:: Java
+
+ type TradableProduct: 
+    product Product (1..1)
+    quantityNotation QuantityNotation (1..*) 
+    priceNotation PriceNotation (0..*) 
+    adjustment NotionalAdjustmentEnum (0..1) 
+    condition PriceQuantityTriangulation:
+    PriceQuantityTriangulation( priceNotation, quantityNotation ) = True
