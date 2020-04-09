@@ -14,7 +14,7 @@ The following sections define each of these dimensions.  Selected examples of da
 
 Product Model
 -------------
-Where applicable, the CDM follows the data structure of the Financial Products Markup Language (FpML), which is widely used in the OTC Derivatives market.  For example, the CDM type ``PayerReceiver`` is equivalent to the FpML PayerReceiver.model. Both of these are data structures used frequently throughout each respective model. In other cases, the CDM data structure is more normalized, per requirements from the CDM Design Working Gropu.  For example, price and quantity are represented in a single type, ``TradableProduct``, which is shared by all products. Another example is the use of a composable product model whereby:
+Where applicable, the CDM follows the data structure of the Financial Products Markup Language (FpML), which is widely used in the OTC Derivatives market.  For example, the CDM type ``PayerReceiver`` is equivalent to the FpML PayerReceiver.model. Both of these are data structures used frequently throughout each respective model. In other cases, the CDM data structure is more normalised, per requirements from the CDM Design Working Group.  For example, price and quantity are represented in a single type, ``TradableProduct``, which is shared by all products. Another example is the use of a composable product model whereby:
 
 * **Economic terms are specified by composition**, For example, the ``InterestRatePayout`` type is a component used in the definition of any product with one or more interest rate legs (e.g. Interest Rate Swaps, Equity Swaps, and Credit Default Swaps).  
 * **Product qualification is inferred** from those economic terms rather than explicitly naming the product type, whereas FpML qualifies the product explcitly through the *product* substitution group.
@@ -34,7 +34,7 @@ A tradable product represents a financial product that is ready to be traded, me
     priceNotation PriceNotation (0..*) 
     adjustment NotionalAdjustmentEnum (0..1) 
     condition PriceQuantityTriangulation:
-        PriceQuantityTriangulation( priceNotation, quantityNotation ) = True
+    PriceQuantityTriangulation( priceNotation, quantityNotation ) = True
         
 Quantity and price are represented in the ``TradableProduct`` type becauase they are attributes shared by all products. All of the other attributes required to describe a product are defined in distinct product types.
 
@@ -53,11 +53,11 @@ The ``AssetIdentifier`` type requires the specification of either a product, cur
 .. code-block:: Java
 
  type AssetIdentifier: 
-     productIdentifier ProductIdentifier (0..1) 
-     currency string (0..1) 
-        [metadata scheme]
-     rateOption FloatingRateOption (0..1) 
-     condition: one-of
+    productIdentifier ProductIdentifier (0..1) 
+    currency string (0..1) 
+       [metadata scheme]
+    rateOption FloatingRateOption (0..1) 
+    condition: one-of
      
 PriceNotation
 """""""""""""
@@ -66,18 +66,18 @@ The ``PriceNotation`` type supports the price for any product.
 .. code-block:: Java
 
  type PriceNotation: 
-    price Price (1..1) 
-	   assetIdentifier AssetIdentifier (1..1) 
+    price Price (1..1)
+    assetIdentifier AssetIdentifier (1..1) 
     
 The ``Price`` type that is encapsulated within ``PriceNotation`` requires the definition of one of the price types represented in its data structure, which collectively support all the types for all of the products in the CDM.
 
 .. code-block:: Java
 
  type Price: 
-    cashPrice CashPrice (0..1) 
-	   exchangeRate ExchangeRate (0..1)  
+    cashPrice CashPrice (0..1)
+    exchangeRate ExchangeRate (0..1)
     fixedInterestRate FixedInterestRate (0..1) 
-    		// For IR Swaps, CDS, Repo, and FRA
+    // For IR Swaps, CDS, Repo, and FRA
     floatingInterestRate FloatingInterestRate (0..1)
     condition: one-of
     
@@ -101,11 +101,11 @@ The CDM allows any one of these products to included in a trade or used as an un
 
 Among this set of products, the contractual product is the most complicated and requires the largest data structure. In a contractual product, an exchange of financial risk is materialised by a unique bilateral contract that specifies the financial obligations of each party. The terms of the contract are specified at trade inception and apply throughout the life of the contract (which can last for decades for certain long-dated products), unless amended by mutual agreement. Contractual products are fungible (in other words, replaceable by other identical or similar contracts) only under specific terms: e.g. the existence of a close-out netting agreement between the parties. 
 
-Given that each contractual product transaction is unique, all of the contract terms must be specified and stored in an easily accessible transaction model so that each party can evaluate the financial and counterparty risks during the life of the agreement.
+Given that each contractual product transaction is unique, all of the contract terms must be specified and stored in an easily accessible transaction lifecycle model so that each party can evaluate the financial and counterparty risks during the life of the agreement.
 
-Foreign Exchange (FX) spot and forward trades (including Non-Deliverable Forwards) and private loans also represent an exchange of financial risk represented by a form of bilateral agreements. FX forwards and private loans can have an extended terms, and are generally not fungible. However, these products share few other commonalities with contractual products such as Interest Rate Swaps. Therefore, they are defined separately.  
+Foreign Exchange (FX) spot and forward trades (including Non-Deliverable Forwards) and private loans also represent an exchange of financial risk represented by a form of bilateral agreements. FX forwards and private loans can have an extended term, and are generally not fungible. However, these products share few other commonalities with contractual products such as Interest Rate Swaps. Therefore, they are defined separately.  
 
-By contrast, in the case of the execution of a security (e.g. a listed equity), the exchange of finanical risk is a one-time event that takes place on the settlement date, which is usually within a few business days of the agreement. The other significant distinction is that securities are fungible instruments for which the terms and security identifiers are publically available.  Therefore, the terms of the security do not have to stored in a transaction model, but can be referenced with public identifiers.
+By contrast, in the case of the execution of a security (e.g. a listed equity), the exchange of finanical risk is a one-time event that takes place on the settlement date, which is usually within a few business days of the agreement. The other significant distinction is that securities are fungible instruments for which the terms and security identifiers are publically available.  Therefore, the terms of the security do not have to be stored in a transaction lifecycle model, but can be referenced with public identifiers.
 
 An Index product is an exception because it's not directly tradable, but is included here because it can be referenced as an underlier for a tradable product and can be identified by a public identifier.
 
@@ -132,18 +132,16 @@ The scope of contractual products in the current model are summarized below:
   
 * **Optons**:
 
-  •	Any other OTC Options (incl. FX Options)
+  * Any other OTC Options (incl. FX Options)
 
 In the CDM, contractual products are represented by the ``ContractualProduct`` type:
 
 .. code-block:: Java
 
  type ContractualProduct:
- {
-  productIdentification ProductIdentification (0..1) ;
-  productTaxonomy ProductTaxonomy (0..*) ;
-  economicTerms EconomicTerms (1..1) ;
- }
+    productIdentification ProductIdentification (0..1)
+    productTaxonomy ProductTaxonomy (0..*)
+    economicTerms EconomicTerms (1..1)
 
 Note that price and quantity are defined in ``TradableProduct`` as these are attributes common to all products.  The remaining economic terms of the contractual product are defined in ``EconomicTerms`` which is an encapsulated type in ``ContractualProduct`` .
 
@@ -155,14 +153,14 @@ The CDM specifies the various set of possible remaining economic terms using the
 .. code-block:: Java
 
  type EconomicTerms: 
-  [partialKey]
-  effectiveDate AdjustableOrRelativeDate (0..1)
-  terminationDate AdjustableOrRelativeDate (0..1) 
- 	dateAdjustments BusinessDayAdjustments (0..1) 
-  payout Payout (1..1) ;
-  earlyTerminationProvision EarlyTerminationProvision (0..1)
-  optionProvision OptionProvision (0..1) 
-	 extraordinaryEvents ExtraordinaryEvents (0..1) 
+    [partialKey]
+    effectiveDate AdjustableOrRelativeDate (0..1)
+    terminationDate AdjustableOrRelativeDate (0..1) 
+    dateAdjustments BusinessDayAdjustments (0..1) 
+    payout Payout (1..1) ;
+    earlyTerminationProvision EarlyTerminationProvision (0..1)
+    optionProvision OptionProvision (0..1) 
+    extraordinaryEvents ExtraordinaryEvents (0..1) 
  
 Payout
 """"""
@@ -171,67 +169,67 @@ The ``Payout`` type defines the composable payout types, each of which describes
 .. code-block:: Java
 
  type Payout:
-  interestRatePayout InterestRatePayout (0..*)
-  creditDefaultPayout CreditDefaultPayout (0..1)
-  equityPayout EquityPayout (0..*) 
-  optionPayout OptionPayout (0..*) 
-  forwardPayout ForwardPayout (0..*)
-  securityPayout SecurityPayout (0..*) 
-  cashflow Cashflow (0..*)
+    interestRatePayout InterestRatePayout (0..*)
+    creditDefaultPayout CreditDefaultPayout (0..1)
+    equityPayout EquityPayout (0..*) 
+    optionPayout OptionPayout (0..*) 
+    forwardPayout ForwardPayout (0..*)
+    securityPayout SecurityPayout (0..*) 
+    cashflow Cashflow (0..*)
    
 The relationship between one of the payout classes and a similar structure in FpML can be identified through the defined Synonyms, as explained in an earlier section.  For example, the ``InterestRatePayout`` is equivalent to the following complex types in FpML: *swapStream*, *feeLeg* *capFloorStream*, *fra*, and *interestLeg*.
 
 .. code-block:: Java
 
  type InterestRatePayout extends PayoutBase: 
-  [metadata key]
-  payerReceiver PayerReceiver (0..1)
-  dayCountFraction DayCountFractionEnum (0..1) 
-  [metadata scheme]
-  calculationPeriodDates CalculationPeriodDates (0..1) )
-  paymentDates PaymentDates (0..1)  
-  paymentDate AdjustableDate (0..1) 
-  paymentDelay boolean (0..1)
-  resetDates ResetDates (0..1)
-  discountingMethod DiscountingMethod (0..1) 
-  compoundingMethod CompoundingMethodEnum (0..1) 
-  cashflowRepresentation CashflowRepresentation (0..1) 
-  crossCurrencyTerms CrossCurrencyTerms (0..1)
-  stubPeriod StubPeriod (0..1) 
-  bondReference BondReference (0..1) 
-  fixedAmount calculation (0..1)
-  floatingAmount calculation (0..1) 
+    [metadata key]
+    payerReceiver PayerReceiver (0..1)
+    dayCountFraction DayCountFractionEnum (0..1) 
+    [metadata scheme]
+    calculationPeriodDates CalculationPeriodDates (0..1)
+    paymentDates PaymentDates (0..1)  
+    paymentDate AdjustableDate (0..1) 
+    paymentDelay boolean (0..1)
+    resetDates ResetDates (0..1)
+    discountingMethod DiscountingMethod (0..1) 
+    compoundingMethod CompoundingMethodEnum (0..1) 
+    cashflowRepresentation CashflowRepresentation (0..1) 
+    crossCurrencyTerms CrossCurrencyTerms (0..1)
+    stubPeriod StubPeriod (0..1) 
+    bondReference BondReference (0..1) 
+    fixedAmount calculation (0..1)
+    floatingAmount calculation (0..1) 
 
 There are as set of conditions associated with this type which are not shown here in the interests of brevity.
 
 Reusable Components
 """""""""""""""""""
 
-There are a number of components that are reusable across several payout types.  For example,  is the ``CalculationPeriodDates`` class, which describes the inputs for the underlying schedule of a stream of payments.
+There are a number of components that are reusable across several payout types.  For example,  the ``CalculationPeriodDates`` class describes the inputs for the underlying schedule of a stream of payments.
 
 .. code-block:: Java
 
  type CalculationPeriodDates 
- [metadata key]
- effectiveDate AdjustableOrRelativeDate (0..1) 
-	terminationDate AdjustableOrRelativeDate (0..1) 
-	calculationPeriodDatesAdjustments BusinessDayAdjustments (0..1) 
-	firstPeriodStartDate AdjustableDate (0..1) 
-	firstRegularPeriodStartDate date (0..1) 
-	firstCompoundingPeriodEndDate date (0..1) 
-	lastRegularPeriodEndDate date (0..1) 
-	stubPeriodType StubPeriodTypeEnum (0..1) 
-	calculationPeriodFrequency CalculationPeriodFrequency (0..1) 
+    [metadata key]
+    effectiveDate AdjustableOrRelativeDate (0..1)
+    terminationDate AdjustableOrRelativeDate (0..1)
+    calculationPeriodDatesAdjustments BusinessDayAdjustments (0..1)
+    firstPeriodStartDate AdjustableDate (0..1)
+    firstRegularPeriodStartDate date (0..1)
+    firstCompoundingPeriodEndDate date (0..1) 
+    lastRegularPeriodEndDate date (0..1) 
+    stubPeriodType StubPeriodTypeEnum (0..1) 
+    calculationPeriodFrequency CalculationPeriodFrequency (0..1) 
 
 Underlier
 """""""""
 
-The the ``Underlier`` type allows for any product to be used as the underlier for a higher-level product such as an option, forward, or an equity swap. 
+The ``Underlier`` type allows for any product to be used as the underlier for a higher-level product such as an option, forward, or an equity swap. 
 
 .. code-block:: Java
 
- type Underlier: 
- underlyingProduct Product (1..1) 
+ type Underlier:
+    underlyingProduct Product (1..1) 
 
 This nesting of the product component is another example of a composable product model. One use case is an interest rate swaption for which the high-level product uses the ``OptionPayout`` type and underlier is an Interest Rate Swap composed of two ``InterestRatePayout`` types. Similiarly, the product underlying an Equity Swap composed of an ``InterestRatePayout`` and an ``EquityPayout`` would be a non-contractual product: an equity security.
 
@@ -243,7 +241,7 @@ For identified products the CDM approach is to exclude any attribute that can be
 .. code-block:: Java
 
  type IdentifiedProduct
- productIdentifier ProductIdentifier (1..1)
+    productIdentifier ProductIdentifier (1..1)
 
 As a result, the bond, equity, and other securities are defined as extensions of the product identifier without any additional attributes. 
 
@@ -261,27 +259,25 @@ Follow-up is in progress with the ISDA Credit Group to evaluate whether an alter
 .. code-block:: Java
 
  isProduct InterestRate_InflationSwap_FixedFloat_ZeroCoupon
-  [synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation]
-  EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate count = 1
-  and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate count = 1
-  and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate is absent
-  and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
-  and EconomicTerms -> payout -> optionPayout is absent
-  and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
-  and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.T
+    [synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation]
+    EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate count = 1
+    and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate count = 1
+    and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate is absent
+    and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
+    and EconomicTerms -> payout -> optionPayout is absent
+    and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
+    and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.T
 
 The product qualification is positioned as the ``productQualifier`` attribute of the ``ProductIdentification`` class, alongside the attributes currently used in FpML to specify the product: ``primaryAssetClass``, ``secondaryAssetClass``, ``productType`` and ``productId``.  This approach allows to specify the credit derivatives products until such time when an alternative approach to the transaction type is identified to support a proper product qualification for credit derivatives.
 
 .. code-block:: Java
 
- class ProductIdentification
- {
-  productQualifier productType (0..1);
-  primaryAssetClass AssetClassEnum (0..1) scheme;
-  secondaryAssetClass AssetClassEnum (0..*) scheme;
-  productType string (0..*) scheme;
-  productId string (0..*) scheme;
- }
+ type ProductIdentification
+    productQualifier productType (0..1)
+    primaryAssetClass AssetClassEnum (0..1) scheme
+    secondaryAssetClass AssetClassEnum (0..*) scheme
+    productType string (0..*) scheme
+    productId string (0..*) scheme
 
 The CDM product qualification is stamped onto the generated CDM objects and their JSON serialised representation, as shown in the below JSON snippet. It includes both the product identification information associated with an originating FpML document and the product qualification generated by the CDM:
 
@@ -597,22 +593,23 @@ The current CDM scope is limited to the post-execution part of the transaction l
 
 .. code-block:: Java
 
- class Contract key
- {
-  contractIdentifier Identifier (1..*);
-  tradeDate TradeDate (1..1);
-  clearedDate date (0..1);
-  contractualProduct ContractualProduct (1..1);
-  collateral Collateral (0..1);
-  documentation Documentation (0..1);
-  governingLaw GoverningLawEnum (0..1) scheme;
-  party Party (0..*);
-  account Account (0..*);
-  partyRole PartyRole (0..*);
-  calculationAgent CalculationAgent (0..1);
-  partyContractInformation PartyContractInformation (0..*);
-  closedState ClosedState (0..1);
- }
+ type Contract: 
+   [metadata key]
+   [rootType]
+   contractIdentifier Identifier (1..*)
+   tradeDate TradeDate (1..1)
+   clearedDate date (0..1)
+   tradableProduct TradableProduct (1..1)
+   collateral Collateral (0..1)
+   documentation RelatedAgreement (0..1)
+   governingLaw GoverningLawEnum (0..1) 
+      [metadata scheme]
+   party Party (0..*) 
+   account Account (0..*) 
+   partyRole PartyRole (0..*) 
+   calculationAgent CalculationAgent (0..1)
+   partyContractInformation PartyContractInformation (0..*)
+   closedState ClosedState (0..1)
 
 The ``Contract`` class incorporates all the elements that are part of the FpML *trade* confirmation view, with the exception of: *tradeSummary*, *originatingPackage*, *allocations* and *approvals*, whereas the ``ContractualProduct`` class corresponds to the pre-trade view of the FpML *trade*.
 
