@@ -1,17 +1,19 @@
-# *Model Optimisation: Price Refactor*
+# *CDM Model: Legal Documents Modelling*
 
 _What is being released_
 
-Clean up tasks following the recent model price refactor:
+Implementation of model to support Security Agreements. 
 
-- Migrate conditions related FpML rule IRD 25 to type `TradableProduct` - `FpML_ird_25_FixedRate`, `FpML_ird_25_FloatingRateSpread`, `FpML_ird_25_FloatingRateCapRate` and `FpML_ird_25_FloatingRateFloorRate`.
-- To support use case for a floating rate multiplier schedule, add attribute `multiplier` to type `FloatingInterestRate`, and add FpML sample `ird-ex27-inverse-floater.xml`. 
-- Migrate condition `FloatingRateMultiplierSchedule` to type `FloatingInterestRate`.
+Ability to ingest below documents from ISDA Create:
+
+- 2019 ISDA Bank Custodian SA (NY Law)
+- 2019 ISDA Bank Custodian SA (Eng Law)
+- 2019 Euroclear SA (Bel Law)
 
 _Review Directions_
 
-In the Textual Browser, review:
-- Conditions `FpML_ird_25_FixedRate`, `FpML_ird_25_FloatingRateSpread`, `FpML_ird_25_FloatingRateCapRate` and `FpML_ird_25_FloatingRateFloorRate` on type `TradableProduct`. 
-- Condition  `FloatingRateMultiplierSchedule` on type `FloatingInterestRate`.
+In the Ingestion Panel, review samples in folders:
 
-In the Ingestion Panel, review sample `products > rates > ird-ex27-inverse-floater.xml`.
+- `isda-create > euroclear-sa-2019-bellaw`
+- `isda-create > isda-sa-im-2019-englaw`
+- `isda-create > isda-sa-im-2019-nylaw`
