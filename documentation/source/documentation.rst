@@ -36,7 +36,7 @@ A tradable product represents a financial product that is ready to be traded, me
     condition PriceQuantityTriangulation:
     PriceQuantityTriangulation( priceNotation, quantityNotation ) = True
         
-Quantity and price are represented in the ``TradableProduct`` type becauase they are attributes shared by all products. All of the other attributes required to describe a product are defined in distinct product types.
+Quantity and price are represented in the ``TradableProduct`` type because they are attributes shared by all products. All of the other attributes required to describe a product are defined in distinct product types.
 
 QuantityNotation
 """"""""""""""""
