@@ -10,7 +10,7 @@ The CDM Model
 * Reference Data
 * Mapping (Synonym)
 
-The following sections define each of these dimensions.  Selected examples of data structures are used as illustrations to help explain each dimension.  The complete data structure, including descriptions and other details can be viewed in the Textual Browser on the ISDA CDM Portal (https://portal.cdm.rosetta-technology.io/#/text-browser).
+The following sections define each of these dimensions.  Selected examples of data structures are used as illustrations to help explain each dimension.  The complete data structure, including descriptions and other details can be viewed in the `Textual Browser <https://portal.cdm.rosetta-technology.io/#/text-browser>`_ on the ISDA CDM Portal.
 
 Product Model
 -------------
