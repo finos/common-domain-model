@@ -23,7 +23,7 @@ Product
 
 A financial product represents any type of financial instrument that is used to transfer any financial risk between two parties. Financial products are captured in the ``Product`` class using the ``one of`` construct, depending on the type of financial instrument:
 
-.. literalinclude:: code-snippets/product.snippet
+.. literalinclude:: code-snippets/Product.snippet
   :language: haskell
 
 The current CDM scope focuses on contractual derivative products represented by the ``contractualProduct`` attribute. Listed securities, loans or mortgages are represented only to the extent that they feature as underlyers of such derivative products (see the *Underlier* section). It is envisioned that further product types will be covered in the CDM model over time.
