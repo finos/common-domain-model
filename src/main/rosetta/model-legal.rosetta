@@ -1501,10 +1501,7 @@ type LegalAgreement extends LegalAgreementBase: <"A class to specify the electio
 	// agreementQualifier agreementType (0..1) <"The CDM agreement qualifier, which corresponds to the outcome of the isContract qualification logic. This value is derived by the CDM from the contract features.">
 	agreementTerms AgreementTerms (0..1) <"The set of elections specific to the contract">
 		[synonym ISDA_Create_1_0 value "answers"]
-//TODO Move DocumentationIdentification from RelatedAgreement to here or should this be LegalAgreementBase??  What does DocumentationIdentification do?
-	// documentationIdentification DocumentationIdentification (0..1) <"The identification of the legal document(s) that govern the contract through some of the key terms of such document(s): type of document, the document identifier, the publisher, the document vintage and the agreement date.">
-	// 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "documentation" path "trade"]
-	// 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "documentation"]
+
 
 //TODO below attributes to be removed once new collateral document model is fully built
 	csdInitialMargin2016EnglishLaw CsdInitialMargin2016EnglishLaw (0..1) <"The elections and variables specified in Paragraph 13 of the ISDA 2016 Credit Support Deed for Initial Margin, English Law.">
@@ -1522,54 +1519,53 @@ type LegalAgreement extends LegalAgreementBase: <"A class to specify the electio
 	equitySwapMasterConfirmation2018 EquitySwapMasterConfirmation2018 (0..1) <"The General Terms and Relationship Supplement Elections specified in the 2018 ISDA CDM Equity Confirmation for Security Equity Swap.">
 		[synonym ISDA_Create_1_0 value "ignore"]
 
+	condition agreementVerification: <"A validation rule to ensure that the agreement elections are associated with the correct legal agreement type as specified.">
+		if agreementTerms -> agreement -> securityAgreement exists
+		then agreementType -> name = LegalAgreementNameEnum->SecurityAgreement
+
+		else if agreementTerms -> agreement -> creditSupportAgreement exists
+		then agreementType -> name = LegalAgreementNameEnum->CreditSupportDeed or agreementType -> name = LegalAgreementNameEnum->CreditSupportAnnex
+
+		else if agreementTerms -> agreement -> collateralTransferAgreement exists
+		then agreementType -> name = LegalAgreementNameEnum->CollateralTransferAgreement
+
 
 type AgreementTerms: <"A class to specify the elections and variables that characterize a legal agreement.">
 
 	agreement Agreement (1..1) <"The type of contract being specified">
-// TODO Rename Contract
-//	baseTerms LegalAgreementBase (1..1) <"The base terms of the contract">
-// TODO should LegalAgreementBase sit here rather than have LegalAgreement extend.
-	relatedAgreement RelatedAgreement (1..1) <"Additional agreements specific to the terms of the contract">
+	relatedAgreements RelatedAgreement (0..*) <"Specifies the agreement(s) that govern the agreement, either as a reference to such agreements when specified as part of the CDM, or through identification of some of the key terms of those agreements, such as the type of agreement, the publisher, the vintage, the agreement identifier and the agreement date.">
 		[synonym ISDA_Create_1_0 value "collateral_transfer_agreement"]
 	umbrellaAgreement UmbrellaAgreement (0..1) <"The determination of whether Umbrella Agreement terms are applicable (True) or Not Applicable (False).">
 		[synonym ISDA_Create_1_0 value "umbrella_agreement_and_principal_identification", "principal_identification_schedule" path "partyA->umbrella_agreement_and_principal_identification"]
 
-// type RelatedAgreements: <"A class to specify additional agreements specific to the terms of the contract">
-
-// 	documentation RelatedAgreement (1..1) <"The additional agreement">
-// 	umbrellaAgreement UmbrellaAgreement (0..1) <"The determination of whether Umbrella Agreement terms are applicable (True) or Not Applicable (False).">
-// 		[synonym ISDA_Create_1_0 value "umbrella_agreement_and_principal_identification", "principal_identification_schedule" path "umbrella_agreement_and_principal_identification"]
-
 type Agreement: <"A class to specify elections specific to a certain type of agreement.">
-//TODO Rename Contract
 
-	creditSupportAgreement CreditSupportAgreement (0..1) <"A credit support agreement">
-// TODO Understand current CreditSupportAgreement type.   Can this be repurposed.
-	collateralTransferAgreement CollateralTransferAgreement (0..1) <"A collateral transfer agreeement">
-	securityAgreement SecurityAgreement (0..1) <"A security agreement">
+	creditSupportAgreement CreditSupportAgreementElections (0..1) <"A credit support agreement">
+	collateralTransferAgreement CollateralTransferAgreementElections (0..1) <"A collateral transfer agreeement">
+	securityAgreement SecurityAgreementElections (0..1) <"A security agreement">
 		[synonym ISDA_Create_1_0 value "partyA" set when "document->documentType" = "Security Agreement"]
-	transactionConfirmation TransactionConfirmation (0..1) <"A transaction confirmation">
+	transactionConfirmation TransactionConfirmation (0..1) <"A transaction confirmation"> //TODO: Rename Contract and move to here
 	condition: one-of
 
-// type CreditSupportAgreement: <"The set of elections which specify a Credit Support Agremeent">
+type CreditSupportAgreementElections: <"The set of elections which specify a Credit Support Agremeent">
 
 // 	regime Regime (1..1) <"The Regime Table provisions.">
 
 // external file extension ISDA-legal
 	// Regime
-	// 	[documentReference InitialMargin_2018_NewYorkLaw paragraph "13" field "Regimes"
+	// [documentReference InitialMargin_2018_NewYorkLaw paragraph "13" field "Regimes"
 	// [documentReference InitialMargin_2016_JapaneseLaw paragraph "13" field "(c)(v)"
 
 	// generalPrinciples GeneralPrinciples (1..1) <"The General Principles provisions">
 
-type CollateralTransferAgreement: <"The set of elections which specify a Collateral Transfer Agremeent">
+type CollateralTransferAgreementElections: <"The set of elections which specify a Collateral Transfer Agremeent">
 
 	processAgent ProcessAgent (0..1) <"The Process Agent that might be appointed by the parties to the agreement.">
 		[synonym ISDA_Create_1_0 value "process_agent"]
 
-type SecurityAgreement: <"The set of elections which specify a Security Agremeent">
+type SecurityAgreementElections: <"The set of elections which specify a Security Agremeent">
 
-	agreementType SecurityAgreementTypeEnum (1..1) <"The type of Security Agreement being specified">
+	agreementType SecurityAgreementTypeEnum (0..1) <"The type of Security Agreement being specified. This attribute is included to allow direct mapping to ISDA Create and should not be used when definining an agreement directly in CDM.  The base agreement should be specified using legalAgreementBase->agreementType.">
 		[synonym ISDA_Create_1_0 value "abbreviation" path "document"]
 	pledgedAccount Account (0..1) <"The pledged account associated with the agreement">
 		[synonym ISDA_Create_1_0 value "pledged_account_number"]
@@ -1656,11 +1652,12 @@ type ExecutionLocation: <"A class to specify execution location terms of a Secur
 
 // TODO Data Rule required to enforce that Duty Payer should be absent if LocationEnum is ExecutedOutsideBelgium or Other (OR included if Enum is ExecutedInBelgium)
 	// condition dutyPayer: <"A data rule to enforce that Duty Payer language should be absent when the document is executed outside of Belgium.">
-	// 	if executionLocation->ExecutedOutsideBelgium exists
+	// 	if executionLocation = ExecutionLocationEnum->ExecutedOutsideBelgium
 	// 	then dutyPayer and dutyPayerLanguage and dutyPaymentDate and dutyPaymentLanguage is absent
 
 	condition dutyPayerLanguage: <"A data rule to enforce that Duty Payer Language should only be specified when required">
-		if dutyPayer = "Specify" then dutyPayerLanguage exists
+		if dutyPayer = "Specify"
+		then dutyPayerLanguage exists
 
 	condition dutyPaymentLanguage: <"A data rule to enforce that Duty Payment Language should be absent when a Duty Payment date is provided">
 		if dutyPaymentDate exists then dutyPaymentLanguage is absent
