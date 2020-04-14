@@ -1,9 +1,17 @@
-# *Infrastructure: Function Testing*
+# *Infrastructure: Legal Documents Modelling*
 
 _What is being released_
 
-Test definitions have been added to the cdm to test the `Execute` and `FormContract` function definitions with a vanilla IRS.
+Add ISDA Create JSON schemas and ingestion sample documents for Security Agreements.
 
-Review Directions
+_Review Directions_
 
-The tests will be available to view in Rosetta Core in the near future.
+In the Ingestion Panel, try samples in folders:
+
+- `isda-create > clearstream-sa-2016-luxlaw`
+- `isda-create > clearstream-sa-2017-luxlaw`
+- `isda-create > clearstream-sa-secprovider-2019-luxlaw`
+- `isda-create > clearstream-sa-sectaker-2019-luxlaw`
+- `isda-create > euroclear-sa-2016-bellaw`
+- `isda-create > euroclear-sa-2018-bellaw`
+- `isda-create > euroclear-sa-2019-bellaw`
