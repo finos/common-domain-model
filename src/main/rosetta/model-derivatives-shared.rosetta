@@ -6,6 +6,7 @@ import cdm.base.datetime.*
 import cdm.base.math.*
 import cdm.base.staticdata.asset.rates.*
 import cdm.base.staticdata.party.*
+import cdm.observable.asset.*
 
 type AmericanExercise: <"A class defining the exercise period for an American style option together with any rules governing the notional amount of the underlying which can be exercised on any given exercise date and any associated exercise fees.">
 	[metadata key]
@@ -378,20 +379,6 @@ type IndependentAmount extends PayerReceiver: <"A class specifying the Independe
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "paymentDetail"]
 
 
-type InformationSource: <"A class defining the source for a piece of information (e.g. a rate fix or an FX fixing). The attribute names have been adjusted from FpML to address the fact that the information is not limited to rates.">
-	[synonym FpML_5_10 value "InformationSource"]
-
-	sourceProvider InformationProviderEnum (1..1)  <"An information source for obtaining a market data point. For example Bloomberg, Reuters, Telerate, etc.">
-		[metadata scheme]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "rateSource" meta "informationProviderScheme"]
-		[synonym FIX_5_0_SP2 value "RateSource" tag 1446]
-	sourcePage string (0..1) <"A specific page for the source for obtaining a market data point. In FpML, this is specified as a scheme, rateSourcePageScheme, for which no coding Scheme or URI is specified.">
-		[metadata scheme]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "rateSourcePage" meta "rateSourcePageScheme"]
-	sourcePageHeading string (0..1) <"The heading for the source on a given source page.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "rateSourcePageHeading"]
-
-
 type InitialFixingDate: <"A CDM class which purpose is to specify the initial fixing date either alongside the FpML interest rate specification as an offset of another date, or alongside the credit derivative specification as an unadjusted date.">
 
 	relativeDateOffset RelativeDateOffset (0..1)
@@ -599,33 +586,6 @@ type PremiumExpression: <"This class corresponds to the FpML Premium.model group
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "pricePerOption"]
 	percentageOfNotional number (0..1) <"The amount of premium to be paid expressed as a percentage of the notional value of the transaction. A percentage of 5% would be expressed as 0.05.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "percentageOfNotional"]
-
-
-// TODO - #1 Look for further synergies with the option strike
-type Price: <"Generic description of the price concept applicable across product types, which can be expressed in a number of ways other than simply cash price">
-
-	cashPrice CashPrice (0..1) <"Price specified in cash terms, e.g. for securities proceeds or fee payment in a contractual product.">
-		[synonym FpML_5_10 value "initialPrice" path "rateOfReturn", "underlyer"]
-		[synonym FpML_5_10 hint "paymentAmount"]
-		[synonym FpML_5_10 hint "fixedAmount"]
-	exchangeRate ExchangeRate (0..1) <"Price specified as an exchange rate between two currencies.">
-		[synonym FpML_5_10 value "exchangeRate"]
-	fixedInterestRate FixedInterestRate (0..1) <"Price specified as a fixed interest rate.">
-		// For IR Swaps
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "fixedRateSchedule" path "calculationPeriodAmount->calculation"]
-		// For CDS
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "fixedAmountCalculation"]
-		// For Repo
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "fixedRateSchedule"]
-		// For FRA:
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 hint "fixedRate"]
-	floatingInterestRate FloatingInterestRate (0..1) <"Price specified as a spread on top of a floating interest rate.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "floatingRateCalculation" path "calculationPeriodAmount->calculation"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "floatingRateCalculation" path "interestCalculation"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "floatingRateCalculation"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "floatingAmountCalculation"]
-
-	condition: one-of
 
 
 type PrincipalExchanges: <"A class defining which principal exchanges occur for the stream.">

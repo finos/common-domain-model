@@ -1,0 +1,156 @@
+namespace cdm.observable.asset : <"Observable concepts applicable to assets: price, reference price, valuation method etc.">
+version "${project.version}"
+
+type ObservationSource: <"The observation source can be composed of an curve and/or and information source.">
+	curve Curve (0..1)
+		[synonym Workflow_Event value "curve"]
+	informationSource InformationSource (0..1)
+		[synonym Workflow_Event value "informationSource"]
+	condition CurveInformationSource: <"ObservationSource should not be empty, although the attribute cardinality would allow that.">
+		if ObservationSource exists
+		then ( curve exists and informationSource exists)
+			or curve exists
+			or informationSource exists
+
+type SecurityValuation: <" Terms defining the security valuation method as part of a security leg in a securities fianncing transaction and closely modelled onto the CollateralValuation type in FpML.">
+
+	securityValuationModel SecurityValuationModel (1..1) <"The security valuation model choice, based on either a nominal amount or a number of units.">
+		[synonym FpML_5_10 value "collateral"]
+	underlier Security (1..1) <"The underlying security of the security leg.">
+
+type SecurityValuationModel: <" The security valuation model choice, which can either be based on nominal amount as for a bond, or on the number of contract units as for equity.">
+
+	bondValuationModel BondValuationModel (0..1) <"The valuation model when the security is a bond.">
+	unitContractValuationModel UnitContractValuationModel (0..1) <"The valuation model when the security is a unit contract like equity.">
+	condition: one-of
+
+type BondValuationModel: <" Bond valuation model for the security leg in a securities financing transaction, closely modelled onto the BondCollateral.model in FpML.">
+
+	nominalAmount Money (1..1) <"The quantity of the underlier expressed as a nominal amount.">
+		[synonym FpML_5_10 value "nominalAmount"]
+	bondPriceAndYieldModel BondPriceAndYieldModel (1..1) <"Price and yield model for valuing a bond security leg.">
+	accrualsAmount Money (0..1) <"Accruals amount for the bond in the security leg">
+
+type BondPriceAndYieldModel: <" Bond price and yield valuation model for the security leg in a securities financing transaction, closely modelled onto the BondPriceAndYield.model in FpML.">
+
+	cleanOrDirtyPrice CleanOrDirtyPrice (0..1) <"Either the clean or dirty price of the bond.">
+	relativePrice RelativePrice (0..1) <"Bond price relative to a Benchmark.">
+	yieldToMaturity number (0..1) <"Price specified as a yield to maturity.">
+	inflationFactor number (0..1) <"The inflation factor is specified for inflation-linked products which require some additional elements to calculate prices correctly.">
+	allInPrice number (0..1) <"Bond all-in-price which is a price that includes all relevant price adjustments (i.e. accrued interest, haircut or margin ratio, inflation factor,etc.). It expresses a price in terms of percentage of nominal amount.">
+
+type CleanOrDirtyPrice: <" Class specifying the bond price as either clean or dirty in a bond valuation model.">
+
+	cleanPrice CleanPrice (0..1) <"The clean price and accruals presented separately.">
+	dirtyPrice number (0..1) <"The dirty price presented as a single number.">
+		[synonym FpML_5_10 value "dirtyPrice"]
+
+type CleanPrice: <" Class to specify the clean price of a bond in a bond valuation model, with accruals presented separately, and modelled onto the cleanPrice model in BonPriceAndYield.model in FpML.">
+
+	cleanPrice number (1..1) <"The clean price as a number.">
+		[synonym FpML_5_10 value "cleanPrice"]
+	accruals number (0..1) <"The accruals as a number.">
+		[synonym FpML_5_10 value "accruals"]
+	dirtyPrice calculation (0..1) <"Placeholder for a calculation of dirtyPrice based on cleanPrice and accruals.">
+
+type RelativePrice: <" Bond price relative to a benchmark, as in a convertible bond.">
+
+	spread number (1..1) <"The spread to a benchmark.">
+	bondEquityModel BondEquityModel (1..*) <"Bond equity model for convertible bonds.">
+
+type BondEquityModel: <" Bond equity model to value convertible bonds and modelled onto BondEquity.model in FpML.">
+
+	bondchoiceModel BondChoiceModel (0..1) <"Either the bond or convertible bond.">
+	equity Equity (0..1) <"The equity.">
+	condition: one-of
+
+type BondChoiceModel: <" Either a bond or convertible bond.">
+	bond Bond (0..1)
+	convertibleBond ConvertibleBond (0..1)
+	condition: one-of
+
+type UnitContractValuationModel: <" Unit contract model for security valuation, e.g. for equity, modelled onto UnitContract.model in FpML.">
+
+	numberOfUnits Quantity (1..1) <"The number of units (index or securities).">
+	unitPrice Money (1..1) <"The price of each unit.">
+
+
+type ActualPrice:
+	[synonym FpML_5_10 value "ActualPrice"]
+	currency string (0..1) <"Specifies the currency associated with the net price. This element is not present if the price is expressed in percentage terms (as specified through the priceExpression element).">
+		[metadata scheme]
+		[synonym FpML_5_10 value "currency" meta "currencyScheme"]
+	amount number (1..1)
+		[synonym FpML_5_10 value "amount"]
+	priceExpression PriceExpressionEnum (1..1) <"Specifies whether the price is expressed in absolute or relative terms.">
+		[synonym FpML_5_10 value "priceExpression"]
+	condition Currency: <"The currency attribute associated with the ActualPrice should not be specified when the price is expressed as percentage of notional.">
+		if priceExpression = PriceExpressionEnum -> PercentageOfNotional
+		then currency is absent
+
+// TODO - #1 Look for further synergies with the option strike
+type Price: <"Generic description of the price concept applicable across product types, which can be expressed in a number of ways other than simply cash price">
+
+	cashPrice CashPrice (0..1) <"Price specified in cash terms, e.g. for securities proceeds or fee payment in a contractual product.">
+		[synonym FpML_5_10 value "initialPrice" path "rateOfReturn", "underlyer"]
+		[synonym FpML_5_10 hint "paymentAmount"]
+		[synonym FpML_5_10 hint "fixedAmount"]
+	exchangeRate ExchangeRate (0..1) <"Price specified as an exchange rate between two currencies.">
+		[synonym FpML_5_10 value "exchangeRate"]
+	fixedInterestRate FixedInterestRate (0..1) <"Price specified as a fixed interest rate.">
+		// For IR Swaps
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "fixedRateSchedule" path "calculationPeriodAmount->calculation"]
+		// For CDS
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "fixedAmountCalculation"]
+		// For Repo
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "fixedRateSchedule"]
+		// For FRA:
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 hint "fixedRate"]
+	floatingInterestRate FloatingInterestRate (0..1) <"Price specified as a spread on top of a floating interest rate.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "floatingRateCalculation" path "calculationPeriodAmount->calculation"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "floatingRateCalculation" path "interestCalculation"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "floatingRateCalculation"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "floatingAmountCalculation"]
+
+	condition: one-of
+
+// TODO - Look for further synergies with the SecurityValuation class
+type CashPrice: <"Describes a price component as a cash amount, which can either represent cash proceeds for a security purchase or a cashflow that is embedded as part of a contractual product: for instance an upfront fee.">
+
+	grossPrice ActualPrice (0..1) <"Specifies the price of the underlier, before commissions.">
+		[synonym FpML_5_10 value "grossPrice"]
+	cleanNetPrice ActualPrice (0..1) <"Specifies the clean price of the underlier (e.g. excluding accrued interest), net of commissions.">
+		[synonym FpML_5_10 value "cleanNetPrice"]
+	netPrice ActualPrice (0..1) <"Specifies the dirty price of the underlier (e.g. including accrued interest), net of commissions.">
+		[synonym FpML_5_10 value "netPrice"]
+	accruedInterest number (0..1) <"Specifies the accrued interest that are part of the dirty price in the case of a fixed income security or a convertible bond. Expressed in percentage of the notional.">
+		[synonym FpML_5_10 value "accruedInterestPrice"]
+	cashflowAmount Money (0..1) <"Specifies the price as a cashflow amount embedded as part of a a contractual product.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "paymentAmount"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "fixedAmount"]
+	/*cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, e.g. brokerage fee, premium, upfront fee etc. Particularly relevant when it cannot be inferred directly through lineage.">
+		// [synonym FpML_5_10, CME_ClearedConfirm_1_17 value "paymentType", "paymentType" path "premium"]
+		[synonym FpML_5_10, CME_ClearedConfirm_1_17
+			set to CashflowTypeEnum -> Fee when "feeLeg" exists,
+			set to CashflowTypeEnum -> Premium when "premium" exists]*/
+	/*
+	 * FpML construct also includes other elements, such as the fxConversion
+	 */
+	condition NetPrice: <" The netPrice and/or cleanNetPrice must be specified.">
+		if CashPrice exists
+		then netPrice exists or cleanNetPrice exists or cashflowAmount exists
+
+type InformationSource: <"A class defining the source for a piece of information (e.g. a rate fix or an FX fixing). The attribute names have been adjusted from FpML to address the fact that the information is not limited to rates.">
+	[synonym FpML_5_10 value "InformationSource"]
+
+	sourceProvider InformationProviderEnum (1..1)  <"An information source for obtaining a market data point. For example Bloomberg, Reuters, Telerate, etc.">
+		[metadata scheme]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "rateSource" meta "informationProviderScheme"]
+		[synonym FIX_5_0_SP2 value "RateSource" tag 1446]
+	sourcePage string (0..1) <"A specific page for the source for obtaining a market data point. In FpML, this is specified as a scheme, rateSourcePageScheme, for which no coding Scheme or URI is specified.">
+		[metadata scheme]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "rateSourcePage" meta "rateSourcePageScheme"]
+	sourcePageHeading string (0..1) <"The heading for the source on a given source page.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "rateSourcePageHeading"]
+
+

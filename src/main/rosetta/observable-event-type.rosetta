@@ -1,0 +1,115 @@
+namespace cdm.observable.event : <"Observable event concepts: extraordinary event, trigger event, disruption event etc.">
+version "${project.version}"
+
+type AdditionalDisruptionEvents: <"A type for defining the Additional Disruption Events.">
+	[synonym FpML_5_10 value "AdditionalDisruptionEvents"]
+
+	changeInLaw boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Change in Law | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Change In Law | If true, then change in law is applicable.">
+		[synonym FpML_5_10 value "changeInLaw"]
+	failureToDeliver boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Failure to Deliver | Where the underlying is shares and the transaction is physically settled, then, if true, a failure to deliver the shares on the settlement date will not be an event of default for the purposes of the master agreement.">
+		[synonym FpML_5_10 value "failureToDeliver"]
+	insolvencyFiling boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Insolvency Filing | If true, then insolvency filing is applicable.">
+		[synonym FpML_5_10 value "insolvencyFiling"]
+	hedgingDisruption boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Hedging Disruption | If true, then hedging disruption is applicable.">
+		[synonym FpML_5_10 value "hedgingDisruption"]
+	increasedCostOfHedging boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Increased Cost of Hedging | If true, then increased cost of hedging is applicable.">
+		[synonym FpML_5_10 value "increasedCostOfHedging"]
+	foreignOwnershipEvent boolean (0..1) <"If true, then foreign ownership event is applicable.">
+		[synonym FpML_5_10 value "foreignOwnershipEvent"]
+	lossOfStockBorrow boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Loss of Stock Borrow | If true, then loss of stock borrow is applicable.">
+		[synonym FpML_5_10 value "lossOfStockBorrow"]
+	maximumStockLoanRate number (0..1) <"Specifies the maximum stock loan rate for Loss of Stock Borrow. A percentage of 5% is represented as 0.05.">
+		[synonym FpML_5_10 value "maximumStockLoanRate"]
+	increasedCostOfStockBorrow boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Increased Cost of Stock Borrow | If true, then increased cost of stock borrow is applicable.">
+		[synonym FpML_5_10 value "increasedCostOfStockBorrow"]
+	initialStockLoanRate number (0..1) <"Specifies the initial stock loan rate for Increased Cost of Stock Borrow. A percentage of 5% is represented as 0.05.">
+		[synonym FpML_5_10 value "initialStockLoanRate"]
+	determiningPartyReference Party (0..1) <"A reference to the party which determines additional disruption events.">
+		[metadata reference]
+		[synonym FpML_5_10 value "determiningPartyReference" meta "href"]
+
+	condition MaximumStockLoanRate: <" FpML specifies the maximumStockLoanRate as a RestrictedPercentage, meaning that its value is comprised between 0 and 1.">
+		if maximumStockLoanRate exists
+		then maximumStockLoanRate >= 0
+			and maximumStockLoanRate <= 1
+
+	condition InitialStockLoanRate: <" FpML specifies the initialStockLoanRate as a RestrictedPercentage, meaning that its value is comprised between 0 and 1.">
+		if initialStockLoanRate exists
+		then AdditionalDisruptionEvents ->initialStockLoanRate >= 0
+			and initialStockLoanRate <= 1
+
+/*
+ * The FpML construct has a a number of other attributes: dividend valuation dates, fall-back provision, ...
+ * Also, FpML extends Price while the current CDM approach is just to share the determinationMethod.  To be confirmed as a function of the use cases.
+ */
+type ExtraordinaryEvents: <"Where the underlying is shares, defines market events affecting the issuer of those shares that may require the terms of the transaction to be adjusted.">
+	[synonym FpML_5_10 value "ExtraordinaryEvents"]
+
+	mergerEvents EquityCorporateEvents (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Merger Event shall occur if a Merger occurs and the Merger Date is on or before the final Equity Valuation Date | Occurs when the underlying ceases to exist following a merger between the Issuer and another company.">
+		[synonym FpML_5_10 value "mergerEvents"]
+	tenderOfferEvents EquityCorporateEvents (0..1) <"2002 ISDA Equity Derivatives Definitions: Tender Offers | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Tender Offer Event">
+		[synonym FpML_5_10 value "tenderOfferEvents"]
+	compositionOfCombinedConsideration boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Composition of Combined Consideration | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Combined Consideration | If present and true, then composition of combined consideration is applicable.">
+		[synonym FpML_5_10 value "compositionOfCombinedConsideration"]
+	indexAdjustmentEvents IndexAdjustmentEvents (0..1) <"2002 ISDA Equity Derivatives Definitions: Adjustments to Indices | ">
+		[synonym FpML_5_10 value "indexAdjustmentEvents"]
+	additionalDisruptionEvents AdditionalDisruptionEvents (0..1) <"2002 ISDA Equity Derivatives Definitions: Additional Disruption Events | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Additional Disruption Events means each Additional Disruption Event specified in the Confirmation Side Letter. For the avoidance of doubt, each Additional Disruption Event shall be an Extraordinary Event.">
+		[synonym FpML_5_10 value "additionalDisruptionEvents"]
+	failureToDeliver boolean (0..1) <"If true, failure to deliver is applicable.">
+		[synonym FpML_5_10 value "failureToDeliver"]
+	representations Representations (0..1)
+		[synonym FpML_5_10 value "representations"]
+	nationalizationOrInsolvency NationalizationOrInsolvencyOrDelistingEventEnum (0..1) <"2002 ISDA Equity Derivatives Definitions: Nationalization and Insolvency | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Nationalization shall occur if all the Securities or all or substantially all the assets of an Issuer are nationalized, expropriated or are otherwise required to be transferred to any governmental agency, authority, entity or instrumentality thereof. Insolvency Filing means as defined in the Confirmation Side Letter.">
+		[synonym FpML_5_10 value "nationalisationOrInsolvency"]
+	delisting NationalizationOrInsolvencyOrDelistingEventEnum (0..1) <"2002 ISDA Equity Derivatives Definitions: Delisting | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Delisting means Delisting (Broad Relisting) or Delisting (Narrow Relisting), as specified in the Relationship Supplement.">
+		[synonym FpML_5_10 value "delisting"]
+	condition Choice: <"condition to represent an FpML choice construct.">
+		required choice additionalDisruptionEvents, failureToDeliver
+
+type IndexAdjustmentEvents: <"Defines the specification of the consequences of Index Events as defined by the 2002 ISDA Equity Derivatives Definitions.">
+	[synonym FpML_5_10 value "IndexAdjustmentEvents"]
+
+	indexModification IndexEventConsequenceEnum (1..1) <"Consequence of index modification.">
+		[synonym FpML_5_10 value "indexModification"]
+	indexCancellation IndexEventConsequenceEnum (1..1) <"Consequence of index cancellation.">
+		[synonym FpML_5_10 value "indexCancellation"]
+	indexDisruption IndexEventConsequenceEnum (1..1) <"Consequence of index disruption.">
+		[synonym FpML_5_10 value "indexDisruption"]
+
+type Trigger: <"Trigger point at which feature is effective.">
+	[synonym FpML_5_10 value "Trigger"]
+
+	level number (0..1) <"The trigger level.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "level"]
+	levelPercentage number (0..1) <"The trigger level percentage.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "levelPercentage"]
+	creditEvents CreditEvents (0..1)
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "creditEvents"]
+	creditEventsReference CreditEvents (0..1)
+		[metadata reference]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "creditEventsReference" meta "href"]
+	triggerType TriggerTypeEnum (0..1) <"The Triggering condition.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "triggerType"]
+	triggerTimeType TriggerTimeTypeEnum (0..1) <"The valuation time type of knock condition.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "triggerTimeType"]
+
+	condition Choice1: <" Choice rule to represent an FpML choice construct.">
+		required choice level, levelPercentage , creditEvents , creditEventsReference
+
+	condition Choice2: <" Choice rule to represent an FpML choice construct.">
+		required choice creditEvents, creditEventsReference
+
+
+type TriggerEvent: <"Observation point for trigger.">
+	[synonym FpML_5_10 value "TriggerEvent"]
+
+	schedule AveragingSchedule (0..*) <"A derivative schedule.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "schedule"]
+	triggerDates DateList (0..1) <"The trigger Dates.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "triggerDates"]
+	trigger Trigger (1..1) <"The trigger level">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "trigger"]
+	featurePayment FeaturePayment (0..1) <"The feature payment, i.e. the payment made following trigger occurrence.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "featurePayment"]
+
+
