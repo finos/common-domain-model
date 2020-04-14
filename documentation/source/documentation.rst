@@ -26,15 +26,8 @@ TradableProduct
 
 A tradable product represents a financial product that is ready to be traded, meaning that there is an agreed financial product, price, quantity, and other details necessary to complete an execution of a security or a negotiated contract.  Tradable products are represented in the ``TradableProduct`` type. 
 
-.. code-block:: Java
-
- type TradableProduct: 
-    product Product (1..1)
-    quantityNotation QuantityNotation (1..*) 
-    priceNotation PriceNotation (0..*) 
-    adjustment NotionalAdjustmentEnum (0..1) 
-    condition PriceQuantityTriangulation:
-    PriceQuantityTriangulation( priceNotation, quantityNotation ) = True
+.. literalinclude:: code-snippets/TradableProduct.snippet
+  :language: haskell
         
 Quantity and price are represented in the ``TradableProduct`` type because they are attributes shared by all products. All of the other attributes required to describe a product are defined in distinct product types.
 
