@@ -125,7 +125,7 @@ The scope of contractual products in the current model are summarized below:
 
   * Equity Swaps (single name)
   
-* **Optons**:
+* **Options**:
 
   * Any other OTC Options (incl. FX Options)
 
