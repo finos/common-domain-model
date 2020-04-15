@@ -143,7 +143,7 @@ Note that price and quantity are defined in ``TradableProduct`` as these are att
 Economic Terms
 """"""""""""""
 
-The CDM specifies the various set of possible remaining economic terms using the ``EconomicTerms`` type, which includes attributes that are common to all payout types, such as effective date, termination date, and date adjustments.  A valid population of this type is constrained by a set of conditions which are not shown here in the interests of brevity.
+The CDM specifies the various sets of possible remaining economic terms using the ``EconomicTerms`` type.  This type includes contractual provisions that are not specific to the type of payout, but do impact the value of the contract, such as effective date, termination date, date adjustments, and early termination provisions.  A valid population of this type is constrained by a set of conditions which are not shown here in the interests of brevity.
 
 .. code-block:: Java
 
