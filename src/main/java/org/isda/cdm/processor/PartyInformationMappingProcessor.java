@@ -1,21 +1,19 @@
 package org.isda.cdm.processor;
 
+import cdm.base.staticdata.party.Party;
+import cdm.base.staticdata.party.Party.PartyBuilder;
+import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
-
-import cdm.base.staticdata.party.Party;
-import cdm.base.staticdata.party.Party.PartyBuilder;
-import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
-
 import org.isda.cdm.LegalAgreement.LegalAgreementBuilder;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+
+import static org.isda.cdm.processor.MappingProcessorUtils.*;
 
 /**
  * ISDA Create mapping processor.
@@ -42,42 +40,25 @@ public class PartyInformationMappingProcessor extends MappingProcessor {
 	}
 
 	private void addPartyInformation(LegalAgreementBuilder legalAgreementBuilder, String partyId) {
-		Path namePath = Path.parse("answers.partyA.parties." + partyId + "_name");
-		Optional<String> nameMapping = findMapping(namePath);
+		findMappings(getMappings(), Path.parse("answers.partyA.parties")).forEach(m -> updateMapping(m, getPath()));
 
-		if (nameMapping.isPresent()) {
-			String name = nameMapping.get();
-			String id = findMapping(Path.parse(partyId + ".entity.id"))
-					.orElse(findMapping(Path.parse(partyId + ".id")).orElse(partyId));
-			updateModelAndMappings(legalAgreementBuilder, partyId, namePath, name, id);
-		}
-	}
+		PartyBuilder partyBuilder = Party.builder().setMetaBuilder(MetaFields.builder().setExternalKey(partyId));
 
-	private void updateModelAndMappings(LegalAgreementBuilder legalAgreementBuilder, String partyId, Path namePath, String name, String id) {
-		// Update model
+		List<Mapping> partyNameMappings = findMappings(getMappings(), Path.parse(String.format("answers.partyA.parties.%s_name", partyId)));
+		findMappedValue(partyNameMappings)
+				.ifPresent(xmlValue -> {
+					partyBuilder.setNameRef(xmlValue);
+					partyNameMappings.forEach(m -> updateMapping(m, getPath()));
+				});
+
+		List<Mapping> partyEntityIdMappings = findMappings(getMappings(), Path.parse(String.format("%s.entity.id", partyId)));
+		findMappedValue(partyEntityIdMappings).ifPresent(xmlValue -> {
+			partyBuilder.addPartyId(FieldWithMetaString.builder().setValue(xmlValue).build());
+			partyNameMappings.forEach(m -> updateMapping(m, getPath()));
+		});
+
 		legalAgreementBuilder
-				.addPartyInformationBuilder(getParty(partyId, id, name))
+				.addPartyInformationBuilder(partyBuilder)
 				.addContractualParty(ReferenceWithMetaParty.builder().setExternalReference(partyId).build());
-
-		// Update mappings
-		getMappings().removeIf(m -> namePath.fullStartMatches(m.getXmlPath()));
-		getMappings().add(new Mapping(namePath, name, Path.parse("LegalAgreement.partyInformation.meta.id"), partyId, null, false, false));
-		getMappings().add(new Mapping(namePath, name, Path.parse("LegalAgreement.partyInformation.name"), name, null, false, false));
-	}
-
-	private PartyBuilder getParty(String externalReference, String id, String partyName) {
-		return Party.builder()
-				.setMetaBuilder(MetaFields.builder().setExternalKey(externalReference))
-				.addPartyId(FieldWithMetaString.builder().setValue(id).build())
-				.setNameRef(partyName);
-	}
-
-	private Optional<String> findMapping(Path path) {
-		return getMappings().stream()
-				.filter(p -> path.fullStartMatches(p.getXmlPath()))
-				.map(Mapping::getXmlValue)
-				.filter(Objects::nonNull)
-				.map(String::valueOf)
-				.findFirst();
 	}
 }
