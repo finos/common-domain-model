@@ -1526,13 +1526,13 @@ type LegalAgreement extends LegalAgreementBase: <"A class to specify the electio
 		[synonym FpML_5_10 value "ignore"]
 	
 	condition agreementVerification: <"A validation rule to ensure that the agreement elections are associated with the correct legal agreement type as specified.">
-		if agreementTerms -> agreement -> securityAgreement exists
+		if agreementTerms -> agreement -> securityAgreementElections exists
 		then agreementType -> name = LegalAgreementNameEnum->SecurityAgreement
 
-		else if agreementTerms -> agreement -> creditSupportAgreement exists
+		else if agreementTerms -> agreement -> creditSupportAgreementElections exists
 		then agreementType -> name = LegalAgreementNameEnum->CreditSupportDeed or agreementType -> name = LegalAgreementNameEnum->CreditSupportAnnex
 
-		else if agreementTerms -> agreement -> collateralTransferAgreement exists
+		else if agreementTerms -> agreement -> collateralTransferAgreementElections exists
 		then agreementType -> name = LegalAgreementNameEnum->CollateralTransferAgreement
 
 
@@ -1545,9 +1545,9 @@ type AgreementTerms: <"A class to specify the elections and variables that chara
 
 type Agreement: <"A class to specify elections specific to a certain type of agreement.">
 
-	creditSupportAgreement CreditSupportAgreementElections (0..1) <"A credit support agreement">
-	collateralTransferAgreement CollateralTransferAgreementElections (0..1) <"A collateral transfer agreeement">
-	securityAgreement SecurityAgreementElections (0..1) <"A security agreement">
+	creditSupportAgreementElections CreditSupportAgreementElections (0..1) <"Credit support agreement elections.">
+	collateralTransferAgreementElections CollateralTransferAgreementElections (0..1) <"Collateral transfer agreement elections.">
+	securityAgreementElections SecurityAgreementElections (0..1) <"Security agreement elections.">
 		[synonym ISDA_Create_1_0 value "partyA" path "answers" set when "document->documentType" = "Security Agreement"]
 	transactionConfirmation TransactionConfirmation (0..1) <"A transaction confirmation"> //TODO: Rename Contract and move to here
 	condition: one-of
