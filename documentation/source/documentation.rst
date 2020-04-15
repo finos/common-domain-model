@@ -23,16 +23,8 @@ Product
 
 A financial product represents any type of financial instrument that is used to transfer any financial risk between two parties. Financial products are captured in the ``Product`` class using the ``one of`` construct, depending on the type of financial instrument:
 
-.. code-block:: Java
-
- class Product key one of
- {
-  contractualProduct ContractualProduct (0..1);
-  index Index (0..1);
-  loan Loan (0..1);
-  foreignExchange ForeignExchange (0..1);
-  security Security (0..1);
- }
+.. literalinclude:: code-snippets/Product.snippet
+  :language: haskell
 
 The current CDM scope focuses on contractual derivative products represented by the ``contractualProduct`` attribute. Listed securities, loans or mortgages are represented only to the extent that they feature as underlyers of such derivative products (see the *Underlier* section). It is envisioned that further product types will be covered in the CDM model over time.
 
@@ -70,9 +62,9 @@ Contractual products are represented by the ``ContractualProduct`` class:
 
  class ContractualProduct
  {
-  productIdentification ProductIdentification (0..1) ;
-  productTaxonomy ProductTaxonomy (1..*) ;
-  economicTerms EconomicTerms (1..1) ;
+   productIdentification ProductIdentification (0..1) ;
+   productTaxonomy ProductTaxonomy (1..*) ;
+   economicTerms EconomicTerms (1..1) ;
  }
 
 The economic terms of the contractual product are positioned as part of the ``economicTerms`` attribute, alongside the product identification and product taxonomy information.

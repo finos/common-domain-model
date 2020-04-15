@@ -2,12 +2,15 @@ package org.isda.cdm.workflows;
 
 import com.google.inject.Inject;
 import com.rosetta.model.lib.process.PostProcessor;
-import org.isda.cdm.*;
+import org.isda.cdm.BusinessEvent;
+import org.isda.cdm.Contract;
+import org.isda.cdm.Workflow;
 import org.isda.cdm.Workflow.WorkflowBuilder;
-
-import static org.isda.cdm.workflows.WorkflowUtils.guard;
+import org.isda.cdm.WorkflowStep;
 
 import java.util.function.Function;
+
+import static org.isda.cdm.functions.testing.FunctionUtils.guard;
 
 public class Inception implements Function<Contract, Workflow> {
 	@Inject
