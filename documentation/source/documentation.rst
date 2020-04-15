@@ -24,7 +24,7 @@ Regardless of whether the data structure is the same or different from FpML, the
 TradableProduct
 ^^^^^^^^^^^^^^^
 
-A tradable product represents a financial product that is ready to be traded, meaning that there is an agreed financial product, price, quantity, and other details necessary to complete an execution of a security or a negotiated contract.  Tradable products are represented in the ``TradableProduct`` type. 
+A tradable product represents a financial product that is ready to be traded, meaning that there is an agreed financial product, price, quantity, and other details necessary to complete an execution of a security or a negotiated contract.  Tradable products are represented by the ``TradableProduct`` type. 
 
 .. literalinclude:: code-snippets/TradableProduct.snippet
   :language: haskell
