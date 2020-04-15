@@ -62,7 +62,7 @@ The ``PriceNotation`` type supports the price for any product.
     price Price (1..1)
     assetIdentifier AssetIdentifier (1..1) 
     
-The ``Price`` type that is encapsulated within ``PriceNotation`` requires the definition of one of the price types represented in its data structure, which collectively support all the types for all of the products in the CDM.
+The attribute "price" is of type "Price", which requires the selection of one of the attributes that describe different types of prices. The set of attributes collectively support all products in the CDM.
 
 .. code-block:: Java
 
@@ -74,6 +74,8 @@ The ``Price`` type that is encapsulated within ``PriceNotation`` requires the de
     floatingInterestRate FloatingInterestRate (0..1)
     condition: one-of
     
+For example, "cashPrice" would be used to represent the reference price in an Equity Swap and "fixedInterestRate" would be used to represent the fixed rate on an Interest Rate Swap.  The "floatingInterestRate" would be used to represent a cap or floor, or could be used to represent the known initial reset rate of floating leg in an Interest Rate Swap, if it is known at the time of the trade.
+
 Financial Product
 """""""""""""""""
 
