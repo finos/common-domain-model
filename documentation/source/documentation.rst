@@ -159,7 +159,7 @@ The CDM specifies the various sets of possible remaining economic terms using th
  
 Payout
 """"""
-The ``Payout`` type defines the composable payout types, each of which describes a set of terms and conditions for the financial responsibilities between the two contractual parties. Payout types can be combined to compose a product.  For example, an Equity Swap can be composed by combining an ``InterestRatePayout`` and an ``EquityPayout``.
+The ``Payout`` type defines the composable payout types, each of which describes a set of terms and conditions for the financial responsibilities between the contractual parties. Payout types can be combined to compose a product.  For example, an Equity Swap can be composed by combining an ``InterestRatePayout`` and an ``EquityPayout``.
 
 .. code-block:: Java
 
