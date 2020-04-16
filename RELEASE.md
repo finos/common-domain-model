@@ -1,9 +1,19 @@
-# *Infrastructure: Function Testing*
+# *CDM Model: Legal Documents Modelling*
 
 _What is being released_
 
-Test definitions have been added to the cdm to test the `Execute` and `FormContract` function definitions with a vanilla IRS.
+Implementation of model to support Security Agreements. 
 
-Review Directions
+Ability to ingest below documents from ISDA Create:
 
-The tests will be available to view in Rosetta Core in the near future.
+- 2019 ISDA Bank Custodian SA (NY Law)
+- 2019 ISDA Bank Custodian SA (Eng Law)
+- 2019 Euroclear SA (Bel Law)
+
+_Review Directions_
+
+In the Ingestion Panel, review samples in folders:
+
+- `isda-create > euroclear-sa-2019-bellaw`
+- `isda-create > isda-sa-im-2019-englaw`
+- `isda-create > isda-sa-im-2019-nylaw`

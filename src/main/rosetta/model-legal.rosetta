@@ -841,6 +841,7 @@ type LegalAgreementBase: <"A class describing the legal agreement baseline infor
 	agreementDate date (1..1) <"The date on which the legal agreement has been agreed between the parties. This corresponds to the Date of Deed in an English Law document.">
 		[synonym FpML_5_10 value "agreementDate" path "legalDocumentHeader"]
 		[synonym ISDA_Create_1_0 value "executionDate" path "answers->partyA->execution_date"]
+		[synonym ISDA_Create_1_0 value "collateral_transfer_agreement_date"]
 	effectiveDate date (0..1) <"The date on which the agreement is effective, if different from the agreement date. It is expected that it will most often correspond to the agreement date, although there could be situations where the parties will explicitly agree on a distinct effective date.">
 		[synonym FpML_5_10 value "effectiveDate" path "legalDocumentHeader"]
 	identifier Identifier (0..*) <"The legal agreement identifier. Several identifiers can be specified.">
@@ -1250,7 +1251,7 @@ type UmbrellaAgreement: <"A class to specify a set of legal entities which are p
 	language string (1..1) <"The language associated with the umbrella agreement, and which applies to all the parties to the umbrella agreement.">
 		[synonym ISDA_Create_1_0 value "language" maps 2] // TODO: remove "maps 2" once migration complete
 	parties UmbrellaAgreementEntity (2..*) <"The parties to the umbrella agreement.">
-		// TODO: fix synonym mapping - see cardinality issues in json 
+		[synonym ISDA_Create_1_0 value "principal_identification_schedule" mapper "UmbrellaAgreementEntity"]
 	
 	condition UmbrellaAgreementExists: <"Umbrella Agreement language and parties should not exist when Umbrella Agreement terms are Not Applicable.">
 		if isApplicable = False
@@ -1258,7 +1259,7 @@ type UmbrellaAgreement: <"A class to specify a set of legal entities which are p
 
 type UmbrellaAgreementEntity extends LegalEntity: <"A class to specify the legal entities that are part of the umbrella agreement.">
 	terms string (0..1) <"The terms that might be associated with each party to the umbrella agreement.">
-		[synonym ISDA_Create_1_0 value "additional" maps 2]
+
 
 type CsdInitialMargin2018EnglishLaw extends CsaInitialMargin2018: <"A class to specify the provisions that are specific to the English Law version of the ISDA 2018 Credit Support Deed for Initial Margin.">
 
@@ -1497,71 +1498,82 @@ type JapaneseSecuritiesProvisions: <"A class to specify Japanese Securities Prov
 type LegalAgreement extends LegalAgreementBase: <"A class to specify the elections and variables that characterize a legal agreement.">
 	[metadata key]
  	[rootType]
-	// contractQualifier contractType (0..1) <"The CDM contract qualifier, which corresponds to the outcome of the isContract qualification logic. This value is derived by the CDM from the contract features.">
-	contractualTerms ContractualTerms (0..1) <"The set of elections specific to the contract">
-		[synonym ISDA_Create_1_0 value "partyA" path "answers"]
-//TODO Move DocumentationIdentification from RelatedAgreement to here or should this be LegalAgreementBase??  What does DocumentationIdentification do?
-	// documentationIdentification DocumentationIdentification (0..1) <"The identification of the legal document(s) that govern the contract through some of the key terms of such document(s): type of document, the document identifier, the publisher, the document vintage and the agreement date.">
-	// 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "documentation" path "trade"]
-	// 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "documentation"]
+
+ 	// agreementQualifier agreementType (0..1) <"The CDM agreement qualifier, which corresponds to the outcome of the isContract qualification logic. This value is derived by the CDM from the contract features.">
+	agreementTerms AgreementTerms (0..1) <"The set of elections specific to the contract">
 
 //TODO below attributes to be removed once new collateral document model is fully built
 	csdInitialMargin2016EnglishLaw CsdInitialMargin2016EnglishLaw (0..1) <"The elections and variables specified in Paragraph 13 of the ISDA 2016 Credit Support Deed for Initial Margin, English Law.">
 		[synonym ISDA_Create_1_0 value "partyA" path "answers" set when "document->abbreviation" = "2016 IM CSD (Eng Law)"]
+		[synonym FpML_5_10 value "ignore"]
 	csdInitialMargin2018EnglishLaw CsdInitialMargin2018EnglishLaw (0..1) <"The elections and variables specified in Paragraph 13 of the ISDA 2018 Credit Support Deed for Initial Margin, English Law.">
 		[synonym ISDA_Create_1_0 value "partyA" path "answers" set when "document->abbreviation" = "2018 IM CSD (Eng Law)"]
+		[synonym FpML_5_10 value "ignore"]
 	csaInitialMargin2016JapaneseLaw CsaInitialMargin2016JapaneseLaw (0..1) <"The elections and variables specified in Paragraph 13 of the ISDA 2016 Credit Support Annex for Initial Margin, Japanese Law.">
 		[synonym ISDA_Create_1_0 value "partyA" path "answers" set when "document->abbreviation" = "2016 IM CSA (Jpn Law)"]
+		[synonym FpML_5_10 value "ignore"]
 	csaInitialMargin2016NewYorkLaw CsaInitialMargin2016NewYorkLaw (0..1) <"The elections and variables specified in Paragraph 13 of the ISDA 2016 Credit Support Annex for Initial Margin, New York Law.">
 		[synonym ISDA_Create_1_0 value "partyA" path "answers" set when "document->abbreviation" = "2016 IM CSA (NY Law)"]
+		[synonym FpML_5_10 value "ignore"]
 	csaInitialMargin2018NewYorkLaw CsaInitialMargin2018NewYorkLaw (0..1) <"The elections and variables specified in Paragraph 13 of the ISDA 2018 Credit Support Annex for Initial Margin, New York Law.">
 		[synonym ISDA_Create_1_0 value "partyA" path "answers" set when "document->abbreviation" = "2018 IM CSA (NY Law)"]
+		[synonym FpML_5_10 value "ignore"]
 	csaVariationMargin2016NewYorkLaw CsaVariationMargin2016NewYorkLaw (0..1) <"The elections and variables specified in Paragraph 13 of the ISDA 2016 Credit Support Annex for Variation Margin, New York Law.">
 		[synonym ISDA_Create_1_0 value "ignore"]
+		[synonym FpML_5_10 value "ignore"]
 	equitySwapMasterConfirmation2018 EquitySwapMasterConfirmation2018 (0..1) <"The General Terms and Relationship Supplement Elections specified in the 2018 ISDA CDM Equity Confirmation for Security Equity Swap.">
 		[synonym ISDA_Create_1_0 value "ignore"]
+		[synonym FpML_5_10 value "ignore"]
+	
+	condition agreementVerification: <"A validation rule to ensure that the agreement elections are associated with the correct legal agreement type as specified.">
+		if agreementTerms -> agreement -> securityAgreementElections exists
+		then agreementType -> name = LegalAgreementNameEnum->SecurityAgreement
+
+		else if agreementTerms -> agreement -> creditSupportAgreementElections exists
+		then agreementType -> name = LegalAgreementNameEnum->CreditSupportDeed or agreementType -> name = LegalAgreementNameEnum->CreditSupportAnnex
+
+		else if agreementTerms -> agreement -> collateralTransferAgreementElections exists
+		then agreementType -> name = LegalAgreementNameEnum->CollateralTransferAgreement
 
 
-type ContractualTerms: <"A class to specify the elections and variables that characterize a legal agreement.">
+type AgreementTerms: <"A class to specify the elections and variables that characterize a legal agreement.">
 
 	agreement Agreement (1..1) <"The type of contract being specified">
-// TODO Rename Contract
-//	baseTerms LegalAgreementBase (1..1) <"The base terms of the contract">
-// TODO should LegalAgreementBase sit here rather than have LegalAgreement extend.
-	relatedAgreements RelatedAgreements (1..1) <"Additional agreements specific to the terms of the contract">
-
-type RelatedAgreements: <"A class to specify additional agreements specific to the terms of the contract">
-
-	documentation RelatedAgreement (1..1) <"The additional agreement">
+	relatedAgreements RelatedAgreement (0..*) <"Specifies the agreement(s) that govern the agreement, either as a reference to such agreements when specified as part of the CDM, or through identification of some of the key terms of those agreements, such as the type of agreement, the publisher, the vintage, the agreement identifier and the agreement date.">
 	umbrellaAgreement UmbrellaAgreement (0..1) <"The determination of whether Umbrella Agreement terms are applicable (True) or Not Applicable (False).">
-		[synonym ISDA_Create_1_0 value "umbrella_agreement_and_principal_identification", "principal_identification_schedule" path "umbrella_agreement_and_principal_identification"]
+		[synonym ISDA_Create_1_0 value "umbrella_agreement_and_principal_identification", "umbrella_agreement_and_principal_identification" path "answers->partyA"]
 
 type Agreement: <"A class to specify elections specific to a certain type of agreement.">
-//TODO Rename Contract
 
-	creditSupportAgreement CreditSupportAgreement (0..1) <"A credit support agreement">
-// TODO Understand current CreditSupportAgreement type.   Can this be repurposed.
-	collateralTransferAgreement CollateralTransferAgreement (0..1) <"A collateral transfer agreeement">
-	securityAgreement SecurityAgreement (0..1) <"A security agreement">
-	transactionConfirmation TransactionConfirmation (0..1) <"A transaction confirmation">
+	creditSupportAgreementElections CreditSupportAgreementElections (0..1) <"Credit support agreement elections.">
+	collateralTransferAgreementElections CollateralTransferAgreementElections (0..1) <"Collateral transfer agreement elections.">
+	securityAgreementElections SecurityAgreementElections (0..1) <"Security agreement elections.">
+		[synonym ISDA_Create_1_0 value "partyA" path "answers" set when "document->documentType" = "Security Agreement"]
+	transactionConfirmation TransactionConfirmation (0..1) <"A transaction confirmation"> //TODO: Rename Contract and move to here
 	condition: one-of
 
-type CreditSupportAgreementNew: <"The set of elections which specify a Credit Support Agremeent">
+type CreditSupportAgreementElections: <"The set of elections which specify a Credit Support Agremeent">
 
-	regime Regime (1..1) <"The Regime Table provisions.">
+// 	regime Regime (1..1) <"The Regime Table provisions.">
 
 // external file extension ISDA-legal
 	// Regime
-	// 	[documentReference InitialMargin_2018_NewYorkLaw paragraph "13" field "Regimes"
+	// [documentReference InitialMargin_2018_NewYorkLaw paragraph "13" field "Regimes"
 	// [documentReference InitialMargin_2016_JapaneseLaw paragraph "13" field "(c)(v)"
 
-	generalPrinciples GeneralPrinciples (1..1) <"The General Principles provisions">
+	// generalPrinciples GeneralPrinciples (1..1) <"The General Principles provisions">
 
-type CollateralTransferAgreement: <"The set of elections which specify a Collateral Transfer Agremeent">
+type CollateralTransferAgreementElections: <"The set of elections which specify a Collateral Transfer Agremeent">
 
-type SecurityAgreement: <"The set of elections which specify a Security Agremeent">
+	processAgent ProcessAgent (0..1) <"The Process Agent that might be appointed by the parties to the agreement.">
+		[synonym ISDA_Create_1_0 value "process_agent"]
 
+type SecurityAgreementElections: <"The set of elections which specify a Security Agremeent">
+
+	agreementType SecurityAgreementTypeEnum (0..1) <"The type of Security Agreement being specified. This attribute is included to allow direct mapping to ISDA Create and should not be used when definining an agreement directly in CDM.  The base agreement should be specified using legalAgreementBase->agreementType.">
+		[synonym ISDA_Create_1_0 value "abbreviation" path "document"]
 	pledgedAccount Account (0..1) <"The pledged account associated with the agreement">
+		[synonym ISDA_Create_1_0 value "pledged_account_number"]
 	enforcementEvent EnforcementEvent (0..1) <"Enforcement Events specific to the agreement">
 		[synonym ISDA_Create_1_0 value "enforcement_event"]
 	deliveryInLieuRight boolean (0..1) <"Delivery In Lieu rights">
@@ -1610,14 +1622,16 @@ type JurisdictionSpecificTerms: <"A class to specify Jurisdiction Specfic Terms"
 		[synonym ISDA_Create_1_0 set to True when "jury_waiver->is_applicable" = "applicable", set to False when "jury_waiver->is_applicable" = "not_applicable"]
 
 type ExecutionTerms: <"A class to specify execution location and language of execution to determine duty to be paid.">
-	executionLanguage ExecutionLanguage (1..1) <"The language of execution">
-	executionLocation ExecutionLocation (1..1) <"The location of execution">
+	executionLanguage ExecutionLanguage (1..1) <"The bespoke execution language election.">
+	executionLocation ExecutionLocation (1..1) <"The bespoke execution location election.">
 
 type ExecutionLanguage: <"A class to specify execution language terms of a Security Agreement.">
 	standardLanguage boolean (1..1) <"A boolean attribute to determine if standard language is applicable or not">
 		[synonym ISDA_Create_1_0 set to True when "execution_language" = "standard_language", set to False when "execution_language" = "other_execution_language"]
-	numberOfOriginals number (0..1) <"The number of original documents">
+	numberOfOriginals string (0..1) <"The number of original documents">
+		[synonym ISDA_Create_1_0 value "number_of_originals"]
 	otherLanguage string (0..1) <"Bespoke execution language to be included when specified.">
+		[synonym ISDA_Create_1_0 value "execution_language"]
 
 	condition numberOfOriginals: <"A data rule to enforce that the number of original documents should only be specified when standard execution language is used.">
 		if standardLanguage = False
@@ -1636,20 +1650,37 @@ type ExecutionLocation: <"A class to specify execution location terms of a Secur
 									set to "Specify" when "documentary_duty_payer" = "other"]
 	dutyPayerLanguage string (0..1) <"Bespoke terms specific to the payment of documentary duty">
 		[synonym ISDA_Create_1_0 value "specify_documentary_duty_payer" path "documentary_duty_payer"]
-	dutyPaymentDate string (0..1) <"The date that documentary duty will be paid">
-		[synonym ISDA_Create_1_0 value "select_documentary_duty_date" set when "documentary_duty_date" = "select"]
+	dutyPaymentDate date (0..1) <"The date that documentary duty will be paid">
+		[synonym ISDA_Create_1_0 value "select_documentary_duty_date"] // set when "documentary_duty_date" = "select"
 	dutyPaymentLanguage string (0..1) <"Bespoke terms specific to the date that documentary duty will be paid">
 		[synonym ISDA_Create_1_0 value "specify_documentary_duty_date_datepicker" set when "documentary_duty_date" = "other"]
 
 // TODO Data Rule required to enforce that Duty Payer should be absent if LocationEnum is ExecutedOutsideBelgium or Other (OR included if Enum is ExecutedInBelgium)
-// condition dutyPayer: <"A data rule to enforce that Duty Payer language should be absent when the document is executed outside of Belgium.">
-// 	if ExecutionLocationEnum is "ExecutedOutsideBelgium"
-// 	then dutyPayer, dutyPayerLanguage, dutyPaymentDate, dutyPaymentLanguage is absent
+	// condition dutyPayer: <"A data rule to enforce that Duty Payer language should be absent when the document is executed outside of Belgium.">
+	// 	if executionLocation = ExecutionLocationEnum->ExecutedOutsideBelgium
+	// 	then dutyPayer and dutyPayerLanguage and dutyPaymentDate and dutyPaymentLanguage is absent
 
-condition dutyPayerLanguage: <"A data rule to enforce that Duty Payer Language should only be specified when required">
-	if dutyPayer = "Specify" then dutyPayerLanguage exists
+	condition dutyPayerLanguage: <"A data rule to enforce that Duty Payer Language should only be specified when required">
+		if dutyPayer = "Specify"
+		then dutyPayerLanguage exists
 
-condition dutyPaymentLanguage: <"A data rule to enforce that Duty Payment Language should be absent when a Duty Payment date is provided">
-	if dutyPaymentDate exists then dutyPaymentLanguage is absent
+	condition dutyPaymentLanguage: <"A data rule to enforce that Duty Payment Language should be absent when a Duty Payment date is provided">
+		if dutyPaymentDate exists then dutyPaymentLanguage is absent
+
+//Additional election to be used in modelling Collateral Transfer Agreement
+
+type CollateralValuationAgent: <"A class to specify Collateral Valuation Agent terms.">
+
+	partyElection CollateralValuationAgentElection (2..2) <"The parties Collateral Valuation Agent Elections.">
+
+type CollateralValuationAgentElection: <"A class to specify Collateral Valuation Agent elections.">
+
+	party string (1..1) <"The elective party.">
+		[synonym ISDA_Create_1_0 set to "partyA" when path = "partyA_specify"] //Check synonyms
+		[synonym ISDA_Create_1_0 set to "partyB" when path = "partyB_specify"] //Check synonyms
+
+	additionalLanguage string (0..1) <"The additional language that might be specified by the parties to the legal agreement.">
+		[synonym ISDA_Create_1_0 value "partyA_additional_language"] //Check synonyms
+		[synonym ISDA_Create_1_0 value "partyB_additional_language"] //Check synonyms
 
 
