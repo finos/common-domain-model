@@ -1,19 +1,15 @@
-# *CDM Model: Legal Documents Modelling*
+# *Model Optimisation: Price Refactor*
 
 _What is being released_
 
-Implementation of model to support Security Agreements. 
+Clean up tasks following the recent model price refactor:
 
-Ability to ingest below documents from ISDA Create:
-
-- 2019 ISDA Bank Custodian SA (NY Law)
-- 2019 ISDA Bank Custodian SA (Eng Law)
-- 2019 Euroclear SA (Bel Law)
+- Migrate regulation reporting rules for `ESMA MiFIR RTS22` to use new price model.
 
 _Review Directions_
 
-In the Ingestion Panel, review samples in folders:
+In the Textual Browser, review reporting rules:
 
-- `isda-create > euroclear-sa-2019-bellaw`
-- `isda-create > isda-sa-im-2019-englaw`
-- `isda-create > isda-sa-im-2019-nylaw`
+- `FixedRatePrice`, `FloatingRatePrice`, `FixedFixedPrice` 
+- `FixedFloatBuyerSeller`, `CrossCurrencySwapBuyerSeller`, `FixedFixedBuyerSeller`
+- `IsFixedFloat`, `IsFixedFixed`, `IsIRSwapBasis`, `IsXCCYSwap`, `IsCreditDefaultSwap`
