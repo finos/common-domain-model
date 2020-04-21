@@ -1,8 +1,7 @@
 package org.isda.cdm.functions.testing;
 
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
-import org.isda.cdm.BusinessEvent;
-import org.isda.cdm.Contract;
+import org.isda.cdm.*;
 import org.isda.cdm.functions.Execute;
 import org.isda.cdm.functions.FormContract;
 

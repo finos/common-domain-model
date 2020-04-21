@@ -1,9 +1,26 @@
-# *Infrastructure: Function Testing*
+# *Event Model: Add Examples and Tests for New Trade Functions*
 
 _What is being released_
 
-Test definitions have been added to the cdm to test the `Execute` and `FormContract` function definitions with a vanilla IRS.
+New examples for the `Execute` and `FormContract` functions.
 
-Review Directions
+- `Execute` Business Event
+  - Fixed/Floating Single Currency Interest Rate Swap
+  - Forward Rate Agreement
+  - Basis Swap
+  - OIS Swap
+  - Swaption
+  
+- `FormContract` Business Event
+  - Fixed/Floating Single Currency Interest Rate Swap using ISDA Master Agreement
+  - Fixed/Floating Single Currency Interest Rate Swap
+  - Forward Rate Agreement
+  - Basis Swap
+  - OIS Swap
+  - Swaption
+  
+_Review Directions_
 
-The tests will be available to view in Rosetta Core in the near future.
+Using Rosetta Core, navigate to the Visualise CDM Events section and select 'EXECUTE BUSINESS EVENT' or 'FORM CONTRACT BUSINESS EVENT'. There will be an item per example which you can click on to see a visualisation. Click on a node to see the CDM JSON in the analisys section.
+
+
