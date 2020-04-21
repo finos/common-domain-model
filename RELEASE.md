@@ -1,26 +1,28 @@
-# *Event Model: Add Examples and Tests for New Trade Functions*
+# *Product Model: Add FpML Equity Samples*
 
 _What is being released_
 
-New examples for the `Execute` and `FormContract` functions.
-
-- `Execute` Business Event
-  - Fixed/Floating Single Currency Interest Rate Swap
-  - Forward Rate Agreement
-  - Basis Swap
-  - OIS Swap
-  - Swaption
-  
-- `FormContract` Business Event
-  - Fixed/Floating Single Currency Interest Rate Swap using ISDA Master Agreement
-  - Fixed/Floating Single Currency Interest Rate Swap
-  - Forward Rate Agreement
-  - Basis Swap
-  - OIS Swap
-  - Swaption
+Add FpML Equity samples and set up ingestion regression tests.
   
 _Review Directions_
 
-Using Rosetta Core, navigate to the Visualise CDM Events section and select 'EXECUTE BUSINESS EVENT' or 'FORM CONTRACT BUSINESS EVENT'. There will be an item per example which you can click on to see a visualisation. Click on a node to see the CDM JSON in the analisys section.
+In the Ingestion Panel, try the following samples folder `products > equity`:
 
-
+- `eqs-ex03-index-quanto-long-form.xml`
+- `eqs-ex04-zero-strike-long-form.xml`
+- `eqs-ex05-single-stock-plus-fee-long-form.xml`
+- `eqs-ex06-single-index-long-form.xml`
+- `eqs-ex07-long-form-with-stub.xml`
+- `eqs-ex09-compounding-swap.xml`
+- `eqs-ex11-on-european-index-underlyer-short-form.xml`
+- `eqs-ex12-on-european-index-underlyer-short-form.xml`
+- `eqs-ex13-pan-asia-interdealer-share-swap-short-form.xml`
+- `eqs-ex14-european-interdealer-share-swap-short-form.xml`
+- `eqs-ex15-forward-starting-pre-european-interdealer-share-swap-short-form.xml`
+- `eqs-ex16-forward-starting-post-european-interdealer-share-swap-short-form.xml`
+- `eqs-ex17-cfd.xml`
+- `eqs-ex18-pan-asia-interdealer-index-swap-short-form.xml`
+- `eqs-ex19-european-interdealer-fair-value-share-swap-short-form.xml`
+- `trs-ex02-single-equity.xml`
+- `trs-ex03-single-stock-execution-swap-with-fixing-and-dividend-payment-dates.xml`
+- `trs-ex04-index-ios.xml`
