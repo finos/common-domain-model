@@ -62,7 +62,7 @@ The ``PriceNotation`` type supports the price for any product.
     price Price (1..1)
     assetIdentifier AssetIdentifier (1..1) 
     
-The attribute "price" is of type "Price", which requires the selection of one of the attributes that describe different types of prices. The set of attributes collectively support all products in the CDM.
+The ``price`` attribute is of type ``Price``, which requires the selection of one of the attributes that describe different types of prices. The set of attributes collectively support all products in the CDM.
 
 .. code-block:: Java
 
