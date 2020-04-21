@@ -1,6 +1,7 @@
 package org.isda.cdm.functions.testing;
 
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
+import com.rosetta.model.lib.records.DateImpl;
 import org.isda.cdm.*;
 import org.isda.cdm.functions.Execute;
 import org.isda.cdm.functions.FormContract;
@@ -9,7 +10,7 @@ import javax.inject.Inject;
 
 import static org.isda.cdm.functions.testing.FunctionUtils.guard;
 
-public class RunFormContract implements ExecutableFunction<Contract, BusinessEvent> {
+public class RunFormContractWithLegalAgreement implements ExecutableFunction<Contract, BusinessEvent> {
 
     @Inject
     Execute execute;
@@ -26,8 +27,19 @@ public class RunFormContract implements ExecutableFunction<Contract, BusinessEve
                 guard(contract.getParty()),
                 guard(contract.getPartyRole()));
 
-        return formContract.evaluate(executeBusinessEvent, null);
+        LegalAgreement legalAgreement = LegalAgreement.builder()
+                .addContractualPartyRef(guard(contract.getParty()))
+                .setAgreementDate(DateImpl.of(1994, 12, 01))
+                .setAgreementType(LegalAgreementType.builder()
+                        .setName(LegalAgreementNameEnum.MASTER_AGREEMENT)
+                        .setPublisher(LegalAgreementPublisherEnum.ISDA)
+                        .setGoverningLaw(GoverningLawEnum.AS_SPECIFIED_IN_MASTER_AGREEMENT)
+                        .build())
+                .build();
+
+        return formContract.evaluate(executeBusinessEvent, legalAgreement);
     }
+
 
     @Override
     public Class<Contract> getInputType() {
