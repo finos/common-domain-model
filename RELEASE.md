@@ -1,15 +1,26 @@
-# *Model Optimisation: Price Refactor*
+# *Event Model: Add Examples and Tests for New Trade Functions*
 
 _What is being released_
 
-Clean up tasks following the recent model price refactor:
+New examples for the `Execute` and `FormContract` functions.
 
-- Migrate regulation reporting rules for `ESMA MiFIR RTS22` to use new price model.
-
+- `Execute` Business Event
+  - Fixed/Floating Single Currency Interest Rate Swap
+  - Forward Rate Agreement
+  - Basis Swap
+  - OIS Swap
+  - Swaption
+  
+- `FormContract` Business Event
+  - Fixed/Floating Single Currency Interest Rate Swap using ISDA Master Agreement
+  - Fixed/Floating Single Currency Interest Rate Swap
+  - Forward Rate Agreement
+  - Basis Swap
+  - OIS Swap
+  - Swaption
+  
 _Review Directions_
 
-In the Textual Browser, review reporting rules:
+Using Rosetta Core, navigate to the Visualise CDM Events section and select 'EXECUTE BUSINESS EVENT' or 'FORM CONTRACT BUSINESS EVENT'. There will be an item per example which you can click on to see a visualisation. Click on a node to see the CDM JSON in the analisys section.
 
-- `FixedRatePrice`, `FloatingRatePrice`, `FixedFixedPrice` 
-- `FixedFloatBuyerSeller`, `CrossCurrencySwapBuyerSeller`, `FixedFixedBuyerSeller`
-- `IsFixedFloat`, `IsFixedFixed`, `IsIRSwapBasis`, `IsXCCYSwap`, `IsCreditDefaultSwap`
+
