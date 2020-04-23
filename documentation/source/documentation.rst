@@ -803,8 +803,136 @@ The below snippet represents this ``Documentation`` class, which ``legalAgreemen
  }
 
 
-Function
---------
+Process Model
+-------------
+
+Industry processes represent events and actions through a trade's lifecycle, such as allocating a block-trade or calculating coupon payments. While ISDA already defines how industry processes should work in the ISDA Documentation, errors in implementation still cause friction amongst market participants.
+
+According to ISDA, even processes that are generally considered trivial continue to cause conflict amongst market participants. Evidence shows that even calculations defined in mathematical notation have been implemented incorrectly by seasoned practitioners. For example, day count fraction formulae are used when calculating coupon payments and are often a source of dispute between parties in a transaction.
+
+ISDA CDM's Process Model goes beyond many existing technical standards by representing industry processes in an unambiguous, machine-readable and machine-executable way. Machine readability and execution is crucial in reducing implementation risk for market participants and provides a blueprint for industry utilities. Machine-executable code is systematically generated from the model, which further reduces risk during model version upgrades.
+
+Scope
+^^^^^
+
+When trying to understand the scope of the Process Model, it is important to consider two dimensions, the "process scope" (or breadth) and the depth.
+
+The process scope specifies the industry processes that are in-scope and thus should be modelled, whilst the depth specifies the granularity of each process.
+
+Process Scope
+"""""""""""""
+
+The Process Model focuses primarily on the post-trade lifecycle of over-the-counter derivative transactions. Processes such as the following are all considered to be in scope:
+
+* Trade execution
+* Margin calculation
+* Coupon Payment
+* Clearing
+
+Generally, where a process is defined in ISDA Documentation, it can be considered as in-scope. Contributions to increase scope completeness are very welcome!
+
+For an up-to-date list of in-scope industry processes, please refer to the `function scope matrix`_.
+
+Depth
+"""""
+
+When considering adoption, it is important to understand how deeply each process is defined. Processes not defined in the model should then be defined within each firm. The Process Model uses the following guidelines when considering how granularly to model each process.
+
+**Functional ISDA CDM data objects**
+
+Whilst it is possible to define every process, sub-process and sub-sub-process, the Process Model focuses on what is necessary to create functional ISDA CDM data objects, that is, an object that satisfies the below criterion:
+
+* Any `BusinessEvent` and `EconomicTerms` inside the object can be qualified.
+* Linage between events is preserved.
+
+It is the responsibility of the adopter to populate the remaining data values required for data objects to be valid. This must be done by extending the processes defined in the model at the implementation level - by writing executable code.
+
+**Reuse where possible**
+
+Where widely adopted process models exist, they should be reused and not redefined. Following are some examples:
+
+* Quantitative finance. Open-source quantitative finance software already defines many granular processes, such as:
+** Computing a coupon schedule from a set of parameters.
+** Adjusting dates given a holiday calendar.
+* Mathematical functions. Functions such as sum, absolute, and average are widely understood, so are not redefined in the model.
+
+.. _function scope matrix: Portal_
+
+Modelling Approach
+^^^^^^^^^^^^^^^^^^
+
+Complex industry processes in the model are defined by combining simpler sub-processes. Sub-processes are then defined by combining yet simpler sub-sub-processes, and so on. In the Process Model, each process, sub-process, and sub-sub-process (or collectively, **processes**) is represented by a **function**.
+
+A function executes some logic on input data to produce output data. They are intended to be generic and thus highly reusable. Further, functions can execute other functions, so they can represent processes made up of sub-processes.
+
+This concept of combining and reusing small components is consistent with how the Product Model and Event Model are designed. For those from technical or engineering backgrounds, this description should sound a lot like how modern software is (or should be) created. Reusing small, modular processes has the following benefits:
+
+* Increased consistency. When a sub-process changes, all processes that use the sub-process benefit from that single change.
+* Increased flexibility. The model can represent any process by reusing existing sub-processes; there is no need to define each process explicitly, instead, we pick and choose from a set of pre-existing building blocks.
+
+Introducing Functions
+^^^^^^^^^^^^^^^^^^^^^
+
+Functions are the foundations of the Process Model. They are very generic and can be used to represent anything that changes data. To give some concrete examples, they are used in the following scenarios:
+
+* Transition a trade from "executed" to "terminated" state.
+* Compute the amount and direction of margin required between two parties.
+* Checking whether preconditions in a workflow step have been met.
+
+To define functions, ISDA CDM uses Rosetta. Just like in a spreadsheet model, Excel provides the ability for users to define and make use of functions. In this context, Rosetta is to ISDA CDM, as Excel is to spreadsheet models.
+
+Owing to their prevalence in the Process Model, it will be useful to understand the basic syntax of a function. Each line of the model snippet below is defined as follows:
+
+.. code-block:: Haskell
+  :linenos:
+
+  func Add: <"A function that adds two numbers together.">
+    inputs:
+      input1 number (1..1)
+      input2 number (1..1)
+    output:
+      result number (1..1)
+    assign-output: result
+      input1 + input2
+
+#. `func Add:` tells us we are looking at a function called `Add`. The text following the semi-colon defines the function in written prose, which is typically taken verbatim from ISDA Documentation where available.
+#. `inputs:` tells us the following section lists the data inputs required by the function.
+#. `input1 number (1..1)` tells us the first input is called `input1`, it is a `number`, and we expect exactly one `number`. The `(1..1)` notation is commonly used in `data modelling`_ and mirrors the syntax used when defining data types.
+#. `input2 number (1..1)` tells us there is a second input is called (unimaginatively) `input2` and is also exactly one `number`.
+#. `output:` mirrors that of line 2 and tells us the following line will relate to defining the function output.
+#. `result number (1..1)` tells us the function output is called `result`, it is a number, and we expect exactly one.
+#. `assign-output: result` tells us the following lines instruct the function to assign a value to the output, which is called `result`.
+#. `input1 + input2` tells us the `result` should be assigned the result of this logical expression.
+
+For detailed documentation on the Rosetta syntax used to define functions in ISDA CDM, see the `Rosetta DSL Documentation on Functions`_.
+
+.. _Rosetta DSL Documentation on Functions: https://docs.rosetta-technology.io/dsl/documentation.html#function-artefacts
+.. _data modelling: https://en.wikipedia.org/wiki/Cardinality_(data_modeling)#Application_program_modeling_approaches
+
+Adopting the Process Model
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+ISDA CDM minimises the cost of adoption, which is another differentiator from other existing technical standards. Using purpose-built technology, the Process Model is systematically translated into machine-executable code. The following modern, widely, and freely available programming languages are supported:
+
+* Java
+* Scale
+* DAML
+* Typescript
+
+Executable code artefacts are made freely available for use and can be download from the ISDA CDM Portal_.
+
+In contrast, adopting a traditional standard that is written in prose might look like the following:
+
+#. Domain experts need to understand the intentions of the standard.
+#. Business analysts need to translate the above into a set of technical requirements.
+#. Software engineers need to turn technical requirements into executable software.
+
+Systematically generating executable code reduces the work required in points 2 and 3. Each step comes with the risk of misinterpretation and failed implementation. Each adopting firm will typically go through the same process, which further increases the risk for the industry. These risks ultimately add up to high implementation costs.
+
+.. _Portal: https://portal.cdm.rosetta-technology.io
+
+Existing Sections
+=================
 
 The CDM purpose is to lay the foundation for the standardisation and automation of industry processes. These processes are based on *functions* that transform data from inputs into outputs, often combined into a sequence of steps or *workflow*, which is the basis of process automation. In addition to the data model for products, events and legal agreements, functions are an essential component in the CDM to standardise the processes associated to those financial constructs.
 
