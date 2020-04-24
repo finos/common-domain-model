@@ -57,11 +57,11 @@ public class FunctionTests extends AbstractFunctionTest {
 	}
 
 	@Inject
-	QualifyFeatureCallEqualToLiteral featureCallEqualToLiteral;
+	Qualify_FeatureCallEqualToLiteral featureCallEqualToLiteral;
 	@Inject
-	QualifyFeatureCallEqualToFeatureCall featureCallEqualToFeatureCall;
+	Qualify_FeatureCallEqualToFeatureCall featureCallEqualToFeatureCall;
 	@Inject
-	QualifyFeatureCallsEqualToLiteralOr featureCallsEqualToLiteralOr;
+	Qualify_FeatureCallsEqualToLiteralOr featureCallsEqualToLiteralOr;
 
 	@Test
 	public void testFunctionOperationFeature() {
@@ -75,11 +75,11 @@ public class FunctionTests extends AbstractFunctionTest {
 	}
 
 	@Inject
-	QualifyFeatureCallListEqualToFeatureCall featureCallListEqualToFeatureCall;
+	Qualify_FeatureCallListEqualToFeatureCall featureCallListEqualToFeatureCall;
 	@Inject
-	QualifyFeatureCallListNotEqualToFeatureCall featureCallListNotEqualToFeatureCall;
+	Qualify_FeatureCallListNotEqualToFeatureCall featureCallListNotEqualToFeatureCall;
 	@Inject
-	QualifyMultipleOrFeatureCallsEqualToMultipleOrFeatureCalls multipleOrFeatureCallsEqualToMultipleOrFeatureCalls;
+	Qualify_MultipleOrFeatureCallsEqualToMultipleOrFeatureCalls multipleOrFeatureCallsEqualToMultipleOrFeatureCalls;
 
 	@Test
 	public void testFunctionOperationFeatureMulti() {

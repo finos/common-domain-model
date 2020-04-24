@@ -15,7 +15,7 @@ import cdm.base.staticdata.asset.rates.*
 
 isEvent root BusinessEvent;
 
-func QualifyAllocation: <"The qualification of allocation event from the fact that (i) the intent is Allocation when specified, (ii) the only primitive is the allocation, (iii) the sum of quantities/notional before = after, and (iv) there is a single contractualProduct before (ensured through cardinality). Note: it is accepted that an allocation can result in a single contract.">
+func Qualify_Allocation: <"The qualification of allocation event from the fact that (i) the intent is Allocation when specified, (ii) the only primitive is the allocation, (iii) the sum of quantities/notional before = after, and (iv) there is a single contractualProduct before (ensured through cardinality). Note: it is accepted that an allocation can result in a single contract.">
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent(1..1)
@@ -32,7 +32,7 @@ func QualifyAllocation: <"The qualification of allocation event from the fact th
 /*
  * Temporary event qualification until such time that we firm out the proper qualification and the way to infer it
  */
-func QualifyCashflowCalculationNotification:
+func Qualify_CashflowCalculationNotification:
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent(1..1)
@@ -43,7 +43,7 @@ func QualifyCashflowCalculationNotification:
 		and businessEvent -> primitives -> transfer -> identifier -> scheme = "DTCCCashflowId"
 
 
-func QualifyCashTransfer: <"The qualification of a cash transfer from the fact that the only component is a cashTransfer.">
+func Qualify_CashTransfer: <"The qualification of a cash transfer from the fact that the only component is a cashTransfer.">
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent(1..1)
@@ -56,7 +56,7 @@ func QualifyCashTransfer: <"The qualification of a cash transfer from the fact t
 		and businessEvent -> primitives -> transfer -> commodityTransfer is absent
 		and businessEvent -> primitives -> transfer -> identifier -> scheme <> "DTCCCashflowId"
 
-func QualifyCashAndSecurityTransfer: <"The qualification of a security settlement from the fact that (i) it is composed of a cashTransfer component and a securityTransfer component, and (ii) the cash and security move in the same direction.">
+func Qualify_CashAndSecurityTransfer: <"The qualification of a security settlement from the fact that (i) it is composed of a cashTransfer component and a securityTransfer component, and (ii) the cash and security move in the same direction.">
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent(1..1)
@@ -69,7 +69,7 @@ func QualifyCashAndSecurityTransfer: <"The qualification of a security settlemen
 		and businessEvent -> primitives -> transfer -> commodityTransfer is absent
 
 // Simple Agency model for clearing
-func QualifyClearedTrade:
+func Qualify_ClearedTrade:
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent(1..1)
@@ -98,7 +98,7 @@ func QualifyClearedTrade:
 //	and lineage -> @rosettaKey -> eventQualifier = eventQualifier.ClearedTrade
 
 
-func QualifyClearingRejection: <"The rejection of an alpha trade submission by a CCP, which is qualified by the fact that (i) termsChange is the only primitive, the workflow status is `rejected`, and (iii) the CCP is positioned as a partyRole to the execution or contract in the after state, while it didn't exist in the before state.">
+func Qualify_ClearingRejection: <"The rejection of an alpha trade submission by a CCP, which is qualified by the fact that (i) termsChange is the only primitive, the workflow status is `rejected`, and (iii) the CCP is positioned as a partyRole to the execution or contract in the after state, while it didn't exist in the before state.">
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent(1..1)
@@ -115,7 +115,7 @@ func QualifyClearingRejection: <"The rejection of an alpha trade submission by a
 		or businessEvent -> primitives -> termsChange -> after -> contract -> partyRole -> role = PartyRoleEnum -> ClearingOrganization)
 		and NoQuantityChange(businessEvent -> primitives -> quantityChange) = True
 
-func QualifyClearingSubmission: <"The submission of a contract to a CCP, which is qualified by the fact that (i) the termsChange is the only primitive, and (ii) the CCP is positioned as a partyRole to the execution or contract in the after state, while it didn't exist in the before state.">
+func Qualify_ClearingSubmission: <"The submission of a contract to a CCP, which is qualified by the fact that (i) the termsChange is the only primitive, and (ii) the CCP is positioned as a partyRole to the execution or contract in the after state, while it didn't exist in the before state.">
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent(1..1)
@@ -136,7 +136,7 @@ func QualifyClearingSubmission: <"The submission of a contract to a CCP, which i
 			or businessEvent -> primitives -> termsChange -> after -> execution -> partyRole -> role = PartyRoleEnum -> ClearingOrganization
 		)
 
-func QualifyCompression: <"The qualification of a compression event from the fact that (i) the quantityChange primitive exists, and (ii) there are multiple contracts (or contract references) specified in the before state.">
+func Qualify_Compression: <"The qualification of a compression event from the fact that (i) the quantityChange primitive exists, and (ii) there are multiple contracts (or contract references) specified in the before state.">
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent(1..1)
@@ -145,7 +145,7 @@ func QualifyCompression: <"The qualification of a compression event from the fac
 		businessEvent -> primitives -> quantityChange exists
 		and businessEvent -> primitives -> quantityChange -> before -> contract multiple exists
 
-func QualifyDerivedObservation: <"The qualification of a derived observation event from the fact that (i) the only primitive is the observation, (ii) there are multiple instances of such observations, and (iii) there is an associated call function to compute, say, an interpolation.">
+func Qualify_DerivedObservation: <"The qualification of a derived observation event from the fact that (i) the only primitive is the observation, (ii) there are multiple instances of such observations, and (iii) there is an associated call function to compute, say, an interpolation.">
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent(1..1)
@@ -154,7 +154,7 @@ func QualifyDerivedObservation: <"The qualification of a derived observation eve
 		businessEvent -> primitives -> observation only multiple exists
 		and businessEvent -> functionCall exists
 
-func QualifyExercise: <"The qualification of an exercise event from the fact that (i) the only primitive is the exercise, and (ii) the remaining quantity = 0, and (iv) the closedState of the contract is Terminated.">
+func Qualify_Exercise: <"The qualification of an exercise event from the fact that (i) the only primitive is the exercise, and (ii) the remaining quantity = 0, and (iv) the closedState of the contract is Terminated.">
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent(1..1)
@@ -163,7 +163,7 @@ func QualifyExercise: <"The qualification of an exercise event from the fact tha
 		businessEvent -> primitives count = 1
 		and businessEvent -> primitives -> exercise exists
 
-func QualifyIncrease: <"The qualification of a increase event from the fact that (i) the intent is Increase when specified, (ii) the associated primitives are the quantityChange and the cash transfer, the (iii) the quantity associated with the contract increases.">
+func Qualify_Increase: <"The qualification of a increase event from the fact that (i) the intent is Increase when specified, (ii) the associated primitives are the quantityChange and the cash transfer, the (iii) the quantity associated with the contract increases.">
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent(1..1)
@@ -179,7 +179,7 @@ func QualifyIncrease: <"The qualification of a increase event from the fact that
 		and QuantityIncreased(businessEvent -> primitives -> quantityChange) = True
 		and businessEvent -> primitives -> quantityChange -> after -> contract -> closedState is absent
 
-func QualifyMultipleTransfers: <"The qualification an event that combines multiple transfers from the fact that multiple transfer primitives exist.">
+func Qualify_MultipleTransfers: <"The qualification an event that combines multiple transfers from the fact that multiple transfer primitives exist.">
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent(1..1)
@@ -187,7 +187,7 @@ func QualifyMultipleTransfers: <"The qualification an event that combines multip
 	assign-output is_event:
 		businessEvent -> primitives -> transfer multiple exists
 
-func QualifyNewTrade:
+func Qualify_NewTrade:
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent(1..1)
@@ -199,7 +199,7 @@ func QualifyNewTrade:
 		and businessEvent -> primitives -> quantityChange -> after -> contract -> closedState is absent
 		and businessEvent -> primitives -> inception -> after -> contract -> clearedDate is absent
 
-func QualifyNovation: <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and inception exist, (iii) the remaining quantity = 0, (iv) the closedState of the contract is Novated, (v) the stepped-in contract has a different contract identifier than the novated contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
+func Qualify_Novation: <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and inception exist, (iii) the remaining quantity = 0, (iv) the closedState of the contract is Novated, (v) the stepped-in contract has a different contract identifier than the novated contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent(1..1)
@@ -214,7 +214,7 @@ func QualifyNovation: <"The qualification of a novation event from the fact that
 		and businessEvent -> effectiveDate = NovatedContractEffectiveDate(businessEvent) -> dates only-element
 		//and originalContractParties <> newContractParties
 
-func QualifyObservation: <"The qualification of an observation event from the fact that (i) the only primitive is the observation, and (ii) that there is only a single instance of such observation.">
+func Qualify_Observation: <"The qualification of an observation event from the fact that (i) the only primitive is the observation, and (ii) that there is only a single instance of such observation.">
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent(1..1)
@@ -222,7 +222,7 @@ func QualifyObservation: <"The qualification of an observation event from the fa
 	assign-output is_event:
 		businessEvent -> primitives -> observation only single exists
 
-func QualifyPartialNovation: <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and inception exist, (iii) the contract quantity/notional has decreased as part of the quantityChange primitive, while (iv) there is a remaining quantity/notional, (v) the stepped-in contract has a different contract identifier than the original contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
+func Qualify_PartialNovation: <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and inception exist, (iii) the contract quantity/notional has decreased as part of the quantityChange primitive, while (iv) there is a remaining quantity/notional, (v) the stepped-in contract has a different contract identifier than the original contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent(1..1)
@@ -236,7 +236,7 @@ func QualifyPartialNovation: <"The qualification of a novation event from the fa
 		and QuantityDecreased(businessEvent -> primitives -> quantityChange) = True
 		//and originalContractParties <> newContractParties
 
-func QualifyPartialTermination: <"The qualification of a partial termination event from the fact that (i) the intent is Partial Termination when specified, (ii) the associated primitives are the quantityChange and the cash transfer, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
+func Qualify_PartialTermination: <"The qualification of a partial termination event from the fact that (i) the intent is Partial Termination when specified, (ii) the associated primitives are the quantityChange and the cash transfer, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent(1..1)
@@ -251,7 +251,7 @@ func QualifyPartialTermination: <"The qualification of a partial termination eve
 		and QuantityDecreased(businessEvent -> primitives -> quantityChange) = True
 		and businessEvent -> primitives -> quantityChange -> after -> contract -> closedState is absent
 
-func QualifyReset: <"The qualification of a reset event from the fact that the only primitive is the reset.">
+func Qualify_Reset: <"The qualification of a reset event from the fact that the only primitive is the reset.">
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent (1..1)
@@ -260,7 +260,7 @@ func QualifyReset: <"The qualification of a reset event from the fact that the o
 		businessEvent -> primitives count = 1
 		and businessEvent -> primitives -> reset exists
 
-func QualifySecurityTransfer: <"The qualification of a security transfer from the fact that the only component is a securityTransfer.">
+func Qualify_SecurityTransfer: <"The qualification of a security transfer from the fact that the only component is a securityTransfer.">
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent(1..1)
@@ -272,7 +272,7 @@ func QualifySecurityTransfer: <"The qualification of a security transfer from th
 		and businessEvent -> primitives -> transfer -> cashTransfer is absent
 		and businessEvent -> primitives -> transfer -> commodityTransfer is absent
 
-func QualifySecuritySettlement: <"The qualification of a security settlement from the fact that (i) it is composed of a cashTransfer component and a securityTransfer component, and (ii) the cash and security move in opposite directions.">
+func Qualify_SecuritySettlement: <"The qualification of a security settlement from the fact that (i) it is composed of a cashTransfer component and a securityTransfer component, and (ii) the cash and security move in opposite directions.">
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent(1..1)
@@ -283,7 +283,7 @@ func QualifySecuritySettlement: <"The qualification of a security settlement fro
 		and businessEvent -> primitives -> transfer -> cashTransfer -> payerReceiver -> payerPartyReference -> reference = businessEvent -> primitives -> transfer -> securityTransfer -> transferorTransferee -> transfereePartyReference -> reference
 		and businessEvent -> primitives -> transfer -> commodityTransfer is absent
 
-func QualifyTermination: <"The qualification of a termination event from the fact that (i) the intent is Termination when specified, (ii) the only primitive is the quantityChange and there is only one such primitive involved, the (iii) the remaining quantity is null, and (iv) the closedState of the contract is Terminated.">
+func Qualify_Termination: <"The qualification of a termination event from the fact that (i) the intent is Termination when specified, (ii) the only primitive is the quantityChange and there is only one such primitive involved, the (iii) the remaining quantity is null, and (iv) the closedState of the contract is Terminated.">
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent(1..1)
@@ -298,7 +298,7 @@ func QualifyTermination: <"The qualification of a termination event from the fac
 		and QuantityDecreasedToZero(businessEvent -> primitives -> quantityChange) = True
 		and businessEvent -> primitives -> quantityChange -> after -> contract -> closedState -> state = ClosedStateEnum -> Terminated
 
-func QualifyTradeWarehousePositionNotification:
+func Qualify_TradeWarehousePositionNotification:
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent(1..1)
@@ -307,7 +307,7 @@ func QualifyTradeWarehousePositionNotification:
 		businessEvent -> primitives -> inception exists
 		and businessEvent -> primitives -> inception -> after -> tradeWarehouseWorkflow exists
 
-func QualifyExecution: <"The qualification of an execution event from the fact that the only component is an execution.">
+func Qualify_Execution: <"The qualification of an execution event from the fact that the only component is an execution.">
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent(1..1)
@@ -316,7 +316,7 @@ func QualifyExecution: <"The qualification of an execution event from the fact t
 		businessEvent -> primitives count = 1
 		and businessEvent -> primitives -> execution exists
 
-func QualifyContractFormation: <"The qualification of a contractFormation event from the fact that the only component is a contractFormation.">
+func Qualify_ContractFormation: <"The qualification of a contractFormation event from the fact that the only component is a contractFormation.">
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent(1..1)
@@ -325,7 +325,7 @@ func QualifyContractFormation: <"The qualification of a contractFormation event 
 		businessEvent -> primitives count = 1
 		and businessEvent -> primitives -> contractFormation exists
 
-func QualifyStockSplit: <"The qualification of StockSplit business event based on (i) an unchanged before/after currency amount (ii) the same adjustment ratio applied to the before/after cash price and number of units.">
+func Qualify_StockSplit: <"The qualification of StockSplit business event based on (i) an unchanged before/after currency amount (ii) the same adjustment ratio applied to the before/after cash price and number of units.">
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent (1..1)
