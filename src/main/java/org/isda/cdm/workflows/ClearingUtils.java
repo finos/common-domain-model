@@ -1,17 +1,15 @@
 package org.isda.cdm.workflows;
 
-import com.rosetta.model.lib.process.PostProcessor;
-import com.rosetta.model.metafields.FieldWithMetaString;
-import com.rosetta.model.metafields.MetaFields;
-
 import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.party.Party;
 import cdm.base.staticdata.party.PartyRole;
 import cdm.base.staticdata.party.PartyRoleEnum;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
-
+import com.rosetta.model.lib.process.PostProcessor;
+import com.rosetta.model.metafields.FieldWithMetaString;
+import com.rosetta.model.metafields.MetaFields;
 import org.isda.cdm.*;
-import org.isda.cdm.functions.Clear;
+import org.isda.cdm.functions.Create_Clear;
 import org.isda.cdm.functions.example.services.identification.IdentifierService;
 import org.isda.cdm.metafields.ReferenceWithMetaWorkflowStep;
 
@@ -82,7 +80,7 @@ public class ClearingUtils {
 		return contract.toBuilder().addPartyRole(partyRole1).addPartyRole(partyRole2).build();
 	}
 
-	static WorkflowStep buildClear(PostProcessor runner, String externalReference, WorkflowStep previous, ClearingInstruction clearingInstruction, Clear clear, IdentifierService identifierService) {
+	static WorkflowStep buildClear(PostProcessor runner, String externalReference, WorkflowStep previous, ClearingInstruction clearingInstruction, Create_Clear clear, IdentifierService identifierService) {
 
 		BusinessEvent.BusinessEventBuilder businessEventBuilder = clear.evaluate(clearingInstruction).toBuilder();
 
@@ -96,7 +94,7 @@ public class ClearingUtils {
 
 		addExternalKeysToClearingParties(contractFormationBuilders);
 
-		clearedTradeWorkflowEventBuilder.addEventIdentifier(identifierService.nextType(externalReference, Clear.class.getSimpleName()));
+		clearedTradeWorkflowEventBuilder.addEventIdentifier(identifierService.nextType(externalReference, Create_Clear.class.getSimpleName()));
 
 		clearedTradeWorkflowEventBuilder.getOrCreateLineage().getOrCreateEventReference(0).setGlobalReference(previous.getMeta().getGlobalKey());
 

@@ -3,8 +3,8 @@ package org.isda.cdm.functions.testing;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
 import com.rosetta.model.lib.records.DateImpl;
 import org.isda.cdm.*;
-import org.isda.cdm.functions.Execute;
-import org.isda.cdm.functions.FormContract;
+import org.isda.cdm.functions.Create_Execute;
+import org.isda.cdm.functions.Create_FormContract;
 
 import javax.inject.Inject;
 
@@ -13,10 +13,10 @@ import static org.isda.cdm.functions.testing.FunctionUtils.guard;
 public class RunFormContractWithLegalAgreement implements ExecutableFunction<Contract, BusinessEvent> {
 
     @Inject
-    Execute execute;
+    Create_Execute execute;
 
     @Inject
-    FormContract formContract;
+    Create_FormContract formContract;
 
 
     @Override
