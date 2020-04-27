@@ -1,4 +1,4 @@
-# *CDM Documentation: Update to the CDM documentation*
+# *CDM Documentation: Update*
 
 _What is being released_
 
