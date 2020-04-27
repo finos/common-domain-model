@@ -18,10 +18,6 @@ type AdditionalRegime: <"A class to specify the additional regulatory regime(s) 
 
 type AdditionalRepresentation: <"A class to specify the Additional Representation. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (o): Additional Representation(s).">
 
-	/*
-	 * TODO - The ISDA Create template for 2016 CSA #44 provide for each part to specify an applicable boolean election alongside with a common specification in the form of a string field. 
-	 * Having compared two documents which have distinct elections with respect to the former attribute, I don’t see such election reflected in the pdf resulting document.
-	 */
 	partyElection AdditionalRepresentationElection (2..2) <"A qualification as to whether the Additional Representation is applicable.">
 	customElection string (0..1) <"A supplemental custom election that might be specified by the parties for the purpose of specifying the Additional Representation.">
 		[synonym ISDA_Create_1_0 value "specify"]
@@ -36,6 +32,16 @@ type AdditionalRepresentationElection: <"A class to specify the parties' Additio
 		[synonym ISDA_Create_1_0 set to True when "partyA_additional_representations" = "applicable", set to False when "partyA_additional_representations" = "not_applicable"]
 		[synonym ISDA_Create_1_0 set to True when "partyB_additional_representations" = "applicable", set to False when "partyB_additional_representations" = "not_applicable"]
 
+type AdditionalRepresentations: <"A class to specify Additional Representations that may be applicable to an agreement.">
+
+	additionalRepresentation AdditionalRepresentation (0..1) <"The specification of the Additional Representation that may be applicable to the agreement.">
+	// [documentReference Euroclear CtaInitialMargin 2018 English Law paragraph "13" section "10(a)"]
+	additionalInformation boolean (0..1) <"The qualification of whether Additional Information related to Regulatory Compliance and Concentration Limits is applicable or not">
+		[synonym ISDA_Create_1_0 set to True when "regulatory_compliance_and_concentration_limits->additional_information" = "applicable",
+									set to False when "regulatory_compliance_and_concentration_limits->additional_information" = "not_applicable"]
+	// [documentReference Euroclear CtaInitialMargin 2019 paragraph "13" section "11"]
+
+	condition: one-of
 
 type AdditionalRightsEvent: <"A class to specify the Pledgor/Obligor/Chargor Additional Rights Event election. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (k): Chargor Additional Rights Event. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (k): Obligor Additional Rights Event. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (k): Pledgor Additional Rights Event.">
 
@@ -959,11 +965,9 @@ type GeneralSimmElections: <"A class to specify the ISDA SIMM as the Method for 
 	simmCalculationCurrency CalculationCurrencyElection (1..1) <"The SIMM Calculation Currency, as specified for each of the parties to the CSA Initial Margin. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (ee)(3).">
 		[synonym ISDA_Create_1_0 value "simm_calculation_currency"]
 
-
 type MinimumTransferAmount: <"A class to specify amount of exposure reached before collateral has to be posted or returned. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (c)(vi)(B): Minimum Transfer Amount. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d)(vi)(B): Minimum Transfer Amount. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (c)(vi)(B): Minimum Transfer Amount.">
 
 	partyElection ElectiveAmountElection (2..2) <"The parties' minimum transfer amount elections.">
-
 
 type MultipleCreditNotations: <"A class to specify multiple credit notations alongside a conditional 'any' or 'all' qualifier.">
 
@@ -1219,6 +1223,15 @@ type SensitivityMethodology: <"A class to specify the methodology according to w
 	customMethodology string (0..1) <"The methodology according to which sensitivities will be computed, when specified through a custom election.">
 		[synonym ISDA_Create_1_0 value "sensitivities_equity_indices_funds_etfs_specify", "sensitivities_to_commodity_indices_specify"]
 	condition: one-of
+
+type SensitivityMethodologies: <"A class to specificy methodologies to compute sensitivities specific to the agreement.">
+
+	sensitivityToEquity SensitivityMethodology (1..1) <"The methodology to compute sensitivities to equity indices, funds and ETFs for the purpose of Initial Margin agreements.">
+		[synonym ISDA_Create_1_0 value "sensitivities_to_equity_indices_funds_etfs"]
+	// [documentReference Euroclear CtaInitialMargin 2019 paragraph "13" section "General Principles (g)(ii)(A)"]
+	sensitivityToCommodity SensitivityMethodology (1..1) <"The methodology to compute sensitivities to commodity indices for the purpose of Initial Margin agreements.">
+		[synonym ISDA_Create_1_0 value "sensitivities_to_commodity_indices"]
+	// [documentReference Euroclear CtaInitialMargin 2019 paragraph "13" section "General Principles (g)(ii)(B)"]
 
 type SimmCalculationCurrency: <"A class to specify the ISDA SIMM Calculation Currency as either the Base Currency or an alternative currency. ISDA 2016 CSA for Initial Margin, Paragraph 13, General Principles (ee)(3). | ISDA 2018 CSA for Initial Margin, Paragraph 13, General Principles (ee)(3).">
 
@@ -1672,14 +1685,11 @@ type CollateralTransferAgreementElections: <"The set of elections which specify 
 	// [documentReference Euroclear CtaInitialMargin 2019 paragraph "13" section "General Principles (e)"]
 	identifiedCrossCurrencySwap boolean (0..1) <"The qualification of whether cross-currency swaps need to be identified in the Confirmation so that the obligations to exchange principal be disregarded for the purpose of determining the Delivery Amount or Return Amount.">
 		[synonym ISDA_Create_1_0 set to True when "cross_currency_swap->yey_ney" = "true", set to False when "cross_currency_swap->yey_ney" = "false"]
-	sensitivityToEquity SensitivityMethodology (1..1) <"The methodology to compute sensitivities to equity indices, funds and ETFs for the purpose of Initial Margin agreements.">
-		[synonym ISDA_Create_1_0 value "sensitivities_to_equity_indices_funds_etfs"]
-	// [documentReference Euroclear CtaInitialMargin 2019 paragraph "13" section "General Principles (g)(ii)(A)"]
-	sensitivityToCommodity SensitivityMethodology (1..1) <"The methodology to compute sensitivities to commodity indices for the purpose of Initial Margin agreements.">
-		[synonym ISDA_Create_1_0 value "sensitivities_to_commodity_indices"]
-	// [documentReference Euroclear CtaInitialMargin 2019 paragraph "13" section "General Principles (g)(ii)(B)"]
+	// [documentReference Euroclear CtaInitialMargin 2018 paragraph "13" section "(g)"]	
+	sensitivityMethodologies SensitivityMethodologies (1..1) <"The specification of methodologies to compute sensitivities specific to the agreement.">
 	fxHaircutCurrency FxHaircutCurrency (0..1) <"The reference currency for the purpose of specifying the FX Haircut relating to a posting obligation, as being either the Termination Currency or an FX Designated Currency.">
 		[synonym ISDA_Create_1_0 value "fx_haircut_percentage"]
+	// [documentReference Euroclear CtaInitialMargin 2018 English Law paragraph "13" section "(h)"]		
 	postingObligations PostingObligations (1..1) <"The security providers posting obligations.">
 		[synonym ISDA_Create_1_0 value "security_provider_posting_obligations"]
 	// [documentReference ISDA CtaInitialMargin 2019 paragraph "13" section "General Principles (ii)"]
@@ -1703,18 +1713,21 @@ type CollateralTransferAgreementElections: <"The set of elections which specify 
 	// [documentReference Euroclear CtaInitialMargin 2019 paragraph "13" section "6"]
 	rightsEvents RightsEvents (1..1) <"The bespoke provisions that might be specified by the parties to the agreement to specify the rights of Security Taker and/or Security Provider when an Early Termination or Access Condition event has occurred..">
 		[synonym ISDA_Create_1_0 value "secured_party_rights_event"]
-	deliveryInLieuRight boolean (0..1) <"Delivery In Lieu rights">
+	deliveryInLieuRight boolean (0..1) <"The specification of whether Delivery In Lieu language is applicable to the agreement (true) or not (false).">
 		[synonym ISDA_Create_1_0 set to True when "delivery_in_lieu_right->right" = "applicable", set to False when "delivery_in_lieu_right->right" = "not_applicable"]
 	// [documentReference ISDA CtaInitialMargin 2019 paragraph "13" section "l"]
 	custodyArrangements CustodyArrangements (1..1) <"The Custodian and Segregated Account details in respect of each party to the agreement.">
 	// [documentReference ISDA CtaInitialMargin 2019 paragraph "13" section "m"]
-	additionalInformation boolean (1..1) <"The qualification of whether Additional Information related to Regulatory Compliance and Concentration Limits is applicable or not">
-		[synonym ISDA_Create_1_0 set to True when "regulatory_compliance_and_concentration_limits->additional_information" = "applicable",
-									set to False when "regulatory_compliance_and_concentration_limits->additional_information" = "not_applicable"]
-	// [documentReference Euroclear CtaInitialMargin 2019 paragraph "13" section "11"]
-	demandsAndNotices ContactElection (1..1) <"The address where the demands, specifications and notices will be communicated to within each of the parties to the agreement.">
+	additionalRepresentations AdditionalRepresentations (1..1) <"The specification Additional Representations that may be applicable to the agreement.">
+	demandsAndNotices ContactElection (0..1) <"The optional specification of address where the demands, specifications and notices will be communicated to for each of the parties to the agreement.">
 		[synonym ISDA_Create_1_0 value "demands_and_notices"]
 	// [documentReference Euroclear CtaInitialMargin 2019 paragraph "13" section "12"]
+	addressesForTransfer ContactElection (0..1) <"The optional specification of address for transfer as specified by the respective parties to the agreement.">
+		[synonym ISDA_Create_1_0 value "addresses_for_transfers"]
+	// [documentReference Euroclear CtaInitialMargin 2018 English Law paragraph "13" section "12"]		
+	otherCsa string (0..1) <"The bespoke definition of Other CSA as specified by the parties to the agreement.">
+		[synonym ISDA_Create_1_0 value "other_csa_specify" set when "other_csa->specified" = "true"]
+	// [documentReference Euroclear CtaInitialMargin 2018 English Law paragraph "13" section "13"]		
 	terminationCurrency TerminationCurrencyAmendment (1..1) <"The bespoke provision that might be specified by the parties to the agreement applicable to Termination Currency.  Unless specified the definition of Termination Currency has the meaning specified in the Schedule to the ISDA Master Agreement.">
 		[synonym ISDA_Create_1_0 value "amendment_to_termination_currency"]
 	// [documentReference Euroclear CtaInitialMargin 2019 paragraph "13" section "13"]
