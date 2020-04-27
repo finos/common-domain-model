@@ -1,26 +1,23 @@
+# *CDM Documentation: Update to the CDM documentation*
+
+_What is being released_
+
+General documentation refresh with updated code snippets and explainations.
+
+_Review Directions_
+
+Please see documentation update here: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html
+
 # *Event Model: Add Examples and Tests for New Trade Functions*
 
 _What is being released_
 
-New examples for the `Execute` and `FormContract` functions.
+Adding a Product Qualification for a Plain Vanilla FX Option. Previously, one did not exist.
 
-- `Execute` Business Event
-  - Fixed/Floating Single Currency Interest Rate Swap
-  - Forward Rate Agreement
-  - Basis Swap
-  - OIS Swap
-  - Swaption
-  
-- `FormContract` Business Event
-  - Fixed/Floating Single Currency Interest Rate Swap using ISDA Master Agreement
-  - Fixed/Floating Single Currency Interest Rate Swap
-  - Forward Rate Agreement
-  - Basis Swap
-  - OIS Swap
-  - Swaption
-  
 _Review Directions_
 
-Using Rosetta Core, navigate to the Visualise CDM Events section and select 'EXECUTE BUSINESS EVENT' or 'FORM CONTRACT BUSINESS EVENT'. There will be an item per example which you can click on to see a visualisation. Click on a node to see the CDM JSON in the analisys section.
+In the Textual Browser, review func:
+ - ForeignExchangeVanillaOption.
+  
 
 
