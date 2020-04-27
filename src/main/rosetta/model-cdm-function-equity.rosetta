@@ -101,7 +101,7 @@ func ResolveEquityContract: <"Specifies how the updated contract should be const
 	alias equityPerformance:
 		EquityPerformance(contractState, observation -> observation, periodEndDate)
 
-	condition IsEquityContract :
+	condition IsEquityContract:
 		equityPayout exists
 
 	assign-output updatedEquityPayout -> priceReturnTerms -> valuationPriceFinal -> netPrice -> amount:
@@ -320,10 +320,10 @@ func StockSplit: <"Function specification to create the fully-formed business ev
 		instruction -> trade -> contract exists
 
 	assign-output businessEvent -> primitives -> quantityChange: <"Build QuantityChangePrimitive and add to WorkflowStep.">
-		NewQuantityChangePrimitive( instruction -> trade, empty, postSplitNumberOfShares )
+		Create_NewQuantityChangePrimitive( instruction -> trade, empty, postSplitNumberOfShares )
 
 	assign-output businessEvent -> primitives -> termsChange: <"Build TermsChangePrimitive (for price) and add to WorkflowStep.">
-		NewPriceChangePrimitive( instruction -> trade, postSplitPrice )
+		Create_NewPriceChangePrimitive( instruction -> trade, postSplitPrice )
 
 
 // MdM comments: this is the Dividend Cash Settlement Amount as defined in the SES1 legal document.  The cash dividend will be paid on the relevant DividendDateReferenceEnum. I did not include a function to monitor when the dividends are declared (i.e a dividend observation).
