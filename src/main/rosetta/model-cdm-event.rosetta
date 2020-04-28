@@ -222,7 +222,7 @@ type WorkflowStep: <"A workflow step represents the state of a business event. T
 	account Account (0..*) <"Optional account information that could be associated to the event.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0 value "account"]
 		[synonym CME_ClearedConfirm_1_17 value "account" path "clearingConfirmed"]
-	lineage Lineage (0..1) <"The lineage attribute provides a linkage among lifecycle events through the rosettaKey hash value. One example is when a given lifecycle event is being corrected or cancelled. In such case, each subsequent event will have lineage into the prior version of that event. The second broad use case is when an event has a dependency upon either another event (e.g. the regular payment associated with a fix/float swap will have a lineage into the reset event, which will in turn have a lineage into the observation event for the floating rate and the contract) or a contract (e.g. the exercise of an option has a lineage into that option).">
+	lineage Lineage (0..1) <"The lineage attribute provides a linkage among lifecycle events through the globalKey hash value. One example is when a given lifecycle event is being corrected or cancelled. In such case, each subsequent event will have lineage into the prior version of that event. The second broad use case is when an event has a dependency upon either another event (e.g. the regular payment associated with a fix/float swap will have a lineage into the reset event, which will in turn have a lineage into the observation event for the floating rate and the contract) or a contract (e.g. the exercise of an option has a lineage into that option).">
 		[synonym Workflow_Event value "lineage"]
 
 	condition WorkflowStepStatus:
@@ -260,7 +260,7 @@ type BusinessEvent: <"A business event represents a life cycle event of a trade 
 		[synonym CME_ClearedConfirm_1_17 value "clearedDate" path "clearingConfirmed->trade->tradeHeader" maps 2]
 	effectiveDate date (0..1) <"The date on which the event contractually takes effect, when different from the event date.">
 		[synonym Workflow_Event value "effectiveDate"]
-	eventEffect EventEffect (0..1) <"The set of effects associated with the lifecycle event, i.e. generated cashflows, contracts (from, say, novation events), listed products (from, say, a bond option exercise event) values and more. Those are represented through a set of rosettaKey references. This attribute is optional in order to provide implementers with the ability not to make use of this feature.">
+	eventEffect EventEffect (0..1) <"The set of effects associated with the lifecycle event, i.e. generated cashflows, contracts (from, say, novation events), listed products (from, say, a bond option exercise event) values and more. Those are represented through a set of globalKey references. This attribute is optional in order to provide implementers with the ability not to make use of this feature.">
 
 	// TODO - this needs to be moved/merged into the WorkflowStep
 	workflowEventState WorkflowStepState (0..1) <"The event workflow information, i.e. the workflow status, the associated comment and the partyCustomisedWorkflow which purpose is to provide the ability to associate custom workflow information to the CDM.">
@@ -373,11 +373,11 @@ type LimitApplicableExtended extends LimitApplicable: <"A class to represent the
 	limitImpactDueToTrade number (0..1) <"The limit utilized by this specific trade. While the attribute is of type integer in the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">
 		[synonym CME_ClearedConfirm_1_17, Workflow_Event value "limitImpactDueToTrade"]
 
-type Lineage: <"A class to provide lineage information across lifecycle events through a pointer or set of pointers into the event(s), contract(s) and, possibly, payout components that the event is dependent on or relates to. As an example, if an inception event is corrected, the correction event will have a lineage into the initial event, which takes the form of a rosettaKey into that initial inception event. Two referencing mechanisms are provided as part of the CDM: either the rosettaKey, which corresponds to the hash value of the CDM class which is referred to, or a reference qualifier which is meant to provide support for the ingestion of xml documents with id/href mechanisms. The CDM recommends the use of the rosettaKey and provides a default implementation which is accessible in the generated code through org.isda.cdm.rosettakey.RosettaKeyValueHashFunction. If implementers want to use an alternative hashing mechanism, the API in which they need to plug it is com.rosetta.model.lib.HashFunction.">
+type Lineage: <"A class to provide lineage information across lifecycle events through a pointer or set of pointers into the event(s), contract(s) and, possibly, payout components that the event is dependent on or relates to. As an example, if an inception event is corrected, the correction event will have a lineage into the initial event, which takes the form of a globalKey into that initial inception event. Two referencing mechanisms are provided as part of the CDM: either the globalKey, which corresponds to the hash value of the CDM class which is referred to, or a reference qualifier which is meant to provide support for the ingestion of xml documents with id/href mechanisms. The CDM recommends the use of the globalKey and provides a default implementation which is accessible in the generated code through org.isda.cdm.globalKey.GlobalKeyHashCalculator. If implementers want to use an alternative hashing mechanism, the API in which they need to plug it is com.rosetta.model.lib.HashFunction.">
 	contractReference Contract (0..*) <"The reference to the instantiation of a Contract object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
 		[synonym Workflow_Event value "contractReference" meta "href"]
-	eventReference WorkflowStep (0..*) <"The reference to the instantiation of an Event object, either through a rosettaKey or an xml-derived id/href mechanism. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
+	eventReference WorkflowStep (0..*) <"The reference to the instantiation of an Event object, either through a globalKey or an xml-derived id/href mechanism. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
 		[synonym Workflow_Event value "eventReference" meta "href"]
 	executionReference Execution (0..*) <"The reference to the instantiation of a Execution object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
@@ -561,7 +561,7 @@ type Velocity:
  * workflow rule ClearedContractAgency_Participant <"The cross-events validity constraints to specify that a contract has been cleared according to the agency model from the perspective of the involved clearing member or client.">
  *
  *    Event <beta> is ClearingSubmission
- * 	relatedTo <alpha> where lineage -> @rosettaKey -> eventQualifier = eventQualifier.ClearingSubmission
+ * 	relatedTo <alpha> where lineage -> @globalKey -> eventQualifier = eventQualifier.ClearingSubmission
  *
  *    constraint is economicTerms are the same except for payerReceiver or buyerSeller
  *    and <alpha> contract/execution is terminated  *Difference*
@@ -572,8 +572,8 @@ type Velocity:
  * workflow rule ClearedContractAgency_CCP <"The cross-events validity constraints to specify that a contract has been cleared according to the agency model from the perspective of the involved clearing member or client.">
  *
  *    Event <beta> is ClearingSubmission
- * 	relatedTo <alpha> where lineage -> @rosettaKey -> eventQualifier = eventQualifier.ClearingSubmission
- * 	and relatedTo <gamma> where lineage -> @rosettaKey -> eventQualifier = eventQualifier.ClearedTrade *Difference*
+ * 	relatedTo <alpha> where lineage -> @globalKey -> eventQualifier = eventQualifier.ClearingSubmission
+ * 	and relatedTo <gamma> where lineage -> @globalKey -> eventQualifier = eventQualifier.ClearedTrade *Difference*
  *
  *    constraint is economicTerms are the same except for payerReceiver or buyerSeller
  *    and event date of <alpha> submission = trade date of <beta>
@@ -583,8 +583,8 @@ type Velocity:
  * workflow rule ClearedContractPrincipal_Participant <"The cross-events validity constraints to specify that a contract has been cleared according to the principal model from the perspective of the involved clearing member or client.">
  *
  *   Event <beta> is ClearingSubmission
- * 	relatedTo <alpha> where lineage -> @rosettaKey -> eventQualifier = eventQualifier.ClearingSubmission
- * 	relatedTo <theta> where lineage -> @rosettaKey -> eventQualifier = eventQualifier.NewTrade or eventQualifier.ClearedTrade???? *Difference*
+ * 	relatedTo <alpha> where lineage -> @globalKey -> eventQualifier = eventQualifier.ClearingSubmission
+ * 	relatedTo <theta> where lineage -> @globalKey -> eventQualifier = eventQualifier.NewTrade or eventQualifier.ClearedTrade???? *Difference*
 
  *   constraint is economicTerms are the same except for payerReceiver or buyerSeller
  *   and <alpha> contract/execution is terminated  *Difference*
@@ -595,8 +595,8 @@ type Velocity:
  * workflow rule ClearedContractPrincipal_CCP <"The cross-events validity constraints to specify that a contract has been cleared according to the principal model from the perspective of the involved clearing member or client.">
  *
  *    Event <beta> is ClearingSubmission
- * 	relatedTo <alpha> where lineage -> @rosettaKey -> eventQualifier = eventQualifier.ClearingSubmission
- * 	and relatedTo <gamma> where lineage -> @rosettaKey -> eventQualifier = eventQualifier.ClearedTrade *Difference*
+ * 	relatedTo <alpha> where lineage -> @globalKey -> eventQualifier = eventQualifier.ClearingSubmission
+ * 	and relatedTo <gamma> where lineage -> @globalKey -> eventQualifier = eventQualifier.ClearedTrade *Difference*
  *
  *    constraint is economicTerms are the same except for payerReceiver or buyerSeller
  *    and event date of <alpha> submission = trade date of <beta>
