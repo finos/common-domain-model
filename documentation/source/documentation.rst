@@ -148,7 +148,6 @@ The CDM specifies the various sets of possible remaining economic terms using th
 .. code-block:: Java
 
  type EconomicTerms: 
-    [partialKey]
     effectiveDate AdjustableOrRelativeDate (0..1)
     terminationDate AdjustableOrRelativeDate (0..1) 
     dateAdjustments BusinessDayAdjustments (0..1) 
