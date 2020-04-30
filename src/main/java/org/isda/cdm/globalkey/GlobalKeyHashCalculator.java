@@ -1,19 +1,19 @@
-package org.isda.cdm.rosettakey;
+package org.isda.cdm.globalkey;
 
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.regnosys.rosetta.common.hashing.NonNullHashCollector;
-import com.regnosys.rosetta.common.hashing.RosettaKeyProcessStep;
-import com.regnosys.rosetta.common.hashing.RosettaKeyProcessStep.KeyPostProcessReport;
+import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep;
+import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep.KeyPostProcessReport;
 import com.rosetta.model.lib.RosettaModelObject;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 
-public class RosettaHashCalculator {
-	private RosettaKeyProcessStep processor;
+public class GlobalKeyHashCalculator {
+	private GlobalKeyProcessStep processor;
 
-	public RosettaHashCalculator() {
-		processor = new RosettaKeyProcessStep(()->new NonNullHashCollector());
+	public GlobalKeyHashCalculator() {
+		processor = new GlobalKeyProcessStep(()->new NonNullHashCollector());
 	}
 	
 	public Map<String, RosettaModelObject> computeHashes(RosettaModelObject object) {

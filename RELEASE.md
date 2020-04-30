@@ -1,26 +1,11 @@
-# *Event Model: Add Examples and Tests for New Trade Functions*
+# *Infrastructure: Annotations*
 
 _What is being released_
 
-New examples for the `Execute` and `FormContract` functions.
+Changes to annotations based on the recommendations of the recent design review of CDM functions.
 
-- `Execute` Business Event
-  - Fixed/Floating Single Currency Interest Rate Swap
-  - Forward Rate Agreement
-  - Basis Swap
-  - OIS Swap
-  - Swaption
-  
-- `FormContract` Business Event
-  - Fixed/Floating Single Currency Interest Rate Swap using ISDA Master Agreement
-  - Fixed/Floating Single Currency Interest Rate Swap
-  - Forward Rate Agreement
-  - Basis Swap
-  - OIS Swap
-  - Swaption
-  
+- Remove `[partialKey]` - the annotation was used on the `EconomicTerms` type, and was intended to provide a hash/checksum of the object data, excluding any metadata, that could be used for comparing economic equality between objects.  However, the current implementation could cause both false positive and false negative results, and, following the recent quantity and price model refactor does not account for these values. 
+
 _Review Directions_
 
-Using Rosetta Core, navigate to the Visualise CDM Events section and select 'EXECUTE BUSINESS EVENT' or 'FORM CONTRACT BUSINESS EVENT'. There will be an item per example which you can click on to see a visualisation. Click on a node to see the CDM JSON in the analisys section.
-
-
+In the Textual Browswer, review the `EconomicTerms` type.

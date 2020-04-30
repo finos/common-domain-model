@@ -3,7 +3,7 @@ package org.isda.cdm.functions.testing;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
 import org.isda.cdm.BusinessEvent;
 import org.isda.cdm.Contract;
-import org.isda.cdm.functions.Execute;
+import org.isda.cdm.functions.Create_Execute;
 
 import javax.inject.Inject;
 
@@ -12,7 +12,7 @@ import static org.isda.cdm.functions.testing.FunctionUtils.guard;
 public class RunExecute implements ExecutableFunction<Contract, BusinessEvent> {
 
     @Inject
-    Execute execute;
+    Create_Execute execute;
 
     @Override
     public BusinessEvent execute(Contract contract) {
