@@ -815,28 +815,38 @@ ISDA CDM's Process Model goes beyond many existing technical standards by repres
 Scope
 ^^^^^
 
-When trying to understand the scope of the Process Model, it is important to consider two dimensions, the "process scope" (or breadth) and the depth.
+When trying to understand the scope of the Process Model, it is important to consider two dimensions:
 
-The process scope specifies the industry processes that are in-scope and thus should be modelled, whilst the depth specifies the granularity of each process.
+#. The industry processes that should be covered, which we will call **Coverage**.
+#. The level of detail each process should be specified, which we will call **Granularity**.
 
-Process Scope
-"""""""""""""
 
-The Process Model focuses primarily on the post-trade lifecycle of over-the-counter derivative transactions. Processes such as the following are all considered to be in scope:
+Coverage
+""""""""
+
+The Process Model covers the post-trade lifecycle of over-the-counter derivative transactions. Processes such as the following are all considered to be in scope:
 
 * Trade execution
 * Margin calculation
 * Coupon Payment
 * Clearing
 
-Generally, where a process is defined in ISDA Documentation, it can be considered as in-scope. Contributions to increase scope completeness are very welcome!
+Generally, where a process is defined in ISDA Documentation, it should be considered as in-scope. Regulatory reporting is included in the ISDA CDM, but will be covered in a different documentation section.
 
-For an up-to-date list of in-scope industry processes, please refer to the `function scope matrix`_.
+For an up-to-date list of model coverage, please refer to the `function coverage matrix`_ (coming soon).
 
-Depth
-"""""
+Granularity
+"""""""""""
 
-When considering adoption, it is important to understand how deeply each process is defined. Processes not defined in the model should then be defined within each firm. The Process Model uses the following guidelines when considering how granularly to model each process.
+It is not always possible or desirable to specify processes to minute detail. Parts of processes (or sub-processes) may be omitted from the model for the following reasons:
+
+* The sub-process is not needed to create a functional ISDA CDM data object.
+* The sub-process has already been defined and its implementation is widely adopted by the industry.
+* The sub-process is specific to a firm's internal process and therefore cannot be specified in an industry standard.
+
+Details on each point are documented below.
+
+This is especially important for those considering adoption to understand what is specified and what is not, as unspecified parts represent functionality that must be implemented internally. To understand the granularity of a process, look at what data it produces. Each process defines the output data type, and how attributes on that data type should be populated. Attributes without any definition in the process will need to be populated by the implementor.
 
 **Functional ISDA CDM data objects**
 
@@ -856,7 +866,7 @@ Where widely adopted process models exist, they should be reused and not redefin
 ** Adjusting dates given a holiday calendar.
 * Mathematical functions. Functions such as sum, absolute, and average are widely understood, so are not redefined in the model.
 
-.. _function scope matrix: Portal_
+.. _function coverage matrix: Portal_
 
 Modelling Approach
 ^^^^^^^^^^^^^^^^^^
