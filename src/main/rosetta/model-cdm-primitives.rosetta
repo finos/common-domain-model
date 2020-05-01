@@ -6,34 +6,34 @@ import cdm.base.datetime.*
 
 type PrimitiveEvent: <"A primitive event is defined by one and only one atomic change in state of a trade. An example of this is a contract formation where the legal terms of the contact are added to the trade. A Primitive event contains a before and after state where the before is a reference to another after state of a primitive event in order to preserve lineage.">
 	execution ExecutionPrimitive (0..1)
-		[synonym Workflow_Event value "executionPrimitive" path "primitive"]
+		[synonym Workflow_Event value "executionPrimitive" path "primitives"]
 		[synonym CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0, FpML_5_10 value "ignore"]
 	contractFormation ContractFormationPrimitive (0..1)
-		[synonym Workflow_Event value "contractFormation" path "primitive"]
+		[synonym Workflow_Event value "contractFormation" path "primitives"]
 		[synonym CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0, FpML_5_10 value "ignore"]
-	allocation AllocationPrimitive (0..1)
-		[synonym Workflow_Event value "allocation" path "primitive"]
+	split SplitPrimitive (0..1)
+		[synonym Workflow_Event value "split" path "primitives"]
 		[synonym CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value "ignore"]
 	exercise ExercisePrimitive (0..1)
-		[synonym Workflow_Event value "exercise" path "primitive"]
+		[synonym Workflow_Event value "exercise" path "primitives"]
 		[synonym CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value "ignore"]
 	inception InceptionPrimitive (0..1)
-		[synonym Workflow_Event value "inception" path "primitive"]
+		[synonym Workflow_Event value "inception" path "primitives"]
 		[synonym CME_SubmissionIRS_1_0 value "ignore"]
 	observation ObservationPrimitive (0..1)
-		[synonym Workflow_Event value "observation" path "primitive"]
+		[synonym Workflow_Event value "observation" path "primitives"]
 		[synonym CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value "ignore"]
 	quantityChange QuantityChangePrimitive (0..1)
-		[synonym Workflow_Event value "quantityChange" path "primitive"]
+		[synonym Workflow_Event value "quantityChange" path "primitives"]
 		[synonym CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value "ignore"]
 	reset ResetPrimitive (0..1)
-		[synonym Workflow_Event value "reset" path "primitive"]
+		[synonym Workflow_Event value "reset" path "primitives"]
 		[synonym CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value "ignore"]
 	termsChange TermsChangePrimitive (0..1) 
-		[synonym Workflow_Event value "termsChange" path "primitive"]
+		[synonym Workflow_Event value "termsChange" path "primitives"]
 		[synonym CME_ClearedConfirm_1_17 value "ignore"]
 	transfer TransferPrimitive (0..1)
-		[synonym Workflow_Event value "transfer" path "primitive"]
+		[synonym Workflow_Event value "transfer" path "primitives"]
 		[synonym CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value "ignore"]
 		
 	condition PrimitiveEvent: one-of
@@ -42,7 +42,7 @@ type ExecutionPrimitive: <"Specification of the primitive event for an execution
 	before ExecutionState (0..0) <"The 0 cardinality reflects the fact that there is no execution in the before state of an execution primitive. As noted in the definition associated with the class, this is expected to change once the CDM scope is extended to the pre-execution space.">
 		[metadata reference]
 		[synonym Workflow_Event value "before"]
-	after ExecutionState (1..1) <"The after state corresponds to the execution between the parties. In the case of an execution on a contractual product, some additional characteristics may need to be specified to get a fully-formed contract, for instance when the executing party acts as an agent, as is the case in an allocation scenario. This is the purpose of the 'ContractFormation' primitive event.">
+	after ExecutionState (1..1) <"The after state corresponds to the execution between the parties. In the case of an execution on a contractual product, some additional characteristics may need to be specified to get a fully-formed contract, for instance when the executing party acts as an agent, as is the case in an split scenario. This is the purpose of the 'ContractFormation' primitive event.">
 		[synonym Workflow_Event value "after"]
 
 type ContractFormationPrimitive: <"Specification of the primitive event for the formation of a contract, with 'before' state being an 'ExecutionState' and 'after' state being a 'PostInceptionState'. This primitive combined with the 'ExecutionPrimitive' supersedes the earlier 'Inception' primitive, which had both the the execution and the contract formation bundled together, and as such was only applicable to contractual products. This intends to provide for properly atomic primitives.">
@@ -52,24 +52,24 @@ type ContractFormationPrimitive: <"Specification of the primitive event for the 
 	after PostInceptionState (1..1) <"The after state corresponds to the new contract being formed between the parties, plus some additional trade workflow information.">
 		[synonym Workflow_Event value "after"]
 
-type AllocationPrimitive: <"The primitive event to represent a split/allocation of a trade. As part of this primitive event the type of trade, either an execution or a contract, does not get altered. In the case of an execution, the further transformation of each split execution into a contract will be the purpose of the ContractFormation primitive.">
-	before Trade (1..1) <"The trade before allocation, which is either an execution if allocation happens before the contract is formed, or an already formed contract.">
+type SplitPrimitive: <"The primitive event to represent a split/allocation of a trade. As part of this primitive event the type of trade, either an execution or a contract, does not get altered. In the case of an execution, the further transformation of each split execution into a contract will be the purpose of the ContractFormation primitive.">
+	before Trade (1..1) <"The trade before split, which is either an execution if split happens before the contract is formed, or an already formed contract.">
 		[metadata reference]
 		[synonym Workflow_Event value "before"]
-	after AllocationOutcome (1..1) <"Outcome of the allocation as a list of Trades, which is either a split execution or a split contract, plus a pointer to the previous execution or contract marked as 'Allocated'.">
+	after SplitOutcome (1..1) <"Outcome of the split as a list of Trades, which is either a split execution or a split contract, plus a pointer to the previous execution or contract marked as 'Split'.">
 		[synonym Workflow_Event value "after"]
 
-	// TODO: move these data rule as a "post-condition" to the Allocation "Function Spec"
-	condition ExecutionType: <"If the trade type pre-allocation is an execution, then the trade type post-allocation must also be an execution.">
-		if AllocationPrimitive exists and before -> execution exists
+	// TODO: move these data rule as a "post-condition" to the Create_SplitPrimitive
+	condition ExecutionType: <"If the trade type pre-split is an execution, then the trade type post-split must also be an execution.">
+		if SplitPrimitive exists and before -> execution exists
 		then after -> originalTrade -> execution exists
-			and after -> allocatedTrade -> execution exists
-			and after -> allocatedTrade -> contract is absent
-	condition ContractType: <"If the trade type pre-allocation is a contract, then the trade type post-allocation must also be a contract.">
-		if AllocationPrimitive exists and before -> contract exists
+			and after -> splitTrades -> execution exists
+			and after -> splitTrades -> contract is absent
+	condition ContractType: <"If the trade type pre-split is a contract, then the trade type post-split must also be a contract.">
+		if SplitPrimitive exists and before -> contract exists
 		then after -> originalTrade -> contract exists
-			and after -> allocatedTrade -> contract exists
-			and after -> allocatedTrade -> execution is absent
+			and after -> splitTrades -> contract exists
+			and after -> splitTrades -> execution is absent
 
 type ExercisePrimitive: <"This primitive leverages the FpML OptionExercise construct, except for the exerciseTiming which is deemed as associated to a request for exercise that is meant to take place, as opposed to the actual exercise event.">
 	exerciseDate AdjustableOrAdjustedDate (0..1)
