@@ -15,7 +15,7 @@ import cdm.base.staticdata.asset.rates.*
 
 isEvent root BusinessEvent;
 
-func Qualify_Allocation: <"The qualification of split event from the fact that (i) the intent is Allocation when specified, (ii) the only primitive is the split, (iii) the sum of quantities/notional before = after, and (iv) there is a single contractualProduct before (ensured through cardinality). Note: it is accepted that an split can result in a single contract.">
+func Qualify_Allocation: <"The qualification of allocation event from the fact that (i) the only primitives are split and contract formation (ii) the sum of quantities or notional before and after the split are equal, (iii) the number of split executions and the number of contract formations are equal.  Note: it is accepted that an split can result in a single contract.">
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent(1..1)
@@ -24,11 +24,11 @@ func Qualify_Allocation: <"The qualification of split event from the fact that (
 		businessEvent -> primitives -> split exists
 		and businessEvent -> primitives -> contractFormation exists
 		and businessEvent -> primitives -> split -> after -> splitTrades -> execution count = businessEvent -> primitives -> contractFormation -> after -> contract count
-/*
- * TODO - The below syntax needs to be expanded to specify a summation
- * This could be specify as quantityBeforeAllocation = sum(quantityAfterAllocation)
- */
-//	and quantityBeforeAllocation = quantityAfterAllocation
+		/*
+		 * TODO - The below syntax needs to be expanded to specify a summation
+		 * This could be specify as quantityBeforeAllocation = sum(quantityAfterAllocation)
+		 */
+		//	and quantityBeforeAllocation = quantityAfterAllocation
 
 /*
  * Temporary event qualification until such time that we firm out the proper qualification and the way to infer it

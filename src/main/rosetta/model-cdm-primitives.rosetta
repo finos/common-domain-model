@@ -59,18 +59,6 @@ type SplitPrimitive: <"The primitive event to represent a split/allocation of a 
 	after SplitOutcome (1..1) <"Outcome of the split as a list of Trades, which is either a split execution or a split contract, plus a pointer to the previous execution or contract marked as 'Split'.">
 		[synonym Workflow_Event value "after"]
 
-	// TODO: move these data rule as a "post-condition" to the Create_SplitPrimitive
-	condition ExecutionType: <"If the trade type pre-split is an execution, then the trade type post-split must also be an execution.">
-		if SplitPrimitive exists and before -> execution exists
-		then after -> originalTrade -> execution exists
-			and after -> splitTrades -> execution exists
-			and after -> splitTrades -> contract is absent
-	condition ContractType: <"If the trade type pre-split is a contract, then the trade type post-split must also be a contract.">
-		if SplitPrimitive exists and before -> contract exists
-		then after -> originalTrade -> contract exists
-			and after -> splitTrades -> contract exists
-			and after -> splitTrades -> execution is absent
-
 type ExercisePrimitive: <"This primitive leverages the FpML OptionExercise construct, except for the exerciseTiming which is deemed as associated to a request for exercise that is meant to take place, as opposed to the actual exercise event.">
 	exerciseDate AdjustableOrAdjustedDate (0..1)
 		[synonym Workflow_Event value "exerciseDate"]

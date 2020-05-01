@@ -24,19 +24,11 @@ type SplitBreakdown:
 	collateral Collateral (0..1)<"The sum that must be posted upfront to collateralize against counterparty credit risk.">
 	[synonym FpML_5_10 value "collateral"]
 
-
 type SplitOutcome: <"A class to specify the split outcome as the combination of the previous Trade, which is either an execution or a contract and which state is specified as 'Split', and a set of Trade(s) of the same execution or contract type as before split. The split to one single trade is deemed appropriate: e.g. the trade could be effectively allocated from the fund manager doing the execution to a single fund entity.">
 	originalTrade Trade (1..1)
 		[synonym Workflow_Event value "originalTrade"]
 	splitTrades Trade (1..*)
 		[synonym Workflow_Event value "splitTrade"]
-	// TODO: move these data rule as a "post-condition" to the Create_SplitPrimitive function
-	condition ExecutionClosed: <"The split outcome must result in execution state of 'Allocated' for an execution.">
-		if SplitOutcome exists and originalTrade -> execution exists
-		then originalTrade -> execution -> closedState -> state = ClosedStateEnum -> Split
-	condition ContractClosed: <"The split outcome must result in a contract state of 'Allocated' for a contract.">
-		if SplitOutcome exists and originalTrade -> contract exists
-		then originalTrade -> contract -> closedState -> state = ClosedStateEnum -> Split
 
 type CashTransferBreakdown extends TransferBreakdown:
 	payerReceiver PayerReceiver (1..1) <"The payer and receiver party information.">
