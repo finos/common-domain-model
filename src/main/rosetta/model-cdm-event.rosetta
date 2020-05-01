@@ -29,7 +29,7 @@ type SplitOutcome: <"A class to specify the split outcome as the combination of 
 	originalTrade Trade (1..1)
 		[synonym Workflow_Event value "originalTrade"]
 	splitTrades Trade (1..*)
-		[synonym Workflow_Event value "splitTrades"]
+		[synonym Workflow_Event value "splitTrade"]
 	// TODO: move these data rule as a "post-condition" to the Create_SplitPrimitive function
 	condition ExecutionClosed: <"The split outcome must result in execution state of 'Allocated' for an execution.">
 		if SplitOutcome exists and originalTrade -> execution exists
@@ -248,7 +248,6 @@ type BusinessEvent: <"A business event represents a life cycle event of a trade 
     [rootType]
 
     primitives PrimitiveEvent (1..*) <"The elemental component(s) that specify the lifecycle events. Each of the primitive/elemental components listed as part of the PrimitiveEvent class has distinctive features that allow to specify the lifecycle event, either by itself or in combination with some other of such components.">
-		//[synonym Workflow_Event hint "primitives"]
 	intent IntentEnum (0..1) <"The intent attribute is meant to be specified when the event qualification cannot be programmatically inferred from the event features. As a result it is only associated with those primitives that can give way to such ambiguity, the quantityChange being one of those. An example of such is a reduction in the trade notional, which could be interpreted as either a trade correction (unless a maximum period of time post-event is specified as part of the qualification), a partial termination or a portfolio rebalancing in the case of an equity swap. On the other hand, an event such as the exercise is not expected to have an associated intent as there should not be ambiguity.">
 		[synonym Workflow_Event value "intent"]
 	functionCall string (0..1) <"This is placeholder concept for a function call into a calculation that will return an outcome. This concept needs to be further firmed out.">
