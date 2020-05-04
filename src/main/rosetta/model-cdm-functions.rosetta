@@ -303,7 +303,7 @@ func Create_Allocation: <"Function specification to create the fully-formed busi
 		businessEvent BusinessEvent (1..1) <"Allocation event containing both the original block trade (with the status set to Allocated) and the set of allocated trades.">
 
 	alias splitPrimitive:
-		Create_SplitPrimitive(execution, splitInstruction)
+		Create_SplitPrimitive( ExecutionAsTrade( execution ), splitInstruction)
 
 //	assign-output businessEvent -> primitives -> split:
 //		splitPrimitive
@@ -319,14 +319,28 @@ func Create_Allocation: <"Function specification to create the fully-formed busi
 	 *  - syntax support for returning lists from functions
 	 *  - syntax support for list add all (to add function result to list of primitives)
 	 */
-//	add-output businessEvent -> primitives -> contractFormation for-each splitPrimitive -> after -> splitTrade -> execution:
-//		if ( it -> tradableProduct -> product -> contractualProduct exists )
+//	add-output businessEvent -> primitives -> contractFormation for-each splitPrimitive -> after -> splitTrades -> execution:
 //		then Create_ContractFormationPrimitive( it, empty )
+
+func Create_Split: <"Function specification to create the fully-formed business event of splitting a trade based on split instructions.">
+	[creation BusinessEvent]
+	inputs:
+		trade Trade (1..1) <"Trade to be split.">
+		splitInstruction SplitInstruction (1..1) <"Split instructions to be applied.">
+	
+	output:
+		businessEvent BusinessEvent (1..1) <"Split event containing both the original block trade (with the status set to Split) and the set of split trades.">
+
+	alias splitPrimitive:
+		Create_SplitPrimitive( trade, splitInstruction )
+
+	assign-output businessEvent -> primitives -> split:
+		Create_SplitPrimitive( trade, splitInstruction )
 
 func Create_SplitPrimitive: <"Function specification to create the fully-formed business event of splitting a trade based on split instructions.">
 	[creation PrimitiveEvent]
 	inputs:
-		execution Execution (1..1) <"Block trade to be split."> // TODO: Use Trade so either a Contract or Execution can be split.
+		trade Trade (1..1) <"Block trade to be split."> // TODO: Use Trade so either a Contract or Execution can be split.
 		splitInstructions SplitInstruction (1..1) <"Split instructions to be applied.">
 
 	output:
@@ -566,3 +580,12 @@ func Create_Clear: <"Clear function that inputs the alpha contract and clearingI
 			gammaContractPrimitives
 		]
 
+func ExecutionAsTrade:
+	inputs:
+		execution Execution (0..1)
+	
+	output:
+		trade Trade (1..1)
+	
+	assign-output trade -> execution:
+		execution
