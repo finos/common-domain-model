@@ -1,11 +1,11 @@
-# *Function Testing: Initial fee and other party payment examples*
+# *Infrastructure: Annotations*
 
 _What is being released_
 
-As part of the on going function testing, two new examples have been created for a swap execution with initial fee and one for a payment to a party.
+Changes to annotations based on the recommendations of the recent design review of CDM functions.
+
+- Remove `[partialKey]` - the annotation was used on the `EconomicTerms` type, and was intended to provide a hash/checksum of the object data, excluding any metadata, that could be used for comparing economic equality between objects.  However, the current implementation could cause both false positive and false negative results, and, following the recent quantity and price model refactor does not account for these values. 
 
 _Review Directions_
 
-In Rosetta Core, navigate to the Visualise page and select the new examples:
- - Swap With Initial Fee
- - Swap With Other Party Payment
+In the Textual Browswer, review the `EconomicTerms` type.
