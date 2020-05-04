@@ -1,22 +1,29 @@
 package org.isda.cdm.functions.testing;
 
-import com.regnosys.rosetta.common.testing.ExecutableFunction;
-import com.rosetta.model.lib.records.DateImpl;
-import org.isda.cdm.*;
-import org.isda.cdm.functions.Create_Execute;
-import org.isda.cdm.functions.Create_FormContract;
+import static org.isda.cdm.functions.testing.FunctionUtils.guard;
 
 import javax.inject.Inject;
 
-import static org.isda.cdm.functions.testing.FunctionUtils.guard;
+import org.isda.cdm.BusinessEvent;
+import org.isda.cdm.Contract;
+import org.isda.cdm.GoverningLawEnum;
+import org.isda.cdm.LegalAgreement;
+import org.isda.cdm.LegalAgreementNameEnum;
+import org.isda.cdm.LegalAgreementPublisherEnum;
+import org.isda.cdm.LegalAgreementType;
+import org.isda.cdm.functions.Create_ContractFormation;
+import org.isda.cdm.functions.Create_Execution;
+
+import com.regnosys.rosetta.common.testing.ExecutableFunction;
+import com.rosetta.model.lib.records.DateImpl;
 
 public class RunFormContractWithLegalAgreement implements ExecutableFunction<Contract, BusinessEvent> {
 
     @Inject
-    Create_Execute execute;
+    Create_Execution execute;
 
     @Inject
-    Create_FormContract formContract;
+    Create_ContractFormation formContract;
 
 
     @Override
