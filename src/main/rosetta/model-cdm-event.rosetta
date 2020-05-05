@@ -10,21 +10,21 @@ import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.asset.rates.*
 
 
-type SplitInstruction:
-	// TODO: add other split context
-	breakdowns SplitBreakdown (1..*) <"The set of split breakdowns to be applied to a block trade">
+type AllocationInstruction:
+	// TODO: add other allocation context
+	breakdowns AllocationBreakdown (1..*) <"The set of allocation breakdowns to be applied to a block trade">
 
-type SplitBreakdown:
+type AllocationBreakdown:
 	partyReference Party (1..1) <"Reference to the party to specify the account.">
 		[metadata reference]
 	quantity QuantityNotation (1..1) <"The quantity to be allocated to the party.">
-	splitTradeId Identifier (1..*)<"The identifier to be assigned to the new trade post split">
+	allocationTradeId Identifier (1..*)<"The identifier to be assigned to the new trade post allocation">
 	[synonym FpML_5_10 value "allocationTradeId"]
 	account Account (0..1)<"The account to allocate the trade into">
 	collateral Collateral (0..1)<"The sum that must be posted upfront to collateralize against counterparty credit risk.">
 	[synonym FpML_5_10 value "collateral"]
 
-type SplitOutcome: <"A class to specify the split outcome as the combination of the previous Trade, which is either an execution or a contract and which state is specified as 'Split', and a set of Trade(s) of the same execution or contract type as before split. The split to one single trade is deemed appropriate: e.g. the trade could be effectively allocated from the fund manager doing the execution to a single fund entity.">
+type SplitOutcome: <"A class to specify the allocated outcome as the combination of the previous Trade, which is either an execution or a contract and which state is specified as 'Allocated', and a set of Trade(s) of the same execution or contract type as before allocation. The allocation to one single trade is deemed appropriate: e.g. the trade could be effectively allocated from the fund manager doing the execution to a single fund entity.">
 	originalTrade Trade (1..1)
 		[synonym Workflow_Event value "originalTrade"]
 	splitTrades Trade (1..*)
@@ -157,10 +157,10 @@ type Instruction: <"Instruction to a function that will be used to perform a bus
 	// TODO - This should be updated to either use a cross reference to a func type or use an annotation.
 	instructionFunction string (1..1) <"Name of the function that will be called">
 	
-	split SplitInstruction (0..1) <"Instruction to allocate">
+	allocation AllocationInstruction (0..1) <"Instruction to allocate">
     clearing ClearingInstruction (0..1) <"Instruction to clear">
 
-	condition OneOfInstruction: required choice split, clearing
+	condition OneOfInstruction: required choice allocation, clearing
 
 
 type WorkflowStep: <"A workflow step represents the state of a business event. The workflow step contains a reference to a previous WorkflowStep in order to preserve lineage. A workflow step is accepted if it contains a business event, proposed if proposedInstruction is present and is rejected if the rejected flag is set.">
@@ -485,7 +485,7 @@ type StockSplitInstruction: <"Data required to perform a stock split business ev
 	adjustmentRatio number (1..1) <"The number that denotes the cumulative quantity of post-split shares issued to shareholders versus the quantity of pre-split shares previously issued to shareholders.  This number will be multiplied by existing shares in an equity derivative contract or other positions to determine the post-split number of shares.  With regard to any reference to price, the pre-split reference price will be divided by this number to determine the post-split reference price.">
 	date date (1..1) <"The effective date of the stock split, also known as the ex-date. This is the date on which the additional shares are paid to the shareholders, or in the case of a reverse stock split, the number shares held by each shareholder is proportionally reduced.  Equity derivative transactions can be amended in firms' internal systems on such date.   In most markets, the listed stock price is reduced (or increased for a reverse stock split) to account for the split on the same date, but in some markets the price adjustment occurs on a later date.  In either case, equity derivative transactions should be amended on the date that the stocks are paid to the shareholders (or consolidated).">
 
-type Trade: <"A class to represent the general trade concept, which can either be an execution or a contract. The execution consists essentially in the economic terms which are agreed between the parties. The contract will further qualify those with the legal entities (think of the split case, which execution state can involve the investment adviser rather not the actual funds) while not specify the master agreement or collateral terms which might be associated with the subsequent contract.">
+type Trade: <"A class to represent the general trade concept, which can either be an execution or a contract. The execution consists essentially in the economic terms which are agreed between the parties. The contract will further qualify those with the legal entities (think of the allocation case, which execution state can involve the investment adviser rather not the actual funds) while not specify the master agreement or collateral terms which might be associated with the subsequent contract.">
 	[metadata key] 
 	execution Execution (0..1) <"The execution corresponds to economic terms that are agreed between parties, but which legal terms are not yet specified. The execution attribute applies to the post-execution scenario of a product that is subject to the clearing mandate and is then routed to the CCP as an execution.">
 		[synonym CME_SubmissionIRS_1_0 value "TrdCaptRpt" set when "TrdCaptRpt->VenuTyp" exists]
