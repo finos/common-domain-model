@@ -342,7 +342,15 @@ func Create_SplitPrimitive: <"Function specification to create the fully-formed 
 		then primitive -> after -> originalTrade -> contract exists
 			and primitive -> after -> splitTrades -> contract exists
 			and primitive -> after -> splitTrades -> execution is absent
+
+	post-condition: <"The post-split product should be unchanged.">
+		if primitive -> before -> execution exists
+		then primitive -> after -> splitTrades -> execution -> tradableProduct -> product = primitive -> before -> execution -> tradableProduct -> product
 	
+	post-condition:  <"The post-split product should be unchanged.">
+		if primitive -> before -> contract exists
+		then primitive -> after -> splitTrades -> contract -> tradableProduct -> product = primitive -> before -> contract -> tradableProduct -> product
+		
 	post-condition: <"The split outcome must result in execution state of 'Allocated' for an execution.">
 		if primitive -> after -> splitTrades exists and primitive -> after -> originalTrade -> execution exists
 		then primitive -> after -> originalTrade -> execution -> closedState -> state = ClosedStateEnum -> Allocated
