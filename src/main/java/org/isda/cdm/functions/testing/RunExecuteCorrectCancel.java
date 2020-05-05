@@ -1,11 +1,8 @@
 package org.isda.cdm.functions.testing;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
-import com.rosetta.model.lib.process.PostProcessor;
 import org.isda.cdm.*;
-import org.isda.cdm.functions.Create_Execute;
+import org.isda.cdm.functions.Create_Execution;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -17,62 +14,48 @@ import static org.isda.cdm.functions.testing.FunctionUtils.guard;
 public class RunExecuteCorrectCancel implements ExecutableFunction<Contract, Workflow> {
 
     @Inject
-    Create_Execute execute;
+    Create_Execution execute;
 
     @Inject
     LineageUtils lineageUtils;
-
-    @com.google.inject.Inject
-    private PostProcessor runner;
 
     @Override
     public Workflow execute(Contract contract) {
 
         List<QuantityNotation> incorrectQuantity = setQuantityAmount(contract, 99999);
 
-        BusinessEvent originalExecution = execute.evaluate(contract.getTradableProduct().getProduct(),
+        BusinessEvent evaluate = execute.evaluate(contract.getTradableProduct().getProduct(),
                 guard(incorrectQuantity),
                 guard(contract.getTradableProduct().getPriceNotation()),
                 guard(contract.getParty()),
                 guard(contract.getPartyRole()));
 
-        WorkflowStep newExecution = WorkflowStep.builder()
+        WorkflowStep newExecutionWorkflowStep = WorkflowStep.builder()
                 .setAction(ActionEnum.NEW)
-                .setBusinessEvent(originalExecution)
+                .setBusinessEvent(evaluate)
                 .build();
 
-        BusinessEvent correctedExecution = execute.evaluate(contract.getTradableProduct().getProduct(),
+        BusinessEvent corrected = execute.evaluate(contract.getTradableProduct().getProduct(),
                 guard(contract.getTradableProduct().getQuantityNotation()),
                 guard(contract.getTradableProduct().getPriceNotation()),
                 guard(contract.getParty()),
                 guard(contract.getPartyRole()));
 
-        WorkflowStep correctExecution = WorkflowStep.builder()
+        WorkflowStep correctedExecutionWorkflowStep = WorkflowStep.builder()
                 .setAction(ActionEnum.CORRECT)
-                .setBusinessEvent(correctedExecution)
+                .setBusinessEvent(corrected)
                 .build();
 
-        WorkflowStep cancelExecution = WorkflowStep.builder()
+        WorkflowStep cancelledExecutionWorkflowStep = WorkflowStep.builder()
                 .setAction(ActionEnum.CANCEL)
                 .setRejected(true)
-                .setBusinessEvent(correctedExecution)
+                .setBusinessEvent(corrected)
                 .build();
 
-
-        Workflow.WorkflowBuilder builder = Workflow.builder();
-
-
-        runner.postProcess(Workflow.class, builder
-                .addSteps(lineageUtils.withLineage(newExecution, correctExecution, cancelExecution))
-        );
-        Workflow build = builder .build();
-        try {
-            System.out.println(RosettaObjectMapper.getNewRosettaObjectMapper().writeValueAsString(build));
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-
-        return build;
+        Workflow workflow = Workflow.builder()
+                .addSteps(lineageUtils.withLineage(newExecutionWorkflowStep, correctedExecutionWorkflowStep, cancelledExecutionWorkflowStep))
+                .build();
+        return workflow;
     }
 
     private List<QuantityNotation> setQuantityAmount(Contract contract, int val) {

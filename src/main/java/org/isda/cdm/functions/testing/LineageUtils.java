@@ -15,31 +15,23 @@ public class LineageUtils {
     @Inject
     private PostProcessor runner;
 
-    public List<WorkflowStep> withLineage(WorkflowStep... steps) {
-        List<WorkflowStep> lineageSteps = new ArrayList<>(steps.length);
-        for (int i = 0; i < steps.length; i++) {
+    public List<WorkflowStep> withLineage(WorkflowStep... workflowSteps) {
+        List<WorkflowStep> lineageSteps = new ArrayList<>(workflowSteps.length);
 
-            System.out.println("Current iteration: " + i);
-
-
+        for (int i = 0; i < workflowSteps.length; i++) {
             Optional<WorkflowStep> previous = i == 0 ? Optional.empty() : Optional.of(lineageSteps.get(i - 1));
-            WorkflowStep.WorkflowStepBuilder current = steps[i].toBuilder();
-
-            runner.postProcess(WorkflowStep.class, current);
-
-            System.out.println("Current Key : " + current.getMeta().getGlobalKey());
+            WorkflowStep currentStep = workflowSteps[i];
+            WorkflowStep.WorkflowStepBuilder current = currentStep.toBuilder();
 
             if (previous.isPresent()) {
-
                 String prevKey = previous.get().getMeta().getGlobalKey();
-                System.out.println("Previous Key: " + prevKey);
-
                 ReferenceWithMetaWorkflowStep previousStepReference = ReferenceWithMetaWorkflowStep.builder()
-                        .setGlobalReference(previous.get().getMeta().getGlobalKey()).build();
+                        .setGlobalReference(prevKey).build();
 
                 current.setLineage(Lineage.builder().addEventReference(previousStepReference).build())
                         .setPreviousWorkflowStep(previousStepReference);
             }
+            runner.postProcess(WorkflowStep.class, current);
             lineageSteps.add(current.build());
         }
         return lineageSteps;
