@@ -862,8 +862,10 @@ It is the responsibility of the adopter to populate the remaining data values re
 Where widely adopted process models exist, they should be reused and not redefined. Following are some examples:
 
 * Quantitative finance. Open-source quantitative finance software already defines many granular processes, such as:
-** Computing a coupon schedule from a set of parameters.
-** Adjusting dates given a holiday calendar.
+
+  * Computing a coupon schedule from a set of parameters.
+  * Adjusting dates given a holiday calendar.
+
 * Mathematical functions. Functions such as sum, absolute, and average are widely understood, so are not redefined in the model.
 
 .. _function coverage matrix: Portal_
@@ -871,14 +873,7 @@ Where widely adopted process models exist, they should be reused and not redefin
 Modelling Approach
 ^^^^^^^^^^^^^^^^^^
 
-Complex industry processes in the model are defined by combining simpler sub-processes. Sub-processes are then defined by combining yet simpler sub-sub-processes, and so on. In the Process Model, each process, sub-process, and sub-sub-process (or collectively, **processes**) is represented by a **function**.
-
-A function executes some logic on input data to produce output data. They are intended to be generic and thus highly reusable. Further, functions can execute other functions, so they can represent processes made up of sub-processes.
-
-This concept of combining and reusing small components is consistent with how the Product Model and Event Model are designed. For those from technical or engineering backgrounds, this description should sound a lot like how modern software is (or should be) created. Reusing small, modular processes has the following benefits:
-
-* Increased consistency. When a sub-process changes, all processes that use the sub-process benefit from that single change.
-* Increased flexibility. The model can represent any process by reusing existing sub-processes; there is no need to define each process explicitly, instead, we pick and choose from a set of pre-existing building blocks.
+This concept of combining and reusing small components is consistent with how the Product Model and Event Model are designed.
 
 Introducing Functions
 ^^^^^^^^^^^^^^^^^^^^^
@@ -889,30 +884,7 @@ Functions are the foundations of the Process Model. They are very generic and ca
 * Compute the amount and direction of margin required between two parties.
 * Checking whether preconditions in a workflow step have been met.
 
-To define functions, ISDA CDM uses Rosetta. Just like in a spreadsheet model, Excel provides the ability for users to define and make use of functions. In this context, Rosetta is to ISDA CDM, as Excel is to spreadsheet models.
-
-Owing to their prevalence in the Process Model, it will be useful to understand the basic syntax of a function. Each line of the model snippet below is defined as follows:
-
-.. code-block:: Haskell
-  :linenos:
-
-  func Add: <"A function that adds two numbers together.">
-    inputs:
-      input1 number (1..1)
-      input2 number (1..1)
-    output:
-      result number (1..1)
-    assign-output: result
-      input1 + input2
-
-#. `func Add:` tells us we are looking at a function called `Add`. The text following the semi-colon defines the function in written prose, which is typically taken verbatim from ISDA Documentation where available.
-#. `inputs:` tells us the following section lists the data inputs required by the function.
-#. `input1 number (1..1)` tells us the first input is called `input1`, it is a `number`, and we expect exactly one `number`. The `(1..1)` notation is commonly used in `data modelling`_ and mirrors the syntax used when defining data types.
-#. `input2 number (1..1)` tells us there is a second input is called (unimaginatively) `input2` and is also exactly one `number`.
-#. `output:` mirrors that of line 2 and tells us the following line will relate to defining the function output.
-#. `result number (1..1)` tells us the function output is called `result`, it is a number, and we expect exactly one.
-#. `assign-output: result` tells us the following lines instruct the function to assign a value to the output, which is called `result`.
-#. `input1 + input2` tells us the `result` should be assigned the result of this logical expression.
+To define functions, ISDA CDM uses Rosetta.
 
 For detailed documentation on the Rosetta syntax used to define functions in ISDA CDM, see the `Rosetta DSL Documentation on Functions`_.
 
@@ -940,227 +912,6 @@ In contrast, adopting a traditional standard that is written in prose might look
 Systematically generating executable code reduces the work required in points 2 and 3. Each step comes with the risk of misinterpretation and failed implementation. Each adopting firm will typically go through the same process, which further increases the risk for the industry. These risks ultimately add up to high implementation costs.
 
 .. _Portal: https://portal.cdm.rosetta-technology.io
-
-Existing Sections
-=================
-
-The CDM purpose is to lay the foundation for the standardisation and automation of industry processes. These processes are based on *functions* that transform data from inputs into outputs, often combined into a sequence of steps or *workflow*, which is the basis of process automation. In addition to the data model for products, events and legal agreements, functions are an essential component in the CDM to standardise the processes associated to those financial constructs.
-
-There are two types of functions in the CDM. They use the *Function Artefact* available in the Rosetta DSL and described as part of the *CDM Modelling Artefacts* section of the documentation:
-
-* Calculation, using the ``calculation`` syntax
-* Function Specification, using the ``spec`` syntax
-
-Calculation
-^^^^^^^^^^^
-
-The CDM provides certain ISDA Definitions as machine executable formulas to standardise the industry calculation processes that use those definitions. The ISDA 2006 definitions of **Fixed Amount** and **Floating Amount** have been used as an initial scope to confirm applicability, alongside some of the required day count fractions. Performance calculations are also being introduced in the CDM to support the Equity Swap model.
-
-Fixed Amount and Floating Amount Definitions
-""""""""""""""""""""""""""""""""""""""""""""
-
-The CDM expressions of ``FixedAmount`` and ``FloatingAmount`` are similar in structure: a calculation formula that reflects the terms of the ISDA 2006 Definitions and the arguments associated with the formula.
-
-.. code-block:: Java
-
- calculation FixedAmount
- {
-  fixedAmount : calculationAmount * fixedRate * dayCountFraction
-  
-  where
-   calculationAmount : InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
-   fixedRate : InterestRatePayout -> rateSpecification -> fixedRate -> initialValue
-   dayCountFraction : InterestRatePayout -> dayCountFraction
-  }
-
-.. code-block:: Java
-
- calculation FloatingAmount
- {
-  floatingAmount : calculationAmount * ( floatingRate + spread ) * dayCountFraction
-  
-  where
-   calculationAmount : InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
-   floatingRate : ResolveRateIndex( InterestRatePayout -> rateSpecification -> floatingRate -> floatingRateIndex ) -> rate
-   spread : GetRateSchedule( InterestRatePayout -> rateSpecification -> floatingRate ) -> schedule -> initialValue
-   dayCountFraction : InterestRatePayout -> dayCountFraction
- }
-
-Day Count Fraction
-""""""""""""""""""
-
-The current CDM version incorporates day count fractions calculations representing the set of day count fractions specified as part of the ISDA 2006 Definitions, e.g. the **ACT/365.FIXED** and the **30E/360** day count fractions. While the ACT/365.FIXED definition is simple and relies upon a computation of the number of days in a period (not specified as part of the CDM because not involving any specific logic), the 30E/360 definition specifies the actual computation in details to account for a 360 days year and a 30 maximum days month.
-
-.. code-block:: Java
-
- calculation DayCountFractionEnum.ACT_365_FIXED
- {
-  : daysInPeriod / 365
-  
-  where
-   daysInPeriod: CalculationPeriod( InterestRatePayout -> calculationPeriodDates ) -> daysInPeriod
- }
-
-.. code-block:: Java
-
- calculation DayCountFractionEnum._30E_360
- {
-  : (360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
-  
-  where
-   alias calculationPeriod
-    CalculationPeriod( InterestRatePayout -> calculationPeriodDates )
-   startYear: calculationPeriod -> startDate -> year
-   endYear: calculationPeriod -> endDate -> year
-   startMonth: calculationPeriod -> startDate -> month
-   endMonth: calculationPeriod -> endDate -> month
-   endDay: Min( calculationPeriod -> endDate -> day, 30 )
-   startDay: Min( calculationPeriod -> startDate -> day, 30 )
- }
- 
-Equity Performance
-""""""""""""""""""
-
-To support the implementation of Equity Swaps in CDM, calculations have been introduced to support the equity performance concepts used to reset and pay cashflows on such contracts. Those calculations follow the definitions as normalised in the new **2018 ISDA CDM Equity Confirmation for Security Equity Swap** (although this is a new template that is not yet in use across the industry).
-
-A non-exhaustive list of those calculations is presented below:
-
-.. code-block:: Java
-
- calculation EquityCashSettlementAmount <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 72. 'Equity Cash Settlement Amount' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Cash Settlement Amount = ABS(Rate Of Return) × Equity Notional Amount.">
- {
-  equityCashSettlementAmount : rateOfReturn * notionalAmount
-  
-  where
-   rateOfReturn	: Abs( ResolveRateOfReturn( EquityPayout ) -> rate ) -> result
-   notionalAmount	: ResolveNotionalAmount( EquityPayout ) -> notional
- }
-
-.. code-block:: Java
-
- calculation RateOfReturn <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 139. 'Rate Of Return' means, in respect of any Equity Valuation Date, the amount determined pursuant to the following formula: Rate Of Return = (Final Price - Initial Price) / Initial Price.">
- {
-  rateOfReturn : ( finalPrice - initialPrice ) / initialPrice
-  
-  where
-   businessDate: GetBusinessDateFunc()
-   calculationPeriod : EquityCalculationPeriod( EquityPayout, businessDate -> result )
-   initialPrice:
-    if calculationPeriod -> isFirstPeriod = True then
-     EquityPayout -> priceReturnTerms -> initialPrice -> netPrice -> amount
-    else (
-     if EquityPayout -> priceReturnTerms -> valuationPriceInterim exists then
-      ResolvePrice( EquityPayout -> priceReturnTerms -> valuationPriceInterim, calculationPeriod -> startDate ) -> price
-     else
-      ResolvePrice( EquityPayout -> priceReturnTerms -> valuationPriceFinal, calculationPeriod -> startDate ) -> price
-     )
-   finalPrice:
-    if calculationPeriod -> isLastPeriod = True then
-     ResolvePrice( EquityPayout -> priceReturnTerms -> valuationPriceFinal, calculationPeriod -> endDate ) -> price
-    else
-     ResolvePrice( EquityPayout -> priceReturnTerms -> valuationPriceInterim, calculationPeriod -> endDate ) -> price
- }
-
-Function Specification
-^^^^^^^^^^^^^^^^^^^^^^
-
-A function specification in CDM standardises the `API <https://en.wiktionary.org/wiki/application_programming_interface>`_ that industry implementations should conform to when building that function for process automation. In contrast to calculations, the CDM does not provide an implementation of those functions and only specifies their inputs and output and the validation conditions that both must satisfy. By standardising those APIs, the CDM guarantees the integrity, inter-operability and consistency of the automated processes that their implementations will support.
-
-Function specifications can be used to specify any type of function in the CDM. There are currently two main uses:
-
-* as part of calculations
-* to construct events
-
-Function specification is a newly introduced feature in the CDM and the range of uses is expected to grow over time.
-
-Function Used in Calculation
-""""""""""""""""""""""""""""
-
-CDM model elements often need to be transformed by a function to construct the arguments for a formula in a calculation. A typical example, required to compute a cashflow amount in accordance with a schedule (as illustrated in the day count fraction calculation shown above), is to identify the characteristics of the current calculation period.
-
-The CDM has two main classes for this:
-
-* ``CalculationPeriodDates`` specifies the inputs required to construct a calculation period schedule
-* ``DateRange`` specifies a start and end date
-
-A pure data model cannot tie them together and a function is required to compute the latter based on the former (and also the current date):
-
-.. code-block:: Java
-
- spec CalculationPeriodSpec:
-  inputs:
-   periodDates CalculationPeriodDates (1..1)
-   date date (1..1)
-  output:
-   result DateRange (1..1)
-
-Function to Construct an Event
-""""""""""""""""""""""""""""""
-
-A crucial component of financial industry processes is the management of the transaction lifecycle, from an execution to a contract and to all the possible post-trade events for that contrac: cashflow payment, exercise etc.
-
-While the CDM event model provides a standardised data representation of lifecycle events in terms of ``PrimitiveEvent`` with ``before`` and ``after`` states, the APIs to process those events must be further specifid in the CDM to standardise implementation across the industry. Lineage must be enforced across events, so how those events work in sequence must also be specified.
-
-An example of such use is the handling of a reset event, hereby presented an an equity reset example. The reset is processed in two steps:
-* An ``ObservationPrimitive`` is built for the equity price, independently from any single contract.
-* This observation is used to construct a ``ResetPrimitive`` on any contract affected by it, with eventual cashflow payment where applicable.
-
-For the observation primitive, checks are performed on the valuation date and/or time inputs and on their consistency with a given price determination method. The function to fetch the equity price is also specified to ensure integrity of the observation number.
-
-.. code-block:: Java
-
- spec EquityPriceObservation <"Function specification for the observation of an equity price, based on the attributes of the 'EquityValuation' class.">:
-  inputs:
-   equity Equity (1..1)
-   valuationDate AdjustableOrRelativeDate (1..1)
-   valuationTime BusinessCenterTime (0..1)
-   timeType TimeTypeEnum (0..1)
-   determinationMethod DeterminationMethodEnum (1..1)
-  output:
-   observation ObservationPrimitive (1..1)
- 
-  pre-condition <"Optional choice between directly passing a time or a timeType, which has to be resolved into a time based on the determination method.">:
-   if valuationTime exists then timeType is absent
-   else if timeType exists then valuationTime is absent
-   else False;
- 
-  post-condition <"The date and time must be properly resolved as attributes on the output.">:
-   observation -> date = ToAdjustedDateFunction( valuationDate );
-   if valuationTime exists then observation -> time = TimeZoneFromBusinessCenterTime( valuationTime )
-   else observation -> time = ResolveTimeZoneFromTimeType( timeType, determinationMethod );
- 
-  post-condition <"The number recorded in the observation must match the number fetched from the source.">:
-   observation -> observation = EquitySpot( equity, observation -> date, observation -> time );
-
-The reset primitive applies to an ``EquityPayout`` and uses the observation number extracted from the observation primitive to compute the cashflow corresponding to the reset value.
-
-**Note**: Current implementation of the reset event will be adjusted to separate the resetting of the equity value on the contract and the cashflow calculation (if any), which should be the concern of the transfer event.
-
-.. code-block:: Java
-
- spec EquityReset <"Function specification for resetting an equity payout following an equity price observation. This function only concerns itself with building the primitive, which currently does not affect the underlying contract (until such time when 'ResetPrimitive' is refactored to directly accomodate a 'before' and 'after' states). The contract effect will be part of the 'EventEffect' attribute on the a fully-formed Business Event that is built by the 'EquityResetEvent' function spec.">:
-  inputs:
-   equityPayout EquityPayout (1..1)
-   observation number (1..1)
-   date date (1..1)
-  output:
-   reset ResetPrimitive (1..1)
-  
-  pre-condition <"The reset date must be the period start date on the equity payout.">:
-   date = CalculationPeriodSpec( equityPayout -> calculationPeriodDates, GetBusinessDateSpec() ) -> unadjustedFirstDate;
-  
-  post-condition <"Date and value attributes must be correctly populated on the reset primitive.">:
-   reset -> date = date;
-   reset -> resetValue = observation;
-  
-  post-condition <"Reset cashflow must be correctly calculated on the reset primitive by fetching the .">:
-   reset -> cashflow -> cashflowAmount -> amount = ResolveEquityCashSettlementAmountSpec( equityPayout );
-   reset -> cashflow -> cashflowAmount -> currency = equityPayout -> settlementTerms -> settlementCurrency;
-   reset -> cashflow -> payerReceiver = EquityAmountPayer( equityPayout );
-
-The above function specifications use other functions, such as ``ResolveEquityCashSettlementAmountSpec`` to compute the cash settlement amount. This function specification in turn is tied to the equity performance calculations presented in the above *Equity Performance* section.
-
-**Note**: The ``ResolveEquityCashSettlementAmountSpec`` is currently specified independently from the ``EquityCashSettlementAmount`` calculation in the CDM, due to a transient state of the Rosetta DSL where ``spec`` and ``calculation`` are implemented separately. Work is under-way that will bring those two back together. For clarity, the 'target state' is presented in this documentation.
 
 Reference Data Model
 --------------------
