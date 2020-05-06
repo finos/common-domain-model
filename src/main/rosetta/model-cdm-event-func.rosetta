@@ -15,20 +15,16 @@ import cdm.base.staticdata.asset.rates.*
 
 isEvent root BusinessEvent;
 
-func Qualify_Allocation: <"The qualification of allocation event from the fact that (i) the intent is Allocation when specified, (ii) the only primitive is the allocation, (iii) the sum of quantities/notional before = after, and (iv) there is a single contractualProduct before (ensured through cardinality). Note: it is accepted that an allocation can result in a single contract.">
+func Qualify_Allocation: <"The qualification of allocation event from the fact that (i) the only primitives are split and contract formation (ii) the number of split executions and the number of contract formations are equal.  Note that SplitPrimitive type has a condition to check that the post-split quantities sum to the pre-split quantity.  Also note that it is expected that an allocation can result in a single contract.">
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
-		businessEvent -> primitives count = 1
-		and businessEvent -> primitives -> allocation exists
+		businessEvent -> primitives -> split exists
+		and businessEvent -> primitives -> contractFormation exists
+		and businessEvent -> primitives -> split -> after -> splitTrades -> execution count = businessEvent -> primitives -> contractFormation -> after -> contract count
 
-/*
- * TODO - The below syntax needs to be expanded to specify a summation
- * This could be specify as quantityBeforeAllocation = sum(quantityAfterAllocation)
- */
-//	and quantityBeforeAllocation = quantityAfterAllocation
 /*
  * Temporary event qualification until such time that we firm out the proper qualification and the way to infer it
  */
@@ -340,7 +336,7 @@ func Qualify_StockSplit: <"The qualification of StockSplit business event based 
 		then NoOfUnits( beforeQuantityNotation )
 	
 	alias afterQuantityNotation:
-		businessEvent -> primitives -> quantityChange -> before -> contract -> tradableProduct -> quantityNotation
+		businessEvent -> primitives -> quantityChange -> after -> contract -> tradableProduct -> quantityNotation
 	
 	alias afterNoOfUnits:
 		if afterQuantityNotation exists

@@ -27,7 +27,7 @@ func Create_Inception: <"Function specification to perform an execution and a co
 		Create_ExecutionPrimitive(product, quantityNotation, priceNotation, parties, partyRoles)
 
 	alias contractFormationPrimitive: <"Create new contract formation using the after state of the execution primitive and optional legal agreement.">
-		Create_ContractFormationPrimitive(executionPrimitive -> after, legalAgreement)
+		Create_ContractFormationPrimitive(executionPrimitive -> after -> execution, legalAgreement)
 
 	assign-output inceptionEvent -> primitives -> execution: <"Add the execution primitive to the resulting inception business event">
 		executionPrimitive
@@ -103,7 +103,7 @@ func Create_ContractFormation: <"Function specification to create the fully-form
 		if legalAgreement exists then legalAgreement -> contractualParty contains execution -> party
 
 	assign-output contractFormationEvent -> primitives -> contractFormation: <"Event must contain a contract formation primitive based on the execution primitive and an optional legal agreement.">
-		Create_ContractFormationPrimitive(executionEvent -> primitives only-element -> execution -> after, legalAgreement)
+		Create_ContractFormationPrimitive(executionEvent -> primitives only-element -> execution -> after -> execution, legalAgreement)
 
 	assign-output contractFormationEvent -> eventEffect -> contract:
 		contractFormationEvent -> primitives -> contractFormation -> after -> contract
@@ -118,7 +118,7 @@ func Create_ContractFormation: <"Function specification to create the fully-form
 func Create_ContractFormationPrimitive: <"Function specification to create a fully-formed contract following execution on a contractual product. The contract can optionally reference a further legal agreement (such as a CSA or a Master Confirmation).">
 	[creation PrimitiveEvent]
 	inputs:
-		executionState ExecutionState (1..1)
+		execution Execution (1..1)
 		legalAgreement LegalAgreement (0..1)
 
 	output:
@@ -127,11 +127,8 @@ func Create_ContractFormationPrimitive: <"Function specification to create a ful
 	alias contract:
 		contractFormation -> after -> contract
 
-	alias execution:
-		executionState -> execution
-
-	assign-output contractFormation -> before: <"Before state must be the execution, and the contractual product in the after state must be the underlying product of the contract being formed.">
-		executionState
+	assign-output contractFormation -> before -> execution: <"Before state must be the execution, and the contractual product in the after state must be the underlying product of the contract being formed.">
+		execution
 
 	assign-output contract -> tradableProduct:
 		execution -> tradableProduct
@@ -296,32 +293,54 @@ func ResolveCashSettlementDate: <"A product agnostic function that resolves the 
 	inputs: contractState ContractState (1..1)
 	output: date date (1..1)
 
-func Allocate: <"Function specification to create the fully-formed business event of allocating an execution based on allocation instructions.">
+func Create_Allocation: <"Function specification to create the fully-formed business event of allocating an execution based on allocation instructions.">
+	[creation BusinessEvent]
 	inputs:
 		execution Execution (1..1) <"Block trade to be allocated.">
 		allocationInstruction AllocationInstruction (1..1) <"Allocation instructions to be applied.">
-		previousEvent WorkflowStep (1..1) <"Previous event for lineage purposes.">
-
+	
 	output:
-		allocationEvent WorkflowStep (1..1) <"Allocation event containing both the original block trade (with the status set to Allocated) and the set of allocated trades.">
+		businessEvent BusinessEvent (1..1) <"Allocation event containing both the original block trade (with the status set to Allocated) and the set of allocated trades.">
 
-	assign-output allocationEvent -> businessEvent -> primitives -> allocation:
-		Create_AllocationPrimitive(execution, allocationInstruction)
+	alias splitPrimitive:
+		Create_SplitPrimitive( ExecutionAsTrade( execution ), allocationInstruction -> breakdowns -> quantity )
 
-	assign-output allocationEvent -> lineage -> eventReference:
-		previousEvent as-key
+//	assign-output businessEvent -> primitives -> split:
+//		splitPrimitive
 
-	assign-output allocationEvent -> lineage -> executionReference:
-		execution as-key
+	/*
+	 * TODO: Requires DSL support so implemented in Java:
+	 *
+	 * Proposed syntax changes:  
+	 * Option 1 - loop through split executions to create contract formation primitive for each one:
+	 *  - for loop syntax support required to create contract formation primitive for each split execution
+	 *  - list append syntax support required to add each contract formation primitive to the list of primitives 
+	 *  Option 2 - create function that creates list of contract formation primitives 
+	 *  - syntax support for returning lists from functions
+	 *  - syntax support for list add all (to add function result to list of primitives)
+	 */
+//	add-output businessEvent -> primitives -> contractFormation for-each splitPrimitive -> after -> splitTrades -> execution:
+//		then Create_ContractFormationPrimitive( it, empty )
 
-func Create_AllocationPrimitive: <"Function specification to create the fully-formed business event of allocating an execution based on allocation instructions.">
+	post-condition:  <"Both split and contract formation primitives should be created.">
+		businessEvent -> primitives -> split exists and businessEvent -> primitives -> contractFormation exists
+			
+	post-condition: <"The split outcome must result in execution state of 'Allocated' for an execution.">
+		if businessEvent -> primitives -> split -> after -> originalTrade -> execution exists
+		then businessEvent -> primitives -> split -> after -> originalTrade -> execution -> closedState -> state = ClosedStateEnum -> Allocated
+	
+	post-condition: <"The split outcome must result in a contract state of 'Allocated' for a contract.">
+		if businessEvent -> primitives -> split -> after -> originalTrade -> contract exists
+		then businessEvent -> primitives -> split -> after -> originalTrade -> contract -> closedState -> state = ClosedStateEnum -> Allocated
+
+func Create_SplitPrimitive: <"Function specification to create the Split primitive based by splitting the trade into separate trades with the qualities specified in the split instructions.">
 	[creation PrimitiveEvent]
 	inputs:
-		execution Execution (1..1) <"Block trade to be allocated.">
-		allocationInstructions AllocationInstruction (1..1) <"Allocation instructions to be applied.">
+		trade Trade (1..1) <"Block trade to be split.">
+		splitInstructions QuantityNotation (1..*) <"Split instructions to be applied.">
 
 	output:
-		primitive AllocationPrimitive (1..1) <"Allocation primitive containing both the original block trade (with the status set to Allocated) and the set of allocated trades.">
+		primitive SplitPrimitive (1..1) <"Split primitive containing both the original block trade (with the status set to Split) and the set of split trades.">
 
 func Settle: <"Function specification to create the Transfer event based on an execution's settlement terms. Initial implementation only supports securities settled via delivery vs payment.">
 	// TODO Never referenced in CDM
@@ -456,7 +475,6 @@ func TerminateContract:
 	assign-output terminatedContract -> tradableProduct -> quantityNotation -> quantity -> amount: <"Set the quantity amount to 0">
         0.0
 
-
 func NewExecutionPrimitiveEvent:
 	inputs:
 		executionPrimitive ExecutionPrimitive (0..1)
@@ -518,7 +536,7 @@ func Create_Clear: <"Clear function that inputs the alpha contract and clearingI
 	alias betaExecutionPrimitives: NewExecutionPrimitiveEvent(betaExecution)
 
 	alias betaContract: <"Beta contract">
-		Create_ContractFormationPrimitive(betaExecution -> after, empty)
+		Create_ContractFormationPrimitive(betaExecution -> after -> execution, empty)
 	alias betaContractPrimitives: NewContractFormationPrimitiveEvent(betaContract)
 
 	alias gammaExecution: <"Gamma execution">
@@ -526,7 +544,7 @@ func Create_Clear: <"Clear function that inputs the alpha contract and clearingI
 	alias gammaExecutionPrimitives: NewExecutionPrimitiveEvent(gammaExecution)
 
 	alias gammaContract: <"Gamma contract">
-		Create_ContractFormationPrimitive(gammaExecution -> after, empty)
+		Create_ContractFormationPrimitive(gammaExecution -> after -> execution, empty)
 	alias gammaContractPrimitives: NewContractFormationPrimitiveEvent(gammaContract)
 
 	assign-output clearedEvent -> primitives:
@@ -538,3 +556,12 @@ func Create_Clear: <"Clear function that inputs the alpha contract and clearingI
 			gammaContractPrimitives
 		]
 
+func ExecutionAsTrade:
+	inputs:
+		execution Execution (0..1)
+	
+	output:
+		trade Trade (1..1)
+	
+	assign-output trade -> execution:
+		execution
