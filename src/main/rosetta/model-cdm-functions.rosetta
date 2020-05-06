@@ -147,6 +147,15 @@ func Create_ContractFormationPrimitive: <"Function specification to create a ful
 
 	assign-output contract -> documentation -> legalAgreement: <"When an overlaying legal agreement exists, the contract must reference it.">
 		if legalAgreement exists then legalAgreement
+	
+	post-condition: <"The product should be unchanged.">
+		execution -> tradableProduct -> product = contractFormation -> after -> contract -> tradableProduct -> product
+	
+	post-condition: <"The quantity should be unchanged.">
+		execution -> tradableProduct -> quantityNotation = contractFormation -> after -> contract -> tradableProduct -> quantityNotation
+	
+	post-condition: <"The price should be unchanged.">
+		execution -> tradableProduct -> priceNotation = contractFormation -> after -> contract -> tradableProduct -> priceNotation
 
 func Create_Reset:
 	[creation BusinessEvent]
@@ -303,7 +312,7 @@ func Create_Allocation: <"Function specification to create the fully-formed busi
 		businessEvent BusinessEvent (1..1) <"Allocation event containing both the original block trade (with the status set to Allocated) and the set of allocated trades.">
 
 	alias splitPrimitive:
-		Create_SplitPrimitive( ExecutionAsTrade( execution ), allocationInstruction -> breakdowns -> quantity)
+		Create_SplitPrimitive( ExecutionAsTrade( execution ), allocationInstruction -> breakdowns -> quantity )
 
 //	assign-output businessEvent -> primitives -> split:
 //		splitPrimitive
@@ -324,11 +333,6 @@ func Create_Allocation: <"Function specification to create the fully-formed busi
 
 	post-condition:  <"Both split and contract formation primitives should be created.">
 		businessEvent -> primitives -> split exists and businessEvent -> primitives -> contractFormation exists
-		
-	post-condition:  <"The allocated product should be unchanged.">
-		if businessEvent -> primitives -> split exists and businessEvent -> primitives -> contractFormation exists
-		then businessEvent -> primitives -> split -> before -> execution -> tradableProduct -> product = 
-			businessEvent -> primitives -> contractFormation -> after -> contract -> tradableProduct -> product
 			
 	post-condition: <"The split outcome must result in execution state of 'Allocated' for an execution.">
 		if businessEvent -> primitives -> split -> after -> originalTrade -> execution exists
@@ -346,6 +350,42 @@ func Create_SplitPrimitive: <"Function specification to create the Split primiti
 
 	output:
 		primitive SplitPrimitive (1..1) <"Split primitive containing both the original block trade (with the status set to Split) and the set of split trades.">
+
+	post-condition: <"If the pre-split trade is an execution, then the post-split trade must also be an execution.">
+		if primitive -> before -> execution exists
+		then primitive -> after -> originalTrade -> execution exists
+			and primitive -> after -> splitTrades -> execution exists
+			and primitive -> after -> splitTrades -> contract is absent
+	
+	post-condition: <"If the pre-split trade is a contract, then the post-split trade must also be a contract.">
+		if primitive -> before -> contract exists
+		then primitive -> after -> originalTrade -> contract exists
+			and primitive -> after -> splitTrades -> contract exists
+			and primitive -> after -> splitTrades -> execution is absent
+
+	post-condition: <"The product should be unchanged.">
+		if primitive -> before -> execution exists
+		then primitive -> after -> splitTrades -> execution -> tradableProduct -> product = primitive -> before -> execution -> tradableProduct -> product
+	
+	post-condition:  <"The product should be unchanged.">
+		if primitive -> before -> contract exists
+		then primitive -> after -> splitTrades -> contract -> tradableProduct -> product = primitive -> before -> contract -> tradableProduct -> product
+	
+	post-condition: <"The post-split quantities should sum to the pre-split quantity.">
+		if primitive -> before -> execution exists
+		then Sum( primitive -> after -> splitTrades -> execution -> tradableProduct -> quantityNotation -> quantity -> amount ) = primitive -> before -> execution -> tradableProduct -> quantityNotation -> quantity -> amount
+	
+	post-condition:  <"The post-split quantities should sum to the pre-split quantity.">
+		if primitive -> before -> contract exists
+		then Sum( primitive -> after -> splitTrades -> contract -> tradableProduct -> quantityNotation -> quantity -> amount ) = primitive -> before -> contract -> tradableProduct -> quantityNotation -> quantity -> amount
+
+	post-condition: <"The price should be unchanged.">
+		if primitive -> before -> execution exists
+		then primitive -> after -> splitTrades -> execution -> tradableProduct -> priceNotation = primitive -> before -> execution -> tradableProduct -> priceNotation
+	
+	post-condition:  <"The price should be unchanged.">
+		if primitive -> before -> contract exists
+		then primitive -> after -> splitTrades -> contract -> tradableProduct -> priceNotation = primitive -> before -> contract -> tradableProduct -> priceNotation
 
 func Settle: <"Function specification to create the Transfer event based on an execution's settlement terms. Initial implementation only supports securities settled via delivery vs payment.">
 	// TODO Never referenced in CDM

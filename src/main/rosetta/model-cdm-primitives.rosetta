@@ -53,6 +53,16 @@ type ContractFormationPrimitive: <"Specification of the primitive event for the 
 	after PostInceptionState (1..1) <"The after state corresponds to the new contract being formed between the parties, plus some additional trade workflow information.">
 		[synonym Workflow_Event value "after"]
 
+	condition: <"The product should be unchanged.">
+		before -> execution -> tradableProduct -> product = after -> contract -> tradableProduct -> product
+
+	condition: <"The quantity should be unchanged.">
+		before -> execution -> tradableProduct -> quantityNotation = after -> contract -> tradableProduct -> quantityNotation
+	
+	condition: <"The price should be unchanged.">
+		before -> execution -> tradableProduct -> priceNotation = after -> contract -> tradableProduct -> priceNotation
+
+
 type SplitPrimitive: <"The primitive event to represent a split/allocation of a trade. As part of this primitive event the type of trade, either an execution or a contract, does not get altered. In the case of an execution, the further transformation of each split execution into a contract will be the purpose of the ContractFormation primitive.">
 	before Trade (1..1) <"The trade before split, which is either an execution if split happens before the contract is formed, or an already formed contract.">
 		[metadata reference]
@@ -72,11 +82,11 @@ type SplitPrimitive: <"The primitive event to represent a split/allocation of a 
 			and after -> splitTrades -> contract exists
 			and after -> splitTrades -> execution is absent
 
-	condition: <"The post-split product should be unchanged.">
+	condition: <"The product should be unchanged.">
 		if before -> execution exists
 		then after -> splitTrades -> execution -> tradableProduct -> product = before -> execution -> tradableProduct -> product
 	
-	condition:  <"The post-split product should be unchanged.">
+	condition:  <"The product should be unchanged.">
 		if before -> contract exists
 		then after -> splitTrades -> contract -> tradableProduct -> product = before -> contract -> tradableProduct -> product
 	
@@ -88,7 +98,14 @@ type SplitPrimitive: <"The primitive event to represent a split/allocation of a 
 		if before -> contract exists
 		then Sum( after -> splitTrades -> contract -> tradableProduct -> quantityNotation -> quantity -> amount ) = before -> contract -> tradableProduct -> quantityNotation -> quantity -> amount
 	
-
+	condition: <"The price should be unchanged.">
+		if before -> execution exists
+		then after -> splitTrades -> execution -> tradableProduct -> priceNotation = before -> execution -> tradableProduct -> priceNotation
+	
+	condition:  <"The price should be unchanged.">
+		if before -> contract exists
+		then after -> splitTrades -> contract -> tradableProduct -> priceNotation = before -> contract -> tradableProduct -> priceNotation
+	
 type ExercisePrimitive: <"This primitive leverages the FpML OptionExercise construct, except for the exerciseTiming which is deemed as associated to a request for exercise that is meant to take place, as opposed to the actual exercise event.">
 	exerciseDate AdjustableOrAdjustedDate (0..1)
 		[synonym Workflow_Event value "exerciseDate"]
