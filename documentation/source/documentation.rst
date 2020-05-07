@@ -891,6 +891,38 @@ For detailed documentation on the Rosetta syntax used to define functions in ISD
 .. _Rosetta DSL Documentation on Functions: https://docs.rosetta-technology.io/dsl/documentation.html#function-artefacts
 .. _data modelling: https://en.wikipedia.org/wiki/Cardinality_(data_modeling)#Application_program_modeling_approaches
 
+Validation Process
+^^^^^^^^^^^^^^^^^^
+
+While validation rules are generally specified for existing data standards like FpML alongside the standard documentation, the logic needs to be evaluated and transcribed into code by the relevant teams. More often than not, it results in such logic not being consistently enforced.
+
+As an example, the ``FpML_ird_57`` data rule implements the **FpML ird validation rule #57**, which states that if the calculation period frequency is expressed in units of month or year, then the roll convention cannot be a week day. With Rosetta, this legible view is provided alongside a programmatic implementation thanks to automatic code generation.
+
+.. code-block:: Java
+
+ class Frequency key
+ {
+  periodMultiplier int (1..1);
+  period PeriodExtendedEnum (1..1);
+ }
+
+ class CalculationPeriodFrequency extends Frequency
+ {
+  rollConvention RollConventionEnum (1..1);
+ }
+
+ data rule FpML_ird_57 <"FpML validation rule ird-57 - Context: CalculationPeriodFrequency. [period eq ('M', 'Y')] not(rollConvention = ('NONE', 'SFE', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT','SUN')).">
+  when CalculationPeriodFrequency -> period = PeriodExtendedEnum.M or CalculationPeriodFrequency -> period = PeriodExtendedEnum.Y
+  then CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.NONE
+   or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.SFE
+   or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.MON
+   or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.TUE
+   or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.WED
+   or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.THU
+   or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.FRI
+   or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.SAT
+   or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.SUN
+
 Adopting the Process Model
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
