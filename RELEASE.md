@@ -18,3 +18,16 @@ In the Ingestion Panel, try samples in folders:
 - `isda-create > clearstream-cta-2019`
 - `isda-create > euroclear-cta-2019`
 - `isda-create > isda-cta-im-2019`
+
+# *Event Model: New Correct Cancel Example*
+
+_What is being released_
+
+Added an example for new, correct and cancel workflow for a vanilla IRS.
+
+_Review Directions_
+
+Open Rosetta Core and navigate to the Visualisation section:
+
+- Select `NEW CANCEL CORRECT WORKFLOW`
+- See an example where in IRS is created with a quanity of 99999, which is then corrected and then cancelled.
