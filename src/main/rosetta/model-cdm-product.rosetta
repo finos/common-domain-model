@@ -12,6 +12,7 @@ import cdm.base.staticdata.party.*
 
 type AssetIdentifier: <"Generic object to specify an identifier for a quantifiable object, which can either be a product, a currency or a rate option.">
 
+	cashFlowType CashflowTypeEnum (0..1)
 	productIdentifier ProductIdentifier (0..1) <"Product identifier, when the quantifiable asset is a product.">
 		// For QuantityNotation only set productIdentifier if openUnits exists
 		[synonym FpML_5_10 value "equity" set when "openUnits" exists]
@@ -506,7 +507,7 @@ type Execution: <" A class to specify an execution, which consists essentially i
 		[synonym Workflow_Event value "trade"]
 	closedState ClosedState (0..1) <"The qualification of what led to the execution closure alongside with the dates on which this closure takes effect.">
 		[synonym Workflow_Event value "closedState" path "trade"]
-	settlementTerms SettlementTerms (0..1) <"The execution settlement terms, which is applicable for products such as securities">
+	settlementTerms SettlementTerms (0..*) <"The execution settlement terms, which is applicable for products such as securities">
 
 	condition ExecutionVenue: <"When the execution type is set to 'Electronically', the execution venue must be specified.">
 		if executionType = ExecutionTypeEnum -> Electronic

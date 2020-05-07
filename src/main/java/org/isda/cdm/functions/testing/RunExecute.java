@@ -2,6 +2,8 @@ package org.isda.cdm.functions.testing;
 
 import static org.isda.cdm.functions.testing.FunctionUtils.guard;
 
+import java.util.Collections;
+
 import javax.inject.Inject;
 
 import org.isda.cdm.BusinessEvent;
