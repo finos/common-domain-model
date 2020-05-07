@@ -25,7 +25,7 @@ public class UmbrellaAgreementEntityMappingProcessorTest {
 	public static final String ADDITIONAL_1 = "Additional1";
 
 	@Test
-	void shouldMapUmbrellaAgreementEntity() {
+	void shouldMapMultipleUmbrellaAgreementEntity() {
 		// set up
 		RosettaPath rosettaPath = RosettaPath.valueOf("LegalAgreement.agreementTerms.umbrellaAgreement.parties");
 		List<Mapping> mappings = new ArrayList<>();
@@ -63,8 +63,44 @@ public class UmbrellaAgreementEntityMappingProcessorTest {
 		assertTrue(mappings.stream().allMatch(mapping -> mapping.getError() == null && mapping.isCondition()));
 	}
 
+	@Test
+	void shouldMapSimpleUmbrellaAgreementEntity() {
+		// set up
+		RosettaPath rosettaPath = RosettaPath.valueOf("LegalAgreement.agreementTerms.umbrellaAgreement.parties");
+		List<Mapping> mappings = new ArrayList<>();
+		mappings.add(new Mapping(getXmlPath("principal_name"), PRINCIPAL_NAME_0, null, null, "no destination", false, false));
+		mappings.add(new Mapping(getXmlPath("lei"), LEI_0, null, null, "no destination", false, false));
+		mappings.add(new Mapping(getXmlPath("additional"), ADDITIONAL_0, null, null, "no destination", false, false));
+
+		UmbrellaAgreement.UmbrellaAgreementBuilder parent = UmbrellaAgreement.builder();
+		List<UmbrellaAgreementEntityBuilder> builders = Arrays.asList(mock(UmbrellaAgreementEntityBuilder.class));
+
+		// test
+		UmbrellaAgreementEntityMappingProcessor processor = new UmbrellaAgreementEntityMappingProcessor(rosettaPath, mappings);
+		processor.map(builders, parent);
+		UmbrellaAgreement umbrellaAgreement = parent.build();
+
+		// assert
+
+		List<UmbrellaAgreementEntity> parties = umbrellaAgreement.getParties();
+		assertNotNull(parties);
+		assertEquals(1, parties.size());
+
+		UmbrellaAgreementEntity party0 = parties.get(0);
+		assertEquals(PRINCIPAL_NAME_0, party0.getName().getValue());
+		assertEquals(LEI_0, party0.getEntityId().get(0).getValue());
+		assertEquals(ADDITIONAL_0, party0.getTerms());
+
+		assertTrue(mappings.stream().allMatch(mapping -> mapping.getError() == null && mapping.isCondition()));
+	}
+
 	private Path getXmlPath(String attribute, int index) {
 		return parse("answers.partyA.umbrella_agreement_and_principal_identification.principal_identification_schedule")
 				.addElement(new PathElement(attribute, index));
+	}
+
+	private Path getXmlPath(String attribute) {
+		return parse("answers.partyA.umbrella_agreement_and_principal_identification.principal_identification_schedule")
+				.addElement(new PathElement(attribute));
 	}
 }
