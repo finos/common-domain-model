@@ -439,20 +439,8 @@ type PartyCustomisedWorkflow: <"A class to specify a party-related, non-standard
 	condition Choice: <"The identification of the party to which the PartyCustomisedWorkflow pertains to can be done through either a party reference or the party name.">
 		required choice partyName, partyReference
 
-type PhysicalExercise: <"The physical exercise results into a financial product which is represented through the Product class, with an associated quantity and cashflow (e.g. a physical exercise of a bond option will result into a bond with a cash proceed which will be a function of the option strike price).">
-	product Product (1..1)
-		[synonym Workflow_Event value "product"]
-	quantity Quantity (0..1) <"The quantity associated the asset that is physically settled. This quantity should only be associated with non-contractual products, as it is then expressed as part of the contractual terms.">
-		[synonym Workflow_Event value "quantity"]
-	quantityNotation QuantityNotation (0..*) <"Complex attribute to specify the quantity of the contractual product that is being exercised. This temporarily makes uses of the 'ExecutionQuantity' class, until such time when the latter can be renamed as, and supersede, the existing 'ContractualQuantity' class. To be later merged with the 'quantity' attribute to have consistent mechanism between contractual and non-contractual products.">
-		// For Swap Stream:
-		[synonym Workflow_Event value "notionalSchedule" path "product->swap->swapStream->calculationPeriodAmount->calculation"]
-		[synonym Workflow_Event value "cashflow"]
-	cashflow Cashflow (0..1) <"The cashflow component of the physical exercise.">
-		[synonym Workflow_Event value "cashflow"]
-	condition PhysicalExerciseQuantity: <"The quantity attribute should only be associated with non-contractual products, as it is then expressed as part of the contractual terms.">
-		if product -> contractualProduct exists
-		then quantity is absent
+type PhysicalExercise: <"The physical exercise results in a new trade on the product underlying the option.">
+	underlyingNewTrade Trade(1..1)<"The new trade that results from the exercise event.">
 
 type PostInceptionState extends ContractState:
 	creditLimitInformation CreditLimitInformation (0..1) <"Credit limit utilization information.">
