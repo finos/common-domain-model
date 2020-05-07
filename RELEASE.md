@@ -1,11 +1,33 @@
-# *Infrastructure: Annotations*
+# *CDM Model: Legal Documents Modelling*
 
 _What is being released_
 
-Changes to annotations based on the recommendations of the recent design review of CDM functions.
+Updates to the Legal Documentation model:
 
-- Remove `[partialKey]` - the annotation was used on the `EconomicTerms` type, and was intended to provide a hash/checksum of the object data, excluding any metadata, that could be used for comparing economic equality between objects.  However, the current implementation could cause both false positive and false negative results, and, following the recent quantity and price model refactor does not account for these values. 
+- Addition of `ISDA Create` synonyms for CTA documents.
+- CTA model adjustments required to resolve testing issues.
+- Deprecation of legacy CSA model components.
+- Addition of new CSA model.
 
 _Review Directions_
 
-In the Textual Browswer, review the `EconomicTerms` type.
+In the Ingestion Panel, try samples in folders:
+
+- `isda-create > clearstream-cta-2016-englaw`
+- `isda-create > clearstream-cta-2016-nylaw`
+- `isda-create > clearstream-cta-2019`
+- `isda-create > euroclear-cta-2019`
+- `isda-create > isda-cta-im-2019`
+
+# *Event Model: New Correct Cancel Example*
+
+_What is being released_
+
+Added an example for new, correct and cancel workflow for a vanilla IRS.
+
+_Review Directions_
+
+Open Rosetta Core and navigate to the Visualisation section:
+
+- Select `NEW CANCEL CORRECT WORKFLOW`
+- See an example where in IRS is created with a quanity of 99999, which is then corrected and then cancelled.
