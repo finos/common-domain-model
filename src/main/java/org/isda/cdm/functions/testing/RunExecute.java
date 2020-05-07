@@ -1,16 +1,14 @@
 package org.isda.cdm.functions.testing;
 
-import static org.isda.cdm.functions.testing.FunctionUtils.guard;
-
-import java.util.Collections;
-
-import javax.inject.Inject;
-
+import com.regnosys.rosetta.common.testing.ExecutableFunction;
 import org.isda.cdm.BusinessEvent;
 import org.isda.cdm.Contract;
 import org.isda.cdm.functions.Create_Execution;
 
-import com.regnosys.rosetta.common.testing.ExecutableFunction;
+import javax.inject.Inject;
+import java.util.Collections;
+
+import static org.isda.cdm.functions.testing.FunctionUtils.guard;
 
 public class RunExecute implements ExecutableFunction<Contract, BusinessEvent> {
 
@@ -23,7 +21,8 @@ public class RunExecute implements ExecutableFunction<Contract, BusinessEvent> {
                 guard(contract.getTradableProduct().getQuantityNotation()),
                 guard(contract.getTradableProduct().getPriceNotation()),
                 guard(contract.getParty()),
-                guard(contract.getPartyRole()));
+                guard(contract.getPartyRole()),
+                Collections.emptyList());
     }
 
     @Override

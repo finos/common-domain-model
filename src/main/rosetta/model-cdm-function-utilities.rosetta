@@ -3,7 +3,7 @@ version "${project.version}"
 
 import cdm.base.math.*
 import cdm.base.staticdata.asset.common.*
-
+import cdm.base.datetime.*
 
 func PriceQuantityTriangulation:
 	inputs:
@@ -195,3 +195,65 @@ func ExtractQuantityByCurrency:
 	output:
 		quantity QuantityNotation (1..1)
 
+func CashflowSettlementTerms: <"The Payout type contains a cashflow to replicate the FpML structure. This function creates SettlementTerms from the Cashflow that can be used in the Execution -> settlementTerm.">
+	[deprecated]
+	inputs:
+		cashflow Cashflow (0..1)
+	
+	output:
+		settlementTerms SettlementTerms (0..1)
+		
+	alias settlementDate:
+		ConvertToAdjustableOrRelativeDate(cashflow -> cashflowDate)
+
+	assign-output settlementTerms -> payerReceiver:
+		cashflow -> payerReceiver		
+		
+	assign-output settlementTerms -> assetIdentifier:
+		cashflow -> payoutQuantity -> assetIdentifier
+		
+	assign-output settlementTerms -> settlementType:
+		SettlementTypeEnum -> Cash
+		
+	assign-output settlementTerms -> settlementDate:
+		settlementDate
+		
+func ConvertToAdjustableOrRelativeDate: <"Utility function to convert from AdjustableOrAdjustedOrRelativeDate to AdjustableOrRelativeDate">
+	inputs:
+		adjustableOrAdjustedOrRelativeDate AdjustableOrAdjustedOrRelativeDate (0..1)
+	
+	output:
+		adjustableOrRelativeDate AdjustableOrRelativeDate (0..1)
+
+	alias relativeDate:
+		adjustableOrAdjustedOrRelativeDate -> relativeDate
+
+	assign-output adjustableOrRelativeDate -> adjustableDate -> adjustedDate:
+		adjustableOrAdjustedOrRelativeDate -> adjustedDate
+	
+	assign-output adjustableOrRelativeDate -> adjustableDate -> unadjustedDate:
+		adjustableOrAdjustedOrRelativeDate -> unadjustedDate
+			
+	assign-output adjustableOrRelativeDate -> adjustableDate -> dateAdjustments:
+		adjustableOrAdjustedOrRelativeDate -> dateAdjustments
+		
+	assign-output adjustableOrRelativeDate -> relativeDate -> adjustedDate:
+		if relativeDate exists then relativeDate -> adjustedDate
+		
+	assign-output adjustableOrRelativeDate -> relativeDate -> businessCenters:
+		if relativeDate exists then relativeDate -> businessCenters
+				
+	assign-output adjustableOrRelativeDate -> relativeDate -> businessDayConvention:
+		if relativeDate exists then relativeDate -> businessDayConvention
+
+	assign-output adjustableOrRelativeDate -> relativeDate -> dateRelativeTo:
+		if relativeDate exists then relativeDate -> dateRelativeTo
+		
+	assign-output adjustableOrRelativeDate -> relativeDate -> dayType:
+		if relativeDate exists then relativeDate -> dayType
+		
+	assign-output adjustableOrRelativeDate -> relativeDate -> period:
+		if relativeDate exists then relativeDate -> period
+		
+	assign-output adjustableOrRelativeDate -> relativeDate -> periodMultiplier:
+		if relativeDate exists then relativeDate -> periodMultiplier
