@@ -1,23 +1,33 @@
-# *Event Model: Allocation / Split Business Events*
+# *CDM Model: Legal Documents Modelling*
 
 _What is being released_
 
-Refactor `Allocation` and `Split` business events.
+Updates to the Legal Documentation model:
 
-`Allocation` business event contains two types of primitives:
-- `SplitPrimitive` with the original execution split into separate executions with the quantity as specified in the `AllocationInstructions`.
-- `ContractFormationPrimitive` for each execution in `SplitPrimitive.after.splitTrades.execution`, updating the party based on the `AllocationInstructions`.
+- Addition of `ISDA Create` synonyms for CTA documents.
+- CTA model adjustments required to resolve testing issues.
+- Deprecation of legacy CSA model components.
+- Addition of new CSA model.
 
 _Review Directions_
 
-In the Textual Browser, review the functions:
+In the Ingestion Panel, try samples in folders:
 
-- `Create_Allocation` (BusinessEvent creation function)
-- `Create_SplitPrimitive` (PrimitiveEvent creation function)
-- `Create_ContractFormationPrimitive` (PrimitiveEvent creation function)
-- `Qualify_Allocation` (Qualification function)
+- `isda-create > clearstream-cta-2016-englaw`
+- `isda-create > clearstream-cta-2016-nylaw`
+- `isda-create > clearstream-cta-2019`
+- `isda-create > euroclear-cta-2019`
+- `isda-create > isda-cta-im-2019`
 
-In the Ingestion Panel, review the samples:
+# *Event Model: New Correct Cancel Example*
 
-- `events > allocation-multiple.xml`
-- `events > allocation-single.xml`
+_What is being released_
+
+Added an example for new, correct and cancel workflow for a vanilla IRS.
+
+_Review Directions_
+
+Open Rosetta Core and navigate to the Visualisation section:
+
+- Select `NEW CANCEL CORRECT WORKFLOW`
+- See an example where in IRS is created with a quanity of 99999, which is then corrected and then cancelled.
