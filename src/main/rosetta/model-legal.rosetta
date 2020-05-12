@@ -82,47 +82,20 @@ type ApplicableRegime: <"A class to specify the applicable regulatory regime(s) 
 
 	regime RegulatoryRegimeEnum (1..1) <"The applicable regulatory regime, as specified through an enumeration.">
 		[synonym AcadiaSoft_AM_1_0 value "regime"]
-		[synonym ISDA_Create_1_0 set to RegulatoryRegimeEnum -> AustraliaMarginRules when path = "australia"]
-		[synonym ISDA_Create_1_0 set to RegulatoryRegimeEnum -> CanadaMarginRules when path = "canada"]
-		[synonym ISDA_Create_1_0 set to RegulatoryRegimeEnum -> CFTC_MarginRules when path = "cftc"]
-		[synonym ISDA_Create_1_0 set to RegulatoryRegimeEnum -> EMIR_MarginRules when path = "emir"]
-		[synonym ISDA_Create_1_0 set to RegulatoryRegimeEnum -> HongKongMarginRules when path = "hong_kong"]
-		[synonym ISDA_Create_1_0 set to RegulatoryRegimeEnum -> JapanMarginRules when path = "japan"]
-		[synonym ISDA_Create_1_0 set to RegulatoryRegimeEnum -> SEC_MarginRules when path = "sec"]
-		[synonym ISDA_Create_1_0 set to RegulatoryRegimeEnum -> SingaporeMarginRules when path = "singapore"]
-		[synonym ISDA_Create_1_0 set to RegulatoryRegimeEnum -> SwitzerlandMarginRules when path = "switzerland"]
-		[synonym ISDA_Create_1_0 set to RegulatoryRegimeEnum -> US_PrudentialMarginRules when path = "prudential"]
-
 	regimeTerms RegimeTerms (2..2) <"The regulatory regime terms which are referred to as part of certain legal agreements, such as such as the ISDA 2016 and 2018 CSA for Initial Margin.">
 
-
+		
 type RegimeTerms: <"A class that is used by the ApplicableRegime and the AdditionalRegime classes to specify the regulatory regime terms which are referred to as part of certain legal agreements, such as such as the ISDA 2016 and 2018 CSA for Initial Margin.">
 
 	party string (1..1) <"The party to which the regime terms apply to.">
-		[synonym ISDA_Create_1_0 set to "partyA" when "partyA_secured_party" = "applicable", set to "partyA" when "partyA_secured_party" = "not_applicable", set to "partyA" when "partyA_secured_party" = "other"]
-		[synonym ISDA_Create_1_0 set to "partyB" when "partyB_secured_party" = "applicable", set to "partyB" when "partyB_secured_party" = "not_applicable", set to "partyB" when "partyB_secured_party" = "other"]
-		[synonym ISDA_Create_1_0 set to "partyA" when "partyA_security_taker" = "applicable", set to "partyA" when "partyA_security_taker" = "not_applicable",
-								 set to "partyA" when "partyA_security_taker" = "other"]
-		[synonym ISDA_Create_1_0 set to "partyB" when "partyB_security_taker" = "applicable", set to "partyB" when "partyB_security_taker" = "not_applicable",
-								 set to "partyB" when "partyB_security_taker" = "other"]
 	isApplicable boolean (0..1) <"A boolean flag to specify whether the regulatory regime is applicable.">
-		[synonym ISDA_Create_1_0 set to True when "partyA_security_taker" = "applicable", set to False when "partyA_security_taker" = "not_applicable"]
-		[synonym ISDA_Create_1_0 set to True when "partyB_security_taker" = "applicable", set to False when "partyB_security_taker" = "not_applicable"]
 	simmException SimmException (0..1) <"The election for SIMM exception to the regulatory regime clause of the ISDA 2016 and 2018 CSA for Initial Margin as either a normalized value specified as part of an enumeration or a customized value specified of type string. ISDA 2016 Credit Support Annex for Initial Margin paragraph 13, Regime: SIMM Exception.">
 	retrospectiveEffect boolean (0..1) <"ISDA 2016 CSA for Initial Margin, paragraph 13 (b)(i): if `Retrospective Effect` is specified as applicable to a Regime (a `Retrospective Regime`) then all Covered Transactions (IM) under all other Regimes with an earlier Regime Effective Time will, to the extent that they would have been Covered Transactions (IM) under such Retrospective Regime had such Transactions been entered into at or after the Regime Effective Time of the Retrospective Regime, be deemed to be Covered Transactions (IM) for such Retrospective Regime.">
 		[synonym AcadiaSoft_AM_1_0 value "retrospectiveEffect"]
-		[synonym ISDA_Create_1_0 set to True when "partyA_retrospective" = "applicable", set to False when "partyA_retrospective" = "not_applicable"]
-		[synonym ISDA_Create_1_0 set to True when "partyB_retrospective" = "applicable", set to False when "partyB_retrospective" = "not_applicable"]
 	//TODO - Condition required that retrospectiveEffect should exist for 2016 CSD and be absent for 2018 CSD
 	additionalType AdditionalTypeEnum (0..1) <"The Additional Type of transaction that can require the collection or delivery of initial margin under the specified regulatory regime for the purposes of Covered Transactions, as specified in ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (b)(B).">
-		[synonym ISDA_Create_1_0 value "additional_type"]
 	//TODO - Condition required that additionalType should exist for 2016 CSD and be absent for 2018 CSD
 	asSpecified string (0..1) <"Other specified terms applicable to Regime elections">
-		[synonym ISDA_Create_1_0 value "partyA_secured_party_specify"]
-		[synonym ISDA_Create_1_0 value "partyB_secured_party_specify"]
-		[synonym ISDA_Create_1_0 value "partyA_security_taker_specify"]
-		[synonym ISDA_Create_1_0 value "partyB_security_taker_specify"]
-		[synonym ISDA_Create_1_0 value "other"]
 	//TODO - Condition required that if isApplicable exists then asSpecified is absent
 
 type BespokeTransferTiming: <"A class to specify any bespoke Transfer Timing language by each party to the agreement.">
@@ -1175,20 +1148,11 @@ type Regime: <"A class to specify the regulatory regimes elections by the respec
 	[synonym AcadiaSoft_AM_1_0 value "Regime"]
 
 	applicableRegime ApplicableRegime (1..*) <"The set of regulatory regimes and associated provisions applicable to the respective parties to the legal agreement.">
-		[synonym ISDA_Create_1_0 value "canada"]
-		[synonym ISDA_Create_1_0 value "sec"]
-		[synonym ISDA_Create_1_0 value "cftc"]
-		[synonym ISDA_Create_1_0 value "emir"]
-		[synonym ISDA_Create_1_0 value "japan"]
-		[synonym ISDA_Create_1_0 value "switzerland"]
-		[synonym ISDA_Create_1_0 value "prudential"]
-		[synonym ISDA_Create_1_0 value "australia"]
-		[synonym ISDA_Create_1_0 value "hong_kong"]
-		[synonym ISDA_Create_1_0 value "singapore"]
+		[synonym ISDA_Create_1_0 value "canada", "sec", "cftc", "emir", "japan", "switzerland", "prudential", "australia", "hong_kong", "singapore" mapper "ApplicableRegime"]
 	fallbacktoMandatoryMethodDays number (0..1) <"The specification of the number of days after effective delivery of notice that Mandatory method fallback applies.">
 		[synonym ISDA_Create_1_0 value "fallback_to_mandatory_method_days" path "fallback_to_mandatory_method"]
 	additionalRegime AdditionalRegime (0..*) <"The additional regulatory regime(s) that might be specified by the parties to a legal agreement. ISDA 2016 Credit Support Annex for Initial Margin paragraph 13, General Principles, (ll): The parties may from time to time agree in writing that other regimes also comprise `Regimes` and that the General Principles be adopted and/or amended to accommodate such additional Regimes.">
-		[synonym ISDA_Create_1_0 value "additional_regimes" set when "additional_regimes->is_applicable" = "applicable" ]
+		[synonym ISDA_Create_1_0 value "additional_regimes" mapper "AdditionalRegime"]
 
 type OtherAgreements: <"A class to specify a related legal agreement. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (s): Other CSA and Japanese Law CSA (VM). | ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (o): Other CSA.">
 
@@ -1303,16 +1267,9 @@ type SimmException: <"A class to specify the SIMM exception to the regulatory re
 
 	standardisedException SimmExceptionEnum (0..1) <"The Standard Initial Margin Model exception when specified by the party according to one of the enumerated values.">
 		[synonym AcadiaSoft_AM_1_0 set to SimmExceptionEnum -> NotApplicable when "simmException" = "False"]
-		[synonym ISDA_Create_1_0 value "partyA_SIMM"]
-		[synonym ISDA_Create_1_0 value "partyB_SIMM"]
 	simmExceptionApplicable SimmExceptionApplicableEnum (0..1) <"The Standard Initial Margin model exception approach applicable when specified by the party according to one of the enumerated values.">
-		[synonym ISDA_Create_1_0 value "partyA_fallback"]
-		[synonym ISDA_Create_1_0 value "partyB_fallback"]
 	// TODO condition that SimmExceptionApplicableEnum should only exist if SimmExceptionEnum = Applicable
 	asSpecified string (0..1) <"The Standard Initial Margin Model exception when specified as a customized approach by the party.">
-		[synonym ISDA_Create_1_0 value "partyA_SIMM_specify", "partyB_SIMM_specify"]
-		[synonym ISDA_Create_1_0 value "partyA_fallback_specify", "partyB_fallback_specify"]
-		[synonym ISDA_Create_1_0 value "partyA_SIMM_applicable_specify", "partyB_SIMM_applicable_specify"]
 	// TODO condition asSpecified exists if something OtherMethods are specified
 
 type SimmVersion: <"A class to specify the ISDA SIMM version that applies to the ISDA 2018 CSA for Initial Margin. According to the ISDA 2018 CSA for Initial Margin, Paragraph 13, General Principles (ee) (1) provisions, the SIMM version is either not specified, or references a version used by one of the parties to the agreement.">

@@ -6,10 +6,10 @@ import com.rosetta.model.lib.path.RosettaPath;
 import org.isda.cdm.ElectiveAmountElection;
 import org.isda.cdm.MinimumTransferAmount;
 import org.isda.cdm.Money;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.isda.cdm.CreditSupportObligationsInitialMargin.CreditSupportObligationsInitialMarginBuilder;
@@ -38,7 +38,7 @@ class MinimumTransferAmountMappingProcessorTest {
 		CreditSupportObligationsInitialMarginBuilder parent = mock(CreditSupportObligationsInitialMarginBuilder.class);
 
 		// test
-		MinimumTransferAmountMappingProcessor processor = new MinimumTransferAmountMappingProcessor(rosettaPath, mappings);
+		MinimumTransferAmountMappingProcessor processor = new MinimumTransferAmountMappingProcessor(rosettaPath, Collections.emptyList(), mappings);
 		processor.map(builder, parent);
 		MinimumTransferAmount minimumTransferAmount = builder.build();
 

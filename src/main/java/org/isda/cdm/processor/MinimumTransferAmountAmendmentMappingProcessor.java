@@ -20,8 +20,8 @@ public class MinimumTransferAmountAmendmentMappingProcessor extends MappingProce
 
 	private static final String ZERO = "zero";
 
-	public MinimumTransferAmountAmendmentMappingProcessor(RosettaPath rosettaPath, List<Mapping> mappings) {
-		super(rosettaPath, mappings);
+	public MinimumTransferAmountAmendmentMappingProcessor(RosettaPath rosettaPath, List<String> synonymValues, List<Mapping> mappings) {
+		super(rosettaPath, synonymValues, mappings);
 	}
 
 	@Override

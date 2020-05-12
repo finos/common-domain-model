@@ -24,12 +24,16 @@ class MappingProcessorUtils {
 				.collect(Collectors.toList());
 	}
 
-	static Optional<String> findMappedValue(List<Mapping> mappings) {
+	static List<String> findMappedValues(List<Mapping> mappings) {
 		return mappings.stream()
 				.map(Mapping::getXmlValue)
 				.filter(Objects::nonNull)
 				.map(String::valueOf)
-				.findFirst();
+				.collect(Collectors.toList());
+	}
+
+	static Optional<String> findMappedValue(List<Mapping> mappings) {
+		return findMappedValues(mappings).stream().findFirst();
 	}
 
 	static void updateMapping(Mapping mapping, RosettaPath rosettaPath) {

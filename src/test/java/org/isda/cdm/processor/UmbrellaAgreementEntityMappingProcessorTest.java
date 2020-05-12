@@ -3,15 +3,18 @@ package org.isda.cdm.processor;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.path.RosettaPath;
-import org.isda.cdm.*;
+import org.isda.cdm.UmbrellaAgreement;
+import org.isda.cdm.UmbrellaAgreementEntity;
 import org.isda.cdm.UmbrellaAgreementEntity.UmbrellaAgreementEntityBuilder;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-import static com.regnosys.rosetta.common.translation.Path.*;
+import static com.regnosys.rosetta.common.translation.Path.PathElement;
+import static com.regnosys.rosetta.common.translation.Path.parse;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
@@ -40,7 +43,7 @@ public class UmbrellaAgreementEntityMappingProcessorTest {
 		List<UmbrellaAgreementEntityBuilder> builders = Arrays.asList(mock(UmbrellaAgreementEntityBuilder.class));
 
 		// test
-		UmbrellaAgreementEntityMappingProcessor processor = new UmbrellaAgreementEntityMappingProcessor(rosettaPath, mappings);
+		UmbrellaAgreementEntityMappingProcessor processor = new UmbrellaAgreementEntityMappingProcessor(rosettaPath, Collections.emptyList(), mappings);
 		processor.map(builders, parent);
 		UmbrellaAgreement umbrellaAgreement = parent.build();
 
@@ -76,7 +79,7 @@ public class UmbrellaAgreementEntityMappingProcessorTest {
 		List<UmbrellaAgreementEntityBuilder> builders = Arrays.asList(mock(UmbrellaAgreementEntityBuilder.class));
 
 		// test
-		UmbrellaAgreementEntityMappingProcessor processor = new UmbrellaAgreementEntityMappingProcessor(rosettaPath, mappings);
+		UmbrellaAgreementEntityMappingProcessor processor = new UmbrellaAgreementEntityMappingProcessor(rosettaPath, Collections.emptyList(), mappings);
 		processor.map(builders, parent);
 		UmbrellaAgreement umbrellaAgreement = parent.build();
 
