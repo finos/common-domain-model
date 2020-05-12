@@ -44,26 +44,14 @@ public class UmbrellaAgreementEntityMappingProcessor extends MappingProcessor {
 			UmbrellaAgreementEntityBuilder umbrellaAgreementEntityBuilder = UmbrellaAgreementEntity.builder();
 			
 			List<Mapping> principalNameMappings = findMappings("principal_name", i);
-			Optional<String> principalName = findMappedValue(principalNameMappings);
-			principalName.ifPresent(xmlValue -> {
-				umbrellaAgreementEntityBuilder.setNameRef(xmlValue);
-				principalNameMappings.forEach(m -> updateMapping(m, getPath()));
-			});
-			
+			Optional<String> principalName = setPrincpalName(umbrellaAgreementEntityBuilder, principalNameMappings);
+
 			List<Mapping> leiMappings = findMappings("lei", i);
-			Optional<String> lei = findMappedValue(leiMappings);
-			lei.ifPresent(xmlValue -> {
-				umbrellaAgreementEntityBuilder.addEntityId(FieldWithMetaString.builder().setValue(xmlValue).build());
-				leiMappings.forEach(m -> updateMapping(m, getPath()));
-			});
-			
+			Optional<String> lei = setLei(umbrellaAgreementEntityBuilder, leiMappings);
+
 			List<Mapping> additionalMappings = findMappings("additional", i);
-			Optional<String> additional = findMappedValue(additionalMappings);
-			additional.ifPresent(xmlValue -> {
-				umbrellaAgreementEntityBuilder.setTerms(xmlValue);
-				additionalMappings.forEach(m -> updateMapping(m, getPath()));
-			});
-			
+			Optional<String> additional = setAdditional(umbrellaAgreementEntityBuilder, additionalMappings);
+
 			if (principalName.isPresent() || lei.isPresent() || additional.isPresent()) {
 				umbrellaAgreementBuilder.addPartiesBuilder(umbrellaAgreementEntityBuilder);
 				i++;
@@ -71,9 +59,61 @@ public class UmbrellaAgreementEntityMappingProcessor extends MappingProcessor {
 				break;
 			}
 		}
+
+		// TODO: the below code is necessary because if there is only one item in the list, then the path does not have an index.
+		// e.g. answers.partyA.umbrella_agreement_and_principal_identification.principal_identification_schedule.principal_name rather
+		// than answers.partyA.umbrella_agreement_and_principal_identification.principal_identification_schedule.principal_name(0).
+		// The parser should be fixed to create paths consistently.
+
+		UmbrellaAgreementEntityBuilder umbrellaAgreementEntityBuilder = UmbrellaAgreementEntity.builder();
+
+		List<Mapping> principalNameMappings = findMappings("principal_name");
+		Optional<String> principalName = setPrincpalName(umbrellaAgreementEntityBuilder, principalNameMappings);
+
+		List<Mapping> leiMappings = findMappings("lei");
+		Optional<String> lei = setLei(umbrellaAgreementEntityBuilder, leiMappings);
+
+		List<Mapping> additionalMappings = findMappings("additional");
+		Optional<String> additional = setAdditional(umbrellaAgreementEntityBuilder, additionalMappings);
+
+		if (principalName.isPresent() || lei.isPresent() || additional.isPresent()) {
+			umbrellaAgreementBuilder.addPartiesBuilder(umbrellaAgreementEntityBuilder);
+		}
+	}
+
+	private Optional<String> setPrincpalName(UmbrellaAgreementEntityBuilder umbrellaAgreementEntityBuilder,
+			List<Mapping> principalNameMappings) {
+		Optional<String> principalName = findMappedValue(principalNameMappings);
+		principalName.ifPresent(xmlValue -> {
+			umbrellaAgreementEntityBuilder.setNameRef(xmlValue);
+			principalNameMappings.forEach(m -> updateMapping(m, getPath()));
+		});
+		return principalName;
+	}
+
+	private Optional<String> setLei(UmbrellaAgreementEntityBuilder umbrellaAgreementEntityBuilder, List<Mapping> leiMappings) {
+		Optional<String> lei = findMappedValue(leiMappings);
+		lei.ifPresent(xmlValue -> {
+			umbrellaAgreementEntityBuilder.addEntityId(FieldWithMetaString.builder().setValue(xmlValue).build());
+			leiMappings.forEach(m -> updateMapping(m, getPath()));
+		});
+		return lei;
+	}
+
+	private Optional<String> setAdditional(UmbrellaAgreementEntityBuilder umbrellaAgreementEntityBuilder, List<Mapping> additionalMappings) {
+		Optional<String> additional = findMappedValue(additionalMappings);
+		additional.ifPresent(xmlValue -> {
+			umbrellaAgreementEntityBuilder.setTerms(xmlValue);
+			additionalMappings.forEach(m -> updateMapping(m, getPath()));
+		});
+		return additional;
 	}
 
 	private List<Mapping> findMappings(String attribute, int index) {
 		return MappingProcessorUtils.findMappings(getMappings(), BASE_PATH.addElement(new PathElement(attribute, index)));
+	}
+
+	private List<Mapping> findMappings(String attribute) {
+		return MappingProcessorUtils.findMappings(getMappings(), BASE_PATH.addElement(new PathElement(attribute)));
 	}
 }

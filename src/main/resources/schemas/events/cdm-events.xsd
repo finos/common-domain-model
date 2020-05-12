@@ -121,16 +121,16 @@
         </xsd:restriction>
     </xsd:simpleType>
     <!-- Complex Types -->
-    <xsd:complexType name="AllocationOutcome">
+    <xsd:complexType name="SplitOutcome">
         <xsd:sequence>
             <xsd:element name="originalTrade" type="ContractState"/>
-            <xsd:element name="allocatedTrade" type="ContractState" maxOccurs="unbounded"/>
+            <xsd:element name="splitTrade" type="ContractState" maxOccurs="unbounded"/>
         </xsd:sequence>
     </xsd:complexType>
-    <xsd:complexType name="AllocationPrimitive">
+    <xsd:complexType name="SplitPrimitive">
         <xsd:sequence>
             <xsd:element name="before" type="ContractState"/>
-            <xsd:element name="after" type="AllocationOutcome"/>
+            <xsd:element name="after" type="SplitOutcome"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="Asset">
@@ -176,8 +176,7 @@
             <xsd:group ref="fpml:PayerReceiver.model"/>
             <xsd:element name="amount" type="fpml:Money"/>
             <xsd:element name="cashflowType" type="CashflowTypeEnum" minOccurs="0"/>
-            <xsd:element name="breakdown" type="CashTransferBreakdown" minOccurs="0"
-                maxOccurs="unbounded"/>
+            <xsd:element name="breakdown" type="CashTransferBreakdown" minOccurs="0" maxOccurs="unbounded"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="ClosedState">
@@ -292,7 +291,7 @@
                     <xsd:element name="intent" type="IntentEnum" minOccurs="0"/>
                     <xsd:group ref="fpml:PartiesAndAccounts.model" minOccurs="0"/>
                     <xsd:element name="lineage" type="Lineage" minOccurs="0"/>
-                    <xsd:element name="primitive" type="Primitive"/>
+                    <xsd:element name="primitive" type="Primitive" maxOccurs="unbounded" />
                     <xsd:element name="functionCall" type="xsd:string" minOccurs="0"/>
                     <xsd:element name="workflowStatus" type="WorkflowStatusEnum" minOccurs="0"/>
                 </xsd:sequence>
@@ -389,6 +388,12 @@
     <xsd:complexType name="Inception">
         <xsd:sequence>
             <xsd:element name="before" type="ContractState" minOccurs="0" maxOccurs="0"/>
+            <xsd:element name="after" type="PostInceptionState" minOccurs="1" maxOccurs="1"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="ContractFormation">
+        <xsd:sequence>
+            <xsd:element name="before" type="ExecutionState" minOccurs="0" maxOccurs="1"/>
             <xsd:element name="after" type="PostInceptionState" minOccurs="1" maxOccurs="1"/>
         </xsd:sequence>
     </xsd:complexType>
@@ -495,8 +500,7 @@
         <xsd:complexContent>
             <xsd:extension base="ContractState">
                 <xsd:sequence>
-                    <xsd:element name="creditLimitInformation" type="CreditLimitInformation"
-                        minOccurs="0"/>
+                    <xsd:element name="creditLimitInformation" type="CreditLimitInformation" minOccurs="0"/>
                     <xsd:element name="originatingEvent" type="OriginatingEventEnum" minOccurs="0"/>
                 </xsd:sequence>
             </xsd:extension>
@@ -504,14 +508,12 @@
     </xsd:complexType>
     <xsd:complexType name="Primitive">
         <xsd:sequence>
-            <xsd:element name="allocation" type="AllocationPrimitive" minOccurs="0" maxOccurs="1"/>
-            <xsd:element name="exercise" type="ExercisePrimitive" minOccurs="0"
-                maxOccurs="unbounded"/>
+            <xsd:element name="split" type="SplitPrimitive" minOccurs="0" maxOccurs="1"/>
+            <xsd:element name="exercise" type="ExercisePrimitive" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="contractFormation" type="ContractFormation" minOccurs="0" maxOccurs="unbounded"/>
             <xsd:element name="inception" type="Inception" minOccurs="0" maxOccurs="unbounded"/>
-            <xsd:element name="observation" type="ObservationPrimitive" minOccurs="0"
-                maxOccurs="unbounded"/>
-            <xsd:element name="quantityChange" type="QuantityChange" minOccurs="0"
-                maxOccurs="unbounded"/>
+            <xsd:element name="observation" type="ObservationPrimitive" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="quantityChange" type="QuantityChange" minOccurs="0" maxOccurs="unbounded"/>
             <xsd:element name="reset" type="ResetPrimitive" minOccurs="0" maxOccurs="1"/>
             <xsd:element name="transfer" type="Transfer" minOccurs="0" maxOccurs="unbounded"/>
             <xsd:element name="termsChange" type="TermsChange" minOccurs="0" maxOccurs="unbounded"/>
@@ -565,7 +567,6 @@
             <xsd:element name="lineage" type="Lineage" minOccurs="0"/>
             <xsd:group ref="fpml:PayerReceiver.model"/>
             <xsd:element name="amount" type="fpml:Money"/>
-            <xsd:element name="transferCalculation" type="xsd:string" minOccurs="0"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="SecurityTransferComponent">
