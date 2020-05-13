@@ -13,6 +13,7 @@ import org.isda.cdm.RateSpecification.RateSpecificationBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("unused")
 public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
 
 	public FRAIRPSplitterMappingProcessor(RosettaPath path, List<String> synonymValues, List<Mapping> mappings) {

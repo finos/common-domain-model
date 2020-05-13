@@ -17,7 +17,7 @@ import static org.isda.cdm.processor.MappingProcessorUtils.updateMapping;
 class RegimeMappingHelper {
 
 	static final List<String> PARTIES = Arrays.asList("partyA", "partyB");
-	static final List<String> SUFFIXES = Arrays.asList("_secured_party", "_security_taker");
+	static final List<String> SUFFIXES = Arrays.asList("_secured_party", "_security_taker", "_obligee");
 	static final Path BASE_PATH = parse("answers.partyA");
 
 	private final RosettaPath path;
@@ -32,18 +32,10 @@ class RegimeMappingHelper {
 		RegimeTerms.RegimeTermsBuilder regimeTermsBuilder = RegimeTerms.builder();
 
 		List<Mapping> applicableMappings = findMappings(regimePath, party, suffix, index);
-		Optional<String> applicable = findMappedValue(applicableMappings);
-
+		Optional<ExceptionEnum> applicable = findMappedValue(applicableMappings).flatMap(this::getExceptionEnum);
 		if (applicable.isPresent()) {
 			regimeTermsBuilder.setParty(party);
-			switch (applicable.get()) {
-			case "applicable":
-				regimeTermsBuilder.setIsApplicable(true);
-				break;
-			case "not_applicable":
-				regimeTermsBuilder.setIsApplicable(false);
-				break;
-			}
+			regimeTermsBuilder.setIsApplicable(applicable.get());
 			applicableMappings.forEach(m -> updateMapping(m, path));
 		} else {
 			return Optional.empty();
@@ -56,28 +48,8 @@ class RegimeMappingHelper {
 			specifyMappings.forEach(m -> updateMapping(m, path));
 		});
 
-		List<Mapping> retrospectiveMappings = findMappings(regimePath, party, "_retrospective", index);
-		Optional<String> retrospective = findMappedValue(retrospectiveMappings);
-		retrospective.ifPresent(xmlValue -> {
-			regimeTermsBuilder.setRetrospectiveEffect("applicable".equals(xmlValue));
-			retrospectiveMappings.forEach(m -> updateMapping(m, path));
-		});
-
-		List<Mapping> additionalTypeMappings = findMappings(regimePath, "", "additional_type", index);
-		Optional<String> additionalType = findMappedValue(additionalTypeMappings);
-		additionalType.ifPresent(xmlValue -> {
-			switch (xmlValue) {
-			case "not_applicable":
-				regimeTermsBuilder.setAdditionalType(AdditionalTypeEnum.NOT_APPLICABLE);
-				break;
-			case "other":
-				regimeTermsBuilder.setAdditionalType(AdditionalTypeEnum.OTHER);
-				break;
-			}
-			additionalTypeMappings.forEach(m -> updateMapping(m, path));
-		});
-
 		getSimmException(regimePath, party, index).ifPresent(regimeTermsBuilder::setSimmExceptionBuilder);
+		getRetrospectiveEffect(regimePath, party, index).ifPresent(regimeTermsBuilder::setRetrospectiveEffectBuilder);
 
 		List<Mapping> otherMappings = findMappings(regimePath, "", "other", index);
 		Optional<String> other = findMappedValue(otherMappings);
@@ -93,28 +65,16 @@ class RegimeMappingHelper {
 		SimmException.SimmExceptionBuilder simmExceptionBuilder = SimmException.builder();
 
 		List<Mapping> simmMappings = findMappings(regimePath, party, "_SIMM", index);
-		Optional<String> simm = findMappedValue(simmMappings);
-
+		Optional<ExceptionEnum> simm = findMappedValue(simmMappings).flatMap(this::getExceptionEnum);
 		if (simm.isPresent()) {
-			switch (simm.get()) {
-			case "applicable":
-				simmExceptionBuilder.setStandardisedException(SimmExceptionEnum.APPLICABLE);
-				break;
-			case "not_applicable":
-				simmExceptionBuilder.setStandardisedException(SimmExceptionEnum.NOT_APPLICABLE);
-				break;
-			case "other":
-				simmExceptionBuilder.setStandardisedException(SimmExceptionEnum.OTHER);
-				break;
-			}
+			simmExceptionBuilder.setStandardisedException(simm.get());
 			simmMappings.forEach(m -> updateMapping(m, path));
 		} else {
 			return Optional.empty();
 		}
 
 		List<Mapping> simmExceptionMappings = findMappings(regimePath, party, "_fallback", index);
-		Optional<String> simmException = findMappedValue(simmExceptionMappings);
-		simmException.ifPresent(xmlValue -> {
+		findMappedValue(simmExceptionMappings).ifPresent(xmlValue -> {
 			switch (xmlValue) {
 			case "fallback":
 				simmExceptionBuilder.setSimmExceptionApplicable(SimmExceptionApplicableEnum.FALL_BACK_TO_MANDATORY_METHOD);
@@ -130,27 +90,59 @@ class RegimeMappingHelper {
 		});
 
 		List<Mapping> simmSpecifyMappings = findMappings(regimePath, party, "_SIMM_specify", index);
-		Optional<String> simmSpecify = findMappedValue(simmSpecifyMappings);
-		simmSpecify.ifPresent(xmlValue -> {
+		findMappedValue(simmSpecifyMappings).ifPresent(xmlValue -> {
 			simmExceptionBuilder.setAsSpecified(xmlValue);
 			simmSpecifyMappings.forEach(m -> updateMapping(m, path));
 		});
 
 		List<Mapping> fallbackSpecifyMappings = findMappings(regimePath, party, "_fallback_specify", index);
-		Optional<String> fallbackSpecify = findMappedValue(fallbackSpecifyMappings);
-		fallbackSpecify.ifPresent(xmlValue -> {
+		findMappedValue(fallbackSpecifyMappings).ifPresent(xmlValue -> {
 			simmExceptionBuilder.setAsSpecified(xmlValue);
 			fallbackSpecifyMappings.forEach(m -> updateMapping(m, path));
 		});
 
 		List<Mapping> simmApplicableSpecifyMappings = findMappings(regimePath, party, "_SIMM_applicable_specify", index);
-		Optional<String> simmApplicableSpecify = findMappedValue(simmApplicableSpecifyMappings);
-		simmApplicableSpecify.ifPresent(xmlValue -> {
+		findMappedValue(simmApplicableSpecifyMappings).ifPresent(xmlValue -> {
 			simmExceptionBuilder.setAsSpecified(xmlValue);
 			simmApplicableSpecifyMappings.forEach(m -> updateMapping(m, path));
 		});
 
 		return Optional.of(simmExceptionBuilder);
+	}
+
+	private Optional<RetrospectiveEffect.RetrospectiveEffectBuilder> getRetrospectiveEffect(Path regimePath, String party, Integer index) {
+		RetrospectiveEffect.RetrospectiveEffectBuilder retrospectiveEffectBuilder = RetrospectiveEffect.builder();
+
+		List<Mapping> standardisedExceptionMappings = findMappings(regimePath, party, "_retrospective", index);
+		Optional<ExceptionEnum> standardisedException = findMappedValue(standardisedExceptionMappings).flatMap(this::getExceptionEnum);
+		if (standardisedException.isPresent()) {
+			retrospectiveEffectBuilder.setStandardisedException(standardisedException.get());
+			standardisedExceptionMappings.forEach(m -> updateMapping(m, path));
+		} else {
+			return Optional.empty();
+		}
+
+		List<Mapping> specifyMappings = findMappings(regimePath, party, "_retrospective_specify", index);
+		Optional<String> specify = findMappedValue(specifyMappings);
+		specify.ifPresent(xmlValue -> {
+			retrospectiveEffectBuilder.setAsSpecified(xmlValue);
+			specifyMappings.forEach(m -> updateMapping(m, path));
+		});
+
+		return Optional.of(retrospectiveEffectBuilder);
+	}
+
+	Optional<ExceptionEnum> getExceptionEnum(String synonym) {
+		switch (synonym) {
+		case "applicable":
+			return Optional.of(ExceptionEnum.APPLICABLE);
+		case "not_applicable":
+			return Optional.of(ExceptionEnum.NOT_APPLICABLE);
+		case "other":
+			return Optional.of(ExceptionEnum.OTHER);
+		default:
+			return Optional.empty();
+		}
 	}
 
 	List<Mapping> findMappings(Path basePath, String synonym, Integer index) {

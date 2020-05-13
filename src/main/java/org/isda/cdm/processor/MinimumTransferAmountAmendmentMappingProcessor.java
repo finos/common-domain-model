@@ -16,6 +16,7 @@ import static org.isda.cdm.processor.MappingProcessorUtils.*;
 /**
  * ISDA Create mapping processor.
  */
+@SuppressWarnings("unused")
 public class MinimumTransferAmountAmendmentMappingProcessor extends MappingProcessor {
 
 	private static final String ZERO = "zero";

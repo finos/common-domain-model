@@ -4,6 +4,7 @@ import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
+import org.isda.cdm.AdditionalTypeEnum;
 import org.isda.cdm.ApplicableRegime;
 import org.isda.cdm.RegulatoryRegimeEnum;
 
@@ -12,8 +13,11 @@ import java.util.Optional;
 
 import static org.isda.cdm.ApplicableRegime.ApplicableRegimeBuilder;
 import static org.isda.cdm.Regime.RegimeBuilder;
+import static org.isda.cdm.processor.MappingProcessorUtils.findMappedValue;
+import static org.isda.cdm.processor.MappingProcessorUtils.updateMapping;
 import static org.isda.cdm.processor.RegimeMappingHelper.*;
 
+@SuppressWarnings("unused")
 public class ApplicableRegimeMappingProcessor extends MappingProcessor {
 
 	private final RegimeMappingHelper helper;
@@ -44,6 +48,27 @@ public class ApplicableRegimeMappingProcessor extends MappingProcessor {
 			PARTIES.forEach(party ->
 					SUFFIXES.forEach(suffix ->
 							helper.getRegimeTerms(regimePath, party, suffix, null).ifPresent(applicableRegimeBuilder::addRegimeTermsBuilder)));
+
+			List<Mapping> additionalTypeMappings = helper.findMappings(regimePath, "", "additional_type", null);
+			Optional<String> additionalType = findMappedValue(additionalTypeMappings);
+			additionalType.ifPresent(xmlValue -> {
+				switch (xmlValue) {
+				case "not_applicable":
+					applicableRegimeBuilder.setAdditionalType(AdditionalTypeEnum.NOT_APPLICABLE);
+					break;
+				case "other":
+					applicableRegimeBuilder.setAdditionalType(AdditionalTypeEnum.OTHER);
+					break;
+				}
+				additionalTypeMappings.forEach(m -> updateMapping(m, getPath()));
+			});
+
+			List<Mapping> additionalTypeSpecifyMappings = helper.findMappings(regimePath, "", "additional_type_specify", null);
+			Optional<String> additionalTypeSpecify = findMappedValue(additionalTypeSpecifyMappings);
+			additionalTypeSpecify.ifPresent(xmlValue -> {
+				applicableRegimeBuilder.setAdditionalTerms(xmlValue);
+				additionalTypeSpecifyMappings.forEach(m -> updateMapping(m, getPath()));
+			});
 		});
 	}
 

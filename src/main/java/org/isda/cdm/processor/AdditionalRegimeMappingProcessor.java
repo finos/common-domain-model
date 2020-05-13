@@ -4,6 +4,7 @@ import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
+import org.isda.cdm.AdditionalTypeEnum;
 import org.isda.cdm.Regime;
 
 import java.util.List;
@@ -16,6 +17,7 @@ import static org.isda.cdm.processor.MappingProcessorUtils.findMappedValue;
 import static org.isda.cdm.processor.MappingProcessorUtils.updateMapping;
 import static org.isda.cdm.processor.RegimeMappingHelper.*;
 
+@SuppressWarnings("unused")
 public class AdditionalRegimeMappingProcessor extends MappingProcessor {
 
 	private final RegimeMappingHelper helper;
@@ -72,6 +74,27 @@ public class AdditionalRegimeMappingProcessor extends MappingProcessor {
 		name.ifPresent(xmlValue -> {
 			additionalRegimeBuilder.setRegime(xmlValue);
 			nameMappings.forEach(m -> updateMapping(m, getPath()));
+		});
+
+		List<Mapping> additionalTypeMappings = helper.findMappings(regimesPath, "", "additional_type", index);
+		Optional<String> additionalType = findMappedValue(additionalTypeMappings);
+		additionalType.ifPresent(xmlValue -> {
+			switch (xmlValue) {
+			case "not_applicable":
+				additionalRegimeBuilder.setAdditionalType(AdditionalTypeEnum.NOT_APPLICABLE);
+				break;
+			case "other":
+				additionalRegimeBuilder.setAdditionalType(AdditionalTypeEnum.OTHER);
+				break;
+			}
+			additionalTypeMappings.forEach(m -> updateMapping(m, getPath()));
+		});
+
+		List<Mapping> additionalTypeSpecifyMappings = helper.findMappings(regimesPath, "", "additional_type_specify", index);
+		Optional<String> additionalTypeSpecify = findMappedValue(additionalTypeSpecifyMappings);
+		additionalTypeSpecify.ifPresent(xmlValue -> {
+			additionalRegimeBuilder.setAdditionalTerms(xmlValue);
+			additionalTypeSpecifyMappings.forEach(m -> updateMapping(m, getPath()));
 		});
 
 		// If regime name is present then try to get the regime terms
