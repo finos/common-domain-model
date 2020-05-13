@@ -2,32 +2,8 @@
 
 _What is being released_
 
-Updates to the Legal Documentation model:
-
-- Addition of `ISDA Create` synonyms for CTA documents.
-- CTA model adjustments required to resolve testing issues.
-- Deprecation of legacy CSA model components.
-- Addition of new CSA model.
+Fixes to `ISDA Create` synonym mapping of Legal Documents model, focused on `ApplicableRegime` and `AdditionalRegime` types.
 
 _Review Directions_
 
-In the Ingestion Panel, try samples in folders:
-
-- `isda-create > clearstream-cta-2016-englaw`
-- `isda-create > clearstream-cta-2016-nylaw`
-- `isda-create > clearstream-cta-2019`
-- `isda-create > euroclear-cta-2019`
-- `isda-create > isda-cta-im-2019`
-
-# *Event Model: New Correct Cancel Example*
-
-_What is being released_
-
-Added an example for new, correct and cancel workflow for a vanilla IRS.
-
-_Review Directions_
-
-Open Rosetta Core and navigate to the Visualisation section:
-
-- Select `NEW CANCEL CORRECT WORKFLOW`
-- See an example where in IRS is created with a quanity of 99999, which is then corrected and then cancelled.
+In the Ingestion Panel, try samples in the folder `isda-create`.
