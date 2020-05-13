@@ -43,11 +43,12 @@ public class AdditionalRegimeMappingProcessor extends MappingProcessor {
 		Optional<String> applicable = findMappedValue(applicableMappings);
 
 		if (applicable.isPresent()) {
-			if (applicable.get().equals("not_applicable")) {
-				applicableMappings.forEach(m -> updateMapping(m, getPath()));
-				return;
-			}
-		} else {
+			applicableMappings.forEach(m -> updateMapping(m, getPath()));
+		}
+
+		if (!applicable.isPresent() || applicable.get().equals("not_applicable")) {
+			// if additional_regimes are not applicable (or not present) remove all related mappings
+			updateAdditionalRegimesMappings(additionalRegimesPath);
 			return;
 		}
 
@@ -61,6 +62,14 @@ public class AdditionalRegimeMappingProcessor extends MappingProcessor {
 			}
 		}
 		getAdditionalRegime(additionalRegimesPath, null).ifPresent(regimeBuilder::addAdditionalRegimeBuilder);
+
+		// clean up mappings
+		updateAdditionalRegimesMappings(additionalRegimesPath);
+	}
+
+	private void updateAdditionalRegimesMappings(Path additionalRegimesPath) {
+		MappingProcessorUtils.findMappings(getMappings(), additionalRegimesPath.addElement(new PathElement("regimes")))
+				.forEach(m -> updateMapping(m, getPath()));
 	}
 
 	private Optional<AdditionalRegimeBuilder> getAdditionalRegime(Path additionalRegimesPath, Integer index) {
