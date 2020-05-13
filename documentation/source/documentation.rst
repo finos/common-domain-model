@@ -822,54 +822,56 @@ The below snippet represents this ``Documentation`` class, which ``legalAgreemen
 Process Model
 -------------
 
-Industry processes represent events and actions through a trade's lifecycle, such as allocating a block-trade or calculating coupon payments. While ISDA already defines how industry processes should work in the ISDA Documentation, errors in implementation still cause friction amongst market participants.
+Industry processes represent events and actions through a trade's lifecycle, such as allocating a block-trade or calculating coupon payments. While ISDA already defines how industry processes should work in the ISDA Documentation, differences in the implemenattion minutia may still cause operational friction between market participants. Evidence shows that even calculations defined in mathematical notation (for example, day count fraction formulae which are used when calculating interest rate payments) can be a source of dispute between parties in a transaction.
 
-According to ISDA, even processes that are generally considered trivial continue to cause conflict amongst market participants. Evidence shows that even calculations defined in mathematical notation have been implemented incorrectly by seasoned practitioners. For example, day count fraction formulae are used when calculating coupon payments and are often a source of dispute between parties in a transaction.
-
-ISDA CDM's Process Model goes beyond many existing technical standards by representing industry processes in an unambiguous, machine-readable and machine-executable way. Machine readability and execution is crucial in reducing implementation risk for market participants and provides a blueprint for industry utilities. Machine-executable code is systematically generated from the model, which further reduces risk during model version upgrades.
+**The CDM Process Model has been designed to translate the technical standards that support industry processes** into an unambiguous, machine-readable and machine-executable format. Machine readability and executability is crucial in eliminating implementation discrepancy between market participants and provides a blueprint on which industry utilities can be built. Executable code (in a variety of standard programming languages - for instance: Java) is systematically generated from the model and version-controlled, providing firms with better control over the adoption of model updates.
 
 Scope
 ^^^^^
 
-When trying to understand the scope of the Process Model, it is important to consider two dimensions:
+The scope of the Process Model has two dimensions:
 
-#. The industry processes that should be covered, which we will call **Coverage**.
-#. The level of detail each process should be specified, which we will call **Granularity**.
+#. **Coverage** - which industry processes should be covered.
+#. **Granularity** - at which level of detail each process should be specified.
 
 
 Coverage
 """"""""
 
-The Process Model covers the post-trade lifecycle of over-the-counter derivative transactions. Processes such as the following are all considered to be in scope:
+**The CDM process model currently covers the post-trade lifecycle of over-the-counter derivative transactions**. To illustrate, the following processes are all considered to be in scope:
 
-* Trade execution
-* Margin calculation
-* Coupon Payment
+* Trade execution and confirmation
 * Clearing
+* Allocation
+* Settlement (including any future contingent cashflow payment)
+* Exercise of options
+* Margin calculation
+* Regulatory reporting (although covered in a different documentation section).
 
-Generally, where a process is defined in ISDA Documentation, it should be considered as in-scope. Regulatory reporting is included in the ISDA CDM, but will be covered in a different documentation section.
+Generally, a process is in-scope when it is already covered in ISDA Documentation or other technical documents. 
 
-For an up-to-date list of model coverage, please refer to the `function coverage matrix`_ (coming soon).
+For an up-to-date list of the process model coverage, please refer to the `function coverage matrix`_ (coming soon).
 
 Granularity
 """""""""""
 
+**It is important for implementors of the CDM to understand what the model does and does not specify** regarding the above list of post-trade lifecycle processes. Unspecified parts of a process represent functionality that firms are expected to implement, either internally or through vendors or utilities.
+
+The CDM process model leverages the *function* component of the Rosetta DSL, as detailed in the `Function Component Section`_ of the documentation. A function takes a set of input values and applies some logical instructions to return an output, both of which may be CDM objects (or basic types). The granularity of a process can be defined by the granularity to which the output's attributes are being specified in the function, using logic based on the inputs. Attributes without any definition in the process will need to be built by the implementor.
+
 It is not always possible or desirable to specify processes to minute detail. Parts of processes (or sub-processes) may be omitted from the model for the following reasons:
 
-* The sub-process is not needed to create a functional ISDA CDM data object.
+* The sub-process is not needed to create a functional CDM output object.
 * The sub-process has already been defined and its implementation is widely adopted by the industry.
 * The sub-process is specific to a firm's internal process and therefore cannot be specified in an industry standard.
 
-Details on each point are documented below.
+Functional CDM Object
+"""""""""""""""""""""
 
-This is especially important for those considering adoption to understand what is specified and what is not, as unspecified parts represent functionality that must be implemented internally. To understand the granularity of a process, look at what data it produces. Each process defines the output data type, and how attributes on that data type should be populated. Attributes without any definition in the process will need to be populated by the implementor.
+Whilst it is possible to define every process and sub-process, the process model focuses on what is necessary to create functional ISDA CDM objects. A functional CDM object satisfies the below criterion:
 
-**Functional ISDA CDM data objects**
-
-Whilst it is possible to define every process, sub-process and sub-sub-process, the Process Model focuses on what is necessary to create functional ISDA CDM data objects, that is, an object that satisfies the below criterion:
-
-* Any `BusinessEvent` and `EconomicTerms` inside the object can be qualified.
-* Linage between events is preserved.
+* Any qualifiable constituent (such as ``BusinessEvent`` and ``Product``) of the object can be qualified.
+* Lineage and cross-referencing between objects is accurate.
 
 It is the responsibility of the adopter to populate the remaining data values required for data objects to be valid. This must be done by extending the processes defined in the model at the implementation level - by writing executable code.
 
@@ -1023,3 +1025,4 @@ Those synonym sources are listed as part of a configuration file in the CDM usin
 
 .. _Qualified Type Section: https://docs.rosetta-technology.io/dsl/documentation.html#qualified-type
 .. _Function Definition Section: https://docs.rosetta-technology.io/dsl/documentation.html#function-definition
+.. _Function Component Section: https://docs.rosetta-technology.io/dsl/documentation.html#function-component
