@@ -1,9 +1,6 @@
-# *CDM Model: Legal Documents Modelling*
+# *CDM Model: Namespace hierarchy representation*
 
 _What is being released_
 
-Fixes to `ISDA Create` synonym mapping of Legal Documents model, focused on `ApplicableRegime` and `AdditionalRegime` types.
+Auto Generation of namespace-hierarchy.json file, which represents the CDM Model in a tree format
 
-_Review Directions_
-
-In the Ingestion Panel, try samples in the folder `isda-create`.
