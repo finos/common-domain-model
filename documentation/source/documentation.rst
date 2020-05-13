@@ -242,9 +242,9 @@ As a result, the bond, equity, and other securities are defined as extensions of
 Product Qualification
 ^^^^^^^^^^^^^^^^^^^^^
 
-**The product qualification is inferred from the product's economic terms through qualification logic** which is predicated on the product's model components. The qualification logic leverages the *object qualification* feature of the Rosetta DSL described in the `Function Definition Section`_
+**The product qualification is inferred from the product's economic terms through qualification logic** that is predicated on the product's model components. The qualification logic leverages the *object qualification* feature of the Rosetta DSL described in the `Function Definition Section`_
 
-The CDM makes use of the ISDA taxonomy V1.0 leaf level to qualify the product. 25 product types across interest rate swap and foreign exchange have so far been qualified as part of the CDM, in effect representing the full ISDA V1.0 scope. The current CDM implementation does not qualify credit default swap products, as the ISDA taxonomy V1.0 references the transaction type instead of the product features for those, which values are not publicly available and hence not positioned as a CDM enumeration.
+The CDM makes use of the ISDA taxonomy V1.0 leaf level to qualify the product. 25 product types across interest rate swap and foreign exchange have so far been qualified in the CDM, in effect representing the full ISDA V1.0 scope. The current CDM implementation does not qualify credit default swap products, as the ISDA taxonomy V1.0 references the transaction type instead of the product features. Those values are not publicly available and hence not positioned as a CDM enumeration.
 
 .. note:: Follow-up is in progress with the ISDA Credit Group to evaluate whether an alternative product qualification could be developed in subsequent versions of the CDM that would leverage the approach adopted for interest rate derivatives.
 
@@ -822,23 +822,53 @@ The below snippet represents this ``Documentation`` class, which ``legalAgreemen
 Process Model
 -------------
 
-Industry processes represent events and actions through a trade's lifecycle, such as allocating a block-trade or calculating coupon payments. While ISDA already defines how industry processes should work in the ISDA Documentation, differences in the implemenattion minutia may still cause operational friction between market participants. Evidence shows that even calculations defined in mathematical notation (for example, day count fraction formulae which are used when calculating interest rate payments) can be a source of dispute between parties in a transaction.
+Purpose
+^^^^^^^
 
-**The CDM Process Model has been designed to translate the technical standards that support industry processes** into an unambiguous, machine-readable and machine-executable format. Machine readability and executability is crucial in eliminating implementation discrepancy between market participants and provides a blueprint on which industry utilities can be built. Executable code (in a variety of standard programming languages - for instance: Java) is systematically generated from the model and version-controlled, providing firms with better control over the adoption of model updates.
+Why a Process Model
+"""""""""""""""""""
+
+**The CDM purpose is to lay the foundation for the standardisation, automation and inter-operability of industry processes**. Industry processes represent events and actions that occur through the transaction's lifecycle, from negotiating a legal agreement to allocating a block-trade or calculating settlement amounts.
+
+While ISDA already defines how industry processes should work in the ISDA Documentation, differences in the implementation minutia may still cause operational friction between market participants. Evidence shows that even calculations defined in mathematical notation (for example, day count fraction formulae which are used when calculating interest rate payments) can be a source of dispute between parties in a transaction.
+
+How Does It Work
+""""""""""""""""
+
+**The CDM Process Model has been designed to translate the technical standards that support those industry processes** into a standardised machine-readable and machine-executable format. Machine readability and executability is crucial to eliminate implementation discrepancy between market participants and increase interoperability between technology solutions. It greatly minimises the cost of adoption and provides a blueprint on which industry utilities can be built.
+
+By contrast, adopting a traditional technical standard that is written in prose looks as follows:
+
+#. Domain experts need to understand the intent of the standard.
+#. Business analysts need to translate the above into a set of technical requirements.
+#. Software engineers need to turn those technical requirements into code.
+
+Each step comes with the risk of misinterpretation and implementation error, and the process is duplicated across each adopting firm, ultimately adding up to high industry implementation costs. Systematically providing executable code virtually eliminates this effort. 
+
+What Is Distributed
+"""""""""""""""""""
+
+The process model is systematically translated into executable code using purpose-built technology as described in the `Code Generation Section`_. A number of modern, widely adopted and freely available programming languages are currently supported, and the list will continue to grow with the requirements of the CDM user community:
+
+* Java
+* Scala
+* DAML
+* Typescript
+
+Executable code artefacts are distributed with the CDM and made freely available to use. They can be downloaded from the ISDA CDM `Portal`_. The executable code distribution of the CDM is version-controlled, providing firms with more robust control over the adoption of model updates in their own systems.
 
 Scope
 ^^^^^
 
-The scope of the Process Model has two dimensions:
+The scope of the process model has two dimensions:
 
 #. **Coverage** - which industry processes should be covered.
 #. **Granularity** - at which level of detail each process should be specified.
 
-
 Coverage
 """"""""
 
-**The CDM process model currently covers the post-trade lifecycle of over-the-counter derivative transactions**. To illustrate, the following processes are all considered to be in scope:
+**The CDM process model currently covers the post-trade lifecycle of over-the-counter derivative transactions**. Generally, a process is in-scope when it is already covered in ISDA Documentation or other technical documents. To illustrate, the following processes, although a non-exhaustive list, are all in scope:
 
 * Trade execution and confirmation
 * Clearing
@@ -848,18 +878,16 @@ Coverage
 * Margin calculation
 * Regulatory reporting (although covered in a different documentation section).
 
-Generally, a process is in-scope when it is already covered in ISDA Documentation or other technical documents. 
-
 For an up-to-date list of the process model coverage, please refer to the `function coverage matrix`_ (coming soon).
 
 Granularity
 """""""""""
 
-**It is important for implementors of the CDM to understand what the model does and does not specify** regarding the above list of post-trade lifecycle processes. Unspecified parts of a process represent functionality that firms are expected to implement, either internally or through vendors or utilities.
+**It is important for implementors of the CDM to understand what the model does and does not specify** regarding the above list of post-trade lifecycle processes.
 
-The CDM process model leverages the *function* component of the Rosetta DSL, as detailed in the `Function Component Section`_ of the documentation. A function takes a set of input values and applies some logical instructions to return an output, both of which may be CDM objects (or basic types). The granularity of a process can be defined by the granularity to which the output's attributes are being specified in the function, using logic based on the inputs. Attributes without any definition in the process will need to be built by the implementor.
+The CDM process model leverages the *function* component of the Rosetta DSL. As detailed in the `Function Component Section`_ of the documentation, a function takes a set of input values and applies some logical instructions to return an output, both of which may be CDM objects or basic types. While a function specifies at minimum its inputs and output, its logic may be *fully defined* or only *partially defined* depending on how much of the output's attribute values it builds. Unspecified parts of a process represent functionality that firms are expected to implement, either internally or through third-parties such as utilities.
 
-It is not always possible or desirable to specify processes to minute detail. Parts of processes (or sub-processes) may be omitted from the model for the following reasons:
+It is not always possible or desirable to fully specify the business logic of a process from a model. Parts of processes or sub-processes may be omitted from the CDM for the following reasons:
 
 * The sub-process is not needed to create a functional CDM output object.
 * The sub-process has already been defined and its implementation is widely adopted by the industry.
@@ -868,51 +896,33 @@ It is not always possible or desirable to specify processes to minute detail. Pa
 Functional CDM Object
 """""""""""""""""""""
 
-Whilst it is possible to define every process and sub-process, the process model focuses on what is necessary to create functional ISDA CDM objects. A functional CDM object satisfies the below criterion:
+The process model focuses on what is necessary to create functional ISDA CDM objects that satisfy the below criterion:
 
-* Any qualifiable constituent (such as ``BusinessEvent`` and ``Product``) of the object can be qualified.
-* Lineage and cross-referencing between objects is accurate.
+* Any of the object's qualifiable constituents (such as ``BusinessEvent`` and ``Product``) can be qualified.
+* Lineage and cross-referencing between objects is accurate for data integrity purposes.
 
-It is the responsibility of the adopter to populate the remaining data values required for data objects to be valid. This must be done by extending the processes defined in the model at the implementation level - by writing executable code.
+Implementors must populate the remaining attribute values required for the output to be valid, by extending the executable code generated by the process model in their implementation.
 
-**Reuse where possible**
+Re-usability
+""""""""""""
 
-Where widely adopted process models exist, they should be reused and not redefined. Following are some examples:
+Where widely adopted process models exist, they should be reused and not redefined. Some examples include:
 
-* Quantitative finance. Open-source quantitative finance software already defines many granular processes, such as:
+* Mathematical functions. Functions such as sum, absolute, and average are widely understood, so do not need to be redefined in the model.
+* Quantitative finance. Many quantitative finance solutions, some open-source, already defines granular processes such as:
 
-  * Computing a coupon schedule from a set of parameters.
-  * Adjusting dates given a holiday calendar.
+  * computing a coupon schedule from a set of parameters
+  * adjusting dates given a holiday calendar
 
-* Mathematical functions. Functions such as sum, absolute, and average are widely understood, so are not redefined in the model.
+This concept of combining and reusing small components for the process model is also consistent with how the product and event models are designed.
 
-.. _function coverage matrix: Portal_
-
-Modelling Approach
-^^^^^^^^^^^^^^^^^^
-
-This concept of combining and reusing small components is consistent with how the Product Model and Event Model are designed.
-
-Introducing Functions
-^^^^^^^^^^^^^^^^^^^^^
-
-Functions are the foundations of the Process Model. They are very generic and can be used to represent anything that changes data. To give some concrete examples, they are used in the following scenarios:
-
-* Transition a trade from "executed" to "terminated" state.
-* Compute the amount and direction of margin required between two parties.
-* Checking whether preconditions in a workflow step have been met.
-
-To define functions, ISDA CDM uses Rosetta.
-
-For detailed documentation on the Rosetta syntax used to define functions in ISDA CDM, see the `Rosetta DSL Documentation on Functions`_.
-
-.. _Rosetta DSL Documentation on Functions: https://docs.rosetta-technology.io/dsl/documentation.html#function-artefacts
-.. _data modelling: https://en.wikipedia.org/wiki/Cardinality_(data_modeling)#Application_program_modeling_approaches
 
 Validation Process
 ^^^^^^^^^^^^^^^^^^
 
-While validation rules are generally specified for existing data standards like FpML alongside the standard documentation, the logic needs to be evaluated and transcribed into code by the relevant teams. More often than not, it results in such logic not being consistently enforced.
+While validation rules are generally specified for existing data standards like FpML alongside the standard documentation, the logic needs to be evaluated and translated into code by software engineering teams. It often results in the validation logic not being consistently enforced.
+
+By contrast, validation components are an integral part of the CDM process model and distributed as executable code. Those CDM validation components leverage the validation components of the Rosetta DSL, as described in the `Validation Component Section`_.
 
 As an example, the ``FpML_ird_57`` data rule implements the **FpML ird validation rule #57**, which states that if the calculation period frequency is expressed in units of month or year, then the roll convention cannot be a week day. With Rosetta, this legible view is provided alongside a programmatic implementation thanks to automatic code generation.
 
@@ -941,27 +951,6 @@ As an example, the ``FpML_ird_57`` data rule implements the **FpML ird validatio
    or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.SAT
    or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.SUN
 
-Adopting the Process Model
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-ISDA CDM minimises the cost of adoption, which is another differentiator from other existing technical standards. Using purpose-built technology, the Process Model is systematically translated into machine-executable code. The following modern, widely, and freely available programming languages are supported:
-
-* Java
-* Scale
-* DAML
-* Typescript
-
-Executable code artefacts are made freely available for use and can be download from the ISDA CDM Portal_.
-
-In contrast, adopting a traditional standard that is written in prose might look like the following:
-
-#. Domain experts need to understand the intentions of the standard.
-#. Business analysts need to translate the above into a set of technical requirements.
-#. Software engineers need to turn technical requirements into executable software.
-
-Systematically generating executable code reduces the work required in points 2 and 3. Each step comes with the risk of misinterpretation and failed implementation. Each adopting firm will typically go through the same process, which further increases the risk for the industry. These risks ultimately add up to high implementation costs.
-
-.. _Portal: https://portal.cdm.rosetta-technology.io
 
 Reference Data Model
 --------------------
@@ -1026,3 +1015,9 @@ Those synonym sources are listed as part of a configuration file in the CDM usin
 .. _Qualified Type Section: https://docs.rosetta-technology.io/dsl/documentation.html#qualified-type
 .. _Function Definition Section: https://docs.rosetta-technology.io/dsl/documentation.html#function-definition
 .. _Function Component Section: https://docs.rosetta-technology.io/dsl/documentation.html#function-component
+.. _Code Generation Section: https://docs.rosetta-technology.io/dsl/codegen-readme.html
+.. _Validation Component Section: https://docs.rosetta-technology.io/dsl/documentation.html#validation-component
+
+.. _Portal: https://portal.cdm.rosetta-technology.io
+.. _function coverage matrix: Portal
+.. _data modelling: https://en.wikipedia.org/wiki/Cardinality_(data_modeling)#Application_program_modeling_approaches
