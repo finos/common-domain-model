@@ -6,7 +6,7 @@ The CDM Model
 * Product
 * Event
 * Legal Agreement
-* Function
+* Process
 * Reference Data
 * Mapping (Synonym)
 
@@ -14,6 +14,7 @@ The following sections define each of these dimensions.  Selected examples of da
 
 Product Model
 -------------
+
 Where applicable, the CDM follows the data structure of the Financial Products Markup Language (FpML), which is widely used in the OTC Derivatives market.  For example, the CDM type ``PayerReceiver`` is equivalent to the FpML PayerReceiver.model. Both of these are data structures used frequently throughout each respective model. In other cases, the CDM data structure is more normalised, per requirements from the CDM Design Working Group.  For example, price and quantity are represented in a single type, ``TradableProduct``, which is shared by all products. Another example is the use of a composable product model whereby:
 
 * **Economic terms are specified by composition**, For example, the ``InterestRatePayout`` type is a component used in the definition of any product with one or more interest rate legs (e.g. Interest Rate Swaps, Equity Swaps, and Credit Default Swaps).  
@@ -35,7 +36,7 @@ QuantityNotation
 """"""""""""""""
 The ``QuantityNotation`` type supports the quantity (or notional) for any product.
 
-.. code-block:: Java
+.. code-block:: Haskell
 
  type QuantityNotation: 
     quantity NonNegativeQuantity (1..1)
@@ -43,7 +44,7 @@ The ``QuantityNotation`` type supports the quantity (or notional) for any produc
     
 The ``AssetIdentifier`` type requires the specification of either a product, currency or a floating rate option.
 
-.. code-block:: Java
+.. code-block:: Haskell
 
  type AssetIdentifier: 
     productIdentifier ProductIdentifier (0..1) 
@@ -56,7 +57,7 @@ PriceNotation
 """""""""""""
 The ``PriceNotation`` type supports the price for any product.
 
-.. code-block:: Java
+.. code-block:: Haskell
 
  type PriceNotation: 
     price Price (1..1)
@@ -64,7 +65,7 @@ The ``PriceNotation`` type supports the price for any product.
     
 The ``Price`` type that is encapsulated within ``PriceNotation`` requires the definition of one of the price types represented in its data structure, which collectively support all the types for all of the products in the CDM.
 
-.. code-block:: Java
+.. code-block:: Haskell
 
  type Price: 
     cashPrice CashPrice (0..1)
@@ -79,7 +80,7 @@ Financial Product
 
 A financial product is an instrument that is used to transfer financial risk between two parties. Financial products are represented in the ``Product`` type, which is constrained by the ``one of`` condition, meaning that for a single Tradable Product, there can only be one Product:
 
-.. code-block:: Java
+.. code-block:: Haskell
 
  type Product: 
     [metadata key]
@@ -129,7 +130,7 @@ The scope of contractual products in the current model are summarized below:
 
 In the CDM, contractual products are represented by the ``ContractualProduct`` type:
 
-.. code-block:: Java
+.. code-block:: Haskell
 
  type ContractualProduct:
     productIdentification ProductIdentification (0..1)
@@ -143,7 +144,7 @@ Economic Terms
 
 The CDM specifies the various set of possible remaining economic terms using the ``EconomicTerms`` type, which includes attributes that are common to all payout types, such as effective date, termination date, and date adjustments.  A valid population of this type is constrained by a set of conditions which are not shown here in the interests of brevity.
 
-.. code-block:: Java
+.. code-block:: Haskell
 
  type EconomicTerms: 
     [partialKey]
@@ -159,7 +160,7 @@ Payout
 """"""
 The ``Payout`` type defines the composable payout types, each of which describes a set of terms and conditions for the financial responsibilities between the two contractual parties. Payout types can be combined to compose a product.  For example, an Equity Swap can be composed by combining an ``InterestRatePayout`` and an ``EquityPayout``.
 
-.. code-block:: Java
+.. code-block:: Haskell
 
  type Payout:
     interestRatePayout InterestRatePayout (0..*)
@@ -172,7 +173,7 @@ The ``Payout`` type defines the composable payout types, each of which describes
    
 The relationship between one of the payout classes and a similar structure in FpML can be identified through the defined Synonyms, as explained in an earlier section.  For example, the ``InterestRatePayout`` is equivalent to the following complex types in FpML: *swapStream*, *feeLeg* *capFloorStream*, *fra*, and *interestLeg*.
 
-.. code-block:: Java
+.. code-block:: Haskell
 
  type InterestRatePayout extends PayoutBase: 
     [metadata key]
@@ -200,7 +201,7 @@ Reusable Components
 
 There are a number of components that are reusable across several payout types.  For example,  the ``CalculationPeriodDates`` class describes the inputs for the underlying schedule of a stream of payments.
 
-.. code-block:: Java
+.. code-block:: Haskell
 
  type CalculationPeriodDates 
     [metadata key]
@@ -219,7 +220,7 @@ Underlier
 
 The ``Underlier`` type allows for any product to be used as the underlier for a higher-level product such as an option, forward, or an equity swap. 
 
-.. code-block:: Java
+.. code-block:: Haskell
 
  type Underlier:
     underlyingProduct Product (1..1) 
@@ -231,7 +232,7 @@ Identified Product
 
 For identified products the CDM approach is to exclude any attribute that can be abstracted through reference data. Specifying such information as part of the contract information would lead to a risk or contradictory information with the reference data.
 
-.. code-block:: Java
+.. code-block:: Haskell
 
  type IdentifiedProduct
     productIdentifier ProductIdentifier (1..1)
@@ -241,38 +242,52 @@ As a result, the bond, equity, and other securities are defined as extensions of
 Product Qualification
 ^^^^^^^^^^^^^^^^^^^^^
 
-The product qualification is inferred from the product's economic terms through a dedicated logic which navigates the model components. It uses the ``isProduct`` Rosetta syntax detailed as part of the *Object Qualification* in the *CDM Modelling Artefacts* section of the documentation
+**The product qualification is inferred from the product's economic terms through qualification logic** which is predicated on the product's model components. The qualification logic leverages the *object qualification* feature of the Rosetta DSL described in the `Function Definition Section`_
 
-The CDM makes use of the ISDA taxonomy V2.0 leaf level to qualify the product. 18 interest rate derivative products have so far been qualified as part of the CDM, in effect representing the full ISDA V2.0 scope. The current CDM implementation only qualifies interest rate swaps, as the ISDA taxonomy V2.0 for credit default swap references the transaction type instead of the product features, which values are not publicly available and hence not positioned as a CDM enumeration.
+The CDM makes use of the ISDA taxonomy V1.0 leaf level to qualify the product. 25 product types across interest rate swap and foreign exchange have so far been qualified as part of the CDM, in effect representing the full ISDA V1.0 scope. The current CDM implementation does not qualify credit default swap products, as the ISDA taxonomy V1.0 references the transaction type instead of the product features for those, which values are not publicly available and hence not positioned as a CDM enumeration.
 
-Follow-up is in progress with the ISDA Credit Group to evaluate whether an alternative product qualification could be developed that would leverage the approach adopted for interest rate derivatives. This issue will be addressed as part of later versions of the CDM.
+.. note:: Follow-up is in progress with the ISDA Credit Group to evaluate whether an alternative product qualification could be developed in subsequent versions of the CDM that would leverage the approach adopted for interest rate derivatives.
 
-**The qualification of a Zero-Coupon Fixed-Float Inflation Swap** provides an example of the product qualification logic, which combines Boolean and qualified expressions:
+The qualification of a Zero-Coupon Fixed-Float Inflation Swap provides an example of the product qualification logic, which combines a series of boolean expressions with an ``and`` operator.
 
-.. code-block:: Java
+.. code-block:: Haskell
 
- isProduct InterestRate_InflationSwap_FixedFloat_ZeroCoupon
-    [synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation]
-    EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate count = 1
-    and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate count = 1
-    and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate is absent
-    and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
-    and EconomicTerms -> payout -> optionPayout is absent
-    and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
-    and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.T
+ func Qualify_InterestRate_InflationSwap_FixedFloat_ZeroCoupon:
+   [qualification Product]
+   inputs: economicTerms EconomicTerms (1..1)
+   output: is_product boolean (1..1)
+     	[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_Inflation"]
+   assign-output is_product:
+     economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
+     and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
+     and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate is absent
+     and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
+     and economicTerms -> payout -> optionPayout is absent
+     and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
+     and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum -> T
 
-The product qualification is positioned as the ``productQualifier`` attribute of the ``ProductIdentification`` class, alongside the attributes currently used in FpML to specify the product: ``primaryAssetClass``, ``secondaryAssetClass``, ``productType`` and ``productId``.  This approach allows to specify the credit derivatives products until such time when an alternative approach to the transaction type is identified to support a proper product qualification for credit derivatives.
+The synonym value associated to the function indicates "InterestRate_IRSwap_Inflation" as the qualification name, with ``ISDA_Taxonomy_v1`` as the source. The product is qualified according to that name when the function evaluates to True.
 
-.. code-block:: Java
+The resulting product qualification is positioned as the ``productQualifier`` attribute of the ``ProductIdentification`` type, alongside the attributes currently used in FpML to specify the product. These FpML attributes are each associated to a ``scheme``:
 
- type ProductIdentification
-    productQualifier productType (0..1)
-    primaryAssetClass AssetClassEnum (0..1) scheme
-    secondaryAssetClass AssetClassEnum (0..*) scheme
-    productType string (0..*) scheme
-    productId string (0..*) scheme
+.. code-block:: Haskell
 
-The CDM product qualification is stamped onto the generated CDM objects and their JSON serialised representation, as shown in the below JSON snippet. It includes both the product identification information associated with an originating FpML document and the product qualification generated by the CDM:
+ type ProductIdentification:
+   productQualifier productType (0..1)
+   primaryAssetdata AssetClassEnum (0..1)
+     [metadata scheme]
+   secondaryAssetdata AssetClassEnum (0..*)
+     [metadata scheme]
+   productType string (0..*)
+     [metadata scheme]
+   productId string (0..*)
+     [metadata scheme]
+
+This approach allows to specify the credit derivatives products, until such time when an alternative approach to the transaction type is identified to support a proper product qualification for credit derivatives.
+
+The *qualified type* feature of the Rosetta DSL, as detailed in the `Qualified Type Section`_, provides a stamping mechanism that identifies the ``productQualifier`` attribute as the output of an object qualification function. The qualification function is annotated with ``[qualification Product]``, which connects its output to the ``productType`` qualified type.
+
+When creating the CDM product object, the result of the product qualification is stamped onto the generated object, as illustrated in the below (serialised) JSON snippet. The product identification includes both the product qualification generated by the CDM and the product identification information from the originating FpML document.
 
 .. code-block:: Java
 
@@ -289,6 +304,7 @@ The CDM product qualification is stamped onto the generated CDM objects and thei
     "productTypeScheme": "http://www.fpml.org/coding-scheme/product-taxonomy",
     "secondaryAssetClassScheme": "http://www.fpml.org/coding-scheme/asset-class-simple"
   }
+
 
 Event Model
 -----------
@@ -1004,3 +1020,6 @@ The following set of synonym sources are currently in place for the CDM:
 * **ISDA Create** (synonym source: ``ISDA_Create_1_0``): synonyms to version 1.0 of the ISDA Create tool for Initial Margin negotiation
 
 Those synonym sources are listed as part of a configuration file in the CDM using a special ``synonym source`` enumeration, so that the synonym source value can be controlled when editing synonyms.
+
+.. _Qualified Type Section: https://docs.rosetta-technology.io/dsl/documentation.html#qualified-type
+.. _Function Definition Section: https://docs.rosetta-technology.io/dsl/documentation.html#function-definition
