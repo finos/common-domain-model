@@ -16,12 +16,13 @@ import static org.isda.cdm.processor.MappingProcessorUtils.*;
 /**
  * ISDA Create mapping processor.
  */
+@SuppressWarnings("unused")
 public class MinimumTransferAmountAmendmentMappingProcessor extends MappingProcessor {
 
 	private static final String ZERO = "zero";
 
-	public MinimumTransferAmountAmendmentMappingProcessor(RosettaPath rosettaPath, List<Mapping> mappings) {
-		super(rosettaPath, mappings);
+	public MinimumTransferAmountAmendmentMappingProcessor(RosettaPath rosettaPath, List<String> synonymValues, List<Mapping> mappings) {
+		super(rosettaPath, synonymValues, mappings);
 	}
 
 	@Override

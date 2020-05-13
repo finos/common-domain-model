@@ -23,8 +23,8 @@ import static org.isda.cdm.processor.MappingProcessorUtils.*;
 @SuppressWarnings("unused")
 public class PartyInformationMappingProcessor extends MappingProcessor {
 
-	public PartyInformationMappingProcessor(RosettaPath rosettaPath, List<Mapping> mappings) {
-		super(rosettaPath, mappings);
+	public PartyInformationMappingProcessor(RosettaPath rosettaPath, List<String> synonymValues, List<Mapping> mappings) {
+		super(rosettaPath, synonymValues, mappings);
 	}
 
 	@Override
