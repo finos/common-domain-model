@@ -828,12 +828,12 @@ Purpose
 Why a Process Model
 """""""""""""""""""
 
-**The CDM purpose is to lay the foundation for the standardisation, automation and inter-operability of industry processes**. Industry processes represent events and actions that occur through the transaction's lifecycle, from negotiating a legal agreement to allocating a block-trade or calculating settlement amounts.
+**The CDM lays the foundation for the standardisation, automation and inter-operability of industry processes**. Industry processes represent events and actions that occur through the transaction's lifecycle, from negotiating a legal agreement to allocating a block-trade or calculating settlement amounts.
 
 While ISDA already defines how industry processes should work in the ISDA Documentation, differences in the implementation minutia may still cause operational friction between market participants. Evidence shows that even calculations defined in mathematical notation (for example, day count fraction formulae which are used when calculating interest rate payments) can be a source of dispute between parties in a transaction.
 
-How Does It Work
-""""""""""""""""
+What Is the Process Model
+"""""""""""""""""""""""""
 
 **The CDM Process Model has been designed to translate the technical standards that support those industry processes** into a standardised machine-readable and machine-executable format. Machine readability and executability is crucial to eliminate implementation discrepancy between market participants and increase interoperability between technology solutions. It greatly minimises the cost of adoption and provides a blueprint on which industry utilities can be built.
 
@@ -843,10 +843,12 @@ By contrast, adopting a traditional technical standard that is written in prose 
 #. Business analysts need to translate the above into a set of technical requirements.
 #. Software engineers need to turn those technical requirements into code.
 
-Each step comes with the risk of misinterpretation and implementation error, and the process is duplicated across each adopting firm, ultimately adding up to high industry implementation costs. Systematically providing executable code virtually eliminates this effort. 
+Each step comes with the risk of misinterpretation and implementation error, and the process is duplicated across each adopting firm, ultimately adding up to high industry implementation costs.
 
-What Is Distributed
-"""""""""""""""""""
+Systematically providing the CDM process model as executable code virtually eliminates this effort. 
+
+How Does It Work
+""""""""""""""""
 
 The process model is systematically translated into executable code using purpose-built technology as described in the `Code Generation Section`_. A number of modern, widely adopted and freely available programming languages are currently supported, and the list will continue to grow with the requirements of the CDM user community:
 
@@ -855,7 +857,7 @@ The process model is systematically translated into executable code using purpos
 * DAML
 * Typescript
 
-Executable code artefacts are distributed with the CDM and made freely available to use. They can be downloaded from the ISDA CDM `Portal`_. The executable code distribution of the CDM is version-controlled, providing firms with more robust control over the adoption of model updates in their own systems.
+Executable code artefacts are distributed with the CDM and freely available to use. They can be downloaded from the ISDA CDM `Portal`_. The executable code distribution of the CDM is version-controlled, providing firms with more robust control over the adoption of model updates in their own systems.
 
 Scope
 ^^^^^
@@ -878,7 +880,7 @@ Coverage
 * Margin calculation
 * Regulatory reporting (although covered in a different documentation section).
 
-For an up-to-date list of the trade lifecycle process model coverage, please refer to the `function coverage matrix`_ (coming soon).
+For an up-to-date list of the trade lifecycle process model coverage, please refer to the `function coverage matrix`_ (*coming soon*).
 
 Granularity
 """""""""""
@@ -914,164 +916,136 @@ While validation rules are generally specified for existing data standards like 
 
 By contrast, validation components are an integral part of the CDM process model and distributed as executable code. Those CDM validation components leverage the validation components of the Rosetta DSL, as described in the `Validation Component Section`_.
 
-As an example, the ``FpML_ird_57`` data rule implements the **FpML ird validation rule #57**, which states that if the calculation period frequency is expressed in units of month or year, then the roll convention cannot be a week day. With Rosetta, this legible view is provided alongside a programmatic implementation thanks to automatic code generation.
+As an example, the ``FpML_ird_57`` data rule implements the **FpML ird validation rule #57**, which states that if the calculation period frequency is expressed in units of month or year, then the roll convention cannot be a week day. A machine readable and executable definition of that specification is provided in the CDM, as a ``condition`` attached to the ``CalculationPeriodFrequency`` type:
 
-.. code-block:: Java
+.. code-block:: Haskell
 
- class Frequency key
- {
-  periodMultiplier int (1..1);
-  period PeriodExtendedEnum (1..1);
- }
-
- class CalculationPeriodFrequency extends Frequency
- {
-  rollConvention RollConventionEnum (1..1);
- }
-
- data rule FpML_ird_57 <"FpML validation rule ird-57 - Context: CalculationPeriodFrequency. [period eq ('M', 'Y')] not(rollConvention = ('NONE', 'SFE', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT','SUN')).">
-  when CalculationPeriodFrequency -> period = PeriodExtendedEnum.M or CalculationPeriodFrequency -> period = PeriodExtendedEnum.Y
-  then CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.NONE
-   or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.SFE
-   or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.MON
-   or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.TUE
-   or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.WED
-   or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.THU
-   or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.FRI
-   or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.SAT
-   or CalculationPeriodFrequency -> rollConvention <> RollConventionEnum.SUN
+ condition FpML_ird_57: <"FpML validation rule ird-57 - Context: CalculationPeriodFrequency. [period eq ('M', 'Y')] not(rollConvention = ('NONE', 'SFE', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT','SUN')).">
+   if period = PeriodExtendedEnum -> M or period = PeriodExtendedEnum -> Y
+   then rollConvention <> RollConventionEnum -> NONE
+     or rollConvention <> RollConventionEnum -> SFE
+     or rollConvention <> RollConventionEnum -> MON
+     or rollConvention <> RollConventionEnum -> TUE
+     or rollConvention <> RollConventionEnum -> WED
+     or rollConvention <> RollConventionEnum -> THU
+     or rollConvention <> RollConventionEnum -> FRI
+     or rollConvention <> RollConventionEnum -> SAT
+     or rollConvention <> RollConventionEnum -> SUN
 
 
 Calculation Process
 ^^^^^^^^^^^^^^^^^^^
 
-The CDM provides certain ISDA Definitions as machine executable formulas to standardise the industry calculation processes that use those definitions. The ISDA 2006 definitions of **Fixed Amount** and **Floating Amount** have been used as an initial scope to confirm applicability, alongside some of the required day count fractions. Performance calculations are also being introduced in the CDM to support the Equity Swap model.
+The CDM provides certain ISDA Definitions as machine executable formulas to standardise the industry calculation processes that use those definitions. The ISDA 2006 definitions of **Fixed Amount** and **Floating Amount** have been used as an initial scope to confirm applicability, alongside some of the required day count fractions. Performance calculations are also being introduced in the CDM to support the Total Return Swap model used in particular for Equity.
+
+Those calculation processes leverage the *calculation function* component of the Rosetta DSL, as detailed in the `Function Definition Section`_, and accordingly are associated to a ``calculation`` annotation.
 
 Fixed Amount and Floating Amount Definitions
 """"""""""""""""""""""""""""""""""""""""""""
 
 The CDM expressions of ``FixedAmount`` and ``FloatingAmount`` are similar in structure: a calculation formula that reflects the terms of the ISDA 2006 Definitions and the arguments associated with the formula.
 
-.. code-block:: Java
+.. code-block:: Haskell
 
- calculation FixedAmount
- {
-  fixedAmount : calculationAmount * fixedRate * dayCountFraction
-  
-  where
-   calculationAmount : InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
-   fixedRate : InterestRatePayout -> rateSpecification -> fixedRate -> initialValue
-   dayCountFraction : InterestRatePayout -> dayCountFraction
-  }
-
-.. code-block:: Java
-
- calculation FloatingAmount
- {
-  floatingAmount : calculationAmount * ( floatingRate + spread ) * dayCountFraction
-  
-  where
-   calculationAmount : InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
-   floatingRate : ResolveRateIndex( InterestRatePayout -> rateSpecification -> floatingRate -> floatingRateIndex ) -> rate
-   spread : GetRateSchedule( InterestRatePayout -> rateSpecification -> floatingRate ) -> schedule -> initialValue
-   dayCountFraction : InterestRatePayout -> dayCountFraction
- }
+ func FloatingAmount:
+   [calculation]
+   inputs:
+     interestRatePayout InterestRatePayout (1..1)
+     rate FloatingInterestRate (1..1)
+     quantity NonNegativeQuantity (1..1)
+     date date (1..1)
+   output: floatingAmount number (1..1)
+   
+   alias calculationAmount: quantity -> amount
+   alias floatingRate: ResolveRateIndex( interestRatePayout -> rateSpecification -> floatingRate -> assetIdentifier -> rateOption -> floatingRateIndex )
+   alias spreadRate: rate -> spread
+   alias dayCountFraction: DayCountFraction(interestRatePayout, interestRatePayout -> dayCountFraction, date)
+   
+   assign-output floatingAmount: calculationAmount * (floatingRate + spreadRate) * dayCountFraction
 
 Day Count Fraction
 """"""""""""""""""
 
-The current CDM version incorporates day count fractions calculations representing the set of day count fractions specified as part of the ISDA 2006 Definitions, e.g. the **ACT/365.FIXED** and the **30E/360** day count fractions. While the ACT/365.FIXED definition is simple and relies upon a computation of the number of days in a period (not specified as part of the CDM because not involving any specific logic), the 30E/360 definition specifies the actual computation in details to account for a 360 days year and a 30 maximum days month.
+The current CDM version incorporates day count fractions calculations representing the set of day count fractions specified as part of the ISDA 2006 Definitions, e.g. the *ACT/365.FIXED* and the *30E/360* day count fractions. While the ACT/365.FIXED definition is simple and relies upon a computation of the number of days in a period, the 30E/360 definition specifies the actual computation in details to account for a 360 days year and a 30 maximum days month.
 
-.. code-block:: Java
+.. code-block:: Haskell
 
- calculation DayCountFractionEnum.ACT_365_FIXED
- {
-  : daysInPeriod / 365
-  
-  where
-   daysInPeriod: CalculationPeriod( InterestRatePayout -> calculationPeriodDates ) -> daysInPeriod
- }
+ func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360):
+   [calculation]
+   
+   alias calculationPeriod: CalculationPeriod(interestRatePayout -> calculationPeriodDates, date)
+   alias startYear: calculationPeriod -> startDate -> year
+   alias endYear: calculationPeriod -> endDate -> year
+   alias startMonth: calculationPeriod -> startDate -> month
+   alias endMonth: calculationPeriod -> endDate -> month
+   alias endDay: Min(calculationPeriod -> endDate -> day, 30)
+   alias startDay: Min(calculationPeriod -> startDate -> day, 30)
+   
+   assign-output result:
+     (360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
 
-.. code-block:: Java
+Utility Function
+""""""""""""""""
 
- calculation DayCountFractionEnum._30E_360
- {
-  : (360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
-  
-  where
-   alias calculationPeriod
-    CalculationPeriod( InterestRatePayout -> calculationPeriodDates )
-   startYear: calculationPeriod -> startDate -> year
-   endYear: calculationPeriod -> endDate -> year
-   startMonth: calculationPeriod -> startDate -> month
-   endMonth: calculationPeriod -> endDate -> month
-   endDay: Min( calculationPeriod -> endDate -> day, 30 )
-   startDay: Min( calculationPeriod -> startDate -> day, 30 )
- }
+CDM model elements often need to be transformed by a function to construct the arguments for a formula in a calculation. A typical example required to compute a cashflow amount in accordance with a schedule (as illustrated in the day count fraction calculation shown above) is to identify the characteristics of the current calculation period.
+
+The CDM has two main types for this:
+
+* ``CalculationPeriodDates`` specifies the inputs required to construct a calculation period schedule
+* ``CalculationPeriodData`` specifies typical attributes of a calculation period such as start date, end date, etc.
+
+From this data model, a function is required to compute the latter based on the former (and also the current date):
+
+.. code-block:: Haskell
+
+ func CalculationPeriod:
+   inputs:
+     calculationPeriodDates CalculationPeriodDates (1..1)
+     date date (1..1)
+   output: result CalculationPeriodData (1..1)
 
 Equity Performance
 """"""""""""""""""
 
 To support the implementation of Equity Swaps in CDM, calculations have been introduced to support the equity performance concepts used to reset and pay cashflows on such contracts. Those calculations follow the definitions as normalised in the new **2018 ISDA CDM Equity Confirmation for Security Equity Swap** (although this is a new template that is not yet in use across the industry).
 
-A non-exhaustive list of those calculations is presented below:
+Some of those calculations are presented below:
 
-.. code-block:: Java
+.. code-block:: Haskell
 
- calculation EquityCashSettlementAmount <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 72. 'Equity Cash Settlement Amount' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Cash Settlement Amount = ABS(Rate Of Return) × Equity Notional Amount.">
- {
-  equityCashSettlementAmount : rateOfReturn * notionalAmount
-  
-  where
-   rateOfReturn	: Abs( ResolveRateOfReturn( EquityPayout ) -> rate ) -> result
-   notionalAmount	: ResolveNotionalAmount( EquityPayout ) -> notional
- }
+ func EquityCashSettlementAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 72. 'Equity Cash Settlement Amount' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Cash Settlement Amount = ABS(Rate Of Return) × Equity Notional Amount.">
+   inputs:
+     contractState ContractState (1..1)
+     date date (1..1)
+   output:
+     equityCashSettlementAmount Money (1..1)
+   
+   alias equityPayout: contractState -> contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout
+   
+   condition: equityPayout -> payoutQuantity -> assetIdentifier -> productIdentifier = equityPayout -> underlier -> underlyingProduct -> security -> equity -> productIdentifier
+   
+   assign-output equityCashSettlementAmount -> amount:
+     Abs(contractState -> updatedContract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element -> performance)
 
-.. code-block:: Java
+	assign-output equityCashSettlementAmount -> currency:
+    ResolveEquityInitialPrice( equityPayout only-element -> underlier, contractState -> contract -> tradableProduct -> priceNotation ) -> netPrice -> currency
 
- calculation RateOfReturn <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 139. 'Rate Of Return' means, in respect of any Equity Valuation Date, the amount determined pursuant to the following formula: Rate Of Return = (Final Price - Initial Price) / Initial Price.">
- {
-  rateOfReturn : ( finalPrice - initialPrice ) / initialPrice
-  
-  where
-   businessDate: GetBusinessDateFunc()
-   calculationPeriod : EquityCalculationPeriod( EquityPayout, businessDate -> result )
-   initialPrice:
-    if calculationPeriod -> isFirstPeriod = True then
-     EquityPayout -> priceReturnTerms -> initialPrice -> netPrice -> amount
-    else (
-     if EquityPayout -> priceReturnTerms -> valuationPriceInterim exists then
-      ResolvePrice( EquityPayout -> priceReturnTerms -> valuationPriceInterim, calculationPeriod -> startDate ) -> price
-     else
-      ResolvePrice( EquityPayout -> priceReturnTerms -> valuationPriceFinal, calculationPeriod -> startDate ) -> price
-     )
-   finalPrice:
-    if calculationPeriod -> isLastPeriod = True then
-     ResolvePrice( EquityPayout -> priceReturnTerms -> valuationPriceFinal, calculationPeriod -> endDate ) -> price
-    else
-     ResolvePrice( EquityPayout -> priceReturnTerms -> valuationPriceInterim, calculationPeriod -> endDate ) -> price
- }
+.. code-block:: Haskell
 
-Utility Function
-""""""""""""""""
+ func RateOfReturn: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 139. 'Rate Of Return' means, in respect of any Equity Valuation Date, the amount determined pursuant to the following formula: Rate Of Return = (Final Price - Initial Price) / Initial Price.">
+   inputs:
+     initialPrice number (1..1)
+     finalPrice number (1..1)
+   output:
+     rateOfReturn number (1..1)
+   
+   assign-output rateOfReturn:
+     (finalPrice - initialPrice) / initialPrice
 
-CDM model elements often need to be transformed by a function to construct the arguments for a formula in a calculation. A typical example, required to compute a cashflow amount in accordance with a schedule (as illustrated in the day count fraction calculation shown above), is to identify the characteristics of the current calculation period.
+Event Creation Process
+^^^^^^^^^^^^^^^^^^^^^^
 
-The CDM has two main classes for this:
-
-* ``CalculationPeriodDates`` specifies the inputs required to construct a calculation period schedule
-* ``DateRange`` specifies a start and end date
-
-A pure data model cannot tie them together and a function is required to compute the latter based on the former (and also the current date):
-
-.. code-block:: Java
-
- spec CalculationPeriodSpec:
-  inputs:
-   periodDates CalculationPeriodDates (1..1)
-   date date (1..1)
-  output:
-   result DateRange (1..1)
+(*Coming soon*)
 
 
 Reference Data Model
