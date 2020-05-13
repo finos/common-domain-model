@@ -1,8 +1,8 @@
 package org.isda.cdm.processor;
 
 import com.google.common.collect.ImmutableMap;
-import com.regnosys.rosetta.common.hashing.RosettaKeyProcessStep;
-import com.regnosys.rosetta.common.hashing.RosettaKeyProcessStep.KeyPostProcessReport;
+import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep;
+import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep.KeyPostProcessReport;
 import com.regnosys.rosetta.common.hashing.SimpleBuilderProcessor;
 import com.rosetta.lib.postprocess.PostProcessorReport;
 import com.rosetta.model.lib.GlobalKeyBuilder;
@@ -61,9 +61,9 @@ public class EventEffectProcessStep implements PostProcessStep{
 				&& !p.containsPath(FORWARD_CONTRACT_PATHS) && !p.containsPath(FORWARD_CONTRACTUAL_PRODUCT_PATHS);};
 	}
 
-	private final RosettaKeyProcessStep keyProcessor;
+	private final GlobalKeyProcessStep keyProcessor;
 
-	public EventEffectProcessStep(RosettaKeyProcessStep keyProcessor) {
+	public EventEffectProcessStep(GlobalKeyProcessStep keyProcessor) {
 		this.keyProcessor = keyProcessor;
 	}
 

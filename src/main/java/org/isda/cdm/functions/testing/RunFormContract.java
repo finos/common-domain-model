@@ -1,21 +1,23 @@
 package org.isda.cdm.functions.testing;
 
-import com.regnosys.rosetta.common.testing.ExecutableFunction;
-import org.isda.cdm.*;
-import org.isda.cdm.functions.Execute;
-import org.isda.cdm.functions.FormContract;
+import static org.isda.cdm.functions.testing.FunctionUtils.guard;
 
 import javax.inject.Inject;
 
-import static org.isda.cdm.functions.testing.FunctionUtils.guard;
+import org.isda.cdm.BusinessEvent;
+import org.isda.cdm.Contract;
+import org.isda.cdm.functions.Create_ContractFormation;
+import org.isda.cdm.functions.Create_Execution;
+
+import com.regnosys.rosetta.common.testing.ExecutableFunction;
 
 public class RunFormContract implements ExecutableFunction<Contract, BusinessEvent> {
 
     @Inject
-    Execute execute;
+    Create_Execution execute;
 
     @Inject
-    FormContract formContract;
+    Create_ContractFormation formContract;
 
 
     @Override

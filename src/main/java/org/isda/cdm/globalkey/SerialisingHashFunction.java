@@ -1,4 +1,4 @@
-package org.isda.cdm.rosettakey;
+package org.isda.cdm.globalkey;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;

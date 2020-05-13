@@ -14,7 +14,7 @@ import static org.isda.cdm.functions.testing.FunctionUtils.guard;
 
 public class Inception implements Function<Contract, Workflow> {
 	@Inject
-	private org.isda.cdm.functions.Inception inception;
+	private org.isda.cdm.functions.Create_Inception inception;
 	
 	@Inject
 	private PostProcessor runner;

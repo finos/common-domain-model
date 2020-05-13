@@ -1,32 +1,18 @@
 package org.isda.cdm.functions;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import cdm.base.math.CompareOp;
+import cdm.base.math.functions.ListsCompare;
+import com.google.inject.Binder;
+import com.google.inject.Inject;
+import org.isda.cdm.test.*;
+import org.isda.cdm.test.Bar.BarBuilder;
+import org.isda.cdm.test.TypeToGroup.TypeToGroupBuilder;
+import org.isda.cdm.test.functions.*;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
-import org.isda.cdm.test.ListOfNumbers;
-import org.isda.cdm.test.Bar;
-import org.isda.cdm.test.Bar.BarBuilder;
-import org.isda.cdm.test.Baz;
-import org.isda.cdm.test.Foo;
-import org.isda.cdm.test.TypeToGroup;
-import org.isda.cdm.test.TypeToGroup.TypeToGroupBuilder;
-import org.isda.cdm.test.functions.FeatureCallEqualToFeatureCall;
-import org.isda.cdm.test.functions.FeatureCallEqualToLiteral;
-import org.isda.cdm.test.functions.FeatureCallListEqualToFeatureCall;
-import org.isda.cdm.test.functions.FeatureCallListNotEqualToFeatureCall;
-import org.isda.cdm.test.functions.FeatureCallsEqualToLiteralOr;
-import org.isda.cdm.test.functions.MultipleOrFeatureCallsEqualToMultipleOrFeatureCalls;
-import org.isda.cdm.test.functions.TestBinaryOpGroupBy;
-import org.isda.cdm.test.functions.TestBinaryOpWithNumberGroupBy;
-import org.isda.cdm.test.functions.TestGroupBy;
-import org.junit.jupiter.api.Test;
-
-import com.google.inject.Binder;
-import com.google.inject.Inject;
-
-import cdm.base.math.CompareOp;
-import cdm.base.math.functions.ListsCompare;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * 
@@ -71,11 +57,11 @@ public class FunctionTests extends AbstractFunctionTest {
 	}
 
 	@Inject
-	FeatureCallEqualToLiteral featureCallEqualToLiteral;
+	Qualify_FeatureCallEqualToLiteral featureCallEqualToLiteral;
 	@Inject
-	FeatureCallEqualToFeatureCall featureCallEqualToFeatureCall;
+	Qualify_FeatureCallEqualToFeatureCall featureCallEqualToFeatureCall;
 	@Inject
-	FeatureCallsEqualToLiteralOr featureCallsEqualToLiteralOr;
+	Qualify_FeatureCallsEqualToLiteralOr featureCallsEqualToLiteralOr;
 
 	@Test
 	public void testFunctionOperationFeature() {
@@ -89,11 +75,11 @@ public class FunctionTests extends AbstractFunctionTest {
 	}
 
 	@Inject
-	FeatureCallListEqualToFeatureCall featureCallListEqualToFeatureCall;
+	Qualify_FeatureCallListEqualToFeatureCall featureCallListEqualToFeatureCall;
 	@Inject
-	FeatureCallListNotEqualToFeatureCall featureCallListNotEqualToFeatureCall;
+	Qualify_FeatureCallListNotEqualToFeatureCall featureCallListNotEqualToFeatureCall;
 	@Inject
-	MultipleOrFeatureCallsEqualToMultipleOrFeatureCalls multipleOrFeatureCallsEqualToMultipleOrFeatureCalls;
+	Qualify_MultipleOrFeatureCallsEqualToMultipleOrFeatureCalls multipleOrFeatureCallsEqualToMultipleOrFeatureCalls;
 
 	@Test
 	public void testFunctionOperationFeatureMulti() {
