@@ -8,6 +8,7 @@ import org.isda.cdm.Workflow;
 import org.isda.cdm.Workflow.WorkflowBuilder;
 import org.isda.cdm.WorkflowStep;
 
+import java.util.Collections;
 import java.util.function.Function;
 
 import static org.isda.cdm.functions.testing.FunctionUtils.guard;
@@ -27,7 +28,7 @@ public class Inception implements Function<Contract, Workflow> {
 				guard(contract.getTradableProduct().getPriceNotation()), 
 				guard(contract.getParty()), 
 				guard(contract.getPartyRole()), 
-				null);
+				null, Collections.emptyList());
 		
 		WorkflowBuilder workflowBuilder = Workflow.builder().addSteps(WorkflowStep.builder().setBusinessEvent(businessEvent).build());
 		runner.postProcess(Workflow.class, workflowBuilder);
