@@ -20,8 +20,8 @@ public class ThresholdMappingProcessor extends MappingProcessor {
 
 	private static final String ZERO = "zero";
 
-	public ThresholdMappingProcessor(RosettaPath rosettaPath, List<Mapping> mappings) {
-		super(rosettaPath, mappings);
+	public ThresholdMappingProcessor(RosettaPath rosettaPath, List<String> synonymValues, List<Mapping> mappings) {
+		super(rosettaPath, synonymValues, mappings);
 	}
 
 	@Override

@@ -15,7 +15,7 @@ type AmericanExercise: <"A class defining the exercise period for an American st
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "commencementDate"]
 	expirationDate AdjustableOrRelativeDate (1..1) <"The last day within an exercise period for an American style option. For a European style option it is the only day within the exercise period.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "expirationDate"]
-	relevantUnderlyingDate AdjustableOrRelativeDates (0..1) <"The date on the underlying set by the exercise of an option. What this date is depends on the option (e.g. in a swaption it is the swap effective date, in an extendible/cancelable provision it is the swap termination date).">
+	relevantUnderlyingDate AdjustableOrRelativeDates (0..1) <"The effective date on the underlying product if the option is exercised.  For example, for a swaption it is the swap effective date, for an option on an FX spot or forward it is the value date for settlement, and in an extendible/cancelable provision it is the swap termination date, which is the date on which the termination is effective.”">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "relevantUnderlyingDate"]
 	earliestExerciseTime BusinessCenterTime (1..1 ) <"The earliest time at which notice of exercise can be given by the buyer to the seller (or seller's agent) to, and including, the expiration date.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "earliestExerciseTime"]
@@ -50,7 +50,7 @@ type BermudaExercise: <"A class defining the Bermuda option exercise dates and t
 
 	bermudaExerciseDates AdjustableOrRelativeDates (1..1) <"The dates that define the Bermuda option exercise dates and the expiration date. The last specified date is assumed to be the expiration date. The dates can either be specified as a series of explicit dates and associated adjustments or as a series of dates defined relative to another schedule of dates, for example, the calculation period start dates. Where a relative series of dates are defined the first and last possible exercise dates can be separately specified.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "bermudaExerciseDates"]
-	relevantUnderlyingDate AdjustableOrRelativeDates (0..1) <"The date on the underlying set by the exercise of an option. What this date is depends on the option (e.g. in a swaption it is the swap effective date, in an extendible/cancelable provision it is the swap termination date).">
+	relevantUnderlyingDate AdjustableOrRelativeDates (0..1) <"The effective date on the underlying product if the option is exercised.  For example, for a swaption it is the swap effective date, for an option on an FX spot or forward it is the value date for settlement, and in an extendible/cancelable provision it is the swap termination date, which is the date on which the termination is effective.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "relevantUnderlyingDate"]
 	earliestExerciseTime BusinessCenterTime (1..1) <"The earliest time at which notice of exercise can be given by the buyer to the seller (or seller's agent) on each Bermuda option exercise date and the expiration date.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "earliestExerciseTime"]
@@ -173,16 +173,22 @@ type CreditSupportAgreement: <"The agreement executed between the parties and in
 
 type RelatedAgreement: <"A class for specifying the legal agreements that govern the contract, either as a reference to such agreements when specified as part of the CDM, or through identification of some of the key terms of those documents, such as the type of document, the document identifier, the publisher, the document vintage and the agreement date.">
 
-	legalAgreement LegalAgreement (0..*) <"The legal agreement(s) that govern the contract, when such agreement is specified as a reference part of the CDM.">
-		[metadata reference]
+	legalAgreement LegalAgreement (0..1) <"The legal agreement(s) that govern the contract, when such agreement is specified as a reference part of the CDM.">
+		//[metadata reference] // TODO fix bug related to setting null references in func assign-output 
 		[synonym Workflow_Event value "legalAgreement"]
+		[synonym ISDA_Create_1_0 value "collateral_transfer_agreement" path "answers->partyA"]
+		[synonym ISDA_Create_1_0 value "date_of_collateral_transfer_agreement" path "answers->partyA"]
+		[synonym ISDA_Create_1_0 value "date_of_isda_master_agreement" path "answers->partyA"]
+		[synonym ISDA_Create_1_0 value "date_of_euroclear_security_agreement" path "answers->partyA"]
+		[synonym ISDA_Create_1_0 value "isda_master_agreement_form" path "answers->partyA"]
+		[synonym FpML_5_10 value "ignore"] // TODO remove when migrating from documentationIdentification to legalAgreement (and update cardinality to 1..1)
 	documentationIdentification DocumentationIdentification (0..1) <"The identification of the legal document(s) that govern the contract through some of the key terms of such document(s): type of document, the document identifier, the publisher, the document vintage and the agreement date.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "documentation" path "trade"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "documentation"]
+		[synonym ISDA_Create_1_0 value "ignore"]
 
 
 type DocumentationIdentification: <"A class for defining the definitions that govern the document and should include the year and type of definitions referenced, along with any relevant documentation (such as master agreement) and the date it was signed.">
 	[synonym FpML_5_10 value "Documentation"]
+	//TODO - type will be deprecated when all information has been mapped to LegalAgreementBase and synonyms moved.
 
 	masterAgreement MasterAgreement (0..1) <"The agreement executed between the parties and intended to govern all OTC derivatives transactions between those parties.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "masterAgreement"]
@@ -213,7 +219,7 @@ type EuropeanExercise: <"A class defining the exercise period for a European sty
 
 	expirationDate AdjustableOrRelativeDate (1..1) <"The last day within an exercise period for an American style option. For a European style option it is the only day within the exercise period.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "expirationDate"]
-	relevantUnderlyingDate AdjustableOrRelativeDates (0..1) <"The date on the underlying set by the exercise of an option. What this date is depends on the option (e.g. in a swaption it is the swap effective date, in an extendible/cancelable provision it is the swap termination date).">
+	relevantUnderlyingDate AdjustableOrRelativeDates (0..1) <"The effective date on the underlying product if the option is exercised.  For example, for a swaption it is the swap effective date, for an option on an FX spot or forward it is the value date for settlement, and in an extendible/cancelable provision it is the swap termination date, which is the date on which the termination is effective.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "relevantUnderlyingDate"]
 	earliestExerciseTime BusinessCenterTime (1..1) <"The earliest time at which notice of exercise can be given by the buyer to the seller (or seller's agent) on the expiration date.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "earliestExerciseTime"]
@@ -324,6 +330,7 @@ type FloatingRate extends RateSpecificationBase: <"A class defining a floating i
 
 type FloatingRateSpecification extends FloatingRate: <"A class to specify the floating interest rate by extending the floating rate definition with a set of attributes that specify such rate: the initial value specified as part of the trade, the rounding convention, the averaging method and the negative interest rate treatment.">
 	[synonym FpML_5_10 value "FloatingRateCalculation"]
+	
 	initialRate number (0..1) <"The initial floating rate reset agreed between the principal parties involved in the trade. This is assumed to be the first required reset rate for the first regular calculation period. It should only be included when the rate is not equal to the rate published on the source implied by the floating rate index. An initial rate of 5% would be represented as 0.05.">
 		[deprecated]
 	finalRateRounding Rounding (0..1) <"The rounding convention to apply to the final rate used in determination of a calculation period amount.">

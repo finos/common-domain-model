@@ -4,11 +4,12 @@ import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.path.RosettaPath;
 import org.isda.cdm.ElectiveAmountElection;
-import org.isda.cdm.Threshold;
 import org.isda.cdm.Money;
+import org.isda.cdm.Threshold;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.isda.cdm.CreditSupportObligationsInitialMargin.CreditSupportObligationsInitialMarginBuilder;
@@ -37,7 +38,7 @@ class ThresholdMappingProcessorTest {
 		CreditSupportObligationsInitialMarginBuilder parent = mock(CreditSupportObligationsInitialMarginBuilder.class);
 
 		// test
-		ThresholdMappingProcessor processor = new ThresholdMappingProcessor(rosettaPath, mappings);
+		ThresholdMappingProcessor processor = new ThresholdMappingProcessor(rosettaPath, Collections.emptyList(), mappings);
 		processor.map(builder, parent);
 		Threshold threshold = builder.build();
 

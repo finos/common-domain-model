@@ -6,7 +6,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Singleton;
 import com.regnosys.rosetta.common.hashing.NonNullHashCollector;
-import com.regnosys.rosetta.common.hashing.RosettaKeyProcessStep;
+import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep;
 import com.rosetta.model.lib.process.PostProcessStep;
 
 @ImplementedBy(PostProcessorProvider.Default.class)
@@ -20,8 +20,8 @@ public interface PostProcessorProvider {
 		private List<PostProcessStep> processors;
 
 		public Default() {
-			RosettaKeyProcessStep rosettaKeyProcessStep = new RosettaKeyProcessStep(NonNullHashCollector::new);
-			this.processors = ImmutableList.of(rosettaKeyProcessStep, new EventEffectProcessStep(rosettaKeyProcessStep));
+			GlobalKeyProcessStep globalKeyProcessStep = new GlobalKeyProcessStep(NonNullHashCollector::new);
+			this.processors = ImmutableList.of(globalKeyProcessStep, new EventEffectProcessStep(globalKeyProcessStep));
 		}
 
 		@Override

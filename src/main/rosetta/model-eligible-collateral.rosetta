@@ -102,8 +102,11 @@ type CollateralProductType: <"A class to allow specification of the asset produc
 
 
 type CollateralValuationPercentage:
-    valuationPercentage number (1..1) <"Percentage value of asset to be used as collateral once discounted haircut take into consideration, expressed as a valuation comprised between 0.0 and 100.0. As an example a 0.5% haircut would be expressed as 99.5.">
-	fxHaircutPercentage number (0..1) <"FX haircut applied to a specific asset which is agreed between the parties (for example, if pledgor eligible collateral is not denominated in the termination currency or under other specified cases in collateral support documents both for initial margin and variation margin), the percentage value is expressed as a discount haircut to the value of the collateral comprised between 0.0 and 100.0 - as an example an 8% FX haircut would be expressed as 8.0.">
+    valuationPercentage number (1..1) <"Percentage value of asset to be used as collateral once discounted haircut take into consideration,expressed as a valuation. As an example a 0.5% haircut would be expressed as 99.5% and represented as a decimal number 0.995">
+	fxHaircutPercentage number (0..1) <"FX haircut applied to a specific asset which is agreed between the parties (for example, if pledgor eligible collateral is not denominated in the termination currency or under other specified cases in collateral support documents both for initial margin and variation margin).The percentage value is expressed as the discount haircut to the value of the collateral- as an example an 8% FX haircut would be expressed as 0.08.">
+
+	// condition: valuationPercentage > 0 and valuationPercentage <=1
+	// condition: fxHaircutPercentage > 0 and fxHaircutPercentage <=1
 
 type EligibleCollateral: <"Set of criteria used to specify eligible collateral.">
 	criteria EligibleCollateralCriteria (1..*)
@@ -131,7 +134,7 @@ type ProductCriteria: <"Criteria used to specify eligible collateral assets.">
 	agencyRating AgencyRatingCriteria (0..*) <"Agency rating based on default risk and creditors claim in event of default associated with specific instrument.">
 	maturityType MaturityTypeEnum (0..1) <"Specifies whether the maturity range is the remaining or original maturity.">
 	maturityRange PeriodRange (0..1) <"Filter based on the underlying asset maturity.">
-	identifier ProductIdentifier (0..*) <"Filter based on specific instrument identifiers (e.g. specific ISINs, CUSIPs etc).">
+	productIdentifier ProductIdentifier (0..*) <"Filter based on specific instrument identifiers (e.g. specific ISINs, CUSIPs etc).">
     seasoned boolean (0..1) <"Filter based on whether underlying security is seasoned."> // IS THIS REQUIRED - ISDA feedback is that this should be removed
 	sinkable boolean (0..1) <"Filter based on whether underlying security is sinkable."> // IS THIS REQUIRED - ISDA feedback is that this should be removed
 //	indexLinked boolean (0..1) <"Filter based on whether underlying security is index linked."> NO LONGER REQUIRED - Captured under BondType.bondEconomics

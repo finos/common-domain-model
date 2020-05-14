@@ -1,9 +1,12 @@
-# *Infrastructure: Function Testing*
+# *CDM Model: Namespace hierarchy representation*
 
 _What is being released_
 
-Test definitions have been added to the cdm to test the `Execute` and `FormContract` function definitions with a vanilla IRS.
+Auto Generation of namespace-hierarchy.json file, which represents the CDM Model in a tree format
 
-Review Directions
+# *CDM Portal: Bug fix for Graphical Navigator*
 
-The tests will be available to view in Rosetta Core in the near future.
+_What is being released_
+
+Fix bug where the Graphical Navigator only partially displayed the CDM.
+
