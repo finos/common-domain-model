@@ -8,11 +8,9 @@ _Review Directions_
 
 In the Ingestion Panel, try the following samples folder `products > equity`:
 
-- `eqs-ex03-index-quanto-long-form.xml`
 - `eqs-ex04-zero-strike-long-form.xml`
 - `eqs-ex05-single-stock-plus-fee-long-form.xml`
 - `eqs-ex06-single-index-long-form.xml`
-- `eqs-ex07-long-form-with-stub.xml`
 - `eqs-ex09-compounding-swap.xml`
 - `eqs-ex11-on-european-index-underlyer-short-form.xml`
 - `eqs-ex12-on-european-index-underlyer-short-form.xml`
