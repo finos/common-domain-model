@@ -835,29 +835,23 @@ While ISDA already defines how industry processes should work in the ISDA Docume
 What Is the Process Model
 """""""""""""""""""""""""
 
-**The CDM Process Model has been designed to translate the technical standards that support those industry processes** into a standardised machine-readable and machine-executable format. Machine readability and executability is crucial to eliminate implementation discrepancy between market participants and increase interoperability between technology solutions. It greatly minimises the cost of adoption and provides a blueprint on which industry utilities can be built.
+**The CDM Process Model has been designed to translate the technical standards that support those industry processes** into a standardised machine-readable and machine-executable format.
 
-By contrast, adopting a traditional technical standard that is written in prose looks as follows:
-
-#. Domain experts need to understand the intent of the standard.
-#. Business analysts need to translate the above into a set of technical requirements.
-#. Software engineers need to turn those technical requirements into code.
-
-Each step comes with the risk of misinterpretation and implementation error, and the process is duplicated across each adopting firm, ultimately adding up to high industry implementation costs.
-
-Systematically providing the CDM process model as executable code virtually eliminates this effort. 
+Machine readability and executability is crucial to eliminate implementation discrepancy between market participants and increase interoperability between technology solutions. It greatly minimises the cost of adoption and provides a blueprint on which industry utilities can be built.
 
 How Does It Work
 """"""""""""""""
 
-The process model is systematically translated into executable code using purpose-built technology as described in the `Code Generation Section`_. A number of modern, widely adopted and freely available programming languages are currently supported, and the list will continue to grow with the requirements of the CDM user community:
+The process model is systematically translated into executable code using purpose-built technology as described in the `Code Generation Section`_. A number of modern, widely adopted and freely available programming languages are currently supported:
 
 * Java
 * Scala
 * DAML
 * Typescript
 
-Executable code artefacts are distributed with the CDM and freely available to use. They can be downloaded from the ISDA CDM `Portal`_. The executable code distribution of the CDM is version-controlled, providing firms with more robust control over the adoption of model updates in their own systems.
+and the list will continue to grow with the requirements of the CDM user community.
+
+Executable code artefacts are distributed with the CDM and freely available to download from the ISDA CDM `Portal`_.
 
 Scope
 ^^^^^
@@ -904,9 +898,9 @@ Implementors must populate the remaining attribute values required for the outpu
 
 For the trade lifecycle processes in scope, the CDM process model covers the following sub-process components, which are each detailed in the next sections:
 
-* Validation process
-* Calculation process
-* Event creation process
+#. Validation process
+#. Calculation process
+#. Event creation process
 
 
 Validation Process
@@ -1026,9 +1020,8 @@ Some of those calculations are presented below:
    
    assign-output equityCashSettlementAmount -> amount:
      Abs(contractState -> updatedContract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element -> performance)
-
-	assign-output equityCashSettlementAmount -> currency:
-    ResolveEquityInitialPrice( equityPayout only-element -> underlier, contractState -> contract -> tradableProduct -> priceNotation ) -> netPrice -> currency
+   assign-output equityCashSettlementAmount -> currency:
+     ResolveEquityInitialPrice( equityPayout only-element -> underlier, contractState -> contract -> tradableProduct -> priceNotation ) -> netPrice -> currency
 
 .. code-block:: Haskell
 
