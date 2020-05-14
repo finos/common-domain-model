@@ -872,9 +872,9 @@ Coverage
 * Settlement (including any future contingent cashflow payment)
 * Exercise of options
 * Margin calculation
-* Regulatory reporting (although covered in a different documentation section).
+* Regulatory reporting (although covered in a different documentation section)
 
-For an up-to-date list of the trade lifecycle process model coverage, please refer to the `function coverage matrix`_ (*coming soon*).
+For an up-to-date model coverage of the trade lifecycle process, please refer to the `function coverage matrix`_ (*coming soon*).
 
 Granularity
 """""""""""
@@ -986,7 +986,7 @@ CDM model elements often need to be transformed by a function to construct the a
 The CDM has two main types for this:
 
 * ``CalculationPeriodDates`` specifies the inputs required to construct a calculation period schedule
-* ``CalculationPeriodData`` specifies typical attributes of a calculation period such as start date, end date, etc.
+* ``CalculationPeriodData`` specifies actual attribute values of a calculation period such as start date, end date, etc.
 
 From this data model, a function is required to compute the latter based on the former (and also the current date):
 
@@ -1086,7 +1086,7 @@ The CDM reference data representation will be further expanded once use cases fo
 Mapping (Synonym)
 -----------------
 
-In order to facilitate the translation of existing industry messages (based on open standards or proprietary ones) into CDM, the CDM is mapped to a set of those alternative data representations using the ``synonym`` feature available in the Rosetta DSL.
+In order to facilitate the translation of existing industry messages (based on open standards or proprietary ones) into CDM, the CDM is mapped to a set of those alternative data representations using the Rosetta DSL *synonym* feature, as described in the `Mapping Component Section`_.
 
 The following set of synonym sources are currently in place for the CDM:
 
@@ -1106,6 +1106,7 @@ Those synonym sources are listed as part of a configuration file in the CDM usin
 .. _Function Component Section: https://docs.rosetta-technology.io/dsl/documentation.html#function-component
 .. _Code Generation Section: https://docs.rosetta-technology.io/dsl/codegen-readme.html
 .. _Validation Component Section: https://docs.rosetta-technology.io/dsl/documentation.html#validation-component
+.. _Mapping Component Section: https://docs.rosetta-technology.io/dsl/documentation.html#mapping-component
 
 .. _Portal: https://portal.cdm.rosetta-technology.io
 .. _function coverage matrix: Portal
