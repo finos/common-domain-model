@@ -14,17 +14,18 @@ The following sections define each of these dimensions.  Selected examples of da
 
 Product Model
 -------------
+
 Where applicable, the CDM follows the data structure of the Financial Products Markup Language (FpML), which is widely used in the OTC Derivatives market.  For example, the CDM type ``PayerReceiver`` is equivalent to the FpML PayerReceiver.model. Both of these are data structures used frequently throughout each respective model. In other cases, the CDM data structure is more normalised, per requirements from the CDM Design Working Group.  For example, price and quantity are represented in a single type, ``TradableProduct``, which is shared by all products. Another example is the use of a composable product model whereby:
 
 * **Economic terms are specified by composition**, For example, the ``InterestRatePayout`` type is a component used in the definition of any product with one or more interest rate legs (e.g. Interest Rate Swaps, Equity Swaps, and Credit Default Swaps).  
 * **Product qualification is inferred** from those economic terms rather than explicitly naming the product type, whereas FpML qualifies the product explcitly through the *product* substitution group.
 
-Regardless of whether the data structure is the same or different from FpML, the CDM model includes defined Synonyms that map to FpML (and other models) and can be used for transformation purposes. More details on Synonyms are provided in the Mapping (Synonym) section of this document.
+Regardless of whether the data structure is the same or different from FpML, the CDM includes defined Synonyms that map to FpML (and other models) and can be used for transformation purposes. More details on Synonyms are provided in the Mapping (Synonym) section of this document.
 
 TradableProduct
 ^^^^^^^^^^^^^^^
 
-A tradable product represents a financial product that is ready to be traded, meaning that there is an agreed financial product, price, quantity, and other details necessary to complete an execution of a security or a negotiated contract.  Tradable products are represented in the ``TradableProduct`` type. 
+A tradable product represents a financial product that is ready to be traded, meaning that there is an agreed financial product, price, quantity, and other details necessary to complete an execution of a security or a negotiated contract.  Tradable products are represented by the ``TradableProduct`` type. 
 
 .. literalinclude:: code-snippets/TradableProduct.snippet
   :language: haskell
@@ -62,7 +63,7 @@ The ``PriceNotation`` type supports the price for any product.
     price Price (1..1)
     assetIdentifier AssetIdentifier (1..1) 
     
-The ``Price`` type that is encapsulated within ``PriceNotation`` requires the definition of one of the price types represented in its data structure, which collectively support all the types for all of the products in the CDM.
+The ``price`` attribute is of type ``Price``, which requires the selection of one of the attributes that describe different types of prices. The set of attributes collectively support all products in the CDM.
 
 .. code-block:: Haskell
 
@@ -73,11 +74,13 @@ The ``Price`` type that is encapsulated within ``PriceNotation`` requires the de
     // For IR Swaps, CDS, Repo, and FRA
     floatingInterestRate FloatingInterestRate (0..1)
     condition: one-of
-    
+
+For example, ``cashPrice`` would be used to represent the reference price in an Equity Swap and ``fixedInterestRate`` would be used to represent the fixed rate on an Interest Rate Swap. ``floatingInterestRate`` would be used to represent a cap or floor, or could be used to represent the known initial reset rate of a floating leg in an Interest Rate Swap, if it is agreed between the parties as part of the trade.
+
 Financial Product
 """""""""""""""""
 
-A financial product is an instrument that is used to transfer financial risk between two parties. Financial products are represented in the ``Product`` type, which is constrained by the ``one of`` condition, meaning that for a single Tradable Product, there can only be one Product:
+A financial product is an instrument that is used to transfer financial risk between two parties. Financial products are represented in the ``Product`` type, which is constrained by the ``one-of`` condition, meaning that for a single Tradable Product, there can only be one Product.
 
 .. code-block:: Haskell
  
@@ -90,7 +93,7 @@ A financial product is an instrument that is used to transfer financial risk bet
     security Security (0..1)
     condition: one-of
 
-The CDM allows any one of these products to included in a trade or used as an underlier for another product (see the *Underlier* section).  One unlikely case for a direct trade is Index, which is primarily used as an underlier.
+The CDM allows any one of these products to included in a trade or used as an underlier for another product (see the *Underlier* section). One unlikely case for a direct trade is Index, which is primarily used as an underlier.
 
 Among this set of products, the contractual product is the most complicated and requires the largest data structure. In a contractual product, an exchange of financial risk is materialised by a unique bilateral contract that specifies the financial obligations of each party. The terms of the contract are specified at trade inception and apply throughout the life of the contract (which can last for decades for certain long-dated products), unless amended by mutual agreement. Contractual products are fungible (in other words, replaceable by other identical or similar contracts) only under specific terms: e.g. the existence of a close-out netting agreement between the parties. 
 
@@ -123,7 +126,7 @@ The scope of contractual products in the current model are summarized below:
 
   * Equity Swaps (single name)
   
-* **Optons**:
+* **Options**:
 
   * Any other OTC Options (incl. FX Options)
 
@@ -141,7 +144,7 @@ Note that price and quantity are defined in ``TradableProduct`` as these are att
 Economic Terms
 """"""""""""""
 
-The CDM specifies the various set of possible remaining economic terms using the ``EconomicTerms`` type, which includes attributes that are common to all payout types, such as effective date, termination date, and date adjustments.  A valid population of this type is constrained by a set of conditions which are not shown here in the interests of brevity.
+The CDM specifies the various sets of possible remaining economic terms using the ``EconomicTerms`` type.  This type includes contractual provisions that are not specific to the type of payout, but do impact the value of the contract, such as effective date, termination date, date adjustments, and early termination provisions.  A valid population of this type is constrained by a set of conditions which are not shown here in the interests of brevity.
 
 .. code-block:: Haskell
 
@@ -157,7 +160,7 @@ The CDM specifies the various set of possible remaining economic terms using the
  
 Payout
 """"""
-The ``Payout`` type defines the composable payout types, each of which describes a set of terms and conditions for the financial responsibilities between the two contractual parties. Payout types can be combined to compose a product.  For example, an Equity Swap can be composed by combining an ``InterestRatePayout`` and an ``EquityPayout``.
+The ``Payout`` type defines the composable payout types, each of which describes a set of terms and conditions for the financial responsibilities between the contractual parties. Payout types can be combined to compose a product.  For example, an Equity Swap can be composed by combining an ``InterestRatePayout`` and an ``EquityPayout``.
 
 .. code-block:: Haskell
 
@@ -1106,6 +1109,7 @@ Those synonym sources are listed as part of a configuration file in the CDM usin
 .. _Code Generation Section: https://docs.rosetta-technology.io/dsl/codegen-readme.html
 .. _Validation Component Section: https://docs.rosetta-technology.io/dsl/documentation.html#validation-component
 .. _Mapping Component Section: https://docs.rosetta-technology.io/dsl/documentation.html#mapping-component
+.. _Special Syntax Section: https://docs.rosetta-technology.io/dsl/documentation.html#special-syntax
 
 .. _Portal: https://portal.cdm.rosetta-technology.io
 .. _function coverage matrix: Portal
