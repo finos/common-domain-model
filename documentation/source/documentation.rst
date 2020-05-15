@@ -42,7 +42,7 @@ The ``QuantityNotation`` type supports the quantity (or notional) for any produc
     quantity NonNegativeQuantity (1..1)
     assetIdentifier AssetIdentifier (1..1) 
     
-The ``AssetIdentifier`` type requires the specification of either a product, currency or a floating rate option.
+The ``AssetIdentifier`` type requires the specification of either a product, currency or a floating rate option. This choice constraint is supported by specifying a ``one-of`` condition, as described in the `Special Syntax Section`_ of the Rosetta DSL documentation.
 
 .. code-block:: Haskell
 
@@ -80,7 +80,7 @@ For example, ``cashPrice`` would be used to represent the reference price in an 
 Financial Product
 """""""""""""""""
 
-A financial product is an instrument that is used to transfer financial risk between two parties. Financial products are represented in the ``Product`` type, which is constrained by the ``one-of`` condition, meaning that for a single Tradable Product, there can only be one Product.
+A financial product is an instrument that is used to transfer financial risk between two parties. Financial products are represented in the ``Product`` type, which is also constrained by a ``one-of`` condition, meaning that for a single Tradable Product, there can only be one Product.
 
 .. code-block:: Haskell
  
