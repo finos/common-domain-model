@@ -873,7 +873,7 @@ Coverage
 * Allocation
 * Settlement (including any future contingent cashflow payment)
 * Exercise of options
-* Margin calculation
+* Margin calculation and collateral management
 * Regulatory reporting (although covered in a different documentation section)
 
 For an up-to-date model coverage of the trade lifecycle process, please refer to the `function coverage matrix`_ (*coming soon*).
@@ -912,6 +912,9 @@ While validation rules are generally specified for existing data standards like 
 
 By contrast, validation components are an integral part of the CDM process model and distributed as executable code. Those CDM validation components leverage the validation components of the Rosetta DSL, as described in the `Validation Component Section`_.
 
+Product Validation
+""""""""""""""""""
+
 As an example, the ``FpML_ird_57`` data rule implements the **FpML ird validation rule #57**, which states that if the calculation period frequency is expressed in units of month or year, then the roll convention cannot be a week day. A machine readable and executable definition of that specification is provided in the CDM, as a ``condition`` attached to the ``CalculationPeriodFrequency`` type:
 
 .. code-block:: Haskell
@@ -928,6 +931,10 @@ As an example, the ``FpML_ird_57`` data rule implements the **FpML ird validatio
      or rollConvention <> RollConventionEnum -> SAT
      or rollConvention <> RollConventionEnum -> SUN
 
+Event Validation
+""""""""""""""""
+
+(*Coming soon*)
 
 Calculation Process
 ^^^^^^^^^^^^^^^^^^^
@@ -1037,9 +1044,122 @@ Some of those calculations are presented below:
    assign-output rateOfReturn:
      (finalPrice - initialPrice) / initialPrice
 
-Event Creation Process
-^^^^^^^^^^^^^^^^^^^^^^
+Lifecycle Event Process
+^^^^^^^^^^^^^^^^^^^^^^^
 
+While the lifecycle event model described in the `Event Model Section`_ provides a standardised data representation of those events using the concept of *primitive event* components, the CDM must further specify the processing of those events to ensure standardised implementations across the industry. This means specifying the logic of the *state transition* between the ``before`` and ``after`` states as represented by the primitive event components.
+
+In particular, the CDM must ensure that:
+
+* The lifecycle event process model constructs valid CDM event objects.
+* The constructed events qualify according to the qualification logic described in the `Event Qualification Section`_.
+* The lineage between states allows an accurate reconstruction of the trade's lifecycle sequence.
+
+There are three levels of function components in the CDM to define the processing of lifecycle events:
+
+#. Primitive creation
+#. Event creation
+#. Workflow step creation
+
+Each of those components can leverage any calculation or utility function defined in the CDM, as described in the `Calculation Process Section`_. An object validation step, such as those described in the `Validation Process Section`_, is included in all these object creation functions to ensure that they each construct valid CDM objects.
+
+Illustration of the three components are given in the sections below.
+
+Primitive Creation
+""""""""""""""""""
+
+An example of such use is the handling of a reset event, hereby presented an an equity reset example. The reset is processed in two steps:
+
+* An ``ObservationPrimitive`` is built for the equity price, independently from any single contract.
+* This observation is used to construct a ``ResetPrimitive`` on any contract affected by it.
+
+For the observation primitive, checks are performed on the valuation date and/or time inputs and on their consistency with a given price determination method. The function to fetch the equity price is also specified to ensure integrity of the observation number.
+
+.. code-block:: Haskell
+
+ func EquityPriceObservation: <"Function specification for the observation of an equity price, based on the attributes of the 'EquityValuation' class.">
+   inputs:
+     equity Equity (1..1)
+     valuationDate AdjustableOrRelativeDate (1..1)
+     valuationTime BusinessCenterTime (0..1)
+     timeType TimeTypeEnum (0..1)
+     determinationMethod DeterminationMethodEnum (1..1)
+   output:
+     observation ObservationPrimitive (1..1)
+   
+   condition: <"Optional choice between directly passing a time or a timeType, which has to be resolved into a time based on the determination method.">
+     if valuationTime exists then timeType is absent
+     else if timeType exists then valuationTime is absent
+     else False
+     
+   post-condition: <"The date and time must be properly resolved as attributes on the output.">
+     observation -> date = ResolveAdjustableDate(valuationDate)
+     and if valuationTime exists
+       then observation -> time = TimeZoneFromBusinessCenterTime(valuationTime)
+       else observation -> time = ResolveTimeZoneFromTimeType(timeType, determinationMethod)
+       
+   post-condition: <"The number recorded in the observation must match the number fetched from the source.">
+     observation -> observation = EquitySpot(equity, observation -> date, observation -> time)
+
+The observation is used as an input to *resolve* any Equity Derivative contract (i.e. update its resettable values) that depends on this observation:
+
+.. code-block:: Haskell
+
+ func ResolveEquityContract: <"Specifies how the updated contract should be constructed in a Equity Reset event.">
+   inputs:
+     contractState ContractState (1..1)
+     observation ObservationPrimitive (1..1)
+     date date (1..1)
+   output:
+     updatedContract Contract (1..1)
+     
+   alias price: observation -> observation
+   alias equityPayout: contractState -> contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
+   alias updatedEquityPayout: updatedContract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
+   alias periodEndDate: CalculationPeriod( equityPayout -> calculationPeriodDates, date ) -> endDate
+   alias equityPerformance: EquityPerformance(contractState, observation -> observation, periodEndDate)
+   
+   condition IsEquityContract: equityPayout exists
+   
+   assign-output updatedEquityPayout -> priceReturnTerms -> valuationPriceFinal -> netPrice -> amount:
+     if CalculationPeriod( equityPayout -> calculationPeriodDates, periodEndDate ) -> isLastPeriod then price
+   assign-output updatedEquityPayout -> priceReturnTerms -> valuationPriceInterim -> netPrice -> amount:
+     if CalculationPeriod( equityPayout -> calculationPeriodDates, periodEndDate ) -> isLastPeriod = False then price
+   assign-output updatedContract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> performance: <"Reset primitive after state must be correctly populated with the equity payout including the performance.">
+     equityPerformance
+   assign-output updatedContract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> quantityMultiplier -> multiplierValue: <"Using the Rate of Return we 'reset' the multiplier, which is used to resolve the ultimate notional amount for the equity swap.">
+     1 + equityPerformance / 100
+
+The set of updated values include the ``performance`` attribute on the ``equityPayout``, which represents the performance of the current calculation period. The resolution function uses some of the already defined *utility functions* such as ``CalculationPeriod`` and also a *calculation function* for the Equity performance.
+
+This contract resolution mechanism is wired into the function that creates the ``ResetPrimitive`` object:
+
+.. code-block:: Haskell
+
+ func Create_ResetPrimitive: <"Specifies how a Reset Primitive should be constructed.">
+   [creation PrimitiveEvent]
+   inputs:
+     contractState ContractState (1..1)
+     observation ObservationPrimitive (1..1)
+     date date (1..1)
+   output:
+     resetPrimitive ResetPrimitive (1..1)
+     
+   alias contract: contractState -> contract
+   
+   assign-output resetPrimitive -> before: contractState
+   assign-output resetPrimitive -> after -> contract: contractState -> contract
+   assign-output resetPrimitive -> after -> updatedContract: <"To handle the various ways Contracts can change over time, ">
+     ResolveUpdatedContract(contractState, observation, date)
+
+.. note:: The Reset Event only resets some values on the contract but does not calculate nor pay any cashflow. Any cashflow calculation and payment would be handled separately as part of a Transfer Event which, when such cashflow depends on any resettable values, will use the values updated as part of the Reset Event (as is the case of the *Equity Cash Settlement Amount*).
+
+Primitive Creation
+""""""""""""""""""
+(*Coming soon*)
+
+Workflow Step Creation
+""""""""""""""""""""""
 (*Coming soon*)
 
 
