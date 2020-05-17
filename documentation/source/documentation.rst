@@ -1,7 +1,7 @@
 The CDM Model
 =============
 
-**There are six dimensions** to the CDM model:
+**There are six modelling dimensions** to the CDM:
 
 * Product
 * Event
@@ -10,7 +10,9 @@ The CDM Model
 * Reference Data
 * Mapping (Synonym)
 
-The following sections define each of these dimensions.  Selected examples of data structures are used as illustrations to help explain each dimension.  The complete data structure, including descriptions and other details can be viewed in the `Textual Browser <https://portal.cdm.rosetta-technology.io/#/text-browser>`_ on the ISDA CDM Portal.
+The following sections define each of these dimensions. Selected examples of model definitions are used as illustrations to help explain each dimension and include, where applicable, data samples to help demonstrate the structure. All the Rosetta DSL modelling components that are used to express the CDM are described in the `Rosetta DSL Documentation`_
+
+The complete model definition, including descriptions and other details can be viewed in the `Textual Browser <https://portal.cdm.rosetta-technology.io/#/text-browser>`_ on the ISDA CDM Portal.
 
 Product Model
 -------------
@@ -1223,6 +1225,7 @@ The following set of synonym sources are currently in place for the CDM:
 
 Those synonym sources are listed as part of a configuration file in the CDM using a special ``synonym source`` enumeration, so that the synonym source value can be controlled when editing synonyms.
 
+.. _Rosetta DSL Documentation: https://docs.rosetta-technology.io/dsl/documentation.html
 .. _Qualified Type Section: https://docs.rosetta-technology.io/dsl/documentation.html#qualified-type
 .. _Function Definition Section: https://docs.rosetta-technology.io/dsl/documentation.html#function-definition
 .. _Function Component Section: https://docs.rosetta-technology.io/dsl/documentation.html#function-component
@@ -1230,6 +1233,11 @@ Those synonym sources are listed as part of a configuration file in the CDM usin
 .. _Validation Component Section: https://docs.rosetta-technology.io/dsl/documentation.html#validation-component
 .. _Mapping Component Section: https://docs.rosetta-technology.io/dsl/documentation.html#mapping-component
 .. _Special Syntax Section: https://docs.rosetta-technology.io/dsl/documentation.html#special-syntax
+
+.. _Event Model Section: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#event-model
+.. _Event Qualification Section: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#event-qualification
+.. _Validation Process Section: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#validation-process
+.. _Calculation Process Section: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#calculation-process
 
 .. _Portal: https://portal.cdm.rosetta-technology.io
 .. _function coverage matrix: Portal
