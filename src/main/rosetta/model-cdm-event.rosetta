@@ -227,7 +227,8 @@ type WorkflowStep: <"A workflow step represents the state of a business event. T
 	condition Intent: <"The intent should only be associated with the primitives which use can lead to ambiguity with respect to the qualification of the event.">
 		if (businessEvent -> primitives -> split exists
 			or businessEvent -> primitives -> exercise exists
-			or businessEvent -> primitives -> inception exists
+			or businessEvent -> primitives -> execution exists
+			or businessEvent -> primitives -> contractFormation exists
 			or businessEvent -> primitives -> observation exists
 			or businessEvent -> primitives -> reset exists)
 		then businessEvent -> intent is absent
@@ -238,7 +239,6 @@ type Workflow: <"A collection of workflow steps which together makeup an entire 
 type BusinessEvent: <"A business event represents a life cycle event of a trade and consists of a series of primitive events. The combination of the state changes results in a qualifiable life cycle event. An example of a Business Event is a PartialTermination which is a defined by a quantity change primitive event.">
 	[metadata key]
     [rootType]
-
     primitives PrimitiveEvent (1..*) <"The elemental component(s) that specify the lifecycle events. Each of the primitive/elemental components listed as part of the PrimitiveEvent class has distinctive features that allow to specify the lifecycle event, either by itself or in combination with some other of such components.">
 	intent IntentEnum (0..1) <"The intent attribute is meant to be specified when the event qualification cannot be programmatically inferred from the event features. As a result it is only associated with those primitives that can give way to such ambiguity, the quantityChange being one of those. An example of such is a reduction in the trade notional, which could be interpreted as either a trade correction (unless a maximum period of time post-event is specified as part of the qualification), a partial termination or a portfolio rebalancing in the case of an equity swap. On the other hand, an event such as the exercise is not expected to have an associated intent as there should not be ambiguity.">
 		[synonym Workflow_Event value "intent"]

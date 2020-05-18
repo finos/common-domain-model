@@ -78,7 +78,7 @@ class MapperTreeOrTest extends AbstractFunctionTest {
 	}
 
 	private void withAdjustedDate(PrimitiveEventBuilder primBuilder, Date date) {
-		primBuilder.getOrCreateInception().getOrCreateAfter().getOrCreateContract()
+		primBuilder.getOrCreateContractFormation().getOrCreateAfter().getOrCreateContract()
 				.getOrCreateTradableProduct().getOrCreateProduct().getOrCreateContractualProduct()
 				.getOrCreateEconomicTerms().getOrCreateEffectiveDate().getOrCreateAdjustableDate()
 				.setAdjustedDateRef(date);
