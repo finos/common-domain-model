@@ -374,156 +374,86 @@ Apart from the ``ObservationPrimitive``, they are each designed to include ``bef
 Business Event Features
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-Actual business events can be mapped as a collection of primitive event components. An example composition of those primitive event components to represent a business event is the *partial novation* of a contract:
+Each trade lifecycle event business event is represented as a collection of primitive event components in the ``BusinessEvent`` type:  
+
+.. code-block:: Haskell
+
+ type BusinessEvent: <"A business event represents a life cycle event of a trade and consists of a series of primitive events. The combination of the state changes results in a qualifiable life cycle event. An example of a Business Event is a PartialTermination which is a defined by a quantity change primitive event.">
+   [metadata key]
+   [rootType]
+   primitives PrimitiveEvent (1..*) <"The elemental component(s) that specify the lifecycle events. Each of the primitive/elemental components listed as part of the PrimitiveEvent class has distinctive features that allow to specify the lifecycle event, either by itself or in combination with some other of such components.">
+   intent IntentEnum (0..1) <"The intent attribute is meant to be specified when the event qualification cannot be programmatically inferred from the event features. As a result it is only associated with those primitives that can give way to such ambiguity, the quantityChange being one of those. An example of such is a reduction in the trade notional, which could be interpreted as either a trade correction (unless a maximum period of time post-event is specified as part of the qualification), a partial termination or a portfolio rebalancing in the case of an equity swap. On the other hand, an event such as the exercise is not expected to have an associated intent as there should not be ambiguity.">
+   functionCall string (0..1) <"This is placeholder concept for a function call into a calculation that will return an outcome. This concept needs to be further firmed out.">
+   eventQualifier eventType (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic which qualifies the lifecycle event as a function of its features (e.g. PartialTermination, ClearingSubmission, Novation, ...).">
+   eventDate date (1..1) <"The date on which the event is taking place. This is the equivalent of the trade date in the case of an execution or a contract.">
+   effectiveDate date (0..1) <"The date on which the event contractually takes effect, when different from the event date.">
+   eventEffect EventEffect (0..1) <"The set of effects associated with the lifecycle event, i.e. generated cashflows, contracts (from, say, novation events), listed products (from, say, a bond option exercise event) values and more. Those are represented through a set of globalKey references. This attribute is optional in order to provide implementers with the ability not to make use of this feature.">
+   
+   // TODO - this needs to be moved/merged into the WorkflowStep
+   workflowEventState WorkflowStepState (0..1) <"The event workflow information, i.e. the workflow status, the associated comment and the partyCustomisedWorkflow which purpose is to provide the ability to associate custom workflow information to the CDM.">
+   [deprecated]
+
+The only mandatory attributes of a business event are:
+
+* The ``primitives`` attribute, which contains the list of fundamental primitive events composing that business event and each representing one and only one fundamental state-transition
+* The event date
+
+.. note:: While an event date must be associated to a business event, the time dimension has been ommitted from the event's attribute and transferred to the *workflow* concept. That is because several time stamps may potentially be associated to the same event depending on when that event was submitted, accepted, rejected etc, all of which are workflow considerations.
+
+An example composition of the primitive events to represent a complete business event is the *partial novation* of a contract, which comprises:
 
 * an ``InceptionPrimitive`` creates the contract with the novation party. The ``tradeDate`` on the novated portion of the contract should reflect the date of the novation event.
 * a ``QuantityChange`` primitive applies to the original contract where the quantity after change is different from 0 (0 would represent the case of a *full novation*).
 
-The ``Event`` class that represents business events carries the following information:
+A business event is *atomic* in the sense that its underlying primitive event constituents cannot happen independently: they either all happen together or they do not happen. In the above partial novation example, the existing trade between the parties must be downsized at the same time as the new trade with the novation party is instantiated.
 
-.. code-block:: Java
-
- class Event key
- {
-  messageInformation MessageInformation (0..1);
-  timestamp EventTimestamp (1..*);
-  eventIdentifier Identifier (1..*);
-  eventQualifier eventType (0..1);
-  eventDate date (1..1);
-  effectiveDate date (0..1);
-  action ActionEnum (1..1);
-  intent IntentEnum (0..1);
-  party Party (0..*);
-  account Account (0..*);
-  lineage Lineage (0..1);
-  primitive PrimitiveEvent (1..1);
-  functionCall string (0..1);
-  eventEffect EventEffect (0..1);
- }
-
-The ``primitive`` attribute describing the mathematical set of operators for the business event is of cardinality 1, whereby the actual composition into possibly multiple primitive events happens in the ``PrimitiveEvent`` class.
-
-Message Information
-"""""""""""""""""""
-
-The ``messageInformation`` attribute corresponds to some of the components of the FpML *MessageHeader.model*.
-
-.. code-block:: Java
-
- class MessageInformation
- {
-  messageId string (1..1) scheme;
-  sentBy string (0..1) scheme;
-  sentTo string (0..*) scheme;
-  copyTo string (0..*) scheme;
- }
-
-``sentBy``, ``sentTo`` and ``copyTo`` information is optional, as possibly not applicable in a distributed ledger context.
-
-Timestamp
-"""""""""
-
-The CDM adopts a generic approach to represent timestamp information, consisting of a ``dateTime`` and a ``qualification`` attributes, with the latter specified through an enumeration value.
-
-.. code-block:: Java
-
- class EventTimestamp
- {
-  dateTime zonedDateTime (1..1) ;
-  qualification EventTimeStampQualificationEnum (1..1);
- }
-
-The experience of mapping the CME clearing and the DTCC trade matching and cashflow confirmation transactions to the CDM did reveal a diverse set of timestamps. The expected benefits of the CDM generic approach are twofold:
-
-* It allows for flexibility in a context where it would be challenging to mandate which points in the process should have associated timestamps.
-* Gathering all of those in one place in the model allows for evaluation and rationalisation down the road.
-
-The CDM Group has expressed concerns with combining timestamps which are deemed 'technical' with 'business' ones. A further evaluation of this timestamp modelling approach will be required.
-
-Below is JSON representation instance of this approach.
-
-.. code-block:: Java
-
- "timestamp": [
-  {
-     "dateTime": "2007-10-31T18:08:40.335-05:00",
-     "qualification": "EVENT_SUBMITTED"
-  },
-  {
-     "dateTime": "2007-10-31T18:08:40.335-05:00",
-     "qualification": "EVENT_CREATED"
-  }
- ]
-
-Event Identification
-""""""""""""""""""""
-
-The event identification information comprises the ``identifier`` and an optional ``version`` and ``issuer``. FpML also uses an event identifier construct: the *CorrelationId*, distinct from the identifier associated with the trade (which itself comes in different variations: *PartyTradeIdentifier*, with the *TradeId* and the *VersionedTradeId* as sub-components). As a departure from FpML, the CDM approach consists in using a common identifier component across products and events.
-
-.. code-block:: Java
-
- class Identifier key
- {
-  issuerReference Party (0..1) reference;
-  issuer string (1..1) scheme;
-  assignedIdentifier AssignedIdentifier (1..*);
- }
+The other business event attributes are presented in the following sections.
 
 Intent Qualification
 """"""""""""""""""""
 
-Intent qualification is an enumeration value such as ``allocation``, ``earlyTermination``, ``partialTermination`` etc. It is used as part of the event qualification logic, to disambiguate events which features are shared across lifecycle events. As an example, a reduction in a trade quantity/notional could apply to a correction event or a partial termination (although the timing of such event could also be used to qualify the proper event).
+Intent qualification is an enumeration value that represents the intent of a particular business event, e.g. ``Allocation``, ``EarlyTermination``, ``PartialTermination`` etc. It is used as part of the event qualification logic, to disambiguate lifecyle events which may share the same primitive event features. As an example, a reduction in a trade quantity/notional could apply to a correction event or a partial termination (although the timing of such event could also be used to qualify the proper event).
 
-Further evaluation of the appropriateness of this intent qualification is required.
-
-Lineage Information
-"""""""""""""""""""
-
-``Lineage`` is a class that is used to reference an unbounded set of contracts, events and/or payout components, as shown by the below code snippet:
-
-.. code-block:: Java
-
- class Lineage
- {
-  contractReference Contract (0..*) reference;
-  eventReference Event (0..*) reference;
-  transferReference Transfer (0..*) reference;
-  creditDefaultPayoutReference CreditDefaultPayout (0..*) reference;
-  interestRatePayoutReference InterestRatePayout (0..*) reference;
-  optionPayoutReference OptionPayout (0..*) reference;
- }
+.. note:: Further evaluation of the appropriateness of this intent qualification attribute is required, where other dimensions of the event could be used to provide the required disambiguation.
 
 Function Call
 """""""""""""
 
-An example of a function call is the interpolation function that would be associated with a **derived observation** event, which assembles two observed values (say, a 3 months and a 6 months rate observation) to provide a derived one (say, a 5 months observation).
+An example of a function call is the interpolation function that would be associated with a *derived observation* event, which assembles two observed values (say, a 3 months and a 6 months rate observation) to provide a derived one (say, a 5 months observation).
 
-As part of the current CDM version this function call as been specified as a mere string element. It will be appropriately specified once such implementation is developed, some of which consisting in the machine executable implementation of the ISDA Definitions (see the *Calculation* section).
+As part of the current CDM version this function call as been specified as a mere string element. It will be appropriately specified once a machine executable implementation of the ISDA Definitions is developed, as per the `Calculation Process Section`_.
+
+.. note:: Further evaluation of the appropriateness of this function call attribute is required.
 
 Event Effect
 """"""""""""
 
-The ``eventEffect`` attribute corresponds to the set of operational and positional effects associated with a lifecycle event. This information is generated by the CDM as a set of pointers to the relevant objects that are affected by the event. The candidate objects are classes that are referenceable with an associated ``key``.
+The event effect attribute corresponds to the set of operational and positional effects associated with a lifecycle event. This information is generated by a post-processor associated to the CDM. The ``eventEffect`` contains a set of pointers (annotated with ``[metadata reference]``) to the relevant objects that are affected by the event. The candidate objects are types that are referenceable with an associated ``key``.
 
-Events such as observations do not have any event effect, hence the optional cardinality.
+Certain events such as observations do not have any event effect, hence the optional cardinality.
 
-.. code-block:: Java
+.. code-block:: Haskell
 
- class EventEffect
- {
-  effectedContract Contract (0..*) reference;
-  contract Contract (0..*) reference;
-  effectedExecution Execution (0..*) reference;
-  execution Execution (0..*) reference;
-  productIdentifier ProductIdentifier (0..*) reference;
-  transfer Transfer (0..*) reference;
- }
+ type EventEffect: <"The set of operational and positional effects associated with a lifecycle event, alongside the reference to the contract reference(s) that is subject to the event (and is positioned in the before state of the event primitive).">
+   effectedContract Contract (0..*) <"A pointer to the contract(s) to which the event effect(s) apply, i.e. in the before event state.">
+     [metadata reference]
+   effectedExecution Execution (0..*) <"A pointer to the execution(s) to which the event effect(s) apply, i.e. in the before event state.">
+     [metadata reference]
+   contract Contract (0..*) <"A pointer to the contract effect(s), an example of such being the outcome of a new trade, swaption exercise or novation event.">
+     [metadata reference]
+	execution Execution (0..*) <"A pointer to the execution effect(s), an example of such being a clearing submission event when taking place on the back of an execution.">
+    [metadata reference]
+  productIdentifier ProductIdentifier (0..*) <"A pointer to the product identifier effect(s), an example of such being the outcome of the physical exercise of a bond option.">
+    [metadata reference]
+  transfer TransferPrimitive (0..*) <"A pointer to the transfer effect(s), either a cash, security or other asset.">
+    [metadata reference]
+
+.. note:: Further evaluation of the appropriateness of this event effect attribute is required. In particular, a more complete implementation that would provide an effective "position effect" for the event may be deemed useful.
 
 In the below JSON snippet of a quantity change event on a contract, we can see that the ``eventEffect`` contains a  number of hash value references:
 
 .. code-block:: Java
   
-  "action": "NEW",
   "effectiveDate": "2018-03-15",
   "eventDate": "2018-03-14",
   "eventEffect": {
@@ -637,21 +567,109 @@ The current CDM scope is limited to the post-execution part of the transaction l
    partyContractInformation PartyContractInformation (0..*)
    closedState ClosedState (0..1)
 
-The ``Contract`` class incorporates all the elements that are part of the FpML *trade* confirmation view, with the exception of: *tradeSummary*, *originatingPackage*, *allocations* and *approvals*, whereas the ``ContractualProduct`` class corresponds to the pre-trade view of the FpML *trade*.
+The ``Contract`` type incorporates all the elements that are part of the FpML *trade confirmation* view (with the exception of: *tradeSummary*, *originatingPackage*, *allocations* and *approvals*), whereas the ``ContractualProduct`` type corresponds to the *pre-trade* view in FpML.
 
-**Note**: The FpML *trade* term has not been used as part of the CDM because deemed ambiguous in this respect. Its use as part of the FpML standard is due to an exclusive focus on post-execution activity in the initial stages of its development. Later adjustments in this respect would have been made difficult as a result of backward compatibility considerations.
+.. note:: The FpML *trade* term has not been used as part of the CDM because deemed ambiguous in this respect. Its use as part of the FpML standard is due to an exclusive focus on post-execution activity in the initial stages of its development. Later adjustments in this respect would have been made difficult as a result of backward compatibility considerations.
 
 Other Misc. Information
 """""""""""""""""""""""
 
-* **Date information** is provided through the ``eventDate`` and ``effectiveDate`` attributes, the latter being optional as not applicable to certain events (e.g. observations).
-* **Action qualification** specifies whether the event is a new one or a correction or cancellation of a prior one.
-* **Party information** is optional because not applicable to certain events (e.g. most of the observation events).
-* **Event qualifier** is derived from the event features, as per the *Event Qualification* section.
+* The effective date is optional as not applicable to certain events (e.g. observations), or may be redundant with the event date..
+* The event qualifier attribute is derived from the event qualification features, as detailed in the `Event Qualification Section`_.
 
 Workflop Step
 ^^^^^^^^^^^^^
-(*Coming soon*)
+
+Following a refactoring of business events in the CDM, workflow considerations have been separated-out from the event itself. A number of attributes that were previously part of the ``Event`` type have been moved to the ``WorkflowStep`` type.
+
+.. note:: The documentation still lists the attributes as they were previously found on an event.
+
+* *Action qualification* specifies whether the event is a new one or a correction or cancellation of a prior one.
+* *Party information* is optional because not applicable to certain events (e.g. most of the observation events).
+
+Message Information
+"""""""""""""""""""
+
+The ``messageInformation`` attribute corresponds to some of the components of the FpML *MessageHeader.model*.
+
+.. code-block:: Java
+
+ class MessageInformation
+ {
+  messageId string (1..1) scheme;
+  sentBy string (0..1) scheme;
+  sentTo string (0..*) scheme;
+  copyTo string (0..*) scheme;
+ }
+
+``sentBy``, ``sentTo`` and ``copyTo`` information is optional, as possibly not applicable in a distributed ledger context.
+
+Timestamp
+"""""""""
+
+The CDM adopts a generic approach to represent timestamp information, consisting of a ``dateTime`` and a ``qualification`` attributes, with the latter specified through an enumeration value.
+
+.. code-block:: Java
+
+ class EventTimestamp
+ {
+  dateTime zonedDateTime (1..1) ;
+  qualification EventTimeStampQualificationEnum (1..1);
+ }
+
+The experience of mapping the CME clearing and the DTCC trade matching and cashflow confirmation transactions to the CDM did reveal a diverse set of timestamps. The expected benefits of the CDM generic approach are twofold:
+
+* It allows for flexibility in a context where it would be challenging to mandate which points in the process should have associated timestamps.
+* Gathering all of those in one place in the model allows for evaluation and rationalisation down the road.
+
+The CDM Group has expressed concerns with combining timestamps which are deemed 'technical' with 'business' ones. A further evaluation of this timestamp modelling approach will be required.
+
+Below is JSON representation instance of this approach.
+
+.. code-block:: Java
+
+ "timestamp": [
+  {
+     "dateTime": "2007-10-31T18:08:40.335-05:00",
+     "qualification": "EVENT_SUBMITTED"
+  },
+  {
+     "dateTime": "2007-10-31T18:08:40.335-05:00",
+     "qualification": "EVENT_CREATED"
+  }
+ ]
+
+Event Identification
+""""""""""""""""""""
+
+The event identification information comprises the ``identifier`` and an optional ``version`` and ``issuer``. FpML also uses an event identifier construct: the *CorrelationId*, distinct from the identifier associated with the trade (which itself comes in different variations: *PartyTradeIdentifier*, with the *TradeId* and the *VersionedTradeId* as sub-components). As a departure from FpML, the CDM approach consists in using a common identifier component across products and events.
+
+.. code-block:: Java
+
+ class Identifier key
+ {
+  issuerReference Party (0..1) reference;
+  issuer string (1..1) scheme;
+  assignedIdentifier AssignedIdentifier (1..*);
+ }
+
+Lineage Information
+"""""""""""""""""""
+
+``Lineage`` is a class that is used to reference an unbounded set of contracts, events and/or payout components, as shown by the below code snippet:
+
+.. code-block:: Java
+
+ class Lineage
+ {
+  contractReference Contract (0..*) reference;
+  eventReference Event (0..*) reference;
+  transferReference Transfer (0..*) reference;
+  creditDefaultPayoutReference CreditDefaultPayout (0..*) reference;
+  interestRatePayoutReference InterestRatePayout (0..*) reference;
+  optionPayoutReference OptionPayout (0..*) reference;
+ }
+
 
 Event Qualification
 ^^^^^^^^^^^^^^^^^^^
