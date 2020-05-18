@@ -313,58 +313,71 @@ When creating the CDM product object, the result of the product qualification is
 Event Model
 -----------
 
+**The CDM event model currently covers the post-trade lifecycle of over-the-counter derivative transactions**. Although a non-exhaustive list, the following *business events* are all in scope:
+
+* Trade execution and confirmation
+* Clearing
+* Allocation
+* Settlement (including any future contingent cashflow payment)
+* Exercise of options
+
 The CDM event model is based upon the same composition principle as the product model:
 
 * **Business events are specified by composition** of *primitive events*, which use a large set of the FpML event building blocks.
-* **Event qualification is inferred** from those primitive events and, in some relevant cases, from an **intent** qualifier.
+* **Business event qualification is inferred** from those primitive event components and, in some relevant cases, from an *intent* qualifier associated with the business event.
 
 Primitive Event
 ^^^^^^^^^^^^^^^
 
-CDM primitive events are the building block components used to specify business events. The current list of primitive events can be seen in the below snippet, as well as a few examples of such primitive events:
+Primitive events are the building block components used to specify business events in the CDM. They describe the fundamental state-transition components that may occur in the transaction lifecycle. The current list of primitive events can be seen in the ``PrimitiveEvent`` type definition:
 
-.. code-block:: Java
+.. code-block:: Haskell
 
- class PrimitiveEvent
- {
-  inception Inception (0..*);
-  quantityChange QuantityChangePrimitive (0..*);
-  allocation AllocationPrimitive (0..*);
-  termsChange TermsChangePrimitive (0..1);
-  exercise ExercisePrimitive (0..1);
-  observation ObservationPrimitive (0..*);
-  reset ResetPrimitive (0..*);
-  transfer Transfer (0..*);
- }
- 
- class Inception
- {
-  before ContractState (0..0);
-  after PostInceptionState (1..1);
- }
- 
- class ObservationPrimitive
- {
-  source ObservationSource (1..1);
-  observation number (1..1)
-  date date (1..1);
-  time TimeZone (0..1);
-  side QuotationSideEnum (0..1);
- }
+ type PrimitiveEvent: <"A primitive event is defined by one and only one atomic change in state of a trade. An example of this is a contract formation where the legal terms of the contact are added to the trade. A Primitive event contains a before and after state where the before is a reference to another after state of a primitive event in order to preserve lineage.">
+   
+   execution ExecutionPrimitive (0..1)
+   contractFormation ContractFormationPrimitive (0..1)
+   split SplitPrimitive (0..1)
+   exercise ExercisePrimitive (0..1)
+   inception InceptionPrimitive (0..1)
+   observation ObservationPrimitive (0..1)
+   quantityChange QuantityChangePrimitive (0..1)
+   reset ResetPrimitive (0..1)
+   termsChange TermsChangePrimitive (0..1)
+   transfer TransferPrimitive (0..1)
+   
+   condition PrimitiveEvent: one-of
 
-Primitive events can be thought of as mathematical operators on a state of a transaction lifecycle. Apart from the ``ObservationPrimitive``, they each have a ``before`` and ``after`` attributes that define the state transition components. From an observation, which is independent from any transaction and is the equivalent of the **market data oracle** in a distributed ledger context, a ``ResetPrimitive`` can be built which does affect a particular transaction. A separate ``Transfer`` can be built in case that reset generates a cashflow.
+A ``PrimitiveEvent`` object is made of either one of those primitive components, as captured by the ``one-of`` condition. A couple of examples of such primitive event components are illustrated below:
 
-**Note 1**: In the ``Inception`` primitive, which corresponds to the execution of a contract, the ``before`` state is a ``ContractState`` with 0 cardinality, as the CDM currently does not tackle any the pre-execution lifecycle.
+.. code-block:: Haskell
 
-**Note 2**: Not all primitive events are currently composed of a ``before`` and ``after`` state. This will need to be reviewed and potentially harmonised to establish a clean state-transition model in the CDM.
+ type InceptionPrimitive: <"The primitive event for the inception of a new contract between parties. It is expected that this primitive will be adjusted or deprecated once the CDM scope is extended to the pre-execution space.">
+   before ContractState (0..0) <"The (0..0) cardinality reflects the fact that there is no contract in the before state of an inception primitive. As noted in the definition associated with the class, this is expected to change once the CDM scope is extended to the pre-execution space.">
+   [metadata reference]
+   after PostInceptionState (1..1) <"The after state corresponds to the new contract between the parties.">
 
-As mathematical operators, primitive events reflect a many-to-one mapping with actual business events. An example composition of the primitive building blocks to represent a business event is the **partial novation** of a contract:
+.. code-block:: Haskell
 
-* an ``Inception`` primitive creates the contract with the novation party. The ``tradeDate`` on the novated portion of the contract should reflect the date of the novation event.
-* a ``QuantityChange`` primitive applies to the original contract where the quantity after change is different from 0 (0 would represent the case of a full novation).
+ type ObservationPrimitive: <"A class to specify the primitive object to specify market observation events, which is applicable across all asset classes.">
+   source ObservationSource (1..1) <"The observation source, such as an interest rate curve or an information provider.">
+   observation number (1..1) <"The observed value.">
+   date date (1..1) <"The observation date.">
+   time TimeZone (0..1) <"The observation time.">
+   side QuotationSideEnum (0..1) <"The side (bid/mid/ask) of the observation, when applicable.">
 
-Baseline Event Features
+Apart from the ``ObservationPrimitive``, they are each designed to include ``before`` and ``after`` attributes that define the state transition. From an observation, which is independent from any transaction and is the equivalent of the *market data oracle* in a distributed ledger context, a ``ResetPrimitive`` can be built which does affect a particular transaction. A separate ``Transfer`` can be built in case that reset generates a cashflow.
+
+.. note:: While not all primitive events are currently composed of a ``before`` and ``after`` state, this is subject to review and will potentially be harmonised to establish a clean state-transition model in the CDM.
+
+
+Business Event Features
 ^^^^^^^^^^^^^^^^^^^^^^^
+
+Actual business events can be mapped as a collection of primitive event components. An example composition of those primitive event components to represent a business event is the *partial novation* of a contract:
+
+* an ``InceptionPrimitive`` creates the contract with the novation party. The ``tradeDate`` on the novated portion of the contract should reflect the date of the novation event.
+* a ``QuantityChange`` primitive applies to the original contract where the quantity after change is different from 0 (0 would represent the case of a *full novation*).
 
 The ``Event`` class that represents business events carries the following information:
 
@@ -636,6 +649,10 @@ Other Misc. Information
 * **Party information** is optional because not applicable to certain events (e.g. most of the observation events).
 * **Event qualifier** is derived from the event features, as per the *Event Qualification* section.
 
+Workflop Step
+^^^^^^^^^^^^^
+(*Coming soon*)
+
 Event Qualification
 ^^^^^^^^^^^^^^^^^^^
 
@@ -868,17 +885,13 @@ The scope of the process model has two dimensions:
 Coverage
 """"""""
 
-**The CDM process model currently covers the post-trade lifecycle of over-the-counter derivative transactions**. Generally, a process is in-scope when it is already covered in ISDA Documentation or other technical documents. To illustrate, the following processes, although a non-exhaustive list, are all in scope:
+**The CDM process model covers the processes that are in scope of the ISDA documentation and other technical documents**. The trade lifecycle events listed in the `Event Model Section`_ are all in scope of the process model. For an up-to-date model coverage of those events, please refer to the `function coverage matrix`_ (*coming soon*).
 
-* Trade execution and confirmation
-* Clearing
-* Allocation
-* Settlement (including any future contingent cashflow payment)
-* Exercise of options
+In addition to those trade lifecycle events, the following processes are also in scope:
+
 * Margin calculation and collateral management
 * Regulatory reporting (although covered in a different documentation section)
 
-For an up-to-date model coverage of the trade lifecycle process, please refer to the `function coverage matrix`_ (*coming soon*).
 
 Granularity
 """""""""""
@@ -1049,7 +1062,7 @@ Some of those calculations are presented below:
 Lifecycle Event Process
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-While the lifecycle event model described in the `Event Model Section`_ provides a standardised data representation of those events using the concept of *primitive event* components, the CDM must further specify the processing of those events to ensure standardised implementations across the industry. This means specifying the logic of the *state transition* between the ``before`` and ``after`` states as represented by the primitive event components.
+While the lifecycle event model described in the `Event Model Section`_ provides a standardised data representation of those events using the concept of *primitive event* components, the CDM must further specify the processing of those events to ensure standardised implementations across the industry. This means specifying the *logic* of the state-transition as described by each primitive event component.
 
 In particular, the CDM must ensure that:
 
@@ -1069,6 +1082,8 @@ Illustration of the three components are given in the sections below.
 
 Primitive Creation
 """"""""""""""""""
+
+Primitive creation functions can be thought of as the fundamental mathematical operators that operate on a trade *state*. While a primitive event object describes each state transition in terms of *before* and *after* states, a primitive creation function defines the logic to transition from that *before* state to the *after* state, using a set of *instructions*.
 
 An example of such use is the handling of a reset event, hereby presented an an equity reset example. The reset is processed in two steps:
 
@@ -1155,10 +1170,6 @@ This contract resolution mechanism is wired into the function that creates the `
      ResolveUpdatedContract(contractState, observation, date)
 
 .. note:: The Reset Event only resets some values on the contract but does not calculate nor pay any cashflow. Any cashflow calculation and payment would be handled separately as part of a Transfer Event which, when such cashflow depends on any resettable values, will use the values updated as part of the Reset Event (as is the case of the *Equity Cash Settlement Amount*).
-
-Primitive Creation
-""""""""""""""""""
-(*Coming soon*)
 
 Workflow Step Creation
 """"""""""""""""""""""
