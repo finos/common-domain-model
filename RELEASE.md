@@ -1,12 +1,19 @@
-# *CDM Model: Namespace hierarchy representation*
+# *Documentation: DSL Documentation Overhaul*
 
 _What is being released_
 
-Auto Generation of namespace-hierarchy.json file, which represents the CDM Model in a tree format
+Complete overhaul of Rosetta DSL documentation, with the syntax now stabilised following a complete set of changes introduced recently.
 
-# *CDM Portal: Bug fix for Graphical Navigator*
+The changes include:
 
-_What is being released_
+* Change from ``class`` to ``type``
+* Unification of validation components under ``condition`` attached to type
+* All functions unified under ``func``, including object qualification logic
+* New ``annotation`` concept introduced, to unify all metadata
+* Syntax made more consistent across all these components
 
-Fix bug where the Graphical Navigator only partially displayed the CDM.
+The examples illustrating the syntax in the documentation have been fully updated.
 
+_Review Direction_
+
+In the CDM Documentation, review the Rosetta Modelling Components section at: https://docs.rosetta-technology.io/dsl/documentation.html
