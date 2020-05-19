@@ -81,19 +81,6 @@ func Qualify_ClearedTrade:
 		and businessEvent -> primitives -> contractFormation -> after -> contract -> partyRole -> role contains PartyRoleEnum -> ClearingOrganization
 
 
-//isEvent ClearedTrade <"The cleared trade at the CCP.">
-//	WorkflowEvent -> businessEvent -> primitives count = 1
-//	and businessEvent -> primitives -> inception exists
-//	and workflowEventState -> workflowStatus = WorkflowStatusEnum -> Cleared
-/*
- * It is proposed to remove the below qualification for 2 reasons
- *  - Limit the scope of event qualification to evaluating what is available within the event, while the workflow rule evaluated across events
- *  - Not introduce the distinction between agency and principal model (with this latter having contracts between clearing members and clients)
- */
-//	and lineage -> @globalKey -> eventQualifier = eventQualifier.ClearingSubmission
-//	and lineage -> @globalKey -> eventQualifier = eventQualifier.ClearedTrade
-
-
 func Qualify_ClearingRejection: <"The rejection of an alpha trade submission by a CCP, which is qualified by the fact that (i) termsChange is the only primitive, the workflow status is `rejected`, and (iii) the CCP is positioned as a partyRole to the execution or contract in the after state, while it didn't exist in the before state.">
 	[qualification BusinessEvent]
 	inputs:
@@ -206,7 +193,7 @@ func Qualify_Observation: <"The qualification of an observation event from the f
 	assign-output is_event:
 		businessEvent -> primitives -> observation only single exists
 
-func Qualify_PartialNovation: <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and inception exist, (iii) the contract quantity/notional has decreased as part of the quantityChange primitive, while (iv) there is a remaining quantity/notional, (v) the stepped-in contract has a different contract identifier than the original contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
+func Qualify_PartialNovation: <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and contractFormation exist, (iii) the contract quantity/notional has decreased as part of the quantityChange primitive, while (iv) there is a remaining quantity/notional, (v) the stepped-in contract has a different contract identifier than the original contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent(1..1)
