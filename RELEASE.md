@@ -6,10 +6,10 @@ Complete overhaul of Rosetta DSL documentation, with the syntax now stabilised f
 
 The changes include:
 
-* Change from ``class`` to ``type``
-* Unification of validation components under ``condition`` attached to type
-* All functions unified under ``func``, including object qualification logic
-* New ``annotation`` concept introduced, to unify all metadata
+* Change from `class` to `type`
+* Unification of validation components under `condition` attached to type
+* All functions unified under `func`, including object qualification logic
+* New `annotation` concept introduced, to unify all metadata
 * Syntax made more consistent across all these components
 
 The examples illustrating the syntax in the documentation have been fully updated.
