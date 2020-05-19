@@ -1,5 +1,5 @@
-The CDM Model
-=============
+The Common Domain Model
+=======================
 
 **There are six modelling dimensions** to the CDM:
 
@@ -326,10 +326,113 @@ The CDM event model is based upon the same composition principle as the product 
 * **Business events are specified by composition** of *primitive events*, which use a large set of the FpML event building blocks.
 * **Business event qualification is inferred** from those primitive event components and, in some relevant cases, from an *intent* qualifier associated with the business event.
 
+The CDM event model uses four main components, which are detailed in the sections below:
+
+* Trade State
+* Primitive event
+* Business (i.e. trade lifecycle) event
+* Workflow
+
+
+Trade State
+^^^^^^^^^^^
+
+Industry participants engage in trading activities on financial markets, by transacting with each other in the financial products as described in the `Product Model Section`_. A *trade state* associates a specific state in the transaction lifecycle to the underlying product of that transaction, from execution to settlement to maturity.
+
+Trade lifecycle events describe the *state-transition* events that impact the state of a trade. The CDM state-transition model is based on the following design principles:
+
+* **The state is trade-specific**, not product-specific (i.e. not an *asset servicing* model). The same product may be associated to infinitely many trades, each with its own specific state, between any two parties.
+* **A lifecycle event describes a change in the state of a trade**, i.e. there must be different before/after trade states based on that lifecycle event.
+* **The product definition that underlies the transaction remains immutable**, unless agreed (negotiated) between the parties to that transaction as part of a specific trade lifecycle event. Automated events, for instance resets or cashflow payments, do not alter the product definition.
+* Lineage (*coming soon*)
+
+The trade state is currently described in the CDM by the ``Trade`` type. This trade state can be either an ``execution`` or a ``contract``, as controlled by the ``one-of`` condition:
+
+.. code-block:: Haskell
+
+ type Trade: <"A class to represent the general trade concept, which can either be an execution or a contract. The execution consists essentially in the economic terms which are agreed between the parties. The contract will further qualify those with the legal entities (think of the allocation case, which execution state can involve the investment adviser rather not the actual funds) while not specify the master agreement or collateral terms which might be associated with the subsequent contract.">
+   [metadata key]
+   execution Execution (0..1) <"The execution corresponds to economic terms that are agreed between parties, but which legal terms are not yet specified. The execution attribute applies to the post-execution scenario of a product that is subject to the clearing mandate and is then routed to the CCP as an execution.">
+   contract Contract (0..1) <"The contract differs from the execution by the fact that its legal terms are fully specified. This includes the legal entities that are associated to it as well as any associated legal agreement, e.g. master agreement, credit and collateral terms, ... ">
+   condition Trade: one-of
+
+Those two types are detailed in the sections below.
+
+.. note:: The ``Trade`` object in the CDM is being evaluated as part of a review of the CDM state-transition model, and may be adjusted in future to ensure adherence to the above design principles.
+
+Execution
+"""""""""
+
+The current CDM event model only covers post-trade lifecycle events, so the first step in instantiating a transaction between two parties begins with an *execution* state:
+
+.. code-block:: Haskell
+
+ type Execution: <" A class to specify an execution, which consists essentially in the economic terms which are agreed between the parties, alongside with the qualification of the type of execution. The associated globalKey denotes the ability to associate a hash value to the respective Execution instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+   [metadata key]
+   executionType ExecutionTypeEnum (1..1) <"Specifies the type of execution, e.g. via voice, electronically...">
+   executionVenue LegalEntity (0..1) <"The execution venue identification, when applicable.">
+   identifier Identifier (1..*) <"The identifier(s) associated with the execution.">
+   tradeDate date (1..1) <"The trade/execution date.">
+   [metadata id]
+   tradableProduct TradableProduct (1..1) <"The product traded as part of this execution, including quantity and price">
+   party Party (0..*) <"The party reference is optional because positioned as part of the Event class when the execution is specified as part of such context.">
+   [metadata reference]
+   partyRole PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the execution, further to the principal parties (i.e payer/receive or buyer/seller) to it.">
+   closedState ClosedState (0..1) <"The qualification of what led to the execution closure alongside with the dates on which this closure takes effect.">
+   settlementTerms SettlementTerms (0..1) <"The execution settlement terms, which is applicable for products such as securities">
+
+The ``Execution`` type includes:
+
+* a ``TradableProduct`` object to describe a financial product that is ready to be traded (as detailed in the `Tradable Product Section`_),
+* plus additional attributes to describe that execution, such as the transaction parties, execution venue (if any) and settlement terms.
+
+The ``settlementTerms`` attribute define how the transaction should be settled (including the settlement date), for instance in a *delivery-versus-payment* scenario for a cash security transaction or a *payment-versus-payment* scenario for an FX spot or forward transaction. The actual settlement amount(s) will need to use the *price* and *quantity* agreed as part of the tradable product.
+
+.. code-block:: Haskell
+
+ type SettlementTerms extends SettlementBase: <"A class to specify the settlement terms. This class reflects the FpML OptionSettlement.model, although with no option reference.">
+   settlementType SettlementTypeEnum (0..1) <"Whether the settlement will be cash, physical, by election, ...">
+   settlementDate AdjustableOrRelativeDate (0..1)
+   valueDate date (0..1) <"The settlement date for a forward settling product. For Foreign Exchange contracts, this represents a common settlement date between both currency legs. To specify different settlement dates for each currency leg, see the ForeignExchange class. This attribute is meant to be merged with the 'settlementDate' at some future point noce we refactor 'Date' to use a single complex type across the model.">
+   settlementAmount Money (0..1) <"The Settlement Amount, when known in advance.">
+   transferSettlementType TransferSettlementEnum (0..1) <"The qualification as to how the transfer will settle, e.g. a DvP settlement.">
+
+Post-Execution: Contract
+""""""""""""""""""""""""
+
+For a contractual product, once a transaction has been agreed between the parties, a contract gets executed between the contractual legal entities for that transaction. In addition to the product economics captured by the ``tradableProduct`` attribute, a contract has a set of attributes which are only qualified at the execution and post-execution stage: trade date, calculation agent, documentation, governing law, etc.
+
+.. code-block:: Haskell
+
+ type Contract: 
+   [metadata key]
+   [rootType]
+   contractIdentifier Identifier (1..*)
+   tradeDate TradeDate (1..1)
+   clearedDate date (0..1)
+   tradableProduct TradableProduct (1..1)
+   collateral Collateral (0..1)
+   documentation RelatedAgreement (0..1)
+   governingLaw GoverningLawEnum (0..1) 
+      [metadata scheme]
+   party Party (0..*) 
+   account Account (0..*) 
+   partyRole PartyRole (0..*) 
+   calculationAgent CalculationAgent (0..1)
+   partyContractInformation PartyContractInformation (0..*)
+   closedState ClosedState (0..1)
+
+.. note:: The positioning of the ``settlementTerms`` and ``party`` attributes in the ``Execution`` and ``Contract`` types is under review and may be adjusted to further harmonise the concept of trade state between execution and contract.
+
+The ``Contract`` type incorporates all the elements that are part of the FpML *trade confirmation* view (with the exception of: *tradeSummary*, *originatingPackage*, *allocations* and *approvals*), whereas the ``TradableProduct`` type (also embedded as attribute of the simpler ``Execution`` object) corresponds to the *pre-trade* view in FpML.
+
+
 Primitive Event
 ^^^^^^^^^^^^^^^
 
-Primitive events are the building block components used to specify business events in the CDM. They describe the fundamental state-transition components that may occur in the transaction lifecycle. The current list of primitive events can be seen in the ``PrimitiveEvent`` type definition:
+Primitive events are the building block components used to specify business events in the CDM. They describe the fundamental state-transition components that may impact the trade state during its lifecycle.
+
+The current list of primitive events can be seen in the ``PrimitiveEvent`` type definition:
 
 .. code-block:: Haskell
 
@@ -366,15 +469,22 @@ A ``PrimitiveEvent`` object is made of either one of those primitive components,
    time TimeZone (0..1) <"The observation time.">
    side QuotationSideEnum (0..1) <"The side (bid/mid/ask) of the observation, when applicable.">
 
-Apart from the ``ObservationPrimitive``, they are each designed to include ``before`` and ``after`` attributes that define the state transition. From an observation, which is independent from any transaction and is the equivalent of the *market data oracle* in a distributed ledger context, a ``ResetPrimitive`` can be built which does affect a particular transaction. A separate ``Transfer`` can be built in case that reset generates a cashflow.
+Apart from the ``ObservationPrimitive``, each primitive event is designed to include a ``before`` and an ``after`` trade state attributes, that define the state transition in terms of change in the trade state.
 
-.. note:: While not all primitive events are currently composed of a ``before`` and ``after`` state, this is subject to review and will potentially be harmonised to establish a clean state-transition model in the CDM.
+.. note:: Not all primitive events are currently composed of a ``before`` and ``after`` state defined in terms of the ``Trade`` object. This is subject to review and will potentially be harmonised to establish a cleaner state-transition model in the CDM.
+
+From an observation (provided by some *market data oracle* and independently from any transaction), a ``ResetPrimitive`` can be built which does affect a specific transaction. A ``TransferPrimitive`` can then handle any cashflow (or other types of asset transfer) that the reset may generate.
+
+The CDM has been designed to treat the reset and the transfer primitive events separately.
+
+* Many transfer events are not tied to any reset: for instance, the currency settlement from an FX spot or forward transaction.
+* Not all reset events generate a cashflow: for instance, the single, final settlement that is based on all the past floating rate resets in the case of a compounding floating zero-coupon swap.
 
 
 Business Event Features
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-Each trade lifecycle event business event is represented as a collection of primitive event components in the ``BusinessEvent`` type:  
+Each trade lifecycle event is represented as a collection of primitive event components in the ``BusinessEvent`` type:  
 
 .. code-block:: Haskell
 
@@ -398,7 +508,7 @@ The only mandatory attributes of a business event are:
 * The ``primitives`` attribute, which contains the list of fundamental primitive events composing that business event and each representing one and only one fundamental state-transition
 * The event date
 
-.. note:: While an event date must be associated to a business event, the time dimension has been ommitted from the event's attribute and transferred to the *workflow* concept. That is because several time stamps may potentially be associated to the same event depending on when that event was submitted, accepted, rejected etc, all of which are workflow considerations.
+.. note:: While an event date must be associated to a business event, the time dimension has been purposely ommitted from the event's attributes and transferred to the *workflow* concept, as detailed in the `Workflow Section`_. That is because several time stamps may potentially be associated to the same event depending on when that event was submitted, accepted, rejected etc, all of which are workflow considerations.
 
 An example composition of the primitive events to represent a complete business event is the *partial novation* of a contract, which comprises:
 
@@ -407,7 +517,7 @@ An example composition of the primitive events to represent a complete business 
 
 A business event is *atomic* in the sense that its underlying primitive event constituents cannot happen independently: they either all happen together or they do not happen. In the above partial novation example, the existing trade between the parties must be downsized at the same time as the new trade with the novation party is instantiated.
 
-The other business event attributes are presented in the following sections.
+The other attributes of a business event are presented in the following sections.
 
 Intent Qualification
 """"""""""""""""""""
@@ -540,45 +650,14 @@ In the below JSON snippet of a quantity change event on a contract, we can see t
 * For the ``contract`` effect: ``600e4873`` points to the new contract in the ``after`` state of the ``quantityChange`` primitive event. Note how the new contract retains the initial ``tradeDate`` attribute of the original contract even after a quantity change.
 * For the ``transfer`` effect: ``ee4f7520`` points to the ``transfer`` primitive event.
 
-Post-Execution: Contract
-""""""""""""""""""""""""
-
-For a contractual product, once a transaction has been agreed between the parties, a contract gets executed between the contractual legal entities for that transaction. In addition to the product economics captured by the ``contractualProduct`` attribute, a contract has a set of attributes which are only qualified at the execution and post-execution stage: trade date, calculation agent, documentation, governing law, etc.
-
-The current CDM scope is limited to the post-execution part of the transaction lifecycle.
-
-.. code-block:: Java
-
- type Contract: 
-   [metadata key]
-   [rootType]
-   contractIdentifier Identifier (1..*)
-   tradeDate TradeDate (1..1)
-   clearedDate date (0..1)
-   tradableProduct TradableProduct (1..1)
-   collateral Collateral (0..1)
-   documentation RelatedAgreement (0..1)
-   governingLaw GoverningLawEnum (0..1) 
-      [metadata scheme]
-   party Party (0..*) 
-   account Account (0..*) 
-   partyRole PartyRole (0..*) 
-   calculationAgent CalculationAgent (0..1)
-   partyContractInformation PartyContractInformation (0..*)
-   closedState ClosedState (0..1)
-
-The ``Contract`` type incorporates all the elements that are part of the FpML *trade confirmation* view (with the exception of: *tradeSummary*, *originatingPackage*, *allocations* and *approvals*), whereas the ``ContractualProduct`` type corresponds to the *pre-trade* view in FpML.
-
-.. note:: The FpML *trade* term has not been used as part of the CDM because deemed ambiguous in this respect. Its use as part of the FpML standard is due to an exclusive focus on post-execution activity in the initial stages of its development. Later adjustments in this respect would have been made difficult as a result of backward compatibility considerations.
-
 Other Misc. Information
 """""""""""""""""""""""
 
 * The effective date is optional as not applicable to certain events (e.g. observations), or may be redundant with the event date..
 * The event qualifier attribute is derived from the event qualification features, as detailed in the `Event Qualification Section`_.
 
-Workflop Step
-^^^^^^^^^^^^^
+Workflow
+^^^^^^^^
 
 Following a refactoring of business events in the CDM, workflow considerations have been separated-out from the event itself. A number of attributes that were previously part of the ``Event`` type have been moved to the ``WorkflowStep`` type.
 
@@ -1267,6 +1346,9 @@ Those synonym sources are listed as part of a configuration file in the CDM usin
 .. _Event Qualification Section: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#event-qualification
 .. _Validation Process Section: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#validation-process
 .. _Calculation Process Section: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#calculation-process
+.. _Workflow Section: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#workflow
+.. _Product Model Section: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#product-model
+.. _Tradable Product Section: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#tradable-product
 
 .. _Portal: https://portal.cdm.rosetta-technology.io
 .. _function coverage matrix: Portal
