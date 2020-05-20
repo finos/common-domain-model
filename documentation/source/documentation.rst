@@ -673,8 +673,8 @@ In the below JSON snippet of a quantity change event on a contract, we can see t
 Other Misc. Information
 """""""""""""""""""""""
 
-* The effective date is optional as not applicable to certain events (e.g. observations), or may be redundant with the event date..
-* The event qualifier attribute is derived from the event qualification features, as detailed in the `Event Qualification Section`_.
+* The effective date is optional as not applicable to certain events (e.g. observations), or may be redundant with the event date.
+* The event qualifier attribute is derived from the event qualification features. This is further detailed in the `Event Qualification Section`_.
 
 Workflow
 ^^^^^^^^
@@ -810,41 +810,40 @@ Other Misc. Attributes
 Event Qualification
 ^^^^^^^^^^^^^^^^^^^
 
-Similar to the product modelling approach, the CDM lifecycle events are qualified as a function of the combination of their primitive event features and, when specified, the ``intent`` attribute. The event qualification uses the ``isEvent`` syntax in Rosetta, which is specified as part of the *Object Qualification* in the *CDM Modelling Artefacts* section of the documentation.
+**The CDM qualifies lifecycle events as a function of their primitive event components** rather than explicitly naming the event type. The CDM uses the same approach for event qualification as for product qualification, which is based on a set of Event Qualification functions. These functions can be identified as those annotated with ``[qualification BusinessEvent]``.
 
-The CDM makes use of the ISDA taxonomy V2.0 leaf level to qualify the event. The synonymity with the ISDA taxonomy V1.0 has been systematically indicated as part of the model upon request from CDM group participants, who pointed out that a number of them use it internally. 22 lifecycle events have currently been qualified as part of the CDM.
+Event Qualification functions apply a taxonomy-specific business logic to identify if the state-transition attributes values, which are embedded in the primitive event components, match the specified criteria for the event named in that taxonomy. Like Product Qualification functions, the Event Qualification function name begins with the word ``Qualify`` followed by an underscore ``_`` and then the taxonomy name.
 
-One distinction with the product approach is that the ``intent`` qualification is also deemed necessary to complement the primitive event information in certain cases. To this effect, the event qualification syntax allows to specify that the intent must have a specified value *when present*, as illustrated by the below snippet.
+One distinction with the product approach is that the ``intent`` qualification is also deemed necessary to complement the primitive event information in certain cases. To this effect, the Event Qualification function allows to specify that when present, the intent must have a specified value, as illustrated by the below example.
 
-.. code-block:: Java
+.. code-block:: Haskell
 
- isEvent Termination
-  Event -> intent when present = IntentEnum.Termination
-  and Event -> primitive -> quantityChange single exists
-  and quantityAfterQuantityChange = 0.0
-  and Event -> primitive -> quantityChange -> after -> contract -> closedState -> state = ClosedStateEnum.Terminated
-  and Event -> primitive -> quantityChange -> after -> clearingStatus is absent
+ func Qualify_Termination:
+   [qualification BusinessEvent]
+   inputs:
+     businessEvent BusinessEvent(1..1)
+   output: is_event boolean (1..1)
+     assign-output is_event:
+   
+   (businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> Termination)
+   and (
+     businessEvent -> primitives count = 1
+     and businessEvent -> primitives -> quantityChange exists
+     or (
+       businessEvent -> primitives -> quantityChange exists
+       and businessEvent -> primitives -> transfer -> cashTransfer exists
+     )
+   )
+   and QuantityDecreasedToZero(businessEvent -> primitives -> quantityChange) = True
+   and businessEvent -> primitives -> quantityChange -> after -> contract -> closedState -> state = ClosedStateEnum -> Terminated
 
-The event qualification is positioned as a the ``eventQualifier`` attribute of the ``Event`` class. Like the product qualifier, the event qualification is stamped onto the generated CDM objects and their JSON serialized representation, as illustrated by the below JSON lifecycle event snippet:
+If all the statements above are true, then the function evaluates to True. In this case, the event is determined to be qualified as the event type referenced by the function name.
 
-.. code-block:: Java
+The CDM makes use of the ISDA taxonomy V2.0 leaf level to qualify the event. 22 lifecycle events have currently been qualified as part of the CDM.
 
-  "eventDate": "2018-03-20",
-  "eventEffect": {
-   "referenceEvent": "d4afb0aa"
-  },
-  "eventIdentifier": {
-   "identifierValue": {
-     "identifier": "789325456"
-   }
-  },
-  "eventQualifier": "NewTradeEvent",
-  "messageInformation": {
-   "messageId": "1486297",
-   "messageIdScheme": "http://www.party1.com/message-id",
-   "sentBy": "894500DM8LVOSCMP9T34",
-   "sentTo": "49300JZDC6K840D7F79"
-  },
+The output of the qualification function is used to populate the ``eventQualifier`` attribute of the ``BusinessEvent`` object, similar to how product qualification works.
+
+.. note:: ``eventType`` is a *meta-type* that indicates that its value is meant to be populated via a function. This mechanism is explained in the `Qualified Type Section`_ of the Rosetta DSL documentation. For a further understanding of the underlying qualification logic in the Product Qualification, see the explanation of the *object qualification* feature of the Rosetta DSL, as described in the `Function Definition Section`_.
 
 
 Legal Agreement
