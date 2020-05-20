@@ -292,24 +292,8 @@ func Qualify_ContractFormation: <"The qualification of a contractFormation event
 		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
-		businessEvent -> primitives -> contractFormation -> after -> tradeWarehouseWorkflow is absent
-		and businessEvent -> primitives -> contractFormation -> after -> contract -> clearedDate is absent
-		and
-		(
-			(
-				businessEvent -> primitives count = 1 
-				and
-				businessEvent -> primitives -> contractFormation exists
-			)
-			or
-			(
-				businessEvent -> primitives count = 2 
-				and 
-				businessEvent -> primitives -> execution exists 
-				and 
-				businessEvent -> primitives -> contractFormation exists
-			)
-		)
+		businessEvent -> primitives count = 1 and businessEvent -> primitives -> contractFormation exists
+		and businessEvent -> primitives -> contractFormation -> after -> tradeWarehouseWorkflow is absent
 
 func Qualify_StockSplit: <"The qualification of StockSplit business event based on (i) an unchanged before/after currency amount (ii) the same adjustment ratio applied to the before/after cash price and number of units.">
 	[qualification BusinessEvent]
