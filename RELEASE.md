@@ -1,12 +1,5 @@
-# *CDM Model: Namespace hierarchy representation*
+# *CDM Model: Synonyms & MetaType cleanup*
 
 _What is being released_
 
-Auto Generation of namespace-hierarchy.json file, which represents the CDM Model in a tree format
-
-# *CDM Portal: Bug fix for Graphical Navigator*
-
-_What is being released_
-
-Fix bug where the Graphical Navigator only partially displayed the CDM.
-
+Default synonyms moved to a separate namespace `cdm.synonyms.config`. All the metaType values moved to a read-only resource.
