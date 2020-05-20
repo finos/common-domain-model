@@ -337,7 +337,7 @@ The CDM event model is supported by four main components, which are detailed in 
 Trade State
 ^^^^^^^^^^^
 
-Market participants transact with each other in the financial products described in the `Product Model Section`_. At each stage in the transaction lifecycle, a *trade state* is associated to the underlying product of that transaction, from execution to settlement to maturity. Trade lifecycle events describe the *state-transition* events that impact the trade state.
+When market participants transact with each other in financial products, a *trade state* is associated to the underlying product of that transaction at each stage in the transaction lifecycle, from execution to settlement to maturity. The trade lifecycle events that are represented by the CDM Event Model describe the *state-transition* events that impact the trade state.
 
 The CDM state-transition model is based on the following design principles:
 
@@ -356,7 +356,7 @@ The trade state is currently described in the CDM by the ``Trade`` type. This tr
    contract Contract (0..1) <"The contract differs from the execution by the fact that its legal terms are fully specified. This includes the legal entities that are associated to it as well as any associated legal agreement, e.g. master agreement, credit and collateral terms, ... ">
    condition Trade: one-of
 
-Those two types are detailed in the sections below.
+Both execution and contract include a ``tradableProduct`` attribute, which describes all the economic terms of the financial product traded between the parties (and further detailed in the `Tradable Product Section`_). Those two types are detailed in the sections below.
 
 Execution
 """""""""
@@ -379,10 +379,7 @@ The current CDM event model only covers post-trade lifecycle events, so the firs
    closedState ClosedState (0..1) <"The qualification of what led to the execution closure alongside with the dates on which this closure takes effect.">
    settlementTerms SettlementTerms (0..1) <"The execution settlement terms, which is applicable for products such as securities">
 
-The ``Execution`` type includes:
-
-* a ``TradableProduct`` object to describe a financial product that is ready to be traded (as detailed in the `Tradable Product Section`_),
-* plus additional attributes to describe that execution, such as the transaction parties, execution venue (if any) and settlement terms.
+In addition to the tradable product, the ``Execution`` type includes attributes such as the trade date, transacting parties, execution venue (if any) and settlement terms to describe that execution.
 
 The ``settlementTerms`` attribute define how the transaction should be settled (including the settlement date), for instance in a *delivery-versus-payment* scenario for a cash security transaction or a *payment-versus-payment* scenario for an FX spot or forward transaction. The actual settlement amount(s) will need to use the *price* and *quantity* agreed as part of the tradable product.
 
@@ -398,7 +395,7 @@ The ``settlementTerms`` attribute define how the transaction should be settled (
 Post-Execution: Contract
 """"""""""""""""""""""""
 
-For a contractual product, once a transaction has been agreed between the parties, a contract gets executed between the contractual legal entities for that transaction. In addition to the product economics captured by the ``tradableProduct`` attribute, a contract has a set of attributes which are only qualified at the execution and post-execution stage: trade date, calculation agent, documentation, governing law, etc.
+For a contractual product, once a transaction has been agreed between the parties, a contract gets executed between the contractual legal entities for that transaction. In addition to the tradable product economics, a contract has a set of attributes which are only qualified at the post-execution stage: calculation agent, documentation, governing law, etc.
 
 .. code-block:: Haskell
 
@@ -420,7 +417,7 @@ For a contractual product, once a transaction has been agreed between the partie
    partyContractInformation PartyContractInformation (0..*)
    closedState ClosedState (0..1)
 
-The ``Contract`` type incorporates all the elements that are part of the FpML *trade confirmation* view (with the exception of: *tradeSummary*, *originatingPackage*, *allocations* and *approvals*), whereas the ``TradableProduct`` type (also embedded as attribute of the simpler ``Execution`` object) corresponds to the *pre-trade* view in FpML.
+The ``Contract`` type incorporates all the elements that are part of the FpML *trade confirmation* view (with the exception of: *tradeSummary*, *originatingPackage*, *allocations* and *approvals*), whereas the ``TradableProduct`` type corresponds to the *pre-trade* view in FpML.
 
 
 Primitive Event
@@ -449,8 +446,8 @@ The current list of primitive events can be seen in the ``PrimitiveEvent`` type 
 
 A ``PrimitiveEvent`` object is made of either one of those primitive components, as captured by the ``one-of`` condition. A couple of examples of such primitive event components are illustrated below, using a simple transaction lifecycle sequence.
 
-Example: Observation -> Reset -> Transfer
-"""""""""""""""""""""""""""""""""""""""""
+Example: Observation/Reset/Transfer
+"""""""""""""""""""""""""""""""""""
 
 The sequence starts with the *inception* of a new transaction, which results in a ``PostInceptionState`` that contains a ``Contract`` object:
 
@@ -512,8 +509,8 @@ The ``before`` attribute is included as a reference using the ``[metadata refere
 .. note:: Not all primitive events are currently composed of a ``before`` and ``after`` state defined in terms of the ``Trade`` object. This is subject to review, for potential harmonisation to establish a clean state-transition model in the CDM.
 
 
-Business Event Features
-^^^^^^^^^^^^^^^^^^^^^^^
+Business Event
+^^^^^^^^^^^^^^
 
 Each trade lifecycle event is represented as a collection of primitive event components in the ``BusinessEvent`` type:  
 
@@ -536,7 +533,7 @@ Each trade lifecycle event is represented as a collection of primitive event com
 
 The only mandatory attributes of a business event are:
 
-* The ``primitives`` attribute, which contains the list of primitive events composing that business event, each representing one and only one fundamental state-transition
+* The ``primitives`` attribute, which contains the list of primitive events composing that business event, each representing one and only one fundamental state-transition.
 * The event date. The time dimension has been purposely ommitted from the event's attributes. That is because, while a business event has a unique date, several time stamps may potentially be associated to that event depending on when it was submitted, accepted, rejected etc, all of which are *workflow* considerations.
 
 An example composition of the primitive events to represent a complete business event is the *partial novation* of a contract, which comprises:
@@ -681,9 +678,8 @@ Other Misc. Information
 
 Workflow
 ^^^^^^^^
-(*To be completed*)
 
-A *workflow* is meant represents a set of actions or steps that are required to trigger a business event. The workflow is organised into a sequence and each step is represented by a *workflow step*.
+A *workflow* is meant to represent a set of actions or steps that are required to trigger a business event. A workflow may involve multiple parties in addition to the parties to the transaction, and may include automated and manual steps. A workflow is organised into a sequence and each step is represented by a *workflow step*.
 
 .. code-block:: Haskell
 
@@ -711,26 +707,26 @@ The different attributes of a workflow step are detailed in the sections below.
 Business Event
 """"""""""""""
 
-This attribute specifies the business event that the workflow step is meant to generate. This attribute is optional because the workflow may require a number of interim steps before the state-transition embedded within the business event becomes effective, so the business event does not exist yet in those steps. The business event attribute is typically associated to the final step in the workflow.
+This attribute specifies the business event that the workflow step is meant to generate. It is optional because the workflow may require a number of interim steps before the state-transition embedded within the business event becomes effective, so the business event does not exist yet in those steps. The business event attribute is typically associated to the final step in the workflow.
 
 (*To be completed: clearing example*)
 
 Proposed Instruction
 """"""""""""""""""""
 
-This attribute allows to specify any additional input, other than the current trade state, that is required to generate the state-transition. This attribute is also optional because typically applicable to the early step of a workflow, when instructions for a new business event are being proposed and the event is not effective yet. Validation components are in place to check that the ``businessEvent`` and ``proposedInstruction`` attributes are mutually exclusive.
+This attribute allows to specify any additional input, other than the current trade state, that is required to generate the state-transition. It is also optional because typically applicable to the early step of a workflow, when instructions for a new business event are being proposed and the event is not effective yet. Validation components are in place to check that the ``businessEvent`` and ``proposedInstruction`` attributes are mutually exclusive.
 
 (*To be completed: allocation example*)
 
 Previous Workflow Step
 """"""""""""""""""""""
 
-This attribute, which is provided as a reference, allows to define the lineage between steps in a workflow. This is used to provide an audit trail for a business event, where the various steps leading to that business event can be traced back.
+This attribute, which is provided as a reference, allows to define the lineage between steps in a workflow. It is used to provide an audit trail for a business event, which can trace back the various steps leading to that business event being triggered.
 
 Action
 """"""
 
-The ``action`` enumeration qualification specifies whether the event is a new one or a correction or cancellation of a prior one.
+The action enumeration qualification specifies whether the event is a new one or a correction or cancellation of a prior one.
 
 Message Information
 """""""""""""""""""
