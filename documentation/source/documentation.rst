@@ -733,39 +733,37 @@ Message Information
 
 The ``messageInformation`` attribute corresponds to some of the components of the FpML *MessageHeader.model*.
 
-.. code-block:: Java
+.. code-block:: Haskell
 
- class MessageInformation
- {
-  messageId string (1..1) scheme;
-  sentBy string (0..1) scheme;
-  sentTo string (0..*) scheme;
-  copyTo string (0..*) scheme;
- }
+ type MessageInformation:
+   messageId string (1..1)
+     [metadata scheme]
+   sentBy string (0..1)
+     [metadata scheme]
+   sentTo string (0..*)
+     [metadata scheme]
+   copyTo string (0..*)
+     [metadata scheme]
 
-``sentBy``, ``sentTo`` and ``copyTo`` information is optional, as possibly not applicable in a distributed ledger context.
+``sentBy``, ``sentTo`` and ``copyTo`` information is optional, as possibly not applicable in a all technology contexts (e.g. in case of a distributed architecture).
 
 Timestamp
 """""""""
 
 The CDM adopts a generic approach to represent timestamp information, consisting of a ``dateTime`` and a ``qualification`` attributes, with the latter specified through an enumeration value.
 
-.. code-block:: Java
+.. code-block:: Haskell
 
- class EventTimestamp
- {
-  dateTime zonedDateTime (1..1) ;
-  qualification EventTimeStampQualificationEnum (1..1);
- }
+ type EventTimestamp:
+   dateTime zonedDateTime (1..1)
+   qualification EventTimestampQualificationEnum (1..1)
 
 The experience of mapping the CME clearing and the DTCC trade matching and cashflow confirmation transactions to the CDM did reveal a diverse set of timestamps. The expected benefits of the CDM generic approach are twofold:
 
 * It allows for flexibility in a context where it would be challenging to mandate which points in the process should have associated timestamps.
 * Gathering all of those in one place in the model allows for evaluation and rationalisation down the road.
 
-The CDM Group has expressed concerns with combining timestamps which are deemed 'technical' with 'business' ones. A further evaluation of this timestamp modelling approach will be required.
-
-Below is JSON representation instance of this approach.
+Below is (serialised) JSON representation of this approach.
 
 .. code-block:: Java
 
@@ -783,16 +781,22 @@ Below is JSON representation instance of this approach.
 Event Identifier
 """"""""""""""""
 
-The event identifier information comprises the ``identifier`` and an optional ``version`` and ``issuer``. FpML also uses an event identifier construct: the *CorrelationId*, distinct from the identifier associated with the trade (which itself comes in different variations: *PartyTradeIdentifier*, with the *TradeId* and the *VersionedTradeId* as sub-components). As a departure from FpML, the CDM approach consists in using a common identifier component across products and events.
+The CDM approach consists in using a common identifier component across products and events. The event identifier information comprises the ``assignedIdentifier`` and an ``issuer``, which may be provided as a reference or via a scheme.
 
-.. code-block:: Java
+.. code-block:: Haskell
 
- class Identifier key
- {
-  issuerReference Party (0..1) reference;
-  issuer string (1..1) scheme;
-  assignedIdentifier AssignedIdentifier (1..*);
- }
+ type Identifier:
+   [metadata key]
+   issuerReference Party (0..1)
+     [metadata reference]
+   issuer string (0..1)
+     [metadata scheme]
+   assignedIdentifier AssignedIdentifier (1..*)
+   
+   condition IssuerChoice:
+     required choice issuerReference, issuer
+
+.. note:: FpML also uses an event identifier construct: the ``CorrelationId``, but it is distinct from the identifier associated with the trade itself, which comes in different variations: ``PartyTradeIdentifier``, with the ``TradeId`` and the ``VersionedTradeId`` as sub-components).
 
 Other Misc. Attributes
 """"""""""""""""""""""
@@ -800,7 +804,7 @@ Other Misc. Attributes
 * The ``party`` and ``account`` information are optional because not applicable to certain events.
 * The ``lineage`` attribute was previously used to reference an unbounded set of contracts, events and/or payout components, that an event may be associated to.
 
-.. note:: This attribute is superseded by the implementation in the CDM of: (i) trade state lineage, via the ``before`` / ``after`` attributes in the primitive event component, and (ii) workflow lineage, via the ``previousWorkflowStep`` attribute.
+.. note:: The ``lineage`` attribute is superseded by the implementation in the CDM of: (i) trade state lineage, via the ``before`` / ``after`` attributes in the primitive event component, and (ii) workflow lineage, via the ``previousWorkflowStep`` attribute.
 
 
 Event Qualification
