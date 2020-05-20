@@ -337,14 +337,14 @@ The CDM event model is supported by four main components, which are detailed in 
 Trade State
 ^^^^^^^^^^^
 
-Industry participants engage in trading activities on financial markets, by transacting with each other in the financial products as described in the `Product Model Section`_. A *trade state* associates a specific state in the transaction lifecycle to the underlying product of that transaction, from execution to settlement to maturity.
+Market participants transact with each other in the financial products described in the `Product Model Section`_. At each stage in the transaction lifecycle, a *trade state* is associated to the underlying product of that transaction, from execution to settlement to maturity. Trade lifecycle events describe the *state-transition* events that impact the trade state.
 
-Trade lifecycle events describe the *state-transition* events that impact the state of a trade. The CDM state-transition model is based on the following design principles:
+The CDM state-transition model is based on the following design principles:
 
-* **The state is trade-specific**, not product-specific (i.e. not an *asset servicing* model). The same product may be associated to infinitely many trades, each with its own specific state, between any two parties.
+* **The state is trade-specific**, not product-specific (i.e. it is not an asset-servicing model). The same product may be associated to infinitely many trades, each with its own specific state, between any two parties.
 * **A lifecycle event describes a change in the state of a trade**, i.e. there must be different before/after trade states based on that lifecycle event.
-* **The product definition that underlies the transaction remains immutable**, unless agreed (negotiated) between the parties to that transaction as part of a specific trade lifecycle event. Automated events, for instance resets or cashflow payments, do not alter the product definition.
-* **The trade state can be reconstructed at any point in the trade lifecycle**, i.e. the CDM implements a *lineage* concept.
+* **The product definition that underlies the transaction remains immutable**, unless agreed (negotiated) between the parties to that transaction as part of a specific trade lifecycle event. Automated events, for instance resets or cashflow payments, should not alter the product definition.
+* **The trade state can be reconstructed at any point in the trade lifecycle**, i.e. the state-transition model implements a *lineage* concept.
 
 The trade state is currently described in the CDM by the ``Trade`` type. This trade state can be either an ``execution`` or a ``contract``, as controlled by the ``one-of`` condition:
 
@@ -357,8 +357,6 @@ The trade state is currently described in the CDM by the ``Trade`` type. This tr
    condition Trade: one-of
 
 Those two types are detailed in the sections below.
-
-.. note:: The ``Trade`` object in the CDM is being evaluated as part of a review of the CDM state-transition model, and may be adjusted in future to ensure adherence to the above design principles.
 
 Execution
 """""""""
@@ -421,8 +419,6 @@ For a contractual product, once a transaction has been agreed between the partie
    calculationAgent CalculationAgent (0..1)
    partyContractInformation PartyContractInformation (0..*)
    closedState ClosedState (0..1)
-
-.. note:: The positioning of the ``settlementTerms`` and ``party`` attributes in the ``Execution`` and ``Contract`` types is under review and may be adjusted to further harmonise the concept of trade state between execution and contract.
 
 The ``Contract`` type incorporates all the elements that are part of the FpML *trade confirmation* view (with the exception of: *tradeSummary*, *originatingPackage*, *allocations* and *approvals*), whereas the ``TradableProduct`` type (also embedded as attribute of the simpler ``Execution`` object) corresponds to the *pre-trade* view in FpML.
 
@@ -513,7 +509,7 @@ Else than the ``ObservationPrimitive`` and ``TransferPrimitive`` above, each pri
 
 The ``before`` attribute is included as a reference using the ``[metadata reference]`` annotation, because by definition the primitive event points to a state that *already* exists. By contrast, the primitive event includes the full ``after`` state, since it is the occurence of that primitive event that transitions to a new state. By tying each state in the lifecycle to a previous state, primitive events are the mechanism by which the *lineage* model is implemented in the CDM.
 
-.. note:: Not all primitive events are currently composed of a ``before`` and ``after`` state defined in terms of the ``Trade`` object. This is subject to review and will potentially be harmonised to establish a cleaner state-transition model in the CDM.
+.. note:: Not all primitive events are currently composed of a ``before`` and ``after`` state defined in terms of the ``Trade`` object. This is subject to review, for potential harmonisation to establish a clean state-transition model in the CDM.
 
 
 Business Event Features
@@ -541,9 +537,7 @@ Each trade lifecycle event is represented as a collection of primitive event com
 The only mandatory attributes of a business event are:
 
 * The ``primitives`` attribute, which contains the list of primitive events composing that business event, each representing one and only one fundamental state-transition
-* The event date
-
-.. note:: While an event date must be associated to a business event, the time dimension has been purposely ommitted from the event's attributes and transferred to the *workflow* concept, as detailed in the `Workflow Section`_. That is because several time stamps may potentially be associated to the same event depending on when that event was submitted, accepted, rejected etc, all of which are workflow considerations.
+* The event date. The time dimension has been purposely ommitted from the event's attributes. That is because, while a business event has a unique date, several time stamps may potentially be associated to that event depending on when it was submitted, accepted, rejected etc, all of which are *workflow* considerations.
 
 An example composition of the primitive events to represent a complete business event is the *partial novation* of a contract, which comprises:
 
@@ -557,9 +551,7 @@ The other attributes of a business event are presented in the following sections
 Intent Qualification
 """"""""""""""""""""
 
-Intent qualification is an enumeration value that represents the intent of a particular business event, e.g. ``Allocation``, ``EarlyTermination``, ``PartialTermination`` etc. It is used as part of the event qualification logic, to disambiguate lifecyle events which may share the same primitive event features. As an example, a reduction in a trade quantity/notional could apply to a correction event or a partial termination (although the timing of such event could also be used to qualify the proper event).
-
-.. note:: Further evaluation of the appropriateness of this intent qualification attribute is required, where other dimensions of the event could be used to provide the required disambiguation.
+Intent qualification is an enumeration value that represents the intent of a particular business event, e.g. ``Allocation``, ``EarlyTermination``, ``PartialTermination`` etc. It is used as part of the event qualification logic, to disambiguate lifecyle events which may share the same primitive event features. As an example, a reduction in a trade quantity/notional could apply to a correction event or a partial termination (although the timing of such event could also be used to qualify the event).
 
 Function Call
 """""""""""""
@@ -567,8 +559,6 @@ Function Call
 An example of a function call is the interpolation function that would be associated with a *derived observation* event, which assembles two observed values (say, a 3 months and a 6 months rate observation) to provide a derived one (say, a 5 months observation).
 
 As part of the current CDM version this function call as been specified as a mere string element. It will be appropriately specified once a machine executable implementation of the ISDA Definitions is developed, as per the `Calculation Process Section`_.
-
-.. note:: Further evaluation of the appropriateness of this function call attribute is required.
 
 Event Effect
 """"""""""""
@@ -592,8 +582,6 @@ Certain events such as observations do not have any event effect, hence the opti
     [metadata reference]
   transfer TransferPrimitive (0..*) <"A pointer to the transfer effect(s), either a cash, security or other asset.">
     [metadata reference]
-
-.. note:: Further evaluation of the appropriateness of this event effect attribute is required. In particular, a more complete implementation that would provide an effective "position effect" for the event may be deemed useful.
 
 In the below JSON snippet of a quantity change event on a contract, we can see that the ``eventEffect`` contains a  number of hash value references:
 
@@ -695,7 +683,7 @@ Workflow
 ^^^^^^^^
 (*To be completed*)
 
-A *workflow* is meant represents a set of actions, which are tied via *lineage* into a sequence, that lead to the formation of a business event.  Each action in the workflow sequence is represented by a *workflow step*.
+A *workflow* is meant represents a set of actions or steps that are required to trigger a business event. The workflow is organised into a sequence and each step is represented by a *workflow step*.
 
 .. code-block:: Haskell
 
@@ -716,17 +704,33 @@ A *workflow* is meant represents a set of actions, which are tied via *lineage* 
    account Account (0..*)
    lineage Lineage (0..1)
 
-.. note:: This type has been introduced following a refactoring of business events in the CDM, to separate such workflow considerations from the event itself. As a result, a number of attributes that were previously part of the ``Event`` type have been moved to the ``WorkflowStep`` type.
+.. note:: This type has been introduced following a refactoring of business events in the CDM, to separate workflow considerations from the business event itself. As a result, a number of attributes that were previously part of the ``Event`` type have been moved to the ``WorkflowStep`` type.
 
 The different attributes of a workflow step are detailed in the sections below.
 
+Business Event
+""""""""""""""
+
+This attribute specifies the business event that the workflow step is meant to generate. This attribute is optional because the workflow may require a number of interim steps before the state-transition embedded within the business event becomes effective, so the business event does not exist yet in those steps. The business event attribute is typically associated to the final step in the workflow.
+
+(*To be completed: clearing example*)
+
+Proposed Instruction
+""""""""""""""""""""
+
+This attribute allows to specify any additional input, other than the current trade state, that is required to generate the state-transition. This attribute is also optional because typically applicable to the early step of a workflow, when instructions for a new business event are being proposed and the event is not effective yet. Validation components are in place to check that the ``businessEvent`` and ``proposedInstruction`` attributes are mutually exclusive.
+
+(*To be completed: allocation example*)
+
+Previous Workflow Step
+""""""""""""""""""""""
+
+This attribute, which is provided as a reference, allows to define the lineage between steps in a workflow. This is used to provide an audit trail for a business event, where the various steps leading to that business event can be traced back.
+
 Action
 """"""
-The *action* qualification specifies whether the event is a new one or a correction or cancellation of a prior one.
 
-Party
-"""""
-The party information is optional because not applicable to certain steps.
+The ``action`` enumeration qualification specifies whether the event is a new one or a correction or cancellation of a prior one.
 
 Message Information
 """""""""""""""""""
@@ -780,10 +784,10 @@ Below is JSON representation instance of this approach.
   }
  ]
 
-Event Identification
-""""""""""""""""""""
+Event Identifier
+""""""""""""""""
 
-The event identification information comprises the ``identifier`` and an optional ``version`` and ``issuer``. FpML also uses an event identifier construct: the *CorrelationId*, distinct from the identifier associated with the trade (which itself comes in different variations: *PartyTradeIdentifier*, with the *TradeId* and the *VersionedTradeId* as sub-components). As a departure from FpML, the CDM approach consists in using a common identifier component across products and events.
+The event identifier information comprises the ``identifier`` and an optional ``version`` and ``issuer``. FpML also uses an event identifier construct: the *CorrelationId*, distinct from the identifier associated with the trade (which itself comes in different variations: *PartyTradeIdentifier*, with the *TradeId* and the *VersionedTradeId* as sub-components). As a departure from FpML, the CDM approach consists in using a common identifier component across products and events.
 
 .. code-block:: Java
 
@@ -794,22 +798,13 @@ The event identification information comprises the ``identifier`` and an optiona
   assignedIdentifier AssignedIdentifier (1..*);
  }
 
-Lineage Information
-"""""""""""""""""""
+Other Misc. Attributes
+""""""""""""""""""""""
 
-``Lineage`` is a class that is used to reference an unbounded set of contracts, events and/or payout components, as shown by the below code snippet:
+* The ``party`` and ``account`` information are optional because not applicable to certain events.
+* The ``lineage`` attribute was previously used to reference an unbounded set of contracts, events and/or payout components, that an event may be associated to.
 
-.. code-block:: Java
-
- class Lineage
- {
-  contractReference Contract (0..*) reference;
-  eventReference Event (0..*) reference;
-  transferReference Transfer (0..*) reference;
-  creditDefaultPayoutReference CreditDefaultPayout (0..*) reference;
-  interestRatePayoutReference InterestRatePayout (0..*) reference;
-  optionPayoutReference OptionPayout (0..*) reference;
- }
+.. note:: This attribute is superseded by the implementation in the CDM of: (i) trade state lineage, via the ``before`` / ``after`` attributes in the primitive event component, and (ii) workflow lineage, via the ``previousWorkflowStep`` attribute.
 
 
 Event Qualification
