@@ -268,9 +268,9 @@ An example is provided below for the qualification of a Zero-Coupon Fixed-Float 
 
 If all the statements above are true, then the function evaluates to True. In this case, the product in the primitive event is determined to be qualified as the product referenced by the function name.
 
-The CDM implements the ISDA Product Taxonomy v2.0 to qualify OTC derivative products and the status of the Product Qualification functions is as follows:
+The CDM implements the ISDA Product Taxonomy v2.0 to qualify OTC derivative products. Given the prevalence of usage of the ISDA Product Taxonomy v1.0, the equivalence with that taxonomy has also been systematically indicated in the CDM, using a ``synonym`` displayed under the function output. The status of the Product Qualification functions in the CDM is as follows:
 
-* The full scope of for Interest Rate Products has been represented, down to the full level of detail in the taxonomy. This is shown in the example above, where the ``ZeroCoupon`` qualifying suffix is part of the function name. The corresponding taxonomy name under the ISDA Product Taxonomy v1.0 may also be displayed as a ``synonym`` under the output.
+* The full scope of for Interest Rate Products has been represented, down to the full level of detail in the taxonomy. This is shown in the example above, where the ``ZeroCoupon`` qualifying suffix is part of the function name.
 * Credit Default products are qualified, but not down to the full level of detail. The ISDA Product Taxonomy v2.0 references the transaction type instead of the product features, whose possible values are not publicly available and hence not positioned as a CDM enumeration.
 * Only a small number of products for Foreign Exchange have been qualified.
 
