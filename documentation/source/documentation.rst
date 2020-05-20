@@ -346,7 +346,7 @@ The CDM state-transition model is based on the following design principles:
 * **The product definition that underlies the transaction remains immutable**, unless agreed (negotiated) between the parties to that transaction as part of a specific trade lifecycle event. Automated events, for instance resets or cashflow payments, should not alter the product definition.
 * **The trade state can be reconstructed at any point in the trade lifecycle**, i.e. the state-transition model implements a *lineage* concept.
 
-The trade state is currently described in the CDM by the ``Trade`` type. This trade state can be either an ``execution`` or a ``contract``, as controlled by the ``one-of`` condition:
+The trade state is currently described in the CDM by the ``Trade`` type. It always contains a ``TradableProduct`` object, which is used to define the economic terms of the financial product that has been traded between the parties. The trade state can be either an ``execution`` or a ``contract``, as controlled by the ``one-of`` condition:
 
 .. code-block:: Haskell
 
@@ -356,12 +356,14 @@ The trade state is currently described in the CDM by the ``Trade`` type. This tr
    contract Contract (0..1) <"The contract differs from the execution by the fact that its legal terms are fully specified. This includes the legal entities that are associated to it as well as any associated legal agreement, e.g. master agreement, credit and collateral terms, ... ">
    condition Trade: one-of
 
-Both execution and contract include a ``tradableProduct`` attribute, which describes all the economic terms of the financial product traded between the parties (and further detailed in the `Tradable Product Section`_). Those two types are detailed in the sections below.
+Those two types are detailed in the sections below.
+
+.. note:: The ``TradableProduct`` type is further detailed in the `Tradable Product Section`_ of the documentation.
 
 Execution
 """""""""
 
-The current CDM event model only covers post-trade lifecycle events, so the first step in instantiating a transaction between two parties begins with an *execution* state:
+The current CDM event model only covers post-trade lifecycle events, so the first step in instantiating a transaction between two parties begins with an *execution* state. In addition to the tradable product, the ``Execution`` type includes attributes such as the trade date, transacting parties, execution venue (if any) and settlement terms to describe an execution.
 
 .. code-block:: Haskell
 
@@ -378,8 +380,6 @@ The current CDM event model only covers post-trade lifecycle events, so the firs
    partyRole PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the execution, further to the principal parties (i.e payer/receive or buyer/seller) to it.">
    closedState ClosedState (0..1) <"The qualification of what led to the execution closure alongside with the dates on which this closure takes effect.">
    settlementTerms SettlementTerms (0..1) <"The execution settlement terms, which is applicable for products such as securities">
-
-In addition to the tradable product, the ``Execution`` type includes attributes such as the trade date, transacting parties, execution venue (if any) and settlement terms to describe that execution.
 
 The ``settlementTerms`` attribute define how the transaction should be settled (including the settlement date), for instance in a *delivery-versus-payment* scenario for a cash security transaction or a *payment-versus-payment* scenario for an FX spot or forward transaction. The actual settlement amount(s) will need to use the *price* and *quantity* agreed as part of the tradable product.
 
