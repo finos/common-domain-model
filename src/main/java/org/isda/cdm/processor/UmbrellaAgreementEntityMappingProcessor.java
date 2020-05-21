@@ -1,21 +1,20 @@
 package org.isda.cdm.processor;
 
-import static org.isda.cdm.processor.MappingProcessorUtils.findMappedValue;
-import static org.isda.cdm.processor.MappingProcessorUtils.updateMapping;
-
-import java.util.List;
-import java.util.Optional;
-
-import org.isda.cdm.UmbrellaAgreement.UmbrellaAgreementBuilder;
-import org.isda.cdm.UmbrellaAgreementEntity;
-import org.isda.cdm.UmbrellaAgreementEntity.UmbrellaAgreementEntityBuilder;
-
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.Path;
 import com.regnosys.rosetta.common.translation.Path.PathElement;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 import com.rosetta.model.metafields.FieldWithMetaString;
+import org.isda.cdm.UmbrellaAgreement.UmbrellaAgreementBuilder;
+import org.isda.cdm.UmbrellaAgreementEntity;
+import org.isda.cdm.UmbrellaAgreementEntity.UmbrellaAgreementEntityBuilder;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.isda.cdm.processor.MappingProcessorUtils.findMappedValue;
+import static org.isda.cdm.processor.MappingProcessorUtils.updateMapping;
 
 /**
  * ISDA Create mapping processor.
@@ -25,8 +24,8 @@ public class UmbrellaAgreementEntityMappingProcessor extends MappingProcessor {
 
 	private static final Path BASE_PATH = Path.parse("answers.partyA.umbrella_agreement_and_principal_identification.principal_identification_schedule");
 	
-	public UmbrellaAgreementEntityMappingProcessor(RosettaPath rosettaPath, List<Mapping> mappings) {
-		super(rosettaPath, mappings);
+	public UmbrellaAgreementEntityMappingProcessor(RosettaPath rosettaPath, List<String> synonymValues, List<Mapping> mappings) {
+		super(rosettaPath, synonymValues, mappings);
 	}
 
 	@Override
@@ -38,7 +37,7 @@ public class UmbrellaAgreementEntityMappingProcessor extends MappingProcessor {
 	protected void map(List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
 		UmbrellaAgreementBuilder umbrellaAgreementBuilder = (UmbrellaAgreementBuilder) parent;
 		umbrellaAgreementBuilder.clearParties();
-		
+
 		int i = 0;
 		while (true) {
 			UmbrellaAgreementEntityBuilder umbrellaAgreementEntityBuilder = UmbrellaAgreementEntity.builder();
