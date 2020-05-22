@@ -1,5 +1,5 @@
-# *CDM Model: Synonyms & MetaType cleanup*
+# *CDM Model: Bug fixes*
 
 _What is being released_
 
-Default synonyms moved to a separate namespace `cdm.synonyms.config`. All the metaType values moved to a read-only resource.
+Cleanup of tests and some minor bug fixes.
