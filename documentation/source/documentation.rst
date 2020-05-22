@@ -973,6 +973,7 @@ The CDM process model incorporates calculations that represent the set of day co
 For example, there are three distinct rule sets in which the length of each month is generally assumed to be 30 days for accrual purposes (and each year is assumed to be 360 days). However there are nuances in the rule sets that distinquish the resulting calculations under different circumstances, such as when the last day of the period is the last day of February. These distinct rule sets are defined by ISDA as 30/360 (also known as 30/360 US), 30E/360 (formerly known as 30/360 ICMA or 30/360 Eurobond), and the 30E/360.ISDA.
 
 The CDM process model eliminates the need for implementators to unravel the logic and write unique code for these rules. Instead, it provides executable code, such as the example below:
+
 .. code-block:: Haskell
 
  func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360):
