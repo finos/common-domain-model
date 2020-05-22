@@ -20,3 +20,18 @@ Example snippets for the two updated sections have been updated to reflect their
 _Review Direction_
 
 In the CDM Documentation, review the CDM Model tab, also directly accessible here: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html
+
+# *CDM Model: Legal Document Modelling*
+
+_What is being released_
+
+Collateral Documentation Changes:
+
+- Further `ISDA Create` synonym mapping fixes.
+- Extension of `CreditSupportAgreementElections` to fully support 2016 ISDA IM CSA Japanese Law.
+
+_Review Direction_
+
+In the Ingestion Panel, try samples in folders:
+
+- `isda-create > isda-csa-im-2016-jpnlaw`
