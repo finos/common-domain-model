@@ -1,4 +1,4 @@
-# *CDM Model: Stability*
+# *CDM Model: Bug fixes*
 
 _What is being released_
 
