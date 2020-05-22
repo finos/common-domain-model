@@ -514,8 +514,6 @@ Else than the ``ObservationPrimitive`` and ``TransferPrimitive`` above, each pri
 
 The ``before`` attribute is included as a reference using the ``[metadata reference]`` annotation, because by definition the primitive event points to a state that *already* exists. By contrast, the primitive event includes the full ``after`` state, since it is the occurence of that primitive event that transitions to a new state. By tying each state in the lifecycle to a previous state, primitive events are the mechanism by which the *lineage* model is implemented in the CDM.
 
-.. note:: Not all primitive events are currently composed of a ``before`` and ``after`` state defined in terms of the ``Trade`` object. This is subject to review, for potential harmonisation to establish a clean state-transition model in the CDM.
-
 
 Business Event
 ^^^^^^^^^^^^^^
@@ -563,7 +561,7 @@ Function Call
 
 An example of a function call is the interpolation function that would be associated with a *derived observation* event, which assembles two observed values (say, a 3 months and a 6 months rate observation) to provide a derived one (say, a 5 months observation).
 
-As part of the current CDM version this function call as been specified as a mere string element. It will be appropriately specified once a machine executable implementation of the ISDA Definitions is developed, as per the `Calculation Process Section`_.
+As part of the current CDM version this function call as been specified as a mere string element. It will be appropriately specified once a machine executable implementation of the ISDA Definitions is developed as CDM calculation components, which are further in the `Calculation Process Section`_.
 
 Event Effect
 """"""""""""
@@ -771,7 +769,7 @@ The experience of mapping the CME clearing and the DTCC trade matching and cashf
 * It allows for flexibility in a context where it would be challenging to mandate which points in the process should have associated timestamps.
 * Gathering all of those in one place in the model allows for evaluation and rationalisation down the road.
 
-Below is (serialised) JSON representation of this approach.
+Below is an instance of a CDM representation (`serialised`_ into JSON) of this approach.
 
 .. code-block:: Java
 
