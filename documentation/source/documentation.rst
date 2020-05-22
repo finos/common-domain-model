@@ -850,7 +850,7 @@ Machine readability and executability is crucial to eliminate implementation dis
 How Does It Work
 """"""""""""""""
 
-The process model is systematically translated into executable code for the Java representation of the CDM using purpose-built technology as described in the `Code Generation Section`_. The CDM data model and process model specifications can also be translated into a number of other modern, widely adopted and freely available programming languages are currently supported, as noted below:
+The process model is systematically translated into executable code for the Java representation of the CDM using purpose-built technology as described in the `Code Generation Section`_. The CDM data model and process model specifications can also be translated into a number of other modern, widely adopted and freely available programming languages, as noted below:
 
 * Java
 * Scala
@@ -912,11 +912,11 @@ For the trade lifecycle processes that are in scope, the CDM process model cover
 Validation Process
 ^^^^^^^^^^^^^^^^^^
 
-In many legacy models, validation rules are generally specified in text-based documentat, which requires software engineers to evalaute and translate the logic into code. The frequently occuring result of this human interpretation process is inconsistent enforcement of the intended logic.
+In many legacy models, validation rules are generally specified in text-based documentation, which requires software engineers to evalaute and translate the logic into code. The frequently occuring result of this human interpretation process is inconsistent enforcement of the intended logic.
 
 By contrast, in the CDM, validation components are an integral part of the process model specifications and are distributed as executable code in the Java representation of the CDM. The CDM validation components leverage the validation components of the Rosetta DSL, as described in the `Validation Component Section`_.
 
-As an example, the the **FpML ird validation rule #57**, states that if the calculation period frequency is expressed in units of month or year, then the roll convention cannot be a weekday. A machine readable and executable definition of that specification is provided in the CDM, as a ``condition`` attached to the ``CalculationPeriodFrequency`` type:
+As an example, the **FpML ird validation rule #57**, states that if the calculation period frequency is expressed in units of month or year, then the roll convention cannot be a weekday. A machine readable and executable definition of that specification is provided in the CDM, as a ``condition`` attached to the ``CalculationPeriodFrequency`` type:
 
 .. code-block:: Haskell
 
@@ -968,11 +968,11 @@ The CDM expressions of ``FixedAmount`` and ``FloatingAmount`` are similar in str
 Day Count Fraction
 """"""""""""""""""
 
-The CDM process model incorporates calculations that represent the set of day count fraction rules specified as part of the ISDA 2006 Definitions, e.g. the *ACT/365.FIXED* and the *30E/360* day count fraction rules. Although these rules are widely accepted in the international markets, many of them have complex nuances which can lead to the problem of inconsistent implementaitons and the potential of mismatched settlements.
+The CDM process model incorporates calculations that represent the set of day count fraction rules specified as part of the ISDA 2006 Definitions, e.g. the *ACT/365.FIXED* and the *30E/360* day count fraction rules. Although these rules are widely accepted in the international markets, many of them have complex nuances which can lead to the problem of inconsistent implementations and the potential of mismatched settlements.
 
 For example, there are three distinct rule sets in which the length of each month is generally assumed to be 30 days for accrual purposes (and each year is assumed to be 360 days). However there are nuances in the rule sets that distinquish the resulting calculations under different circumstances, such as when the last day of the period is the last day of February. These distinct rule sets are defined by ISDA as 30/360 (also known as 30/360 US), 30E/360 (formerly known as 30/360 ICMA or 30/360 Eurobond), and the 30E/360.ISDA.
 
-The CDM process model eliminates the need for implementators to unravel the logic and write unique code for these rules. Instead, it provides executable code, such as the example below [30/360.ISDA would be a better example]
+The CDM process model eliminates the need for implementators to unravel the logic and write unique code for these rules. Instead, it provides executable code, such as the example below:
 .. code-block:: Haskell
 
  func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360):
