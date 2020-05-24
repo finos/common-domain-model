@@ -9,6 +9,7 @@ import java.nio.file.Paths
 import java.nio.file.attribute.BasicFileAttributes
 import java.util.function.BiPredicate
 import java.util.stream.Collectors
+import kotlin.system.exitProcess
 
 class CodeBlockValidator(
         private val docPath: String,
@@ -31,13 +32,13 @@ class CodeBlockValidator(
 
         val blocks = invalidBlocks.count()
         if (blocks > 0) {
-            throw java.lang.IllegalStateException("Found [$blocks] code blocks that don't match model text")
+            System.err.println("Found [$blocks] code blocks that don't match model text.")
+            exitProcess(1)
         }
     }
 
     private fun getCodeBlocks(): Sequence<String> {
         val doc = Path.of(docPath).toUri().toURL().readText()
-
         val codeBlocks = codeBlockRegex.findAll(doc)
                 .map(MatchResult::value)
                 .ifEmpty { throw IllegalStateException("No code blocks found in documentation file [$docPath]. Doesn't sound right! Go check.") }
@@ -47,7 +48,6 @@ class CodeBlockValidator(
                 .onEach(::println)
 
         val illegalBlocks = illegalCodeBlocks.count()
-
         return if (illegalBlocks > 0) {
             if (fixUp) {
                 println("WARNING in fix-up mode, removing illegal syntax from [$docPath]")
@@ -55,7 +55,8 @@ class CodeBlockValidator(
                 Files.writeString(Paths.get(docPath), sanitised)
                 getCodeBlocks()
             } else {
-                throw java.lang.IllegalStateException("Found [$illegalBlocks] invalid code blocks in documentation file [$docPath]. Line comments, definitions, and synonyms are not allowed in code snippets")
+                System.err.println("Found [$illegalBlocks] invalid code blocks in documentation file [$docPath]. Run this script with flag --fix-up to remove.")
+                exitProcess(1)
             }
         } else {
             codeBlocks
@@ -74,9 +75,9 @@ class CodeBlockValidator(
 
 fun main(args: Array<String>) {
     val options = Options()
-            .addOption("u", "fix-up", false, "Remove illegal code syntax from document file in-place.")
             .addOption("d", "doc-path", true, "Relative path to the document.")
             .addOption("m", "model-path", true, "Relative path to the model files directory.")
+            .addOption("u", "fix-up", false, "Remove illegal code syntax from document file in-place.")
 
     val cmd = DefaultParser().parse(options, args)
 
