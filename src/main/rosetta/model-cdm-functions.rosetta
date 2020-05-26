@@ -1,6 +1,7 @@
 namespace org.isda.cdm
 version "${project.version}"
 
+import cdm.base.staticdata.identifier.*
 import cdm.base.math.*
 import cdm.base.datetime.*
 import cdm.base.staticdata.party.*
@@ -9,6 +10,127 @@ annotation creation: <"Annotation to describe the intent of a function">
     [prefix Create]
     PrimitiveEvent PrimitiveEvent (0..1) <"A primitive event function should take as an input all of the types required to construct the event and produce a new PrimitiveEvent type.">
     BusinessEvent BusinessEvent (0..1) <"A business event function should take as its inputs the after state of previous business event or in case where the is no before state, all of the inputs required to produce the outcome BusinessEvent.">
+    WorkflowStep WorkflowStep (0..1) <"Create a proposed, accepted or rejected WorkflowStep with details about the message, identifiers, event timestamps, parties and accounts involved in the step and allow the action to be set to New, Correct or Cancel.">
+
+func Create_AcceptedWorkflowStep: <"Function to create an accepted WorkflowStep with a BusinessEvent and associated details about the message, identifiers, event timestamps, parties and accounts involved in the step. An optional WorkflowStep can be passed in which will be set as a reference to the previous WorkflowStep to provide workflow lineage. The action must always be set to signify that the WorkflowStep is New, Correct or Cancel.">
+	[creation WorkflowStep]
+	inputs:
+		messageInformation MessageInformation (0..1) <"Contains all information pertaining the messaging header">
+		timestamp EventTimestamp (1..*) <"The set of timestamp(s) associated with the event as a collection of [dateTime, qualifier].">
+		eventIdentifier Identifier (1..*) <"The identifier(s) that uniquely identify a lifecycle event. The unbounded cardinality is meant to provide the ability to associate identifiers that are issued by distinct parties. As an example, each of the parties to the event may choose to associate their own identifiers to the event.">
+		party Party (0..*) <"The specification of the parties involved in the WorkflowStep.">
+		account Account (0..*) <"Optional account information that could be associated to the event.">
+		action ActionEnum (1..1) <"Specifies whether the event is a new, a correction or a cancellation.">
+		previousWorkflowStep WorkflowStep (0..1) <"Optional previous WorkflowStep that provides lineage to WorkflowStep that precedes it.">
+		businessEvent BusinessEvent (1..1) <"Life cycle event for the step">
+
+	output:
+		acceptedWorkflowStep WorkflowStep (1..1) <"Accepted WorkflowStep populated with the business event">
+
+	assign-output acceptedWorkflowStep -> messageInformation:
+		messageInformation
+
+	assign-output acceptedWorkflowStep -> timestamp:
+		timestamp
+
+	assign-output acceptedWorkflowStep -> eventIdentifier:
+		eventIdentifier
+
+	assign-output acceptedWorkflowStep -> party:
+		party
+
+	assign-output acceptedWorkflowStep -> account:
+		account
+
+	assign-output acceptedWorkflowStep -> action:
+		action
+
+	assign-output acceptedWorkflowStep -> previousWorkflowStep: <"Set the reference to the previous WorkflowStep to provide lineage">
+		previousWorkflowStep as-key
+
+	assign-output acceptedWorkflowStep -> businessEvent:
+		businessEvent
+		
+
+func Create_ProposedWorkflowStep: <"Function to create a Proposed WorkflowStep with an Instruction and associated details about the message, identifiers, event timestamps, parties and accounts involved in the step. An optional WorkflowStep can be passed in which will be set as a reference to the previous WorkflowStep to provide workflow lineage. The action must always be set to signify that the step is New, Correct or Cancel.">
+	[creation WorkflowStep]
+	inputs:
+		messageInformation MessageInformation (0..1) <"Contains all information pertaining the messaging header">
+		timestamp EventTimestamp (1..*) <"The set of timestamp(s) associated with the event as a collection of [dateTime, qualifier].">
+		eventIdentifier Identifier (1..*) <"The identifier(s) that uniquely identify a lifecycle event. The unbounded cardinality is meant to provide the ability to associate identifiers that are issued by distinct parties. As an example, each of the parties to the event may choose to associate their own identifiers to the event.">
+		party Party (0..*) <"The specification of the parties involved in the WorkflowStep.">
+		account Account (0..*) <"Optional account information that could be associated to the event.">
+		action ActionEnum (1..1) <"Specifies whether the event is a new, a correction or a cancellation.">
+		previousWorkflowStep WorkflowStep (0..1) <"Optional previous WorkflowStep that provides lineage to WorkflowStep that precedes it.">
+		proposedInstruction Instruction (1..1) <"The proposed instruction for the step to initiate a workflow e.g. Clearing Instruction or Allocation Instruction">
+
+	output:
+		proposedWorkflowStep WorkflowStep (1..1) <"Proposed WorkflowStep populated with the proposed instruction">
+
+	assign-output proposedWorkflowStep -> messageInformation:
+		messageInformation
+
+	assign-output proposedWorkflowStep -> timestamp:
+		timestamp
+
+	assign-output proposedWorkflowStep -> eventIdentifier:
+		eventIdentifier
+
+	assign-output proposedWorkflowStep -> party:
+		party
+
+	assign-output proposedWorkflowStep -> account:
+		account
+
+	assign-output proposedWorkflowStep -> action:
+		action
+
+	assign-output proposedWorkflowStep -> previousWorkflowStep: <"Set the reference to the previous WorkflowStep to provide lineage">
+		previousWorkflowStep as-key
+
+	assign-output proposedWorkflowStep -> proposedInstruction:
+		proposedInstruction
+
+func Create_RejectedWorkflowStep: <"Function to create a Rejected WorkflowStep with required lineage to the proposed WorkflowStep that preceded it and the associated details about the message, identifiers, event timestamps, parties and accounts involved in the step. The Rejected step must proceed a proposed step">
+	[creation WorkflowStep]
+	inputs:
+		messageInformation MessageInformation (0..1) <"Contains all information pertaining the messaging header">
+		timestamp EventTimestamp (1..*) <"The set of timestamp(s) associated with the event as a collection of [dateTime, qualifier].">
+		eventIdentifier Identifier (1..*) <"The identifier(s) that uniquely identify a lifecycle event. The unbounded cardinality is meant to provide the ability to associate identifiers that are issued by distinct parties. As an example, each of the parties to the event may choose to associate their own identifiers to the event.">
+		party Party (0..*) <"The specification of the parties involved in the WorkflowStep.">
+		account Account (0..*) <"Optional account information that could be associated to the event.">
+		action ActionEnum (1..1) <"Specifies whether the event is a new, a correction or a cancellation.">
+		previousWorkflowStep WorkflowStep (1..1) <"Required previous WorkflowStep that provides lineage to WorkflowStep that precedes it.">
+
+	output:
+		rejectedWorkflowStep WorkflowStep (1..1) <"Rejected WorkflowStep with lineage to the proposed step that preceded it.">
+
+	condition: <"The previous proposed step being rejected must exist">
+		previousWorkflowStep -> proposedInstruction exists
+
+	assign-output rejectedWorkflowStep -> messageInformation:
+		messageInformation
+
+	assign-output rejectedWorkflowStep -> timestamp:
+		timestamp
+
+	assign-output rejectedWorkflowStep -> eventIdentifier:
+		eventIdentifier
+
+	assign-output rejectedWorkflowStep -> party:
+		party
+
+	assign-output rejectedWorkflowStep -> account:
+		account
+
+	assign-output rejectedWorkflowStep -> action:
+		action
+
+	assign-output rejectedWorkflowStep -> previousWorkflowStep: <"Set the reference to the previous WorkflowStep to provide lineage">
+		previousWorkflowStep as-key
+
+	assign-output rejectedWorkflowStep -> rejected:  <"Set the rejected flag to True">
+		True
 
 func Create_Execution:
 	[creation BusinessEvent]
