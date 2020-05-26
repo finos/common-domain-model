@@ -1,34 +1,37 @@
-# *Documentation: DSL Documentation Overhaul*
+# *Documentation: Process Model*
 
 _What is being released_
 
-Complete overhaul of Rosetta DSL documentation, with the syntax now stabilised following a complete set of changes introduced recently.
+Following recent overhaul of the Rosetta DSL documentation, the CDM documentation has been updated, focusing on:
 
-The changes include:
+* Process model section (formerly: functions)
+* Product qualification section
 
-* Change from ``class`` to ``type``
-* Unification of validation components under ``condition`` attached to type
-* All functions unified under ``func``, including object qualification logic
-* New ``annotation`` concept introduced, to unify all metadata
-* Syntax made more consistent across all these components
+The former CDM function section has been migrated to a dedicated Rosetta DSL function section (as per previous release), and the CDM documentation focuses instead on explaining how this function feature is used to standardise lifecycle event processes. Two types of process are being demonstrated:
 
-The examples illustrating the syntax in the documentation have been fully updated.
+* Validation process
+* Calculation process
+* An upcoming section (not part of this release) will also focus on event creation process
+
+The product qualification section has also been adjusted to reflect the use of functions for the qualification logic.
+
+Example snippets for the two updated sections have been updated to reflect their latest representation in the CDM, and some additional examples have been included where relevant.
 
 _Review Direction_
 
-In the CDM Documentation, review the Rosetta Modelling Components section at: https://docs.rosetta-technology.io/dsl/documentation.html
+In the CDM Documentation, review the CDM Model tab, also directly accessible here: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html
 
-# *CDM Model: Legal Documents Modelling*
+# *CDM Model: Legal Document Modelling*
 
 _What is being released_
 
-ISDA Create schemas and samples added for Euroclear CTA documents.
+Collateral Documentation Changes:
 
-_Review Directions_
+- Further `ISDA Create` synonym mapping fixes.
+- Extension of `CreditSupportAgreementElections` to fully support 2016 ISDA IM CSA Japanese Law.
+
+_Review Direction_
 
 In the Ingestion Panel, try samples in folders:
 
-- `isda-create > euroclear-cta-2016-englaw`
-- `isda-create > euroclear-cta-2016-nylaw`
-- `isda-create > euroclear-cta-2017-englaw`
-- `isda-create > euroclear-cta-2017-nylaw`
+- `isda-create > isda-csa-im-2016-jpnlaw`

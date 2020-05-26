@@ -6,7 +6,7 @@ The CDM Model
 * Product
 * Event
 * Legal Agreement
-* Function
+* Process
 * Reference Data
 * Mapping (Synonym)
 
@@ -14,6 +14,7 @@ The following sections define each of these dimensions.  Selected examples of da
 
 Product Model
 -------------
+
 Where applicable, the CDM follows the data structure of the Financial Products Markup Language (FpML), which is widely used in the OTC Derivatives market.  For example, the CDM type ``PayerReceiver`` is equivalent to the FpML PayerReceiver.model. Both of these are data structures used frequently throughout each respective model. In other cases, the CDM data structure is more normalised, per requirements from the CDM Design Working Group.  For example, price and quantity are represented in a single type, ``TradableProduct``, which is shared by all products. Another example is the use of a composable product model whereby:
 
 * **Economic terms are specified by composition**, For example, the ``InterestRatePayout`` type is a component used in the definition of any product with one or more interest rate legs (e.g. Interest Rate Swaps, Equity Swaps, and Credit Default Swaps).  
@@ -35,15 +36,15 @@ QuantityNotation
 """"""""""""""""
 The ``QuantityNotation`` type supports the quantity (or notional) for any product.
 
-.. code-block:: Java
+.. code-block:: Haskell
 
  type QuantityNotation: 
     quantity NonNegativeQuantity (1..1)
     assetIdentifier AssetIdentifier (1..1) 
     
-The ``AssetIdentifier`` type requires the specification of either a product, currency or a floating rate option.
+The ``AssetIdentifier`` type requires the specification of either a product, currency or a floating rate option. This choice constraint is supported by specifying a ``one-of`` condition, as described in the `Special Syntax Section`_ of the Rosetta DSL documentation.
 
-.. code-block:: Java
+.. code-block:: Haskell
 
  type AssetIdentifier: 
     productIdentifier ProductIdentifier (0..1) 
@@ -56,7 +57,7 @@ PriceNotation
 """""""""""""
 The ``PriceNotation`` type supports the price for any product.
 
-.. code-block:: Java
+.. code-block:: Haskell
 
  type PriceNotation: 
     price Price (1..1)
@@ -64,7 +65,7 @@ The ``PriceNotation`` type supports the price for any product.
     
 The ``price`` attribute is of type ``Price``, which requires the selection of one of the attributes that describe different types of prices. The set of attributes collectively support all products in the CDM.
 
-.. code-block:: Java
+.. code-block:: Haskell
 
  type Price: 
     cashPrice CashPrice (0..1)
@@ -73,16 +74,16 @@ The ``price`` attribute is of type ``Price``, which requires the selection of on
     // For IR Swaps, CDS, Repo, and FRA
     floatingInterestRate FloatingInterestRate (0..1)
     condition: one-of
-    
-For example, "cashPrice" would be used to represent the reference price in an Equity Swap and "fixedInterestRate" would be used to represent the fixed rate on an Interest Rate Swap.  The "floatingInterestRate" would be used to represent a cap or floor, or could be used to represent the known initial reset rate of floating leg in an Interest Rate Swap, if it is known at the time of the trade.
+
+For example, ``cashPrice`` would be used to represent the reference price in an Equity Swap and ``fixedInterestRate`` would be used to represent the fixed rate on an Interest Rate Swap. ``floatingInterestRate`` would be used to represent a cap or floor, or could be used to represent the known initial reset rate of a floating leg in an Interest Rate Swap, if it is agreed between the parties as part of the trade.
 
 Financial Product
 """""""""""""""""
 
-A financial product is an instrument that is used to transfer financial risk between two parties. Financial products are represented in the ``Product`` type, which is constrained by the ``one of`` condition, meaning that for a single Tradable Product, there can only be one Product:
+A financial product is an instrument that is used to transfer financial risk between two parties. Financial products are represented in the ``Product`` type, which is also constrained by a ``one-of`` condition, meaning that for a single Tradable Product, there can only be one Product.
 
-.. code-block:: Java
-
+.. code-block:: Haskell
+ 
  type Product: 
     [metadata key]
     contractualProduct ContractualProduct (0..1)
@@ -92,7 +93,7 @@ A financial product is an instrument that is used to transfer financial risk bet
     security Security (0..1)
     condition: one-of
 
-The CDM allows any one of these products to included in a trade or used as an underlier for another product (see the *Underlier* section).  One unlikely case for a direct trade is Index, which is primarily used as an underlier.
+The CDM allows any one of these products to included in a trade or used as an underlier for another product (see the *Underlier* section). One unlikely case for a direct trade is Index, which is primarily used as an underlier.
 
 Among this set of products, the contractual product is the most complicated and requires the largest data structure. In a contractual product, an exchange of financial risk is materialised by a unique bilateral contract that specifies the financial obligations of each party. The terms of the contract are specified at trade inception and apply throughout the life of the contract (which can last for decades for certain long-dated products), unless amended by mutual agreement. Contractual products are fungible (in other words, replaceable by other identical or similar contracts) only under specific terms: e.g. the existence of a close-out netting agreement between the parties. 
 
@@ -131,7 +132,7 @@ The scope of contractual products in the current model are summarized below:
 
 In the CDM, contractual products are represented by the ``ContractualProduct`` type:
 
-.. code-block:: Java
+.. code-block:: Haskell
 
  type ContractualProduct:
     productIdentification ProductIdentification (0..1)
@@ -145,9 +146,10 @@ Economic Terms
 
 The CDM specifies the various sets of possible remaining economic terms using the ``EconomicTerms`` type.  This type includes contractual provisions that are not specific to the type of payout, but do impact the value of the contract, such as effective date, termination date, date adjustments, and early termination provisions.  A valid population of this type is constrained by a set of conditions which are not shown here in the interests of brevity.
 
-.. code-block:: Java
+.. code-block:: Haskell
 
  type EconomicTerms: 
+    [partialKey]
     effectiveDate AdjustableOrRelativeDate (0..1)
     terminationDate AdjustableOrRelativeDate (0..1) 
     dateAdjustments BusinessDayAdjustments (0..1) 
@@ -160,7 +162,7 @@ Payout
 """"""
 The ``Payout`` type defines the composable payout types, each of which describes a set of terms and conditions for the financial responsibilities between the contractual parties. Payout types can be combined to compose a product.  For example, an Equity Swap can be composed by combining an ``InterestRatePayout`` and an ``EquityPayout``.
 
-.. code-block:: Java
+.. code-block:: Haskell
 
  type Payout:
     interestRatePayout InterestRatePayout (0..*)
@@ -173,7 +175,7 @@ The ``Payout`` type defines the composable payout types, each of which describes
    
 The relationship between one of the payout classes and a similar structure in FpML can be identified through the defined Synonyms, as explained in an earlier section.  For example, the ``InterestRatePayout`` is equivalent to the following complex types in FpML: *swapStream*, *feeLeg* *capFloorStream*, *fra*, and *interestLeg*.
 
-.. code-block:: Java
+.. code-block:: Haskell
 
  type InterestRatePayout extends PayoutBase: 
     [metadata key]
@@ -201,7 +203,7 @@ Reusable Components
 
 There are a number of components that are reusable across several payout types.  For example,  the ``CalculationPeriodDates`` class describes the inputs for the underlying schedule of a stream of payments.
 
-.. code-block:: Java
+.. code-block:: Haskell
 
  type CalculationPeriodDates 
     [metadata key]
@@ -220,7 +222,7 @@ Underlier
 
 The ``Underlier`` type allows for any product to be used as the underlier for a higher-level product such as an option, forward, or an equity swap. 
 
-.. code-block:: Java
+.. code-block:: Haskell
 
  type Underlier:
     underlyingProduct Product (1..1) 
@@ -232,7 +234,7 @@ Identified Product
 
 For identified products the CDM approach is to exclude any attribute that can be abstracted through reference data. Specifying such information as part of the contract information would lead to a risk or contradictory information with the reference data.
 
-.. code-block:: Java
+.. code-block:: Haskell
 
  type IdentifiedProduct
     productIdentifier ProductIdentifier (1..1)
@@ -242,54 +244,76 @@ As a result, the bond, equity, and other securities are defined as extensions of
 Product Qualification
 ^^^^^^^^^^^^^^^^^^^^^
 
-The product qualification is inferred from the product's economic terms through a dedicated logic which navigates the model components. It uses the ``isProduct`` Rosetta syntax detailed as part of the *Object Qualification* in the *CDM Modelling Artefacts* section of the documentation
+**Product qualification is inferred from the economic terms of the product** instead of explicitly naming the product type.  The CDM uses a set of Product Qualification functions to achieve this purpose. These functions can be identified as those annotated with ``[qualification Product]``.
 
-The CDM makes use of the ISDA taxonomy V2.0 leaf level to qualify the product. 18 interest rate derivative products have so far been qualified as part of the CDM, in effect representing the full ISDA V2.0 scope. The current CDM implementation only qualifies interest rate swaps, as the ISDA taxonomy V2.0 for credit default swap references the transaction type instead of the product features, which values are not publicly available and hence not positioned as a CDM enumeration.
+A Product Qualification function applies a taxonomy-specific business logic to identify if the product attribute values, as represented by the product's economic terms, match the specified criteria for the product named in that taxonomy. For example, if a certain set of attributes are populated and others are absent, then that specific product type is inferred. The Product Qualification function name in the CDM begins with the word ``Qualify`` followed by an underscore ``_`` and then the product type from the applicable taxonomy  (also separated by underscores).
 
-Follow-up is in progress with the ISDA Credit Group to evaluate whether an alternative product qualification could be developed that would leverage the approach adopted for interest rate derivatives. This issue will be addressed as part of later versions of the CDM.
+The CDM implements the ISDA Product Taxonomy v2.0 to qualify contractual products, foreign exchange, and repurchase agreements. Given the prevalence of usage of the ISDA Product Taxonomy v1.0, the equivalent name from that taxonomy is also systematically indicated in the CDM, using a ``synonym`` annotation displayed under the function output. An example is provided below for the qualification of a Zero-Coupon Fixed-Float Inflation Swap:
 
-**The qualification of a Zero-Coupon Fixed-Float Inflation Swap** provides an example of the product qualification logic, which combines Boolean and qualified expressions:
+.. code-block:: Haskell
+
+ func Qualify_InterestRate_InflationSwap_FixedFloat_ZeroCoupon:
+   [qualification Product]
+   inputs: economicTerms EconomicTerms (1..1)
+   output: is_product boolean (1..1)
+     	[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_Inflation"]
+   assign-output is_product:
+     economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
+     and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
+     and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate is absent
+     and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
+     and economicTerms -> payout -> optionPayout is absent
+     and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
+     and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum -> T
+
+If all the statements above are true, then the function evaluates to True, and the product is determined to be qualified as the product type referenced by the function name.
+
+.. note:: In a typical CDM model implementation, the full set of Product Qualification functions would be invoked against each instance of the product in order to determine the inferred product type. Given the product model composability, a single product instance may be qualified as more than one type: for example in an Interest Rate Swaption, both the Option and the underlying Interest Rate Swap would be qualified.
+
+The CDM supports Product Qualification functions for Credit Derivatives, Interest Rate Derivatives, Equity Derivatives, Foreign Exchange, and Repurchase Agreements. The full scope for Interest Rate Products has been represented down to the full level of detail in the taxonomy. This is shown in the example above, where the ``ZeroCoupon`` qualifying suffix is part of the function name. Credit Default products are qualified, but not down to the full level of detail. The ISDA Product Taxonomy v2.0 references the FpML *transaction type* field instead of just the product features, whose possible values are not publicly available and hence not positioned as a CDM enumeration.
+
+The output of the qualification function is used to populate the ``productQualifier`` attribute of the ``ProductIdentification`` object, which is created when a ``ContractualProduct`` object is created. The product identification includes both the product qualification generated by the CDM and any additional product identification information which may come from the originating document, such as FpML. In this case, taxonomy schemes may be associated to such product identification information, which are also propagated in the ``ProductIdentification`` object.
+
+The ``productIdentification`` data structure and an instance of a CDM object (`serialised`_ into JSON) are shown below:
+
+.. code-block:: Haskell
+
+ type ProductIdentification:
+   productQualifier productType (0..1)
+   primaryAssetdata AssetClassEnum (0..1)
+     [metadata scheme]
+   secondaryAssetdata AssetClassEnum (0..*)
+     [metadata scheme]
+   productType string (0..*)
+     [metadata scheme]
+   productId string (0..*)
+     [metadata scheme]
 
 .. code-block:: Java
 
- isProduct InterestRate_InflationSwap_FixedFloat_ZeroCoupon
-    [synonym ISDA_Taxonomy_v1 value InterestRate_IRSwap_Inflation]
-    EconomicTerms -> payout -> interestRatePayout -> interestRate -> fixedRate count = 1
-    and EconomicTerms -> payout -> interestRatePayout -> interestRate -> inflationRate count = 1
-    and EconomicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate is absent
-    and EconomicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
-    and EconomicTerms -> payout -> optionPayout is absent
-    and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
-    and EconomicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum.T
+ "productIdentification" : {
+   "primaryAssetdata" : {
+     "value" : "INTEREST_RATE",
+     "meta" : {
+       "scheme" : "http://www.fpml.org/coding-scheme/asset-class-simple"
+     }
+   },
+   "productId" : [ {
+     "value" : "InterestRate:IRSwap:FixedFloat",
+     "meta" : {
+       "scheme" : "http://www.fpml.org/coding-scheme/product-taxonomy"
+     }
+   } ],
+   "productQualifier" : "InterestRate_IRSwap_FixedFloat_PlainVanilla",
+   "productType" : [ {
+     "value" : "InterestRate:IRSwap:FixedFloat",
+     "meta" : {
+       "scheme" : "http://www.fpml.org/coding-scheme/product-taxonomy"
+     }
+   } ]
+ }
 
-The product qualification is positioned as the ``productQualifier`` attribute of the ``ProductIdentification`` class, alongside the attributes currently used in FpML to specify the product: ``primaryAssetClass``, ``secondaryAssetClass``, ``productType`` and ``productId``.  This approach allows to specify the credit derivatives products until such time when an alternative approach to the transaction type is identified to support a proper product qualification for credit derivatives.
-
-.. code-block:: Java
-
- type ProductIdentification
-    productQualifier productType (0..1)
-    primaryAssetClass AssetClassEnum (0..1) scheme
-    secondaryAssetClass AssetClassEnum (0..*) scheme
-    productType string (0..*) scheme
-    productId string (0..*) scheme
-
-The CDM product qualification is stamped onto the generated CDM objects and their JSON serialised representation, as shown in the below JSON snippet. It includes both the product identification information associated with an originating FpML document and the product qualification generated by the CDM:
-
-.. code-block:: Java
-
-  "productIdentification": {
-    "primaryAssetClass": "INTEREST_RATE",
-    "productId": [
-      "InterestRate:IRSwap:OIS"
-    ],
-    "productIdScheme": "http://www.fpml.org/coding-scheme/product-taxonomy",
-    "productQualifier": "InterestRate_IRSwap_FixedFloat",
-    "productType": [
-     "InterestRate:IRSwap:OIS"
-    ],
-    "productTypeScheme": "http://www.fpml.org/coding-scheme/product-taxonomy",
-    "secondaryAssetClassScheme": "http://www.fpml.org/coding-scheme/asset-class-simple"
-  }
+.. note:: ``productType`` is a *meta-type* that indicates that its value is meant to be populated via a function. This mechanism is explained in the `Qualified Type Section`_ of the Rosetta DSL documentation. For a further understanding of the underlying qualification logic in the Product Qualification, see the explanation of the *object qualification* feature of the Rosetta DSL, as described in the `Function Definition Section`_.
 
 Event Model
 -----------
@@ -804,226 +828,226 @@ The below snippet represents this ``Documentation`` class, which ``legalAgreemen
  }
 
 
-Function
---------
+Process Model
+-------------
 
-The CDM purpose is to lay the foundation for the standardisation and automation of industry processes. These processes are based on *functions* that transform data from inputs into outputs, often combined into a sequence of steps or *workflow*, which is the basis of process automation. In addition to the data model for products, events and legal agreements, functions are an essential component in the CDM to standardise the processes associated to those financial constructs.
+Purpose
+^^^^^^^
 
-There are two types of functions in the CDM. They use the *Function Artefact* available in the Rosetta DSL and described as part of the *CDM Modelling Artefacts* section of the documentation:
+Why a Process Model
+"""""""""""""""""""
 
-* Calculation, using the ``calculation`` syntax
-* Function Specification, using the ``spec`` syntax
+**The CDM lays the foundation for the standardisation, automation and inter-operability of industry processes**. Industry processes represent events and actions that occur through the transaction's lifecycle, from negotiating a legal agreement to allocating a block-trade or calculating settlement amounts.
 
-Calculation
-^^^^^^^^^^^
+While ISDA defines the protocols for industry processes in its library of ISDA Documentation, differences in the implementation minutia may cause operational friction between market participants. Evidence shows that even when calculations are defined in mathematical notation (for example, day count fraction formulae which are used when calculating interest rate payments) can be a source of dispute between parties in a transaction.
 
-The CDM provides certain ISDA Definitions as machine executable formulas to standardise the industry calculation processes that use those definitions. The ISDA 2006 definitions of **Fixed Amount** and **Floating Amount** have been used as an initial scope to confirm applicability, alongside some of the required day count fractions. Performance calculations are also being introduced in the CDM to support the Equity Swap model.
+What Is the Process Model
+"""""""""""""""""""""""""
+
+**The CDM Process Model has been designed to translate the technical standards that support those industry processes** into a standardised machine-readable and machine-executable format.
+
+Machine readability and executability is crucial to eliminate implementation discrepancy between market participants and increase interoperability between technology solutions. It greatly minimises the cost of adoption and provides a blueprint on which industry utilities can be built.
+
+How Does It Work
+""""""""""""""""
+
+The process model is systematically translated into executable code for the Java representation of the CDM using purpose-built technology as described in the `Code Generation Section`_. The CDM data model and process model specifications can also be translated into a number of other modern, widely adopted and freely available programming languages:
+
+* Scala
+* DAML
+* Typescript
+
+The CDM has the capability to add support for other languages as required by market participants. Executable code artefacts in all supported languages are systematically distributed with the CDM and freely available to download from the ISDA CDM `Portal`_.
+
+Scope
+^^^^^
+
+The scope of the process model has two dimensions:
+
+#. **Coverage** - which industry processes should be covered.
+#. **Granularity** - at which level of detail each process should be specified.
+
+Coverage
+""""""""
+
+**The CDM process model currently covers the post-trade lifecycle of securities, contractual products, and foreign exchange**. Generally, a process is in-scope when it is already covered in ISDA Documentation or other technical documents. For example, the following processes are all in scope:
+
+* Trade execution and confirmation
+* Clearing
+* Allocation
+* Settlement (including any future contingent cashflow payment)
+* Exercise of options
+* Margin calculation
+* Regulatory reporting (although covered in a different documentation section)
+
+Granularity
+"""""""""""
+
+**It is important for implementors of the CDM to understand the scope of the model** with regard to specifications and executable code for the above list of post-trade lifecycle processes.
+
+The CDM process model leverages the *function* component of the Rosetta DSL. As detailed in the `Function Component Section`_ of the documentation, a function receives a set of input values and applies logical instructions to return an output. The input and output are both CDM objects (including basic types). While a function specifies its inputs and output, its logic may be *fully defined* or only *partially defined* depending on how much of the output's attribute values it builds. Unspecified parts of a process represent functionality that firms are expected to implement, either internally or through third-parties such as utilities.
+
+It is not always possible or practical to fully specify the business logic of a process from a model. Parts of processes or sub-processes may be omitted from the CDM for the following reasons:
+
+* The sub-process is not needed to create a functional CDM output object.
+* The sub-process has already been defined and its implementation is widely adopted by the industry.
+* The sub-process is specific to a firm's internal process and therefore cannot be specified in an industry standard.
+
+Given these reasons, the CDM process model focuses on the most critical data and processes required to create functional objects that satisfy the below criterion:
+
+* All of the qualifiable constituents (such as ``BusinessEvent`` and ``Product``) of a function's output can be qualified, which means that they evaluate to True according to at least one of the applicable Qualification functions.
+* Lineage and cross-referencing between objects is accurate for data integrity purposes.
+
+For any remaining data or processes, implementors can populate the remaining attribute values required for the output to be valid by extending the executable code generated by the process model or by creating their own functions.
+
+For the trade lifecycle processes that are in scope, the CDM process model covers the following sub-process components, which are each detailed in the next sections:
+
+#. Validation process
+#. Calculation process
+#. Event creation process
+
+
+Validation Process
+^^^^^^^^^^^^^^^^^^
+
+In many legacy models and technical standards, validation rules are generally specified in text-based documentation, which requires software engineers to evaluate and translate the logic into code. The frequently occuring result of this human interpretation process is inconsistent enforcement of the intended logic.
+
+By contrast, in the CDM, validation components are an integral part of the process model specifications and are distributed as executable code in the Java representation of the CDM. The CDM validation components leverage the validation components of the Rosetta DSL, as described in the `Validation Component Section`_.
+
+As an example, the *FpML ird validation rule #57*, states that if the calculation period frequency is expressed in units of month or year, then the roll convention cannot be a weekday. A machine readable and executable definition of that specification is provided in the CDM, as a ``condition`` attached to the ``CalculationPeriodFrequency`` type:
+
+.. code-block:: Haskell
+
+ condition FpML_ird_57: <"FpML validation rule ird-57 - Context: CalculationPeriodFrequency. [period eq ('M', 'Y')] not(rollConvention = ('NONE', 'SFE', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT','SUN')).">
+   if period = PeriodExtendedEnum -> M or period = PeriodExtendedEnum -> Y
+   then rollConvention <> RollConventionEnum -> NONE
+     or rollConvention <> RollConventionEnum -> SFE
+     or rollConvention <> RollConventionEnum -> MON
+     or rollConvention <> RollConventionEnum -> TUE
+     or rollConvention <> RollConventionEnum -> WED
+     or rollConvention <> RollConventionEnum -> THU
+     or rollConvention <> RollConventionEnum -> FRI
+     or rollConvention <> RollConventionEnum -> SAT
+     or rollConvention <> RollConventionEnum -> SUN
+
+
+Calculation Process
+^^^^^^^^^^^^^^^^^^^
+
+The CDM provides certain ISDA Definitions as machine executable formulas to standardise the industry calculation processes that depend on those definitions.  Examples include the ISDA 2006 definitions of *Fixed Amount* and *Floating Amount* , the ISDA 2006 definitions of Day Count Fraction rules, and performance calculations for Equity Swaps. The CDM also specifies related utility functions.
+
+These calculation processes leverage the *calculation function* component of the Rosetta DSL, as detailed in the `Function Definition Section`_, and accordingly are associated to a ``calculation`` annotation.
+
+Explanations of these processes are provided in the following sections.
 
 Fixed Amount and Floating Amount Definitions
 """"""""""""""""""""""""""""""""""""""""""""
 
 The CDM expressions of ``FixedAmount`` and ``FloatingAmount`` are similar in structure: a calculation formula that reflects the terms of the ISDA 2006 Definitions and the arguments associated with the formula.
 
-.. code-block:: Java
+.. code-block:: Haskell
 
- calculation FixedAmount
- {
-  fixedAmount : calculationAmount * fixedRate * dayCountFraction
-  
-  where
-   calculationAmount : InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
-   fixedRate : InterestRatePayout -> rateSpecification -> fixedRate -> initialValue
-   dayCountFraction : InterestRatePayout -> dayCountFraction
-  }
-
-.. code-block:: Java
-
- calculation FloatingAmount
- {
-  floatingAmount : calculationAmount * ( floatingRate + spread ) * dayCountFraction
-  
-  where
-   calculationAmount : InterestRatePayout -> quantity -> notionalSchedule -> notionalStepSchedule -> initialValue
-   floatingRate : ResolveRateIndex( InterestRatePayout -> rateSpecification -> floatingRate -> floatingRateIndex ) -> rate
-   spread : GetRateSchedule( InterestRatePayout -> rateSpecification -> floatingRate ) -> schedule -> initialValue
-   dayCountFraction : InterestRatePayout -> dayCountFraction
- }
+ func FloatingAmount:
+   [calculation]
+   inputs:
+     interestRatePayout InterestRatePayout (1..1)
+     rate FloatingInterestRate (1..1)
+     quantity NonNegativeQuantity (1..1)
+     date date (1..1)
+   output: floatingAmount number (1..1)
+   
+   alias calculationAmount: quantity -> amount
+   alias floatingRate: ResolveRateIndex( interestRatePayout -> rateSpecification -> floatingRate -> assetIdentifier -> rateOption -> floatingRateIndex )
+   alias spreadRate: rate -> spread
+   alias dayCountFraction: DayCountFraction(interestRatePayout, interestRatePayout -> dayCountFraction, date)
+   
+   assign-output floatingAmount: calculationAmount * (floatingRate + spreadRate) * dayCountFraction
 
 Day Count Fraction
 """"""""""""""""""
 
-The current CDM version incorporates day count fractions calculations representing the set of day count fractions specified as part of the ISDA 2006 Definitions, e.g. the **ACT/365.FIXED** and the **30E/360** day count fractions. While the ACT/365.FIXED definition is simple and relies upon a computation of the number of days in a period (not specified as part of the CDM because not involving any specific logic), the 30E/360 definition specifies the actual computation in details to account for a 360 days year and a 30 maximum days month.
+The CDM process model incorporates calculations that represent the set of day count fraction rules specified as part of the ISDA 2006 Definitions, e.g. the *ACT/365.FIXED* and the *30E/360* day count fraction rules. Although these rules are widely accepted in international markets, many of them have complex nuances which can lead to inconsistent implementations and potentially mismatched settlements.
 
-.. code-block:: Java
+For example, there are three distinct rule sets in which the length of each month is generally assumed to be 30 days for accrual purposes (and each year is assumed to be 360 days). However there are nuances in the rule sets that distinquish the resulting calculations under different circumstances, such as when the last day of the period is the last day of February. These distinct rule sets are defined by ISDA as 30/360 (also known as 30/360 US), 30E/360 (formerly known as 30/360 ICMA or 30/360 Eurobond), and the 30E/360.ISDA.
 
- calculation DayCountFractionEnum.ACT_365_FIXED
- {
-  : daysInPeriod / 365
-  
-  where
-   daysInPeriod: CalculationPeriod( InterestRatePayout -> calculationPeriodDates ) -> daysInPeriod
- }
+The CDM process model eliminates the need for implementators to interpret the logic and write unique code for these rules. Instead, it provides a machine-readable expression that generates executable code, such as the example below:
 
-.. code-block:: Java
+.. code-block:: Haskell
 
- calculation DayCountFractionEnum._30E_360
- {
-  : (360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
-  
-  where
-   alias calculationPeriod
-    CalculationPeriod( InterestRatePayout -> calculationPeriodDates )
-   startYear: calculationPeriod -> startDate -> year
-   endYear: calculationPeriod -> endDate -> year
-   startMonth: calculationPeriod -> startDate -> month
-   endMonth: calculationPeriod -> endDate -> month
-   endDay: Min( calculationPeriod -> endDate -> day, 30 )
-   startDay: Min( calculationPeriod -> startDate -> day, 30 )
- }
- 
+ func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360):
+   [calculation]
+   
+   alias calculationPeriod: CalculationPeriod(interestRatePayout -> calculationPeriodDates, date)
+   alias startYear: calculationPeriod -> startDate -> year
+   alias endYear: calculationPeriod -> endDate -> year
+   alias startMonth: calculationPeriod -> startDate -> month
+   alias endMonth: calculationPeriod -> endDate -> month
+   alias endDay: Min(calculationPeriod -> endDate -> day, 30)
+   alias startDay: Min(calculationPeriod -> startDate -> day, 30)
+   
+   assign-output result:
+     (360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
+
+Utility Function
+""""""""""""""""
+
+CDM elements often need to be transformed by a function to construct the arguments for a formula in a calculation. A typical example is the requirement to identify a period start date, end date, and other date-related attributes required to compute a cashflow amount in accordance with a schedule (as illustrated in the day count fraction calculation shown above). The CDM has two main types to address this requirement:
+
+* ``CalculationPeriodDates`` specifies the inputs required to construct a calculation period schedule
+* ``CalculationPeriodData`` specifies actual attribute values of a calculation period such as start date, end date, etc.
+
+The CalculationPeriod functon receives the ``CalculationPeriodDates`` and the current date as the inputs and produces the ``CalculationPeriodData` as the output, as shown below:
+
+.. code-block:: Haskell
+
+ func CalculationPeriod:
+   inputs:
+     calculationPeriodDates CalculationPeriodDates (1..1)
+     date date (1..1)
+   output: result CalculationPeriodData (1..1)
+
 Equity Performance
 """"""""""""""""""
 
-To support the implementation of Equity Swaps in CDM, calculations have been introduced to support the equity performance concepts used to reset and pay cashflows on such contracts. Those calculations follow the definitions as normalised in the new **2018 ISDA CDM Equity Confirmation for Security Equity Swap** (although this is a new template that is not yet in use across the industry).
+The CDM process model includes calculations to support the equity performance concepts applied to reset and pay cashflows on Equity Swaps. Those calculations follow the definitions as normalised in the new *2018 ISDA CDM Equity Confirmation for Security Equity Swap* (although this is a new template that is not yet in use across the industry).
 
-A non-exhaustive list of those calculations is presented below:
+Some of those calculations are presented below:
 
-.. code-block:: Java
+.. code-block:: Haskell
 
- calculation EquityCashSettlementAmount <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 72. 'Equity Cash Settlement Amount' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Cash Settlement Amount = ABS(Rate Of Return) × Equity Notional Amount.">
- {
-  equityCashSettlementAmount : rateOfReturn * notionalAmount
-  
-  where
-   rateOfReturn	: Abs( ResolveRateOfReturn( EquityPayout ) -> rate ) -> result
-   notionalAmount	: ResolveNotionalAmount( EquityPayout ) -> notional
- }
+ func EquityCashSettlementAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 72. 'Equity Cash Settlement Amount' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Cash Settlement Amount = ABS(Rate Of Return) × Equity Notional Amount.">
+   inputs:
+     contractState ContractState (1..1)
+     date date (1..1)
+   output:
+     equityCashSettlementAmount Money (1..1)
+   
+   alias equityPayout: contractState -> contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout
+   
+   condition: equityPayout -> payoutQuantity -> assetIdentifier -> productIdentifier = equityPayout -> underlier -> underlyingProduct -> security -> equity -> productIdentifier
+   
+   assign-output equityCashSettlementAmount -> amount:
+     Abs(contractState -> updatedContract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element -> performance)
+   assign-output equityCashSettlementAmount -> currency:
+     ResolveEquityInitialPrice( equityPayout only-element -> underlier, contractState -> contract -> tradableProduct -> priceNotation ) -> netPrice -> currency
 
-.. code-block:: Java
+.. code-block:: Haskell
 
- calculation RateOfReturn <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 139. 'Rate Of Return' means, in respect of any Equity Valuation Date, the amount determined pursuant to the following formula: Rate Of Return = (Final Price - Initial Price) / Initial Price.">
- {
-  rateOfReturn : ( finalPrice - initialPrice ) / initialPrice
-  
-  where
-   businessDate: GetBusinessDateFunc()
-   calculationPeriod : EquityCalculationPeriod( EquityPayout, businessDate -> result )
-   initialPrice:
-    if calculationPeriod -> isFirstPeriod = True then
-     EquityPayout -> priceReturnTerms -> initialPrice -> netPrice -> amount
-    else (
-     if EquityPayout -> priceReturnTerms -> valuationPriceInterim exists then
-      ResolvePrice( EquityPayout -> priceReturnTerms -> valuationPriceInterim, calculationPeriod -> startDate ) -> price
-     else
-      ResolvePrice( EquityPayout -> priceReturnTerms -> valuationPriceFinal, calculationPeriod -> startDate ) -> price
-     )
-   finalPrice:
-    if calculationPeriod -> isLastPeriod = True then
-     ResolvePrice( EquityPayout -> priceReturnTerms -> valuationPriceFinal, calculationPeriod -> endDate ) -> price
-    else
-     ResolvePrice( EquityPayout -> priceReturnTerms -> valuationPriceInterim, calculationPeriod -> endDate ) -> price
- }
+ func RateOfReturn: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 139. 'Rate Of Return' means, in respect of any Equity Valuation Date, the amount determined pursuant to the following formula: Rate Of Return = (Final Price - Initial Price) / Initial Price.">
+   inputs:
+     initialPrice number (1..1)
+     finalPrice number (1..1)
+   output:
+     rateOfReturn number (1..1)
+   
+   assign-output rateOfReturn:
+     (finalPrice - initialPrice) / initialPrice
 
-Function Specification
+Event Creation Process
 ^^^^^^^^^^^^^^^^^^^^^^
 
-A function specification in CDM standardises the `API <https://en.wiktionary.org/wiki/application_programming_interface>`_ that industry implementations should conform to when building that function for process automation. In contrast to calculations, the CDM does not provide an implementation of those functions and only specifies their inputs and output and the validation conditions that both must satisfy. By standardising those APIs, the CDM guarantees the integrity, inter-operability and consistency of the automated processes that their implementations will support.
+(*Coming soon*)
 
-Function specifications can be used to specify any type of function in the CDM. There are currently two main uses:
-
-* as part of calculations
-* to construct events
-
-Function specification is a newly introduced feature in the CDM and the range of uses is expected to grow over time.
-
-Function Used in Calculation
-""""""""""""""""""""""""""""
-
-CDM model elements often need to be transformed by a function to construct the arguments for a formula in a calculation. A typical example, required to compute a cashflow amount in accordance with a schedule (as illustrated in the day count fraction calculation shown above), is to identify the characteristics of the current calculation period.
-
-The CDM has two main classes for this:
-
-* ``CalculationPeriodDates`` specifies the inputs required to construct a calculation period schedule
-* ``DateRange`` specifies a start and end date
-
-A pure data model cannot tie them together and a function is required to compute the latter based on the former (and also the current date):
-
-.. code-block:: Java
-
- spec CalculationPeriodSpec:
-  inputs:
-   periodDates CalculationPeriodDates (1..1)
-   date date (1..1)
-  output:
-   result DateRange (1..1)
-
-Function to Construct an Event
-""""""""""""""""""""""""""""""
-
-A crucial component of financial industry processes is the management of the transaction lifecycle, from an execution to a contract and to all the possible post-trade events for that contrac: cashflow payment, exercise etc.
-
-While the CDM event model provides a standardised data representation of lifecycle events in terms of ``PrimitiveEvent`` with ``before`` and ``after`` states, the APIs to process those events must be further specifid in the CDM to standardise implementation across the industry. Lineage must be enforced across events, so how those events work in sequence must also be specified.
-
-An example of such use is the handling of a reset event, hereby presented an an equity reset example. The reset is processed in two steps:
-* An ``ObservationPrimitive`` is built for the equity price, independently from any single contract.
-* This observation is used to construct a ``ResetPrimitive`` on any contract affected by it, with eventual cashflow payment where applicable.
-
-For the observation primitive, checks are performed on the valuation date and/or time inputs and on their consistency with a given price determination method. The function to fetch the equity price is also specified to ensure integrity of the observation number.
-
-.. code-block:: Java
-
- spec EquityPriceObservation <"Function specification for the observation of an equity price, based on the attributes of the 'EquityValuation' class.">:
-  inputs:
-   equity Equity (1..1)
-   valuationDate AdjustableOrRelativeDate (1..1)
-   valuationTime BusinessCenterTime (0..1)
-   timeType TimeTypeEnum (0..1)
-   determinationMethod DeterminationMethodEnum (1..1)
-  output:
-   observation ObservationPrimitive (1..1)
- 
-  pre-condition <"Optional choice between directly passing a time or a timeType, which has to be resolved into a time based on the determination method.">:
-   if valuationTime exists then timeType is absent
-   else if timeType exists then valuationTime is absent
-   else False;
- 
-  post-condition <"The date and time must be properly resolved as attributes on the output.">:
-   observation -> date = ToAdjustedDateFunction( valuationDate );
-   if valuationTime exists then observation -> time = TimeZoneFromBusinessCenterTime( valuationTime )
-   else observation -> time = ResolveTimeZoneFromTimeType( timeType, determinationMethod );
- 
-  post-condition <"The number recorded in the observation must match the number fetched from the source.">:
-   observation -> observation = EquitySpot( equity, observation -> date, observation -> time );
-
-The reset primitive applies to an ``EquityPayout`` and uses the observation number extracted from the observation primitive to compute the cashflow corresponding to the reset value.
-
-**Note**: Current implementation of the reset event will be adjusted to separate the resetting of the equity value on the contract and the cashflow calculation (if any), which should be the concern of the transfer event.
-
-.. code-block:: Java
-
- spec EquityReset <"Function specification for resetting an equity payout following an equity price observation. This function only concerns itself with building the primitive, which currently does not affect the underlying contract (until such time when 'ResetPrimitive' is refactored to directly accomodate a 'before' and 'after' states). The contract effect will be part of the 'EventEffect' attribute on the a fully-formed Business Event that is built by the 'EquityResetEvent' function spec.">:
-  inputs:
-   equityPayout EquityPayout (1..1)
-   observation number (1..1)
-   date date (1..1)
-  output:
-   reset ResetPrimitive (1..1)
-  
-  pre-condition <"The reset date must be the period start date on the equity payout.">:
-   date = CalculationPeriodSpec( equityPayout -> calculationPeriodDates, GetBusinessDateSpec() ) -> unadjustedFirstDate;
-  
-  post-condition <"Date and value attributes must be correctly populated on the reset primitive.">:
-   reset -> date = date;
-   reset -> resetValue = observation;
-  
-  post-condition <"Reset cashflow must be correctly calculated on the reset primitive by fetching the .">:
-   reset -> cashflow -> cashflowAmount -> amount = ResolveEquityCashSettlementAmountSpec( equityPayout );
-   reset -> cashflow -> cashflowAmount -> currency = equityPayout -> settlementTerms -> settlementCurrency;
-   reset -> cashflow -> payerReceiver = EquityAmountPayer( equityPayout );
-
-The above function specifications use other functions, such as ``ResolveEquityCashSettlementAmountSpec`` to compute the cash settlement amount. This function specification in turn is tied to the equity performance calculations presented in the above *Equity Performance* section.
-
-**Note**: The ``ResolveEquityCashSettlementAmountSpec`` is currently specified independently from the ``EquityCashSettlementAmount`` calculation in the CDM, due to a transient state of the Rosetta DSL where ``spec`` and ``calculation`` are implemented separately. Work is under-way that will bring those two back together. For clarity, the 'target state' is presented in this documentation.
 
 Reference Data Model
 --------------------
@@ -1031,8 +1055,6 @@ Reference Data Model
 The CDM only integrates the reference data components that are specifically needed to model the in-scope products, events, legal agreements and function components.
 
 This translates into the representation of the **party**, with two alternate representations, modelled as attributes: the **legal entity** and the **natural person**.  The reason for making use of the class inheritance model, with Party as a the base type that would be extended by LegalEntity and NaturalPerson, is that the Rosetta model doesn't support downcasting, which was causing issues in some scenarios. This will be further assess at some future point.
-
-The CDM reference data representation will be further expanded once use cases for the model is firmed out.
 
 .. code-block:: Java
 
@@ -1070,7 +1092,7 @@ The CDM reference data representation will be further expanded once use cases fo
 Mapping (Synonym)
 -----------------
 
-In order to facilitate the translation of existing industry messages (based on open standards or proprietary ones) into CDM, the CDM is mapped to a set of those alternative data representations using the ``synonym`` feature available in the Rosetta DSL.
+In order to facilitate the translation of existing industry messages (based on open standards or proprietary ones) into CDM, the CDM is mapped to a set of those alternative data representations using the Rosetta DSL *synonym* feature, as described in the `Mapping Component Section`_.
 
 The following set of synonym sources are currently in place for the CDM:
 
@@ -1084,3 +1106,16 @@ The following set of synonym sources are currently in place for the CDM:
 * **ISDA Create** (synonym source: ``ISDA_Create_1_0``): synonyms to version 1.0 of the ISDA Create tool for Initial Margin negotiation
 
 Those synonym sources are listed as part of a configuration file in the CDM using a special ``synonym source`` enumeration, so that the synonym source value can be controlled when editing synonyms.
+
+.. _Qualified Type Section: https://docs.rosetta-technology.io/dsl/documentation.html#qualified-type
+.. _Function Definition Section: https://docs.rosetta-technology.io/dsl/documentation.html#function-definition
+.. _Function Component Section: https://docs.rosetta-technology.io/dsl/documentation.html#function-component
+.. _Code Generation Section: https://docs.rosetta-technology.io/dsl/codegen-readme.html
+.. _Validation Component Section: https://docs.rosetta-technology.io/dsl/documentation.html#validation-component
+.. _Mapping Component Section: https://docs.rosetta-technology.io/dsl/documentation.html#mapping-component
+.. _Special Syntax Section: https://docs.rosetta-technology.io/dsl/documentation.html#special-syntax
+.. _serialised: https://en.wikipedia.org/wiki/Serialization
+
+.. _Portal: https://portal.cdm.rosetta-technology.io
+.. _function coverage matrix: Portal
+.. _data modelling: https://en.wikipedia.org/wiki/Cardinality_(data_modeling)#Application_program_modeling_approaches
