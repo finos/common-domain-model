@@ -1,37 +1,20 @@
-# *Documentation: Process Model*
+# *Model Optimisation: Remove Inception Primitive*
 
 _What is being released_
 
-Following recent overhaul of the Rosetta DSL documentation, the CDM documentation has been updated, focusing on:
+Follow up action from 2-Jul-19 Design WG minutes:
+- Remove the Inception primitive and provide sample events for ExecutionPrimitive and ContractFormation. Proposal is to make use of the new ‘Function Specification’ module and start presenting events as a sequence instead of a static ingestion.
 
-* Process model section (formerly: functions)
-* Product qualification section
+The `InceptionPrimitive` has been deprectated for some time and has now been completely removed in favour of the `ExectionPrimitive` and `FormationPrimitive`. All synonymns, conditions, qualifications and function have now been updated to reflect this. Examples of Inception events provided in the CDM Portal Ingestion section have now been removed and replaced with new examples that are available in the Instance Viewer section created by executing the relevent Business Event Functions.
 
-The former CDM function section has been migrated to a dedicated Rosetta DSL function section (as per previous release), and the CDM documentation focuses instead on explaining how this function feature is used to standardise lifecycle event processes. Two types of process are being demonstrated:
-
-* Validation process
-* Calculation process
-* An upcoming section (not part of this release) will also focus on event creation process
-
-The product qualification section has also been adjusted to reflect the use of functions for the qualification logic.
-
-Example snippets for the two updated sections have been updated to reflect their latest representation in the CDM, and some additional examples have been included where relevant.
 
 _Review Direction_
 
-In the CDM Documentation, review the CDM Model tab, also directly accessible here: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html
+In the CDM Portal Review changes:
 
-# *CDM Model: Legal Document Modelling*
-
-_What is being released_
-
-Collateral Documentation Changes:
-
-- Further `ISDA Create` synonym mapping fixes.
-- Extension of `CreditSupportAgreementElections` to fully support 2016 ISDA IM CSA Japanese Law.
-
-_Review Direction_
-
-In the Ingestion Panel, try samples in folders:
-
-- `isda-create > isda-csa-im-2016-jpnlaw`
+- See Ingestion examples for DTCC map to use ContractFormation
+- See CME confirm examples now qualify the beta and gamma trades as `ContractFormation`
+- In the Textual browser, see the reg reporting definition of `NewTrade` now reports on Execution or Contract Formation (but not both to avoid double reporting)
+- In the Textual browser, see updated qualifications: `Qualify_Novation`, `Qualify_PartialNovation`, `Qualify_TradeWarehousePositionNotification`.
+- In the Instance Viewer, see new examples for FX Forward, CDS and Repo in the Execution and Contract Formation Business section
+- In the Textual browser, see that 'PostInceptionState' has been renamed to 'PostContractFormationState' for consistency
