@@ -12,7 +12,7 @@ _Review Direction_
 
 In the CDM Portal Review changes:
 
-- Ingestion examples for DTCC now ingest into `ContractFormation` event.
+- In the Ingestion page, DTCC xml samples now ingest in to `ContractFormation` events rather than `Inception`.
 - See CME confirm examples now qualify the beta and gamma trades as `ContractFormation`
 - In the Textual browser, see the reg reporting definition of `NewTrade` now reports on Execution or Contract Formation (but not both to avoid double reporting)
 - In the Textual browser, see updated qualifications: `Qualify_Novation`, `Qualify_PartialNovation`, `Qualify_TradeWarehousePositionNotification`
