@@ -7,11 +7,10 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.attribute.BasicFileAttributes
 import java.util.function.BiPredicate
-import kotlin.streams.asSequence
 import kotlin.streams.toList
 import kotlin.system.exitProcess
 
-class CodeBlockValidator(
+class DocumentationCodeValidator(
         private val docPath: String,
         private val snippetPath: String,
         private val modelPath: String,
@@ -27,7 +26,7 @@ class CodeBlockValidator(
     fun validate() {
         fun validate(code: Sequence<String>, model: String): Int {
             val invalidCode = code
-                    .filter { _code -> !_code.contains(Regex(".*\\.\\. code-block:: Java")) }
+                    .filter { _code -> !_code.contains(".. code-block:: Java") }
                     .filter { _code ->
                         val cleaned = _code
                                 .replace(Regex(".*\\.\\. code-block.*"), "")
@@ -43,9 +42,15 @@ class CodeBlockValidator(
         val invalidCodeBlocks = validate(getCodeBlocks(), model)
         val invalidSnippets = validate(getSnippets(), model)
 
-        if (invalidCodeBlocks > 0) { System.err.println("Found [$invalidCodeBlocks] code-blocks that don't match model text.") }
-        if (invalidSnippets > 0) { System.err.println("Found [$invalidSnippets] code-snippets that don't match model text.") }
-        if (invalidCodeBlocks + invalidSnippets != 0) { exitProcess(1) }
+        if (invalidCodeBlocks > 0) {
+            System.err.println("Found [$invalidCodeBlocks] code-blocks that don't match model text.")
+        }
+        if (invalidSnippets > 0) {
+            System.err.println("Found [$invalidSnippets] code-snippets that don't match model text.")
+        }
+        if (invalidCodeBlocks + invalidSnippets != 0) {
+            exitProcess(1)
+        }
     }
 
     private fun getCodeBlocks(): Sequence<String> {
@@ -73,8 +78,8 @@ class CodeBlockValidator(
         val docFileFilter = BiPredicate<Path, BasicFileAttributes> { path, attr -> attr.isRegularFile && path.fileName.toString().endsWith(ext) }
 
         return Files.find(Path.of(dir), 1, docFileFilter).use { paths ->
-                    paths.map { path -> Files.readString(path, Charset.defaultCharset()) }.toList()
-                }
+            paths.map { path -> Files.readString(path, Charset.defaultCharset()) }.toList()
+        }
     }
 
     private fun isValid(code: Sequence<String>, type: String): Sequence<String> {
@@ -106,5 +111,5 @@ fun main(args: Array<String>) {
     val modelPath = cmd.getOptionValue("model-path") ?: "src/main/rosetta"
     val fixUp = cmd.hasOption("fix-up")
 
-    CodeBlockValidator(docPath, snippetPath, modelPath, fixUp).validate()
+    DocumentationCodeValidator(docPath, snippetPath, modelPath, fixUp).validate()
 }
