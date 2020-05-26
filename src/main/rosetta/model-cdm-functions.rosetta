@@ -10,31 +10,6 @@ annotation creation: <"Annotation to describe the intent of a function">
     PrimitiveEvent PrimitiveEvent (0..1) <"A primitive event function should take as an input all of the types required to construct the event and produce a new PrimitiveEvent type.">
     BusinessEvent BusinessEvent (0..1) <"A business event function should take as its inputs the after state of previous business event or in case where the is no before state, all of the inputs required to produce the outcome BusinessEvent.">
 
-func Create_Inception: <"Function specification to perform an execution and a contract formation in an atomic BusinessEvent.">
-	[creation BusinessEvent]
-	inputs:
-		product Product (1..1) <"The financial product to be executed and contract formed.">
-		quantityNotation QuantityNotation (1..*) <"Quantity of the product.">
-		priceNotation PriceNotation (0..*) <"Price of the product">
-		parties Party (2..2) <"The parties to that execution, for now assumed Principal-Principal, i.e. no Agent.">
-		partyRoles PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the execution.">
-		legalAgreement LegalAgreement (0..1) <"Optional legal agreement for the contract formation">
-
-	output:
-		inceptionEvent BusinessEvent (1..1) <"The resulting business event which will be composed of two primitive events: ExecutionPrimitive and ContractFormationPrimitive.">
-
-	alias executionPrimitive: <"Create new execution primitive from the product, quantity, price and parties">
-		Create_ExecutionPrimitive(product, quantityNotation, priceNotation, parties, partyRoles)
-
-	alias contractFormationPrimitive: <"Create new contract formation using the after state of the execution primitive and optional legal agreement.">
-		Create_ContractFormationPrimitive(executionPrimitive -> after -> execution, legalAgreement)
-
-	assign-output inceptionEvent -> primitives -> execution: <"Add the execution primitive to the resulting inception business event">
-		executionPrimitive
-
-	assign-output inceptionEvent -> primitives -> contractFormation: <"Add the contract formation to the resulting inception business event">
-		contractFormationPrimitive
-
 func Create_Execution:
 	[creation BusinessEvent]
 	inputs:
@@ -83,7 +58,7 @@ func Create_ExecutionPrimitive: <"Function specification to compose an execution
 	post-condition: <"The execution will be the first event in any post-trade life cycle and therefore does not have a before state. Once pre-trade elements are brought into CDM, the 'before' will be used to refer to the last of the pre-trade event states.">
 		executionPrimitive -> before is absent
 
-func Create_ContractFormation: <"Function specification to create the fully-formed business event of entering into a new contract, as a combination of an execution primitive and a contract formation primitive, when there is no allocation involved and the contractual parties are the execution parties. This specification is meant to replace the 'Inception' primitive that previously co-mingled these 2 primitives.">
+func Create_ContractFormation: <"Function specification to create the fully-formed business event of entering into a new contract, as a combination of an execution primitive and a contract formation primitive, when there is no allocation involved and the contractual parties are the execution parties.">
 	[creation BusinessEvent]
 	inputs:
 		executionEvent BusinessEvent (1..1)
