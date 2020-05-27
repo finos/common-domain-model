@@ -73,7 +73,7 @@ The ``price`` attribute is of type ``Price``, which requires the selection of on
     cashPrice CashPrice (0..1)
     exchangeRate ExchangeRate (0..1)
     fixedInterestRate FixedInterestRate (0..1) 
-    // For IR Swaps, CDS, Repo, and FRA
+   
     floatingInterestRate FloatingInterestRate (0..1)
     condition: one-of
 
@@ -258,7 +258,7 @@ The CDM implements the ISDA Product Taxonomy v2.0 to qualify contractual product
    [qualification Product]
    inputs: economicTerms EconomicTerms (1..1)
    output: is_product boolean (1..1)
-     	[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_Inflation"]
+     	
    assign-output is_product:
      economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
      and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
@@ -358,10 +358,10 @@ The trade state is currently described in the CDM by the ``Trade`` type. It alwa
 
 .. code-block:: Haskell
 
- type Trade: <"A class to represent the general trade concept, which can either be an execution or a contract. The execution consists essentially in the economic terms which are agreed between the parties. The contract will further qualify those with the legal entities (think of the allocation case, which execution state can involve the investment adviser rather not the actual funds) while not specify the master agreement or collateral terms which might be associated with the subsequent contract.">
+ type Trade: 
    [metadata key]
-   execution Execution (0..1) <"The execution corresponds to economic terms that are agreed between parties, but which legal terms are not yet specified. The execution attribute applies to the post-execution scenario of a product that is subject to the clearing mandate and is then routed to the CCP as an execution.">
-   contract Contract (0..1) <"The contract differs from the execution by the fact that its legal terms are fully specified. This includes the legal entities that are associated to it as well as any associated legal agreement, e.g. master agreement, credit and collateral terms, ... ">
+   execution Execution (0..1) 
+   contract Contract (0..1) 
    condition Trade: one-of
 
 Those two types are detailed in the sections below.
@@ -375,30 +375,30 @@ The current CDM event model only covers post-trade lifecycle events, so the firs
 
 .. code-block:: Haskell
 
- type Execution: <" A class to specify an execution, which consists essentially in the economic terms which are agreed between the parties, alongside with the qualification of the type of execution. The associated globalKey denotes the ability to associate a hash value to the respective Execution instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+ type Execution: 
    [metadata key]
-   executionType ExecutionTypeEnum (1..1) <"Specifies the type of execution, e.g. via voice, electronically...">
-   executionVenue LegalEntity (0..1) <"The execution venue identification, when applicable.">
-   identifier Identifier (1..*) <"The identifier(s) associated with the execution.">
-   tradeDate date (1..1) <"The trade/execution date.">
+   executionType ExecutionTypeEnum (1..1) 
+   executionVenue LegalEntity (0..1) 
+   identifier Identifier (1..*) 
+   tradeDate date (1..1) 
    [metadata id]
-   tradableProduct TradableProduct (1..1) <"The product traded as part of this execution, including quantity and price">
-   party Party (0..*) <"The party reference is optional because positioned as part of the Event class when the execution is specified as part of such context.">
+   tradableProduct TradableProduct (1..1) 
+   party Party (0..*) 
    [metadata reference]
-   partyRole PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the execution, further to the principal parties (i.e payer/receive or buyer/seller) to it.">
-   closedState ClosedState (0..1) <"The qualification of what led to the execution closure alongside with the dates on which this closure takes effect.">
-   settlementTerms SettlementTerms (0..1) <"The execution settlement terms, which is applicable for products such as securities">
+   partyRole PartyRole (0..*) 
+   closedState ClosedState (0..1) 
+   settlementTerms SettlementTerms (0..1) 
 
 The ``settlementTerms`` attribute define how the transaction should be settled (including the settlement date), for instance in a *delivery-versus-payment* scenario for a cash security transaction or a *payment-versus-payment* scenario for an FX spot or forward transaction. The actual settlement amount(s) will need to use the *price* and *quantity* agreed as part of the tradable product.
 
 .. code-block:: Haskell
 
- type SettlementTerms extends SettlementBase: <"A class to specify the settlement terms. This class reflects the FpML OptionSettlement.model, although with no option reference.">
-   settlementType SettlementTypeEnum (0..1) <"Whether the settlement will be cash, physical, by election, ...">
+ type SettlementTerms extends SettlementBase: 
+   settlementType SettlementTypeEnum (0..1) 
    settlementDate AdjustableOrRelativeDate (0..1)
-   valueDate date (0..1) <"The settlement date for a forward settling product. For Foreign Exchange contracts, this represents a common settlement date between both currency legs. To specify different settlement dates for each currency leg, see the ForeignExchange class. This attribute is meant to be merged with the 'settlementDate' at some future point noce we refactor 'Date' to use a single complex type across the model.">
-   settlementAmount Money (0..1) <"The Settlement Amount, when known in advance.">
-   transferSettlementType TransferSettlementEnum (0..1) <"The qualification as to how the transfer will settle, e.g. a DvP settlement.">
+   valueDate date (0..1) 
+   settlementAmount Money (0..1) 
+   transferSettlementType TransferSettlementEnum (0..1) 
 
 Post-Execution: Contract
 """"""""""""""""""""""""
@@ -437,7 +437,7 @@ The current list of primitive events can be seen in the ``PrimitiveEvent`` type 
 
 .. code-block:: Haskell
 
- type PrimitiveEvent: <"A primitive event is defined by one and only one atomic change in state of a trade. An example of this is a contract formation where the legal terms of the contact are added to the trade. A Primitive event contains a before and after state where the before is a reference to another after state of a primitive event in order to preserve lineage.">
+ type PrimitiveEvent: 
    
    execution ExecutionPrimitive (0..1)
    contractFormation ContractFormationPrimitive (0..1)
@@ -461,31 +461,31 @@ The sequence starts with the *inception* of a new transaction, which results in 
 
 .. code-block:: Haskell
 
- type InceptionPrimitive: <"The primitive event for the inception of a new contract between parties. It is expected that this primitive will be adjusted or deprecated once the CDM scope is extended to the pre-execution space.">
-   before ContractState (0..0) <"The (0..0) cardinality reflects the fact that there is no contract in the before state of an inception primitive. As noted in the definition associated with the class, this is expected to change once the CDM scope is extended to the pre-execution space.">
+ type InceptionPrimitive: 
+   before ContractState (0..0) 
      [metadata reference]
-   after PostInceptionState (1..1) <"The after state corresponds to the new contract between the parties.">
+   after PostInceptionState (1..1) 
 
 We assume that the trade relies on a future observable value, for which an *observation* then occurs. This observation is provided by some data provider (a.k.a. *market data oracle*) and independently from any specific transaction.
 
 .. code-block:: Haskell
 
- type ObservationPrimitive: <"A class to specify the primitive object to specify market observation events, which is applicable across all asset classes.">
-   source ObservationSource (1..1) <"The observation source, such as an interest rate curve or an information provider.">
-   observation number (1..1) <"The observed value.">
-   date date (1..1) <"The observation date.">
-   time TimeZone (0..1) <"The observation time.">
-   side QuotationSideEnum (0..1) <"The side (bid/mid/ask) of the observation, when applicable.">
+ type ObservationPrimitive: 
+   source ObservationSource (1..1) 
+   observation number (1..1) 
+   date date (1..1) 
+   time TimeZone (0..1) 
+   side QuotationSideEnum (0..1) 
 
 From that observation, a ``ResetPrimitive`` is built which does affect the specific transaction:
 
 .. code-block:: Haskell
 
- type ResetPrimitive: <"The primitive event to represent a reset.">
-   before ContractState (1..1) <"Contract state before the reset, as per previous events processed on the contract.">
+ type ResetPrimitive: 
+   before ContractState (1..1) 
      [metadata reference]
-   after ContractState (1..1) <"Contract state after the reset, that embeds the reset value as an updated field on the contract state.">
-   condition Contract: <"The original contract in the before/after state of a reset should match.">
+   after ContractState (1..1) 
+   condition Contract: 
      if ResetPrimitive exists
      then before -> contract = after -> contract
 
@@ -493,17 +493,17 @@ A ``TransferPrimitive`` then handle any cashflow (or other types of asset transf
 
 .. code-block:: Haskell
 
- type TransferPrimitive: <"A class to specify the transfer of assets between parties, those assets being either cash, securities or physical assets. This class combines components that are cross-assets (settlement date, settlement type, status, ...) and some other which are specialized by asset class (e.g. the payer/receiver amount and cashflow type for a cash transfer, the transferor/transferee, security indication, quantity, and asset transfer type qualification for the case of a security). The associated globalKey denotes the ability to associate a hash value to the respective Execution instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+ type TransferPrimitive: 
    [metadata key]
-   identifier string (0..1) <"The identifier which might be associated with the transfer.">
+   identifier string (0..1) 
      [metadata scheme]
-   settlementType TransferSettlementEnum (0..1) <"The qualification as to how the transfer will settle, e.g. a DvP settlement.">
+   settlementType TransferSettlementEnum (0..1) 
    settlementDate AdjustableOrAdjustedOrRelativeDate (1..1)
-   cashTransfer CashTransferComponent (0..*) <"The cash transfer component of the transfer. In the case where several currencies are involved in the transfer, several components should be used, as the component supports one single currency amount.">
-   securityTransfer SecurityTransferComponent (0..*) <"The security transfer component of the transfer. In the case where several securities are involved in the transfer, several components should be used, as the component supports one single security.">
+   cashTransfer CashTransferComponent (0..*) 
+   securityTransfer SecurityTransferComponent (0..*) 
    commodityTransfer CommodityTransferComponent (0..*)
-   status TransferStatusEnum (0..1) <"The transfer status, e.g. Instructed, Settled, ...">
-   settlementReference string (0..1) <"The settlement reference, when applicable.">
+   status TransferStatusEnum (0..1) 
+   settlementReference string (0..1) 
 
 The CDM has been designed to treat the reset and the transfer primitive events separately because there is no 1-to-1 relationship between reset and transfer.
 
@@ -522,19 +522,19 @@ Each trade lifecycle event is represented as a collection of primitive event com
 
 .. code-block:: Haskell
 
- type BusinessEvent: <"A business event represents a life cycle event of a trade and consists of a series of primitive events. The combination of the state changes results in a qualifiable life cycle event. An example of a Business Event is a PartialTermination which is a defined by a quantity change primitive event.">
+ type BusinessEvent: 
    [metadata key]
    [rootType]
-   primitives PrimitiveEvent (1..*) <"The elemental component(s) that specify the lifecycle events. Each of the primitive/elemental components listed as part of the PrimitiveEvent class has distinctive features that allow to specify the lifecycle event, either by itself or in combination with some other of such components.">
-   intent IntentEnum (0..1) <"The intent attribute is meant to be specified when the event qualification cannot be programmatically inferred from the event features. As a result it is only associated with those primitives that can give way to such ambiguity, the quantityChange being one of those. An example of such is a reduction in the trade notional, which could be interpreted as either a trade correction (unless a maximum period of time post-event is specified as part of the qualification), a partial termination or a portfolio rebalancing in the case of an equity swap. On the other hand, an event such as the exercise is not expected to have an associated intent as there should not be ambiguity.">
-   functionCall string (0..1) <"This is placeholder concept for a function call into a calculation that will return an outcome. This concept needs to be further firmed out.">
-   eventQualifier eventType (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic which qualifies the lifecycle event as a function of its features (e.g. PartialTermination, ClearingSubmission, Novation, ...).">
-   eventDate date (1..1) <"The date on which the event is taking place. This is the equivalent of the trade date in the case of an execution or a contract.">
-   effectiveDate date (0..1) <"The date on which the event contractually takes effect, when different from the event date.">
-   eventEffect EventEffect (0..1) <"The set of effects associated with the lifecycle event, i.e. generated cashflows, contracts (from, say, novation events), listed products (from, say, a bond option exercise event) values and more. Those are represented through a set of globalKey references. This attribute is optional in order to provide implementers with the ability not to make use of this feature.">
+   primitives PrimitiveEvent (1..*) 
+   intent IntentEnum (0..1) 
+   functionCall string (0..1) 
+   eventQualifier eventType (0..1) 
+   eventDate date (1..1) 
+   effectiveDate date (0..1) 
+   eventEffect EventEffect (0..1) 
    
-   // TODO - this needs to be moved/merged into the WorkflowStep
-   workflowEventState WorkflowStepState (0..1) <"The event workflow information, i.e. the workflow status, the associated comment and the partyCustomisedWorkflow which purpose is to provide the ability to associate custom workflow information to the CDM.">
+  
+   workflowEventState WorkflowStepState (0..1) 
    [deprecated]
 
 The only mandatory attributes of a business event are:
@@ -572,18 +572,18 @@ Certain events such as observations do not have any event effect, hence the opti
 
 .. code-block:: Haskell
 
- type EventEffect: <"The set of operational and positional effects associated with a lifecycle event, alongside the reference to the contract reference(s) that is subject to the event (and is positioned in the before state of the event primitive).">
-   effectedContract Contract (0..*) <"A pointer to the contract(s) to which the event effect(s) apply, i.e. in the before event state.">
+ type EventEffect: 
+   effectedContract Contract (0..*) 
      [metadata reference]
-   effectedExecution Execution (0..*) <"A pointer to the execution(s) to which the event effect(s) apply, i.e. in the before event state.">
+   effectedExecution Execution (0..*) 
      [metadata reference]
-   contract Contract (0..*) <"A pointer to the contract effect(s), an example of such being the outcome of a new trade, swaption exercise or novation event.">
+   contract Contract (0..*) 
      [metadata reference]
-	execution Execution (0..*) <"A pointer to the execution effect(s), an example of such being a clearing submission event when taking place on the back of an execution.">
+	execution Execution (0..*) 
     [metadata reference]
-  productIdentifier ProductIdentifier (0..*) <"A pointer to the product identifier effect(s), an example of such being the outcome of the physical exercise of a bond option.">
+  productIdentifier ProductIdentifier (0..*) 
     [metadata reference]
-  transfer TransferPrimitive (0..*) <"A pointer to the transfer effect(s), either a cash, security or other asset.">
+  transfer TransferPrimitive (0..*) 
     [metadata reference]
 
 In the below JSON snippet of a quantity change event on a contract, we can see that the ``eventEffect`` contains a  number of hash value references:
@@ -694,7 +694,7 @@ A *workflow* is meant to represent a set of actions or steps that are required t
    [rootType]
    businessEvent BusinessEvent (0..1)
    proposedInstruction Instruction (0..1)
-   // TODO - This will be replaced with a list of signatories that must sign off the 'previousWorkflowStep' and any operational reasons why it may be rejected.
+  
    rejected boolean (0..1)
    previousWorkflowStep WorkflowStep (0..1)
      [metadata reference]
@@ -1093,7 +1093,7 @@ As an example, the *FpML ird validation rule #57*, states that if the calculatio
 
 .. code-block:: Haskell
 
- condition FpML_ird_57: <"FpML validation rule ird-57 - Context: CalculationPeriodFrequency. [period eq ('M', 'Y')] not(rollConvention = ('NONE', 'SFE', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT','SUN')).">
+ condition FpML_ird_57: 
    if period = PeriodExtendedEnum -> M or period = PeriodExtendedEnum -> Y
    then rollConvention <> RollConventionEnum -> NONE
      or rollConvention <> RollConventionEnum -> SFE
@@ -1190,7 +1190,7 @@ Some of those calculations are presented below:
 
 .. code-block:: Haskell
 
- func EquityCashSettlementAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 72. 'Equity Cash Settlement Amount' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Cash Settlement Amount = ABS(Rate Of Return) × Equity Notional Amount.">
+ func EquityCashSettlementAmount: 
    inputs:
      contractState ContractState (1..1)
      date date (1..1)
@@ -1208,7 +1208,7 @@ Some of those calculations are presented below:
 
 .. code-block:: Haskell
 
- func RateOfReturn: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 139. 'Rate Of Return' means, in respect of any Equity Valuation Date, the amount determined pursuant to the following formula: Rate Of Return = (Final Price - Initial Price) / Initial Price.">
+ func RateOfReturn: 
    inputs:
      initialPrice number (1..1)
      finalPrice number (1..1)
@@ -1253,7 +1253,7 @@ For the observation primitive, checks are performed on the valuation date and/or
 
 .. code-block:: Haskell
 
- func EquityPriceObservation: <"Function specification for the observation of an equity price, based on the attributes of the 'EquityValuation' class.">
+ func EquityPriceObservation: 
    inputs:
      equity Equity (1..1)
      valuationDate AdjustableOrRelativeDate (1..1)
@@ -1263,25 +1263,25 @@ For the observation primitive, checks are performed on the valuation date and/or
    output:
      observation ObservationPrimitive (1..1)
    
-   condition: <"Optional choice between directly passing a time or a timeType, which has to be resolved into a time based on the determination method.">
+   condition: 
      if valuationTime exists then timeType is absent
      else if timeType exists then valuationTime is absent
      else False
      
-   post-condition: <"The date and time must be properly resolved as attributes on the output.">
+   post-condition: 
      observation -> date = ResolveAdjustableDate(valuationDate)
      and if valuationTime exists
        then observation -> time = TimeZoneFromBusinessCenterTime(valuationTime)
        else observation -> time = ResolveTimeZoneFromTimeType(timeType, determinationMethod)
        
-   post-condition: <"The number recorded in the observation must match the number fetched from the source.">
+   post-condition: 
      observation -> observation = EquitySpot(equity, observation -> date, observation -> time)
 
 The observation is used as an input to *resolve* any Equity Derivative contract (i.e. update its resettable values) that depends on this observation:
 
 .. code-block:: Haskell
 
- func ResolveEquityContract: <"Specifies how the updated contract should be constructed in a Equity Reset event.">
+ func ResolveEquityContract: 
    inputs:
      contractState ContractState (1..1)
      observation ObservationPrimitive (1..1)
@@ -1301,9 +1301,9 @@ The observation is used as an input to *resolve* any Equity Derivative contract 
      if CalculationPeriod( equityPayout -> calculationPeriodDates, periodEndDate ) -> isLastPeriod then price
    assign-output updatedEquityPayout -> priceReturnTerms -> valuationPriceInterim -> netPrice -> amount:
      if CalculationPeriod( equityPayout -> calculationPeriodDates, periodEndDate ) -> isLastPeriod = False then price
-   assign-output updatedContract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> performance: <"Reset primitive after state must be correctly populated with the equity payout including the performance.">
+   assign-output updatedContract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> performance: 
      equityPerformance
-   assign-output updatedContract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> quantityMultiplier -> multiplierValue: <"Using the Rate of Return we 'reset' the multiplier, which is used to resolve the ultimate notional amount for the equity swap.">
+   assign-output updatedContract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> quantityMultiplier -> multiplierValue: 
      1 + equityPerformance / 100
 
 The set of updated values include the ``performance`` attribute on the ``equityPayout``, which represents the performance of the current calculation period. The resolution function uses some of the already defined *utility functions* such as ``CalculationPeriod`` and also a *calculation function* for the Equity performance.
@@ -1312,7 +1312,7 @@ This contract resolution mechanism is wired into the function that creates the `
 
 .. code-block:: Haskell
 
- func Create_ResetPrimitive: <"Specifies how a Reset Primitive should be constructed.">
+ func Create_ResetPrimitive: 
    [creation PrimitiveEvent]
    inputs:
      contractState ContractState (1..1)
@@ -1325,7 +1325,7 @@ This contract resolution mechanism is wired into the function that creates the `
    
    assign-output resetPrimitive -> before: contractState
    assign-output resetPrimitive -> after -> contract: contractState -> contract
-   assign-output resetPrimitive -> after -> updatedContract: <"To handle the various ways Contracts can change over time, ">
+   assign-output resetPrimitive -> after -> updatedContract: 
      ResolveUpdatedContract(contractState, observation, date)
 
 .. note:: The Reset Event only resets some values on the contract but does not calculate nor pay any cashflow. Any cashflow calculation and payment would be handled separately as part of a Transfer Event which, when such cashflow depends on any resettable values, will use the values updated as part of the Reset Event (as is the case of the *Equity Cash Settlement Amount*).
@@ -1353,7 +1353,7 @@ This translates into the representation of the **party**, with two alternate rep
   naturalPerson NaturalPerson (0..*);
  }
 
- choice rule Party_choice <"A party is either a legal entity or a natural person.">
+ choice rule Party_choice 
   for Party optional choice between
   legalEntity and naturalPerson
 
