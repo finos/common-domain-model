@@ -42,7 +42,7 @@ The ``QuantityNotation`` type supports the quantity (or notional) for any produc
 
  type QuantityNotation: 
     quantity NonNegativeQuantity (1..1)
-    assetIdentifier AssetIdentifier (1..1) 
+    assetIdentifier AssetIdentifier (1..1)
     
 The ``AssetIdentifier`` type requires the specification of either a product, currency or a floating rate option. This choice constraint is supported by specifying a ``one-of`` condition, as described in the `Special Syntax Section`_ of the Rosetta DSL documentation.
 
@@ -63,7 +63,7 @@ The ``PriceNotation`` type supports the price for any product.
 
  type PriceNotation: 
     price Price (1..1)
-    assetIdentifier AssetIdentifier (1..1) 
+    assetIdentifier AssetIdentifier (0..1)
     
 The ``price`` attribute is of type ``Price``, which requires the selection of one of the attributes that describe different types of prices. The set of attributes collectively support all products in the CDM.
 
@@ -150,12 +150,11 @@ The CDM specifies the various sets of possible remaining economic terms using th
 
 .. code-block:: Haskell
 
- type EconomicTerms: 
-    [partialKey]
+ type EconomicTerms:
     effectiveDate AdjustableOrRelativeDate (0..1)
     terminationDate AdjustableOrRelativeDate (0..1) 
     dateAdjustments BusinessDayAdjustments (0..1) 
-    payout Payout (1..1) ;
+    payout Payout (1..1)
     earlyTerminationProvision EarlyTerminationProvision (0..1)
     optionProvision OptionProvision (0..1) 
     extraordinaryEvents ExtraordinaryEvents (0..1) 
@@ -182,6 +181,7 @@ The relationship between one of the payout classes and a similar structure in Fp
  type InterestRatePayout extends PayoutBase: 
     [metadata key]
     payerReceiver PayerReceiver (0..1)
+    rateSpecification RateSpecification (1..1)
     dayCountFraction DayCountFractionEnum (0..1) 
     [metadata scheme]
     calculationPeriodDates CalculationPeriodDates (0..1)
@@ -207,7 +207,7 @@ There are a number of components that are reusable across several payout types. 
 
 .. code-block:: Haskell
 
- type CalculationPeriodDates 
+ type CalculationPeriodDates:
     [metadata key]
     effectiveDate AdjustableOrRelativeDate (0..1)
     terminationDate AdjustableOrRelativeDate (0..1)
@@ -238,7 +238,7 @@ For identified products the CDM approach is to exclude any attribute that can be
 
 .. code-block:: Haskell
 
- type IdentifiedProduct
+ type IdentifiedProduct:
     productIdentifier ProductIdentifier (1..1)
 
 As a result, the bond, equity, and other securities are defined as extensions of the product identifier without any additional attributes. 

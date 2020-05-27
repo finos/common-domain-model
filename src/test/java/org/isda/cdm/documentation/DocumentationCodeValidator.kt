@@ -31,7 +31,7 @@ class DocumentationCodeValidator(
                         val cleaned = _code
                                 .replace(Regex(".*\\.\\. code-block.*"), "")
                                 .replace(Regex(whitespaceRegex), "")
-                        !model.contains(cleaned)
+                        !model.contains(cleaned, ignoreCase = false)
                     }
                     .onEach(::println)
 
