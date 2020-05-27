@@ -389,3 +389,62 @@ func Qualify_StockSplit: <"The qualification of StockSplit business event based 
 		and noOfUnitsChanged = True
 		and cashPriceChanged = True 
 		and adjustmentRatioMatches = True
+
+// Proposed IndexTransitionEvent Qualification Function
+func Qualify_IndexTransition: <"The qualification of an index transition event based on the combination of an adjustment spread and replacement index.">
+	inputs:
+		businessEvent BusinessEvent (1..1)
+
+	output:
+		is_event boolean (1..1)
+
+	alias beforeFloatingRateIndex:
+		businessEvent -> primitives -> termsChange -> before -> contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> assetIdentifier -> rateOption -> floatingRateIndex
+
+	alias afterFloatingRateSpecification:
+		businessEvent -> primitives -> termsChange -> after -> contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate
+	alias afterFloatingRateIndex:
+		afterFloatingRateSpecification -> assetIdentifier -> rateOption -> floatingRateIndex 
+	alias afterFloatingRateSpreadSchedule:
+		afterFloatingRateSpecification -> spreadSchedule
+
+	alias interestRateIndexChanged:
+		if ( beforeFloatingRateIndex and afterFloatingRateIndex ) exists
+		then beforeFloatingRateIndex <> afterFloatingRateIndex
+		else False
+
+	// Only term change primitive and/or cash transfer primitives are presents	
+	alias termChangeAndCashTransferOnly:
+		businessEvent -> primitives -> termsChange exists
+		and businessEvent -> primitives -> execution is absent
+		and businessEvent -> primitives -> contractFormation is absent
+		and businessEvent -> primitives -> split is absent
+		and businessEvent -> primitives -> exercise is absent
+		and businessEvent -> primitives -> inception is absent
+		and businessEvent -> primitives -> observation is absent
+		and businessEvent -> primitives -> quantityChange is absent
+		and businessEvent -> primitives -> reset is absent
+
+	// Only cash transfer is allowed, forbid the other transfer types
+	alias cashTransferTypeOnly:
+		if (businessEvent -> primitives -> transfer exists)
+		then (businessEvent -> primitives -> transfer -> securityTransfer is absent
+			and businessEvent -> primitives -> transfer -> commodityTransfer is absent
+		    and businessEvent -> primitives -> transfer -> cashTransfer count <= 1)
+		else True
+
+	alias transitionSpreadAdded:
+		afterFloatingRateSpreadSchedule exists
+		and afterFloatingRateSpreadSchedule only-element -> initialValue <> 0
+
+	assign-output is_event:	
+		(businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> IndexTransition)
+		and interestRateIndexChanged = True
+		and termChangeAndCashTransferOnly = True
+		and cashTransferTypeOnly = True
+
+		// Optional : transition spread is specified
+		and transitionSpreadAdded = True
+
+		// Optional : check index type is among allowed ones ?
+		// and afterFloatingRateIndex = FloatingRateIndexEnum -> USD_EONIA*/ 
