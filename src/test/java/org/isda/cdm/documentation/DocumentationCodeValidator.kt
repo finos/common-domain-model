@@ -26,7 +26,7 @@ class DocumentationCodeValidator(
     fun validate() {
         fun validate(code: Sequence<String>, model: String): Int {
             val invalidCode = code
-                    .filter { _code -> !_code.contains(".. code-block:: Java") }
+                    .filter { _code -> !_code.contains(".. code-block:: Javascript") }
                     .filter { _code ->
                         val cleaned = _code
                                 .replace(Regex(".*\\.\\. code-block.*"), "")

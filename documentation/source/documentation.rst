@@ -291,7 +291,7 @@ The ``productIdentification`` data structure and an instance of a CDM object (`s
    productId string (0..*)
      [metadata scheme]
 
-.. code-block:: Java
+.. code-block:: Javascript
 
  "productIdentification" : {
    "primaryAssetdata" : {
@@ -443,7 +443,6 @@ The current list of primitive events can be seen in the ``PrimitiveEvent`` type 
    contractFormation ContractFormationPrimitive (0..1)
    split SplitPrimitive (0..1)
    exercise ExercisePrimitive (0..1)
-   inception InceptionPrimitive (0..1)
    observation ObservationPrimitive (0..1)
    quantityChange QuantityChangePrimitive (0..1)
    reset ResetPrimitive (0..1)
@@ -588,7 +587,7 @@ Certain events such as observations do not have any event effect, hence the opti
 
 In the below JSON snippet of a quantity change event on a contract, we can see that the ``eventEffect`` contains a  number of hash value references:
 
-.. code-block:: Java
+.. code-block:: Javascript
   
   "effectiveDate": "2018-03-15",
   "eventDate": "2018-03-14",
@@ -771,7 +770,7 @@ The experience of mapping the CME clearing and the DTCC trade matching and cashf
 
 Below is an instance of a CDM representation (`serialised`_ into JSON) of this approach.
 
-.. code-block:: Java
+.. code-block:: Javascript
 
  "timestamp": [
   {
@@ -914,20 +913,20 @@ The current CDM scope is limited to the ISDA 2016 CSA for Initial Margin and Var
 
 The ``Csa2016`` abstract class specifies the set of provisions that are common among governing laws and across Initial and Variation Margin templates. This abstract class will evolve as further vintages of the ISDA CSA are being modelled.
 
-.. code-block:: Java
+.. code-block:: Haskell
 
-  abstract class Csa2016
-  {
-   baseCurrency string (1..1) scheme;
-   additionalObligations string (0..1);
-   conditionsPrecedent ConditionsPrecedent (1..1);
-   substitution Substitution (1..1);
-   disputeResolution DisputeResolution (1..1);
-   additionalRepresentation AdditionalRepresentation (1..1);
-   demandsAndNotices ContactElection (1..1);
-   addressesForTransfer ContactElection (1..1);
-   bespokeProvision string (0..1) ;
-  }
+ type Csa2016 extends Csa:
+   baseCurrency string (1..1)
+   [metadata scheme]
+   additionalObligations string (0..1)
+   conditionsPrecedent ConditionsPrecedent (1..1)
+   substitution Substitution (1..1)
+   disputeResolution DisputeResolution (1..1)
+   additionalRepresentation AdditionalRepresentation (1..1)
+   demandsAndNotices ContactElection (1..1)
+   addressesForTransfer ContactElection (1..1)
+   bespokeProvision string (0..1)
+   umbrellaAgreement UmbrellaAgreement (0..1)
 
 The ``CsaInitialMargin2016`` abstract class extends the ``Csa2016`` class to specify the provisions for the 2016 ISDA Credit Support Annex for Initial Margin that are common across the applicable governing laws.
 
@@ -950,19 +949,18 @@ The ``CsaInitialMargin2016`` abstract class extends the ``Csa2016`` class to spe
 
 The ``CsaVariationMargin2016`` abstract class extends the ``Csa2016`` class to specify the provisions for the 2016 ISDA Credit Support Annex for Variation Margin that are common across the applicable governing laws.  At this point its implementation has been undertaken without a thorough review of the Japanese and English governing laws as only a New York sample agreement was available. It might have to be adjusted to integrate those governing laws.
 
-.. code-block:: Java
+.. code-block:: Haskell
 
-  abstract class CsaVariationMargin2016 extends Csa2016
-  {
-   creditSupportObligations CreditSupportObligationsVariationMargin (1..1);
-   valuationAgent Party (1..1) reference;
-   valuationDateLocation CalculationDateLocation (1..1);
-   valuationTime BusinessCenterTime (1..*);
-   notificationTime int (1..1);
-   holdingAndUsingPostedCollateral HoldingAndUsingPostedCollateral (1..1);
-   creditSupportOffsets boolean (1..1);
-   otherCsa RelatedAgreement (1..1);
-  }
+ type CsaVariationMargin2016 extends Csa2016:
+   creditSupportObligations CreditSupportObligationsVariationMargin (1..1)
+   valuationAgent Party (1..1)
+     [metadata reference]
+   valuationDateLocation CalculationDateLocation (1..1)
+   valuationTime BusinessCenterTime (1..*)
+   notificationTime int (1..1)
+   holdingAndUsingPostedCollateral HoldingAndUsingPostedCollateral (1..1)
+   creditSupportOffsets boolean (1..1)
+   otherCsa OtherAgreements (1..1)
 
 The (non-abstract) classes that represent the ISDA CSA elections extend the above abstract constructs:
 
@@ -976,29 +974,25 @@ The CDM uses the key / referencing mechanism to tie a legal agreement with the r
 
 This referencing mechanism has been implemented for the ``Contract`` but not yet for the ``Event``, since no lifecycle event workflow has yet been specified that references legal agreement other than through the contract itself.
 
-Referencing the legal agreement from the ``Contract`` is done through the ``documentation`` attribute.  The associated ``Documentation`` class allows to:
+Referencing the legal agreement from the ``Contract`` is done through the ``documentation`` attribute.  The associated ``RelatedAgreement`` type allows to:
 
 * Identify some of the key terms of a governing legal agreement such as the agreement identifier, the publisher, the document vintage and the agreement date, as part of the ``documentationIdentification`` attribute
 * Reference a legal agreement that is electronically represented in the CDM through the ``legalAgreement`` attribute, which has a reference key into the agreement instance
 
-The below snippet represents this ``Documentation`` class, which ``legalAgreement`` attribute carries the ``reference`` qualifier and where the ``LegalAgreement`` class carries associated ``key`` qualifier:
+The below snippet represents this ``RelatedAgreement`` type, which ``legalAgreement`` attribute carries the ``reference`` annotation and where the ``LegalAgreement`` class carries associated ``metadata key`` annotation:
 
-.. code-block:: Java
+.. code-block:: Haskell
 
- class Documentation
- {
-  legalAgreement LegalAgreement (0..*) reference;
-  documentationIdentification DocumentationIdentification (0..1);
- }
+ type RelatedAgreement:
+   legalAgreement LegalAgreement (0..1)
+   documentationIdentification DocumentationIdentification (0..1)
 
- class LegalAgreement extends LegalAgreementBase key one of
- {
-  csdInitialMargin2016EnglishLaw CsdInitialMargin2016EnglishLaw (0..1);
-  csaInitialMargin2016JapaneseLaw CsaInitialMargin2016JapaneseLaw (0..1);
-  csaInitialMargin2016NewYorkLaw CsaInitialMargin2016NewYorkLaw (0..1);
-  csaVariationMargin2016NewYorkLaw CsaVariationMargin2016NewYorkLaw (0..1);
- }
+.. code-block:: Haskell
 
+ type LegalAgreement extends LegalAgreementBase:
+   [metadata key]
+   [rootType]
+   agreementTerms AgreementTerms (0..1)
 
 Process Model
 -------------
@@ -1341,40 +1335,43 @@ Reference Data Model
 
 The CDM only integrates the reference data components that are specifically needed to model the in-scope products, events, legal agreements and function components.
 
-This translates into the representation of the **party**, with two alternate representations, modelled as attributes: the **legal entity** and the **natural person**.  The reason for making use of the class inheritance model, with Party as a the base type that would be extended by LegalEntity and NaturalPerson, is that the Rosetta model doesn't support downcasting, which was causing issues in some scenarios. This will be further assess at some future point.
+This translates into the representation of the **party** and **legal entity**.
 
-.. code-block:: Java
+Parties are not explicitly qualified as a legal entity or a natural person, although the model provides the ability to associate a person (or set of persons) to a party, which use case would imply that such party would be a legal entity (even if not formally specified as such).
 
- class Party
- {
-  id (0..1);
-  partyId string (1..*) scheme ;
-  legalEntity LegalEntity (0..1);
-  naturalPerson NaturalPerson (0..*);
- }
+The ``LegalEntity`` type is used when only a legal entity reference is appropriate i.e. the value would never be that of a natural person.
 
- choice rule Party_choice 
-  for Party optional choice between
-  legalEntity and naturalPerson
+.. code-block:: Haskell
 
- class LegalEntity
- {
-  id (0..1);
-  entityId string (0..*) scheme ;
-  name string (1..1) scheme ;
- }
+ type Party:
+   [metadata key]
+   partyId string (1..*)
+     [metadata scheme]
+   name string (0..1)
+     [metadata scheme]
+   person NaturalPerson (0..*)
+   account Account (0..1)
 
- class NaturalPerson
- {
-  id (0..1);
-  honorific string (0..1) ;
-  firstName string (1..1) ;
-  middleName string (0..*);
-  initial string (0..*);
-  surname string (1..1) ;
-  suffix string (0..1) ;
-  dateOfBirth date (0..1) ;
- }
+.. code-block:: Haskell
+
+ type NaturalPerson:
+   [metadata key]
+   honorific string (0..1)
+   firstName string (1..1)
+   middleName string (0..*)
+   initial string (0..*)
+   surname string (1..1)
+   suffix string (0..1)
+   dateOfBirth date (0..1)
+
+.. code-block:: Haskell
+
+ type LegalEntity:
+   [metadata key]
+   entityId string (0..*)
+     [metadata scheme]
+   name string (1..1)
+     [metadata scheme]
 
 Mapping (Synonym)
 -----------------
