@@ -7,14 +7,14 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.attribute.BasicFileAttributes
 import java.util.function.BiPredicate
-import kotlin.streams.toList
+import java.util.stream.Collectors
+import java.util.stream.Stream
 import kotlin.system.exitProcess
 
 class DocumentationCodeValidator(
         private val docPath: String,
         private val snippetPath: String,
-        private val modelPath: String,
-        private val fixUp: Boolean) {
+        private val modelPath: String) {
 
     private val synonymRegex = "\\[synonym [^\\]]*\\]"
     private val definitionRegex = "<\".*\">"
@@ -39,8 +39,22 @@ class DocumentationCodeValidator(
         }
 
         val model = getModel()
-        val invalidCodeBlocks = validate(getCodeBlocks(), model)
-        val invalidSnippets = validate(getSnippets(), model)
+
+        val codeBlocks = getCodeBlocks()
+        val illegalCodeBlocks = extractInvalidCode(codeBlocks, "code-block")
+                .onEach(::println)
+
+        val snippets = getSnippets()
+        val illegalSnippets = extractInvalidCode(snippets, "code-snippets")
+                .onEach(::println)
+
+        if ((illegalCodeBlocks + illegalSnippets).count() > 0) {
+            System.err.println("ERROR found illegal syntax in code block/snippet. Run this script with --fix-up flag to sanitise.")
+            exitProcess(1)
+        }
+
+        val invalidCodeBlocks = validate(codeBlocks, model)
+        val invalidSnippets = validate(snippets, model)
 
         if (invalidCodeBlocks > 0) {
             System.err.println("Found [$invalidCodeBlocks] code-blocks that don't match model text.")
@@ -54,18 +68,16 @@ class DocumentationCodeValidator(
     }
 
     private fun getCodeBlocks(): Sequence<String> {
-        val docs = loadFiles(docPath, ".rst").asSequence()
+        val docs = loadFiles(docPath, ".rst").map(File::content).asSequence()
 
-        val codeBlocks = docs.flatMap { doc -> codeBlockRegex.findAll(doc) }
+        return docs.flatMap { doc -> codeBlockRegex.findAll(doc) }
                 .map(MatchResult::value)
                 .ifEmpty { throw IllegalStateException("No code blocks found in documentation file [$docPath]. Doesn't sound right! Go check.") }
-
-        return isValid(codeBlocks, "code-block")
     }
 
     private fun getSnippets(): Sequence<String> {
-        val snippets = loadFiles(snippetPath, ".snippet").asSequence()
-        return isValid(snippets, "code-snippet")
+        val snippets = loadFiles(snippetPath, ".snippet").map(File::content).asSequence()
+        return extractInvalidCode(snippets, "code-snippet")
     }
 
     private fun getModel(): String {
@@ -74,28 +86,29 @@ class DocumentationCodeValidator(
                 .replace(Regex(whitespaceRegex), "")
     }
 
-    private fun loadFiles(dir: String, ext: String): Collection<String> {
+    private fun loadFiles(dir: String, ext: String): Collection<File> {
         val docFileFilter = BiPredicate<Path, BasicFileAttributes> { path, attr -> attr.isRegularFile && path.fileName.toString().endsWith(ext) }
 
-        return Files.find(Path.of(dir), 1, docFileFilter).use { paths ->
-            paths.map { path -> Files.readString(path, Charset.defaultCharset()) }.toList()
+        return Files.find(Path.of(dir), 1, docFileFilter).use { paths: Stream<Path> ->
+            paths.map { path -> File(path, Files.readString(path, Charset.defaultCharset())) }.collect(Collectors.toList())
         }
     }
 
-    private fun isValid(code: Sequence<String>, type: String): Sequence<String> {
-        val illegalCode = code
-                .filter { it.contains(Regex(illegalSyntaxRegex, RegexOption.MULTILINE)) }
-                .onEach(::println)
+    private fun extractInvalidCode(code: Sequence<String>, type: String): Sequence<String> {
+        return code.filter { it.contains(Regex(illegalSyntaxRegex, RegexOption.MULTILINE)) }
+    }
 
-        val illegalBlocks = illegalCode.count()
-        return if (illegalBlocks > 0) {
-            System.err.println("Found [$illegalBlocks] invalid `$type`s. Run this script with flag --fix-up to remove.")
-            exitProcess(1)
-        } else {
-            code
+    fun fixUp() {
+        val files = loadFiles(docPath, ".rst") + loadFiles(snippetPath, ".snippet")
+        files.forEach { file ->
+            val sanitised = file.content.replace(Regex(illegalSyntaxRegex, RegexOption.MULTILINE), "")
+            println("Sanitising [${file.path}]")
+            Files.writeString(file.path, sanitised)
         }
     }
 }
+
+data class File(val path: Path, val content: String)
 
 fun main(args: Array<String>) {
     val options = Options()
@@ -111,5 +124,12 @@ fun main(args: Array<String>) {
     val modelPath = cmd.getOptionValue("model-path") ?: "src/main/rosetta"
     val fixUp = cmd.hasOption("fix-up")
 
-    DocumentationCodeValidator(docPath, snippetPath, modelPath, fixUp).validate()
+    val validator = DocumentationCodeValidator(docPath, snippetPath, modelPath)
+
+    if (fixUp) {
+        println("WARNING Running in fix-up mode, this will sanitise documentation .rst and .snippets files in-place.")
+        validator.fixUp()
+    }
+
+    validator.validate()
 }
