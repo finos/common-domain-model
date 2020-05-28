@@ -48,6 +48,7 @@ public class RunExecuteCorrectCancel implements ExecutableFunction<Contract, Wor
 
         WorkflowStep cancelledExecutionWorkflowStep = WorkflowStep.builder()
                 .setAction(ActionEnum.CANCEL)
+                .setRejected(true)
                 .setBusinessEvent(corrected)
                 .build();
 
