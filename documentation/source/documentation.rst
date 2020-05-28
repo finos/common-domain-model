@@ -453,17 +453,40 @@ The current list of primitive events can be seen in the ``PrimitiveEvent`` type 
 
 A ``PrimitiveEvent`` object is made of either one of those primitive components, as captured by the ``one-of`` condition. A couple of examples of such primitive event components are illustrated below, using a simple transaction lifecycle sequence.
 
-Example: Observation/Reset/Transfer
-"""""""""""""""""""""""""""""""""""
+Example 1: Execution/ContractFormation
+""""""""""""""""""""""""""""""""""""""
 
-The sequence starts with the *inception* of a new transaction, which results in a ``PostInceptionState`` that contains a ``Contract`` object:
+The sequence starts with the *Execution* of a new transaction, which results in a ``ExecutionState`` that contains a ``Execution`` object. The ``ExecutionPrimitive`` does not allow a ``before`` state as it is the genisis event if the sequence.
 
 .. code-block:: Haskell
 
- type InceptionPrimitive: 
+type ExecutionPrimitive:
+	before ExecutionState (0..0)
+		[metadata reference]
+	after ExecutionState (1..1)
+
+A ``ContractFormation`` is created which represents the trade state that is affirmed (or confirmed) by the two parties involved:
+
+.. code-block:: Haskell
+
+type ContractFormationPrimitive:
+	before ExecutionState (0..1)
+		[metadata reference]
+	after PostContractFormationState (1..1)
+
+The ``ExecutionPrimitive`` and ``ContractFormationPrimitive`` above, each primitive event is designed to include a ``before`` and an ``after`` trade state attributes, that define the state transition in terms of evolution in the trade state.
+
+Example 2: Observation/Reset/Transfer
+"""""""""""""""""""""""""""""""""""
+
+The sequence starts with the contract formation, which results in a ``PostContractFormationState`` that contains a ``Contract`` object:
+
+.. code-block:: Haskell
+
+ type ContractFormationPrimitive: 
    before ContractState (0..0) 
      [metadata reference]
-   after PostInceptionState (1..1) 
+   after PostContractFormationState (1..1) 
 
 We assume that the trade relies on a future observable value, for which an *observation* then occurs. This observation is provided by some data provider (a.k.a. *market data oracle*) and independently from any specific transaction.
 
@@ -543,7 +566,7 @@ The only mandatory attributes of a business event are:
 
 An example composition of the primitive events to represent a complete business event is the *partial novation* of a contract, which comprises:
 
-* an ``InceptionPrimitive`` creates the contract with the novation party. The ``tradeDate`` on the novated portion of the contract should reflect the date of the novation event.
+* a ``ContractFormationPrimitive`` creates the contract with the novation party. The ``tradeDate`` on the novated portion of the contract should reflect the date of the novation event.
 * a ``QuantityChange`` primitive applies to the original contract where the quantity after change is different from 0 (0 would represent the case of a *full novation*).
 
 A business event is *atomic* in the sense that its underlying primitive event constituents cannot happen independently: they either all happen together or they do not happen. In the above partial novation example, the existing trade between the parties must be downsized at the same time as the new trade with the novation party is instantiated.
