@@ -456,7 +456,7 @@ A ``PrimitiveEvent`` object is made of either one of those primitive components,
 Example 1: Execution/ContractFormation
 """"""""""""""""""""""""""""""""""""""
 
-The sequence starts with the *Execution* of a new transaction, which results in a ``ExecutionState`` that contains a ``Execution`` object. The ``ExecutionPrimitive`` does not allow a ``before`` state as it is the genisis event if the sequence.
+The sequence starts with the *Execution* of a new transaction, which results in a ``ExecutionState`` that contains a ``Execution`` object. The ``ExecutionPrimitive`` does not allow a ``before`` state as it is the genisis event of the sequence.
 
 .. code-block:: Haskell
 
