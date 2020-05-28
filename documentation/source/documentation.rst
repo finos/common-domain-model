@@ -928,25 +928,6 @@ The ``Csa2016`` abstract class specifies the set of provisions that are common a
    bespokeProvision string (0..1)
    umbrellaAgreement UmbrellaAgreement (0..1)
 
-The ``CsaInitialMargin2016`` abstract class extends the ``Csa2016`` class to specify the provisions for the 2016 ISDA Credit Support Annex for Initial Margin that are common across the applicable governing laws.
-
-.. code-block:: Java
-
-  abstract class CsaInitialMargin2016 extends Csa2016
-  {
-   regime Regime (1..1);
-   oneWayProvisions OneWayProvisions (1..1);
-   method Method (1..1);
-   identifiedCrossCurrencySwap boolean (1..1);
-   sensitivityToEquity SensitivityMethodology (1..1);
-   sensitivityToCommodity SensitivityMethodology (1..1);
-   fxHaircutCurrency FxHaircutCurrency (1..1);
-   creditSupportObligations CreditSupportObligationsInitialMargin (1..1);
-   calculationDateLocation CalculationDateLocation (1..1);
-   notificationTime NotificationTime (1..1);
-   terminationCurrency TerminationCurrencyAmendment (1..1) ;
-  }
-
 The ``CsaVariationMargin2016`` abstract class extends the ``Csa2016`` class to specify the provisions for the 2016 ISDA Credit Support Annex for Variation Margin that are common across the applicable governing laws.  At this point its implementation has been undertaken without a thorough review of the Japanese and English governing laws as only a New York sample agreement was available. It might have to be adjusted to integrate those governing laws.
 
 .. code-block:: Haskell
