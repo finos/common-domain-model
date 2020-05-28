@@ -21,4 +21,4 @@ _Review Direction_
 In the Instance Viewer section of the CDM Portal:
 
 - See "New Cancel Correct" section. Observe that in the visualisation, the cancel is no longer rejected.
-- Under the "Form Contract" section, open "Fixed/Floating Single Currency Interest Rate Swap No Legal Agreement" and observe that in the parties are not duplicated in the `LegalAreement`.
+- Under the "Form Contract" section, open "Fixed/Floating Single Currency Interest Rate Swap No Legal Agreement" and observe that in the parties are not duplicated in the `LegalAgreement`.
