@@ -451,44 +451,37 @@ The current list of primitive events can be seen in the ``PrimitiveEvent`` type 
    
    condition PrimitiveEvent: one-of
 
-A ``PrimitiveEvent`` object is made of either one of those primitive components, as captured by the ``one-of`` condition. A couple of examples of such primitive event components are illustrated below, using a simple transaction lifecycle sequence.
+A ``PrimitiveEvent`` object is made of either one of those primitive components, as captured by the ``one-of`` condition. A few examples of such primitive event components are illustrated below, using simple sequences of a transaction lifecycle.
 
 Example 1: Execution/ContractFormation
 """"""""""""""""""""""""""""""""""""""
 
-The sequence starts with the *Execution* of a new transaction, which results in a ``ExecutionState`` that contains a ``Execution`` object. The ``ExecutionPrimitive`` does not allow a ``before`` state as it is the genisis event of the sequence.
+The sequence starts with the execution of a new transaction , which results in an ``ExecutionState`` containing the ``Execution`` object.
 
 .. code-block:: Haskell
 
-type ExecutionPrimitive:
-	before ExecutionState (0..0)
-		[metadata reference]
-	after ExecutionState (1..1)
+ type ExecutionPrimitive:
+   before ExecutionState (0..0)
+     [metadata reference]
+   after ExecutionState (1..1)
 
-A ``ContractFormation`` is created which represents the trade state that is affirmed (or confirmed) by the two parties involved:
+The ``ExecutionPrimitive`` does not allow a ``before`` state (represented by the 0 cardinality of the ``before`` attribute), because the current CDM event model only covers post-trade lifecycle events so trade execution is the genesis event of the sequence. In reality, this execution state is the conclusion of a pre-trade sequence, which may be a client order that gets filled or a quote that gets accepted by the client.
+
+Following that execution, the trade gets confirmed and a legally binding contract is signed between the two parties involved. A ``ContractFormation`` is created which represents the trade state after the trade is confirmed, which results in a ``PostContractFormationState`` containing a ``Contract`` object.
 
 .. code-block:: Haskell
 
-type ContractFormationPrimitive:
-	before ExecutionState (0..1)
-		[metadata reference]
-	after PostContractFormationState (1..1)
+ type ContractFormationPrimitive:
+   before ExecutionState (0..1)
+     [metadata reference]
+   after PostContractFormationState (1..1)
 
-The ``ExecutionPrimitive`` and ``ContractFormationPrimitive`` above, each primitive event is designed to include a ``before`` and an ``after`` trade state attributes, that define the state transition in terms of evolution in the trade state.
+.. note:: The ``before`` attribute in the ``ContractFormationPrimitive`` is optional (as marked by the 0 cardinality lower bound), to represent cases where a new contract may be instantiated between parties without any prior execution: e.g. in a clearing or novation scenario. 
 
 Example 2: Observation/Reset/Transfer
-"""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""
 
-The sequence starts with the contract formation, which results in a ``PostContractFormationState`` that contains a ``Contract`` object:
-
-.. code-block:: Haskell
-
- type ContractFormationPrimitive: 
-   before ContractState (0..0) 
-     [metadata reference]
-   after PostContractFormationState (1..1) 
-
-We assume that the trade relies on a future observable value, for which an *observation* then occurs. This observation is provided by some data provider (a.k.a. *market data oracle*) and independently from any specific transaction.
+The sequence start from a contract having been formed for a trade, such that we have a ``Contract`` object. We then assume that the trade relies on a future observable value, for which an *observation* then occurs. This observation is provided by some data provider (a.k.a. *market data oracle*) and independently from any specific transaction.
 
 .. code-block:: Haskell
 
@@ -532,7 +525,7 @@ The CDM has been designed to treat the reset and the transfer primitive events s
 * Many transfer events are not tied to any reset: for instance, the currency settlement from an FX spot or forward transaction.
 * Conversely, not all reset events generate a cashflow: for instance, the single, final settlement that is based on all the past floating rate resets in the case of a compounding floating zero-coupon swap.
 
-Else than the ``ObservationPrimitive`` and ``TransferPrimitive`` above, each primitive event is designed to include a ``before`` and an ``after`` trade state attributes, that define the state transition in terms of evolution in the trade state.
+In the two sequence examples above, each primitive event (other than the ``ObservationPrimitive`` and ``TransferPrimitive``) is designed to include a ``before`` and an ``after`` trade state attributes, that define the state transition in terms of evolution in the trade state.
 
 The ``before`` attribute is included as a reference using the ``[metadata reference]`` annotation, because by definition the primitive event points to a state that *already* exists. By contrast, the primitive event includes the full ``after`` state, since it is the occurence of that primitive event that transitions to a new state. By tying each state in the lifecycle to a previous state, primitive events are the mechanism by which the *lineage* model is implemented in the CDM.
 
