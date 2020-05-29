@@ -40,7 +40,7 @@ public class RunFormContractWithLegalAgreement implements ExecutableFunction<Con
                 guard(contract.getPartyRole()));
         
         LegalAgreement legalAgreement = LegalAgreement.builder()
-                .addContractualParty(toPartyReference(contract))
+                .addContractualPartyRef(guard(contract.getParty()))
                 .setAgreementDate(DateImpl.of(1994, 12, 01))
                 .setAgreementType(LegalAgreementType.builder()
                         .setName(LegalAgreementNameEnum.MASTER_AGREEMENT)
@@ -51,18 +51,6 @@ public class RunFormContractWithLegalAgreement implements ExecutableFunction<Con
 
         return formContract.evaluate(executeBusinessEvent, legalAgreement);
     }
-
-
-	private List<ReferenceWithMetaParty> toPartyReference(Contract contract) {
-		List<ReferenceWithMetaParty> partyReferences = contract.getParty().stream()
-        	.map(p -> ReferenceWithMetaParty.builder()
-        			.setExternalReference(p.getMeta().getExternalKey())
-        			.setGlobalReference(p.getMeta().getGlobalKey())
-        			.build())
-	        .collect(Collectors.toList());
-		return partyReferences;
-	}
-
 
     @Override
     public Class<Contract> getInputType() {
