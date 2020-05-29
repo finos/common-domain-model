@@ -362,12 +362,18 @@ The trade state is currently described in the CDM by the ``Trade`` type. The tra
    contract Contract (0..1) <"The contract differs from the execution by the fact that its legal terms are fully specified. This includes the legal entities that are associated to it as well as any associated legal agreement, e.g. master agreement, credit and collateral terms, ... ">
    condition Trade: one-of
 
-Those two types are detailed in the sections below.
+While many different types of events may occur through the transaction lifecycle, the execution and contract states are deemed sufficient to describe all of the possible (post-trade) states which may result from those lifecycle events. The execution and contract states always contain a tradable product, which defines all of the current economic terms of the transaction as they have been agreed between the parties.
+
+For instance in a partial termination scenario, the initial state is a contract and the resulting state is also a contract, where the quantity associated with the tradable product is smaller.
+
+.. note:: A tradable product is represented by the ``TradableProduct`` type, which is further detailed in the `Tradable Product Section`_ of the documentation.
+
+The execution and contract types are detailed in the sections below.
 
 Execution
 """""""""
 
-The current CDM event model only covers post-trade lifecycle events, so the lifecycle of a transaction between two parties starts with an *execution* state, which is represented by the ``Execution`` type. In addition to the tradable product, an execution includes attributes such as the trade date, transacting parties, execution venue (if any) and settlement terms to describe the execution. Some attributes, such as the parties, may already be defined in a workflow step or business event and can simply be referenced as part of the execution.
+The lifecycle of a transaction between two parties starts with an *execution* state, which is represented by the ``Execution`` type. In addition to the tradable product, an execution includes attributes such as the trade date, transacting parties, execution venue (if any) and settlement terms to describe the execution. Some attributes, such as the parties, may already be defined in a workflow step or business event and can simply be referenced as part of the execution.
 
 .. code-block:: Haskell
 
@@ -385,8 +391,6 @@ The current CDM event model only covers post-trade lifecycle events, so the life
    closedState ClosedState (0..1) <"The qualification of what led to the execution closure alongside with the dates on which this closure takes effect.">
    settlementTerms SettlementTerms (0..1) <"The execution settlement terms, which is applicable for products such as securities">
 
-.. note:: A trade always contains a ``TradableProduct`` object, which is used to define the economic terms of the financial product that has been traded between the parties. The ``TradableProduct`` type is further detailed in the `Tradable Product Section`_ of the documentation.
-
 The ``settlementTerms`` attribute define how the transaction should be settled (including the settlement date). For instance, a settlement could be a *delivery-versus-payment* scenario for a cash security transaction or a *payment-versus-payment* scenario for an FX spot or forward transaction. The actual settlement amount(s) will need to use the *price* and *quantity* agreed as part of the tradable product.
 
 .. code-block:: Haskell
@@ -401,7 +405,7 @@ The ``settlementTerms`` attribute define how the transaction should be settled (
 Post-Execution: Contract
 """"""""""""""""""""""""
 
-For a contractual product, once a transaction has been agreed, a contract gets executed between the contractual legal entities for that transaction. In addition to the tradable product economics, a contract has a set of attributes which are only qualified at the post-execution stage: calculation agent, documentation, governing law, etc.
+For contractual products, once a transaction has been agreed, a contract gets executed between the contractual legal entities for that transaction. In addition to the tradable product, a contract has a set of attributes which are only qualified at the post-execution stage: calculation agent, documentation, governing law, etc.
 
 .. code-block:: Haskell
 
@@ -428,7 +432,11 @@ For a contractual product, once a transaction has been agreed, a contract gets e
 Closed State
 """"""""""""
 
-When a contract or execution is closed, a new contract or execution trade object is created, in which the ``closedState`` attribute defines the reason for closure.
+In the case when a contract or an execution is closed, it is necessary to record that closure as part of the trade state, such that a new instance of that contract or execution object gets created.
+
+For instance in a novation scenario, the initial state is a contract and the resulting state is two contracts: the first contract is new contract, which is the same as the original one but where one of the parties has been changed, and the second contract is the original contract, now marked as *closed*. 
+
+The ``closedState`` attribute on ``Contract`` and ``Execution`` captures this closed state and defines the reason for closure.
 
 .. code-block:: Haskell
 
@@ -452,7 +460,7 @@ When a contract or execution is closed, a new contract or execution trade object
 Primitive Event
 ^^^^^^^^^^^^^^^
 
-**Primitive events are the building block components used to specify business events in the CDM**. They describe the fundamental state-transition components that may impact the trade state during its lifecycle.
+**Primitive events are the building block components used to specify business events in the CDM**. They describe the fundamental state-transition components that may impact the trade state during its lifecycle. The trade state always transitions to and from one of the trade types, i.e. contract or execution.
 
 The list of primitive events can be seen in the ``PrimitiveEvent`` type definition:
 
