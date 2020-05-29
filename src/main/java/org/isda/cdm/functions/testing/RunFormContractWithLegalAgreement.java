@@ -2,9 +2,6 @@ package org.isda.cdm.functions.testing;
 
 import static org.isda.cdm.functions.testing.FunctionUtils.guard;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import javax.inject.Inject;
 
 import org.isda.cdm.BusinessEvent;
@@ -19,8 +16,6 @@ import org.isda.cdm.functions.Create_Execution;
 
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
 import com.rosetta.model.lib.records.DateImpl;
-
-import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 
 public class RunFormContractWithLegalAgreement implements ExecutableFunction<Contract, BusinessEvent> {
 
@@ -38,7 +33,7 @@ public class RunFormContractWithLegalAgreement implements ExecutableFunction<Con
                 guard(contract.getTradableProduct().getPriceNotation()),
                 guard(contract.getParty()),
                 guard(contract.getPartyRole()));
-        
+
         LegalAgreement legalAgreement = LegalAgreement.builder()
                 .addContractualPartyRef(guard(contract.getParty()))
                 .setAgreementDate(DateImpl.of(1994, 12, 01))
@@ -51,6 +46,7 @@ public class RunFormContractWithLegalAgreement implements ExecutableFunction<Con
 
         return formContract.evaluate(executeBusinessEvent, legalAgreement);
     }
+
 
     @Override
     public Class<Contract> getInputType() {
