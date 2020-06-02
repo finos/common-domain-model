@@ -53,13 +53,13 @@ public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
 	}
 
 	private void flipPR(PayerReceiverBuilder payerReceiver) {
-		ReferenceWithMetaPartyBuilder payerPartyReference = payerReceiver.getPayerPartyReference();
-		ReferenceWithMetaAccountBuilder payerAccountReference = payerReceiver.getPayerAccountReference();
-		
-		payerReceiver.setPayerAccountReferenceBuilder(payerReceiver.getReceiverAccountReference());
-		payerReceiver.setPayerPartyReferenceBuilder(payerReceiver.getReceiverPartyReference());
-		payerReceiver.setReceiverAccountReferenceBuilder(payerAccountReference);
-		payerReceiver.setReceiverPartyReferenceBuilder(payerPartyReference);
+//		ReferenceWithMetaPartyBuilder payerPartyReference = payerReceiver.getPayerPartyReference();
+//		ReferenceWithMetaAccountBuilder payerAccountReference = payerReceiver.getPayerAccountReference();
+//		
+//		payerReceiver.setPayerAccountReferenceBuilder(payerReceiver.getReceiverAccountReference());
+//		payerReceiver.setPayerPartyReferenceBuilder(payerReceiver.getReceiverPartyReference());
+//		payerReceiver.setReceiverAccountReferenceBuilder(payerAccountReference);
+//		payerReceiver.setReceiverPartyReferenceBuilder(payerPartyReference);
 	}
 	
 	
