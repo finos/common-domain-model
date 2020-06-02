@@ -1,9 +1,6 @@
-# *Product Model: FpML Equity Swap Mapping*
+# *CDM Model: Namespace Hierarchy Bug fixes*
 
 _What is being released_
 
-FpML synonym fixes for Equity Swap samples.
-  
-_Review Directions_
+Minor bug fixes in the generation of the namespace hierarchy tree.
 
-In the Ingestion Panel, try the following samples folder `products > equity`.
