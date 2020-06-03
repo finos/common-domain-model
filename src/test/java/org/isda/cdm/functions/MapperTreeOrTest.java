@@ -65,9 +65,6 @@ class MapperTreeOrTest extends AbstractFunctionTest {
 	 */
 
 	private WorkflowStep createWorkflowStep(Date effDate, Date... otherDates) {
-		// businessEvent -> primitives -> inception -> after -> contract ->
-		// contractualProduct -> economicTerms -> effectiveDate -> adjustableDate ->
-		// adjustedDate
 		WorkflowStepBuilder builder = WorkflowStep.builder();
 		BusinessEventBuilder businessEventBuilder = builder.getOrCreateBusinessEvent();
 		businessEventBuilder.setEffectiveDate(effDate);
@@ -78,7 +75,7 @@ class MapperTreeOrTest extends AbstractFunctionTest {
 	}
 
 	private void withAdjustedDate(PrimitiveEventBuilder primBuilder, Date date) {
-		primBuilder.getOrCreateInception().getOrCreateAfter().getOrCreateContract()
+		primBuilder.getOrCreateContractFormation().getOrCreateAfter().getOrCreateContract()
 				.getOrCreateTradableProduct().getOrCreateProduct().getOrCreateContractualProduct()
 				.getOrCreateEconomicTerms().getOrCreateEffectiveDate().getOrCreateAdjustableDate()
 				.setAdjustedDateRef(date);

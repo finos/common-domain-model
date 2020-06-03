@@ -3,7 +3,7 @@ version "${project.version}"
 
 import cdm.base.math.*
 import cdm.base.staticdata.party.*
-
+import cdm.synonyms.config.*
 
 body Authority ESMA <"ESMA is an independent EU Authority that contributes to safeguarding the stability of the European Union's financial system by enhancing the protection of investors and promoting stable and orderly financial markets.">
 body Authority FCA <"The Financial Conduct Authority is the conduct regulator for 58,000 financial services firms and financial markets in the UK and the prudential regulator for over 18,000 of those firms. ">
@@ -100,25 +100,15 @@ eligibility rule ReportableTransaction <"When eligible for rts 22">
 	[regulatoryReference ESMA MiFIR RTS_22 article "26"
 	provision "For the purposes of Article 26 of Regulation (EU) No 600/2014, the conclusion of an acquisition or disposal of a financial instrument referred to in Article 26(2) of Regulation (EU) No 600/2014 shall constitute a transaction."]
 		(NewTrade, QuantityChange)
-		// BusinessEventNotInScopeOfMifir then (NewTrade, QuantityChange)
 
 eligibility rule NewTrade
 	[regulatoryReference ESMA MiFIR RTS_22 article "26" paragraph "2"
 		provision "An acquisition referred to in paragraph 1 shall include the following:  (b) entering into a derivative contract; (c) an increase in the notional amount of a derivative contract. 5. A transaction for the purposes of Article 26 of Regulation (EU) No 600/2014 shall not include the following:  (b) a contract arising exclusively for clearing or settlement purposes; (c) a settlement of mutual obligations between parties where the net obligation is carried forward;  (e) a post-trade assignment or novation of a derivative contract where one of the parties to the derivative contract is replaced by a third party (f) a portfolio compression;  (h) the exercise of a right embedded in a financial instrument, or the conversion of a convertible bond and the resultant transaction in the underlying financial instrument; (i) the creation, expiration or redemption of a financial instrument as a result of pre-determined contractual terms, or as a result of mandatory events which are beyond the control of the investor where no investment decision by the investor takes place at the point in time of the creation, expiration or redemption of the financial instrument; (j) a decrease or increase in the notional amount of a derivative contract as a result of pre-determined contractual terms or mandatory events where no investment decision by the investor takes place at the point in time of the change in the notional amount; (k) a change in the composition of an index or a basket that occurs after the execution of a transaction;  "]
-				filter when WorkflowStep -> businessEvent -> primitives -> inception only exists
-
-
-eligibility rule BusinessEventNotInScopeOfMifir
-	[regulatoryReference ESMA MiFIR RTS_22 article "26" paragraph "2"
-	structured_provision "A business event that contains an inception primitive must be reported  Unless the business event is in { Allocation, ClearedTrade,Novation,PartialNovation, Compression} [Note: can be expressed as isEvent = newTrade] < but this is not so directly traceable to the regs"
-		provision ""]
-	filter when
-		WorkflowStep -> businessEvent -> eventQualifier <> "Allocation" and
-		WorkflowStep -> businessEvent -> eventQualifier <> "ClearedTrade" and
-		WorkflowStep -> businessEvent -> eventQualifier <> "Novation" and
-		WorkflowStep -> businessEvent -> eventQualifier <> "PartialNovation" and
-		WorkflowStep -> businessEvent -> eventQualifier <> "Compression"
-
+		(
+			filter when WorkflowStep -> businessEvent -> primitives -> execution exists,
+			filter when (WorkflowStep -> businessEvent -> primitives -> contractFormation exists and WorkflowStep -> businessEvent -> primitives -> contractFormation -> after only exists)
+		)
+				
 eligibility rule QuantityChange
 	[regulatoryReference ESMA MiFIR RTS_22 article "26" paragraph "2"
 		structured_provision "A business event that contains a quantityChange primitive must be reported if the business event is in {Increase, partialTermination, Termination}"
@@ -197,14 +187,16 @@ reporting rule ReportStatus <"Indication as to whether the transaction report is
 			rationale "Article 2 means that each reportable event is treated as an independent transaction. The practical implementation of corrections is: A New event is a NEWT, A new, non-reportable version of a previously-reported event, that renders the previous version of the same event non-reportable, is a CANC, A new, non-reportable version of a non-reportable event is not reported, A new, reportable version of a previously-reported event, that supersedes the previous version of the same event is a CANC followed by a NEWT"
 			structured_provision "MiFIR.ReportStatus is by definition ‘NEWT’ unless the report is a Cancellation when MiFIR.ReportStatus is by definition ‘CANC’"
 			provision "Indication as to whether the transaction report is new or a cancellation."]
- 	extract if WorkflowStep -> businessEvent -> primitives -> inception exists or WorkflowStep -> businessEvent -> primitives -> quantityChange exists
-then "NEWT"
-	else if WorkflowStep -> action = ActionEnum -> Cancel
-		then "CANC"
-		else if WorkflowStep -> businessEvent -> eventQualifier = "Termination"
-			then "CANC"
-			else ""
- 			as "Report Status"
+ 	extract if WorkflowStep -> businessEvent -> primitives -> execution exists 
+ 				or WorkflowStep -> businessEvent -> primitives -> contractFormation exists
+ 				or WorkflowStep -> businessEvent -> primitives -> quantityChange exists
+		then "NEWT"
+			else if WorkflowStep -> action = ActionEnum -> Cancel
+				then "CANC"
+				else if WorkflowStep -> businessEvent -> eventQualifier = "Termination"
+					then "CANC"
+					else ""
+		 			as "Report Status"
 
 
 reporting rule TransactionReferenceNumber
@@ -289,18 +281,6 @@ reporting rule Quantity <"The number of units of the financial instrument, or th
  	ContractForEvent then
  	extract Contract -> tradableProduct -> quantityNotation -> quantity -> amount
 		as "Quantity"
-
-// FIXME Functioncalls not supported
-//reporting rule DerivativeNotionalIncreaseDecrease
-//		[regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "32"
-//   	provision "Indication as to whether the transaction is an increase or decrease of notional of a derivative contract.
-//				Field only applies when there is change in notional for a derivative contract."]
-// 	extract
-//	 	if quantityAfterQuantityChange >= quantityBeforeQuantityChange
-//	then "INCR"
-//	else if quantityAfterQuantityChange < quantityBeforeQuantityChange
-//		then "DECR"
-//		else ""
 
  reporting rule FixedRatePrice
  	ContractForEvent then
@@ -481,11 +461,11 @@ reporting rule SecuritiesFinancingTransactionIndicator <"Securities financing tr
 
 reporting rule ContractForEvent
  	extract
- 		if WorkflowStep -> businessEvent -> primitives -> inception -> after -> contract only exists
-	then WorkflowStep -> businessEvent -> primitives -> inception -> after -> contract
+ 		if WorkflowStep -> businessEvent -> primitives -> contractFormation -> after -> contract only exists
+	then WorkflowStep -> businessEvent -> primitives -> contractFormation -> after -> contract
 	else if WorkflowStep -> businessEvent -> primitives -> quantityChange -> after -> contract  exists
 		then WorkflowStep -> businessEvent -> primitives -> quantityChange -> after -> contract
-		else WorkflowStep -> businessEvent -> primitives -> inception -> after -> contract
+		else WorkflowStep -> businessEvent -> primitives -> contractFormation -> after -> contract
  	as "Contract"
 
 reporting rule RateSpecification

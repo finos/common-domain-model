@@ -4,6 +4,7 @@ version "${project.version}"
 import cdm.base.*
 import cdm.base.datetime.*
 import cdm.base.math.*
+import cdm.synonyms.config.*
 
 type PrimitiveEvent: <"A primitive event is defined by one and only one atomic change in state of a trade. An example of this is a contract formation where the legal terms of the contact are added to the trade. A Primitive event contains a before and after state where the before is a reference to another after state of a primitive event in order to preserve lineage.">
 	execution ExecutionPrimitive (0..1)
@@ -11,16 +12,13 @@ type PrimitiveEvent: <"A primitive event is defined by one and only one atomic c
 		[synonym CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0, FpML_5_10 value "ignore"]
 	contractFormation ContractFormationPrimitive (0..1)
 		[synonym Workflow_Event value "contractFormation" path "primitive"]
-		[synonym CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0, FpML_5_10 value "ignore"]
+		[synonym CME_SubmissionIRS_1_0 value "ignore"]
 	split SplitPrimitive (0..1)
 		[synonym Workflow_Event value "split" path "primitive"]
 		[synonym CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value "ignore"]
 	exercise ExercisePrimitive (0..1)
 		[synonym Workflow_Event value "exercise" path "primitive"]
 		[synonym CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value "ignore"]
-	inception InceptionPrimitive (0..1)
-		[synonym Workflow_Event value "inception" path "primitive"]
-		[synonym CME_SubmissionIRS_1_0 value "ignore"]
 	observation ObservationPrimitive (0..1)
 		[synonym Workflow_Event value "observation" path "primitive"]
 		[synonym CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value "ignore"]
@@ -46,22 +44,22 @@ type ExecutionPrimitive: <"Specification of the primitive event for an execution
 	after ExecutionState (1..1) <"The after state corresponds to the execution between the parties. In the case of an execution on a contractual product, some additional characteristics may need to be specified to get a fully-formed contract, for instance when the executing party acts as an agent, as is the case in an allocation scenario. This is the purpose of the 'ContractFormation' primitive event.">
 		[synonym Workflow_Event value "after"]
 
-type ContractFormationPrimitive: <"Specification of the primitive event for the formation of a contract, with 'before' state being an 'ExecutionState' and 'after' state being a 'PostInceptionState'. This primitive combined with the 'ExecutionPrimitive' supersedes the earlier 'Inception' primitive, which had both the the execution and the contract formation bundled together, and as such was only applicable to contractual products. This intends to provide for properly atomic primitives.">
+type ContractFormationPrimitive: <"Specification of a primitive event that represents an executed trade for a contractual product that has been affirmed (or confirmed) by the two parties.  The optional 'before' state is an 'ExecutionState' consisting of an ExecutionPrimitive.  The 'after' state is a 'PostContractFormationState' that includes a Contract in which there is an optional reference to a RelatedAgreeemnt, such as a Master Agreement.  If an ‘after’ and ‘before’ both exist, then they must have the same TradableProduct values.">
 	before ExecutionState (0..1) <"The before state corresponds to the output of an execution between the parties.">
 		[metadata reference]
 		[synonym Workflow_Event value "before"]
-	after PostInceptionState (1..1) <"The after state corresponds to the new contract being formed between the parties, plus some additional trade workflow information.">
+	after PostContractFormationState (1..1) <"The after state corresponds to the new contract being formed between the parties, plus some additional trade workflow information.">
 		[synonym Workflow_Event value "after"]
-
+		[synonym CME_ClearedConfirm_1_17 value "clearingConfirmed"]
 	// TODO enable condition once party has been refactored out of product
 //	condition: <"The product should be unchanged.">
 //		before -> execution -> tradableProduct -> product = after -> contract -> tradableProduct -> product
 
 	condition: <"The quantity should be unchanged.">
-		before -> execution -> tradableProduct -> quantityNotation = after -> contract -> tradableProduct -> quantityNotation
+		if before exists then before -> execution -> tradableProduct -> quantityNotation = after -> contract -> tradableProduct -> quantityNotation
 	
 	condition: <"The price should be unchanged.">
-		before -> execution -> tradableProduct -> priceNotation = after -> contract -> tradableProduct -> priceNotation
+		if before exists then before -> execution -> tradableProduct -> priceNotation = after -> contract -> tradableProduct -> priceNotation
 
 
 type SplitPrimitive: <"The primitive event to represent a split/allocation of a trade. As part of this primitive event the type of trade, either an execution or a contract, does not get altered. In the case of an execution, the further transformation of each split execution into a contract will be the purpose of the ContractFormation primitive.">
@@ -120,18 +118,6 @@ type ExercisePrimitive: <"This primitive leverages the FpML OptionExercise const
 		[synonym Workflow_Event value "before"]
 	after ExerciseOutcome (1..1)
 		[synonym Workflow_Event value "after"]
-
-
-// TODO: deprecate that class, now superseded by a combination of 'ExecutionPrimitive' and 'ContractFormation'
-type InceptionPrimitive: <"The primitive event for the inception of a new contract between parties. It is expected that this primitive will be adjusted or deprecated once the CDM scope is extended to the pre-execution space.">
-	before ContractState (0..0) <"The (0..0) cardinality reflects the fact that there is no contract in the before state of an inception primitive. As noted in the definition associated with the class, this is expected to change once the CDM scope is extended to the pre-execution space.">
-		[metadata reference]
-		[synonym Workflow_Event value "before"]
-	after PostInceptionState (1..1) <"The after state corresponds to the new contract between the parties.">
-		[synonym Workflow_Event value "after"]
-		
-		
-		[synonym CME_ClearedConfirm_1_17 value "clearingConfirmed"]
 
 type ObservationPrimitive: <"A class to specify the primitive object to specify market observation events, which is applicable across all asset classes.">
 	source ObservationSource (1..1) <"The observation source, such as an interest rate curve or an information provider.">

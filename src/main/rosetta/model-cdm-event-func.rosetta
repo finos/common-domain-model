@@ -8,7 +8,7 @@ import cdm.base.staticdata.identifier.*
 import cdm.base.staticdata.party.*
 import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.asset.rates.*
-
+import cdm.synonyms.config.*
 
 //*********************
 // Event Qualification
@@ -79,19 +79,6 @@ func Qualify_ClearedTrade:
 		and businessEvent -> primitives -> execution -> after = businessEvent -> primitives -> contractFormation -> before
 		// TODO - Add this back in when we correctly map the ClearingOrganization
 		and businessEvent -> primitives -> contractFormation -> after -> contract -> partyRole -> role contains PartyRoleEnum -> ClearingOrganization
-
-
-//isEvent ClearedTrade <"The cleared trade at the CCP.">
-//	WorkflowEvent -> businessEvent -> primitives count = 1
-//	and businessEvent -> primitives -> inception exists
-//	and workflowEventState -> workflowStatus = WorkflowStatusEnum -> Cleared
-/*
- * It is proposed to remove the below qualification for 2 reasons
- *  - Limit the scope of event qualification to evaluating what is available within the event, while the workflow rule evaluated across events
- *  - Not introduce the distinction between agency and principal model (with this latter having contracts between clearing members and clients)
- */
-//	and lineage -> @globalKey -> eventQualifier = eventQualifier.ClearingSubmission
-//	and lineage -> @globalKey -> eventQualifier = eventQualifier.ClearedTrade
 
 
 func Qualify_ClearingRejection: <"The rejection of an alpha trade submission by a CCP, which is qualified by the fact that (i) termsChange is the only primitive, the workflow status is `rejected`, and (iii) the CCP is positioned as a partyRole to the execution or contract in the after state, while it didn't exist in the before state.">
@@ -183,30 +170,18 @@ func Qualify_MultipleTransfers: <"The qualification an event that combines multi
 	assign-output is_event:
 		businessEvent -> primitives -> transfer multiple exists
 
-func Qualify_NewTrade:
-	[qualification BusinessEvent]
-	inputs:
-		businessEvent BusinessEvent(1..1)
-	output: is_event boolean (1..1)
-	assign-output is_event:
-		businessEvent -> primitives count = 1
-		and businessEvent -> primitives -> inception exists
-		and businessEvent -> primitives -> inception -> after -> tradeWarehouseWorkflow is absent
-		and businessEvent -> primitives -> quantityChange -> after -> contract -> closedState is absent
-		and businessEvent -> primitives -> inception -> after -> contract -> clearedDate is absent
-
-func Qualify_Novation: <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and inception exist, (iii) the remaining quantity = 0, (iv) the closedState of the contract is Novated, (v) the stepped-in contract has a different contract identifier than the novated contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
+func Qualify_Novation: <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and a contract formation exist, (iii) the remaining quantity = 0, (iv) the closedState of the contract is Novated, (v) the stepped-in contract has a different contract identifier than the novated contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
 		businessEvent -> primitives -> quantityChange exists
-		and businessEvent -> primitives -> inception exists
+		and businessEvent -> primitives -> contractFormation exists
 		and QuantityDecreasedToZero(businessEvent -> primitives -> quantityChange) = True
 		and businessEvent -> primitives -> quantityChange -> after -> contract -> closedState -> state = ClosedStateEnum -> Novated
-		and businessEvent -> primitives -> inception -> after -> contract -> contractIdentifier <> businessEvent -> primitives -> quantityChange -> before -> contract -> contractIdentifier
-		and businessEvent -> eventDate = businessEvent -> primitives -> inception -> after -> contract -> tradeDate -> date
+		and businessEvent -> primitives -> contractFormation -> after -> contract -> contractIdentifier <> businessEvent -> primitives -> quantityChange -> before -> contract -> contractIdentifier
+		and businessEvent -> eventDate = businessEvent -> primitives -> contractFormation -> after -> contract -> tradeDate -> date
 		and businessEvent -> effectiveDate = NovatedContractEffectiveDate(businessEvent) -> dates only-element
 		//and originalContractParties <> newContractParties
 
@@ -218,16 +193,16 @@ func Qualify_Observation: <"The qualification of an observation event from the f
 	assign-output is_event:
 		businessEvent -> primitives -> observation only single exists
 
-func Qualify_PartialNovation: <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and inception exist, (iii) the contract quantity/notional has decreased as part of the quantityChange primitive, while (iv) there is a remaining quantity/notional, (v) the stepped-in contract has a different contract identifier than the original contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
+func Qualify_PartialNovation: <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and contractFormation exist, (iii) the contract quantity/notional has decreased as part of the quantityChange primitive, while (iv) there is a remaining quantity/notional, (v) the stepped-in contract has a different contract identifier than the original contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
 		businessEvent -> primitives -> quantityChange exists
-		and businessEvent -> primitives -> inception exists
-		and businessEvent -> primitives -> inception -> after -> contract -> contractIdentifier <> businessEvent -> primitives -> quantityChange -> before -> contract -> contractIdentifier
-		and businessEvent -> eventDate = businessEvent -> primitives -> inception -> after -> contract -> tradeDate -> date
+		and businessEvent -> primitives -> contractFormation exists
+		and businessEvent -> primitives -> contractFormation -> after -> contract -> contractIdentifier <> businessEvent -> primitives -> quantityChange -> before -> contract -> contractIdentifier
+		and businessEvent -> eventDate = businessEvent -> primitives -> contractFormation -> after -> contract -> tradeDate -> date
 		and businessEvent -> effectiveDate = NovatedContractEffectiveDate(businessEvent) -> dates
 		and QuantityDecreased(businessEvent -> primitives -> quantityChange) = True
 		//and originalContractParties <> newContractParties
@@ -300,8 +275,8 @@ func Qualify_TradeWarehousePositionNotification:
 		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
-		businessEvent -> primitives -> inception exists
-		and businessEvent -> primitives -> inception -> after -> tradeWarehouseWorkflow exists
+		businessEvent -> primitives -> contractFormation exists
+		and businessEvent -> primitives -> contractFormation -> after -> tradeWarehouseWorkflow exists
 
 func Qualify_Execution: <"The qualification of an execution event from the fact that the only component is an execution.">
 	[qualification BusinessEvent]
@@ -309,8 +284,7 @@ func Qualify_Execution: <"The qualification of an execution event from the fact 
 		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
-		businessEvent -> primitives count = 1
-		and businessEvent -> primitives -> execution exists
+		businessEvent -> primitives count = 1 and businessEvent -> primitives -> execution exists
 
 func Qualify_ContractFormation: <"The qualification of a contractFormation event from the fact that the only component is a contractFormation.">
 	[qualification BusinessEvent]
@@ -318,8 +292,8 @@ func Qualify_ContractFormation: <"The qualification of a contractFormation event
 		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
-		businessEvent -> primitives count = 1
-		and businessEvent -> primitives -> contractFormation exists
+		businessEvent -> primitives count = 1 and businessEvent -> primitives -> contractFormation exists
+		and businessEvent -> primitives -> contractFormation -> after -> tradeWarehouseWorkflow is absent
 
 func Qualify_StockSplit: <"The qualification of StockSplit business event based on (i) an unchanged before/after currency amount (ii) the same adjustment ratio applied to the before/after cash price and number of units.">
 	[qualification BusinessEvent]

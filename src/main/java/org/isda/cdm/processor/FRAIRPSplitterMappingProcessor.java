@@ -1,24 +1,23 @@
 package org.isda.cdm.processor;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.isda.cdm.InterestRatePayout.InterestRatePayoutBuilder;
-import org.isda.cdm.RateSpecification.RateSpecificationBuilder;
-
+import cdm.base.staticdata.party.PayerReceiver.PayerReceiverBuilder;
+import cdm.base.staticdata.party.metafields.ReferenceWithMetaAccount.ReferenceWithMetaAccountBuilder;
+import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.rosetta.model.lib.RosettaModelObject;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
+import org.isda.cdm.InterestRatePayout.InterestRatePayoutBuilder;
+import org.isda.cdm.RateSpecification.RateSpecificationBuilder;
 
-import cdm.base.staticdata.party.PayerReceiver.PayerReceiverBuilder;
-import cdm.base.staticdata.party.metafields.ReferenceWithMetaAccount.ReferenceWithMetaAccountBuilder;
-import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder;
+import java.util.ArrayList;
+import java.util.List;
 
+@SuppressWarnings("unused")
 public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
 
-	public FRAIRPSplitterMappingProcessor(RosettaPath path, List<Mapping> mappings) {
-		super(path, mappings);
+	public FRAIRPSplitterMappingProcessor(RosettaPath path, List<String> synonymValues, List<Mapping> mappings) {
+		super(path, synonymValues, mappings);
 	}
 
 	@Override

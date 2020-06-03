@@ -141,7 +141,7 @@ public class ClearingUtils {
 		stepBuilder.getOrCreateBusinessEvent()
 			.addPrimitives(PrimitiveEvent.builder()
 				.setContractFormation(ContractFormationPrimitive.builder()
-					.setAfter(PostInceptionState.builder()
+					.setAfter(PostContractFormationState.builder()
 						.setContract(contract)
 						.build())
 					.build())
