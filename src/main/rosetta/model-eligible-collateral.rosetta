@@ -27,23 +27,23 @@ type CollateralIssuerType: <"A class to allow specification of the type of entit
 	regionalGovernmentType RegionalGovernmentIssuerType (0..1) <"Regional government, local authority or municipal.">
 	specialPurposeVehicleType SpecialPurposeVehicleIssuerType (0..1)
 	// fundType FundIssuerType (0..1) // NO LONGER REQUIRED - specified fund country of origin which now sits under ProductCriteria.productCountryOfOrigin
-	
+
 	condition SupraNationalSubType:
-		if issuerType <> IssuerTypeEnum -> SupraNational		
+		if issuerType <> IssuerTypeEnum -> SupraNational
 		then supraNationalType is absent
-	
+
 	condition QuasiGovernmentSubType:
 		if issuerType <> IssuerTypeEnum -> QuasiGovernment
 		then quasiGovernmentType is absent
-	
+
 	condition RegionalGovernmentSubType:
 		if issuerType <> IssuerTypeEnum -> RegionalGovernment
 		then regionalGovernmentType is absent
-	
+
 	condition SpecialPurposeVehicleSubType:
 		if issuerType <> IssuerTypeEnum -> SpecialPurposeVehicle
 		then specialPurposeVehicleType is absent
-		
+
 	// condition FundSubType:
 	// 	if issuerType <> IssuerTypeEnum -> Fund
 	// 	then fundType is absent
@@ -54,7 +54,7 @@ type QuasiGovernmentIssuerType: <"A class to allow specification of different ty
 	// Eligible sovereigns specified by IssuerCriteria.issuerCountryOfOrigin
 	// Eligible issuers specified by IssuerCriteria.issuerName
 	// TODO: other (non-exhaustive) criteria e.g. GSEs with/without government support, EMIR public sector entities, US agencies
-	
+
 	condition NonSovereignEntityRecourse:
 		if sovereignRecourse exists then sovereignEntity = False
 
@@ -65,7 +65,7 @@ type RegionalGovernmentIssuerType: <"A class to allow specification of different
 	// TODO: other (non-exhaustive) criteria e.g. US municipals, Canadian provinces, German Lander
 
 type SpecialPurposeVehicleIssuerType: <"A class to allow specification of different types of special purpose vehicle (SPV) collateral.">
-	creditRisk CreditRiskEnum (0..1) <"Tranched or untranched credit risk."> // Not required?  If tranched credit risk then specified ProductCriteria.agencyRating. 
+	creditRisk CreditRiskEnum (0..1) <"Tranched or untranched credit risk."> // Not required?  If tranched credit risk then specified ProductCriteria.agencyRating.
 	// Eligible jurisdictions of incorporation is specified by IssuerCriteria.issuerCountryOfOrigin
 	// TODO: other (non-exhaustive) criteria e.g. by asset class (RMBS, CMBS, CLO, by regional risk focus, by guarantor (e.g. Ginnie Mae)). Can the existing FpML framework be leveraged.  See type MortgageBackedSecurity
 
@@ -78,7 +78,7 @@ type SpecialPurposeVehicleIssuerType: <"A class to allow specification of differ
 type CollateralProductType: <"A class to allow specification of the asset product type.">
 	productType CollateralProductTypeEnum (1..1) <"The type of collateral product.">
 	securityType SecurityTypeEnum (0..1) <"Filter based on the type of security.">
-	bondType BondType (0..1) <"Filter based on the type of bond."> 
+	bondType BondType (0..1) <"Filter based on the type of bond.">
 	equityType EquityTypeEnum (0..1) <"Filter based on the type of equity.">
 	fundType FundProductTypeEnum (0..1) <"Filter based on the type of fund.">
 	// productCountryOfOrigin string (0..*) <"Filter based on the issuing entity country of origin."> // Now sits under ProductCriteria, consistent with IssuerCriteria
@@ -86,12 +86,12 @@ type CollateralProductType: <"A class to allow specification of the asset produc
 
 	condition SecuritySubType:
 		if productType <> CollateralProductTypeEnum -> Security
-		then ( securityType and bondType and equityType ) is absent 
-	
+		then ( securityType and bondType and equityType ) is absent
+
 	condition BondSubType:
 		if securityType <> SecurityTypeEnum -> Bond
 		then bondType is absent
-	
+
 	condition EquitySubType:
 		if securityType <> SecurityTypeEnum -> Equity
 		then equityType is absent
@@ -125,7 +125,7 @@ type IssuerCriteria: <"Criteria used to specify eligible collateral issuers.">
 	issuerAgencyRating AgencyRatingCriteria (0..*) <"Agency rating based on default risk and creditors claim in event of default associated with asset issuer.">
 	sovereignAgencyRating AgencyRatingCriteria (0..*) <"Agency rating based on default risk of country.">
 	counterpartyOwnIssuePermitted boolean (0..1) <"Filter based on whether it is permitted for the the underlying asset to be issued by the posting entity or part of their corporate family."> // Explore options to infer this from one way risk
-	
+
 type ProductCriteria: <"Criteria used to specify eligible collateral assets.">
 	collateralProductType CollateralProductType (0..*) <"Filter based on the asset product type.">
 	productCountryOfOrigin string (0..*) <"Filter based on the issuing entity country of origin."> // Same as list of eligible Sovereigns
@@ -150,7 +150,7 @@ type BondEconomics: <"Specification of the economics of the bond">
 	bondPrincipal BondPrincipalEnum (0..1) <"Security: Bond Economics: The repayment terms for the principal on the bond.">
 
 
-/* 
+/*
 // Previous version, temporarily kept for reference purposes
 type EligibleCollateral: <"The collateral eligibility as a function of the types of asset, the maturity and rating terms.">
 	[synonym FpML_5_10 value "EligibleCollateral"]
