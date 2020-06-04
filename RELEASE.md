@@ -1,4 +1,4 @@
-# * Model Optimisation: Initial fees and additional payments*
+# *Model Optimisation: Initial fees and additional payments*
 
 _What is being released_
 
@@ -17,7 +17,6 @@ In the Textual Broswer of the CDM Portal:
 
 In the Instance Viewer of the CDM Portal, see the `exection business event` examples:
 
-- Swaption - Premium is represented as a settlement term
-- Swap With Other Party Payment - Broker fee is represented as a settlement term
-- Swap With Initial Fee is represented as a settlement term
-
+- `Swaption` - Premium is represented as a settlement term
+- `Swap With Other Party Payment` - Broker fee is represented as a settlement term
+- `Swap With Initial Fee` - Fee is represented as a settlement term
