@@ -49,6 +49,13 @@ class MappingProcessorUtils {
 	}
 
 	@NotNull
+	static <E extends Enum<E>> Map<String, E> synonymToEnumValueMap(E[] enumValues) {
+		Map<String, E> synonymToEnumValueMap = new HashMap<>();
+		Arrays.stream(enumValues).forEach(e -> getSynonymValues(e, ISDA_CREATE_SYNONYM_SOURCE).forEach(s -> synonymToEnumValueMap.put(s, e)));
+		return synonymToEnumValueMap;
+	}
+
+	@NotNull
 	static Set<String> getSynonymValues(Enum enumValue, String synonymSource) {
 		try {
 			return Arrays.stream(enumValue.getDeclaringClass().getField(enumValue.name()).getAnnotationsByType(RosettaSynonym.class))

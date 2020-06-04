@@ -18,15 +18,14 @@ import static org.isda.cdm.processor.MappingProcessorUtils.*;
 /**
  * ISDA Create mapping processor.
  */
+@SuppressWarnings("unused")
 public class CalculationDateLocationMappingProcessor extends MappingProcessor {
 
 	private final Map<String, BusinessCenterEnum> synonymToBusinessCenterEnumMap;
 
 	public CalculationDateLocationMappingProcessor(RosettaPath rosettaPath, List<String> synonymValues, List<Mapping> mappings) {
 		super(rosettaPath, synonymValues, mappings);
-		this.synonymToBusinessCenterEnumMap = new HashMap<>();
-		Arrays.stream(BusinessCenterEnum.values()).forEach(e ->
-				MappingProcessorUtils.getSynonymValues(e, ISDA_CREATE_SYNONYM_SOURCE).forEach(s -> synonymToBusinessCenterEnumMap.put(s, e)));
+		this.synonymToBusinessCenterEnumMap = synonymToEnumValueMap(BusinessCenterEnum.values());
 	}
 
 	@Override
