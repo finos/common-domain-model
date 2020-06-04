@@ -10,10 +10,13 @@ _Review Direction_
 
 In the Textual Broswer of the CDM Portal:
 
--  Type `Execution`  has been modified to have a one-to-many relationship with SettlementTerms to support multiple initial settlement terms. The definition has been changed to reflect its usage.
+-  Type `Execution` has been modified to have a one-to-many relationship with `SettlementTerms` to support multiple initial settlement terms.
 - `PayerReceiver` has been added to `SettlementTerms` to define the settlement parties 
 - `AssetIdentifier` has been added to `SettlementTerms`  to uniquely link the cashflow settlement to a cashPrice specification
 - Updated Create_Execution to take `SettlementTerms` as an input
+- Updated descriptions to align with the change in the data structure:
+  - Search for type `SettlementTerms` - see updated description
+  - Search for type `Execution`, scroll down to attribute `settlementTerms` - see updated description
 
 In the Instance Viewer of the CDM Portal, see the `exection business event` examples:
 
