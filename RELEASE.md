@@ -17,7 +17,8 @@ In the Textual Broswer of the CDM Portal:
 - Updated descriptions to align with the change in the data structure:
   - Search for type `SettlementTerms` - see updated description
   - Search for type `Execution`, scroll down to attribute `settlementTerms` - see updated description
-
+  - Search for func `Create_Execution`, scroll down to input `settlementTerms` - see updated description
+ 
 In the Instance Viewer of the CDM Portal, see the `exection business event` examples:
 
 - `Swaption` - Premium is represented as a settlement term
