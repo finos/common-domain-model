@@ -12,6 +12,7 @@ import cdm.base.staticdata.party.*
 type AgencyRatingCriteria: <"A class to specify multiple credit notations alongside a conditional 'any' or 'all' qualifier.">
 	qualifier QuantifierEnum (1..1) <"Indicates whether all or any agency ratings apply.">
 	creditNotation CreditNotation (1..*)
+		[metadata scheme]
 	mismatchResolution CreditNotationMismatchResolutionEnum (0..1)
 	referenceAgency CreditRatingAgencyEnum (0..1)
 
@@ -26,23 +27,23 @@ type CollateralIssuerType: <"A class to allow specification of the type of entit
 	regionalGovernmentType RegionalGovernmentIssuerType (0..1) <"Regional government, local authority or municipal.">
 	specialPurposeVehicleType SpecialPurposeVehicleIssuerType (0..1)
 	// fundType FundIssuerType (0..1) // NO LONGER REQUIRED - specified fund country of origin which now sits under ProductCriteria.productCountryOfOrigin
-	
+
 	condition SupraNationalSubType:
-		if issuerType <> IssuerTypeEnum -> SupraNational		
+		if issuerType <> IssuerTypeEnum -> SupraNational
 		then supraNationalType is absent
-	
+
 	condition QuasiGovernmentSubType:
 		if issuerType <> IssuerTypeEnum -> QuasiGovernment
 		then quasiGovernmentType is absent
-	
+
 	condition RegionalGovernmentSubType:
 		if issuerType <> IssuerTypeEnum -> RegionalGovernment
 		then regionalGovernmentType is absent
-	
+
 	condition SpecialPurposeVehicleSubType:
 		if issuerType <> IssuerTypeEnum -> SpecialPurposeVehicle
 		then specialPurposeVehicleType is absent
-		
+
 	// condition FundSubType:
 	// 	if issuerType <> IssuerTypeEnum -> Fund
 	// 	then fundType is absent
@@ -53,7 +54,7 @@ type QuasiGovernmentIssuerType: <"A class to allow specification of different ty
 	// Eligible sovereigns specified by IssuerCriteria.issuerCountryOfOrigin
 	// Eligible issuers specified by IssuerCriteria.issuerName
 	// TODO: other (non-exhaustive) criteria e.g. GSEs with/without government support, EMIR public sector entities, US agencies
-	
+
 	condition NonSovereignEntityRecourse:
 		if sovereignRecourse exists then sovereignEntity = False
 
@@ -64,7 +65,7 @@ type RegionalGovernmentIssuerType: <"A class to allow specification of different
 	// TODO: other (non-exhaustive) criteria e.g. US municipals, Canadian provinces, German Lander
 
 type SpecialPurposeVehicleIssuerType: <"A class to allow specification of different types of special purpose vehicle (SPV) collateral.">
-	creditRisk CreditRiskEnum (0..1) <"Tranched or untranched credit risk."> // Not required?  If tranched credit risk then specified ProductCriteria.agencyRating. 
+	creditRisk CreditRiskEnum (0..1) <"Tranched or untranched credit risk."> // Not required?  If tranched credit risk then specified ProductCriteria.agencyRating.
 	// Eligible jurisdictions of incorporation is specified by IssuerCriteria.issuerCountryOfOrigin
 	// TODO: other (non-exhaustive) criteria e.g. by asset class (RMBS, CMBS, CLO, by regional risk focus, by guarantor (e.g. Ginnie Mae)). Can the existing FpML framework be leveraged.  See type MortgageBackedSecurity
 
@@ -74,23 +75,23 @@ type SpecialPurposeVehicleIssuerType: <"A class to allow specification of differ
 // NOW Captured under ProductCriteria.productCountryOfOrigin
 	// exchangeTraded is specified by EquityTypeEnum.ExchangeTradedFund
 
-type ProductType: <"A class to allow specification of the asset product type.">
-	productType ProductTypeEnum (1..1) <"The type of collateral product.">
+type CollateralProductType: <"A class to allow specification of the asset product type.">
+	productType CollateralProductTypeEnum (1..1) <"The type of collateral product.">
 	securityType SecurityTypeEnum (0..1) <"Filter based on the type of security.">
-	bondType BondType (0..1) <"Filter based on the type of bond."> 
+	bondType BondType (0..1) <"Filter based on the type of bond.">
 	equityType EquityTypeEnum (0..1) <"Filter based on the type of equity.">
 	fundType FundProductTypeEnum (0..1) <"Filter based on the type of fund.">
 	// productCountryOfOrigin string (0..*) <"Filter based on the issuing entity country of origin."> // Now sits under ProductCriteria, consistent with IssuerCriteria
 	// 	[metadata scheme]
 
 	condition SecuritySubType:
-		if productType <> ProductTypeEnum -> Security
-		then ( securityType and bondType and equityType ) is absent 
-	
+		if productType <> CollateralProductTypeEnum -> Security
+		then ( securityType and bondType and equityType ) is absent
+
 	condition BondSubType:
 		if securityType <> SecurityTypeEnum -> Bond
 		then bondType is absent
-	
+
 	condition EquitySubType:
 		if securityType <> SecurityTypeEnum -> Equity
 		then equityType is absent
@@ -105,9 +106,7 @@ type CollateralValuationPercentage:
 	fxHaircutPercentage number (0..1) <"FX haircut applied to a specific asset which is agreed between the parties (for example, if pledgor eligible collateral is not denominated in the termination currency or under other specified cases in collateral support documents both for initial margin and variation margin).The percentage value is expressed as the discount haircut to the value of the collateral- as an example an 8% FX haircut would be expressed as 0.08.">
 
 	condition: valuationPercentage > 0 and valuationPercentage <=1
-	condition FxHaircutPercentage: <"A data rule to validate that if an FX Haircut Percentage is specified it should be between 0 and 1.">
-		if fxHaircutPercentage exists
-		then fxHaircutPercentage > 0 and fxHaircutPercentage <=1
+	condition: fxHaircutPercentage > 0 and fxHaircutPercentage <=1
 
 type EligibleCollateral: <"Set of criteria used to specify eligible collateral.">
 [rootType]
@@ -116,23 +115,7 @@ type EligibleCollateral: <"Set of criteria used to specify eligible collateral."
 type EligibleCollateralCriteria: <"Criteria used to specify eligible collateral.">
 	issuer IssuerCriteria (0..*) <"Filter based on the issuer.">
 	product ProductCriteria (0..*) <"Filter based on the product.">
-	treatment Treatment (1..1) <"Treatment of described collateral">
-
-type Treatment: <"">
 	valuationPercentage CollateralValuationPercentage (0..1) <"Filter based on the valuation percentage or FX haircut percentage.">
-	concentrationLimit ConcentrationLimit (0..*) <"">
-	includeExclude boolean (1..1) <"">
-
-type ConcentrationLimit: <"">
-	limitRange PeriodRange (0..1) <"">
-	limitType LimitTypeEnum (0..1) <"">
-	limitCriteria LimitCriteria (0..1) <"">
-	valueCap Money (0..1) <"value of collateral limit cap-represented as a numerical value">
-	percentageCap number (0..1) <"perecentage of collateral limit cap-represented as a decimal number - example 25% is 0.25">
-
-type LimitCriteria: <"">
-	issuer IssuerCriteria (0..*) <"Filter based on the issuer.">
-	product ProductCriteria (0..*) <"Filter based on the product.">
 
 type IssuerCriteria: <"Criteria used to specify eligible collateral issuers.">
 	issuerType CollateralIssuerType (0..*) <"Filter based on the type of entity issuing the asset.">
@@ -142,9 +125,9 @@ type IssuerCriteria: <"Criteria used to specify eligible collateral issuers.">
 	issuerAgencyRating AgencyRatingCriteria (0..*) <"Agency rating based on default risk and creditors claim in event of default associated with asset issuer.">
 	sovereignAgencyRating AgencyRatingCriteria (0..*) <"Agency rating based on default risk of country.">
 	counterpartyOwnIssuePermitted boolean (0..1) <"Filter based on whether it is permitted for the the underlying asset to be issued by the posting entity or part of their corporate family."> // Explore options to infer this from one way risk
-	
+
 type ProductCriteria: <"Criteria used to specify eligible collateral assets.">
-	collateralProductType ProductType (0..*) <"Filter based on the asset product type.">
+	collateralProductType CollateralProductType (0..*) <"Filter based on the asset product type.">
 	productCountryOfOrigin string (0..*) <"Filter based on the issuing entity country of origin."> // Same as list of eligible Sovereigns
 		[metadata scheme]
 	denominatedCurrency string (0..*) <"Filter based on the underlying asset denominated currency.">
@@ -153,12 +136,9 @@ type ProductCriteria: <"Criteria used to specify eligible collateral assets.">
 	maturityType MaturityTypeEnum (0..1) <"Specifies whether the maturity range is the remaining or original maturity.">
 	maturityRange PeriodRange (0..1) <"Filter based on the underlying asset maturity.">
 	productIdentifier ProductIdentifier (0..*) <"Filter based on specific instrument identifiers (e.g. specific ISINs, CUSIPs etc).">
-	productTaxonomy ProductTaxonomy (0..*) <"The product taxonomy value(s) associated with a product.">
     seasoned boolean (0..1) <"Filter based on whether underlying security is seasoned."> // IS THIS REQUIRED - ISDA feedback is that this should be removed
 	sinkable boolean (0..1) <"Filter based on whether underlying security is sinkable."> // IS THIS REQUIRED - ISDA feedback is that this should be removed
-
-	condition Choice: <"If any are specified, only one of ProductType, ProductTaxonomy or ProductIdentifer should exist.">
-		optional choice collateralProductType, productTaxonomy, productIdentifier
+//	indexLinked boolean (0..1) <"Filter based on whether underlying security is index linked."> NO LONGER REQUIRED - Captured under BondType.bondEconomics
 
 type BondType: <"Specification of the type of bond">
 	bondClass BondClassEnum (0..1) <"Specification of the characteristics of bond">
@@ -168,3 +148,36 @@ type BondEconomics: <"Specification of the economics of the bond">
 	bondSeniority BondSeniorityEnum (0..1) <"Security: Bond Economics: The order of repayment in the event of a sale or bankruptcy of the issuer or a related party (eg guarantor).">
 	bondInterest BondInterestEnum (0..1) <"Security: Bond Economics: The terms of the reference rate for calculation of interest on the bond.">
 	bondPrincipal BondPrincipalEnum (0..1) <"Security: Bond Economics: The repayment terms for the principal on the bond.">
+
+
+/*
+// Previous version, temporarily kept for reference purposes
+type EligibleCollateral: <"The collateral eligibility as a function of the types of asset, the maturity and rating terms.">
+	[synonym FpML_5_10 value "EligibleCollateral"]
+	// ISDA Create specifies the eligible collateral as well as the valuation % as a string. Let's discuss if there is room a for better approach.
+	// The below approach which combines the asset, the tenor and the credit rating qualification is extremely comprehensive and was vetted extensively as part of the
+	// FpML standard CSA initiative.
+	// It should however be noted that one of the limitations of this approach is that the ISDA 2003 Collateral Assets Definitions have not been effectively used by
+	// market participants as far as we understand.
+	eligibleAsset CollateralAssetDefinitionsEnum (1..1) <"The eligible asset is specified by reference to the ISDA 2003 Collateral Assets Definitions.">
+		[synonym FpML_5_10 value "eligibleAsset"]
+		// TDOD: not sure how we can map ISDA_CREATE cases where items is a specific stock, i.e. "items": "BT stock"
+		[synonym ISDA_Create_1_0 value "items" path "partyA_eligible_currencies"]
+		[synonym ISDA_Create_1_0 value "items" path "partyB_eligible_currencies"]
+	lowerMaturity Period (0..1) <"The (optional) lower maturity band of the eligible collateral assets.">
+		[synonym FpML_5_10 value "lowerMaturity"]
+	higherMaturity Period (0..1) <"The (optional) higher maturity band of the eligible collateral assets.">
+		[synonym FpML_5_10 value "higherMaturity"]
+	minimumRating CreditNotations (0..1) <"The (optional) minimal rating terms that can be specified as part of the eligible collateral.">
+		[synonym FpML_5_10 value "minimumRating"]
+	valuationPercentage number (0..1) <"Specifies the haircut associated to the collateral asset, expressed as a value comprised between 0 and 1. A value of 0.9 means that 90% of the value of the applicable asset is considered as collateral. Absence of this element implies that the valuation percentage is 1, i.e. 100%.">
+		[synonym FpML_5_10 value "valuationPercentage"]
+		// This mapping will not work in a number of cases, as the ISDA Credit field is specified as a string
+		[synonym ISDA_Create_1_0 value "valuation_percentage" path "partyA_eligible_currencies"]
+		[synonym ISDA_Create_1_0 value "valuation_percentage" path "partyB_eligible_currencies"]
+
+	condition ValuationPercentage: <"The valuation percentage should be specified as a value between 0 and 1.">
+		if valuationPercentage exists
+		then valuationPercentage >= 0
+			and valuationPercentage <= 1
+*/
