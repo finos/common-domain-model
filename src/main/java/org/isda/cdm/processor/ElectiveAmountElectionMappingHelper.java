@@ -4,16 +4,14 @@ import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.path.RosettaPath;
 import org.isda.cdm.ElectiveAmountElection;
-import org.isda.cdm.ExceptionEnum;
 import org.isda.cdm.Money;
-import org.isda.cdm.SimmExceptionApplicableEnum;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
-import static org.isda.cdm.processor.MappingProcessorUtils.*;
+import static org.isda.cdm.processor.MappingProcessorUtils.setValueFromMappings;
+import static org.isda.cdm.processor.MappingProcessorUtils.toFieldWithMetaString;
 
 public class ElectiveAmountElectionMappingHelper {
 

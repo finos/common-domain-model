@@ -5,7 +5,6 @@ import cdm.base.staticdata.party.LegalEntity;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
-import com.rosetta.model.metafields.FieldWithMetaString;
 import org.isda.cdm.Custodian;
 import org.isda.cdm.CustodianElection;
 

@@ -3,15 +3,9 @@ package org.isda.cdm.processor;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
-import org.isda.cdm.ElectiveAmountElection;
 import org.isda.cdm.MinimumTransferAmountAmendment.MinimumTransferAmountAmendmentBuilder;
-import org.isda.cdm.Money;
 
-import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
-
-import static org.isda.cdm.processor.MappingProcessorUtils.*;
 
 /**
  * ISDA Create mapping processor.

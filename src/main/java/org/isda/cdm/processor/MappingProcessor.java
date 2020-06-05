@@ -11,8 +11,6 @@ import com.rosetta.model.lib.process.BuilderProcessor;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static org.isda.cdm.processor.MappingProcessorUtils.*;
-
 /**
  * Processor implementation that calls map function is the current path matches the expected path.
  */

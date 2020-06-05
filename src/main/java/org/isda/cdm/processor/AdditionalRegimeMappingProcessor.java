@@ -15,7 +15,6 @@ import static com.regnosys.rosetta.common.translation.Path.PathElement;
 import static org.isda.cdm.AdditionalRegime.AdditionalRegimeBuilder;
 import static org.isda.cdm.AdditionalRegime.builder;
 import static org.isda.cdm.processor.MappingProcessorUtils.*;
-import static org.isda.cdm.processor.MappingProcessorUtils.ISDA_CREATE_SYNONYM_SOURCE;
 import static org.isda.cdm.processor.RegimeMappingHelper.*;
 
 @SuppressWarnings("unused")

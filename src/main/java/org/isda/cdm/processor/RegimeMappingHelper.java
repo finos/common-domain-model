@@ -14,7 +14,6 @@ import static com.regnosys.rosetta.common.translation.Path.PathElement;
 import static com.regnosys.rosetta.common.translation.Path.parse;
 import static java.util.Optional.ofNullable;
 import static org.isda.cdm.processor.MappingProcessorUtils.*;
-import static org.isda.cdm.processor.MappingProcessorUtils.ISDA_CREATE_SYNONYM_SOURCE;
 
 class RegimeMappingHelper {
 

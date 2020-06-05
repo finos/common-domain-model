@@ -5,7 +5,6 @@ import com.regnosys.rosetta.common.translation.Path;
 import com.regnosys.rosetta.common.translation.Path.PathElement;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
-import com.rosetta.model.metafields.FieldWithMetaString;
 import org.isda.cdm.UmbrellaAgreement.UmbrellaAgreementBuilder;
 import org.isda.cdm.UmbrellaAgreementEntity;
 import org.isda.cdm.UmbrellaAgreementEntity.UmbrellaAgreementEntityBuilder;

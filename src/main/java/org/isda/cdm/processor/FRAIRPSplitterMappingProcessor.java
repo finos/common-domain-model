@@ -4,7 +4,6 @@ import cdm.base.staticdata.party.PayerReceiver.PayerReceiverBuilder;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaAccount.ReferenceWithMetaAccountBuilder;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder;
 import com.regnosys.rosetta.common.translation.Mapping;
-import com.rosetta.model.lib.RosettaModelObject;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 import org.isda.cdm.InterestRatePayout.InterestRatePayoutBuilder;

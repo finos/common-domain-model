@@ -14,7 +14,8 @@ import java.util.Optional;
 
 import static org.isda.cdm.ApplicableRegime.ApplicableRegimeBuilder;
 import static org.isda.cdm.Regime.RegimeBuilder;
-import static org.isda.cdm.processor.MappingProcessorUtils.*;
+import static org.isda.cdm.processor.MappingProcessorUtils.ISDA_CREATE_SYNONYM_SOURCE;
+import static org.isda.cdm.processor.MappingProcessorUtils.synonymToEnumValueMap;
 import static org.isda.cdm.processor.RegimeMappingHelper.*;
 
 @SuppressWarnings("unused")
