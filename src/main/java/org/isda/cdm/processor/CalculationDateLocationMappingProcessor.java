@@ -25,7 +25,7 @@ public class CalculationDateLocationMappingProcessor extends MappingProcessor {
 
 	public CalculationDateLocationMappingProcessor(RosettaPath rosettaPath, List<String> synonymValues, List<Mapping> mappings) {
 		super(rosettaPath, synonymValues, mappings);
-		this.synonymToBusinessCenterEnumMap = synonymToEnumValueMap(BusinessCenterEnum.values());
+		this.synonymToBusinessCenterEnumMap = synonymToEnumValueMap(BusinessCenterEnum.values(), ISDA_CREATE_SYNONYM_SOURCE);
 	}
 
 	@Override

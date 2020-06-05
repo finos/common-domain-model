@@ -39,7 +39,7 @@ public class AdditionalRegimeMappingProcessor extends MappingProcessor {
 
 		Path additionalRegimesPath = BASE_PATH.addElement(new PathElement("additional_regimes"));
 
-		List<Mapping> applicableMappings = helper.findMappings(additionalRegimesPath, "is_applicable", null);
+		List<Mapping> applicableMappings = helper.findMappings(additionalRegimesPath, "is_applicable");
 		Optional<String> applicable = findMappedValue(applicableMappings);
 
 		if (applicable.isPresent()) {

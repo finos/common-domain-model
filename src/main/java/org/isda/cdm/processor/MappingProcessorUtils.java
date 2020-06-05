@@ -49,9 +49,9 @@ class MappingProcessorUtils {
 	}
 
 	@NotNull
-	static <E extends Enum<E>> Map<String, E> synonymToEnumValueMap(E[] enumValues) {
+	static <E extends Enum<E>> Map<String, E> synonymToEnumValueMap(E[] enumValues, String synonymSource) {
 		Map<String, E> synonymToEnumValueMap = new HashMap<>();
-		Arrays.stream(enumValues).forEach(e -> getSynonymValues(e, ISDA_CREATE_SYNONYM_SOURCE).forEach(s -> synonymToEnumValueMap.put(s, e)));
+		Arrays.stream(enumValues).forEach(e -> getSynonymValues(e, synonymSource).forEach(s -> synonymToEnumValueMap.put(s, e)));
 		return synonymToEnumValueMap;
 	}
 

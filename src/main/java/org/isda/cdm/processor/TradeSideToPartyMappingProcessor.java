@@ -29,9 +29,6 @@ public class TradeSideToPartyMappingProcessor extends MappingProcessor {
 	public <R extends RosettaModelObject> void map(RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
 		ReferenceWithMetaPartyBuilder partyReference = (ReferenceWithMetaPartyBuilder) builder;
 		String tradeSideId = partyReference.getExternalReference();
-		
-		
-		
 		getPartyId(tradeSideId)
 				.ifPresent(partyId -> {
 					LOGGER.info("Mapped tradeSide.id ({}) to tradeSide.orderer.party.id ({}) at path {}", tradeSideId, partyId, getPath());
