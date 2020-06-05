@@ -71,7 +71,7 @@ class MappingProcessorUtils {
 		}
 	}
 
-	static void setValueFromMappings(Path synonymPath, Consumer<String> setter, List<Mapping> mappings, RosettaPath rosettaPath) {
+	static void setValueAndUpdateMappings(Path synonymPath, Consumer<String> setter, List<Mapping> mappings, RosettaPath rosettaPath) {
 		List<Mapping> mappingsFromSynonymPath = findMappings(mappings, synonymPath);
 		findMappedValue(mappingsFromSynonymPath).ifPresent(value -> {
 			// set value on model

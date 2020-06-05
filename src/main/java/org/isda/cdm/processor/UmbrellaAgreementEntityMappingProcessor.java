@@ -54,13 +54,13 @@ public class UmbrellaAgreementEntityMappingProcessor extends MappingProcessor {
 	private Optional<UmbrellaAgreementEntity> getUmbrellaAgreementEntity(Integer index) {
 		UmbrellaAgreementEntityBuilder umbrellaAgreementEntityBuilder = UmbrellaAgreementEntity.builder();
 
-		setValueFromMappings(getSynonymPath(BASE_PATH,"principal_name", index),
+		setValueAndUpdateMappings(getSynonymPath(BASE_PATH,"principal_name", index),
 				umbrellaAgreementEntityBuilder::setNameRef);
 
-		setValueFromMappings(getSynonymPath(BASE_PATH,"lei", index),
+		setValueAndUpdateMappings(getSynonymPath(BASE_PATH,"lei", index),
 				(value) -> umbrellaAgreementEntityBuilder.addEntityId(toFieldWithMetaString(value)));
 
-		setValueFromMappings(getSynonymPath(BASE_PATH,"additional", index),
+		setValueAndUpdateMappings(getSynonymPath(BASE_PATH,"additional", index),
 				umbrellaAgreementEntityBuilder::setTerms);
 
 		return umbrellaAgreementEntityBuilder.hasData() ? Optional.of(umbrellaAgreementEntityBuilder.build()) : Optional.empty();

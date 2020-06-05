@@ -46,13 +46,13 @@ public class PartyInformationMappingProcessor extends MappingProcessor {
 	private Optional<Party> getPartyInformation(String party) {
 		PartyBuilder partyBuilder = Party.builder();
 
-		setValueFromMappings(String.format("answers.partyA.parties.%s_name", party),
+		setValueAndUpdateMappings(String.format("answers.partyA.parties.%s_name", party),
 				(value) -> {
 					partyBuilder.setNameRef(value);
 					partyBuilder.setMetaBuilder(MetaFields.builder().setExternalKey(party));
 				});
 
-		setValueFromMappings(String.format("%s.entity.id", party),
+		setValueAndUpdateMappings(String.format("%s.entity.id", party),
 				(value) -> partyBuilder.addPartyId(toFieldWithMetaString(value)));
 
 		// clean up mappings

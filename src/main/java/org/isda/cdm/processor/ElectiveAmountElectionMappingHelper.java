@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-import static org.isda.cdm.processor.MappingProcessorUtils.setValueFromMappings;
+import static org.isda.cdm.processor.MappingProcessorUtils.setValueAndUpdateMappings;
 import static org.isda.cdm.processor.MappingProcessorUtils.toFieldWithMetaString;
 
 public class ElectiveAmountElectionMappingHelper {
@@ -29,17 +29,17 @@ public class ElectiveAmountElectionMappingHelper {
 		ElectiveAmountElection.ElectiveAmountElectionBuilder electiveAmountElectionBuilder = ElectiveAmountElection.builder();
 		Money.MoneyBuilder moneyBuilder = Money.builder();
 
-		setValueFromMappings(Path.parse(String.format("answers.partyA.%s.%s_amount", synonymValue, party)),
+		setValueAndUpdateMappings(Path.parse(String.format("answers.partyA.%s.%s_amount", synonymValue, party)),
 				(value) -> moneyBuilder.setAmount(new BigDecimal(value)), mappings, path);
 
-		setValueFromMappings(Path.parse(String.format("answers.partyA.%s.%s_currency", synonymValue, party)),
+		setValueAndUpdateMappings(Path.parse(String.format("answers.partyA.%s.%s_currency", synonymValue, party)),
 				(value) -> moneyBuilder.setCurrency(toFieldWithMetaString(value)), mappings, path);
 
 		if (moneyBuilder.hasData()) {
 			electiveAmountElectionBuilder.setAmountBuilder(moneyBuilder);
 		}
 
-		setValueFromMappings(Path.parse(String.format("answers.partyA.%s.%s_%s", synonymValue, party, synonymValue)),
+		setValueAndUpdateMappings(Path.parse(String.format("answers.partyA.%s.%s_%s", synonymValue, party, synonymValue)),
 				(value) -> {
 					electiveAmountElectionBuilder.setParty(party);
 					if (ZERO.equals(value)) {
@@ -47,7 +47,7 @@ public class ElectiveAmountElectionMappingHelper {
 					}
 				}, mappings, path);
 
-		setValueFromMappings(Path.parse(String.format("answers.partyA.%s.%s_specify", synonymValue, party)),
+		setValueAndUpdateMappings(Path.parse(String.format("answers.partyA.%s.%s_specify", synonymValue, party)),
 				electiveAmountElectionBuilder::setCustomElection, mappings, path);
 
 		return electiveAmountElectionBuilder.hasData() ? Optional.of(electiveAmountElectionBuilder.build()) : Optional.empty();

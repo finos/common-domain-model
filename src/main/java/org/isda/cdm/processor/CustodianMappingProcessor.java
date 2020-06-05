@@ -36,7 +36,7 @@ public class CustodianMappingProcessor extends MappingProcessor {
 		CustodianElection.CustodianElectionBuilder custodianElectionBuilder = CustodianElection.builder();
 
 		String suffix = "collateral_manager".equals(synonymValue) ? "specify" : "custodian_name";
-		setValueFromMappings(String.format("answers.partyA.%s.%s_%s", synonymValue, party, suffix),
+		setValueAndUpdateMappings(String.format("answers.partyA.%s.%s_%s", synonymValue, party, suffix),
 				(value) -> {
 					custodianElectionBuilder.setParty(party);
 					custodianElectionBuilder.setCustodian(LegalEntity.builder()
@@ -45,12 +45,12 @@ public class CustodianMappingProcessor extends MappingProcessor {
 				});
 
 		if ("custodian_and_segregated_account_details".equals(synonymValue)) {
-			setValueFromMappings(String.format("answers.partyA.custodian_and_segregated_account_details.%s_cash", party),
+			setValueAndUpdateMappings(String.format("answers.partyA.custodian_and_segregated_account_details.%s_cash", party),
 					(value) -> custodianElectionBuilder.setSegregatedCashAccount(Account.builder()
 							.setAccountName(toFieldWithMetaString(value))
 							.build()));
 
-			setValueFromMappings(String.format("answers.partyA.custodian_and_segregated_account_details.%s_securities", party),
+			setValueAndUpdateMappings(String.format("answers.partyA.custodian_and_segregated_account_details.%s_securities", party),
 					(value) -> custodianElectionBuilder.setSegregatedSecurityAccount(Account.builder()
 							.setAccountName(toFieldWithMetaString(value))
 							.build()));

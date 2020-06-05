@@ -43,15 +43,15 @@ public class CalculationDateLocationMappingProcessor extends MappingProcessor {
 		CalculationDateLocationElectionBuilder calculationDateLocationElectionBuilder = builder();
 
 		String selectLocationSynonymValue = parentSynonymValue.equals("calculation_date") ? "calculation_date_location" : parentSynonymValue;
-		setValueFromMappings(String.format("answers.partyA.%s.%s_%s", parentSynonymValue, party, selectLocationSynonymValue),
+		setValueAndUpdateMappings(String.format("answers.partyA.%s.%s_%s", parentSynonymValue, party, selectLocationSynonymValue),
 				(value) -> calculationDateLocationElectionBuilder.setParty(party));
 
-		setValueFromMappings(String.format("answers.partyA.%s.%s_location", parentSynonymValue, party),
+		setValueAndUpdateMappings(String.format("answers.partyA.%s.%s_location", parentSynonymValue, party),
 				(value) -> Optional.ofNullable(synonymToBusinessCenterEnumMap.get(value))
 						.map(enumValue -> FieldWithMetaBusinessCenterEnum.builder().setValue(enumValue).build())
 						.ifPresent(calculationDateLocationElectionBuilder::setBusinessCenter));
 
-		setValueFromMappings(String.format("answers.partyA.%s.%s_specify", parentSynonymValue, party),
+		setValueAndUpdateMappings(String.format("answers.partyA.%s.%s_specify", parentSynonymValue, party),
 				calculationDateLocationElectionBuilder::setCustomLocation);
 
 		return calculationDateLocationElectionBuilder.hasData() ? Optional.of(calculationDateLocationElectionBuilder.build()) : Optional.empty();

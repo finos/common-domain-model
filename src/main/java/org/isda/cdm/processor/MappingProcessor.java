@@ -85,11 +85,11 @@ public abstract class MappingProcessor implements BuilderProcessor {
 		return mappings;
 	}
 
-	void setValueFromMappings(String synonymPath, Consumer<String> setter) {
-		setValueFromMappings(Path.parse(synonymPath), setter);
+	void setValueAndUpdateMappings(String synonymPath, Consumer<String> setter) {
+		setValueAndUpdateMappings(Path.parse(synonymPath), setter);
 	}
 
-	void setValueFromMappings(Path synonymPath, Consumer<String> setter) {
-		MappingProcessorUtils.setValueFromMappings(synonymPath, setter, mappings, path);
+	void setValueAndUpdateMappings(Path synonymPath, Consumer<String> setter) {
+		MappingProcessorUtils.setValueAndUpdateMappings(synonymPath, setter, mappings, path);
 	}
 }

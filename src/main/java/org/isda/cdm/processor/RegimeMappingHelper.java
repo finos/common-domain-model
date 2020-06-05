@@ -37,14 +37,14 @@ class RegimeMappingHelper {
 
 		// only one suffix should exist
 		SUFFIXES.forEach(suffix -> {
-			setValueFromMappings(getSynonymPath(regimePath, party, suffix, index),
+			setValueAndUpdateMappings(getSynonymPath(regimePath, party, suffix, index),
 					(value) -> ofNullable(synonymToExceptionEnumMap.get(value)).ifPresent(enumValue -> {
 						regimeTermsBuilder.setParty(party);
 						regimeTermsBuilder.setIsApplicable(enumValue);
 					}),
 					mappings, path);
 
-			setValueFromMappings(getSynonymPath(regimePath, party, suffix + "_specify", index),
+			setValueAndUpdateMappings(getSynonymPath(regimePath, party, suffix + "_specify", index),
 					regimeTermsBuilder::setAsSpecified,
 					mappings, path);
 		});
@@ -52,7 +52,7 @@ class RegimeMappingHelper {
 		getSimmException(regimePath, party, index).ifPresent(regimeTermsBuilder::setSimmException);
 		getRetrospectiveEffect(regimePath, party, index).ifPresent(regimeTermsBuilder::setRetrospectiveEffect);
 
-		setValueFromMappings(getSynonymPath(regimePath, "other", index),
+		setValueAndUpdateMappings(getSynonymPath(regimePath, "other", index),
 				regimeTermsBuilder::setAsSpecified,
 				mappings, path);
 
@@ -62,23 +62,23 @@ class RegimeMappingHelper {
 	private Optional<SimmException> getSimmException(Path regimePath, String party, Integer index) {
 		SimmException.SimmExceptionBuilder simmExceptionBuilder = SimmException.builder();
 
-		setValueFromMappings(getSynonymPath(regimePath, party, "_SIMM", index),
+		setValueAndUpdateMappings(getSynonymPath(regimePath, party, "_SIMM", index),
 				(value) -> ofNullable(synonymToExceptionEnumMap.get(value)).ifPresent(simmExceptionBuilder::setStandardisedException),
 				mappings, path);
 
-		setValueFromMappings(getSynonymPath(regimePath, party, "_fallback", index),
+		setValueAndUpdateMappings(getSynonymPath(regimePath, party, "_fallback", index),
 				(value) -> ofNullable(synonymToSimmExceptionApplicableEnumMap.get(value)).ifPresent(simmExceptionBuilder::setSimmExceptionApplicable),
 				mappings, path);
 
-		setValueFromMappings(getSynonymPath(regimePath, party, "_SIMM_specify", index),
+		setValueAndUpdateMappings(getSynonymPath(regimePath, party, "_SIMM_specify", index),
 				simmExceptionBuilder::setAsSpecified,
 				mappings, path);
 
-		setValueFromMappings(getSynonymPath(regimePath, party, "_fallback_specify", index),
+		setValueAndUpdateMappings(getSynonymPath(regimePath, party, "_fallback_specify", index),
 				simmExceptionBuilder::setAsSpecified,
 				mappings, path);
 
-		setValueFromMappings(getSynonymPath(regimePath, party, "_SIMM_applicable_specify", index),
+		setValueAndUpdateMappings(getSynonymPath(regimePath, party, "_SIMM_applicable_specify", index),
 				simmExceptionBuilder::setAsSpecified,
 				mappings, path);
 
@@ -88,11 +88,11 @@ class RegimeMappingHelper {
 	private Optional<RetrospectiveEffect> getRetrospectiveEffect(Path regimePath, String party, Integer index) {
 		RetrospectiveEffect.RetrospectiveEffectBuilder retrospectiveEffectBuilder = RetrospectiveEffect.builder();
 
-		setValueFromMappings(getSynonymPath(regimePath, party, "_retrospective", index),
+		setValueAndUpdateMappings(getSynonymPath(regimePath, party, "_retrospective", index),
 				(value) -> ofNullable(synonymToExceptionEnumMap.get(value)).ifPresent(retrospectiveEffectBuilder::setStandardisedException),
 				mappings, path);
 
-		setValueFromMappings(getSynonymPath(regimePath, party, "_retrospective_specify", index),
+		setValueAndUpdateMappings(getSynonymPath(regimePath, party, "_retrospective_specify", index),
 				retrospectiveEffectBuilder::setAsSpecified,
 				mappings, path);
 

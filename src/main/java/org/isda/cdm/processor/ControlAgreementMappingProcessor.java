@@ -34,20 +34,20 @@ public class ControlAgreementMappingProcessor extends MappingProcessor {
 	private Optional<ControlAgreementElections> getControlAgreementElection(String synonymValue, String party) {
 		ControlAgreementElections.ControlAgreementElectionsBuilder controlAgreementElections = ControlAgreementElections.builder();
 
-		setValueFromMappings(String.format("answers.partyA.%s.%s_%s", synonymValue, party, synonymValue),
+		setValueAndUpdateMappings(String.format("answers.partyA.%s.%s_%s", synonymValue, party, synonymValue),
 				(value) -> {
 					controlAgreementElections.setParty(party);
 					yesNoToBoolean(value).ifPresent(controlAgreementElections::setControlAgreementAsCsd);
 				});
 
-		setValueFromMappings(String.format("answers.partyA.inconsistency_with_the_control_agreement.%s_inconsistency_with_the_control_agreement", party),
+		setValueAndUpdateMappings(String.format("answers.partyA.inconsistency_with_the_control_agreement.%s_inconsistency_with_the_control_agreement", party),
 				(value) -> applicableToBoolean(value).ifPresent(applicable -> {
 					controlAgreementElections.setConsistencyWithControlAgreement(applicable);
 					// Update parent mappings (not sure why this is necessary)
 					updateMappings(Path.parse("answers.partyA.inconsistency_with_the_control_agreement"), getMappings(), getPath());
 				}));
 
-		setValueFromMappings(String.format("answers.partyA.relationship_with_the_control_agreement.%s_control_agreement_relationship", party),
+		setValueAndUpdateMappings(String.format("answers.partyA.relationship_with_the_control_agreement.%s_control_agreement_relationship", party),
 				(value) -> applicableToBoolean(value).ifPresent(controlAgreementElections::setRelationshipWithControlAgreement));
 
 		return controlAgreementElections.hasData() ? Optional.of(controlAgreementElections.build()) : Optional.empty();

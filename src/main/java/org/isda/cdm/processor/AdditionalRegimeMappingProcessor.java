@@ -70,16 +70,16 @@ public class AdditionalRegimeMappingProcessor extends MappingProcessor {
 	private Optional<AdditionalRegimeBuilder> getAdditionalRegime(Path regimesPath, Integer index) {
 		AdditionalRegimeBuilder additionalRegimeBuilder = builder();
 
-		setValueFromMappings(getSynonymPath(regimesPath,"regime_name", index),
+		setValueAndUpdateMappings(getSynonymPath(regimesPath,"regime_name", index),
 				(value) -> {
 					additionalRegimeBuilder.setRegime(value);
 					PARTIES.forEach(party -> helper.getRegimeTerms(regimesPath, party, index).ifPresent(additionalRegimeBuilder::addRegimeTerms));
 				});
 
-		setValueFromMappings(getSynonymPath(regimesPath, "additional_type", index),
+		setValueAndUpdateMappings(getSynonymPath(regimesPath, "additional_type", index),
 				(value) -> Optional.ofNullable(synonymToAdditionalTypeEnumMap.get(value)).ifPresent(additionalRegimeBuilder::setAdditionalType));
 
-		setValueFromMappings(getSynonymPath(regimesPath, "additional_type_specify", index),
+		setValueAndUpdateMappings(getSynonymPath(regimesPath, "additional_type_specify", index),
 				additionalRegimeBuilder::setAdditionalTerms);
 
 		return additionalRegimeBuilder.hasData() ? Optional.of(additionalRegimeBuilder) : Optional.empty();
