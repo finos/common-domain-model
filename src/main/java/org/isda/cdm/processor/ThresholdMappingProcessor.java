@@ -12,9 +12,8 @@ import static org.isda.cdm.processor.RegimeMappingHelper.PARTIES;
 /**
  * ISDA Create mapping processor.
  */
+@SuppressWarnings("unused")
 public class ThresholdMappingProcessor extends MappingProcessor {
-
-	private static final String ZERO = "zero";
 
 	private final ElectiveAmountElectionMappingHelper helper;
 

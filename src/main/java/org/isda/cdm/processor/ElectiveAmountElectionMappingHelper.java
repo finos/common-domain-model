@@ -48,7 +48,7 @@ public class ElectiveAmountElectionMappingHelper {
 				}, mappings, path);
 
 		setValueFromMappings(Path.parse(String.format("answers.partyA.%s.%s_specify", synonymValue, party)),
-				(value) -> electiveAmountElectionBuilder.setCustomElection(value), mappings, path);
+				electiveAmountElectionBuilder::setCustomElection, mappings, path);
 
 		return electiveAmountElectionBuilder.hasData() ? Optional.of(electiveAmountElectionBuilder.build()) : Optional.empty();
 	}

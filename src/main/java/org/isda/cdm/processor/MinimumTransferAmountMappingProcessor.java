@@ -12,6 +12,7 @@ import static org.isda.cdm.processor.RegimeMappingHelper.PARTIES;
 /**
  * ISDA Create mapping processor.
  */
+@SuppressWarnings("unused")
 public class MinimumTransferAmountMappingProcessor extends MappingProcessor {
 
 	private final ElectiveAmountElectionMappingHelper helper;

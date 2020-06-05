@@ -44,7 +44,7 @@ public class ControlAgreementMappingProcessor extends MappingProcessor {
 				(value) -> applicableToBoolean(value).ifPresent(applicable -> {
 					controlAgreementElections.setConsistencyWithControlAgreement(applicable);
 					// Update parent mappings (not sure why this is necessary)
-					updateMappings(Path.parse(String.format("answers.partyA.inconsistency_with_the_control_agreement", party)), getMappings(), getPath());
+					updateMappings(Path.parse("answers.partyA.inconsistency_with_the_control_agreement"), getMappings(), getPath());
 				}));
 
 		setValueFromMappings(String.format("answers.partyA.relationship_with_the_control_agreement.%s_control_agreement_relationship", party),
