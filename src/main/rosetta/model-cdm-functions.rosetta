@@ -18,12 +18,13 @@ func Create_Execution:
 		priceNotation PriceNotation (0..*) <"Price of the product">
 		parties Party (2..2) <"The parties to that execution, for now assumed Principal-Principal, i.e. no Agent.">
 		partyRoles PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the execution.">
+		settlementTerms SettlementTerms (0..*) <"The settlement terms for the execution e.g. initial fee, broker fee, up-front cds payment or option premium settlement">
 
 	output:
 		executionEvent BusinessEvent (1..1)
 
 	assign-output executionEvent -> primitives -> execution:
-		Create_ExecutionPrimitive(product, quantityNotation, priceNotation, parties, partyRoles)
+		Create_ExecutionPrimitive(product, quantityNotation, priceNotation, parties, partyRoles, settlementTerms)
 
 	assign-output executionEvent -> eventEffect -> execution:
 		executionEvent -> primitives -> execution -> after -> execution
@@ -36,6 +37,7 @@ func Create_ExecutionPrimitive: <"Function specification to compose an execution
 		priceNotation PriceNotation (0..*) <"Price of the product">
 		parties Party (2..2) <"The parties to that execution, for now assumed Principal-Principal, i.e. no Agent.">
 		partyRoles PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the execution.">
+		settlementTerms SettlementTerms (0..*) <"The settlement terms for the execution e.g. initial fee, broker fee, up-front cds payment or option premium settlement">
 
 	output:
 		executionPrimitive ExecutionPrimitive (1..1)
@@ -54,6 +56,9 @@ func Create_ExecutionPrimitive: <"Function specification to compose an execution
 
 	assign-output executionPrimitive -> after -> execution -> partyRole:
  		partyRoles
+
+	assign-output executionPrimitive -> after -> execution -> settlementTerms:
+		settlementTerms
 
 	post-condition: <"The execution will be the first event in any post-trade life cycle and therefore does not have a before state. Once pre-trade elements are brought into CDM, the 'before' will be used to refer to the last of the pre-trade event states.">
 		executionPrimitive -> before is absent
@@ -121,7 +126,7 @@ func Create_ContractFormationPrimitive: <"Function specification to create a ful
 		execution -> party
 
 	assign-output contract -> documentation -> legalAgreement: <"When an overlaying legal agreement exists, the contract must reference it.">
-		if legalAgreement exists 
+		if legalAgreement exists
 		then Create_LegalAgreementWithPartyReference(legalAgreement -> agreementTerms, legalAgreement -> agreementDate, legalAgreement -> effectiveDate,
 			legalAgreement -> identifier, legalAgreement -> lineage, legalAgreement -> agreementType,
 			legalAgreement -> contractualParty, legalAgreement -> otherParty, legalAgreement -> partyInformation)
@@ -510,7 +515,7 @@ func Create_Clear: <"Clear function that inputs the alpha contract and clearingI
 		PartyRoleForParty(clearingInstruction -> clearingParty, PartyRoleEnum -> ClearingOrganization)
 
 	alias betaExecution: <"Beta execution">
-		Create_ExecutionPrimitive(alpha -> tradableProduct -> product, alpha -> tradableProduct -> quantityNotation, alpha -> tradableProduct -> priceNotation, [clearingInstruction -> clearingParty, party1], [clearerRole])
+		Create_ExecutionPrimitive(alpha -> tradableProduct -> product, alpha -> tradableProduct -> quantityNotation, alpha -> tradableProduct -> priceNotation, [clearingInstruction -> clearingParty, party1], [clearerRole], empty)
 	alias betaExecutionPrimitives: NewExecutionPrimitiveEvent(betaExecution)
 
 	alias betaContract: <"Beta contract">
@@ -518,7 +523,7 @@ func Create_Clear: <"Clear function that inputs the alpha contract and clearingI
 	alias betaContractPrimitives: NewContractFormationPrimitiveEvent(betaContract)
 
 	alias gammaExecution: <"Gamma execution">
-		Create_ExecutionPrimitive(alpha -> tradableProduct -> product, alpha -> tradableProduct -> quantityNotation, alpha -> tradableProduct -> priceNotation, [clearingInstruction -> clearingParty, party2], [clearerRole])
+		Create_ExecutionPrimitive(alpha -> tradableProduct -> product, alpha -> tradableProduct -> quantityNotation, alpha -> tradableProduct -> priceNotation, [clearingInstruction -> clearingParty, party2], [clearerRole], empty)
 	alias gammaExecutionPrimitives: NewExecutionPrimitiveEvent(gammaExecution)
 
 	alias gammaContract: <"Gamma contract">
