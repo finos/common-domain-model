@@ -81,6 +81,10 @@ class MappingProcessorUtils {
 		});
 	}
 
+	static void updateMappings(Path synonymPath, List<Mapping> mappings, RosettaPath rosettaPath) {
+		findMappings(mappings, synonymPath).forEach(m -> updateMapping(m, rosettaPath));
+	}
+
 	static Path getSynonymPath(Path basePath, String synonym) {
 		return getSynonymPath(basePath, "", synonym, null);
 	}
