@@ -18,8 +18,8 @@ import static org.isda.cdm.processor.MappingProcessorUtils.*;
 class RegimeMappingHelper {
 
 	static final List<String> PARTIES = Arrays.asList("partyA", "partyB");
-	static final List<String> SUFFIXES = Arrays.asList("_secured_party", "_security_taker", "_obligee");
 	static final Path BASE_PATH = parse("answers.partyA");
+	private static final List<String> SUFFIXES = Arrays.asList("_secured_party", "_security_taker", "_obligee");
 
 	private final RosettaPath path;
 	private final List<Mapping> mappings;
@@ -33,106 +33,71 @@ class RegimeMappingHelper {
 		this.synonymToExceptionEnumMap = synonymToEnumValueMap(ExceptionEnum.values(), ISDA_CREATE_SYNONYM_SOURCE);
 	}
 
-	Optional<RegimeTerms.RegimeTermsBuilder> getRegimeTerms(Path regimePath, String party, String suffix, Integer index) {
+	Optional<RegimeTerms> getRegimeTerms(Path regimePath, String party, Integer index) {
 		RegimeTerms.RegimeTermsBuilder regimeTermsBuilder = RegimeTerms.builder();
 
-		List<Mapping> applicableMappings = findMappings(regimePath, party, suffix, index);
-		Optional<ExceptionEnum> applicable = findMappedValue(applicableMappings).flatMap(syn -> ofNullable(synonymToExceptionEnumMap.get(syn)));
-		if (applicable.isPresent()) {
-			regimeTermsBuilder.setParty(party);
-			regimeTermsBuilder.setIsApplicable(applicable.get());
-			applicableMappings.forEach(m -> updateMapping(m, path));
-		} else {
-			return Optional.empty();
-		}
+		// only one suffix should exist
+		SUFFIXES.forEach(suffix -> {
+			setValueFromMappings(getSynonymPath(regimePath, party, suffix, index),
+					(value) -> ofNullable(synonymToExceptionEnumMap.get(value)).ifPresent(enumValue -> {
+						regimeTermsBuilder.setParty(party);
+						regimeTermsBuilder.setIsApplicable(enumValue);
+					}),
+					mappings, path);
 
-		List<Mapping> specifyMappings = findMappings(regimePath, party, suffix + "_specify", index);
-		Optional<String> specify = findMappedValue(specifyMappings);
-		specify.ifPresent(xmlValue -> {
-			regimeTermsBuilder.setAsSpecified(xmlValue);
-			specifyMappings.forEach(m -> updateMapping(m, path));
+			setValueFromMappings(getSynonymPath(regimePath, party, suffix + "_specify", index),
+					regimeTermsBuilder::setAsSpecified,
+					mappings, path);
 		});
 
-		getSimmException(regimePath, party, index).ifPresent(regimeTermsBuilder::setSimmExceptionBuilder);
-		getRetrospectiveEffect(regimePath, party, index).ifPresent(regimeTermsBuilder::setRetrospectiveEffectBuilder);
+		getSimmException(regimePath, party, index).ifPresent(regimeTermsBuilder::setSimmException);
+		getRetrospectiveEffect(regimePath, party, index).ifPresent(regimeTermsBuilder::setRetrospectiveEffect);
 
-		List<Mapping> otherMappings = findMappings(regimePath, "", "other", index);
-		Optional<String> other = findMappedValue(otherMappings);
-		other.ifPresent(xmlValue -> {
-			regimeTermsBuilder.setAsSpecified(xmlValue);
-			otherMappings.forEach(m -> updateMapping(m, path));
-		});
+		setValueFromMappings(getSynonymPath(regimePath, "other", index),
+				regimeTermsBuilder::setAsSpecified,
+				mappings, path);
 
-		return Optional.of(regimeTermsBuilder);
+		return regimeTermsBuilder.hasData() ? Optional.of(regimeTermsBuilder.build()) : Optional.empty();
 	}
 
-	private Optional<SimmException.SimmExceptionBuilder> getSimmException(Path regimePath, String party, Integer index) {
+	private Optional<SimmException> getSimmException(Path regimePath, String party, Integer index) {
 		SimmException.SimmExceptionBuilder simmExceptionBuilder = SimmException.builder();
 
-		List<Mapping> simmMappings = findMappings(regimePath, party, "_SIMM", index);
-		Optional<ExceptionEnum> simm = findMappedValue(simmMappings).flatMap(syn -> ofNullable(synonymToExceptionEnumMap.get(syn)));
-		if (simm.isPresent()) {
-			simmExceptionBuilder.setStandardisedException(simm.get());
-			simmMappings.forEach(m -> updateMapping(m, path));
-		} else {
-			return Optional.empty();
-		}
+		setValueFromMappings(getSynonymPath(regimePath, party, "_SIMM", index),
+				(value) -> ofNullable(synonymToExceptionEnumMap.get(value)).ifPresent(simmExceptionBuilder::setStandardisedException),
+				mappings, path);
 
-		List<Mapping> simmExceptionMappings = findMappings(regimePath, party, "_fallback", index);
-		findMappedValue(simmExceptionMappings).ifPresent(xmlValue -> {
-			ofNullable(synonymToSimmExceptionApplicableEnumMap.get(xmlValue)).ifPresent(simmExceptionBuilder::setSimmExceptionApplicable);
-			simmExceptionMappings.forEach(m -> updateMapping(m, path));
-		});
+		setValueFromMappings(getSynonymPath(regimePath, party, "_fallback", index),
+				(value) -> ofNullable(synonymToSimmExceptionApplicableEnumMap.get(value)).ifPresent(simmExceptionBuilder::setSimmExceptionApplicable),
+				mappings, path);
 
-		List<Mapping> simmSpecifyMappings = findMappings(regimePath, party, "_SIMM_specify", index);
-		findMappedValue(simmSpecifyMappings).ifPresent(xmlValue -> {
-			simmExceptionBuilder.setAsSpecified(xmlValue);
-			simmSpecifyMappings.forEach(m -> updateMapping(m, path));
-		});
+		setValueFromMappings(getSynonymPath(regimePath, party, "_SIMM_specify", index),
+				simmExceptionBuilder::setAsSpecified,
+				mappings, path);
 
-		List<Mapping> fallbackSpecifyMappings = findMappings(regimePath, party, "_fallback_specify", index);
-		findMappedValue(fallbackSpecifyMappings).ifPresent(xmlValue -> {
-			simmExceptionBuilder.setAsSpecified(xmlValue);
-			fallbackSpecifyMappings.forEach(m -> updateMapping(m, path));
-		});
+		setValueFromMappings(getSynonymPath(regimePath, party, "_fallback_specify", index),
+				simmExceptionBuilder::setAsSpecified,
+				mappings, path);
 
-		List<Mapping> simmApplicableSpecifyMappings = findMappings(regimePath, party, "_SIMM_applicable_specify", index);
-		findMappedValue(simmApplicableSpecifyMappings).ifPresent(xmlValue -> {
-			simmExceptionBuilder.setAsSpecified(xmlValue);
-			simmApplicableSpecifyMappings.forEach(m -> updateMapping(m, path));
-		});
+		setValueFromMappings(getSynonymPath(regimePath, party, "_SIMM_applicable_specify", index),
+				simmExceptionBuilder::setAsSpecified,
+				mappings, path);
 
-		return Optional.of(simmExceptionBuilder);
+		return simmExceptionBuilder.hasData() ? Optional.of(simmExceptionBuilder.build()) : Optional.empty();
 	}
 
-	private Optional<RetrospectiveEffect.RetrospectiveEffectBuilder> getRetrospectiveEffect(Path regimePath, String party, Integer index) {
+	private Optional<RetrospectiveEffect> getRetrospectiveEffect(Path regimePath, String party, Integer index) {
 		RetrospectiveEffect.RetrospectiveEffectBuilder retrospectiveEffectBuilder = RetrospectiveEffect.builder();
 
-		List<Mapping> standardisedExceptionMappings = findMappings(regimePath, party, "_retrospective", index);
-		Optional<ExceptionEnum> standardisedException = findMappedValue(standardisedExceptionMappings).flatMap(syn -> ofNullable(synonymToExceptionEnumMap.get(syn)));
-		if (standardisedException.isPresent()) {
-			retrospectiveEffectBuilder.setStandardisedException(standardisedException.get());
-			standardisedExceptionMappings.forEach(m -> updateMapping(m, path));
-		} else {
-			return Optional.empty();
-		}
+		setValueFromMappings(getSynonymPath(regimePath, party, "_retrospective", index),
+				(value) -> ofNullable(synonymToExceptionEnumMap.get(value)).ifPresent(retrospectiveEffectBuilder::setStandardisedException),
+				mappings, path);
 
-		List<Mapping> specifyMappings = findMappings(regimePath, party, "_retrospective_specify", index);
-		findMappedValue(specifyMappings).ifPresent(xmlValue -> {
-			retrospectiveEffectBuilder.setAsSpecified(xmlValue);
-			specifyMappings.forEach(m -> updateMapping(m, path));
-		});
+		setValueFromMappings(getSynonymPath(regimePath, party, "_retrospective_specify", index),
+				retrospectiveEffectBuilder::setAsSpecified,
+				mappings, path);
 
-		return Optional.of(retrospectiveEffectBuilder);
-	}
-
-	List<Mapping> findMappings(Path basePath, String synonym) {
-		return findMappings(basePath, "", synonym, null);
-	}
-
-	List<Mapping> findMappings(Path basePath, String party, String synonym, Integer index) {
-		Path path = getSynonymPath(basePath, party, synonym, index);
-		return MappingProcessorUtils.findMappings(mappings, path);
+		return Optional.of(retrospectiveEffectBuilder.build());
 	}
 
 	Path getSynonymPath(Path basePath, String synonym) {
@@ -143,11 +108,7 @@ class RegimeMappingHelper {
 		return getSynonymPath(basePath, "", synonym, index);
 	}
 
-	Path getSynonymPath(Path basePath, String partyPrefix, String synonym) {
-		return getSynonymPath(basePath, partyPrefix, synonym, null);
-	}
-
-	Path getSynonymPath(Path basePath, String partyPrefix, String synonym, Integer index) {
+	private Path getSynonymPath(Path basePath, String partyPrefix, String synonym, Integer index) {
 		PathElement element = ofNullable(index)
 				.map(i -> new PathElement(partyPrefix + synonym, i))
 				.orElse(new PathElement(partyPrefix + synonym));

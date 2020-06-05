@@ -11,6 +11,7 @@ import com.rosetta.model.metafields.MetaFields;
 import org.isda.cdm.LegalAgreement.LegalAgreementBuilder;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.isda.cdm.processor.MappingProcessorUtils.*;
 
@@ -29,30 +30,34 @@ public class PartyInformationMappingProcessor extends MappingProcessor {
 	@Override
 	protected void map(List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
 		LegalAgreementBuilder legalAgreementBuilder = (LegalAgreementBuilder) parent;
-		addPartyInformation(legalAgreementBuilder, "partyA");
-		addPartyInformation(legalAgreementBuilder, "partyB");
+		updatePartyInformation(legalAgreementBuilder, "partyA");
+		updatePartyInformation(legalAgreementBuilder, "partyB");
 	}
 
-	private void addPartyInformation(LegalAgreementBuilder legalAgreementBuilder, String partyId) {
-		findMappings(getMappings(), Path.parse("answers.partyA.parties")).forEach(m -> updateMapping(m, getPath()));
+	private void updatePartyInformation(LegalAgreementBuilder legalAgreementBuilder, String party) {
+		getPartyInformation(party).ifPresent(
+				partyInfo -> legalAgreementBuilder
+						.addPartyInformation(partyInfo)
+						.addContractualParty(ReferenceWithMetaParty.builder()
+								.setExternalReference(party)
+								.build()));
+	}
 
-		PartyBuilder partyBuilder = Party.builder().setMetaBuilder(MetaFields.builder().setExternalKey(partyId));
+	private Optional<Party> getPartyInformation(String party) {
+		PartyBuilder partyBuilder = Party.builder();
 
-		List<Mapping> partyNameMappings = findMappings(getMappings(), Path.parse(String.format("answers.partyA.parties.%s_name", partyId)));
-		findMappedValue(partyNameMappings)
-				.ifPresent(xmlValue -> {
-					partyBuilder.setNameRef(xmlValue);
-					partyNameMappings.forEach(m -> updateMapping(m, getPath()));
+		setValueFromMappings(String.format("answers.partyA.parties.%s_name", party),
+				(value) -> {
+					partyBuilder.setNameRef(value);
+					partyBuilder.setMetaBuilder(MetaFields.builder().setExternalKey(party));
 				});
 
-		List<Mapping> partyEntityIdMappings = findMappings(getMappings(), Path.parse(String.format("%s.entity.id", partyId)));
-		findMappedValue(partyEntityIdMappings).ifPresent(xmlValue -> {
-			partyBuilder.addPartyId(toFieldWithMetaString(xmlValue));
-			partyNameMappings.forEach(m -> updateMapping(m, getPath()));
-		});
+		setValueFromMappings(String.format("%s.entity.id", party),
+				(value) -> partyBuilder.addPartyId(toFieldWithMetaString(value)));
 
-		legalAgreementBuilder
-				.addPartyInformationBuilder(partyBuilder)
-				.addContractualParty(ReferenceWithMetaParty.builder().setExternalReference(partyId).build());
+		// clean up mappings
+		findMappings(getMappings(), Path.parse("answers.partyA.parties")).forEach(m -> updateMapping(m, getPath()));
+
+		return partyBuilder.hasData() ? Optional.of(partyBuilder.build()) : Optional.empty();
 	}
 }

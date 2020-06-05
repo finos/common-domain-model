@@ -73,9 +73,8 @@ public class AdditionalRegimeMappingProcessor extends MappingProcessor {
 		setValueFromMappings(helper.getSynonymPath(regimesPath,"regime_name", index),
 				(value) -> {
 					additionalRegimeBuilder.setRegime(value);
-					PARTIES.forEach(party ->
-							SUFFIXES.forEach(suffix ->
-									helper.getRegimeTerms(regimesPath, party, suffix, index).ifPresent(additionalRegimeBuilder::addRegimeTermsBuilder)));
+					helper.getRegimeTerms(regimesPath, "partyA", index).ifPresent(additionalRegimeBuilder::addRegimeTerms);
+					helper.getRegimeTerms(regimesPath, "partyB", index).ifPresent(additionalRegimeBuilder::addRegimeTerms);
 				});
 
 		setValueFromMappings(helper.getSynonymPath(regimesPath, "additional_type", index),
