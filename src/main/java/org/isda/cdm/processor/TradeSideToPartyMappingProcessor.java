@@ -61,8 +61,4 @@ public class TradeSideToPartyMappingProcessor extends MappingProcessor {
 	private boolean matches(Mapping mapping, String tradeSideId) {
 		return mapping.getXmlPath().endsWith("id") && String.valueOf(mapping.getXmlValue()).equals(tradeSideId);
 	}
-
-	@Override
-	protected void map(List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
-	}
 }

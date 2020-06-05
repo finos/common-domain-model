@@ -29,11 +29,6 @@ public class UmbrellaAgreementEntityMappingProcessor extends MappingProcessor {
 	}
 
 	@Override
-	public void map(RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
-		// Do nothing
-	}
-
-	@Override
 	protected void map(List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
 		UmbrellaAgreementBuilder umbrellaAgreementBuilder = (UmbrellaAgreementBuilder) parent;
 		umbrellaAgreementBuilder.clearParties();
@@ -93,7 +88,7 @@ public class UmbrellaAgreementEntityMappingProcessor extends MappingProcessor {
 	private Optional<String> setLei(UmbrellaAgreementEntityBuilder umbrellaAgreementEntityBuilder, List<Mapping> leiMappings) {
 		Optional<String> lei = findMappedValue(leiMappings);
 		lei.ifPresent(xmlValue -> {
-			umbrellaAgreementEntityBuilder.addEntityId(FieldWithMetaString.builder().setValue(xmlValue).build());
+			umbrellaAgreementEntityBuilder.addEntityId(toFieldWithMetaString(xmlValue));
 			leiMappings.forEach(m -> updateMapping(m, getPath()));
 		});
 		return lei;

@@ -28,11 +28,6 @@ public class PartyInformationMappingProcessor extends MappingProcessor {
 	}
 
 	@Override
-	public void map(RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
-		// Do nothing
-	}
-
-	@Override
 	protected void map(List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
 		LegalAgreementBuilder legalAgreementBuilder = (LegalAgreementBuilder) parent;
 		addPartyInformation(legalAgreementBuilder, "partyA");
@@ -53,7 +48,7 @@ public class PartyInformationMappingProcessor extends MappingProcessor {
 
 		List<Mapping> partyEntityIdMappings = findMappings(getMappings(), Path.parse(String.format("%s.entity.id", partyId)));
 		findMappedValue(partyEntityIdMappings).ifPresent(xmlValue -> {
-			partyBuilder.addPartyId(FieldWithMetaString.builder().setValue(xmlValue).build());
+			partyBuilder.addPartyId(toFieldWithMetaString(xmlValue));
 			partyNameMappings.forEach(m -> updateMapping(m, getPath()));
 		});
 

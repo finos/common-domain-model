@@ -132,14 +132,26 @@ class RegimeMappingHelper {
 	}
 
 	List<Mapping> findMappings(Path basePath, String party, String synonym, Integer index) {
-		Path path = getMappedPath(basePath, party, synonym, index);
+		Path path = getSynonymPath(basePath, party, synonym, index);
 		return MappingProcessorUtils.findMappings(mappings, path);
 	}
 
-	Path getMappedPath(Path basePath, String party, String synonym, Integer index) {
+	Path getSynonymPath(Path basePath, String synonym) {
+		return getSynonymPath(basePath, "", synonym, null);
+	}
+
+	Path getSynonymPath(Path basePath, String synonym, Integer index) {
+		return getSynonymPath(basePath, "", synonym, index);
+	}
+
+	Path getSynonymPath(Path basePath, String partyPrefix, String synonym) {
+		return getSynonymPath(basePath, partyPrefix, synonym, null);
+	}
+
+	Path getSynonymPath(Path basePath, String partyPrefix, String synonym, Integer index) {
 		PathElement element = ofNullable(index)
-				.map(i -> new PathElement(party + synonym, i))
-				.orElse(new PathElement(party + synonym));
+				.map(i -> new PathElement(partyPrefix + synonym, i))
+				.orElse(new PathElement(partyPrefix + synonym));
 		return basePath.addElement(element);
 	}
 }

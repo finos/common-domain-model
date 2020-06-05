@@ -10,6 +10,7 @@ import org.isda.cdm.CalculationDateLocation.CalculationDateLocationBuilder;
 import org.isda.cdm.CalculationDateLocationElection;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 import static org.isda.cdm.CalculationDateLocationElection.CalculationDateLocationElectionBuilder;
 import static org.isda.cdm.CalculationDateLocationElection.builder;
@@ -37,37 +38,20 @@ public class CalculationDateLocationMappingProcessor extends MappingProcessor {
 		});
 	}
 
-	@Override
-	protected void map(List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
-		// Do nothing
-	}
-
 	private Optional<CalculationDateLocationElection> getCalculationDateLocation(String parentSynonymValue, String party) {
 		CalculationDateLocationElectionBuilder calculationDateLocationElectionBuilder = builder();
 
 		String selectLocationSynonymValue = parentSynonymValue.equals("calculation_date") ? "calculation_date_location" : parentSynonymValue;
-		List<Mapping> selectLocationMappings = findMappings(getMappings(),
-				Path.parse(String.format("answers.partyA.%s.%s_%s", parentSynonymValue, party, selectLocationSynonymValue)));
-		Optional<String> selectLocation = findMappedValue(selectLocationMappings);
-		selectLocation.ifPresent(xmlValue -> {
-			calculationDateLocationElectionBuilder.setParty(party);
-			selectLocationMappings.forEach(m -> updateMapping(m, getPath()));
-		});
+		setValueFromMappings(String.format("answers.partyA.%s.%s_%s", parentSynonymValue, party, selectLocationSynonymValue),
+				(value) -> calculationDateLocationElectionBuilder.setParty(party));
 
-		List<Mapping> businessCenterMappings = findMappings(getMappings(), Path.parse(String.format("answers.partyA.%s.%s_location", parentSynonymValue, party)));
-		findMappedValue(businessCenterMappings)
-				.flatMap(xmlValue -> Optional.ofNullable(synonymToBusinessCenterEnumMap.get(xmlValue)))
-				.ifPresent(enumValue -> {
-					calculationDateLocationElectionBuilder.setBusinessCenter(
-							FieldWithMetaBusinessCenterEnum.builder().setValue(enumValue).build());
-					businessCenterMappings.forEach(m -> updateMapping(m, getPath()));
-				});
+		setValueFromMappings(String.format("answers.partyA.%s.%s_location", parentSynonymValue, party),
+				(value) -> Optional.ofNullable(synonymToBusinessCenterEnumMap.get(value))
+						.map(enumValue -> FieldWithMetaBusinessCenterEnum.builder().setValue(enumValue).build())
+						.ifPresent(calculationDateLocationElectionBuilder::setBusinessCenter));
 
-		List<Mapping> otherLocationMappings = findMappings(getMappings(), Path.parse(String.format("answers.partyA.%s.%s_specify", parentSynonymValue, party)));
-		findMappedValue(otherLocationMappings).ifPresent(xmlValue -> {
-			calculationDateLocationElectionBuilder.setCustomLocation(xmlValue);
-			otherLocationMappings.forEach(m -> updateMapping(m, getPath()));
-		});
+		setValueFromMappings(String.format("answers.partyA.%s.%s_specify", parentSynonymValue, party),
+				calculationDateLocationElectionBuilder::setCustomLocation);
 
 		return calculationDateLocationElectionBuilder.hasData() ? Optional.of(calculationDateLocationElectionBuilder.build()) : Optional.empty();
 	}

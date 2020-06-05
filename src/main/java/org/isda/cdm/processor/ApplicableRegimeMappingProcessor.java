@@ -32,11 +32,6 @@ public class ApplicableRegimeMappingProcessor extends MappingProcessor {
 	}
 
 	@Override
-	public void map(RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
-		// Do nothing
-	}
-
-	@Override
 	protected void map(List<? extends RosettaModelObjectBuilder> builders, RosettaModelObjectBuilder parent) {
 		RegimeBuilder regimeBuilder = (RegimeBuilder) parent;
 		regimeBuilder.clearApplicableRegime();
@@ -48,24 +43,15 @@ public class ApplicableRegimeMappingProcessor extends MappingProcessor {
 			Optional.ofNullable(synonymToRegulatoryRegimeEnumMap.get(synonymValue)).ifPresent(applicableRegimeBuilder::setRegime);
 
 			Path regimePath = BASE_PATH.addElement(new Path.PathElement(synonymValue));
-
 			PARTIES.forEach(party ->
 					SUFFIXES.forEach(suffix ->
 							helper.getRegimeTerms(regimePath, party, suffix, null).ifPresent(applicableRegimeBuilder::addRegimeTermsBuilder)));
 
-			List<Mapping> additionalTypeMappings = helper.findMappings(regimePath, "", "additional_type", null);
-			Optional<String> additionalType = findMappedValue(additionalTypeMappings);
-			additionalType.ifPresent(xmlValue -> {
-				Optional.ofNullable(synonymToAdditionalTypeEnumMap.get(xmlValue)).ifPresent(applicableRegimeBuilder::setAdditionalType);
-				additionalTypeMappings.forEach(m -> updateMapping(m, getPath()));
-			});
+			setValueFromMappings(helper.getSynonymPath(regimePath, "additional_type"),
+					(value) -> Optional.ofNullable(synonymToAdditionalTypeEnumMap.get(value)).ifPresent(applicableRegimeBuilder::setAdditionalType));
 
-			List<Mapping> additionalTypeSpecifyMappings = helper.findMappings(regimePath, "", "additional_type_specify", null);
-			Optional<String> additionalTypeSpecify = findMappedValue(additionalTypeSpecifyMappings);
-			additionalTypeSpecify.ifPresent(xmlValue -> {
-				applicableRegimeBuilder.setAdditionalTerms(xmlValue);
-				additionalTypeSpecifyMappings.forEach(m -> updateMapping(m, getPath()));
-			});
+			setValueFromMappings(helper.getSynonymPath(regimePath, "additional_type_specify"),
+					applicableRegimeBuilder::setAdditionalTerms);
 		});
 	}
 }

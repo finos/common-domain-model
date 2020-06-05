@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 class MappingProcessorUtils {
@@ -66,5 +67,15 @@ class MappingProcessorUtils {
 			LOGGER.error("Exception occurred getting synonym annotation from enum {}", enumValue, e);
 			return Collections.emptySet();
 		}
+	}
+
+	static void setValueFromMappings(Path synonymPath, Consumer<String> setter, List<Mapping> mappings, RosettaPath rosettaPath) {
+		List<Mapping> mappingsFromSynonymPath = findMappings(mappings, synonymPath);
+		findMappedValue(mappingsFromSynonymPath).ifPresent(value -> {
+			// set value on model
+			setter.accept(value);
+			// update mappings
+			mappingsFromSynonymPath.forEach(m -> updateMapping(m, rosettaPath));
+		});
 	}
 }
