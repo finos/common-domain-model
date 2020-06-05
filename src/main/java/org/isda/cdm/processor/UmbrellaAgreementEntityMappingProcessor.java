@@ -13,8 +13,7 @@ import org.isda.cdm.UmbrellaAgreementEntity.UmbrellaAgreementEntityBuilder;
 import java.util.List;
 import java.util.Optional;
 
-import static org.isda.cdm.processor.MappingProcessorUtils.findMappedValue;
-import static org.isda.cdm.processor.MappingProcessorUtils.updateMapping;
+import static org.isda.cdm.processor.MappingProcessorUtils.*;
 
 /**
  * ISDA Create mapping processor.
