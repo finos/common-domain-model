@@ -43,22 +43,6 @@ type AdditionalDisruptionEvents: <"A type for defining the Additional Disruption
 		then AdditionalDisruptionEvents ->initialStockLoanRate >= 0
 			and initialStockLoanRate <= 1
 
-type AdjustableRelativeOrPeriodicDates: <"A class giving the choice between defining a series of dates as an explicit list of dates together with applicable adjustments or as relative to some other series of (anchor) dates, or as a calculation period schedule.">
-	[metadata key]
-	[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 meta "id"]
-
-	adjustableDates AdjustableDates (0..1) <"A series of dates that shall be subject to adjustment if they would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "adjustableDates"]
-	relativeDates RelativeDates (0..1) <"A series of dates specified as some offset to another series of dates (the anchor dates).">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "relativeDates"]
-		[synonym FpML_5_10 value "relativeDateSequence"]
-	periodicDates PeriodicDates (0..1) <"A calculation period schedule.">
-		[synonym FpML_5_10 value "periodicDates"]		
-
-	condition Choice: <"Choice rule to represent an FpML choice construct.">
-		required choice adjustableDates, relativeDates, periodicDates
-
-
 type DeterminationMethod: <"The purpose of this class is to be extended by the Price and EquityValuation classes.">
 
 	// TODO Never referenced in CDM
@@ -223,16 +207,6 @@ type CashPrice: <"Describes a price component as a cash amount, which can either
 	condition NetPrice: <" The netPrice and/or cleanNetPrice must be specified.">
 		if CashPrice exists
 		then netPrice exists or cleanNetPrice exists or cashflowAmount exists
-
-type PeriodicDates: <"A class for specifying a calculation period schedule.">
-	calculationStartDate AdjustableOrRelativeDate (0..1) <"The start date of the calculation period. FpML specifies that for interest rate swaps this date must only be specified if it is not equal to the effective date. It is always specified in the case of equity swaps and credit default swaps with periodic payments. This date may be subject to adjustment in accordance with a business day convention.">
-		[synonym FpML_5_10 value "calculationStartDate"]
-	calculationEndDate AdjustableOrRelativeDate (0..1) <"The end date of the calculation period. FpML specifies that for interest rate swaps this date must only be specified if it is not equal to the termination date. It is always specified in the case of equity swaps with periodic payments. This date may be subject to adjustment in accordance with a business day convention.">
-		[synonym FpML_5_10 value "calculationEndDate"]
-	calculationPeriodFrequency CalculationPeriodFrequency (0..1) <"The frequency at which calculation period end dates occur with the regular part of the calculation period schedule and their roll date convention.">
-		[synonym FpML_5_10 value "calculationPeriodFrequency"]
-	calculationPeriodDatesAdjustments BusinessDayAdjustments (0..1) <"The specification of the business day convention and financial business centers used for adjusting any calculation period date if it would otherwise fall on a day that is not a business day in the specified business center.">
-		[synonym FpML_5_10 value "calculationPeriodDatesAdjustments"]
 
 type PriceReturnTerms:
 	[synonym FpML_5_10 value "ReturnLegValuationPrice"]
