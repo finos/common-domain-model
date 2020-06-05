@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.isda.cdm.processor.MappingProcessorUtils.toFieldWithMetaString;
+import static org.isda.cdm.processor.RegimeMappingHelper.PARTIES;
 
 /**
  * ISDA Create mapping processor.
@@ -27,8 +28,7 @@ public class CustodianMappingProcessor extends MappingProcessor {
 	public void map(RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
 		getSynonymValues().forEach(v -> {
 			Custodian.CustodianBuilder custodianBuilder = (Custodian.CustodianBuilder) builder;
-			getCustodianElection(v,"partyA").ifPresent(custodianBuilder::addPartyElection);
-			getCustodianElection(v,"partyB").ifPresent(custodianBuilder::addPartyElection);
+			PARTIES.forEach(party -> getCustodianElection(v, party).ifPresent(custodianBuilder::addPartyElection));
 		});
 	}
 

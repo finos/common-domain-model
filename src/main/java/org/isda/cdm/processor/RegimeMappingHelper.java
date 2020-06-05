@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.regnosys.rosetta.common.translation.Path.PathElement;
 import static com.regnosys.rosetta.common.translation.Path.parse;
 import static java.util.Optional.ofNullable;
 import static org.isda.cdm.processor.MappingProcessorUtils.*;
@@ -98,20 +97,5 @@ class RegimeMappingHelper {
 				mappings, path);
 
 		return Optional.of(retrospectiveEffectBuilder.build());
-	}
-
-	Path getSynonymPath(Path basePath, String synonym) {
-		return getSynonymPath(basePath, "", synonym, null);
-	}
-
-	Path getSynonymPath(Path basePath, String synonym, Integer index) {
-		return getSynonymPath(basePath, "", synonym, index);
-	}
-
-	private Path getSynonymPath(Path basePath, String partyPrefix, String synonym, Integer index) {
-		PathElement element = ofNullable(index)
-				.map(i -> new PathElement(partyPrefix + synonym, i))
-				.orElse(new PathElement(partyPrefix + synonym));
-		return basePath.addElement(element);
 	}
 }

@@ -7,6 +7,7 @@ import com.rosetta.model.lib.path.RosettaPath;
 import java.util.List;
 
 import static org.isda.cdm.Threshold.ThresholdBuilder;
+import static org.isda.cdm.processor.RegimeMappingHelper.PARTIES;
 
 /**
  * ISDA Create mapping processor.
@@ -26,8 +27,7 @@ public class ThresholdMappingProcessor extends MappingProcessor {
 	public void map(RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
 		getSynonymValues().forEach(v -> {
 			ThresholdBuilder thresholdBuilder = (ThresholdBuilder) builder;
-			helper.getElectiveAmountElection(v, "partyA").ifPresent(thresholdBuilder::addPartyElection);
-			helper.getElectiveAmountElection(v, "partyB").ifPresent(thresholdBuilder::addPartyElection);
+			PARTIES.forEach(party -> helper.getElectiveAmountElection(v, party).ifPresent(thresholdBuilder::addPartyElection));
 		});
 	}
 }

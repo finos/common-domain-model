@@ -16,6 +16,7 @@ import static org.isda.cdm.CalculationDateLocationElection.CalculationDateLocati
 import static org.isda.cdm.CalculationDateLocationElection.builder;
 import static org.isda.cdm.processor.MappingProcessorUtils.ISDA_CREATE_SYNONYM_SOURCE;
 import static org.isda.cdm.processor.MappingProcessorUtils.synonymToEnumValueMap;
+import static org.isda.cdm.processor.RegimeMappingHelper.PARTIES;
 
 /**
  * ISDA Create mapping processor.
@@ -34,8 +35,7 @@ public class CalculationDateLocationMappingProcessor extends MappingProcessor {
 	public void map(RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
 		getSynonymValues().forEach(v -> {
 			CalculationDateLocationBuilder calculationDateLocationBuilder = (CalculationDateLocationBuilder) builder;
-			getCalculationDateLocation(v, "partyA").ifPresent(calculationDateLocationBuilder::addPartyElection);
-			getCalculationDateLocation(v, "partyB").ifPresent(calculationDateLocationBuilder::addPartyElection);
+			PARTIES.forEach(party -> getCalculationDateLocation(v, party).ifPresent(calculationDateLocationBuilder::addPartyElection));
 		});
 	}
 

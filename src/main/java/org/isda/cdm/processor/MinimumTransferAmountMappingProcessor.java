@@ -7,6 +7,8 @@ import org.isda.cdm.MinimumTransferAmount.MinimumTransferAmountBuilder;
 
 import java.util.List;
 
+import static org.isda.cdm.processor.RegimeMappingHelper.PARTIES;
+
 /**
  * ISDA Create mapping processor.
  */
@@ -23,8 +25,7 @@ public class MinimumTransferAmountMappingProcessor extends MappingProcessor {
 	public void map(RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
 		getSynonymValues().forEach(v -> {
 			MinimumTransferAmountBuilder minimumTransferAmountBuilder = (MinimumTransferAmountBuilder) builder;
-			helper.getElectiveAmountElection(v, "partyA").ifPresent(minimumTransferAmountBuilder::addPartyElection);
-			helper.getElectiveAmountElection(v, "partyB").ifPresent(minimumTransferAmountBuilder::addPartyElection);
+			PARTIES.forEach(party -> helper.getElectiveAmountElection(v, party).ifPresent(minimumTransferAmountBuilder::addPartyElection));
 		});
 	}
 }

@@ -11,11 +11,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.regnosys.rosetta.common.translation.Path.PathElement;
 import static org.isda.cdm.AdditionalRegime.AdditionalRegimeBuilder;
 import static org.isda.cdm.AdditionalRegime.builder;
 import static org.isda.cdm.processor.MappingProcessorUtils.*;
-import static org.isda.cdm.processor.RegimeMappingHelper.*;
+import static org.isda.cdm.processor.RegimeMappingHelper.BASE_PATH;
+import static org.isda.cdm.processor.RegimeMappingHelper.PARTIES;
 
 @SuppressWarnings("unused")
 public class AdditionalRegimeMappingProcessor extends MappingProcessor {
@@ -34,10 +34,10 @@ public class AdditionalRegimeMappingProcessor extends MappingProcessor {
 		Regime.RegimeBuilder regimeBuilder = (Regime.RegimeBuilder) parent;
 		regimeBuilder.clearAdditionalRegime();
 
-		Path additionalRegimesPath = BASE_PATH.addElement(new PathElement("additional_regimes"));
-		Path regimesPath = additionalRegimesPath.addElement(new PathElement("regimes"));
+		Path additionalRegimesPath = getSynonymPath(BASE_PATH, "additional_regimes");
+		Path regimesPath = getSynonymPath(additionalRegimesPath, "regimes");
 
-		List<Mapping> applicableMappings = findMappings(getMappings(), helper.getSynonymPath(additionalRegimesPath, "is_applicable"));
+		List<Mapping> applicableMappings = findMappings(getMappings(), getSynonymPath(additionalRegimesPath, "is_applicable"));
 		Optional<String> applicable = findMappedValue(applicableMappings);
 		if (applicable.isPresent()) {
 			applicableMappings.forEach(m -> updateMapping(m, getPath()));
@@ -70,17 +70,16 @@ public class AdditionalRegimeMappingProcessor extends MappingProcessor {
 	private Optional<AdditionalRegimeBuilder> getAdditionalRegime(Path regimesPath, Integer index) {
 		AdditionalRegimeBuilder additionalRegimeBuilder = builder();
 
-		setValueFromMappings(helper.getSynonymPath(regimesPath,"regime_name", index),
+		setValueFromMappings(getSynonymPath(regimesPath,"regime_name", index),
 				(value) -> {
 					additionalRegimeBuilder.setRegime(value);
-					helper.getRegimeTerms(regimesPath, "partyA", index).ifPresent(additionalRegimeBuilder::addRegimeTerms);
-					helper.getRegimeTerms(regimesPath, "partyB", index).ifPresent(additionalRegimeBuilder::addRegimeTerms);
+					PARTIES.forEach(party -> helper.getRegimeTerms(regimesPath, party, index).ifPresent(additionalRegimeBuilder::addRegimeTerms));
 				});
 
-		setValueFromMappings(helper.getSynonymPath(regimesPath, "additional_type", index),
+		setValueFromMappings(getSynonymPath(regimesPath, "additional_type", index),
 				(value) -> Optional.ofNullable(synonymToAdditionalTypeEnumMap.get(value)).ifPresent(additionalRegimeBuilder::setAdditionalType));
 
-		setValueFromMappings(helper.getSynonymPath(regimesPath, "additional_type_specify", index),
+		setValueFromMappings(getSynonymPath(regimesPath, "additional_type_specify", index),
 				additionalRegimeBuilder::setAdditionalTerms);
 
 		return additionalRegimeBuilder.hasData() ? Optional.of(additionalRegimeBuilder) : Optional.empty();

@@ -14,9 +14,9 @@ import java.util.Optional;
 
 import static org.isda.cdm.ApplicableRegime.ApplicableRegimeBuilder;
 import static org.isda.cdm.Regime.RegimeBuilder;
-import static org.isda.cdm.processor.MappingProcessorUtils.ISDA_CREATE_SYNONYM_SOURCE;
-import static org.isda.cdm.processor.MappingProcessorUtils.synonymToEnumValueMap;
-import static org.isda.cdm.processor.RegimeMappingHelper.*;
+import static org.isda.cdm.processor.MappingProcessorUtils.*;
+import static org.isda.cdm.processor.RegimeMappingHelper.BASE_PATH;
+import static org.isda.cdm.processor.RegimeMappingHelper.PARTIES;
 
 @SuppressWarnings("unused")
 public class ApplicableRegimeMappingProcessor extends MappingProcessor {
@@ -43,14 +43,13 @@ public class ApplicableRegimeMappingProcessor extends MappingProcessor {
 
 			Optional.ofNullable(synonymToRegulatoryRegimeEnumMap.get(synonymValue)).ifPresent(applicableRegimeBuilder::setRegime);
 
-			Path regimePath = BASE_PATH.addElement(new Path.PathElement(synonymValue));
-			helper.getRegimeTerms(regimePath, "partyA", null).ifPresent(applicableRegimeBuilder::addRegimeTerms);
-			helper.getRegimeTerms(regimePath, "partyB", null).ifPresent(applicableRegimeBuilder::addRegimeTerms);
+			Path regimePath = getSynonymPath(BASE_PATH, synonymValue);
+			PARTIES.forEach(party -> helper.getRegimeTerms(regimePath, party, null).ifPresent(applicableRegimeBuilder::addRegimeTerms));
 
-			setValueFromMappings(helper.getSynonymPath(regimePath, "additional_type"),
+			setValueFromMappings(getSynonymPath(regimePath, "additional_type"),
 					(value) -> Optional.ofNullable(synonymToAdditionalTypeEnumMap.get(value)).ifPresent(applicableRegimeBuilder::setAdditionalType));
 
-			setValueFromMappings(helper.getSynonymPath(regimePath, "additional_type_specify"),
+			setValueFromMappings(getSynonymPath(regimePath, "additional_type_specify"),
 					applicableRegimeBuilder::setAdditionalTerms);
 		});
 	}

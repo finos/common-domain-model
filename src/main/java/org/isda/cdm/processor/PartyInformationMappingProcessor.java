@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.isda.cdm.processor.MappingProcessorUtils.*;
+import static org.isda.cdm.processor.RegimeMappingHelper.PARTIES;
 
 /**
  * ISDA Create mapping processor.
@@ -30,8 +31,7 @@ public class PartyInformationMappingProcessor extends MappingProcessor {
 	@Override
 	protected void map(List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
 		LegalAgreementBuilder legalAgreementBuilder = (LegalAgreementBuilder) parent;
-		updatePartyInformation(legalAgreementBuilder, "partyA");
-		updatePartyInformation(legalAgreementBuilder, "partyB");
+		PARTIES.forEach(party -> updatePartyInformation(legalAgreementBuilder, party));
 	}
 
 	private void updatePartyInformation(LegalAgreementBuilder legalAgreementBuilder, String party) {

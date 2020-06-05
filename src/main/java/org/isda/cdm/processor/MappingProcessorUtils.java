@@ -13,9 +13,11 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static java.util.Optional.ofNullable;
+
 class MappingProcessorUtils {
 
-	public static final String ISDA_CREATE_SYNONYM_SOURCE = "ISDA_Create_1_0";
+	static final String ISDA_CREATE_SYNONYM_SOURCE = "ISDA_Create_1_0";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MappingProcessorUtils.class);
 
@@ -31,7 +33,7 @@ class MappingProcessorUtils {
 				.collect(Collectors.toList());
 	}
 
-	static List<String> findMappedValues(List<Mapping> mappings) {
+	private static List<String> findMappedValues(List<Mapping> mappings) {
 		return mappings.stream()
 				.map(Mapping::getXmlValue)
 				.filter(Objects::nonNull)
@@ -77,5 +79,20 @@ class MappingProcessorUtils {
 			// update mappings
 			mappingsFromSynonymPath.forEach(m -> updateMapping(m, rosettaPath));
 		});
+	}
+
+	static Path getSynonymPath(Path basePath, String synonym) {
+		return getSynonymPath(basePath, "", synonym, null);
+	}
+
+	static Path getSynonymPath(Path basePath, String synonym, Integer index) {
+		return getSynonymPath(basePath, "", synonym, index);
+	}
+
+	static Path getSynonymPath(Path basePath, String prefix, String synonym, Integer index) {
+		Path.PathElement element = ofNullable(index)
+				.map(i -> new Path.PathElement(prefix + synonym, i))
+				.orElse(new Path.PathElement(prefix + synonym));
+		return basePath.addElement(element);
 	}
 }
