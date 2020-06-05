@@ -335,7 +335,7 @@ The representation of state transitions in the CDM event model is based on the f
 
 * **A lifecycle event describes a change in the state of a trade**, i.e. there must be different before/after trade states based on that lifecycle event.
 * **The product definition that underlies the transaction remains immutable**, unless agreed (negotiated) between the parties to that transaction as part of a specific trade lifecycle event. Automated events, for instance resets or cashflow payments, should not alter the product definition.
-* **The history of the trade state can be reconstructed at any point in the trade lifecycle**, i.e. the state-transition model implements a *lineage* concept.
+* **The history of the trade state can be reconstructed at any point in the trade lifecycle** because the CDM implements a *lineage* concept at multiple levels of events.
 * **The state is trade-specific**, not product-specific (i.e. it is not an asset-servicing model). The same product may be associated to infinitely many trades, each with its own specific state, between any two parties.
 
 The data structures in the event model are organised into four main sub-structures to represent state transitions, as described below:
@@ -405,7 +405,7 @@ The ``settlementTerms`` attribute define how the transaction should be settled (
 Post-Execution: Contract
 """"""""""""""""""""""""
 
-For contractual products, once a transaction has been agreed, a contract gets executed between the contractual legal entities for that transaction. In addition to the tradable product, a contract has a set of attributes which are only qualified at the post-execution stage: calculation agent, documentation, governing law, etc.
+The contract type is only applicable to contractual products.  It represents the state of a trade after the execution has been confirmed.  A contract has a set of attributes which are optional but would only apply to a post-execution stage: calculation agent, documentation, governing law, etc.
 
 .. code-block:: Haskell
 
@@ -432,9 +432,9 @@ For contractual products, once a transaction has been agreed, a contract gets ex
 Closed State
 """"""""""""
 
-In the case when a contract or an execution is closed, it is necessary to record that closure as part of the trade state, such that a new instance of that contract or execution object gets created.
+In the case when a contract or an execution is closed, it is necessary to record that closure as part of the trade state.
 
-For instance in a novation scenario, the initial state is a contract and the resulting state is two contracts: the first contract is new contract, which is the same as the original one but where one of the parties has been changed, and the second contract is the original contract, now marked as *closed*. 
+For instance in a novation scenario, the initial state is a contract and the resulting state is two contracts: the first contract is a new contract, which is the same as the original one but where one of the parties has been changed, and the second contract is the original contract, now marked as *closed*. 
 
 The ``closedState`` attribute on ``Contract`` and ``Execution`` captures this closed state and defines the reason for closure.
 
@@ -481,7 +481,13 @@ The list of primitive events can be seen in the ``PrimitiveEvent`` type definiti
    
    condition PrimitiveEvent: one-of
 
-A ``PrimitiveEvent`` object consists of one of these primitive components, as captured by the ``one-of`` condition. A number of examples are illustrated below.
+A ``PrimitiveEvent`` object consists of one of these primitive components, as captured by the ``one-of`` condition. 
+
+Most of the primitive events include ``before`` and ``after`` trade state attributes that define the state transition in terms of evolution in the trade state.  The exceptions are ``ObservationPrimitive`` and ``TransferPrimitive``. 
+
+The ``before`` attribute is included as a reference using the ``[metadata reference]`` annotation, because by definition the primitive event points to a state that *already* exists. By contrast, the ``after`` state provides a full definition of that object, because that state is occurring for the first time.  Addition, it is the occurence of that primitive event that triggers a transition to a new state. By tying each state in the lifecycle to a previous state, primitive events are one of the mechanisms by which the *lineage* model is implemented in the CDM.
+
+A number of examples are illustrated below.
 
 Example 1: Execution and Contract Formation
 """""""""""""""""""""""""""""""""""""""""""
@@ -502,7 +508,7 @@ Example 2: Reset
 
 In many cases, a trade relies on observable values which will become known in the future: for instance, a floating rate observation at the beginning of each period in the case of a Interest Rate Swap, or the equity price at the end of each period in an Equity Swap. That primitive event is known as a *reset*.
 
-First, an *observation* occurs when that observable value becomes know (as provided by the relevant market data provider), independently from any specific transaction. This primitive event is captured by the ``ObservationPrimitive`` type.
+The predecessor to a reset is an *observation* which occurs when that observable value becomes known (as provided by the relevant market data provider), independently from any specific transaction. This primitive event is captured by the ``ObservationPrimitive`` type.
 
 .. code-block:: Haskell
 
@@ -513,7 +519,7 @@ First, an *observation* occurs when that observable value becomes know (as provi
    time TimeZone (0..1) <"The observation time.">
    side QuotationSideEnum (0..1) <"The side (bid/mid/ask) of the observation, when applicable.">
 
-From that observation, a *reset* can be built which does affect the specific transaction. This uses the ``ResetPrimitive`` type.
+From that observation, a *reset* can be built which does affect the specific transaction. A reset is represented by the ``ResetPrimitive`` type.
 
 .. code-block:: Haskell
 
@@ -548,10 +554,6 @@ By design, the CDM treats the reset and the transfer primitive events separately
 
 * Many transfer events are not tied to any reset: for instance, the currency settlement from an FX spot or forward transaction.
 * Conversely, not all reset events generate a cashflow: for instance, the single, final settlement that is based on all the past floating rate resets in the case of a compounding floating zero-coupon swap.
-
-Else than the ``ObservationPrimitive`` and ``TransferPrimitive`` above, each primitive event is designed to include a ``before`` and an ``after`` trade state attributes, that define the state transition in terms of evolution in the trade state.
-
-The ``before`` attribute is included as a reference using the ``[metadata reference]`` annotation, because by definition the primitive event points to a state that *already* exists. By contrast, the primitive event includes the full ``after`` state, since it is the occurence of that primitive event that transitions to a new state. By tying each state in the lifecycle to a previous state, primitive events are the mechanism by which the *lineage* model is implemented in the CDM.
 
 Business Event
 ^^^^^^^^^^^^^^
@@ -715,7 +717,7 @@ Other Misc. Information
 Workflow
 ^^^^^^^^
 
-The CDM provides support for implementors to develop workflows to process transaction lifecycle events.
+The CDM provides support for implementors to develop workflows to process transaction lifecycle events and provides attributes to define lineage from one workflow step to another.
 
 A *workflow* represents a set of actions or steps that are required to trigger a business event, including the initial execution or contract formation. A workflow is organised into a sequence in which each step is represented by a *workflow step*. A workflow may involve multiple parties in addition to the parties to the transaction, and may include automated and manual steps. A workflow may involve only one step.
 
