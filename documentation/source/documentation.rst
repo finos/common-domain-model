@@ -340,7 +340,7 @@ The representation of state transitions in the CDM event model is based on the f
 
 The data structures in the event model are organised into four main sub-structures to represent state transitions, as described below:
 
-<insert image>
+.. figure:: event-model-overview.png
 
 * **Trade state** represents the state in the lifecycle that the trade is in, from execution to settlement and maturity.
 * **Primitive event** is a building block component used to specify business events in the CDM. Each primitive event describes a fundamental state-transition component that impacts the trade state during its lifecycle.
