@@ -2,6 +2,8 @@ package org.isda.cdm.functions.testing;
 
 import static org.isda.cdm.functions.testing.FunctionUtils.guard;
 
+import java.util.Collections;
+
 import javax.inject.Inject;
 
 import org.isda.cdm.BusinessEvent;
@@ -32,7 +34,8 @@ public class RunFormContractWithLegalAgreement implements ExecutableFunction<Con
                 guard(contract.getTradableProduct().getQuantityNotation()),
                 guard(contract.getTradableProduct().getPriceNotation()),
                 guard(contract.getParty()),
-                guard(contract.getPartyRole()));
+                guard(contract.getPartyRole()),
+                Collections.emptyList());
 
         LegalAgreement legalAgreement = LegalAgreement.builder()
                 .addContractualPartyRef(guard(contract.getParty()))
