@@ -12,3 +12,14 @@ Resolve complex `ISDA Create` mapping issues:
 _Review Direction_
 
 In the Ingestion Panel, try samples in folder `isda-create`.
+
+
+# *CDM Model: Eligible Collateral Modelling*
+
+_What is being released_
+
+Eligible collateral model changes to support concentration limits and wrong way risk.
+
+_Review Direction_
+
+In the Textual Browser, review types `CollateralTreatment` and `ConcentrationLimitCriteria`.
