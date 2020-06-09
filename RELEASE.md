@@ -44,7 +44,9 @@ In the CDM Documentation, review the CDM Model tab, in particular the sections:
 
 _What is being released_
 
-Eligible collateral model changes to support concentration limits and wrong way risk.
+Extension of CDM model to incorporate treatment of collateral
+- Concentration Limits
+- Inclusion/Exclusion Criteria
 
 _Review Direction_
 
