@@ -1,26 +1,14 @@
-# *Model Optimisation: Initial fees and additional payments*
+# *CDM Model: Legal Document Modelling*
 
 _What is being released_
 
-The `Create_Execution` function has been modified to include an input for the initial settlement information for the transaction such as a fee or upfront payment. 
+Resolve complex `ISDA Create` mapping issues:
 
-The existing `SettlementTerms` type has been used for this and has been adjusted to contain all relevant information: date, parties, and payer/receiver, plus an assetIdentifier to uniquely link this cashflow settlement to a cashPrice specification.
+- `CalculationDateLocation` - resolve incorrect association of mapped items.
+- `Custodian` - build mapper to associate Custodian Name and Account details for Stock vs Cash.
+- `Threshold` / `MinimumTransferAmount` - update existing mapper to correctly deal with zero amount.
+- `CustodyArrangements` - resolve incorrect association of mapped items.
 
 _Review Direction_
 
-In the Textual Broswer of the CDM Portal:
-
--  Type `Execution` has been modified to have a one-to-many relationship with `SettlementTerms` to support multiple initial settlement terms.
-- `PayerReceiver` has been added to `SettlementTerms` to define the settlement parties 
-- `AssetIdentifier` has been added to `SettlementTerms`  to uniquely link the cashflow settlement to a cashPrice specification
-- Updated Create_Execution to take `SettlementTerms` as an input
-- Updated descriptions to align with the change in the data structure:
-  - Search for type `SettlementTerms` - see updated description
-  - Search for type `Execution`, scroll down to attribute `settlementTerms` - see updated description
-  - Search for func `Create_Execution`, scroll down to input `settlementTerms` - see updated description
- 
-In the Instance Viewer of the CDM Portal, see the `exection business event` examples:
-
-- `Swaption` - Premium is represented as a settlement term
-- `Swap With Other Party Payment` - Broker fee is represented as a settlement term
-- `Swap With Initial Fee` - Fee is represented as a settlement term
+In the Ingestion Panel, try samples in folder `isda-create`.
