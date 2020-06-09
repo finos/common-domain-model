@@ -39,3 +39,15 @@ In the CDM Documentation, review the CDM Model tab, in particular the sections:
 
 - [Event Model section](https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#event-model)
 - [Lifecycle Event Process section](https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#lifecycle-event-process)
+
+# *CDM Model: Eligible Collateral Modelling*
+
+_What is being released_
+
+Extension of CDM model to incorporate treatment of collateral
+- Concentration Limits
+- Inclusion/Exclusion Criteria
+
+_Review Direction_
+
+In the Textual Browser, review types `CollateralTreatment` and `ConcentrationLimitCriteria`.
