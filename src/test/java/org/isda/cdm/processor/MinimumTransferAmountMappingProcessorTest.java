@@ -9,13 +9,12 @@ import org.isda.cdm.Money;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.isda.cdm.CreditSupportObligationsInitialMargin.CreditSupportObligationsInitialMarginBuilder;
 import static org.isda.cdm.MinimumTransferAmount.MinimumTransferAmountBuilder;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
 class MinimumTransferAmountMappingProcessorTest {
@@ -38,7 +37,7 @@ class MinimumTransferAmountMappingProcessorTest {
 		CreditSupportObligationsInitialMarginBuilder parent = mock(CreditSupportObligationsInitialMarginBuilder.class);
 
 		// test
-		MinimumTransferAmountMappingProcessor processor = new MinimumTransferAmountMappingProcessor(rosettaPath, Collections.emptyList(), mappings);
+		MinimumTransferAmountMappingProcessor processor = new MinimumTransferAmountMappingProcessor(rosettaPath, Arrays.asList("minimum_transfer_amount"), mappings);
 		processor.map(builder, parent);
 		MinimumTransferAmount minimumTransferAmount = builder.build();
 
@@ -52,7 +51,8 @@ class MinimumTransferAmountMappingProcessorTest {
 
 		ElectiveAmountElection partyB = getPartyElection(minimumTransferAmount, PARTY_B);
 		assertNull(partyB.getCustomElection());
-		assertEquals(0, partyB.getAmount().getAmount().intValue());
+		assertNull(partyB.getAmount());
+		assertTrue(partyB.getZeroAmount());
 	}
 
 	private ElectiveAmountElection getPartyElection(MinimumTransferAmount minimumTransferAmount, String party) {
