@@ -9,13 +9,12 @@ import org.isda.cdm.Threshold;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.isda.cdm.CreditSupportObligationsInitialMargin.CreditSupportObligationsInitialMarginBuilder;
 import static org.isda.cdm.Threshold.ThresholdBuilder;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
 class ThresholdMappingProcessorTest {
@@ -38,7 +37,7 @@ class ThresholdMappingProcessorTest {
 		CreditSupportObligationsInitialMarginBuilder parent = mock(CreditSupportObligationsInitialMarginBuilder.class);
 
 		// test
-		ThresholdMappingProcessor processor = new ThresholdMappingProcessor(rosettaPath, Collections.emptyList(), mappings);
+		ThresholdMappingProcessor processor = new ThresholdMappingProcessor(rosettaPath, Arrays.asList("threshold"), mappings);
 		processor.map(builder, parent);
 		Threshold threshold = builder.build();
 
@@ -52,7 +51,8 @@ class ThresholdMappingProcessorTest {
 
 		ElectiveAmountElection partyB = getPartyElection(threshold, PARTY_B);
 		assertNull(partyB.getCustomElection());
-		assertEquals(0, partyB.getAmount().getAmount().intValue());
+		assertNull(partyB.getAmount());
+		assertTrue(partyB.getZeroAmount());
 	}
 
 	private ElectiveAmountElection getPartyElection(Threshold threshold, String party) {

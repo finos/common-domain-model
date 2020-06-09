@@ -1,6 +1,7 @@
 package org.isda.cdm.processor;
 
 import com.regnosys.rosetta.common.translation.Mapping;
+import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObject;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
@@ -8,6 +9,7 @@ import com.rosetta.model.lib.process.AttributeMeta;
 import com.rosetta.model.lib.process.BuilderProcessor;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Processor implementation that calls map function is the current path matches the expected path.
@@ -42,8 +44,6 @@ public abstract class MappingProcessor implements BuilderProcessor {
 		return true;
 	}
 
-	
-
 	@Override
 	public <T> void processBasic(RosettaPath path, Class<T> rosettaType, T instance, RosettaModelObjectBuilder parent, AttributeMeta... meta) {
 		// Do nothing
@@ -62,8 +62,16 @@ public abstract class MappingProcessor implements BuilderProcessor {
 	/**
 	 * Perform custom mapping logic and updates resultant mapped value on builder object.
 	 */
-	protected abstract <R extends RosettaModelObject> void map(RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent);
-	protected abstract void map(List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent);
+	protected <R extends RosettaModelObject> void map(RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
+		// Default behaviour - do nothing
+	}
+
+	/**
+	 * Perform custom mapping logic and updates resultant mapped value on builder object.
+	 */
+	protected void map(List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
+		// Default behaviour - do nothing
+	}
 	
 	RosettaPath getPath() {
 		return path;
@@ -75,5 +83,13 @@ public abstract class MappingProcessor implements BuilderProcessor {
 
 	List<Mapping> getMappings() {
 		return mappings;
+	}
+
+	void setValueAndUpdateMappings(String synonymPath, Consumer<String> setter) {
+		setValueAndUpdateMappings(Path.parse(synonymPath), setter);
+	}
+
+	void setValueAndUpdateMappings(Path synonymPath, Consumer<String> setter) {
+		MappingProcessorUtils.setValueAndUpdateMappings(synonymPath, setter, mappings, path);
 	}
 }

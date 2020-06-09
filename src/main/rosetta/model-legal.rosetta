@@ -229,9 +229,9 @@ type CalculationAndTiming: <"A class to specify the Calculation, Valuation and T
 		[synonym ISDA_Create_1_0 value "credit_support_amount_calculation_time"]
 	// [documentReference Euroclear CtaInitialMargin 2019 paragraph "13" section "4d"]
 	calculationDateLocation CalculationDateLocation (0..1) <"The specified location where the credit exposure will be calculated by the respective parties.">
-		[synonym ISDA_Create_1_0 value "calculation_date_location"]
-		[synonym ISDA_Create_1_0 value "calculation_date"]
-		[synonym ISDA_Create_1_0 value "designated_city"]
+		[synonym ISDA_Create_1_0 value "calculation_date_location" mapper "CalculationDateLocation"]
+		[synonym ISDA_Create_1_0 value "calculation_date" mapper "CalculationDateLocation"]
+		[synonym ISDA_Create_1_0 value "designated_city" mapper "CalculationDateLocation"]
 	// [documentReference Euroclear CtaInitialMargin 2019 paragraph "13" section "4c"]
 	notificationTime NotificationTime (1..1) <"The time by which a demand for the Transfer of Eligible Credit Support (IM) or Posted Credit Support (IM) needs to be made in order for the transfer to take place in accordance with the Transfer Timing provisions.">
 		[synonym ISDA_Create_1_0 value "notification_time"]
@@ -271,17 +271,9 @@ type CalculationDateLocation: <"A class to specify the Calculation Date Location
 type CalculationDateLocationElection: <"A class to specify each of the party elections with respect to the Calculation Date Location. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (d)(i): Calculation Date Location. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e)(i): Calculation Date Location. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d)(i): Calculation Date Location.">
 
 	party string (1..1) <"The elective party.">
-		[synonym ISDA_Create_1_0 set to "partyA" when "partyA_calculation_date_location" = "select_location", set to "partyA" when "partyA_calculation_date_location" = "other"]
-		[synonym ISDA_Create_1_0 set to "partyB" when "partyB_calculation_date_location" = "select_location", set to "partyB" when "partyB_calculation_date_location" = "other"]
-		[synonym ISDA_Create_1_0 set to "partyA" when "partyA_designated_city" = "select_location", set to "partyA" when "partyA_designated_city" = "other"]
-		[synonym ISDA_Create_1_0 set to "partyB" when "partyB_designated_city" = "select_location", set to "partyB" when "partyB_designated_city" = "other"]
 	businessCenter BusinessCenterEnum (0..1) <"The Calculation Date Location when specified as a business center which corresponds to the FpML list of business centers or can be mapped to it.">
 		[metadata scheme]
-		[synonym ISDA_Create_1_0 value "partyA_location"]
-		[synonym ISDA_Create_1_0 value "partyB_location"]
 	customLocation string (0..1) <"The Calculation Date Location when specified a location which doesn't correspond to the FpML list of business centers or cannot be mapped to it.">
-		[synonym ISDA_Create_1_0 value "partyA_specify"]
-		[synonym ISDA_Create_1_0 value "partyB_specify"]
 
 	condition Choice : <"The Calculation Date Location is specified either as a standard business center or as a custom location.">
 		required choice businessCenter, customLocation
@@ -434,43 +426,11 @@ type ControlAgreement: <"A class to specify the relationship between the Control
 type ControlAgreementElections: <"A class to specify the Control Agreement election sby each party to the agreement.">
 
 	party string (1..1) <"The elective party.">
-		[synonym ISDA_Create_1_0 set to "partyA" when "control_agreement_as_a_credit_support_document->partyA_control_agreement_as_a_credit_support_document" = "yes",
-									set to "partyA" when "control_agreement_as_a_credit_support_document->partyA_control_agreement_as_a_credit_support_document" = "no"]
-		[synonym ISDA_Create_1_0 set to "partyB" when "control_agreement_as_a_credit_support_document->partyB_control_agreement_as_a_credit_support_document" = "yes",
-									set to "partyB" when "control_agreement_as_a_credit_support_document->partyB_control_agreement_as_a_credit_support_document" = "no"]
-		[synonym ISDA_Create_1_0 set to "partyA" when "euroclear_agreements_as_credit_support_documents->partyA_euroclear_agreements_as_credit_support_documents" = "yes",
-									set to "partyA" when "euroclear_agreements_as_credit_support_documents->partyA_euroclear_agreements_as_credit_support_documents" = "no"]
-		[synonym ISDA_Create_1_0 set to "partyB" when "euroclear_agreements_as_credit_support_documents->partyB_euroclear_agreements_as_credit_support_documents" = "yes",
-									set to "partyB" when "euroclear_agreements_as_credit_support_documents->partyB_euroclear_agreements_as_credit_support_documents" = "no"]
-		[synonym ISDA_Create_1_0 set to "partyA" when "clearstream_agreements_as_credit_support_documents->partyA_clearstream_agreements_as_credit_support_documents" = "yes",
-									set to "partyA" when "clearstream_agreements_as_credit_support_documents->partyA_clearstream_agreements_as_credit_support_documents" = "no"]
-		[synonym ISDA_Create_1_0 set to "partyB" when "clearstream_agreements_as_credit_support_documents->partyB_clearstream_agreements_as_credit_support_documents" = "yes",
-									set to "partyB" when "clearstream_agreements_as_credit_support_documents->partyB_clearstream_agreements_as_credit_support_documents" = "no"]
 	controlAgreementAsCsd boolean (1..1) <"The identification of whether the Control Agreement is a Credit Support Document with respect to each party">
-		[synonym ISDA_Create_1_0 set to True when "control_agreement_as_a_credit_support_document->partyA_control_agreement_as_a_credit_support_document" = "yes",
-									set to False when "control_agreement_as_a_credit_support_document->partyA_control_agreement_as_a_credit_support_document" = "no"]
-		[synonym ISDA_Create_1_0 set to True when "control_agreement_as_a_credit_support_document->partyB_control_agreement_as_a_credit_support_document" = "yes",
-									set to False when "control_agreement_as_a_credit_support_document->partyB_control_agreement_as_a_credit_support_document" = "no"]
-		[synonym ISDA_Create_1_0 set to True when "euroclear_agreements_as_credit_support_documents->partyA_euroclear_agreements_as_credit_support_documents" = "yes",
-									set to False when "euroclear_agreements_as_credit_support_documents->partyA_euroclear_agreements_as_credit_support_documents" = "no"]
-		[synonym ISDA_Create_1_0 set to True when "euroclear_agreements_as_credit_support_documents->partyB_euroclear_agreements_as_credit_support_documents" = "yes",
-									set to False when "euroclear_agreements_as_credit_support_documents->partyB_euroclear_agreements_as_credit_support_documents" = "no"]
-		[synonym ISDA_Create_1_0 set to True when "clearstream_agreements_as_credit_support_documents->partyA_clearstream_agreements_as_credit_support_documents" = "yes",
-									set to False when "clearstream_agreements_as_credit_support_documents->partyA_clearstream_agreements_as_credit_support_documents" = "no"]
-		[synonym ISDA_Create_1_0 set to True when "clearstream_agreements_as_credit_support_documents->partyB_clearstream_agreements_as_credit_support_documents" = "yes",
-									set to False when "clearstream_agreements_as_credit_support_documents->partyB_clearstream_agreements_as_credit_support_documents" = "no"]
 	// TODO - add Condition - include when 2018 CSD English Law, exclude when 2016 (captured under CustodyArrangements)
 	consistencyWithControlAgreement boolean (0..1) <"Unless specified as inapplicable in the event of any inconsistency between this Deed and the Control Agreement, this Deed will prevail over the Control Agreement">
-		[synonym ISDA_Create_1_0 set to True when "inconsistency_with_the_control_agreement->partyA_inconsistency_with_the_control_agreement" = "applicable",
-									set to False when "inconsistency_with_the_control_agreement->partyA_inconsistency_with_the_control_agreement" = "not_applicable"]
-		[synonym ISDA_Create_1_0 set to True when "inconsistency_with_the_control_agreement->partyB_inconsistency_with_the_control_agreement" = "applicable",
-									set to False when "inconsistency_with_the_control_agreement->partyB_inconsistency_with_the_control_agreement" = "not_applicable"]
 	// TODO - add Condition - only include when 2018 CSD English Law
 	relationshipWithControlAgreement boolean (0..1) <"Unless specified as inapplicable the parties recognise that the Control Agreement is a means by which the parties can perform their obligations.">
-		[synonym ISDA_Create_1_0 set to True when "relationship_with_the_control_agreement->partyA_control_agreement_relationship" = "applicable",
-									set to False when "relationship_with_the_control_agreement->partyA_control_agreement_relationship" = "not_applicable"]
-		[synonym ISDA_Create_1_0 set to True when "relationship_with_the_control_agreement->partyB_control_agreement_relationship" = "applicable",
-									set to False when "relationship_with_the_control_agreement->partyB_control_agreement_relationship" = "not_applicable"]
 	// TODO - add Condition - only include when 2018 CSD English Law
 
 type ControlAgreementNecEvent: <"A class to specify Control Agreement language related to delivery of a Notice of Exclusive Control">
@@ -698,8 +658,8 @@ type EquitySwapMasterConfirmation2018 extends EquityMasterConfirmation: <"Specif
 	equityCalculationPeriod CalculationPeriodDates (1..1) <"The parameters used to generate the 'Equity Valuation Dates' schedule, including the Effective Date and Termination Date for the Swap.">
 	equityCashSettlementDates PaymentDates (1..1) <"The parameters used to generate the payment date schedule, relative to the equityCalculationPeriod. Part 1 Section 12, 'Definitions', of the 2018 ISDA CDM Equity Confirmation. Para 73: 'Equity Cash Settlement Date' means each date falling one Settlement Cycle after an Equity Valuation Date; provided that if any such date is not a Settlement Currency Business Day, then such date shall be adjusted per Following Day Adjustment.">
 
-// TODOs: Averaging Election, Dividend Payment Date Election, Break Funding Election
-//TODO - Deprecate: Still used by Equity Master Confirmation doc which hasn't been refactored.
+// TODO: Averaging Election, Dividend Payment Date Election, Break Funding Election
+// TODO - Deprecate: Still used by Equity Master Confirmation doc which hasn't been refactored.
 type EquityMasterConfirmation extends MasterConfirmationBase: <"Specification for General Terms and Elections of an Equity Master Confirmation that is applicable across multiple Equity confirmations and is referenced by each of these confirmations, an example of which being the 2018 ISDA CDM Equity Confirmation for Security Equity Swap.">
 
 //TODO - Deprecate: Still used by Equity Master Confirmation doc which hasn't been refactored.
@@ -712,18 +672,9 @@ type Custodian: <"A class to specify the custodian and custody account details f
 type CustodianElection: <"A class to specify the custodian and custody account details for each party to the agreement.">
 
 	party string (1..1) <"The elective party.">
-		[synonym ISDA_Create_1_0 set to "partyA" when "partyA_custodian_name" exists, set to "partyB" when "partyB_custodian_name" exists]
 	custodian LegalEntity (0..1) <"The custody agent. While ISDA Create only specifies the custodian's name, specifying the legal entity as part of the CDM is deemed more appropriate, while this will still provide the ability to accommodate situations where only the entity name is available, as the entityId attribute is optional as part of the LegalEntity class.">
-		[synonym ISDA_Create_1_0 value "custodian_name"]
-		[synonym ISDA_Create_1_0 value "collateral_manager"]
-		[synonym ISDA_Create_1_0 value "custodian_and_segregated_account_details"]
 	segregatedCashAccount Account (0..1) <"The identification of the segregated cash account for the purpose of holding cash collateral.">
-		[synonym ISDA_Create_1_0 value "custodian_and_segregated_account_details"]
-	// TODO - Need for a mapping logic that will parse the ISDA Create suffix to identify cash vs. security with custodian_and_segregated_account_details as a path
 	segregatedSecurityAccount Account (0..1) <"The identification of the segregated security account for the purpose of holding security collateral.">
-		[synonym ISDA_Create_1_0 value "custodian_and_segregated_account_details"]
-	// TODO - Need for a mapping logic that will parse the ISDA Create suffix to identify cash vs. security with custodian_and_segregated_account_details as a path
-
 
 type CustodianEvent: <"A class to specify the Custodian Event (English Law & New York Law ISDA CSA) and the Collateral Manager Event (Japanese Law ISDA CSA) in terms of applicability and end-date. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (n)(iii): Custodian Event. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (m)(ii): Collateral Manager Event. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(iii): Custodian Event.">
 
@@ -829,8 +780,14 @@ type CustodyArrangements: <"A class to specify the Custody Arrangements for the 
 		[synonym ISDA_Create_1_0 value "euroclear_risk"]
 		[synonym ISDA_Create_1_0 value "clearstream_risk"]
 	controlAgreement ControlAgreement (0..1) <"The party-specific election with respect to the control agreement.">
+		[synonym ISDA_Create_1_0 value "control_agreement_as_a_credit_support_document" mapper "ControlAgreement"]
+		[synonym ISDA_Create_1_0 value "euroclear_agreements_as_credit_support_documents" mapper "ControlAgreement"]
+		[synonym ISDA_Create_1_0 value "clearstream_agreements_as_credit_support_documents" mapper "ControlAgreement"]
 	custodianEvent CustodianEvent (1..1) <"When specified as True, means that the Custodian Events specified in Paragraph 13 General Principles, (m)(iii) will constitute an Additional Termination Event. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (m)(iii): Custodian Event.">
 	custodian Custodian (0..1) <"The custodian and segregated account details for each party to the agreement.">
+		[synonym ISDA_Create_1_0 value "custodian_name" mapper "Custodian"]
+		[synonym ISDA_Create_1_0 value "custodian_and_segregated_account_details" mapper "Custodian"]
+		[synonym ISDA_Create_1_0 value "collateral_manager" mapper "Custodian"]
 	collateralManagementAgreeement CollateralManagementAgreement (0..1) <"ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (b)(i): Collateral Management Agreement.">
 		[synonym ISDA_Create_1_0 value "collateral_management_agreement"]
 	distributionAndInterestPayment DistributionAndInterestPayment (0..1) <"The Distributions and Interest Payment as part of the Japanese Law ISDA CSA. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n): Distributions and Interest Payment (IM).">
@@ -1386,7 +1343,7 @@ type Regime: <"A class to specify one or more regimes that may be specified as r
 	[synonym AcadiaSoft_AM_1_0 value "Regime"]
 
 	applicableRegime ApplicableRegime (1..*) <"A class to specify the regime(s) that parties to a legal agreement, such as the ISDA 2016 and 2018 CSA for Initial Margin, might agree to apply to one or both parties when acting as collateral taker, and specific terms associated with that application.">
-		[synonym ISDA_Create_1_0 value "canada", "sec", "cftc", "emir", "japan", "switzerland", "prudential", "australia", "hong_kong", "singapore" mapper "ApplicableRegime"]
+		[synonym ISDA_Create_1_0 value "australia", "canada", "cftc", "emir", "hong_kong", "japan", "prudential", "sec", "singapore", "switzerland" mapper "ApplicableRegime"]
 	fallbackToMandatoryMethodDays number (0..1) <"The specification of the number of days after effective delivery of notice that Mandatory method fallback applies. Specification is only required when one or more Regimes have Fall Back to Mandatory Method elected as a SIMM exception.">
 		[synonym ISDA_Create_1_0 value "fallback_to_mandatory_method_days" path "fallback_to_mandatory_method"]
 	additionalRegime AdditionalRegime (0..*) <"The additional regulatory regime(s) that might be specified by the parties to a legal agreement. ISDA 2016 Credit Support Annex for Initial Margin paragraph 13, General Principles, (ll): The parties may from time to time agree in writing that other regimes also comprise `Regimes` and that the General Principles be adopted and/or amended to accommodate such additional Regimes.">
