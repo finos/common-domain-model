@@ -1,53 +1,12 @@
-# *CDM Model: Legal Document Modelling*
+# *Product Model: Equity Swap Modelling*
 
 _What is being released_
 
-Resolve complex `ISDA Create` mapping issues:
-
-- `CalculationDateLocation` - resolve incorrect association of mapped items.
-- `Custodian` - build mapper to associate Custodian Name and Account details for Stock vs Cash.
-- `Threshold` / `MinimumTransferAmount` - update existing mapper to correctly deal with zero amount.
-- `CustodyArrangements` - resolve incorrect association of mapped items.
+Fixes for Equity Swap model, and corresponding FpML synonym mappings for `returnLeg.effectiveDate` and `interestLegPaymentDates`.
 
 _Review Direction_
 
-In the Ingestion Panel, try samples in folder `isda-create`.
+- In the Textual Viewer, review types `PaymentDateSchedule`, `AdjustableRelativeOrPeriodicDates` and `PeriodicDates`.
 
-# *User Documentation: Event Model*
+- In the Ingestion Panel, try samples in folder `products > equity`.
 
-_What is being released_
-
-Following recent overhaul of the Rosetta DSL documentation, the CDM documentation has been updated, focusing on:
-
-- Event Model section
-- Lifecycle Event Process section of the Process Model
-
-An overview of the design principle of the CDM event model has been introduced, including an explanatory diagram for the different levels in the model and their relationships:
-
-* Trade State
-* Primitive Event
-* Business Event
-* Worksflow Step
-
-All snippet examples have been updated to reflect their current status in the CDM.
-
-The Process Model section has been expanded to include Primitive Event creation functions, and the Event Qualification section has also been updated, both reflecting consistent use of the `func` syntax in the Rosetta DSL.
-
-_Review Direction_
-
-In the CDM Documentation, review the CDM Model tab, in particular the sections:
-
-- [Event Model section](https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#event-model)
-- [Lifecycle Event Process section](https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#lifecycle-event-process)
-
-# *CDM Model: Eligible Collateral Modelling*
-
-_What is being released_
-
-Extension of CDM model to incorporate treatment of collateral
-- Concentration Limits
-- Inclusion/Exclusion Criteria
-
-_Review Direction_
-
-In the Textual Browser, review types `CollateralTreatment` and `ConcentrationLimitCriteria`.
