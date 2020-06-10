@@ -1,5 +1,8 @@
 package org.isda.cdm.processor;
 
+import cdm.base.staticdata.asset.common.ProductIdentifier.ProductIdentifierBuilder;
+import cdm.base.staticdata.asset.common.metafields.ReferenceWithMetaProductIdentifier;
+import cdm.base.staticdata.asset.common.metafields.ReferenceWithMetaProductIdentifier.ReferenceWithMetaProductIdentifierBuilder;
 import com.google.common.collect.ImmutableMap;
 import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep;
 import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep.KeyPostProcessReport;
@@ -13,11 +16,6 @@ import com.rosetta.model.lib.process.AttributeMeta;
 import com.rosetta.model.lib.process.BuilderProcessor.Report;
 import com.rosetta.model.lib.process.PostProcessStep;
 import org.isda.cdm.BusinessEvent.BusinessEventBuilder;
-
-import cdm.base.staticdata.asset.common.ProductIdentifier.ProductIdentifierBuilder;
-import cdm.base.staticdata.asset.common.metafields.ReferenceWithMetaProductIdentifier;
-import cdm.base.staticdata.asset.common.metafields.ReferenceWithMetaProductIdentifier.ReferenceWithMetaProductIdentifierBuilder;
-
 import org.isda.cdm.Contract.ContractBuilder;
 import org.isda.cdm.EventEffect.EventEffectBuilder;
 import org.isda.cdm.Execution.ExecutionBuilder;
