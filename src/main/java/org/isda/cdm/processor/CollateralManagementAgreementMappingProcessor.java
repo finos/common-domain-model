@@ -11,6 +11,10 @@ import java.util.Optional;
 
 import static org.isda.cdm.processor.RegimeMappingHelper.PARTIES;
 
+/**
+ * ISDA Create mapping processor.
+ */
+@SuppressWarnings("unused")
 public class CollateralManagementAgreementMappingProcessor extends MappingProcessor {
 
 	public CollateralManagementAgreementMappingProcessor(RosettaPath rosettaPath, List<String> synonymValues, List<Mapping> mappings) {
@@ -19,9 +23,9 @@ public class CollateralManagementAgreementMappingProcessor extends MappingProces
 
 	@Override
 	public void map(RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
-		CollateralManagementAgreement.CollateralManagementAgreementBuilder collateralManagementAgreement =
+		CollateralManagementAgreement.CollateralManagementAgreementBuilder collateralManagementAgreementBuilder =
 				(CollateralManagementAgreement.CollateralManagementAgreementBuilder) builder;
-		PARTIES.forEach(party -> getCollateralManagementAgreementElection(party).ifPresent(collateralManagementAgreement::addPartyElection));
+		PARTIES.forEach(party -> getCollateralManagementAgreementElection(party).ifPresent(collateralManagementAgreementBuilder::addPartyElection));
 	}
 
 	private Optional<CollateralManagementAgreementElection> getCollateralManagementAgreementElection(String party) {
