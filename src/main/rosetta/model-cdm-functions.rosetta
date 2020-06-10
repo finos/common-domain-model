@@ -10,20 +10,20 @@ annotation creation: <"Annotation to describe the intent of a function">
     PrimitiveEvent PrimitiveEvent (0..1) <"A primitive event function should take as an input all of the types required to construct the event and produce a new PrimitiveEvent type.">
     BusinessEvent BusinessEvent (0..1) <"A business event function should take as its inputs the after state of previous business event or in case where the is no before state, all of the inputs required to produce the outcome BusinessEvent.">
 
-func Create_Execution: <"Function specification to create an Execution BusinessEvent representing the transaction of a financial product between 2 parties given the price, quantity and initial known settlement terms between the parties.">
+func Create_Execution: <"Function specification to create an execution event representing the transaction of a financial product between two parties given the price, quantity and initial known settlement terms between the parties.">
 	[creation BusinessEvent]
 	inputs:
 		product Product (1..1) <"The financial product to be executed and contract formed.">
-		quantityNotation QuantityNotation (1..*) <"Quanities associated with the constituents of the product.">
-		priceNotation PriceNotation (1..*) <"Prices (e.g. spread, equity price, fx rate) associated with the constituents of the transacted product.">
+		quantityNotation QuantityNotation (1..*) <"Quantities associated with the constituents of the product.">
+		priceNotation PriceNotation (1..*) <"Prices (e.g. spread, equity price, FX rate) associated with the constituents of the transacted product.">
 		parties Party (2..*) <"All parties to that execution, including agents and brokers.">
 		partyRoles PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the execution.">
 		settlementTerms SettlementTerms (0..*) <"The settlement terms for the execution e.g. initial fee, broker fee, up-front cds payment or option premium settlement">
 
 	output:
-		executionEvent BusinessEvent (1..1) <"Qualified Execution business event containing a ExecutionPrimitive">
+		executionEvent BusinessEvent (1..1) <"Qualified execution business event containing a execution primitive event.">
 
-	assign-output executionEvent -> primitives -> execution: <"Create and assign the primitive event for the execution BusinessEvent.">
+	assign-output executionEvent -> primitives -> execution: <"Create and assign the primitive event for the execution business event.">
 		Create_ExecutionPrimitive(product, quantityNotation, priceNotation, parties, partyRoles, settlementTerms)
 
 	assign-output executionEvent -> eventEffect -> execution: <"Creation of the execution is the effect of creating the execution business event.">
@@ -33,16 +33,16 @@ func Create_ExecutionPrimitive: <"Function specification to compose an execution
 	[creation PrimitiveEvent]
 	inputs:
 		product Product (1..1) <"The financial product to be executed and contract formed.">
-		quantityNotation QuantityNotation (1..*) <"Quanities associated with the constituents of the product.">
-		priceNotation PriceNotation (1..*) <"Prices (e.g. spread, equity price, fx rate) associated with the constituents of the transacted product.">
+		quantityNotation QuantityNotation (1..*) <"Quantities associated with the constituents of the product.">
+		priceNotation PriceNotation (1..*) <"Prices (e.g. spread, equity price, FX rate) associated with the constituents of the transacted product.">
 		parties Party (2..*) <"All parties to that execution, including agents and brokers.">
 		partyRoles PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the execution.">
 		settlementTerms SettlementTerms (0..*) <"The settlement terms for the execution e.g. initial fee, broker fee, up-front cds payment or option premium settlement">
 
 	output:
-		executionPrimitive ExecutionPrimitive (1..1) <"Execution primitive event with no before state and an after state containing the TradableProduct, parties, associated party roles and the known settlement terms.">
+		executionPrimitive ExecutionPrimitive (1..1) <"Execution primitive event with absent before state and an after state containing the tradable product, parties, associated party roles and the known settlement terms.">
 
-	assign-output executionPrimitive -> after -> execution -> tradableProduct -> product: <"Assign the product to the tradableProduct of the execution.">
+	assign-output executionPrimitive -> after -> execution -> tradableProduct -> product: <"Assign the product to the tradable product of the execution.">
 		product
 
 	assign-output executionPrimitive -> after -> execution -> tradableProduct -> priceNotation: <"Assign the prices associated with the product to the execution.">
@@ -66,11 +66,11 @@ func Create_ExecutionPrimitive: <"Function specification to compose an execution
 func Create_ContractFormation: <"Function specification to create the fully-formed business event of entering into a new contract, as a combination of an execution primitive and a contract formation primitive, when there is no allocation involved and the contractual parties are the execution parties.">
 	[creation BusinessEvent]
 	inputs:
-		executionEvent BusinessEvent (1..1) <"Qualified Execution business event containing a ExecutionPrimitive">
-		legalAgreement LegalAgreement (0..1) <"Optional LegalAgreement for the contract formation">
+		executionEvent BusinessEvent (1..1) <"Qualified execution business event containing a execution primitive.">
+		legalAgreement LegalAgreement (0..1) <"Optional legal agreement for the contract formation.">
 
 	output:
-		contractFormationEvent BusinessEvent (1..1) <"Qualified ContractFormation business event">
+		contractFormationEvent BusinessEvent (1..1) <"Qualified contract formation business event.">
 
 	alias execution:
 		executionEvent -> primitives -> execution -> after -> execution
@@ -88,7 +88,7 @@ func Create_ContractFormation: <"Function specification to create the fully-form
 	assign-output contractFormationEvent -> eventEffect -> contract: <"Creation of the contract is the effect of creating the contract formation business event.">
 		contractFormationEvent -> primitives -> contractFormation -> after -> contract
 
-	assign-output contractFormationEvent -> eventEffect -> effectedExecution: <"The before state is effected execution of the contract formation business event">
+	assign-output contractFormationEvent -> eventEffect -> effectedExecution: <"The before state is effected execution of the contract formation business event.">
 		contractFormationEvent -> primitives -> contractFormation -> before -> execution
 
 	post-condition : <"Event effect must point to the new execution and contract, and exclude other effects.">
@@ -99,11 +99,11 @@ func Create_ContractFormation: <"Function specification to create the fully-form
 func Create_ContractFormationPrimitive: <"Function specification to create a fully-formed contract following execution on a contractual product. The contract can optionally reference a further legal agreement (such as a CSA or a Master Confirmation).">
 	[creation PrimitiveEvent]
 	inputs:
-		execution Execution (1..1) <"Execution consisting of the economic terms which are agreed between the parties">
-		legalAgreement LegalAgreement (0..1) <"Legal agreement such as a CSA or a Master Confirmation">
+		execution Execution (1..1) <"Execution consisting of the economic terms which are agreed between the parties.">
+		legalAgreement LegalAgreement (0..1) <"Legal agreement such as a CSA or a Master Confirmation.">
 
 	output:
-		contractFormation ContractFormationPrimitive (1..1) <"Primitive event containing the execution as its before state and the contract formation as the after state">
+		contractFormation ContractFormationPrimitive (1..1) <"Primitive event containing the execution as its before state and the contract formation as the after state.">
 
 	alias contract:
 		contractFormation -> after -> contract
@@ -111,19 +111,19 @@ func Create_ContractFormationPrimitive: <"Function specification to create a ful
 	assign-output contractFormation -> before -> execution: <"Before state must be the execution, and the contractual product in the after state must be the underlying product of the contract being formed.">
 		execution
 
-	assign-output contract -> tradableProduct: <"Assign the tradableProduct of the execution to the contract">
+	assign-output contract -> tradableProduct: <"Assign the tradable product of the execution to the contract.">
 		execution -> tradableProduct
 
-	assign-output contract -> contractIdentifier: <"Assign the contractIdentifier of the execution to the contract">
+	assign-output contract -> contractIdentifier: <"Assign the contract identifier of the execution to the contract.">
 		execution -> identifier
 
-	assign-output contract -> tradeDate -> date: <"Assign the tradeDate of the execution to the contract">
+	assign-output contract -> tradeDate -> date: <"Assign the trade date of the execution to the contract.">
 		execution -> tradeDate
 
-	assign-output contract -> partyRole: <"Assign the partyRole of the execution to the contract">
+	assign-output contract -> partyRole: <"Assign the party role of the execution to the contract.">
 		execution -> partyRole
 
-	assign-output contract -> party: <"Assign the party of the execution to the contract">
+	assign-output contract -> party: <"Assign the party of the execution to the contract.">
 		execution -> party
 
 	assign-output contract -> documentation -> legalAgreement: <"When an overlaying legal agreement exists, the contract must reference it.">
@@ -419,7 +419,7 @@ func EvaluatePortfolioState: <"Function specification to evaluate a portfolio's 
 	output:
 		portfolioState PortfolioState (1..1) <"Portfolio state containing the aggregated positions based on the input aggregation parameters.">
 
-func TerminateContract: <"Function specification for a contract terminartion where the ClosedStateEnum is set to Terminated and the quantity amount is set to 0.">
+func TerminateContract: <"Function specification for a contract termination where the 'ClosedStateEnum' is set to Terminated and the quantity amount is set to 0.">
 	inputs:
 		contract Contract (1..1) <"Formed contract in non-terminated state.">
 
@@ -459,7 +459,7 @@ func TerminateContract: <"Function specification for a contract terminartion whe
 	assign-output terminatedContract -> tradableProduct -> quantityNotation -> quantity -> amount: <"Set the quantity amount to 0">
         0.0
 
-func NewExecutionPrimitiveEvent: <"Constructs a PrimitiveEvent from a fully formed ExecutionPrimitive">
+func NewExecutionPrimitiveEvent: <"Constructs a primitive event from a fully formed execution primitive.">
 	inputs:
 		executionPrimitive ExecutionPrimitive (0..1)
 	output:
@@ -468,7 +468,7 @@ func NewExecutionPrimitiveEvent: <"Constructs a PrimitiveEvent from a fully form
 	assign-output primitiveEvent -> execution:
 		executionPrimitive
 
-func NewContractFormationPrimitiveEvent: <"Constructs a PrimitiveEvent from a fully formed ContractFormationPrimitive">
+func NewContractFormationPrimitiveEvent: <"Constructs a primitive event from a fully formed contract formation primitive.">
 	inputs:
 		contractFormation ContractFormationPrimitive (0..1)
 	output:
@@ -477,7 +477,7 @@ func NewContractFormationPrimitiveEvent: <"Constructs a PrimitiveEvent from a fu
 	assign-output primitiveEvent -> contractFormation:
 		contractFormation
 
-func NewQuantityChangePrimitiveEvent: <"Constructs a PrimitiveEvent from a fully formed QuantityChangePrimitive">
+func NewQuantityChangePrimitiveEvent: <"Constructs a primitive event from a fully formed quantity change primitive event.">
 	inputs:
 		quantityChangePrimitive QuantityChangePrimitive (0..1)
 	output:
@@ -540,7 +540,7 @@ func Create_Clear: <"Clear function that inputs the alpha contract and clearingI
 			gammaContractPrimitives
 		]
 
-func ExecutionAsTrade: <"Constructs a Trade type that wraps an execution.">
+func ExecutionAsTrade: <"Constructs a 'Trade' type that wraps an execution.">
 	inputs:
 		execution Execution (0..1)
 	
