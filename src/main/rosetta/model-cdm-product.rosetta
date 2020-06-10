@@ -430,9 +430,9 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
 			or payout -> cashflow -> cashflowDate -> relativeDate -> adjustedDate < terminationDate -> adjustableDate -> adjustedDate
 
 	condition FpML_cd_30: <"FpML validation rule cd-30 - If feeLeg/periodicPayment/lastRegularPaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/periodicPayment/lastRegularPaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
-		if ( payout -> interestRatePayout -> paymentDates -> lastPaymentDate -> lastRegularPaymentDate
+		if ( payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate
 			and terminationDate) exists
-		then payout -> interestRatePayout -> paymentDates -> lastPaymentDate -> lastRegularPaymentDate < terminationDate -> adjustableDate -> unadjustedDate
+		then payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate < terminationDate -> adjustableDate -> unadjustedDate
 
 
 // FIXME Object compare: effectiveDate > terminationDate
@@ -914,7 +914,7 @@ type Payout: <" A class to represent the set of future cashflow methodologies in
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "otherPartyPayment"]
 
 	condition LastRegularPaymentDate: <"FpML specifies that lastRegularPaymentDate must only be included if there is a final stub. As part of the CDM, this data rule has been adjusted to specify that it only applies to interest rate swaps, as the credit derivatives products can have a specified lastRegularPaymentDate while the stub is typically not applicable to those.">
-		if interestRatePayout -> paymentDates -> lastPaymentDate -> lastRegularPaymentDate exists
+		if interestRatePayout -> paymentDates -> lastRegularPaymentDate exists
 			and interestRatePayout -> stubPeriod -> finalStub exists
 		then interestRatePayout count = 2
 
