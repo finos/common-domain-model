@@ -470,17 +470,17 @@ A ``PrimitiveEvent`` object consists of one of the primitive components, as capt
 .. code-block:: Haskell
 
  type PrimitiveEvent:
-	execution ExecutionPrimitive (0..1)
-	contractFormation ContractFormationPrimitive (0..1)
-	split SplitPrimitive (0..1)
-	exercise ExercisePrimitive (0..1)
-	observation ObservationPrimitive (0..1)
-	quantityChange QuantityChangePrimitive (0..1)
-	reset ResetPrimitive (0..1)
-	termsChange TermsChangePrimitive (0..1)
-	transfer TransferPrimitive (0..1)
-
-	condition PrimitiveEvent: one-of
+   execution ExecutionPrimitive (0..1)
+   contractFormation ContractFormationPrimitive (0..1)
+   split SplitPrimitive (0..1)
+   exercise ExercisePrimitive (0..1)
+   observation ObservationPrimitive (0..1)
+   quantityChange QuantityChangePrimitive (0..1)
+   reset ResetPrimitive (0..1)
+   termsChange TermsChangePrimitive (0..1)
+   transfer TransferPrimitive (0..1)
+   
+   condition PrimitiveEvent: one-of
 
 A number of examples are illustrated below.
 
@@ -489,7 +489,29 @@ Example 1: Execution and Contract Formation
 
 Within the scope of the CDM, the first step in instantiating a transaction between two parties is an *execution* or a *contract formation*, which is an execution that has been confirmed between the executing parties. In some cases, there is a time delay between execution and confirmation, therefore the execution can be recorded as the first instantiation. In some other cases, the confirmation is nearly simultaneous with the execution, thus there is no need for an intermediate step.
 
-The *inception* primitive represents an execution that has been confirmed by both parties.
+The transition to an executed state prior to confirmation is represented by the ``ExecutionPrimitive``.
+
+.. code-block:: Haskell
+
+ type ExecutionPrimitive:
+   before ExecutionState (0..0)
+     [metadata reference]
+   after ExecutionState (1..1)
+
+The execution primitive does not allow any before state (as marked by the 0 cardinality of the ``before`` attribute) because the current CDM event model only covers post-trade lifecycle events. In practice, this execution state would be the conclusion of a pre-trade process, which may be a client order that gets filled or a quote that gets accepted by the client.
+
+Following that execution, the trade gets confirmed and a legally binding contract is signed between the two executing parties. In an allocation scenario, the trade would first get split into sub-accounts as  designated by one of the executing parties, before a set of legally binding contracts is signed with each of those sub-accounts.
+
+The ``ContractFormationPrimitive`` represents that transition to the trade state after the trade is confirmed, which results in a ``PostContractFormationState`` containing a contract object.
+
+.. code-block:: Haskell
+
+ type ContractFormationPrimitive:
+   before ExecutionState (0..1)
+     [metadata reference]
+   after PostContractFormationState (1..1)
+   
+The before state in the contract formation primitive is optional (as marked by the 0 cardinality lower bound of the ``before`` attribute), to represent cases where a new contract may be instantiated between parties without any prior execution, for instance in a clearing or novation scenario.
 
 Example 2: Reset
 """"""""""""""""
@@ -711,8 +733,9 @@ Workflow
 
 The CDM provides support for implementors to develop workflows to process transaction lifecycle events and provides attributes to define lineage from one workflow step to another.
 
-.. code-block:: Haskell
 A *workflow* represents a set of actions or steps that are required to trigger a business event, including the initial execution or contract formation. A workflow is organised into a sequence in which each step is represented by a *workflow step*. A workflow may involve multiple parties in addition to the parties to the transaction, and may include automated and manual steps. A workflow may involve only one step.
+
+.. code-block:: Haskell
 
  type WorkflowStep:
    [metadata key]
