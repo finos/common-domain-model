@@ -26,12 +26,12 @@ class DocumentationCodeValidator(
     fun validate() {
         fun validate(code: Sequence<String>, model: String): Int {
             val invalidCode = code
-                    .filter { _code -> !_code.contains(".. code-block:: Java") }
+                    .filter { _code -> !_code.contains(".. code-block:: Javascript") }
                     .filter { _code ->
                         val cleaned = _code
                                 .replace(Regex(".*\\.\\. code-block.*"), "")
                                 .replace(Regex(whitespaceRegex), "")
-                        !model.contains(cleaned)
+                        !model.contains(cleaned, ignoreCase = false)
                     }
                     .onEach(::println)
 
