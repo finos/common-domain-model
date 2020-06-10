@@ -1190,7 +1190,7 @@ CDM elements often need to be transformed by a function to construct the argumen
 * ``CalculationPeriodDates`` specifies the inputs required to construct a calculation period schedule
 * ``CalculationPeriodData`` specifies actual attribute values of a calculation period such as start date, end date, etc.
 
-The CalculationPeriod functon receives the ``CalculationPeriodDates`` and the current date as the inputs and produces the ``CalculationPeriodData` as the output, as shown below:
+The CalculationPeriod function receives the ``CalculationPeriodDates`` and the current date as the inputs and produces the ``CalculationPeriodData`` as the output, as shown below:
 
 .. code-block:: Haskell
 
