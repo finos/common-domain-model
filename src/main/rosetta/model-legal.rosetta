@@ -13,7 +13,6 @@ type AccessConditions: <"A class to specify each party's election with respect t
 
 	partyElection AccessConditionsElections (2..2) <"The parties' Access Condition (Initial Margin CSA) or a Specified Condition (Variation Margin CSA) election.">
 	additionalTerminationEvent AdditionalTerminationEvent (0..*) <"Additional Termination Events applicable to the agreement.">
-		// [synonym ISDA_Create_1_0 value "additional_termination_event"]
 
 type AccessConditionsElections: <"A class to specify the Termination Events that will be deemed an Access Condition (Initial Margin CSA) or a Specified Condition (Variation Margin CSA). ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (e)(ii). | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (f)(ii). | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e)(ii). | ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (e): Conditions Precedent and Secured Party’s Rights and Remedies.">
 
@@ -84,15 +83,8 @@ type AdditionalRightsEvent: <"A class to specify the Pledgor/Obligor/Chargor Add
 		then isApplicable = True
 
 type AdditionalTerminationEvent: < "A class to specify an optional termination event, additional to the Termination Events that will be deemed an Access Condition (Initial Margin CSA) or a Specified Condition (Variation Margin CSA)">
-	// TODO Never referenced in CDM
 	name string (1..1) <"The name of the additional termination event">
-		[synonym ISDA_Create_1_0 value "name" path "additional_termination_event"]
-		[synonym ISDA_Create_1_0 value "specify" set when "specify" exists]
 	applicableParty string (1..2) <"Whether the additional termination event is applicable for the relevant party">
-		[synonym ISDA_Create_1_0 set to "PartyA" when "partyA_additional_termination_events" = "applicable"]
-		[synonym ISDA_Create_1_0 set to "PartyB" when "partyB_additional_termination_events" = "applicable"]
-		[synonym ISDA_Create_1_0 set to "PartyA" when "additional_termination_event->partyA_additional_termination_event" = "applicable"]
-		[synonym ISDA_Create_1_0 set to "PartyB" when "additional_termination_event->partyB_additional_termination_event" = "applicable"]
 
 type AdditionalType: <"The specification of the Additional Type of transaction that can require the collection or delivery of initial margin under a given regulatory regime for the purposes of Covered Transactions, as specified in ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (b)(B).">
 
@@ -405,8 +397,8 @@ type ConditionsPrecedent: <"A class to specify the two set of elections that may
 	customProvision string (0..1) <"The custom provisions that might be specified by the parties to the agreement for the purpose of overwriting the default Condition Precedent provision as specified in ISDA 2016 Credit Support Annex for Initial Margin and the ISDA 2016 Credit Support Annex for Variation Margin, Paragraph 4, (a). ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (e)(i). | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (f)(i). | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e)(i). | ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, : Conditions Precedent and Secured Party’s Rights and Remedies.">
 		[synonym ISDA_Create_1_0 value "specify" path "conditions_precedent"]
 	accessConditions AccessConditions (1..1) <"The parties' election with respect to the Termination Events that will be deemed an Access Condition (Initial Margin CSA) or a Specified Condition (Variation Margin CSA). ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (e)(ii). | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (f)(ii). | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e)(ii). | ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (e): Conditions Precedent and Secured Party’s Rights and Remedies.">
-		[synonym ISDA_Create_1_0 value "access_conditions"] //"conditions_precedent"
-		[synonym ISDA_Create_1_0 value "access_conditions" path "conditions_precedent"]
+		[synonym ISDA_Create_1_0 value "access_conditions" mapper "AdditionalTerminationEvent"]
+		[synonym ISDA_Create_1_0 value "access_conditions" path "conditions_precedent" mapper "AdditionalTerminationEvent"]
 
 	condition CustomProvision: <"When a Custom Provision is specified then the Conditions Precedent Election should be absent.">
 		if customProvision exists

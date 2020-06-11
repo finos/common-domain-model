@@ -16,7 +16,7 @@ import static org.isda.cdm.CalculationDateLocationElection.CalculationDateLocati
 import static org.isda.cdm.CalculationDateLocationElection.builder;
 import static org.isda.cdm.processor.MappingProcessorUtils.ISDA_CREATE_SYNONYM_SOURCE;
 import static org.isda.cdm.processor.MappingProcessorUtils.synonymToEnumValueMap;
-import static org.isda.cdm.processor.RegimeMappingHelper.PARTIES;
+import static org.isda.cdm.processor.MappingProcessorUtils.PARTIES;
 
 /**
  * ISDA Create mapping processor.

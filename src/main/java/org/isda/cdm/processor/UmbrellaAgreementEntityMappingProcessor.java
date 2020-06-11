@@ -41,13 +41,6 @@ public class UmbrellaAgreementEntityMappingProcessor extends MappingProcessor {
 				break;
 			}
 		}
-
-		// TODO: the below code is necessary because if there is only one item in the list, then the path does not have an index.
-		// e.g. answers.partyA.umbrella_agreement_and_principal_identification.principal_identification_schedule.principal_name rather
-		// than answers.partyA.umbrella_agreement_and_principal_identification.principal_identification_schedule.principal_name(0).
-		// The parser should be fixed to create paths consistently.
-
-		getUmbrellaAgreementEntity(null).ifPresent(umbrellaAgreementBuilder::addParties);
 	}
 
 	@NotNull

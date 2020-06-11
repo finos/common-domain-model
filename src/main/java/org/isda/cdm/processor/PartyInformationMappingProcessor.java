@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.isda.cdm.processor.MappingProcessorUtils.*;
-import static org.isda.cdm.processor.RegimeMappingHelper.PARTIES;
+import static org.isda.cdm.processor.MappingProcessorUtils.PARTIES;
 
 /**
  * ISDA Create mapping processor.
@@ -56,7 +56,7 @@ public class PartyInformationMappingProcessor extends MappingProcessor {
 				(value) -> partyBuilder.addPartyId(toFieldWithMetaString(value)));
 
 		// clean up mappings
-		findMappings(getMappings(), Path.parse("answers.partyA.parties")).forEach(m -> updateMapping(m, getPath()));
+		updateMappings(Path.parse("answers.partyA.parties"), getMappings(), getPath());
 
 		return partyBuilder.hasData() ? Optional.of(partyBuilder.build()) : Optional.empty();
 	}

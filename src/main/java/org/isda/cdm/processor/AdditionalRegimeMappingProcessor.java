@@ -14,8 +14,6 @@ import java.util.Optional;
 import static org.isda.cdm.AdditionalRegime.AdditionalRegimeBuilder;
 import static org.isda.cdm.AdditionalRegime.builder;
 import static org.isda.cdm.processor.MappingProcessorUtils.*;
-import static org.isda.cdm.processor.RegimeMappingHelper.BASE_PATH;
-import static org.isda.cdm.processor.RegimeMappingHelper.PARTIES;
 
 @SuppressWarnings("unused")
 public class AdditionalRegimeMappingProcessor extends MappingProcessor {
@@ -42,9 +40,10 @@ public class AdditionalRegimeMappingProcessor extends MappingProcessor {
 		if (applicable.isPresent()) {
 			applicableMappings.forEach(m -> updateMapping(m, getPath()));
 		}
+
 		if (!applicable.isPresent() || applicable.get().equals("not_applicable")) {
 			// if additional_regimes are not applicable (or not present) remove all related mappings
-			updateAdditionalRegimesMappings(regimesPath);
+			updateMappings(regimesPath, getMappings(), getPath());
 			return;
 		}
 
@@ -57,14 +56,9 @@ public class AdditionalRegimeMappingProcessor extends MappingProcessor {
 				break;
 			}
 		}
-		getAdditionalRegime(regimesPath, null).ifPresent(regimeBuilder::addAdditionalRegimeBuilder);
 
 		// clean up mappings
-		updateAdditionalRegimesMappings(additionalRegimesPath);
-	}
-
-	private void updateAdditionalRegimesMappings(Path regimesPath) {
-		MappingProcessorUtils.findMappings(getMappings(), regimesPath).forEach(m -> updateMapping(m, getPath()));
+		updateMappings(additionalRegimesPath, getMappings(), getPath());
 	}
 
 	private Optional<AdditionalRegimeBuilder> getAdditionalRegime(Path regimesPath, Integer index) {

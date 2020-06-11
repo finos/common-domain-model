@@ -13,42 +13,23 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static com.regnosys.rosetta.common.translation.Path.*;
+import static com.regnosys.rosetta.common.translation.Path.parse;
 import static java.util.Optional.ofNullable;
 
 class MappingProcessorUtils {
 
+	static final List<String> PARTIES = Arrays.asList("partyA", "partyB");
+	static final Path BASE_PATH = parse("answers.partyA");
 	static final String ISDA_CREATE_SYNONYM_SOURCE = "ISDA_Create_1_0";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MappingProcessorUtils.class);
 
+	@NotNull
 	static FieldWithMetaString toFieldWithMetaString(String c) {
 		return FieldWithMetaString.builder()
 				.setValue(c)
 				.build();
-	}
-
-	static List<Mapping> findMappings(List<Mapping> mappings, Path path) {
-		return mappings.stream()
-				.filter(p -> path.fullStartMatches(p.getXmlPath()))
-				.collect(Collectors.toList());
-	}
-
-	private static List<String> findMappedValues(List<Mapping> mappings) {
-		return mappings.stream()
-				.map(Mapping::getXmlValue)
-				.filter(Objects::nonNull)
-				.map(String::valueOf)
-				.collect(Collectors.toList());
-	}
-
-	static Optional<String> findMappedValue(List<Mapping> mappings) {
-		return findMappedValues(mappings).stream().findFirst();
-	}
-
-	static void updateMapping(Mapping mapping, RosettaPath rosettaPath) {
-		mapping.setRosettaPath(Path.parse(rosettaPath.buildPath()));
-		mapping.setError(null);
-		mapping.setCondition(true);
 	}
 
 	@NotNull
@@ -85,6 +66,26 @@ class MappingProcessorUtils {
 		findMappings(mappings, synonymPath).forEach(m -> updateMapping(m, rosettaPath));
 	}
 
+	static List<Mapping> findMappings(List<Mapping> mappings, Path path) {
+		return mappings.stream()
+				.filter(p -> path.fullStartMatches(p.getXmlPath()))
+				.collect(Collectors.toList());
+	}
+
+	static Optional<String> findMappedValue(List<Mapping> mappings) {
+		return mappings.stream()
+				.map(Mapping::getXmlValue)
+				.filter(Objects::nonNull)
+				.map(String::valueOf)
+				.findFirst();
+	}
+
+	static void updateMapping(Mapping mapping, RosettaPath rosettaPath) {
+		mapping.setRosettaPath(parse(rosettaPath.buildPath()));
+		mapping.setError(null);
+		mapping.setCondition(true);
+	}
+
 	static Path getSynonymPath(Path basePath, String synonym) {
 		return getSynonymPath(basePath, "", synonym, null);
 	}
@@ -94,9 +95,9 @@ class MappingProcessorUtils {
 	}
 
 	static Path getSynonymPath(Path basePath, String prefix, String synonym, Integer index) {
-		Path.PathElement element = ofNullable(index)
-				.map(i -> new Path.PathElement(prefix + synonym, i))
-				.orElse(new Path.PathElement(prefix + synonym));
+		PathElement element = ofNullable(index)
+				.map(i -> new PathElement(prefix + synonym, i))
+				.orElse(new PathElement(prefix + synonym));
 		return basePath.addElement(element);
 	}
 }

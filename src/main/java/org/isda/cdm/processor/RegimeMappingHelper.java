@@ -10,14 +10,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.regnosys.rosetta.common.translation.Path.parse;
 import static java.util.Optional.ofNullable;
 import static org.isda.cdm.processor.MappingProcessorUtils.*;
 
 class RegimeMappingHelper {
 
-	static final List<String> PARTIES = Arrays.asList("partyA", "partyB");
-	static final Path BASE_PATH = parse("answers.partyA");
 	private static final List<String> SUFFIXES = Arrays.asList("_secured_party", "_security_taker", "_obligee");
 
 	private final RosettaPath path;

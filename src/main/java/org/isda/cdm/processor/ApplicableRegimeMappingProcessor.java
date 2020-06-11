@@ -15,8 +15,8 @@ import java.util.Optional;
 import static org.isda.cdm.ApplicableRegime.ApplicableRegimeBuilder;
 import static org.isda.cdm.Regime.RegimeBuilder;
 import static org.isda.cdm.processor.MappingProcessorUtils.*;
-import static org.isda.cdm.processor.RegimeMappingHelper.BASE_PATH;
-import static org.isda.cdm.processor.RegimeMappingHelper.PARTIES;
+import static org.isda.cdm.processor.MappingProcessorUtils.BASE_PATH;
+import static org.isda.cdm.processor.MappingProcessorUtils.PARTIES;
 
 @SuppressWarnings("unused")
 public class ApplicableRegimeMappingProcessor extends MappingProcessor {
