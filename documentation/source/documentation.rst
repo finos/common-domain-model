@@ -337,7 +337,7 @@ The representation of state transitions in the CDM event model is based on the f
 * **The history of the trade state can be reconstructed at any point in the trade lifecycle**, i.e. the CDM implements a *lineage* between states as the trade goes through state transitions.
 * **The state is trade-specific**, not product-specific (i.e. it is not an asset-servicing model). The same product may be associated to infinitely many trades, each with its own specific state, between any two parties.
 
-The data structures in the event model are organised into four main sub-structures to represent state transitions, as described below:
+The data structures in the event model are organised into four main sub-structures to represent state transitions, as described below.
 
 .. figure:: event-model-overview.png
 
@@ -1254,7 +1254,7 @@ There are three levels of function components in the CDM to define the processin
 #. Event creation
 #. Workflow step creation
 
-Each of those components can leverage any calculation or utility function already defined in the CDM. As part of the validation processe aembedded in the CDM, an object validation step is included in all these object creation functions to ensure that they each construct valid CDM objects. Further details on the underlying calculation and validation processes are described in the `Calculation Process Section`_ and `Validation Process Section`_.
+Each of those components can leverage any calculation or utility function already defined in the CDM. As part of the validation processe embedded in the CDM, an object validation step is included in all these object creation functions to ensure that they each construct valid CDM objects. Further details on the underlying calculation and validation processes are described in the `Calculation Process Section`_ and `Validation Process Section`_.
 
 Illustration of the three components are given in the sections below.
 
