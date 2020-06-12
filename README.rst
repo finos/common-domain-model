@@ -20,7 +20,7 @@ A single, digital processing standard for trade events and actions enhances fina
 
 Further detailed information about the CDM and its application are available in the following resources:
 
-* The `ISDA CDM Fact Sheet <href=https://www.isda.org/a/z8AEE/ISDA-CDM-Factsheet.pdf target="_blank">`_, published by ISDA in 2018, gives an overview of what the CDM is and its intended benefits.
+* The `ISDA CDM Fact Sheet <https://www.isda.org/a/z8AEE/ISDA-CDM-Factsheet.pdf>`_, published by ISDA in 2018, gives an overview of what the CDM is and its intended benefits.
 * The `CDM Introduction Video <https://vimeo.com/372578450>`_ gives a tour of the main features of the model. It is based on a version of the CDM from October 2019.
 * The `CDM Concept Paper <https://www.isda.org/a/gVKDE/CDM-FINAL.pdf>`_, published by ISDA in 2017, specifies the original CDM design principles.
 * Additional information and announcements about the CDM can be found in the `Market Infrastructure and Technology Section <https://www.isda.org/category/infrastructure/market-infrastructure-technology/>`_ of the ISDA website.
