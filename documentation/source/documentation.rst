@@ -355,10 +355,10 @@ The trade state is currently described in the CDM by the ``Trade`` type. The tra
 
 .. code-block:: Haskell
 
- type Trade:
+ type Trade: 
    [metadata key]
-   execution Execution (0..1)
-   contract Contract (0..1)
+   execution Execution (0..1) 
+   contract Contract (0..1) 
    condition Trade: one-of
 
 While many different types of events may occur through the transaction lifecycle, the execution and contract states are deemed sufficient to describe all of the possible (post-trade) states which may result from those lifecycle events. The execution and contract states always contain a tradable product, which defines all of the current economic terms of the transaction as they have been agreed between the parties.
@@ -394,12 +394,12 @@ The ``settlementTerms`` attribute define how the transaction should be settled (
 
 .. code-block:: Haskell
 
- type SettlementTerms extends SettlementBase:
-   settlementType SettlementTypeEnum (0..1)
+ type SettlementTerms extends SettlementBase: 
+   settlementType SettlementTypeEnum (0..1) 
    settlementDate AdjustableOrRelativeDate (0..1)
-   valueDate date (0..1)
-   settlementAmount Money (0..1)
-   transferSettlementType TransferSettlementEnum (0..1)
+   valueDate date (0..1) 
+   settlementAmount Money (0..1) 
+   transferSettlementType TransferSettlementEnum (0..1) 
 
 Post-Execution: Contract
 """"""""""""""""""""""""
@@ -439,22 +439,22 @@ The ``closedState`` attribute on ``Contract`` and ``Execution`` captures this cl
 
 .. code-block:: Haskell
 
- type ClosedState:
-   state ClosedStateEnum (1..1)
-   activityDate date (1..1)
-   effectiveDate date (0..1)
-   lastPaymentDate date (0..1)
+ type ClosedState: 
+   state ClosedStateEnum (1..1) 
+   activityDate date (1..1) 
+   effectiveDate date (0..1) 
+   lastPaymentDate date (0..1) 
 
 .. code-block:: Haskell
 
- enum ClosedStateEnum:
-   Allocated
-   Cancelled
-   Exercised
-   Expired
-   Matured
-   Novated
-   Terminated
+ enum ClosedStateEnum: 
+   Allocated 
+   Cancelled 
+   Exercised 
+   Expired 
+   Matured 
+   Novated 
+   Terminated 
 
 Primitive Event
 ^^^^^^^^^^^^^^^
@@ -479,7 +479,7 @@ A ``PrimitiveEvent`` object consists of one of the primitive components, as capt
    reset ResetPrimitive (0..1)
    termsChange TermsChangePrimitive (0..1)
    transfer TransferPrimitive (0..1)
-
+   
    condition PrimitiveEvent: one-of
 
 A number of examples are illustrated below.
@@ -510,7 +510,7 @@ The ``ContractFormationPrimitive`` represents that transition to the trade state
    before ExecutionState (0..1)
      [metadata reference]
    after PostContractFormationState (1..1)
-
+   
 The before state in the contract formation primitive is optional (as marked by the 0 cardinality lower bound of the ``before`` attribute), to represent cases where a new contract may be instantiated between parties without any prior execution, for instance in a clearing or novation scenario.
 
 Example 2: Reset
@@ -522,22 +522,22 @@ The predecessor to a reset is an *observation* which occurs when that observable
 
 .. code-block:: Haskell
 
- type ObservationPrimitive:
-   source ObservationSource (1..1)
-   observation number (1..1)
-   date date (1..1)
-   time TimeZone (0..1)
-   side QuotationSideEnum (0..1)
+ type ObservationPrimitive: 
+   source ObservationSource (1..1) 
+   observation number (1..1) 
+   date date (1..1) 
+   time TimeZone (0..1) 
+   side QuotationSideEnum (0..1) 
 
 From that observation, a *reset* can be built which does affect the specific transaction. A reset is represented by the ``ResetPrimitive`` type.
 
 .. code-block:: Haskell
 
- type ResetPrimitive:
-   before ContractState (1..1)
+ type ResetPrimitive: 
+   before ContractState (1..1) 
      [metadata reference]
-   after ContractState (1..1)
-   condition Contract:
+   after ContractState (1..1) 
+   condition Contract: 
      if ResetPrimitive exists
      then before -> contract = after -> contract
 
@@ -1300,7 +1300,7 @@ The observation is used as an input to *resolve* any Equity Derivative contract 
 
 .. code-block:: Haskell
 
- func ResolveEquityContract:
+ func ResolveEquityContract: 
    inputs:
      contractState ContractState (1..1)
      observation ObservationPrimitive (1..1)
@@ -1320,9 +1320,9 @@ The observation is used as an input to *resolve* any Equity Derivative contract 
      if CalculationPeriod( equityPayout -> calculationPeriodDates, periodEndDate ) -> isLastPeriod then price
    assign-output updatedEquityPayout -> priceReturnTerms -> valuationPriceInterim -> netPrice -> amount:
      if CalculationPeriod( equityPayout -> calculationPeriodDates, periodEndDate ) -> isLastPeriod = False then price
-   assign-output updatedContract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> performance:
+   assign-output updatedContract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> performance: 
      equityPerformance
-   assign-output updatedContract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> quantityMultiplier -> multiplierValue:
+   assign-output updatedContract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> quantityMultiplier -> multiplierValue: 
      1 + equityPerformance / 100
 
 The set of updated values include the ``performance`` attribute on the ``equityPayout``, which represents the performance of the current calculation period. The resolution function uses some of the already defined *utility functions* such as ``CalculationPeriod`` and also a *calculation function* for the Equity performance.
@@ -1331,7 +1331,7 @@ This contract resolution mechanism is wired into the function that creates the `
 
 .. code-block:: Haskell
 
- func Create_ResetPrimitive:
+ func Create_ResetPrimitive: 
    [creation PrimitiveEvent]
    inputs:
      contractState ContractState (1..1)
@@ -1344,7 +1344,7 @@ This contract resolution mechanism is wired into the function that creates the `
 
    assign-output resetPrimitive -> before: contractState
    assign-output resetPrimitive -> after -> contract: contractState -> contract
-   assign-output resetPrimitive -> after -> updatedContract:
+   assign-output resetPrimitive -> after -> updatedContract: 
      ResolveUpdatedContract(contractState, observation, date)
 
 .. note:: The Reset Event only resets some values on the contract but does not calculate nor pay any cashflow. Any cashflow calculation and payment would be handled separately as part of a Transfer Event which, when such cashflow depends on any resettable values, will use the values updated as part of the Reset Event (as is the case of the *Equity Cash Settlement Amount*).
