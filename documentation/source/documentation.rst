@@ -1042,13 +1042,9 @@ Machine readability and executability is crucial to eliminate implementation dis
 How Does It Work
 """"""""""""""""
 
-The process model is systematically translated into executable code for the Java representation of the CDM using purpose-built technology as described in the `Code Generation Section`_. The CDM data model and process model specifications can also be translated into a number of other modern, widely adopted and freely available programming languages:
+The data and proces model definitions of the CDM are systematically translated into executable code using purpose-built code generation technology. The CDM executable code is available in a number of modern, widely adopted and freely available programming languages and is systematically distributed as part of the CDM release.
 
-* Scala
-* DAML
-* Typescript
-
-The CDM has the capability to add support for other languages as required by market participants. Executable code artefacts in all supported languages are systematically distributed with the CDM and freely available to download from the ISDA CDM `Portal`_.
+The code generation process is based on the Rosetta DSL and is further described in the `Code Generation Section`_, including an up-to-date `list of available languages <https://docs.rosetta-technology.io/dsl/codegen-readme.html#what-code-generators-are-available>`_. Support for further languages can be added as required by market participants.
 
 Scope
 ^^^^^
