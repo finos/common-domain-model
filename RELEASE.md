@@ -1,5 +1,5 @@
-# *CDM Model: Bugfixes*
+# *Infrastructure changes: Ingestion*
 
 _What is being released_
 
-Minor bug-fixes for the intercom error popups.
+Fixed a bug in the ingestion algorithm that was causing issue in the downsteam projects.
