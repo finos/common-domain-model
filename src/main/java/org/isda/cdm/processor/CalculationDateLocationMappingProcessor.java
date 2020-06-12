@@ -14,9 +14,7 @@ import java.util.Optional;
 
 import static org.isda.cdm.CalculationDateLocationElection.CalculationDateLocationElectionBuilder;
 import static org.isda.cdm.CalculationDateLocationElection.builder;
-import static org.isda.cdm.processor.MappingProcessorUtils.ISDA_CREATE_SYNONYM_SOURCE;
-import static org.isda.cdm.processor.MappingProcessorUtils.synonymToEnumValueMap;
-import static org.isda.cdm.processor.MappingProcessorUtils.PARTIES;
+import static org.isda.cdm.processor.MappingProcessorUtils.*;
 
 /**
  * ISDA Create mapping processor.
@@ -47,7 +45,7 @@ public class CalculationDateLocationMappingProcessor extends MappingProcessor {
 				(value) -> calculationDateLocationElectionBuilder.setParty(party));
 
 		setValueAndUpdateMappings(String.format("answers.partyA.%s.%s_location", parentSynonymValue, party),
-				(value) -> Optional.ofNullable(synonymToBusinessCenterEnumMap.get(value))
+				(value) -> getEnumValue(synonymToBusinessCenterEnumMap, value, BusinessCenterEnum.class)
 						.map(enumValue -> FieldWithMetaBusinessCenterEnum.builder().setValue(enumValue).build())
 						.ifPresent(calculationDateLocationElectionBuilder::setBusinessCenter));
 

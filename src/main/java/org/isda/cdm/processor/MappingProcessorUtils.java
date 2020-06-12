@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.regnosys.rosetta.common.translation.Path.*;
@@ -40,6 +41,15 @@ class MappingProcessorUtils {
 	}
 
 	@NotNull
+	static <E extends Enum<E>> Optional<E> getEnumValue(Map<String, E> synonymToEnumMap, String key, Class<E> clazz) {
+		E value = synonymToEnumMap.get(key);
+		if (value == null) {
+			LOGGER.info("Could not find matching enum {} for {}", clazz.getSimpleName(), key);
+		}
+		return ofNullable(value);
+	}
+
+	@NotNull
 	static Set<String> getSynonymValues(Enum enumValue, String synonymSource) {
 		try {
 			return Arrays.stream(enumValue.getDeclaringClass().getField(enumValue.name()).getAnnotationsByType(RosettaSynonym.class))
@@ -59,6 +69,17 @@ class MappingProcessorUtils {
 			setter.accept(value);
 			// update mappings
 			mappingsFromSynonymPath.forEach(m -> updateMapping(m, rosettaPath));
+		});
+	}
+
+	static void setValueAndOptionallyUpdateMappings(Path synonymPath, Function<String, Boolean> func, List<Mapping> mappings, RosettaPath rosettaPath) {
+		List<Mapping> mappingsFromSynonymPath = findMappings(mappings, synonymPath);
+		findMappedValue(mappingsFromSynonymPath).ifPresent(value -> {
+			// set value on model, return boolean whether to update mappings
+			if (func.apply(value)) {
+				// update mappings
+				mappingsFromSynonymPath.forEach(m -> updateMapping(m, rosettaPath));
+			}
 		});
 	}
 

@@ -71,7 +71,8 @@ public class AdditionalRegimeMappingProcessor extends MappingProcessor {
 				});
 
 		setValueAndUpdateMappings(getSynonymPath(regimesPath, "additional_type", index),
-				(value) -> Optional.ofNullable(synonymToAdditionalTypeEnumMap.get(value)).ifPresent(additionalRegimeBuilder::setAdditionalType));
+				(value) -> getEnumValue(synonymToAdditionalTypeEnumMap, value, AdditionalTypeEnum.class)
+						.ifPresent(additionalRegimeBuilder::setAdditionalType));
 
 		setValueAndUpdateMappings(getSynonymPath(regimesPath, "additional_type_specify", index),
 				additionalRegimeBuilder::setAdditionalTerms);

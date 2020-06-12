@@ -47,7 +47,8 @@ public class ApplicableRegimeMappingProcessor extends MappingProcessor {
 			PARTIES.forEach(party -> helper.getRegimeTerms(regimePath, party, null).ifPresent(applicableRegimeBuilder::addRegimeTerms));
 
 			setValueAndUpdateMappings(getSynonymPath(regimePath, "additional_type"),
-					(value) -> Optional.ofNullable(synonymToAdditionalTypeEnumMap.get(value)).ifPresent(applicableRegimeBuilder::setAdditionalType));
+					(value) -> getEnumValue(synonymToAdditionalTypeEnumMap, value, AdditionalTypeEnum.class)
+							.ifPresent(applicableRegimeBuilder::setAdditionalType));
 
 			setValueAndUpdateMappings(getSynonymPath(regimePath, "additional_type_specify"),
 					applicableRegimeBuilder::setAdditionalTerms);
