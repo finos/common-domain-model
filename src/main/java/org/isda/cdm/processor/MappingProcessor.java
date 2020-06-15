@@ -45,13 +45,17 @@ public abstract class MappingProcessor implements BuilderProcessor {
 	}
 
 	@Override
-	public <T> void processBasic(RosettaPath path, Class<T> rosettaType, T instance, RosettaModelObjectBuilder parent, AttributeMeta... meta) {
-		// Do nothing
+	public <T> void processBasic(RosettaPath currentPath, Class<T> rosettaType, T instance, RosettaModelObjectBuilder parent, AttributeMeta... meta) {
+		if (instance!=null && currentPath.matchesIgnoringIndex(path)) {
+			mapBasic(instance, parent);
+		}
 	}
 
 	@Override
-	public <T> void processBasic(RosettaPath path, Class<T> rosettaType, List<T> instance,
-			RosettaModelObjectBuilder parent, AttributeMeta... meta) {
+	public <T> void processBasic(RosettaPath currentPath, Class<T> rosettaType, List<T> instance, RosettaModelObjectBuilder parent, AttributeMeta... meta) {
+		if (instance!=null && currentPath.matchesIgnoringIndex(path)) {
+			mapBasic(instance, parent);
+		}
 	}
 
 	@Override
@@ -72,7 +76,21 @@ public abstract class MappingProcessor implements BuilderProcessor {
 	protected void map(List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
 		// Default behaviour - do nothing
 	}
-	
+
+	/**
+	 * Perform custom mapping logic and updates resultant mapped value on builder object.
+	 */
+	protected <T> void mapBasic(T instance, RosettaModelObjectBuilder parent) {
+		// Default behaviour - do nothing
+	}
+
+	/**
+	 * Perform custom mapping logic and updates resultant mapped value on builder object.
+	 */
+	protected <T> void mapBasic(List<T> instance, RosettaModelObjectBuilder parent) {
+		// Default behaviour - do nothing
+	}
+
 	RosettaPath getPath() {
 		return path;
 	}
