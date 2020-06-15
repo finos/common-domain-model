@@ -489,7 +489,7 @@ type CreditSupportAgreementElections: <"The set of elections which specify a Cre
 	// [documentReference Euroclear CtaInitialMargin 2019 paragraph "13" section "General Principles (k)"]
 	baseCurrency string (1..1) <"The base currency for the document as elected by the parties to the agreement. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
 		[metadata scheme]
-		[synonym ISDA_Create_1_0 value "currency" path "base_currency"]
+		[synonym ISDA_Create_1_0 value "currency" path "base_currency" mapper "IsoCurrency"]
 	// [documentReference Euroclear CtaInitialMargin 2019 paragraph "13" section "1"]
 	additionalObligations string (0..1) <"The additional obligations that might be specified by the parties to a Credit Support Agreement.">
 		[synonym ISDA_Create_1_0 value "additional_obligations_specify" path "additional_obligations" set when "additional_obligations->additional_obligations" = "specify"]
@@ -589,7 +589,7 @@ type Csa2016 extends Csa: <"An abstract class to specify the provisions for the 
 
 	baseCurrency string (1..1) <"The base currency for the Credit Support Annex document as elected by the parties to the agreement. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes. ISDA 2016 CSA for Initial Margin, Paragraph 13 (a) | ISDA 2016 CSA for Variation Margin, Paragraph 13 (a).">
 		[metadata scheme]
-		[synonym ISDA_Create_1_0 value "currency" path "base_currency"]
+		[synonym ISDA_Create_1_0 value "currency" path "base_currency" mapper "IsoCurrency"]
 	additionalObligations string (0..1) <"The additional obligations that might be specified by the parties to an ISDA CSA. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (b)(ii). | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (c)(ii). | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (b)(ii). | ISDA 2016 New York Law Credit Support Annex for Variation Margin, paragraph 13, (b)(ii).">
 		[synonym ISDA_Create_1_0 value "additional_obligations_specify" path "additional_obligations" set when "additional_obligations->additional_obligations" = "specify"]
 	conditionsPrecedent ConditionsPrecedent (1..1) <"The set of elections specified in Paragraph 13 that may overwrite the default Condition Precedent provision as specified in ISDA 2016 Credit Support Annex for Initial Margin, Paragraph 4, (a), and the set of provisions that are deemed Access Condition (Initial Margin) and Specified Condition (Variation Margin). ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (e): Conditions Precedent. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (f): Conditions Precedent. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e): Conditions Precedent. | ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (e): Conditions Precedent and Secured Party’s Rights and Remedies.">
@@ -854,11 +854,11 @@ type EligibleCurrencyInterestRate: <"A class to specify the interest rate associ
 
 	currency string (1..1) <"The eligible currency.">
 		[metadata scheme]
-		[synonym ISDA_Create_1_0 value "eligible_currency"]
+		[synonym ISDA_Create_1_0 value "eligible_currency" mapper "IsoCurrency"]
 	interestRate number (1..1) <"The interest rate associated with the eligible currency.">
 		[synonym ISDA_Create_1_0 value "interest_rate"]
 	actual365Currency string (1..1) // TODO - Need to clarify with Linklater what this attribute is
-		[synonym ISDA_Create_1_0 value "a365_currency"]
+		[synonym ISDA_Create_1_0 value "a365_currency" mapper "IsoCurrency"]
 
 type EnforcementEvent: <"A class to specify Enforcement Events specific to Security Agreements">
 
@@ -951,7 +951,7 @@ type FxHaircutCurrency: <"A class to specify the reference currency for the purp
 		[synonym ISDA_Create_1_0 set to True when "is_termination_currency" = "terminationCurrency", set to False when "is_termination_currency" = "fxCurrency"]
 	fxDesignatedCurrency string (0..1) <"When specified, the reference currency for the purpose of specifying the FX Haircut relating to a posting obligation. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
 		[metadata scheme]
-		[synonym ISDA_Create_1_0 value "fx_designated_currency"]
+		[synonym ISDA_Create_1_0 value "fx_designated_currency" mapper "IsoCurrency"]
 
 	condition TerminationCurrency: <"The FX Designated Currency shouldn't be specified when the reference currency for the purpose of specifying the FX Haircut relating to a posting obligation is specified as the Termination Currency.">
 		if isTerminationCurrency = True
@@ -1610,12 +1610,12 @@ type TerminationCurrencyElection: <"A class to specify the Amendment to Terminat
 		[synonym ISDA_Create_1_0 set to True when "two_affected_parties" = "specify", set to False when "two_affected_parties" = "in_schedule"]
 	currency string (1..1) <"The Termination Currency associated with the party that referenced as part of this class. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
 		[metadata scheme]
-		[synonym ISDA_Create_1_0 value "partyA_termination_currency"]
-		[synonym ISDA_Create_1_0 value "partyB_termination_currency"]
-		[synonym ISDA_Create_1_0 value "partyA_currency"]
-		[synonym ISDA_Create_1_0 value "partyB_currency"]
-		[synonym ISDA_Create_1_0 value "two_affected_parties_currency"]
-		[synonym ISDA_Create_1_0 value "both_parties_termination_currency"]
+		[synonym ISDA_Create_1_0 value "partyA_termination_currency" mapper "IsoCurrency"]
+		[synonym ISDA_Create_1_0 value "partyB_termination_currency" mapper "IsoCurrency"]
+		[synonym ISDA_Create_1_0 value "partyA_currency" mapper "IsoCurrency"]
+		[synonym ISDA_Create_1_0 value "partyB_currency" mapper "IsoCurrency"]
+		[synonym ISDA_Create_1_0 value "two_affected_parties_currency" mapper "IsoCurrency"]
+		[synonym ISDA_Create_1_0 value "both_parties_termination_currency" mapper "IsoCurrency"]
 
 	condition CurrencyElection: <"A Termination Currency election should only exist when required by the affected parties election">
 		if isSpecified = False then currency is absent
