@@ -29,7 +29,6 @@ public class SimmCalculationCurrencyMappingProcessor extends MappingProcessor {
 
 	@Override
 	public void map(RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
-
 		SimmCalculationCurrency.SimmCalculationCurrencyBuilder simmCalculationCurrencyBuilder = (SimmCalculationCurrency.SimmCalculationCurrencyBuilder) builder;
 		Path basePath = Path.parse("answers.partyA.simm_calculation_currency");
 		PARTIES.forEach(party -> getCalculationCurrencyElection(basePath, party).ifPresent(simmCalculationCurrencyBuilder::addPartyElection));

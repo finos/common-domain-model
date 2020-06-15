@@ -350,8 +350,8 @@ type CollateralTransferAgreementElections: <"The set of elections which specify 
 		[synonym ISDA_Create_1_0 value "other_csa->specify" set when "other_csa->specified" = "true"]
 	// [documentReference Euroclear CtaInitialMargin 2018 English Law paragraph "13" section "13"]
 	terminationCurrencyAmendment TerminationCurrencyAmendment (1..1) <"The bespoke provision that might be specified by the parties to the agreement applicable to Termination Currency.  Unless specified the definition of Termination Currency has the meaning specified in the Schedule to the ISDA Master Agreement.">
-		[synonym ISDA_Create_1_0 value "amendment_to_termination_currency"]
-		[synonym ISDA_Create_1_0 value "security_provider_posting_obligations"]
+		[synonym ISDA_Create_1_0 value "amendment_to_termination_currency" mapper "TerminationCurrencyAmendment"]
+		[synonym ISDA_Create_1_0 value "security_provider_posting_obligations" mapper "TerminationCurrencyAmendment"]
 	// [documentReference Euroclear CtaInitialMargin 2019 paragraph "13" section "13"]
 	minimumTransferAmountAmendment MinimumTransferAmountAmendment (1..1) <"The bespoke provision that might be specified by the parties to the agreement applicable to Minimum Transfer Amount.  Unless specified the definition of Minimum Transfer Amount in any Other Regulatory CSA has the meaning specified in such Other Regulatory CSA.">
 		[synonym ISDA_Create_1_0 value "amendment_to_minimum_transfer_amount" mapper "MinimumTransferAmountAmendment"]
@@ -521,10 +521,10 @@ type CreditSupportAgreementElections: <"The set of elections which specify a Cre
 	japaneseLawCsa OtherAgreements (0..1) <"The bespoke definition of whether Japanese Law CSA (VM) are specified by the parties to the agreement. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (s)(ii): Japanese Law CSA (VM).">
 		[synonym ISDA_Create_1_0 value "japanese_law_csa_vm"]
 	terminationCurrencyAmendment TerminationCurrencyAmendment (1..1) <"The bespoke provision that might be specified by the parties to the agreement applicable to Termination Currency.  Unless specified the definition of Termination Currency has the meaning specified in the Schedule to the ISDA Master Agreement.">
-		[synonym ISDA_Create_1_0 value "amendment_to_termination_currency"]
-		[synonym ISDA_Create_1_0 value "pledgor_posting_obligations"]
-		[synonym ISDA_Create_1_0 value "chargor_posting_obligations"]
-		[synonym ISDA_Create_1_0 value "obligor_posting_obligations"]
+		[synonym ISDA_Create_1_0 value "amendment_to_termination_currency" mapper "TerminationCurrencyAmendment"]
+		[synonym ISDA_Create_1_0 value "pledgor_posting_obligations" mapper "TerminationCurrencyAmendment"]
+		[synonym ISDA_Create_1_0 value "chargor_posting_obligations" mapper "TerminationCurrencyAmendment"]
+		[synonym ISDA_Create_1_0 value "obligor_posting_obligations" mapper "TerminationCurrencyAmendment"]
 	// [documentReference Euroclear CtaInitialMargin 2019 paragraph "13" section "13"]
 	minimumTransferAmountAmendment MinimumTransferAmountAmendment (1..1) <"The bespoke provision that might be specified by the parties to the agreement applicable to Minimum Transfer Amount.  Unless specified the definition of Minimum Transfer Amount in any Other Regulatory CSA has the meaning specified in such Other Regulatory CSA.">
 		[synonym ISDA_Create_1_0 value "amendment_to_minimum_transfer_amount" mapper "MinimumTransferAmountAmendment"]
@@ -1600,22 +1600,10 @@ type TerminationCurrencyAmendment: <"A class to specify the Amendment to Termina
 
 type TerminationCurrencyElection: <"A class to specify the Amendment to Termination Currency election by the parties to the agreement. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (t) (A) & (B).">
 
-	party string (1..1) <"The elective party.">
-		[synonym ISDA_Create_1_0 set to "partyA" when "partyA_amendment_to_termination_currency" = "specify", set to "partyA" when "partyA_amendment_to_termination_currency" = "in_schedule"]
-		[synonym ISDA_Create_1_0 set to "partyB" when "partyB_amendment_to_termination_currency" = "specify", set to "partyB" when "partyB_amendment_to_termination_currency" = "in_schedule"]
-		[synonym ISDA_Create_1_0 set to "partyA,partyB" when "two_affected_parties" = "specify", set to "partyA,partyB" when "two_affected_parties" = "in_schedule"]
+	party string (1..*) <"The elective party.">
 	isSpecified boolean (1..1) <"The qualification of whether the Termination Currency is specified in this document (True) or in an Eligible Support Credit Support (IM) Schedule (False)">
-		[synonym ISDA_Create_1_0 set to True when "partyA_amendment_to_termination_currency" = "specify", set to False when "partyA_amendment_to_termination_currency" = "in_schedule"]
-		[synonym ISDA_Create_1_0 set to True when "partyB_amendment_to_termination_currency" = "specify", set to False when "partyB_amendment_to_termination_currency" = "in_schedule"]
-		[synonym ISDA_Create_1_0 set to True when "two_affected_parties" = "specify", set to False when "two_affected_parties" = "in_schedule"]
 	currency string (1..1) <"The Termination Currency associated with the party that referenced as part of this class. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
 		[metadata scheme]
-		[synonym ISDA_Create_1_0 value "partyA_termination_currency" mapper "IsoCurrency"]
-		[synonym ISDA_Create_1_0 value "partyB_termination_currency" mapper "IsoCurrency"]
-		[synonym ISDA_Create_1_0 value "partyA_currency" mapper "IsoCurrency"]
-		[synonym ISDA_Create_1_0 value "partyB_currency" mapper "IsoCurrency"]
-		[synonym ISDA_Create_1_0 value "two_affected_parties_currency" mapper "IsoCurrency"]
-		[synonym ISDA_Create_1_0 value "both_parties_termination_currency" mapper "IsoCurrency"]
 
 	condition CurrencyElection: <"A Termination Currency election should only exist when required by the affected parties election">
 		if isSpecified = False then currency is absent
