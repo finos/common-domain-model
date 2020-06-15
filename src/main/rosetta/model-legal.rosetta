@@ -239,16 +239,10 @@ type CalculationAndTiming: <"A class to specify the Calculation, Valuation and T
 type CalculationCurrencyElection: <"A class to specify the ISDA SIMM Calculation Currency as either the Base Currency or an alternative currency. ISDA 2016 CSA for Initial Margin, Paragraph 13, General Principles (ee)(3). | ISDA 2018 CSA for Initial Margin, Paragraph 13, General Principles (ee)(3).">
 
 	party string (1..1)  <"The party which the SIMM Calculation Currency qualification applies to.">
-		[synonym ISDA_Create_1_0 set to "partyA" when "partyA_use_base_currency" = "true", set to "partyA" when "partyA_use_base_currency" = "false"]
-		[synonym ISDA_Create_1_0 set to "partyB" when "partyB_use_base_currency" = "true", set to "partyB" when "partyB_use_base_currency" = "false"]
 	isBaseCurrency boolean (1..1) <"The SIMM Calculation Currency (also known as SIMM Reporting Currency) means the Base Currency when True. It means a different currency when False. In that latter case, the SIMM Calculation Currency is specified as part of the currency attribute.">
-		[synonym ISDA_Create_1_0 set to True when "partyA_use_base_currency" = "true", set to False when "partyA_use_base_currency" = "false"]
-		[synonym ISDA_Create_1_0 set to True when "partyB_use_base_currency" = "true", set to False when "partyB_use_base_currency" = "false"]
 	currency string (0..1) <"The currency in which the ISDA SIMM Calculation is denominated, when different from the Base Currency. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
 		[metadata scheme]
 		[synonym AcadiaSoft_AM_1_0 value "currency"]
-		[synonym ISDA_Create_1_0 value "partyA_use_other_currency"]
-		[synonym ISDA_Create_1_0 value "partyB_use_other_currency"]
 
 	condition BaseCurrency: <"A data rule to enforce that, when the SIMM calculation currency is specified as the Base Currency and vice versa">
 		if isBaseCurrency = True
@@ -681,6 +675,7 @@ type CustodianEventEndDate: <"A class to specify the Custodian Event (English La
 
 	daysAfterCustodianEvent CustomisableOffset (1..1) <"The parties' election to specify the number of days after the occurrence of the Custodian Event (English Law & New York Law ISDA CSA) or the Collateral Management Event (Japanese Law ISDA CSA) for the purpose of qualifying the CE/CME End Date.">
 	releaseDate CustomisableOffset (1..1) <"The parties' election to specify the number of days prior to the termination of the Control Agreement (English Law & New York Law ISDA CSA) or the Collateral Management Event (Japanese Law ISDA CSA) for the purpose of qualifying the CE/CME End Date, in the case where advance notice is given.">
+	safekeepingPeriodExpiry CustomisableOffset (0..1) <"The parties' election to specify the number of days prior to the end of the safekeeping period (Clearstream CTA) purpose of qualifying the CE/CME End Date, in the case where advance notice is given.">
 	dateOfTimelyStatement CustomisableOffset (1..1) <"The parties' election to specify the number of days one party has effectively provided the Timely Statement to the other party.">
 
 // TODO - Need for a mapping logic that will map the elements in ce_end_date which prefix is `timely` or `date_of_timely`
@@ -972,7 +967,7 @@ type GeneralSimmElections: <"A class to specify the ISDA SIMM as the Method for 
 		// ISDA Create for the 2016 IM NY Law only has the election for the SIMM calculation currency
 		[synonym ISDA_Create_1_0 value "version_of_ISDA_SIMM"]
 	simmCalculationCurrency SimmCalculationCurrency (1..1) <"The SIMM Calculation Currency, as specified for each of the parties to the CSA Initial Margin. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (ee)(3).">
-		[synonym ISDA_Create_1_0 value "simm_calculation_currency"]
+		[synonym ISDA_Create_1_0 value "simm_calculation_currency" mapper "SimmCalculationCurrency"]
 
 type HoldingAndUsingPostedCollateral: <"A class to specify the elections for the holding and using of posted collateral by the respective parties to the Credit Support Annex for Variation Margin. ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (h): Holding and Using Posted Collateral (VM).">
 

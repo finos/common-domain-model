@@ -1,10 +1,12 @@
 package org.isda.cdm.processor;
 
+import cdm.base.staticdata.asset.common.ISOCurrencyCodeEnum;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.annotations.RosettaSynonym;
 import com.rosetta.model.lib.path.RosettaPath;
 import com.rosetta.model.metafields.FieldWithMetaString;
+import com.rosetta.model.metafields.MetaFields;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +36,16 @@ class MappingProcessorUtils {
 	}
 
 	@NotNull
+	static FieldWithMetaString toFieldWithMetaString(String c, String scheme) {
+		return FieldWithMetaString.builder()
+				.setValue(c)
+				.setMeta(MetaFields.builder()
+						.setScheme(scheme)
+						.build())
+				.build();
+	}
+
+	@NotNull
 	static <E extends Enum<E>> Map<String, E> synonymToEnumValueMap(E[] enumValues, String synonymSource) {
 		Map<String, E> synonymToEnumValueMap = new HashMap<>();
 		Arrays.stream(enumValues).forEach(e -> getSynonymValues(e, synonymSource).forEach(s -> synonymToEnumValueMap.put(s, e)));
@@ -47,6 +59,13 @@ class MappingProcessorUtils {
 			LOGGER.info("Could not find matching enum {} for {}", clazz.getSimpleName(), key);
 		}
 		return ofNullable(value);
+	}
+
+	@NotNull
+	static boolean setIsoCurrency(Map<String, ISOCurrencyCodeEnum> synonymToIsoCurrencyCodeEnumMap, Consumer<FieldWithMetaString> setter, String synonym) {
+		Optional<ISOCurrencyCodeEnum> isoCurrencyCode = getEnumValue(synonymToIsoCurrencyCodeEnumMap, synonym, ISOCurrencyCodeEnum.class);
+		isoCurrencyCode.ifPresent(c -> setter.accept(toFieldWithMetaString(c.name(), "http://www.fpml.org/ext/iso4217")));
+		return isoCurrencyCode.isPresent();
 	}
 
 	@NotNull
@@ -113,6 +132,10 @@ class MappingProcessorUtils {
 
 	static Path getSynonymPath(Path basePath, String synonym, Integer index) {
 		return getSynonymPath(basePath, "", synonym, index);
+	}
+
+	static Path getSynonymPath(Path basePath, String prefix, String synonym) {
+		return getSynonymPath(basePath, prefix, synonym, null);
 	}
 
 	static Path getSynonymPath(Path basePath, String prefix, String synonym, Integer index) {
