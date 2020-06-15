@@ -1,6 +1,7 @@
 package org.isda.cdm.functions.testing;
 
 import com.google.inject.Inject;
+import com.rosetta.model.lib.RosettaModelObject;
 import com.rosetta.model.lib.process.PostProcessor;
 import org.isda.cdm.Lineage;
 import org.isda.cdm.WorkflowStep;
@@ -36,4 +37,9 @@ public class LineageUtils {
         }
         return lineageSteps;
     }
+    
+    public <T extends RosettaModelObject> T withGlobalReference(Class<T> modelType, T modelObject) {
+        return modelType.cast(runner.postProcess(modelType, modelObject.toBuilder()).build());
+    }
+
 }
