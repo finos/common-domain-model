@@ -87,7 +87,7 @@ class MappingProcessorUtils {
 			// set value on model
 			setter.accept(value);
 			// update mappings
-			mappingsFromSynonymPath.forEach(m -> updateMapping(m, rosettaPath));
+			mappingsFromSynonymPath.forEach(m -> updateMappingSuccess(m, rosettaPath));
 		});
 	}
 
@@ -97,13 +97,13 @@ class MappingProcessorUtils {
 			// set value on model, return boolean whether to update mappings
 			if (func.apply(value)) {
 				// update mappings
-				mappingsFromSynonymPath.forEach(m -> updateMapping(m, rosettaPath));
+				mappingsFromSynonymPath.forEach(m -> updateMappingSuccess(m, rosettaPath));
 			}
 		});
 	}
 
 	static void updateMappings(Path synonymPath, List<Mapping> mappings, RosettaPath rosettaPath) {
-		findMappings(mappings, synonymPath).forEach(m -> updateMapping(m, rosettaPath));
+		findMappings(mappings, synonymPath).forEach(m -> updateMappingSuccess(m, rosettaPath));
 	}
 
 	static List<Mapping> findMappings(List<Mapping> mappings, Path path) {
@@ -120,9 +120,24 @@ class MappingProcessorUtils {
 				.findFirst();
 	}
 
-	static void updateMapping(Mapping mapping, RosettaPath rosettaPath) {
+	static List<Mapping> findMappedValue(List<Mapping> mappings, RosettaPath rosettaPath) {
+		Path cdmPath = Path.parse(rosettaPath.buildPath());
+		return mappings.stream()
+				.filter(m -> m.getRosettaPath() != null && m.getRosettaValue() != null)
+				.filter(p -> cdmPath.fullStartMatches(p.getRosettaPath()))
+				.collect(Collectors.toList());
+	}
+
+	static void updateMappingSuccess(Mapping mapping, RosettaPath rosettaPath) {
 		mapping.setRosettaPath(parse(rosettaPath.buildPath()));
 		mapping.setError(null);
+		mapping.setCondition(true);
+	}
+
+	static void updateMappingFail(Mapping mapping, String error) {
+		mapping.setRosettaPath(null);
+		mapping.setRosettaValue(null);
+		mapping.setError(error);
 		mapping.setCondition(true);
 	}
 

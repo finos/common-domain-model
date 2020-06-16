@@ -38,7 +38,7 @@ public class AdditionalRegimeMappingProcessor extends MappingProcessor {
 		List<Mapping> applicableMappings = findMappings(getMappings(), getSynonymPath(additionalRegimesPath, "is_applicable"));
 		Optional<String> applicable = findMappedValue(applicableMappings);
 		if (applicable.isPresent()) {
-			applicableMappings.forEach(m -> updateMapping(m, getPath()));
+			applicableMappings.forEach(m -> updateMappingSuccess(m, getPath()));
 		}
 
 		if (!applicable.isPresent() || applicable.get().equals("not_applicable")) {
