@@ -918,23 +918,16 @@ The current CDM scope comprises the following features:
   * ISDA 2019 ISDA-Clearstream CTA and Security Agreement (Luxembourg Law – Security-provider or Security-taker name)
   * ISDA 2019 ISDA-Euroclear CTA and Security Agreement
 
+* **Composable and normalised model representation** of the eligible collateral schedule for initial and variation margin as directly machine readable format.
 
 * **Mapping to existing marketplace representations** for the following initiatives:
   
   * **ISDA Create Initial Margin**: Ingestion of JSON sample files generated from the ISDA Create platform for the elections associated with these agreements has been implemented, to demonstrate connectivity between the ISDA Create Initial Margin negotiation tool and the CDM. (The ISDA CSA Variation Margin is not yet represented in ISDA Create.) A specific set of synonyms associated to the ``ISDA_Create_1_0`` synonym source has been developed to enable this mapping (see *Mapping* section).
-  * **AcadiaSoft Agreement Manager**: Initial work has been developed to map the CDM to the AcadiaSoft Agreement Manager, although only limited progress has been made so far.
   
 * **Linking of legal agreement into contract** through the CDM referencing mechanism.
 
 Modelling Approach
 ^^^^^^^^^^^^^^^^^^
-
-The current CDM model leverages some prior and current work:
-
-* The FpML Legal View, which was developed in 2013-14 to support the ISDA Standard CSA in a generic manner
-* The ISDA Create solution, in its version 1.0.
-
-The intent is to also leverage the **AcadiaSoft Agreement Manager** solution as part of further iterations of the model, to enable integration with the collateral management workflow.
 
 The key modelling principles that have been adopted to represent legal agreements are:
 
@@ -942,19 +935,23 @@ The key modelling principles that have been adopted to represent legal agreement
 
   * The agreement identification features: agreement name, publisher, identification, etc are represented by the ``LegalAgreementBase`` abstract class.
   * The agreement specification details: elections, related agreements and umbrella agreement terms are represented by the ``AgreementTerms``.
-  * To	Contained within ``AgreementTerms`` are individual classes which contain the elections used to define a specific group of agreements. e.g ``CreditSupportAgreementElections`` can be used to define any of the Credit Support Agreements currently supported by the CDM.
+  * Contained within ``AgreementTerms`` are individual classes which contain the elections used to define a specific group of agreements. e.g ``CreditSupportAgreementElections`` can be used to define any of the Credit Support Agreements currently supported by the CDM.
   * Validation exists in the model to ensure that the set of elections specified within the ``AgreementTerms`` are consistent with the agreement identified as part of ``LegalAgreementBase``.
   
+The below snippet represents the validation condition.
+  
+.. code-block:: Haskell
+
+ condition agreementVerification:
+   if agreementTerms -> agreement -> securityAgreementElections exists
+   then agreementType -> name = LegalAgreementNameEnum->SecurityAgreement
+   
 * **Composite model**.
 
   * The ``LegalAgreementBase`` abstract class uses components that are also used as part of the CDM contract and lifecycle event components: e.g. ``Party``, ``Identifier``, ``date``.
   
 * **Representation of legal agreement elections as data**, as opposed to unstructured data contained within a full legal text. This approach allows CDM users to define normalised elections into a corresponding legal agreement template, in order to provide a full representation that can also be used to define functional processes.
-* **Normalisation of the data representation** to be machine readable and executable. In practice, the use of elections expressed in a ``string`` format has been restricted whenever possible, as ``string`` requires language parsing and disassembling to be machine executable. The CDM leverages the ISDA Create data representation and extends it in some cases, leveraging some output of the FpML work to digitise the Standard CSA. Notable examples of such approach are:
-
-  * The ``EligibleCollateral`` class comprehensively specifies the eligible collateral for initial and variation margin as directly machine readable, through the combination of an enumeration of eligible assets (based upon the 2003 ISDA Collateral Asset Definitions), normalised maturity bands and agency rating notations.
-  * The ``EligibilityToHoldCollateral`` class specifies the conditions under which a party and its custodian(s) are entitled to hold collateral under the ISDA CSA for Variation Margin, through the combination of party terms that are specified through an enumeration, normalised custodian terms (see below) and/or the enumeration of countries in which such collateral can be held.
-  * The ``CustodianTerms`` class specifies the requirements applicable to the custodian with respect to the holding of posted collateral, through the combination of minimal assets and minimal rating considerations or through the designation of a specific custodian.
+* **Normalisation of the data representation** to be machine readable and executable. In practice, the use of elections expressed in a ``string`` format has been restricted whenever possible, as ``string`` requires language parsing and disassembling to be machine executable.
 
 The Elective Provisions
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -1009,12 +1006,22 @@ The CDM uses the key / referencing mechanism to tie a legal agreement with the r
 
 This referencing mechanism has been implemented for ``Contract`` so that a ``ContractFormation`` business event can reference the ``LegalAgreement`` governing the transaction.
 
+
+.. code-block:: Haskell
+
+ func Create_ContractFormation:
+   [creation BusinessEvent]
+   inputs:
+   executionEvent BusinessEvent (1..1)
+   legalAgreement LegalAgreement (0..1)
+
 It has also been implemented for a set of functions to enable digitization of collateral calculations,
 
 Referencing the legal agreement from the ``Contract`` is done through the ``documentation`` attribute.  The associated ``RelatedAgreement`` type allows to:
 
-* Identify some of the key terms of a governing legal agreement such as the agreement identifier, the publisher, the document vintage and the agreement date, as part of the ``documentationIdentification`` attribute
-* Reference a legal agreement that is electronically represented in the CDM through the ``legalAgreement`` attribute, which has a reference key into the agreement instance
+* Identify some of the key terms of a governing legal agreement such as the agreement identifier, the publisher, the document vintage and the agreement date, as part of the ``legalAgreement`` attribute.
+* Or, reference a legal agreement that is electronically represented in the CDM through the ``legalAgreement`` attribute, which has a reference key into the agreement instance.
+* The ``DocumentationIdentification`` attribute is currently used to map Legal Agreement terms captured as part of an FpML transaction message.  This attributed will be deprecated when a synonym mapping structure has been incorporated into the ``LegalAgreement`` attribute.
 
 The below snippet represents this ``RelatedAgreement`` type, which ``legalAgreement`` attribute carries the ``reference`` annotation and where the ``LegalAgreement`` class carries associated ``metadata key`` annotation:
 
