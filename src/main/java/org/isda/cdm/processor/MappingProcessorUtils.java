@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 
 import static com.regnosys.rosetta.common.translation.Path.*;
 import static com.regnosys.rosetta.common.translation.Path.parse;
+import static com.regnosys.rosetta.common.util.PathUtils.toRosettaPath;
 import static java.util.Optional.ofNullable;
 
 class MappingProcessorUtils {
@@ -121,10 +122,9 @@ class MappingProcessorUtils {
 	}
 
 	static List<Mapping> findMappedValue(List<Mapping> mappings, RosettaPath rosettaPath) {
-		Path cdmPath = Path.parse(rosettaPath.buildPath());
 		return mappings.stream()
 				.filter(m -> m.getRosettaPath() != null && m.getRosettaValue() != null)
-				.filter(p -> cdmPath.fullStartMatches(p.getRosettaPath()))
+				.filter(p -> rosettaPath.equals(toRosettaPath(p.getRosettaPath())))
 				.collect(Collectors.toList());
 	}
 

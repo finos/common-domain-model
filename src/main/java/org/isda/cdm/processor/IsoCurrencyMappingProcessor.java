@@ -1,6 +1,7 @@
 package org.isda.cdm.processor;
 
 import cdm.base.staticdata.asset.common.ISOCurrencyCodeEnum;
+import com.google.common.base.Enums;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
@@ -9,7 +10,6 @@ import com.rosetta.model.metafields.MetaFields;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.isda.cdm.processor.MappingProcessorUtils.*;
 
@@ -27,21 +27,31 @@ public class IsoCurrencyMappingProcessor extends MappingProcessor {
 	}
 
 	@Override
-	protected <T> void mapBasic(T currencySynonym, RosettaModelObjectBuilder parent) {
-		if (currencySynonym instanceof String && parent instanceof FieldWithMetaString.FieldWithMetaStringBuilder) {
-			Optional<ISOCurrencyCodeEnum> isoCurrencyCode = getEnumValue(synonymToIsoCurrencyCodeEnumMap, (String) currencySynonym, ISOCurrencyCodeEnum.class);
-			if (isoCurrencyCode.isPresent()) {
-				FieldWithMetaString.FieldWithMetaStringBuilder currencyBuilder = (FieldWithMetaString.FieldWithMetaStringBuilder) parent;
-				currencyBuilder.setValue(isoCurrencyCode.get().name())
-						.setMeta(MetaFields.builder()
-								.setScheme("http://www.fpml.org/ext/iso4217")
-								.build());
+	protected <T> void mapBasic(T value, RosettaModelObjectBuilder parent) {
+		if (value instanceof String && parent instanceof FieldWithMetaString.FieldWithMetaStringBuilder) {
+			FieldWithMetaString.FieldWithMetaStringBuilder currencyBuilder = (FieldWithMetaString.FieldWithMetaStringBuilder) parent;
+			String currencyValue = (String) value;
+			// Currency value should either already be a ISO Currency Code or maps to one via synonym
+			if (setCurrency(currencyBuilder, getEnumValue(synonymToIsoCurrencyCodeEnumMap, currencyValue, ISOCurrencyCodeEnum.class)
+					.orElse(Enums.getIfPresent(ISOCurrencyCodeEnum.class, currencyValue).orNull()))) {
 				return;
 			}
 		}
 		// Update mapping to failed if could not be mapped to an ISO currency code
 		findMappedValue(getMappings(), getPath()).forEach(m ->
-				updateMappingFail(m, String.format("Element with value \"%s\" could not be mapped to a ISO currency code", currencySynonym)));
+				updateMappingFail(m, String.format("Element with value \"%s\" could not be mapped to a ISO currency code", value)));
+	}
 
+	private boolean setCurrency(FieldWithMetaString.FieldWithMetaStringBuilder currencyBuilder, ISOCurrencyCodeEnum isoCurrencyCode) {
+		if (isoCurrencyCode != null) {
+			currencyBuilder.setValue(isoCurrencyCode.name())
+					.setMeta(MetaFields.builder()
+							.setScheme("http://www.fpml.org/ext/iso4217")
+							.build());
+			return true;
+		} else {
+			currencyBuilder.setValue(null);
+			return false;
+		}
 	}
 }
