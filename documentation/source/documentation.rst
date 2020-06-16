@@ -900,19 +900,28 @@ Legal Agreement
 
 The CDM provides a digital representation of the legal agreements that govern financial contracts and workflows. The benefits are:
 
-* **Supporting marketplace initiatives to streamline and standardise legal agreements** with a comprehensive digital representation of such agreements. While the initial scope is focused on the ISDA legal agreements, it is not limited to those.  As an example, as a follow-up from work to represent secured funding contracts and associated lifecycle events, the CDM will look to represent the associated governing legal agreements (such as GMRA for repo).
-* **Providing a comprehensive representation of the financial workflows** by complementing the contract and lifecycle event representation. Collateral management is an example of the applicability of such approach, as most of the flows require reference to the associated legal agreements (such as the ISDA Initial Margin and Variation Margin Credit Support Annex).
+* **Supporting marketplace initiatives to streamline and standardise legal agreements** with a comprehensive digital representation of such agreements. While the initial scope is focused on the ISDA legal agreements, it is not limited to those. As an example, as a follow-up from work to represent security lending contracts and associated lifecycle events, the CDM will look to represent the associated governing legal agreements (such as GMSLA for stock loan).
+* **Providing a comprehensive representation of the financial workflows** by complementing the contract and lifecycle event representation. Collateral management is an example of the applicability of such approach, as lifecycle processes require reference to the associated legal agreements (such as the ISDA Initial Margin Credit Support Annex).
 
 The current CDM scope comprises the following features:
 
 * **Composable and normalised model representation** of a number of legal agreements:
 
-  * ISDA 2016 Credit Support Annex for Initial Margin, with the New York, Japanese and English governing laws
-  * ISDA 2016 Credit Support Annex for Variation Margin, New York governing law
+  * ISDA 2016 Phase One Credit Support Annex (“CSA”) (Security Interest – New York Law)
+  * ISDA 2016 Phase One Credit Support Deed (“CSD”) (Security Interest – English Law)
+  * ISDA 2016 Phase One CSA (Loan – Japanese Law)
+  * ISDA 2016 ISDA-Clearstream Collateral Transfer Agreement (“CTA”) (New York law and Multi Regime English Law) and Security Agreement
+  * ISDA 2016 ISDA-Euroclear CTA (New York law and Multi Regime English Law) and Security Agreement
+  * ISDA 2018 CSA (Security Interest – New York Law)
+  * ISDA 2018 CSD (Security Interest – English Law)
+  * ISDA 2019 Bank Custodian CTA and Security Agreement (English Law, New York Law)
+  * ISDA 2019 ISDA-Clearstream CTA and Security Agreement (Luxembourg Law – Security-provider or Security-taker name)
+  * ISDA 2019 ISDA-Euroclear CTA and Security Agreement
+
 
 * **Mapping to existing marketplace representations** for the following initiatives:
   
-  * **ISDA Create Initial Margin**: Ingestion of JSON sample files generated from the ISDA Create platform for the elections associated with the ISDA 2016 CSA for Initial Margin has been implemented, to demonstrate connectivity between the ISDA Create Initial Margin negotiation tool and the CDM. (The ISDA CSA Variation Margin is not yet represented in ISDA Create.) A specific set of synonyms associated to the ``ISDA_Create_1_0`` synonym source has been developed to enable this mapping (see *Mapping* section).
+  * **ISDA Create Initial Margin**: Ingestion of JSON sample files generated from the ISDA Create platform for the elections associated with these agreements has been implemented, to demonstrate connectivity between the ISDA Create Initial Margin negotiation tool and the CDM. (The ISDA CSA Variation Margin is not yet represented in ISDA Create.) A specific set of synonyms associated to the ``ISDA_Create_1_0`` synonym source has been developed to enable this mapping (see *Mapping* section).
   * **AcadiaSoft Agreement Manager**: Initial work has been developed to map the CDM to the AcadiaSoft Agreement Manager, although only limited progress has been made so far.
   
 * **Linking of legal agreement into contract** through the CDM referencing mechanism.
@@ -932,14 +941,15 @@ The key modelling principles that have been adopted to represent legal agreement
 * **Distinction between the agreement identification features and the content features** (i.e. elections).
 
   * The agreement identification features: agreement name, publisher, identification, etc are represented by the ``LegalAgreementBase`` abstract class.
-  * The elections are represented through classes aligned with the legal agreement template which they represent. An example is the ``CsaInitialMargin2016JapaneseLaw`` class, which represents the ISDA 2016 Japanese Law CSA for Initial Margin.
+  * The agreement specification details: elections, related agreements and umbrella agreement terms are represented by the ``AgreementTerms``.
+  * To	Contained within ``AgreementTerms`` are individual classes which contain the elections used to define a specific group of agreements. e.g ``CreditSupportAgreementElections`` can be used to define any of the Credit Support Agreements currently supported by the CDM.
+  * Validation exists in the model to ensure that the set of elections specified within the ``AgreementTerms`` are consistent with the agreement identified as part of ``LegalAgreementBase``.
   
 * **Composite model**.
 
-  * The ``LegalAgreementBase`` abstract class uses components that are also used as part of the CDM contract and lifecycle event components: e.g. ``Party``, ``Identifier``, ``PartyRole``.
-  * As part of the election classes: the above mentioned ``CsaInitialMargin2016JapaneseLaw`` class extends the ``CsaInitialMargin2016`` abstract class which specifies the elections that are common among governing laws. The ``CsaInitialMargin2016`` in turn extends the ``Csa2016`` abstract class which specifies the elections that are common among the ISDA 2016 Initial Margin and Variation Margin CSA agreements.
+  * The ``LegalAgreementBase`` abstract class uses components that are also used as part of the CDM contract and lifecycle event components: e.g. ``Party``, ``Identifier``, ``date``.
   
-* **Representation of legal agreement elections as data**, as opposed to their whole write-up. Similar to what has been done in ISDA Create, such approach still allows CDM users to wrap those normalised elections into the corresponding legal agreement template, in order to provide a complete legal agreement.
+* **Representation of legal agreement elections as data**, as opposed to unstructured data contained within a full legal text. This approach allows CDM users to define normalised elections into a corresponding legal agreement template, in order to provide a full representation that can also be used to define functional processes.
 * **Normalisation of the data representation** to be machine readable and executable. In practice, the use of elections expressed in a ``string`` format has been restricted whenever possible, as ``string`` requires language parsing and disassembling to be machine executable. The CDM leverages the ISDA Create data representation and extends it in some cases, leveraging some output of the FpML work to digitise the Standard CSA. Notable examples of such approach are:
 
   * The ``EligibleCollateral`` class comprehensively specifies the eligible collateral for initial and variation margin as directly machine readable, through the combination of an enumeration of eligible assets (based upon the 2003 ISDA Collateral Asset Definitions), normalised maturity bands and agency rating notations.
@@ -992,12 +1002,14 @@ The (non-abstract) classes that represent the ISDA CSA elections extend the abov
 * For Initial Margin: the ``CsaInitialMargin2016JapaneseLaw``, ``CsaInitialMargin2016NewYorkLaw`` and ``CsdInitialMargin2016EnglishLaw`` classes extend the ``CsaInitialMargin2016`` abstract class to specify the Initial Margin elections that are specific to those governing laws.
 * For Variation Margin: the ``CsaVariationMargin2016NewYorkLaw`` class extends the ``CsaVariationMargin2016`` abstract class to specify the Variation Margin elections that are specific to New York law.
 
-Linking Legal Agreements to Contracts and Events
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Linking Legal Agreements to Contracts and Events using Functions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The CDM uses the key / referencing mechanism to tie a legal agreement with the relevant contract or event.
 
-This referencing mechanism has been implemented for the ``Contract`` but not yet for the ``Event``, since no lifecycle event workflow has yet been specified that references legal agreement other than through the contract itself.
+This referencing mechanism has been implemented for ``Contract`` so that a ``ContractFormation`` business event can reference the ``LegalAgreement`` governing the transaction.
+
+It has also been implemented for a set of functions to enable digitization of collateral calculations,
 
 Referencing the legal agreement from the ``Contract`` is done through the ``documentation`` attribute.  The associated ``RelatedAgreement`` type allows to:
 
