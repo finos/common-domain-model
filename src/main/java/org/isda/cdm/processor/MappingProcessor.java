@@ -33,7 +33,7 @@ public abstract class MappingProcessor implements BuilderProcessor {
 			RosettaModelObjectBuilder builder,
 			RosettaModelObjectBuilder parent,
 			AttributeMeta... meta) {
-		if (builder != null && matchesProcessorPath(currentPath, rosettaType)) {
+		if (builder != null && currentPath.matchesIgnoringIndex(path)) {
 			map(builder, parent);
 		}
 		return true;
@@ -45,7 +45,7 @@ public abstract class MappingProcessor implements BuilderProcessor {
 			List<? extends RosettaModelObjectBuilder> builder,
 			RosettaModelObjectBuilder parent,
 			AttributeMeta... meta) {
-		if (builder != null && matchesProcessorPath(currentPath, rosettaType)) {
+		if (builder != null && matchesProcessorPathForMultipleCardinality(currentPath, rosettaType)) {
 			map(builder, parent);
 		}
 		return true;
@@ -118,8 +118,9 @@ public abstract class MappingProcessor implements BuilderProcessor {
 		MappingProcessorUtils.setValueAndUpdateMappings(synonymPath, setter, mappings, path);
 	}
 
-	private boolean matchesProcessorPath(RosettaPath currentPath, Class<?> rosettaType) {
+	private boolean matchesProcessorPathForMultipleCardinality(RosettaPath currentPath, Class<?> rosettaType) {
 		return ReferenceWithMeta.class.isAssignableFrom(rosettaType) ?
+				// so the parse handlers match on the list rather than each list item
 				currentPath.matchesIgnoringIndex(path.getParent()) :
 				currentPath.matchesIgnoringIndex(path);
 	}
