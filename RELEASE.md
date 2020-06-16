@@ -10,6 +10,7 @@ Resolve complex ISDA Create mapping issues for legal documents:
 - `SIMM Calculation Currency` - fix mapping of elections.
 - `Collateral Management Agreement` - fix mapping of elections.
 - `Custodian Event End Date` - fix mapping issues and add `CustodianEventEndDate.safekeepingPeriodExpiry` to accommodate Clearstream CTA documents.
+- Remove `LegalDocumentBase.partyInformation` as it duplicates `LegalDocumentBase.contractualParty` and `LegalDocumentBase.otherParty`.
 
 _Review Direction_
 

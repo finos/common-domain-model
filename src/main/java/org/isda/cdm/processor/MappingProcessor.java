@@ -4,6 +4,7 @@ import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObject;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
+import com.rosetta.model.lib.meta.ReferenceWithMeta;
 import com.rosetta.model.lib.path.RosettaPath;
 import com.rosetta.model.lib.process.AttributeMeta;
 import com.rosetta.model.lib.process.BuilderProcessor;
@@ -27,18 +28,24 @@ public abstract class MappingProcessor implements BuilderProcessor {
 	}
 
 	@Override
-	public <R extends RosettaModelObject> boolean processRosetta(RosettaPath currentPath, Class<? extends R> rosettaType
-			, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent, AttributeMeta... meta) {
-		if (builder!=null && currentPath.matchesIgnoringIndex(path)) {
+	public <R extends RosettaModelObject> boolean processRosetta(RosettaPath currentPath,
+			Class<? extends R> rosettaType,
+			RosettaModelObjectBuilder builder,
+			RosettaModelObjectBuilder parent,
+			AttributeMeta... meta) {
+		if (builder != null && matchesProcessorPath(currentPath, rosettaType)) {
 			map(builder, parent);
 		}
 		return true;
 	}
 
 	@Override
-	public <R extends RosettaModelObject> boolean processRosetta(RosettaPath currentPath, Class<? extends R> rosettaType,
-			List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent, AttributeMeta... meta) {
-		if (builder!=null && currentPath.matchesIgnoringIndex(path)) {
+	public <R extends RosettaModelObject> boolean processRosetta(RosettaPath currentPath,
+			Class<? extends R> rosettaType,
+			List<? extends RosettaModelObjectBuilder> builder,
+			RosettaModelObjectBuilder parent,
+			AttributeMeta... meta) {
+		if (builder != null && matchesProcessorPath(currentPath, rosettaType)) {
 			map(builder, parent);
 		}
 		return true;
@@ -46,14 +53,14 @@ public abstract class MappingProcessor implements BuilderProcessor {
 
 	@Override
 	public <T> void processBasic(RosettaPath currentPath, Class<T> rosettaType, T instance, RosettaModelObjectBuilder parent, AttributeMeta... meta) {
-		if (instance!=null && currentPath.matchesIgnoringIndex(path)) {
+		if (instance != null && currentPath.matchesIgnoringIndex(path)) {
 			mapBasic(instance, parent);
 		}
 	}
 
 	@Override
 	public <T> void processBasic(RosettaPath currentPath, Class<T> rosettaType, List<T> instance, RosettaModelObjectBuilder parent, AttributeMeta... meta) {
-		if (instance!=null && currentPath.matchesIgnoringIndex(path)) {
+		if (instance != null && currentPath.matchesIgnoringIndex(path)) {
 			mapBasic(instance, parent);
 		}
 	}
@@ -109,5 +116,11 @@ public abstract class MappingProcessor implements BuilderProcessor {
 
 	void setValueAndUpdateMappings(Path synonymPath, Consumer<String> setter) {
 		MappingProcessorUtils.setValueAndUpdateMappings(synonymPath, setter, mappings, path);
+	}
+
+	private boolean matchesProcessorPath(RosettaPath currentPath, Class<?> rosettaType) {
+		return ReferenceWithMeta.class.isAssignableFrom(rosettaType) ?
+				currentPath.matchesIgnoringIndex(path.getParent()) :
+				currentPath.matchesIgnoringIndex(path);
 	}
 }
