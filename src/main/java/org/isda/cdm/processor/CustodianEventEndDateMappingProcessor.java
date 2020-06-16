@@ -125,6 +125,13 @@ public class CustodianEventEndDateMappingProcessor extends MappingProcessor {
 					"release_date_i_type",
 					"release_i_specify")
 					.ifPresent(endDateBuilder::setReleaseDate);
+			// Safekeeping Period Expiry
+			getCustomisableOffset(v, "release_date_ii",
+					"release_date_ii_days",
+					true,
+					"release_date_ii_type",
+					"release_date_ii_specify")
+					.ifPresent(endDateBuilder::setSafekeepingPeriodExpiry);
 			// DateOfTimelyStatement
 			getCustomisableOffset(v, "date_of_timely_statement",
 					"days_prior_to_release_date",
