@@ -958,7 +958,7 @@ The below snippet represents the validation condition.
 Agreement Identification
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-The identification of the agreement is described in the CDM by the ``LegalAgreementBase`` type.  All Legal Agreements must contain an Agreement Date, two Contractual Parties and information indicating the name and publisher of the Legal Agreement being specified.  Provision is made for further information to be captured, for example an agreement identifier, or the governing law of the agreement.
+The unique identification of an agreement is described in the CDM by the ``LegalAgreementBase`` type.  All Legal Agreements must contain an Agreement Date, two Contractual Parties and information indicating the name and publisher of the Legal Agreement being specified.  Provision is made for further information to be captured, for example an agreement identifier, or the governing law of the agreement.
 
 .. code-block:: Haskell
 
