@@ -6,6 +6,7 @@ import org.isda.cdm.functions.Create_Execution;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,7 +29,8 @@ public class RunExecuteCorrectCancel implements ExecutableFunction<Contract, Wor
                 guard(incorrectQuantity),
                 guard(contract.getTradableProduct().getPriceNotation()),
                 guard(contract.getParty()),
-                guard(contract.getPartyRole()));
+                guard(contract.getPartyRole()),
+                Collections.emptyList());
 
         WorkflowStep newExecutionWorkflowStep = WorkflowStep.builder()
                 .setAction(ActionEnum.NEW)
@@ -39,7 +41,8 @@ public class RunExecuteCorrectCancel implements ExecutableFunction<Contract, Wor
                 guard(contract.getTradableProduct().getQuantityNotation()),
                 guard(contract.getTradableProduct().getPriceNotation()),
                 guard(contract.getParty()),
-                guard(contract.getPartyRole()));
+                guard(contract.getPartyRole()),
+                Collections.emptyList());
 
         WorkflowStep correctedExecutionWorkflowStep = WorkflowStep.builder()
                 .setAction(ActionEnum.CORRECT)
@@ -48,7 +51,6 @@ public class RunExecuteCorrectCancel implements ExecutableFunction<Contract, Wor
 
         WorkflowStep cancelledExecutionWorkflowStep = WorkflowStep.builder()
                 .setAction(ActionEnum.CANCEL)
-                .setRejected(true)
                 .setBusinessEvent(corrected)
                 .build();
 

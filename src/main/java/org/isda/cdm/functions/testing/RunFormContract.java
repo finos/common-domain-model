@@ -2,6 +2,8 @@ package org.isda.cdm.functions.testing;
 
 import static org.isda.cdm.functions.testing.FunctionUtils.guard;
 
+import java.util.Collections;
+
 import javax.inject.Inject;
 
 import org.isda.cdm.BusinessEvent;
@@ -26,7 +28,8 @@ public class RunFormContract implements ExecutableFunction<Contract, BusinessEve
                 guard(contract.getTradableProduct().getQuantityNotation()),
                 guard(contract.getTradableProduct().getPriceNotation()),
                 guard(contract.getParty()),
-                guard(contract.getPartyRole()));
+                guard(contract.getPartyRole()),
+                Collections.emptyList());
 
         return formContract.evaluate(executeBusinessEvent, null);
     }
