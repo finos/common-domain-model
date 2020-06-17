@@ -7,7 +7,7 @@ import org.isda.cdm.MinimumTransferAmount.MinimumTransferAmountBuilder;
 
 import java.util.List;
 
-import static org.isda.cdm.processor.RegimeMappingHelper.PARTIES;
+import static org.isda.cdm.processor.MappingProcessorUtils.PARTIES;
 
 /**
  * ISDA Create mapping processor.

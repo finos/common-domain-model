@@ -7,7 +7,7 @@ import com.rosetta.model.lib.path.RosettaPath;
 import java.util.List;
 
 import static org.isda.cdm.Threshold.ThresholdBuilder;
-import static org.isda.cdm.processor.RegimeMappingHelper.PARTIES;
+import static org.isda.cdm.processor.MappingProcessorUtils.PARTIES;
 
 /**
  * ISDA Create mapping processor.

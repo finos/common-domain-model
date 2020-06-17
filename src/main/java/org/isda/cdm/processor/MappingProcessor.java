@@ -4,6 +4,7 @@ import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObject;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
+import com.rosetta.model.lib.meta.ReferenceWithMeta;
 import com.rosetta.model.lib.path.RosettaPath;
 import com.rosetta.model.lib.process.AttributeMeta;
 import com.rosetta.model.lib.process.BuilderProcessor;
@@ -27,31 +28,41 @@ public abstract class MappingProcessor implements BuilderProcessor {
 	}
 
 	@Override
-	public <R extends RosettaModelObject> boolean processRosetta(RosettaPath currentPath, Class<? extends R> rosettaType
-			, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent, AttributeMeta... meta) {
-		if (builder!=null && currentPath.matchesIgnoringIndex(path)) {
+	public <R extends RosettaModelObject> boolean processRosetta(RosettaPath currentPath,
+			Class<? extends R> rosettaType,
+			RosettaModelObjectBuilder builder,
+			RosettaModelObjectBuilder parent,
+			AttributeMeta... meta) {
+		if (builder != null && currentPath.matchesIgnoringIndex(path)) {
 			map(builder, parent);
 		}
 		return true;
 	}
 
 	@Override
-	public <R extends RosettaModelObject> boolean processRosetta(RosettaPath currentPath, Class<? extends R> rosettaType,
-			List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent, AttributeMeta... meta) {
-		if (builder!=null && currentPath.matchesIgnoringIndex(path)) {
+	public <R extends RosettaModelObject> boolean processRosetta(RosettaPath currentPath,
+			Class<? extends R> rosettaType,
+			List<? extends RosettaModelObjectBuilder> builder,
+			RosettaModelObjectBuilder parent,
+			AttributeMeta... meta) {
+		if (builder != null && matchesProcessorPathForMultipleCardinality(currentPath, rosettaType)) {
 			map(builder, parent);
 		}
 		return true;
 	}
 
 	@Override
-	public <T> void processBasic(RosettaPath path, Class<T> rosettaType, T instance, RosettaModelObjectBuilder parent, AttributeMeta... meta) {
-		// Do nothing
+	public <T> void processBasic(RosettaPath currentPath, Class<T> rosettaType, T instance, RosettaModelObjectBuilder parent, AttributeMeta... meta) {
+		if (instance != null && currentPath.matchesIgnoringIndex(path)) {
+			mapBasic(instance, parent);
+		}
 	}
 
 	@Override
-	public <T> void processBasic(RosettaPath path, Class<T> rosettaType, List<T> instance,
-			RosettaModelObjectBuilder parent, AttributeMeta... meta) {
+	public <T> void processBasic(RosettaPath currentPath, Class<T> rosettaType, List<T> instance, RosettaModelObjectBuilder parent, AttributeMeta... meta) {
+		if (instance != null && currentPath.matchesIgnoringIndex(path)) {
+			mapBasic(instance, parent);
+		}
 	}
 
 	@Override
@@ -72,7 +83,21 @@ public abstract class MappingProcessor implements BuilderProcessor {
 	protected void map(List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
 		// Default behaviour - do nothing
 	}
-	
+
+	/**
+	 * Perform custom mapping logic and updates resultant mapped value on builder object.
+	 */
+	protected <T> void mapBasic(T instance, RosettaModelObjectBuilder parent) {
+		// Default behaviour - do nothing
+	}
+
+	/**
+	 * Perform custom mapping logic and updates resultant mapped value on builder object.
+	 */
+	protected <T> void mapBasic(List<T> instance, RosettaModelObjectBuilder parent) {
+		// Default behaviour - do nothing
+	}
+
 	RosettaPath getPath() {
 		return path;
 	}
@@ -91,5 +116,12 @@ public abstract class MappingProcessor implements BuilderProcessor {
 
 	void setValueAndUpdateMappings(Path synonymPath, Consumer<String> setter) {
 		MappingProcessorUtils.setValueAndUpdateMappings(synonymPath, setter, mappings, path);
+	}
+
+	private boolean matchesProcessorPathForMultipleCardinality(RosettaPath currentPath, Class<?> rosettaType) {
+		return ReferenceWithMeta.class.isAssignableFrom(rosettaType) ?
+				// so the parse handlers match on the list rather than each list item
+				currentPath.matchesIgnoringIndex(path.getParent()) :
+				currentPath.matchesIgnoringIndex(path);
 	}
 }
