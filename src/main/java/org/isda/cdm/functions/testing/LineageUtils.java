@@ -39,7 +39,7 @@ public class LineageUtils {
     }
     
     public <T extends RosettaModelObject> T withGlobalReference(Class<T> modelType, T modelObject) {
-        return modelType.cast(runner.postProcess(modelType, modelObject.toBuilder()).build());
+        return modelType.cast(runner.postProcess(modelType, modelObject.toBuilder().prune()).build());
     }
 
 }
