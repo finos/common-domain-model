@@ -902,6 +902,11 @@ The CDM provides a digital representation of the legal agreements that govern fi
 
 * **Supporting marketplace initiatives to streamline and standardise legal agreements** with a comprehensive digital representation of such agreements. While the initial scope is focused on the ISDA legal agreements, it is not limited to those. As an example, as a follow-up from work to represent security lending contracts and associated lifecycle events, the CDM will look to represent the associated governing legal agreements (such as GMSLA for stock loan).
 * **Providing a comprehensive representation of the financial workflows** by complementing the contract and lifecycle event representation. Collateral management is an example of the applicability of such approach, as lifecycle processes require reference to the associated legal agreements (such as the ISDA Initial Margin Credit Support Annex).
+* **Representation of legal agreement elections as data**, as opposed to unstructured data contained within a full legal text. This approach allows CDM users to define normalised elections into a corresponding legal agreement template, in order to provide a full representation that can also be used to define functional processes.
+* **Normalisation of the data representation** to be machine readable and executable. In practice, the use of elections expressed in a ``string`` format has been restricted whenever possible, as ``string`` requires language parsing and disassembling to be machine executable.
+
+Scope
+^^^^^
 
 The current CDM scope comprises the following features:
 
@@ -934,9 +939,9 @@ The key modelling principles that have been adopted to represent legal agreement
 * **Distinction between the agreement identification features and the content features** (i.e. elections).
 
   * The agreement identification features: agreement name, publisher, identification, etc are represented by the ``LegalAgreementBase`` abstract class.
-  * The agreement specification details: elections, related agreements and umbrella agreement terms are represented by the ``AgreementTerms``.
-  * Contained within ``AgreementTerms`` are individual classes which contain the elections used to define a specific group of agreements. e.g ``CreditSupportAgreementElections`` can be used to define any of the Credit Support Agreements currently supported by the CDM.
-  * Validation exists in the model to ensure that the set of elections specified within the ``AgreementTerms`` are consistent with the agreement identified as part of ``LegalAgreementBase``.
+  * The agreement specification details: election provisions of the agreement, related agreements and umbrella agreement terms are represented by the ``AgreementTerms``.
+  * Contained within ``Agreement`` are individual classes which contain the elections used to define a specific group of agreements. e.g ``CreditSupportAgreementElections`` can be used to define any of the Credit Support Agreements currently supported by the CDM.
+  * Validation exists in the model to ensure that the set of elections specified within the ``Agreement`` are consistent with the agreement identified as part of ``LegalAgreementBase``.
   
 The below snippet represents the validation condition.
   
@@ -949,55 +954,25 @@ The below snippet represents the validation condition.
 * **Composite model**.
 
   * The ``LegalAgreementBase`` abstract class uses components that are also used as part of the CDM contract and lifecycle event components: e.g. ``Party``, ``Identifier``, ``date``.
-  
-* **Representation of legal agreement elections as data**, as opposed to unstructured data contained within a full legal text. This approach allows CDM users to define normalised elections into a corresponding legal agreement template, in order to provide a full representation that can also be used to define functional processes.
-* **Normalisation of the data representation** to be machine readable and executable. In practice, the use of elections expressed in a ``string`` format has been restricted whenever possible, as ``string`` requires language parsing and disassembling to be machine executable.
 
-The Elective Provisions
-^^^^^^^^^^^^^^^^^^^^^^^
+Agreement Identification
+^^^^^^^^^^^^^^^^^^^^^^^^
 
-The current CDM scope is limited to the ISDA 2016 CSA for Initial Margin and Variation Margin. In this context, the model components are organised around 3 levels, in this order of abstraction:
-
-* **Vintage**, such as CSA 2016
-* **Margin Type**, i.e. Initial or Variation Margin
-* **Governing Law**, such as New York or Japanese
-
-The ``Csa2016`` abstract class specifies the set of provisions that are common among governing laws and across Initial and Variation Margin templates. This abstract class will evolve as further vintages of the ISDA CSA are being modelled.
+The identification of the agreement is described in the CDM by the ``LegalAgreementBase`` type.  All Legal Agreements must contain an Agreement Date, two Contractual Parties and information indicating the name and publisher of the Legal Agreement being specified.  Provision is made for further information to be captured, for example an agreement identifier, or the governing law of the agreement.
 
 .. code-block:: Haskell
 
- type Csa2016 extends Csa:
-   baseCurrency string (1..1)
-   [metadata scheme]
-   additionalObligations string (0..1)
-   conditionsPrecedent ConditionsPrecedent (1..1)
-   substitution Substitution (1..1)
-   disputeResolution DisputeResolution (1..1)
-   additionalRepresentation AdditionalRepresentation (1..1)
-   demandsAndNotices ContactElection (1..1)
-   addressesForTransfer ContactElection (1..1)
-   bespokeProvision string (0..1)
-   umbrellaAgreement UmbrellaAgreement (0..1)
+ type LegalAgreementBase
+   	agreementDate date (1..1)
+	effectiveDate date (0..1)
+	identifier Identifier (0..*)
+	agreementType LegalAgreementType (1..1)
+	contractualParty Party (2..2)
+	otherParty PartyRole (0..*)   
 
-The ``CsaVariationMargin2016`` abstract class extends the ``Csa2016`` class to specify the provisions for the 2016 ISDA Credit Support Annex for Variation Margin that are common across the applicable governing laws.  At this point its implementation has been undertaken without a thorough review of the Japanese and English governing laws as only a New York sample agreement was available. It might have to be adjusted to integrate those governing laws.
+The Agreement
+^^^^^^^^^^^^^
 
-.. code-block:: Haskell
-
- type CsaVariationMargin2016 extends Csa2016:
-   creditSupportObligations CreditSupportObligationsVariationMargin (1..1)
-   valuationAgent Party (1..1)
-     [metadata reference]
-   valuationDateLocation CalculationDateLocation (1..1)
-   valuationTime BusinessCenterTime (1..*)
-   notificationTime int (1..1)
-   holdingAndUsingPostedCollateral HoldingAndUsingPostedCollateral (1..1)
-   creditSupportOffsets boolean (1..1)
-   otherCsa OtherAgreements (1..1)
-
-The (non-abstract) classes that represent the ISDA CSA elections extend the above abstract constructs:
-
-* For Initial Margin: the ``CsaInitialMargin2016JapaneseLaw``, ``CsaInitialMargin2016NewYorkLaw`` and ``CsdInitialMargin2016EnglishLaw`` classes extend the ``CsaInitialMargin2016`` abstract class to specify the Initial Margin elections that are specific to those governing laws.
-* For Variation Margin: the ``CsaVariationMargin2016NewYorkLaw`` class extends the ``CsaVariationMargin2016`` abstract class to specify the Variation Margin elections that are specific to New York law.
 
 Linking Legal Agreements to Contracts and Events using Functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
