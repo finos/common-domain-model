@@ -954,6 +954,22 @@ The below snippet represents the validation condition.
 * **Composite model**.
 
   * The ``LegalAgreementBase`` abstract class uses components that are also used as part of the CDM contract and lifecycle event components: e.g. ``Party``, ``Identifier``, ``date``.
+  
+The model components specified in the CDM are detailed in the section below.
+
+Legal Agreement
+^^^^^^^^^^^^^^^
+
+.. code-block:: Haskell
+
+ type LegalAgreement extends LegalAgreementBase:
+   [metadata key]
+   [rootType]
+   agreementTerms AgreementTerms (0..1)
+   
+The CDM provides support for implementors to represent a Legal Agreement through the specification of the agreement identification features only, or additionally through the specification of the elective provisions of the agreement in a machine readable format through the Agreement Terms.
+
+.. note:: A ``LegalAgreement`` specified in CDM is assigned a *metadata key*. This allows a Legal Agreement to be linked to other components in the model.  This mechanism is explained in the Meta-data and Reference Section of the Rosetta DSL documentation.  Further explanation on Linking Legal Agreements to Contracts and Events is given below.
 
 Agreement Identification
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -962,7 +978,7 @@ The unique identification of an agreement is described in the CDM by the ``Legal
 
 .. code-block:: Haskell
 
- type LegalAgreementBase
+ type LegalAgreementBase:
    	agreementDate date (1..1)
 	effectiveDate date (0..1)
 	identifier Identifier (0..*)
@@ -972,6 +988,32 @@ The unique identification of an agreement is described in the CDM by the ``Legal
 
 Agreement Content
 ^^^^^^^^^^^^^^^^^
+
+``AgreementTerms`` is used to specify the content of a Legal Agreement in the CDM.  Agreement Terms is an optional component of a Legal Agreement, so that the CDM can be used to solely identify an agreement, without any of the content digitised in the model.
+
+There are three components to Agreement Terms, as shown in the code snippet below.
+
+.. code-block:: Haskell
+
+ type AgreementTerms:
+	agreement Agreement (1..1)
+	relatedAgreements RelatedAgreement (0..*)
+	umbrellaAgreement UmbrellaAgreement (0..1)
+	
+**RelatedAgreement** is used to specify the elective components of the Legal Agreement.  It allows to:
+* Identify some of the key terms of a governing legal agreement such as the agreement identifier, the publisher, the document vintage and the agreement date, as part of the ``legalAgreement`` attribute.
+* Or, reference a legal agreement that is electronically represented in the CDM through the ``legalAgreement`` attribute, which has a reference key into the agreement instance.
+* The ``DocumentationIdentification`` attribute is currently used to map Legal Agreement terms captured as part of an FpML transaction message.  This attributed will be deprecated when a synonym mapping structure has been incorporated into the ``LegalAgreement`` attribute.
+
+The below snippet represents this ``RelatedAgreement`` type, which ``legalAgreement`` attribute carries the ``reference`` annotation and where the ``LegalAgreement`` class carries associated ``metadata key`` annotation:
+
+.. code-block:: Haskell
+
+ type RelatedAgreement:
+   legalAgreement LegalAgreement (0..1)
+   documentationIdentification DocumentationIdentification (0..1)
+   
+ **UmbrellaAgreement** 
 
 
 Linking Legal Agreements to Contracts and Events using Functions
@@ -990,28 +1032,10 @@ This referencing mechanism has been implemented for ``Contract`` so that a ``Con
    executionEvent BusinessEvent (1..1)
    legalAgreement LegalAgreement (0..1)
 
-It has also been implemented for a set of functions to enable digitization of collateral calculations,
+Referencing the legal agreement from the ``Contract`` is done through the ``documentation`` attribute.
 
-Referencing the legal agreement from the ``Contract`` is done through the ``documentation`` attribute.  The associated ``RelatedAgreement`` type allows to:
+It has also been implemented for a set of functions to enable digitization of collateral calculations.
 
-* Identify some of the key terms of a governing legal agreement such as the agreement identifier, the publisher, the document vintage and the agreement date, as part of the ``legalAgreement`` attribute.
-* Or, reference a legal agreement that is electronically represented in the CDM through the ``legalAgreement`` attribute, which has a reference key into the agreement instance.
-* The ``DocumentationIdentification`` attribute is currently used to map Legal Agreement terms captured as part of an FpML transaction message.  This attributed will be deprecated when a synonym mapping structure has been incorporated into the ``LegalAgreement`` attribute.
-
-The below snippet represents this ``RelatedAgreement`` type, which ``legalAgreement`` attribute carries the ``reference`` annotation and where the ``LegalAgreement`` class carries associated ``metadata key`` annotation:
-
-.. code-block:: Haskell
-
- type RelatedAgreement:
-   legalAgreement LegalAgreement (0..1)
-   documentationIdentification DocumentationIdentification (0..1)
-
-.. code-block:: Haskell
-
- type LegalAgreement extends LegalAgreementBase:
-   [metadata key]
-   [rootType]
-   agreementTerms AgreementTerms (0..1)
 
 Process Model
 -------------
