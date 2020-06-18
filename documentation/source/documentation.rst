@@ -970,8 +970,8 @@ The unique identification of an agreement is described in the CDM by the ``Legal
 	contractualParty Party (2..2)
 	otherParty PartyRole (0..*)   
 
-The Agreement
-^^^^^^^^^^^^^
+Agreement Content
+^^^^^^^^^^^^^^^^^
 
 
 Linking Legal Agreements to Contracts and Events using Functions
