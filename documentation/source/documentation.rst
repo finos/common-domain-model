@@ -998,7 +998,7 @@ There are three components to Agreement Terms, as shown in the code snippet belo
 
 * The ``DocumentationIdentification`` attribute is currently used to map Legal Agreement terms captured as part of an FpML transaction message.  This attributed will be deprecated when a synonym mapping structure has been incorporated into the ``LegalAgreement`` attribute.
 
-The below snippet represents this ``RelatedAgreement`` type.
+The below snippet represents the ``RelatedAgreement`` type.
 
 .. code-block:: Haskell
 
@@ -1008,7 +1008,7 @@ The below snippet represents this ``RelatedAgreement`` type.
    
 ``UmbrellaAgreement`` is used to specify whether Umbrella Agreement terms are applicable, relevant specific language, and underlying entities associated with the umbrella agreement
 
-The below snippet represents this ``UmbrellaAgreement`` type.
+The below snippet represents the ``UmbrellaAgreement`` type.
 
 .. code-block:: Haskell
 
