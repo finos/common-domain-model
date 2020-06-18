@@ -945,6 +945,10 @@ The key modelling principles that have been adopted to represent legal agreement
 
   * The ``LegalAgreementBase`` abstract class uses components that are also used as part of the CDM contract and lifecycle event components: e.g. ``Party``, ``Identifier``, ``date``.
   
+* **Extendable model**
+
+  * The Legal Agreement model follows the CDM design principles of composability and reusability to develop an extendable model that can support multiple document types.
+  
 The model components specified in the CDM are detailed in the section below.
 
 Legal Agreement
@@ -1017,7 +1021,22 @@ The below snippet represents the ``UmbrellaAgreement`` type.
 	language string (0..1)
 	parties UmbrellaAgreementEntity (0..*)
 
-``Agreement`` is used to specify the individual elections contained within the Legal Agreement, the approach is explained in further detail below.  Within ``Agreement`` are individual classes which contain the elections used to define a specific group of agreements. e.g ``CreditSupportAgreementElections`` can be used to define any of the Credit Support Agreements currently supported by the CDM.
+``Agreement`` is used to specify the individual elections contained within the Legal Agreement, the approach is explained in further detail below.  
+
+The Elective Provisions
+^^^^^^^^^^^^^^^^^^^^^^^
+
+``Agreement`` contains individual classes which contain the elections used to define a specific group of agreements. e.g ``CreditSupportAgreementElections`` can be used to define any of the Credit Support Agreements currently supported by the CDM.
+
+The structure of the elections contained within each class are modelled to reflect the structure of the legal agreements that they represent for ease of reference.  Each class contains a set of elections, or election families which can be used to represent the clauses contained within that type of Legal Agreement, regardless of vintage or governing law.
+
+For example ``CreditSupportAgreementElections`` can be used to represent all of the following documents:
+
+  * ISDA 2016 Phase One Credit Support Annex (“CSA”) (Security Interest – New York Law)
+  * ISDA 2016 Phase One Credit Support Deed (“CSD”) (Security Interest – English Law)
+  * ISDA 2016 Phase One CSA (Loan – Japanese Law)
+  * ISDA 2018 CSA (Security Interest – New York Law)
+  * ISDA 2018 CSD (Security Interest – English Law)
 
 .. note:: Validation exists in the model to ensure that the set of elections specified within the ``Agreement`` are consistent with the agreement identified as part of ``LegalAgreementBase``.  The below snippet represents the validation condition.
   
@@ -1026,10 +1045,60 @@ The below snippet represents the ``UmbrellaAgreement`` type.
  condition agreementVerification:
    if agreementTerms -> agreement -> securityAgreementElections exists
    then agreementType -> name = LegalAgreementNameEnum->SecurityAgreement
+   
+**Approach**
+In many cases the pre-printed clauses in the legal agreement being modelled offer pre-defined elections that the parties can select.  In these cases, the clauses that need to be modelled are identified in the form, typically together with the needed attributes. The values those attributes can take may also be clear (e.g. an election from a list of options or a specific type of information such as an amount, date or city).  In these instances the model is a direct reflection of the choices in the clause and uses boolean attributes, or enumeration lists to achieve the necessary outcome.
 
-The Elective Provisions
-^^^^^^^^^^^^^^^^^^^^^^^
+However in some cases, the pre-printed form may identify the clause but not (all) attributes or values they could take, e.g. when a single version of a clause term is provided with a space for parties to agree an unspecified alternative if they wish.  In these instances the model uses string attributes to capture the clause in a free text format.  
 
+Examples are provided below to provide a practical explanation of the approach.
+
+Example 1: Security Agreement Elections
+"""""""""""""""""""""""""""""""""""""""
+
+The CDM model can currently support nine distinct Security Agreements.  Election structures across any of these agreements can be represented through the following class:
+
+.. code-block:: Haskell
+
+ type SecurityAgreementElections: <"The set of elections which specify a Security Agremeent">
+
+	pledgedAccount Account (0..1)
+	enforcementEvent EnforcementEvent (0..1)
+	deliveryInLieuRight boolean (0..1)
+	fullDischarge boolean (0..1)
+	appropriatedCollateralValuation AppropriatedCollateralValuation (0..1)
+	processAgent ProcessAgent (0..1)
+	jurisdictionRelatedTerms JurisdictionRelatedTerms (0..1)
+	additionalAmendments string (0..1)
+	additionalBespokeTerms string (0..1)
+	executionTerms ExecutionTerms (0..1)
+	
+Dependent on the agreement being specified a different combination of attributes would be used when specifying the agreement. The cardinality of each attribute allows the appropriate combination to provided dependent on the agreement.
+
+An equivalent approach is followed for ``CreditSupportAgreementElections`` and ``CollateralTransferAgreementElections``
+
+
+Example 2: Credit Support Obligations
+"""""""""""""""""""""""""""""""""""""
+
+The below election family is contained within both ``CreditSupportAgreementElections`` and ``CollateralTransferAgreementElections`` and is used to represent a key set of terms within these document families fundamental to collateral calculations.
+
+.. code-block:: Haskell
+
+ type CreditSupportObligationsInitialMargin:
+	marginApproach MarginApproach (0..1)
+	threshold Threshold (1..1)
+	minimumTransferAmount MinimumTransferAmount (1..1)
+	rounding CollateralRounding (0..1)
+	bespokeTransferTiming BespokeTransferTiming (0..1)
+	
+This set of elections is modelled to directly reflect the equivalent paragraph in the ISDA documentation, for example Paragraph 13 (c) of the  ISDA 2018 CSA (Security Interest – New York Law).  Each attribute is modelled on the clause in the legal agreement and provides the necessary components to reflect the election structure.  For example ``rounding`` allows the specification of rounding terms for the Delivery Amount and the Return Amount.
+
+.. code-block:: Haskell
+
+ type CollateralRounding:
+	deliveryAmount number (1..1)
+	returnAmount number (1..1)
 
 
 Linking Legal Agreements to Contracts and Events using Functions
