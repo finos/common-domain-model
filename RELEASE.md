@@ -1,5 +1,5 @@
-# *Infrastructure changes: Ingestion*
+# *Registration Form Bugfix*
 
 _What is being released_
 
-Fixed a bug in the ingestion algorithm that was causing issue in the downsteam projects.
+- Company name field can now contain numbers.
