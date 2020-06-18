@@ -1001,8 +1001,11 @@ There are three components to Agreement Terms, as shown in the code snippet belo
 	umbrellaAgreement UmbrellaAgreement (0..1)
 	
 ``RelatedAgreement`` is used to specify the agreement(s) that govern the agreement, either as a reference to such agreements when specified as part of the CDM, or through identification of some of the key terms of those agreements.  It allows to:
+
 * Identify some of the key terms of a governing legal agreement such as the agreement identifier, the publisher, the document vintage and the agreement date, as part of the ``legalAgreement`` attribute.
+
 * Or, reference a legal agreement that is electronically represented in the CDM through the ``legalAgreement`` attribute, which has a reference key into the agreement instance.
+
 * The ``DocumentationIdentification`` attribute is currently used to map Legal Agreement terms captured as part of an FpML transaction message.  This attributed will be deprecated when a synonym mapping structure has been incorporated into the ``LegalAgreement`` attribute.
 
 The below snippet represents this ``RelatedAgreement`` type.
@@ -1013,7 +1016,7 @@ The below snippet represents this ``RelatedAgreement`` type.
    legalAgreement LegalAgreement (0..1)
    documentationIdentification DocumentationIdentification (0..1)
    
- ``UmbrellaAgreement`` is used to specify whether Umbrella Agreement terms are applicable, relevant specific language, and underlying entities associated with the umbrella agreement
+``UmbrellaAgreement`` is used to specify whether Umbrella Agreement terms are applicable, relevant specific language, and underlying entities associated with the umbrella agreement
 
 The below snippet represents this ``UmbrellaAgreement`` type.
 
