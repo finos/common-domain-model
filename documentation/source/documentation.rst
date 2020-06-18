@@ -940,16 +940,6 @@ The key modelling principles that have been adopted to represent legal agreement
 
   * The agreement identification features: agreement name, publisher, identification, etc are represented by the ``LegalAgreementBase`` abstract class.
   * The agreement specification details: election provisions of the agreement, related agreements and umbrella agreement terms are represented by the ``AgreementTerms``.
-  * Contained within ``Agreement`` are individual classes which contain the elections used to define a specific group of agreements. e.g ``CreditSupportAgreementElections`` can be used to define any of the Credit Support Agreements currently supported by the CDM.
-  * Validation exists in the model to ensure that the set of elections specified within the ``Agreement`` are consistent with the agreement identified as part of ``LegalAgreementBase``.
-  
-The below snippet represents the validation condition.
-  
-.. code-block:: Haskell
-
- condition agreementVerification:
-   if agreementTerms -> agreement -> securityAgreementElections exists
-   then agreementType -> name = LegalAgreementNameEnum->SecurityAgreement
    
 * **Composite model**.
 
@@ -1026,7 +1016,20 @@ The below snippet represents this ``UmbrellaAgreement`` type.
 	isApplicable boolean (1..1)
 	language string (0..1)
 	parties UmbrellaAgreementEntity (0..*)
-	
+
+``Agreement`` is used to specify the individual elections contained within the Legal Agreement, the approach is explained in further detail below.  Within ``Agreement`` are individual classes which contain the elections used to define a specific group of agreements. e.g ``CreditSupportAgreementElections`` can be used to define any of the Credit Support Agreements currently supported by the CDM.
+
+.. note:: Validation exists in the model to ensure that the set of elections specified within the ``Agreement`` are consistent with the agreement identified as part of ``LegalAgreementBase``.  The below snippet represents the validation condition.
+  
+.. code-block:: Haskell
+
+ condition agreementVerification:
+   if agreementTerms -> agreement -> securityAgreementElections exists
+   then agreementType -> name = LegalAgreementNameEnum->SecurityAgreement
+
+The Elective Provisions
+^^^^^^^^^^^^^^^^^^^^^^^
+
 
 
 Linking Legal Agreements to Contracts and Events using Functions
