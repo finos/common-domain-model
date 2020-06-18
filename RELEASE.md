@@ -1,14 +1,17 @@
-# *User Documentation: Consistency of Examples vs Model*
+# *CDM Model: Legal Document Modelling*
 
 _What is being released_
 
-A technical change has been introduced in the CDM build and release infrastructure, that verifies the consistency of any code snippet included in the user documentation vs the model, and alerts in case of any discrepancy. Going forward, this will facilitate maintenance of the user documentation as the model evolves, by forcing to update the documentation in synchrony with any model change.
+Resolve complex ISDA Create mapping issues for legal documents:
 
-As part of this infrastructure change, a number of code snippets in the user documentation have been updated to be synchronised with the model.
-
-In particular, following removal of the _inception_ primitive (superseded by the _execution_ and _contract formation_ primitives) as part of a recent release, the user documentation has been updated to reflect that model change.
+- Convert ISDA Create currency descriptions into ISO Country Code (iso4217)
+- `Access Conditions` - fix mapping of Additional Termination Events
+- `Amendment to Termination Currency` - fix mapping of three party election structure, and agreement date.
+- `SIMM Calculation Currency` - fix mapping of elections.
+- `Collateral Management Agreement` - fix mapping of elections.
+- `Custodian Event End Date` - fix mapping issues and add `CustodianEventEndDate.safekeepingPeriodExpiry` to accommodate Clearstream CTA documents.
+- Remove `LegalDocumentBase.partyInformation` as it duplicates `LegalDocumentBase.contractualParty` and `LegalDocumentBase.otherParty`.
 
 _Review Direction_
 
-In the CDM Portal, review the CDM Documentation, in particular the section:
-- [Primitive Event Section](https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#primitive-event)
+In the Ingestion Panel, try samples in folder `isda-create`.
