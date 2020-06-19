@@ -39,9 +39,10 @@ public class TradeSideToPartyMappingProcessorTest {
         ReferenceWithMetaPartyBuilder builder = new ReferenceWithMetaPartyBuilder();
         builder.setExternalReference(TRADE_SIDE_1);
 
+        Path synonymPath = Path.parse("swap.tradeSide[0].id");
         TradeSideToPartyMappingProcessor processor =
                 new TradeSideToPartyMappingProcessor(rosettaPath, Collections.emptyList(), mappings);
-//        processor.map(builder, null);
+        processor.map(synonymPath, builder, null);
 
         assertEquals(PARTY_A, builder.getExternalReference());
     }
@@ -51,9 +52,10 @@ public class TradeSideToPartyMappingProcessorTest {
         ReferenceWithMetaPartyBuilder builder = new ReferenceWithMetaPartyBuilder();
         builder.setExternalReference(TRADE_SIDE_2);
 
+        Path synonymPath = Path.parse("swap.tradeSide[1].id");
         TradeSideToPartyMappingProcessor processor =
                 new TradeSideToPartyMappingProcessor(rosettaPath, Collections.emptyList(), mappings);
-//        processor.map(builder, null);
+        processor.map(synonymPath, builder, null);
 
         assertEquals(PARTY_B, builder.getExternalReference());
     }
