@@ -173,31 +173,18 @@ type WorkflowStep: <"A workflow step represents the state of a business event. T
 	// TODO - This will be replaced with a list of signatories that must sign off the 'previousWorkflowStep' and any operational reasons why it may be rejected.
 	rejected boolean (0..1) <"Flags this step as rejected.">
 		[synonym Workflow_Event value "rejected"]
-
 	previousWorkflowStep WorkflowStep (0..1) <"Optional previous workflow step that provides lineage to workflow steps that precedes it.">
 		[metadata reference]
 		[synonym Workflow_Event value "previousWorkflowStep"]
-
 	messageInformation MessageInformation (0..1) <"Contains all information pertaining the FpML messaging header ">
-		
-		
-		
-		
 		[synonym CME_ClearedConfirm_1_17 value "header" path "clearingConfirmed"]
 	timestamp EventTimestamp (1..*) <"The set of timestamp(s) associated with the event as a collection of [dateTime, qualifier].">
 		[synonym Workflow_Event value "timestamp"]
-		
-		
-		
 		[synonym CME_ClearedConfirm_1_17 value "timestamps" path "clearingConfirmed->trade->tradeHeader"]
 		[synonym CME_ClearedConfirm_1_17 value "header" path "clearingConfirmed"]
 	eventIdentifier Identifier (1..*) <"The identifier(s) that uniquely identify a lifecycle event. The unbounded cardinality is meant to provide the ability to associate identifiers that are issued by distinct parties. As an example, each of the parties to the event may choose to associate their own identifiers to the event.">
 		[synonym Workflow_Event value "eventIdentifier"]
-		
-		
-		
-		
-	action ActionEnum (1..1) <"Specifies whether the event is a new, a correction or a cancellation.">
+	action ActionEnum (0..1) <"Specifies whether the event is a new, a correction or a cancellation.">
 		[synonym Workflow_Event
 			set to ActionEnum -> New when "isCorrection" = False,
 			set to ActionEnum -> Correct when "isCorrection" = True,
@@ -205,12 +192,9 @@ type WorkflowStep: <"A workflow step represents the state of a business event. T
 		[synonym FpML_5_10
 			set to ActionEnum -> New when "isCorrection" = False,
 			set to ActionEnum -> Correct when "isCorrection" = True]
-		
 		[synonym CME_SubmissionIRS_1_0 value "TransTyp" path "TrdCaptRpt"]
 	party Party (0..*) <"The specification of the event parties. This attribute is optional, as not applicable to certain events (e.g. most of the observations).">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "party"]
-		
-		
 	account Account (0..*) <"Optional account information that could be associated to the event.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0 value "account"]
 		[synonym CME_ClearedConfirm_1_17 value "account" path "clearingConfirmed"]
