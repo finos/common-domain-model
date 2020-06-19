@@ -43,8 +43,9 @@ public class UmbrellaAgreementEntityMappingProcessorTest {
 		List<UmbrellaAgreementEntityBuilder> builders = Arrays.asList(mock(UmbrellaAgreementEntityBuilder.class));
 
 		// test
-		UmbrellaAgreementEntityMappingProcessor processor = new UmbrellaAgreementEntityMappingProcessor(rosettaPath, Collections.emptyList(), mappings);
-		processor.map(builders, parent);
+		Path synonymPath = Path.parse("answers.partyA.umbrella_agreement_and_principal_identification.principal_identification_schedule");
+		UmbrellaAgreementEntityMappingProcessor processor = new UmbrellaAgreementEntityMappingProcessor(rosettaPath, Collections.singletonList(synonymPath), mappings);
+		processor.map(synonymPath, builders, parent);
 		UmbrellaAgreement umbrellaAgreement = parent.build();
 
 		// assert
@@ -79,8 +80,9 @@ public class UmbrellaAgreementEntityMappingProcessorTest {
 		List<UmbrellaAgreementEntityBuilder> builders = Arrays.asList(mock(UmbrellaAgreementEntityBuilder.class));
 
 		// test
+		Path synonymPath = Path.parse("answers.partyA.umbrella_agreement_and_principal_identification.principal_identification_schedule");
 		UmbrellaAgreementEntityMappingProcessor processor = new UmbrellaAgreementEntityMappingProcessor(rosettaPath, Collections.emptyList(), mappings);
-		processor.map(builders, parent);
+		processor.map(synonymPath, builders, parent);
 		UmbrellaAgreement umbrellaAgreement = parent.build();
 
 		// assert

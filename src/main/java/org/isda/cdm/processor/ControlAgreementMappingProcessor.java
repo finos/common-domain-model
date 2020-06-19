@@ -10,8 +10,7 @@ import org.isda.cdm.ControlAgreementElections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.isda.cdm.processor.MappingProcessorUtils.updateMappings;
-import static org.isda.cdm.processor.MappingProcessorUtils.PARTIES;
+import static org.isda.cdm.processor.MappingProcessorUtils.*;
 
 /**
  * ISDA Create mapping processor.
@@ -19,22 +18,20 @@ import static org.isda.cdm.processor.MappingProcessorUtils.PARTIES;
 @SuppressWarnings("unused")
 public class ControlAgreementMappingProcessor extends MappingProcessor {
 
-	public ControlAgreementMappingProcessor(RosettaPath rosettaPath, List<String> synonymValues, List<Mapping> mappings) {
-		super(rosettaPath, synonymValues, mappings);
+	public ControlAgreementMappingProcessor(RosettaPath rosettaPath, List<Path> synonymPaths, List<Mapping> mappings) {
+		super(rosettaPath, synonymPaths, mappings);
 	}
 
 	@Override
-	public void map(RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
-		getSynonymValues().forEach(v -> {
-			ControlAgreement.ControlAgreementBuilder controlAgreementBuilder = (ControlAgreement.ControlAgreementBuilder) builder;
-			PARTIES.forEach(party -> getControlAgreementElection(v, party).ifPresent(controlAgreementBuilder::addPartyElection));
-		});
+	protected void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
+		ControlAgreement.ControlAgreementBuilder controlAgreementBuilder = (ControlAgreement.ControlAgreementBuilder) builder;
+		PARTIES.forEach(party -> getControlAgreementElection(synonymPath, party).ifPresent(controlAgreementBuilder::addPartyElection));
 	}
 
-	private Optional<ControlAgreementElections> getControlAgreementElection(String synonymValue, String party) {
+	private Optional<ControlAgreementElections> getControlAgreementElection(Path synonymPath, String party) {
 		ControlAgreementElections.ControlAgreementElectionsBuilder controlAgreementElections = ControlAgreementElections.builder();
 
-		setValueAndUpdateMappings(String.format("answers.partyA.%s.%s_%s", synonymValue, party, synonymValue),
+		setValueAndUpdateMappings(getSynonymPath(synonymPath, party, "_" + synonymPath.getLastElement().getPathName()),
 				(value) -> {
 					controlAgreementElections.setParty(party);
 					yesNoToBoolean(value).ifPresent(controlAgreementElections::setControlAgreementAsCsd);

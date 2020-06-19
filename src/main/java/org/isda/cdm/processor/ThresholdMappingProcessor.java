@@ -1,6 +1,7 @@
 package org.isda.cdm.processor;
 
 import com.regnosys.rosetta.common.translation.Mapping;
+import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 
@@ -17,16 +18,14 @@ public class ThresholdMappingProcessor extends MappingProcessor {
 
 	private final ElectiveAmountElectionMappingHelper helper;
 
-	public ThresholdMappingProcessor(RosettaPath rosettaPath, List<String> synonymValues, List<Mapping> mappings) {
-		super(rosettaPath, synonymValues, mappings);
+	public ThresholdMappingProcessor(RosettaPath rosettaPath, List<Path> synonymPaths, List<Mapping> mappings) {
+		super(rosettaPath, synonymPaths, mappings);
 		this.helper = new ElectiveAmountElectionMappingHelper(getPath(), getMappings());
 	}
 
 	@Override
-	public void map(RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
-		getSynonymValues().forEach(v -> {
-			ThresholdBuilder thresholdBuilder = (ThresholdBuilder) builder;
-			PARTIES.forEach(party -> helper.getElectiveAmountElection(v, party).ifPresent(thresholdBuilder::addPartyElection));
-		});
+	protected void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
+		ThresholdBuilder thresholdBuilder = (ThresholdBuilder) builder;
+		PARTIES.forEach(party -> helper.getElectiveAmountElection(synonymPath, party).ifPresent(thresholdBuilder::addPartyElection));
 	}
 }
