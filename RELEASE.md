@@ -18,3 +18,9 @@ _Review direction_
 In the CDM Portal, review the CDM Documentation, in particular the section:
 
 - [Overview Section](https://docs.rosetta-technology.io/cdm/readme.html)
+
+# *Registration Form Bugfix*
+
+_What is being released_
+
+- Company name field can now contain numbers.
