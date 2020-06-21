@@ -337,7 +337,7 @@ The representation of state transitions in the CDM event model is based on the f
 * **The history of the trade state can be reconstructed at any point in the trade lifecycle**, i.e. the CDM implements a *lineage* between states as the trade goes through state transitions.
 * **The state is trade-specific**, not product-specific (i.e. it is not an asset-servicing model). The same product may be associated to infinitely many trades, each with its own specific state, between any two parties.
 
-The data structures in the event model are organised into four main sub-structures to represent state transitions, as described below:
+The data structures in the event model are organised into four main sub-structures to represent state transitions, as described below.
 
 .. figure:: event-model-overview.png
 
@@ -1042,13 +1042,9 @@ Machine readability and executability is crucial to eliminate implementation dis
 How Does It Work
 """"""""""""""""
 
-The process model is systematically translated into executable code for the Java representation of the CDM using purpose-built technology as described in the `Code Generation Section`_. The CDM data model and process model specifications can also be translated into a number of other modern, widely adopted and freely available programming languages:
+The data and proces model definitions of the CDM are systematically translated into executable code using purpose-built code generation technology. The CDM executable code is available in a number of modern, widely adopted and freely available programming languages and is systematically distributed as part of the CDM release.
 
-* Scala
-* DAML
-* Typescript
-
-The CDM has the capability to add support for other languages as required by market participants. Executable code artefacts in all supported languages are systematically distributed with the CDM and freely available to download from the ISDA CDM `Portal`_.
+The code generation process is based on the Rosetta DSL and is further described in the `Code Generation Section`_, including an up-to-date `list of available languages <https://docs.rosetta-technology.io/dsl/codegen-readme.html#what-code-generators-are-available>`_. Support for further languages can be added as required by market participants.
 
 Scope
 ^^^^^
@@ -1254,7 +1250,7 @@ There are three levels of function components in the CDM to define the processin
 #. Event creation
 #. Workflow step creation
 
-Each of those components can leverage any calculation or utility function already defined in the CDM. As part of the validation processe aembedded in the CDM, an object validation step is included in all these object creation functions to ensure that they each construct valid CDM objects. Further details on the underlying calculation and validation processes are described in the `Calculation Process Section`_ and `Validation Process Section`_.
+Each of those components can leverage any calculation or utility function already defined in the CDM. As part of the validation processe embedded in the CDM, an object validation step is included in all these object creation functions to ensure that they each construct valid CDM objects. Further details on the underlying calculation and validation processes are described in the `Calculation Process Section`_ and `Validation Process Section`_.
 
 Illustration of the three components are given in the sections below.
 

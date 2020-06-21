@@ -1,3 +1,24 @@
+# *User Documentation: Overview Section*
+
+_What is being released_
+
+The overview section of the CDM user documentation has been updated, in line with recent changes to other sections of the documentation and to the model.
+
+Notable changes and updates introduced:
+
+- Updated components diagram
+- Aligned high-level description of benefits onto ISDA's systematic messaging about CDM
+- New CDM governance section
+- Move of versioning section to be part of the CDM distribution section
+- Clean-up language and clarify explanations where required
+- Updated links and resources
+
+_Review direction_
+
+In the CDM Portal, review the CDM Documentation, in particular the section:
+
+- [Overview Section](https://docs.rosetta-technology.io/cdm/readme.html)
+
 # *Documentation: Add descriptions to Create functions*
 
 _What is being released_
@@ -15,8 +36,6 @@ In the CDM textual browser, see the descriptions for functions:
 - `ClearingInstruction`
 
 # *Event Model: Add Create Workflow Step Functions*
-
-_What is being released_
 
 CDM functions to create a `WorkflowStep` with a business event that has happened or a `WorkflowStep` supporting proposing a business event, accepting a business event, and rejecting a business event. The new functions enable data quality remediation on a `WorkflowStep` data record with the use of the action attribute with possible values of New, Correct and Cancel and constraints restricting the inputs to valid cases.
 
