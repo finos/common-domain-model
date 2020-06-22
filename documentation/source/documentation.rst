@@ -966,12 +966,12 @@ Legal Agreement
    
 The CDM provides support for implementors to represent a legal agreement through the specification of the agreement identification features only, as represented in ``LegalAgreementBase``. Additionally, the elective provisions of the agreement can be specified in a machine readable format in the ``agreementTerms`` attribute. This attribute is optional, so that the CDM can be used to solely identify an agreement, without any of the content digitised in the model.
 
-.. note:: A ``LegalAgreement`` specified in CDM is assigned a *key* metadata. This allows a legal agreement to be uniquely linked to other components in the model, such as a contract. This example is detailed below. The referencing mechanism is explained in the `Meta-data and Reference Section`_ of the Rosetta DSL documentation.
+.. note:: A ``LegalAgreement`` specified in CDM is assigned a *key* metadata. This allows a legal agreement to be uniquely linked to other components in the model, such as a contract. This example is detailed below. The referencing mechanism is explained in the `Meta-Data Section`_ of the Rosetta DSL documentation.
 
 Agreement Identification
 """"""""""""""""""""""""
 
-The unique identification of an agreement is described in the CDM by the ``LegalAgreementBase`` type.  All legal agreements must contain an agreement date, two contractual parties and information indicating the name and publisher of the legal agreement being specified.  Provision is made for further information to be captured, for example an agreement identifier, or the governing law of the agreement.
+The unique identification of an agreement is described in the CDM by the ``LegalAgreementBase`` type. All legal agreements must contain an agreement date, two contractual parties and information indicating the name and publisher of the legal agreement being specified.  Provision is made for further information to be captured, for example an agreement identifier, or the governing law of the agreement.
 
 .. code-block:: Haskell
 
@@ -1152,12 +1152,34 @@ This set of elections is modelled to directly reflect the equivalent paragraph i
    deliveryAmount number (1..1)
    returnAmount number (1..1)
 
-Linking Legal Agreements to Contracts and Events using Functions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Linking Legal Agreements to Contracts and Events
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The CDM uses the key / referencing mechanism to tie a legal agreement with the relevant contract or event.
 
-This referencing mechanism has been implemented for ``Contract`` so that a ``ContractFormation`` business event can reference the ``LegalAgreement`` governing the transaction.
+This referencing mechanism has been implemented for the ``Contract`` type through the ``documentation`` attribute, which uses the ``RelatedAgreement`` data type. For OTC derivatives, this attribute will contain a reference to the ISDA Master Agreement that governs any derivative transaction between the parties.
+
+.. code-block:: Haskell
+
+ type Contract:
+   [metadata key]
+   [rootType]
+   contractIdentifier Identifier (1..*)
+   tradeDate TradeDate (1..1)
+   clearedDate date (0..1)
+   tradableProduct TradableProduct (1..1)
+   collateral Collateral (0..1)
+   documentation RelatedAgreement (0..1)
+   governingLaw GoverningLawEnum (0..1)
+     [metadata scheme]
+   party Party (0..*)
+   account Account (0..*)
+   partyRole PartyRole (0..*)
+   calculationAgent CalculationAgent (0..1)
+   partyContractInformation PartyContractInformation (0..*)
+   closedState ClosedState (0..1)
+
+Following trade execution, the ``ContractFormation`` business event that creates the legally binding agreement between the parties must reference the ``LegalAgreement`` object governing the transaction.
 
 .. code-block:: Haskell
 
@@ -1167,9 +1189,9 @@ This referencing mechanism has been implemented for ``Contract`` so that a ``Con
      executionEvent BusinessEvent (1..1)
      legalAgreement LegalAgreement (0..1)
 
-Referencing the legal agreement from the ``Contract`` is done through the ``documentation`` attribute.
+.. note:: The functions to create such business events are further detailed in the `Lifecycle Event Process Section`_ of the documentation.
 
-It has also been implemented for a set of functions to enable digitization of collateral calculations.
+It has also been implemented for a set of functions to enable digitisation of collateral calculations.
 
 
 Process Model
@@ -1584,6 +1606,7 @@ Those synonym sources are listed as part of a configuration file in the CDM usin
 .. _Workflow Section: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#workflow
 .. _Product Model Section: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#product-model
 .. _Tradable Product Section: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#tradable-product
+.. _Lifecycle Event Process Section: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#lifecycle-event-process
 
 .. _serialised: https://en.wikipedia.org/wiki/Serialization
 .. _data modelling: https://en.wikipedia.org/wiki/Cardinality_(data_modeling)#Application_program_modeling_approaches
