@@ -19,7 +19,7 @@ Product Model
 
 Where applicable, the CDM follows the data structure of the Financial Products Markup Language (FpML), which is widely used in the OTC Derivatives market.  For example, the CDM type ``PayerReceiver`` is equivalent to the FpML PayerReceiver.model. Both of these are data structures used frequently throughout each respective model. In other cases, the CDM data structure is more normalised, per requirements from the CDM Design Working Group.  For example, price and quantity are represented in a single type, ``TradableProduct``, which is shared by all products. Another example is the use of a composable product model whereby:
 
-* **Economic terms are specified by composition**, For example, the ``InterestRatePayout`` type is a component used in the definition of any product with one or more interest rate legs (e.g. Interest Rate Swaps, Equity Swaps, and Credit Default Swaps).  
+* **Economic terms are specified by composition**, For example, the ``InterestRatePayout`` type is a component used in the definition of any product with one or more interest rate legs (e.g. Interest Rate Swaps, Equity Swaps, and Credit Default Swaps).
 * **Product qualification is inferred** from those economic terms rather than explicitly naming the product type, whereas FpML qualifies the product explcitly through the *product* substitution group.
 
 Regardless of whether the data structure is the same or different from FpML, the CDM includes defined Synonyms that map to FpML (and other models) and can be used for transformation purposes. More details on Synonyms are provided in the Mapping (Synonym) section of this document.
@@ -27,11 +27,11 @@ Regardless of whether the data structure is the same or different from FpML, the
 TradableProduct
 ^^^^^^^^^^^^^^^
 
-A tradable product represents a financial product that is ready to be traded, meaning that there is an agreed financial product, price, quantity, and other details necessary to complete an execution of a security or a negotiated contract.  Tradable products are represented by the ``TradableProduct`` type. 
+A tradable product represents a financial product that is ready to be traded, meaning that there is an agreed financial product, price, quantity, and other details necessary to complete an execution of a security or a negotiated contract.  Tradable products are represented by the ``TradableProduct`` type.
 
 .. literalinclude:: code-snippets/TradableProduct.snippet
   :language: haskell
-        
+
 Quantity and price are represented in the ``TradableProduct`` type because they are attributes shared by all products. All of the other attributes required to describe a product are defined in distinct product types.
 
 QuantityNotation
@@ -40,39 +40,39 @@ The ``QuantityNotation`` type supports the quantity (or notional) for any produc
 
 .. code-block:: Haskell
 
- type QuantityNotation: 
+ type QuantityNotation:
     quantity NonNegativeQuantity (1..1)
     assetIdentifier AssetIdentifier (1..1)
-    
+
 The ``AssetIdentifier`` type requires the specification of either a product, currency or a floating rate option. This choice constraint is supported by specifying a ``one-of`` condition, as described in the `Special Syntax Section`_ of the Rosetta DSL documentation.
 
 .. code-block:: Haskell
 
- type AssetIdentifier: 
-    productIdentifier ProductIdentifier (0..1) 
-    currency string (0..1) 
+ type AssetIdentifier:
+    productIdentifier ProductIdentifier (0..1)
+    currency string (0..1)
        [metadata scheme]
-    rateOption FloatingRateOption (0..1) 
+    rateOption FloatingRateOption (0..1)
     condition: one-of
-     
+
 PriceNotation
 """""""""""""
 The ``PriceNotation`` type supports the price for any product.
 
 .. code-block:: Haskell
 
- type PriceNotation: 
+ type PriceNotation:
     price Price (1..1)
     assetIdentifier AssetIdentifier (0..1)
-    
+
 The ``price`` attribute is of type ``Price``, which requires the selection of one of the attributes that describe different types of prices. The set of attributes collectively support all products in the CDM.
 
 .. code-block:: Haskell
 
- type Price: 
+ type Price:
     cashPrice CashPrice (0..1)
     exchangeRate ExchangeRate (0..1)
-    fixedInterestRate FixedInterestRate (0..1) 
+    fixedInterestRate FixedInterestRate (0..1)
 
     floatingInterestRate FloatingInterestRate (0..1)
     condition: one-of
@@ -85,8 +85,8 @@ Financial Product
 A financial product is an instrument that is used to transfer financial risk between two parties. Financial products are represented in the ``Product`` type, which is also constrained by a ``one-of`` condition, meaning that for a single Tradable Product, there can only be one Product.
 
 .. code-block:: Haskell
- 
- type Product: 
+
+ type Product:
     [metadata key]
     contractualProduct ContractualProduct (0..1)
     index Index (0..1)
@@ -97,11 +97,11 @@ A financial product is an instrument that is used to transfer financial risk bet
 
 The CDM allows any one of these products to included in a trade or used as an underlier for another product (see the *Underlier* section). One unlikely case for a direct trade is Index, which is primarily used as an underlier.
 
-Among this set of products, the contractual product is the most complicated and requires the largest data structure. In a contractual product, an exchange of financial risk is materialised by a unique bilateral contract that specifies the financial obligations of each party. The terms of the contract are specified at trade inception and apply throughout the life of the contract (which can last for decades for certain long-dated products), unless amended by mutual agreement. Contractual products are fungible (in other words, replaceable by other identical or similar contracts) only under specific terms: e.g. the existence of a close-out netting agreement between the parties. 
+Among this set of products, the contractual product is the most complicated and requires the largest data structure. In a contractual product, an exchange of financial risk is materialised by a unique bilateral contract that specifies the financial obligations of each party. The terms of the contract are specified at trade inception and apply throughout the life of the contract (which can last for decades for certain long-dated products), unless amended by mutual agreement. Contractual products are fungible (in other words, replaceable by other identical or similar contracts) only under specific terms: e.g. the existence of a close-out netting agreement between the parties.
 
 Given that each contractual product transaction is unique, all of the contract terms must be specified and stored in an easily accessible transaction lifecycle model so that each party can evaluate the financial and counterparty risks during the life of the agreement.
 
-Foreign Exchange (FX) spot and forward trades (including Non-Deliverable Forwards) and private loans also represent an exchange of financial risk represented by a form of bilateral agreements. FX forwards and private loans can have an extended term, and are generally not fungible. However, these products share few other commonalities with contractual products such as Interest Rate Swaps. Therefore, they are defined separately.  
+Foreign Exchange (FX) spot and forward trades (including Non-Deliverable Forwards) and private loans also represent an exchange of financial risk represented by a form of bilateral agreements. FX forwards and private loans can have an extended term, and are generally not fungible. However, these products share few other commonalities with contractual products such as Interest Rate Swaps. Therefore, they are defined separately.
 
 By contrast, in the case of the execution of a security (e.g. a listed equity), the exchange of finanical risk is a one-time event that takes place on the settlement date, which is usually within a few business days of the agreement. The other significant distinction is that securities are fungible instruments for which the terms and security identifiers are publically available.  Therefore, the terms of the security do not have to be stored in a transaction lifecycle model, but can be referenced with public identifiers.
 
@@ -127,7 +127,7 @@ The scope of contractual products in the current model are summarized below:
 * **Equity derivatives**:
 
   * Equity Swaps (single name)
-  
+
 * **Options**:
 
   * Any other OTC Options (incl. FX Options)
@@ -152,13 +152,13 @@ The CDM specifies the various sets of possible remaining economic terms using th
 
  type EconomicTerms:
     effectiveDate AdjustableOrRelativeDate (0..1)
-    terminationDate AdjustableOrRelativeDate (0..1) 
-    dateAdjustments BusinessDayAdjustments (0..1) 
+    terminationDate AdjustableOrRelativeDate (0..1)
+    dateAdjustments BusinessDayAdjustments (0..1)
     payout Payout (1..1)
     earlyTerminationProvision EarlyTerminationProvision (0..1)
-    optionProvision OptionProvision (0..1) 
-    extraordinaryEvents ExtraordinaryEvents (0..1) 
- 
+    optionProvision OptionProvision (0..1)
+    extraordinaryEvents ExtraordinaryEvents (0..1)
+
 Payout
 The ``Payout`` type defines the composable payout types, each of which describes a set of terms and conditions for the financial responsibilities between the contractual parties. Payout types can be combined to compose a product.  For example, an Equity Swap can be composed by combining an ``InterestRatePayout`` and an ``EquityPayout``.
 
@@ -167,35 +167,35 @@ The ``Payout`` type defines the composable payout types, each of which describes
  type Payout:
     interestRatePayout InterestRatePayout (0..*)
     creditDefaultPayout CreditDefaultPayout (0..1)
-    equityPayout EquityPayout (0..*) 
-    optionPayout OptionPayout (0..*) 
+    equityPayout EquityPayout (0..*)
+    optionPayout OptionPayout (0..*)
     forwardPayout ForwardPayout (0..*)
-    securityPayout SecurityPayout (0..*) 
+    securityPayout SecurityPayout (0..*)
     cashflow Cashflow (0..*)
-   
+
 The relationship between one of the payout classes and a similar structure in FpML can be identified through the defined Synonyms, as explained in an earlier section.  For example, the ``InterestRatePayout`` is equivalent to the following complex types in FpML: *swapStream*, *feeLeg* *capFloorStream*, *fra*, and *interestLeg*.
 
 .. code-block:: Haskell
 
- type InterestRatePayout extends PayoutBase: 
+ type InterestRatePayout extends PayoutBase:
     [metadata key]
     payerReceiver PayerReceiver (0..1)
     rateSpecification RateSpecification (1..1)
     dayCountFraction DayCountFractionEnum (0..1)
     [metadata scheme]
     calculationPeriodDates CalculationPeriodDates (0..1)
-    paymentDates PaymentDates (0..1)  
-    paymentDate AdjustableDate (0..1) 
+    paymentDates PaymentDates (0..1)
+    paymentDate AdjustableDate (0..1)
     paymentDelay boolean (0..1)
     resetDates ResetDates (0..1)
-    discountingMethod DiscountingMethod (0..1) 
-    compoundingMethod CompoundingMethodEnum (0..1) 
-    cashflowRepresentation CashflowRepresentation (0..1) 
+    discountingMethod DiscountingMethod (0..1)
+    compoundingMethod CompoundingMethodEnum (0..1)
+    cashflowRepresentation CashflowRepresentation (0..1)
     crossCurrencyTerms CrossCurrencyTerms (0..1)
-    stubPeriod StubPeriod (0..1) 
-    bondReference BondReference (0..1) 
+    stubPeriod StubPeriod (0..1)
+    bondReference BondReference (0..1)
     fixedAmount calculation (0..1)
-    floatingAmount calculation (0..1) 
+    floatingAmount calculation (0..1)
 
 There are as set of conditions associated with this type which are not shown here in the interests of brevity.
 
@@ -221,12 +221,12 @@ There are a number of components that are reusable across several payout types. 
 Underlier
 """""""""
 
-The ``Underlier`` type allows for any product to be used as the underlier for a higher-level product such as an option, forward, or an equity swap. 
+The ``Underlier`` type allows for any product to be used as the underlier for a higher-level product such as an option, forward, or an equity swap.
 
 .. code-block:: Haskell
 
  type Underlier:
-    underlyingProduct Product (1..1) 
+    underlyingProduct Product (1..1)
 
 This nesting of the product component is another example of a composable product model. One use case is an interest rate swaption for which the high-level product uses the ``OptionPayout`` type and underlier is an Interest Rate Swap composed of two ``InterestRatePayout`` types. Similiarly, the product underlying an Equity Swap composed of an ``InterestRatePayout`` and an ``EquityPayout`` would be a non-contractual product: an equity security.
 
@@ -240,7 +240,7 @@ For identified products the CDM approach is to exclude any attribute that can be
  type IdentifiedProduct:
     productIdentifier ProductIdentifier (1..1)
 
-As a result, the bond, equity, and other securities are defined as extensions of the product identifier without any additional attributes. 
+As a result, the bond, equity, and other securities are defined as extensions of the product identifier without any additional attributes.
 
 Product Qualification
 ^^^^^^^^^^^^^^^^^^^^^
@@ -337,7 +337,7 @@ The representation of state transitions in the CDM event model is based on the f
 * **The history of the trade state can be reconstructed at any point in the trade lifecycle**, i.e. the CDM implements a *lineage* between states as the trade goes through state transitions.
 * **The state is trade-specific**, not product-specific (i.e. it is not an asset-servicing model). The same product may be associated to infinitely many trades, each with its own specific state, between any two parties.
 
-The data structures in the event model are organised into four main sub-structures to represent state transitions, as described below:
+The data structures in the event model are organised into four main sub-structures to represent state transitions, as described below.
 
 .. figure:: event-model-overview.png
 
@@ -355,10 +355,10 @@ The trade state is currently described in the CDM by the ``Trade`` type. The tra
 
 .. code-block:: Haskell
 
- type Trade: 
+ type Trade:
    [metadata key]
-   execution Execution (0..1) 
-   contract Contract (0..1) 
+   execution Execution (0..1)
+   contract Contract (0..1)
    condition Trade: one-of
 
 While many different types of events may occur through the transaction lifecycle, the execution and contract states are deemed sufficient to describe all of the possible (post-trade) states which may result from those lifecycle events. The execution and contract states always contain a tradable product, which defines all of the current economic terms of the transaction as they have been agreed between the parties.
@@ -394,12 +394,12 @@ The ``settlementTerms`` attribute define how the transaction should be settled (
 
 .. code-block:: Haskell
 
- type SettlementTerms extends SettlementBase: 
-   settlementType SettlementTypeEnum (0..1) 
+ type SettlementTerms extends SettlementBase:
+   settlementType SettlementTypeEnum (0..1)
    settlementDate AdjustableOrRelativeDate (0..1)
-   valueDate date (0..1) 
-   settlementAmount Money (0..1) 
-   transferSettlementType TransferSettlementEnum (0..1) 
+   valueDate date (0..1)
+   settlementAmount Money (0..1)
+   transferSettlementType TransferSettlementEnum (0..1)
 
 Post-Execution: Contract
 """"""""""""""""""""""""
@@ -439,22 +439,22 @@ The ``closedState`` attribute on ``Contract`` and ``Execution`` captures this cl
 
 .. code-block:: Haskell
 
- type ClosedState: 
-   state ClosedStateEnum (1..1) 
-   activityDate date (1..1) 
-   effectiveDate date (0..1) 
-   lastPaymentDate date (0..1) 
+ type ClosedState:
+   state ClosedStateEnum (1..1)
+   activityDate date (1..1)
+   effectiveDate date (0..1)
+   lastPaymentDate date (0..1)
 
 .. code-block:: Haskell
 
- enum ClosedStateEnum: 
-   Allocated 
-   Cancelled 
-   Exercised 
-   Expired 
-   Matured 
-   Novated 
-   Terminated 
+ enum ClosedStateEnum:
+   Allocated
+   Cancelled
+   Exercised
+   Expired
+   Matured
+   Novated
+   Terminated
 
 Primitive Event
 ^^^^^^^^^^^^^^^
@@ -479,7 +479,7 @@ A ``PrimitiveEvent`` object consists of one of the primitive components, as capt
    reset ResetPrimitive (0..1)
    termsChange TermsChangePrimitive (0..1)
    transfer TransferPrimitive (0..1)
-   
+
    condition PrimitiveEvent: one-of
 
 A number of examples are illustrated below.
@@ -510,7 +510,7 @@ The ``ContractFormationPrimitive`` represents that transition to the trade state
    before ExecutionState (0..1)
      [metadata reference]
    after PostContractFormationState (1..1)
-   
+
 The before state in the contract formation primitive is optional (as marked by the 0 cardinality lower bound of the ``before`` attribute), to represent cases where a new contract may be instantiated between parties without any prior execution, for instance in a clearing or novation scenario.
 
 Example 2: Reset
@@ -522,22 +522,22 @@ The predecessor to a reset is an *observation* which occurs when that observable
 
 .. code-block:: Haskell
 
- type ObservationPrimitive: 
-   source ObservationSource (1..1) 
-   observation number (1..1) 
-   date date (1..1) 
-   time TimeZone (0..1) 
-   side QuotationSideEnum (0..1) 
+ type ObservationPrimitive:
+   source ObservationSource (1..1)
+   observation number (1..1)
+   date date (1..1)
+   time TimeZone (0..1)
+   side QuotationSideEnum (0..1)
 
 From that observation, a *reset* can be built which does affect the specific transaction. A reset is represented by the ``ResetPrimitive`` type.
 
 .. code-block:: Haskell
 
- type ResetPrimitive: 
-   before ContractState (1..1) 
+ type ResetPrimitive:
+   before ContractState (1..1)
      [metadata reference]
-   after ContractState (1..1) 
-   condition Contract: 
+   after ContractState (1..1)
+   condition Contract:
      if ResetPrimitive exists
      then before -> contract = after -> contract
 
@@ -748,7 +748,7 @@ A *workflow* represents a set of actions or steps that are required to trigger a
    messageInformation MessageInformation (0..1)
    timestamp EventTimestamp (1..*)
    eventIdentifier Identifier (1..*)
-   action ActionEnum (1..1)
+   action ActionEnum (0..1)
    party Party (0..*)
    account Account (0..*)
    lineage Lineage (0..1)
@@ -926,7 +926,7 @@ The current CDM scope comprises the following features:
 * **Composable and normalised model representation** of the eligible collateral schedule for initial and variation margin as directly machine readable format.
 
 * **Mapping to existing marketplace representations** for the following initiatives:
-  
+
   * **ISDA Create Initial Margin**: Ingestion of JSON sample files generated from the ISDA Create platform for the elections associated with these agreements has been implemented, to demonstrate connectivity between the ISDA Create Initial Margin negotiation tool and the CDM. (The ISDA CSA Variation Margin is not yet represented in ISDA Create.) A specific set of synonyms associated to the ``ISDA_Create_1_0`` synonym source has been developed to enable this mapping (see *Mapping* section).
   
 * **Linking of legal agreement into contract** through the CDM referencing mechanism.
@@ -1145,13 +1145,9 @@ Machine readability and executability is crucial to eliminate implementation dis
 How Does It Work
 """"""""""""""""
 
-The process model is systematically translated into executable code for the Java representation of the CDM using purpose-built technology as described in the `Code Generation Section`_. The CDM data model and process model specifications can also be translated into a number of other modern, widely adopted and freely available programming languages:
+The data and proces model definitions of the CDM are systematically translated into executable code using purpose-built code generation technology. The CDM executable code is available in a number of modern, widely adopted and freely available programming languages and is systematically distributed as part of the CDM release.
 
-* Scala
-* DAML
-* Typescript
-
-The CDM has the capability to add support for other languages as required by market participants. Executable code artefacts in all supported languages are systematically distributed with the CDM and freely available to download from the ISDA CDM `Portal`_.
+The code generation process is based on the Rosetta DSL and is further described in the `Code Generation Section`_, including an up-to-date `list of available languages <https://docs.rosetta-technology.io/dsl/codegen-readme.html#what-code-generators-are-available>`_. Support for further languages can be added as required by market participants.
 
 Scope
 ^^^^^
@@ -1252,12 +1248,12 @@ The CDM expressions of ``FixedAmount`` and ``FloatingAmount`` are similar in str
      quantity NonNegativeQuantity (1..1)
      date date (1..1)
    output: floatingAmount number (1..1)
-   
+
    alias calculationAmount: quantity -> amount
    alias floatingRate: ResolveRateIndex( interestRatePayout -> rateSpecification -> floatingRate -> assetIdentifier -> rateOption -> floatingRateIndex )
    alias spreadRate: rate -> spread
    alias dayCountFraction: DayCountFraction(interestRatePayout, interestRatePayout -> dayCountFraction, date)
-   
+
    assign-output floatingAmount: calculationAmount * (floatingRate + spreadRate) * dayCountFraction
 
 Day Count Fraction
@@ -1273,7 +1269,7 @@ The CDM process model eliminates the need for implementators to interpret the lo
 
  func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360):
    [calculation]
-   
+
    alias calculationPeriod: CalculationPeriod(interestRatePayout -> calculationPeriodDates, date)
    alias startYear: calculationPeriod -> startDate -> year
    alias endYear: calculationPeriod -> endDate -> year
@@ -1281,7 +1277,7 @@ The CDM process model eliminates the need for implementators to interpret the lo
    alias endMonth: calculationPeriod -> endDate -> month
    alias endDay: Min(calculationPeriod -> endDate -> day, 30)
    alias startDay: Min(calculationPeriod -> startDate -> day, 30)
-   
+
    assign-output result:
      (360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
 
@@ -1318,11 +1314,11 @@ Some of those calculations are presented below:
      date date (1..1)
    output:
      equityCashSettlementAmount Money (1..1)
-   
+
    alias equityPayout: contractState -> contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout
-   
+
    condition: equityPayout -> payoutQuantity -> assetIdentifier -> productIdentifier = equityPayout -> underlier -> underlyingProduct -> security -> equity -> productIdentifier
-   
+
    assign-output equityCashSettlementAmount -> amount:
      Abs(contractState -> updatedContract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element -> performance)
    assign-output equityCashSettlementAmount -> currency:
@@ -1336,7 +1332,7 @@ Some of those calculations are presented below:
      finalPrice number (1..1)
    output:
      rateOfReturn number (1..1)
-   
+
    assign-output rateOfReturn:
      (finalPrice - initialPrice) / initialPrice
 
@@ -1357,7 +1353,7 @@ There are three levels of function components in the CDM to define the processin
 #. Event creation
 #. Workflow step creation
 
-Each of those components can leverage any calculation or utility function already defined in the CDM. As part of the validation processe aembedded in the CDM, an object validation step is included in all these object creation functions to ensure that they each construct valid CDM objects. Further details on the underlying calculation and validation processes are described in the `Calculation Process Section`_ and `Validation Process Section`_.
+Each of those components can leverage any calculation or utility function already defined in the CDM. As part of the validation processe embedded in the CDM, an object validation step is included in all these object creation functions to ensure that they each construct valid CDM objects. Further details on the underlying calculation and validation processes are described in the `Calculation Process Section`_ and `Validation Process Section`_.
 
 Illustration of the three components are given in the sections below.
 
@@ -1403,7 +1399,7 @@ The observation is used as an input to *resolve* any Equity Derivative contract 
 
 .. code-block:: Haskell
 
- func ResolveEquityContract: 
+ func ResolveEquityContract:
    inputs:
      contractState ContractState (1..1)
      observation ObservationPrimitive (1..1)
@@ -1423,9 +1419,9 @@ The observation is used as an input to *resolve* any Equity Derivative contract 
      if CalculationPeriod( equityPayout -> calculationPeriodDates, periodEndDate ) -> isLastPeriod then price
    assign-output updatedEquityPayout -> priceReturnTerms -> valuationPriceInterim -> netPrice -> amount:
      if CalculationPeriod( equityPayout -> calculationPeriodDates, periodEndDate ) -> isLastPeriod = False then price
-   assign-output updatedContract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> performance: 
+   assign-output updatedContract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> performance:
      equityPerformance
-   assign-output updatedContract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> quantityMultiplier -> multiplierValue: 
+   assign-output updatedContract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> quantityMultiplier -> multiplierValue:
      1 + equityPerformance / 100
 
 The set of updated values include the ``performance`` attribute on the ``equityPayout``, which represents the performance of the current calculation period. The resolution function uses some of the already defined *utility functions* such as ``CalculationPeriod`` and also a *calculation function* for the Equity performance.
@@ -1434,7 +1430,7 @@ This contract resolution mechanism is wired into the function that creates the `
 
 .. code-block:: Haskell
 
- func Create_ResetPrimitive: 
+ func Create_ResetPrimitive:
    [creation PrimitiveEvent]
    inputs:
      contractState ContractState (1..1)
@@ -1447,7 +1443,7 @@ This contract resolution mechanism is wired into the function that creates the `
 
    assign-output resetPrimitive -> before: contractState
    assign-output resetPrimitive -> after -> contract: contractState -> contract
-   assign-output resetPrimitive -> after -> updatedContract: 
+   assign-output resetPrimitive -> after -> updatedContract:
      ResolveUpdatedContract(contractState, observation, date)
 
 .. note:: The Reset Event only resets some values on the contract but does not calculate nor pay any cashflow. Any cashflow calculation and payment would be handled separately as part of a Transfer Event which, when such cashflow depends on any resettable values, will use the values updated as part of the Reset Event (as is the case of the *Equity Cash Settlement Amount*).
