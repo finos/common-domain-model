@@ -3,6 +3,7 @@ package org.isda.cdm.processor;
 import cdm.base.staticdata.asset.common.ISOCurrencyCodeEnum;
 import com.google.common.base.Enums;
 import com.regnosys.rosetta.common.translation.Mapping;
+import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 import com.rosetta.model.metafields.FieldWithMetaString;
@@ -21,13 +22,13 @@ public class IsoCurrencyMappingProcessor extends MappingProcessor {
 
 	private final Map<String, ISOCurrencyCodeEnum> synonymToIsoCurrencyCodeEnumMap;
 
-	public IsoCurrencyMappingProcessor(RosettaPath rosettaPath, List<String> synonymValues, List<Mapping> mappings) {
-		super(rosettaPath, synonymValues, mappings);
+	public IsoCurrencyMappingProcessor(RosettaPath rosettaPath, List<Path> synonymPaths, List<Mapping> mappings) {
+		super(rosettaPath, synonymPaths, mappings);
 		this.synonymToIsoCurrencyCodeEnumMap = synonymToEnumValueMap(ISOCurrencyCodeEnum.values(), ISDA_CREATE_SYNONYM_SOURCE);
 	}
 
 	@Override
-	protected <T> void mapBasic(T value, RosettaModelObjectBuilder parent) {
+	protected <T> void mapBasic(Path synonymPath, T value, RosettaModelObjectBuilder parent) {
 		if (value instanceof String && parent instanceof FieldWithMetaString.FieldWithMetaStringBuilder) {
 			FieldWithMetaString.FieldWithMetaStringBuilder currencyBuilder = (FieldWithMetaString.FieldWithMetaStringBuilder) parent;
 			String currencyValue = (String) value;

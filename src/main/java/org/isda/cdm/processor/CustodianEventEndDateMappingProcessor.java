@@ -78,83 +78,81 @@ public class CustodianEventEndDateMappingProcessor extends MappingProcessor {
 
 	private final Map<String, DayTypeEnum> synonymToDayTypeEnumMap;
 
-	public CustodianEventEndDateMappingProcessor(RosettaPath rosettaPath, List<String> synonymValues, List<Mapping> mappings) {
-		super(rosettaPath, synonymValues, mappings);
+	public CustodianEventEndDateMappingProcessor(RosettaPath rosettaPath, List<Path> synonymPaths, List<Mapping> mappings) {
+		super(rosettaPath, synonymPaths, mappings);
 		this.synonymToDayTypeEnumMap = synonymToEnumValueMap(DayTypeEnum.values(), ISDA_CREATE_SYNONYM_SOURCE);
 	}
 
 	@Override
-	protected <R extends RosettaModelObject> void map(RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
-		getSynonymValues().forEach(v -> {
-			CustodianEventEndDate.CustodianEventEndDateBuilder endDateBuilder = (CustodianEventEndDate.CustodianEventEndDateBuilder) builder;
-			// DaysAfterCustodianEvent
-			getCustomisableOffset(v, "days_after_custodian_event",
-					"after_days",
-					true,
-					"after_days_type",
-					"after_specify")
-					.ifPresent(endDateBuilder::setDaysAfterCustodianEvent);
-			getCustomisableOffset(v, "days_after_collateral_manager_event",
-					"after_days",
-					true,
-					"after_days_type",
-					"after_specify")
-					.ifPresent(endDateBuilder::setDaysAfterCustodianEvent);
-			getCustomisableOffset(v, "days_after_euroclear_event",
-					"after_days",
-					true,
-					"after_days_type",
-					"after_specify")
-					.ifPresent(endDateBuilder::setDaysAfterCustodianEvent);
-			getCustomisableOffset(v, "days_after_clearstream_event",
-					"after_days",
-					true,
-					"after_days_type",
-					"after_specify")
-					.ifPresent(endDateBuilder::setDaysAfterCustodianEvent);
-			// ReleaseDate
-			getCustomisableOffset(v, "release_date",
-					"release_days",
-					true,
-					"release_days_type",
-					"release_specify")
-					.ifPresent(endDateBuilder::setReleaseDate);
-			getCustomisableOffset(v, "release_date_i",
-					"release_i_days",
-					true,
-					"release_date_i_type",
-					"release_i_specify")
-					.ifPresent(endDateBuilder::setReleaseDate);
-			// Safekeeping Period Expiry
-			getCustomisableOffset(v, "release_date_ii",
-					"release_date_ii_days",
-					true,
-					"release_date_ii_type",
-					"release_date_ii_specify")
-					.ifPresent(endDateBuilder::setSafekeepingPeriodExpiry);
-			// DateOfTimelyStatement
-			getCustomisableOffset(v, "date_of_timely_statement",
-					"days_prior_to_release_date",
-					false,
-					"days_prior_to_release_date_type",
-					"timely_specify")
-					.ifPresent(endDateBuilder::setDateOfTimelyStatement);
-			getCustomisableOffset(v, "date_of_timely_statement",
-					"timely_days",
-					false,
-					"timely_days_type",
-					"timely_specify")
-					.ifPresent(endDateBuilder::setDateOfTimelyStatement);
-			getCustomisableOffset(v, "date_of_timely_statement",
-					"days_after_timely_statement",
-					true,
-					"days_after_timely_statement_type",
-					"timely_specify")
-					.ifPresent(endDateBuilder::setDateOfTimelyStatement);
-		});
+	protected void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
+		CustodianEventEndDate.CustodianEventEndDateBuilder endDateBuilder = (CustodianEventEndDate.CustodianEventEndDateBuilder) builder;
+		// DaysAfterCustodianEvent
+		getCustomisableOffset(synonymPath, "days_after_custodian_event",
+				"after_days",
+				true,
+				"after_days_type",
+				"after_specify")
+				.ifPresent(endDateBuilder::setDaysAfterCustodianEvent);
+		getCustomisableOffset(synonymPath, "days_after_collateral_manager_event",
+				"after_days",
+				true,
+				"after_days_type",
+				"after_specify")
+				.ifPresent(endDateBuilder::setDaysAfterCustodianEvent);
+		getCustomisableOffset(synonymPath, "days_after_euroclear_event",
+				"after_days",
+				true,
+				"after_days_type",
+				"after_specify")
+				.ifPresent(endDateBuilder::setDaysAfterCustodianEvent);
+		getCustomisableOffset(synonymPath, "days_after_clearstream_event",
+				"after_days",
+				true,
+				"after_days_type",
+				"after_specify")
+				.ifPresent(endDateBuilder::setDaysAfterCustodianEvent);
+		// ReleaseDate
+		getCustomisableOffset(synonymPath, "release_date",
+				"release_days",
+				true,
+				"release_days_type",
+				"release_specify")
+				.ifPresent(endDateBuilder::setReleaseDate);
+		getCustomisableOffset(synonymPath, "release_date_i",
+				"release_i_days",
+				true,
+				"release_date_i_type",
+				"release_i_specify")
+				.ifPresent(endDateBuilder::setReleaseDate);
+		// Safekeeping Period Expiry
+		getCustomisableOffset(synonymPath, "release_date_ii",
+				"release_date_ii_days",
+				true,
+				"release_date_ii_type",
+				"release_date_ii_specify")
+				.ifPresent(endDateBuilder::setSafekeepingPeriodExpiry);
+		// DateOfTimelyStatement
+		getCustomisableOffset(synonymPath, "date_of_timely_statement",
+				"days_prior_to_release_date",
+				false,
+				"days_prior_to_release_date_type",
+				"timely_specify")
+				.ifPresent(endDateBuilder::setDateOfTimelyStatement);
+		getCustomisableOffset(synonymPath, "date_of_timely_statement",
+				"timely_days",
+				false,
+				"timely_days_type",
+				"timely_specify")
+				.ifPresent(endDateBuilder::setDateOfTimelyStatement);
+		getCustomisableOffset(synonymPath, "date_of_timely_statement",
+				"days_after_timely_statement",
+				true,
+				"days_after_timely_statement_type",
+				"timely_specify")
+				.ifPresent(endDateBuilder::setDateOfTimelyStatement);
 	}
 
-	private Optional<CustomisableOffset> getCustomisableOffset(String synonym,
+	private Optional<CustomisableOffset> getCustomisableOffset(Path synonymPath,
 			String endDateTypeSynonym,
 			String numberOfDaysSynonym,
 			boolean after,
@@ -163,16 +161,14 @@ public class CustodianEventEndDateMappingProcessor extends MappingProcessor {
 
 		CustomisableOffset.CustomisableOffsetBuilder customisableOffsetBuilder = CustomisableOffset.builder();
 
-		Path basePath = Path.parse(String.format("answers.partyA.%s", synonym));
-
-		setValueAndUpdateMappings(getSynonymPath(basePath, endDateTypeSynonym),
+		setValueAndUpdateMappings(getSynonymPath(synonymPath, endDateTypeSynonym),
 				(type) -> {
 					switch (type) {
 					case "days":
-						getOffset(basePath, numberOfDaysSynonym, after, dayTypeSynonym).ifPresent(customisableOffsetBuilder::setOffset);
+						getOffset(synonymPath, numberOfDaysSynonym, after, dayTypeSynonym).ifPresent(customisableOffsetBuilder::setOffset);
 						break;
 					case "other":
-						setValueAndUpdateMappings(getSynonymPath(basePath, customEndDateSynonym),
+						setValueAndUpdateMappings(getSynonymPath(synonymPath, customEndDateSynonym),
 								(value) -> customisableOffsetBuilder.setCustomProvision(value));
 						break;
 					}

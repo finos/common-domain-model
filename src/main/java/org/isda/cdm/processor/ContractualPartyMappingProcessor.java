@@ -23,12 +23,12 @@ import static org.isda.cdm.processor.MappingProcessorUtils.*;
 @SuppressWarnings("unused")
 public class ContractualPartyMappingProcessor extends MappingProcessor {
 
-	public ContractualPartyMappingProcessor(RosettaPath rosettaPath, List<String> synonymValues, List<Mapping> mappings) {
-		super(rosettaPath, synonymValues, mappings);
+	public ContractualPartyMappingProcessor(RosettaPath rosettaPath, List<Path> synonymPaths, List<Mapping> mappings) {
+		super(rosettaPath, synonymPaths, mappings);
 	}
 
 	@Override
-	protected void map(List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
+	protected void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
 		LegalAgreementBuilder legalAgreementBuilder = (LegalAgreementBuilder) parent;
 		PARTIES.forEach(party ->
 				getContractualParty(party).ifPresent(

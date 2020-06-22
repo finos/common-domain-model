@@ -24,18 +24,16 @@ public class AdditionalTerminationEventMappingProcessor extends MappingProcessor
 	private static final String APPLICABLE = "applicable";
 	private static final List<String> SUFFIXES = Arrays.asList("_additional_termination_event", "_additional_termination_events");
 
-	public AdditionalTerminationEventMappingProcessor(RosettaPath rosettaPath, List<String> synonymValues, List<Mapping> mappings) {
-		super(rosettaPath, synonymValues, mappings);
+	public AdditionalTerminationEventMappingProcessor(RosettaPath rosettaPath, List<Path> synonymPaths, List<Mapping> mappings) {
+		super(rosettaPath, synonymPaths, mappings);
 	}
 
 	@Override
-	protected <R extends RosettaModelObject> void map(RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
+	protected void map(Path accessConditionsPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
 		AccessConditions.AccessConditionsBuilder accessConditionsBuilder = (AccessConditions.AccessConditionsBuilder) builder;
 		accessConditionsBuilder.clearAdditionalTerminationEvent();
 
-		Path accessConditionsPath = Path.parse("answers.partyA.access_conditions");
-		Path eventsPath = accessConditionsPath.addElement(Path.PathElement.parse("additional_termination_event"));
-
+		Path eventsPath = getSynonymPath(accessConditionsPath, "additional_termination_event");
 		int index = 0;
 		while (true) {
 			Optional<AdditionalTerminationEvent> additionalTerminationEventBuilder = getAdditionalTerminationEvent(eventsPath, "name", index++);
