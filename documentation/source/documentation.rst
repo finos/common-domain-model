@@ -41,19 +41,19 @@ The ``QuantityNotation`` type supports the quantity (or notional) for any produc
 .. code-block:: Haskell
 
  type QuantityNotation:
-    quantity NonNegativeQuantity (1..1)
-    assetIdentifier AssetIdentifier (1..1)
+   quantity NonNegativeQuantity (1..1)
+   assetIdentifier AssetIdentifier (1..1)
 
 The ``AssetIdentifier`` type requires the specification of either a product, currency or a floating rate option. This choice constraint is supported by specifying a ``one-of`` condition, as described in the `Special Syntax Section`_ of the Rosetta DSL documentation.
 
 .. code-block:: Haskell
 
  type AssetIdentifier:
-    productIdentifier ProductIdentifier (0..1)
-    currency string (0..1)
-       [metadata scheme]
-    rateOption FloatingRateOption (0..1)
-    condition: one-of
+   productIdentifier ProductIdentifier (0..1)
+   currency string (0..1)
+     [metadata scheme]
+   rateOption FloatingRateOption (0..1)
+   condition: one-of
 
 PriceNotation
 """""""""""""
@@ -62,20 +62,19 @@ The ``PriceNotation`` type supports the price for any product.
 .. code-block:: Haskell
 
  type PriceNotation:
-    price Price (1..1)
-    assetIdentifier AssetIdentifier (0..1)
+   price Price (1..1)
+   assetIdentifier AssetIdentifier (0..1)
 
 The ``price`` attribute is of type ``Price``, which requires the selection of one of the attributes that describe different types of prices. The set of attributes collectively support all products in the CDM.
 
 .. code-block:: Haskell
 
  type Price:
-    cashPrice CashPrice (0..1)
-    exchangeRate ExchangeRate (0..1)
-    fixedInterestRate FixedInterestRate (0..1)
-
-    floatingInterestRate FloatingInterestRate (0..1)
-    condition: one-of
+   cashPrice CashPrice (0..1)
+   exchangeRate ExchangeRate (0..1)
+   fixedInterestRate FixedInterestRate (0..1)
+   floatingInterestRate FloatingInterestRate (0..1)
+   condition: one-of
 
 For example, ``cashPrice`` would be used to represent the reference price in an Equity Swap and ``fixedInterestRate`` would be used to represent the fixed rate on an Interest Rate Swap. ``floatingInterestRate`` would be used to represent a cap or floor, or could be used to represent the known initial reset rate of a floating leg in an Interest Rate Swap, if it is agreed between the parties as part of the trade.
 
@@ -87,13 +86,13 @@ A financial product is an instrument that is used to transfer financial risk bet
 .. code-block:: Haskell
 
  type Product:
-    [metadata key]
-    contractualProduct ContractualProduct (0..1)
-    index Index (0..1)
-    loan Loan (0..1)
-    foreignExchange ForeignExchange (0..1)
-    security Security (0..1)
-    condition: one-of
+   [metadata key]
+   contractualProduct ContractualProduct (0..1)
+   index Index (0..1)
+   loan Loan (0..1)
+   foreignExchange ForeignExchange (0..1)
+   security Security (0..1)
+   condition: one-of
 
 The CDM allows any one of these products to included in a trade or used as an underlier for another product (see the *Underlier* section). One unlikely case for a direct trade is Index, which is primarily used as an underlier.
 
@@ -151,51 +150,53 @@ The CDM specifies the various sets of possible remaining economic terms using th
 .. code-block:: Haskell
 
  type EconomicTerms:
-    effectiveDate AdjustableOrRelativeDate (0..1)
-    terminationDate AdjustableOrRelativeDate (0..1)
-    dateAdjustments BusinessDayAdjustments (0..1)
-    payout Payout (1..1)
-    earlyTerminationProvision EarlyTerminationProvision (0..1)
-    optionProvision OptionProvision (0..1)
-    extraordinaryEvents ExtraordinaryEvents (0..1)
+   effectiveDate AdjustableOrRelativeDate (0..1)
+   terminationDate AdjustableOrRelativeDate (0..1)
+   dateAdjustments BusinessDayAdjustments (0..1)
+   payout Payout (1..1)
+   earlyTerminationProvision EarlyTerminationProvision (0..1)
+   optionProvision OptionProvision (0..1)
+   extraordinaryEvents ExtraordinaryEvents (0..1)
 
 Payout
+""""""
+
 The ``Payout`` type defines the composable payout types, each of which describes a set of terms and conditions for the financial responsibilities between the contractual parties. Payout types can be combined to compose a product.  For example, an Equity Swap can be composed by combining an ``InterestRatePayout`` and an ``EquityPayout``.
 
 .. code-block:: Haskell
 
  type Payout:
-    interestRatePayout InterestRatePayout (0..*)
-    creditDefaultPayout CreditDefaultPayout (0..1)
-    equityPayout EquityPayout (0..*)
-    optionPayout OptionPayout (0..*)
-    forwardPayout ForwardPayout (0..*)
-    securityPayout SecurityPayout (0..*)
-    cashflow Cashflow (0..*)
+   interestRatePayout InterestRatePayout (0..*)
+   creditDefaultPayout CreditDefaultPayout (0..1)
+   equityPayout EquityPayout (0..*)
+   optionPayout OptionPayout (0..*)
+   forwardPayout ForwardPayout (0..*)
+   securityPayout SecurityPayout (0..*)
+   cashflow Cashflow (0..*)
 
 The relationship between one of the payout classes and a similar structure in FpML can be identified through the defined Synonyms, as explained in an earlier section.  For example, the ``InterestRatePayout`` is equivalent to the following complex types in FpML: *swapStream*, *feeLeg* *capFloorStream*, *fra*, and *interestLeg*.
 
 .. code-block:: Haskell
 
  type InterestRatePayout extends PayoutBase:
-    [metadata key]
-    payerReceiver PayerReceiver (0..1)
-    rateSpecification RateSpecification (1..1)
-    dayCountFraction DayCountFractionEnum (0..1)
-    [metadata scheme]
-    calculationPeriodDates CalculationPeriodDates (0..1)
-    paymentDates PaymentDates (0..1)
-    paymentDate AdjustableDate (0..1)
-    paymentDelay boolean (0..1)
-    resetDates ResetDates (0..1)
-    discountingMethod DiscountingMethod (0..1)
-    compoundingMethod CompoundingMethodEnum (0..1)
-    cashflowRepresentation CashflowRepresentation (0..1)
-    crossCurrencyTerms CrossCurrencyTerms (0..1)
-    stubPeriod StubPeriod (0..1)
-    bondReference BondReference (0..1)
-    fixedAmount calculation (0..1)
-    floatingAmount calculation (0..1)
+   [metadata key]
+   payerReceiver PayerReceiver (0..1)
+   rateSpecification RateSpecification (1..1)
+   dayCountFraction DayCountFractionEnum (0..1)
+   [metadata scheme]
+   calculationPeriodDates CalculationPeriodDates (0..1)
+   paymentDates PaymentDates (0..1)
+   paymentDate AdjustableDate (0..1)
+   paymentDelay boolean (0..1)
+   resetDates ResetDates (0..1)
+   discountingMethod DiscountingMethod (0..1)
+   compoundingMethod CompoundingMethodEnum (0..1)
+   cashflowRepresentation CashflowRepresentation (0..1)
+   crossCurrencyTerms CrossCurrencyTerms (0..1)
+   stubPeriod StubPeriod (0..1)
+   bondReference BondReference (0..1)
+   fixedAmount calculation (0..1)
+   floatingAmount calculation (0..1)
 
 There are as set of conditions associated with this type which are not shown here in the interests of brevity.
 
@@ -207,16 +208,16 @@ There are a number of components that are reusable across several payout types. 
 .. code-block:: Haskell
 
  type CalculationPeriodDates:
-	[metadata key]
-	effectiveDate AdjustableOrRelativeDate (0..1)
-	terminationDate AdjustableOrRelativeDate (0..1)
-	calculationPeriodDatesAdjustments BusinessDayAdjustments (0..1)
-	firstPeriodStartDate AdjustableOrRelativeDate (0..1)
-	firstRegularPeriodStartDate date (0..1)
-	firstCompoundingPeriodEndDate date (0..1)
-	lastRegularPeriodEndDate date (0..1)
-	stubPeriodType StubPeriodTypeEnum (0..1)
-	calculationPeriodFrequency CalculationPeriodFrequency (0..1)
+   [metadata key]
+   effectiveDate AdjustableOrRelativeDate (0..1)
+   terminationDate AdjustableOrRelativeDate (0..1)
+   calculationPeriodDatesAdjustments BusinessDayAdjustments (0..1)
+   firstPeriodStartDate AdjustableOrRelativeDate (0..1)
+   firstRegularPeriodStartDate date (0..1)
+   firstCompoundingPeriodEndDate date (0..1)
+   lastRegularPeriodEndDate date (0..1)
+   stubPeriodType StubPeriodTypeEnum (0..1)
+   calculationPeriodFrequency CalculationPeriodFrequency (0..1)
 
 Underlier
 """""""""
@@ -226,7 +227,7 @@ The ``Underlier`` type allows for any product to be used as the underlier for a 
 .. code-block:: Haskell
 
  type Underlier:
-    underlyingProduct Product (1..1)
+   underlyingProduct Product (1..1)
 
 This nesting of the product component is another example of a composable product model. One use case is an interest rate swaption for which the high-level product uses the ``OptionPayout`` type and underlier is an Interest Rate Swap composed of two ``InterestRatePayout`` types. Similiarly, the product underlying an Equity Swap composed of an ``InterestRatePayout`` and an ``EquityPayout`` would be a non-contractual product: an equity security.
 
@@ -238,7 +239,7 @@ For identified products the CDM approach is to exclude any attribute that can be
 .. code-block:: Haskell
 
  type IdentifiedProduct:
-    productIdentifier ProductIdentifier (1..1)
+   productIdentifier ProductIdentifier (1..1)
 
 As a result, the bond, equity, and other securities are defined as extensions of the product identifier without any additional attributes.
 
@@ -377,18 +378,18 @@ The lifecycle of a transaction between two parties starts with an *execution* st
 .. code-block:: Haskell
 
  type Execution:
-	[metadata key]
-	executionType ExecutionTypeEnum (1..1)
-	executionVenue LegalEntity (0..1)
-	identifier Identifier (1..*)
-	tradeDate date (1..1)
-		[metadata id]
-	tradableProduct TradableProduct (1..1)
-	party Party (0..*)
-		[metadata reference]
-	partyRole PartyRole (0..*)
-	closedState ClosedState (0..1)
-	settlementTerms SettlementTerms (0..1)
+   [metadata key]
+   executionType ExecutionTypeEnum (1..1)
+   executionVenue LegalEntity (0..1)
+   identifier Identifier (1..*)
+   tradeDate date (1..1)
+     [metadata id]
+   tradableProduct TradableProduct (1..1)
+   party Party (0..*)
+     [metadata reference]
+   partyRole PartyRole (0..*)
+   closedState ClosedState (0..1)
+   settlementTerms SettlementTerms (0..1)
 
 The ``settlementTerms`` attribute define how the transaction should be settled (including the settlement date). For instance, a settlement could be a *delivery-versus-payment* scenario for a cash security transaction or a *payment-versus-payment* scenario for an FX spot or forward transaction. The actual settlement amount(s) will need to use the *price* and *quantity* agreed as part of the tradable product.
 
@@ -973,12 +974,12 @@ The unique identification of an agreement is described in the CDM by the ``Legal
 .. code-block:: Haskell
 
  type LegalAgreementBase:
-   	agreementDate date (1..1)
-	effectiveDate date (0..1)
-	identifier Identifier (0..*)
-	agreementType LegalAgreementType (1..1)
-	contractualParty Party (2..2)
-	otherParty PartyRole (0..*)   
+   agreementDate date (1..1)
+   effectiveDate date (0..1)
+   identifier Identifier (0..*)
+   agreementType LegalAgreementType (1..1)
+   contractualParty Party (2..2)
+   otherParty PartyRole (0..*)   
 
 Agreement Content
 ^^^^^^^^^^^^^^^^^
@@ -990,16 +991,14 @@ There are three components to Agreement Terms, as shown in the code snippet belo
 .. code-block:: Haskell
 
  type AgreementTerms:
-	agreement Agreement (1..1)
-	relatedAgreements RelatedAgreement (0..*)
-	umbrellaAgreement UmbrellaAgreement (0..1)
+   agreement Agreement (1..1)
+   relatedAgreements RelatedAgreement (0..*)
+   umbrellaAgreement UmbrellaAgreement (0..1)
 	
 ``RelatedAgreement`` is used to specify the agreement(s) that govern the agreement, either as a reference to such agreements when specified as part of the CDM, or through identification of some of the key terms of those agreements.  It allows to:
 
 * Identify some of the key terms of a governing legal agreement such as the agreement identifier, the publisher, the document vintage and the agreement date, as part of the ``legalAgreement`` attribute.
-
 * Or, reference a legal agreement that is electronically represented in the CDM through the ``legalAgreement`` attribute, which has a reference key into the agreement instance.
-
 * The ``DocumentationIdentification`` attribute is currently used to map Legal Agreement terms captured as part of an FpML transaction message.  This attributed will be deprecated when a synonym mapping structure has been incorporated into the ``LegalAgreement`` attribute.
 
 The below snippet represents the ``RelatedAgreement`` type.
@@ -1017,9 +1016,9 @@ The below snippet represents the ``UmbrellaAgreement`` type.
 .. code-block:: Haskell
 
  type UmbrellaAgreement:
-	isApplicable boolean (1..1)
-	language string (0..1)
-	parties UmbrellaAgreementEntity (0..*)
+   isApplicable boolean (1..1)
+   language string (0..1)
+   parties UmbrellaAgreementEntity (0..*)
 
 ``Agreement`` is used to specify the individual elections contained within the Legal Agreement, the approach is explained in further detail below.  
 
@@ -1032,11 +1031,11 @@ The structure of the elections contained within each class are modelled to refle
 
 For example ``CreditSupportAgreementElections`` can be used to represent all of the following documents:
 
-  * ISDA 2016 Phase One Credit Support Annex (“CSA”) (Security Interest – New York Law)
-  * ISDA 2016 Phase One Credit Support Deed (“CSD”) (Security Interest – English Law)
-  * ISDA 2016 Phase One CSA (Loan – Japanese Law)
-  * ISDA 2018 CSA (Security Interest – New York Law)
-  * ISDA 2018 CSD (Security Interest – English Law)
+* ISDA 2016 Phase One Credit Support Annex (“CSA”) (Security Interest – New York Law)
+* ISDA 2016 Phase One Credit Support Deed (“CSD”) (Security Interest – English Law)
+* ISDA 2016 Phase One CSA (Loan – Japanese Law)
+* ISDA 2018 CSA (Security Interest – New York Law)
+* ISDA 2018 CSD (Security Interest – English Law)
 
 .. note:: Validation exists in the model to ensure that the set of elections specified within the ``Agreement`` are consistent with the agreement identified as part of ``LegalAgreementBase``.  The below snippet represents the validation condition.
   
@@ -1061,21 +1060,20 @@ The CDM model can currently support nine distinct Security Agreements.  Election
 .. code-block:: Haskell
 
  type SecurityAgreementElections: <"The set of elections which specify a Security Agremeent">
-
-	pledgedAccount Account (0..1)
-	enforcementEvent EnforcementEvent (0..1)
-	deliveryInLieuRight boolean (0..1)
-	fullDischarge boolean (0..1)
-	appropriatedCollateralValuation AppropriatedCollateralValuation (0..1)
-	processAgent ProcessAgent (0..1)
-	jurisdictionRelatedTerms JurisdictionRelatedTerms (0..1)
-	additionalAmendments string (0..1)
-	additionalBespokeTerms string (0..1)
-	executionTerms ExecutionTerms (0..1)
+   pledgedAccount Account (0..1)
+   enforcementEvent EnforcementEvent (0..1)
+   deliveryInLieuRight boolean (0..1)
+   fullDischarge boolean (0..1)
+   appropriatedCollateralValuation AppropriatedCollateralValuation (0..1)
+   processAgent ProcessAgent (0..1)
+   jurisdictionRelatedTerms JurisdictionRelatedTerms (0..1)
+   additionalAmendments string (0..1)
+   additionalBespokeTerms string (0..1)
+   executionTerms ExecutionTerms (0..1)
 	
-Dependent on the agreement being specified a different combination of attributes would be used when specifying the agreement. The cardinality of each attribute allows the appropriate combination to provided dependent on the agreement.
+Depending on the agreement being specified, a different combination of attributes would be used when specifying the agreement. The cardinality of each attribute allows the appropriate combination to provided dependent on the agreement.
 
-An equivalent approach is followed for ``CreditSupportAgreementElections`` and ``CollateralTransferAgreementElections``
+An equivalent approach is followed for ``CreditSupportAgreementElections`` and ``CollateralTransferAgreementElections``.
 
 
 Example 2: Credit Support Obligations
@@ -1086,20 +1084,19 @@ The below election family is contained within both ``CreditSupportAgreementElect
 .. code-block:: Haskell
 
  type CreditSupportObligationsInitialMargin:
-	marginApproach MarginApproach (0..1)
-	threshold Threshold (1..1)
-	minimumTransferAmount MinimumTransferAmount (1..1)
-	rounding CollateralRounding (0..1)
-	bespokeTransferTiming BespokeTransferTiming (0..1)
+   marginApproach MarginApproach (0..1)
+   threshold Threshold (1..1)
+   minimumTransferAmount MinimumTransferAmount (1..1)
+   rounding CollateralRounding (0..1)
+   bespokeTransferTiming BespokeTransferTiming (0..1)
 	
-This set of elections is modelled to directly reflect the equivalent paragraph in the ISDA documentation, for example Paragraph 13 (c) of the  ISDA 2018 CSA (Security Interest – New York Law).  Each attribute is modelled on the clause in the legal agreement and provides the necessary components to reflect the election structure.  For example ``rounding`` allows the specification of rounding terms for the Delivery Amount and the Return Amount.
+This set of elections is modelled to directly reflect the equivalent paragraph in the ISDA documentation, for example Paragraph 13 (c) of the ISDA 2018 CSA (Security Interest – New York Law).  Each attribute is modelled on the clause in the legal agreement and provides the necessary components to reflect the election structure.  For example ``rounding`` allows the specification of rounding terms for the Delivery Amount and the Return Amount.
 
 .. code-block:: Haskell
 
  type CollateralRounding:
-	deliveryAmount number (1..1)
-	returnAmount number (1..1)
-
+   deliveryAmount number (1..1)
+   returnAmount number (1..1)
 
 Linking Legal Agreements to Contracts and Events using Functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1108,14 +1105,13 @@ The CDM uses the key / referencing mechanism to tie a legal agreement with the r
 
 This referencing mechanism has been implemented for ``Contract`` so that a ``ContractFormation`` business event can reference the ``LegalAgreement`` governing the transaction.
 
-
 .. code-block:: Haskell
 
  func Create_ContractFormation:
    [creation BusinessEvent]
    inputs:
-   executionEvent BusinessEvent (1..1)
-   legalAgreement LegalAgreement (0..1)
+     executionEvent BusinessEvent (1..1)
+     legalAgreement LegalAgreement (0..1)
 
 Referencing the legal agreement from the ``Contract`` is done through the ``documentation`` attribute.
 
