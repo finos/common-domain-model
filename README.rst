@@ -10,66 +10,104 @@ Overview of the ISDA CDM
 What is the ISDA CDM
 --------------------
 
-The ISDA Common Domain Model (CDM) is an initiative that ISDA has spearheaded to produce a common, robust, digital blueprint for how derivatives are traded and managed across their lifecycle.
+The ISDA Common Domain Model (CDM) is a standardised, machine-readable and machine-executable blueprint for how financial products are traded and managed across the transaction lifecycle. The product scope of the CDM includes OTC derivatives, cash securities, securities financing, and commodities.
 
-ISDA anticipates that establishing such digital data and processing standards will lead to the following benefits:
+A single, digital processing standard for trade events and actions enhances financial markets' operational efficiency in several ways:
 
-* **Reduce the need for reconciliation** to address mismatches caused by variations in how each firm records trade lifecycle events,
-* **Enable consistency** in regulatory compliance and reporting,
-* **Accelerate automation and efficiency** in the derivatives market,
-* **Provide a common foundation** for new technologies like distributed ledger, cloud and smart contracts to facilitate data consistency,
-* **Facilitate interoperability** across firms and platforms.
+* **Enables inter-operability and straight-through processing** across firms, solutions and platforms, reducing the need for reconciliation caused by variations in how each firm records trade lifecycle events.
+* **Accelerates financial technology innovation** by providing a common, readily operational foundation for how technologies like distributed ledger, smart contracts, cloud computing, and artificial intelligence can be applied to financial markets.
+* **Delivers better regulatory oversight**, promotes transparency and alignment between regulators and market participants and enables consistency in regulatory reporting, by providing a standard representation of trade data and supporting machine executable reporting requirements.
 
-A high-level `presentation <https://www.isda.org/a/z8AEE/ISDA-CDM-Factsheet.pdf>`_ of the ISDA CDM and additional information is available on the ISDA website (`www.isda.org <http://www.isda.org/>`_), particularly with the referred `Short Video <https://www.isda.org/2017/11/30/what-is-the-isda-cdm/>`_. It is based on the design principles specified as part of ISDA’s October 2017 `CDM concept paper <https://www.isda.org/a/gVKDE/CDM-FINAL.pdf>`_, which the *ISDA CDM Design Working Group* is tasked with implementing.
+Further detailed information about the CDM and its application is available in the following resources:
 
-The ISDA CDM is openly accessible to all industry participants through the `CDM Portal <https://portal.cdm.rosetta-technology.io>`_.
+* The `ISDA CDM Fact Sheet <https://www.isda.org/a/z8AEE/ISDA-CDM-Factsheet.pdf>`_, published by ISDA in 2018, gives an overview of the CDM and its intended benefits.
+* The `CDM Introduction Video <https://vimeo.com/372578450>`_ gives a tour of the main features of the model. It is based on a version of the CDM from October 2019.
+* Additional information and announcements about the CDM can be found in the `Market Infrastructure and Technology Section <https://www.isda.org/category/infrastructure/market-infrastructure-technology/>`_ of the ISDA website.
+
 
 The CDM Components
 ------------------
 
-**There are three sets of CDM components** that are laid-out in the below ISDA CDM Components Diagram:
+**There are three sets of CDM components**, as laid-out in the ISDA CDM components diagram below:
+
+* The Rosetta DSL
+* The ISDA CDM Distribution
+* CDM Application
 
 .. figure:: documentation/source/cdm-components-diagram.png
 
-Rosetta
-^^^^^^^
+The Rosetta DSL
+^^^^^^^^^^^^^^^
 
-Rosetta corresponds to the CDM infrastructure component. As a domain model, the CDM is written in a Domain-Specific Language (DSL) called the *Rosetta DSL*, comprising a syntax (or *grammar*) and default code generators (currently Java).
+The Rosetta DSL is the infrastructure component of the CDM. The CDM is a domain model written in a Domain-Specific Language (DSL) called *Rosetta*, comprising a syntax (or *grammar*) and code generators.
 
-To enable adoption and implementation of the CDM by the community, the Rosetta DSL is open source under an Apache 2.0 licence and hosted in a dedicated `Rosetta DSL repository <https://github.com/REGnosys/rosetta-dsl#the-rosetta-dsl>`_. A further `Code Generators repository <https://github.com/REGnosys/rosetta-code-generators>`_ is also open source under an Apache 2.0 license, allowing industry participants to write code generators for any other language.
+To enable adoption and implementation of the CDM by the community of industry participants, the Rosetta DSL and its default code generator (Java) are open source under an Apache 2.0 `licence <https://github.com/REGnosys/rosetta-dsl/blob/master/LICENSE>`_. Further code generators are also open source under an Apache 2.0 `license <https://github.com/REGnosys/rosetta-code-generators/blob/master/LICENSE>`_, allowing industry participants to write and share code generators for any other language.
 
-The `Rosetta DSL documentation <https://docs.rosetta-technology.io/dsl/index.html>`_ presents the Rosetta DSL and the mechanism to write and use code generators. The documentation details all the modelling artefacts available in the Rosetta syntax and their purpose, with examples drawn from the CDM.
+The `Rosetta DSL documentation <https://docs.rosetta-technology.io/dsl/index.html>`_ explains the Rosetta DSL, describes the mechanism to write and use code generators, and details all the modelling components available in the Rosetta syntax and their purpose, with examples drawn from the CDM.
 
 The ISDA CDM Distribution
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The ISDA CDM Distribution is made available to participants through download from the CDM Portal and is subject to the ISDA CDM licence. The most crucial components of this ISDA CDM Distribution are:
+The ISDA CDM distribution is openly accessible to all industry participants and can be downloaded from the `CDM Portal <https://portal.cdm.rosetta-technology.io>`_. The ISDA CDM is distributed subject to the ISDA CDM open source licence.
 
-* **Model Definition**, which corresponds to the actual model as expressed in the Rosetta syntax and which components are further detailed as part of the CDM Modelling Artefacts section of this documentation.
-* **Model Code Projection**, currently available as Java and JSON.  As the Rosetta syntax represents not just data components but also logic, the JSON representation has quite a limited scope and usefulness but is being used in practice by downstream consumers of the CDM.
-* **Default Apps**. While the two above components represent the essence of the model and are meant to be used as such by implementors, the Default Apps correspond to default implementations which can either be used as such, or be disabled or extended by those participants.  An example of such would be the ``key`` implementation, which uses the de-facto Java hash code function, but which might be deemed as inappropriate by some participants and hence be replaced by some alternative implementation.
+Components
+""""""""""
 
-CDM Applications
-^^^^^^^^^^^^^^^^
+The ISDA CDM distribution comprises three main sets of components:
 
-It is expected that a rich eco-system of licensed application components from service providers that are based upon the CDM  will develop over time. REGnosys have taken the initiative to develop an offering of solutions to assist market participants in making use of the CDM. In particular, the CDM Portal provides UI components allowing those participants to browse through the CDM.
+* **Model definition**, which corresponds to the model as expressed in the Rosetta DSL syntax and contained into a set of *.rosetta* files. The primary dimensions of the model are listed below and further described in the `Common Domain Model Section <https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html>`_ of the documentation.
 
-ISDA doesn't endorse any of those application components.
+  * Product
+  * Event
+  * Legal Agreement
+  * Process
+  * Reference Data
+  * Mapping (Synonym)
 
-The CDM Versioning
-------------------
+* **Executable code distribution**, automatically generated from the model definitions using `available code generators <https://docs.rosetta-technology.io/dsl/codegen-readme.html#what-code-generators-are-available>`_ from the Rosetta DSL. Once a code generator is implemented for a particular language, the corresponding code generation is included as part of the CDM build and release process, allowing the CDM to be automatically distributed in that language going forward. 
+* **Default implementation**, comprising manually-written code (in Java) which, combined with the auto-generated code, provides a complete implementation of the model. This hand-written code is distributed together with the CDM to facilitate adoption by firms, which can directly use the CDM distribution to set-up and test an implementation. The default implementation can be used in its original state or be disabled or extended by industry participants in their implementation. For example, the default implementation uses the de-facto Java hash function for the *key* meta-data that supports the CDM cross-referencing mechanism. Firms may elect to use an alternative implementation.
 
-The CDM is released using the semantic versioning system. 
+.. note:: While the Java executable code distribution is complete, i.e. it represents the entire CDM as defined in Rosetta (plus any associated default implementation), some other distributions may only capture parts of the model: for instance, the Scala and TypeScript distributions include the complete data model and the function specifications, but not the executable code for functions.
 
-The format of a version number is MAJOR.MINOR.PATCH (e.g. ``1.23.456``), where the:
+Versioning
+""""""""""
+
+The CDM is developed, built and released using standard software source-control management. Each new released version is announced to users via a *release note* that describes the change introduced by that new version. The CDM release history is available in the `Release Section <https://docs.rosetta-technology.io/cdm/releases/all.html>`_ of the CDM documentation.
+
+The CDM is released using the semantic versioning system. The format of a version number is MAJOR.MINOR.PATCH (e.g. ``1.23.456``), where the:
 
 * MAJOR (``1``) version change introduces *backward incompatible* changes and will be used as high level release name (e.g. ``ISDA CDM Version 1``)
 * MINOR (``23``) version change may or may not introduce backward incompatible changes, for example supporting a new type of event or feature or upgrading to a new version of the Rosetta DSL.
 * PATCH (``456``) version when a backward compatible change is made, for example adding a new class, attribute or updating documentation. An implementor would not have to make any changes to update to this release.
 
-The MAJOR.MINOR.PATCH numbers may increment by more than one unit. This is because release candidates can be created, but not released as further changes are made and then released altogether.
+The MAJOR.MINOR.PATCH numbers may increment by more than one unit because release candidates may be created, but not immediately released. Consequently, a subsequent build referenced with the next incremental unit may be released with amendments that include the earlier release candidate.
+
+CDM Application
+^^^^^^^^^^^^^^^
+
+An eco-system of CDM-based application components from service providers exists in order to support the adoption of CDM and the implementation of CDM-based production systems by industry participants. These applications may be open source software or licensed under commercial terms.
+
+As an early participant in the development of the CDM, REGnosys have developed an offering to assist other market participants in implementing or contributing to the CDM, in particular:
+
+* The CDM Portal provides a user interface allowing users to navigate through and download the CDM.
+* Rosetta Core is a Software Development Kit (SDK or *dev-kit*) for the CDM, corresponding to an *editable* version of the CDM Portal. Rosetta Core consists of an integrated set of tools for adopting, editing and implementing the model, allowing the industry community to directly contribute code to the CDM.
+
+ISDA encourages the adoption of CDM by service providers but does not endorse any of these application components.
+
+
+The CDM Governance
+------------------
+
+The CDM governance framework regulates the development of the open source CDM standard via a three-tiered committee structure:
+
+#. The *CDM Executive Committee* is accountable for setting the strategy, promoting adoption of the standard, and overseeing the activity of the Working Groups and the Architecture & Review Committee. Members are senior executives appointed by the ISDA Board considering their strategic influence in the decision making at their firm and active contribution to the development of the CDM.
+
+#. The *CDM Architecture and Review Committee* is responsible for specifying the technical and modelling guidelines and reviewing and approving proposals for new modelling components introduced by the CDM Working Groups. Members include subject matter experts, senior technologists, as well as practitioners in business process, legal documentation, and technical modelling. 
+
+#. The *CDM Working Groups* are assembled per subject matter or use cases to actively develop and implement concretely targeted elements of the CDM. Participants include ISDA members and non-members from the CDM user community who commit time and effort for the development and implementation of the CDM as a global standard.
+
+Committee members or any user of CDM within the community can propose amendments to the CDM. The proposals can be defined at a conceptual level or a logical level (i.e. in code). In each case, the proposal must be developed in line with the CDM design principles and submitted to ISDA staff and the Architecture & Review Committee for approval. If approved, the amendment will be merged with the CDM master code branch. In some instances, the proposal may not be immediately approved, but may be assigned to an existing or new Working Group for the purpose of reviewing, revising or extending the proposal.
+
 
 .. |Codefresh build status| image:: https://g.codefresh.io/api/badges/pipeline/regnosysops/REGnosys%2Frosetta-cdm%2Frosetta-cdm?branch=master&key=eyJhbGciOiJIUzI1NiJ9.NWE1N2EyYTlmM2JiOTMwMDAxNDRiODMz.ZDeqVUhB-oMlbZGj4tfEiOg0cy6azXaBvoxoeidyL0g&type=cf-1
    :target: https://g.codefresh.io/pipelines/rosetta-cdm/builds?repoOwner=REGnosys&repoName=rosetta-cdm&serviceName=REGnosys%2Frosetta-cdm&filter=trigger:build~Build;branch:master;pipeline:5a86c209eaf77d0001daacb6~rosetta-cdm
-
-
