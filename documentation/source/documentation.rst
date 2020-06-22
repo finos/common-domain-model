@@ -903,15 +903,17 @@ The CDM provides a digital representation of the legal agreements that govern fi
 
 * **Supporting marketplace initiatives to streamline and standardise legal agreements** with a comprehensive digital representation of such agreements. While the initial scope is focused on the ISDA legal agreements, it is not limited to those. As an example, as a follow-up from work to represent security lending contracts and associated lifecycle events, the CDM will look to represent the associated governing legal agreements (such as GMSLA for stock loan).
 * **Providing a comprehensive representation of the financial workflows** by complementing the contract and lifecycle event representation. Collateral management is an example of the applicability of such approach, as lifecycle processes require reference to the associated legal agreements (such as the ISDA Initial Margin Credit Support Annex).
-* **Representation of legal agreement elections as data**, as opposed to unstructured data contained within a full legal text. This approach allows CDM users to define normalised elections into a corresponding legal agreement template, in order to provide a full representation that can also be used to define functional processes.
-* **Normalisation of the data representation** to be machine readable and executable. In practice, the use of elections expressed in a ``string`` format has been restricted whenever possible, as ``string`` requires language parsing and disassembling to be machine executable.
+* **Supporting the direct implementation of functional processes** by providing a normalised representation of legal agreements as structured data, as opposed to the unstructured data contained within a full legal text that need to be interpretated first: e.g. for collateral management processes.
+
+Modelling Approach
+^^^^^^^^^^^^^^^^^^
 
 Scope
-^^^^^
+"""""
 
-The current CDM scope comprises the following features:
+The legal agreement model in the CDM comprises the following features:
 
-* **Composable and normalised model representation** of a number of legal agreements:
+* **Composable and normalised model representation** of the following legal agreements:
 
   * ISDA 2016 Phase One Credit Support Annex (“CSA”) (Security Interest – New York Law)
   * ISDA 2016 Phase One Credit Support Deed (“CSD”) (Security Interest – English Law)
@@ -924,33 +926,33 @@ The current CDM scope comprises the following features:
   * ISDA 2019 ISDA-Clearstream CTA and Security Agreement (Luxembourg Law – Security-provider or Security-taker name)
   * ISDA 2019 ISDA-Euroclear CTA and Security Agreement
 
-* **Composable and normalised model representation** of the eligible collateral schedule for initial and variation margin as directly machine readable format.
+* **Composable and normalised model representation** of the eligible collateral schedule for initial and variation margin into a directly machine readable format.
+
+* **Linking of legal agreement into contract** through the CDM referencing mechanism.
 
 * **Mapping to existing marketplace representations** for the following initiatives:
 
   * **ISDA Create Initial Margin**: Ingestion of JSON sample files generated from the ISDA Create platform for the elections associated with these agreements has been implemented, to demonstrate connectivity between the ISDA Create Initial Margin negotiation tool and the CDM. (The ISDA CSA Variation Margin is not yet represented in ISDA Create.) A specific set of synonyms associated to the ``ISDA_Create_1_0`` synonym source has been developed to enable this mapping (see *Mapping* section).
-  
-* **Linking of legal agreement into contract** through the CDM referencing mechanism.
 
-Modelling Approach
-^^^^^^^^^^^^^^^^^^
+ 
+Design Principles
+"""""""""""""""""
 
 The key modelling principles that have been adopted to represent legal agreements are:
 
 * **Distinction between the agreement identification features and the content features** (i.e. elections).
 
-  * The agreement identification features: agreement name, publisher, identification, etc are represented by the ``LegalAgreementBase`` abstract class.
+  * The agreement identification features: agreement name, publisher, identification, etc are represented by the ``LegalAgreementBase`` type.
   * The agreement specification details: election provisions of the agreement, related agreements and umbrella agreement terms are represented by the ``AgreementTerms``.
    
-* **Composite model**.
-
-  * The ``LegalAgreementBase`` abstract class uses components that are also used as part of the CDM contract and lifecycle event components: e.g. ``Party``, ``Identifier``, ``date``.
-  
-* **Extendable model**
+* **Composite and extendable model**.
 
   * The Legal Agreement model follows the CDM design principles of composability and reusability to develop an extendable model that can support multiple document types.
-  
-The model components specified in the CDM are detailed in the section below.
+  * For instance, the ``LegalAgreementBase`` abstract class uses components that are also used as part of the CDM contract and lifecycle event components: e.g. ``Party``, ``Identifier``, ``date``.
+    
+* **Normalisation of the data representation** to be machine readable and executable. This approach allows CDM users to define normalised elections into a corresponding legal agreement template to support functional processes. In practice, the use of elections expressed in a ``string`` format has been restricted, as ``string`` requires language parsing and disassembling to be machine executable. Instead, the model looks to use strongly type attributes such as numbers, boolean or enumerations whenever possible.
+
+The components of the legal agreement model specified in the CDM are detailed in the section below.
 
 Legal Agreement
 ^^^^^^^^^^^^^^^
@@ -962,14 +964,14 @@ Legal Agreement
    [rootType]
    agreementTerms AgreementTerms (0..1)
    
-The CDM provides support for implementors to represent a Legal Agreement through the specification of the agreement identification features only, or additionally through the specification of the elective provisions of the agreement in a machine readable format through the Agreement Terms.
+The CDM provides support for implementors to represent a legal agreement through the specification of the agreement identification features only, as represented in ``LegalAgreementBase``. Additionally, the elective provisions of the agreement can be specified in a machine readable format in the ``agreementTerms`` attribute. This attribute is optional, so that the CDM can be used to solely identify an agreement, without any of the content digitised in the model.
 
-.. note:: A ``LegalAgreement`` specified in CDM is assigned a *metadata key*. This allows a Legal Agreement to be linked to other components in the model.  This mechanism is explained in the Meta-data and Reference Section of the Rosetta DSL documentation.  Further explanation on Linking Legal Agreements to Contracts and Events is given below.
+.. note:: A ``LegalAgreement`` specified in CDM is assigned a *key* metadata. This allows a legal agreement to be uniquely linked to other components in the model, such as a contract. This example is detailed below. The referencing mechanism is explained in the `Meta-data and Reference Section`_ of the Rosetta DSL documentation.
 
 Agreement Identification
-^^^^^^^^^^^^^^^^^^^^^^^^
+""""""""""""""""""""""""
 
-The unique identification of an agreement is described in the CDM by the ``LegalAgreementBase`` type.  All Legal Agreements must contain an Agreement Date, two Contractual Parties and information indicating the name and publisher of the Legal Agreement being specified.  Provision is made for further information to be captured, for example an agreement identifier, or the governing law of the agreement.
+The unique identification of an agreement is described in the CDM by the ``LegalAgreementBase`` type.  All legal agreements must contain an agreement date, two contractual parties and information indicating the name and publisher of the legal agreement being specified.  Provision is made for further information to be captured, for example an agreement identifier, or the governing law of the agreement.
 
 .. code-block:: Haskell
 
@@ -982,11 +984,9 @@ The unique identification of an agreement is described in the CDM by the ``Legal
    otherParty PartyRole (0..*)   
 
 Agreement Content
-^^^^^^^^^^^^^^^^^
+"""""""""""""""""
 
-``AgreementTerms`` is used to specify the content of a Legal Agreement in the CDM.  Agreement Terms is an optional component of a Legal Agreement, so that the CDM can be used to solely identify an agreement, without any of the content digitised in the model.
-
-There are three components to Agreement Terms, as shown in the code snippet below.
+``AgreementTerms`` is used to specify the content of a legal agreement in the CDM. There are three components to agreement terms, as shown in the code snippet below.
 
 .. code-block:: Haskell
 
@@ -995,10 +995,10 @@ There are three components to Agreement Terms, as shown in the code snippet belo
    relatedAgreements RelatedAgreement (0..*)
    umbrellaAgreement UmbrellaAgreement (0..1)
 	
-``RelatedAgreement`` is used to specify the agreement(s) that govern the agreement, either as a reference to such agreements when specified as part of the CDM, or through identification of some of the key terms of those agreements.  It allows to:
+``RelatedAgreement`` is used to specify any higher-level agreement(s) that may govern the agreement, either as a reference to such agreements when specified as part of the CDM, or through identification of some of the key terms of those agreements.  It allows to:
 
 * Identify some of the key terms of a governing legal agreement such as the agreement identifier, the publisher, the document vintage and the agreement date, as part of the ``legalAgreement`` attribute.
-* Or, reference a legal agreement that is electronically represented in the CDM through the ``legalAgreement`` attribute, which has a reference key into the agreement instance.
+* Or, reference the entire legal agreement that is electronically represented in the CDM through the ``legalAgreement`` attribute, which has a reference key into the agreement instance.
 * The ``DocumentationIdentification`` attribute is currently used to map Legal Agreement terms captured as part of an FpML transaction message.  This attributed will be deprecated when a synonym mapping structure has been incorporated into the ``LegalAgreement`` attribute.
 
 The below snippet represents the ``RelatedAgreement`` type.
@@ -1020,22 +1020,75 @@ The below snippet represents the ``UmbrellaAgreement`` type.
    language string (0..1)
    parties UmbrellaAgreementEntity (0..*)
 
-``Agreement`` is used to specify the individual elections contained within the Legal Agreement, the approach is explained in further detail below.  
+``Agreement`` is used to specify the individual elections contained within the legal agreement. It contains individual types, each containing the elections used to define a specific group of agreements.
 
-The Elective Provisions
-^^^^^^^^^^^^^^^^^^^^^^^
+.. code-block:: Haskell
 
-``Agreement`` contains individual classes which contain the elections used to define a specific group of agreements. e.g ``CreditSupportAgreementElections`` can be used to define any of the Credit Support Agreements currently supported by the CDM.
+ type Agreement:
+   creditSupportAgreementElections CreditSupportAgreementElections (0..1)
+   collateralTransferAgreementElections CollateralTransferAgreementElections (0..1)
+   securityAgreementElections SecurityAgreementElections (0..1)
+   transactionConfirmation TransactionConfirmation (0..1)
+   condition: one-of
 
-The structure of the elections contained within each class are modelled to reflect the structure of the legal agreements that they represent for ease of reference.  Each class contains a set of elections, or election families which can be used to represent the clauses contained within that type of Legal Agreement, regardless of vintage or governing law.
+The modelling approach for elections is explained in further detail below.  
 
-For example ``CreditSupportAgreementElections`` can be used to represent all of the following documents:
+Elective Provisions
+^^^^^^^^^^^^^^^^^^^
+
+Election Structure
+""""""""""""""""""
+
+The structure of the elections contained within each agreement type are modelled to reflect the structure of the legal agreements that they represent for ease of reference. Each type contains a set of elections or election families which can be used to represent the clauses contained within that type of legal agreement, regardless of vintage or governing law.
+
+This approach allows to focus the representation of elections in the CDM on their intended business outcome regardless of their particular way of drafting, in order to better support the standardisation of related business processes.
+
+For example, ``CreditSupportAgreementElections`` contains all the elections that may be applicable to a credit support agreement and can be used to define any of the Credit Support Agreements currently supported by the CDM:
 
 * ISDA 2016 Phase One Credit Support Annex (“CSA”) (Security Interest – New York Law)
 * ISDA 2016 Phase One Credit Support Deed (“CSD”) (Security Interest – English Law)
 * ISDA 2016 Phase One CSA (Loan – Japanese Law)
 * ISDA 2018 CSA (Security Interest – New York Law)
 * ISDA 2018 CSD (Security Interest – English Law)
+
+The ``CreditSupportAgreementElections`` type therefore contains a super-set of the elections that may apply to any of the above document types, where common elections are represented using common components.
+
+.. code-block:: Haskell
+
+ type CreditSupportAgreementElections: 
+ 
+   regime Regime (1..1)
+   oneWayProvisions OneWayProvisions (1..1)
+   generalSimmElections GeneralSimmElections (1..1)
+   identifiedCrossCurrencySwap boolean (0..1)
+   sensitivityMethodologies SensitivityMethodologies (1..1)
+   fxHaircutCurrency FxHaircutCurrency (0..1)
+   postingObligations PostingObligations (1..1)
+   substitutedRegime SubstitutedRegime (1..1)
+   baseCurrency string (1..1)
+     [metadata scheme]
+   additionalObligations string (0..1)
+   creditSupportObligations CreditSupportObligationsInitialMargin (1..1)
+   calculationAndTiming CalculationAndTiming (1..1)
+   conditionsPrecedent ConditionsPrecedent (1..1)
+   substitution Substitution (1..1)
+   disputeResolution DisputeResolution (1..1)
+   rightsEvents RightsEvents (1..1)custodyArrangements CustodyArrangements (1..1)
+   additionalRepresentations AdditionalRepresentations (1..1)
+   otherEligibleAndPostedSupport OtherEligibleAndPostedSupport (1..1)
+   demandsAndNotices ContactElection (0..1)
+   addressesForTransfer ContactElection (0..1)
+   otherCsa OtherAgreements (0..1)
+   japaneseLawCsa OtherAgreements (0..1)
+   terminationCurrencyAmendment TerminationCurrencyAmendment (1..1)
+   minimumTransferAmountAmendment MinimumTransferAmountAmendment (1..1
+   interpretationTerms string (0..1)
+   processAgent ProcessAgent (0..1)
+   appropriatedCollateralValuation AppropriatedCollateralValuation (0..1)
+   jurisdictionRelatedTerms JurisdictionRelatedTerms (0..1)
+   additionalAmendments string (0..1)
+   additionalBespokeTerms string (0..1)
+   trustSchemeAddendum boolean (1..1)
 
 .. note:: Validation exists in the model to ensure that the set of elections specified within the ``Agreement`` are consistent with the agreement identified as part of ``LegalAgreementBase``.  The below snippet represents the validation condition.
   
@@ -1045,8 +1098,10 @@ For example ``CreditSupportAgreementElections`` can be used to represent all of 
    if agreementTerms -> agreement -> securityAgreementElections exists
    then agreementType -> name = LegalAgreementNameEnum->SecurityAgreement
    
-**Approach**
-In many cases the pre-printed clauses in the legal agreement being modelled offer pre-defined elections that the parties can select.  In these cases, the clauses that need to be modelled are identified in the form, typically together with the needed attributes. The values those attributes can take may also be clear (e.g. an election from a list of options or a specific type of information such as an amount, date or city).  In these instances the model is a direct reflection of the choices in the clause and uses boolean attributes, or enumeration lists to achieve the necessary outcome.
+Modelling Approach
+""""""""""""""""""
+
+In many cases the pre-printed clauses in the legal agreement being modelled offer pre-defined elections that the parties can select. In these cases, the clauses that need to be modelled are identified in the form, typically together with the needed attributes. The values those attributes can take may also be clear (e.g. an election from a list of options or a specific type of information such as an amount, date or city). In these instances the model is a direct reflection of the choices in the clause and uses boolean attributes, or enumeration lists to achieve the necessary outcome.
 
 However in some cases, the pre-printed form may identify the clause but not (all) attributes or values they could take, e.g. when a single version of a clause term is provided with a space for parties to agree an unspecified alternative if they wish.  In these instances the model uses string attributes to capture the clause in a free text format.  
 
@@ -1055,7 +1110,7 @@ Examples are provided below to provide a practical explanation of the approach.
 Example 1: Security Agreement Elections
 """""""""""""""""""""""""""""""""""""""
 
-The CDM model can currently support nine distinct Security Agreements.  Election structures across any of these agreements can be represented through the following class:
+The CDM model can currently support nine distinct Security Agreements. Election structures across any of these agreements can be represented through the following data type.
 
 .. code-block:: Haskell
 
@@ -1074,7 +1129,6 @@ The CDM model can currently support nine distinct Security Agreements.  Election
 Depending on the agreement being specified, a different combination of attributes would be used when specifying the agreement. The cardinality of each attribute allows the appropriate combination to provided dependent on the agreement.
 
 An equivalent approach is followed for ``CreditSupportAgreementElections`` and ``CollateralTransferAgreementElections``.
-
 
 Example 2: Credit Support Obligations
 """""""""""""""""""""""""""""""""""""
