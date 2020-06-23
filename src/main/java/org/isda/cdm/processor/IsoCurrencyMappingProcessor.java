@@ -39,7 +39,7 @@ public class IsoCurrencyMappingProcessor extends MappingProcessor {
 			}
 		}
 		// Update mapping to failed if could not be mapped to an ISO currency code
-		findMappedValue(getMappings(), getPath()).forEach(m ->
+		filterMappings(getMappings(), getPath()).forEach(m ->
 				updateMappingFail(m, String.format("Element with value \"%s\" could not be mapped to a ISO currency code", value)));
 	}
 

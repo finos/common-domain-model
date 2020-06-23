@@ -83,8 +83,8 @@ class MappingProcessorUtils {
 	}
 
 	static void setValueAndUpdateMappings(Path synonymPath, Consumer<String> setter, List<Mapping> mappings, RosettaPath rosettaPath) {
-		List<Mapping> mappingsFromSynonymPath = findMappings(mappings, synonymPath);
-		findMappedValue(mappingsFromSynonymPath).ifPresent(value -> {
+		List<Mapping> mappingsFromSynonymPath = filterMappings(mappings, synonymPath);
+		getNonNullMappedValue(mappingsFromSynonymPath).ifPresent(value -> {
 			// set value on model
 			setter.accept(value);
 			// update mappings
@@ -93,8 +93,8 @@ class MappingProcessorUtils {
 	}
 
 	static void setValueAndOptionallyUpdateMappings(Path synonymPath, Function<String, Boolean> func, List<Mapping> mappings, RosettaPath rosettaPath) {
-		List<Mapping> mappingsFromSynonymPath = findMappings(mappings, synonymPath);
-		findMappedValue(mappingsFromSynonymPath).ifPresent(value -> {
+		List<Mapping> mappingsFromSynonymPath = filterMappings(mappings, synonymPath);
+		getNonNullMappedValue(mappingsFromSynonymPath).ifPresent(value -> {
 			// set value on model, return boolean whether to update mappings
 			if (func.apply(value)) {
 				// update mappings
@@ -103,29 +103,33 @@ class MappingProcessorUtils {
 		});
 	}
 
-	static void updateMappings(Path synonymPath, List<Mapping> mappings, RosettaPath rosettaPath) {
-		findMappings(mappings, synonymPath).forEach(m -> updateMappingSuccess(m, rosettaPath));
-	}
-
-	static List<Mapping> findMappings(List<Mapping> mappings, Path path) {
+	static List<Mapping> filterMappings(List<Mapping> mappings, Path synonymPath) {
 		return mappings.stream()
-				.filter(p -> path.fullStartMatches(p.getXmlPath()))
+				.filter(p -> synonymPath.fullStartMatches(p.getXmlPath()))
 				.collect(Collectors.toList());
 	}
 
-	static Optional<String> findMappedValue(List<Mapping> mappings) {
+	static List<Mapping> filterMappings(List<Mapping> mappings, RosettaPath rosettaPath) {
 		return mappings.stream()
+				.filter(m -> m.getRosettaPath() != null && m.getRosettaValue() != null)
+				.filter(p -> rosettaPath.equals(toRosettaPath(p.getRosettaPath())))
+				.collect(Collectors.toList());
+	}
+
+	/**
+	 * After filtering mappings (either by synonym or cdm path), there are sometimes multiple mapping objects
+	 * but there should be only one non-null value.
+	 */
+	static Optional<String> getNonNullMappedValue(List<Mapping> filteredMappings) {
+		return filteredMappings.stream()
 				.map(Mapping::getXmlValue)
 				.filter(Objects::nonNull)
 				.map(String::valueOf)
 				.findFirst();
 	}
 
-	static List<Mapping> findMappedValue(List<Mapping> mappings, RosettaPath rosettaPath) {
-		return mappings.stream()
-				.filter(m -> m.getRosettaPath() != null && m.getRosettaValue() != null)
-				.filter(p -> rosettaPath.equals(toRosettaPath(p.getRosettaPath())))
-				.collect(Collectors.toList());
+	static void updateMappings(Path synonymPath, List<Mapping> mappings, RosettaPath rosettaPath) {
+		filterMappings(mappings, synonymPath).forEach(m -> updateMappingSuccess(m, rosettaPath));
 	}
 
 	static void updateMappingSuccess(Mapping mapping, RosettaPath rosettaPath) {
