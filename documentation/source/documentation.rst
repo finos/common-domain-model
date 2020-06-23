@@ -1206,8 +1206,6 @@ The following code snippets represent these three components of the model:
 Linking Legal Agreements to Contracts
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Contracts
-"""""""""
 The CDM uses the key / referencing mechanism to tie a legal agreement with the relevant contract or event.
 
 This referencing mechanism has been implemented for the ``Contract`` type through the ``documentation`` attribute, which uses the ``RelatedAgreement`` data type. For OTC derivatives, this attribute will contain a reference to the ISDA Master Agreement that governs any derivative transaction between the parties.
