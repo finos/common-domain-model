@@ -9,7 +9,7 @@ import com.rosetta.model.lib.process.PostProcessor;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
 import org.isda.cdm.*;
-import org.isda.cdm.functions.Create_Clear;
+import org.isda.cdm.functions.Create_ClearedTrade;
 import org.isda.cdm.functions.example.services.identification.IdentifierService;
 import org.isda.cdm.metafields.ReferenceWithMetaWorkflowStep;
 
@@ -44,7 +44,6 @@ public class ClearingUtils {
 				.setInstructionFunction("Clear")
 				.setClearing(ClearingInstruction.builder()
 					.setClearingParty(createClearingParty())
-					.setAlphaContractRef(alpha)
 					.build())
 				.build());
 
@@ -80,9 +79,9 @@ public class ClearingUtils {
 		return contract.toBuilder().addPartyRole(partyRole1).addPartyRole(partyRole2).build();
 	}
 
-	static WorkflowStep buildClear(PostProcessor runner, String externalReference, WorkflowStep previous, ClearingInstruction clearingInstruction, Create_Clear clear, IdentifierService identifierService) {
+	static WorkflowStep buildClear(PostProcessor runner, String externalReference, WorkflowStep previous, ClearingInstruction clearingInstruction, Create_ClearedTrade clear, Contract alphaContract, IdentifierService identifierService) {
 
-		BusinessEvent.BusinessEventBuilder businessEventBuilder = clear.evaluate(clearingInstruction).toBuilder();
+		BusinessEvent.BusinessEventBuilder businessEventBuilder = clear.evaluate(alphaContract, clearingInstruction).toBuilder();
 
 		WorkflowStep.WorkflowStepBuilder clearedTradeWorkflowEventBuilder = WorkflowStep.builder().setBusinessEventBuilder(businessEventBuilder);
 
@@ -92,9 +91,9 @@ public class ClearingUtils {
 			.map(PrimitiveEvent.PrimitiveEventBuilder::getContractFormation)
 			.collect(Collectors.toList());
 
-		addExternalKeysToClearingParties(contractFormationBuilders);
+		//  addExternalKeysToClearingParties(contractFormationBuilders);
 
-		clearedTradeWorkflowEventBuilder.addEventIdentifier(identifierService.nextType(externalReference, Create_Clear.class.getSimpleName()));
+		clearedTradeWorkflowEventBuilder.addEventIdentifier(identifierService.nextType(externalReference, Create_ClearedTrade.class.getSimpleName()));
 
 		clearedTradeWorkflowEventBuilder.getOrCreateLineage().getOrCreateEventReference(0).setGlobalReference(previous.getMeta().getGlobalKey());
 

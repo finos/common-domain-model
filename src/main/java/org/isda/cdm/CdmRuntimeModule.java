@@ -8,7 +8,6 @@ import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
 import com.rosetta.model.lib.validation.ModelObjectValidator;
 
 import cdm.base.math.functions.*;
-import cdm.base.staticdata.party.functions.PartyByRole;
 
 public class CdmRuntimeModule extends AbstractModule {
 
@@ -28,7 +27,6 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(ResolveEquityInitialPrice.class).to(bindResolveEquityInitialPrice());
 		bind(NoOfUnits.class).to(bindNoOfUnits());
 		bind(CurrencyAmount.class).to(bindCurrencyAmount());
-		bind(PartyByRole.class).to(PartyByRoleImpl.class);
 		bind(SumPostedCreditSupportItemAmounts.class).to(bindSumPostedCreditSupportItemAmounts());
 		bind(RoundToNearest.class).to(bindRoundToNearest());
 	}

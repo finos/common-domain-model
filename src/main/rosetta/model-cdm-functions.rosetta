@@ -668,51 +668,71 @@ func NewQuantityChangePrimitiveEvent: <"Constructs a primitive event from a full
 	quantityChangePrimitive
 
 type ClearingInstruction: <"All information required to perform the clear life cycle event">
-	clearingParty Party(1..1) <"The Central Counterparty that the contract will be submitted to for clearing.">
-	alphaContract Contract (1..1) <"The contract that will be submitted to the clearing house for clearing.">
-		[metadata reference]
-
-func Create_Clear: <"Clear function that inputs the alpha contract and clearingInstruction, resulting in the cleared BusinessEvent">
+	clearingParty Party(1..1) <"The Central Counter party (CCP) that the contract will be submitted to for clearing.">
+		
+	party1 Party(1..1) <"First party facing the CCP is clearing for its own account.">
+	party2 Party(1..1) <"Second party facing the CCP is clearing for its own account.">
+	
+	clearerParty1 Party(0..1) <"Optional party facing the CCP, acting as clearing member for party1.">
+	clearerParty2 Party(0..1) <"Optional party facing the CCP, acting as clearing member for party2.">
+	
+func Create_ClearedTrade: <"Function supporting direct principle and agency clearing model that takes as inputs, the alpha contract and clearing instruction, resulting in the cleared trade BusinessEvent. Direct clearing is when the risk party to the trade is facing the CCP, either through its own account or its clearing member acting as agent. If the clearing instructions contains clearerParty1 or clearerParty2, then it should be used as the party facing the CCP in the beta or gamma contracts respectively.">
 	[creation BusinessEvent]
 	inputs:
+		alphaContract Contract (1..1) <"The contract that will be submitted to the clearing house for clearing. The contact will contain the xxxxxx">	
 		clearingInstruction ClearingInstruction(1..1) <"Clearing Instruction with all information to clear the trade including the alpha contract and the clearing party.">
 
 	output:
-		clearedEvent BusinessEvent (1..1) <"Business event qualified as a cleared trade">
-
-	alias alpha:
-		clearingInstruction -> alphaContract
-
-	alias party1: <"Executing entity">
-		PartyByRole(alpha -> partyRole, PartyRoleEnum -> ExecutingEntity)
-		
-	alias party2: <"Counter party">
-		PartyByRole(alpha -> partyRole, PartyRoleEnum -> Counterparty)
-
-	alias alphaTerminated: <"Terminated alpha quantity change event">
-		Create_TerminationQuantityChangePrimitive(alpha)
+		clearedEvent BusinessEvent (1..1) <"Business event qualified as a cleared trade consisting of five primitive events; terminated alpha contract, new beta execution, beta contract formation, new gamma execution and gamma contract formation">
+	
+	alias alphaTerminated: <"Terminated alpha primitive event represented as a quantity change event with the after quantity set to 0. The before state is a reference to the original alpha contract.">
+		Create_TerminationQuantityChangePrimitive(alphaContract)
 	alias alphaTerminatedPrimitives: NewQuantityChangePrimitiveEvent(alphaTerminated)
 
-	alias clearerRole: <"ClearingOrganization role">
-		PartyRoleForParty(clearingInstruction -> clearingParty, PartyRoleEnum -> ClearingOrganization)
+	alias clearerRole: <"The clearing party (CCP) role set to ClearingOrganization">
+		CreatePartyRole(clearingInstruction -> clearingParty, PartyRoleEnum -> ClearingOrganization)
 
-	alias betaExecution: <"Beta execution">
-		Create_ExecutionPrimitive(alpha -> tradableProduct -> product, alpha -> tradableProduct -> quantityNotation, alpha -> tradableProduct -> priceNotation, [clearingInstruction -> clearingParty, party1], [clearerRole], empty)
+	alias betaExecution: <"Execution between the CCP and the beta party.">
+		Create_ExecutionPrimitive(alphaContract -> tradableProduct -> product, alphaContract -> tradableProduct -> quantityNotation, alphaContract -> tradableProduct -> priceNotation, [clearingInstruction -> clearingParty, betaParty], [clearerRole], empty)
 	alias betaExecutionPrimitives: NewExecutionPrimitiveEvent(betaExecution)
 
-	alias betaContract: <"Beta contract">
+	alias betaParty: <"Beta party is the clearerParty1 when acting as a clearing member or else is party1 when it is clearing for its own account.">
+		if clearingInstruction -> clearerParty1 exists 
+		then clearingInstruction -> clearerParty1
+		else clearingInstruction -> party1
+
+	alias betaContract: <"Contract between the CCP and the beta party.">
 		Create_ContractFormationPrimitive(betaExecution -> after -> execution, empty)
 	alias betaContractPrimitives: NewContractFormationPrimitiveEvent(betaContract)
 
-	alias gammaExecution: <"Gamma execution">
-		Create_ExecutionPrimitive(alpha -> tradableProduct -> product, alpha -> tradableProduct -> quantityNotation, alpha -> tradableProduct -> priceNotation, [clearingInstruction -> clearingParty, party2], [clearerRole], empty)
+	alias gammaParty: <"Gamma party is the clearerParty2 when acting as a clearing member or else is party1 when it is clearing for its own account.">
+		if clearingInstruction -> clearerParty2 exists
+		then clearingInstruction -> clearerParty2
+		else clearingInstruction -> party2
+
+	alias gammaExecution: <"Execution between the CCP and the gamma party">
+		Create_ExecutionPrimitive(alphaContract -> tradableProduct -> product, alphaContract -> tradableProduct -> quantityNotation, alphaContract -> tradableProduct -> priceNotation, [clearingInstruction -> clearingParty, gammaParty], [clearerRole], empty)
 	alias gammaExecutionPrimitives: NewExecutionPrimitiveEvent(gammaExecution)
 
-	alias gammaContract: <"Gamma contract">
+	alias gammaContract: <"Contract between the CCP and the gamma party.">
 		Create_ContractFormationPrimitive(gammaExecution -> after -> execution, empty)
 	alias gammaContractPrimitives: NewContractFormationPrimitiveEvent(gammaContract)
 
-	assign-output clearedEvent -> primitives:
+	condition: <"The alpha contract being terminated must include the party1 contained in the clearing instruction.">
+		alphaContract -> party includes clearingInstruction -> party1
+		
+	condition: <"The alpha contract being terminated must include the party2 contained in the clearing instruction.">
+		alphaContract -> party includes clearingInstruction -> party2
+	
+	condition: <"The alpha contract being terminated must include the party role of the clearing member (clearerParty1) if it has been specified.">
+		if clearingInstruction -> clearerParty1 exists
+		then alphaContract -> partyRole -> partyReference includes clearingInstruction -> clearerParty1
+	
+	condition: <"The alpha contract being terminated must include the party role of the clearing member (clearerParty2) if it has been specified.">
+		if clearingInstruction -> clearerParty2 exists
+		then alphaContract -> partyRole -> partyReference includes clearingInstruction -> clearerParty2
+
+	assign-output clearedEvent -> primitives: <"Create the event made up of five primitives; alpha terminated, beta execution, beta contract, gamma execution and gamma contract. Each beta and gamma contracts contain references to the respective executions.">
 		[
 			alphaTerminatedPrimitives,
 			betaExecutionPrimitives,
