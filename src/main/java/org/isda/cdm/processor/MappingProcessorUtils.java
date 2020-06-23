@@ -24,7 +24,6 @@ import static java.util.Optional.ofNullable;
 class MappingProcessorUtils {
 
 	static final List<String> PARTIES = Arrays.asList("partyA", "partyB");
-	static final Path BASE_PATH = parse("answers.partyA");
 	static final String ISDA_CREATE_SYNONYM_SOURCE = "ISDA_Create_1_0";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MappingProcessorUtils.class);
