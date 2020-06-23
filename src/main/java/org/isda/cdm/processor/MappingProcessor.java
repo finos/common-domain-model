@@ -18,12 +18,12 @@ import java.util.function.Consumer;
 public abstract class MappingProcessor implements BuilderProcessor {
 
 	private final RosettaPath path;
-	private final List<String> synonymValues;
+	private final List<Path> synonymPaths;
 	private final List<Mapping> mappings;
 
-	MappingProcessor(RosettaPath path, List<String> synonymValues, List<Mapping> mappings) {
+	MappingProcessor(RosettaPath path, List<Path> synonymPaths, List<Mapping> mappings) {
 		this.path = path;
-		this.synonymValues = synonymValues;
+		this.synonymPaths = synonymPaths;
 		this.mappings = mappings;
 	}
 
@@ -34,7 +34,7 @@ public abstract class MappingProcessor implements BuilderProcessor {
 			RosettaModelObjectBuilder parent,
 			AttributeMeta... meta) {
 		if (builder != null && currentPath.matchesIgnoringIndex(path)) {
-			map(builder, parent);
+			synonymPaths.forEach(p -> map(p, builder, parent));
 		}
 		return true;
 	}
@@ -46,7 +46,7 @@ public abstract class MappingProcessor implements BuilderProcessor {
 			RosettaModelObjectBuilder parent,
 			AttributeMeta... meta) {
 		if (builder != null && matchesProcessorPathForMultipleCardinality(currentPath, rosettaType)) {
-			map(builder, parent);
+			synonymPaths.forEach(p -> map(p, builder, parent));
 		}
 		return true;
 	}
@@ -54,14 +54,14 @@ public abstract class MappingProcessor implements BuilderProcessor {
 	@Override
 	public <T> void processBasic(RosettaPath currentPath, Class<T> rosettaType, T instance, RosettaModelObjectBuilder parent, AttributeMeta... meta) {
 		if (instance != null && currentPath.matchesIgnoringIndex(path)) {
-			mapBasic(instance, parent);
+			synonymPaths.forEach(p -> mapBasic(p, instance, parent));
 		}
 	}
 
 	@Override
 	public <T> void processBasic(RosettaPath currentPath, Class<T> rosettaType, List<T> instance, RosettaModelObjectBuilder parent, AttributeMeta... meta) {
 		if (instance != null && currentPath.matchesIgnoringIndex(path)) {
-			mapBasic(instance, parent);
+			synonymPaths.forEach(p -> mapBasic(p, instance, parent));
 		}
 	}
 
@@ -73,28 +73,28 @@ public abstract class MappingProcessor implements BuilderProcessor {
 	/**
 	 * Perform custom mapping logic and updates resultant mapped value on builder object.
 	 */
-	protected <R extends RosettaModelObject> void map(RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
+	protected void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
 		// Default behaviour - do nothing
 	}
 
 	/**
 	 * Perform custom mapping logic and updates resultant mapped value on builder object.
 	 */
-	protected void map(List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
+	protected void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
 		// Default behaviour - do nothing
 	}
 
 	/**
 	 * Perform custom mapping logic and updates resultant mapped value on builder object.
 	 */
-	protected <T> void mapBasic(T instance, RosettaModelObjectBuilder parent) {
+	protected <T> void mapBasic(Path synonymPath, T instance, RosettaModelObjectBuilder parent) {
 		// Default behaviour - do nothing
 	}
 
 	/**
 	 * Perform custom mapping logic and updates resultant mapped value on builder object.
 	 */
-	protected <T> void mapBasic(List<T> instance, RosettaModelObjectBuilder parent) {
+	protected <T> void mapBasic(Path synonymPath, List<T> instance, RosettaModelObjectBuilder parent) {
 		// Default behaviour - do nothing
 	}
 
@@ -102,8 +102,8 @@ public abstract class MappingProcessor implements BuilderProcessor {
 		return path;
 	}
 
-	List<String> getSynonymValues() {
-		return synonymValues;
+	List<Path> getSynonymPaths() {
+		return synonymPaths;
 	}
 
 	List<Mapping> getMappings() {

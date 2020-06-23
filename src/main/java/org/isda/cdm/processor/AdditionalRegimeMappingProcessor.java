@@ -21,18 +21,17 @@ public class AdditionalRegimeMappingProcessor extends MappingProcessor {
 	private final RegimeMappingHelper helper;
 	private final Map<String, AdditionalTypeEnum> synonymToAdditionalTypeEnumMap;
 
-	public AdditionalRegimeMappingProcessor(RosettaPath rosettaPath, List<String> synonymValues, List<Mapping> mappings) {
-		super(rosettaPath, synonymValues, mappings);
+	public AdditionalRegimeMappingProcessor(RosettaPath rosettaPath, List<Path> synonymPaths, List<Mapping> mappings) {
+		super(rosettaPath, synonymPaths, mappings);
 		this.helper = new RegimeMappingHelper(rosettaPath, mappings);
 		this.synonymToAdditionalTypeEnumMap = synonymToEnumValueMap(AdditionalTypeEnum.values(), ISDA_CREATE_SYNONYM_SOURCE);
 	}
 
 	@Override
-	protected void map(List<? extends RosettaModelObjectBuilder> builders, RosettaModelObjectBuilder parent) {
+	protected void map(Path additionalRegimesPath, List<? extends RosettaModelObjectBuilder> builders, RosettaModelObjectBuilder parent) {
 		Regime.RegimeBuilder regimeBuilder = (Regime.RegimeBuilder) parent;
 		regimeBuilder.clearAdditionalRegime();
 
-		Path additionalRegimesPath = getSynonymPath(BASE_PATH, "additional_regimes");
 		Path regimesPath = getSynonymPath(additionalRegimesPath, "regimes");
 
 		List<Mapping> applicableMappings = findMappings(getMappings(), getSynonymPath(additionalRegimesPath, "is_applicable"));

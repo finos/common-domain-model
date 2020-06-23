@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.isda.cdm.CreditSupportObligationsInitialMargin.CreditSupportObligationsInitialMarginBuilder;
@@ -37,8 +38,9 @@ class ThresholdMappingProcessorTest {
 		CreditSupportObligationsInitialMarginBuilder parent = mock(CreditSupportObligationsInitialMarginBuilder.class);
 
 		// test
-		ThresholdMappingProcessor processor = new ThresholdMappingProcessor(rosettaPath, Arrays.asList("threshold"), mappings);
-		processor.map(builder, parent);
+		Path synonymPath = Path.parse("answers.partyA.threshold");
+		ThresholdMappingProcessor processor = new ThresholdMappingProcessor(rosettaPath, Collections.singletonList(synonymPath), mappings);
+		processor.map(synonymPath, builder, parent);
 		Threshold threshold = builder.build();
 
 		// assert

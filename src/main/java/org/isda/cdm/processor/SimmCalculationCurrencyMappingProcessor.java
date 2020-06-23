@@ -22,29 +22,28 @@ public class SimmCalculationCurrencyMappingProcessor extends MappingProcessor {
 
 	private final Map<String, ISOCurrencyCodeEnum> synonymToIsoCurrencyCodeEnumMap;
 
-	public SimmCalculationCurrencyMappingProcessor(RosettaPath rosettaPath, List<String> synonymValues, List<Mapping> mappings) {
-		super(rosettaPath, synonymValues, mappings);
+	public SimmCalculationCurrencyMappingProcessor(RosettaPath rosettaPath, List<Path> synonymPaths, List<Mapping> mappings) {
+		super(rosettaPath, synonymPaths, mappings);
 		this.synonymToIsoCurrencyCodeEnumMap = synonymToEnumValueMap(ISOCurrencyCodeEnum.values(), ISDA_CREATE_SYNONYM_SOURCE);
 	}
 
 	@Override
-	public void map(RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
+	protected void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
 		SimmCalculationCurrency.SimmCalculationCurrencyBuilder simmCalculationCurrencyBuilder = (SimmCalculationCurrency.SimmCalculationCurrencyBuilder) builder;
-		Path basePath = Path.parse("answers.partyA.simm_calculation_currency");
-		PARTIES.forEach(party -> getCalculationCurrencyElection(basePath, party).ifPresent(simmCalculationCurrencyBuilder::addPartyElection));
+		PARTIES.forEach(party -> getCalculationCurrencyElection(synonymPath, party).ifPresent(simmCalculationCurrencyBuilder::addPartyElection));
 
 	}
 
-	private Optional<CalculationCurrencyElection> getCalculationCurrencyElection(Path basePath, String party) {
+	private Optional<CalculationCurrencyElection> getCalculationCurrencyElection(Path synonymPath, String party) {
 		CalculationCurrencyElection.CalculationCurrencyElectionBuilder calculationCurrencyElectionBuilder = CalculationCurrencyElection.builder();
 
-		setValueAndUpdateMappings(getSynonymPath(basePath, party, "_use_base_currency"),
+		setValueAndUpdateMappings(getSynonymPath(synonymPath, party, "_use_base_currency"),
 				(value) -> {
 					calculationCurrencyElectionBuilder.setParty(party);
 					calculationCurrencyElectionBuilder.setIsBaseCurrency(Boolean.valueOf(value));
 				});
 
-		setValueAndOptionallyUpdateMappings(getSynonymPath(basePath, party, "_use_other_currency"),
+		setValueAndOptionallyUpdateMappings(getSynonymPath(synonymPath, party, "_use_other_currency"),
 				(value) -> setIsoCurrency(synonymToIsoCurrencyCodeEnumMap, calculationCurrencyElectionBuilder::setCurrency, value),
 				getMappings(), getPath());
 
