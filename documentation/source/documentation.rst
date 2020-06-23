@@ -948,9 +948,9 @@ The key modelling principles that have been adopted to represent legal agreement
 * **Composite and extendable model**.
 
   * The Legal Agreement model follows the CDM design principles of composability and reusability to develop an extendable model that can support multiple document types.
-  * For instance, the ``LegalAgreementBase`` abstract class uses components that are also used as part of the CDM contract and lifecycle event components: e.g. ``Party``, ``Identifier``, ``date``.
+  * For instance, the ``LegalAgreementBase`` type uses components that are also used as part of the CDM contract and lifecycle event components: e.g. ``Party``, ``Identifier``, ``date``.
     
-* **Normalisation of the data representation** to be machine readable and executable. This approach allows CDM users to define normalised elections into a corresponding legal agreement template to support functional processes. In practice, the use of elections expressed in a ``string`` format has been restricted, as ``string`` requires language parsing and disassembling to be machine executable. Instead, the model looks to use strongly type attributes such as numbers, boolean or enumerations whenever possible.
+* **Normalisation of the data representation** to be machine readable and executable. This approach allows CDM users to define normalised elections into a corresponding legal agreement template to support functional processes. In practice, the use of elections expressed in a ``string`` format has been restricted, as ``string`` requires language parsing and disassembling to be machine executable. Instead, the model looks to use strong type attributes such as numbers, boolean or enumerations whenever possible.
 
 The components of the legal agreement model specified in the CDM are detailed in the section below.
 
@@ -995,11 +995,7 @@ Agreement Content
    relatedAgreements RelatedAgreement (0..*)
    umbrellaAgreement UmbrellaAgreement (0..1)
 	
-``RelatedAgreement`` is used to specify any higher-level agreement(s) that may govern the agreement, either as a reference to such agreements when specified as part of the CDM, or through identification of some of the key terms of those agreements.  It allows to:
-
-* Identify some of the key terms of a governing legal agreement such as the agreement identifier, the publisher, the document vintage and the agreement date, as part of the ``legalAgreement`` attribute.
-* Or, reference the entire legal agreement that is electronically represented in the CDM through the ``legalAgreement`` attribute, which has a reference key into the agreement instance.
-* The ``DocumentationIdentification`` attribute is currently used to map Legal Agreement terms captured as part of an FpML transaction message.  This attributed will be deprecated when a synonym mapping structure has been incorporated into the ``LegalAgreement`` attribute.
+``RelatedAgreement`` is used to specify any higher-level agreement(s) that may govern the agreement, either as a reference to such agreements when specified as part of the CDM, or through identification of some of the key terms of those agreements.  
 
 The below snippet represents the ``RelatedAgreement`` type.
 
@@ -1008,6 +1004,13 @@ The below snippet represents the ``RelatedAgreement`` type.
  type RelatedAgreement:
    legalAgreement LegalAgreement (0..1)
    documentationIdentification DocumentationIdentification (0..1)
+   
+Through the ``legalAgreement`` attribute it allows to:
+
+* Identify some of the key terms of a governing legal agreement such as the agreement identifier, the publisher, the document vintage and the agreement date.
+* Or, reference the entire legal agreement that is electronically represented in the CDM through a reference key into the agreement instance.
+
+.. note:: The ``DocumentationIdentification`` attribute is currently used to map Legal Agreement terms captured as part of an FpML transaction message.  This attribute will be deprecated when a synonym mapping structure has been incorporated into the ``LegalAgreement`` attribute.
    
 ``UmbrellaAgreement`` is used to specify whether Umbrella Agreement terms are applicable, relevant specific language, and underlying entities associated with the umbrella agreement
 
