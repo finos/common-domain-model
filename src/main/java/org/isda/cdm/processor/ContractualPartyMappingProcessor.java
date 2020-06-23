@@ -14,36 +14,31 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.isda.cdm.processor.MappingProcessorUtils.*;
-import static org.isda.cdm.processor.RegimeMappingHelper.PARTIES;
 
 /**
  * ISDA Create mapping processor.
  * <p>
- * Sets LegalAgreement.partyInformation and LegalAgreement.contractualParty
+ * Sets LegalAgreement.contractualParty
  */
 @SuppressWarnings("unused")
-public class PartyInformationMappingProcessor extends MappingProcessor {
+public class ContractualPartyMappingProcessor extends MappingProcessor {
 
-	public PartyInformationMappingProcessor(RosettaPath rosettaPath, List<String> synonymValues, List<Mapping> mappings) {
-		super(rosettaPath, synonymValues, mappings);
+	public ContractualPartyMappingProcessor(RosettaPath rosettaPath, List<Path> synonymPaths, List<Mapping> mappings) {
+		super(rosettaPath, synonymPaths, mappings);
 	}
 
 	@Override
-	protected void map(List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
+	protected void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
 		LegalAgreementBuilder legalAgreementBuilder = (LegalAgreementBuilder) parent;
-		PARTIES.forEach(party -> updatePartyInformation(legalAgreementBuilder, party));
+		PARTIES.forEach(party ->
+				getContractualParty(party).ifPresent(
+						partyInfo -> legalAgreementBuilder
+								.addContractualParty(ReferenceWithMetaParty.builder()
+										.setValue(partyInfo)
+										.build())));
 	}
 
-	private void updatePartyInformation(LegalAgreementBuilder legalAgreementBuilder, String party) {
-		getPartyInformation(party).ifPresent(
-				partyInfo -> legalAgreementBuilder
-						.addPartyInformation(partyInfo)
-						.addContractualParty(ReferenceWithMetaParty.builder()
-								.setExternalReference(party)
-								.build()));
-	}
-
-	private Optional<Party> getPartyInformation(String party) {
+	private Optional<Party> getContractualParty(String party) {
 		PartyBuilder partyBuilder = Party.builder();
 
 		setValueAndUpdateMappings(String.format("answers.partyA.parties.%s_name", party),
@@ -56,7 +51,7 @@ public class PartyInformationMappingProcessor extends MappingProcessor {
 				(value) -> partyBuilder.addPartyId(toFieldWithMetaString(value)));
 
 		// clean up mappings
-		findMappings(getMappings(), Path.parse("answers.partyA.parties")).forEach(m -> updateMapping(m, getPath()));
+		updateMappings(Path.parse("answers.partyA.parties"), getMappings(), getPath());
 
 		return partyBuilder.hasData() ? Optional.of(partyBuilder.build()) : Optional.empty();
 	}

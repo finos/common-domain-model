@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.isda.cdm.CreditSupportObligationsInitialMargin.CreditSupportObligationsInitialMarginBuilder;
@@ -37,8 +38,11 @@ class MinimumTransferAmountMappingProcessorTest {
 		CreditSupportObligationsInitialMarginBuilder parent = mock(CreditSupportObligationsInitialMarginBuilder.class);
 
 		// test
-		MinimumTransferAmountMappingProcessor processor = new MinimumTransferAmountMappingProcessor(rosettaPath, Arrays.asList("minimum_transfer_amount"), mappings);
-		processor.map(builder, parent);
+		Path synonymPath = Path.parse("answers.partyA.minimum_transfer_amount");
+		MinimumTransferAmountMappingProcessor processor = new MinimumTransferAmountMappingProcessor(rosettaPath,
+				Collections.singletonList(synonymPath),
+				mappings);
+		processor.map(synonymPath, builder, parent);
 		MinimumTransferAmount minimumTransferAmount = builder.build();
 
 		// assert
@@ -47,7 +51,7 @@ class MinimumTransferAmountMappingProcessorTest {
 		assertNull(partyA.getCustomElection());
 		Money amount = partyA.getAmount();
 		assertEquals(10000, amount.getAmount().intValue());
-		assertEquals("Euro", amount.getCurrency().getValue());
+		assertEquals("EUR", amount.getCurrency().getValue());
 
 		ElectiveAmountElection partyB = getPartyElection(minimumTransferAmount, PARTY_B);
 		assertNull(partyB.getCustomElection());

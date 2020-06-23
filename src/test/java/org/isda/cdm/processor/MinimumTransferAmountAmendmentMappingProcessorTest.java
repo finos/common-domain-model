@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -38,9 +39,12 @@ class MinimumTransferAmountAmendmentMappingProcessorTest {
 				mock(CollateralTransferAgreementElections.CollateralTransferAgreementElectionsBuilder.class);
 
 		// test
+		Path synonymPath = Path.parse("answers.partyA.amendment_to_minimum_transfer_amount");
 		MinimumTransferAmountAmendmentMappingProcessor processor =
-				new MinimumTransferAmountAmendmentMappingProcessor(rosettaPath, Arrays.asList("amendment_to_minimum_transfer_amount"), mappings);
-		processor.map(builder, parent);
+				new MinimumTransferAmountAmendmentMappingProcessor(rosettaPath,
+						Collections.singletonList(synonymPath),
+						mappings);
+		processor.map(synonymPath, builder, parent);
 		MinimumTransferAmountAmendment minimumTransferAmountAmendment = builder.build();
 
 		// assert
@@ -49,7 +53,7 @@ class MinimumTransferAmountAmendmentMappingProcessorTest {
 		assertNull(partyA.getCustomElection());
 		Money partyAAmount = partyA.getAmount();
 		assertEquals(1000, partyAAmount.getAmount().intValue());
-		assertEquals("Japanese Yen", partyAAmount.getCurrency().getValue());
+		assertEquals("JPY", partyAAmount.getCurrency().getValue());
 
 		ElectiveAmountElection partyB = getPartyElection(minimumTransferAmountAmendment, PARTY_B);
 		assertEquals("foo", partyB.getCustomElection());
