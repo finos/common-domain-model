@@ -1,6 +1,7 @@
 package org.isda.cdm.processor;
 
-import com.regnosys.rosetta.common.translation.Mapping;
+import com.regnosys.rosetta.common.translation.MappingContext;
+import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
@@ -12,8 +13,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Optional;
 
-import static org.isda.cdm.processor.MappingProcessorUtils.getSynonymPath;
-import static org.isda.cdm.processor.MappingProcessorUtils.toFieldWithMetaString;
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getSynonymPath;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.toFieldWithMetaString;
 
 /**
  * ISDA Create mapping processor.
@@ -21,8 +22,8 @@ import static org.isda.cdm.processor.MappingProcessorUtils.toFieldWithMetaString
 @SuppressWarnings("unused")
 public class UmbrellaAgreementEntityMappingProcessor extends MappingProcessor {
 
-	public UmbrellaAgreementEntityMappingProcessor(RosettaPath rosettaPath, List<Path> synonymPaths, List<Mapping> mappings) {
-		super(rosettaPath, synonymPaths, mappings);
+	public UmbrellaAgreementEntityMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
+		super(modelPath, synonymPaths, mappingContext);
 	}
 
 	@Override

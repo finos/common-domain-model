@@ -2,7 +2,8 @@ package org.isda.cdm.processor;
 
 import cdm.base.staticdata.asset.common.ISOCurrencyCodeEnum;
 import com.google.common.base.Enums;
-import com.regnosys.rosetta.common.translation.Mapping;
+import com.regnosys.rosetta.common.translation.MappingContext;
+import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
@@ -12,7 +13,8 @@ import com.rosetta.model.metafields.MetaFields;
 import java.util.List;
 import java.util.Map;
 
-import static org.isda.cdm.processor.MappingProcessorUtils.*;
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.*;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.*;
 
 /**
  * ISDA Create mapping processor.
@@ -22,8 +24,8 @@ public class IsoCurrencyMappingProcessor extends MappingProcessor {
 
 	private final Map<String, ISOCurrencyCodeEnum> synonymToIsoCurrencyCodeEnumMap;
 
-	public IsoCurrencyMappingProcessor(RosettaPath rosettaPath, List<Path> synonymPaths, List<Mapping> mappings) {
-		super(rosettaPath, synonymPaths, mappings);
+	public IsoCurrencyMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
+		super(modelPath, synonymPaths, mappingContext);
 		this.synonymToIsoCurrencyCodeEnumMap = synonymToEnumValueMap(ISOCurrencyCodeEnum.values(), ISDA_CREATE_SYNONYM_SOURCE);
 	}
 
@@ -39,7 +41,7 @@ public class IsoCurrencyMappingProcessor extends MappingProcessor {
 			}
 		}
 		// Update mapping to failed if could not be mapped to an ISO currency code
-		filterMappings(getMappings(), getPath()).forEach(m ->
+		filterMappings(getMappings(), getModelPath()).forEach(m ->
 				updateMappingFail(m, String.format("Element with value \"%s\" could not be mapped to a ISO currency code", value)));
 	}
 

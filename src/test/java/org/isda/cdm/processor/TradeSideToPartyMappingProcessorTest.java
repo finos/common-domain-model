@@ -2,6 +2,7 @@ package org.isda.cdm.processor;
 
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder;
 import com.regnosys.rosetta.common.translation.Mapping;
+import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.path.RosettaPath;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,7 +14,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TradeSideToPartyMappingProcessorTest {
+class TradeSideToPartyMappingProcessorTest {
 
     private static final String TRADE_SIDE_1 = "side1";
     private static final String TRADE_SIDE_2 = "side2";
@@ -22,16 +23,17 @@ public class TradeSideToPartyMappingProcessorTest {
     private static final String NOT_MAPPED_ERROR = "Not mapped";
 
     private RosettaPath rosettaPath;
-    private List<Mapping> mappings;
+    private MappingContext mappingContext;
 
     @BeforeEach
     void setUp() {
         rosettaPath = RosettaPath.valueOf("Event.payerReceiver.payerPartyReference");
-        mappings = Arrays.asList(
+        List<Mapping> mappings = Arrays.asList(
                 new Mapping(Path.parse("swap.tradeSide[0].id"), TRADE_SIDE_1, null, null, NOT_MAPPED_ERROR, false, false),
                 new Mapping(Path.parse("swap.tradeSide[1].id"), TRADE_SIDE_2, null, null, NOT_MAPPED_ERROR, false, false),
                 new Mapping(Path.parse("swap.tradeSide[0].orderer.party.href"), PARTY_A, null, PARTY_A, NOT_MAPPED_ERROR, false, false),
                 new Mapping(Path.parse("swap.tradeSide[1].orderer.party.href"), PARTY_B, null, PARTY_B, NOT_MAPPED_ERROR, false, false));
+        mappingContext = new MappingContext(mappings, Collections.emptyMap());
     }
 
     @Test
@@ -41,7 +43,7 @@ public class TradeSideToPartyMappingProcessorTest {
 
         Path synonymPath = Path.parse("swap.tradeSide[0].id");
         TradeSideToPartyMappingProcessor processor =
-                new TradeSideToPartyMappingProcessor(rosettaPath, Collections.emptyList(), mappings);
+                new TradeSideToPartyMappingProcessor(rosettaPath, Collections.emptyList(), mappingContext);
         processor.map(synonymPath, builder, null);
 
         assertEquals(PARTY_A, builder.getExternalReference());
@@ -54,7 +56,7 @@ public class TradeSideToPartyMappingProcessorTest {
 
         Path synonymPath = Path.parse("swap.tradeSide[1].id");
         TradeSideToPartyMappingProcessor processor =
-                new TradeSideToPartyMappingProcessor(rosettaPath, Collections.emptyList(), mappings);
+                new TradeSideToPartyMappingProcessor(rosettaPath, Collections.emptyList(), mappingContext);
         processor.map(synonymPath, builder, null);
 
         assertEquals(PARTY_B, builder.getExternalReference());

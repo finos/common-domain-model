@@ -1,9 +1,10 @@
 package org.isda.cdm.processor;
 
 import cdm.base.staticdata.party.PayerReceiver.PayerReceiverBuilder;
-import cdm.base.staticdata.party.metafields.ReferenceWithMetaAccount.ReferenceWithMetaAccountBuilder;
-import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder;
-import com.regnosys.rosetta.common.translation.Mapping;
+import cdm.base.staticdata.party.metafields.ReferenceWithMetaAccount;
+import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
+import com.regnosys.rosetta.common.translation.MappingContext;
+import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
@@ -13,11 +14,14 @@ import org.isda.cdm.RateSpecification.RateSpecificationBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
+import static cdm.base.staticdata.party.metafields.ReferenceWithMetaAccount.*;
+import static cdm.base.staticdata.party.metafields.ReferenceWithMetaParty.*;
+
 @SuppressWarnings("unused")
 public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
 
-	public FRAIRPSplitterMappingProcessor(RosettaPath path, List<Path> synonymPaths, List<Mapping> mappings) {
-		super(path, synonymPaths, mappings);
+	public FRAIRPSplitterMappingProcessor(RosettaPath path, List<Path> synonymPaths, MappingContext mappingContext) {
+		super(path, synonymPaths, mappingContext);
 	}
 
 	@Override
@@ -51,7 +55,7 @@ public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
 	private void flipPR(PayerReceiverBuilder payerReceiver) {
 		ReferenceWithMetaPartyBuilder payerPartyReference = payerReceiver.getPayerPartyReference();
 		ReferenceWithMetaAccountBuilder payerAccountReference = payerReceiver.getPayerAccountReference();
-		
+
 		payerReceiver.setPayerAccountReferenceBuilder(payerReceiver.getReceiverAccountReference());
 		payerReceiver.setPayerPartyReferenceBuilder(payerReceiver.getReceiverPartyReference());
 		payerReceiver.setReceiverAccountReferenceBuilder(payerAccountReference);

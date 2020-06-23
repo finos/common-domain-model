@@ -1,8 +1,8 @@
 package org.isda.cdm.processor;
 
-import com.regnosys.rosetta.common.translation.Mapping;
+import com.regnosys.rosetta.common.translation.MappingContext;
+import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
-import com.rosetta.model.lib.RosettaModelObject;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 import org.isda.cdm.AccessConditions;
@@ -13,7 +13,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import static org.isda.cdm.processor.MappingProcessorUtils.*;
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getSynonymPath;
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.updateMappings;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.PARTIES;
 
 /**
  * ISDA Create mapping processor.
@@ -24,8 +26,8 @@ public class AdditionalTerminationEventMappingProcessor extends MappingProcessor
 	private static final String APPLICABLE = "applicable";
 	private static final List<String> SUFFIXES = Arrays.asList("_additional_termination_event", "_additional_termination_events");
 
-	public AdditionalTerminationEventMappingProcessor(RosettaPath rosettaPath, List<Path> synonymPaths, List<Mapping> mappings) {
-		super(rosettaPath, synonymPaths, mappings);
+	public AdditionalTerminationEventMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
+		super(modelPath, synonymPaths, mappingContext);
 	}
 
 	@Override
@@ -64,7 +66,7 @@ public class AdditionalTerminationEventMappingProcessor extends MappingProcessor
 				.orElse(true);
 
 		if (nameSet || applicablePartySet) {
-			updateMappings(basePath, getMappings(), getPath());
+			updateMappings(basePath, getMappings(), getModelPath());
 		}
 
 		return eventBuilder.hasData() && applicablePartySet ? Optional.of(eventBuilder.build()) : Optional.empty();

@@ -12,9 +12,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.isda.cdm.processor.MappingProcessorUtils.*;
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.*;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.*;
 
-public class ElectiveAmountElectionMappingHelper {
+class ElectiveAmountElectionMappingHelper {
 
 	private static final String ZERO = "zero";
 

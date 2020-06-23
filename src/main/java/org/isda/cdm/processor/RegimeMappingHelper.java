@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static java.util.Optional.ofNullable;
-import static org.isda.cdm.processor.MappingProcessorUtils.*;
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.*;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.*;
 
 class RegimeMappingHelper {
 
