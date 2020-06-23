@@ -1147,7 +1147,9 @@ The below election family is contained within both ``CreditSupportAgreementElect
    rounding CollateralRounding (0..1)
    bespokeTransferTiming BespokeTransferTiming (0..1)
 	
-This set of elections is modelled to directly reflect the equivalent paragraph in the ISDA documentation, for example Paragraph 13 (c) of the ISDA 2018 CSA (Security Interest – New York Law).  Each attribute is modelled on the clause in the legal agreement and provides the necessary components to reflect the election structure.  For example ``rounding`` allows the specification of rounding terms for the Delivery Amount and the Return Amount.
+This set of elections is modelled to directly reflect the equivalent paragraph in the ISDA documentation, for example Paragraph 13 (c) of the ISDA 2018 CSA (Security Interest – New York Law).  The cardinality constraint requires ``threshold`` and ``minimumTransferAmount`` to be specified, as it is an elective provision in all Credit Support Agreements currently supported in CDM.  Other clauses such as ``marginApproach`` are not elective provisions in all supported agreements so the cardinality does not require it to be set.
+
+Each attribute is modelled on the clause in the legal agreement and provides the necessary components to reflect the election structure. For example ``rounding`` allows the specification of rounding terms for the Delivery Amount and the Return Amount.
 
 .. code-block:: Haskell
 
@@ -1155,9 +1157,57 @@ This set of elections is modelled to directly reflect the equivalent paragraph i
    deliveryAmount number (1..1)
    returnAmount number (1..1)
 
-Linking Legal Agreements to Contracts and Events
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Eligible Collateral
+"""""""""""""""""""
 
+The development of a digital data standard for representation of collateral eligibility schedules is a crucial component required to drive digital negotiation, straight through processing and digitisation of collateral assessment.   The standard representation provided within the CDM is desgined to allow institutions involved in the workflow cycle to exchange digitised standard eligible collateral information accurately and efficiently.
+
+The Eligible Collateral model contains the following key components to allow the digital representation of the detailed criteria reflected in the legal agreement.
+
+**Collateral Issuer Criteria** allows the specification of criteria that the issuer must meet when defining collateral eligibility.
+**Collateral Product Criteria** allows the specification of criteria that the product must meet when defining collateral eligibility.
+**Collateral Treatment** allows the specification of criteria for treatment of eligible collateral when posted.
+
+The following code snippets represent these three components of the model:
+
+.. code-block:: Haskell
+
+ type IssuerCriteria:
+	issuerType CollateralIssuerType (0..*)
+  	issuerCountryOfOrigin string (0..*)
+	issuerName LegalEntity (0..*)
+	issuerAgencyRating AgencyRatingCriteria (0..*)
+	sovereignAgencyRating AgencyRatingCriteria (0..*)
+	counterpartyOwnIssuePermitted boolean (0..1)
+	
+.. code-block:: Haskell
+
+ type ProductCriteria:
+	collateralProductType ProductType (0..*)
+	productCountryOfOrigin string (0..*)
+	denominatedCurrency string (0..*)
+	agencyRating AgencyRatingCriteria (0..*)
+	maturityType MaturityTypeEnum (0..1)
+	maturityRange PeriodRange (0..1)
+	productIdentifier ProductIdentifier (0..*)
+	productTaxonomy ProductTaxonomy (0..*)
+ 	seasoned boolean (0..1)
+	sinkable boolean (0..1)
+	domesticCurrencyIssued boolean (0..1)
+
+.. code-block:: Haskell
+
+ type CollateralTreatment:
+	valuationPercentage CollateralValuationPercentage (0..1)
+	concentrationLimit ConcentrationLimit (0..*)
+	isIncluded boolean (1..1)
+
+
+Linking Legal Agreements to Contracts
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Contracts
+"""""""""
 The CDM uses the key / referencing mechanism to tie a legal agreement with the relevant contract or event.
 
 This referencing mechanism has been implemented for the ``Contract`` type through the ``documentation`` attribute, which uses the ``RelatedAgreement`` data type. For OTC derivatives, this attribute will contain a reference to the ISDA Master Agreement that governs any derivative transaction between the parties.
@@ -1193,8 +1243,6 @@ Following trade execution, the ``ContractFormation`` business event that creates
      legalAgreement LegalAgreement (0..1)
 
 .. note:: The functions to create such business events are further detailed in the `Lifecycle Event Process Section`_ of the documentation.
-
-It has also been implemented for a set of functions to enable digitisation of collateral calculations.
 
 
 Process Model
