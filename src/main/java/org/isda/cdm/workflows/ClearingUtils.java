@@ -2,9 +2,6 @@ package org.isda.cdm.workflows;
 
 import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.party.Party;
-import cdm.base.staticdata.party.PartyRole;
-import cdm.base.staticdata.party.PartyRoleEnum;
-import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import com.rosetta.model.lib.process.PostProcessor;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
@@ -35,7 +32,7 @@ public class ClearingUtils {
 		return stepBuilder.build();
 	}
 
-	static WorkflowStep buildProposeStep(PostProcessor runner, WorkflowStep previous, Contract alpha, String externalReference, IdentifierService identifierService) {
+	static WorkflowStep buildProposeStep(PostProcessor runner, WorkflowStep previous, Party party1, Party party2, String externalReference, IdentifierService identifierService) {
 		WorkflowStep.WorkflowStepBuilder stepBuilder = WorkflowStep.builder();
 		stepBuilder
 			.setPreviousWorkflowStep(ReferenceWithMetaWorkflowStep.builder()
@@ -44,6 +41,8 @@ public class ClearingUtils {
 				.setInstructionFunction("Clear")
 				.setClearing(ClearingInstruction.builder()
 					.setClearingParty(createClearingParty())
+						.setParty1(party1)
+						.setParty2(party2)
 					.build())
 				.build());
 
@@ -55,28 +54,6 @@ public class ClearingUtils {
 		runner.postProcess(WorkflowStep.class, stepBuilder);
 
 		return stepBuilder.build();
-	}
-
-	static Contract addPartyRoles(Contract contract) {
-		Party party1 = contract.getParty().stream()
-			.filter(party -> "party1".equals(party.getMeta().getExternalKey()))
-			.findFirst().orElseThrow(() -> new IllegalArgumentException("Expected party with external key party1 on alpha"));
-
-		Party party2 = contract.getParty().stream()
-			.filter(party -> "party2".equals(party.getMeta().getExternalKey()))
-			.findFirst().orElseThrow(() -> new IllegalArgumentException("Expected party with external key party2 on alpha"));
-
-		PartyRole partyRole1 = new PartyRole.PartyRoleBuilder()
-			.setPartyReference(ReferenceWithMetaParty.builder().setValue(party1).build())
-			.setRole(PartyRoleEnum.EXECUTING_ENTITY)
-			.build();
-
-		PartyRole partyRole2 = new PartyRole.PartyRoleBuilder()
-			.setPartyReference(ReferenceWithMetaParty.builder().setValue(party2).build())
-			.setRole(PartyRoleEnum.COUNTERPARTY)
-			.build();
-
-		return contract.toBuilder().addPartyRole(partyRole1).addPartyRole(partyRole2).build();
 	}
 
 	static WorkflowStep buildClear(PostProcessor runner, String externalReference, WorkflowStep previous, ClearingInstruction clearingInstruction, Create_ClearedTrade clear, Contract alphaContract, IdentifierService identifierService) {

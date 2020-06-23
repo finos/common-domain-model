@@ -1,5 +1,6 @@
 package org.isda.cdm.workflows;
 
+import cdm.base.staticdata.party.Party;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.process.PostProcessor;
@@ -23,7 +24,16 @@ public class ClearingAccepted implements Function<Contract, Workflow> {
 	public Workflow apply(Contract contract) {
 		Contract.ContractBuilder contractBuilder = contract.toBuilder();
 		runner.postProcess(Contract.class, contractBuilder);  // TODO: is this needed here?
-		Contract alphaContract = ClearingUtils.addPartyRoles(contractBuilder.build());
+
+		Contract alphaContract = contractBuilder.build();
+
+		Party party1 = contract.getParty().stream()
+				.filter(party -> "party1".equals(party.getMeta().getExternalKey()))
+				.findFirst().orElseThrow(() -> new IllegalArgumentException("Expected party with external key party1 on alpha"));
+
+		Party party2 = contract.getParty().stream()
+				.filter(party -> "party2".equals(party.getMeta().getExternalKey()))
+				.findFirst().orElseThrow(() -> new IllegalArgumentException("Expected party with external key party2 on alpha"));
 
 		String externalReference = alphaContract.getMeta().getGlobalKey();
 
@@ -31,7 +41,7 @@ public class ClearingAccepted implements Function<Contract, Workflow> {
 		WorkflowStep contractFormationStep = ClearingUtils.buildContractFormationStep(runner, alphaContract, externalReference, identifierService);
 
 		// propose clear step
-		WorkflowStep proposeStep = ClearingUtils.buildProposeStep(runner, contractFormationStep, alphaContract, externalReference, identifierService);
+		WorkflowStep proposeStep = ClearingUtils.buildProposeStep(runner, contractFormationStep, party1, party2, externalReference, identifierService);
 
 		WorkflowStep clearStep = ClearingUtils.buildClear(runner, externalReference, proposeStep, proposeStep.getProposedInstruction().getClearing(), clear, alphaContract, identifierService);
 
