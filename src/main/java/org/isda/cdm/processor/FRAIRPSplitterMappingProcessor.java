@@ -1,9 +1,9 @@
 package org.isda.cdm.processor;
 
 import cdm.base.staticdata.party.PayerReceiver.PayerReceiverBuilder;
-import cdm.base.staticdata.party.metafields.ReferenceWithMetaAccount.ReferenceWithMetaAccountBuilder;
-import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder;
-import com.regnosys.rosetta.common.translation.Mapping;
+import com.regnosys.rosetta.common.translation.MappingContext;
+import com.regnosys.rosetta.common.translation.MappingProcessor;
+import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 import org.isda.cdm.InterestRatePayout.InterestRatePayoutBuilder;
@@ -12,15 +12,18 @@ import org.isda.cdm.RateSpecification.RateSpecificationBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
+import static cdm.base.staticdata.party.metafields.ReferenceWithMetaAccount.ReferenceWithMetaAccountBuilder;
+import static cdm.base.staticdata.party.metafields.ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder;
+
 @SuppressWarnings("unused")
 public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
 
-	public FRAIRPSplitterMappingProcessor(RosettaPath path, List<String> synonymValues, List<Mapping> mappings) {
-		super(path, synonymValues, mappings);
+	public FRAIRPSplitterMappingProcessor(RosettaPath path, List<Path> synonymPaths, MappingContext mappingContext) {
+		super(path, synonymPaths, mappingContext);
 	}
 
 	@Override
-	protected void map(List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
+	protected void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
 		@SuppressWarnings("unchecked")
 		List<InterestRatePayoutBuilder> irps = (List<InterestRatePayoutBuilder>) builder;
 		List<InterestRatePayoutBuilder> result = new ArrayList<>();
@@ -50,12 +53,10 @@ public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
 	private void flipPR(PayerReceiverBuilder payerReceiver) {
 		ReferenceWithMetaPartyBuilder payerPartyReference = payerReceiver.getPayerPartyReference();
 		ReferenceWithMetaAccountBuilder payerAccountReference = payerReceiver.getPayerAccountReference();
-		
+
 		payerReceiver.setPayerAccountReferenceBuilder(payerReceiver.getReceiverAccountReference());
 		payerReceiver.setPayerPartyReferenceBuilder(payerReceiver.getReceiverPartyReference());
 		payerReceiver.setReceiverAccountReferenceBuilder(payerAccountReference);
 		payerReceiver.setReceiverPartyReferenceBuilder(payerPartyReference);
 	}
-	
-	
 }

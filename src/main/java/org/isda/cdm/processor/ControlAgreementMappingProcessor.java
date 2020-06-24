@@ -1,6 +1,7 @@
 package org.isda.cdm.processor;
 
-import com.regnosys.rosetta.common.translation.Mapping;
+import com.regnosys.rosetta.common.translation.MappingContext;
+import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
@@ -10,8 +11,8 @@ import org.isda.cdm.ControlAgreementElections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.isda.cdm.processor.MappingProcessorUtils.updateMappings;
-import static org.isda.cdm.processor.MappingProcessorUtils.PARTIES;
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.updateMappings;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.PARTIES;
 
 /**
  * ISDA Create mapping processor.
@@ -19,22 +20,20 @@ import static org.isda.cdm.processor.MappingProcessorUtils.PARTIES;
 @SuppressWarnings("unused")
 public class ControlAgreementMappingProcessor extends MappingProcessor {
 
-	public ControlAgreementMappingProcessor(RosettaPath rosettaPath, List<String> synonymValues, List<Mapping> mappings) {
-		super(rosettaPath, synonymValues, mappings);
+	public ControlAgreementMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
+		super(modelPath, synonymPaths, mappingContext);
 	}
 
 	@Override
-	public void map(RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
-		getSynonymValues().forEach(v -> {
-			ControlAgreement.ControlAgreementBuilder controlAgreementBuilder = (ControlAgreement.ControlAgreementBuilder) builder;
-			PARTIES.forEach(party -> getControlAgreementElection(v, party).ifPresent(controlAgreementBuilder::addPartyElection));
-		});
+	protected void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
+		ControlAgreement.ControlAgreementBuilder controlAgreementBuilder = (ControlAgreement.ControlAgreementBuilder) builder;
+		PARTIES.forEach(party -> getControlAgreementElection(synonymPath, party).ifPresent(controlAgreementBuilder::addPartyElection));
 	}
 
-	private Optional<ControlAgreementElections> getControlAgreementElection(String synonymValue, String party) {
+	private Optional<ControlAgreementElections> getControlAgreementElection(Path synonymPath, String party) {
 		ControlAgreementElections.ControlAgreementElectionsBuilder controlAgreementElections = ControlAgreementElections.builder();
 
-		setValueAndUpdateMappings(String.format("answers.partyA.%s.%s_%s", synonymValue, party, synonymValue),
+		setValueAndUpdateMappings(synonymPath.addElement(party + "_" + synonymPath.getLastElement().getPathName()),
 				(value) -> {
 					controlAgreementElections.setParty(party);
 					yesNoToBoolean(value).ifPresent(controlAgreementElections::setControlAgreementAsCsd);
@@ -44,7 +43,7 @@ public class ControlAgreementMappingProcessor extends MappingProcessor {
 				(value) -> applicableToBoolean(value).ifPresent(applicable -> {
 					controlAgreementElections.setConsistencyWithControlAgreement(applicable);
 					// Update parent mappings (not sure why this is necessary)
-					updateMappings(Path.parse("answers.partyA.inconsistency_with_the_control_agreement"), getMappings(), getPath());
+					updateMappings(Path.parse("answers.partyA.inconsistency_with_the_control_agreement"), getMappings(), getModelPath());
 				}));
 
 		setValueAndUpdateMappings(String.format("answers.partyA.relationship_with_the_control_agreement.%s_control_agreement_relationship", party),
