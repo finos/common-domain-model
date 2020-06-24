@@ -1,6 +1,7 @@
 package org.isda.cdm.processor;
 
 import com.regnosys.rosetta.common.translation.Mapping;
+import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.path.RosettaPath;
 import org.isda.cdm.ElectiveAmountElection;
@@ -9,7 +10,7 @@ import org.isda.cdm.Threshold;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.isda.cdm.CreditSupportObligationsInitialMargin.CreditSupportObligationsInitialMarginBuilder;
@@ -32,13 +33,15 @@ class ThresholdMappingProcessorTest {
 		mappings.add(new Mapping(Path.parse("answers.partyA.threshold.partyA_amount"), "10", null, null, "no destination", false, false));
 		mappings.add(new Mapping(Path.parse("answers.partyA.threshold.partyA_currency"), "Euro", null, null, "no destination", false, false));
 		mappings.add(new Mapping(Path.parse("answers.partyA.threshold.partyB_threshold"), ZERO, null, null, "no destination", false, false));
+		MappingContext context = new MappingContext(mappings, Collections.emptyMap());
 
 		ThresholdBuilder builder = Threshold.builder();
 		CreditSupportObligationsInitialMarginBuilder parent = mock(CreditSupportObligationsInitialMarginBuilder.class);
 
 		// test
-		ThresholdMappingProcessor processor = new ThresholdMappingProcessor(rosettaPath, Arrays.asList("threshold"), mappings);
-		processor.map(builder, parent);
+		Path synonymPath = Path.parse("answers.partyA.threshold");
+		ThresholdMappingProcessor processor = new ThresholdMappingProcessor(rosettaPath, Collections.singletonList(synonymPath), context);
+		processor.map(synonymPath, builder, parent);
 		Threshold threshold = builder.build();
 
 		// assert

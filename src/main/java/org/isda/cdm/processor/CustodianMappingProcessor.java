@@ -2,7 +2,9 @@ package org.isda.cdm.processor;
 
 import cdm.base.staticdata.party.Account;
 import cdm.base.staticdata.party.LegalEntity;
-import com.regnosys.rosetta.common.translation.Mapping;
+import com.regnosys.rosetta.common.translation.MappingContext;
+import com.regnosys.rosetta.common.translation.MappingProcessor;
+import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 import org.isda.cdm.Custodian;
@@ -11,8 +13,8 @@ import org.isda.cdm.CustodianElection;
 import java.util.List;
 import java.util.Optional;
 
-import static org.isda.cdm.processor.MappingProcessorUtils.toFieldWithMetaString;
-import static org.isda.cdm.processor.MappingProcessorUtils.PARTIES;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.PARTIES;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.toFieldWithMetaString;
 
 /**
  * ISDA Create mapping processor.
@@ -20,23 +22,21 @@ import static org.isda.cdm.processor.MappingProcessorUtils.PARTIES;
 @SuppressWarnings("unused")
 public class CustodianMappingProcessor extends MappingProcessor {
 
-	public CustodianMappingProcessor(RosettaPath rosettaPath, List<String> synonymValues, List<Mapping> mappings) {
-		super(rosettaPath, synonymValues, mappings);
+	public CustodianMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
+		super(modelPath, synonymPaths, mappingContext);
 	}
 
 	@Override
-	public void map(RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
-		getSynonymValues().forEach(v -> {
-			Custodian.CustodianBuilder custodianBuilder = (Custodian.CustodianBuilder) builder;
-			PARTIES.forEach(party -> getCustodianElection(v, party).ifPresent(custodianBuilder::addPartyElection));
-		});
+	protected void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
+		Custodian.CustodianBuilder custodianBuilder = (Custodian.CustodianBuilder) builder;
+		PARTIES.forEach(party -> getCustodianElection(synonymPath, party).ifPresent(custodianBuilder::addPartyElection));
 	}
 
-	private Optional<CustodianElection> getCustodianElection(String synonymValue, String party) {
+	private Optional<CustodianElection> getCustodianElection(Path synonymPath, String party) {
 		CustodianElection.CustodianElectionBuilder custodianElectionBuilder = CustodianElection.builder();
 
-		String suffix = "collateral_manager".equals(synonymValue) ? "specify" : "custodian_name";
-		setValueAndUpdateMappings(String.format("answers.partyA.%s.%s_%s", synonymValue, party, suffix),
+		String suffix = synonymPath.endsWith("collateral_manager") ? "_specify" : "_custodian_name";
+		setValueAndUpdateMappings(synonymPath.addElement(party + suffix),
 				(value) -> {
 					custodianElectionBuilder.setParty(party);
 					custodianElectionBuilder.setCustodian(LegalEntity.builder()
@@ -44,13 +44,13 @@ public class CustodianMappingProcessor extends MappingProcessor {
 							.build());
 				});
 
-		if ("custodian_and_segregated_account_details".equals(synonymValue)) {
-			setValueAndUpdateMappings(String.format("answers.partyA.custodian_and_segregated_account_details.%s_cash", party),
+		if (synonymPath.endsWith("custodian_and_segregated_account_details")) {
+			setValueAndUpdateMappings(synonymPath.addElement(party + "_cash"),
 					(value) -> custodianElectionBuilder.setSegregatedCashAccount(Account.builder()
 							.setAccountName(toFieldWithMetaString(value))
 							.build()));
 
-			setValueAndUpdateMappings(String.format("answers.partyA.custodian_and_segregated_account_details.%s_securities", party),
+			setValueAndUpdateMappings(synonymPath.addElement(party + "_securities"),
 					(value) -> custodianElectionBuilder.setSegregatedSecurityAccount(Account.builder()
 							.setAccountName(toFieldWithMetaString(value))
 							.build()));
