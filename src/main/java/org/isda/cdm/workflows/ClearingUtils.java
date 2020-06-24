@@ -4,14 +4,10 @@ import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.party.Party;
 import com.rosetta.model.lib.process.PostProcessor;
 import com.rosetta.model.metafields.FieldWithMetaString;
-import com.rosetta.model.metafields.MetaFields;
 import org.isda.cdm.*;
 import org.isda.cdm.functions.Create_ClearedTrade;
 import org.isda.cdm.functions.example.services.identification.IdentifierService;
 import org.isda.cdm.metafields.ReferenceWithMetaWorkflowStep;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class ClearingUtils {
 
@@ -38,7 +34,7 @@ public class ClearingUtils {
 			.setPreviousWorkflowStep(ReferenceWithMetaWorkflowStep.builder()
 				.setGlobalReference(previous.getMeta().getGlobalKey()).build())
 			.setProposedInstruction(Instruction.builder()
-				.setInstructionFunction("Clear")
+				.setInstructionFunction("Create_ClearedTrade")
 				.setClearing(ClearingInstruction.builder()
 					.setClearingParty(createClearingParty())
 						.setParty1(party1)
@@ -62,14 +58,6 @@ public class ClearingUtils {
 
 		WorkflowStep.WorkflowStepBuilder clearedTradeWorkflowEventBuilder = WorkflowStep.builder().setBusinessEventBuilder(businessEventBuilder);
 
-		List<ContractFormationPrimitive.ContractFormationPrimitiveBuilder> contractFormationBuilders = clearedTradeWorkflowEventBuilder.getBusinessEvent().getPrimitives()
-			.stream()
-			.filter(primitiveEventBuilders -> primitiveEventBuilders.getContractFormation() != null)
-			.map(PrimitiveEvent.PrimitiveEventBuilder::getContractFormation)
-			.collect(Collectors.toList());
-
-		//  addExternalKeysToClearingParties(contractFormationBuilders);
-
 		clearedTradeWorkflowEventBuilder.addEventIdentifier(identifierService.nextType(externalReference, Create_ClearedTrade.class.getSimpleName()));
 
 		clearedTradeWorkflowEventBuilder.getOrCreateLineage().getOrCreateEventReference(0).setGlobalReference(previous.getMeta().getGlobalKey());
@@ -83,33 +71,6 @@ public class ClearingUtils {
 		WorkflowStep clearedTradeWorkflowEvent = clearedTradeWorkflowEventBuilder.build();
 
 		return clearedTradeWorkflowEvent;
-	}
-
-	private static void addExternalKeysToClearingParties(List<ContractFormationPrimitive.ContractFormationPrimitiveBuilder> contractFormationBuilders) {
-		if (contractFormationBuilders.size() != 2) throw new IllegalStateException("There should be two contract formation events after clearing but found: " + contractFormationBuilders.size());
-
-		contractFormationBuilders.forEach(contractFormation -> {
-			Contract.ContractBuilder contractBuilder = contractFormation.getAfter().getContract();
-			List<Party.PartyBuilder> parties = contractBuilder.getParty();
-
-			if (parties.size() != 2) throw new IllegalStateException("There should only be 2 parties in contract formation but found: " + parties.size());
-
-			Party.PartyBuilder clearer = parties.stream()
-				.filter(party -> "Clearer".equals(party.getName().getValue()))
-				.findFirst()
-				.orElseThrow(() -> new IllegalStateException("Clearing party not found after contract formation"));
-
-			Party.PartyBuilder counterparty = parties.stream()
-				.filter(party -> party.getMeta() != null && party.getMeta().getExternalKey() != null && party.getMeta().getExternalKey().startsWith("party"))
-				.findFirst()
-				.orElseThrow(() -> new IllegalStateException("Counterparty not found after contract formation"));
-
-			if ("party1".equals(counterparty.getMeta().getExternalKey())) {
-				clearer.setMeta(MetaFields.builder().setExternalKey("party2").build());
-			} else if ("party2".equals(counterparty.getMeta().getExternalKey())) {
-				clearer.setMeta(MetaFields.builder().setExternalKey("party1").build());
-			}
-		});
 	}
 
 	static WorkflowStep buildContractFormationStep(PostProcessor runner, Contract contract, String externalReference, IdentifierService identifierService) {
@@ -132,8 +93,8 @@ public class ClearingUtils {
 	private static Party createClearingParty() {
 		Party.PartyBuilder partyBuilder = Party.builder();
 		return partyBuilder
-			.addPartyId(FieldWithMetaString.builder().setValue("ClearingFirm").build())
-			.setName(FieldWithMetaString.builder().setValue("Clearer").build())
+			.addPartyId(FieldWithMetaString.builder().setValue("Party").build())
+			.setName(FieldWithMetaString.builder().setValue("CCP").build())
 			.build();
 	}
 }
