@@ -19,13 +19,13 @@ import static com.regnosys.rosetta.common.util.StringExtensions.toFirstUpper;
  * ISDA Create mapping processor.
  */
 @SuppressWarnings("unused")
-public class CounterpartyMappingProcessor extends MappingProcessor {
+public class CounterpartyEnumMappingProcessor extends MappingProcessor {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(CounterpartyMappingProcessor.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(CounterpartyEnumMappingProcessor.class);
 	private static final String COUNTERPARTY_MAP = "counterpartyMap";
 	private final Map<String, CounterpartyEnum> externalReferenceToCounterpartyMap;
 
-	public CounterpartyMappingProcessor(RosettaPath rosettaPath, List<Path> synonymPaths, MappingContext mappingContext) {
+	public CounterpartyEnumMappingProcessor(RosettaPath rosettaPath, List<Path> synonymPaths, MappingContext mappingContext) {
 		super(rosettaPath, synonymPaths, mappingContext);
 		this.externalReferenceToCounterpartyMap = (Map<String, CounterpartyEnum>)
 				getParams().computeIfAbsent(COUNTERPARTY_MAP, (key) -> new HashMap<String, CounterpartyEnum>());
