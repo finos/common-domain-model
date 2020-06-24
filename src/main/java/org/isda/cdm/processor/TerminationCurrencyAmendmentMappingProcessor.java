@@ -1,7 +1,8 @@
 package org.isda.cdm.processor;
 
 import cdm.base.staticdata.asset.common.ISOCurrencyCodeEnum;
-import com.regnosys.rosetta.common.translation.Mapping;
+import com.regnosys.rosetta.common.translation.MappingContext;
+import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
@@ -13,7 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.isda.cdm.processor.MappingProcessorUtils.*;
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.*;
 
 /**
  * ISDA Create mapping processor.
@@ -23,8 +25,8 @@ public class TerminationCurrencyAmendmentMappingProcessor extends MappingProcess
 
 	private final Map<String, ISOCurrencyCodeEnum> synonymToIsoCurrencyCodeEnumMap;
 
-	public TerminationCurrencyAmendmentMappingProcessor(RosettaPath rosettaPath, List<Path> synonymPaths, List<Mapping> mappings) {
-		super(rosettaPath, synonymPaths, mappings);
+	public TerminationCurrencyAmendmentMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
+		super(modelPath, synonymPaths, mappingContext);
 		this.synonymToIsoCurrencyCodeEnumMap = synonymToEnumValueMap(ISOCurrencyCodeEnum.values(), ISDA_CREATE_SYNONYM_SOURCE);
 	}
 
@@ -54,13 +56,13 @@ public class TerminationCurrencyAmendmentMappingProcessor extends MappingProcess
 	private Optional<TerminationCurrencyElection> getSpecifiedTerminationCurrencyElection(Path basePath, String currencySynonym, List<String> parties) {
 		TerminationCurrencyElection.TerminationCurrencyElectionBuilder terminationCurrencyElectionBuilder = TerminationCurrencyElection.builder();
 
-		setValueAndOptionallyUpdateMappings(getSynonymPath(basePath, currencySynonym),
+		setValueAndOptionallyUpdateMappings(basePath.addElement(currencySynonym),
 				(value) -> {
 					terminationCurrencyElectionBuilder.addParty(parties);
 					terminationCurrencyElectionBuilder.setIsSpecified(true);
 					return setIsoCurrency(synonymToIsoCurrencyCodeEnumMap, terminationCurrencyElectionBuilder::setCurrency, value);
 				},
-				getMappings(), getPath());
+				getMappings(), getModelPath());
 
 		return terminationCurrencyElectionBuilder.hasData() ? Optional.of(terminationCurrencyElectionBuilder.build()) : Optional.empty();
 	}
@@ -68,15 +70,15 @@ public class TerminationCurrencyAmendmentMappingProcessor extends MappingProcess
 	private Optional<TerminationCurrencyElection> getOptionalTerminationCurrencyElection(Path basePath, String isSpecifiedSynonym, String currencySynonym, List<String> parties) {
 		TerminationCurrencyElection.TerminationCurrencyElectionBuilder terminationCurrencyElectionBuilder = TerminationCurrencyElection.builder();
 
-		setValueAndUpdateMappings(getSynonymPath(basePath, isSpecifiedSynonym),
+		setValueAndUpdateMappings(basePath.addElement(isSpecifiedSynonym),
 				(value) -> {
 					terminationCurrencyElectionBuilder.addParty(parties);
 					terminationCurrencyElectionBuilder.setIsSpecified("specify".equals(value));
 				});
 
-		setValueAndOptionallyUpdateMappings(getSynonymPath(basePath, currencySynonym),
+		setValueAndOptionallyUpdateMappings(basePath.addElement(currencySynonym),
 				(value) -> setIsoCurrency(synonymToIsoCurrencyCodeEnumMap, terminationCurrencyElectionBuilder::setCurrency, value),
-				getMappings(), getPath());
+				getMappings(), getModelPath());
 
 		return terminationCurrencyElectionBuilder.hasData() ? Optional.of(terminationCurrencyElectionBuilder.build()) : Optional.empty();
 	}

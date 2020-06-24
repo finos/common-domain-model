@@ -3,9 +3,9 @@ package org.isda.cdm.processor;
 import cdm.base.datetime.DayTypeEnum;
 import cdm.base.datetime.Offset;
 import cdm.base.datetime.PeriodEnum;
-import com.regnosys.rosetta.common.translation.Mapping;
+import com.regnosys.rosetta.common.translation.MappingContext;
+import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
-import com.rosetta.model.lib.RosettaModelObject;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 import org.isda.cdm.CustodianEventEndDate;
@@ -16,7 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.isda.cdm.processor.MappingProcessorUtils.*;
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.*;
 
 /**
  * "Days after Custodian Event" ( "days_after_custodian_event" / "days_after_collateral_manager_event" / "days_after_euroclear_event")
@@ -78,8 +79,8 @@ public class CustodianEventEndDateMappingProcessor extends MappingProcessor {
 
 	private final Map<String, DayTypeEnum> synonymToDayTypeEnumMap;
 
-	public CustodianEventEndDateMappingProcessor(RosettaPath rosettaPath, List<Path> synonymPaths, List<Mapping> mappings) {
-		super(rosettaPath, synonymPaths, mappings);
+	public CustodianEventEndDateMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
+		super(modelPath, synonymPaths, mappingContext);
 		this.synonymToDayTypeEnumMap = synonymToEnumValueMap(DayTypeEnum.values(), ISDA_CREATE_SYNONYM_SOURCE);
 	}
 
@@ -161,15 +162,15 @@ public class CustodianEventEndDateMappingProcessor extends MappingProcessor {
 
 		CustomisableOffset.CustomisableOffsetBuilder customisableOffsetBuilder = CustomisableOffset.builder();
 
-		setValueAndUpdateMappings(getSynonymPath(synonymPath, endDateTypeSynonym),
+		setValueAndUpdateMappings(synonymPath.addElement(endDateTypeSynonym),
 				(type) -> {
 					switch (type) {
 					case "days":
 						getOffset(synonymPath, numberOfDaysSynonym, after, dayTypeSynonym).ifPresent(customisableOffsetBuilder::setOffset);
 						break;
 					case "other":
-						setValueAndUpdateMappings(getSynonymPath(synonymPath, customEndDateSynonym),
-								(value) -> customisableOffsetBuilder.setCustomProvision(value));
+						setValueAndUpdateMappings(synonymPath.addElement(customEndDateSynonym),
+								customisableOffsetBuilder::setCustomProvision);
 						break;
 					}
 				});
@@ -181,19 +182,19 @@ public class CustodianEventEndDateMappingProcessor extends MappingProcessor {
 	private Optional<Offset> getOffset(Path basePath, String numberOfDaysSynonym, boolean after, String dayTypeSynonym) {
 		Offset.OffsetBuilder offsetBuilder = Offset.builder();
 
-		setValueAndUpdateMappings(getSynonymPath(basePath, numberOfDaysSynonym),
+		setValueAndUpdateMappings(basePath.addElement(numberOfDaysSynonym),
 				(value) -> {
-					int numberOfDays = Integer.valueOf(value);
+					int numberOfDays = Integer.parseInt(value);
 					offsetBuilder.setPeriodMultiplier(after ? numberOfDays : -numberOfDays);
 					offsetBuilder.setPeriod(PeriodEnum.D);
 				});
 
-		setValueAndOptionallyUpdateMappings(getSynonymPath(basePath, dayTypeSynonym),
+		setValueAndOptionallyUpdateMappings(basePath.addElement(dayTypeSynonym),
 				(value) -> {
 					Optional<DayTypeEnum> dayType = getEnumValue(synonymToDayTypeEnumMap, value, DayTypeEnum.class);
 					dayType.ifPresent(offsetBuilder::setDayType);
 					return dayType.isPresent();
-				}, getMappings(), getPath());
+				}, getMappings(), getModelPath());
 
 		return offsetBuilder.hasData() ? Optional.of(offsetBuilder.build()) : Optional.empty();
 	}

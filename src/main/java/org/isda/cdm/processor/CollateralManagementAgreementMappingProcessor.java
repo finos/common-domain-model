@@ -1,6 +1,7 @@
 package org.isda.cdm.processor;
 
-import com.regnosys.rosetta.common.translation.Mapping;
+import com.regnosys.rosetta.common.translation.MappingContext;
+import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
@@ -10,8 +11,7 @@ import org.isda.cdm.CollateralManagementAgreementElection;
 import java.util.List;
 import java.util.Optional;
 
-import static org.isda.cdm.processor.MappingProcessorUtils.PARTIES;
-import static org.isda.cdm.processor.MappingProcessorUtils.getSynonymPath;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.PARTIES;
 
 /**
  * ISDA Create mapping processor.
@@ -19,8 +19,8 @@ import static org.isda.cdm.processor.MappingProcessorUtils.getSynonymPath;
 @SuppressWarnings("unused")
 public class CollateralManagementAgreementMappingProcessor extends MappingProcessor {
 
-	public CollateralManagementAgreementMappingProcessor(RosettaPath rosettaPath, List<Path> synonymPaths, List<Mapping> mappings) {
-		super(rosettaPath, synonymPaths, mappings);
+	public CollateralManagementAgreementMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
+		super(modelPath, synonymPaths, mappingContext);
 	}
 
 	@Override
@@ -33,7 +33,7 @@ public class CollateralManagementAgreementMappingProcessor extends MappingProces
 	private Optional<CollateralManagementAgreementElection> getCollateralManagementAgreementElection(Path synonymPath, String party) {
 		CollateralManagementAgreementElection.CollateralManagementAgreementElectionBuilder electionBuilder = CollateralManagementAgreementElection.builder();
 
-		setValueAndUpdateMappings(getSynonymPath(synonymPath, party, "_specify"),
+		setValueAndUpdateMappings(synonymPath.addElement(party + "_specify"),
 				(value) -> {
 					electionBuilder.setParty(party);
 					electionBuilder.setCollateralManagementAgreement(value);
