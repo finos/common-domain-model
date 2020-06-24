@@ -11,7 +11,6 @@ import org.isda.cdm.CollateralManagementAgreementElection;
 import java.util.List;
 import java.util.Optional;
 
-import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getSynonymPath;
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.PARTIES;
 
 /**
@@ -34,7 +33,7 @@ public class CollateralManagementAgreementMappingProcessor extends MappingProces
 	private Optional<CollateralManagementAgreementElection> getCollateralManagementAgreementElection(Path synonymPath, String party) {
 		CollateralManagementAgreementElection.CollateralManagementAgreementElectionBuilder electionBuilder = CollateralManagementAgreementElection.builder();
 
-		setValueAndUpdateMappings(getSynonymPath(synonymPath, party, "_specify"),
+		setValueAndUpdateMappings(synonymPath.addElement(party + "_specify"),
 				(value) -> {
 					electionBuilder.setParty(party);
 					electionBuilder.setCollateralManagementAgreement(value);

@@ -11,7 +11,6 @@ import org.isda.cdm.ControlAgreementElections;
 import java.util.List;
 import java.util.Optional;
 
-import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getSynonymPath;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.updateMappings;
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.PARTIES;
 
@@ -34,7 +33,7 @@ public class ControlAgreementMappingProcessor extends MappingProcessor {
 	private Optional<ControlAgreementElections> getControlAgreementElection(Path synonymPath, String party) {
 		ControlAgreementElections.ControlAgreementElectionsBuilder controlAgreementElections = ControlAgreementElections.builder();
 
-		setValueAndUpdateMappings(getSynonymPath(synonymPath, party, "_" + synonymPath.getLastElement().getPathName()),
+		setValueAndUpdateMappings(synonymPath.addElement(party + "_" + synonymPath.getLastElement().getPathName()),
 				(value) -> {
 					controlAgreementElections.setParty(party);
 					yesNoToBoolean(value).ifPresent(controlAgreementElections::setControlAgreementAsCsd);

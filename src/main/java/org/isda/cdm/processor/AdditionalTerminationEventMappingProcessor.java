@@ -13,7 +13,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getSynonymPath;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.updateMappings;
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.PARTIES;
 
@@ -35,7 +34,7 @@ public class AdditionalTerminationEventMappingProcessor extends MappingProcessor
 		AccessConditions.AccessConditionsBuilder accessConditionsBuilder = (AccessConditions.AccessConditionsBuilder) builder;
 		accessConditionsBuilder.clearAdditionalTerminationEvent();
 
-		Path eventsPath = getSynonymPath(accessConditionsPath, "additional_termination_event");
+		Path eventsPath = accessConditionsPath.addElement("additional_termination_event");
 		int index = 0;
 		while (true) {
 			Optional<AdditionalTerminationEvent> additionalTerminationEventBuilder = getAdditionalTerminationEvent(eventsPath, "name", index++);
@@ -52,13 +51,13 @@ public class AdditionalTerminationEventMappingProcessor extends MappingProcessor
 	private Optional<AdditionalTerminationEvent> getAdditionalTerminationEvent(Path basePath, String synonym, Integer index) {
 		AdditionalTerminationEvent.AdditionalTerminationEventBuilder eventBuilder = AdditionalTerminationEvent.builder();
 
-		setValueAndUpdateMappings(getSynonymPath(basePath, synonym, index), eventBuilder::setName);
+		setValueAndUpdateMappings(basePath.addElement(synonym, index), eventBuilder::setName);
 
 		boolean nameSet = eventBuilder.hasData();
 
 		PARTIES.forEach(party ->
 				SUFFIXES.forEach(suffix ->
-						setValueAndUpdateMappings(getSynonymPath(basePath, party, suffix, index),
+						setValueAndUpdateMappings(basePath.addElement(party + suffix, index),
 								(value) -> addIfApplicable(eventBuilder, party, value, nameSet))));
 
 		boolean applicablePartySet = !Optional.ofNullable(eventBuilder.getApplicableParty())

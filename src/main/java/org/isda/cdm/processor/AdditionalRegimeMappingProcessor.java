@@ -35,9 +35,9 @@ public class AdditionalRegimeMappingProcessor extends MappingProcessor {
 		Regime.RegimeBuilder regimeBuilder = (Regime.RegimeBuilder) parent;
 		regimeBuilder.clearAdditionalRegime();
 
-		Path regimesPath = getSynonymPath(additionalRegimesPath, "regimes");
+		Path regimesPath = additionalRegimesPath.addElement("regimes");
 
-		List<Mapping> applicableMappings = filterMappings(getMappings(), getSynonymPath(additionalRegimesPath, "is_applicable"));
+		List<Mapping> applicableMappings = filterMappings(getMappings(), additionalRegimesPath.addElement("is_applicable"));
 		Optional<String> applicable = getNonNullMappedValue(applicableMappings);
 		if (applicable.isPresent()) {
 			applicableMappings.forEach(m -> updateMappingSuccess(m, getModelPath()));
@@ -66,17 +66,17 @@ public class AdditionalRegimeMappingProcessor extends MappingProcessor {
 	private Optional<AdditionalRegimeBuilder> getAdditionalRegime(Path regimesPath, Integer index) {
 		AdditionalRegimeBuilder additionalRegimeBuilder = builder();
 
-		setValueAndUpdateMappings(getSynonymPath(regimesPath,"regime_name", index),
+		setValueAndUpdateMappings(regimesPath.addElement("regime_name", index),
 				(value) -> {
 					additionalRegimeBuilder.setRegime(value);
 					PARTIES.forEach(party -> helper.getRegimeTerms(regimesPath, party, index).ifPresent(additionalRegimeBuilder::addRegimeTerms));
 				});
 
-		setValueAndUpdateMappings(getSynonymPath(regimesPath, "additional_type", index),
+		setValueAndUpdateMappings(regimesPath.addElement("additional_type", index),
 				(value) -> getEnumValue(synonymToAdditionalTypeEnumMap, value, AdditionalTypeEnum.class)
 						.ifPresent(additionalRegimeBuilder::setAdditionalType));
 
-		setValueAndUpdateMappings(getSynonymPath(regimesPath, "additional_type_specify", index),
+		setValueAndUpdateMappings(regimesPath.addElement("additional_type_specify", index),
 				additionalRegimeBuilder::setAdditionalTerms);
 
 		return additionalRegimeBuilder.hasData() ? Optional.of(additionalRegimeBuilder) : Optional.empty();

@@ -13,7 +13,8 @@ import com.rosetta.model.metafields.MetaFields;
 import java.util.List;
 import java.util.Map;
 
-import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.*;
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.filterMappings;
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.updateMappingFail;
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.*;
 
 /**

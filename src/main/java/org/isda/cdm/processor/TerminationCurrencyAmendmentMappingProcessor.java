@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.*;
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.*;
 
 /**
@@ -56,7 +56,7 @@ public class TerminationCurrencyAmendmentMappingProcessor extends MappingProcess
 	private Optional<TerminationCurrencyElection> getSpecifiedTerminationCurrencyElection(Path basePath, String currencySynonym, List<String> parties) {
 		TerminationCurrencyElection.TerminationCurrencyElectionBuilder terminationCurrencyElectionBuilder = TerminationCurrencyElection.builder();
 
-		setValueAndOptionallyUpdateMappings(getSynonymPath(basePath, currencySynonym),
+		setValueAndOptionallyUpdateMappings(basePath.addElement(currencySynonym),
 				(value) -> {
 					terminationCurrencyElectionBuilder.addParty(parties);
 					terminationCurrencyElectionBuilder.setIsSpecified(true);
@@ -70,13 +70,13 @@ public class TerminationCurrencyAmendmentMappingProcessor extends MappingProcess
 	private Optional<TerminationCurrencyElection> getOptionalTerminationCurrencyElection(Path basePath, String isSpecifiedSynonym, String currencySynonym, List<String> parties) {
 		TerminationCurrencyElection.TerminationCurrencyElectionBuilder terminationCurrencyElectionBuilder = TerminationCurrencyElection.builder();
 
-		setValueAndUpdateMappings(getSynonymPath(basePath, isSpecifiedSynonym),
+		setValueAndUpdateMappings(basePath.addElement(isSpecifiedSynonym),
 				(value) -> {
 					terminationCurrencyElectionBuilder.addParty(parties);
 					terminationCurrencyElectionBuilder.setIsSpecified("specify".equals(value));
 				});
 
-		setValueAndOptionallyUpdateMappings(getSynonymPath(basePath, currencySynonym),
+		setValueAndOptionallyUpdateMappings(basePath.addElement(currencySynonym),
 				(value) -> setIsoCurrency(synonymToIsoCurrencyCodeEnumMap, terminationCurrencyElectionBuilder::setCurrency, value),
 				getMappings(), getModelPath());
 

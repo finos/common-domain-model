@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.*;
 import static org.isda.cdm.CalculationDateLocationElection.CalculationDateLocationElectionBuilder;
 import static org.isda.cdm.CalculationDateLocationElection.builder;
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.*;
@@ -44,15 +43,15 @@ public class CalculationDateLocationMappingProcessor extends MappingProcessor {
 		String selectLocationSynonymValue = synonymPath.endsWith("calculation_date") ?
 				"_calculation_date_location" :
 				"_" + synonymPath.getLastElement().getPathName();
-		setValueAndUpdateMappings(getSynonymPath(synonymPath, party, selectLocationSynonymValue),
+		setValueAndUpdateMappings(synonymPath.addElement(party + selectLocationSynonymValue),
 				(value) -> calculationDateLocationElectionBuilder.setParty(party));
 
-		setValueAndUpdateMappings(getSynonymPath(synonymPath, party, "_location"),
+		setValueAndUpdateMappings(synonymPath.addElement(party + "_location"),
 				(value) -> getEnumValue(synonymToBusinessCenterEnumMap, value, BusinessCenterEnum.class)
 						.map(enumValue -> FieldWithMetaBusinessCenterEnum.builder().setValue(enumValue).build())
 						.ifPresent(calculationDateLocationElectionBuilder::setBusinessCenter));
 
-		setValueAndUpdateMappings(getSynonymPath(synonymPath, party, "_specify"),
+		setValueAndUpdateMappings(synonymPath.addElement(party + "_specify"),
 				calculationDateLocationElectionBuilder::setCustomLocation);
 
 		return calculationDateLocationElectionBuilder.hasData() ? Optional.of(calculationDateLocationElectionBuilder.build()) : Optional.empty();

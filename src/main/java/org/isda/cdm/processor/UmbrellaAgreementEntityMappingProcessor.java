@@ -13,7 +13,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Optional;
 
-import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getSynonymPath;
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.toFieldWithMetaString;
 
 /**
@@ -46,13 +45,13 @@ public class UmbrellaAgreementEntityMappingProcessor extends MappingProcessor {
 	private Optional<UmbrellaAgreementEntity> getUmbrellaAgreementEntity(Path synonymPath, Integer index) {
 		UmbrellaAgreementEntityBuilder umbrellaAgreementEntityBuilder = UmbrellaAgreementEntity.builder();
 
-		setValueAndUpdateMappings(getSynonymPath(synonymPath,"principal_name", index),
+		setValueAndUpdateMappings(synonymPath.addElement("principal_name", index),
 				umbrellaAgreementEntityBuilder::setNameRef);
 
-		setValueAndUpdateMappings(getSynonymPath(synonymPath,"lei", index),
+		setValueAndUpdateMappings(synonymPath.addElement("lei", index),
 				(value) -> umbrellaAgreementEntityBuilder.addEntityId(toFieldWithMetaString(value)));
 
-		setValueAndUpdateMappings(getSynonymPath(synonymPath,"additional", index),
+		setValueAndUpdateMappings(synonymPath.addElement("additional", index),
 				umbrellaAgreementEntityBuilder::setTerms);
 
 		return umbrellaAgreementEntityBuilder.hasData() ? Optional.of(umbrellaAgreementEntityBuilder.build()) : Optional.empty();

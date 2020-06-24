@@ -13,7 +13,6 @@ import org.isda.cdm.CustodianElection;
 import java.util.List;
 import java.util.Optional;
 
-import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getSynonymPath;
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.PARTIES;
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.toFieldWithMetaString;
 
@@ -37,7 +36,7 @@ public class CustodianMappingProcessor extends MappingProcessor {
 		CustodianElection.CustodianElectionBuilder custodianElectionBuilder = CustodianElection.builder();
 
 		String suffix = synonymPath.endsWith("collateral_manager") ? "_specify" : "_custodian_name";
-		setValueAndUpdateMappings(getSynonymPath(synonymPath, party, suffix),
+		setValueAndUpdateMappings(synonymPath.addElement(party + suffix),
 				(value) -> {
 					custodianElectionBuilder.setParty(party);
 					custodianElectionBuilder.setCustodian(LegalEntity.builder()
@@ -46,12 +45,12 @@ public class CustodianMappingProcessor extends MappingProcessor {
 				});
 
 		if (synonymPath.endsWith("custodian_and_segregated_account_details")) {
-			setValueAndUpdateMappings(getSynonymPath(synonymPath, party, "_cash"),
+			setValueAndUpdateMappings(synonymPath.addElement(party + "_cash"),
 					(value) -> custodianElectionBuilder.setSegregatedCashAccount(Account.builder()
 							.setAccountName(toFieldWithMetaString(value))
 							.build()));
 
-			setValueAndUpdateMappings(getSynonymPath(synonymPath, party, "_securities"),
+			setValueAndUpdateMappings(synonymPath.addElement(party + "_securities"),
 					(value) -> custodianElectionBuilder.setSegregatedSecurityAccount(Account.builder()
 							.setAccountName(toFieldWithMetaString(value))
 							.build()));

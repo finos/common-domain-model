@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.*;
 import static org.isda.cdm.ApplicableRegime.ApplicableRegimeBuilder;
 import static org.isda.cdm.Regime.RegimeBuilder;
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.*;
@@ -45,11 +44,11 @@ public class ApplicableRegimeMappingProcessor extends MappingProcessor {
 		//Path regimePath = getSynonymPath(BASE_PATH, synonymPath);
 		PARTIES.forEach(party -> helper.getRegimeTerms(synonymPath, party, null).ifPresent(applicableRegimeBuilder::addRegimeTerms));
 
-		setValueAndUpdateMappings(getSynonymPath(synonymPath, "additional_type"),
+		setValueAndUpdateMappings(synonymPath.addElement("additional_type"),
 				(value) -> getEnumValue(synonymToAdditionalTypeEnumMap, value, AdditionalTypeEnum.class)
 						.ifPresent(applicableRegimeBuilder::setAdditionalType));
 
-		setValueAndUpdateMappings(getSynonymPath(synonymPath, "additional_type_specify"),
+		setValueAndUpdateMappings(synonymPath.addElement("additional_type_specify"),
 				applicableRegimeBuilder::setAdditionalTerms);
 	}
 }

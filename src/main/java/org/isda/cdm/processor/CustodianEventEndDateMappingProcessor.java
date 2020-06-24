@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.*;
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.*;
 
 /**
@@ -162,14 +162,14 @@ public class CustodianEventEndDateMappingProcessor extends MappingProcessor {
 
 		CustomisableOffset.CustomisableOffsetBuilder customisableOffsetBuilder = CustomisableOffset.builder();
 
-		setValueAndUpdateMappings(getSynonymPath(synonymPath, endDateTypeSynonym),
+		setValueAndUpdateMappings(synonymPath.addElement(endDateTypeSynonym),
 				(type) -> {
 					switch (type) {
 					case "days":
 						getOffset(synonymPath, numberOfDaysSynonym, after, dayTypeSynonym).ifPresent(customisableOffsetBuilder::setOffset);
 						break;
 					case "other":
-						setValueAndUpdateMappings(getSynonymPath(synonymPath, customEndDateSynonym),
+						setValueAndUpdateMappings(synonymPath.addElement(customEndDateSynonym),
 								customisableOffsetBuilder::setCustomProvision);
 						break;
 					}
@@ -182,14 +182,14 @@ public class CustodianEventEndDateMappingProcessor extends MappingProcessor {
 	private Optional<Offset> getOffset(Path basePath, String numberOfDaysSynonym, boolean after, String dayTypeSynonym) {
 		Offset.OffsetBuilder offsetBuilder = Offset.builder();
 
-		setValueAndUpdateMappings(getSynonymPath(basePath, numberOfDaysSynonym),
+		setValueAndUpdateMappings(basePath.addElement(numberOfDaysSynonym),
 				(value) -> {
 					int numberOfDays = Integer.parseInt(value);
 					offsetBuilder.setPeriodMultiplier(after ? numberOfDays : -numberOfDays);
 					offsetBuilder.setPeriod(PeriodEnum.D);
 				});
 
-		setValueAndOptionallyUpdateMappings(getSynonymPath(basePath, dayTypeSynonym),
+		setValueAndOptionallyUpdateMappings(basePath.addElement(dayTypeSynonym),
 				(value) -> {
 					Optional<DayTypeEnum> dayType = getEnumValue(synonymToDayTypeEnumMap, value, DayTypeEnum.class);
 					dayType.ifPresent(offsetBuilder::setDayType);

@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.*;
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.*;
 
 /**
@@ -39,13 +39,13 @@ public class SimmCalculationCurrencyMappingProcessor extends MappingProcessor {
 	private Optional<CalculationCurrencyElection> getCalculationCurrencyElection(Path synonymPath, String party) {
 		CalculationCurrencyElection.CalculationCurrencyElectionBuilder calculationCurrencyElectionBuilder = CalculationCurrencyElection.builder();
 
-		setValueAndUpdateMappings(getSynonymPath(synonymPath, party, "_use_base_currency"),
+		setValueAndUpdateMappings(synonymPath.addElement(party + "_use_base_currency"),
 				(value) -> {
 					calculationCurrencyElectionBuilder.setParty(party);
 					calculationCurrencyElectionBuilder.setIsBaseCurrency(Boolean.valueOf(value));
 				});
 
-		setValueAndOptionallyUpdateMappings(getSynonymPath(synonymPath, party, "_use_other_currency"),
+		setValueAndOptionallyUpdateMappings(synonymPath.addElement(party + "_use_other_currency"),
 				(value) -> setIsoCurrency(synonymToIsoCurrencyCodeEnumMap, calculationCurrencyElectionBuilder::setCurrency, value),
 				getMappings(), getModelPath());
 

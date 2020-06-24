@@ -1,8 +1,6 @@
 package org.isda.cdm.processor;
 
 import cdm.base.staticdata.party.PayerReceiver.PayerReceiverBuilder;
-import cdm.base.staticdata.party.metafields.ReferenceWithMetaAccount;
-import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
@@ -14,8 +12,8 @@ import org.isda.cdm.RateSpecification.RateSpecificationBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
-import static cdm.base.staticdata.party.metafields.ReferenceWithMetaAccount.*;
-import static cdm.base.staticdata.party.metafields.ReferenceWithMetaParty.*;
+import static cdm.base.staticdata.party.metafields.ReferenceWithMetaAccount.ReferenceWithMetaAccountBuilder;
+import static cdm.base.staticdata.party.metafields.ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder;
 
 @SuppressWarnings("unused")
 public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
