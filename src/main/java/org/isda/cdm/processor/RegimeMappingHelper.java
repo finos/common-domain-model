@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static java.util.Optional.ofNullable;
-import static org.isda.cdm.processor.MappingProcessorUtils.*;
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndUpdateMappings;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.*;
 
 class RegimeMappingHelper {
 
@@ -34,14 +34,14 @@ class RegimeMappingHelper {
 
 		// only one suffix should exist
 		SUFFIXES.forEach(suffix -> {
-			setValueAndUpdateMappings(getSynonymPath(regimePath, party, suffix, index),
+			setValueAndUpdateMappings(regimePath.addElement(party + suffix, index),
 					(value) -> getEnumValue(synonymToExceptionEnumMap, value, ExceptionEnum.class).ifPresent(enumValue -> {
 						regimeTermsBuilder.setParty(party);
 						regimeTermsBuilder.setIsApplicable(enumValue);
 					}),
 					mappings, path);
 
-			setValueAndUpdateMappings(getSynonymPath(regimePath, party, suffix + "_specify", index),
+			setValueAndUpdateMappings(regimePath.addElement(party + suffix + "_specify", index),
 					regimeTermsBuilder::setAsSpecified,
 					mappings, path);
 		});
@@ -49,7 +49,7 @@ class RegimeMappingHelper {
 		getSimmException(regimePath, party, index).ifPresent(regimeTermsBuilder::setSimmException);
 		getRetrospectiveEffect(regimePath, party, index).ifPresent(regimeTermsBuilder::setRetrospectiveEffect);
 
-		setValueAndUpdateMappings(getSynonymPath(regimePath, "other", index),
+		setValueAndUpdateMappings(regimePath.addElement("other", index),
 				regimeTermsBuilder::setAsSpecified,
 				mappings, path);
 
@@ -59,25 +59,25 @@ class RegimeMappingHelper {
 	private Optional<SimmException> getSimmException(Path regimePath, String party, Integer index) {
 		SimmException.SimmExceptionBuilder simmExceptionBuilder = SimmException.builder();
 
-		setValueAndUpdateMappings(getSynonymPath(regimePath, party, "_SIMM", index),
+		setValueAndUpdateMappings(regimePath.addElement(party + "_SIMM", index),
 				(value) -> getEnumValue(synonymToExceptionEnumMap, value, ExceptionEnum.class)
 						.ifPresent(simmExceptionBuilder::setStandardisedException),
 				mappings, path);
 
-		setValueAndUpdateMappings(getSynonymPath(regimePath, party, "_fallback", index),
+		setValueAndUpdateMappings(regimePath.addElement(party + "_fallback", index),
 				(value) -> getEnumValue(synonymToSimmExceptionApplicableEnumMap, value, SimmExceptionApplicableEnum.class)
 						.ifPresent(simmExceptionBuilder::setSimmExceptionApplicable),
 				mappings, path);
 
-		setValueAndUpdateMappings(getSynonymPath(regimePath, party, "_SIMM_specify", index),
+		setValueAndUpdateMappings(regimePath.addElement(party + "_SIMM_specify", index),
 				simmExceptionBuilder::setAsSpecified,
 				mappings, path);
 
-		setValueAndUpdateMappings(getSynonymPath(regimePath, party, "_fallback_specify", index),
+		setValueAndUpdateMappings(regimePath.addElement(party + "_fallback_specify", index),
 				simmExceptionBuilder::setAsSpecified,
 				mappings, path);
 
-		setValueAndUpdateMappings(getSynonymPath(regimePath, party, "_SIMM_applicable_specify", index),
+		setValueAndUpdateMappings(regimePath.addElement(party + "_SIMM_applicable_specify", index),
 				simmExceptionBuilder::setAsSpecified,
 				mappings, path);
 
@@ -87,12 +87,12 @@ class RegimeMappingHelper {
 	private Optional<RetrospectiveEffect> getRetrospectiveEffect(Path regimePath, String party, Integer index) {
 		RetrospectiveEffect.RetrospectiveEffectBuilder retrospectiveEffectBuilder = RetrospectiveEffect.builder();
 
-		setValueAndUpdateMappings(getSynonymPath(regimePath, party, "_retrospective", index),
+		setValueAndUpdateMappings(regimePath.addElement(party + "_retrospective", index),
 				(value) -> getEnumValue(synonymToExceptionEnumMap, value, ExceptionEnum.class)
 						.ifPresent(retrospectiveEffectBuilder::setStandardisedException),
 				mappings, path);
 
-		setValueAndUpdateMappings(getSynonymPath(regimePath, party, "_retrospective_specify", index),
+		setValueAndUpdateMappings(regimePath.addElement(party + "_retrospective_specify", index),
 				retrospectiveEffectBuilder::setAsSpecified,
 				mappings, path);
 

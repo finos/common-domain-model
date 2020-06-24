@@ -1,6 +1,7 @@
 package org.isda.cdm.processor;
 
-import com.regnosys.rosetta.common.translation.Mapping;
+import com.regnosys.rosetta.common.translation.MappingContext;
+import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
@@ -8,7 +9,7 @@ import org.isda.cdm.MinimumTransferAmountAmendment.MinimumTransferAmountAmendmen
 
 import java.util.List;
 
-import static org.isda.cdm.processor.MappingProcessorUtils.PARTIES;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.PARTIES;
 
 /**
  * ISDA Create mapping processor.
@@ -18,9 +19,9 @@ public class MinimumTransferAmountAmendmentMappingProcessor extends MappingProce
 
 	private final ElectiveAmountElectionMappingHelper helper;
 
-	public MinimumTransferAmountAmendmentMappingProcessor(RosettaPath rosettaPath, List<Path> synonymPaths, List<Mapping> mappings) {
-		super(rosettaPath, synonymPaths, mappings);
-		this.helper = new ElectiveAmountElectionMappingHelper(getPath(), getMappings());
+	public MinimumTransferAmountAmendmentMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
+		super(modelPath, synonymPaths, mappingContext);
+		this.helper = new ElectiveAmountElectionMappingHelper(getModelPath(), getMappings());
 	}
 
 	@Override

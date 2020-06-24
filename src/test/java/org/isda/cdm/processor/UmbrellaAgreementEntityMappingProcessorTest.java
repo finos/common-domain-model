@@ -1,6 +1,7 @@
 package org.isda.cdm.processor;
 
 import com.regnosys.rosetta.common.translation.Mapping;
+import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.path.RosettaPath;
 import org.isda.cdm.UmbrellaAgreement;
@@ -9,7 +10,6 @@ import org.isda.cdm.UmbrellaAgreementEntity.UmbrellaAgreementEntityBuilder;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -18,14 +18,14 @@ import static com.regnosys.rosetta.common.translation.Path.parse;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
-public class UmbrellaAgreementEntityMappingProcessorTest {
+class UmbrellaAgreementEntityMappingProcessorTest {
 
-	public static final String PRINCIPAL_NAME_0 = "PrincipalName0";
-	public static final String LEI_0 = "Lei0";
-	public static final String ADDITIONAL_0 = "Additional0";
-	public static final String PRINCIPAL_NAME_1 = "PrincipalName1";
-	public static final String LEI_1 = "Lei1";
-	public static final String ADDITIONAL_1 = "Additional1";
+	private static final String PRINCIPAL_NAME_0 = "PrincipalName0";
+	private static final String LEI_0 = "Lei0";
+	private static final String ADDITIONAL_0 = "Additional0";
+	private static final String PRINCIPAL_NAME_1 = "PrincipalName1";
+	private static final String LEI_1 = "Lei1";
+	private static final String ADDITIONAL_1 = "Additional1";
 
 	@Test
 	void shouldMapMultipleUmbrellaAgreementEntity() {
@@ -38,13 +38,14 @@ public class UmbrellaAgreementEntityMappingProcessorTest {
 		mappings.add(new Mapping(getXmlPath("principal_name", 1), PRINCIPAL_NAME_1, null, null, "no destination", false, false));
 		mappings.add(new Mapping(getXmlPath("lei", 1), LEI_1, null, null, "no destination", false, false));
 		mappings.add(new Mapping(getXmlPath("additional", 1), ADDITIONAL_1, null, null, "no destination", false, false));
+		MappingContext context = new MappingContext(mappings, Collections.emptyMap());
 
 		UmbrellaAgreement.UmbrellaAgreementBuilder parent = UmbrellaAgreement.builder();
-		List<UmbrellaAgreementEntityBuilder> builders = Arrays.asList(mock(UmbrellaAgreementEntityBuilder.class));
+		List<UmbrellaAgreementEntityBuilder> builders = Collections.singletonList(mock(UmbrellaAgreementEntityBuilder.class));
 
 		// test
 		Path synonymPath = Path.parse("answers.partyA.umbrella_agreement_and_principal_identification.principal_identification_schedule");
-		UmbrellaAgreementEntityMappingProcessor processor = new UmbrellaAgreementEntityMappingProcessor(rosettaPath, Collections.singletonList(synonymPath), mappings);
+		UmbrellaAgreementEntityMappingProcessor processor = new UmbrellaAgreementEntityMappingProcessor(rosettaPath, Collections.singletonList(synonymPath), context);
 		processor.map(synonymPath, builders, parent);
 		UmbrellaAgreement umbrellaAgreement = parent.build();
 
@@ -75,13 +76,14 @@ public class UmbrellaAgreementEntityMappingProcessorTest {
 		mappings.add(new Mapping(getXmlPath("principal_name"), PRINCIPAL_NAME_0, null, null, "no destination", false, false));
 		mappings.add(new Mapping(getXmlPath("lei"), LEI_0, null, null, "no destination", false, false));
 		mappings.add(new Mapping(getXmlPath("additional"), ADDITIONAL_0, null, null, "no destination", false, false));
+		MappingContext context = new MappingContext(mappings, Collections.emptyMap());
 
 		UmbrellaAgreement.UmbrellaAgreementBuilder parent = UmbrellaAgreement.builder();
-		List<UmbrellaAgreementEntityBuilder> builders = Arrays.asList(mock(UmbrellaAgreementEntityBuilder.class));
+		List<UmbrellaAgreementEntityBuilder> builders = Collections.singletonList(mock(UmbrellaAgreementEntityBuilder.class));
 
 		// test
 		Path synonymPath = Path.parse("answers.partyA.umbrella_agreement_and_principal_identification.principal_identification_schedule");
-		UmbrellaAgreementEntityMappingProcessor processor = new UmbrellaAgreementEntityMappingProcessor(rosettaPath, Collections.emptyList(), mappings);
+		UmbrellaAgreementEntityMappingProcessor processor = new UmbrellaAgreementEntityMappingProcessor(rosettaPath, Collections.emptyList(), context);
 		processor.map(synonymPath, builders, parent);
 		UmbrellaAgreement umbrellaAgreement = parent.build();
 

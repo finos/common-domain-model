@@ -1,6 +1,7 @@
 package org.isda.cdm.processor;
 
-import com.regnosys.rosetta.common.translation.Mapping;
+import com.regnosys.rosetta.common.translation.MappingContext;
+import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
@@ -12,8 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Optional;
 
-import static org.isda.cdm.processor.MappingProcessorUtils.getSynonymPath;
-import static org.isda.cdm.processor.MappingProcessorUtils.toFieldWithMetaString;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.toFieldWithMetaString;
 
 /**
  * ISDA Create mapping processor.
@@ -21,8 +21,8 @@ import static org.isda.cdm.processor.MappingProcessorUtils.toFieldWithMetaString
 @SuppressWarnings("unused")
 public class UmbrellaAgreementEntityMappingProcessor extends MappingProcessor {
 
-	public UmbrellaAgreementEntityMappingProcessor(RosettaPath rosettaPath, List<Path> synonymPaths, List<Mapping> mappings) {
-		super(rosettaPath, synonymPaths, mappings);
+	public UmbrellaAgreementEntityMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
+		super(modelPath, synonymPaths, mappingContext);
 	}
 
 	@Override
@@ -45,13 +45,13 @@ public class UmbrellaAgreementEntityMappingProcessor extends MappingProcessor {
 	private Optional<UmbrellaAgreementEntity> getUmbrellaAgreementEntity(Path synonymPath, Integer index) {
 		UmbrellaAgreementEntityBuilder umbrellaAgreementEntityBuilder = UmbrellaAgreementEntity.builder();
 
-		setValueAndUpdateMappings(getSynonymPath(synonymPath,"principal_name", index),
+		setValueAndUpdateMappings(synonymPath.addElement("principal_name", index),
 				umbrellaAgreementEntityBuilder::setNameRef);
 
-		setValueAndUpdateMappings(getSynonymPath(synonymPath,"lei", index),
+		setValueAndUpdateMappings(synonymPath.addElement("lei", index),
 				(value) -> umbrellaAgreementEntityBuilder.addEntityId(toFieldWithMetaString(value)));
 
-		setValueAndUpdateMappings(getSynonymPath(synonymPath,"additional", index),
+		setValueAndUpdateMappings(synonymPath.addElement("additional", index),
 				umbrellaAgreementEntityBuilder::setTerms);
 
 		return umbrellaAgreementEntityBuilder.hasData() ? Optional.of(umbrellaAgreementEntityBuilder.build()) : Optional.empty();
