@@ -994,7 +994,23 @@ Agreement Content
    agreement Agreement (1..1)
    relatedAgreements RelatedAgreement (0..*)
    umbrellaAgreement UmbrellaAgreement (0..1)
-	
+
+``Agreement`` is used to specify the individual elections contained within the legal agreement. It contains individual types, each containing the elections used to define a specific group of agreements.
+
+.. code-block:: Haskell
+
+ type Agreement:
+   creditSupportAgreementElections CreditSupportAgreementElections (0..1)
+   collateralTransferAgreementElections CollateralTransferAgreementElections (0..1)
+   securityAgreementElections SecurityAgreementElections (0..1)
+   transactionConfirmation TransactionConfirmation (0..1)
+   condition: one-of
+
+The modelling approach for elective provisions is explained in further detail in the corresponding section below.
+
+Other Linked Agreement
+""""""""""""""""""""""
+
 ``RelatedAgreement`` is used to specify any higher-level agreement(s) that may govern the agreement, either as a reference to such agreements when specified as part of the CDM, or through identification of some of the key terms of those agreements.  
 
 The below snippet represents the ``RelatedAgreement`` type.
@@ -1010,7 +1026,7 @@ Through the ``legalAgreement`` attribute it allows to:
 * Identify some of the key terms of a governing legal agreement such as the agreement identifier, the publisher, the document vintage and the agreement date.
 * Or, reference the entire legal agreement that is electronically represented in the CDM through a reference key into the agreement instance.
 
-.. note:: The ``DocumentationIdentification`` attribute is currently used to map Legal Agreement terms captured as part of an FpML transaction message.  This attribute will be deprecated when a synonym mapping structure has been incorporated into the ``LegalAgreement`` attribute.
+.. note:: The ``DocumentationIdentification`` attribute is used to map related agreement terms that are embedded as part of an FpML transaction message, such as an ISDA Master Agreement, when those are not modelled or mapped yet in the ``LegalAgreement`` data type.
    
 ``UmbrellaAgreement`` is used to specify whether Umbrella Agreement terms are applicable, relevant specific language, and underlying entities associated with the umbrella agreement
 
@@ -1023,19 +1039,6 @@ The below snippet represents the ``UmbrellaAgreement`` type.
    language string (0..1)
    parties UmbrellaAgreementEntity (0..*)
 
-``Agreement`` is used to specify the individual elections contained within the legal agreement. It contains individual types, each containing the elections used to define a specific group of agreements.
-
-.. code-block:: Haskell
-
- type Agreement:
-   creditSupportAgreementElections CreditSupportAgreementElections (0..1)
-   collateralTransferAgreementElections CollateralTransferAgreementElections (0..1)
-   securityAgreementElections SecurityAgreementElections (0..1)
-   transactionConfirmation TransactionConfirmation (0..1)
-   condition: one-of
-
-The modelling approach for elections is explained in further detail below.  
-
 Elective Provisions
 ^^^^^^^^^^^^^^^^^^^
 
@@ -1044,7 +1047,7 @@ Election Structure
 
 The structure of the elections contained within each agreement type are modelled to reflect the structure of the legal agreements that they represent for ease of reference. Each type contains a set of elections or election families which can be used to represent the clauses contained within that type of legal agreement, regardless of vintage or governing law.
 
-This approach allows to focus the representation of elections in the CDM on their intended business outcome regardless of their particular way of drafting, in order to better support the standardisation of related business processes.
+This approach allows to focus the representation of elections in the CDM on their intended business outcome regardless of their particular drafting form, in order to better support the standardisation of related business processes.
 
 For example, ``CreditSupportAgreementElections`` contains all the elections that may be applicable to a credit support agreement and can be used to define any of the Credit Support Agreements currently supported by the CDM:
 
@@ -1106,11 +1109,63 @@ Modelling Approach
 
 In many cases the pre-printed clauses in the legal agreement being modelled offer pre-defined elections that the parties can select. In these cases, the clauses that need to be modelled are identified in the form, typically together with the needed attributes. The values those attributes can take may also be clear (e.g. an election from a list of options or a specific type of information such as an amount, date or city). In these instances the model is a direct reflection of the choices in the clause and uses boolean attributes, or enumeration lists to achieve the necessary outcome.
 
-However in some cases, the pre-printed form may identify the clause but not (all) attributes or values they could take, e.g. when a single version of a clause term is provided with a space for parties to agree an unspecified alternative if they wish.  In these instances the model uses string attributes to capture the clause in a free text format.  
+However in some cases, the pre-printed form may identify the clause but not (all) attributes or values they could take, e.g. when a single version of a clause term is provided with a space for parties to agree an unspecified alternative if they wish. In these instances the model uses string attributes to capture the clause in a free text format.  
 
 Examples are provided below to provide a practical explanation of the approach.
 
-Example 1: Security Agreement Elections
+Example 1: Eligible Collateral
+""""""""""""""""""""""""""""""
+
+The development of a digital data standard for representation of collateral eligibility schedules is a crucial component required to drive digital negotiation, straight through processing and digitisation of collateral management. The standard representation provided within the CDM allows institutions involved in the collateral workflow cycle to exchange eligible collateral information accurately and efficiently in digital form.
+
+The Eligible Collateral model contains the following key components to allow the digital representation of the detailed criteria reflected in the legal agreement:
+
+#. **Collateral Issuer Criteria** specifies criteria that the issuer must meet when defining collateral eligibility.
+#. **Collateral Product Criteria** specifies criteria that the product must meet when defining collateral eligibility.
+#. **Collateral Treatment** specifies criteria for the treatment of eligible collateral when posted.
+
+The following code snippets represent these three components of the eligible collateral model. These components are assembled under the ``EligibleCollateralCriteria`` data type, which is contained within the ``postingObligationElection`` component of the credit support agreement elections described above.
+
+.. code-block:: Haskell
+
+ type EligibleCollateralCriteria:
+   issuer IssuerCriteria (0..*)
+   product ProductCriteria (0..*)
+   treatment CollateralTreatment (1..1)
+	
+.. code-block:: Haskell
+
+ type IssuerCriteria:
+   issuerType CollateralIssuerType (0..*)
+   issuerCountryOfOrigin string (0..*)
+   issuerName LegalEntity (0..*)
+   issuerAgencyRating AgencyRatingCriteria (0..*)
+   sovereignAgencyRating AgencyRatingCriteria (0..*)
+   counterpartyOwnIssuePermitted boolean (0..1)
+	
+.. code-block:: Haskell
+
+ type ProductCriteria:
+   collateralProductType ProductType (0..*)
+   productCountryOfOrigin string (0..*)
+   denominatedCurrency string (0..*)
+   agencyRating AgencyRatingCriteria (0..*)
+   maturityType MaturityTypeEnum (0..1)
+   maturityRange PeriodRange (0..1)
+   productIdentifier ProductIdentifier (0..*)
+   productTaxonomy ProductTaxonomy (0..*)
+   seasoned boolean (0..1)
+   sinkable boolean (0..1)
+   domesticCurrencyIssued boolean (0..1)
+
+.. code-block:: Haskell
+
+ type CollateralTreatment:
+   valuationPercentage CollateralValuationPercentage (0..1)
+   concentrationLimit ConcentrationLimit (0..*)
+   isIncluded boolean (1..1)
+
+Example 2: Security Agreement Elections
 """""""""""""""""""""""""""""""""""""""
 
 The CDM model can currently support nine distinct Security Agreements. Election structures across any of these agreements can be represented through the following data type.
@@ -1133,10 +1188,10 @@ Depending on the agreement being specified, a different combination of attribute
 
 An equivalent approach is followed for ``CreditSupportAgreementElections`` and ``CollateralTransferAgreementElections``.
 
-Example 2: Credit Support Obligations
+Example 3: Credit Support Obligations
 """""""""""""""""""""""""""""""""""""
 
-The below election family is contained within both ``CreditSupportAgreementElections`` and ``CollateralTransferAgreementElections`` and is used to represent a key set of terms within these document families fundamental to collateral calculations.
+The credit support obligations election family is contained within both ``CreditSupportAgreementElections`` and ``CollateralTransferAgreementElections``. It is used to represent a key set of terms that are fundamental to collateral calculations within these document families.
 
 .. code-block:: Haskell
 
@@ -1157,51 +1212,7 @@ Each attribute is modelled on the clause in the legal agreement and provides the
    deliveryAmount number (1..1)
    returnAmount number (1..1)
 
-Eligible Collateral
-"""""""""""""""""""
-
-The development of a digital data standard for representation of collateral eligibility schedules is a crucial component required to drive digital negotiation, straight through processing and digitisation of collateral assessment.   The standard representation provided within the CDM is desgined to allow institutions involved in the workflow cycle to exchange digitised standard eligible collateral information accurately and efficiently.
-
-The Eligible Collateral model contains the following key components to allow the digital representation of the detailed criteria reflected in the legal agreement.
-
-**Collateral Issuer Criteria** allows the specification of criteria that the issuer must meet when defining collateral eligibility.
-**Collateral Product Criteria** allows the specification of criteria that the product must meet when defining collateral eligibility.
-**Collateral Treatment** allows the specification of criteria for treatment of eligible collateral when posted.
-
-The following code snippets represent these three components of the model:
-
-.. code-block:: Haskell
-
- type IssuerCriteria:
-	issuerType CollateralIssuerType (0..*)
-  	issuerCountryOfOrigin string (0..*)
-	issuerName LegalEntity (0..*)
-	issuerAgencyRating AgencyRatingCriteria (0..*)
-	sovereignAgencyRating AgencyRatingCriteria (0..*)
-	counterpartyOwnIssuePermitted boolean (0..1)
-	
-.. code-block:: Haskell
-
- type ProductCriteria:
-	collateralProductType ProductType (0..*)
-	productCountryOfOrigin string (0..*)
-	denominatedCurrency string (0..*)
-	agencyRating AgencyRatingCriteria (0..*)
-	maturityType MaturityTypeEnum (0..1)
-	maturityRange PeriodRange (0..1)
-	productIdentifier ProductIdentifier (0..*)
-	productTaxonomy ProductTaxonomy (0..*)
- 	seasoned boolean (0..1)
-	sinkable boolean (0..1)
-	domesticCurrencyIssued boolean (0..1)
-
-.. code-block:: Haskell
-
- type CollateralTreatment:
-	valuationPercentage CollateralValuationPercentage (0..1)
-	concentrationLimit ConcentrationLimit (0..*)
-	isIncluded boolean (1..1)
-
+.. note:: The credit support obligations election data type is suffixed with ``InitialMargin``, because the initial set of credit support agreement documents that have been digitised in the CDM are Initial Margin CSAs. However the same structure and associated collateral calculation components are intended for re-use to model Variation Margin CSAs.
 
 Linking Legal Agreements to Contracts
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
