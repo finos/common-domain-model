@@ -12,10 +12,11 @@ Notable changes and updates introduced:
 - Addition of relevant examples to demonstrate model content
 - Updated description of approach for linking legal agreements to contracts
 
-The Process section has also been updated to explain support for initial margin calculations.
+The Process section has also been updated to explain support for initial margin calculations as part of the Calculation Process section.
 
 _Review direction_
 
-In the CDM Portal, review the CDM Documentation, in particular the section:
+In the CDM Portal, review the CDM Documentation, in particular the sections:
 
-- [Legal Agreement](https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html)
+- [Legal Agreement](https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#legal-agreement)
+- [Calculation Process](https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#calculation-process)
