@@ -37,7 +37,7 @@ public class CounterpartyEnumMappingProcessor extends MappingProcessor {
 	}
 
 	@Override
-	protected <T> void mapBasic(Path synonymPath, Optional<T> instance, RosettaModelObjectBuilder parent) {
+	public <T> void mapBasic(Path synonymPath, Optional<T> instance, RosettaModelObjectBuilder parent) {
 		//		Optional<String> blah = getNonNullMappedValue(filterMappings(getMappings(), synonymPath));
 		//		LOGGER.info("**** {} {} {}", synonymPath, blah, PayerReceiver.PayerReceiverBuilder.class.isInstance(parent));
 		//		addToList();

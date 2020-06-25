@@ -36,7 +36,7 @@ public class CounterpartyMappingProcessor extends MappingProcessor {
 	}
 
 	@Override
-	protected void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
+	public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
 		TradableProduct.TradableProductBuilder tradableProductBuilder = (TradableProduct.TradableProductBuilder) parent;
 		tradableProductBuilder.clearCounterparties();
 		COUNTERPARTIES.forEach(c -> getCounterparty(c).ifPresent(tradableProductBuilder::addCounterparties));
