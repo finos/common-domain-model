@@ -24,7 +24,7 @@ public class CollateralManagementAgreementMappingProcessor extends MappingProces
 	}
 
 	@Override
-	protected void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
+	public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
 		CollateralManagementAgreement.CollateralManagementAgreementBuilder collateralManagementAgreementBuilder =
 				(CollateralManagementAgreement.CollateralManagementAgreementBuilder) builder;
 		PARTIES.forEach(party -> getCollateralManagementAgreementElection(synonymPath, party).ifPresent(collateralManagementAgreementBuilder::addPartyElection));

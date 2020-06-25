@@ -27,7 +27,7 @@ public class CustodianMappingProcessor extends MappingProcessor {
 	}
 
 	@Override
-	protected void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
+	public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
 		Custodian.CustodianBuilder custodianBuilder = (Custodian.CustodianBuilder) builder;
 		PARTIES.forEach(party -> getCustodianElection(synonymPath, party).ifPresent(custodianBuilder::addPartyElection));
 	}
