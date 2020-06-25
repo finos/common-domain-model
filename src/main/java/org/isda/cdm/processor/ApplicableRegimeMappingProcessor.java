@@ -32,7 +32,7 @@ public class ApplicableRegimeMappingProcessor extends MappingProcessor {
 	}
 
 	@Override
-	protected void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builders, RosettaModelObjectBuilder parent) {
+	public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builders, RosettaModelObjectBuilder parent) {
 		RegimeBuilder regimeBuilder = (RegimeBuilder) parent;
 
 		ApplicableRegimeBuilder applicableRegimeBuilder = ApplicableRegime.builder();
