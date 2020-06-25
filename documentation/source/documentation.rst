@@ -1478,94 +1478,83 @@ Some of those calculations are presented below:
 .. code-block:: Haskell
 
  func DeliveryAmount:
-	[calculation]
+   [calculation]
+   inputs:
+     postedCreditSupportItems PostedCreditSupportItem (0..*)
+     priorDeliveryAmountAdjustment Money (1..1)
+     priorReturnAmountAdjustment Money (1..1)
+     disputedTransferredPostedCreditSupportAmount Money (1..1)
+     marginAmount Money (1..1)
+     threshold Money (1..1)
+     marginApproach MarginApproachEnum (1..1)
+     marginAmountIA Money (0..1)
+     minimumTransferAmount Money (1..1)
+     rounding CollateralRounding (1..1)
+     disputedDeliveryAmount Money (1..1)
+     baseCurrency string (1..1)
 
-	inputs:
-		postedCreditSupportItems PostedCreditSupportItem (0..*)
-		priorDeliveryAmountAdjustment Money (1..1)
-		priorReturnAmountAdjustment Money (1..1)
-		disputedTransferredPostedCreditSupportAmount Money (1..1)
-		marginAmount Money (1..1)
-		threshold Money (1..1)
-		marginApproach MarginApproachEnum (1..1)
-		marginAmountIA Money (0..1)
-		minimumTransferAmount Money (1..1)
-		rounding CollateralRounding (1..1)
-		disputedDeliveryAmount Money (1..1)
-		baseCurrency string (1..1)
+   output:
+     result Money (1..1)
 
-	output:
-		result Money (1..1)
+     alias undisputedAdjustedPostedCreditSupportAmount:
+       UndisputedAdjustedPostedCreditSupportAmount( postedCreditSupportItems, priorDeliveryAmountAdjustment, priorReturnAmountAdjustment, disputedTransferredPostedCreditSupportAmount, baseCurrency )
+     alias creditSupportAmount:
+       CreditSupportAmount( marginAmount, threshold, marginApproach, marginAmountIA, baseCurrency )
+     alias deliveryAmount:
+       Max( creditSupportAmount -> amount - undisputedAdjustedPostedCreditSupportAmount -> amount, 0.0 )
+     alias undisputedDeliveryAmount:
+       Max( deliveryAmount - disputedDeliveryAmount -> amount, 0.0 )
 
-	alias undisputedAdjustedPostedCreditSupportAmount:
-		UndisputedAdjustedPostedCreditSupportAmount( postedCreditSupportItems, priorDeliveryAmountAdjustment, priorReturnAmountAdjustment, disputedTransferredPostedCreditSupportAmount, baseCurrency )
+     condition:
+       ( baseCurrency = minimumTransferAmount -> currency )
+       and ( baseCurrency = disputedDeliveryAmount -> currency )
 
-	alias creditSupportAmount:
-		CreditSupportAmount( marginAmount, threshold, marginApproach, marginAmountIA, baseCurrency )
-
-	alias deliveryAmount:
-		Max( creditSupportAmount -> amount - undisputedAdjustedPostedCreditSupportAmount -> amount, 0.0 )
-
-	alias undisputedDeliveryAmount:
-		Max( deliveryAmount - disputedDeliveryAmount -> amount, 0.0 )
-
-	condition:
-		( baseCurrency = minimumTransferAmount -> currency )
-		and ( baseCurrency = disputedDeliveryAmount -> currency )
-
-	assign-output result -> amount:
-		if undisputedDeliveryAmount >= minimumTransferAmount -> amount
-		then RoundToNearest( undisputedDeliveryAmount, rounding -> deliveryAmount, RoundingModeEnum -> Up )
-		else 0.0
-
-	assign-output result -> currency:
-		baseCurrency
+     assign-output result -> amount:
+       if undisputedDeliveryAmount >= minimumTransferAmount -> amount
+       then RoundToNearest( undisputedDeliveryAmount, rounding -> deliveryAmount, RoundingModeEnum -> Up )
+       else 0.0
+     assign-output result -> currency:
+       baseCurrency
 
 .. code-block:: Haskell
  func ReturnAmount:
-	[calculation]
+   [calculation]
+   inputs:
+     postedCreditSupportItems PostedCreditSupportItem (0..*)
+     priorDeliveryAmountAdjustment Money (1..1)
+     priorReturnAmountAdjustment Money (1..1)
+     disputedTransferredPostedCreditSupportAmount Money (1..1)
+     marginAmount Money (1..1)
+     threshold Money (1..1)
+     marginApproach MarginApproachEnum (1..1)
+     marginAmountIA Money (0..1)
+     minimumTransferAmount Money (1..1)
+     rounding CollateralRounding (1..1)
+     disputedReturnAmount Money (1..1)
+     baseCurrency string (1..1)
 
-	inputs:
-		postedCreditSupportItems PostedCreditSupportItem (0..*)
-		priorDeliveryAmountAdjustment Money (1..1)
-		priorReturnAmountAdjustment Money (1..1)
-		disputedTransferredPostedCreditSupportAmount Money (1..1)
-		marginAmount Money (1..1)
-		threshold Money (1..1)
-		marginApproach MarginApproachEnum (1..1)
-		marginAmountIA Money (0..1)
-		minimumTransferAmount Money (1..1)
-		rounding CollateralRounding (1..1)
-		disputedReturnAmount Money (1..1)
-		baseCurrency string (1..1)
+   output:
+     result Money (1..1)
 
-	output:
-		result Money (1..1)
+       alias undisputedAdjustedPostedCreditSupportAmount:
+         UndisputedAdjustedPostedCreditSupportAmount( postedCreditSupportItems, priorDeliveryAmountAdjustment, priorReturnAmountAdjustment, disputedTransferredPostedCreditSupportAmount, baseCurrency )
+       alias creditSupportAmount:
+         CreditSupportAmount( marginAmount, threshold, marginApproach, marginAmountIA, baseCurrency )
+       alias returnAmount:
+         Max( undisputedAdjustedPostedCreditSupportAmount -> amount - creditSupportAmount -> amount, 0.0 )
+       alias undisputedReturnAmount:
+         Max( returnAmount - disputedReturnAmount -> amount, 0.0 )
 
-	alias undisputedAdjustedPostedCreditSupportAmount:
-		UndisputedAdjustedPostedCreditSupportAmount( postedCreditSupportItems, priorDeliveryAmountAdjustment, priorReturnAmountAdjustment, disputedTransferredPostedCreditSupportAmount, baseCurrency )
+       condition:
+         ( baseCurrency = minimumTransferAmount -> currency )
+	   and ( baseCurrency = disputedReturnAmount -> currency )
 
-	alias creditSupportAmount:
-		CreditSupportAmount( marginAmount, threshold, marginApproach, marginAmountIA, baseCurrency )
-
-	alias returnAmount:
-		Max( undisputedAdjustedPostedCreditSupportAmount -> amount - creditSupportAmount -> amount, 0.0 )
-
-	alias undisputedReturnAmount:
-		Max( returnAmount - disputedReturnAmount -> amount, 0.0 )
-
-	condition:
-		( baseCurrency = minimumTransferAmount -> currency )
-		and ( baseCurrency = disputedReturnAmount -> currency )
-
-	assign-output result -> amount:
-		if undisputedReturnAmount >= minimumTransferAmount -> amount
-		then RoundToNearest( undisputedReturnAmount, rounding -> returnAmount, RoundingModeEnum -> Down )
-		else 0.0
-
-	assign-output result -> currency:
-		baseCurrency
-
+       assign-output result -> amount:
+         if undisputedReturnAmount >= minimumTransferAmount -> amount
+	 then RoundToNearest( undisputedReturnAmount, rounding -> returnAmount, RoundingModeEnum -> Down )
+	 else 0.0
+       assign-output result -> currency:
+         baseCurrency
 
 Lifecycle Event Process
 ^^^^^^^^^^^^^^^^^^^^^^^
