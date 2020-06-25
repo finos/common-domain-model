@@ -18,4 +18,4 @@ _Review direction_
 
 In the CDM Portal, review the CDM Documentation, in particular the section:
 
-- [Legal Agreement](https://docs.rosetta-technology.io/cdm/readme.html)
+- [Legal Agreement](https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html)
