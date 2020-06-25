@@ -30,7 +30,7 @@ public class AdditionalTerminationEventMappingProcessor extends MappingProcessor
 	}
 
 	@Override
-	protected void map(Path accessConditionsPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
+	public void map(Path accessConditionsPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
 		AccessConditions.AccessConditionsBuilder accessConditionsBuilder = (AccessConditions.AccessConditionsBuilder) builder;
 		accessConditionsBuilder.clearAdditionalTerminationEvent();
 
