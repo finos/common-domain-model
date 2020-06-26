@@ -41,9 +41,9 @@ public class ClearingAccepted implements Function<Contract, Workflow> {
 		WorkflowStep contractFormationStep = ClearingUtils.buildContractFormationStep(runner, alphaContract, externalReference, identifierService);
 
 		// propose clear step
-		WorkflowStep proposeStep = ClearingUtils.buildProposeStep(runner, contractFormationStep, party1, party2, externalReference, identifierService);
+		WorkflowStep proposeStep = ClearingUtils.buildProposeStep(runner, contractFormationStep, alphaContract, party1, party2, externalReference, identifierService);
 
-		WorkflowStep clearStep = ClearingUtils.buildClear(runner, externalReference, proposeStep, proposeStep.getProposedInstruction().getClearing(), clear, alphaContract, identifierService);
+		WorkflowStep clearStep = ClearingUtils.buildClear(runner, externalReference, proposeStep, proposeStep.getProposedInstruction().getClearing(), clear, identifierService);
 
 		return Workflow.builder().addSteps(Lists.newArrayList(contractFormationStep, proposeStep, clearStep)).build();
 	}
