@@ -22,7 +22,7 @@ public class PostingObligationsMappingProcessor extends MappingProcessor {
     }
 
     @Override
-    protected void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
+    public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
         PostingObligations.PostingObligationsBuilder obligationsBuilder = (PostingObligations.PostingObligationsBuilder) builder;
         PARTIES.forEach(party -> getPostingObligationsElectionBuilder(synonymPath, party).ifPresent(obligationsBuilder::addPartyElection));
     }

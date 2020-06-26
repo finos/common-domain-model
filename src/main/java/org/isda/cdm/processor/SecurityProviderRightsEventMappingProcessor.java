@@ -26,7 +26,7 @@ public class SecurityProviderRightsEventMappingProcessor extends MappingProcesso
 
 
     @Override
-    protected void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
+    public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
 
         SecurityProviderRightsEvent.SecurityProviderRightsEventBuilder securityProviderRightsEventBuilder = (SecurityProviderRightsEvent.SecurityProviderRightsEventBuilder) builder;
         PARTIES.forEach(party ->
