@@ -33,7 +33,7 @@ public class ClearingRejected implements Function<Contract, Workflow> {
 		WorkflowStep contractFormationStep = ClearingUtils.buildContractFormationStep(runner, contract, externalReference, identifierService);
 
 		// propose clear step
-		WorkflowStep proposeStep = ClearingUtils.buildProposeStep(runner, contractFormationStep, party1, party2, externalReference, identifierService);
+		WorkflowStep proposeStep = ClearingUtils.buildProposeStep(runner, contractFormationStep, contract, party1, party2, externalReference, identifierService);
 
 		WorkflowStep rejectStep = ClearingUtils.buildRejectStep(runner, proposeStep, externalReference, identifierService);
 
