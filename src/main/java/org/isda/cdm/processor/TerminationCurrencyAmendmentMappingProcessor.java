@@ -31,7 +31,7 @@ public class TerminationCurrencyAmendmentMappingProcessor extends MappingProcess
 	}
 
 	@Override
-	protected void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
+	public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
 		TerminationCurrencyAmendment.TerminationCurrencyAmendmentBuilder terminationCurrencyAmendmentBuilder =
 				(TerminationCurrencyAmendment.TerminationCurrencyAmendmentBuilder) builder;
 

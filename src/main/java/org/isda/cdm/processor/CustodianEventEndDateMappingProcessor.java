@@ -85,7 +85,7 @@ public class CustodianEventEndDateMappingProcessor extends MappingProcessor {
 	}
 
 	@Override
-	protected void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
+	public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
 		CustodianEventEndDate.CustodianEventEndDateBuilder endDateBuilder = (CustodianEventEndDate.CustodianEventEndDateBuilder) builder;
 		// DaysAfterCustodianEvent
 		getCustomisableOffset(synonymPath, "days_after_custodian_event",

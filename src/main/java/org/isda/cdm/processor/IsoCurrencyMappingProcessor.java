@@ -31,7 +31,7 @@ public class IsoCurrencyMappingProcessor extends MappingProcessor {
 	}
 
 	@Override
-	protected <T> void mapBasic(Path synonymPath, T value, RosettaModelObjectBuilder parent) {
+	public <T> void mapBasic(Path synonymPath, T value, RosettaModelObjectBuilder parent) {
 		if (value instanceof String && parent instanceof FieldWithMetaString.FieldWithMetaStringBuilder) {
 			FieldWithMetaString.FieldWithMetaStringBuilder currencyBuilder = (FieldWithMetaString.FieldWithMetaStringBuilder) parent;
 			String currencyValue = (String) value;
