@@ -25,7 +25,7 @@ public class ControlAgreementMappingProcessor extends MappingProcessor {
 	}
 
 	@Override
-	protected void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
+	public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
 		ControlAgreement.ControlAgreementBuilder controlAgreementBuilder = (ControlAgreement.ControlAgreementBuilder) builder;
 		PARTIES.forEach(party -> getControlAgreementElection(synonymPath, party).ifPresent(controlAgreementBuilder::addPartyElection));
 	}
