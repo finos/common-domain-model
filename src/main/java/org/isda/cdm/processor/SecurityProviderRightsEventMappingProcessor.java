@@ -37,19 +37,12 @@ public class SecurityProviderRightsEventMappingProcessor extends MappingProcesso
     }
 
     private Optional<SecurityProviderRightsEventElection> getSecurityProviderRightsEventElection(Path synonymPath, String party, String suffix) {
-
-
         SecurityProviderRightsEventElection.SecurityProviderRightsEventElectionBuilder securityProviderRightsEventElectionBuilder = SecurityProviderRightsEventElection.builder();
-
         setValueAndUpdateMappings(synonymPath.addElement(party + suffix),
                 (value) -> {
                     securityProviderRightsEventElectionBuilder.setParty(party);
 					securityProviderRightsEventElectionBuilder.setRightsEvent(value.equals("applicable"));
                 });
-
-
         return securityProviderRightsEventElectionBuilder.hasData() ? Optional.of(securityProviderRightsEventElectionBuilder.build()) : Optional.empty();
     }
-
-
 }
