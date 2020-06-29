@@ -25,7 +25,7 @@ public class ThresholdMappingProcessor extends MappingProcessor {
 	}
 
 	@Override
-	protected void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
+	public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
 		ThresholdBuilder thresholdBuilder = (ThresholdBuilder) builder;
 		PARTIES.forEach(party -> helper.getElectiveAmountElection(synonymPath, party).ifPresent(thresholdBuilder::addPartyElection));
 	}

@@ -30,7 +30,7 @@ public class SimmCalculationCurrencyMappingProcessor extends MappingProcessor {
 	}
 
 	@Override
-	protected void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
+	public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
 		SimmCalculationCurrency.SimmCalculationCurrencyBuilder simmCalculationCurrencyBuilder = (SimmCalculationCurrency.SimmCalculationCurrencyBuilder) builder;
 		PARTIES.forEach(party -> getCalculationCurrencyElection(synonymPath, party).ifPresent(simmCalculationCurrencyBuilder::addPartyElection));
 

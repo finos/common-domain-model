@@ -27,7 +27,7 @@ public class TradeSideToPartyMappingProcessor extends MappingProcessor {
 	}
 
 	@Override
-	protected void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
+	public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
 		ReferenceWithMetaPartyBuilder partyReference = (ReferenceWithMetaPartyBuilder) builder;
 		String tradeSideId = partyReference.getExternalReference();
 		getPartyId(tradeSideId)

@@ -31,7 +31,7 @@ public class ContractualPartyMappingProcessor extends MappingProcessor {
 	}
 
 	@Override
-	protected void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
+	public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
 		LegalAgreementBuilder legalAgreementBuilder = (LegalAgreementBuilder) parent;
 		PARTIES.forEach(party ->
 				getContractualParty(party).ifPresent(
