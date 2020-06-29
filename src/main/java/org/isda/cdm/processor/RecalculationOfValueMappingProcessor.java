@@ -43,11 +43,11 @@ public class RecalculationOfValueMappingProcessor extends MappingProcessor {
                 (value) -> {
                     recalculationOfValueElectionBuilder.setParty(party);
                     if ("other".equals(value)) {
-                        getEnumValue(recalculationOfValueElectionEnumMap, value, RecalculationOfValueElectionEnum.class)
-                                .ifPresent(recalculationOfValueElectionBuilder::setRecalculationOfValueElection);
-                    } else {
                         TERMS_SUFFIXES.forEach(termSuffix -> setValueAndUpdateMappings(synonymPath.addElement(party + termSuffix),
                                 (terms) -> recalculationOfValueElectionBuilder.setRecalculationOfValueTerms(value)));
+                    } else {
+                        getEnumValue(recalculationOfValueElectionEnumMap, value, RecalculationOfValueElectionEnum.class)
+                                .ifPresent(recalculationOfValueElectionBuilder::setRecalculationOfValueElection);
                     }
                 });
         return recalculationOfValueElectionBuilder.hasData() ? Optional.of(recalculationOfValueElectionBuilder.build()) : Optional.empty();
