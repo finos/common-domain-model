@@ -30,7 +30,7 @@ public class PostingObligationsMappingProcessor extends MappingProcessor {
     @NotNull
     private Optional<PostingObligationsElection> getPostingObligationsElectionBuilder(Path synonymPath, String party) {
         PostingObligationsElection.PostingObligationsElectionBuilder postingObligationsElectionBuilder = PostingObligationsElection.builder();
-        // if we find partyX_type, then set partyX as teh party
+        // if we find partyX_type, then set partyX as the party
         setValueAndUpdateMappings(synonymPath.addElement(party + "_type"), (value) -> postingObligationsElectionBuilder.setParty(party));
 
         // if we find additional_language, then set additional_language as the additional party
