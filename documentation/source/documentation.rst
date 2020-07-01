@@ -899,11 +899,20 @@ The output of the qualification function is used to populate the ``eventQualifie
 Legal Agreement
 ---------------
 
-The CDM provides a digital representation of the legal agreements that govern financial contracts and workflows. The benefits are:
+The CDM provides a digital representation of the legal agreements that govern financial contracts and workflows. The benefits of this digital representation are summarized below:
 
-* **Supporting marketplace initiatives to streamline and standardise legal agreements** with a comprehensive digital representation of such agreements. While the initial scope is focused on the ISDA legal agreements, it is not limited to those. As an example, as a follow-up from work to represent security lending contracts and associated lifecycle events, the CDM will look to represent the associated governing legal agreements (such as GMSLA for stock loan).
+* **Supporting marketplace initiatives to streamline and standardise legal agreements** with a comprehensive digital representation of such agreements. 
 * **Providing a comprehensive representation of the financial workflows** by complementing the contract and lifecycle event representation. Collateral management is an example of the applicability of such approach, as lifecycle processes require reference to the associated legal agreements (such as the ISDA Initial Margin Credit Support Annex).
 * **Supporting the direct implementation of functional processes** by providing a normalised representation of legal agreements as structured data, as opposed to the unstructured data contained within a full legal text that need to be interpretated first: e.g. for collateral management processes.
+
+For example, the ISDA Master Agreement is an internationally agreed document which is used to provide certain legal and credit protection for parties who entered into OTC derivatives.  Parties that execute agreements for OTC derivatives are expected to have bi-lateral Master Agreements with each other that cover an agreed range of transactions.  The four key components of the Master Agreement are summarized below:
+
+* **Credit Support Annex (CSA)** defines the terms for the provision of collateral by the parties in derivatives transactions.  The collateral is required in the event that the party with net negative exposure fails to fulfill its obligations in the contractual product.  Collateral can be provided in the form of cash, securities, or other agreed assets. The first posting of collateral for a contractual product is known as the initial margin.  Subsequent incremental additions or subtractions are known as the variation margin.
+* **Credit Support Deed** defines the rights of ownership of collataral that has been provided (posted) by a party in a contractual product.  
+* **Collateral Transfer Agreement** defines the terms when the collateral is to be held by a custodian.
+* **Security Agreement** defines the securities that are eligible for collateral.
+
+ISDA provides standard templates for these types of agreements in each applicable jurisdiction, such as the UK, US, France, and Japan.  The role of a specific agreement template is further qualified by its use for initial margin (IM) or variation margin (VM). Updates to the documents are referenced by the year in which they are published.
 
 Modelling Approach
 ^^^^^^^^^^^^^^^^^^
@@ -913,7 +922,7 @@ Scope
 
 The legal agreement model in the CDM comprises the following features:
 
-* **Composable and normalised model representation** of the following legal agreements:
+* **Composable and normalised model representation** of the ISDA agreements. There are distinct versions of the agreements for jurisdiction and year of publications, but the set of terms belong to a common universe.  Therefore, the CDM defines each of these terms in a single location, and allows for the representation of a specific agreement by combining terms.  The following legal agreements are supported in the CDM:
 
   * ISDA 2016 Phase One Credit Support Annex (“CSA”) (Security Interest – New York Law)
   * ISDA 2016 Phase One Credit Support Deed (“CSD”) (Security Interest – English Law)
@@ -930,19 +939,17 @@ The legal agreement model in the CDM comprises the following features:
 
 * **Linking of legal agreement into contract** through the CDM referencing mechanism.
 
-* **Mapping to existing marketplace representations** for the following initiatives:
-
-  * **ISDA Create Initial Margin**: Ingestion of JSON sample files generated from the ISDA Create platform for the elections associated with these agreements has been implemented, to demonstrate connectivity between the ISDA Create Initial Margin negotiation tool and the CDM. (The ISDA CSA Variation Margin is not yet represented in ISDA Create.) A specific set of synonyms associated to the ``ISDA_Create_1_0`` synonym source has been developed to enable this mapping (see *Mapping* section).
+* **Mapping to existing marketplace representations ISDA Create Initial Margin**: Ingestion of JSON sample files generated from the ISDA Create platform for the elections associated with these agreements has been implemented, to demonstrate connectivity between the ISDA Create Initial Margin negotiation tool and the CDM. (The ISDA CSA Variation Margin is not yet represented in ISDA Create.) A specific set of synonyms associated to the ``ISDA_Create_1_0`` synonym source has been developed to enable this mapping (see *Mapping* section).
 
  
 Design Principles
 """""""""""""""""
 
-The key modelling principles that have been adopted to represent legal agreements are:
+The key modelling principles that have been adopted to represent legal agreements are described below:
 
-* **Distinction between the agreement identification features and the content features** (i.e. elections).
+* **Distinction between the agreement identification features and the agreement specification details features** (referred to in the legal agreements as election provisions, which means that the two parties can elect to include specific terms).
 
-  * The agreement identification features: agreement name, publisher, identification, etc are represented by the ``LegalAgreementBase`` type.
+  * The agreement identification features: agreement name, publisher, identification, etc. are re,presented by the ``LegalAgreementBase`` type.
   * The agreement specification details: election provisions of the agreement, related agreements and umbrella agreement terms are represented by the ``AgreementTerms``.
    
 * **Composite and extendable model**.
@@ -954,24 +961,11 @@ The key modelling principles that have been adopted to represent legal agreement
 
 The components of the legal agreement model specified in the CDM are detailed in the section below.
 
-Legal Agreement
-^^^^^^^^^^^^^^^
 
-.. code-block:: Haskell
-
- type LegalAgreement extends LegalAgreementBase:
-   [metadata key]
-   [rootType]
-   agreementTerms AgreementTerms (0..1)
-   
-The CDM provides support for implementors to represent a legal agreement through the specification of the agreement identification features only, as represented in ``LegalAgreementBase``. Additionally, the elective provisions of the agreement can be specified in a machine readable format in the ``agreementTerms`` attribute. This attribute is optional, so that the CDM can be used to solely identify an agreement, without any of the content digitised in the model.
-
-.. note:: A ``LegalAgreement`` specified in CDM is assigned a *key* metadata. This allows a legal agreement to be uniquely linked to other components in the model, such as a contract. This example is detailed below. The referencing mechanism is explained in the `Meta-Data Section`_ of the Rosetta DSL documentation.
 
 Agreement Identification
 """"""""""""""""""""""""
-
-The unique identification of an agreement is described in the CDM by the ``LegalAgreementBase`` type. All legal agreements must contain an agreement date, two contractual parties and information indicating the name and publisher of the legal agreement being specified.  Provision is made for further information to be captured, for example an agreement identifier, or the governing law of the agreement.
+The CDM provides support for implementors to uniqueily identify a legal agreement solely through the specification of the agreement identification features, as represented in the ``LegalAgreementBase`` data type, as illustrated below:
 
 .. code-block:: Haskell
 
@@ -982,6 +976,8 @@ The unique identification of an agreement is described in the CDM by the ``Legal
    agreementType LegalAgreementType (1..1)
    contractualParty Party (2..2)
    otherParty PartyRole (0..*)   
+
+As indicated by the cardinality for the attributes in this data type, all legal agreements must contain an agreement date, two contractual parties and information indicating the name and publisher of the legal agreement being specified.  Provision is made for further information to be captured, for example an agreement identifier, which is an optional attribute.
 
 Agreement Content
 """""""""""""""""
