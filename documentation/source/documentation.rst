@@ -939,7 +939,7 @@ The legal agreement model in the CDM comprises the following features:
 
 * **Linking of legal agreement into contract** through the CDM referencing mechanism.
 
-* **Mapping to existing marketplace representations ISDA Create Initial Margin**: Ingestion of JSON sample files generated from the ISDA Create platform for the elections associated with these agreements has been implemented, to demonstrate connectivity between the ISDA Create Initial Margin negotiation tool and the CDM. (The ISDA CSA Variation Margin is not yet represented in ISDA Create.) A specific set of synonyms associated to the ``ISDA_Create_1_0`` synonym source has been developed to enable this mapping (see *Mapping* section).
+* **Mapping to ISDA Create derivative documentation negotiation platform**: Ingestion of JSON sample files generated from the ISDA Create platform for the elections associated with these agreements has been implemented, to demonstrate connectivity between ISDA Create and the CDM. (The ISDA CSA for Variation Margin is not yet represented in ISDA Create.) A specific set of synonyms associated to the ``ISDA_Create_1_0`` synonym source has been developed to enable this mapping (see *Mapping* section).
 
  
 Design Principles
@@ -955,9 +955,9 @@ The key modelling principles that have been adopted to represent legal agreement
 * **Composite and extendable model**.
 
   * The Legal Agreement model follows the CDM design principles of composability and reusability to develop an extendable model that can support multiple document types.
-  * For instance, the ``LegalAgreementBase`` type uses components that are also used as part of the CDM contract and lifecycle event components: e.g. ``Party``, ``Identifier``, ``date``.
+  * For instance, the ``LegalAgreementBase`` data type uses components that are also used as part of the CDM contract and lifecycle event components: e.g. ``Party``, ``Identifier``, ``date``.
     
-* **Normalisation of the data representation** to be machine readable and executable. This approach allows CDM users to define normalised elections into a corresponding legal agreement template to support functional processes. In practice, the use of elections expressed in a ``string`` format has been restricted, as ``string`` requires language parsing and disassembling to be machine executable. Instead, the model looks to use strong type attributes such as numbers, boolean or enumerations whenever possible.
+* **Normalisation of the data representation** to be machine readable and executable. This approach allows CDM users to define normalised elections into a corresponding legal agreement template to support functional processes. In practice, the use of elections expressed in a ``string`` format has been restricted, as ``string`` requires language parsing and disassembling to be machine executable. Instead, the model looks to use strong data type attributes such as numbers, boolean or enumerations whenever possible.
 
 The components of the legal agreement model specified in the CDM are detailed in the section below.
 
@@ -965,7 +965,7 @@ The components of the legal agreement model specified in the CDM are detailed in
 
 Agreement Identification
 """"""""""""""""""""""""
-The CDM provides support for implementors to uniqueily identify a legal agreement solely through the specification of the agreement identification features, as represented in the ``LegalAgreementBase`` data type, as illustrated below:
+The CDM provides support for implementors to uniquely identify a legal agreement solely through the specification of the agreement identification features, as represented in the ``LegalAgreementBase`` data type, as illustrated below:
 
 .. code-block:: Haskell
 
@@ -991,7 +991,7 @@ Agreement Content
    relatedAgreements RelatedAgreement (0..*)
    umbrellaAgreement UmbrellaAgreement (0..1)
 
-``Agreement`` is used to specify the individual elections contained within the legal agreement. It contains individual types, each containing the elections used to define a specific group of agreements.
+``Agreement`` is used to specify the individual elections contained within the legal agreement. It contains individual data types, each containing the elections used to define a specific group of agreements.
 
 .. code-block:: Haskell
 
@@ -1009,7 +1009,7 @@ Other Linked Agreement
 
 ``RelatedAgreement`` is used to specify any higher-level agreement(s) that may govern the agreement, either as a reference to such agreements when specified as part of the CDM, or through identification of some of the key terms of those agreements.  
 
-The below snippet represents the ``RelatedAgreement`` type.
+The below snippet represents the ``RelatedAgreement`` data type.
 
 .. code-block:: Haskell
 
@@ -1017,7 +1017,7 @@ The below snippet represents the ``RelatedAgreement`` type.
    legalAgreement LegalAgreement (0..1)
    documentationIdentification DocumentationIdentification (0..1)
    
-Through the ``legalAgreement`` attribute it allows to:
+Through the ``legalAgreement`` attribute the CDM provides support for implementors to:
 
 * Identify some of the key terms of a governing legal agreement such as the agreement identifier, the publisher, the document vintage and the agreement date.
 * Or, reference the entire legal agreement that is electronically represented in the CDM through a reference key into the agreement instance.
@@ -1026,7 +1026,7 @@ Through the ``legalAgreement`` attribute it allows to:
    
 ``UmbrellaAgreement`` is used to specify whether Umbrella Agreement terms are applicable, relevant specific language, and underlying entities associated with the umbrella agreement
 
-The below snippet represents the ``UmbrellaAgreement`` type.
+The below snippet represents the ``UmbrellaAgreement`` data type.
 
 .. code-block:: Haskell
 
@@ -1041,9 +1041,9 @@ Elective Provisions
 Election Structure
 """"""""""""""""""
 
-The structure of the elections contained within each agreement type are modelled to reflect the structure of the legal agreements that they represent for ease of reference. Each type contains a set of elections or election families which can be used to represent the clauses contained within that type of legal agreement, regardless of vintage or governing law.
+The structure of the elections contained within each agreement data type in the CDM are modelled to reflect the structure of the legal agreements that they represent for ease of reference. Each data type contains a set of elections or election families which can be used to represent the clauses contained within the corresponding legal agreement, regardless of vintage or governing law.
 
-This approach allows to focus the representation of elections in the CDM on their intended business outcome regardless of their particular drafting form, in order to better support the standardisation of related business processes.
+This approach allows the representation of elections in the CDM to focus on their intended business outcome regardless of their particular drafting form, in order to better support the standardisation of related business processes.
 
 For example, ``CreditSupportAgreementElections`` contains all the elections that may be applicable to a credit support agreement and can be used to define any of the Credit Support Agreements currently supported by the CDM:
 
@@ -1053,7 +1053,7 @@ For example, ``CreditSupportAgreementElections`` contains all the elections that
 * ISDA 2018 CSA (Security Interest – New York Law)
 * ISDA 2018 CSD (Security Interest – English Law)
 
-The ``CreditSupportAgreementElections`` type therefore contains a super-set of the elections that may apply to any of the above document types, where common elections are represented using common components.
+The ``CreditSupportAgreementElections`` data type therefore contains a super-set of the elections that may apply to any of the above document types, where common elections are represented using common components.
 
 .. code-block:: Haskell
 
