@@ -935,22 +935,14 @@ type FrenchLawAddendum: <"A class to specify party specific elections when a Col
 	isApplicable boolean (1..1) <"The qualification of whether the French Law Addendum is deemed applicable by the parties (True) or not (False).">
 		[synonym ISDA_Create_1_0 set to True when "is_applicable" = "applicable", set to False when "is_applicable" = "not_applicable"]
 	partyElection FrenchLawAddendumElection (2..2) <"The parties French Law Addendum Elections.">
-
 	condition Applicable: <"A data rule to enforce that the French Law Addendum party elections must be specified when applicable.">
 		if isApplicable = True
 		then partyElection exists
 
 type FrenchLawAddendumElection: <"A class to specify party specific French Law Addendum language">
-
 	party string (1..1) <"The elective party.">
-		[synonym ISDA_Create_1_0 set to "partyA" when "partyA_french_law_addendum" = "specify", set to "partyA" when "partyA_french_law_addendum" = "not_applicable",
-								 set to "partyB" when "partyB_french_law_addendum" = "specify", set to "partyB" when "partyB_french_law_addendum" = "not_applicable"]
 	isApplicable boolean (1..1) <"The qualification of whether the party elects specific language">
-		[synonym ISDA_Create_1_0 set to True when "partyA_french_law_addendum" = "specify", set to False when "partyA_french_law_addendum" = "not_applicable"]
-		[synonym ISDA_Create_1_0 set to True when "partyB_french_law_addendum" = "specify", set to False when "partyB_french_law_addendum" = "not_applicable"]
 	addendumLanguage string (0..1) <"The party specific language to be included in the agreement.">
-		[synonym ISDA_Create_1_0 value "partyA_specify"]
-		[synonym ISDA_Create_1_0 value "partyB_specify"]
 
 	condition AddendumLanguage: <"A data rule to enforce that the French Law Addendum party language must be specified when applicable.">
 		if isApplicable = True then addendumLanguage exists
@@ -1053,7 +1045,7 @@ type JurisdictionRelatedTerms: <"A class to specify terms jurisdiction related t
 		[synonym ISDA_Create_1_0 set to True when "jury_waiver->is_applicable" = "applicable", set to False when "jury_waiver->is_applicable" = "not_applicable"]
 	frenchLawAddendum FrenchLawAddendum (0..1) <"The French Law Addendum Provisions specific to the agreement.">
 	// [documentReference Euroclear CtaInitialMargin 2019 paragraph "13" section "19 (d)"]
-		[synonym ISDA_Create_1_0 value "french_law_addendum"]
+		[synonym ISDA_Create_1_0 value "french_law_addendum" mapper "FrenchLawAddendum"]
 
 type LegalAgreement extends LegalAgreementBase: <"A class to specify the elections and variables that characterize a legal agreement.">
 	[metadata key]
