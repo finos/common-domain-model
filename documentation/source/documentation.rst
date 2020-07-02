@@ -947,10 +947,10 @@ Design Principles
 
 The key modelling principles that have been adopted to represent legal agreements are described below:
 
-* **Distinction between the agreement identification features and the agreement specification details features** (referred to in the legal agreements as election provisions, which means that the two parties can elect to include specific terms).
+* **Distinction between the agreement identification features and the agreement content features** (referred to in the legal agreements as election provisions, which means that the two parties can elect to include specific terms).
 
   * The agreement identification features: agreement name, publisher, identification, etc. are re,presented by the ``LegalAgreementBase`` type.
-  * The agreement specification details: election provisions of the agreement, related agreements and umbrella agreement terms are represented by the ``AgreementTerms``.
+  * The agreement content features: election provisions of the agreement, related agreements and umbrella agreement terms are represented by the ``AgreementTerms``.
    
 * **Composite and extendable model**.
 
@@ -961,11 +961,21 @@ The key modelling principles that have been adopted to represent legal agreement
 
 The components of the legal agreement model specified in the CDM are detailed in the section below.
 
+Legal Agreement
+^^^^^^^^^^^^^^^ 
+The ``LegalAgreement``data type represents the highest-level data type for defining a legal agreement in the CDM.  This data type extends the ``LegalAgreementBase`, which contains information to uniquely identify an agreeemnt. The only non-inherited attribute in the ``LegalAgreement`` is the ``agreementTerms`` which defines all of the content in the agreement.  
 
+.. code-block:: Haskell
+type LegalAgreement extends LegalAgreementBase: 
+	[metadata key]
+ 	[rootType]
+agreementTerms AgreementTerms (0..1) 
+
+The ``LegalAgreementBase`` and ``agreementTerms`` are defined in the following sections
 
 Agreement Identification
 """"""""""""""""""""""""
-The CDM provides support for implementors to uniquely identify a legal agreement solely through the specification of the agreement identification features, as represented in the ``LegalAgreementBase`` data type, as illustrated below:
+The CDM provides support for implementors to uniquely identify a legal agreement solely through the specification of the agreement identification features, as represented in the ``LegalAgreementBase`` abstract data type, which is illustrated below:
 
 .. code-block:: Haskell
 
@@ -990,8 +1000,12 @@ Agreement Content
    agreement Agreement (1..1)
    relatedAgreements RelatedAgreement (0..*)
    umbrellaAgreement UmbrellaAgreement (0..1)
+ 
+ The following sections describe each of these components.
 
-``Agreement`` is used to specify the individual elections contained within the legal agreement. It contains individual data types, each containing the elections used to define a specific group of agreements.
+Agreement
+"""""""""
+``Agreement`` is a data type used to specify the individual elections contained within the legal agreement. It contains a set of encapsulated data types, each containing the elections used to define a specific group of agreements.
 
 .. code-block:: Haskell
 
@@ -1004,10 +1018,10 @@ Agreement Content
 
 The modelling approach for elective provisions is explained in further detail in the corresponding section below.
 
-Other Linked Agreement
-""""""""""""""""""""""
+Related Agreement
+"""""""""""""""""
 
-``RelatedAgreement`` is used to specify any higher-level agreement(s) that may govern the agreement, either as a reference to such agreements when specified as part of the CDM, or through identification of some of the key terms of those agreements.  
+``RelatedAgreement`` is a data type used to specify any higher-level agreement(s) that may govern the agreement, either as a reference to such agreements when specified as part of the CDM, or through identification of some of the key terms of those agreements.  
 
 The below snippet represents the ``RelatedAgreement`` data type.
 
@@ -1017,14 +1031,17 @@ The below snippet represents the ``RelatedAgreement`` data type.
    legalAgreement LegalAgreement (0..1)
    documentationIdentification DocumentationIdentification (0..1)
    
-Through the ``legalAgreement`` attribute the CDM provides support for implementors to:
+Through the ``legalAgreement`` attribute the CDM provides support for implementors to do the following:
 
-* Identify some of the key terms of a governing legal agreement such as the agreement identifier, the publisher, the document vintage and the agreement date.
+* Identify some of the key terms of a governing legal agreement such as the agreement identifier, the publisher, the document vintage, and the agreement date.
 * Or, reference the entire legal agreement that is electronically represented in the CDM through a reference key into the agreement instance.
 
-.. note:: The ``DocumentationIdentification`` attribute is used to map related agreement terms that are embedded as part of an FpML transaction message, such as an ISDA Master Agreement, when those are not modelled or mapped yet in the ``LegalAgreement`` data type.
+.. note:: The ``DocumentationIdentification`` attribute is used to map related agreement terms that are embedded as part of a transaction message converted from another model structure, such as FpML.  For example, this attribute may reference an ISDA Master Agreement, which are not modelled or mapped in the CDM ``LegalAgreement`` data type.
+
+Umbrella Agreement
+"""""""""""""""""
    
-``UmbrellaAgreement`` is used to specify whether Umbrella Agreement terms are applicable, relevant specific language, and underlying entities associated with the umbrella agreement
+``UmbrellaAgreement`` is a data type used to specify whether Umbrella Agreement terms are applicable, relevant specific language, and underlying entities associated with the umbrella agreement.
 
 The below snippet represents the ``UmbrellaAgreement`` data type.
 
@@ -1037,6 +1054,14 @@ The below snippet represents the ``UmbrellaAgreement`` data type.
 
 Elective Provisions
 ^^^^^^^^^^^^^^^^^^^
+This section describes the modelling approach and data structure for election provisions, which are the detailed terms of agreement in each legal document.  The section concludesw with relevant examples to illustrate the approach and structure.
+
+Modelling Approach
+""""""""""""""""""
+
+In many cases the pre-printed clauses in legal agreement templates for OTC Derivatives offer pre-defined elections that the parties can select. In these cases, the clauses are explcitly identified in the the agreement templates, including the potential values for each election (e.g. an election from a list of options or a specific type of information such as an amount, date or city). The design of the elective provisions in the CDM to represent these instances is a direct reflection of the choices in the clause and uses boolean attributes, or enumeration lists to achieve the necessary outcome.
+
+However in some cases, the agreement template may identify a clause but not all the appplicable values, e.g. when a single version of a clause term is provided with a space for parties to agree on a term that is not defined in the template. In order to support these instances, the CDM uses string attributes to capture the clause in a free text format.  
 
 Election Structure
 """"""""""""""""""
@@ -1100,12 +1125,7 @@ The ``CreditSupportAgreementElections`` data type therefore contains a super-set
    if agreementTerms -> agreement -> securityAgreementElections exists
    then agreementType -> name = LegalAgreementNameEnum->SecurityAgreement
    
-Modelling Approach
-""""""""""""""""""
 
-In many cases the pre-printed clauses in the legal agreement being modelled offer pre-defined elections that the parties can select. In these cases, the clauses that need to be modelled are identified in the form, typically together with the needed attributes. The values those attributes can take may also be clear (e.g. an election from a list of options or a specific type of information such as an amount, date or city). In these instances the model is a direct reflection of the choices in the clause and uses boolean attributes, or enumeration lists to achieve the necessary outcome.
-
-However in some cases, the pre-printed form may identify the clause but not (all) attributes or values they could take, e.g. when a single version of a clause term is provided with a space for parties to agree an unspecified alternative if they wish. In these instances the model uses string attributes to capture the clause in a free text format.  
 
 Examples are provided below to provide a practical explanation of the approach.
 
