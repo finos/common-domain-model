@@ -117,6 +117,15 @@ type AgreementTerms: <"A class to specify the elections and variables that chara
 
 	agreement Agreement (1..1) <"The type of contract being specified">
 	relatedAgreements RelatedAgreement (0..*) <"Specifies the agreement(s) that govern the agreement, either as a reference to such agreements when specified as part of the CDM, or through identification of some of the key terms of those agreements, such as the type of agreement, the publisher, the vintage, the agreement identifier and the agreement date.">
+		[synonym ISDA_Create_1_0 value 
+		    "date_of_euroclear_security_agreement" path "answers->partyA",
+		    "date_of_collateral_transfer_agreement" path "answers->partyA",
+			"date_of_isda_master_agreement" path "answers->partyA",
+			"collateral_transfer_agreement" path "answers->partyA",
+			"isda_master_agreement_form" path "answers->partyA"
+			mapper "RelatedAgreement"
+		]
+
 	umbrellaAgreement UmbrellaAgreement (0..1) <"The determination of whether Umbrella Agreement terms are applicable (True) or Not Applicable (False).">
 		[synonym ISDA_Create_1_0 value "umbrella_agreement_and_principal_identification", "umbrella_agreement_and_principal_identification" path "answers->partyA"]
 
@@ -1064,14 +1073,10 @@ type LegalAgreement extends LegalAgreementBase: <"A class to specify the electio
 		then agreementType -> name = LegalAgreementNameEnum->CollateralTransferAgreement
 
 type LegalAgreementBase: <"A class describing the legal agreement baseline information, other than the specialized elections: type of legal agreement, agreement date and effective date, parties to the agreement, ... The purpose of this abstract class is to provide the ability to associate a 'one of' feature to the LegalAgreement class as a way to enforce a systematic choice between its attributes.">
-
+ 
 	agreementDate date (1..1) <"The date on which the legal agreement has been agreed between the parties. This corresponds to the Date of Deed in an English Law document.">
 		[synonym FpML_5_10 value "agreementDate" path "legalDocumentHeader"]
 		[synonym ISDA_Create_1_0 value "executionDate" path "answers->partyA->execution_date"]
-		[synonym ISDA_Create_1_0 value "collateral_transfer_agreement_date"]
-		[synonym ISDA_Create_1_0 value "master_agreement_date"]
-		[synonym ISDA_Create_1_0 value "partyA_date_of_security_agreement"]
-		[synonym ISDA_Create_1_0 value "partyB_date_of_security_agreement"]
 	effectiveDate date (0..1) <"The date on which the agreement is effective, if different from the agreement date. It is expected that it will most often correspond to the agreement date, although there could be situations where the parties will explicitly agree on a distinct effective date.">
 		[synonym FpML_5_10 value "effectiveDate" path "legalDocumentHeader"]
 	identifier Identifier (0..*) <"The legal agreement identifier. Several identifiers can be specified.">
@@ -1081,7 +1086,7 @@ type LegalAgreementBase: <"A class describing the legal agreement baseline infor
 		[synonym FpML_5_10 value "documentType"]
 	contractualParty Party (2..2)  <"The two contractual parties to the legal agreement, which reference information is positioned as part of the partyInformation attribute.">
 		[metadata reference]
-		[synonym ISDA_Create_1_0 value "answers" mapper "ContractualParty"]
+		[synonym ISDA_Create_1_0 value "partyA" mapper "ContractualParty"]
 		[synonym FpML_5_10 value "party"]
 	otherParty PartyRole (0..*) <"The role(s) that other party(ies) may have in relation to the legal agreement, further to the contractual parties.">
 
@@ -1103,7 +1108,6 @@ type LegalAgreementType: <"A class to specify the type of legal agreement, which
 		[synonym FpML_5_10, FpML_5_10 value "version"]
 		[synonym AcadiaSoft_AM_1_0 value "csaVersion"]
 		[synonym ISDA_Create_1_0 value "year" path "document"]
-		[synonym ISDA_Create_1_0 value "isda_master_agreement_form"]
 
 type MarginApproach: <"A class for selection of Margin Approach.">
 
@@ -1238,8 +1242,8 @@ type PostingObligationsElection: <"A class to specify the collateral posting obl
 	party string (1..1) <"The elective party.">
 	asPermitted boolean (1..1) <"If set to True, the Control Agreement is a Credit Support Document with respect to the party(ies). ISDA 2016 Credit Support Annex for Initial Margin, paragraph 6, (e).">
 	eligibleCollateral EligibleCollateral (0..*) <"The eligible collateral as specified in relation to the pledgor/chargor/obligor(s) posting obligation. ISDA 2016 Credit Support Annex for Initial Margin, Eligible Credit Support (IM) Schedule.">
-		[synonym ISDA_Create_1_0 value "partyA_eligible_currencies" set when "partyA_type" = "specify"]	
-		[synonym ISDA_Create_1_0 value "partyB_eligible_currencies" set when "partyB_type" = "specify"]	
+		[synonym ISDA_Create_1_0 value "partyA_eligible_currencies" set when "partyA_type" = "specify"]
+		[synonym ISDA_Create_1_0 value "partyB_eligible_currencies" set when "partyB_type" = "specify"]
 	excludedCollateral string (0..1) <"The excluded collateral as specified in relation to the pledgor/chargor/obligor(s) posting obligation. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (ii)(B)(i)."> // This representation matches the current ISDA Create one, but should be aligned with the eligibleCollateral representation once that one is confirmed
 	additionalLanguage string (0..1) <"The additional language that might be specified by the parties to the legal agreement.">
 
@@ -1348,7 +1352,7 @@ type RightsEvents: <"A class to specify the rights of Security Taker and/or Secu
 		[synonym ISDA_Create_1_0 value "obligor_rights_event" mapper "SecurityProviderRightsEvent"]
 		[synonym ISDA_Create_1_0 value "chargor_rights_event" mapper "SecurityProviderRightsEvent"]
 		[synonym ISDA_Create_1_0 value "pledgor_rights_event" mapper "SecurityProviderRightsEvent"]
-		[synonym ISDA_Create_1_0 value "security_provider_rights_event" mapper "SecurityProviderRightsEvent"]		
+		[synonym ISDA_Create_1_0 value "security_provider_rights_event" mapper "SecurityProviderRightsEvent"]
 	// [documentReference ISDA CtaInitialMargin 2019 paragraph "13" section "j"]
 	deliveryInLieuRight boolean (0..1) <"The specification of whether Delivery In Lieu language is applicable to the agreement (true) or not (false).">
 		[synonym ISDA_Create_1_0 set to True when "delivery_in_lieu_right->right" = "applicable", set to False when "delivery_in_lieu_right->right" = "not_applicable"]
@@ -1580,7 +1584,7 @@ type UmbrellaAgreement: <"A class to specify a set of legal entities which are p
 		[synonym ISDA_Create_1_0 value "language" maps 2] // TODO: remove "maps 2" once migration complete
 	parties UmbrellaAgreementEntity (0..*) <"Underlying principals to the umbrella agreement.">
 		[synonym ISDA_Create_1_0 value "principal_identification_schedule" mapper "UmbrellaAgreementEntity"]
-	
+
 	condition UmbrellaAgreementExists: <"Umbrella Agreement language and parties should not exist when Umbrella Agreement terms are Not Applicable.">
 		if isApplicable = True
 		then (language and parties) exists
@@ -1594,7 +1598,7 @@ func SaIsdaBankCustodian2019NewYorkLaw:
 	// [validation agreement]
 	inputs: agreementTerms AgreementTerms (1..1)
 	output: is_agreement boolean (1..1)
-	
+
 	assign-output is_agreement:
 		agreementTerms -> relatedAgreements -> legalAgreement -> agreementType -> name = LegalAgreementNameEnum->CollateralTransferAgreement //The agreement is a CTA
 		and agreementTerms -> relatedAgreements -> legalAgreement -> agreementType -> publisher = LegalAgreementPublisherEnum->ISDA //published by ISDA
