@@ -23,25 +23,9 @@ public class RelatedAgreementMappingProcessor extends MappingProcessor {
         super(modelPath, synonymPaths, mappingContext);
     }
 
-
-    @Override
-    public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
-
-        AgreementTerms.AgreementTermsBuilder agreementTermsBuilder = (AgreementTerms.AgreementTermsBuilder) builder;
-        // agreementTermsBuilder.clearRelatedAgreements();
-
-        getRelatedAgreement(synonymPath).ifPresent(agreementTermsBuilder::addRelatedAgreements);
-        PARTIES.forEach(party -> getRelatedAgreementForParty(synonymPath, party).ifPresent(agreementTermsBuilder::addRelatedAgreements));
-
-
-    }
-
     @Override
     public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
-
         AgreementTerms.AgreementTermsBuilder agreementTermsBuilder = (AgreementTerms.AgreementTermsBuilder) parent;
-        // agreementTermsBuilder.clearRelatedAgreements();
-
         getRelatedAgreement(synonymPath).ifPresent(agreementTermsBuilder::addRelatedAgreements);
         PARTIES.forEach(party -> getRelatedAgreementForParty(synonymPath, party).ifPresent(agreementTermsBuilder::addRelatedAgreements));
 
@@ -101,6 +85,8 @@ public class RelatedAgreementMappingProcessor extends MappingProcessor {
         switch (synonymPath.getLastElement().getPathName()) {
             case "collateral_transfer_agreement":
             case "date_of_collateral_transfer_agreement":
+                legalAgreementBuilder.getOrCreateAgreementType()
+                        .setName(LegalAgreementNameEnum.COLLATERAL_TRANSFER_AGREEMENT);
                 return true;
             case "date_of_isda_master_agreement":
                 legalAgreementBuilder.getOrCreateAgreementType()
