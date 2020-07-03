@@ -1,5 +1,6 @@
 package org.isda.cdm.processor;
 
+import cdm.base.staticdata.party.CounterpartyEnum;
 import cdm.base.staticdata.party.PayerReceiver.PayerReceiverBuilder;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
@@ -8,15 +9,21 @@ import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 import org.isda.cdm.InterestRatePayout.InterestRatePayoutBuilder;
 import org.isda.cdm.RateSpecification.RateSpecificationBuilder;
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static cdm.base.staticdata.party.metafields.ReferenceWithMetaAccount.ReferenceWithMetaAccountBuilder;
 import static cdm.base.staticdata.party.metafields.ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder;
 
 @SuppressWarnings("unused")
 public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(FRAIRPSplitterMappingProcessor.class);
 
 	public FRAIRPSplitterMappingProcessor(RosettaPath path, List<Path> synonymPaths, MappingContext mappingContext) {
 		super(path, synonymPaths, mappingContext);
@@ -36,12 +43,12 @@ public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
 					//this IRP has both fixed and floating - it needs to be split
 					
 					InterestRatePayoutBuilder newIrp = irp.build().toBuilder();
-					
+
 					rateSpec.setFloatingRateBuilder(null);
 					newIrp.getRateSpecification().setFixedRateBuilder(null);
-					
-					PayerReceiverBuilder payerReceiver = newIrp.getPayerReceiver();
-					flipPR(payerReceiver);
+
+					CounterpartyMappingHelper.getOrCreateHelper(getContext())
+							.setCounterpartyEnumThen(newIrp.getPayerReceiver(), flipPayerReceiver());
 					result.add(newIrp);
 				}
 			}
@@ -50,13 +57,20 @@ public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
 		irps.addAll(result);
 	}
 
-	private void flipPR(PayerReceiverBuilder payerReceiver) {
-//		ReferenceWithMetaPartyBuilder payerPartyReference = payerReceiver.getPayerPartyReference();
-//		ReferenceWithMetaAccountBuilder payerAccountReference = payerReceiver.getPayerAccountReference();
-//
-//		payerReceiver.setPayerAccountReferenceBuilder(payerReceiver.getReceiverAccountReference());
-//		payerReceiver.setPayerPartyReferenceBuilder(payerReceiver.getReceiverPartyReference());
-//		payerReceiver.setReceiverAccountReferenceBuilder(payerAccountReference);
-//		payerReceiver.setReceiverPartyReferenceBuilder(payerPartyReference);
+	@NotNull
+	private Consumer<PayerReceiverBuilder> flipPayerReceiver() {
+		return (builder) -> {
+			CounterpartyEnum payer = builder.getPayer();
+			ReferenceWithMetaPartyBuilder payerPartyReference = builder.getPayerPartyReference();
+			ReferenceWithMetaAccountBuilder payerAccountReference = builder.getPayerAccountReference();
+
+			builder.setPayer(builder.getReceiver());
+			builder.setPayerAccountReferenceBuilder(builder.getReceiverAccountReference());
+			builder.setPayerPartyReferenceBuilder(builder.getReceiverPartyReference());
+
+			builder.setReceiver(payer);
+			builder.setReceiverAccountReferenceBuilder(payerAccountReference);
+			builder.setReceiverPartyReferenceBuilder(payerPartyReference);
+		};
 	}
 }

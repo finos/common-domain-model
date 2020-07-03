@@ -15,8 +15,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
+import static cdm.base.staticdata.party.PayerReceiver.PayerReceiverBuilder;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
 import static com.regnosys.rosetta.common.util.StringExtensions.toFirstUpper;
 import static org.isda.cdm.TradableProduct.TradableProductBuilder;
@@ -29,8 +35,7 @@ class CounterpartyMappingHelper {
 
 	private final Map<String, CounterpartyEnum> partyExternalReferenceToCounterpartyEnumMap;
 	private final List<Mapping> mappings;
-
-	private volatile TradableProductBuilder tradableProductBuilder;
+	private final CompletableFuture<Void> bothCounterpartiesCollected = new CompletableFuture<>();
 
 	private CounterpartyMappingHelper(List<Mapping> mappings) {
 		this.mappings = mappings;
@@ -48,17 +53,15 @@ class CounterpartyMappingHelper {
 	}
 
 	/**
-	 * Maps party external reference to CounterpartyEnum, then sets on builder, and updates counterparties list (if present)
+	 * Maps party external reference to CounterpartyEnum, then sets on the given builder.
 	 */
-	synchronized void setCounterpartyEnum(RosettaModelObjectBuilder builder, RosettaPath modelPath, Path synonymPath) {
+	void setCounterpartyEnum(RosettaModelObjectBuilder builder, RosettaPath modelPath, Path synonymPath) {
 		if (modelPath.containsPath(PRODUCT_SUB_PATH)) {
 			setValueAndOptionallyUpdateMappings(
 					synonymPath.addElement("href"), // synonym path to party external reference
 					(externalRef) -> getOrCreateCounterpartyEnum(externalRef)
 							// determine counterparty enum and add to builder
-							.filter(cpty -> setCounterpartyEnum(builder, modelPath.getElement().getPath(), cpty))
-							// add to tradableProductBuilder.counterparties if present
-							.filter(cpty -> addCounterparty(cpty, externalRef))
+							.filter(cpty -> setCounterpartyEnumReflectively(builder, modelPath.getElement().getPath(), cpty))
 							.isPresent(),
 					mappings,
 					modelPath);
@@ -66,17 +69,49 @@ class CounterpartyMappingHelper {
 	}
 
 	/**
-	 * Creates Counterparty instances from the partyExternalReference to CounterpartyEnum map.
-	 * Reference to tradableProductBuilder is stored in case all mappings have not be collected yet.
+	 * Waits until the partyExternalReference to CounterpartyEnum map is ready, sets CounterpartyEnum based on the partyReferences, and
+	 * then runs the thenConsumer.
 	 */
-	synchronized void addCounterparties(TradableProductBuilder builder) {
-		tradableProductBuilder = builder.clearCounterparties();
-		partyExternalReferenceToCounterpartyEnumMap.entrySet()
-				.forEach(entry -> addCounterparty(entry.getValue(), entry.getKey()));
+	void setCounterpartyEnumThen(PayerReceiverBuilder payerReceiverBuilder, Consumer<PayerReceiverBuilder> thenConsumer) {
+		bothCounterpartiesCollected
+				.thenRun(() -> CompletableFuture.supplyAsync(() -> payerReceiverBuilder)
+						.thenApply(builder -> {
+							// Update payer from payerPartyReference
+							Optional.ofNullable(builder.getPayerPartyReference())
+									.map(ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder::getExternalReference)
+									.flatMap(this::getOrCreateCounterpartyEnum)
+									.ifPresent(counterpartyEnum -> {
+										builder.setPayer(counterpartyEnum);
+										builder.setPayerPartyReferenceBuilder(ReferenceWithMetaParty.builder());
+									});
+							// Update receiver from receiverPartyReference
+							Optional.ofNullable(builder.getReceiverPartyReference())
+									.map(ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder::getExternalReference)
+									.flatMap(this::getOrCreateCounterpartyEnum)
+									.ifPresent(counterpartyEnum -> {
+										builder.setReceiver(counterpartyEnum);
+										builder.setReceiverPartyReferenceBuilder(ReferenceWithMetaParty.builder());
+									});
+							return builder;
+						})
+						.thenAccept(thenConsumer));
+	}
+
+	/**
+	 * Waits until the partyExternalReference to CounterpartyEnum map is ready, then adds all Counterparty instances to TradableProductBuilder.
+	 */
+	void addCounterparties(TradableProductBuilder tradableProductBuilder) {
+		bothCounterpartiesCollected
+				.thenRun(() -> CompletableFuture.supplyAsync(() -> tradableProductBuilder)
+						.thenAccept(builder -> partyExternalReferenceToCounterpartyEnumMap
+								.forEach((externalRef, counterpartyEnum) -> builder.addCounterparties(Counterparty.builder()
+										.setCounterparty(counterpartyEnum)
+										.setPartyBuilder(ReferenceWithMetaParty.builder().setExternalReference(externalRef))
+										.build()))));
 	}
 
 	private Optional<CounterpartyEnum> getOrCreateCounterpartyEnum(String externalReference) {
-		return Optional.ofNullable(partyExternalReferenceToCounterpartyEnumMap.computeIfAbsent(
+		CounterpartyEnum counterpartyEnum = partyExternalReferenceToCounterpartyEnumMap.computeIfAbsent(
 				externalReference,
 				(key) -> {
 					if (partyExternalReferenceToCounterpartyEnumMap.isEmpty()) {
@@ -87,10 +122,16 @@ class CounterpartyMappingHelper {
 						LOGGER.error("Unexpected counterparty external reference {}, 2 counterparties already exist", externalReference);
 						return null;
 					}
-				}));
+				});
+
+		if (!bothCounterpartiesCollected.isDone() && partyExternalReferenceToCounterpartyEnumMap.size() == 2) {
+			bothCounterpartiesCollected.complete(null);
+		}
+
+		return Optional.ofNullable(counterpartyEnum);
 	}
 
-	private boolean setCounterpartyEnum(RosettaModelObjectBuilder builder, String attribute, CounterpartyEnum counterpartyEnum) {
+	private boolean setCounterpartyEnumReflectively(RosettaModelObjectBuilder builder, String attribute, CounterpartyEnum counterpartyEnum) {
 		try {
 			// set CounterpartyEnum
 			builder.getClass()
@@ -99,7 +140,7 @@ class CounterpartyMappingHelper {
 			// blank out partyReference if builder is a BuyerSeller or PayerReceiver
 			if (builder instanceof BuyerSeller.BuyerSellerBuilder || builder instanceof PayerReceiver.PayerReceiverBuilder) {
 				builder.getClass()
-						.getMethod("set" + toFirstUpper(attribute) + "Reference", ReferenceWithMetaParty.class)
+						.getMethod("set" + toFirstUpper(attribute) + "PartyReference", ReferenceWithMetaParty.class)
 						.invoke(builder, ReferenceWithMetaParty.builder().build());
 			}
 			return true;
@@ -107,17 +148,5 @@ class CounterpartyMappingHelper {
 			LOGGER.error("Failed to set CounterpartyEnum {}", counterpartyEnum, e);
 			return false;
 		}
-	}
-
-	private boolean addCounterparty(CounterpartyEnum counterpartyEnum, String externalReference) {
-		Optional.ofNullable(tradableProductBuilder)
-				.filter(builder -> Optional.ofNullable(builder.getCounterparties()).orElse(Collections.emptyList()).stream()
-						.map(Counterparty.CounterpartyBuilder::getCounterparty)
-						.noneMatch(counterpartyEnum::equals))
-				.ifPresent(builder -> builder.addCounterparties(Counterparty.builder()
-						.setCounterparty(counterpartyEnum)
-						.setPartyBuilder(ReferenceWithMetaParty.builder().setExternalReference(externalReference))
-						.build()));
-		return true;
 	}
 }
