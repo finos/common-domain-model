@@ -10,6 +10,7 @@ import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
+import org.isda.cdm.NotifyingParty;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,8 +138,10 @@ class CounterpartyMappingHelper {
 			builder.getClass()
 					.getMethod("set" + toFirstUpper(attribute), CounterpartyEnum.class)
 					.invoke(builder, counterpartyEnum);
-			// blank out partyReference if builder is a BuyerSeller or PayerReceiver
-			if (builder instanceof BuyerSeller.BuyerSellerBuilder || builder instanceof PayerReceiver.PayerReceiverBuilder) {
+			// blank out partyReference if builder is a BuyerSeller or PayerReceiver or NotifyingParty
+			if (builder instanceof BuyerSeller.BuyerSellerBuilder
+					|| builder instanceof PayerReceiver.PayerReceiverBuilder
+					|| builder instanceof NotifyingParty.NotifyingPartyBuilder) {
 				builder.getClass()
 						.getMethod("set" + toFirstUpper(attribute) + "PartyReference", ReferenceWithMetaParty.class)
 						.invoke(builder, ReferenceWithMetaParty.builder().build());
