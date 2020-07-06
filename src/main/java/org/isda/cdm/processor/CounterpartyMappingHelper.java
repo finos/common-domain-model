@@ -10,7 +10,6 @@ import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
-import org.isda.cdm.NotifyingParty;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +21,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static cdm.base.staticdata.party.PayerReceiver.PayerReceiverBuilder;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
@@ -104,11 +104,16 @@ class CounterpartyMappingHelper {
 	void addCounterparties(TradableProductBuilder tradableProductBuilder) {
 		bothCounterpartiesCollected
 				.thenRun(() -> CompletableFuture.supplyAsync(() -> tradableProductBuilder)
-						.thenAccept(builder -> partyExternalReferenceToCounterpartyEnumMap
-								.forEach((externalRef, counterpartyEnum) -> builder.addCounterparties(Counterparty.builder()
-										.setCounterparty(counterpartyEnum)
-										.setPartyBuilder(ReferenceWithMetaParty.builder().setExternalReference(externalRef))
-										.build()))));
+						.thenAccept(builder -> {
+							builder.clearCounterparties()
+									.addCounterparties(partyExternalReferenceToCounterpartyEnumMap.entrySet().stream()
+									.map(extRefCounterpartyEntry -> Counterparty.builder()
+											.setCounterparty(extRefCounterpartyEntry.getValue())
+											.setPartyBuilder(ReferenceWithMetaParty.builder()
+													.setExternalReference(extRefCounterpartyEntry.getKey()))
+											.build())
+									.collect(Collectors.toList()));
+						}));
 	}
 
 	private Optional<CounterpartyEnum> getOrCreateCounterpartyEnum(String externalReference) {
@@ -138,10 +143,8 @@ class CounterpartyMappingHelper {
 			builder.getClass()
 					.getMethod("set" + toFirstUpper(attribute), CounterpartyEnum.class)
 					.invoke(builder, counterpartyEnum);
-			// blank out partyReference if builder is a BuyerSeller or PayerReceiver or NotifyingParty
-			if (builder instanceof BuyerSeller.BuyerSellerBuilder
-					|| builder instanceof PayerReceiver.PayerReceiverBuilder
-					|| builder instanceof NotifyingParty.NotifyingPartyBuilder) {
+			// blank out partyReference if builder is a BuyerSeller or PayerReceiver
+			if (builder instanceof BuyerSeller.BuyerSellerBuilder || builder instanceof PayerReceiver.PayerReceiverBuilder) {
 				builder.getClass()
 						.getMethod("set" + toFirstUpper(attribute) + "PartyReference", ReferenceWithMetaParty.class)
 						.invoke(builder, ReferenceWithMetaParty.builder().build());
