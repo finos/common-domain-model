@@ -1,56 +1,25 @@
-# *User Documentation: Overview Section*
+# *Event Model: Direct Principal and Agency Clearing Model *
 
 _What is being released_
 
-The overview section of the CDM user documentation has been updated, in line with recent changes to other sections of the documentation and to the model.
+The clearing function has been enhanced to support the Direct Agency clearing model. Direct clearing is when the risk party to the trade is facing the CCP, either through its own account (principle) or its clearing member acting as agent (angency).
 
-Notable changes and updates introduced:
-
-- Updated components diagram
-- Aligned high-level description of benefits onto ISDA's systematic messaging about CDM
-- New CDM governance section
-- Move of versioning section to be part of the CDM distribution section
-- Clean-up language and clarify explanations where required
-- Updated links and resources
+Notable changes:
+ - Clearing function renamed to `Create_CrearedTrade` and is now consistent with the strategic approach.
+ - Descriptions added/modified for `ClearingInstruction` and `Create_CrearedTrade`.
+ - `party1`/`party2` alias used in clearing function to link parties have been moved to `ClearingInstruction`.
+ - `clearerParty1`/`clearerParty2` added to in `ClearingInstruction` to support agency clearing.
+ - Constrain added to `Create_CrearedTrade` inputs so that the parties and roles are present in the alpha trade.
 
 _Review direction_
 
-In the CDM Portal, review the CDM Documentation, in particular the section:
+In the CDM Portal, open the Textual Browser and see:
 
-- [Overview Section](https://docs.rosetta-technology.io/cdm/readme.html)
+- func `Create_CrearedTrade`
+- type `ClearingInstruction`
 
-# *Documentation: Add descriptions to Create functions*
-
-_What is being released_
-
-The Functions defined in the CDM have been updated to include descriptions for their usage, inputs, outputs and conditions.
-
-_Review Direction_
-
-In the CDM textual browser, see the descriptions for functions:
-
-- `Create_Execution`
-- `Create_ExecutionPrimitive`
-- `Create_ContractFormation`
-- `Create_ContractFormationPrimitive`
-- `ClearingInstruction`
-
-# *Event Model: Add Create Workflow Step Functions*
-
-CDM functions to create a `WorkflowStep` with a business event that has happened or a `WorkflowStep` supporting proposing a business event, accepting a business event, and rejecting a business event. The new functions enable data quality remediation on a `WorkflowStep` data record with the use of the action attribute with possible values of New, Correct and Cancel and constraints restricting the inputs to valid cases.
-
-_Review Direction_
-
-- New annotation type [create WorkflowStep] added similar to [create BusinessEvent].
-- 4 new functions have been added to create workflowStep with inputs: message Information, timestamp, event identifiers, parties, accounts.
-  - `Create_WorkflowStep` - Business Event + action (new, correct, cancel)
-  - `Create_ProposedWorkflowStep` - Proposed Instructions + action (new or correct only)
-  - `Create_AcceptedWorkflowStep` - Business Event + previous proposed step reference
-  - `Create_RejectedWorkflowStep` - Rejection + previous proposed step
-- Action is now optional on `WorkflowStep`
-
-# *Portal Registration Form Bugfix*
+# *Infrastructure: Namespace hierarchy to be sorted*
 
 _What is being released_
 
-For new users registering on the CDM Portal, numbers are were not permitted to be used when specifying a company name. This bug has been fixed.
+Infrastructure change to show the files in the namespace hierarchy in sorted order.

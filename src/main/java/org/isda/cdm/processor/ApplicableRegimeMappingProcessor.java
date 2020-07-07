@@ -1,6 +1,7 @@
 package org.isda.cdm.processor;
 
-import com.regnosys.rosetta.common.translation.Mapping;
+import com.regnosys.rosetta.common.translation.MappingContext;
+import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
@@ -14,9 +15,7 @@ import java.util.Optional;
 
 import static org.isda.cdm.ApplicableRegime.ApplicableRegimeBuilder;
 import static org.isda.cdm.Regime.RegimeBuilder;
-import static org.isda.cdm.processor.MappingProcessorUtils.*;
-import static org.isda.cdm.processor.MappingProcessorUtils.BASE_PATH;
-import static org.isda.cdm.processor.MappingProcessorUtils.PARTIES;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.*;
 
 @SuppressWarnings("unused")
 public class ApplicableRegimeMappingProcessor extends MappingProcessor {
@@ -25,33 +24,31 @@ public class ApplicableRegimeMappingProcessor extends MappingProcessor {
 	private final Map<String, RegulatoryRegimeEnum> synonymToRegulatoryRegimeEnumMap;
 	private final Map<String, AdditionalTypeEnum> synonymToAdditionalTypeEnumMap;
 
-	public ApplicableRegimeMappingProcessor(RosettaPath rosettaPath, List<String> synonymValues, List<Mapping> mappings) {
-		super(rosettaPath, synonymValues, mappings);
-		this.helper = new RegimeMappingHelper(rosettaPath, mappings);
+	public ApplicableRegimeMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
+		super(modelPath, synonymPaths, mappingContext);
+		this.helper = new RegimeMappingHelper(modelPath, mappingContext.getMappings());
 		this.synonymToRegulatoryRegimeEnumMap = synonymToEnumValueMap(RegulatoryRegimeEnum.values(), ISDA_CREATE_SYNONYM_SOURCE);
 		this.synonymToAdditionalTypeEnumMap = synonymToEnumValueMap(AdditionalTypeEnum.values(), ISDA_CREATE_SYNONYM_SOURCE);
 	}
 
 	@Override
-	protected void map(List<? extends RosettaModelObjectBuilder> builders, RosettaModelObjectBuilder parent) {
+	public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builders, RosettaModelObjectBuilder parent) {
 		RegimeBuilder regimeBuilder = (RegimeBuilder) parent;
-		regimeBuilder.clearApplicableRegime();
 
-		getSynonymValues().forEach(synonymValue -> {
-			ApplicableRegimeBuilder applicableRegimeBuilder = ApplicableRegime.builder();
-			regimeBuilder.addApplicableRegimeBuilder(applicableRegimeBuilder);
+		ApplicableRegimeBuilder applicableRegimeBuilder = ApplicableRegime.builder();
+		regimeBuilder.addApplicableRegimeBuilder(applicableRegimeBuilder);
 
-			Optional.ofNullable(synonymToRegulatoryRegimeEnumMap.get(synonymValue)).ifPresent(applicableRegimeBuilder::setRegime);
+		Optional.ofNullable(synonymToRegulatoryRegimeEnumMap.get(synonymPath.getLastElement().getPathName()))
+				.ifPresent(applicableRegimeBuilder::setRegime);
 
-			Path regimePath = getSynonymPath(BASE_PATH, synonymValue);
-			PARTIES.forEach(party -> helper.getRegimeTerms(regimePath, party, null).ifPresent(applicableRegimeBuilder::addRegimeTerms));
+		//Path regimePath = getSynonymPath(BASE_PATH, synonymPath);
+		PARTIES.forEach(party -> helper.getRegimeTerms(synonymPath, party, null).ifPresent(applicableRegimeBuilder::addRegimeTerms));
 
-			setValueAndUpdateMappings(getSynonymPath(regimePath, "additional_type"),
-					(value) -> getEnumValue(synonymToAdditionalTypeEnumMap, value, AdditionalTypeEnum.class)
-							.ifPresent(applicableRegimeBuilder::setAdditionalType));
+		setValueAndUpdateMappings(synonymPath.addElement("additional_type"),
+				(value) -> getEnumValue(synonymToAdditionalTypeEnumMap, value, AdditionalTypeEnum.class)
+						.ifPresent(applicableRegimeBuilder::setAdditionalType));
 
-			setValueAndUpdateMappings(getSynonymPath(regimePath, "additional_type_specify"),
-					applicableRegimeBuilder::setAdditionalTerms);
-		});
+		setValueAndUpdateMappings(synonymPath.addElement("additional_type_specify"),
+				applicableRegimeBuilder::setAdditionalTerms);
 	}
 }

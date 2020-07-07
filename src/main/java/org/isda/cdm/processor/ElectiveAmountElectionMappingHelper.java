@@ -12,9 +12,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.isda.cdm.processor.MappingProcessorUtils.*;
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndUpdateMappings;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.*;
 
-public class ElectiveAmountElectionMappingHelper {
+class ElectiveAmountElectionMappingHelper {
 
 	private static final String ZERO = "zero";
 
@@ -28,21 +30,21 @@ public class ElectiveAmountElectionMappingHelper {
 		this.synonymToIsoCurrencyCodeEnumMap = synonymToEnumValueMap(ISOCurrencyCodeEnum.values(), ISDA_CREATE_SYNONYM_SOURCE);
 	}
 
-	Optional<ElectiveAmountElection> getElectiveAmountElection(String synonymValue, String party) {
+	Optional<ElectiveAmountElection> getElectiveAmountElection(Path synonymPath, String party) {
 		ElectiveAmountElection.ElectiveAmountElectionBuilder electiveAmountElectionBuilder = ElectiveAmountElection.builder();
 		Money.MoneyBuilder moneyBuilder = Money.builder();
 
-		setValueAndUpdateMappings(Path.parse(String.format("answers.partyA.%s.%s_amount", synonymValue, party)),
+		setValueAndUpdateMappings(synonymPath.addElement(party + "_amount"),
 				(value) -> moneyBuilder.setAmount(new BigDecimal(value)), mappings, path);
 
-		setValueAndOptionallyUpdateMappings(Path.parse(String.format("answers.partyA.%s.%s_currency", synonymValue, party)),
+		setValueAndOptionallyUpdateMappings(synonymPath.addElement(party + "_currency"),
 				(value) -> setIsoCurrency(synonymToIsoCurrencyCodeEnumMap, moneyBuilder::setCurrency, value), mappings, path);
 
 		if (moneyBuilder.hasData()) {
 			electiveAmountElectionBuilder.setAmountBuilder(moneyBuilder);
 		}
 
-		setValueAndUpdateMappings(Path.parse(String.format("answers.partyA.%s.%s_%s", synonymValue, party, synonymValue)),
+		setValueAndUpdateMappings(synonymPath.addElement(party + "_" + synonymPath.getLastElement().getPathName()),
 				(value) -> {
 					electiveAmountElectionBuilder.setParty(party);
 					if (ZERO.equals(value)) {
@@ -50,7 +52,7 @@ public class ElectiveAmountElectionMappingHelper {
 					}
 				}, mappings, path);
 
-		setValueAndUpdateMappings(Path.parse(String.format("answers.partyA.%s.%s_specify", synonymValue, party)),
+		setValueAndUpdateMappings(synonymPath.addElement(party + "_specify"),
 				electiveAmountElectionBuilder::setCustomElection, mappings, path);
 
 		return electiveAmountElectionBuilder.hasData() ? Optional.of(electiveAmountElectionBuilder.build()) : Optional.empty();

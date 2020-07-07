@@ -3,8 +3,9 @@ package org.isda.cdm.processor;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder;
 import com.google.common.collect.MoreCollectors;
 import com.regnosys.rosetta.common.translation.Mapping;
+import com.regnosys.rosetta.common.translation.MappingContext;
+import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
-import com.rosetta.model.lib.RosettaModelObject;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 import org.slf4j.Logger;
@@ -21,17 +22,17 @@ public class TradeSideToPartyMappingProcessor extends MappingProcessor {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(TradeSideToPartyMappingProcessor.class);
 
-	public TradeSideToPartyMappingProcessor(RosettaPath rosettaPath, List<String> synonymValues, List<Mapping> mappings) {
-		super(rosettaPath, synonymValues, mappings);
+	public TradeSideToPartyMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
+		super(modelPath, synonymPaths, mappingContext);
 	}
 
 	@Override
-	public <R extends RosettaModelObject> void map(RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
+	public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
 		ReferenceWithMetaPartyBuilder partyReference = (ReferenceWithMetaPartyBuilder) builder;
 		String tradeSideId = partyReference.getExternalReference();
 		getPartyId(tradeSideId)
 				.ifPresent(partyId -> {
-					LOGGER.info("Mapped tradeSide.id ({}) to tradeSide.orderer.party.id ({}) at path {}", tradeSideId, partyId, getPath());
+					LOGGER.info("Mapped tradeSide.id ({}) to tradeSide.orderer.party.id ({}) at path {}", tradeSideId, partyId, getModelPath());
 					partyReference.setExternalReference(partyId).build();
 				});
 	}
