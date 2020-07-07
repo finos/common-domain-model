@@ -909,8 +909,7 @@ For example, the ISDA Master Agreement is an internationally agreed document whi
 
 * **Credit Support Annex (CSA)** defines the terms for the provision of collateral by the parties in derivatives transactions.  The collateral is required in the event that the party with net negative exposure fails to fulfill its obligations in the contractual product.  Collateral can be provided in the form of cash, securities, or other agreed assets. The first posting of collateral for a contractual product is known as the initial margin.  Subsequent incremental additions or subtractions are known as the variation margin.
 * **Credit Support Deed** defines the rights of ownership of collataral that has been provided (posted) by a party in a contractual product.  
-* **Collateral Transfer Agreement** defines the terms when the collateral is to be held by a custodian.
-* **Security Agreement** defines the securities that are eligible for collateral.
+* **The Collateral Transfer Agreement and Security Agreement** defines a collateral arrangement between two parties where the collateral is held in a bank custodian account for use in complying with initial margin requirements. These agreements allow parties to apply one governing law to the mechanical aspects of the collateral relationship and a different governing law to the grant and enforcement of security over the segregated account.
 
 ISDA provides standard templates for these types of agreements in each applicable jurisdiction, such as the UK, US, France, and Japan.  The role of a specific agreement 
 template is further qualified by its use for initial margin (IM) or variation margin (VM). Updates to the documents are referenced by the year in which they are published.
@@ -965,7 +964,7 @@ The key modelling principles that have been adopted to represent legal agreement
   * The Legal Agreement model follows the CDM design principles of composability and reusability to develop an extendable model that can support multiple document types.
   * For instance, the ``LegalAgreementBase`` data type uses components that are also used as part of the CDM contract and lifecycle event components: e.g. ``Party``, ``Identifier``, ``date``.
     
-* **Normalisation of the data representation** to be machine readable and executable. This approach allows CDM users to define normalised elections into a corresponding legal agreement template to support functional processes. In practice, the use of elections expressed in a ``string`` format has been restricted, as ``string`` requires language parsing and disassembling to be machine executable. Instead, the model uses strong data type attributes such as numbers, boolean, or enumerations whenever possible.
+* **Normalisation of the data representation** to be machine readable and executable. This approach allows CDM users to define normalised elections into a corresponding legal agreement template to support functional processes. In practice the use of elections expressed in a ``string`` format has been restricted, as ``string`` requires language parsing and disassembling to be machine executable. Instead, the model uses strong data type attributes such as numbers, boolean, or enumerations whenever possible.
 
 The components of the legal agreement model specified in the CDM are detailed in the section below.
 
@@ -1079,7 +1078,7 @@ For ease of reference, the structure of the elections contained within each agre
 
 This approach allows the representation of elections in the CDM to focus on their intended business outcome in order to better support the standardisation of related business processes.
 
-For example, ``CreditSupportAgreementElections`` , which is one of the four agreement types contains all the elections that may be applicable to a credit support agreement and can be used to define any of the Credit Support Agreements currently supported by the CDM:
+For example, ``CreditSupportAgreementElections`` , which is one of the four agreement types, contains all the elections that may be applicable to a credit support agreement and can be used to define any of the Credit Support Agreements supported by the CDM:
 
 * ISDA 2016 Phase One Credit Support Annex (“CSA”) (Security Interest – New York Law)
 * ISDA 2016 Phase One Credit Support Deed (“CSD”) (Security Interest – English Law)
@@ -1134,34 +1133,36 @@ The ``CreditSupportAgreementElections`` data type therefore contains a super-set
    if agreementTerms -> agreement -> securityAgreementElections exists
    then agreementType -> name = LegalAgreementNameEnum->SecurityAgreement
    
-The validation in this case requires that if the ``securityAgreementElections`` attribute is populated, then the value in ``LegalAgreementNameEnum`` must be SecurityAgreement.
+The validation in this case requires that if the ``securityAgreementElections`` attribute is populated, then the value in ``LegalAgreementNameEnum`` must be ``SecurityAgreement`` .
 
 Selected examples from two of the agreement data types are explained in the following sections to illustrate the overall approach.
 
 Elective Provisions Example 1: Posting Obligations 
 """""""""""""""""""""""""""""""""""""""""""""""""""
-``postingObligations``is one of the required attributes in ``CreditSupportAgreementElections``, which is one of the four agreement types.  It defines a security provider and the elections for posting collateral as indicated in the data structure shown below:
+``postingObligations`` is one of the required attributes in ``CreditSupportAgreementElections`` .  It defines the security provider party(ies) to which the posting obligations apply to and the applicable collateral posting obligations as indicated in the data structure shown below:
   
 .. code-block:: Haskell
 
 type PostingObligations: 
 
-	securityProvider string (1..1)
-	partyElection PostingObligationsElection (1..2) 
+  securityProvider string (1..1)
+  partyElection PostingObligationsElection (1..2) 
 	
-The ``partyElection`` attribute, which is of the type partyElection ``PostingObligationsElection`` defines the party who is required to provide the collateral and defines the collateral that is eligible, as shown below:
+The ``partyElection`` attribute, which is of the type partyElection ``PostingObligationsElection`` defines the party that the collateral posting obligations apply to and defines the collateral that is eligible, as shown below:
 	  
 .. code-block:: Haskell
 
 type PostingObligationsElection: 
 
-	party string (1..1) 
-	asPermitted boolean (1..1) 
-	eligibleCollateral EligibleCollateral (0..*) 
-	excludedCollateral string (0..1)  
-	additionalLanguage string (0..1) 
+  party string (1..1) 
+  asPermitted boolean (1..1) 
+  eligibleCollateral EligibleCollateral (0..*) 
+  excludedCollateral string (0..1)  
+  additionalLanguage string (0..1)
+  
+.. note:: In order to provide compatibility with ISDA Create the ``party`` attribute in CDM is represented as a string.  Implementors should populate this field with ``PartyA`` , ``PartyB`` , or ``PartyAPartyB`` as appropriate to represent the party that the election terms are being defined for.
 
-The development of a digital data standard for representation of posting collateral eligibility schedules is a crucial component required to drive digital negotiation, straight through processing, and digitisation of collateral management. The standard representation provided within the CDM allows institutions involved in the collateral workflow cycle to exchange eligible collateral information accurately and efficiently in digital form.  The ``EligibleCollateral`` data type is a root type with one attribute, as shown below:
+The development of a digital data standard for representation of eligible collateral schedules is a crucial component required to drive digital negotiation, straight through processing, and digitisation of collateral management. The standard representation provided within the CDM allows institutions involved in the collateral workflow cycle to exchange eligible collateral information accurately and efficiently in digital form.  The ``EligibleCollateral`` data type is a root type with one attribute, as shown below:
 
 type EligibleCollateral: 
 [rootType]
@@ -1216,8 +1217,8 @@ The following code snippets represent these three components of the eligible col
 
 Elective Provisions Example 2: Security Agreement Elections
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-``
-The ``SecurityAgreementElections`` is another one of the four agreeement types.  Given the structure of this type, the CDM model supports nine distinct Security Agreements. Election structures across any of these agreements can be represented through the following data type:
+
+The ``SecurityAgreementElections`` data type is another one of the four agreement types.  Given the structure of this type, the CDM model supports nine distinct Security Agreements. Election structures across any of these agreements can be represented through the following data type:
 
 .. code-block:: Haskell
 
@@ -1233,14 +1234,14 @@ The ``SecurityAgreementElections`` is another one of the four agreeement types. 
    additionalBespokeTerms string (0..1)
    executionTerms ExecutionTerms (0..1)
 	
-Depending on the agreement being specified, a different combination of attributes would be used when specifying the agreement. The cardinality of each attribute allows the appropriate combination to provided dependent on the agreement.
+Depending on the agreement being specified, a different combination of attributes would be used when specifying the agreement. The cardinality of each attribute allows the appropriate combination to be provided dependent on the agreement.
 
 An equivalent approach is followed for ``CreditSupportAgreementElections`` and ``CollateralTransferAgreementElections``.
 
 Elective Provisions Example 3: Credit Support Obligations
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-The ``creditSupportObligations`` attribute is contained within two of the agreement types: ``CreditSupportAgreementElections`` and ``CollateralTransferAgreementElections``.  In both cases, the data type is ``CreditSupportObligationsInitialMargin``, which is used to represent a key set of terms that are fundamental to collateral calculations within these document families. The ``CollateralTransferAgreementElections`` is shown below, in which the ``creditSupportObligations`` is the tenth attribute:
+The ``creditSupportObligations`` attribute is contained within two of the agreement types: ``CreditSupportAgreementElections`` and ``CollateralTransferAgreementElections``.  In both cases, the data type is ``CreditSupportObligationsInitialMargin``, which is used to represent a key set of terms that are fundamental to collateral calculations within these document families. The ``CollateralTransferAgreementElections`` data type is shown below, in which the ``creditSupportObligations`` is the tenth attribute:
 
 .. code-block:: Haskell
 
@@ -1274,7 +1275,7 @@ type CollateralTransferAgreementElections:
 	additionalAmendments string (0..1) 
 	additionalBespokeTerms string (0..1) 
 
-This set of elections in ``CreditSupportObligationsInitialMargin`` is modelled to directly reflect the equivalent paragraph in the ISDA documentation, for example Paragraph 13 (c) of the ISDA 2018 CSA (Security Interest – New York Law).  The cardinality constraint requires ``threshold`` and ``minimumTransferAmount`` to be specified, as it is an elective provision in all Credit Support Agreements currently supported in CDM.  Other clauses such as ``marginApproach`` are not elective provisions in all supported agreements so the cardinality indicates optionality.
+This set of elections in ``CreditSupportObligationsInitialMargin`` is modelled to directly reflect the equivalent paragraph in the ISDA documentation, for example Paragraph 13 (c) of the ISDA 2018 CSA (Security Interest – New York Law).  The cardinality constraint requires ``threshold`` and ``minimumTransferAmount`` to be specified, as it is an elective provision in all the Credit Support Agreements supported in CDM.  Other clauses such as ``marginApproach`` are not elective provisions in all supported agreements so the cardinality indicates optionality.
 
 
 .. code-block:: Haskell
@@ -1294,7 +1295,7 @@ Each attribute is modelled based on the corresponding clause in the relevant leg
    deliveryAmount number (1..1)
    returnAmount number (1..1)
 
-.. note:: The credit support obligations election data type, `CreditSupportObligationsInitialMargin`, is suffixed with ``InitialMargin``, because the initial set of credit support agreement documents that have been digitised in the CDM are Initial Margin CSAs. However the same structure and associated collateral calculation components are applicable for Variation Margin CSAs.
+.. note:: The credit support obligations election data type, `CreditSupportObligationsInitialMargin`, is suffixed with ``InitialMargin``, because the initial set of credit support agreement documents that have been digitised in the CDM are Initial Margin CSAs.
 
 Linking Legal Agreements to Contracts
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
