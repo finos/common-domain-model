@@ -1,7 +1,6 @@
 ## Basic use case for New/Correct
 
-A trade is executed and recorded however this is a booking error. The trade did not happen so the record should be dismissed.
-Another trade is executed independently of the prior error.
+A trade is executed and recorded however there is an error on the record. The trade did happen so the record should be corrected.
 
 > 12-Dec-1994; 18:11 UTC
     Phone trade for a plain vanilla Fix/Float swap with quantity of 50,000,000

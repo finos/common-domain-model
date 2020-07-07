@@ -1,7 +1,8 @@
 package org.isda.cdm.processor;
 
 import cdm.base.staticdata.asset.common.ISOCurrencyCodeEnum;
-import com.regnosys.rosetta.common.translation.Mapping;
+import com.regnosys.rosetta.common.translation.MappingContext;
+import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
@@ -12,7 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.isda.cdm.processor.MappingProcessorUtils.*;
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.*;
 
 /**
  * ISDA Create mapping processor.
@@ -22,31 +24,30 @@ public class SimmCalculationCurrencyMappingProcessor extends MappingProcessor {
 
 	private final Map<String, ISOCurrencyCodeEnum> synonymToIsoCurrencyCodeEnumMap;
 
-	public SimmCalculationCurrencyMappingProcessor(RosettaPath rosettaPath, List<String> synonymValues, List<Mapping> mappings) {
-		super(rosettaPath, synonymValues, mappings);
+	public SimmCalculationCurrencyMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
+		super(modelPath, synonymPaths, mappingContext);
 		this.synonymToIsoCurrencyCodeEnumMap = synonymToEnumValueMap(ISOCurrencyCodeEnum.values(), ISDA_CREATE_SYNONYM_SOURCE);
 	}
 
 	@Override
-	public void map(RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
+	public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
 		SimmCalculationCurrency.SimmCalculationCurrencyBuilder simmCalculationCurrencyBuilder = (SimmCalculationCurrency.SimmCalculationCurrencyBuilder) builder;
-		Path basePath = Path.parse("answers.partyA.simm_calculation_currency");
-		PARTIES.forEach(party -> getCalculationCurrencyElection(basePath, party).ifPresent(simmCalculationCurrencyBuilder::addPartyElection));
+		PARTIES.forEach(party -> getCalculationCurrencyElection(synonymPath, party).ifPresent(simmCalculationCurrencyBuilder::addPartyElection));
 
 	}
 
-	private Optional<CalculationCurrencyElection> getCalculationCurrencyElection(Path basePath, String party) {
+	private Optional<CalculationCurrencyElection> getCalculationCurrencyElection(Path synonymPath, String party) {
 		CalculationCurrencyElection.CalculationCurrencyElectionBuilder calculationCurrencyElectionBuilder = CalculationCurrencyElection.builder();
 
-		setValueAndUpdateMappings(getSynonymPath(basePath, party, "_use_base_currency"),
+		setValueAndUpdateMappings(synonymPath.addElement(party + "_use_base_currency"),
 				(value) -> {
 					calculationCurrencyElectionBuilder.setParty(party);
 					calculationCurrencyElectionBuilder.setIsBaseCurrency(Boolean.valueOf(value));
 				});
 
-		setValueAndOptionallyUpdateMappings(getSynonymPath(basePath, party, "_use_other_currency"),
+		setValueAndOptionallyUpdateMappings(synonymPath.addElement(party + "_use_other_currency"),
 				(value) -> setIsoCurrency(synonymToIsoCurrencyCodeEnumMap, calculationCurrencyElectionBuilder::setCurrency, value),
-				getMappings(), getPath());
+				getMappings(), getModelPath());
 
 		return calculationCurrencyElectionBuilder.hasData() ? Optional.of(calculationCurrencyElectionBuilder.build()) : Optional.empty();
 	}

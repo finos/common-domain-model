@@ -1,6 +1,8 @@
 package org.isda.cdm.processor;
 
 import com.regnosys.rosetta.common.translation.Mapping;
+import com.regnosys.rosetta.common.translation.MappingContext;
+import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
@@ -11,9 +13,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.*;
 import static org.isda.cdm.AdditionalRegime.AdditionalRegimeBuilder;
 import static org.isda.cdm.AdditionalRegime.builder;
-import static org.isda.cdm.processor.MappingProcessorUtils.*;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.*;
 
 @SuppressWarnings("unused")
 public class AdditionalRegimeMappingProcessor extends MappingProcessor {
@@ -21,29 +24,28 @@ public class AdditionalRegimeMappingProcessor extends MappingProcessor {
 	private final RegimeMappingHelper helper;
 	private final Map<String, AdditionalTypeEnum> synonymToAdditionalTypeEnumMap;
 
-	public AdditionalRegimeMappingProcessor(RosettaPath rosettaPath, List<String> synonymValues, List<Mapping> mappings) {
-		super(rosettaPath, synonymValues, mappings);
-		this.helper = new RegimeMappingHelper(rosettaPath, mappings);
+	public AdditionalRegimeMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
+		super(modelPath, synonymPaths, mappingContext);
+		this.helper = new RegimeMappingHelper(modelPath, mappingContext.getMappings());
 		this.synonymToAdditionalTypeEnumMap = synonymToEnumValueMap(AdditionalTypeEnum.values(), ISDA_CREATE_SYNONYM_SOURCE);
 	}
 
 	@Override
-	protected void map(List<? extends RosettaModelObjectBuilder> builders, RosettaModelObjectBuilder parent) {
+	public void map(Path additionalRegimesPath, List<? extends RosettaModelObjectBuilder> builders, RosettaModelObjectBuilder parent) {
 		Regime.RegimeBuilder regimeBuilder = (Regime.RegimeBuilder) parent;
 		regimeBuilder.clearAdditionalRegime();
 
-		Path additionalRegimesPath = getSynonymPath(BASE_PATH, "additional_regimes");
-		Path regimesPath = getSynonymPath(additionalRegimesPath, "regimes");
+		Path regimesPath = additionalRegimesPath.addElement("regimes");
 
-		List<Mapping> applicableMappings = findMappings(getMappings(), getSynonymPath(additionalRegimesPath, "is_applicable"));
-		Optional<String> applicable = findMappedValue(applicableMappings);
+		List<Mapping> applicableMappings = filterMappings(getMappings(), additionalRegimesPath.addElement("is_applicable"));
+		Optional<String> applicable = getNonNullMappedValue(applicableMappings);
 		if (applicable.isPresent()) {
-			applicableMappings.forEach(m -> updateMappingSuccess(m, getPath()));
+			applicableMappings.forEach(m -> updateMappingSuccess(m, getModelPath()));
 		}
 
 		if (!applicable.isPresent() || applicable.get().equals("not_applicable")) {
 			// if additional_regimes are not applicable (or not present) remove all related mappings
-			updateMappings(regimesPath, getMappings(), getPath());
+			updateMappings(regimesPath, getMappings(), getModelPath());
 			return;
 		}
 
@@ -58,23 +60,23 @@ public class AdditionalRegimeMappingProcessor extends MappingProcessor {
 		}
 
 		// clean up mappings
-		updateMappings(additionalRegimesPath, getMappings(), getPath());
+		updateMappings(additionalRegimesPath, getMappings(), getModelPath());
 	}
 
 	private Optional<AdditionalRegimeBuilder> getAdditionalRegime(Path regimesPath, Integer index) {
 		AdditionalRegimeBuilder additionalRegimeBuilder = builder();
 
-		setValueAndUpdateMappings(getSynonymPath(regimesPath,"regime_name", index),
+		setValueAndUpdateMappings(regimesPath.addElement("regime_name", index),
 				(value) -> {
 					additionalRegimeBuilder.setRegime(value);
 					PARTIES.forEach(party -> helper.getRegimeTerms(regimesPath, party, index).ifPresent(additionalRegimeBuilder::addRegimeTerms));
 				});
 
-		setValueAndUpdateMappings(getSynonymPath(regimesPath, "additional_type", index),
+		setValueAndUpdateMappings(regimesPath.addElement("additional_type", index),
 				(value) -> getEnumValue(synonymToAdditionalTypeEnumMap, value, AdditionalTypeEnum.class)
 						.ifPresent(additionalRegimeBuilder::setAdditionalType));
 
-		setValueAndUpdateMappings(getSynonymPath(regimesPath, "additional_type_specify", index),
+		setValueAndUpdateMappings(regimesPath.addElement("additional_type_specify", index),
 				additionalRegimeBuilder::setAdditionalTerms);
 
 		return additionalRegimeBuilder.hasData() ? Optional.of(additionalRegimeBuilder) : Optional.empty();

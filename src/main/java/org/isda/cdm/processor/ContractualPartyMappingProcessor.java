@@ -3,7 +3,8 @@ package org.isda.cdm.processor;
 import cdm.base.staticdata.party.Party;
 import cdm.base.staticdata.party.Party.PartyBuilder;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
-import com.regnosys.rosetta.common.translation.Mapping;
+import com.regnosys.rosetta.common.translation.MappingContext;
+import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
@@ -13,7 +14,9 @@ import org.isda.cdm.LegalAgreement.LegalAgreementBuilder;
 import java.util.List;
 import java.util.Optional;
 
-import static org.isda.cdm.processor.MappingProcessorUtils.*;
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.updateMappings;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.PARTIES;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.toFieldWithMetaString;
 
 /**
  * ISDA Create mapping processor.
@@ -23,12 +26,12 @@ import static org.isda.cdm.processor.MappingProcessorUtils.*;
 @SuppressWarnings("unused")
 public class ContractualPartyMappingProcessor extends MappingProcessor {
 
-	public ContractualPartyMappingProcessor(RosettaPath rosettaPath, List<String> synonymValues, List<Mapping> mappings) {
-		super(rosettaPath, synonymValues, mappings);
+	public ContractualPartyMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
+		super(modelPath, synonymPaths, mappingContext);
 	}
 
 	@Override
-	protected void map(List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
+	public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
 		LegalAgreementBuilder legalAgreementBuilder = (LegalAgreementBuilder) parent;
 		PARTIES.forEach(party ->
 				getContractualParty(party).ifPresent(
@@ -51,7 +54,7 @@ public class ContractualPartyMappingProcessor extends MappingProcessor {
 				(value) -> partyBuilder.addPartyId(toFieldWithMetaString(value)));
 
 		// clean up mappings
-		updateMappings(Path.parse("answers.partyA.parties"), getMappings(), getPath());
+		updateMappings(Path.parse("answers.partyA.parties"), getMappings(), getModelPath());
 
 		return partyBuilder.hasData() ? Optional.of(partyBuilder.build()) : Optional.empty();
 	}
