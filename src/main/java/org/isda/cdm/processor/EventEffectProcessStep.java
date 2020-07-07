@@ -109,7 +109,7 @@ public class EventEffectProcessStep implements PostProcessStep{
 	private class EventEffectProcessor extends SimpleBuilderProcessor {
 
 		private final EventEffectPostProcessReport report;
-		private final Map<RosettaPath, GlobalKeyBuilder> globalKeyMap;
+		private final Map<RosettaPath, GlobalKeyBuilder<?>> globalKeyMap;
 
 		public EventEffectProcessor(EventEffectPostProcessReport report, KeyPostProcessReport keyPostProcessReport) {
 			this.report = report;
@@ -124,7 +124,7 @@ public class EventEffectProcessStep implements PostProcessStep{
 			}
 			if (builder instanceof EventEffectBuilder) {
 				EventEffectBuilder eventEffect = (EventEffectBuilder) builder;
-				for (Entry<RosettaPath, GlobalKeyBuilder> entry:globalKeyMap.entrySet()) {
+				for (Entry<RosettaPath, GlobalKeyBuilder<?>> entry:globalKeyMap.entrySet()) {
 					for (Entry<BiPredicate<RosettaPath, Class<?>>, BiConsumer<EventEffectBuilder, String>> test:effectSetters.entrySet()) {
 						if (test.getKey().test(entry.getKey(), entry.getValue().getClass())) {
 							test.getValue().accept(eventEffect, entry.getValue().getMeta().getGlobalKey());
