@@ -1,25 +1,23 @@
-# *Event Model: Direct Principal and Agency Clearing Model *
+# *CDM Model: Legal Document Modelling*
 
 _What is being released_
 
-The clearing function has been enhanced to support the Direct Agency clearing model. Direct clearing is when the risk party to the trade is facing the CCP, either through its own account (principle) or its clearing member acting as agent (angency).
+Resolve complex ISDA Create mapping issues for legal documents:
 
-Notable changes:
- - Clearing function renamed to `Create_CrearedTrade` and is now consistent with the strategic approach.
- - Descriptions added/modified for `ClearingInstruction` and `Create_CrearedTrade`.
- - `party1`/`party2` alias used in clearing function to link parties have been moved to `ClearingInstruction`.
- - `clearerParty1`/`clearerParty2` added to in `ClearingInstruction` to support agency clearing.
- - Constrain added to `Create_CrearedTrade` inputs so that the parties and roles are present in the alpha trade.
+ - Addresses for Transfer/Demands and Notices - Addresses are now mapped for the specified party
+ - Related Agreements – `COLLATERAL_TRANSFER_AGREEMENT`, `MASTER_AGREEMENT` and `SECURITY_AGREEMENT` agreement types are now mapped for related agreements
+ - Posting Obligations - Additional_language is now correcty mapped to the specified party.
+ - Recalculation of Value - Elections are now correcty mapped to the specified party.
+ - French Law Addendum – Bespoke language are now associated with correct party on CTA ISDA Bank Custodian 2019.
+ - Regime/Security Provider Rights Event/Security Taker Rights Event - Elections are now correcty mapped to the specified party.
 
 _Review direction_
 
-In the CDM Portal, open the Textual Browser and see:
+In the Ingestion Panel, try samples in folder isda-create.
 
-- func `Create_CrearedTrade`
-- type `ClearingInstruction`
-
-# *Infrastructure: Namespace hierarchy to be sorted*
-
-_What is being released_
-
-Infrastructure change to show the files in the namespace hierarchy in sorted order.
+ - clearstream-cta-2016-englaw/sample1 - see `partyElection -> address` mapped to correct party.
+ - clearstream-sa-2016-luxlaw/sample1 - see `agreementType -> COLLATERAL_TRANSFER_AGREEMENT` mapped for the releated agreement for date 2020-04-03
+ - isda-csa-im-2016-jpnlaw/sample1 - see `postingObligations -> partyElection` mapped for partyA and partyB
+ - clearstream-cta-2019/sample1 - see `recalculationOfValue -> partyElection` correctly associate partyA and partyB in `disputeResolution`.
+ - euroclear-cta-2019/sample1 - see `jurisdictionRelatedTerms -> frenchLawAddendum` correctly associate the `addendumLanguage` with partyB.
+ - isda-csa-im-2018-nylaw/sample1 - see `rightsEvents -> securityProviderRightsEvent` correctly associate partyA and partyB for `partyElection`.
