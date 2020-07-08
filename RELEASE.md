@@ -1,4 +1,4 @@
-# *Rosetta Grammar: Add override keyword*
+# *Infrastructure: Add override keyword to Rosetta Grammar*
 
 _What is being released_
 
