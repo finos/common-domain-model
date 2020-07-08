@@ -3,8 +3,7 @@
 _What is being released_
 
 Adding a new override keyword
- - this allows an extending type to change the type of an attribute from its parent type
- - the new type of the attribute must be a type that extends the old type
+ - The override keyword allows a type to be extended from another namespace.
 
 _Review direction_
 
