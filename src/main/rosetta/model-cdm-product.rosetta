@@ -73,30 +73,32 @@ type Contract: <" A class to specify a financial contract object, which can be i
 	[metadata key]
 	[rootType]
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 meta "id" path "trade"]
+    [synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 meta "id" path "newTrade"]
 
 	contractIdentifier Identifier (1..*) <"The identifier(s) that uniquely identify a contract, and which can be qualified by referencing or defining the issuer(s) of such identifier(s). There can be several contract identifier, an example of such being a contract is reportable to both the CFTC and ESMA and then has an associated USI (Unique Swap Identifier) UTI (Unique Trade Identifier).">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "partyTradeIdentifier" path "trade->tradeHeader"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "partyTradeIdentifier" path "trade->tradeHeader", "partyTradeIdentifier" path "newTrade->tradeHeader"]
 		[synonym CME_ClearedConfirm_1_17 value "universalSwapIdentifier" path "trade->tradeHeader"]
 		[synonym CME_SubmissionIRS_1_0 value "partyTradeIdentifier" path "Instrmt->SecXML->FpML->trade->tradeHeader"]
 	tradeDate TradeDate (1..1) <"The date on which the contract has been executed.">
-		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value "tradeHeader" path "trade"]
+		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value "tradeHeader" path "trade", "tradeHeader" path "newTrade"]
 		[synonym CME_SubmissionIRS_1_0 value "tradeHeader" path "Instrmt->SecXML->FpML->trade"]
 	clearedDate date (0..1) <"If the trade was cleared (novated) through a central counterparty clearing service, this represents the date the trade was cleared (transferred to the central counterparty).">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "clearedDate" path "trade->tradeHeader"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "clearedDate" path "trade->tradeHeader", "clearedDate" path "newTrade->tradeHeader"]
 		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value "clearedDate" path "tradeHeader"]
 	tradableProduct TradableProduct (1..1) <"The tradable product information that is associated with the contract, which combines quantity and price together with the product's economic terms, identification and taxonomy. The corresponding FpML construct is the product abstract element and the associated substitution group.">
-		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value "trade"]
+		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value "trade", "newTrade"]
 		[synonym CME_SubmissionIRS_1_0 value "trade" path "Instrmt->SecXML->FpML"]
 	collateral Collateral (0..1) <"Defines the collateral obligations of a party.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "collateral" path "trade"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "collateral" path "trade", "collateral" path "newTrade"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "collateral"]
 	documentation RelatedAgreement (0..1) <"Specifies the document(s) that govern the document, either as a reference to such documents when specified as part of the CDM, or through identification of some of the key terms of those documents, such as the type of document, the document identifier, the publisher, the document vintage and the agreement date.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "documentation" path "trade"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "documentation" path "trade", "documentation" path "newTrade"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "documentation"]
 	governingLaw GoverningLawEnum (0..1) <"Identification of the law governing the contract.">
 		[metadata scheme]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "governingLaw" path "trade" meta "governingLawScheme"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "governingLaw"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "governingLaw" path "newTrade" meta "governingLawScheme"]
+        [synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "governingLaw"]
 	party Party (0..*) <"The parties to the contract. The cardinality is optional to address the case where the contract object is part of an event record, in which case the party is specified as part of that object. In that respect, the CDM approach is distinct from FpML, where party information is specified as part of a wrapper alongside the trade object.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "party"]
 		[synonym CME_SubmissionIRS_1_0 value "party" path "Instrmt->SecXML->FpML"]
@@ -104,11 +106,11 @@ type Contract: <" A class to specify a financial contract object, which can be i
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0 value "account"]
 	partyRole PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the contract, further to the principal parties (i.e payer/receive or buyer/seller) to it.">
 	calculationAgent CalculationAgent (0..1) <"The ISDA calculation agent responsible for performing duties as defined in the applicable product definitions.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "calculationAgent" path "trade", "calculationAgent" path "contract"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "calculationAgent" path "trade->swaption", "calculationAgent" path "contract->swaption"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "trade"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "calculationAgent" path "trade", "calculationAgent" path "newTrade", "calculationAgent" path "contract"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "calculationAgent" path "trade->swaption", "calculationAgent" path "newTrade->swaption", "calculationAgent" path "contract->swaption"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "trade", "newTrade"]
 	partyContractInformation PartyContractInformation (0..*) <"Additional contract information that may be provided by each involved party.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0 value "partyTradeInformation" path "trade->tradeHeader"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0 value "partyTradeInformation" path "trade->tradeHeader", "partyTradeInformation" path "newTrade->tradeHeader"]
 		[synonym CME_ClearedConfirm_1_17 value "partyTradeInformation" path "trade->tradeHeader"]
 	closedState ClosedState (0..1) <"The qualification of what led to the contract closure alongside with the dates on which this closure took effect.">
 		[synonym Workflow_Event value "closedState" path "trade"]
@@ -894,6 +896,7 @@ type Payout: <" A class to represent the set of future cashflow methodologies in
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "swaption"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "creditDefaultSwapOption"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "bondOption"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "fxOption"]
 	forwardPayout ForwardPayout (0..*)
 		[synonym FpML_5_10 value "fxSingleLeg"]
 		[synonym CME_SubmissionIRS_1_0 value "ignore"]
@@ -994,7 +997,9 @@ type Product: <" A class to represent a financial product. With respect to contr
 		[synonym FpML_5_10 hint "creditDefaultSwapOption"]
 		// For FX:
 		[synonym FpML_5_10 hint "fxSingleLeg"]
-		// For Repo:
+		// For FX Option:
+        [synonym FpML_5_10 hint "fxOption"]
+        // For Repo:
 		[synonym FpML_5_10 hint "repo"]
 		// To handle the case when addition payments are part of the trade - TODO: should be part of the event,  not the contract
 		[synonym FpML_5_10 hint "otherPartyPayment"]
