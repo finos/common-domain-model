@@ -902,17 +902,21 @@ Legal Agreements
 The CDM provides a digital representation of the legal agreements that govern financial contracts and workflows. The benefits of this digital representation are summarized below:
 
 * **Supporting marketplace initiatives to streamline and standardise legal agreements** with a comprehensive digital representation of such agreements. 
-* **Providing a comprehensive representation of the financial workflows** by complementing the contract and lifecycle event representation. Collateral management is an example of the applicability of such approach, as lifecycle processes require reference to the associated legal agreements (such as the ISDA Initial Margin Credit Support Annex).
-* **Supporting the direct implementation of functional processes** by providing a normalised representation of legal agreements as structured data, as opposed to the unstructured data contained within a full legal text that needs to be interpretated first: e.g. for collateral management processes.
+* **Providing a comprehensive representation of the financial workflows** by complementing the contract and lifecycle event model and formally tying legal data to the business outcome and performance of legal clauses. (e.g. in collateral management where lifecycle processes require reference to parameters found in the associated legal agreements, such as the Credit Support Annex).
+* **Supporting the direct implementation of functional processes** by providing a normalised representation of legal agreements as structured data, as opposed to the unstructured data contained of a full legal text that needs to be interpretated first before any implementation (e.g. for a calculation of an amount specified in a legal definition).
+
+Initial focus of CDM on ISDA documentation: 
 
 The ISDA Master Agreement is an internationally recognised document which is used to provide certain legal and credit protection for parties who enter into OTC derivatives.  Parties that execute agreements for OTC derivatives are expected to have bi-lateral Master Agreements with each other that cover an agreed range of transactions. In addition to the Master Agreement are sets of credit support documentation which parties may enter into as part of Master Agreement. The four key components of the suite of credit support documents are summarized below:
 
 * **Credit Support Annex (CSA)** defines the terms for the provision of collateral by the parties in derivatives transactions.  The collateral is required in the event that the party with net negative exposure fails to fulfill its obligations in the contractual product.  Collateral can be provided in the form of cash, securities, or other agreed assets. The first posting of collateral for a contractual product is known as the initial margin.  Subsequent incremental additions or subtractions are known as the variation margin.
-* **Credit Support Deed** defines the rights of ownership of collataral that has been provided (posted) by a party in a contractual product.  
+* **Credit Support Deed** defines the rights of ownership of collataral that has been provided (posted) by a party to a contractual product transaction.  
 * **The Collateral Transfer Agreement and Security Agreement** defines a collateral arrangement between two parties where the collateral is held in a bank custodian account for use in complying with initial margin requirements. These agreements allow parties to apply one governing law to the mechanical aspects of the collateral relationship and a different governing law to the grant and enforcement of security over the segregated account.
 
 ISDA provides standard templates for these types of agreements in each applicable jurisdiction, such as the UK, US, France, and Japan.  The role of a specific agreement 
 template is further qualified by its use for initial margin (IM) or variation margin (VM). Updates to the documents are referenced by the year in which they are published.
+
+It is within these types of agreements that the CDM legal agreement model has been initially deployed, and for which you will find examples and references to below, as the legal agreement model is explained.
 
 The topics covered in this section are listed below:
 
@@ -929,7 +933,9 @@ Scope
 
 The legal agreement model in the CDM comprises the following features:
 
-* **Composable and normalised model representation** of the ISDA agreements. There are distinct versions of the agreements for jurisdiction and year of publications, but the set of terms belong to a common universe.  Therefore, the CDM defines each of these terms in a single location, and allows for the representation of a specific agreement by combining terms.  The following legal agreements are supported in the CDM:
+* **Composable and normalised model representation** of the ISDA agreements. There are distinct versions of the agreements for jurisdiction and year of publications, but the set of terms often belong to a common universe.  Therefore, the CDM defines each of these terms in a single location, and allows for the representation of a specific legal agreement by combining terms where appropriate.  
+
+The following legal agreements are supported in the CDM:
 
   * ISDA 2016 Phase One Credit Support Annex (“CSA”) (Security Interest – New York Law)
   * ISDA 2016 Phase One Credit Support Deed (“CSD”) (Security Interest – English Law)
@@ -944,9 +950,12 @@ The legal agreement model in the CDM comprises the following features:
 
 * **Composable and normalised model representation** of the eligible collateral schedule for initial and variation margin into a directly machine readable format.
 
-* **Linking of legal agreement into contract** through the CDM referencing mechanism.
+* **Linking of legal agreement into a contract object** through the CDM referencing mechanism.
 
-* **Mapping to ISDA Create derivative documentation negotiation platform**: Ingestion of JSON sample files generated from the ISDA Create platform for the elections associated with these agreements has been implemented to demonstrate connectivity between ISDA Create and the CDM. (The ISDA CSA for Variation Margin is not yet represented in ISDA Create.) A specific set of synonyms associated to the ``ISDA_Create_1_0`` synonym source has been developed to enable this mapping (see *Mapping* section).
+* **Mapping to ISDA Create derivative documentation negotiation platform**: Ingestion of JSON sample files generated from the ISDA Create for samples of executed documents  has been implemented to demonstrate connectivity between ISDA Create and the CDM. 
+	This validated the all the necessarty permutaions of elections and data associated with the supported agreements. 
+	A specific set of synonyms associated to the ``ISDA_Create_1_0`` source has been developed to establish mappings and enable this ingestion (see *Mapping* section).
+	(NB: The ISDA CSA for Variation Margin is not yet represented in ISDA Create - the CDM representaion of this document is tested with alternative external sample data.)
 
  
 Design Principles
