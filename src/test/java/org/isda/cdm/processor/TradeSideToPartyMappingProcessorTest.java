@@ -1,6 +1,8 @@
 package org.isda.cdm.processor;
 
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder;
+import cdm.base.staticdata.party.processor.TradeSideToPartyMappingProcessor;
+
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.Path;
