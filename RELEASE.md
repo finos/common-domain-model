@@ -1,6 +1,5 @@
-# *Infrastructure: Add override keyword to Rosetta Grammar*
+# *CDM Model: CME Synonyms*
 
 _What is being released_
 
-Adding a new override keyword
- - The override keyword allows a type to be extended from another namespace.
+CME synonyms externalised into a separate file.
