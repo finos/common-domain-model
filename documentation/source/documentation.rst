@@ -933,9 +933,7 @@ Scope
 
 The legal agreement model in the CDM comprises the following features:
 
-* **Composable and normalised model representation** of the ISDA agreements. There are distinct versions of the agreements for jurisdiction and year of publications, but the set of terms often belong to a common universe.  Therefore, the CDM defines each of these terms in a single location, and allows for the representation of a specific legal agreement by combining terms where appropriate.  
-
-The following legal agreements are supported in the CDM:
+* **Composable and normalised model representation** of the ISDA agreements. There are distinct versions of the agreements for jurisdiction and year of publications, but the set of terms often belong to a common universe.  Therefore, the CDM defines each of these terms in a single location, and allows for the representation of a specific legal agreement by combining terms where appropriate. The following legal agreements are supported in the CDM:
 
   * ISDA 2016 Phase One Credit Support Annex (“CSA”) (Security Interest – New York Law)
   * ISDA 2016 Phase One Credit Support Deed (“CSD”) (Security Interest – English Law)
@@ -1154,30 +1152,30 @@ Elective Provisions Example 1: Posting Obligations
   
 .. code-block:: Haskell
 
-type PostingObligations: 
-
-  securityProvider string (1..1)
-  partyElection PostingObligationsElection (1..2) 
+ type PostingObligations: 
+   securityProvider string (1..1)
+   partyElection PostingObligationsElection (1..2) 
 	
 The ``partyElection`` attribute, which is of the type partyElection ``PostingObligationsElection`` defines the party that the collateral posting obligations apply to and defines the collateral that is eligible, as shown below:
 	  
 .. code-block:: Haskell
 
-type PostingObligationsElection: 
-
-  party string (1..1) 
-  asPermitted boolean (1..1) 
-  eligibleCollateral EligibleCollateral (0..*) 
-  excludedCollateral string (0..1)  
-  additionalLanguage string (0..1)
+ type PostingObligationsElection: 
+   party string (1..1) 
+   asPermitted boolean (1..1) 
+   eligibleCollateral EligibleCollateral (0..*) 
+   excludedCollateral string (0..1)  
+   additionalLanguage string (0..1)
   
 .. note:: In order to provide compatibility with ISDA Create the ``party`` attribute in CDM is represented as a string.  Implementors should populate this field with ``PartyA`` , ``PartyB`` , or ``PartyAPartyB`` as appropriate to represent the party that the election terms are being defined for.
 
 The development of a digital data standard for representation of eligible collateral schedules is a crucial component required to drive digital negotiation, straight through processing, and digitisation of collateral management. The standard representation provided within the CDM allows institutions involved in the collateral workflow cycle to exchange eligible collateral information accurately and efficiently in digital form.  The ``EligibleCollateral`` data type is a root type with one attribute, as shown below:
 
-type EligibleCollateral: 
-[rootType]
-	criteria EligibleCollateralCriteria (1..*)
+.. code-block:: Haskell
+
+ type EligibleCollateral: 
+ [rootType]
+   criteria EligibleCollateralCriteria (1..*)
 
 The ``EligibleCollateralCriteria`` data type contains the following key components to allow the digital representation of the detailed criteria reflected in the legal agreement:
 
@@ -1256,35 +1254,34 @@ The ``creditSupportObligations`` attribute is contained within two of the agreem
 
 .. code-block:: Haskell
 
-type CollateralTransferAgreementElections: 
-	regime Regime (1..1) 
-	oneWayProvisions OneWayProvisions (1..1) 
-	generalSimmElections GeneralSimmElections (1..1) 
-	identifiedCrossCurrencySwap boolean (0..1) 
-	sensitivityMethodologies SensitivityMethodologies (1..1) 
-	fxHaircutCurrency FxHaircutCurrency (0..1) 
-	postingObligations PostingObligations (1..1) 
-	substitutedRegime SubstitutedRegime (1..1) 
-	baseCurrency string (1..1) 
-		[metadata scheme]
-	creditSupportObligations CreditSupportObligationsInitialMargin (1..1) 
-	calculationAndTiming CalculationAndTiming (1..1) 
-	conditionsPrecedent ConditionsPrecedent (1..1) 
-	substitution Substitution (1..1) 
-	disputeResolution DisputeResolution (1..1) 
-	rightsEvents RightsEvents (1..1) 
-	custodyArrangements CustodyArrangements (1..1) 
-	additionalRepresentations AdditionalRepresentations (1..1) 
-	demandsAndNotices ContactElection (0..1) 
-	addressesForTransfer ContactElection (0..1) 
-	otherCsa string (0..1) 
-	terminationCurrencyAmendment TerminationCurrencyAmendment (1..1) 
-	minimumTransferAmountAmendment MinimumTransferAmountAmendment (1..1) 
-	interpretationTerms string (0..1) 
-	processAgent ProcessAgent (0..1) 
-	jurisdictionRelatedTerms JurisdictionRelatedTerms (0..1) 
-	additionalAmendments string (0..1) 
-	additionalBespokeTerms string (0..1) 
+ type CollateralTransferAgreementElections: 
+   regime Regime (1..1) 
+   oneWayProvisions OneWayProvisions (1..1) 
+   generalSimmElections GeneralSimmElections (1..1) 
+   identifiedCrossCurrencySwap boolean (0..1) 
+   sensitivityMethodologies SensitivityMethodologies (1..1) 
+   fxHaircutCurrency FxHaircutCurrency (0..1) 
+   postingObligations PostingObligations (1..1) 
+   substitutedRegime SubstitutedRegime (1..1) 
+   baseCurrency string (1..1) 
+   creditSupportObligations CreditSupportObligationsInitialMargin (1..1) 
+   calculationAndTiming CalculationAndTiming (1..1) 
+   conditionsPrecedent ConditionsPrecedent (1..1) 
+   substitution Substitution (1..1) 
+   disputeResolution DisputeResolution (1..1) 
+   rightsEvents RightsEvents (1..1) 
+   custodyArrangements CustodyArrangements (1..1) 
+   additionalRepresentations AdditionalRepresentations (1..1) 
+   demandsAndNotices ContactElection (0..1) 
+   addressesForTransfer ContactElection (0..1) 
+   otherCsa string (0..1) 
+   terminationCurrencyAmendment TerminationCurrencyAmendment (1..1) 
+   minimumTransferAmountAmendment MinimumTransferAmountAmendment (1..1) 
+   interpretationTerms string (0..1) 
+   processAgent ProcessAgent (0..1) 
+   jurisdictionRelatedTerms JurisdictionRelatedTerms (0..1) 
+   additionalAmendments string (0..1) 
+   additionalBespokeTerms string (0..1) 
 
 This set of elections in ``CreditSupportObligationsInitialMargin`` is modelled to directly reflect the equivalent paragraph in the ISDA documentation, for example Paragraph 13 (c) of the ISDA 2018 CSA (Security Interest – New York Law).  The cardinality constraint requires ``threshold`` and ``minimumTransferAmount`` to be specified, as it is an elective provision in all the Credit Support Agreements supported in CDM.  Other clauses such as ``marginApproach`` are not elective provisions in all supported agreements so the cardinality indicates optionality.
 
