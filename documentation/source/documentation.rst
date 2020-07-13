@@ -955,8 +955,9 @@ The following legal agreements are supported in the CDM:
 * **Mapping to ISDA Create derivative documentation negotiation platform** : Ingestion of JSON sample files generated from ISDA Create for samples of executed documents has been implemented to demonstrate connectivity between ISDA Create and the CDM.
 
   * This approach provides validation of all the necessary permutations of elections and data associated with the supported agreements. 
-  * A specific set of synonyms associated to the ``ISDA_Create_1_0`` source has been developed to establish mappings and enable this ingestion (see *Mapping* section).
-	(NB: The ISDA CSA for Variation Margin is not yet represented in ISDA Create - the CDM representaion of this document is tested with alternative external sample data.)
+  * A specific set of synonyms associated to the ``ISDA_Create_1_0`` source has been developed to establish mappings and enable this ingestion. More details on Synonyms are provided in the Mapping (Synonym) section of this document..
+  
+  (NB: The ISDA CSA for Variation Margin is not yet represented in ISDA Create - the CDM representaion of this document is tested with alternative external sample data.)
 
  
 Design Principles
