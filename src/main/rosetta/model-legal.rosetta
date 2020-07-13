@@ -117,6 +117,15 @@ type AgreementTerms: <"A class to specify the elections and variables that chara
 
 	agreement Agreement (1..1) <"The type of contract being specified">
 	relatedAgreements RelatedAgreement (0..*) <"Specifies the agreement(s) that govern the agreement, either as a reference to such agreements when specified as part of the CDM, or through identification of some of the key terms of those agreements, such as the type of agreement, the publisher, the vintage, the agreement identifier and the agreement date.">
+		[synonym ISDA_Create_1_0 value 
+		    "date_of_euroclear_security_agreement" path "answers->partyA",
+		    "date_of_collateral_transfer_agreement" path "answers->partyA",
+			"date_of_isda_master_agreement" path "answers->partyA",
+			"collateral_transfer_agreement" path "answers->partyA",
+			"isda_master_agreement_form" path "answers->partyA"
+			mapper "RelatedAgreement"
+		]
+
 	umbrellaAgreement UmbrellaAgreement (0..1) <"The determination of whether Umbrella Agreement terms are applicable (True) or Not Applicable (False).">
 		[synonym ISDA_Create_1_0 value "umbrella_agreement_and_principal_identification", "umbrella_agreement_and_principal_identification" path "answers->partyA"]
 
@@ -317,7 +326,7 @@ type CollateralTransferAgreementElections: <"The set of elections which specify 
 		[synonym ISDA_Create_1_0 value "fx_haircut_percentage"]
 	// [documentReference Euroclear CtaInitialMargin 2018 English Law paragraph "13" section "(h)"]
 	postingObligations PostingObligations (1..1) <"The security providers posting obligations.">
-		[synonym ISDA_Create_1_0 value "security_provider_posting_obligations"]
+		[synonym ISDA_Create_1_0 value "security_provider_posting_obligations" mapper "PostingObligations"]
 	// [documentReference ISDA CtaInitialMargin 2019 paragraph "13" section "General Principles (ii)"]
 	substitutedRegime SubstitutedRegime (1..1) <"The specification of Additional regimes for purposes of determining whether a Regulatory Event has occurred.">
 		[synonym ISDA_Create_1_0 value "substituted_regimes"]
@@ -342,10 +351,10 @@ type CollateralTransferAgreementElections: <"The set of elections which specify 
 	// [documentReference ISDA CtaInitialMargin 2019 paragraph "13" section "m"]
 	additionalRepresentations AdditionalRepresentations (1..1) <"The specification Additional Representations that may be applicable to the agreement.">
 	demandsAndNotices ContactElection (0..1) <"The optional specification of address where the demands, specifications and notices will be communicated to for each of the parties to the agreement.">
-		[synonym ISDA_Create_1_0 value "demands_and_notices"]
+		[synonym ISDA_Create_1_0 value "demands_and_notices" mapper "ContactElection"]
 	// [documentReference Euroclear CtaInitialMargin 2019 paragraph "13" section "12"]
 	addressesForTransfer ContactElection (0..1) <"The optional specification of address for transfer as specified by the respective parties to the agreement.">
-		[synonym ISDA_Create_1_0 value "addresses_for_transfers"]
+		[synonym ISDA_Create_1_0 value "addresses_for_transfers" mapper "ContactElection"]
 	// [documentReference Euroclear CtaInitialMargin 2018 English Law paragraph "13" section "12"]
 	otherCsa string (0..1) <"The bespoke definition of Other CSA as specified by the parties to the agreement.">
 		[synonym ISDA_Create_1_0 value "other_csa->specify" set when "other_csa->specified" = "true"]
@@ -481,9 +490,9 @@ type CreditSupportAgreementElections: <"The set of elections which specify a Cre
 		[synonym ISDA_Create_1_0 value "fx_haircut_percentage"]
 	// [documentReference Euroclear CtaInitialMargin 2018 English Law paragraph "13" section "(h)"]
 	postingObligations PostingObligations (1..1) <"The security providers posting obligations.">
-		[synonym ISDA_Create_1_0 value "chargor_posting_obligations"]
-		[synonym ISDA_Create_1_0 value "pledgor_posting_obligations"]
-		[synonym ISDA_Create_1_0 value "obligor_posting_obligations"]
+		[synonym ISDA_Create_1_0 value "chargor_posting_obligations" mapper "PostingObligations"]
+		[synonym ISDA_Create_1_0 value "pledgor_posting_obligations" mapper "PostingObligations"]
+		[synonym ISDA_Create_1_0 value "obligor_posting_obligations" mapper "PostingObligations"]
 	// [documentReference ISDA CtaInitialMargin 2019 paragraph "13" section "General Principles (ii)"]
 	substitutedRegime SubstitutedRegime (1..1) <"The specification of Additional regimes for purposes of determining whether a Regulatory Event has occurred.">
 		[synonym ISDA_Create_1_0 value "substituted_regimes"]
@@ -511,10 +520,10 @@ type CreditSupportAgreementElections: <"The set of elections which specify a Cre
 	additionalRepresentations AdditionalRepresentations (1..1) <"The specification Additional Representations that may be applicable to the agreement.">
 	otherEligibleAndPostedSupport OtherEligibleAndPostedSupport (1..1) <"The Other Eligible Support elections associated with margin agreements.">
 	demandsAndNotices ContactElection (0..1) <"The optional specification of address where the demands, specifications and notices will be communicated to for each of the parties to the agreement.">
-		[synonym ISDA_Create_1_0 value "demands_and_notices"]
+		[synonym ISDA_Create_1_0 value "demands_and_notices" mapper "ContactElection"]
 	// [documentReference Euroclear CtaInitialMargin 2019 paragraph "13" section "12"]
 	addressesForTransfer ContactElection (0..1) <"The optional specification of address for transfer as specified by the respective parties to the agreement.">
-		[synonym ISDA_Create_1_0 value "addresses_for_transfers"]
+		[synonym ISDA_Create_1_0 value "addresses_for_transfers" mapper "ContactElection"]
 	// [documentReference Euroclear CtaInitialMargin 2018 English Law paragraph "13" section "12"]
 	otherCsa OtherAgreements (0..1) <"The bespoke definition of Other CSA as specified by the parties to the agreement.">
 		[synonym ISDA_Create_1_0 value "other_csa"]
@@ -601,7 +610,7 @@ type Csa2016 extends Csa: <"An abstract class to specify the provisions for the 
 	additionalRepresentation AdditionalRepresentation (1..1) <"ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (o): Additional Representation(s). | ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (k): Additional Representation(s).">
 		[synonym ISDA_Create_1_0 value "additional_representations"]
 	demandsAndNotices ContactElection (1..1) <"The address where the demands, specifications and notices will be communicated to within each of the parties to the agreement. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (q): Demands and Notices. | ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (m): Demands and Notices.">
-		[synonym ISDA_Create_1_0 value "demands_and_notices"]
+		[synonym ISDA_Create_1_0 value "demands_and_notices" mapper "ContactElection"]
 	addressesForTransfer ContactElection (1..1) <"The address for transfer as specified by the respective parties to the agreement. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (r): Addresses for Transfers. | ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (n): Addresses for Transfers.">
 		[synonym ISDA_Create_1_0 value "addresses_for_transfers"]
 	bespokeProvision string (0..1) <"The bespoke provision that might be specified by the parties to the agreement. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (u)(iii): Other Provisions. | ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (p): Other Provisions.">
@@ -793,8 +802,8 @@ type DisputeResolution: <"A class to specify the election terms under which a pa
 		[synonym ISDA_Create_1_0 value "specify" path "resolution_time" set when "resolution_time->specified" = "false"]
 	// condition: one-of //TODO replace condition when resolutionTime exists otherTerms is absent
 	recalculationOfValue RecalculationOfValue (0..1) <"The elections to specify terms for recalculation of the market value of posted collateral.">
-		[synonym ISDA_Create_1_0 value "recalculation_of_value"]
-		[synonym ISDA_Create_1_0 value "recalculation_of_market_value"]
+		[synonym ISDA_Create_1_0 value "recalculation_of_value" mapper "RecalculationOfValue"]
+		[synonym ISDA_Create_1_0 value "recalculation_of_market_value" mapper "RecalculationOfValue"]
 
 type DistributionAndInterestPayment: <"A class to specify the Distributions and Interest Payment provisions applicable to the Japanese Law ISDA 2016 CSA for Initial Margin and the New York Law ISDA 2016 CSA for Variation Margin. ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n): Distributions and Interest Payment (IM). | ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (i): Distributions and Interest Payment (VM).">
 
@@ -926,22 +935,14 @@ type FrenchLawAddendum: <"A class to specify party specific elections when a Col
 	isApplicable boolean (1..1) <"The qualification of whether the French Law Addendum is deemed applicable by the parties (True) or not (False).">
 		[synonym ISDA_Create_1_0 set to True when "is_applicable" = "applicable", set to False when "is_applicable" = "not_applicable"]
 	partyElection FrenchLawAddendumElection (2..2) <"The parties French Law Addendum Elections.">
-
 	condition Applicable: <"A data rule to enforce that the French Law Addendum party elections must be specified when applicable.">
 		if isApplicable = True
 		then partyElection exists
 
 type FrenchLawAddendumElection: <"A class to specify party specific French Law Addendum language">
-
 	party string (1..1) <"The elective party.">
-		[synonym ISDA_Create_1_0 set to "partyA" when "partyA_french_law_addendum" = "specify", set to "partyA" when "partyA_french_law_addendum" = "not_applicable",
-								 set to "partyB" when "partyB_french_law_addendum" = "specify", set to "partyB" when "partyB_french_law_addendum" = "not_applicable"]
 	isApplicable boolean (1..1) <"The qualification of whether the party elects specific language">
-		[synonym ISDA_Create_1_0 set to True when "partyA_french_law_addendum" = "specify", set to False when "partyA_french_law_addendum" = "not_applicable"]
-		[synonym ISDA_Create_1_0 set to True when "partyB_french_law_addendum" = "specify", set to False when "partyB_french_law_addendum" = "not_applicable"]
 	addendumLanguage string (0..1) <"The party specific language to be included in the agreement.">
-		[synonym ISDA_Create_1_0 value "partyA_specify"]
-		[synonym ISDA_Create_1_0 value "partyB_specify"]
 
 	condition AddendumLanguage: <"A data rule to enforce that the French Law Addendum party language must be specified when applicable.">
 		if isApplicable = True then addendumLanguage exists
@@ -1044,7 +1045,7 @@ type JurisdictionRelatedTerms: <"A class to specify terms jurisdiction related t
 		[synonym ISDA_Create_1_0 set to True when "jury_waiver->is_applicable" = "applicable", set to False when "jury_waiver->is_applicable" = "not_applicable"]
 	frenchLawAddendum FrenchLawAddendum (0..1) <"The French Law Addendum Provisions specific to the agreement.">
 	// [documentReference Euroclear CtaInitialMargin 2019 paragraph "13" section "19 (d)"]
-		[synonym ISDA_Create_1_0 value "french_law_addendum"]
+		[synonym ISDA_Create_1_0 value "french_law_addendum" mapper "FrenchLawAddendum"]
 
 type LegalAgreement extends LegalAgreementBase: <"A class to specify the elections and variables that characterize a legal agreement.">
 	[metadata key]
@@ -1064,14 +1065,10 @@ type LegalAgreement extends LegalAgreementBase: <"A class to specify the electio
 		then agreementType -> name = LegalAgreementNameEnum->CollateralTransferAgreement
 
 type LegalAgreementBase: <"A class describing the legal agreement baseline information, other than the specialized elections: type of legal agreement, agreement date and effective date, parties to the agreement, ... The purpose of this abstract class is to provide the ability to associate a 'one of' feature to the LegalAgreement class as a way to enforce a systematic choice between its attributes.">
-
+ 
 	agreementDate date (1..1) <"The date on which the legal agreement has been agreed between the parties. This corresponds to the Date of Deed in an English Law document.">
 		[synonym FpML_5_10 value "agreementDate" path "legalDocumentHeader"]
 		[synonym ISDA_Create_1_0 value "executionDate" path "answers->partyA->execution_date"]
-		[synonym ISDA_Create_1_0 value "collateral_transfer_agreement_date"]
-		[synonym ISDA_Create_1_0 value "master_agreement_date"]
-		[synonym ISDA_Create_1_0 value "partyA_date_of_security_agreement"]
-		[synonym ISDA_Create_1_0 value "partyB_date_of_security_agreement"]
 	effectiveDate date (0..1) <"The date on which the agreement is effective, if different from the agreement date. It is expected that it will most often correspond to the agreement date, although there could be situations where the parties will explicitly agree on a distinct effective date.">
 		[synonym FpML_5_10 value "effectiveDate" path "legalDocumentHeader"]
 	identifier Identifier (0..*) <"The legal agreement identifier. Several identifiers can be specified.">
@@ -1081,7 +1078,7 @@ type LegalAgreementBase: <"A class describing the legal agreement baseline infor
 		[synonym FpML_5_10 value "documentType"]
 	contractualParty Party (2..2)  <"The two contractual parties to the legal agreement, which reference information is positioned as part of the partyInformation attribute.">
 		[metadata reference]
-		[synonym ISDA_Create_1_0 value "answers" mapper "ContractualParty"]
+		[synonym ISDA_Create_1_0 value "partyA" mapper "ContractualParty"]
 		[synonym FpML_5_10 value "party"]
 	otherParty PartyRole (0..*) <"The role(s) that other party(ies) may have in relation to the legal agreement, further to the contractual parties.">
 
@@ -1103,7 +1100,6 @@ type LegalAgreementType: <"A class to specify the type of legal agreement, which
 		[synonym FpML_5_10, FpML_5_10 value "version"]
 		[synonym AcadiaSoft_AM_1_0 value "csaVersion"]
 		[synonym ISDA_Create_1_0 value "year" path "document"]
-		[synonym ISDA_Create_1_0 value "isda_master_agreement_form"]
 
 type MarginApproach: <"A class for selection of Margin Approach.">
 
@@ -1209,9 +1205,9 @@ type OtherEligibleAndPostedSupport: <"A class to specify the Other Eligible Supp
 	otherEligibleSupport string (0..1) <"The Other Eligible Support election. If not specified, this election is deemed as not applicable.">
 		[synonym ISDA_Create_1_0 value "eligible_support_specify" path "other_eligible_support" set when "other_eligible_support->other_eligible_support" = "specify"]
 		[synonym ISDA_Create_1_0 value "other_eligible_support" path "eligible_support"]
-	applicableValue boolean (1..1) <"The definition of “Value” with respect to Other Eligible Support (IM) and Other Posted Support (IM).">
+	applicableValue boolean (1..1) <"The definition of 'Value' with respect to Other Eligible Support (IM) and Other Posted Support (IM).">
 		[synonym ISDA_Create_1_0 set to True when "support_value->is_applicable" = "applicable",	set to False when "support_value->is_applicable" = "not_applicable"]
-	applicableTransfer boolean (0..1) <"The definition of “Transfer” with respect to Other Eligible Support (IM) and Other Posted Support (IM).">
+	applicableTransfer boolean (0..1) <"The definition of 'Transfer' with respect to Other Eligible Support (IM) and Other Posted Support (IM).">
 		[synonym ISDA_Create_1_0 set to True when "support_transfer->is_applicable" = "applicable", set to False when "support_transfer->is_applicable" = "not_applicable"]
 
 type PartyAgreementIdentifier: <"A class defining a legal agreement identifier issued by the indicated party.">
@@ -1235,25 +1231,13 @@ type PostingObligations: <"A class to specify the security provider(s) collatera
 	partyElection PostingObligationsElection (1..2) <"The security provider party(ies) to which the posting obligations apply to, which can be either one of the parties to the legal agreement, or both of those.">
 
 type PostingObligationsElection: <"A class to specify the collateral posting obligations as specified under the terms of the ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (ii).">
-
 	party string (1..1) <"The elective party.">
-		[synonym ISDA_Create_1_0 set to "PartyA" when "partyA_type" = "control_agreement", set to "PartyA" when "partyA_type" = "collateral_management_agreement", set to "PartyA" when "partyA_type" = "specify"]
-		[synonym ISDA_Create_1_0 set to "PartyB" when "partyB_type" = "control_agreement", set to "PartyB" when "partyB_type" = "collateral_management_agreement", set to "PartyB" when "partyB_type" = "specify"]
 	asPermitted boolean (1..1) <"If set to True, the Control Agreement is a Credit Support Document with respect to the party(ies). ISDA 2016 Credit Support Annex for Initial Margin, paragraph 6, (e).">
-		[synonym ISDA_Create_1_0 set to True when "partyA_type" = "control_agreement", set to True when "partyA_type" = "collateral_management_agreement", set to False when "partyA_type" = "specify"]
-		[synonym ISDA_Create_1_0 set to True when "partyB_type" = "control_agreement", set to True when "partyB_type" = "collateral_management_agreement", set to False when "partyB_type" = "specify"]
 	eligibleCollateral EligibleCollateral (0..*) <"The eligible collateral as specified in relation to the pledgor/chargor/obligor(s) posting obligation. ISDA 2016 Credit Support Annex for Initial Margin, Eligible Credit Support (IM) Schedule.">
 		[synonym ISDA_Create_1_0 value "partyA_eligible_currencies" set when "partyA_type" = "specify"]
 		[synonym ISDA_Create_1_0 value "partyB_eligible_currencies" set when "partyB_type" = "specify"]
 	excludedCollateral string (0..1) <"The excluded collateral as specified in relation to the pledgor/chargor/obligor(s) posting obligation. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (ii)(B)(i)."> // This representation matches the current ISDA Create one, but should be aligned with the eligibleCollateral representation once that one is confirmed
-		[synonym ISDA_Create_1_0 value "partyA_control_agreement_specify" set when "partyA_control_agreement" = "yey"]
-		[synonym ISDA_Create_1_0 value "partyB_control_agreement_specify" set when "partyB_control_agreement" = "yey"]
-		[synonym ISDA_Create_1_0 value "partyA_collateral_management_agreement_specify" set when "partyA_collateral_management_agreement" = "yey"]
-		[synonym ISDA_Create_1_0 value "partyB_collateral_management_agreement_specify" set when "partyB_collateral_management_agreement" = "yey"]
 	additionalLanguage string (0..1) <"The additional language that might be specified by the parties to the legal agreement.">
-		[synonym ISDA_Create_1_0 value "partyA_additional_language"]
-		[synonym ISDA_Create_1_0 value "partyB_additional_language"]
-		[synonym ISDA_Create_1_0 value "additional_language"]
 
 	condition AsPermitted: <"A data rule to enforce that the eligible collateral should be specified when the Control Agreement is a Credit Support Document with respect to the party(ies).">
 		if asPermitted = True
@@ -1298,22 +1282,8 @@ type RecalculationOfValue: <"A class to specify terms for Recalculation of the M
 type RecalculationOfValueElection: <"A class to specify Recalculation of Value terms that will be applicable">
 
 	party string (1..1) <"The elective party.">
-		[synonym ISDA_Create_1_0 set to "partyA" when "partyA_recalculation_of_value" = "consultation_procedure", set to "partyA" when "partyA_recalculation_of_value" = "other_regulatory_CSA_procedure"]
-		[synonym ISDA_Create_1_0 set to "partyB" when "partyB_recalculation_of_value" = "other_regulatory_CSA_procedure"]
-		[synonym ISDA_Create_1_0 set to "partyA" when "recalculation_of_market_value" = "partyA_recalculation_of_market_value"]
-		[synonym ISDA_Create_1_0 set to "partyB" when "recalculation_of_market_value" = "partyB_recalculation_of_market_value"]
-
 	recalculationOfValueElection RecalculationOfValueElectionEnum (1..1) <"The procedure for Recalculation of Value.">
-		[synonym ISDA_Create_1_0 value "partyA_recalculation_of_value"]
-		[synonym ISDA_Create_1_0 value "partyB_recalculation_of_value"]
-		[synonym ISDA_Create_1_0 value "partyA_recalculation_of_market_value"]
-		[synonym ISDA_Create_1_0 value "partyB_recalculation_of_market_value"]
-
 	recalculationOfValueTerms string (0..1) <"Additional Recalculation of Value terms when specified">
-		[synonym ISDA_Create_1_0 value "partyA_recalculation_of_value_terms" set when "partyA_recalculation_of_value" = "other"]
-		[synonym ISDA_Create_1_0 value "partyB_recalculation_of_value_terms" set when "partyB_recalculation_of_value" = "other"]
-		[synonym ISDA_Create_1_0 value "partyA_recalculation_of_market_value_terms" set when "partyA_recalculation_of_market_value" = "other"]
-		[synonym ISDA_Create_1_0 value "partyB_recalculation_of_market_value_terms" set when "partyB_recalculation_of_market_value" = "other"]
 
 	condition recalculationOfValueTerms: <"A data rule to enforce that additional Recalculation of Value terms are only specified when applicable">
 		if RecalculationOfValueElection exists
@@ -1371,10 +1341,10 @@ type RightsEvents: <"A class to specify the rights of Security Taker and/or Secu
 		[synonym ISDA_Create_1_0 value "control_agreement_nec_event"]
 	// [documentReference ISDA CtaInitialMargin 2019 paragraph "13" section "i"]
 	securityProviderRightsEvent SecurityProviderRightsEvent (1..1) <"The bespoke provisions that might be specified by the parties to the agreement applicable to a Security Provider Rights Event.">
-		[synonym ISDA_Create_1_0 value "obligor_rights_event"]
-		[synonym ISDA_Create_1_0 value "chargor_rights_event"]
-		[synonym ISDA_Create_1_0 value "pledgor_rights_event"]
-		[synonym ISDA_Create_1_0 value "security_provider_rights_event"]
+		[synonym ISDA_Create_1_0 value "obligor_rights_event" mapper "SecurityProviderRightsEvent"]
+		[synonym ISDA_Create_1_0 value "chargor_rights_event" mapper "SecurityProviderRightsEvent"]
+		[synonym ISDA_Create_1_0 value "pledgor_rights_event" mapper "SecurityProviderRightsEvent"]
+		[synonym ISDA_Create_1_0 value "security_provider_rights_event" mapper "SecurityProviderRightsEvent"]
 	// [documentReference ISDA CtaInitialMargin 2019 paragraph "13" section "j"]
 	deliveryInLieuRight boolean (0..1) <"The specification of whether Delivery In Lieu language is applicable to the agreement (true) or not (false).">
 		[synonym ISDA_Create_1_0 set to True when "delivery_in_lieu_right->right" = "applicable", set to False when "delivery_in_lieu_right->right" = "not_applicable"]
@@ -1467,26 +1437,8 @@ type SecurityProviderRightsEvent: <"A class to specify the Pledgor/Obligor/Charg
 		then includeCoolingOffLanguage = False
 
 type SecurityProviderRightsEventElection: <"A class to specify party specific Secured Party Rights Event language.">
-
 	party string (1..1) <"The elective party.">
-		[synonym ISDA_Create_1_0 set to "partyA" when "partyA_chargor_rights_event" = "applicable", set to "partyA" when "partyA_chargor_rights_event" = "not_applicable"]
-		[synonym ISDA_Create_1_0 set to "partyB" when "partyB_chargor_rights_event" = "applicable", set to "partyB" when "partyB_chargor_rights_event" = "not_applicable"]
-		[synonym ISDA_Create_1_0 set to "partyA" when "partyA_pledgor_rights_event" = "applicable", set to "partyA" when "partyA_pledgor_rights_event" = "not_applicable"]
-		[synonym ISDA_Create_1_0 set to "partyB" when "partyB_pledgor_rights_event" = "applicable", set to "partyB" when "partyB_pledgor_rights_event" = "not_applicable"]
-		[synonym ISDA_Create_1_0 set to "partyA" when "partyA_obligor_rights_event" = "applicable", set to "partyA" when "partyA_obligor_rights_event" = "not_applicable"]
-		[synonym ISDA_Create_1_0 set to "partyB" when "partyB_obligor_rights_event" = "applicable", set to "partyB" when "partyB_obligor_rights_event" = "not_applicable"]
-		[synonym ISDA_Create_1_0 set to "partyA" when "partyA_security_provider_rights_event" = "applicable", set to "partyA" when "partyA_security_provider_rights_event" = "not_applicable"]
-		[synonym ISDA_Create_1_0 set to "partyB" when "partyB_security_provider_rights_event" = "applicable", set to "partyB" when "partyB_security_provider_rights_event" = "not_applicable"]
-
 	rightsEvent boolean (1..1)
-		[synonym ISDA_Create_1_0 set to True when "partyA_chargor_rights_event" = "applicable", set to False when "partyA_chargor_rights_event" = "not_applicable"]
-		[synonym ISDA_Create_1_0 set to True when "partyB_chargor_rights_event" = "applicable", set to False when "partyB_chargor_rights_event" = "not_applicable"]
-		[synonym ISDA_Create_1_0 set to True when "partyA_pledgor_rights_event" = "applicable", set to False when "partyA_pledgor_rights_event" = "not_applicable"]
-		[synonym ISDA_Create_1_0 set to True when "partyB_pledgor_rights_event" = "applicable", set to False when "partyB_pledgor_rights_event" = "not_applicable"]
-		[synonym ISDA_Create_1_0 set to True when "partyA_obligor_rights_event" = "applicable", set to False when "partyA_obligor_rights_event" = "not_applicable"]
-		[synonym ISDA_Create_1_0 set to True when "partyB_obligor_rights_event" = "applicable", set to False when "partyB_obligor_rights_event" = "not_applicable"]
-		[synonym ISDA_Create_1_0 set to True when "partyA_security_provider_rights_event" = "applicable", set to False when "partyA_security_provider_rights_event" = "not_applicable"]
-		[synonym ISDA_Create_1_0 set to True when "partyB_security_provider_rights_event" = "applicable", set to False when "partyB_security_provider_rights_event" = "not_applicable"]
 
 type SensitivityMethodologies: <"A class to specificy methodologies to compute sensitivities specific to the agreement.">
 
@@ -1624,7 +1576,7 @@ type UmbrellaAgreement: <"A class to specify a set of legal entities which are p
 		[synonym ISDA_Create_1_0 value "language" maps 2] // TODO: remove "maps 2" once migration complete
 	parties UmbrellaAgreementEntity (0..*) <"Underlying principals to the umbrella agreement.">
 		[synonym ISDA_Create_1_0 value "principal_identification_schedule" mapper "UmbrellaAgreementEntity"]
-	
+
 	condition UmbrellaAgreementExists: <"Umbrella Agreement language and parties should not exist when Umbrella Agreement terms are Not Applicable.">
 		if isApplicable = True
 		then (language and parties) exists
@@ -1638,7 +1590,7 @@ func SaIsdaBankCustodian2019NewYorkLaw:
 	// [validation agreement]
 	inputs: agreementTerms AgreementTerms (1..1)
 	output: is_agreement boolean (1..1)
-	
+
 	assign-output is_agreement:
 		agreementTerms -> relatedAgreements -> legalAgreement -> agreementType -> name = LegalAgreementNameEnum->CollateralTransferAgreement //The agreement is a CTA
 		and agreementTerms -> relatedAgreements -> legalAgreement -> agreementType -> publisher = LegalAgreementPublisherEnum->ISDA //published by ISDA

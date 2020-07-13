@@ -1,4 +1,4 @@
-package org.isda.cdm.processor;
+package cdm.base.staticdata.party.processor;
 
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder;
 import com.google.common.collect.MoreCollectors;
