@@ -47,8 +47,10 @@ public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
 					rateSpec.setFloatingRateBuilder(null);
 					newIrp.getRateSpecification().setFixedRateBuilder(null);
 
-					CounterpartyMappingHelper.getOrCreateHelper(getContext())
+					CounterpartyMappingHelper.getHelper(getContext())
+							.orElseThrow(() -> new IllegalStateException("CounterpartyMappingHelper not found."))
 							.setCounterpartyEnumThen(newIrp.getPayerReceiver(), flipPayerReceiver());
+
 					result.add(newIrp);
 				}
 			}

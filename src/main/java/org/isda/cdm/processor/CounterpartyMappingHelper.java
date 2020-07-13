@@ -32,13 +32,15 @@ public class CounterpartyMappingHelper {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CounterpartyMappingHelper.class);
 
+	static final String KEY = "COUNTERPARTY_MAPPING_HELPER";
+
 	private static final RosettaPath PRODUCT_SUB_PATH = RosettaPath.valueOf("tradableProduct").newSubPath("product");
 
 	private final Map<String, CounterpartyEnum> partyExternalReferenceToCounterpartyEnumMap;
 	private final List<Mapping> mappings;
 	private final CompletableFuture<Void> bothCounterpartiesCollected = new CompletableFuture<>();
 
-	private CounterpartyMappingHelper(List<Mapping> mappings) {
+	CounterpartyMappingHelper(List<Mapping> mappings) {
 		this.mappings = mappings;
 		this.partyExternalReferenceToCounterpartyEnumMap = new LinkedHashMap<>();
 	}
@@ -47,10 +49,8 @@ public class CounterpartyMappingHelper {
 	 * Get or create an instance of this counterparty mapping helper.
 	 */
 	@NotNull
-	public static synchronized CounterpartyMappingHelper getOrCreateHelper(MappingContext mappingContext) {
-		return (CounterpartyMappingHelper)
-				mappingContext.getMappingParams()
-						.computeIfAbsent("COUNTERPARTY_MAPPING_HELPER", (key) -> new CounterpartyMappingHelper(mappingContext.getMappings()));
+	public static Optional<CounterpartyMappingHelper> getHelper(MappingContext mappingContext) {
+		return Optional.ofNullable((CounterpartyMappingHelper) mappingContext.getMappingParams().get(KEY));
 	}
 
 	/**
@@ -104,16 +104,15 @@ public class CounterpartyMappingHelper {
 	void addCounterparties(TradableProductBuilder tradableProductBuilder) {
 		bothCounterpartiesCollected
 				.thenRun(() -> CompletableFuture.supplyAsync(() -> tradableProductBuilder)
-						.thenAccept(builder -> {
-							builder.clearCounterparties()
-									.addCounterparties(partyExternalReferenceToCounterpartyEnumMap.entrySet().stream()
-									.map(extRefCounterpartyEntry -> Counterparty.builder()
-											.setCounterparty(extRefCounterpartyEntry.getValue())
-											.setPartyBuilder(ReferenceWithMetaParty.builder()
-													.setExternalReference(extRefCounterpartyEntry.getKey()))
-											.build())
-									.collect(Collectors.toList()));
-						}));
+						.thenAccept(builder ->
+								builder.clearCounterparties()
+										.addCounterparties(partyExternalReferenceToCounterpartyEnumMap.entrySet().stream()
+												.map(extRefCounterpartyEntry -> Counterparty.builder()
+														.setCounterparty(extRefCounterpartyEntry.getValue())
+														.setPartyBuilder(ReferenceWithMetaParty.builder()
+																.setExternalReference(extRefCounterpartyEntry.getKey()))
+														.build())
+												.collect(Collectors.toList()))));
 	}
 
 	private Optional<CounterpartyEnum> getOrCreateCounterpartyEnum(String externalReference) {

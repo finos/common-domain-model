@@ -21,7 +21,7 @@ public class CounterpartyEnumMappingProcessor extends MappingProcessor {
 
 	@Override
 	public <T> void mapBasic(Path synonymPath, Optional<T> instance, RosettaModelObjectBuilder parent) {
-		CounterpartyMappingHelper.getOrCreateHelper(getContext())
-				.setCounterpartyEnum(parent, getModelPath(), synonymPath);
+		CounterpartyMappingHelper.getHelper(getContext())
+				.ifPresent(h -> h.setCounterpartyEnum(parent, getModelPath(), synonymPath));
 	}
 }

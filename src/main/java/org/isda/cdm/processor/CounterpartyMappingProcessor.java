@@ -6,8 +6,11 @@ import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 import org.isda.cdm.TradableProduct;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+
+import static org.isda.cdm.processor.CounterpartyMappingHelper.KEY;
 
 /**
  * ISDA Create mapping processor.
@@ -20,8 +23,13 @@ public class CounterpartyMappingProcessor extends MappingProcessor {
 	}
 
 	@Override
-	public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
-		CounterpartyMappingHelper.getOrCreateHelper(getContext())
-				.addCounterparties((TradableProduct.TradableProductBuilder) parent);
+	public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
+		createHelper().addCounterparties((TradableProduct.TradableProductBuilder) builder);
+	}
+
+	@NotNull
+	private CounterpartyMappingHelper createHelper() {
+		return (CounterpartyMappingHelper) getContext().getMappingParams()
+				.compute(KEY, (key, value) -> new CounterpartyMappingHelper(getContext().getMappings()));
 	}
 }
