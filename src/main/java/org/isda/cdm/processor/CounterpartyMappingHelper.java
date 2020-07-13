@@ -28,7 +28,7 @@ import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setV
 import static com.regnosys.rosetta.common.util.StringExtensions.toFirstUpper;
 import static org.isda.cdm.TradableProduct.TradableProductBuilder;
 
-class CounterpartyMappingHelper {
+public class CounterpartyMappingHelper {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CounterpartyMappingHelper.class);
 
@@ -47,7 +47,7 @@ class CounterpartyMappingHelper {
 	 * Get or create an instance of this counterparty mapping helper.
 	 */
 	@NotNull
-	static synchronized CounterpartyMappingHelper getOrCreateHelper(MappingContext mappingContext) {
+	public static synchronized CounterpartyMappingHelper getOrCreateHelper(MappingContext mappingContext) {
 		return (CounterpartyMappingHelper)
 				mappingContext.getMappingParams()
 						.computeIfAbsent("COUNTERPARTY_MAPPING_HELPER", (key) -> new CounterpartyMappingHelper(mappingContext.getMappings()));
@@ -56,7 +56,7 @@ class CounterpartyMappingHelper {
 	/**
 	 * Maps party external reference to CounterpartyEnum, then sets on the given builder.
 	 */
-	void setCounterpartyEnum(RosettaModelObjectBuilder builder, RosettaPath modelPath, Path synonymPath) {
+	public void  setCounterpartyEnum(RosettaModelObjectBuilder builder, RosettaPath modelPath, Path synonymPath) {
 		if (modelPath.containsPath(PRODUCT_SUB_PATH)) {
 			setValueAndOptionallyUpdateMappings(
 					synonymPath.addElement("href"), // synonym path to party external reference
