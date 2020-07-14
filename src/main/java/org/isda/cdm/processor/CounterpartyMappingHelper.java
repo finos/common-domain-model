@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static cdm.base.staticdata.party.PayerReceiver.PayerReceiverBuilder;
@@ -34,7 +35,7 @@ public class CounterpartyMappingHelper {
 
 	static final String KEY = "COUNTERPARTY_MAPPING_HELPER";
 
-	private static final RosettaPath PRODUCT_SUB_PATH = RosettaPath.valueOf("tradableProduct").newSubPath("product");
+	public static final RosettaPath PRODUCT_SUB_PATH = RosettaPath.valueOf("tradableProduct").newSubPath("product");
 
 	private final Map<String, CounterpartyEnum> partyExternalReferenceToCounterpartyEnumMap;
 	private final List<Mapping> mappings;
@@ -56,11 +57,18 @@ public class CounterpartyMappingHelper {
 	/**
 	 * Maps party external reference to CounterpartyEnum, then sets on the given builder.
 	 */
-	public void  setCounterpartyEnum(RosettaModelObjectBuilder builder, RosettaPath modelPath, Path synonymPath) {
+	public void setCounterpartyEnum(RosettaModelObjectBuilder builder,
+			RosettaPath modelPath,
+			Path synonymPath,
+			Function<String, Optional<String>> externalRefTranslator) {
 		if (modelPath.containsPath(PRODUCT_SUB_PATH)) {
 			setValueAndOptionallyUpdateMappings(
 					synonymPath.addElement("href"), // synonym path to party external reference
-					(externalRef) -> getOrCreateCounterpartyEnum(externalRef)
+					(externalRef) -> Optional.of(externalRef)
+							// apply additional external reference translation function if provided
+							.map(x -> Optional.ofNullable(externalRefTranslator).flatMap(f -> f.apply(x)).orElse(x))
+							// translate to counterparty enum
+							.flatMap(this::getOrCreateCounterpartyEnum)
 							// determine counterparty enum and add to builder
 							.filter(cpty -> setCounterpartyEnumReflectively(builder, modelPath.getElement().getPath(), cpty))
 							.isPresent(),
@@ -120,8 +128,10 @@ public class CounterpartyMappingHelper {
 				externalReference,
 				(key) -> {
 					if (partyExternalReferenceToCounterpartyEnumMap.isEmpty()) {
+						LOGGER.info("Adding CounterpartyEnum.PARTY_1 for {}", externalReference);
 						return CounterpartyEnum.PARTY_1;
 					} else if (partyExternalReferenceToCounterpartyEnumMap.size() == 1) {
+						LOGGER.info("Adding CounterpartyEnum.PARTY_2 for {}", externalReference);
 						return CounterpartyEnum.PARTY_2;
 					} else {
 						LOGGER.error("Unexpected counterparty external reference {}, 2 counterparties already exist", externalReference);
