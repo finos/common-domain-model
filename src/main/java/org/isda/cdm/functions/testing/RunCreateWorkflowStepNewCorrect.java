@@ -68,6 +68,7 @@ public class RunCreateWorkflowStepNewCorrect implements ExecutableFunction<Contr
 		BusinessEvent corrected = execute.evaluate(contract.getTradableProduct().getProduct(),
                 guard(contract.getTradableProduct().getQuantityNotation()),
                 guard(contract.getTradableProduct().getPriceNotation()),
+                guard(contract.getTradableProduct().getCounterparties()),
                 guard(contract.getParty()),
                 guard(contract.getPartyRole()),
                 Collections.emptyList());
@@ -87,6 +88,7 @@ public class RunCreateWorkflowStepNewCorrect implements ExecutableFunction<Contr
         BusinessEvent newBusinessEvent = execute.evaluate(contract.getTradableProduct().getProduct(),
                 guard(incorrectQuantity),
                 guard(contract.getTradableProduct().getPriceNotation()),
+                guard(contract.getTradableProduct().getCounterparties()),
                 guard(contract.getParty()),
                 guard(contract.getPartyRole()),
                 Collections.emptyList());
