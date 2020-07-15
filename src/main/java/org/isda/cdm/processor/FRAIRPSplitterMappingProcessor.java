@@ -10,8 +10,6 @@ import com.rosetta.model.lib.path.RosettaPath;
 import org.isda.cdm.InterestRatePayout.InterestRatePayoutBuilder;
 import org.isda.cdm.RateSpecification.RateSpecificationBuilder;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,8 +20,6 @@ import static cdm.base.staticdata.party.metafields.ReferenceWithMetaParty.Refere
 
 @SuppressWarnings("unused")
 public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(FRAIRPSplitterMappingProcessor.class);
 
 	public FRAIRPSplitterMappingProcessor(RosettaPath path, List<Path> synonymPaths, MappingContext mappingContext) {
 		super(path, synonymPaths, mappingContext);
