@@ -33,8 +33,7 @@ public class CounterpartyMappingHelper {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CounterpartyMappingHelper.class);
 
-	static final String KEY = "COUNTERPARTY_MAPPING_HELPER";
-
+	public static final String COUNTERPARTY_MAPPING_HELPER_KEY = "COUNTERPARTY_MAPPING_HELPER";
 	public static final RosettaPath PRODUCT_SUB_PATH = RosettaPath.valueOf("tradableProduct").newSubPath("product");
 
 	private final Map<String, CounterpartyEnum> partyExternalReferenceToCounterpartyEnumMap;
@@ -47,11 +46,11 @@ public class CounterpartyMappingHelper {
 	}
 
 	/**
-	 * Get or create an instance of this counterparty mapping helper.
+	 * Get an instance of this counterparty mapping helper from the MappingContext params.
 	 */
 	@NotNull
-	public static Optional<CounterpartyMappingHelper> getHelper(MappingContext mappingContext) {
-		return Optional.ofNullable((CounterpartyMappingHelper) mappingContext.getMappingParams().get(KEY));
+	public synchronized static Optional<CounterpartyMappingHelper> getInstance(MappingContext mappingContext) {
+		return Optional.ofNullable((CounterpartyMappingHelper) mappingContext.getMappingParams().get(COUNTERPARTY_MAPPING_HELPER_KEY));
 	}
 
 	/**
@@ -79,7 +78,8 @@ public class CounterpartyMappingHelper {
 
 	/**
 	 * Waits until the partyExternalReference to CounterpartyEnum map is ready, sets CounterpartyEnum based on the partyReferences, and
-	 * then runs the thenConsumer.
+	 * then runs the thenConsumer.  Used by other mappers that depend on the party payer / receiver / buyer / seller, so those mappers can
+	 * run only once the party data is stable.
 	 */
 	void setCounterpartyEnumThen(PayerReceiverBuilder payerReceiverBuilder, Consumer<PayerReceiverBuilder> thenConsumer) {
 		bothCounterpartiesCollected
@@ -107,7 +107,7 @@ public class CounterpartyMappingHelper {
 	}
 
 	/**
-	 * Waits until the partyExternalReference to CounterpartyEnum map is ready, then adds all Counterparty instances to TradableProductBuilder.
+	 * Waits until the partyExternalReference to CounterpartyEnum map is ready, then adds both Counterparty instances to TradableProductBuilder.
 	 */
 	void addCounterparties(TradableProductBuilder tradableProductBuilder) {
 		bothCounterpartiesCollected
@@ -123,6 +123,9 @@ public class CounterpartyMappingHelper {
 												.collect(Collectors.toList()))));
 	}
 
+	/**
+	 * Looks up externalReference in the map and returns the corresponding CounterpartyEnum.
+	 */
 	private Optional<CounterpartyEnum> getOrCreateCounterpartyEnum(String externalReference) {
 		CounterpartyEnum counterpartyEnum = partyExternalReferenceToCounterpartyEnumMap.computeIfAbsent(
 				externalReference,
@@ -134,11 +137,12 @@ public class CounterpartyMappingHelper {
 						LOGGER.info("Adding CounterpartyEnum.PARTY_2 for {}", externalReference);
 						return CounterpartyEnum.PARTY_2;
 					} else {
-						LOGGER.error("Unexpected counterparty external reference {}, 2 counterparties already exist", externalReference);
+						LOGGER.error("Not translating external reference {} to a CounterpartyEnum because 2 counterparties already exist", externalReference);
 						return null;
 					}
 				});
 
+		// If both counterparties have been added to the map, then complete the future
 		if (!bothCounterpartiesCollected.isDone() && partyExternalReferenceToCounterpartyEnumMap.size() == 2) {
 			bothCounterpartiesCollected.complete(null);
 		}

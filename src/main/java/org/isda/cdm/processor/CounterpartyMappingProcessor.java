@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import static org.isda.cdm.processor.CounterpartyMappingHelper.KEY;
+import static org.isda.cdm.processor.CounterpartyMappingHelper.COUNTERPARTY_MAPPING_HELPER_KEY;
 
 /**
  * ISDA Create mapping processor.
@@ -30,6 +30,6 @@ public class CounterpartyMappingProcessor extends MappingProcessor {
 	@NotNull
 	private CounterpartyMappingHelper createHelper() {
 		return (CounterpartyMappingHelper) getContext().getMappingParams()
-				.compute(KEY, (key, value) -> new CounterpartyMappingHelper(getContext().getMappings()));
+				.compute(COUNTERPARTY_MAPPING_HELPER_KEY, (key, value) -> new CounterpartyMappingHelper(getContext().getMappings()));
 	}
 }

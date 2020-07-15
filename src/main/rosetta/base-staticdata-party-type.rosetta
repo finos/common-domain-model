@@ -12,29 +12,34 @@ type Counterparty:
 
 type BuyerSeller: <"This class corresponds to the FpML BuyerSeller.model construct.">
 	buyer CounterpartyEnum (0..1) <"A reference to the party that buys this instrument, i.e. pays for this instrument and receives the rights defined by it. ISDA 2002 Equity Definitions section 1.18: `Buyer` means the party specified as such in the related Confirmation. | ISDA 2006 Definitions article 12.1 (b)(i) relating to a Swaption: 'Buyer' means the party that will, on each Premium Payment Date, pay to Seller the Premium | ISDA 2006 Definitions article 12.1 (b)(ii) relating to Swap Transactions with applicable Early Termination: the party specified as such in the related Confirmation, or the Exercising Party if neither party is specified | ISDA 2006 Definitions article 12.1 (b)(iii) relating to any other Option Transaction: the party specified as such in the related Confirmation. | ISDA 2014 Credit Definition article 1.4: `Buyer` means the Fixed Rate Payer.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "buyerPartyReference" mapper "CounterpartyEnum"]
+		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value "buyerPartyReference" mapper "CounterpartyEnum"]
+		[synonym CME_SubmissionIRS_1_0 value "buyerPartyReference" mapper "CmeCounterpartyEnum"]
 	buyerPartyReference Party (0..1) <"A reference to the party that buys this instrument, i.e. pays for this instrument and receives the rights defined by it. ISDA 2002 Equity Definitions section 1.18: `Buyer` means the party specified as such in the related Confirmation. | ISDA 2006 Definitions article 12.1 (b)(i) relating to a Swaption: 'Buyer' means the party that will, on each Premium Payment Date, pay to Seller the Premium | ISDA 2006 Definitions article 12.1 (b)(ii) relating to Swap Transactions with applicable Early Termination: the party specified as such in the related Confirmation, or the Exercising Party if neither party is specified | ISDA 2006 Definitions article 12.1 (b)(iii) relating to any other Option Transaction: the party specified as such in the related Confirmation. | ISDA 2014 Credit Definition article 1.4: `Buyer` means the Fixed Rate Payer.">
         [metadata reference]
-        [synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "buyerPartyReference" meta "href"]
-    buyerAccountReference Account (0..1) <"A reference to the account that buys this instrument.">
+        [synonym FpML_5_10, CME_ClearedConfirm_1_17 value "buyerPartyReference" meta "href"]
+    	[synonym CME_SubmissionIRS_1_0 value "buyerPartyReference" mapper "TradeSideToParty"]
+	buyerAccountReference Account (0..1) <"A reference to the account that buys this instrument.">
 		[metadata reference]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "buyerAccountReference" meta "href"]
 	seller CounterpartyEnum (0..1) <"A reference to the party that sells ('writes') this instrument, i.e. that grants the rights defined by this instrument and in return receives a payment for it. ISDA 2002 Equity Definitions section 1.19: `Seller` means the party specified as such in the related Confirmation. | ISDA 2006 Definitions article 12.1 (a)(i) relating to a Swaption: 'Seller' means the party the party specified as such or as writer in the related Confirmation | ISDA 2006 Definitions article 12.1 (a)(ii) relating to Swap Transactions with applicable Early Termination: the party specified as such or as writer in the related Confirmation or, if neither party is specified as such, the Non-exercising Party | ISDA 2006 Definitions article 12.1 (a)(iii) relating to any other Option Transaction: the party specified as such in the related Confirmation. | ISDA 2014 Credit Definition article 1.4: `Seller` means the Floating Rate Payer.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "sellerPartyReference" mapper "CounterpartyEnum"]
+		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value "sellerPartyReference" mapper "CounterpartyEnum"]
+		[synonym CME_SubmissionIRS_1_0 value "sellerPartyReference" mapper "CmeCounterpartyEnum"]
 	sellerPartyReference Party (0..1) <"A reference to the party that sells ('writes') this instrument, i.e. that grants the rights defined by this instrument and in return receives a payment for it. ISDA 2002 Equity Definitions section 1.19: `Seller` means the party specified as such in the related Confirmation. | ISDA 2006 Definitions article 12.1 (a)(i) relating to a Swaption: 'Seller' means the party the party specified as such or as writer in the related Confirmation | ISDA 2006 Definitions article 12.1 (a)(ii) relating to Swap Transactions with applicable Early Termination: the party specified as such or as writer in the related Confirmation or, if neither party is specified as such, the Non-exercising Party | ISDA 2006 Definitions article 12.1 (a)(iii) relating to any other Option Transaction: the party specified as such in the related Confirmation. | ISDA 2014 Credit Definition article 1.4: `Seller` means the Floating Rate Payer.">
         [metadata reference]
-        [synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "sellerPartyReference" meta "href"]
-    sellerAccountReference Account (0..1) <"A reference to the account that sells this instrument.">
+        [synonym FpML_5_10, CME_ClearedConfirm_1_17 value "sellerPartyReference" meta "href"]
+    	[synonym CME_SubmissionIRS_1_0 value "sellerPartyReference" mapper "TradeSideToParty"]
+	sellerAccountReference Account (0..1) <"A reference to the account that sells this instrument.">
 		[metadata reference]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "sellerAccountReference" meta "href"]
-	
+		
 	condition:
 		required choice buyer, buyerPartyReference
-		
-		// TODO
 	
 	condition:
 		required choice seller, sellerPartyReference
+	
+	condition:
+		if buyer exists then seller exists and if seller exists then buyer exists
 
 type PayerReceiver: <"A class to represent the FpML PayerReceiver.model.">
 	payer CounterpartyEnum (0..1) <"A reference to the party responsible for making the payments defined by this structure.">
@@ -73,6 +78,9 @@ type PayerReceiver: <"A class to represent the FpML PayerReceiver.model.">
 	
 	condition:
 		required choice receiver, receiverPartyReference
+		
+	condition:
+		if payer exists then receiver exists and if receiver exists then payer exists
 
 type ReferenceBank: <"A class to describe an institution (party) identified by means of a coding scheme and an optional name.">
 	[synonym FpML_5_10 value "ReferenceBank"]
