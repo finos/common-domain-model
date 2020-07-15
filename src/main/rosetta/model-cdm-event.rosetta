@@ -19,10 +19,10 @@ type AllocationBreakdown:
 		[metadata reference]
 	quantity QuantityNotation (1..1) <"The quantity to be allocated to the party.">
 	allocationTradeId Identifier (1..*)<"The identifier to be assigned to the new trade post allocation">
-		[synonym FpML_5_10 value "allocationTradeId"]
+		
 	account Account (0..1)<"The account to allocate the trade into">
 	collateral Collateral (0..1)<"The sum that must be posted upfront to collateralize against counterparty credit risk.">
-		[synonym FpML_5_10 value "collateral"]
+		
 
 type SplitOutcome: <"A class to specify the allocated outcome as the combination of the previous Trade, which is either an execution or a contract and which state is specified as 'Allocated', and a set of Trade(s) of the same execution or contract type as before allocation. The allocation to one single trade is deemed appropriate: e.g. the trade could be effectively allocated from the fund manager doing the execution to a single fund entity.">
 	originalTrade Trade (1..1)
@@ -87,25 +87,25 @@ type ContractState: <"A class to specify a contract state instantiation with res
 		
 		
 	updatedContract Contract (0..1) <"The state of the contract, represented as a replica of the original contract with updated values where applicable, e.g. in the case of resets.">
-		[synonym FpML_5_10 value "ignore"]
+		
 
 //TODO: Check that the updated contract in the contract state matches the original reference contract, except for updated (reset) values.
 // data rule ContractState_contract
 /* NOT USED
  *     class CreditLimit <"A class to specify the credit limit, to be used in the context of the clearing workflow.">
- * 	[synonym FpML_5_10 value "CreditLimit"]
+ * 	
  * {
  * 	limitId string (0..1) scheme;
- * 		[synonym FpML_5_10 value "limitId" meta "creditLimitIdScheme"]
+ * 		
  * 	applicableProduct ProductIdentification (0..1) <"Further to the FpML standard, the CDM ProductIdentification provides the ability to associate a CDM qualified product.">
  * 	currency string (0..1) scheme <"The currency in which the credit limit is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
- * 		[synonym FpML_5_10 value "currency" meta "currencyScheme"]
+ * 		
  * 	tenor Period (0..1) <"The maximum allowed tenor for a trade under this limit. When this structure is used as part of a suspendCredit message, this tenor imposes a temporary tenor limit on allowed trade types.">
- * 		[synonym FpML_5_10 value "tenor"]
+ * 		
  * 	limitApplicable LimitApplicable (0..*)
- * 		[synonym FpML_5_10 value "limitApplicable"]
+ * 		
  * 	expirationDateTime BusinessCenterTime (0..1) <"The CDM naming include the time suffix because the FpML element is actually of type dateTime. Also, the attribute is of type BusinessCenterTime because of the design decision to only have time that are specified by reference to a timezone, with that class being deemed the proper implementation.">
- * 		[synonym FpML_5_10 value "expirationDate"]
+ * 		
  * }
  */
 type CreditLimitInformation: <"A class to represent the credit limit utilisation information.">
@@ -114,20 +114,20 @@ type CreditLimitInformation: <"A class to represent the credit limit utilisation
 		[synonym Workflow_Event value "limitApplicable"]
 
 type CreditLimitUtilisation: <"Credit limit utilisation breakdown by executed trades and pending orders.">
-	[synonym FpML_5_10 value "CreditLimitUtilization"]
+	
 	executed CreditLimitUtilisationPosition (0..1) <"Credit limit utilisation attributable to executed trades.">
-		[synonym FpML_5_10 value "executed"]
+		
 	pending CreditLimitUtilisationPosition (0..1) <"Credit limit utilisation attributable to pending unexecuted orders.">
-		[synonym FpML_5_10 value "pending"]
+		
 
 type CreditLimitUtilisationPosition:
-	[synonym FpML_5_10 value "CreditLimitUtilizationPosition"]
+	
 	shortPosition number (0..1) <"Credit limit utilisation attributable to short positions.">
-		[synonym FpML_5_10 value "short"]
+		
 	longPosition number (0..1) <"Credit limit utilisation attributable to long positions.">
-		[synonym FpML_5_10 value "long"]
+		
 	global number (0..1) <"Global credit limit utilisation amount, agnostic of long/short position direction.">
-		[synonym FpML_5_10 value "global"]
+		
 
 type Curve:
 	interestRateCurve InterestRateCurve (0..1)
@@ -189,14 +189,11 @@ type WorkflowStep: <"A workflow step represents the state of a business event. T
 			set to ActionEnum -> New when "isCorrection" = False,
 			set to ActionEnum -> Correct when "isCorrection" = True,
 			set to ActionEnum -> Cancel when "isRetraction" = True]
-		[synonym FpML_5_10
-			set to ActionEnum -> New when "isCorrection" = False,
-			set to ActionEnum -> Correct when "isCorrection" = True]
 		
 	party Party (0..*) <"The specification of the event parties. This attribute is optional, as not applicable to certain events (e.g. most of the observations).">
-		[synonym FpML_5_10 value "party"]
+		
 	account Account (0..*) <"Optional account information that could be associated to the event.">
-		[synonym FpML_5_10 value "account"]
+		
 		
 	lineage Lineage (0..1) <"The lineage attribute provides a linkage among lifecycle events through the globalKey hash value. One example is when a given lifecycle event is being corrected or cancelled. In such case, each subsequent event will have lineage into the prior version of that event. The second broad use case is when an event has a dependency upon either another event (e.g. the regular payment associated with a fix/float swap will have a lineage into the reset event, which will in turn have a lineage into the observation event for the floating rate and the contract) or a contract (e.g. the exercise of an option has a lineage into that option).">
 		[synonym Workflow_Event value "lineage"]
@@ -317,23 +314,23 @@ type InterestRateCurve:
 		[synonym Workflow_Event value "tenor"]
 
 type LimitApplicable:
-	[synonym FpML_5_10 value "LimitApplicable"]
+	
 	limitType CreditLimitTypeEnum (0..1) <"Standard code to indicate which type of credit line is being referred to - i.e. IM, DV01, PV01, CS01, Notional, Clip Size, Notional, maximumOrderQuantity.">
 		[metadata scheme]
-		[synonym FpML_5_10, Workflow_Event value "limitType" meta "creditLimitTypeScheme"]
+		[synonym Workflow_Event value "limitType" meta "creditLimitTypeScheme"]
 	clipSize int (0..1) <"This element is required in FpML, optional in CDM for the purpose of accommodating the CME data representation while making reference to the FpML one.">
-		[synonym FpML_5_10 value "clipSize"]
+		
 	amountUtilized number (0..1) <"The limit utilised by all the cleared trades for the limit level and limit type. While the attribute is of type integer in FpML and the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">
-		[synonym FpML_5_10, Workflow_Event value "amountUtilized"]
+		[synonym Workflow_Event value "amountUtilized"]
 	utilization CreditLimitUtilisation (0..1)
-		[synonym FpML_5_10 value "utilization"]
+		
 	amountRemaining number (0..1) <"The limit remaining for the limit level and limit type. This does not take into account any pending trades. While the attribute is of type integer in FpML and the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">
-		[synonym FpML_5_10, Workflow_Event value "amountRemaining"]
+		[synonym Workflow_Event value "amountRemaining"]
 	currency string (0..1) <"The currency in which the applicable limit is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
 		[metadata scheme]
-		[synonym FpML_5_10, Workflow_Event value "currency" meta "currencyScheme"]
+		[synonym Workflow_Event value "currency" meta "currencyScheme"]
 	velocity Velocity (0..1)
-		[synonym FpML_5_10 value "velocity"]
+		
 	condition Choice: <"Choice rule to represent an FpML choice construct.">
 		optional choice amountUtilized, utilization
 
@@ -512,19 +509,19 @@ type TransferBreakdown extends TransferBase:
 type TransferorTransferee: <"A class mimicking the PayerReceiver, which is itself derived from the FpML PayerReceiver.model, to represent the transferee and transferor party information in relation to the transfer of security or commodities.">
 	transferorPartyReference Party (1..1) <"A reference to the party responsible for making the payments defined by this structure.">
 		[metadata reference]
-		[synonym FpML_5_10 value "payerPartyReference" meta "href"]
+		
 	transferorAccountReference Account (0..1) <"A reference to the account responsible for making the payments defined by this structure.">
 		[metadata reference]
-		[synonym FpML_5_10 value "payerAccountReference" meta "href"]
+		
 	transfereePartyReference Party (1..1) <"A reference to the party that receives the payments corresponding to this structure.">
 		[metadata reference]
-		[synonym FpML_5_10 value "receiverPartyReference" meta "href"]
+		
 	transfereeAccountReference Account (0..1) <"A reference to the account that receives the payments corresponding to this structure.">
 		[metadata reference]
-		[synonym FpML_5_10 value "receiverAccountReference" meta "href"]
+		
 
 type Velocity:
-	[synonym FpML_5_10 value "Velocity"]
+	
 	periodMultiplier int (0..1)
 	period PeriodTimeEnum (0..1)
 
