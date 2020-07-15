@@ -29,6 +29,11 @@ import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setV
 import static com.regnosys.rosetta.common.util.StringExtensions.toFirstUpper;
 import static org.isda.cdm.TradableProduct.TradableProductBuilder;
 
+/**
+ * Helper class for FpML mapper processors.
+ *
+ * Collects party references and if inside the product definition assigns a CounterpartyEnum value.
+ */
 public class CounterpartyMappingHelper {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CounterpartyMappingHelper.class);

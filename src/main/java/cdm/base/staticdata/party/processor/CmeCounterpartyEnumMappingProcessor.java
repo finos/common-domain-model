@@ -12,7 +12,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 /**
- * ISDA Create mapping processor.
+ * CME Submission mapping processor.
  */
 @SuppressWarnings("unused")
 public class CmeCounterpartyEnumMappingProcessor extends MappingProcessor {

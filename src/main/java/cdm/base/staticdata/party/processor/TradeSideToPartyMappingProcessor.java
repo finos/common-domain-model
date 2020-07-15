@@ -16,7 +16,7 @@ import java.util.function.Function;
 import static org.isda.cdm.processor.CounterpartyMappingHelper.PRODUCT_SUB_PATH;
 
 /**
- * Maps from TradeSide.id to TradeSide.orderer.party.id.
+ * TradeSide.id to TradeSide.orderer.party.id CME Submission mapping processor.
  */
 public class TradeSideToPartyMappingProcessor extends MappingProcessor {
 

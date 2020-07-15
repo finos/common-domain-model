@@ -13,7 +13,7 @@ import java.util.List;
 import static org.isda.cdm.processor.CounterpartyMappingHelper.COUNTERPARTY_MAPPING_HELPER_KEY;
 
 /**
- * ISDA Create mapping processor.
+ * FpML mapping processor.
  */
 @SuppressWarnings("unused")
 public class CounterpartyMappingProcessor extends MappingProcessor {

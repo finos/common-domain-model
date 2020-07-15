@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * ISDA Create mapping processor.
+ * FpML mapping processor.
  */
 @SuppressWarnings("unused")
 public class CounterpartyEnumMappingProcessor extends MappingProcessor {

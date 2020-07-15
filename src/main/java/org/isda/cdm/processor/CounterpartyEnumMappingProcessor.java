@@ -7,7 +7,7 @@ import com.rosetta.model.lib.path.RosettaPath;
 import java.util.List;
 
 /**
- * ISDA Create mapping processor.
+ * FpML mapping processor.
  *
  * Mapper must be in same namespace as the type it is used for.
  */

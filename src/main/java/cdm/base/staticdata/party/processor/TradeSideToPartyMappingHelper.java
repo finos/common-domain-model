@@ -9,6 +9,9 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+/**
+ * Helper class to translate TradeSide.id to TradeSide.orderer.party.id for CME Submission mapping processors.
+ */
 class TradeSideToPartyMappingHelper implements Function<String, Optional<String>> {
 
 	// Relative path between tradeSide and party.  E.g. <trade-side>.orderer.party.href
