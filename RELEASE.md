@@ -6,4 +6,5 @@ CME synonyms (CME_SubmissionIRS_1_0 & CME_ClearedConfirm_1_17) and FpML synonyms
 
 _Review direction_
 
-The CME file is named as synonym-cdm-cme.rosetta under namespace cdm.synonyms.cme and the FpML file is named synonym-cdm-fpml.rosetta under namespace cdm.synonyms.fpml.
+- The CME file is named `synonym-cdm-cme.rosetta` under namespace cdm.synonyms.cme. 
+- The FpML file is named `synonym-cdm-fpml.rosetta` under namespace cdm.synonyms.fpml.
