@@ -7,14 +7,14 @@ import com.rosetta.model.lib.path.RosettaPath;
 import java.util.List;
 
 /**
- * FpML mapping processor.
+ * CME Submission mapping processor.
  *
  * Mapper must be in same namespace as the type it is used for.
  */
 @SuppressWarnings("unused")
-	public class CounterpartyEnumMappingProcessor extends cdm.base.staticdata.party.processor.CounterpartyEnumMappingProcessor {
+public class CmeCounterpartyEnumMappingProcessor extends cdm.base.staticdata.party.processor.CmeCounterpartyEnumMappingProcessor {
 
-	public CounterpartyEnumMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
+	public CmeCounterpartyEnumMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
 		super(modelPath, synonymPaths, mappingContext);
 	}
 }
