@@ -32,6 +32,7 @@ public class RunExecutionWithSettlementTerms implements ExecutableFunction<Contr
         return execute.evaluate(input.getTradableProduct().getProduct(),
                 guard(input.getTradableProduct().getQuantityNotation()),
                 guard(input.getTradableProduct().getPriceNotation()),
+                guard(input.getTradableProduct().getCounterparties()),
                 guard(input.getParty()),
                 guard(input.getPartyRole()),
                 settlementTerm);
