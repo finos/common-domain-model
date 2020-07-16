@@ -2,7 +2,7 @@
 
 _What is being released_
 
-The first part of the model refactoring to move `Party` definitions and references to make  `ContractualProduct` agnostic to parties, i.e. for trades containing economically identical products, but different counterparties, the CDM representation of the product should also be identical.
+The first part of the model refactoring to move `Party` definitions and references to make  `ContractualProduct` agnostic to parties, i.e. for trades containing economically identical products, but different counterparties, the CDM representation of the products should also be identical.
 
 Replace any `Party` or references to `Party` by a resolvable enum, `CounterpartyEnum`, which contain values `Party1` and `Party2` that correspond to the two counterparties to the trade.
 
