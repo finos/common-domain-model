@@ -27,6 +27,7 @@ public class RunFormContract implements ExecutableFunction<Contract, BusinessEve
         BusinessEvent executeBusinessEvent = execute.evaluate(contract.getTradableProduct().getProduct(),
                 guard(contract.getTradableProduct().getQuantityNotation()),
                 guard(contract.getTradableProduct().getPriceNotation()),
+                guard(contract.getTradableProduct().getCounterparties()),
                 guard(contract.getParty()),
                 guard(contract.getPartyRole()),
                 Collections.emptyList());
