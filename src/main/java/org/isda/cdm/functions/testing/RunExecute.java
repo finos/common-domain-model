@@ -20,6 +20,7 @@ public class RunExecute implements ExecutableFunction<Contract, BusinessEvent> {
         return execute.evaluate(contract.getTradableProduct().getProduct(),
                 guard(contract.getTradableProduct().getQuantityNotation()),
                 guard(contract.getTradableProduct().getPriceNotation()),
+                guard(contract.getTradableProduct().getCounterparties()),
                 guard(contract.getParty()),
                 guard(contract.getPartyRole()),
                 Collections.emptyList());
