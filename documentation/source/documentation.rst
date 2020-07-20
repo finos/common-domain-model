@@ -899,22 +899,23 @@ The output of the qualification function is used to populate the ``eventQualifie
 Legal Agreements
 ----------------
 
-The CDM provides a digital representation of the legal agreements that govern financial contracts and workflows. The benefits of this digital representation are summarized below:
+The CDM provides a digital representation of the legal agreements that govern transactions and workflows. The benefits of this digital representation are summarized below:
 
 * **Supporting marketplace initiatives to streamline and standardise legal agreements** with a comprehensive digital representation of such agreements. 
 * **Providing a comprehensive representation of the financial workflows** by complementing the contract and lifecycle event model and formally tying legal data to the business outcome and performance of legal clauses. (e.g. in collateral management where lifecycle processes require reference to parameters found in the associated legal agreements, such as the Credit Support Annex).
-* **Supporting the direct implementation of functional processes** by providing a normalised representation of legal agreements as structured data, as opposed to the unstructured data contained of a full legal text that needs to be interpretated first before any implementation (e.g. for a calculation of an amount specified in a legal definition).
+* **Supporting the direct implementation of functional processes** by providing a normalised representation of legal agreements as structured data, as opposed to the unstructured data contained of a full legal text that needs to be interpreted first before any implementation (e.g. for a calculation of an amount specified in a legal definition).
 
 Initial focus of CDM on ISDA documentation: 
 
-The ISDA Master Agreement is an internationally recognised document which is used to provide certain legal and credit protection for parties who enter into OTC derivatives.  Parties that execute agreements for OTC derivatives are expected to have bi-lateral Master Agreements with each other that cover an agreed range of transactions. In addition to the Master Agreement are sets of credit support documentation which parties may enter into as part of Master Agreement. The key components of the suite of credit support documents are summarized below:
+The ISDA Master Agreement is an internationally recognised document which is used to provide certain legal and credit protection for parties who enter into OTC derivatives. Parties that execute agreements for OTC derivatives are expected to have bi-lateral Master Agreements with each other that cover an agreed range of transactions. Accordingly in the CDM each transaction can be associated with a single master agreement, and a single master agreement can be associated with multiple transaction. In addition to the Master Agreement are sets of credit support documentation which parties may enter into as part of Master Agreement to contain the terms on which they will exchange collateral for their OTC derivatives.
 
-* **Credit Support Annex (CSA)** defines the terms for the provision of collateral by the parties in derivatives transactions.  The collateral is required in the event that the party with net negative exposure fails to fulfill its obligations in the contractual product.  Collateral can be provided in the form of cash, securities, or other agreed assets. The first posting of collateral for a contractual product is known as the initial margin.  Subsequent incremental additions or subtractions are known as the variation margin.
-* **Credit Support Deed** defines the rights of ownership of collataral that has been provided (posted) by a party to a contractual product transaction.  
-* **The Collateral Transfer Agreement and Security Agreement** defines a collateral arrangement between two parties where the collateral is held in a bank custodian account for use in complying with initial margin requirements. These agreements allow parties to apply one governing law to the mechanical aspects of the collateral relationship and a different governing law to the grant and enforcement of security over the segregated account.
+The collateral provides protection to a party against the risk that its counterparty defaults and fails to pay the amount that it owes on default. This risk is typically of two types, current exposure and potential future exposure. Current exposure is the current replacement value of the transactions, i.e. the net amount a party would have to pay to replace those transactions in the market. Collateral for this amount is called variation margin. Potential future exposure is the amount by which the replacement value could increase in future over a given time horizon. Collateral for this amount is called initial margin. Collateral can be provided in the form of cash, securities, or other agreed assets, and is typically posted from one party to other, or to a third party custodian.
 
-ISDA provides standard templates for these types of agreements in each applicable jurisdiction, such as the UK, US, France, and Japan.  The role of a specific agreement 
-template is further qualified by its use for initial margin (IM) or variation margin (VM). Updates to the documents are referenced by the year in which they are published.
+There are several different types of ISDA credit support document, reflecting variation and initial margin, regulatory requirements and terms for legal relationships under different legal jurisdictions. The key components of the suite of credit support documents are summarized below:
+
+* **Credit Support Annexes (CSAs)** exist in New York, English, Irish, French and Japanese law forms.  They define the terms for the provision of collateral by the parties in derivatives transactions, and in some cases they are specialized for initial margin or variation margin.
+* **Credit Support Deed CSD** is cert similar to a CSA, except that it is used to create specific type of legal rights over the collateral under English and Irish law, which requires a specific type of legal agreement (a deed). 
+* **The Collateral Transfer Agreement and Security Agreement** together define a collateral arrangement where the collateral is posted to a custodian account for use in complying with initial margin requirements. These agreements allow parties to apply one governing law to the mechanical aspects of the collateral relationship and a different governing law to the grant and enforcement of security over the custodian account, allowing for more flexible combinations of law to apply (compared to the CSA and CSD) where the parties and their custodians are in different jurisdictions.
 
 It is within these types of agreements that the CDM legal agreement model has been initially deployed, and for which you will find examples and references to below, as the legal agreement model is explained.
 
@@ -922,7 +923,7 @@ The topics covered in this section are listed below:
 
 * Modelling Approach
 * Legal Agreement Data Structure
-* Linking Legal Agreements to Contracts
+* Linking Legal Agreements to Contracts (in CDM, "contract" refers to the legally binding agreement that represents an executed financial transaction).
 
 
 Modelling Approach
@@ -935,6 +936,8 @@ The legal agreement model in the CDM comprises the following features:
 
 * **Composable and normalised model representation** of the ISDA agreements. There are distinct versions of the agreements for jurisdiction and year of publications, but the set of terms often belong to a common universe.  Therefore, the CDM defines each of these terms in a single location, and allows for the representation of a specific legal agreement by combining terms where appropriate. The following legal agreements are supported in the CDM:
 
+  **Initial Margin Agreements**
+  
   * ISDA 2016 Phase One Credit Support Annex (“CSA”) (Security Interest – New York Law)
   * ISDA 2016 Phase One Credit Support Deed (“CSD”) (Security Interest – English Law)
   * ISDA 2016 Phase One CSA (Loan – Japanese Law)
@@ -945,6 +948,10 @@ The legal agreement model in the CDM comprises the following features:
   * ISDA 2019 Bank Custodian CTA and Security Agreement (English Law, New York Law)
   * ISDA 2019 ISDA-Clearstream CTA and Security Agreement (Luxembourg Law – Security-provider or Security-taker name)
   * ISDA 2019 ISDA-Euroclear CTA and Security Agreement
+  
+  **Variation Margin Agreements**
+  
+  * ISDA 2016 CSA for Variation Margin ("VM") (Security Interest - New York Law)
 
 * **Composable and normalised model representation** of the eligible collateral schedule for initial and variation margin into a directly machine readable format.
 
@@ -955,7 +962,7 @@ The legal agreement model in the CDM comprises the following features:
   * This approach provides validation of all the necessary permutations of elections and data associated with the supported agreements. 
   * A specific set of synonyms associated to the ``ISDA_Create_1_0`` source has been developed to establish mappings and enable this ingestion. More details on Synonyms are provided in the Mapping (Synonym) section of this document..
   
-  (NB: The ISDA CSA for Variation Margin is not yet represented in ISDA Create - the CDM representaion of this document is tested with alternative external sample data.)
+  (NB: The ISDA CSA for Variation Margin is not yet represented in ISDA Create - the CDM representation of this document is tested with alternative external sample data.)
 
  
 Design Principles
@@ -973,7 +980,10 @@ The key modelling principles that have been adopted to represent legal agreement
   * The Legal Agreement model follows the CDM design principles of composability and reusability to develop an extendable model that can support multiple document types.
   * For instance, the ``LegalAgreementBase`` data type uses components that are also used as part of the CDM contract and lifecycle event components: e.g. ``Party``, ``Identifier``, ``date``.
     
-* **Normalisation of the data representation** to be machine readable and executable. This approach allows CDM users to define normalised elections into a corresponding legal agreement template to support functional processes. In practice the use of elections expressed in a ``string`` format has been restricted, as ``string`` requires language parsing and disassembling to be machine executable. Instead, the model uses strong data type attributes such as numbers, boolean, or enumerations whenever possible.
+* **Normalisation of the data representation**
+
+  * Strong data type attributes such as numbers, Boolean, or enumerations are used where possible to create a series of normalised elections within terms used in ISDA documentation and create a data representation of the legal agreement that is machine readable and executable. This approach allows CDM users to define normalised elections into a corresponding legal agreement template to support functional processes.
+  * In practice the use of elections expressed in a ``string`` format has been restricted, as ``string`` requires language parsing and disassembling to be machine executable.
 
 The components of the legal agreement model specified in the CDM are detailed in the section below.
 
@@ -1004,7 +1014,7 @@ The CDM provides support for implementors to uniquely identify a legal agreement
    contractualParty Party (2..2)
    otherParty PartyRole (0..*)   
 
-As indicated by the cardinality for the attributes in this data type, all legal agreements must contain an agreement date, two contractual parties, and information indicating the name and publisher of the legal agreement being specified.  Provision is made for further information to be captured, for example an agreement identifier, which is an optional attribute.
+As indicated by the cardinality for the attributes in this data type, all legal agreements must contain an agreement date, two contractual parties, and information indicating the published form of market standard agreement being used (including the name and publisher of the legal agreement being specified in the ``agreementType`` attribute).  Provision is made for further information to be captured, for example an agreement identifier, which is an optional attribute.
 
 Agreement Content
 """""""""""""""""
@@ -1018,7 +1028,7 @@ Agreement Content
    relatedAgreements RelatedAgreement (0..*)
    umbrellaAgreement UmbrellaAgreement (0..1)
  
- The following sections describe each of these components.
+The following sections describe each of these components.
 
 Agreement
 """""""""
@@ -1053,7 +1063,7 @@ Through the ``legalAgreement`` attribute the CDM provides support for implemento
 * Identify some of the key terms of a governing legal agreement such as the agreement identifier, the publisher, the document vintage, and the agreement date.
 * Or, reference the entire legal agreement that is electronically represented in the CDM through a reference key into the agreement instance.
 
-.. note:: The ``DocumentationIdentification`` attribute is used to map related agreement terms that are embedded as part of a transaction message converted from another model structure, such as FpML.  For example, this attribute may reference an ISDA Master Agreement, which are not modelled or mapped in the CDM ``LegalAgreement`` data type.
+.. note:: The ``DocumentationIdentification`` attribute is used to map related agreement terms that are embedded as part of a transaction message converted from another model structure, such as FpML.  For example, this attribute may reference an ISDA Master Agreement, which is not modelled or mapped in the CDM ``LegalAgreement`` data type.
 
 Umbrella Agreement
 """""""""""""""""
@@ -1076,9 +1086,9 @@ This section describes the modelling approach and data structure for election pr
 Modelling Approach
 """"""""""""""""""
 
-In many cases the pre-printed clauses in legal agreement templates for OTC Derivatives offer pre-defined elections that the parties can select. In these cases, the clauses are explcitly identified in the the agreement templates, including the potential values for each election (e.g. an election from a list of options or a specific type of information such as an amount, date or city). The design of the elective provisions in the CDM to represent these instances is a direct reflection of the choices in the clause and uses boolean attributes or enumeration lists to achieve the necessary outcome.
+In many cases the pre-printed clauses in legal agreement templates for OTC Derivatives offer pre-defined elections that the parties can select. In these cases, the clauses are explicitly identified in the agreement templates, including the potential values for each election (e.g. an election from a list of options or a specific type of information such as an amount, date or city). The design of the elective provisions in the CDM to represent these instances is a direct reflection of the choices in the clause and uses boolean attributes or enumeration lists to achieve the necessary outcome.
 
-However, in some cases, the agreement template may identify a clause but not all the appplicable values, e.g. when a single version of a clause term is provided with a space for parties to agree on a term that is not defined in the template. In order to support these instances, the CDM uses string attributes to capture the clause in a free text format.  
+However, in some cases, the agreement template may identify a clause but not all the applicable values, e.g. when a single version of a clause term is provided with a space for parties to agree on a term that is not defined in the template. In order to support these instances, the CDM uses string attributes to capture the clause in a free text format.  
 
 Election Structure
 """"""""""""""""""
@@ -1087,7 +1097,7 @@ For ease of reference, the structure of the elections contained within each agre
 
 This approach allows the representation of elections in the CDM to focus on their intended business outcome in order to better support the standardisation of related business processes.
 
-For example, ``CreditSupportAgreementElections`` , which is one of the four agreement types, contains all the elections that may be applicable to a credit support agreement and can be used to define any of the Credit Support Agreements supported by the CDM:
+For example, ``CreditSupportAgreementElections`` , which is one of the four agreement types, contains all the elections that may be applicable to a credit support agreement and can be used to define any of the Initial Margin Credit Support Agreements supported by the CDM:
 
 * ISDA 2016 Phase One Credit Support Annex (“CSA”) (Security Interest – New York Law)
 * ISDA 2016 Phase One Credit Support Deed (“CSD”) (Security Interest – English Law)
@@ -1148,7 +1158,7 @@ Selected examples from two of the agreement data types are explained in the foll
 
 Elective Provisions Example 1: Posting Obligations 
 """""""""""""""""""""""""""""""""""""""""""""""""""
-``postingObligations`` is one of the required attributes in ``CreditSupportAgreementElections`` .  It defines the security provider party(ies) to which the posting obligations apply to and the applicable collateral posting obligations as indicated in the data structure shown below:
+``postingObligations`` is one of the required attributes in ``CreditSupportAgreementElections`` .  It defines the security provider party to which a set of posting obligations applies and the applicable collateral posting obligations as indicated in the data structure shown below:
   
 .. code-block:: Haskell
 
@@ -1179,9 +1189,9 @@ The development of a digital data standard for representation of eligible collat
 
 The ``EligibleCollateralCriteria`` data type contains the following key components to allow the digital representation of the detailed criteria reflected in the legal agreement:
 
-#. **Collateral Issuer Criteria** specifies criteria that the issuer must meet when defining collateral eligibility.
+#. **Collateral Issuer Criteria** specifies criteria that the issuer of an asset (if any) must meet when defining collateral eligibility for that asset.
 #. **Collateral Product Criteria** specifies criteria that the product must meet when defining collateral eligibility.
-#. **Collateral Treatment** specifies criteria for the treatment of eligible collateral when posted.
+#. **Collateral Treatment** specifies criteria for the treatment of collateral assets, including whether the asset is identified as eligible or ineligible, and treatment when posted.
 
 The following code snippets represent these three components of the eligible collateral model. These components are assembled under the ``EligibleCollateralCriteria`` data type, which is contained within the ``postingObligationElection`` component of the credit support agreement elections described above.
 
@@ -1247,8 +1257,8 @@ Depending on the agreement being specified, a different combination of attribute
 
 An equivalent approach is followed for ``CreditSupportAgreementElections`` and ``CollateralTransferAgreementElections``.
 
-Elective Provisions Example 3: Credit Support Obligations
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+Elective Provisions Example 3: Credit Support Obligations - Initial Margin
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 The ``creditSupportObligations`` attribute is contained within two of the agreement types: ``CreditSupportAgreementElections`` and ``CollateralTransferAgreementElections``.  In both cases, the data type is ``CreditSupportObligationsInitialMargin``, which is used to represent a key set of terms that are fundamental to collateral calculations within these document families. The ``CollateralTransferAgreementElections`` data type is shown below, in which the ``creditSupportObligations`` is the tenth attribute:
 
@@ -1295,7 +1305,7 @@ This set of elections in ``CreditSupportObligationsInitialMargin`` is modelled t
    rounding CollateralRounding (0..1)
    bespokeTransferTiming BespokeTransferTiming (0..1)
 	
-Each attribute is modelled based on the corresponding clause in the relevant legal agreement templates.  Therefore, each provides the necessary components to reflect the election structure. For example the attribute ``rounding`` is of date type ``CollateralRounding`` which allows the specification of rounding terms for the Delivery Amount and the Return Amount, as shown below:
+Each attribute is modelled based on the corresponding clause in the relevant legal agreement templates.  Therefore, each provides the necessary components to reflect the election structure. For example the attribute ``rounding`` is of data type ``CollateralRounding`` which allows the specification of rounding terms for the Delivery Amount and the Return Amount, as shown below:
 
 .. code-block:: Haskell
 
@@ -1307,7 +1317,7 @@ Each attribute is modelled based on the corresponding clause in the relevant leg
 
 Linking Legal Agreements to Contracts
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Legal agreements defined in CDM can be referenced in the ``Contract`` data type, which represents an executed contract for a specified tradable product.  The ``documentation`` attribute, uses the ``RelatedAgreement`` data type, which can be populated with the details for a relevant agreement that has been defined in the CDM.  For OTC derivatives, this attribute will contain a reference to the ISDA Master Agreement that governs any derivative transaction between the parties.
+Financial transactions defined in CDM can be referenced in the ``Contract`` data type.  This represents the transaction confirmation that is the legally binding agreement between two parties for an execution of a specified tradable product.  The ``documentation`` attribute uses the ``RelatedAgreement`` data type, which can be populated with the details for a relevant agreement that has been defined in the CDM.  For OTC derivatives, this attribute will contain a reference to the ISDA Master Agreement that governs any derivative transaction between the parties.
 
 .. code-block:: Haskell
 
