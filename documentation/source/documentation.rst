@@ -899,6 +899,20 @@ The output of the qualification function is used to populate the ``eventQualifie
 Legal Agreements
 ----------------
 
+The Use of "Agreements" in Financial Markets
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Financial transactions consist primarily of agreements between parties to make future payments or deliveries to each other. To ensure performance, those agreements typically take the form of legally enforceable contracts, which the parties record in writing to minimize potential future disagreements.
+
+It is common practice in some markets for different aspects of these agreements to be recorded in different documents, most commonly dividing those terms that exist at the trading relationship level (e.g. credit risk monitoring and collateral) from those at the transaction level (the economic and risk terms of individual transactions). Relationship agreements and individual transaction level documents are often called “master agreements” and “confirmations” respectively, and multiple confirmations may be linked to a single master agreement.
+
+Both the relationship and transaction level documents may be further divided into those parts that are standard for the relevant market, which may exist in a pre-defined base form published by a trade association or similar body, and those that are more bespoke and agreed by the specific parties. The standard published forms may anticipate that the parties will choose from pre-defined elections in a published form, or create their own bespoke amendments.
+
+In CDM generally, “legal agreement” refers to the written terms of a relationship-level agreement, and "contract" refers to the written terms defining an executed financial transaction.
+
+Legal Agreements in the CDM
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 The CDM provides a digital representation of the legal agreements that govern transactions and workflows. The benefits of this digital representation are summarized below:
 
 * **Supporting marketplace initiatives to streamline and standardise legal agreements** with a comprehensive digital representation of such agreements. 
@@ -907,15 +921,17 @@ The CDM provides a digital representation of the legal agreements that govern tr
 
 Initial focus of CDM on ISDA documentation: 
 
-The ISDA Master Agreement is an internationally recognised document which is used to provide certain legal and credit protection for parties who enter into OTC derivatives. Parties that execute agreements for OTC derivatives are expected to have bi-lateral Master Agreements with each other that cover an agreed range of transactions. Accordingly in the CDM each transaction can be associated with a single master agreement, and a single master agreement can be associated with multiple transaction. In addition to the Master Agreement are sets of credit support documentation which parties may enter into as part of Master Agreement to contain the terms on which they will exchange collateral for their OTC derivatives.
+The ISDA Master Agreement is an internationally recognised document which is used to provide certain legal and credit protection for parties who enter into OTC derivatives. Parties that execute agreements for OTC derivatives are expected to have bi-lateral Master Agreements with each other that cover an agreed range of transactions. Accordingly in the CDM each transaction can be associated with a single master agreement, and a single master agreement can be associated with multiple transactions.
+
+In addition to the Master Agreement are sets of credit support documentation which parties may enter into as part of Master Agreement to contain the terms on which they will exchange collateral for their OTC derivatives. Collateral provides protection to a party against the risk that its counterparty defaults and fails to pay the amount that it owes on default. The risk of loss in this scenario is for the current cost of replacing the defaulted transactions (for which margin is called “variation margin”) and the risk of further loss before the default can be closed out (called “initial margin” or “independent amount”).
 
 The collateral provides protection to a party against the risk that its counterparty defaults and fails to pay the amount that it owes on default. This risk is typically of two types, current exposure and potential future exposure. Current exposure is the current replacement value of the transactions, i.e. the net amount a party would have to pay to replace those transactions in the market. Collateral for this amount is called variation margin. Potential future exposure is the amount by which the replacement value could increase in future over a given time horizon. Collateral for this amount is called initial margin. Collateral can be provided in the form of cash, securities, or other agreed assets, and is typically posted from one party to other, or to a third party custodian.
 
 There are several different types of ISDA credit support document, reflecting variation and initial margin, regulatory requirements and terms for legal relationships under different legal jurisdictions. The key components of the suite of credit support documents are summarized below:
 
 * **Credit Support Annexes (CSAs)** exist in New York, English, Irish, French and Japanese law forms.  They define the terms for the provision of collateral by the parties in derivatives transactions, and in some cases they are specialized for initial margin or variation margin.
-* **Credit Support Deed CSD** is cert similar to a CSA, except that it is used to create specific type of legal rights over the collateral under English and Irish law, which requires a specific type of legal agreement (a deed). 
-* **The Collateral Transfer Agreement and Security Agreement** together define a collateral arrangement where the collateral is posted to a custodian account for use in complying with initial margin requirements. These agreements allow parties to apply one governing law to the mechanical aspects of the collateral relationship and a different governing law to the grant and enforcement of security over the custodian account, allowing for more flexible combinations of law to apply (compared to the CSA and CSD) where the parties and their custodians are in different jurisdictions.
+* **Credit Support Deed CSD (CSD)** is very similar to a CSA, except that it is used to create specific types of legal rights over the collateral under English and Irish law, which requires a specific type of legal agreement (a deed). 
+* **The Collateral Transfer Agreement and Security Agreement (CTA and SA)** together define a collateral arrangement where initial margin is posted to a custodian account for use in complying with initial margin requirements. The CTA/SA offers additional flexibility by allowing parties to apply one governing law to the mechanical aspects of the collateral relationship (the CTA) and a different governing law to the grant and enforcement of security over the custodian account (the SA).
 
 It is within these types of agreements that the CDM legal agreement model has been initially deployed, and for which you will find examples and references to below, as the legal agreement model is explained.
 
@@ -923,7 +939,7 @@ The topics covered in this section are listed below:
 
 * Modelling Approach
 * Legal Agreement Data Structure
-* Linking Legal Agreements to Contracts (in CDM, "contract" refers to the legally binding agreement that represents an executed financial transaction).
+* Linking Legal Agreements to contracts
 
 
 Modelling Approach
@@ -934,7 +950,7 @@ Scope
 
 The legal agreement model in the CDM comprises the following features:
 
-* **Composable and normalised model representation** of the ISDA agreements. There are distinct versions of the agreements for jurisdiction and year of publications, but the set of terms often belong to a common universe.  Therefore, the CDM defines each of these terms in a single location, and allows for the representation of a specific legal agreement by combining terms where appropriate. The following legal agreements are supported in the CDM:
+* **Composable and normalised model representation** of the ISDA agreements. The terms of an ISDA agreement can be defined by identification of the published base document, and the elections or amendments made to that base in a specific legal agreement. There are distinct versions of the published agreements for jurisdiction and year of publication, but the set of elections and amendments to those base agreements often belong to a common universe. Therefore, the CDM defines each of these terms in a single location, and allows for the representation of a specific legal agreement by combining terms where appropriate. The following legal agreements are supported in the CDM:
 
   **Initial Margin Agreements**
   
@@ -972,8 +988,8 @@ The key modelling principles that have been adopted to represent legal agreement
 
 * **Distinction between the agreement identification features and the agreement content features** 
 
-  * The agreement identification features: agreement name, publisher, identification, etc. are represented by the ``LegalAgreementBase`` type.
-  * The agreement content features: election provisions of the agreement, related agreements and umbrella agreement terms are represented by the ``AgreementTerms``.
+  * The agreement identification features: agreement name, publisher (of the base agreement being used), identification, etc. are represented by the ``LegalAgreementBase`` type.
+  * The agreement content features: elections and amendments to the published agreement, related agreements and umbrella agreement terms are represented by the ``AgreementTerms``.
    
 * **Composite and extendable model**.
 
@@ -983,7 +999,7 @@ The key modelling principles that have been adopted to represent legal agreement
 * **Normalisation of the data representation**
 
   * Strong data type attributes such as numbers, Boolean, or enumerations are used where possible to create a series of normalised elections within terms used in ISDA documentation and create a data representation of the legal agreement that is machine readable and executable. This approach allows CDM users to define normalised elections into a corresponding legal agreement template to support functional processes.
-  * In practice the use of elections expressed in a ``string`` format has been restricted, as ``string`` requires language parsing and disassembling to be machine executable.
+  * In practice the use of elections expressed in a ``string`` format has been restricted, as the ``string`` format is generally unsuitable for the support of standardised functional processes.
 
 The components of the legal agreement model specified in the CDM are detailed in the section below.
 
