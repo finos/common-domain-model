@@ -3,6 +3,7 @@
 _What is being released_
 
 ISDA Create schemas and samples added for ISDA 2019 Security Agreements for Belgium and Luxembourg Law.
+Upgrade DAML version to use the lates image for DAML compilation
 
 _Review Directions_
 
