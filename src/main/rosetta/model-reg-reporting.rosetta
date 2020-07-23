@@ -478,7 +478,6 @@ reporting rule BuyerSeller
 		[regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "16"
 			provision "Code used to identify the disposer of the financial instrument.Where the disposer is a legal entity, the LEI code of the disposer shall be used.Where the disposer is a non-legal entity, the identifier specified in Article 6 shall be used.Where the transaction was executed on a trading venue or on an organised trading platform outside of the Union that utilises a CCP and where the identity of the disposer is not disclosed, the LEI code of the CCP shall be used.Where the transaction was executed on a trading venue or on an organised trading platform outside of the Union that does not utilise a CCP and where the identity of the disposer is not disclosed, the MIC code of the trading venue or of the organised trading platform outside of the Union shall be used.Where the disposer is an investment firm acting as a SI, the LEI code of the SI shall be used‘INTC’ shall be used to designate an aggregate client account within the investment firm in order to report a transfer into or out of that account with an associated allocation to the individual client(s) out of or into that account respectively.In case of options and swaptions, the buyer shall be the counterparty that holds the right to exercise the option and the seller shall be the counterparty that sells the option and receives a premium.In case of futures and forwards other than futures and forwards relating to currencies, the buyer shall be the counterparty buying the instrument and the seller the counterparty selling the instrument.In the case of swaps relating to securities, the buyer shall be the counterparty that gets the risk of price movement of the underlying security and receives the security amount. The seller shall be the counterparty paying the security amount.In the case of swaps related to interest rates or inflation indices, the buyer shall be the counterparty paying the fixed rate. The seller shall be the counterparty receiving the fixed rate. In case of basis swaps (float-to-float interest rate swaps), the buyer shall be the counterparty that pays the spread and the seller the counterparty that receives the spread.In the case of swaps and forwards related to currencies and of cross currency swaps, the buyer shall be the counterparty receiving the currency which is first when sorted alphabetically by ISO 4217 standard and the seller shall be the counterparty delivering this currency.In the case of swap related to dividends, the buyer shall be the counterparty receiving the equivalent actual dividend payments. The seller is the counterparty paying the dividend and receiving the fixed rate.In the case of derivative instruments for the transfer of credit risk except options and swaptions, the buyer shall be the counterparty buying the protection. The seller is the counterparty selling the protection.In case of derivative contracts related to commodities, the buyer shall be the counterparty that receives the commodity specified in the report and the seller the counterparty delivering this commodity.In case of forward rate agreements, the buyer shall be the counterparty paying the fixed rate and the seller the counterparty receiving the fixed rate.For an increase in notional, the seller shall be the same as the disposer in the original transaction.For a decrease in notional the seller shall be the same as the acquirer of the financial instrument in the original transaction."]
 	ContractForEvent then
-	extract Contract -> tradableProduct then
 	(
 		FixedFloatBuyerSeller,
 		FixedFixedBuyerSeller,
@@ -498,36 +497,48 @@ reporting rule FixedFloatBuyerSeller
 			rationale "The assumption is that the mention of Inflation in this paragraph relates solely to Fixed-Inflation not all inflation – i.e. this paragraph is about Fixed-anything swaps. Note that there’s no explicit classification for single-currency Fixed-Fixed Swaps at all . We have not addressed these for now."
 			structured_provision "The Seller of a [Single-Currency] Fixed-Float or Fixed-Inflation Swap is by definition the Receiver of the  Fixed Rate"
 			provision ""]
+
+	extract Contract -> tradableProduct then
 	filter when rule IsFixedFloat then
-	extract multiple TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout then
-	filter when InterestRatePayout -> rateSpecification -> fixedRate exists then
-	extract InterestRatePayout -> payerReceiver then
-	PayerReceiverToBuyerSeller
+	filter when TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate exists then 
+	(
+		InterestRatePayoutPayer then PartyToBuyer,
+		InterestRatePayoutReceiver then PartyToSeller
+	)
+
+reporting rule InterestRatePayoutPayer
+	filter when TradableProduct -> counterparties -> counterparty = TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver -> payer then 
+	extract TradableProduct -> counterparties -> party
+
+reporting rule InterestRatePayoutReceiver
+	filter when TradableProduct -> counterparties -> counterparty = TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver -> receiver then 
+	extract TradableProduct -> counterparties -> party
 
 reporting rule FixedFixedBuyerSeller
+	extract Contract -> tradableProduct then
 	filter when rule IsFixedFixed then
-	extract TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout then
-	filter when InterestRatePayout -> payoutQuantity exists then //this is my interpretation of "Filter Fixed Rate amount exists"
-	extract InterestRatePayout -> payerReceiver then
-	PayerReceiverToBuyerSeller
-
-reporting rule PayerReceiverToBuyerSeller
+	filter when TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity exists then //this is my interpretation of "Filter Fixed Rate amount exists"
 	(
-		extract PayerReceiver -> payerPartyReference then
+		InterestRatePayoutPayer then PartyToBuyer,
+		InterestRatePayoutReceiver then PartyToSeller
+	)
+
+reporting rule PartyToBuyer
+	(
 		filter when Party -> partyId -> scheme = "iso17442" then
 		extract Party -> partyId as "Buyer identification code"
 		,
-		extract PayerReceiver -> payerPartyReference then
 		filter when Party -> partyId -> scheme = "iso17442" then
 		lookup ExecutingEntity ExecutingEntity then
 		extract ExecutingEntity -> addressOfBranch -> country
 		as "Country of the branch for the buyer"
-		,
-		extract PayerReceiver -> receiverPartyReference then
+	)
+
+reporting rule PartyToSeller
+	(
 		filter when Party -> partyId -> scheme = "iso17442" then
 		extract Party -> partyId as "Seller identification code"
 		,
-		extract PayerReceiver -> receiverPartyReference then
 		filter when Party -> partyId -> scheme = "iso17442" then
 		lookup ExecutingEntity ExecutingEntity then
 		extract ExecutingEntity -> addressOfBranch -> country
@@ -538,26 +549,28 @@ reporting rule IsFixedFloat
 	extract TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
 	and TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
 
-
 reporting rule IsFixedFixed
 	extract TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 2
 
 reporting rule SingleCurrencyBasisSwap
-		[regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "7"
-			rationale_author "DRR"
-			rationale "In case of basis swaps (float-to-float interest rate swaps), the buyer shall be the counterparty that pays the spread."
-			structured_provision "The Buyer of a [Single-Currency] Basis Swap is by definition the Payer of the  Spread"
-			provision ""]
-		[regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "16"
-			rationale_author "DRR"
-			rationale "In case of basis swaps (float-to-float interest rate swaps), the seller the counterparty that receives the spread."
-			structured_provision "The Seller of a [Single-Currency] Basis Swap is by definition the Receiver of the  Spread"
-			provision ""]
+        [regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "7"
+            rationale_author "DRR"
+            rationale "In case of basis swaps (float-to-float interest rate swaps), the buyer shall be the counterparty that pays the spread."
+            structured_provision "The Buyer of a [Single-Currency] Basis Swap is by definition the Payer of the  Spread"
+            provision ""]
+        [regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "16"
+            rationale_author "DRR"
+            rationale "In case of basis swaps (float-to-float interest rate swaps), the seller the counterparty that receives the spread."
+            structured_provision "The Seller of a [Single-Currency] Basis Swap is by definition the Receiver of the  Spread"
+            provision ""]
 
+	extract Contract -> tradableProduct then
 	filter when rule IsIRSwapBasis then
 	filter when TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> assetIdentifier -> rateOption = TradableProduct -> priceNotation -> assetIdentifier -> rateOption then
-	extract TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver then
-		PayerReceiverToBuyerSeller
+	(
+		InterestRatePayoutPayer then PartyToBuyer,
+		InterestRatePayoutReceiver then PartyToSeller
+	)
 
 reporting rule IsIRSwapBasis
 	extract TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 2
@@ -574,51 +587,40 @@ reporting rule CrossCurrencySwapBuyerSeller
 			structured_provision "The Seller of a Cross-Currency Swap is by definition the Payer of the ISO 4217 currency which is first when sorted ascending irrespective of the interest type or spread"
 			provision "The seller shall be the counterparty delivering this currency which is first when sorted alphabetically by ISO 4217 standard."]
 
+	extract Contract -> tradableProduct then
 	filter when rule IsXCCYSwap then
-	extract TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout then
-	minBy InterestRatePayout -> payoutQuantity -> assetIdentifier -> currency then
-	extract InterestRatePayout -> payerReceiver then
-		PayerReceiverToBuyerSeller
+	minBy TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity -> assetIdentifier -> currency then
+	(
+		InterestRatePayoutPayer then PartyToBuyer,
+		InterestRatePayoutReceiver then PartyToSeller
+	)
 
 reporting rule IsXCCYSwap
 	extract multiple TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges exists
 
 reporting rule CreditDefaultSwapBuyerSeller
+	extract Contract -> tradableProduct then
 	filter when rule IsCreditDefaultSwap then
-	extract TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller
-	then BuyerSellerToBuyerAndSeller
+	(
+		CreditDefaultPayoutBuyer then PartyToBuyer,
+		CreditDefaultPayoutSeller then PartyToSeller
+	)
 
 reporting rule IsCreditDefaultSwap
 	extract TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout exists
 
-reporting rule BuyerSellerToBuyerAndSeller
-	(
-		extract BuyerSeller -> buyerPartyReference then
-		filter when Party -> partyId -> scheme = "iso17442" then
-		extract Party -> partyId as "Buyer identification code"
-		,
-		extract BuyerSeller -> buyerPartyReference then
-		filter when Party -> partyId -> scheme = "iso17442" then
-		lookup ExecutingEntity ExecutingEntity then
-		extract ExecutingEntity -> addressOfBranch -> country
-		as "Country of the branch for the buyer"
-		,
-		extract BuyerSeller -> sellerPartyReference then
-		filter when Party -> partyId -> scheme = "iso17442" then
-		extract Party -> partyId as "Seller identification code"
-		,
-		extract BuyerSeller -> sellerPartyReference then
-		filter when Party -> partyId -> scheme = "iso17442" then
-		lookup ExecutingEntity ExecutingEntity then
-		extract ExecutingEntity -> addressOfBranch -> country
-		as "Country of the branch for the seller"
-	)
+reporting rule CreditDefaultPayoutBuyer
+	filter when TradableProduct -> counterparties -> counterparty = TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> buyer then 
+	extract TradableProduct -> counterparties -> party
+
+reporting rule CreditDefaultPayoutSeller
+	filter when TradableProduct -> counterparties -> counterparty = TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> seller then 
+	extract TradableProduct -> counterparties -> party -> reference
 
 reporting rule Price
 		[regulatoryReference ESMA MiFIR RTS_22 annex "1" table "2" field "33"
  	   	provision "For credit default swaps (CDS) it shall be the coupon in basis points. The information reported in this field shall be consistent with the values provided in fields 30 and 46."]
 	ContractForEvent then
-	extract Contract -> tradableProduct then
 	(
 		FixedFixedPrice,
 		FixedFloatPrice,
@@ -632,6 +634,7 @@ reporting rule FixedFloatPrice
 			rationale "The Regulations don’t mention this but the Q&A defines it."
 	 	   	structured_provision "The regulatoryPrice of a Fixed-Float or Fixed-Inflation Swap is by definition the highest Fixed Rate"
 	 	   	provision "Questions and Answers On MiFIR data reporting. Section 14 Financial instruments’ volatile attributes [Last update: 05/10/2017]. Question 1; Answer 1 (a) Where a swap rate or forward rate financial contract is quoted as the fixed rate and it is considered to be an attribute of the transaction rather than an attribute of the financial instrument, the respective reports should be completed as follows: Transaction report - the price (field 33) of the transaction should be populated with the fixed rate value. Question 2; Example 1: CFI code SRC*S* fixed-floating with single currency"]
+	extract Contract -> tradableProduct then
 	filter when rule IsFixedFloat then
 	extract TradableProduct -> priceNotation -> price -> fixedInterestRate then
 	maxBy FixedInterestRate -> rate then
@@ -643,11 +646,13 @@ reporting rule BasisSwapPrice
 			rationale "We also need to cater for the edge case of spreads on both legs. Assume –ve spreads uncommon enough not to need to debate highest positive spread vs highest absolute spread at this point."
 	 	   	structured_provision "The regulatoryPrice of a Basis or Float-Inflation Swap is by definition the highest Spread"
 	 	   	provision "09April 2019|ESMA70-1861941480-56. Questions and Answers On MiFIR data reporting. Section 16 Interest Rate Swaps reporting [Last update: 26/09/2018]. Question 2 Answer 2 CFI SRA*S*, Tenor basis swap (float-to-float single currency). 10 Years EUR EURIBOR 3 months + 2 basis points VS EURIBOR 6 MONTHS. 33 Price 2: If the spread was negative i.e. Firm X was paying 3 month EUR EURIBOR - 2 basis points then Firm X should still be reported as the buyer but the price would be reported as ‘-2’ in the reports of X and Y."]
+	extract Contract -> tradableProduct then
 	filter when rule IsIRSwapBasis then
 	extract TradableProduct -> priceNotation -> price -> floatingInterestRate then
 	extract FloatingInterestRate -> initialRate as "Price"
 
 reporting rule FixedFixedPrice
+	extract Contract -> tradableProduct then
 	filter when rule IsFixedFixed then
 	extract TradableProduct -> priceNotation -> price -> fixedInterestRate then
 	maxBy FixedInterestRate -> rate then
@@ -659,7 +664,7 @@ reporting rule CDSPrice
 			rationale "Coupon refers to the Fixed Rate. However market practice is to have either/both a Fixed Rate and/or a spread on the Floating Rate."
 	 	   	structured_provision "Of a Credit Default Swap is by definition the Fixed Rate unless the Fixed Rate is Zero and there is a Spread then the regulatoryPrice is by definition the Spread"
 	 	   	provision "For credit default swaps (CDS) it shall be the coupon in basis points. "]
-
+	extract Contract -> tradableProduct then
 	filter when rule IsCreditDefaultSwap then
 	extract TradableProduct -> priceNotation -> price then
 	if (
