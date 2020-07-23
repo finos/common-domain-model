@@ -899,7 +899,7 @@ The output of the qualification function is used to populate the ``eventQualifie
 Legal Agreements
 ----------------
 
-The Use of "Agreements" in Financial Markets
+The Use of *Agreements* in Financial Markets
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Financial transactions consist primarily of agreements between parties to make future payments or deliveries to each other. To ensure performance, those agreements typically take the form of legally enforceable contracts, which the parties record in writing to minimize potential future disagreements.
@@ -908,7 +908,19 @@ It is common practice in some markets for different aspects of these agreements 
 
 Both the relationship and transaction level documents may be further divided into those parts that are standard for the relevant market, which may exist in a pre-defined base form published by a trade association or similar body, and those that are more bespoke and agreed by the specific parties. The standard published forms may anticipate that the parties will choose from pre-defined elections in a published form, or create their own bespoke amendments.
 
-In CDM generally, “legal agreement” refers to the written terms of a relationship-level agreement, and "contract" refers to the written terms defining an executed financial transaction.
+The ISDA Master Agreement is an internationally recognised document which is used to provide certain legal and credit protection for parties who enter into OTC derivatives. Parties that execute agreements for OTC derivatives are expected to have bi-lateral Master Agreements with each other that cover an agreed range of transactions. Accordingly in the CDM each transaction can be associated with a single master agreement, and a single master agreement can be associated with multiple transactions.
+
+In addition to the Master Agreement are sets of credit support documentation which parties may enter into as part of Master Agreement to contain the terms on which they will exchange collateral for their OTC derivatives. Collateral provides protection to a party against the risk that its counterparty defaults and fails to pay the amount that it owes on default. The risk of loss in this scenario is for the current cost of replacing the defaulted transactions (for which margin is called “variation margin”) and the risk of further loss before the default can be closed out (called “initial margin” or “independent amount”).
+
+The collateral provides protection to a party against the risk that its counterparty defaults and fails to pay the amount that it owes on default. This risk is typically of two types, current exposure and potential future exposure. Current exposure is the current replacement value of the transactions, i.e. the net amount a party would have to pay to replace those transactions in the market. Collateral for this amount is called variation margin. Potential future exposure is the amount by which the replacement value could increase in future over a given time horizon. Collateral for this amount is called initial margin. Collateral can be provided in the form of cash, securities, or other agreed assets, and is typically posted from one party to other, or to a third party custodian.
+
+There are several different types of ISDA credit support document, reflecting variation and initial margin, regulatory requirements and terms for legal relationships under different legal jurisdictions. The key components of the suite of credit support documents are summarized below:
+
+* **Credit Support Annexes (CSAs)** exist in New York, English, Irish, French, and Japanese law forms.  They define the terms for the provision of collateral by the parties in derivatives transactions, and in some cases they are specialized for initial margin or variation margin.
+* **Credit Support Deed CSD (CSD)** is very similar to a CSA, except that it is used to create specific types of legal rights over the collateral under English and Irish law, which requires a specific type of legal agreement (a deed). 
+* **The Collateral Transfer Agreement and Security Agreement (CTA and SA)** together define a collateral arrangement where initial margin is posted to a custodian account for use in complying with initial margin requirements. The CTA/SA offers additional flexibility by allowing parties to apply one governing law to the mechanical aspects of the collateral relationship (the CTA) and a different governing law to the grant and enforcement of security over the custodian account (the SA).
+
+In the CDM and in this user documentation, *legal agreement* refers to the written terms of a relationship-level agreement, and *contract* refers to the written terms defining an executed financial transaction.
 
 Legal Agreements in the CDM
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -919,21 +931,7 @@ The CDM provides a digital representation of the legal agreements that govern tr
 * **Providing a comprehensive representation of the financial workflows** by complementing the contract and lifecycle event model and formally tying legal data to the business outcome and performance of legal clauses. (e.g. in collateral management where lifecycle processes require reference to parameters found in the associated legal agreements, such as the Credit Support Annex).
 * **Supporting the direct implementation of functional processes** by providing a normalised representation of legal agreements as structured data, as opposed to the unstructured data contained of a full legal text that needs to be interpreted first before any implementation (e.g. for a calculation of an amount specified in a legal definition).
 
-Initial focus of CDM on ISDA documentation: 
-
-The ISDA Master Agreement is an internationally recognised document which is used to provide certain legal and credit protection for parties who enter into OTC derivatives. Parties that execute agreements for OTC derivatives are expected to have bi-lateral Master Agreements with each other that cover an agreed range of transactions. Accordingly in the CDM each transaction can be associated with a single master agreement, and a single master agreement can be associated with multiple transactions.
-
-In addition to the Master Agreement are sets of credit support documentation which parties may enter into as part of Master Agreement to contain the terms on which they will exchange collateral for their OTC derivatives. Collateral provides protection to a party against the risk that its counterparty defaults and fails to pay the amount that it owes on default. The risk of loss in this scenario is for the current cost of replacing the defaulted transactions (for which margin is called “variation margin”) and the risk of further loss before the default can be closed out (called “initial margin” or “independent amount”).
-
-The collateral provides protection to a party against the risk that its counterparty defaults and fails to pay the amount that it owes on default. This risk is typically of two types, current exposure and potential future exposure. Current exposure is the current replacement value of the transactions, i.e. the net amount a party would have to pay to replace those transactions in the market. Collateral for this amount is called variation margin. Potential future exposure is the amount by which the replacement value could increase in future over a given time horizon. Collateral for this amount is called initial margin. Collateral can be provided in the form of cash, securities, or other agreed assets, and is typically posted from one party to other, or to a third party custodian.
-
-There are several different types of ISDA credit support document, reflecting variation and initial margin, regulatory requirements and terms for legal relationships under different legal jurisdictions. The key components of the suite of credit support documents are summarized below:
-
-* **Credit Support Annexes (CSAs)** exist in New York, English, Irish, French and Japanese law forms.  They define the terms for the provision of collateral by the parties in derivatives transactions, and in some cases they are specialized for initial margin or variation margin.
-* **Credit Support Deed CSD (CSD)** is very similar to a CSA, except that it is used to create specific types of legal rights over the collateral under English and Irish law, which requires a specific type of legal agreement (a deed). 
-* **The Collateral Transfer Agreement and Security Agreement (CTA and SA)** together define a collateral arrangement where initial margin is posted to a custodian account for use in complying with initial margin requirements. The CTA/SA offers additional flexibility by allowing parties to apply one governing law to the mechanical aspects of the collateral relationship (the CTA) and a different governing law to the grant and enforcement of security over the custodian account (the SA).
-
-It is within these types of agreements that the CDM legal agreement model has been initially deployed, and for which you will find examples and references to below, as the legal agreement model is explained.
+The scope of the CDM legal agreement model includes all of the types of ISDA credit support documents. The legal agreement model is explained below, including examples and references to these types of documents.
 
 The topics covered in this section are listed below:
 
@@ -973,12 +971,13 @@ The legal agreement model in the CDM comprises the following features:
 
 * **Linking of legal agreement into a contract object** through the CDM referencing mechanism.
 
-* **Mapping to ISDA Create derivative documentation negotiation platform** : Ingestion of JSON sample files generated from ISDA Create for samples of executed documents has been implemented to demonstrate connectivity between ISDA Create and the CDM.
+* **Mapping to ISDA Create derivative documentation negotiation platform** : Synonyms identified as belonging to ``ISDA_Create_1_0`` have been defined to establish mappings that support automated transformation of ISDA Create documents into objects that are compliant with the CDM.
 
-  * This approach provides validation of all the necessary permutations of elections and data associated with the supported agreements. 
-  * A specific set of synonyms associated to the ``ISDA_Create_1_0`` source has been developed to establish mappings and enable this ingestion. More details on Synonyms are provided in the Mapping (Synonym) section of this document..
-  
-  (NB: The ISDA CSA for Variation Margin is not yet represented in ISDA Create - the CDM representation of this document is tested with alternative external sample data.)
+  * The mapping between the two models through the use of Synonyms validated that all the necessary permutations of elections and data associated with the supported agreements have been replicated in the CDM 
+  * Ingestion of JSON sample files generated from ISDA Create for samples of executed documents has been implemented in the ISDA CDM Portal to demonstrate this capability between ISDA Create and the CDM.  
+  * More details on Synonyms are provided in the Mapping (Synonym) section of this document.
+
+.. note:: The CDM supports the ISDA CSA for Variation Margin, but this document is not yet represented in ISDA Create - the CDM representation of this document is tested with alternative external sample data.
 
  
 Design Principles
@@ -1056,7 +1055,6 @@ Agreement
    creditSupportAgreementElections CreditSupportAgreementElections (0..1)
    collateralTransferAgreementElections CollateralTransferAgreementElections (0..1)
    securityAgreementElections SecurityAgreementElections (0..1)
-   transactionConfirmation TransactionConfirmation (0..1)
    condition: one-of
 
 The modelling approach for elective provisions is explained in further detail in the corresponding section below.
@@ -1084,7 +1082,7 @@ Through the ``legalAgreement`` attribute the CDM provides support for implemento
 Umbrella Agreement
 """""""""""""""""
    
-``UmbrellaAgreement`` is a data type used to specify whether Umbrella Agreement terms are applicable, relevant specific language, and underlying entities associated with the umbrella agreement.
+``UmbrellaAgreement`` is a data type used to specify the applicability of Umbrella Agreement terms, relevant specific language, and underlying entities associated with the umbrella agreement.
 
 The below snippet represents the ``UmbrellaAgreement`` data type.
 
