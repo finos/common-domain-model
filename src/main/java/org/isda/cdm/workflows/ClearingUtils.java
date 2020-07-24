@@ -28,7 +28,7 @@ public class ClearingUtils {
 		return stepBuilder.build();
 	}
 
-	static WorkflowStep buildProposeStep(PostProcessor runner, WorkflowStep previous, Party party1, Party party2, String externalReference, IdentifierService identifierService) {
+	static WorkflowStep buildProposeStep(PostProcessor runner, WorkflowStep previous, Contract alphaContract, Party party1, Party party2, String externalReference, IdentifierService identifierService) {
 		WorkflowStep.WorkflowStepBuilder stepBuilder = WorkflowStep.builder();
 		stepBuilder
 			.setPreviousWorkflowStep(ReferenceWithMetaWorkflowStep.builder()
@@ -36,6 +36,7 @@ public class ClearingUtils {
 			.setProposedInstruction(Instruction.builder()
 				.setInstructionFunction("Create_ClearedTrade")
 				.setClearing(ClearingInstruction.builder()
+						.setAlphaContract(alphaContract)
 					.setClearingParty(createClearingParty())
 						.setParty1(party1)
 						.setParty2(party2)
@@ -52,9 +53,9 @@ public class ClearingUtils {
 		return stepBuilder.build();
 	}
 
-	static WorkflowStep buildClear(PostProcessor runner, String externalReference, WorkflowStep previous, ClearingInstruction clearingInstruction, Create_ClearedTrade clear, Contract alphaContract, IdentifierService identifierService) {
+	static WorkflowStep buildClear(PostProcessor runner, String externalReference, WorkflowStep previous, ClearingInstruction clearingInstruction, Create_ClearedTrade clear, IdentifierService identifierService) {
 
-		BusinessEvent.BusinessEventBuilder businessEventBuilder = clear.evaluate(alphaContract, clearingInstruction).toBuilder();
+		BusinessEvent.BusinessEventBuilder businessEventBuilder = clear.evaluate(clearingInstruction).toBuilder();
 
 		WorkflowStep.WorkflowStepBuilder clearedTradeWorkflowEventBuilder = WorkflowStep.builder().setBusinessEventBuilder(businessEventBuilder);
 
