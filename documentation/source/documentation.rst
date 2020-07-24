@@ -389,7 +389,7 @@ The lifecycle of a transaction between two parties starts with an *execution* st
      [metadata reference]
    partyRole PartyRole (0..*)
    closedState ClosedState (0..1)
-   settlementTerms SettlementTerms (0..1)
+   settlementTerms SettlementTerms (0..*)
 
 The ``settlementTerms`` attribute define how the transaction should be settled (including the settlement date). For instance, a settlement could be a *delivery-versus-payment* scenario for a cash security transaction or a *payment-versus-payment* scenario for an FX spot or forward transaction. The actual settlement amount(s) will need to use the *price* and *quantity* agreed as part of the tradable product.
 
@@ -1025,6 +1025,7 @@ The CDM provides support for implementors to uniquely identify a legal agreement
    agreementDate date (1..1)
    effectiveDate date (0..1)
    identifier Identifier (0..*)
+   lineage Lineage (0..1)
    agreementType LegalAgreementType (1..1)
    contractualParty Party (2..2)
    otherParty PartyRole (0..*)   
@@ -1055,6 +1056,7 @@ Agreement
    creditSupportAgreementElections CreditSupportAgreementElections (0..1)
    collateralTransferAgreementElections CollateralTransferAgreementElections (0..1)
    securityAgreementElections SecurityAgreementElections (0..1)
+   transactionConfirmation TransactionConfirmation (0..1)
    condition: one-of
 
 The modelling approach for elective provisions is explained in further detail in the corresponding section below.
@@ -1141,7 +1143,8 @@ The ``CreditSupportAgreementElections`` data type therefore contains a super-set
    conditionsPrecedent ConditionsPrecedent (1..1)
    substitution Substitution (1..1)
    disputeResolution DisputeResolution (1..1)
-   rightsEvents RightsEvents (1..1)custodyArrangements CustodyArrangements (1..1)
+   rightsEvents RightsEvents (1..1)
+   custodyArrangements CustodyArrangements (1..1)
    additionalRepresentations AdditionalRepresentations (1..1)
    otherEligibleAndPostedSupport OtherEligibleAndPostedSupport (1..1)
    demandsAndNotices ContactElection (0..1)
@@ -1220,18 +1223,21 @@ The following code snippets represent these three components of the eligible col
 
  type IssuerCriteria:
    issuerType CollateralIssuerType (0..*)
-   issuerCountryOfOrigin string (0..*)
-   issuerName LegalEntity (0..*)
-   issuerAgencyRating AgencyRatingCriteria (0..*)
-   sovereignAgencyRating AgencyRatingCriteria (0..*)
-   counterpartyOwnIssuePermitted boolean (0..1)
+    issuerCountryOfOrigin string (0..*)
+		[metadata scheme]
+    issuerName LegalEntity (0..*)
+    issuerAgencyRating AgencyRatingCriteria (0..*)
+    sovereignAgencyRating AgencyRatingCriteria (0..*)
+    counterpartyOwnIssuePermitted boolean (0..1)
 	
 .. code-block:: Haskell
 
  type ProductCriteria:
    collateralProductType ProductType (0..*)
    productCountryOfOrigin string (0..*)
+     [metadata scheme]
    denominatedCurrency string (0..*)
+     [metadata scheme]
    agencyRating AgencyRatingCriteria (0..*)
    maturityType MaturityTypeEnum (0..1)
    maturityRange PeriodRange (0..1)
@@ -1288,6 +1294,7 @@ The ``creditSupportObligations`` attribute is contained within two of the agreem
    postingObligations PostingObligations (1..1)
    substitutedRegime SubstitutedRegime (1..1)
    baseCurrency string (1..1)
+     [metadata scheme]
    creditSupportObligations CreditSupportObligationsInitialMargin (1..1)
    calculationAndTiming CalculationAndTiming (1..1)
    conditionsPrecedent ConditionsPrecedent (1..1)
