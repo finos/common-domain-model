@@ -1255,7 +1255,7 @@ The ``SecurityAgreementElections`` data type is another one of the four agreemen
 
 .. code-block:: Haskell
 
- type SecurityAgreementElections: <"The set of elections which specify a Security Agremeent">
+ type SecurityAgreementElections:
    pledgedAccount Account (0..1)
    enforcementEvent EnforcementEvent (0..1)
    deliveryInLieuRight boolean (0..1)
