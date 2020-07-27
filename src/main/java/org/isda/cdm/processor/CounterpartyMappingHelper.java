@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -38,15 +39,17 @@ public class CounterpartyMappingHelper {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CounterpartyMappingHelper.class);
 
-	public static final String COUNTERPARTY_MAPPING_HELPER_KEY = "COUNTERPARTY_MAPPING_HELPER";
+	static final String COUNTERPARTY_MAPPING_HELPER_KEY = "COUNTERPARTY_MAPPING_HELPER";
 	public static final RosettaPath PRODUCT_SUB_PATH = RosettaPath.valueOf("tradableProduct").newSubPath("product");
 
 	private final Map<String, CounterpartyEnum> partyExternalReferenceToCounterpartyEnumMap;
 	private final List<Mapping> mappings;
-	private final CompletableFuture<Void> bothCounterpartiesCollected = new CompletableFuture<>();
+	private final CompletableFuture<Map<String, CounterpartyEnum>> bothCounterpartiesCollected = new CompletableFuture<>();
+	private final ExecutorService executor;
 
-	CounterpartyMappingHelper(List<Mapping> mappings) {
-		this.mappings = mappings;
+	CounterpartyMappingHelper(MappingContext context) {
+		this.mappings = context.getMappings();
+		this.executor = context.getExecutor();
 		this.partyExternalReferenceToCounterpartyEnumMap = new LinkedHashMap<>();
 	}
 
@@ -88,27 +91,26 @@ public class CounterpartyMappingHelper {
 	 */
 	void setCounterpartyEnumThen(PayerReceiverBuilder payerReceiverBuilder, Consumer<PayerReceiverBuilder> thenConsumer) {
 		bothCounterpartiesCollected
-				.thenRun(() -> CompletableFuture.supplyAsync(() -> payerReceiverBuilder)
-						.thenApply(builder -> {
-							// Update payer from payerPartyReference
-							Optional.ofNullable(builder.getPayerPartyReference())
-									.map(ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder::getExternalReference)
-									.flatMap(this::getOrCreateCounterpartyEnum)
-									.ifPresent(counterpartyEnum -> {
-										builder.setPayer(counterpartyEnum);
-										builder.setPayerPartyReferenceBuilder(ReferenceWithMetaParty.builder());
-									});
-							// Update receiver from receiverPartyReference
-							Optional.ofNullable(builder.getReceiverPartyReference())
-									.map(ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder::getExternalReference)
-									.flatMap(this::getOrCreateCounterpartyEnum)
-									.ifPresent(counterpartyEnum -> {
-										builder.setReceiver(counterpartyEnum);
-										builder.setReceiverPartyReferenceBuilder(ReferenceWithMetaParty.builder());
-									});
-							return builder;
-						})
-						.thenAccept(thenConsumer));
+				.thenAcceptAsync(map -> {
+					// Update payer from payerPartyReference
+					Optional.ofNullable(payerReceiverBuilder.getPayerPartyReference())
+							.map(ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder::getExternalReference)
+							.map(map::get)
+							.ifPresent(counterpartyEnum -> {
+								payerReceiverBuilder.setPayer(counterpartyEnum);
+								payerReceiverBuilder.setPayerPartyReferenceBuilder(ReferenceWithMetaParty.builder());
+							});
+					// Update receiver from receiverPartyReference
+					Optional.ofNullable(payerReceiverBuilder.getReceiverPartyReference())
+							.map(ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder::getExternalReference)
+							.map(map::get)
+							.ifPresent(counterpartyEnum -> {
+								payerReceiverBuilder.setReceiver(counterpartyEnum);
+								payerReceiverBuilder.setReceiverPartyReferenceBuilder(ReferenceWithMetaParty.builder());
+							});
+					// Process then consumer
+					thenConsumer.accept(payerReceiverBuilder);
+				}, executor);
 	}
 
 	/**
@@ -116,16 +118,17 @@ public class CounterpartyMappingHelper {
 	 */
 	void addCounterparties(TradableProductBuilder tradableProductBuilder) {
 		bothCounterpartiesCollected
-				.thenRun(() -> CompletableFuture.supplyAsync(() -> tradableProductBuilder)
-						.thenAccept(builder ->
-								builder.clearCounterparties()
-										.addCounterparties(partyExternalReferenceToCounterpartyEnumMap.entrySet().stream()
-												.map(extRefCounterpartyEntry -> Counterparty.builder()
-														.setCounterparty(extRefCounterpartyEntry.getValue())
-														.setPartyBuilder(ReferenceWithMetaParty.builder()
-																.setExternalReference(extRefCounterpartyEntry.getKey()))
-														.build())
-												.collect(Collectors.toList()))));
+				.thenAcceptAsync(map -> {
+					LOGGER.info("Setting TradableProduct.counterparties");
+					tradableProductBuilder.clearCounterparties()
+							.addCounterparties(map.entrySet().stream()
+									.map(extRefCounterpartyEntry -> Counterparty.builder()
+											.setCounterparty(extRefCounterpartyEntry.getValue())
+											.setPartyBuilder(ReferenceWithMetaParty.builder()
+													.setExternalReference(extRefCounterpartyEntry.getKey()))
+											.build())
+									.collect(Collectors.toList()));
+				}, executor);
 	}
 
 	/**
@@ -149,7 +152,7 @@ public class CounterpartyMappingHelper {
 
 		// If both counterparties have been added to the map, then complete the future
 		if (!bothCounterpartiesCollected.isDone() && partyExternalReferenceToCounterpartyEnumMap.size() == 2) {
-			bothCounterpartiesCollected.complete(null);
+			bothCounterpartiesCollected.complete(partyExternalReferenceToCounterpartyEnumMap);
 		}
 
 		return Optional.ofNullable(counterpartyEnum);
