@@ -12,6 +12,7 @@ import cdm.observable.*
 import cdm.observable.asset.*
 import cdm.observable.event.*
 
+import cdm.synonyms.config.*
 
 type AssetIdentifier: <"Generic object to specify an identifier for a quantifiable object, which can either be a product, a currency or a rate option.">
 
@@ -27,7 +28,7 @@ type AssetIdentifier: <"Generic object to specify an identifier for a quantifiab
 	condition: one-of
 
 
-type Cashflow extends PayoutBase: <"Class to specify a cashflow, i.e. the outcome of either of computation (e.g. interest accrual) or an assessment of some sort (e.g. a fee). The cashflow can then be turned into a cash transfer, artefact to be used as the input to a payment system or the outcome of it. The associated rosettaKey denotes the ability to associate a hash value to the Cashflow instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+type Cashflow extends PayoutBase: <"Class to specify a cashflow, i.e. the outcome of either of computation (e.g. interest accrual) or an assessment of some sort (e.g. a fee). The cashflow can then be turned into a cash transfer, artefact to be used as the input to a payment system or the outcome of it. The associated globalKey denotes the ability to associate a hash value to the Cashflow instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 meta "id"]
 
@@ -72,7 +73,7 @@ type ClosedState: <" A class to qualify the closed state of an execution or a co
 		[synonym Workflow_Event value "lastPaymentDate"]
 
 
-type Contract: <" A class to specify a financial contract object, which can be invoked either within the context of an event, or independently from it. It corresponds to the FpML Trade in the Confirmation view (while the CDM Execution class corresponds to the FpML trade in the Pre-Trade view). The associated rosettaKey denotes the ability to associate a hash value to the Contract instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+type Contract: <" A class to specify a financial contract object, which can be invoked either within the context of an event, or independently from it. It corresponds to the FpML Trade in the Confirmation view (while the CDM Execution class corresponds to the FpML trade in the Pre-Trade view). The associated globalKey denotes the ability to associate a hash value to the Contract instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
 	[rootType]
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 meta "id" path "trade"]
@@ -88,8 +89,8 @@ type Contract: <" A class to specify a financial contract object, which can be i
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "clearedDate" path "trade->tradeHeader"]
 		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value "clearedDate" path "tradeHeader"]
 	tradableProduct TradableProduct (1..1) <"The tradable product information that is associated with the contract, which combines quantity and price together with the product's economic terms, identification and taxonomy. The corresponding FpML construct is the product abstract element and the associated substitution group.">
-		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value "trade"]
-		[synonym CME_SubmissionIRS_1_0 value "trade" path "Instrmt->SecXML->FpML"]
+		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value "trade" mapper "Counterparty"]
+		[synonym CME_SubmissionIRS_1_0 value "trade" path "Instrmt->SecXML->FpML" mapper "Counterparty"]
 	collateral Collateral (0..1) <"Defines the collateral obligations of a party.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "collateral" path "trade"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "collateral"]
@@ -365,7 +366,7 @@ type CrossCurrencyTerms:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "settlementProvision"]
 
 
-type CreditDefaultPayout: <" The credit default payout specification provides the details necessary for determining when a credit payout will be triggered as well as the parameters for calculating the payout and the settlement terms. The associated rosettaKey denotes the ability to associate a hash value to the CreditDefaultPayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+type CreditDefaultPayout: <" The credit default payout specification provides the details necessary for determining when a credit payout will be triggered as well as the parameters for calculating the payout and the settlement terms. The associated globalKey denotes the ability to associate a hash value to the CreditDefaultPayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 meta "id"]
 
@@ -383,20 +384,20 @@ type CreditDefaultPayout: <" The credit default payout specification provides th
 		if generalTerms -> referenceInformation -> referencePrice exists
 		then generalTerms -> referenceInformation -> referencePrice >= 0
 
-	condition FpML_cd_13: <"FpML validation rule cd-13 - If protectionTerms/creditEvents/creditEventNotice/notifyingParty/buyerPartyReference exists, then the @href attribute of protectionTerms/creditEvents/creditEventNotice/notifyingParty/buyerPartyReference is equal to the @href attribute of generalTerms/buyerPartyReference.">
-		if protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> buyerPartyReference -> reference exists
-		then protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> buyerPartyReference -> reference = generalTerms -> buyerSeller -> buyerPartyReference -> reference
+	condition FpML_cd_13: <"FpML validation rule cd-13 - If protectionTerms/creditEvents/creditEventNotice/notifyingParty/buyer exists, then the protectionTerms/creditEvents/creditEventNotice/notifyingParty/buyer is equal to the generalTerms/buyer.">
+		if protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> buyer exists
+		then protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> buyer = generalTerms -> buyerSeller -> buyer
 
-	condition FpML_cd_14: <"FpML validation rule cd-14 - If protectionTerms/creditEvents/creditEventNotice/notifyingParty/sellerPartyReference exists, then the @href attribute of protectionTerms/creditEvents/creditEventNotice/notifyingParty/sellerPartyReference must be equal to the @href attribute of generalTerms/sellerPartyReference.">
-		if protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> sellerPartyReference -> reference exists
-		then protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> sellerPartyReference -> reference = generalTerms -> buyerSeller -> sellerPartyReference -> reference
+
+	condition FpML_cd_14: <"FpML validation rule cd-14 - If protectionTerms/creditEvents/creditEventNotice/notifyingParty/seller exists, then the protectionTerms/creditEvents/creditEventNotice/notifyingParty/seller must be equal to the generalTerms/seller.">
+		if protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> seller exists
+		then protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> seller = generalTerms -> buyerSeller -> seller
 
 	condition Choice: <"Choice rule to represent an FpML choice construct.">
 		optional choice cashSettlementTerms, physicalSettlementTerms
 
 
-type EconomicTerms: <" This class represents the full set of price-forming features associated with a contractual product: the payout component, the notional/quantity, the effective and termination date and the date adjustment provisions when applying uniformily across the payout components. This class also includes the legal provisions which have valuation implications: cancelable provision, extendible provision, early termination provision and extraordinary events specification. A rosettaKeyValue is associated to the contractual product economic terms for the purpose of supporting hash-based reconciliations thanks to the fact that its computation doesn't include meta data, such as identifiers, references, schemes and other rosettaKey artefacts. The rosettaKeyValue default implementation is available as part of the generated code as org.isda.cdm.rosettakey.RosettaKeyValueHashFunction.">
-	[partialKey]
+type EconomicTerms: <" This class represents the full set of price-forming features associated with a contractual product: the payout component, the notional/quantity, the effective and termination date and the date adjustment provisions when applying uniformily across the payout components. This class also includes the legal provisions which have valuation implications: cancelable provision, extendible provision, early termination provision and extraordinary events specification.">
 	effectiveDate AdjustableOrRelativeDate (0..1) <"The first day of the terms of the trade. This day may be subject to adjustment in accordance with a business day convention.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "effectiveDate" path "generalTerms"]
 	terminationDate AdjustableOrRelativeDate (0..1) <"The last day of the terms of the trade. This date may be subject to adjustments in accordance with the business day convention. It can also be specified in relation to another scheduled date (e.g. the last payment date).">
@@ -434,9 +435,9 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
 			or payout -> cashflow -> cashflowDate -> relativeDate -> adjustedDate < terminationDate -> adjustableDate -> adjustedDate
 
 	condition FpML_cd_30: <"FpML validation rule cd-30 - If feeLeg/periodicPayment/lastRegularPaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/periodicPayment/lastRegularPaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
-		if ( payout -> interestRatePayout -> paymentDates -> lastPaymentDate -> lastRegularPaymentDate
+		if ( payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate
 			and terminationDate) exists
-		then payout -> interestRatePayout -> paymentDates -> lastPaymentDate -> lastRegularPaymentDate < terminationDate -> adjustableDate -> unadjustedDate
+		then payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate < terminationDate -> adjustableDate -> unadjustedDate
 
 
 // FIXME Object compare: effectiveDate > terminationDate
@@ -444,7 +445,7 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
 //		if effectiveDate exists
 //		and terminationDate exists
 //		then effectiveDate > terminationDate
-type EquityPayout extends PayoutBase: <" The equity payout specification terms. The associated rosettaKey denotes the ability to associate a hash value to the EquityPayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+type EquityPayout extends PayoutBase: <" The equity payout specification terms. The associated globalKey denotes the ability to associate a hash value to the EquityPayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
 	[synonym FpML_5_10 meta "id"]
 
@@ -456,6 +457,8 @@ type EquityPayout extends PayoutBase: <" The equity payout specification terms. 
 	dividendReturnTerms DividendReturnTerms (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Dividend Obligations">
 		[synonym FpML_5_10 value "dividendConditions" path "return", "singleUnderlyer" path "underlyer"]
 	priceReturnTerms PriceReturnTerms (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Pricing">
+	fxFeature FxFeature (0..1) <"A quanto or composite FX feature.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "fxFeature"]
 	calculationPeriodDates CalculationPeriodDates (1..1) <"The calculation period dates schedule.">
 	paymentDates PaymentDates (1..1) <"The payment date schedule, as defined by the parameters that are needed to specify it, either in a parametric way or by reference to another schedule of dates (e.g. the valuation dates).">
 		[synonym FpML_5_10 value "paymentDates" path "rateOfReturn"]
@@ -486,7 +489,7 @@ type EquityPayout extends PayoutBase: <" The equity payout specification terms. 
 			or underlier -> underlyingProduct -> security -> warrant) exists
 
 
-type Execution: <" A class to specify an execution, which consists essentially in the economic terms which are agreed between the parties, alongside with the qualification of the type of execution. The associated rosettaKey denotes the ability to associate a hash value to the respective Execution instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+type Execution: <"A class to specify an execution, which consists essentially in the economic terms which are agreed between the parties, alongside with the qualification of the type of execution. The associated globalKey denotes the ability to associate a hash value to the respective Execution instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
 	executionType ExecutionTypeEnum (1..1) <"Specifies the type of execution, e.g. via voice, electronically...">
 		[synonym Workflow_Event value "executionType" path "trade"]
@@ -501,8 +504,8 @@ type Execution: <" A class to specify an execution, which consists essentially i
 		[synonym FpML_5_10 value "tradeDate" path "trade->tradeHeader" meta "id"]
 		[synonym CME_SubmissionIRS_1_0 value "tradeDate" path "Instrmt->SecXML->FpML->trade->tradeHeader" meta "id"]
 	tradableProduct TradableProduct (1..1) <"The product traded as part of this execution, including quantity and price">
-		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value "trade"]
-		[synonym CME_SubmissionIRS_1_0 value "trade" path "Instrmt->SecXML->FpML"]
+		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value "trade" mapper "Counterparty"]
+		[synonym CME_SubmissionIRS_1_0 value "trade" path "Instrmt->SecXML->FpML" mapper "Counterparty"]
 	party Party (0..*) <"The party reference is optional because positioned as part of the Event class when the execution is specified as part of such context.">
 		[metadata reference]
 		[synonym CME_SubmissionIRS_1_0 value "party" path "Instrmt->SecXML->FpML"]
@@ -510,7 +513,7 @@ type Execution: <" A class to specify an execution, which consists essentially i
 		[synonym Workflow_Event value "trade"]
 	closedState ClosedState (0..1) <"The qualification of what led to the execution closure alongside with the dates on which this closure takes effect.">
 		[synonym Workflow_Event value "closedState" path "trade"]
-	settlementTerms SettlementTerms (0..1) <"The execution settlement terms, which is applicable for products such as securities">
+	settlementTerms SettlementTerms (0..*) <"The settlement terms applicable to any initial transfer of cash or securities resulting from the transaction that is not part of the product definition: e.g. option premium, swap unwind fee, security delivery vs payment.">
 
 	condition ExecutionVenue: <"When the execution type is set to 'Electronically', the execution venue must be specified.">
 		if executionType = ExecutionTypeEnum -> Electronic
@@ -568,7 +571,7 @@ type GeneralTerms: <" A class specifying a set of non-monetary terms for the Cre
 		then basketReferenceInformation -> basketName exists
 			or basketReferenceInformation -> basketId exists
 
-type InterestRatePayout extends PayoutBase: <" A class to specify all of the terms necessary to define and calculate a cash flow based on a fixed, a floating or an inflation index rate. The interest rate payout can be applied to interest rate swaps and FRA (which both have two associated interest rate payouts), credit default swaps (to represent the fee leg when subject to periodic payments) and equity swaps (to represent the funding leg). The associated rosettaKey denotes the ability to associate a hash value to the InterestRatePayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+type InterestRatePayout extends PayoutBase: <" A class to specify all of the terms necessary to define and calculate a cash flow based on a fixed, a floating or an inflation index rate. The interest rate payout can be applied to interest rate swaps and FRA (which both have two associated interest rate payouts), credit default swaps (to represent the fee leg when subject to periodic payments) and equity swaps (to represent the funding leg). The associated globalKey denotes the ability to associate a hash value to the InterestRatePayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 meta "id"]
 
@@ -684,7 +687,7 @@ type OptionExercise: <" A class to represent the applicable terms to qualify an 
 	settlement OptionSettlement (0..1) <"The option settlement terms, such as cash vs. physical, the settlement date, the settlement currency and/or amount. FpML represents this information as part of the OptionSettlement.model.">
 
 
-type OptionPayout extends PayoutBase: <" The option payout specification terms. The associated rosettaKey denotes the ability to associate a hash value to the respective OptionPayout instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+type OptionPayout extends PayoutBase: <" The option payout specification terms. The associated globalKey denotes the ability to associate a hash value to the respective OptionPayout instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 meta "id"]
 
@@ -847,7 +850,7 @@ type Payout: <" A class to represent the set of future cashflow methodologies in
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "otherPartyPayment"]
 
 	condition LastRegularPaymentDate: <"FpML specifies that lastRegularPaymentDate must only be included if there is a final stub. As part of the CDM, this data rule has been adjusted to specify that it only applies to interest rate swaps, as the credit derivatives products can have a specified lastRegularPaymentDate while the stub is typically not applicable to those.">
-		if interestRatePayout -> paymentDates -> lastPaymentDate -> lastRegularPaymentDate exists
+		if interestRatePayout -> paymentDates -> lastRegularPaymentDate exists
 			and interestRatePayout -> stubPeriod -> finalStub exists
 		then interestRatePayout count = 2
 
@@ -997,7 +1000,8 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "fxSingleLeg"]
 		// For Repo:
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "repo"]
-	// TBD: make quantity and price notation optional, and only validate that it exists as part of an execution / contract?
+	counterparties Counterparty (2..2)
+	 // TBD: make quantity and price notation optional, and only validate that it exists as part of an execution / contract?
 	// TBD: positioning of future DateNotation (Effective Date, Termination Date) - only applicable to contractual products. In EconomicTerms?
 	// TBD: positioning of future PartyNotation - as part of this type, or higher-up in the Execution / Contract?
 	// The latter would align the concept of TradeableProduct across securities and contractual products (securities do not require any party specification to be "tradeable")
@@ -1283,366 +1287,3 @@ type Portfolio: <" A Portfolio represents an aggregation of multiple Positions, 
 	portfolioState PortfolioState (1..1) <"Describes the state of the Portfolio as a list of Positions resulting from the aggregation.">
 
 // TO ADD: PortfolioState calculation based on EventEffect
-
-/***********************
- * Product Qualification
- */
-func CreditDefaultSwap: <"This product qualification is temporary until such time that the ISDA Credit Group specifies a proper taxonomy for credit derivatives that is based upon economic terms.">
-	[qualification product]
-	inputs: economicTerms EconomicTerms (1..1)
-	output: is_product boolean (1..1)
-	assign-output is_product:
-		economicTerms -> payout -> creditDefaultPayout exists
-		and ( economicTerms -> payout -> interestRatePayout
-			or economicTerms -> payout -> cashflow ) exists
-		and economicTerms -> payout -> equityPayout is absent
-		and economicTerms -> payout -> optionPayout is absent
-
-func CreditDefaultSwaption: <"This product qualification is temporary until such time that the ISDA Credit Group specifies a proper taxonomy for credit derivatives that is based upon economic terms.">
-	[qualification product]
-	inputs: economicTerms EconomicTerms (1..1)
-	output: is_product boolean (1..1)
-	assign-output is_product:
-        economicTerms -> payout -> optionPayout exists
-        and economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout exists
-        and ( economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> interestRatePayout
-            or economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> cashflow ) exists
-        and economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> equityPayout is absent
-        and economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> optionPayout is absent
-
-func EquitySwap_PriceReturnBasicPerformance_SingleName: <"The Price Return Basic Performance equity swap specified in the ISDA taxonomy V2.0 corresponds to the price and total return swaps.">
-	[qualification product]
-	inputs: economicTerms EconomicTerms (1..1)
-	output: is_product boolean (1..1)
-		[synonym ISDA_Taxonomy_v1 value "EquitySwap_PriceReturnBasicPerformance_SingleName"]
-	assign-output is_product:
-        economicTerms -> payout -> interestRatePayout exists
-        and ( economicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum -> Price
-            or economicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum -> Total )
-        and ( economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> equity
-            or economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> exchangeTradedFund
-            or economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> mutualFund
-            or economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> warrant
-            ) exists
-
-func EquitySwap_ParameterReturnDividend_SingleName: <"The Parameter Return Dividend equity swap specified in the ISDA taxonomy V2.0 corresponds to the dividend return swap.">
-	[qualification product]
-	inputs: economicTerms EconomicTerms (1..1)
-	output: is_product boolean (1..1)
-		[synonym ISDA_Taxonomy_v1 value "EquitySwap_ParameterReturnDividend_SingleName"]
-	assign-output is_product:
-        economicTerms -> payout -> interestRatePayout exists
-        and economicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum -> Dividend
-        and ( economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> equity
-            or economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> exchangeTradedFund
-            or economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> mutualFund
-            or economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> warrant
-            ) exists
-
-func InterestRate_IRSwap_Basis:
-	[qualification product]
-	inputs: economicTerms EconomicTerms (1..1)
-	output: is_product boolean (1..1)
-		[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_Basis"]
-	assign-output is_product:
-		economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 2
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate is absent
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
-		and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
-		and economicTerms -> payout -> optionPayout is absent
-
-func InterestRate_IRSwap_FixedFloat_PlainVanilla: <"This product qualification doesn't represent the exact terms of the ISDA Taxonomomy V2.0 for the plain vanilla swaps, as some of those cannot be represented as part of the CDM syntax (e.g. the qualification that there is no provision for early termination which uses an off-market valuation), while some other are deemed missing in the ISDA taxonomy and have been added as part of the CDM (absence of cross-currency settlement provision, absence of fixed rate and notional step schedule, absence of stub). ">
-	[qualification product]
-	inputs: economicTerms EconomicTerms (1..1)
-	output: is_product boolean (1..1)
-		[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_FixedFloat"]
-	assign-output is_product:
-        economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
-        and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
-        and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
-        and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
-        and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> settlementProvision is absent
-        and economicTerms -> payout -> optionPayout is absent
-        and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule -> step is absent
-        and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate -> rateSchedule -> step is absent
-        and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> floatingRateMultiplierSchedule is absent
-        and economicTerms -> payout -> interestRatePayout -> payoutQuantity -> quantitySchedule -> stepSchedule -> step is absent
-        and economicTerms -> payout -> interestRatePayout -> stubPeriod is absent
-        and economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> stubPeriodType is absent
-	/*
-	 * TODO - Cannot compare the below because in FpML the period associated with the reset frequency is of type PeriodExtendedEnum, which includes 'T'
-	 * Need to adjust the implementation once a proper implementation approach has been firmed out
-	 */
-//	and economicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period =
-//		economicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> indexTenor -> period
-		and economicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier =
-		economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> assetIdentifier -> rateOption -> indexTenor -> periodMultiplier
-		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period <> PeriodExtendedEnum -> T
-		and economicTerms -> payout -> interestRatePayout -> compoundingMethod is absent
-	// TODO comment out data rules that should only apply to qualification (and not be applied as part of general validation)
-//	and Vanilla_AnnualPaymentDifferentResetFrequency, Vanilla_SemiAnnualPayment_QuarterlyReset, Vanilla_QuarterlyPayment_MonthlyReset apply
-
-/*
- * TODO Address the below data rule
- */
-//data rule Vanilla_SamePaymentResetFrequency
-//	when payout -> interestRatePayout -> resetDates exists
-//	then payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier
-
-// TODO comment out data rules that should only apply to qualification (and not be applied as part of general validation)
-//condition Vanilla_AnnualPaymentDifferentResetFrequency: <"One of the provision to qualify a plain vanilla swap according to the ISDA Taxonomy V2.0 is that when the payment frequency is annual, the reset frequency is semi-annual or quarterly.">
-//	when payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum -> Y
-//	then payout -> interestRatePayout -> resetDates -> resetFrequency -> period = PeriodExtendedEnum -> M
-//	and ( payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 6
-//		or payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 3 )
-
-// TODO comment out data rules that should only apply to qualification (and not be applied as part of general validation)
-//condition Vanilla_SemiAnnualPayment_QuarterlyReset: <"One of the provision to qualify a plain vanilla swap according to the ISDA Taxonomy V2.0 is that when the payment frequency is semi-annual, the reset frequency is quarterly.">
-//	when payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum -> M
-//		and payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 6
-//	then payout -> interestRatePayout -> resetDates -> resetFrequency -> period = PeriodExtendedEnum -> M
-//		and payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 3
-
-// TODO comment out data rules that should only apply to qualification (and not be applied as part of general validation)
-//condition Vanilla_QuarterlyPayment_MonthlyReset: <"One of the provision to qualify a plain vanilla swap according to the ISDA Taxonomy V2.0 is that when the payment frequency is quarterly, the reset frequency is monthly.">
-//	when payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum -> M
-//		and payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 6
-//	then payout -> interestRatePayout -> resetDates -> resetFrequency -> period = PeriodExtendedEnum -> M
-//		and payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 3
-
-func InterestRate_IRSwap_FixedFloat:
-	[qualification product]
-	inputs: economicTerms EconomicTerms (1..1)
-	output: is_product boolean (1..1)
-	[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_FixedFloat"]
-	assign-output is_product:
-	economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
-		and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
-		and economicTerms -> payout -> optionPayout is absent
-		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period <> PeriodExtendedEnum -> T
-		and ( economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule -> step exists
-			or economicTerms -> payout -> interestRatePayout -> payoutQuantity -> quantitySchedule -> stepSchedule -> step exists
-			or economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> floatingRateMultiplierSchedule exists
-			or economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate -> rateSchedule -> step exists
-			or economicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier <>
-			economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> assetIdentifier -> rateOption -> indexTenor -> periodMultiplier
-			or economicTerms -> payout -> interestRatePayout -> compoundingMethod exists
-			or economicTerms -> payout -> interestRatePayout -> stubPeriod exists
-			or economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> stubPeriodType exists
-			or economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> settlementProvision exists )
-		and economicTerms -> payout -> interestRatePayout -> paymentDates exists
-
-func InterestRate_IRSwap_FixedFixed:
-	[qualification product]
-	inputs: economicTerms EconomicTerms (1..1)
-	output: is_product boolean (1..1)
-		[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_FixedFixed"]
-	assign-output is_product:
-		economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 2
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate is absent
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
-		and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
-		and economicTerms -> payout -> optionPayout is absent
-
-func InterestRate_CrossCurrency_Basis:
-	[qualification product]
-	inputs: economicTerms EconomicTerms (1..1)
-	output: is_product boolean (1..1)
-		[synonym ISDA_Taxonomy_v1 value "InterestRate_CrossCurrency_Basis"]
-	assign-output is_product:
-		economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 2
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate is absent
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
-		and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges exists
-		and economicTerms -> payout -> optionPayout is absent
-
-func InterestRate_CrossCurrency_FixedFloat:
-	[qualification product]
-	inputs: economicTerms EconomicTerms (1..1)
-	output: is_product boolean (1..1)
-		[synonym ISDA_Taxonomy_v1 value "InterestRate_CrossCurrency_FixedFloat"]
-	assign-output is_product:
-		economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
-		and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges exists
-		and economicTerms -> payout -> optionPayout is absent
-
-func InterestRate_CrossCurrency_FixedFixed:
-	[qualification product]
-	inputs: economicTerms EconomicTerms (1..1)
-	output: is_product boolean (1..1)
-		[synonym ISDA_Taxonomy_v1 value "InterestRate_CrossCurrency_FixedFixed"]
-	assign-output is_product:
-		economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 2
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate is absent
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
-		and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges exists
-		and economicTerms -> payout -> optionPayout is absent
-
-func InterestRate_IRSwap_FixedFloat_ZeroCoupon:
-	[qualification product]
-	inputs: economicTerms EconomicTerms (1..1)
-	output: is_product boolean (1..1)
-		[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_FixedFloat"]
-	assign-output is_product:
-		economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
-		and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
-		and economicTerms -> payout -> optionPayout is absent
-		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
-		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum -> T
-
-/*
- * TODO Adjust the Xtext grammar to support enumeration styles
- */
-func InterestRate_IRSwap_FixedFloat_OIS:
-	[qualification product]
-	inputs: economicTerms EconomicTerms (1..1)
-	output: is_product boolean (1..1)
-		[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_FixedFloat"]
-	assign-output is_product:
-		economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
-		and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
-		and economicTerms -> payout -> optionPayout is absent
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> assetIdentifier -> rateOption -> floatingRateIndex = FloatingRateIndexEnum -> AUD_AONIA_OIS_COMPOUND
-
-func InterestRate_IRSwap_Basis_OIS:
-	[qualification product]
-	inputs: economicTerms EconomicTerms (1..1)
-	output: is_product boolean (1..1)
-		[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_Basis"]
-	assign-output is_product:
-		economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 2
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate is absent
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
-		and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
-		and economicTerms -> payout -> optionPayout is absent
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> assetIdentifier -> rateOption -> floatingRateIndex = FloatingRateIndexEnum -> AUD_AONIA_OIS_COMPOUND
-
-
-func InterestRate_InflationSwap_FixedFloat_YearOn_Year:
-	[qualification product]
-	inputs: economicTerms EconomicTerms (1..1)
-	output: is_product boolean (1..1)
-		[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_Inflation"]
-	assign-output is_product:
-		economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate is absent
-		and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
-		and economicTerms -> payout -> optionPayout is absent
-		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
-		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum -> Y
-
-func InterestRate_InflationSwap_FixedFloat_ZeroCoupon:
-	[qualification product]
-	inputs: economicTerms EconomicTerms (1..1)
-	output: is_product boolean (1..1)
-		[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_Inflation"]
-	assign-output is_product:
-		economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate is absent
-		and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
-		and economicTerms -> payout -> optionPayout is absent
-		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
-		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum -> T
-
-func InterestRate_InflationSwap_Basis_YearOn_Year:
-	[qualification product]
-	inputs: economicTerms EconomicTerms (1..1)
-	output: is_product boolean (1..1)
-		[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_Inflation"]
-	assign-output is_product:
-		economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate is absent
-		and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
-		and economicTerms -> payout -> optionPayout is absent
-		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
-		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum -> Y
-
-func InterestRate_InflationSwap_Basis_ZeroCoupon:
-	[qualification product]
-	inputs: economicTerms EconomicTerms (1..1)
-	output: is_product boolean (1..1)
-		[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_Inflation"]
-	assign-output is_product:
-		economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate is absent
-		and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
-		and economicTerms -> payout -> optionPayout is absent
-		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
-		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum -> T
-
-func InterestRate_Option_Swaption:
-	[qualification product]
-	inputs: economicTerms EconomicTerms (1..1)
-	output: is_product boolean (1..1)
-		[synonym ISDA_Taxonomy_v1 value "InterestRate_Option_Swaption"]
-	assign-output is_product:
-        economicTerms -> payout -> optionPayout exists
-        and economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> interestRatePayout count = 2
-
-func InterestRate_Option_DebtOption:
-	[qualification product]
-	inputs: economicTerms EconomicTerms (1..1)
-	output: is_product boolean (1..1)
-		[synonym ISDA_Taxonomy_v1 value "InterestRate_DebtOption"]
-	assign-output is_product:
-        economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> security -> bond exists
-        or economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> security -> convertibleBond exists
-
-func InterestRate_CapFloor:
-	[qualification product]
-	inputs: economicTerms EconomicTerms (1..1)
-	output: is_product boolean (1..1)
-		[synonym ISDA_Taxonomy_v1 value "InterestRate_CapFloor"]
-	assign-output is_product:
-		economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> capRateSchedule exists
-		or economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> floorRateSchedule exists
-
-func InterestRate_Fra:
-	[qualification product]
-	inputs: eTerms EconomicTerms(1..1)
-	output: result boolean(1..1)
-		[synonym ISDA_Taxonomy_v1 value "InterestRate_Fra"]
-
-	assign-output result:
-		eTerms -> payout -> interestRatePayout count = 2
-		and eTerms -> payout -> creditDefaultPayout is absent
-		and eTerms -> payout -> cashflow is absent
-		and EffectiveDateContainsPaymentDate(eTerms) = True
-
-func ForeignExchange:
-	[qualification product]
-	inputs: economicTerms EconomicTerms (1..1)
-	output: is_product boolean (1..1)
-		[synonym ISDA_Taxonomy_v1 value "ForeignExchange_Forward"]
-		[synonym ISDA_Taxonomy_v1 value "ForeignExchange_Spot"]
-	assign-output is_product:
-        economicTerms -> payout -> forwardPayout -> underlier -> underlyingProduct -> foreignExchange exists and
-        economicTerms -> payout -> forwardPayout -> settlementTerms -> fxSettlementTerms is absent
-
-func ForeignExchange_NDF:
-	[qualification product]
-	inputs: economicTerms EconomicTerms (1..1)
-	output: is_product boolean (1..1)
-		[synonym ISDA_Taxonomy_v1 value "ForeignExchange_NDF"]
-	assign-output is_product:
-		economicTerms -> payout -> forwardPayout -> settlementTerms -> fxSettlementTerms exists
-
-func RepurchaseAgreement:
-	[qualification product]
-	inputs: economicTerms EconomicTerms (1..1)
-	output: is_product boolean (1..1)
-	assign-output is_product:
-		economicTerms -> payout -> securityPayout -> securityLeg count >= 1 and
-		economicTerms -> payout -> interestRatePayout count = 1

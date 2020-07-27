@@ -1,22 +1,31 @@
 package org.isda.cdm.functions.testing;
 
-import com.regnosys.rosetta.common.testing.ExecutableFunction;
-import com.rosetta.model.lib.records.DateImpl;
-import org.isda.cdm.*;
-import org.isda.cdm.functions.Execute;
-import org.isda.cdm.functions.FormContract;
+import static org.isda.cdm.functions.testing.FunctionUtils.guard;
+
+import java.util.Collections;
 
 import javax.inject.Inject;
 
-import static org.isda.cdm.functions.testing.FunctionUtils.guard;
+import org.isda.cdm.BusinessEvent;
+import org.isda.cdm.Contract;
+import org.isda.cdm.GoverningLawEnum;
+import org.isda.cdm.LegalAgreement;
+import org.isda.cdm.LegalAgreementNameEnum;
+import org.isda.cdm.LegalAgreementPublisherEnum;
+import org.isda.cdm.LegalAgreementType;
+import org.isda.cdm.functions.Create_ContractFormation;
+import org.isda.cdm.functions.Create_Execution;
+
+import com.regnosys.rosetta.common.testing.ExecutableFunction;
+import com.rosetta.model.lib.records.DateImpl;
 
 public class RunFormContractWithLegalAgreement implements ExecutableFunction<Contract, BusinessEvent> {
 
     @Inject
-    Execute execute;
+    Create_Execution execute;
 
     @Inject
-    FormContract formContract;
+    Create_ContractFormation formContract;
 
 
     @Override
@@ -24,8 +33,10 @@ public class RunFormContractWithLegalAgreement implements ExecutableFunction<Con
         BusinessEvent executeBusinessEvent = execute.evaluate(contract.getTradableProduct().getProduct(),
                 guard(contract.getTradableProduct().getQuantityNotation()),
                 guard(contract.getTradableProduct().getPriceNotation()),
+                guard(contract.getTradableProduct().getCounterparties()),
                 guard(contract.getParty()),
-                guard(contract.getPartyRole()));
+                guard(contract.getPartyRole()),
+                Collections.emptyList());
 
         LegalAgreement legalAgreement = LegalAgreement.builder()
                 .addContractualPartyRef(guard(contract.getParty()))

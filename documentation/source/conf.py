@@ -50,7 +50,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'ISDA CDM'
-copyright = '2018, ISDA'
+copyright = '2018-2020, ISDA'
 author = 'ISDA'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -80,6 +80,7 @@ pygments_style = 'sphinx'
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
 
+default_role = 'code'
 
 # -- Options for HTML output ----------------------------------------------
 

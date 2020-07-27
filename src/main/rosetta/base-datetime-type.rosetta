@@ -2,6 +2,7 @@ namespace cdm.base.datetime
 version "${project.version}"
 
 import cdm.base.*
+import cdm.synonyms.config.*
 
 type AdjustableDate: <"A class for defining a date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
 	[metadata key]
@@ -233,7 +234,6 @@ type Offset extends Period: <"A class defining an offset used in calculating a n
 	[synonym FpML_5_10 value "Offset"]
 	dayType DayTypeEnum (0..1) <"In the case of an offset specified as a number of days, this element defines whether consideration is given as to whether a day is a good business day or not. If a day type of business days is specified then non-business days are ignored when calculating the offset. The financial business centers to use for determination of business days are implied by the context in which this element is used. This element must only be included when the offset is specified as a number of days. If the offset is zero days then the dayType element should not be included.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "dayType"]
-		[synonym ISDA_Create_1_0 set to DayTypeEnum -> Calendar when "release_date" = "days"]
 	condition DayType: <"FpML specifies that the dayType must only be included when the offset is specified as a number of days, while should not be included if the offset is zero days.">
 		if period <> PeriodEnum -> D
 			or periodMultiplier = 0
@@ -246,11 +246,9 @@ type Period: <"A class to define recurring periods or time offsets.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "periodMultiplier" maps 2]
 		[synonym FpML_5_10 value "periodMultiplier" path "dateOffset"]
 		[synonym FpML_5_10 value "periodMultiplier" path "calculationPeriodDates->relativeEffectiveDate"]
-		[synonym ISDA_Create_1_0 value "timely_days", "release_days", "after_days"]
 	period PeriodEnum (1..1) <"A time period, e.g. a day, week, month or year of the stream. If the periodMultiplier value is 0 (zero) then period must contain the value D (day).">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "period" maps 2]
 		[synonym FpML_5_10 value "period" path "dateOffset"]
-	// [synonym ISDA_Create_1_0 set to PeriodEnum -> D]
 	condition DayPeriod: <"FpML specifies that if the periodMultiplier value is 0 (zero) then period must contain the value D (day).">
 		if periodMultiplier = 0
 		then period = PeriodEnum -> D
@@ -296,7 +294,7 @@ type DateGroup:
 type PeriodRange: <"The period range defined as either a lower and upper period bound, or both.">
 	lowerBound PeriodBound (0..1) <"The lower bound of a period range, e.g. greater than or equal to 5Y.">
 	upperBound PeriodBound (0..1) <"The upper bound of a period range, e.g. less than to 10Y.">
-	condition: one-of
+	condition: lowerBound exists or upperBound exists
 
 type PeriodBound: <"The period bound is defined as a period and whether the bound is inclusive.">
     period Period (1..1) <"The period to be used as the bound, e.g. 5Y.">

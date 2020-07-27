@@ -1,8 +1,11 @@
 package org.isda.cdm.processor;
 
+import cdm.base.staticdata.asset.common.ProductIdentifier.ProductIdentifierBuilder;
+import cdm.base.staticdata.asset.common.metafields.ReferenceWithMetaProductIdentifier;
+import cdm.base.staticdata.asset.common.metafields.ReferenceWithMetaProductIdentifier.ReferenceWithMetaProductIdentifierBuilder;
 import com.google.common.collect.ImmutableMap;
-import com.regnosys.rosetta.common.hashing.RosettaKeyProcessStep;
-import com.regnosys.rosetta.common.hashing.RosettaKeyProcessStep.KeyPostProcessReport;
+import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep;
+import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep.KeyPostProcessReport;
 import com.regnosys.rosetta.common.hashing.SimpleBuilderProcessor;
 import com.rosetta.lib.postprocess.PostProcessorReport;
 import com.rosetta.model.lib.GlobalKeyBuilder;
@@ -13,11 +16,6 @@ import com.rosetta.model.lib.process.AttributeMeta;
 import com.rosetta.model.lib.process.BuilderProcessor.Report;
 import com.rosetta.model.lib.process.PostProcessStep;
 import org.isda.cdm.BusinessEvent.BusinessEventBuilder;
-
-import cdm.base.staticdata.asset.common.ProductIdentifier.ProductIdentifierBuilder;
-import cdm.base.staticdata.asset.common.metafields.ReferenceWithMetaProductIdentifier;
-import cdm.base.staticdata.asset.common.metafields.ReferenceWithMetaProductIdentifier.ReferenceWithMetaProductIdentifierBuilder;
-
 import org.isda.cdm.Contract.ContractBuilder;
 import org.isda.cdm.EventEffect.EventEffectBuilder;
 import org.isda.cdm.Execution.ExecutionBuilder;
@@ -61,9 +59,9 @@ public class EventEffectProcessStep implements PostProcessStep{
 				&& !p.containsPath(FORWARD_CONTRACT_PATHS) && !p.containsPath(FORWARD_CONTRACTUAL_PRODUCT_PATHS);};
 	}
 
-	private final RosettaKeyProcessStep keyProcessor;
+	private final GlobalKeyProcessStep keyProcessor;
 
-	public EventEffectProcessStep(RosettaKeyProcessStep keyProcessor) {
+	public EventEffectProcessStep(GlobalKeyProcessStep keyProcessor) {
 		this.keyProcessor = keyProcessor;
 	}
 
@@ -111,7 +109,7 @@ public class EventEffectProcessStep implements PostProcessStep{
 	private class EventEffectProcessor extends SimpleBuilderProcessor {
 
 		private final EventEffectPostProcessReport report;
-		private final Map<RosettaPath, GlobalKeyBuilder<?>> globalKeyMap;
+		private final Map<RosettaPath, GlobalKeyBuilder> globalKeyMap;
 
 		public EventEffectProcessor(EventEffectPostProcessReport report, KeyPostProcessReport keyPostProcessReport) {
 			this.report = report;
@@ -126,7 +124,7 @@ public class EventEffectProcessStep implements PostProcessStep{
 			}
 			if (builder instanceof EventEffectBuilder) {
 				EventEffectBuilder eventEffect = (EventEffectBuilder) builder;
-				for (Entry<RosettaPath, GlobalKeyBuilder<?>> entry:globalKeyMap.entrySet()) {
+				for (Entry<RosettaPath, GlobalKeyBuilder> entry:globalKeyMap.entrySet()) {
 					for (Entry<BiPredicate<RosettaPath, Class<?>>, BiConsumer<EventEffectBuilder, String>> test:effectSetters.entrySet()) {
 						if (test.getKey().test(entry.getKey(), entry.getValue().getClass())) {
 							test.getValue().accept(eventEffect, entry.getValue().getMeta().getGlobalKey());

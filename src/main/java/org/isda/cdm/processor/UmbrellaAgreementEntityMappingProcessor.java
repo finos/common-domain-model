@@ -1,21 +1,19 @@
 package org.isda.cdm.processor;
 
-import static org.isda.cdm.processor.MappingProcessorUtils.findMappedValue;
-import static org.isda.cdm.processor.MappingProcessorUtils.updateMapping;
+import com.regnosys.rosetta.common.translation.MappingContext;
+import com.regnosys.rosetta.common.translation.MappingProcessor;
+import com.regnosys.rosetta.common.translation.Path;
+import com.rosetta.model.lib.RosettaModelObjectBuilder;
+import com.rosetta.model.lib.path.RosettaPath;
+import org.isda.cdm.UmbrellaAgreement.UmbrellaAgreementBuilder;
+import org.isda.cdm.UmbrellaAgreementEntity;
+import org.isda.cdm.UmbrellaAgreementEntity.UmbrellaAgreementEntityBuilder;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
 
-import org.isda.cdm.UmbrellaAgreement.UmbrellaAgreementBuilder;
-import org.isda.cdm.UmbrellaAgreementEntity;
-import org.isda.cdm.UmbrellaAgreementEntity.UmbrellaAgreementEntityBuilder;
-
-import com.regnosys.rosetta.common.translation.Mapping;
-import com.regnosys.rosetta.common.translation.Path;
-import com.regnosys.rosetta.common.translation.Path.PathElement;
-import com.rosetta.model.lib.RosettaModelObjectBuilder;
-import com.rosetta.model.lib.path.RosettaPath;
-import com.rosetta.model.metafields.FieldWithMetaString;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.toFieldWithMetaString;
 
 /**
  * ISDA Create mapping processor.
@@ -23,57 +21,39 @@ import com.rosetta.model.metafields.FieldWithMetaString;
 @SuppressWarnings("unused")
 public class UmbrellaAgreementEntityMappingProcessor extends MappingProcessor {
 
-	private static final Path BASE_PATH = Path.parse("answers.partyA.umbrella_agreement_and_principal_identification.principal_identification_schedule");
-	
-	public UmbrellaAgreementEntityMappingProcessor(RosettaPath rosettaPath, List<Mapping> mappings) {
-		super(rosettaPath, mappings);
+	public UmbrellaAgreementEntityMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
+		super(modelPath, synonymPaths, mappingContext);
 	}
 
 	@Override
-	public void map(RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
-		// Do nothing
-	}
-
-	@Override
-	protected void map(List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
+	public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
 		UmbrellaAgreementBuilder umbrellaAgreementBuilder = (UmbrellaAgreementBuilder) parent;
 		umbrellaAgreementBuilder.clearParties();
-		
-		int i = 0;
+
+		int index = 0;
 		while (true) {
-			UmbrellaAgreementEntityBuilder umbrellaAgreementEntityBuilder = UmbrellaAgreementEntity.builder();
-			
-			List<Mapping> principalNameMappings = findMappings("principal_name", i);
-			Optional<String> principalName = findMappedValue(principalNameMappings);
-			principalName.ifPresent(xmlValue -> {
-				umbrellaAgreementEntityBuilder.setNameRef(xmlValue);
-				principalNameMappings.forEach(m -> updateMapping(m, getPath()));
-			});
-			
-			List<Mapping> leiMappings = findMappings("lei", i);
-			Optional<String> lei = findMappedValue(leiMappings);
-			lei.ifPresent(xmlValue -> {
-				umbrellaAgreementEntityBuilder.addEntityId(FieldWithMetaString.builder().setValue(xmlValue).build());
-				leiMappings.forEach(m -> updateMapping(m, getPath()));
-			});
-			
-			List<Mapping> additionalMappings = findMappings("additional", i);
-			Optional<String> additional = findMappedValue(additionalMappings);
-			additional.ifPresent(xmlValue -> {
-				umbrellaAgreementEntityBuilder.setTerms(xmlValue);
-				additionalMappings.forEach(m -> updateMapping(m, getPath()));
-			});
-			
-			if (principalName.isPresent() || lei.isPresent() || additional.isPresent()) {
-				umbrellaAgreementBuilder.addPartiesBuilder(umbrellaAgreementEntityBuilder);
-				i++;
+			Optional<UmbrellaAgreementEntity> umbrellaAgreementEntity = getUmbrellaAgreementEntity(synonymPath, index++);
+			if (umbrellaAgreementEntity.isPresent()) {
+				umbrellaAgreementBuilder.addParties(umbrellaAgreementEntity.get());
 			} else {
 				break;
 			}
 		}
 	}
 
-	private List<Mapping> findMappings(String attribute, int index) {
-		return MappingProcessorUtils.findMappings(getMappings(), BASE_PATH.addElement(new PathElement(attribute, index)));
+	@NotNull
+	private Optional<UmbrellaAgreementEntity> getUmbrellaAgreementEntity(Path synonymPath, Integer index) {
+		UmbrellaAgreementEntityBuilder umbrellaAgreementEntityBuilder = UmbrellaAgreementEntity.builder();
+
+		setValueAndUpdateMappings(synonymPath.addElement("principal_name", index),
+				umbrellaAgreementEntityBuilder::setNameRef);
+
+		setValueAndUpdateMappings(synonymPath.addElement("lei", index),
+				(value) -> umbrellaAgreementEntityBuilder.addEntityId(toFieldWithMetaString(value)));
+
+		setValueAndUpdateMappings(synonymPath.addElement("additional", index),
+				umbrellaAgreementEntityBuilder::setTerms);
+
+		return umbrellaAgreementEntityBuilder.hasData() ? Optional.of(umbrellaAgreementEntityBuilder.build()) : Optional.empty();
 	}
 }

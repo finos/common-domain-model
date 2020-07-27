@@ -1,26 +1,22 @@
-# *Event Model: Add Examples and Tests for New Trade Functions*
+# *User Documentation: Legal Agreement Section*
 
 _What is being released_
 
-New examples for the `Execute` and `FormContract` functions.
+The Legal Agreement section of the CDM user documentation has been updated, in line with recent changes to other sections of the documentation and to the model.
 
-- `Execute` Business Event
-  - Fixed/Floating Single Currency Interest Rate Swap
-  - Forward Rate Agreement
-  - Basis Swap
-  - OIS Swap
-  - Swaption
-  
-- `FormContract` Business Event
-  - Fixed/Floating Single Currency Interest Rate Swap using ISDA Master Agreement
-  - Fixed/Floating Single Currency Interest Rate Swap
-  - Forward Rate Agreement
-  - Basis Swap
-  - OIS Swap
-  - Swaption
-  
-_Review Directions_
+Notable changes and updates introduced:
 
-Using Rosetta Core, navigate to the Visualise CDM Events section and select 'EXECUTE BUSINESS EVENT' or 'FORM CONTRACT BUSINESS EVENT'. There will be an item per example which you can click on to see a visualisation. Click on a node to see the CDM JSON in the analisys section.
+- Updated modelling approach describing current scope and updated design principles.
+- Detailed description of individual components within the Legal Agreement model.
+- Detailed description of structure and modelling approach for Elective Provisions
+- Addition of relevant examples to demonstrate model content
+- Updated description of approach for linking legal agreements to contracts
 
+The Process section has also been updated to explain support for initial margin calculations as part of the Calculation Process section.
 
+_Review direction_
+
+In the CDM Portal, review the CDM Documentation, in particular the sections:
+
+- [Legal Agreement](https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#legal-agreement)
+- [Calculation Process](https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#calculation-process)

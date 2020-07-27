@@ -30,7 +30,7 @@ func FixedAmount: <"2006 ISDA Definition Article 5 Section 5.1. Calculation of a
 		calculationAmount * fixedRateAmount * dayCountFraction
 
 
-func FloatingAmount: <"2006 ISDA Definition Article 6 Section 6.1. Calculation of a Floating Amount: Subject to the provisions of Section 6.4 (Negative Interest Rates), the Floating Amount payable by a party on a Payment Date will be: (a) if Compounding is not specified for the Swap Transaction or that party, an amount calculated on a formula basis for that Payment Date or for the related Calculation Period as follows: Floating Amount = Calculation Amount × Floating Rate + Spread × Floating Rate Day Count Fraction (b) if “Compounding” is specified to be applicable to the Swap Transaction or that party and 'Flat Compounding' is not specified, an amount equal to the sum of the Compounding Period Amounts for each of the Compounding Periods in the related Calculation Period; or (c) if 'Flat Compounding' is specified to be applicable to the Swap Transaction or that party, an amount equal to the sum of the Basic Compounding Period Amounts for each of the Compounding Periods in the related Calculation Period plus the sum of the Additional Compounding Period Amounts for each such Compounding Period.">
+func FloatingAmount: <"2006 ISDA Definition Article 6 Section 6.1. Calculation of a Floating Amount: Subject to the provisions of Section 6.4 (Negative Interest Rates), the Floating Amount payable by a party on a Payment Date will be: (a) if Compounding is not specified for the Swap Transaction or that party, an amount calculated on a formula basis for that Payment Date or for the related Calculation Period as follows: Floating Amount = Calculation Amount × Floating Rate + Spread × Floating Rate Day Count Fraction (b) if 'Compounding' is specified to be applicable to the Swap Transaction or that party and 'Flat Compounding' is not specified, an amount equal to the sum of the Compounding Period Amounts for each of the Compounding Periods in the related Calculation Period; or (c) if 'Flat Compounding' is specified to be applicable to the Swap Transaction or that party, an amount equal to the sum of the Basic Compounding Period Amounts for each of the Compounding Periods in the related Calculation Period plus the sum of the Additional Compounding Period Amounts for each such Compounding Period.">
 	// TODO - The below calculation needs to be refined for the case of negative interest rate and compounding
 	// TODO - The ISDA 2006 doesn't make reference to the FpML floatingRateMultiplierSchedule.
 	// Discussed resolution path with Jonathan & Harry is for Jonathan to ask the Rates Committee if the rate multiplier is actually used.
@@ -59,12 +59,12 @@ func DayCountFraction: <"A description of inputs and outputs for all day count f
 		result number (1..1)
 
 
-func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> _1_1): <"2006 ISDA Definition Article 4 section 4.16(a):	if “1/1” is specified, 1;">
+func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> _1_1): <"2006 ISDA Definition Article 4 section 4.16(a):	if '1/1' is specified, 1;">
 	[calculation]
 	assign-output result: 1.0
 
 
-func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> ACT_ACT_ISDA): <"'2006 ISDA Definition Article 4 section 4.16(e): if “Actual/360”, “Act/360” or “A/360” is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 360.">
+func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> ACT_ACT_ISDA): <"'2006 ISDA Definition Article 4 section 4.16(e): if 'Actual/360', 'Act/360' or 'A/360' is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 360.">
 	[calculation]
 	alias calculationPeriod: CalculationPeriod(interestRatePayout -> calculationPeriodDates, date)
 	alias daysInLeapYearPeriod: <"The number of days of the period that fall in a leap year.">
@@ -75,7 +75,7 @@ func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> ACT_ACT_ISDA
 		(daysInNonLeapPeriod / 365) + (daysInLeapYearPeriod / 366)
 
 
-func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> ACT_ACT_ICMA): <"2006 ISDA Definition Article 4 section 4.16(c):	(c)	if “Actual/Actual (ICMA)” or “Act/Act (ICMA)” is specified, a fraction equal to “number of days accrued/number of days in year”, as such terms are used in Rule 251 of the statutes, by-laws, rules and recommendations of the International Capital Market Association (the “ICMA Rule Book”), calculated in accordance with Rule 251 of the ICMA Rule Book as applied to non US dollar denominated straight and convertible bonds issued after December 31, 1998, as though the interest coupon on a bond were being calculated for a coupon period corresponding to the Calculation Period or Compounding Period in respect of which payment is being made;">
+func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> ACT_ACT_ICMA): <"2006 ISDA Definition Article 4 section 4.16(c):	(c)	if 'Actual/Actual (ICMA)' or 'Act/Act (ICMA)' is specified, a fraction equal to 'number of days accrued/number of days in year', as such terms are used in Rule 251 of the statutes, by-laws, rules and recommendations of the International Capital Market Association (the 'ICMA Rule Book'), calculated in accordance with Rule 251 of the ICMA Rule Book as applied to non US dollar denominated straight and convertible bonds issued after December 31, 1998, as though the interest coupon on a bond were being calculated for a coupon period corresponding to the Calculation Period or Compounding Period in respect of which payment is being made;">
 	[calculation]
 	alias calculationPeriod: CalculationPeriod(interestRatePayout -> calculationPeriodDates, date)
 	alias daysInPeriod: <"Number of calendar in the calculation period">
@@ -86,21 +86,21 @@ func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> ACT_ACT_ICMA
 		// TODO support the long initial and final stubs
 		daysInPeriod / (daysInPeriod * periodsInYear)
 
-func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> ACT_365_FIXED): <"'2006 ISDA Definition Article 4 section 4.16(d): If 'Actual/365 (Fixed)', 'Act/365 (Fixed)', 'A/365 (Fixed)' or 'A/365F' is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 365. ISDA Definition Article 4 section 4.16(e): if “Actual/360”, “Act/360” or “A/360” is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 360.">
+func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> ACT_365_FIXED): <"'2006 ISDA Definition Article 4 section 4.16(d): If 'Actual/365 (Fixed)', 'Act/365 (Fixed)', 'A/365 (Fixed)' or 'A/365F' is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 365. ISDA Definition Article 4 section 4.16(e): if 'Actual/360', 'Act/360' or 'A/360' is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 360.">
 	[calculation]
 	alias daysInPeriod: <"Number of calendar in the calculation period">
 		CalculationPeriod(interestRatePayout -> calculationPeriodDates, date) -> daysInPeriod
 	assign-output result:
 		daysInPeriod / 365
 
-func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> ACT_360): <"'2006 ISDA Definition Article 4 section 4.16(e): if “Actual/360”, “Act/360” or “A/360” is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 360.">
+func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> ACT_360): <"'2006 ISDA Definition Article 4 section 4.16(e): if 'Actual/360', 'Act/360' or 'A/360' is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 360.">
 	[calculation]
 	alias daysInPeriod: <"Number of calendar in the calculation period">
 		CalculationPeriod(interestRatePayout -> calculationPeriodDates, date ) -> daysInPeriod
 	assign-output result:
 		daysInPeriod / 360
 
-func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> _30_360): <"2006 ISDA Definition Article 4 section 4.16(f): if “30/360”, “360/360” or “Bond Basis” is specified, the number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 360, calculated on a formula basis as follows:[[360 x (Y2 - Y1)] + [30 x (M2 - M1)] + (D2 - D1)]/360.">
+func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> _30_360): <"2006 ISDA Definition Article 4 section 4.16(f): if '30/360', '360/360' or 'Bond Basis' is specified, the number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 360, calculated on a formula basis as follows:[[360 x (Y2 - Y1)] + [30 x (M2 - M1)] + (D2 - D1)]/360.">
 	[calculation]
 	alias calculationPeriod:
 		CalculationPeriod(interestRatePayout -> calculationPeriodDates, date)
@@ -126,7 +126,7 @@ func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> _30_360): <"
 		(360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
 
 
-func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360): <"'2006 ISDA Definition Article 4 section 4.16(e): if “Actual/360”, “Act/360” or “A/360” is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 360.">
+func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360): <"'2006 ISDA Definition Article 4 section 4.16(e): if 'Actual/360', 'Act/360' or 'A/360' is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 360.">
 	[calculation]
 	alias calculationPeriod:
 		CalculationPeriod(interestRatePayout -> calculationPeriodDates, date)
@@ -151,7 +151,7 @@ func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360): <
 	assign-output result:
 		(360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
 
-func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360_ISDA): <"2006 ISDA Definition Article 4 section 4.16(h): if “30E/360 (ISDA)” is specified, the number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 360, calculated on a formula basis as follows: [[360 × (Y2 - Y1)]+[30 × (M2 - M1)] +(D2 - D1)]/360 ">
+func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360_ISDA): <"2006 ISDA Definition Article 4 section 4.16(h): if '30E/360 (ISDA)' is specified, the number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 360, calculated on a formula basis as follows: [[360 × (Y2 - Y1)]+[30 × (M2 - M1)] +(D2 - D1)]/360 ">
 	[calculation]
 
 	alias calculationPeriod:

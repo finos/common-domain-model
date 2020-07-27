@@ -1,21 +1,21 @@
 package org.isda.cdm.processor;
 
 import com.regnosys.rosetta.common.translation.Mapping;
+import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.path.RosettaPath;
 import org.isda.cdm.ElectiveAmountElection;
 import org.isda.cdm.MinimumTransferAmount;
 import org.isda.cdm.Money;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.isda.cdm.CreditSupportObligationsInitialMargin.CreditSupportObligationsInitialMarginBuilder;
 import static org.isda.cdm.MinimumTransferAmount.MinimumTransferAmountBuilder;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
 class MinimumTransferAmountMappingProcessorTest {
@@ -33,13 +33,17 @@ class MinimumTransferAmountMappingProcessorTest {
 		mappings.add(new Mapping(Path.parse("answers.partyA.minimum_transfer_amount.partyA_amount"), "10000", null, null, "no destination", false, false));
 		mappings.add(new Mapping(Path.parse("answers.partyA.minimum_transfer_amount.partyA_currency"), "Euro", null, null, "no destination", false, false));
 		mappings.add(new Mapping(Path.parse("answers.partyA.minimum_transfer_amount.partyB_minimum_transfer_amount"), ZERO, null, null, "no destination", false, false));
+		MappingContext context = new MappingContext(mappings, Collections.emptyMap());
 
 		MinimumTransferAmountBuilder builder = MinimumTransferAmount.builder();
 		CreditSupportObligationsInitialMarginBuilder parent = mock(CreditSupportObligationsInitialMarginBuilder.class);
 
 		// test
-		MinimumTransferAmountMappingProcessor processor = new MinimumTransferAmountMappingProcessor(rosettaPath, mappings);
-		processor.map(builder, parent);
+		Path synonymPath = Path.parse("answers.partyA.minimum_transfer_amount");
+		MinimumTransferAmountMappingProcessor processor = new MinimumTransferAmountMappingProcessor(rosettaPath,
+				Collections.singletonList(synonymPath),
+				context);
+		processor.map(synonymPath, builder, parent);
 		MinimumTransferAmount minimumTransferAmount = builder.build();
 
 		// assert
@@ -48,11 +52,12 @@ class MinimumTransferAmountMappingProcessorTest {
 		assertNull(partyA.getCustomElection());
 		Money amount = partyA.getAmount();
 		assertEquals(10000, amount.getAmount().intValue());
-		assertEquals("Euro", amount.getCurrency().getValue());
+		assertEquals("EUR", amount.getCurrency().getValue());
 
 		ElectiveAmountElection partyB = getPartyElection(minimumTransferAmount, PARTY_B);
 		assertNull(partyB.getCustomElection());
-		assertEquals(0, partyB.getAmount().getAmount().intValue());
+		assertNull(partyB.getAmount());
+		assertTrue(partyB.getZeroAmount());
 	}
 
 	private ElectiveAmountElection getPartyElection(MinimumTransferAmount minimumTransferAmount, String party) {

@@ -7,6 +7,22 @@ import cdm.base.math.*
 import cdm.base.staticdata.asset.rates.*
 import cdm.base.staticdata.party.*
 import cdm.observable.asset.*
+import cdm.synonyms.config.*
+
+type AdjustableRelativeOrPeriodicDates: <"A class giving the choice between defining a series of dates as an explicit list of dates together with applicable adjustments or as relative to some other series of (anchor) dates, or as a calculation period schedule.">
+	[metadata key]
+	[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 meta "id"]
+
+	adjustableDates AdjustableDates (0..1) <"A series of dates that shall be subject to adjustment if they would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "adjustableDates"]
+	relativeDates RelativeDates (0..1) <"A series of dates specified as some offset to another series of dates (the anchor dates).">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "relativeDates"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "relativeDateSequence"]
+	periodicDates PeriodicDates (0..1) <"A calculation period schedule.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "periodicDates"]
+
+	condition Choice: <"Choice rule to represent an FpML choice construct.">
+		required choice adjustableDates, relativeDates, periodicDates
 
 type AmericanExercise: <"A class defining the exercise period for an American style option together with any rules governing the notional amount of the underlying which can be exercised on any given exercise date and any associated exercise fees.">
 	[metadata key]
@@ -16,7 +32,7 @@ type AmericanExercise: <"A class defining the exercise period for an American st
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "commencementDate"]
 	expirationDate AdjustableOrRelativeDate (1..1) <"The last day within an exercise period for an American style option. For a European style option it is the only day within the exercise period.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "expirationDate"]
-	relevantUnderlyingDate AdjustableOrRelativeDates (0..1) <"The date on the underlying set by the exercise of an option. What this date is depends on the option (e.g. in a swaption it is the swap effective date, in an extendible/cancelable provision it is the swap termination date).">
+	relevantUnderlyingDate AdjustableOrRelativeDates (0..1) <"The effective date on the underlying product if the option is exercised.  For example, for a swaption it is the swap effective date, for an option on an FX spot or forward it is the value date for settlement, and in an extendible/cancelable provision it is the swap termination date, which is the date on which the termination is effective.'">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "relevantUnderlyingDate"]
 	earliestExerciseTime BusinessCenterTime (1..1 ) <"The earliest time at which notice of exercise can be given by the buyer to the seller (or seller's agent) to, and including, the expiration date.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "earliestExerciseTime"]
@@ -51,7 +67,7 @@ type BermudaExercise: <"A class defining the Bermuda option exercise dates and t
 
 	bermudaExerciseDates AdjustableOrRelativeDates (1..1) <"The dates that define the Bermuda option exercise dates and the expiration date. The last specified date is assumed to be the expiration date. The dates can either be specified as a series of explicit dates and associated adjustments or as a series of dates defined relative to another schedule of dates, for example, the calculation period start dates. Where a relative series of dates are defined the first and last possible exercise dates can be separately specified.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "bermudaExerciseDates"]
-	relevantUnderlyingDate AdjustableOrRelativeDates (0..1) <"The date on the underlying set by the exercise of an option. What this date is depends on the option (e.g. in a swaption it is the swap effective date, in an extendible/cancelable provision it is the swap termination date).">
+	relevantUnderlyingDate AdjustableOrRelativeDates (0..1) <"The effective date on the underlying product if the option is exercised.  For example, for a swaption it is the swap effective date, for an option on an FX spot or forward it is the value date for settlement, and in an extendible/cancelable provision it is the swap termination date, which is the date on which the termination is effective.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "relevantUnderlyingDate"]
 	earliestExerciseTime BusinessCenterTime (1..1) <"The earliest time at which notice of exercise can be given by the buyer to the seller (or seller's agent) on each Bermuda option exercise date and the expiration date.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "earliestExerciseTime"]
@@ -177,7 +193,6 @@ type RelatedAgreement: <"A class for specifying the legal agreements that govern
 	legalAgreement LegalAgreement (0..1) <"The legal agreement(s) that govern the contract, when such agreement is specified as a reference part of the CDM.">
 		//[metadata reference] // TODO fix bug related to setting null references in func assign-output 
 		[synonym Workflow_Event value "legalAgreement"]
-		[synonym ISDA_Create_1_0 value "collateral_transfer_agreement" path "answers->partyA"]
 		[synonym FpML_5_10 value "ignore"] // TODO remove when migrating from documentationIdentification to legalAgreement (and update cardinality to 1..1)
 	documentationIdentification DocumentationIdentification (0..1) <"The identification of the legal document(s) that govern the contract through some of the key terms of such document(s): type of document, the document identifier, the publisher, the document vintage and the agreement date.">
 		[synonym ISDA_Create_1_0 value "ignore"]
@@ -216,7 +231,7 @@ type EuropeanExercise: <"A class defining the exercise period for a European sty
 
 	expirationDate AdjustableOrRelativeDate (1..1) <"The last day within an exercise period for an American style option. For a European style option it is the only day within the exercise period.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "expirationDate"]
-	relevantUnderlyingDate AdjustableOrRelativeDates (0..1) <"The date on the underlying set by the exercise of an option. What this date is depends on the option (e.g. in a swaption it is the swap effective date, in an extendible/cancelable provision it is the swap termination date).">
+	relevantUnderlyingDate AdjustableOrRelativeDates (0..1) <"The effective date on the underlying product if the option is exercised.  For example, for a swaption it is the swap effective date, for an option on an FX spot or forward it is the value date for settlement, and in an extendible/cancelable provision it is the swap termination date, which is the date on which the termination is effective.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "relevantUnderlyingDate"]
 	earliestExerciseTime BusinessCenterTime (1..1) <"The earliest time at which notice of exercise can be given by the buyer to the seller (or seller's agent) on the expiration date.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "earliestExerciseTime"]
@@ -268,9 +283,9 @@ type ExerciseFeeSchedule extends PayerReceiver: <"A class to define a fee or sch
 type ExerciseNotice: <"A class defining to whom and where notice of execution should be given. The partyReference refers to one of the principal parties of the trade. If present the exerciseNoticePartyReference refers to a party, other than the principal party, to whom notice should be given.">
 	[synonym FpML_5_10 value "ExerciseNotice"]
 
-	partyReference Party (1..1) <"The party referenced has allocated the trade identifier.">
-		[metadata reference]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "partyReference" meta "href"]
+	optionBuyer CounterpartyEnum (1..1) <"The party referenced has allocated the trade identifier.">
+		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value "partyReference" mapper "CounterpartyEnum"]
+		[synonym CME_SubmissionIRS_1_0 value "partyReference" mapper "CmeCounterpartyEnum"]
 	exerciseNoticePartyReference Party (0..1) <"The party referenced is the party to which notice of exercise should be given by the buyer.">
 		[metadata reference]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "exerciseNoticePartyReference" meta "href"]
@@ -403,13 +418,13 @@ type IssuerTradeId: <"A class for a two-parts identifier, such as a USI.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "tradeId" meta "id", "tradeIdScheme"]
 
 
-type LastRegularPaymentDate: <"A class which purpose is to provide the ability into the seemingly incompatible representations of the interest rate and equity last payment date.">
+// type LastRegularPaymentDate: <"A class which purpose is to provide the ability into the seemingly incompatible representations of the interest rate and equity last payment date.">
 
-	lastRegularPaymentDate date (0..1) <"The last regular payment date when specified as a date, as in the FpML interest rate construct. FpML specifies that this date may be subject to adjustment in accordance with any business day convention specified in the paymentDatesAdjustments attribute.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "lastRegularPaymentDate"]
-	finalPaymentDate AdjustableOrRelativeDate (0..1) <"The last payment when specified as an adjustable or relative date, as in the FpML total return construct.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "paymentDateFinal"]
-	condition: one-of
+// 	lastRegularPaymentDate date (0..1) <"The last regular payment date when specified as a date, as in the FpML interest rate construct. FpML specifies that this date may be subject to adjustment in accordance with any business day convention specified in the paymentDatesAdjustments attribute.">
+// 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "lastRegularPaymentDate"]
+// 	finalPaymentDate AdjustableOrRelativeDate (0..1) <"The last payment when specified as an adjustable or relative date, as in the FpML total return construct.">
+// 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "paymentDateFinal"]
+// 	condition: one-of
 
 type ManualExercise: <"A class defining manual exercise, i.e. that the option buyer counterparty must give notice to the option seller of exercise.">
 	[synonym FpML_5_10 value "ManualExercise"]
@@ -511,37 +526,42 @@ type PaymentDates: <"A class to specify the parameters to generate the payment d
 	[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "PaymentDates" meta "id"]
 	[synonym FpML_5_10 value "PaymentDates" meta "id" path "interestLegCalculationPeriodDates"]
 
-	dateRelativeTo date (0..1) <"The anchor date when the payment dates are specified by reference to a set of dates specified somewhere else in the instance document/transaction, e.g. the valuation dates as typically the case for equity swaps.  When this attribute is specified, the paymentDaysOffset and the paymentDatesAdjustments also need to specified.">
-		[metadata reference]
-		[synonym FpML_5_10 value "dateRelativeTo" path "paymentDatesInterim->relativeDates" meta "href"]
-		[synonym FpML_5_10 value "dateRelativeTo" path "relativeDates" meta "href"]
 	paymentFrequency Frequency (0..1) <"The frequency at which regular payment dates occur. If the payment frequency is equal to the frequency defined in the calculation period dates component then one calculation period contributes to each payment amount. If the payment frequency is less frequent than the frequency defined in the calculation period dates component then more than one calculation period will contribute to the payment amount. A payment frequency more frequent than the calculation period frequency or one that is not a multiple of the calculation period frequency is invalid. If the payment frequency is of value T (term), the period is defined by the effectiveDate and the terminationDate.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "paymentFrequency"]
 	firstPaymentDate date (0..1) <"The first unadjusted payment date. This day may be subject to adjustment in accordance with any business day convention specified in paymentDatesAdjustments. This element must only be included if there is an initial stub. This date will normally correspond to an unadjusted calculation period start or end date. This is true even if early or delayed payment is specified to be applicable since the actual first payment date will be the specified number of days before or after the applicable adjusted calculation period start or end date with the resulting payment date then being adjusted in accordance with any business day convention specified in paymentDatesAdjustments.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "firstPaymentDate"]
-	lastPaymentDate LastRegularPaymentDate (0..1) <"The last payment date. In the case of interest rate swaps, FpML specifies that this date must only be included if there is a final stub, with all calculation periods after this date contributing to the final payment.">
+	lastRegularPaymentDate date (0..1) <"The last regular payment date when specified as a date, as in the FpML interest rate construct. FpML specifies that this date may be subject to adjustment in accordance with any business day convention specified in the paymentDatesAdjustments attribute.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "lastRegularPaymentDate"]
+	paymentDateSchedule PaymentDateSchedule (0..1) <"The payment dates when specified as relative to a set of dates specified somewhere else in the instance document/transaction, e.g. the valuation dates as typically the case for equity swaps, or when specified as a calculation period schedule.">
 	payRelativeTo PayRelativeToEnum (0..1) <"Specifies whether the payments occur relative to each adjusted calculation period start date or end date, each reset date, valuation date or the last pricing date. Calculation period start date means relative to the start of the first calculation period contributing to a given payment. Similarly, calculation period end date means the end of the last calculation period contributing to a given payment. The valuation date is applicable for Brazilian-CDI and equity swaps.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "payRelativeTo"]
 	paymentDaysOffset Offset (0..1) <"If early payment or delayed payment is required, specifies the number of days offset that the payment occurs relative to what would otherwise be the unadjusted payment date. The offset can be specified in terms of either calendar or business days. Even in the case of a calendar days offset, the resulting payment date, adjusted for the specified calendar days offset, will still be adjusted in accordance with the specified payment dates adjustments. This element should only be included if early or delayed payment is applicable, i.e. if the periodMultiplier element value is not equal to zero. An early payment would be indicated by a negative periodMultiplier element value and a delayed payment (or payment lag) would be indicated by a positive periodMultiplier element value.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "paymentDaysOffset"]
-		[synonym FpML_5_10 value "relativeDates" path "paymentDatesInterim", "relativeDates"]
 	paymentDatesAdjustments BusinessDayAdjustments (0..1) <"The definition of the business day convention and financial business centers used for adjusting the payment date if it would otherwise fall on a day that is not a business day in the specified business center.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "paymentDatesAdjustments"]
-		[synonym FpML_5_10 value "relativeDates" path "paymentDatesInterim"]
-
 	condition FpML_ird_35_cd_31: <"FpML validation rule ird-35 & cd-31- If firstPaymentDate exists, and if lastRegularPaymentDate exists, then firstPaymentDate must be before lastRegularPaymentDate.">
 		if firstPaymentDate exists
-			and lastPaymentDate -> lastRegularPaymentDate exists
-		then firstPaymentDate < lastPaymentDate -> lastRegularPaymentDate
+			and lastRegularPaymentDate exists
+		then firstPaymentDate < lastRegularPaymentDate
 
 	condition NonZeroPeriodMultiplier: <"FpML specifies that paymentDaysOffset should only be included if early or delayed payment is applicable, i.e. if the periodMultiplier element value is not equal to zero.">
 		if paymentDaysOffset exists
 		then paymentDaysOffset -> periodMultiplier <> 0
 
-	condition DateRelativeTo: <"When the payment dates are specified by reference to another date, the payment offset and the payment date adjustments also need to be specified.">
-		if dateRelativeTo exists
-		then ( paymentDaysOffset
-			and paymentDatesAdjustments) exists
+	// condition DateRelativeTo: <"When the payment dates are specified by reference to another date, the payment offset and the payment date adjustments also need to be specified.">
+	// 	if dateRelativeTo exists
+	// 	then ( paymentDaysOffset
+	// 		and paymentDatesAdjustments) exists
+
+type PaymentDateSchedule: <"The payment dates when specified as relative to a set of dates specified somewhere else in the instance document/transaction, e.g. the valuation dates as typically the case for equity swaps, or when specified as a calculation period schedule.">
+
+     interimPaymentDates AdjustableRelativeOrPeriodicDates (0..*)
+     	[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "paymentDatesInterim"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 hint "adjustableDates"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 hint "relativeDates"]
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 hint "periodicDates"]
+     finalPaymentDate AdjustableOrRelativeDate (0..1) <"The last payment when specified as an adjustable or relative date, as in the FpML total return construct.">
+     	[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "paymentDateFinal"]
 
 type PaymentDetail:
 	[metadata key]
@@ -567,6 +587,16 @@ type PaymentRule: <"A class defining the payment calculation rule. As of FpML 5.
 	[synonym FpML_5_10 value "PaymentRule"]
 
 	percentageRule PercentageRule (0..1) <"This attribute is not present as part of the FpML construct, as the payment rule is specialised by means of runtime type extension through the xsi:type.">
+
+type PeriodicDates: <"A class for specifying a calculation period schedule.">
+	startDate AdjustableOrRelativeDate (0..1) <"The start date of the calculation period. FpML specifies that for interest rate swaps this date must only be specified if it is not equal to the effective date. It is always specified in the case of equity swaps and credit default swaps with periodic payments. This date may be subject to adjustment in accordance with a business day convention.">
+		[synonym FpML_5_10 value "calculationStartDate"]
+	endDate AdjustableOrRelativeDate (0..1) <"The end date of the calculation period. FpML specifies that for interest rate swaps this date must only be specified if it is not equal to the termination date. It is always specified in the case of equity swaps with periodic payments. This date may be subject to adjustment in accordance with a business day convention.">
+		[synonym FpML_5_10 value "calculationEndDate"]
+	periodFrequency CalculationPeriodFrequency (0..1) <"The frequency at which calculation period end dates occur with the regular part of the calculation period schedule and their roll date convention.">
+		[synonym FpML_5_10 value "calculationPeriodFrequency"]
+	periodDatesAdjustments BusinessDayAdjustments (0..1) <"The specification of the business day convention and financial business centers used for adjusting any calculation period date if it would otherwise fall on a day that is not a business day in the specified business center.">
+		[synonym FpML_5_10 value "calculationPeriodDatesAdjustments"]
 
 type PremiumExpression: <"This class corresponds to the FpML Premium.model group for representing the option premium when expressed in a way other than an amount.">
 
@@ -689,7 +719,7 @@ type SettlementBase: <"A base class to be extended by the SettlementTerms, CashS
 		[metadata scheme]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "settlementCurrency" meta "currencyScheme"]
 
-type SettlementTerms extends SettlementBase: <"A class to specify the settlement terms. This class reflects the FpML OptionSettlement.model, although with no option reference.">
+type SettlementTerms extends SettlementBase: <"The settlement terms applicable to any transfer of cash or securities, including the date, amount, payer/receiver side and type (e.g. cash vs physical, DvP etc.)">
 	settlementType SettlementTypeEnum (0..1) <"Whether the settlement will be cash, physical, by election, ...">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "settlementType"]
 	settlementDate AdjustableOrRelativeDate (0..1)
@@ -699,6 +729,9 @@ type SettlementTerms extends SettlementBase: <"A class to specify the settlement
 	settlementAmount Money (0..1) <"The Settlement Amount, when known in advance.">
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "settlementAmount"]
 	transferSettlementType TransferSettlementEnum (0..1) <"The qualification as to how the transfer will settle, e.g. a DvP settlement.">
+	payerReceiver PayerReceiver (0..1) <"The direction of transfer of the settlement.">
+		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "payerReceiver"]
+	assetIdentifier AssetIdentifier (0..1) <"Identifier for the asset being settled.">
 
 	condition Choice: <"The settlementCurrency attribute is to be specified when the settlement amount is not known in advance.">
 		optional choice settlementAmount, settlementCurrency

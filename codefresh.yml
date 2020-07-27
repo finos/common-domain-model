@@ -23,7 +23,7 @@ steps:
   BuildNormal:
     title: Maven build
     fail_fast: false
-    image: r.cfcr.io/regnosysops/regnosys/mvn-docker-build:java-11
+    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
     working_directory: ./
     when:
       condition:
@@ -32,7 +32,6 @@ steps:
     commands:
       - rm -rf /codefresh/volume/.m2/com/regnosys
       - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.dsl.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.common.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.code-generators.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -U -s /settings.xml clean deploy -P daml,scala,typescript
@@ -40,7 +39,7 @@ steps:
   BuildRelease:
     title: Maven build for release
     fail_fast: false
-    image: r.cfcr.io/regnosysops/regnosys/mvn-docker-build:java-11
+    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
     working_directory: ./
     when:
       condition:
@@ -49,7 +48,6 @@ steps:
     commands:
       - rm -rf /codefresh/volume/.m2/com/regnosys
       - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.dsl.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.common.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.code-generators.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -s /settings.xml clean deploy -P daml,scala,typescript,full
