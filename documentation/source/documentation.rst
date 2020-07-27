@@ -1028,6 +1028,7 @@ The CDM provides support for implementors to uniquely identify a legal agreement
    lineage Lineage (0..1)
    agreementType LegalAgreementType (1..1)
    contractualParty Party (2..2)
+     [metadata reference]
    otherParty PartyRole (0..*)   
 
 As indicated by the cardinality for the attributes in this data type, all legal agreements must contain an agreement date, two contractual parties, and information indicating the published form of market standard agreement being used (including the name and publisher of the legal agreement being specified in the ``agreementType`` attribute).  Provision is made for further information to be captured, for example an agreement identifier, which is an optional attribute.
@@ -1152,7 +1153,7 @@ The ``CreditSupportAgreementElections`` data type therefore contains a super-set
    otherCsa OtherAgreements (0..1)
    japaneseLawCsa OtherAgreements (0..1)
    terminationCurrencyAmendment TerminationCurrencyAmendment (1..1)
-   minimumTransferAmountAmendment MinimumTransferAmountAmendment (1..1
+   minimumTransferAmountAmendment MinimumTransferAmountAmendment (1..1)
    interpretationTerms string (0..1)
    processAgent ProcessAgent (0..1)
    appropriatedCollateralValuation AppropriatedCollateralValuation (0..1)
