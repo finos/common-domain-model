@@ -505,12 +505,22 @@ reporting rule FixedFloatBuyerSeller
 	)
 
 reporting rule InterestRatePayoutPayer
-	filter when Contract -> tradableProduct -> counterparties -> counterparty = Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver -> payer then 
-	extract Contract -> tradableProduct -> counterparties -> party
+	extract Contract -> tradableProduct then
+	(
+		extract multiple TradableProduct -> counterparties,
+		extract multiple TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver
+	) then
+	join key Counterparty -> counterparty foreignKey PayerReceiver -> payer then
+	extract Counterparty -> party
 
 reporting rule InterestRatePayoutReceiver
-	filter when Contract -> tradableProduct -> counterparties -> counterparty = Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver -> receiver then 
-	extract Contract -> tradableProduct -> counterparties -> party
+	extract Contract -> tradableProduct then
+	(
+		extract multiple TradableProduct -> counterparties,
+		extract multiple TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver
+	) then
+	join key Counterparty -> counterparty foreignKey PayerReceiver -> receiver then
+	extract Counterparty -> party
 
 reporting rule FixedFixedBuyerSeller
 	filter when rule IsFixedFixed then
@@ -602,12 +612,22 @@ reporting rule IsCreditDefaultSwap
 	extract Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout exists
 
 reporting rule CreditDefaultPayoutBuyer
-	filter when Contract -> tradableProduct -> counterparties -> counterparty = Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> buyer then 
-	extract Contract -> tradableProduct -> counterparties -> party
+	extract Contract -> tradableProduct then
+	(
+		extract multiple TradableProduct -> counterparties,
+		extract multiple TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller
+	) then
+	join key Counterparty -> counterparty foreignKey BuyerSeller -> buyer then
+	extract Counterparty -> party
 
 reporting rule CreditDefaultPayoutSeller
-	filter when Contract -> tradableProduct -> counterparties -> counterparty = Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller -> seller then 
-	extract Contract -> tradableProduct -> counterparties -> party
+	extract Contract -> tradableProduct then
+	(
+		extract multiple TradableProduct -> counterparties,
+		extract multiple TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller
+	) then
+	join key Counterparty -> counterparty foreignKey BuyerSeller -> seller then
+	extract Counterparty -> party
 
 reporting rule Price
 		[regulatoryReference ESMA MiFIR RTS_22 annex "1" table "2" field "33"
@@ -748,4 +768,3 @@ extract
 	Address -> country = "SE" or
 	Address -> country = "SI" or
 	Address -> country = "SK"
-
