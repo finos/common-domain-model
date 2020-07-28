@@ -20,13 +20,3 @@ In the CDM Portal, review the CDM Documentation, in particular the sections:
 
 - [Legal Agreement](https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#legal-agreement)
 - [Calculation Process](https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#calculation-process)
-
-# *Infrastructure: Update DAML version*
-
-_What is being released_
-
-The DAML code generator/compiler has been updated to support DAML SDK version `0.13.30`
-
-_Review direction_
-
-In the CMD Portal Downloads section, download the DAML artefact.
