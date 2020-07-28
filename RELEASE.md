@@ -1,13 +1,12 @@
-# *CDM Model: Legal Document Modellinge*
+# *Go generation*
 
 _What is being released_
+Add a GO implementation of the CDM to the available downloads
 
-ISDA Create schemas and samples added for ISDA 2019 Security Agreements for Belgium and Luxembourg Law.
-Upgrade DAML version to use the lates image for DAML compilation
+Notable changes and updates introduced:
 
-_Review Directions_
+A new tile in the downloads section of the portal offering the option to download GO
 
-In the Ingestion Panel, try samples in folders:
+_Review direction_
 
-- `isda-create > isda-sa-im-2019-bellaw`
-- `isda-create > isda-sa-im-2019-luxlaw`
+Download the GO artifact from the downloads section of the portal
