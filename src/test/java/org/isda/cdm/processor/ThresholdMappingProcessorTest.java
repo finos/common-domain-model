@@ -13,10 +13,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.isda.cdm.CreditSupportObligationsInitialMargin.CreditSupportObligationsInitialMarginBuilder;
 import static org.isda.cdm.Threshold.ThresholdBuilder;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
 
 class ThresholdMappingProcessorTest {
 
@@ -36,12 +34,11 @@ class ThresholdMappingProcessorTest {
 		MappingContext context = new MappingContext(mappings, Collections.emptyMap());
 
 		ThresholdBuilder builder = Threshold.builder();
-		CreditSupportObligationsInitialMarginBuilder parent = mock(CreditSupportObligationsInitialMarginBuilder.class);
 
 		// test
 		Path synonymPath = Path.parse("answers.partyA.threshold");
 		ThresholdMappingProcessor processor = new ThresholdMappingProcessor(rosettaPath, Collections.singletonList(synonymPath), context);
-		processor.map(synonymPath, builder, parent);
+		processor.map(synonymPath, builder, null);
 		Threshold threshold = builder.build();
 
 		// assert
