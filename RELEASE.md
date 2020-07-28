@@ -6,13 +6,14 @@ Variation Margin model added and initial changes for Master Agreement Schedule m
 
 The following documents are now supported:
 
-- Variation Margin Agreements
+Variation Margin Agreements
 - ISDA 2016 CSA for Variation Margin ("VM") (Security Interest - New York Law)
 - ISDA 2016 CSA for VM (Title Transfer – English Law)
 - ISDA 2016 CSA for VM (Loan – Japanese Law)
 - ISDA 2016 CSA for VM (Title Transfer – Irish Law)
 - ISDA 2016 CSA for VM (Title Transfer – French Law)
-- Master Agreement Schedule
+
+Master Agreement Schedule
 - ISDA 2002 Master Agreement Schedule (Automatic Early Termination Clause only)
 
 Other related changes:
