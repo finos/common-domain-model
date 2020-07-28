@@ -29,4 +29,4 @@ The DAML code generator/compiler has been updated to support DAML SDK version `0
 
 _Review direction_
 
-In the CMD Portal Downloads section, download the DAML artifacts.
+In the CMD Portal Downloads section, download the DAML artefact.
