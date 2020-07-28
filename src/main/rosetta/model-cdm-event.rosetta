@@ -11,12 +11,6 @@ import cdm.base.staticdata.asset.rates.*
 import cdm.observable.asset.*
 import cdm.synonyms.config.*
 
-/**********************************************************
- * Qualifiable functions isProduct and isEvent root classes
- */
-isEvent root BusinessEvent;
-isProduct root EconomicTerms;
-
 type AllocationInstruction:
 	// TODO: add other allocation context
 	breakdowns AllocationBreakdown (1..*) <"The set of allocation breakdowns to be applied to a block trade">
@@ -135,14 +129,6 @@ type CreditLimitUtilisationPosition:
 		[synonym FpML_5_10 value "long"]
 	global number (0..1) <"Global credit limit utilisation amount, agnostic of long/short position direction.">
 		[synonym FpML_5_10 value "global"]
-
-type Curve:
-	interestRateCurve InterestRateCurve (0..1)
-		[synonym Workflow_Event value "interestRateCurve"]
-	commodityCurve CommodityReferencePriceEnum (0..1) // This is just an illustrative alternative curve instance, which implementation needs to be refined and confirmed
-		[metadata scheme]
-		[synonym Workflow_Event value "commodityCurve" meta "commodityReferencePriceScheme"]
-	condition Curve: one-of
 
 type CustomisedWorkflow: <"In its initial iteration, this class is meant to support the DTCC TIW workflow information.">
 	itemName string (1..1) <"In this initial iteration, this corresponds to the DTCC TIW element name.">
@@ -315,13 +301,6 @@ type ExecutionState: <"A class to specify an execution instantiation with respec
 	execution Execution (1..1)
 		[synonym Workflow_Event value "fpmlExecution"]
 
-
-type InterestRateCurve:
-	floatingRateIndex FloatingRateIndexEnum (1..1)
-		[metadata scheme]
-		[synonym Workflow_Event value "floatingRateIndex" meta "floatingRateIndexScheme"]
-	tenor Period (1..1)
-		[synonym Workflow_Event value "tenor"]
 
 type LimitApplicable:
 	[synonym FpML_5_10 value "LimitApplicable"]

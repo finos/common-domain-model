@@ -2,7 +2,6 @@ package org.isda.cdm.functions.testing;
 
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
 import org.isda.cdm.*;
-import org.isda.cdm.functions.CashflowSettlementTerms;
 import org.isda.cdm.functions.Create_Execution;
 
 import javax.inject.Inject;
