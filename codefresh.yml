@@ -50,7 +50,7 @@ steps:
       - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.common.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.code-generators.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
-      - mvn -s /settings.xml clean deploy -P daml,scala,typescript,full
+      - mvn -s /settings.xml clean deploy -P daml,scala,typescript,golang,full
 
   BuildDaml:
     title: DAML build and deploy
@@ -94,7 +94,7 @@ steps:
     shell: bash
     commands:
       - tar -cvzf cdm-golang.tar.gz golang
-      - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-golang/${{RELEASE_NAME}}/cdm-golang-${{RELEASE_NAME}}.zip" -T cdm-golang.zip
+      - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-golang/${{RELEASE_NAME}}/cdm-golang-${{RELEASE_NAME}}.zip" -T cdm-golang.tar.gz
 
   NotifySlackOnFail:
     title: Trigger Slack dev channel notification if master build failed
@@ -110,6 +110,7 @@ steps:
           buildDamlFailed: steps.BuildDaml.result == 'error'
           buildScalaFailed: steps.BuildScala.result == 'error'
           buildTypeScriptFailed: steps.BuildTypeScript.result == 'error'
+          buildGoFailed: steps.BuildGo.result == 'error'
     commands:
       - export SAFE_COMMIT_AUTHOR='${{CF_COMMIT_AUTHOR}}'
       - export COMMIT_AUTHOR=${SAFE_COMMIT_AUTHOR:-MissingAuthor}
@@ -132,6 +133,7 @@ steps:
           damlBuildFailure: steps.BuildDaml.result == 'failure'
           scalaBuildFailure: steps.BuildScala.result == 'failure'
           typeScriptBuildFailure: steps.BuildTypeScript.result == 'failure'
+          goBuildFailure: steps.BuildGo.result == 'failure'
     commands:
       - exit 1
 
