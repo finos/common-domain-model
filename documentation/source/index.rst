@@ -11,4 +11,3 @@ Welcome to the ISDA CDM documentation!
    :caption: Contents:
 
    documentation
-   how-to
