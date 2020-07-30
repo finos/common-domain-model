@@ -90,7 +90,7 @@ class DocumentationCodeValidator(
         val docFileFilter = BiPredicate<Path, BasicFileAttributes> { path, attr -> attr.isRegularFile && path.fileName.toString().endsWith(ext) }
 
         return Files.find(Path.of(dir), 1, docFileFilter).use { paths: Stream<Path> ->
-            paths.map { path -> File(path, Files.readString(path, Charset.defaultCharset())) }.collect(Collectors.toList())
+            paths.map { path -> File(path, Files.readString(path)) }.collect(Collectors.toList())
         }
     }
 
