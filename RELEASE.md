@@ -1,15 +1,13 @@
-# *Model Optimisation: Extract Party References from ContractualProduct*
+# *CDM Model: Synonyms externalisation*
 
 _What is being released_
 
-Following the recent model refactoring to extract `Party` references from `ContractualProduct`, the regulatory reporting model in `model-reg-reporting` was updated to look up the `Party` based on the `CounterpartyEnum`.
+As part of the ongoing namespace changes, synonyms defined inline in the CDM Model are being moved to their respective namespaces. The following have now been externalised:
+ - `FpML_5_10`
+ - `CME_SubmissionIRS_1_0`
+ - `CME_ClearedConfirm_1_17`
 
 _Review direction_
 
-In the Textual Browser, review reporting rules:
-
-- `FixedFloatBuyerSeller`
-- `FixedFixedBuyerSeller`
-- `SingleCurrencyBasisSwap`
-- `CrossCurrencySwapBuyerSeller`
-- `CreditDefaultSwapBuyerSeller`
+- The CME file is named `synonym-cdm-cme.rosetta` under namespace cdm.synonyms.cme. 
+- The FpML file is named `synonym-cdm-fpml.rosetta` under namespace cdm.synonyms.fpml.
