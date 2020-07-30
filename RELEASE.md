@@ -2,7 +2,10 @@
 
 _What is being released_
 
-CME synonyms (CME_SubmissionIRS_1_0 & CME_ClearedConfirm_1_17) and FpML synonyms externalised into a separate file.
+As part of the ongoing namespace changes, synonyms defined inline in the CDM Model are being moved to their respective namespaces. The following have now been externalised:
+ - `FpML_5_10`
+ - `CME_SubmissionIRS_1_0`
+ - `CME_ClearedConfirm_1_17`
 
 _Review direction_
 
