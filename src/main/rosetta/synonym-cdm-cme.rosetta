@@ -16,353 +16,326 @@ import cdm.base.staticdata.party.*
 import cdm.synonyms.config.*
 import cdm.synonyms.fpml.*
 
-synonym source CME_ClearedConfirm_1_17 extends CME_BASE {
-    PrimitiveEvent:
-        + termsChange
-            [value "ignore"]
+synonym source CME_ClearedConfirm_1_17 extends CME_BASE
+{
+	PrimitiveEvent:
+		+ termsChange
+			[value "ignore"]
 
 	ContractFormationPrimitive:
 		+ after
-				[value "clearingConfirmed"]
+			[value "clearingConfirmed"]
 
 	AssignedIdentifier:
 		+ identifier
-				[value "tradeId" meta "tradeIdScheme"]
-				[value "usi" meta "usiScheme"]
+			[value "tradeId" meta "tradeIdScheme"]
+			[value "usi" meta "usiScheme"]
 
 	Identifier:
 		+ issuerReference
-				[value "partyReference" meta "href"]
+			[value "partyReference" meta "href"]
 		+ issuer
-				[value "issuer" meta "issuerIdScheme"]
+			[value "issuer" meta "issuerIdScheme"]
 
 	PartyContractInformation:
 		+ accountReference
-				[value "accountReference" meta "href"]
+			[value "accountReference" meta "href"]
 
 	Contract:
 		+ contractIdentifier
-				[value "universalSwapIdentifier" path "trade->tradeHeader"]
+			[value "universalSwapIdentifier" path "trade->tradeHeader"]
 		+ partyContractInformation
-				[value "partyTradeInformation" path "trade->tradeHeader"]
+			[value "partyTradeInformation" path "trade->tradeHeader"]
 		- account
-		
+
 	OptionPayout:
 		+ underlier
-				[hint "swap"]
+			[hint "swap"]
 
 	CreditLimitInformation:
 		+ limitApplicable
-				[value "limitApplicable"]
+			[value "limitApplicable"]
 
 	WorkflowStep:
 		+ messageInformation
-				[value "header" path "clearingConfirmed"]
+			[value "header" path "clearingConfirmed"]
 		+ timestamp
-				[value "timestamps" path "clearingConfirmed->trade->tradeHeader"]
-				[value "header" path "clearingConfirmed"]
+			[value "timestamps" path "clearingConfirmed->trade->tradeHeader"]
+			[value "header" path "clearingConfirmed"]
 		+ account
-				[value "account" path "clearingConfirmed"]
+			[value "account" path "clearingConfirmed"]
 
 	BusinessEvent:
 		+ eventDate
-				[value "clearedDate" path "clearingConfirmed->trade->tradeHeader" maps 2]
+			[value "clearedDate" path "clearingConfirmed->trade->tradeHeader" maps 2]
 
 	EventTimestamp:
 		+ dateTime
-
-				[value "creationTimestamp"]
-
-				[value "expiryTimestamp"]
-
-				[value "submittedForClearing"]
+			[value "creationTimestamp"]
+			[value "expiryTimestamp"]
+			[value "submittedForClearing"]
 		+ qualification
-
-				[set to EventTimestampQualificationEnum -> eventCreationDateTime when "creationTimestamp" exists]
-
-				[set to EventTimestampQualificationEnum -> eventExpirationDateTime when "expiryTimestamp" exists]
-
-				[set to EventTimestampQualificationEnum -> clearingSubmissionDateTime when "submittedForClearing" exists]
+			[set to EventTimestampQualificationEnum -> eventCreationDateTime when "creationTimestamp" exists]
+			[set to EventTimestampQualificationEnum -> eventExpirationDateTime when "expiryTimestamp" exists]
+			[set to EventTimestampQualificationEnum -> clearingSubmissionDateTime when "submittedForClearing" exists]
 
 	WorkflowStepState:
 		+ workflowStatus
-
-				[value "status" path "clearingConfirmed->trade->tradeHeader"]
+			[value "status" path "clearingConfirmed->trade->tradeHeader"]
 
 	LimitApplicableExtended:
 		+ limitLevel
-				[value "level" meta "creditLimitLevelScheme"]
+			[value "level" meta "creditLimitLevelScheme"]
 		+ limitAmount
-				[value "limitAmount"]
+			[value "limitAmount"]
 		+ limitImpactDueToTrade
-				[value "limitImpactDueToTrade"]
-	
+			[value "limitImpactDueToTrade"]
+
 	PayoutBase:
 		- payoutQuantity
 		+ payoutQuantity
-		
-				// For Equity Swap:
-				[value "notional"]
-		
-				//[value "rateOfReturn"]
-		
+			// For Equity Swap:
+			[value "notional"]
+				// [value "rateOfReturn"]
 				// For Swap Stream:
-				[value "notionalSchedule" path "calculationPeriodAmount->calculation"]
-		
-				[value "fxLinkedNotionalSchedule" path "calculationPeriodAmount->calculation"]
-		
+			[value "notionalSchedule" path "calculationPeriodAmount->calculation"]
+			[value "fxLinkedNotionalSchedule" path "calculationPeriodAmount->calculation"]
 				// For CDS:
-				[value "calculationAmount"]
-		
-				[value "calculationAmount" path "periodicPayment->fixedAmountCalculation"]
-		
-				[value "calculationAmount" path "periodicPayment->floatingAmountCalculation"]
-		
-				[value "fixedAmount"]
-		
+			[value "calculationAmount"]
+			[value "calculationAmount" path "periodicPayment->fixedAmountCalculation"]
+			[value "calculationAmount" path "periodicPayment->floatingAmountCalculation"]
+			[value "fixedAmount"]
 				// For FX:
-				//[hint "paymentAmount"]
-		
+				// [hint "paymentAmount"]
 				// For Repo:
-				[value "settlementAmount" path "nearLeg"]
-		
+			[value "settlementAmount" path "nearLeg"]
 				// For BRL CDI swaps:
-				[value "calculation" path "calculationPeriodAmount"]
-		
+			[value "calculation" path "calculationPeriodAmount"]
 				// For CDS Option:
-				[hint "notionalReference"]
-		
+			[hint "notionalReference"]
 				// For Bond Option:
-				[value "notionalAmount"]
+			[value "notionalAmount"]
 
 	MessageInformation:
 		+ messageId
-				[value "messageId" meta "messageIdScheme"]
+			[value "messageId" meta "messageIdScheme"]
 		+ sentBy
-				[value "sentBy" meta "messageAddressScheme"]
+			[value "sentBy" meta "messageAddressScheme"]
 		+ sentTo
-				[value "sendTo" meta "messageAddressScheme"]
+			[value "sendTo" meta "messageAddressScheme"]
 
 	PostContractFormationState:
 		+ creditLimitInformation
-				[value "creditLimitInformation" path "trade->tradeHeader"]
+			[value "creditLimitInformation" path "trade->tradeHeader"]
 
     enums
+
 	CategoryEnum:
 		+ Customer
-				[value "CUST"]
+			[value "CUST"]
 		+ Principal
-				[value "HOUS"]
+			[value "HOUS"]
 
 	CashflowTypeEnum:
 		+ UpfrontFee
-				[value "UPFRONT_FEE"]
+			[value "UPFRONT_FEE"]
 
 	OriginatingEventEnum:
 		+ Amendment
-				[value "TRADE_AMEND"]
+			[value "TRADE_AMEND"]
 		+ Compression
-				[value "RESIDUAL_TRADE"]
+			[value "RESIDUAL_TRADE"]
 		+ Exercise
-				[value "EXERCISE"]
+			[value "EXERCISE"]
 		+ NewTrade
-				[value "NEW_TRADE"]
+			[value "NEW_TRADE"]
 		+ Novation
-				[value "ASSIGNMENT"]
+			[value "ASSIGNMENT"]
 		+ PartialExercise
-				[value "PARTIAL_EXERCISE"]
+			[value "PARTIAL_EXERCISE"]
 		+ PartialNovation
-				[value "NOVATION"]
+			[value "NOVATION"]
 		+ Transfer
-				[value "TRANSFER"]
+			[value "TRANSFER"]
 
 	WorkflowStatusEnum:
 		+ Accepted
-				[value "Accepted"]
+			[value "Accepted"]
 		+ Amended
-				[value "AMENDED"]
+			[value "AMENDED"]
 		+ Cleared
-				[value "CLEARED"]
+			[value "CLEARED"]
 		+ Rejected
-				[value "Rejected"]
+			[value "Rejected"]
 		+ Terminated
-				[value "TERMINATED"]
+			[value "TERMINATED"]
 
 	PartyRoleEnum:
 		+ DataSubmitter
-				[value "InputSource"]
-
+			[value "InputSource"]
 }
 
-synonym source CME_SubmissionIRS_1_0 extends CME_BASE {
+synonym source CME_SubmissionIRS_1_0 extends CME_BASE
+{
 	PrimitiveEvent:
 		+ contractFormation
-				[value "ignore"]
+			[value "ignore"]
 
 	TermsChangePrimitive:
 		+ before
-				[value "ignore"]
+			[value "ignore"]
 
 	ExerciseNotice:
 	    - optionBuyer
 		+ optionBuyer
-				[value "partyReference" mapper "CmeCounterpartyEnum"]
+			[value "partyReference" mapper "CmeCounterpartyEnum"]
 
 	TradeDate:
 		+ date
-				[value "tradeDate" path "Instrmt->SecXML->FpML->trade->tradeHeader" meta "id"]
+			[value "tradeDate" path "Instrmt->SecXML->FpML->trade->tradeHeader" meta "id"]
 
 	NotifyingParty:
 	    - buyer
 		+ buyer
-				[value "buyerPartyReference" mapper "CmeCounterpartyEnum"]
+			[value "buyerPartyReference" mapper "CmeCounterpartyEnum"]
 		- seller
 		+ seller
-				[value "sellerPartyReference" mapper "CmeCounterpartyEnum"]
+			[value "sellerPartyReference" mapper "CmeCounterpartyEnum"]
 
 	AssignedIdentifier:
 		+ identifier
-				[value "RptID" path "TrdCaptRpt"]
+			[value "RptID" path "TrdCaptRpt"]
 
 	Contract:
 		+ contractIdentifier
-				[value "partyTradeIdentifier" path "Instrmt->SecXML->FpML->trade->tradeHeader"]
+			[value "partyTradeIdentifier" path "Instrmt->SecXML->FpML->trade->tradeHeader"]
 		+ tradeDate
-				[value "tradeHeader" path "Instrmt->SecXML->FpML->trade"]
+			[value "tradeHeader" path "Instrmt->SecXML->FpML->trade"]
 		- tradableProduct
 		+ tradableProduct
-				[value "trade" path "Instrmt->SecXML->FpML" mapper "Counterparty"]
+			[value "trade" path "Instrmt->SecXML->FpML" mapper "Counterparty"]
 		+ party
-				[value "party" path "Instrmt->SecXML->FpML"]
+			[value "party" path "Instrmt->SecXML->FpML"]
 
 	Execution:
 		+ executionType
-				[value "VenuTyp"]
+			[value "VenuTyp"]
 		+ identifier
-				[value "partyTradeIdentifier" path "Instrmt->SecXML->FpML->trade->tradeHeader"]
+			[value "partyTradeIdentifier" path "Instrmt->SecXML->FpML->trade->tradeHeader"]
 		+ tradeDate
-				[value "tradeDate" path "Instrmt->SecXML->FpML->trade->tradeHeader" meta "id"]
+			[value "tradeDate" path "Instrmt->SecXML->FpML->trade->tradeHeader" meta "id"]
 		- tradableProduct
 		+ tradableProduct
-				[value "trade" path "Instrmt->SecXML->FpML" mapper "Counterparty"]
+			[value "trade" path "Instrmt->SecXML->FpML" mapper "Counterparty"]
 		+ party
-				[value "party" path "Instrmt->SecXML->FpML"]
+			[value "party" path "Instrmt->SecXML->FpML"]
 
 	Payout:
 		+ equityPayout
-				[value "ignore"]
+			[value "ignore"]
 		+ forwardPayout
-				[value "ignore"]
+			[value "ignore"]
 
 	BuyerSeller:
 	    - buyer
 		+ buyer
-				[value "buyerPartyReference" mapper "CmeCounterpartyEnum"]
+			[value "buyerPartyReference" mapper "CmeCounterpartyEnum"]
 		- buyerPartyReference
-        + buyerPartyReference
-		    	[value "buyerPartyReference" mapper "TradeSideToParty"]
+		+ buyerPartyReference
+			[value "buyerPartyReference" mapper "TradeSideToParty"]
 		- seller
 		+ seller
-				[value "sellerPartyReference" mapper "CmeCounterpartyEnum"]
+			[value "sellerPartyReference" mapper "CmeCounterpartyEnum"]
 		- sellerPartyReference
-        + sellerPartyReference
-		    	[value "sellerPartyReference" mapper "TradeSideToParty"]
+		+ sellerPartyReference
+			[value "sellerPartyReference" mapper "TradeSideToParty"]
 
 	PayerReceiver:
 	    - payer
 		+ payer
-				[value "payerPartyReference" mapper "CmeCounterpartyEnum"]
-				[value "buyerPartyReference" maps 2 mapper "CmeCounterpartyEnum"]
+			[value "payerPartyReference" mapper "CmeCounterpartyEnum"]
+			[value "buyerPartyReference" maps 2 mapper "CmeCounterpartyEnum"]
 		- payerPartyReference
-        + payerPartyReference
-		        [value "payerPartyReference" mapper "TradeSideToParty"]
-		        [value "buyerPartyReference" maps 2 mapper "TradeSideToParty"]
+		+ payerPartyReference
+			[value "payerPartyReference" mapper "TradeSideToParty"]
+			[value "buyerPartyReference" maps 2 mapper "TradeSideToParty"]
 		- receiver
 		+ receiver
-				[value "receiverPartyReference" mapper "CmeCounterpartyEnum"]
-				[value "sellerPartyReference" maps 2 mapper "CmeCounterpartyEnum"]
+			[value "receiverPartyReference" mapper "CmeCounterpartyEnum"]
+			[value "sellerPartyReference" maps 2 mapper "CmeCounterpartyEnum"]
 		- receiverPartyReference
-        + receiverPartyReference
-		        [value "receiverPartyReference" mapper "TradeSideToParty"]
-		        [value "sellerPartyReference" maps 2 mapper "TradeSideToParty"]
+		+ receiverPartyReference
+			[value "receiverPartyReference" mapper "TradeSideToParty"]
+			[value "sellerPartyReference" maps 2 mapper "TradeSideToParty"]
 
 	LegalEntity:
 		+ name
-				[value "SID" path "Hdr"]
+			[value "SID" path "Hdr"]
 
 	Party:
 		+ name
-				[value "SID" path "Hdr"]
+			[value "SID" path "Hdr"]
 
 	ContractState:
 		+ contract
-				[value "FpML" path "Instrmt->SecXML"]
+			[value "FpML" path "Instrmt->SecXML"]
 
 	CustomisedWorkflow:
 		+ itemName
-				[set to "ClientOrderId" when path = "ClOrdID"]
-				[set to "TradeOriginationSystem" when path = "InptSrc"]
-				[set to "OriginatingTradeId" when path = "OrigTrdID"]
-				[set to "ExecutionTime" when path = "TrdRegTS->TS" and "TrdRegTS->Typ" = "1"]
-				[set to "PartyType" when path = "Pty->R"]
-				[set to "PartyIdentifier" when path = "Pty->Src"]
-
+			[set to "ClientOrderId" when path = "ClOrdID"]
+			[set to "TradeOriginationSystem" when path = "InptSrc"]
+			[set to "OriginatingTradeId" when path = "OrigTrdID"]
+			[set to "ExecutionTime" when path = "TrdRegTS->TS" and "TrdRegTS->Typ" = "1"]
+			[set to "PartyType" when path = "Pty->R"]
+			[set to "PartyIdentifier" when path = "Pty->Src"]
 		+ itemValue
-				[value "ClOrdID"]
-				[value "InptSrc"]
-				[value "OrigTrdID"]
-				[value "TS" path "TrdRegTS"]
-				[set to "Customer Account" when "Pty->R" = "24"]
-				[set to "Custom" when "Pty->Src" = "D"]
+			[value "ClOrdID"]
+			[value "InptSrc"]
+			[value "OrigTrdID"]
+			[value "TS" path "TrdRegTS"]
+			[set to "Customer Account" when "Pty->R" = "24"]
+			[set to "Custom" when "Pty->Src" = "D"]
 
 	WorkflowStep:
 		+ action
-				[value "TransTyp" path "TrdCaptRpt"]
+			[value "TransTyp" path "TrdCaptRpt"]
 
 	EventTimestamp:
 		+ dateTime
-
-				[value "TxnTm" path "TrdCaptRpt"]
-
-				[value "Snt" path "TrdCaptRpt->Hdr"]
-
-				[value "TS" path "TrdCaptRpt->TrdRegTS"]
+			[value "TxnTm" path "TrdCaptRpt"]
+			[value "Snt" path "TrdCaptRpt->Hdr"]
+			[value "TS" path "TrdCaptRpt->TrdRegTS"]
 		+ qualification
-
-				[set to EventTimestampQualificationEnum -> transactionCreationDateTime when path = "TrdCaptRpt->TxnTm"]
-
-				[set to EventTimestampQualificationEnum -> eventSentDateTime when path= "TrdCaptRpt->Hdr->Snt"]
-
-				[set to EventTimestampQualificationEnum -> executionDateTime when path= "TrdCaptRpt->TrdRegTS->TS" and "TrdCaptRpt->TrdRegTS->Typ" = 1]
+			[set to EventTimestampQualificationEnum -> transactionCreationDateTime when path = "TrdCaptRpt->TxnTm"]
+			[set to EventTimestampQualificationEnum -> eventSentDateTime when path= "TrdCaptRpt->Hdr->Snt"]
+			[set to EventTimestampQualificationEnum -> executionDateTime when path= "TrdCaptRpt->TrdRegTS->TS" and "TrdCaptRpt->TrdRegTS->Typ" = 1]
 
 	WorkflowStepState:
 		+ workflowStatus
-
-				[value "RptTyp" path "TrdCaptRpt"]
+			[value "RptTyp" path "TrdCaptRpt"]
 		+ partyCustomisedWorkflow
-
-				[value "RptSide" path "TrdCaptRpt"]
+			[value "RptSide" path "TrdCaptRpt"]
 
 	MessageInformation:
 		+ sentBy
-				[value "SSub" path "TrdCaptRpt->Hdr"]
+			[value "SSub" path "TrdCaptRpt->Hdr"]
 		+ sentTo
-				[value "TID" path "TrdCaptRpt->Hdr"]
+			[value "TID" path "TrdCaptRpt->Hdr"]
 
 	PartyCustomisedWorkflow:
 		+ partyName
-				[value "ID" path "Pty"]
+			[value "ID" path "Pty"]
 
 	Trade:
 		+ execution
-				[value "TrdCaptRpt" set when "TrdCaptRpt->VenuTyp" exists]
+			[value "TrdCaptRpt" set when "TrdCaptRpt->VenuTyp" exists]
 		+ contract
-				[value "TrdCaptRpt" set when "TrdCaptRpt->VenuTyp" is absent]
+			[value "TrdCaptRpt" set when "TrdCaptRpt->VenuTyp" is absent]
 
 	TradeWarehouseWorkflow:
 		+ partyCustomisedWorkflow
-				[value "ignore"]
-				
+			[value "ignore"]
+
 	ForeignExchange:
 		- exchangedCurrency1
 		- exchangedCurrency2
@@ -370,76 +343,76 @@ synonym source CME_SubmissionIRS_1_0 extends CME_BASE {
 		- exchangeRate
 
     enums
+
 	ExecutionTypeEnum:
 	    - Electronic
 		+ Electronic
-				[value "E"]
+			[value "E"]
 		+ OffFacility
-				[value "O"]
+			[value "O"]
 
 	ActionEnum:
 		+ New
-				[value "0"]
+			[value "0"]
 		+ Correct
-				[value "2"]
+			[value "2"]
 		+ Cancel
-				[value "1"]
+			[value "1"]
 
 	OriginatingEventEnum:
 		+ Allocation
-				[value "1"]
+			[value "1"]
 		+ Clearing
-				[value "2"]
+			[value "2"]
 		+ NewTrade
-				[value "0"]
+			[value "0"]
 
 	WorkflowStatusEnum:
 		+ Cancelled
-				[value "2"]
+			[value "2"]
 		+ Pending
-				[value "101"]
+			[value "101"]
 		+ Rejected
-				[value "1"]
+			[value "1"]
 		+ Submitted
-				[value "0"]
-
+			[value "0"]
 }
 
-synonym source CME_BASE extends FpML_5_10 {
+synonym source CME_BASE extends FpML_5_10
+{
 	PrimitiveEvent:
 		+ split
-				[value "ignore"]
+			[value "ignore"]
 		+ exercise
-				[value "ignore"]
+			[value "ignore"]
 		+ observation
-				[value "ignore"]
+			[value "ignore"]
 		+ quantityChange
-				[value "ignore"]
+			[value "ignore"]
 		+ reset
-				[value "ignore"]
+			[value "ignore"]
 		+ transfer
-				[value "ignore"]
+			[value "ignore"]
 
 	AssetIdentifier:
 		+ productIdentifier
-				[value "ignore"]
-		
+			[value "ignore"]
+
 	Payout:
 		+ securityPayout
-				[value "ignore"]
+			[value "ignore"]
 
 	InterestShortFall:
 		+ rateSource
-				[value "rateSource" meta "floatingRateIndexScheme"]
-		
+			[value "rateSource" meta "floatingRateIndexScheme"]
 	enums
+
 	LimitLevelEnum:
 		+ Account
-				[value "ACCT"]
+			[value "ACCT"]
 		+ Customer
-				[value "CUST"]
+			[value "CUST"]
 		+ House
-				[value "HOUS"]
-		
+			[value "HOUS"]
 }
-	
+
