@@ -38,7 +38,6 @@ func Qualify_CashflowCalculationNotification:
 		and businessEvent -> primitives -> transfer -> cashTransfer -> transferCalculation exists
 		and businessEvent -> primitives -> transfer -> identifier -> scheme = "DTCCCashflowId"
 
-
 func Qualify_CashTransfer: <"The qualification of a cash transfer from the fact that the only component is a cashTransfer.">
 	[qualification BusinessEvent]
 	inputs:
@@ -79,7 +78,6 @@ func Qualify_ClearedTrade:
 		and businessEvent -> primitives -> execution -> after = businessEvent -> primitives -> contractFormation -> before
 		// TODO - Add this back in when we correctly map the ClearingOrganization
 		and businessEvent -> primitives -> contractFormation -> after -> contract -> partyRole -> role contains PartyRoleEnum -> ClearingOrganization
-
 
 func Qualify_ClearingRejection: <"The rejection of an alpha trade submission by a CCP, which is qualified by the fact that (i) termsChange is the only primitive, the workflow status is `rejected`, and (iii) the CCP is positioned as a partyRole to the execution or contract in the after state, while it didn't exist in the before state.">
 	[qualification BusinessEvent]
@@ -299,7 +297,6 @@ func Qualify_StockSplit: <"The qualification of StockSplit business event based 
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent (1..1)
-		
 	output: is_event boolean (1..1)
 
 	alias beforeQuantityNotation:
@@ -329,13 +326,11 @@ func Qualify_StockSplit: <"The qualification of StockSplit business event based 
 	
 	alias beforeCashPrice:
 		beforeCashPrices only-element 
-		
 	alias afterCashPrices:
 		businessEvent -> primitives -> termsChange -> after -> contract -> tradableProduct -> priceNotation -> price -> cashPrice -> netPrice -> amount
 	
 	alias afterCashPrice:
 		afterCashPrices only-element
-		
 	alias currencyAmountUnchanged:
 		if ( beforeCurrencyAmount and afterCurrencyAmount ) exists
 		then beforeCurrencyAmount = afterCurrencyAmount

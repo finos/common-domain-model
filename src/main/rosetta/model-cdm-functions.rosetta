@@ -8,6 +8,7 @@ import cdm.base.staticdata.identifier.*
 
 annotation creation: <"Annotation to describe the intent of a function">
     [prefix Create]
+
     PrimitiveEvent PrimitiveEvent (0..1) <"A primitive event function should take as an input all of the types required to construct the event and produce a new PrimitiveEvent type.">
     BusinessEvent BusinessEvent (0..1) <"A business event function should take as its inputs the after state of previous business event or in case where the is no before state, all of the inputs required to produce the outcome BusinessEvent.">
 	WorkflowStep WorkflowStep (0..1) <"Create a proposed, accepted or rejected WorkflowStep with details about the message, identifiers, event timestamps, parties and accounts involved in the step and allow the action to be set to New, Correct or Cancel.">
@@ -37,7 +38,6 @@ func Create_WorkflowStep: <"Function to create a workflow step with a business e
 
 	condition: <"You cannot create a business event on a cancelled previous step">
 		previousWorkflowStep -> action <> ActionEnum -> Cancel
-		
 	condition: <"Action must be New if there is no previous step">
 		if (previousWorkflowStep is absent or previousWorkflowStep -> action is absent)
 		then (action = ActionEnum -> New)
@@ -67,7 +67,6 @@ func Create_WorkflowStep: <"Function to create a workflow step with a business e
 
 	assign-output workflowStep -> businessEvent: <"Assign the business event corresponding to the workflow step.">
 		businessEvent
-
 
 func Create_AcceptedWorkflowStep: <"Represents the acceptance of a proposed instruction that results in a workflow step containing a business event, message details, identifiers, event timestamps, parties and accounts. The previous workflow step input must exist to provide workflow lineage. The instruction from the previous workflow step should be used with a [creation BusinessEvent] function to create the input business event passed into this function e.g. AllocationInstruction from the previous step is used with Create_Allocation to produce the business event which should used as an input to this step.">
 	[creation WorkflowStep]
@@ -112,7 +111,6 @@ func Create_AcceptedWorkflowStep: <"Represents the acceptance of a proposed inst
 
 	assign-output acceptedWorkflowStep -> businessEvent: <"Assign the business event corresponding to the workflow step.">
 		businessEvent
-
 
 func Create_ProposedWorkflowStep: <"Represents the proposal to create a business event that results in a workflow step containing an instruction, message details, identifiers, event timestamps, parties and accounts. The optional previous workflow step input provides workflow lineage to where there has been a correction or cancellation to the proposed step. The action is constrained so that when a previous workflow step is specified, the valid actions are as follows; New -> Correct and Correct -> Cancel. When a previous workflow is not specified, the action must be New.">
 	[creation WorkflowStep]
@@ -173,7 +171,6 @@ func Create_RejectedWorkflowStep: <"Represents the rejection of a proposed instr
 
 	condition: <"The previous proposed step being rejected must exist">
 		previousWorkflowStep -> proposedInstruction exists
-		
 	// condition: Handle case where the previous step has already been rejected
 
 	assign-output rejectedWorkflowStep -> messageInformation: <"Assign the workflowStep action.">
@@ -533,7 +530,6 @@ func Settle: <"Function specification to create the Transfer event based on an e
 	assign-output transferEvent -> lineage -> executionReference:
 		execution as-key
 
-
 func Create_TransferPrimitive: <"Function specification to create the Transfer primitive based on an execution's settlement terms and instructions. Initial implementation only supports creating transfer primitives from securities settled via delivery vs payment.">
 	[creation PrimitiveEvent]
 	inputs:
@@ -551,14 +547,12 @@ func Create_TransferPrimitive: <"Function specification to create the Transfer p
 			and transferPrimitive -> securityTransfer exists
 			and transferPrimitive -> commodityTransfer is absent
 
-
 func Create_QuantityChangePrimitive: <"A specification of the inputs, outputs and constraints when calculating the after state of a Quantity Change Primitive Event">
 	[creation PrimitiveEvent]
 	inputs:
 		trade Trade (1..1)
 		currencyAmount number (0..1)
 		noOfUnits number (0..1)
-		
 	output:
 		quantityChangePrimitive QuantityChangePrimitive (1..1)
 
@@ -572,7 +566,6 @@ func Create_QuantityChangePrimitive: <"A specification of the inputs, outputs an
 		if quantityChangePrimitive -> before -> execution exists then quantityChangePrimitive -> after -> execution exists
 			and if quantityChangePrimitive -> before -> contract exists then quantityChangePrimitive -> after -> contract exists
 
-
 func Create_PriceChangePrimitive:
 	[creation PrimitiveEvent]
 	inputs:
@@ -581,7 +574,6 @@ func Create_PriceChangePrimitive:
 
 	output:
 		termsChangePrimitive TermsChangePrimitive (1..1)
-
 
 func Create_TerminationQuantityChangePrimitive: <"A specification for terminating a contract. A QuantityChangePrimitive is created with the after set with quantity of 0, and the closed state to be Terminated.">
 	[creation PrimitiveEvent]
@@ -676,7 +668,6 @@ type ClearingInstruction: <"All information required to perform the clear life c
 	alphaContract Contract (1..1) <"The contract that will be submitted to the clearing house for clearing. The contract should indicate that it should be cleared by assigning a clearing organisation as a party role.">
 	
 	clearingParty Party(1..1) <"The Central Counter party (CCP) that the contract will be submitted to for clearing.">
-		
 	party1 Party(1..1) <"First party facing the CCP if it is clearing for its own account.">
 	party2 Party(1..1) <"Second party facing the CCP if it is clearing for its own account.">
 	
@@ -726,7 +717,6 @@ func Create_ClearedTrade: <"Function supporting direct principal and agency clea
 
 	condition: <"The alpha contract being terminated must include the party1 contained in the clearing instruction.">
 		clearingInstruction -> alphaContract -> party includes clearingInstruction -> party1
-		
 	condition: <"The alpha contract being terminated must include the party2 contained in the clearing instruction.">
 		clearingInstruction -> alphaContract -> party includes clearingInstruction -> party2
 	

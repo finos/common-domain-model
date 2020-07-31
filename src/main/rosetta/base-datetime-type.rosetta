@@ -11,35 +11,27 @@ type AdjustableDate: <"A class for defining a date that shall be subject to adju
 	dateAdjustments BusinessDayAdjustments (0..1) <"The business day convention and financial business centers used for adjusting the date if it would otherwise fall on a day that is not a business date in the specified business centers.">
 	dateAdjustmentsReference BusinessDayAdjustments (0..1) <"A pointer style reference to date adjustments defined elsewhere in the document.">
 		[metadata reference]
-		
-	adjustedDate date (0..1) <"The date once the adjustment has been performed. (Note that this date may change if the business center holidays change).">
+    adjustedDate date (0..1) <"The date once the adjustment has been performed. (Note that this date may change if the business center holidays change).">
 		[metadata id]
 
 	condition Choice: <"Choice rule to represent an FpML choice construct.">
 		optional choice dateAdjustments, dateAdjustmentsReference
 
-
 type AdjustableDates: <"A class for defining a series of dates that shall be subject to adjustment if they would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the dates.">
 	[metadata key]
 
 	unadjustedDate date (1..*) <"A date subject to adjustment.">
-		
-	dateAdjustments BusinessDayAdjustments (1..1) <"The business day convention and financial business centers used for adjusting the date if it would otherwise fall on a day that is not a business date in the specified business centers.">
-		
-	adjustedDate date (0..*) <"The date(s) once the adjustment has been performed. (Note that this date may change if the business center holidays change).">
+    dateAdjustments BusinessDayAdjustments (1..1) <"The business day convention and financial business centers used for adjusting the date if it would otherwise fall on a day that is not a business date in the specified business centers.">
+    adjustedDate date (0..*) <"The date(s) once the adjustment has been performed. (Note that this date may change if the business center holidays change).">
 		[metadata id]
 
 type AdjustableOrAdjustedDate: <"A class for defining a date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
 	[metadata key]
 	
-
 	unadjustedDate date (0..1 ) <"A date subject to adjustment.">
-		
-	dateAdjustments BusinessDayAdjustments (0..1) <"The business day convention and financial business centers used for adjusting the date if it would otherwise fall on a day that is not a business date in the specified business centers.">
-		
-	adjustedDate date (0..1) <"The date once the adjustment has been performed. (Note that this date may change if the business center holidays change).">
+    dateAdjustments BusinessDayAdjustments (0..1) <"The business day convention and financial business centers used for adjusting the date if it would otherwise fall on a day that is not a business date in the specified business centers.">
+    adjustedDate date (0..1) <"The date once the adjustment has been performed. (Note that this date may change if the business center holidays change).">
 		[metadata id]
-		
 
 	condition AdjustedDate: <"FpML specifies a choice between adjustedDate and [unadjustedDate (required), dateAdjutsments (required), adjustedDate (optional)].">
 		if AdjustableOrAdjustedDate exists
@@ -51,14 +43,11 @@ type AdjustableOrAdjustedDate: <"A class for defining a date that shall be subje
 type AdjustableOrAdjustedOrRelativeDate: <"This Rosetta class specifies the date as either an unadjusted, adjusted or relative date. It supplements the features of the AdjustableOrAdjustedDate to support the credit default swap option premium, which uses the relative date construct.">
 
 	unadjustedDate date (0..1 ) <"A date subject to adjustment.">
-		
 	dateAdjustments BusinessDayAdjustments (0..1) <"The business day convention and financial business centers used for adjusting the date if it would otherwise fall on a day that is not a business date in the specified business centers.">
-		
 	adjustedDate date (0..1) <"The date once the adjustment has been performed. (Note that this date may change if the business center holidays change).">
 		[metadata id]
-		
 	relativeDate RelativeDateOffset (0..1) <"A date specified as some offset to another date (the anchor date).">
-		
+
 	condition AdjustedDate: <"This data rule extends the data rule AdjustableOrAdjustedDate_adjustedDate by specifying logic applicable to the relative date.">
 		if AdjustableOrAdjustedOrRelativeDate exists
 		then adjustedDate exists
@@ -72,7 +61,7 @@ type AdjustableOrRelativeDate: <"A class giving the choice between defining a da
 
 	adjustableDate AdjustableDate (0..1) <"A date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
 	relativeDate AdjustedRelativeDateOffset (0..1) <"A date specified as some offset to another date (the anchor date).">
-		
+
 	condition Choice: <"Choice rule to represent an FpML choice construct.">
 		required choice adjustableDate, relativeDate
 
@@ -80,23 +69,20 @@ type AdjustableOrRelativeDates: <"A class giving the choice between defining a s
 	[metadata key]
 
 	adjustableDates AdjustableDates (0..1) <"A series of dates that shall be subject to adjustment if they would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
-		
 	relativeDates RelativeDates (0..1) <"A series of dates specified as some offset to another series of dates (the anchor dates).">
-		
+
 	condition Choice: <"Choice rule to represent an FpML choice construct.">
 		required choice adjustableDates, relativeDates
 
 type AdjustedRelativeDateOffset extends RelativeDateOffset: <"A type defining a date (referred to as the derived date) as a relative offset from another date (referred to as the anchor date) plus optional date adjustments.">
 	
 	relativeDateAdjustments BusinessDayAdjustments (0..1) <"The business day convention and financial business centers used for adjusting the relative date if it would otherwise fall on a day that is not a business date in the specified business centers.">
-		
 
 type BusinessCenters: <"A class for specifying the business day calendar location used in determining whether a day is a business day or not, either by specifying this business center by reference to an enumerated list that is maintained by the FpML standard, or by reference to such specification when it exists elsewhere as part of the instance document. This class corresponds to the FpML BusinessCentersOrReference.model.">
 	[metadata key]
 
 	businessCenter BusinessCenterEnum (0..*) <"A code identifying one or several business day calendar location(s). The set of business day calendar locations are specified by the business day calendar location enumeration which is maintained by the FpML standard.">
 		[metadata scheme]
-		
 	businessCentersReference BusinessCenters (0..1) <"A reference to a financial business center location specified elsewhere in the instance document.">
 		[metadata reference]
 
@@ -105,57 +91,45 @@ type BusinessCenters: <"A class for specifying the business day calendar locatio
 
 type BusinessCenterTime: <"A class for defining a time with respect to a business day calendar location. For example, 11:00:00 GBLO.">
 	
-
 	hourMinuteTime time (1..1) <"A time specified in hh:mm:ss format where the second component must be '00', e.g. 11am would be represented as 11:00:00.">
-		
-		[synonym ISDA_Create_1_0 value "partyA_time"]
+	    [synonym ISDA_Create_1_0 value "partyA_time"]
 		[synonym ISDA_Create_1_0 value "partyB_time"]
 		[synonym ISDA_Create_1_0 value "time"]
 	businessCenter BusinessCenterEnum (1..1) <"A code identifying a business day calendar location. A business day calendar location is drawn from the list identified by the business day calendar location enumeration.">
 		[metadata scheme]
-		
-		[synonym ISDA_Create_1_0 value "partyA_location"]
+	    [synonym ISDA_Create_1_0 value "partyA_location"]
 		[synonym ISDA_Create_1_0 value "partyB_location"]
 		[synonym ISDA_Create_1_0 value "location"]
 
-
 type BusinessDateRange extends DateRange: <"A class defining a range of contiguous business days by defining an unadjusted first date, an unadjusted last date and a business day convention and business centers for adjusting the first and last dates if they would otherwise fall on a non business day in the specified business centers. The days between the first and last date must also be good business days in the specified centers to be counted in the range.">
 	
-
-	businessDayConvention BusinessDayConventionEnum (1..1) <"The convention for adjusting a date if it would otherwise fall on a day that is not a business day, as specified by an ISDA convention (e.g. Following, Precedent).">
-		
+    businessDayConvention BusinessDayConventionEnum (1..1) <"The convention for adjusting a date if it would otherwise fall on a day that is not a business day, as specified by an ISDA convention (e.g. Following, Precedent).">
 	businessCenters BusinessCenters (0..1) <"The business center(s), specified either explicitly or by reference to those specified somewhere else in the instance document.">
 
 type BusinessDayAdjustments: <"A class defining the business day convention and financial business centers used for adjusting any relevant date if it would otherwise fall on a day that is not a business day in the specified business center.">
 	[metadata key]
-	
 
 	businessDayConvention BusinessDayConventionEnum (1..1) <"The convention for adjusting a date if it would otherwise fall on a day that is not a business day.">
-		
 	businessCenters BusinessCenters (0..1) <"The business center(s), specified either explicitly or by reference to those specified somewhere else in the instance document.">
 
 type DateRange: <"A class defining a contiguous series of calendar dates. The date range is defined as all the dates between and including the first and the last date. The first date must fall before the last date.">
 	
 	unadjustedFirstDate date (1..1) <"The first date of a date range.">
-		
 	unadjustedLastDate date (1..1) <"The last date of a date range.">
-		
+
 type DateList: <"List of dates.">
+
 	date date (1..*)
-		
 
 type DateTimeList: <"List of dateTimes.">
 
 	dateTime zonedDateTime (1..*) <"The CDM specifies that the zoned date time is to be expressed in accordance with ISO 8601, either as UTC as an offset to UTC.">
-		
 
 type Frequency: <"A class for defining a date frequency, e.g. one day, three months, through the combination of an integer value and a standardized period value that is specified as part of an enumeration.">
 	[metadata key]
 	
 	periodMultiplier int (1..1) <"A time period multiplier, e.g. 1, 2, or 3. If the period value is T (Term) then period multiplier must contain the value 1.">
-		
 	period PeriodExtendedEnum (1..1) <"A time period, e.g. a day, week, month, year or term of the stream.">
-		
 	condition TermPeriod: <"FpML specifies that if period value is T (Term) then periodMultiplier must contain the value 1.">
 		if period = PeriodExtendedEnum -> T
 		then periodMultiplier = 1
@@ -167,7 +141,6 @@ type Frequency: <"A class for defining a date frequency, e.g. one day, three mon
 type Offset extends Period: <"A class defining an offset used in calculating a new date relative to a reference date, e.g. calendar days, business days, commodity Business days, etc.">
 	
 	dayType DayTypeEnum (0..1) <"In the case of an offset specified as a number of days, this element defines whether consideration is given as to whether a day is a good business day or not. If a day type of business days is specified then non-business days are ignored when calculating the offset. The financial business centers to use for determination of business days are implied by the context in which this element is used. This element must only be included when the offset is specified as a number of days. If the offset is zero days then the dayType element should not be included.">
-		
 	condition DayType: <"FpML specifies that the dayType must only be included when the offset is specified as a number of days, while should not be included if the offset is zero days.">
 		if period <> PeriodEnum -> D
 			or periodMultiplier = 0
@@ -177,10 +150,8 @@ type Period: <"A class to define recurring periods or time offsets.">
 	[metadata key]
 	
 	periodMultiplier int (1..1) <"A time period multiplier, e.g. 1, 2 or 3 etc. A negative value can be used when specifying an offset relative to another date, e.g. -2 days.">
-		
 	period PeriodEnum (1..1) <"A time period, e.g. a day, week, month or year of the stream. If the periodMultiplier value is 0 (zero) then period must contain the value D (day).">
-		
-		
+
 	condition DayPeriod: <"FpML specifies that if the periodMultiplier value is 0 (zero) then period must contain the value D (day).">
 		if periodMultiplier = 0
 		then period = PeriodEnum -> D
@@ -188,9 +159,7 @@ type Period: <"A class to define recurring periods or time offsets.">
 type RelativeDates extends RelativeDateOffset: <"A class describing a set of dates defined as relative to another set of dates.">
 	
 	periodSkip int (0..1) <"The number of periods in the referenced date schedule that are between each date in the relative date schedule. Thus a skip of 2 would mean that dates are relative to every second date in the referenced schedule. If present this should have a value greater than 1.">
-		
 	scheduleBounds DateRange (0..1) <"The first and last dates of a schedule. This can be used to restrict the range of values in a reference series of dates.">
-		
 
 	condition PeriodSkipGreaterThanOne: <"FpML specifies that, if present, the period skip should have a value greater than 1.">
 		if periodSkip exists
@@ -199,17 +168,12 @@ type RelativeDates extends RelativeDateOffset: <"A class describing a set of dat
 type RelativeDateOffset extends Offset: <"A class defining a date (referred to as the derived date) as a relative offset from another date (referred to as the anchor date). If the anchor date is itself an adjustable date then the offset is assumed to be calculated from the adjusted anchor date. A number of different scenarios can be supported, namely; 1) the derived date may simply be a number of calendar periods (days, weeks, months or years) preceding or following the anchor date; 2) the unadjusted derived date may be a number of calendar periods (days, weeks, months or years) preceding or following the anchor date with the resulting unadjusted derived date subject to adjustment in accordance with a specified business day convention, i.e. the derived date must fall on a good business day; 3) the derived date may be a number of business days preceding or following the anchor date. Note that the businessDayConvention specifies any required adjustment to the unadjusted derived date. A negative or positive value in the periodMultiplier indicates whether the unadjusted derived precedes or follows the anchor date. The businessDayConvention should contain a value NONE if the day type element contains a value of Business (since specifying a negative or positive business days offset would already guarantee that the derived date would fall on a good business day in the specified business centers).">
 	
 	businessDayConvention BusinessDayConventionEnum (1..1) <"The convention for adjusting a date if it would otherwise fall on a day that is not a business day, as specified by an ISDA convention (e.g. Following, Precedent).">
-		
 	businessCenters BusinessCenters (0..1)
-		
 	businessCentersReference BusinessCenters (0..1) <"A pointer style reference to a set of financial business centers defined elsewhere in the document. This set of business centers is used to determine whether a particular day is a business day or not.">
 		[metadata reference]
-		
 	dateRelativeTo date (0..1) <"Specifies the anchor as an href attribute. The href attribute value is a pointer style reference to the element or component elsewhere in the document where the anchor date is defined.">
 		[metadata reference]
-		
 	adjustedDate date (0..1) <"The date once the adjustment has been performed. (Note that this date may change if the business center holidays change).">
-		
 
 type TimeZone: <"The time alongside with the timezone location information. This class makes use of the FpML TimezoneLocation construct.">
 
@@ -225,6 +189,7 @@ type DateGroup:
 type PeriodRange: <"The period range defined as either a lower and upper period bound, or both.">
 	lowerBound PeriodBound (0..1) <"The lower bound of a period range, e.g. greater than or equal to 5Y.">
 	upperBound PeriodBound (0..1) <"The upper bound of a period range, e.g. less than to 10Y.">
+
 	condition: lowerBound exists or upperBound exists
 
 type PeriodBound: <"The period bound is defined as a period and whether the bound is inclusive.">

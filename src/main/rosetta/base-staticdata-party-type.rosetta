@@ -6,32 +6,24 @@ import cdm.base.staticdata.identifier.*
 import cdm.synonyms.config.*
 
 type Counterparty: <"This class specifies which CounterpartyEnum is associated to the Party.">
+
 	counterparty CounterpartyEnum (1..1)
 	party Party (1..1)
 		[metadata reference]
 
 type BuyerSeller: <"This class corresponds to the FpML BuyerSeller.model construct.">
+
 	buyer CounterpartyEnum (0..1) <"Buyer party that can be resolved as one of the two counterparties to the transaction, populated when within the Product. The party that buys this instrument, i.e. pays for this instrument and receives the rights defined by it. ISDA 2002 Equity Definitions section 1.18: `Buyer` means the party specified as such in the related Confirmation. | ISDA 2006 Definitions article 12.1 (b)(i) relating to a Swaption: 'Buyer' means the party that will, on each Premium Payment Date, pay to Seller the Premium | ISDA 2006 Definitions article 12.1 (b)(ii) relating to Swap Transactions with applicable Early Termination: the party specified as such in the related Confirmation, or the Exercising Party if neither party is specified | ISDA 2006 Definitions article 12.1 (b)(iii) relating to any other Option Transaction: the party specified as such in the related Confirmation. | ISDA 2014 Credit Definition article 1.4: `Buyer` means the Fixed Rate Payer.">
-		
-		
 	buyerPartyReference Party (0..1) <"Buyer party reference populated when used outside of the Product. A reference to the party that buys this instrument, i.e. pays for this instrument and receives the rights defined by it. ISDA 2002 Equity Definitions section 1.18: `Buyer` means the party specified as such in the related Confirmation. | ISDA 2006 Definitions article 12.1 (b)(i) relating to a Swaption: 'Buyer' means the party that will, on each Premium Payment Date, pay to Seller the Premium | ISDA 2006 Definitions article 12.1 (b)(ii) relating to Swap Transactions with applicable Early Termination: the party specified as such in the related Confirmation, or the Exercising Party if neither party is specified | ISDA 2006 Definitions article 12.1 (b)(iii) relating to any other Option Transaction: the party specified as such in the related Confirmation. | ISDA 2014 Credit Definition article 1.4: `Buyer` means the Fixed Rate Payer.">
         [metadata reference]
-        
-    	
-	buyerAccountReference Account (0..1) <"A reference to the account that buys this instrument.">
+    buyerAccountReference Account (0..1) <"A reference to the account that buys this instrument.">
 		[metadata reference]
-		
 	seller CounterpartyEnum (0..1) <"Seller party that can be resolved as one of the two counterparties to the transaction, populated when within the Product. The party that sells ('writes') this instrument, i.e. that grants the rights defined by this instrument and in return receives a payment for it. ISDA 2002 Equity Definitions section 1.19: `Seller` means the party specified as such in the related Confirmation. | ISDA 2006 Definitions article 12.1 (a)(i) relating to a Swaption: 'Seller' means the party the party specified as such or as writer in the related Confirmation | ISDA 2006 Definitions article 12.1 (a)(ii) relating to Swap Transactions with applicable Early Termination: the party specified as such or as writer in the related Confirmation or, if neither party is specified as such, the Non-exercising Party | ISDA 2006 Definitions article 12.1 (a)(iii) relating to any other Option Transaction: the party specified as such in the related Confirmation. | ISDA 2014 Credit Definition article 1.4: `Seller` means the Floating Rate Payer.">
-		
-		
 	sellerPartyReference Party (0..1) <"Seller party reference populated when used outside of the Product. A reference to the party that sells ('writes') this instrument, i.e. that grants the rights defined by this instrument and in return receives a payment for it. ISDA 2002 Equity Definitions section 1.19: `Seller` means the party specified as such in the related Confirmation. | ISDA 2006 Definitions article 12.1 (a)(i) relating to a Swaption: 'Seller' means the party the party specified as such or as writer in the related Confirmation | ISDA 2006 Definitions article 12.1 (a)(ii) relating to Swap Transactions with applicable Early Termination: the party specified as such or as writer in the related Confirmation or, if neither party is specified as such, the Non-exercising Party | ISDA 2006 Definitions article 12.1 (a)(iii) relating to any other Option Transaction: the party specified as such in the related Confirmation. | ISDA 2014 Credit Definition article 1.4: `Seller` means the Floating Rate Payer.">
         [metadata reference]
-        
-    	
-	sellerAccountReference Account (0..1) <"A reference to the account that sells this instrument.">
+    sellerAccountReference Account (0..1) <"A reference to the account that sells this instrument.">
 		[metadata reference]
-		
-		
+
 	condition BuyerOrBuyerPartyReference: <"Buyer should be populated when BuyerSeller is used inside the Product, e.g. Contract->tradableProduct->product->contractualProduct->economicTerms->payout->creditDefaultPayout->generalTerms->buyerSeller.  BuyerPartyReference should be populated when BuyerSeller is used outside the Product.">
 		required choice buyer, buyerPartyReference
 	
@@ -43,178 +35,127 @@ type BuyerSeller: <"This class corresponds to the FpML BuyerSeller.model constru
 
 type PayerReceiver: <"A class to represent the FpML PayerReceiver.model.">
 	payer CounterpartyEnum (0..1) <"Payer party that can be resolved as one of the two counterparties to the transaction, populated when within the Product. The party responsible for making the payments defined by this structure.">
-		
 	payerPartyReference Party (0..1) <"Payer party reference populated when used outside of the Product. A reference to the party responsible for making the payments defined by this structure.">
         [metadata reference]
-        
     payerAccountReference Account (0..1) <"A reference to the account responsible for making the payments defined by this structure.">
 		[metadata reference]
-		
 	receiver CounterpartyEnum (0..1) <"Receiver party that can be resolved as one of the two counterparties to the transaction, populated when within the Product.  The party that receives the payments corresponding to this structure.">
-		
 	receiverPartyReference Party (0..1) <"Receiver party reference populated when used outside of the Product. A reference to the party that receives the payments corresponding to this structure.">
         [metadata reference]
-        
     receiverAccountReference Account (0..1) <"A reference to the account that receives the payments corresponding to this structure.">
 		[metadata reference]
-		
+
 	condition PayerOrPayerPartyReference: <"Payer should be populated when PayerReceiver is used inside the Product, e.g. Contract->tradableProduct->product->contractualProduct->economicTerms->payout->interestRatePayout->payerReceiver. PayerPartyReference should be populated when PayerReceiver is used outside the Product, e.g. Contract->collateral->independentAmount->payerReceiver.">
 		required choice payer, payerPartyReference
 	
 	condition ReceiverOrReceiverPartyReference: <"Receiver should be populated when PayerReceiver is used inside the Product, e.g. Contract->tradableProduct->product->contractualProduct->economicTerms->payout->interestRatePayout->payerReceiver. ReceiverPartyReference should be populated when PayerReceiver is used outside the Product, e.g. Contract->collateral->independentAmount->payerReceiver.">
 		required choice receiver, receiverPartyReference
-		
+
 	condition PayerAndReceiverExists:
 		if payer exists then receiver exists and if receiver exists then payer exists
 
 type ReferenceBank: <"A class to describe an institution (party) identified by means of a coding scheme and an optional name.">
-	
 
-	referenceBankId string (1..1) <"An institution (party) identifier, e.g. a bank identifier code (BIC). FpML specifies a referenceBankIdScheme.">
-		[metadata scheme]
-		
+referenceBankId string (1..1) <"An institution (party) identifier, e.g. a bank identifier code (BIC). FpML specifies a referenceBankIdScheme.">
+	[metadata scheme]
+
 	referenceBankName string (0..1) <"The name of the institution (party). A free format string. FpML does not define usage rules for the element.">
 		
-
 type RelatedParty:
-	
 
-	partyReference Party (1..1) <"Reference to a party.">
-		[metadata reference]
-		
+partyReference Party (1..1) <"Reference to a party.">
+	[metadata reference]
+
 	accountReference Account (0..1) <"Reference to an account.">
 		[metadata reference]
-		
 	role PartyRoleEnum (1..1) <"The category of the relationship. The related party performs the role specified in this field for the base party. For example, if the role is ,Guarantor,, the related party acts as a guarantor for the base party.">
 		
-
 type Account: <"A class to specify an account as an account number alongside, optionally. an account name, an account type, an account beneficiary and a servicing party.">
 	[metadata key]
-	
 
-	accountNumber string (1..1) <"The account number.">
+    accountNumber string (1..1) <"The account number.">
 		[metadata scheme]
-		
 		[synonym ISDA_Create_1_0 value "pledged_account_number"]
 	accountName string (0..1) <"The name by which the account is known.">
 		[metadata scheme]
-		
 		[synonym ISDA_Create_1_0 value "name"]
 	accountType AccountTypeEnum (0..1) <"The type of account, e.g. client, house.">
 		[metadata scheme]
-		
 	accountBeneficiary Party (0..1) <"A reference to the party beneficiary of the account.">
 		[metadata reference]
-		
 	servicingParty Party (0..1)  <"The reference to the legal entity that services the account, i.e. in the books of which the account is held.">
 		[metadata reference]
 		
-
-
 type Address: <"A class to specify a post or street address.">
-	
 
-	street string (1..*) <"The set of street and building number information that identifies a postal address within a city.">
-		
+    street string (1..*) <"The set of street and building number information that identifies a postal address within a city.">
 	city string (1..1) <"The city component of the postal address.">
-		
 	state string (0..1) <"A country subdivision used in postal addresses in some countries. For example, US states, Canadian provinces, Swiss cantons, ...">
-		
 	country string (1..1) <"The ISO 3166 standard code for the country within which the postal address is located.">
 		[metadata scheme]
-		
 	postalCode string (1..1) <"The code, required for computerized mail sorting systems, that is allocated to a physical address by a national postal authority.">
 		
-
-
 type BusinessUnit: <"A class to specify an organizational unit.">
 	[metadata key]
 	
 	name string (1..1) <"A name used to describe the organizational unit">
-		
 	identifier Identifier (0..1) <"An identifier used to uniquely identify the organizational unit">
 	contactInformation ContactInformation (0..1) <"The contact information for such business unit, when different from the contact information associated with the party.">
 
 type ContactInformation: <"A class to specify contact information associated with a party: telephone, postal/street address, email and web page.">
 	
 	telephone TelephoneNumber (0..*) <"The telephone number.">
-		
 	address Address (0..*) <"The street/postal address.">
-		
 	email string (0..*) <"The email address.">
-		
 	webPage string (0..*) <"The web page. This attribute is not specified as part of the FpML ContactInformation complex type.">
-
 
 type LegalEntity: <"A class to specify a legal entity, with a required name and an optional entity identifier (such as the LEI).">
 	[metadata key]
 
 	entityId string (0..*) <"A legal entity identifier (e.g. RED entity code).">
 		[metadata scheme]
-		
 	name string (1..1) <"The legal entity name.">
 		[metadata scheme]
 		[synonym Workflow_Event value "executionVenue" path "trade"]
 		
 type NaturalPerson: <"A class to represent the attributes that are specific to a natural person.">
 	[metadata key]
-	
 
-	honorific string (0..1) <"An honorific title, such as Mr., Ms., Dr. etc.">
-		
+honorific string (0..1) <"An honorific title, such as Mr., Ms., Dr. etc.">
 	firstName string (1..1) <"The natural person's first name. It is optional in FpML.">
-		
 	middleName string (0..*)
-		
 	initial string (0..*)
-		
 	surname string (1..1) <"The natural person's surname.">
-		
 	suffix string (0..1) <"Name suffix, such as Jr., III, etc.">
-		
 	dateOfBirth date (0..1) <"The natural person's date of birth.">
-		
 
 	condition Choice: <"Choice rule to represent an FpML choice construct.">
 		optional choice middleName, initial
-
 
 type NaturalPersonRole: <"A class to specify the role(s) that natural person(s) may have in relation to the contract.">
 
 	personReference NaturalPerson (1..1) <"A reference to the natural person to whom the role refers to.">
 		[metadata reference]
-		
 	role NaturalPersonRoleEnum (0..1) <"FpML specifies a person role that is distinct from the party role.">
 		[metadata scheme]
 		
-
-
 type Party: <"A class to specify a party, without a qualification as to whether this party is a legal entity or a natural person, although the model provides the ability to associate a person (or set of persons) to a party, which use case would imply that such party would be a legal entity (even if not formally specified as such). ">
 	[metadata key]
 	
 	partyId string (1..*) <"The identifier associated with a party, e.g. the 20 digits LEI code.">
 		[metadata scheme]
-		
 	name string (0..1) <"The party name.">
 		[metadata scheme]
-		
 	person NaturalPerson (0..*) <"The person(s) who might be associated with the party as part of the execution, contract or legal document.">
-		
 	account Account (0..1) <"The account that might be associated with the party. At most one account can be specified, as it is expected that this information is used in the context of a contract or legal document where only one account per party can be associated with such object.">
 		
-
 type PartyContactInformation: <"A class to specify contact information within a party: address and, optionally, associated business unit and person. This class also supports the ISDA CSA representation as a single string, through the address attribute.">
-	
 
-	partyReference Party (1..1) <"The reference to the party to which the contact information refers to.">
+partyReference Party (1..1) <"The reference to the party to which the contact information refers to.">
 		[metadata reference]
-		
 	contactInformation ContactInformation (0..1) <"The postal/street address, telephone number, email address and/or web page. If the contact information is specific to the associated business unit(s), it should be associated with those.">
-		
 	businessUnit BusinessUnit (0..*) <"Optional organization unit information used to describe the organization units (e.g. trading desks) involved in a transaction or business process, incl. the contact information (when relevant).">
-		
 	person NaturalPerson (0..*) <"Optional information about people involved in a transaction or business process. (These are employees of the party.)">
-		
 	address string (0..1) <"The address specified as a string to support non-normalized contact information, such as in the case of ISDA Create.">
 
 	condition Choice: <"The address attribute corresponds to a non-normalized alternative representation to the contactInformation. This reflects the current ISDA Create data representation.">
@@ -226,7 +167,6 @@ type PartyRole: <"A class to specify the role(s) that party(ies) may have in rel
 		[metadata reference]
 		[synonym ISDA_Create_1_0 value "partyA"]
 	role PartyRoleEnum (1..1) <"The party role.">
-		
 	ownershipPartyReference Party (0..1) <"A reference to the party that has ownership of this party role information. FpML specifies that For shared trade information, this attribute will reference the originator of the data (for example, an execution facility or clearing house).">
 		[metadata reference]
 		
