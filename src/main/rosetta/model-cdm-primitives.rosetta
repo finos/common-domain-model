@@ -47,10 +47,10 @@ type ContractFormationPrimitive: <"Specification of a primitive event that repre
 	// TODO enable condition once party has been refactored out of product
 //	condition: <"The product should be unchanged.">
 //		before -> execution -> tradableProduct -> product = after -> contract -> tradableProduct -> product
-
+	
 	condition: <"The quantity should be unchanged.">
 		if before exists then before -> execution -> tradableProduct -> quantityNotation = after -> contract -> tradableProduct -> quantityNotation
-	
+
 	condition: <"The price should be unchanged.">
 		if before exists then before -> execution -> tradableProduct -> priceNotation = after -> contract -> tradableProduct -> priceNotation
 
@@ -67,7 +67,7 @@ type SplitPrimitive: <"The primitive event to represent a split/allocation of a 
 		then after -> originalTrade -> execution exists
 			and after -> splitTrades -> execution exists
 			and after -> splitTrades -> contract is absent
-	
+
 	condition: <"If the pre-split trade is a contract, then the post-split trade must also be a contract.">
 		if before -> contract exists
 		then after -> originalTrade -> contract exists
@@ -77,28 +77,28 @@ type SplitPrimitive: <"The primitive event to represent a split/allocation of a 
 	condition: <"The product should be unchanged.">
 		if before -> execution exists
 		then after -> splitTrades -> execution -> tradableProduct -> product = before -> execution -> tradableProduct -> product
-	
-	condition:  <"The product should be unchanged.">
+
+	condition: <"The product should be unchanged.">
 		if before -> contract exists
 		then after -> splitTrades -> contract -> tradableProduct -> product = before -> contract -> tradableProduct -> product
-	
+
 	condition: <"The post-split quantities should sum to the pre-split quantity.">
 		if before -> execution exists
-		then Sum( after -> splitTrades -> execution -> tradableProduct -> quantityNotation -> quantity -> amount ) = before -> execution -> tradableProduct -> quantityNotation -> quantity -> amount
-	
-	condition:  <"The post-split quantities should sum to the pre-split quantity.">
+		then Sum(after -> splitTrades -> execution -> tradableProduct -> quantityNotation -> quantity -> amount) = before -> execution -> tradableProduct -> quantityNotation -> quantity -> amount
+
+	condition: <"The post-split quantities should sum to the pre-split quantity.">
 		if before -> contract exists
-		then Sum( after -> splitTrades -> contract -> tradableProduct -> quantityNotation -> quantity -> amount ) = before -> contract -> tradableProduct -> quantityNotation -> quantity -> amount
-	
+		then Sum(after -> splitTrades -> contract -> tradableProduct -> quantityNotation -> quantity -> amount) = before -> contract -> tradableProduct -> quantityNotation -> quantity -> amount
+
 	// TODO add syntax to handle comparison between list and single item.  https://github.com/REGnosys/rosetta-dsl/issues/167
 	condition: <"The price should be unchanged.">
 		if before -> execution exists
 		then after -> splitTrades -> execution -> tradableProduct -> priceNotation = before -> execution -> tradableProduct -> priceNotation
-	
-	condition:  <"The price should be unchanged.">
+
+	condition: <"The price should be unchanged.">
 		if before -> contract exists
 		then after -> splitTrades -> contract -> tradableProduct -> priceNotation = before -> contract -> tradableProduct -> priceNotation
-	
+
 type ExercisePrimitive: <"This primitive leverages the FpML OptionExercise construct, except for the exerciseTiming which is deemed as associated to a request for exercise that is meant to take place, as opposed to the actual exercise event.">
 
 	exerciseDate AdjustableOrAdjustedDate (0..1)

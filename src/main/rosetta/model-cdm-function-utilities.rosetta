@@ -15,10 +15,10 @@ func PriceQuantityTriangulation:
 
 	assign-output success:
 		if priceNotation -> price -> cashPrice exists
-		then CashPriceQuantityNoOfUnitsTriangulation( priceNotation, quantityNotation )
+		then CashPriceQuantityNoOfUnitsTriangulation(priceNotation, quantityNotation)
 		else if priceNotation -> price -> exchangeRate exists
-		then ExchangeRateQuantityTriangulation( priceNotation, quantityNotation )
-		else True
+			then ExchangeRateQuantityTriangulation(priceNotation, quantityNotation)
+			else True
 
 func CashPriceQuantityNoOfUnitsTriangulation: <"Data rule to check the relationship between cash price, notional and number of units.">
 	inputs:
@@ -29,10 +29,10 @@ func CashPriceQuantityNoOfUnitsTriangulation: <"Data rule to check the relations
 		success boolean (1..1)
 
 	alias notional:
-		CurrencyAmount( quantityNotation, empty )
+		CurrencyAmount(quantityNotation, empty)
 
 	alias noOfUnits:
-		NoOfUnits( quantityNotation )
+		NoOfUnits(quantityNotation)
 
 	alias cashPrices:
 		priceNotation -> price -> cashPrice -> netPrice -> amount
@@ -41,7 +41,7 @@ func CashPriceQuantityNoOfUnitsTriangulation: <"Data rule to check the relations
 		cashPrices only-element
 
 	assign-output success:
-		if ( cashPrice and noOfUnits and notional ) exists
+		if (cashPrice and noOfUnits and notional) exists
 		then cashPrice * noOfUnits = notional
 
 func ExchangeRateQuantityTriangulation:
@@ -67,18 +67,18 @@ func ExchangeRateQuantityTriangulation:
 		exchangeRate -> quotedCurrencyPair
 
 	alias quantity1:
-		CurrencyAmount( quantityNotation, quotedCurrency -> currency1 )
+		CurrencyAmount(quantityNotation, quotedCurrency -> currency1)
 
 	alias quantity2:
-		CurrencyAmount( quantityNotation, quotedCurrency -> currency2 )
+		CurrencyAmount(quantityNotation, quotedCurrency -> currency2)
 
 	assign-output success:
-		if ( quantity1 and quantity2 and rate ) exists
+		if (quantity1 and quantity2 and rate) exists
 		then
-			if quotedCurrency -> quoteBasis = QuoteBasisEnum -> Currency1PerCurrency2
+		if quotedCurrency -> quoteBasis = QuoteBasisEnum -> Currency1PerCurrency2
 			then quantity1 / quantity2 = rate
 			else if quotedCurrency -> quoteBasis = QuoteBasisEnum -> Currency2PerCurrency1
-			then quantity2 / quantity1 = rate
+				then quantity2 / quantity1 = rate
 
 func NoOfUnits: <"Get quantity associated with product identifier.">
 	inputs:
@@ -107,7 +107,7 @@ func ResolvePayoutQuantity: <"For a given ResolvablePayoutQuantity, the function
 		resolvableQuantity ResolvablePayoutQuantity (1..1) <"The ResolvablePayoutQuantity to resolve.">
 		quantityNotations QuantityNotation (1..*) <"All QuantityNotations associated with the given ContractualProduct, that will be resolved based on their AssetIdentifier.">
 		contractualProduct ContractualProduct (1..1) <"Provided to allow any references to be resolved.">
-	
+
 	output:
 		resolvedQuantity NonNegativeQuantity (1..1) <"The resolved NonNegativeQuantity.">
 
@@ -203,7 +203,7 @@ func CashflowSettlementTerms: <"The Payout type contains a cashflow to replicate
 		SettlementTypeEnum -> Cash
 
 	assign-output settlementTerms -> settlementDate:
-		settlementDate
+	settlementDate
 
 func ConvertToAdjustableOrRelativeDate: <"Utility function to convert from AdjustableOrAdjustedOrRelativeDate to AdjustableOrRelativeDate">
 	inputs:
@@ -281,4 +281,4 @@ func Create_LegalAgreementWithPartyReference: <"Constructs a Legal Agreement usi
 		contractualParty as-key
 
 	assign-output legalAgreement -> otherParty:
-		otherParty
+	otherParty

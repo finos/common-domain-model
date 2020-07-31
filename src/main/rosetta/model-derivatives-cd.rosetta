@@ -18,13 +18,13 @@ import cdm.synonyms.config.*
  * - cd-38 as there is a need to sum-up a set of values and check that their total = 1
  */
 type AdditionalFixedPayments: <"A class to specify the events that will give rise to the payment additional fixed payments.">
-	
+
 	interestShortfallReimbursement boolean (0..1) <"An additional Fixed Payment Event. Corresponds to the payment by or on behalf of the Issuer of an actual interest amount in respect to the reference obligation that is greater than the expected interest amount. ISDA 2003 Term: Interest Shortfall Reimbursement.">
 	principalShortfallReimbursement boolean (0..1) <"An additional Fixed Payment Event. Corresponds to the payment by or on behalf of the Issuer of an actual principal amount in respect to the reference obligation that is greater than the expected principal amount. ISDA 2003 Term: Principal Shortfall Reimbursement.">
 	writedownReimbursement boolean (0..1) <"An Additional Fixed Payment. Corresponds to the payment by or on behalf of the issuer of an amount in respect to the reference obligation in reduction of the prior writedowns. ISDA 2003 Term: Writedown Reimbursement.">
-		
+
 type BasketReferenceInformation: <"CDS Basket Reference Information.">
-	
+
 	basketName string (0..1) <"The name of the basket expressed as a free format string. FpML does not define usage rules for this element.">
 		[metadata scheme]
 	basketId string (0..*) <"A CDS basket identifier.">
@@ -42,16 +42,15 @@ type BasketReferenceInformation: <"CDS Basket Reference Information.">
 		then nthToDefault exists
 
 	condition MthToDefault: <"FpML validation rule cd-39 - Context: BasketReferenceInformation (complex type). If nthToDefault exists, and if mthToDefault exists, then nthToDefault must be less than mthToDefault.">
-		if ( nthToDefault exists and mthToDefault exists)
+		if (nthToDefault exists and mthToDefault exists)
 		then nthToDefault < mthToDefault
 
 type CalculationAmount extends Money:
 	// TODO Never referenced in CDM
-	
 	step Step (0..*) <"A schedule of step date and value pairs. On each step date the associated step value becomes effective. A list of steps may be ordered in the document by ascending step date. FpML specifies that an FpML document containing an unordered list of steps is still regarded as a conformant document.">
-		
+
 type CashSettlementTerms extends SettlementBase: <"In FpML, PhysicalSettlementTerms and CashSettlementTerms extend SettlementTerms. In the CDM, this extension paradigm has not been used because SettlementTerms class has been used for purposes related to securities transactions, while it is not used as such in the FpML standard (i.e. only as an abstract construct.">
-	
+
 	valuationDate ValuationDate (0..1) <"The number of business days after conditions to settlement have been satisfied when the calculation agent obtains a price quotation on the Reference Obligation for purposes of cash settlement. There may be one or more valuation dates. This is typically specified if the cash settlement amount is not a fixed amount. ISDA 2003 Term: Valuation Date.">
 	valuationTime BusinessCenterTime (0..1) <"The time of day in the specified business center when the calculation agent seeks quotations for an amount of the reference obligation for purposes of cash settlement. ISDA 2003 Term: Valuation Time.">
 	quotationMethod QuotationRateTypeEnum (0..1) <"The type of price quotations to be requested from dealers when determining the market value of the reference obligation for purposes of cash settlement. For example, Bid, Offer or Mid-market. ISDA 2003 Term: Quotation Method.">
@@ -77,12 +76,12 @@ type CashSettlementTerms extends SettlementBase: <"In FpML, PhysicalSettlementTe
 		then recoveryFactor >= 0.0 and recoveryFactor <= 1.0
 
 	condition FpML_cd_37: <"FpML validation rule cd-37 - If condition quotationAmount is true, and if condition minimumQuotationAmount is true, and if both amounts have the same-currency, then quotationAmount/amount must be greater or equal to minimumQuotationAmount/amount.">
-		if ( quotationAmount exists and minimumQuotationAmout exists)
+		if (quotationAmount exists and minimumQuotationAmout exists)
 			and quotationAmount -> currency = minimumQuotationAmout -> currency
 		then quotationAmount -> amount > minimumQuotationAmout -> amount
 
 type DeliverableObligations: <"A class to specify all the ISDA terms relevant to defining the deliverable obligations.">
-	
+
 	accruedInterest boolean (0..1) <"Indicates whether accrued interest is included (true) or not (false). For cash settlement this specifies whether quotations should be obtained inclusive or not of accrued interest. For physical settlement this specifies whether the buyer should deliver the obligation with an outstanding principal balance that includes or excludes accrued interest. ISDA 2003 Term: Include/Exclude Accrued Interest.">
 	category ObligationCategoryEnum (0..1) <"Used in both obligations and deliverable obligations to represent a class or type of securities which apply. ISDA 2003 Term: Obligation Category/Deliverable Obligation Category.">
 	notSubordinated boolean (0..1) <"An obligation and deliverable obligation characteristic. An obligation that ranks at least equal with the most senior Reference Obligation in priority of payment or, if no Reference Obligation is specified in the related Confirmation, the obligations of the Reference Entity that are senior. ISDA 2003 Term: Not Subordinated.">
@@ -137,22 +136,22 @@ type DeliverableObligations: <"A class to specify all the ISDA terms relevant to
 			and transferable is absent
 
 type FloatingAmountEvents: <"A class to specify the ISDA terms relating to the floating rate payment events and the implied additional fixed payments, applicable to the credit derivatives transactions on mortgage-backed securities with pay-as-you-go or physical settlement.">
-	
+
 	failureToPayPrincipal boolean (0..1) <"A floating rate payment event. Corresponds to the failure by the Reference Entity to pay an expected principal amount or the payment of an actual principal amount that is less than the expected principal amount. ISDA 2003 Term: Failure to Pay Principal.">
 	interestShortfall InterestShortFall (0..1) <"A floating rate payment event. With respect to any Reference Obligation Payment Date, either (a) the non-payment of an Expected Interest Amount or (b) the payment of an Actual Interest Amount that is less than the Expected Interest Amount. ISDA 2003 Term: Interest Shortfall.">
 	writedown boolean (0..1) <"A floating rate payment event. Results from the fact that the underlier writes down its outstanding principal amount. ISDA 2003 Term: Writedown.">
 	impliedWritedown boolean (0..1) <"A floating rate payment event. Results from the fact that losses occur to the underlying instruments that do not result in reductions of the outstanding principal of the reference obligation.">
 	floatingAmountProvisions FloatingAmountProvisions (0..1) <"Specifies the floating amount provisions associated with the floatingAmountEvents.">
 	additionalFixedPayments AdditionalFixedPayments (0..1) <"Specifies the events that will give rise to the payment additional fixed payments.">
-		
+
 type FloatingAmountProvisions:
-	
+
 	wacCapInterestProvision boolean (0..1) <"As specified by the ISDA Supplement for use with trades on mortgage-backed securities, 'WAC Cap' means a weighted average coupon or weighted average rate cap provision (however defined in the Underlying Instruments) of the Underlying Instruments that limits, increases or decreases the interest rate or interest entitlement, as set out in the Underlying Instruments on the Effective Date without regard to any subsequent amendment The presence of the element with value set to 'true' signifies that the provision is applicable. From a usage standpoint, this provision is typically applicable in the case of CMBS and not applicable in case of RMBS trades.">
 	stepUpProvision boolean (0..1) <"As specified by the ISDA Standard Terms Supplement for use with trades on mortgage-backed securities. The presence of the element with value set to 'true' signifies that the provision is applicable. If applicable, the applicable step-up terms are specified as part of that ISDA Standard Terms Supplement. From a usage standpoint, this provision is typically applicable in the case of RMBS and not applicable in case of CMBS trades.">
-		
+
 type IndexReferenceInformation: <"A class defining a Credit Default Swap Index.">
 	[metadata key]
-	
+
 	indexName string (0..1)  <"The name of the index expressed as a free format string with an associated scheme.">
 		[metadata scheme]
 	indexId string (0..*) <"A CDS index identifier (e.g. RED pair code).">
@@ -175,18 +174,18 @@ type IndexReferenceInformation: <"A class defining a Credit Default Swap Index."
 		then indexAnnexVersion >= 0
 
 type InterestShortFall: <"A class to specify the interest shortfall floating rate payment event.">
-	
+
 	interestShortfallCap InterestShortfallCapEnum (1..1) <"Specifies the nature of the interest Shortfall cap (i.e. Fixed Cap or Variable Cap) in the case where it is applicable. ISDA 2003 Term: Interest Shortfall Cap.">
 	compounding boolean (1..1)
 	rateSource FloatingRateIndexEnum (0..1) <"The rate source in the case of a variable cap.">
 		[metadata scheme]
 
 type LoanParticipation extends PCDeliverableObligationCharac: <"A class to specify loan with a participation agreement whereby the buyer is capable of creating, or procuring the creation of, a contractual right in favour of the seller that provides the seller with recourse to the participation seller for a specified share in any payments due under the relevant loan which are received by the participation seller. ISDA 2003 Term: Direct Loan Participation.">
-	
+
 	qualifyingParticipationSeller string (0..1) <"If Direct Loan Participation is specified as a deliverable obligation characteristic, this specifies any requirements for the Qualifying Participation Seller. The requirements may be listed free-form. ISDA 2003 Term: Qualifying Participation Seller.">
-		
+
 type MultipleValuationDates extends SingleValuationDate:
-	
+
 	businessDaysThereafter int (0..1) <"The number of business days between successive valuation dates when multiple valuation dates are applicable for cash settlement. ISDA 2003 Term: Business Days thereafter.">
 	numberValuationDates int (0..1) <"Where multiple valuation dates are specified as being applicable for cash settlement, this element specifies (a) the number of applicable valuation dates, and (b) the number of business days after satisfaction of all conditions to settlement when the first such valuation date occurs, and (c) the number of business days thereafter of each successive valuation date. ISDA 2003 Term: Multiple Valuation Dates.">
 
@@ -199,12 +198,12 @@ type MultipleValuationDates extends SingleValuationDate:
 		then numberValuationDates >= 0
 
 type PCDeliverableObligationCharac: <"A class to specify the Partial Cash Deliverable Obligation Characteristic.">
-	
+
 	applicable boolean (1..1) <"Indicates whether the provision is applicable.">
 	partialCashSettlement boolean (0..1) <"Specifies whether either 'Partial Cash Settlement of Assignable Loans', 'Partial Cash Settlement of Consent Required Loans' or 'Partial Cash Settlement of Participations' is applicable. If this element is specified and Assignable Loan is a Deliverable Obligation Characteristic, any Assignable Loan that is deliverable, but where a non-receipt of Consent by the Physical Settlement Date has occurred, the Loan can be cash settled rather than physically delivered. If this element is specified and Consent Required Loan is a Deliverable Obligation Characteristic, any Consent Required Loan that is deliverable, but where a non-receipt of Consent by the Physical Settlement Date has occurred, the Loan can be cash settled rather than physically delivered. If this element is specified and Direct Loan Participation is a Deliverable Obligation Characteristic, any Participation that is deliverable, but where this participation has not been effected (has not come into effect) by the Physical Settlement Date, the participation can be cash settled rather than physically delivered.">
-		
+
 type PhysicalSettlementPeriod:
-	
+
 	businessDaysNotSpecified boolean (0..1) <"An explicit indication that a number of business days are not specified and therefore ISDA fallback provisions should apply.">
 	businessDays int (0..1) <"A number of business days. Its precise meaning is dependant on the context in which this element is used. ISDA 2003 Term: Business Day.">
 	maximumBusinessDays int (0..1) <"A maximum number of business days. Its precise meaning is dependant on the context in which this element is used. Intended to be used to limit a particular ISDA fallback provision.">
@@ -219,21 +218,21 @@ type PhysicalSettlementPeriod:
 		then maximumBusinessDays >= 0
 
 type PhysicalSettlementTerms extends SettlementBase: <"In FpML, PhysicalSettlementTerms and CashSettlementTerms extend SettlementTerms.  In the CDM, this extension paradigm has not been used because SettlementTerms class has been used for purposes related to securities transactions, while it is not used as such in the FpML standard (i.e. only as an abstract construct.">
-	
+
 	physicalSettlementPeriod PhysicalSettlementPeriod (0..1) <"The number of business days used in the determination of the physical settlement date. The physical settlement date is this number of business days after all applicable conditions to settlement are satisfied. If a number of business days is not specified fallback provisions apply for determining the number of business days. If Section 8.5/8.6 of the 1999/2003 ISDA Definitions are to apply the businessDaysNotSpecified element should be included. If a specified number of business days are to apply these should be specified in the businessDays element. If Section 8.5/8.6 of the 1999/2003 ISDA Definitions are to apply but capped at a maximum number of business days then the maximum number should be specified in the maximumBusinessDays element. ISDA 2003 Term: Physical Settlement Period.">
 	deliverableObligations DeliverableObligations (0..1) <"This element contains all the ISDA terms relevant to defining the deliverable obligations.">
 	escrow boolean (0..1) <"If this element is specified and set to 'true', indicates that physical settlement must take place through the use of an escrow agent. (For Canadian counterparties this is always 'Not Applicable'. ISDA 2003 Term: Escrow.">
 	sixtyBusinessDaySettlementCap boolean (0..1) <"If this element is specified and set to 'true', for a transaction documented under the 2003 ISDA Credit Derivatives Definitions, has the effect of incorporating the language set forth below into the confirmation. The section references are to the 2003 ISDA Credit Derivatives Definitions. Notwithstanding Section 1.7 or any provisions of Sections 9.9 or 9.10 to the contrary, but without prejudice to Section 9.3 and (where applicable) Sections 9.4, 9.5 and 9.6, if the Termination Date has not occurred on or prior to the date that is 60 Business Days following the Physical Settlement Date, such 60th Business Day shall be deemed to be the Termination Date with respect to this Transaction except in relation to any portion of the Transaction (an 'Affected Portion') in respect of which: (1) a valid notice of Buy-in Price has been delivered that is effective fewer than three Business Days prior to such 60th Business Day, in which case the Termination Date for that Affected Portion shall be the third Business Day following the date on which such notice is effective; or (2) Buyer has purchased but not Delivered Deliverable Obligations validly specified by Seller pursuant to Section 9.10(b), in which case the Termination Date for that Affected Portion shall be the tenth Business Day following the date on which Seller validly specified such Deliverable Obligations to Buyer.">
-		
+
 type ProtectionTerms extends PayoutBase: <"A class to specify the terms for calculating a payout to protect the buyer of the swap in the case of a qualified credit event. These terms include the notional amount, the applicable credit events, the reference obligation, and in the case of a CDS on mortgage-backed securities, the floatingAmountEvents.">
 	[metadata key]
-	
+
 	creditEvents CreditEvents (0..1) <"Specifies the applicable Credit Events that would trigger a settlement, as specified in the related Confirmation and defined in the ISDA 2014 Credit Definition article IV section 4.1.">
 	obligations Obligations (0..1) <"The underlying obligations of the reference entity on which you are buying or selling protection. The credit events Failure to Pay, Obligation Acceleration, Obligation Default, Restructuring, Repudiation/Moratorium are defined with respect to these obligations.">
 	floatingAmountEvents FloatingAmountEvents (0..1) <"This element contains the ISDA terms relating to the floating rate payment events and the implied additional fixed payments, applicable to the credit derivatives transactions on mortgage-backed securities with pay-as-you-go or physical settlement.">
-		
+
 type ReferenceInformation: <"A class specifying the Credit Default Swap Reference Information.">
-	
+
 	referenceEntity LegalEntity (1..1) <"The corporate or sovereign entity which is subject to the swap transaction and any successor that assumes all or substantially all of its contractual and other obligations. Reference Entities cannot be senior or subordinated. It is the obligations of the Reference Entities that can be senior or subordinated. ISDA 2014 Credit definitions article II section 2.1: `Reference Entity` means the entity specified as such in the related Confirmation.">
 	referenceObligation ReferenceObligation (0..*) <"The Reference Obligation is a financial instrument that is either issued or guaranteed by the reference entity. It serves to clarify the precise reference entity protection is being offered upon, and its legal position with regard to other related firms (parents/subsidiaries). Furthermore the Reference Obligation is ALWAYS deliverable and establishes the Pari Passu ranking (as the deliverable bonds must rank equal to the reference obligation). ISDA 2003 Term: Reference Obligation.">
 	noReferenceObligation boolean (0..1) <"Used to indicate that there is no Reference Obligation associated with this Credit Default Swap and that there will never be one.">
@@ -247,7 +246,7 @@ type ReferenceInformation: <"A class specifying the Credit Default Swap Referenc
 		required choice referenceObligation, noReferenceObligation , unknownReferenceObligation
 
 type ReferenceObligation: <"A class to specify the reference obligation that is associated with a credit derivative instrument.">
-	
+
 	bond Bond (0..1) <"Identifies the underlying asset when it is a series or a class of bonds. As a difference with FpML, the CDM specifies the bond only with this product identifier attribute. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
 	convertibleBond ConvertibleBond (0..1) <"Identifies the underlying asset when it is a convertible bond. As a difference with FpML, the CDM specifies the convertible bond only with this product identifier attribute. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
 	mortgageBackedSecurity MortgageBackedSecurity (0..1) <"Identifies the underlying asset when it is a mortgage backed security.">
@@ -266,7 +265,7 @@ type ReferenceObligation: <"A class to specify the reference obligation that is 
 		optional choice primaryObligor, primaryObligorReference
 
 type ReferencePair:
-	
+
 	referenceEntity LegalEntity (1..1) <"The corporate or sovereign entity on which you are buying or selling protection and any successor that assumes all or substantially all of its contractual and other obligations. It is vital to use the correct legal name of the entity and to be careful not to choose a subsidiary if you really want to trade protection on a parent company. Please note, Reference Entities cannot be senior or subordinated. It is the obligations of the Reference Entities that can be senior or subordinated. ISDA 2003 Term: Reference Entity.">
 	referenceObligation ReferenceObligation (0..1) <"The Reference Obligation is a financial instrument that is either issued or guaranteed by the reference entity. It serves to clarify the precise reference entity protection is being offered upon, and its legal position with regard to other related firms (parents/subsidiaries). Furthermore the Reference Obligation is ALWAYS deliverable and establishes the Pari Passu ranking (as the deliverable bonds must rank equal to the reference obligation). ISDA 2003 Term: Reference Obligation.">
 	noReferenceObligation boolean (0..1) <"Used to indicate that there is no Reference Obligation associated with this Credit Default Swap and that there will never be one.">
@@ -277,7 +276,7 @@ type ReferencePair:
 		required choice referenceObligation, noReferenceObligation
 
 type ReferencePool: <"This type contains all the reference pool items to define the reference entity and reference obligation(s) in the basket.">
-	
+
 	referencePoolItem ReferencePoolItem (1..*) <"This type contains all the constituent weight and reference information.">
 
 	condition FpML_cd_44_openUnits: <"FpML validation rule cd-44 - All referencePoolItem/constituentWeight must have the same name of child element.">
@@ -289,7 +288,7 @@ type ReferencePool: <"This type contains all the reference pool items to define 
 		then referencePoolItem -> constituentWeight -> openUnits is absent
 
 type ReferencePoolItem: <"This type contains all the constituent weight and reference information.">
-	
+
 	constituentWeight ConstituentWeight (0..1) <"Describes the weight of each of the constituents within the basket. If not provided, it is assumed to be equal weighted.">
 	referencePair ReferencePair (1..1)
 	protectionTermsReference ProtectionTerms (0..1) <"Reference to the documentation terms applicable to this item.">
@@ -304,13 +303,13 @@ type ReferencePoolItem: <"This type contains all the constituent weight and refe
 		optional choice cashSettlementTermsReference, physicalSettlementTermsReference
 
 type SettledEntityMatrix: <"A class to specify the Relevant Settled Entity Matrix.">
-	
+
 	matrixSource SettledEntityMatrixSourceEnum (1..1) <"Relevant settled entity matrix source.">
 		[metadata scheme]
 	publicationDate date (0..1) <"Specifies the publication date of the applicable version of the matrix. When this element is omitted, the Standard Terms Supplement defines rules for which version of the matrix is applicable.">
-		
+
 type SingleValuationDate: <"A class to specify the number of business days after satisfaction of all conditions to settlement.">
-	
+
 	businessDays int (0..1) <"A number of business days. Its precise meaning is dependant on the context in which this element is used. ISDA 2003 Term: Business Day.">
 
 	condition NonNegativeBusinessDays: <"FpML specifies businessDays as a NonNegativeInteger.">
@@ -318,7 +317,7 @@ type SingleValuationDate: <"A class to specify the number of business days after
 		then businessDays >= 0
 
 type Tranche: <"The class to represent a CDS Tranche.">
-	
+
 	attachmentPoint number (1..1) <"Lower bound percentage of the loss that the Tranche can endure, expressed as a decimal. An attachment point of 5% would be represented as 0.05. The difference between Attachment and Exhaustion points is called the width of the Tranche.">
 	exhaustionPoint number (1..1) <"Upper bound percentage of the loss that the Tranche can endure, expressed as a decimal. An exhaustion point of 5% would be represented as 0.05. The difference between Attachment and Exhaustion points is call the width of the Tranche.">
 	incurredRecoveryApplicable boolean (0..1) <"Outstanding Swap Notional Amount is defined at any time on any day, as the greater of: (a) Zero; If Incurred Recovery Amount Applicable: (b) The Original Swap Notional Amount minus the sum of all Incurred Loss Amounts and all Incurred Recovery Amounts (if any) determined under this Confirmation at or prior to such time.Incurred Recovery Amount not populated: (b) The Original Swap Notional Amount minus the sum of all Incurred Loss Amounts determined under this Confirmation at or prior to such time.">
@@ -336,7 +335,7 @@ type Tranche: <"The class to represent a CDS Tranche.">
 		then attachmentPoint <= exhaustionPoint
 
 type ValuationDate:
-	
+
 	singleValuationDate SingleValuationDate (0..1) <"Where single valuation date is specified as being applicable for cash settlement, this element specifies the number of business days after satisfaction of all conditions to settlement when such valuation date occurs. ISDA 2003 Term: Single Valuation Date.">
 	multipleValuationDates MultipleValuationDates (0..1) <"Where multiple valuation dates are specified as being applicable for cash settlement, this element specifies (a) the number of applicable valuation dates, and (b) the number of business days after satisfaction of all conditions to settlement when the first such valuation date occurs, and (c) the number of business days thereafter of each successive valuation date. ISDA 2003 Term: Multiple Valuation Dates.">
 
