@@ -39,11 +39,11 @@ As part of the ongoing namespace changes, synonyms defined inline in the CDM Mod
 
 _Review direction_
 
-The extracted synonyms can also be viewed in Rosetta Core:
-- The CME file is named `synonym-cdm-cme.rosetta` under namespace `cdm.synonyms.cme`. 
+The extracted synonyms can be viewed in Rosetta Core:
 - The FpML file is named `synonym-cdm-fpml.rosetta` under namespace `cdm.synonyms.fpml`.
+- The CME file is named `synonym-cdm-cme.rosetta` under namespace `cdm.synonyms.cme`. 
 
-The extracted synonyms can also be viewed in the CDM Portal Textual Browser.
+The extracted synonyms can also be viewed in the CDM Portal Textual Browser by searching for `synonym source FpML_5_10`, `synonym source CME_ClearedConfirm_1_17` and `synonym source CME_SubmissionIRS_1_0`.    
 
 
 # *Infrastructure: DAML Upgrade*
