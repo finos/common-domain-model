@@ -117,17 +117,15 @@ public class CounterpartyMappingHelper {
 	void addCounterparties(TradableProductBuilder tradableProductBuilder) {
 		bothCounterpartiesCollected
 				.thenRun(() -> CompletableFuture.supplyAsync(() -> tradableProductBuilder)
-						.thenAccept(builder -> {
-							LOGGER.info("Setting TradableProduct.counterparties");
-							builder.clearCounterparties()
-									.addCounterparties(partyExternalReferenceToCounterpartyEnumMap.entrySet().stream()
-											.map(extRefCounterpartyEntry -> Counterparty.builder()
-													.setCounterparty(extRefCounterpartyEntry.getValue())
-													.setPartyBuilder(ReferenceWithMetaParty.builder()
-															.setExternalReference(extRefCounterpartyEntry.getKey()))
-													.build())
-											.collect(Collectors.toList()));
-						}));
+						.thenAccept(builder ->
+								builder.clearCounterparties()
+										.addCounterparties(partyExternalReferenceToCounterpartyEnumMap.entrySet().stream()
+												.map(extRefCounterpartyEntry -> Counterparty.builder()
+														.setCounterparty(extRefCounterpartyEntry.getValue())
+														.setPartyBuilder(ReferenceWithMetaParty.builder()
+																.setExternalReference(extRefCounterpartyEntry.getKey()))
+														.build())
+												.collect(Collectors.toList()))));
 	}
 
 	/**

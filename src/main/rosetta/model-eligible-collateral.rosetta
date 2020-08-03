@@ -77,7 +77,7 @@ type SpecialPurposeVehicleIssuerType: <"A class to allow specification of differ
 type ProductType: <"A class to allow specification of the asset product type.">
 	productType ProductTypeEnum (1..1) <"The type of collateral product.">
 	securityType SecurityTypeEnum (0..1) <"Filter based on the type of security.">
-	bondType BondType (0..1) <"Filter based on the type of bond."> 
+	debtType DebtType (0..1) <"Filter based on the type of bond."> 
 	equityType EquityTypeEnum (0..1) <"Filter based on the type of equity.">
 	fundType FundProductTypeEnum (0..1) <"Filter based on the type of fund.">
 	// productCountryOfOrigin string (0..*) <"Filter based on the issuing entity country of origin."> // Now sits under ProductCriteria, consistent with IssuerCriteria
@@ -85,11 +85,11 @@ type ProductType: <"A class to allow specification of the asset product type.">
 
 	condition SecuritySubType:
 		if productType <> ProductTypeEnum -> Security
-		then ( securityType and bondType and equityType ) is absent 
+		then ( securityType and debtType and equityType ) is absent 
 	
 	condition BondSubType:
-		if securityType <> SecurityTypeEnum -> Bond
-		then bondType is absent
+		if securityType <> SecurityTypeEnum -> Debt
+		then debtType is absent
 	
 	condition EquitySubType:
 		if securityType <> SecurityTypeEnum -> Equity
@@ -160,11 +160,11 @@ type ProductCriteria: <"Criteria used to specify eligible collateral assets.">
 	condition Choice: <"If any are specified, only one of ProductType, ProductTaxonomy or ProductIdentifer should exist.">
 		optional choice collateralProductType, productTaxonomy, productIdentifier
 
-type BondType: <"Specification of the type of bond">
-	bondClass BondClassEnum (0..1) <"Specification of the characteristics of bond">
-	bondEconomics BondEconomics (0..*) <"Specification of the financial terms of the bond">
+type DebtType: <"Specifies the type of debt instrument.">
+	debtClass DebtClassEnum (0..1) <"Specifies the characteristics of a debt instrument.">
+	debtEconomics DebtEconomics (0..*) <"Specifies selected financial terms of a debt instrument.">
 
-type BondEconomics: <"Specification of the economics of the bond">
-	bondSeniority BondSeniorityEnum (0..1) <"Security: Bond Economics: The order of repayment in the event of a sale or bankruptcy of the issuer or a related party (eg guarantor).">
-	bondInterest BondInterestEnum (0..1) <"Security: Bond Economics: The terms of the reference rate for calculation of interest on the bond.">
-	bondPrincipal BondPrincipalEnum (0..1) <"Security: Bond Economics: The repayment terms for the principal on the bond.">
+type DebtEconomics: <"Specifies selected economics of a debt instrument.">
+	debtSeniority DebtSeniorityEnum (0..1) <"Specifies the order of repayment in the event of a sale or bankruptcy of the issuer or a related party (eg guarantor).">
+	debtInterest DebtInterestEnum (0..1) <"Specifies the general rule for periodic interest rate payment.">
+	debtPrincipal DebtPrincipalEnum (0..1) <"Specifies the general rule for repayment of principal.">
