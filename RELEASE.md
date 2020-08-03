@@ -54,7 +54,7 @@ Upgrade DAML version to use version 1.3.0 for DAML compilation.
 
 _Review direction_
 
-Download the DAML artifact from the CDM Portal Downloads page.
+Download and review the DAML CDM distributed artifact from the CDM Portal Download page.
 
 
 # *Infrastructure: Go Code Generation*
