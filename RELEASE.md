@@ -66,7 +66,7 @@ Add a Go implementation of the CDM to the available downloads.
 Notable changes and updates introduced:
 
 - The generated Go source code contains all CDM model types and enums, and all function specifications.
-- As Go language compilation is platform-specific, the CDM distributed artifact contains the source code only.
+- As Go language compilation is platform-specific, the CDM distributed artifact does not contain executable code.
 - The Go CDM distributed artifact is now available on the CDM Portal Downloads page.
 
 _Review directions_
