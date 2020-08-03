@@ -26,7 +26,7 @@ type CollateralIssuerType: <"A class to allow specification of the type of entit
 	quasiGovernmentType QuasiGovernmentIssuerType (0..1) <"Debt issues by institutions or bodies, typically constituted by statute, with a function mandated by the government and subject to government supervision inclusive of profit- and non-profit making bodies. Includes the US Agencies and GSEs and the EU concept of public sector entities. Excluding any entities which are also Regional Government">
 	regionalGovernmentType RegionalGovernmentIssuerType (0..1) <"Regional government, local authority or municipal.">
 	specialPurposeVehicleType SpecialPurposeVehicleIssuerType (0..1)
-	// fundType FundIssuerType (0..1) // NO LONGER REQUIRED - specified fund country of origin which now sits under ProductCriteria.productCountryOfOrigin
+
 	condition SupraNationalSubType:
 		if issuerType <> IssuerTypeEnum -> SupraNational
 		then supraNationalType is absent
@@ -43,15 +43,10 @@ type CollateralIssuerType: <"A class to allow specification of the type of entit
 		if issuerType <> IssuerTypeEnum -> SpecialPurposeVehicle
 		then specialPurposeVehicleType is absent
 
-// condition FundSubType:
-// if issuerType <> IssuerTypeEnum -> Fund
-// then fundType is absent
 type QuasiGovernmentIssuerType: <"A class to allow specification of different types of Quasi Government collateral.">
 
 	sovereignEntity boolean (1..1) <"True if sovereign entity (e.g. not separate legal personality from sovereign) or false if non-sovereign entity (e.g. separate legal personality from sovereign).">
 	sovereignRecourse boolean (0..1) <"Applies to non-sovereign entity (e.g. separate legal personality from sovereign).  True if entity has recourse to sovereign (e.g. debt guaranteed by government).  False if entity does not have recourse to sovereign.">
-	// Eligible sovereigns specified by IssuerCriteria.issuerCountryOfOrigin
-	// Eligible issuers specified by IssuerCriteria.issuerName
 	// TODO: other (non-exhaustive) criteria e.g. GSEs with/without government support, EMIR public sector entities, US agencies
 	condition NonSovereignEntityRecourse:
 		if sovereignRecourse exists then sovereignEntity = False
@@ -59,35 +54,25 @@ type QuasiGovernmentIssuerType: <"A class to allow specification of different ty
 type RegionalGovernmentIssuerType: <"A class to allow specification of different type of Regional government collateral.">
 
 	sovereignRecourse boolean (1..1) <"Applies to regional governments, local authorities or municipals.  True if entity has recourse to sovereign (e.g. debt guaranteed by government).  False if entity does not have recourse to sovereign.">
+	// TODO: other (non-exhaustive) criteria e.g. US municipals, Canadian provinces, German Lander
 
-// Eligible sovereigns specified by IssuerCriteria.issuerCountryOfOrigin
-// Eligible issuers specified by IssuerCriteria.issuerName
-// TODO: other (non-exhaustive) criteria e.g. US municipals, Canadian provinces, German Lander
 type SpecialPurposeVehicleIssuerType: <"A class to allow specification of different types of special purpose vehicle (SPV) collateral.">
-
 	creditRisk CreditRiskEnum (0..1) <"Tranched or untranched credit risk."> // Not required?  If tranched credit risk then specified ProductCriteria.agencyRating.
-	// Eligible jurisdictions of incorporation is specified by IssuerCriteria.issuerCountryOfOrigin
 	// TODO: other (non-exhaustive) criteria e.g. by asset class (RMBS, CMBS, CLO, by regional risk focus, by guarantor (e.g. Ginnie Mae)). Can the existing FpML framework be leveraged.  See type MortgageBackedSecurity
 
-// type FundIssuerType:
-//
-// 	fundCountryOfOrigin string (0..*) <"Fund country of origin.  Note that fund manager country of origin is specified by IssuerCriteria.issuerCountryOfOrigin.">
-// 		[metadata scheme]
-// NOW Captured under ProductCriteria.productCountryOfOrigin
-// exchangeTraded is specified by EquityTypeEnum.ExchangeTradedFund
-type ProductType: <"A class to allow specification of the asset product type.">
+type AssetType: <"A class to allow specification of the asset product type.">
 
-	productType ProductTypeEnum (1..1) <"The type of collateral product.">
+	assetType AssetTypeEnum (1..1) <"The type of collateral asset.">
 	securityType SecurityTypeEnum (0..1) <"Filter based on the type of security.">
 	bondType BondType (0..1) <"Filter based on the type of bond.">
 	equityType EquityTypeEnum (0..1) <"Filter based on the type of equity.">
 	fundType FundProductTypeEnum (0..1) <"Filter based on the type of fund.">
-	// productCountryOfOrigin string (0..*) <"Filter based on the issuing entity country of origin."> // Now sits under ProductCriteria, consistent with IssuerCriteria
-	// [metadata scheme]
-	condition SecuritySubType:
-		if productType <> ProductTypeEnum -> Security
-		then ( securityType and bondType and equityType ) is absent
+	// otherType string (0..1) <"Description of collateral when specified as Product Type - Other">
 
+	condition SecuritySubType:
+		if assetType <> AssetTypeEnum -> Security
+		then ( securityType and bondType and equityType ) is absent 
+	
 	condition BondSubType:
 		if securityType <> SecurityTypeEnum -> Bond
 		then bondType is absent
@@ -99,6 +84,11 @@ type ProductType: <"A class to allow specification of the asset product type.">
 	condition FundSubType:
 		if securityType <> SecurityTypeEnum -> Fund
 		then fundType is absent
+
+	// condition OtherSubType:
+	// 	if securityType <> SecurityTypeEnum -> Other
+	// 	then otherType is absent
+
 
 type CollateralValuationPercentage:
 
@@ -119,7 +109,7 @@ type EligibleCollateral: <"Set of criteria used to specify eligible collateral."
 type EligibleCollateralCriteria: <"Criteria used to specify eligible collateral.">
 
 	issuer IssuerCriteria (0..*) <"Filter based on the issuer.">
-	product ProductCriteria (0..*) <"Filter based on the product.">
+	asset AssetCriteria (0..*) <"Filter based on the asset.">
 	treatment CollateralTreatment (1..1) <"Treatment of described collateral">
 
 type CollateralTreatment: <"A class to specify the treatment terms for the eligible collateral criteria specified.">
@@ -131,14 +121,14 @@ type CollateralTreatment: <"A class to specify the treatment terms for the eligi
 type ConcentrationLimit: <"A class to describe concentration limits that may be applicable to eligible collateral criteria.">
 
 	concentrationLimitType ConcentrationLimitTypeEnum (0..1) <"The type of concentration limit to be applied.">
-	concentrationLimitCriteria ConcentrationLimitCriteria (0..1) <"A set of criteria to describe specific assets that the concentration limits apply to.">
+	concentrationLimitCriteria ConcentrationLimitCriteria (0..*) <"A set of criteria to describe specific assets that the concentration limits apply to.">
 	valueCap Money (0..1) <"value of collateral limit cap-represented as a numerical value">
 	percentageCap number (0..1) <"perecentage of collateral limit cap-represented as a decimal number - example 25% is 0.25">
 
 type ConcentrationLimitCriteria: <"A class to describe a set of criteria to describe specific assets that the concentration limits apply to.">
 
 	issuer IssuerCriteria (0..*) <"Filter based on the issuer.">
-	product ProductCriteria (0..*) <"Filter based on the product.">
+	asset AssetCriteria (0..*) <"Filter based on the asset.">
 
 type IssuerCriteria: <"Criteria used to specify eligible collateral issuers.">
 
@@ -149,11 +139,11 @@ type IssuerCriteria: <"Criteria used to specify eligible collateral issuers.">
 	issuerAgencyRating AgencyRatingCriteria (0..*) <"Agency rating based on default risk and creditors claim in event of default associated with asset issuer.">
 	sovereignAgencyRating AgencyRatingCriteria (0..*) <"Agency rating based on default risk of country.">
 	counterpartyOwnIssuePermitted boolean (0..1) <"Filter based on whether it is permitted for the the underlying asset to be issued by the posting entity or part of their corporate family."> // Explore options to infer this from one way risk
+	
+type AssetCriteria: <"Criteria used to specify eligible collateral assets.">
 
-type ProductCriteria: <"Criteria used to specify eligible collateral assets.">
-
-	collateralProductType ProductType (0..*) <"Filter based on the asset product type.">
-	productCountryOfOrigin string (0..*) <"Filter based on the issuing entity country of origin."> // Same as list of eligible Sovereigns
+	collateralAssetType AssetType (0..*) <"Filter based on the asset product type.">
+	assetCountryOfOrigin string (0..*) <"Filter based on the issuing entity country of origin."> // Same as list of eligible Sovereigns
 		[metadata scheme]
 	denominatedCurrency string (0..*) <"Filter based on the underlying asset denominated currency.">
 		[metadata scheme]
@@ -166,8 +156,8 @@ type ProductCriteria: <"Criteria used to specify eligible collateral assets.">
 	sinkable boolean (0..1) <"Filter based on whether underlying security is sinkable."> // IS THIS REQUIRED - ISDA feedback is that this should be removed
 	domesticCurrencyIssued boolean (0..1) <"Security must be denominated in the domestic currency of the issuer.">
 
-	condition Choice: <"If any are specified, only one of ProductType, ProductTaxonomy or ProductIdentifer should exist.">
-		optional choice collateralProductType, productTaxonomy, productIdentifier
+	condition Choice: <"If any are specified, only one of AssetType, ProductTaxonomy or ProductIdentifer should exist.">
+		optional choice collateralAssetType, productTaxonomy, productIdentifier
 
 type BondType: <"Specification of the type of bond">
 

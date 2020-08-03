@@ -912,8 +912,6 @@ The ISDA Master Agreement is an internationally recognised document which is use
 
 In addition to the Master Agreement are sets of credit support documentation which parties may enter into as part of Master Agreement to contain the terms on which they will exchange collateral for their OTC derivatives. Collateral provides protection to a party against the risk that its counterparty defaults and fails to pay the amount that it owes on default. The risk of loss in this scenario is for the current cost of replacing the defaulted transactions (for which margin is called “variation margin”) and the risk of further loss before the default can be closed out (called “initial margin” or “independent amount”).
 
-The collateral provides protection to a party against the risk that its counterparty defaults and fails to pay the amount that it owes on default. This risk is typically of two types, current exposure and potential future exposure. Current exposure is the current replacement value of the transactions, i.e. the net amount a party would have to pay to replace those transactions in the market. Collateral for this amount is called variation margin. Potential future exposure is the amount by which the replacement value could increase in future over a given time horizon. Collateral for this amount is called initial margin. Collateral can be provided in the form of cash, securities, or other agreed assets, and is typically posted from one party to other, or to a third party custodian.
-
 There are several different types of ISDA credit support document, reflecting variation and initial margin, regulatory requirements and terms for legal relationships under different legal jurisdictions. The key components of the suite of credit support documents are summarized below:
 
 * **Credit Support Annexes (CSAs)** exist in New York, English, Irish, French, and Japanese law forms.  They define the terms for the provision of collateral by the parties in derivatives transactions, and in some cases they are specialized for initial margin or variation margin.
@@ -962,10 +960,21 @@ The legal agreement model in the CDM comprises the following features:
   * ISDA 2019 Bank Custodian CTA and Security Agreement (English Law, New York Law)
   * ISDA 2019 ISDA-Clearstream CTA and Security Agreement (Luxembourg Law – Security-provider or Security-taker name)
   * ISDA 2019 ISDA-Euroclear CTA and Security Agreement
-  
+
+
   **Variation Margin Agreements**
-  
+
   * ISDA 2016 CSA for Variation Margin ("VM") (Security Interest - New York Law)
+  * ISDA 2016 CSA for VM (Title Transfer – English Law)
+  * ISDA 2016 CSA for VM (Loan – Japanese Law)
+  * ISDA 2016 CSA for VM (Title Transfer – Irish Law)
+  * ISDA 2016 CSA for VM (Title Transfer – French Law)
+
+
+  **Master Agreement Schedule**
+
+  * ISDA 2002 Master Agreement Schedule (Automatic Early Termination Clause only)
+
 
 * **Composable and normalised model representation** of the eligible collateral schedule for initial and variation margin into a directly machine readable format.
 
@@ -1057,7 +1066,7 @@ Agreement
    creditSupportAgreementElections CreditSupportAgreementElections (0..1)
    collateralTransferAgreementElections CollateralTransferAgreementElections (0..1)
    securityAgreementElections SecurityAgreementElections (0..1)
-   transactionConfirmation TransactionConfirmation (0..1)
+   masterAgreementSchedule MasterAgreementSchedule (0..1)
    condition: one-of
 
 The modelling approach for elective provisions is explained in further detail in the corresponding section below.
@@ -1114,20 +1123,24 @@ For ease of reference, the structure of the elections contained within each agre
 
 This approach allows the representation of elections in the CDM to focus on their intended business outcome in order to better support the standardisation of related business processes.
 
-For example, ``CreditSupportAgreementElections`` , which is one of the four agreement types, contains all the elections that may be applicable to a credit support agreement and can be used to define any of the Initial Margin Credit Support Agreements supported by the CDM:
+For example, ``CreditSupportAgreementElections`` , which is one of the four agreement types, contains all the elections that may be applicable to a credit support agreement and can be used to define any of the Initial Margin or Variation Margin Credit Support Agreements supported by the CDM:
 
-* ISDA 2016 Phase One Credit Support Annex (“CSA”) (Security Interest – New York Law)
-* ISDA 2016 Phase One Credit Support Deed (“CSD”) (Security Interest – English Law)
-* ISDA 2016 Phase One CSA (Loan – Japanese Law)
-* ISDA 2018 CSA (Security Interest – New York Law)
-* ISDA 2018 CSD (Security Interest – English Law)
+* ISDA 2016 Phase One Credit Support Annex (“CSA”) for Initial Margin ("IM") (Security Interest – New York Law)
+* ISDA 2016 Phase One Credit Support Deed (“CSD”) for IM (Security Interest – English Law)
+* ISDA 2016 Phase One CSA for IM (Loan – Japanese Law)
+* ISDA 2018 CSA for IM (Security Interest – New York Law)
+* ISDA 2018 CSD for IM (Security Interest – English Law)
+* ISDA 2016 CSA for Variation Margin ("VM") (Security Interest - New York Law)
+* ISDA 2016 CSA for VM (Title Transfer – English Law)
+* ISDA 2016 CSA for VM (Loan – Japanese Law)
+* ISDA 2016 CSA for VM (Title Transfer – Irish Law)
+* ISDA 2016 CSA for VM (Title Transfer – French Law)
 
 The ``CreditSupportAgreementElections`` data type therefore contains a super-set of the elections that may apply to any of the above document types.  Common elections used in different document types are represented using common components in this data type.
 
 .. code-block:: Haskell
 
- type CreditSupportAgreementElections: 
- 
+ type CreditSupportAgreementElections:
    regime Regime (1..1)
    oneWayProvisions OneWayProvisions (1..1)
    generalSimmElections GeneralSimmElections (1..1)
@@ -1136,22 +1149,25 @@ The ``CreditSupportAgreementElections`` data type therefore contains a super-set
    fxHaircutCurrency FxHaircutCurrency (0..1)
    postingObligations PostingObligations (1..1)
    substitutedRegime SubstitutedRegime (1..1)
-   baseCurrency string (1..1)
-     [metadata scheme]
+   baseAndEligibleCurrency BaseAndEligibleCurrency (1..1)
    additionalObligations string (0..1)
-   creditSupportObligations CreditSupportObligationsInitialMargin (1..1)
+   coveredTransactions CoveredTransactions (1..1)
+   creditSupportObligations CreditSupportObligations (1..1)
+   exchangeDate string (0..1)
    calculationAndTiming CalculationAndTiming (1..1)
    conditionsPrecedent ConditionsPrecedent (1..1)
    substitution Substitution (1..1)
    disputeResolution DisputeResolution (1..1)
+   holdingAndUsingPostedCollateral HoldingAndUsingPostedCollateral (1..1)
    rightsEvents RightsEvents (1..1)
    custodyArrangements CustodyArrangements (1..1)
+   distributionAndInterestPayment DistributionAndInterestPayment (0..1)
+   creditSupportOffsets boolean (1..1)
    additionalRepresentations AdditionalRepresentations (1..1)
    otherEligibleAndPostedSupport OtherEligibleAndPostedSupport (1..1)
    demandsAndNotices ContactElection (0..1)
    addressesForTransfer ContactElection (0..1)
-   otherCsa OtherAgreements (0..1)
-   japaneseLawCsa OtherAgreements (0..1)
+   otherAgreements OtherAgreements (0..1)
    terminationCurrencyAmendment TerminationCurrencyAmendment (1..1)
    minimumTransferAmountAmendment MinimumTransferAmountAmendment (1..1)
    interpretationTerms string (0..1)
@@ -1217,25 +1233,25 @@ The following code snippets represent these three components of the eligible col
 
  type EligibleCollateralCriteria:
    issuer IssuerCriteria (0..*)
-   product ProductCriteria (0..*)
+   asset AssetCriteria (0..*)
    treatment CollateralTreatment (1..1)
 	
 .. code-block:: Haskell
 
  type IssuerCriteria:
    issuerType CollateralIssuerType (0..*)
-    issuerCountryOfOrigin string (0..*)
-		[metadata scheme]
-    issuerName LegalEntity (0..*)
-    issuerAgencyRating AgencyRatingCriteria (0..*)
-    sovereignAgencyRating AgencyRatingCriteria (0..*)
-    counterpartyOwnIssuePermitted boolean (0..1)
+   issuerCountryOfOrigin string (0..*)
+     [metadata scheme]
+   issuerName LegalEntity (0..*)
+   issuerAgencyRating AgencyRatingCriteria (0..*)
+   sovereignAgencyRating AgencyRatingCriteria (0..*)
+   counterpartyOwnIssuePermitted boolean (0..1)
 	
 .. code-block:: Haskell
 
- type ProductCriteria:
-   collateralProductType ProductType (0..*)
-   productCountryOfOrigin string (0..*)
+ type AssetCriteria:
+   collateralAssetType AssetType (0..*)
+   assetCountryOfOrigin string (0..*)
      [metadata scheme]
    denominatedCurrency string (0..*)
      [metadata scheme]
@@ -1278,10 +1294,10 @@ Depending on the agreement being specified, a different combination of attribute
 
 An equivalent approach is followed for ``CreditSupportAgreementElections`` and ``CollateralTransferAgreementElections``.
 
-Elective Provisions Example 3: Credit Support Obligations - Initial Margin
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+Elective Provisions Example 3: Credit Support Obligations
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-The ``creditSupportObligations`` attribute is contained within two of the agreement types: ``CreditSupportAgreementElections`` and ``CollateralTransferAgreementElections``.  In both cases, the data type is ``CreditSupportObligationsInitialMargin``, which is used to represent a key set of terms that are fundamental to collateral calculations within these document families. The ``CollateralTransferAgreementElections`` data type is shown below, in which the ``creditSupportObligations`` is the tenth attribute:
+The ``creditSupportObligations`` attribute is contained within two of the agreement types: ``CreditSupportAgreementElections`` and ``CollateralTransferAgreementElections``.  In both cases, the data type is ``CreditSupportObligations``, which is used to represent a key set of terms that are fundamental to collateral calculations within these document families. The ``CollateralTransferAgreementElections`` data type is shown below, in which the ``creditSupportObligations`` is the tenth attribute:
 
 .. code-block:: Haskell
 
@@ -1294,38 +1310,40 @@ The ``creditSupportObligations`` attribute is contained within two of the agreem
    fxHaircutCurrency FxHaircutCurrency (0..1)
    postingObligations PostingObligations (1..1)
    substitutedRegime SubstitutedRegime (1..1)
-   baseCurrency string (1..1)
-     [metadata scheme]
-   creditSupportObligations CreditSupportObligationsInitialMargin (1..1)
+   baseAndEligibleCurrency BaseAndEligibleCurrency (1..1)
+   creditSupportObligations CreditSupportObligations (1..1)
    calculationAndTiming CalculationAndTiming (1..1)
    conditionsPrecedent ConditionsPrecedent (1..1)
-   substitution Substitution (1..1)
+   substitution Substitution (0..1)
    disputeResolution DisputeResolution (1..1)
-   rightsEvents RightsEvents (1..1)
+   rightsEvents RightsEvents (0..1)
    custodyArrangements CustodyArrangements (1..1)
    additionalRepresentations AdditionalRepresentations (1..1)
    demandsAndNotices ContactElection (0..1)
    addressesForTransfer ContactElection (0..1)
    otherCsa string (0..1)
    terminationCurrencyAmendment TerminationCurrencyAmendment (1..1)
-   minimumTransferAmountAmendment MinimumTransferAmountAmendment (1..1)
+   minimumTransferAmountAmendment MinimumTransferAmountAmendment (0..1)
    interpretationTerms string (0..1)
    processAgent ProcessAgent (0..1)
    jurisdictionRelatedTerms JurisdictionRelatedTerms (0..1)
    additionalAmendments string (0..1)
-   additionalBespokeTerms string (0..1) 
+   additionalBespokeTerms string (0..1)
 
-This set of elections in ``CreditSupportObligationsInitialMargin`` is modelled to directly reflect the equivalent paragraph in the ISDA documentation, for example Paragraph 13 (c) of the ISDA 2018 CSA (Security Interest – New York Law).  The cardinality constraint requires ``threshold`` and ``minimumTransferAmount`` to be specified, as it is an elective provision in all the Credit Support Agreements supported in CDM.  Other clauses such as ``marginApproach`` are not elective provisions in all supported agreements so the cardinality indicates optionality.
-
+This set of elections in ``CreditSupportObligations`` is modelled to directly reflect the equivalent paragraph in the ISDA documentation, for example Paragraph 13 (c) of the ISDA 2018 CSA (Security Interest – New York Law).  The cardinality constraint requires ``threshold`` and ``minimumTransferAmount`` to be specified, as it is an elective provision in all the Credit Support Agreements supported in CDM.  Other clauses such as ``marginApproach`` are not elective provisions in all supported agreements so the cardinality indicates optionality.
 
 .. code-block:: Haskell
 
- type CreditSupportObligationsInitialMargin:
+ type CreditSupportObligations:
+   deliveryAmount string (0..1)
+   returnAmount string (0..1)
    marginApproach MarginApproach (0..1)
+   otherEligibleSupport string (0..1)
    threshold Threshold (1..1)
    minimumTransferAmount MinimumTransferAmount (1..1)
    rounding CollateralRounding (0..1)
    bespokeTransferTiming BespokeTransferTiming (0..1)
+   creditSupportObligationsVariationMargin CreditSupportObligationsVariationMargin (0..1)
 	
 Each attribute is modelled based on the corresponding clause in the relevant legal agreement templates.  Therefore, each provides the necessary components to reflect the election structure. For example the attribute ``rounding`` is of data type ``CollateralRounding`` which allows the specification of rounding terms for the Delivery Amount and the Return Amount, as shown below:
 
