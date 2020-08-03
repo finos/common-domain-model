@@ -4,7 +4,7 @@ _What is being released_
 
 Variation Margin model added and initial changes for Master Agreement Schedule model.
 
-The following documents are now supported:
+The following documents or specific clauses are now supported:
 
 Variation Margin Agreements
 - ISDA 2016 CSA for Variation Margin ("VM") (Security Interest - New York Law)
