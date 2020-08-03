@@ -61,13 +61,14 @@ Download the DAML artifact from the CDM Portal Downloads page.
 
 _What is being released_
 
-Add a GO implementation of the CDM to the available downloads.
+Add a Go implementation of the CDM to the available downloads.
 
 Notable changes and updates introduced:
 
-- The generated code contains all the types and enums from Rosetta and specifications for all functions.
-- New tile added to Downloads page offering the option to download GO.
+- The generated Go source code contains all CDM model types and enums, and all function specifications.
+- As Go language compilation is platform-specific, the CDM distributed artifact contains the source code only.
+- The Go CDM distributed artifact is now available on the CDM Portal Downloads page.
 
 _Review direction_
 
-Download the GO artifact from the CDM Portal Downloads page.
+Download and review the Go CDM distributed artifact from the CDM Portal Download page.
