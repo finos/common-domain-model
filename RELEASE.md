@@ -22,7 +22,7 @@ Other related changes:
 - `ISDA Create` synonym mapping fixes.
 - Updated documentation samples in the Legal Agreement section.
 
-_Review direction_
+_Review directions_
 
 - Review type `CreditSupportAgreementElections`, `MasterAgreementSchedule` and `EligibileCollateral`.
 - Review `ISDA Create` ingestion samples in the CDM Portal Ingestion Page in folder `isda-create`.
@@ -37,7 +37,7 @@ As part of the ongoing namespace changes, synonyms defined inline in the CDM Mod
  - `CME_SubmissionIRS_1_0`
  - `CME_ClearedConfirm_1_17`
 
-_Review direction_
+_Review directions_
 
 The extracted synonyms can be viewed in Rosetta Core:
 - The FpML file is named `synonym-cdm-fpml.rosetta` under namespace `cdm.synonyms.fpml`.
@@ -52,7 +52,7 @@ _What is being released_
 
 Upgrade DAML version to use version 1.3.0 for DAML compilation.
 
-_Review direction_
+_Review directions_
 
 Download and review the DAML CDM distributed artifact from the CDM Portal Download page.
 
@@ -69,6 +69,6 @@ Notable changes and updates introduced:
 - As Go language compilation is platform-specific, the CDM distributed artifact contains the source code only.
 - The Go CDM distributed artifact is now available on the CDM Portal Downloads page.
 
-_Review direction_
+_Review directions_
 
 Download and review the Go CDM distributed artifact from the CDM Portal Download page.
