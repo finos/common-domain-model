@@ -39,8 +39,11 @@ As part of the ongoing namespace changes, synonyms defined inline in the CDM Mod
 
 _Review direction_
 
+The extracted synonyms can also be viewed in Rosetta Core:
 - The CME file is named `synonym-cdm-cme.rosetta` under namespace `cdm.synonyms.cme`. 
 - The FpML file is named `synonym-cdm-fpml.rosetta` under namespace `cdm.synonyms.fpml`.
+
+The extracted synonyms can also be viewed in the CDM Portal Textual Browser.
 
 
 # *Infrastructure: DAML Upgrade*
@@ -62,6 +65,7 @@ Add a GO implementation of the CDM to the available downloads.
 
 Notable changes and updates introduced:
 
+- The generated code contains all the types and enums from Rosetta and specifications for all functions.
 - New tile added to Downloads page offering the option to download GO.
 
 _Review direction_
