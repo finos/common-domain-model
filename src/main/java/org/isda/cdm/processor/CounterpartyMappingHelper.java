@@ -20,11 +20,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
+import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static cdm.base.staticdata.party.PayerReceiver.PayerReceiverBuilder;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
 import static com.regnosys.rosetta.common.util.StringExtensions.toFirstUpper;
 import static org.isda.cdm.TradableProduct.TradableProductBuilder;
@@ -38,15 +37,17 @@ public class CounterpartyMappingHelper {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CounterpartyMappingHelper.class);
 
-	public static final String COUNTERPARTY_MAPPING_HELPER_KEY = "COUNTERPARTY_MAPPING_HELPER";
+	static final String COUNTERPARTY_MAPPING_HELPER_KEY = "COUNTERPARTY_MAPPING_HELPER";
 	public static final RosettaPath PRODUCT_SUB_PATH = RosettaPath.valueOf("tradableProduct").newSubPath("product");
 
 	private final Map<String, CounterpartyEnum> partyExternalReferenceToCounterpartyEnumMap;
 	private final List<Mapping> mappings;
-	private final CompletableFuture<Void> bothCounterpartiesCollected = new CompletableFuture<>();
+	private final CompletableFuture<Map<String, CounterpartyEnum>> bothCounterpartiesCollected = new CompletableFuture<>();
+	private final ExecutorService executor;
 
-	CounterpartyMappingHelper(List<Mapping> mappings) {
-		this.mappings = mappings;
+	CounterpartyMappingHelper(MappingContext context) {
+		this.mappings = context.getMappings();
+		this.executor = context.getExecutor();
 		this.partyExternalReferenceToCounterpartyEnumMap = new LinkedHashMap<>();
 	}
 
@@ -68,47 +69,26 @@ public class CounterpartyMappingHelper {
 		if (modelPath.containsPath(PRODUCT_SUB_PATH)) {
 			setValueAndOptionallyUpdateMappings(
 					synonymPath.addElement("href"), // synonym path to party external reference
-					(externalRef) -> Optional.of(externalRef)
-							// apply additional external reference translation function if provided
-							.map(x -> Optional.ofNullable(externalRefTranslator).flatMap(f -> f.apply(x)).orElse(x))
-							// translate to counterparty enum
-							.flatMap(this::getOrCreateCounterpartyEnum)
-							// determine counterparty enum and add to builder
-							.filter(cpty -> setCounterpartyEnumReflectively(builder, modelPath.getElement().getPath(), cpty))
-							.isPresent(),
+					(externalRef) -> {
+						// Map externalRef to CounterpartyEnm and update builder object
+						boolean updated = Optional.of(externalRef)
+								// apply additional external reference translation function if provided
+								.map(x -> Optional.ofNullable(externalRefTranslator).flatMap(f -> f.apply(x)).orElse(x))
+								// translate to counterparty enum
+								.flatMap(this::getOrCreateCounterpartyEnum)
+								// determine counterparty enum and add to builder
+								.filter(cpty -> setCounterpartyEnumReflectively(builder, modelPath.getElement().getPath(), cpty))
+								.isPresent();
+						// If both counterparties have been added to the map, then complete the future
+						if (!bothCounterpartiesCollected.isDone() && partyExternalReferenceToCounterpartyEnumMap.size() == 2) {
+							bothCounterpartiesCollected.complete(partyExternalReferenceToCounterpartyEnumMap);
+						}
+						// Return true to update synonym mapping stats
+						return updated;
+					},
 					mappings,
 					modelPath);
 		}
-	}
-
-	/**
-	 * Waits until the partyExternalReference to CounterpartyEnum map is ready, sets CounterpartyEnum based on the partyReferences, and
-	 * then runs the thenConsumer.  Used by other mappers that depend on the party payer / receiver / buyer / seller, so those mappers can
-	 * run only once the party data is stable.
-	 */
-	void setCounterpartyEnumThen(PayerReceiverBuilder payerReceiverBuilder, Consumer<PayerReceiverBuilder> thenConsumer) {
-		bothCounterpartiesCollected
-				.thenRun(() -> CompletableFuture.supplyAsync(() -> payerReceiverBuilder)
-						.thenApply(builder -> {
-							// Update payer from payerPartyReference
-							Optional.ofNullable(builder.getPayerPartyReference())
-									.map(ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder::getExternalReference)
-									.flatMap(this::getOrCreateCounterpartyEnum)
-									.ifPresent(counterpartyEnum -> {
-										builder.setPayer(counterpartyEnum);
-										builder.setPayerPartyReferenceBuilder(ReferenceWithMetaParty.builder());
-									});
-							// Update receiver from receiverPartyReference
-							Optional.ofNullable(builder.getReceiverPartyReference())
-									.map(ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder::getExternalReference)
-									.flatMap(this::getOrCreateCounterpartyEnum)
-									.ifPresent(counterpartyEnum -> {
-										builder.setReceiver(counterpartyEnum);
-										builder.setReceiverPartyReferenceBuilder(ReferenceWithMetaParty.builder());
-									});
-							return builder;
-						})
-						.thenAccept(thenConsumer));
 	}
 
 	/**
@@ -116,25 +96,28 @@ public class CounterpartyMappingHelper {
 	 */
 	void addCounterparties(TradableProductBuilder tradableProductBuilder) {
 		bothCounterpartiesCollected
-				.thenRun(() -> CompletableFuture.supplyAsync(() -> tradableProductBuilder)
-						.thenAccept(builder -> {
-							LOGGER.info("Setting TradableProduct.counterparties");
-							builder.clearCounterparties()
-									.addCounterparties(partyExternalReferenceToCounterpartyEnumMap.entrySet().stream()
-											.map(extRefCounterpartyEntry -> Counterparty.builder()
-													.setCounterparty(extRefCounterpartyEntry.getValue())
-													.setPartyBuilder(ReferenceWithMetaParty.builder()
-															.setExternalReference(extRefCounterpartyEntry.getKey()))
-													.build())
-											.collect(Collectors.toList()));
-						}));
+				.thenAcceptAsync(map -> {
+					LOGGER.info("Setting TradableProduct.counterparties");
+					tradableProductBuilder.clearCounterparties()
+							.addCounterparties(map.entrySet().stream()
+									.map(extRefCounterpartyEntry -> Counterparty.builder()
+											.setCounterparty(extRefCounterpartyEntry.getValue())
+											.setPartyBuilder(ReferenceWithMetaParty.builder()
+													.setExternalReference(extRefCounterpartyEntry.getKey()))
+											.build())
+									.collect(Collectors.toList()));
+				}, executor);
+	}
+
+	CompletableFuture<Map<String, CounterpartyEnum>> getBothCounterpartiesCollectedFuture() {
+		return bothCounterpartiesCollected;
 	}
 
 	/**
 	 * Looks up externalReference in the map and returns the corresponding CounterpartyEnum.
 	 */
 	private Optional<CounterpartyEnum> getOrCreateCounterpartyEnum(String externalReference) {
-		CounterpartyEnum counterpartyEnum = partyExternalReferenceToCounterpartyEnumMap.computeIfAbsent(
+		return Optional.ofNullable(partyExternalReferenceToCounterpartyEnumMap.computeIfAbsent(
 				externalReference,
 				(key) -> {
 					if (partyExternalReferenceToCounterpartyEnumMap.isEmpty()) {
@@ -147,14 +130,7 @@ public class CounterpartyMappingHelper {
 						LOGGER.error("Not translating external reference {} to a CounterpartyEnum because 2 counterparties already exist", externalReference);
 						return null;
 					}
-				});
-
-		// If both counterparties have been added to the map, then complete the future
-		if (!bothCounterpartiesCollected.isDone() && partyExternalReferenceToCounterpartyEnumMap.size() == 2) {
-			bothCounterpartiesCollected.complete(null);
-		}
-
-		return Optional.ofNullable(counterpartyEnum);
+				}));
 	}
 
 	private boolean setCounterpartyEnumReflectively(RosettaModelObjectBuilder builder, String attribute, CounterpartyEnum counterpartyEnum) {

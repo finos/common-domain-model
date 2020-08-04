@@ -10,32 +10,34 @@ import cdm.base.staticdata.asset.rates.*
 import cdm.synonyms.config.*
 
 type ObservationSource: <"The observation source can be composed of an curve and/or and information source.">
+
 	curve Curve (0..1)
 		[synonym Workflow_Event value "curve"]
 	informationSource InformationSource (0..1)
 		[synonym Workflow_Event value "informationSource"]
+
 	condition CurveInformationSource: <"ObservationSource should not be empty, although the attribute cardinality would allow that.">
 		if ObservationSource exists
-		then ( curve exists and informationSource exists)
+		then (curve exists and informationSource exists)
 			or curve exists
 			or informationSource exists
+
 
 type SecurityValuation: <" Terms defining the security valuation method as part of a security leg in a securities fianncing transaction and closely modelled onto the CollateralValuation type in FpML.">
 
 	securityValuationModel SecurityValuationModel (1..1) <"The security valuation model choice, based on either a nominal amount or a number of units.">
-		[synonym FpML_5_10 value "collateral"]
 	underlier Security (1..1) <"The underlying security of the security leg.">
 
 type SecurityValuationModel: <" The security valuation model choice, which can either be based on nominal amount as for a bond, or on the number of contract units as for equity.">
 
 	bondValuationModel BondValuationModel (0..1) <"The valuation model when the security is a bond.">
 	unitContractValuationModel UnitContractValuationModel (0..1) <"The valuation model when the security is a unit contract like equity.">
+
 	condition: one-of
 
 type BondValuationModel: <" Bond valuation model for the security leg in a securities financing transaction, closely modelled onto the BondCollateral.model in FpML.">
 
 	nominalAmount Money (1..1) <"The quantity of the underlier expressed as a nominal amount.">
-		[synonym FpML_5_10 value "nominalAmount"]
 	bondPriceAndYieldModel BondPriceAndYieldModel (1..1) <"Price and yield model for valuing a bond security leg.">
 	accrualsAmount Money (0..1) <"Accruals amount for the bond in the security leg">
 
@@ -51,14 +53,11 @@ type CleanOrDirtyPrice: <" Class specifying the bond price as either clean or di
 
 	cleanPrice CleanPrice (0..1) <"The clean price and accruals presented separately.">
 	dirtyPrice number (0..1) <"The dirty price presented as a single number.">
-		[synonym FpML_5_10 value "dirtyPrice"]
 
 type CleanPrice: <" Class to specify the clean price of a bond in a bond valuation model, with accruals presented separately, and modelled onto the cleanPrice model in BonPriceAndYield.model in FpML.">
 
 	cleanPrice number (1..1) <"The clean price as a number.">
-		[synonym FpML_5_10 value "cleanPrice"]
 	accruals number (0..1) <"The accruals as a number.">
-		[synonym FpML_5_10 value "accruals"]
 	dirtyPrice calculation (0..1) <"Placeholder for a calculation of dirtyPrice based on cleanPrice and accruals.">
 
 type RelativePrice: <" Bond price relative to a benchmark, as in a convertible bond.">
@@ -70,11 +69,13 @@ type BondEquityModel: <" Bond equity model to value convertible bonds and modell
 
 	bondchoiceModel BondChoiceModel (0..1) <"Either the bond or convertible bond.">
 	equity Equity (0..1) <"The equity.">
+
 	condition: one-of
 
 type BondChoiceModel: <" Either a bond or convertible bond.">
 	bond Bond (0..1)
 	convertibleBond ConvertibleBond (0..1)
+
 	condition: one-of
 
 type UnitContractValuationModel: <" Unit contract model for security valuation, e.g. for equity, modelled onto UnitContract.model in FpML.">
@@ -82,16 +83,12 @@ type UnitContractValuationModel: <" Unit contract model for security valuation, 
 	numberOfUnits Quantity (1..1) <"The number of units (index or securities).">
 	unitPrice Money (1..1) <"The price of each unit.">
 
-
 type ActualPrice:
-	[synonym FpML_5_10 value "ActualPrice"]
+
 	currency string (0..1) <"Specifies the currency associated with the net price. This element is not present if the price is expressed in percentage terms (as specified through the priceExpression element).">
 		[metadata scheme]
-		[synonym FpML_5_10 value "currency" meta "currencyScheme"]
 	amount number (1..1)
-		[synonym FpML_5_10 value "amount"]
 	priceExpression PriceExpressionEnum (1..1) <"Specifies whether the price is expressed in absolute or relative terms.">
-		[synonym FpML_5_10 value "priceExpression"]
 	condition Currency: <"The currency attribute associated with the ActualPrice should not be specified when the price is expressed as percentage of notional.">
 		if priceExpression = PriceExpressionEnum -> PercentageOfNotional
 		then currency is absent
@@ -101,25 +98,9 @@ type ActualPrice:
 type Price: <"Generic description of the price concept applicable across product types, which can be expressed in a number of ways other than simply cash price">
 
 	cashPrice CashPrice (0..1) <"Price specified in cash terms, e.g. for securities proceeds or fee payment in a contractual product.">
-		[synonym FpML_5_10 value "initialPrice" path "rateOfReturn", "underlyer"]
-		[synonym FpML_5_10 hint "paymentAmount"]
-		[synonym FpML_5_10 hint "fixedAmount"]
 	exchangeRate ExchangeRate (0..1) <"Price specified as an exchange rate between two currencies.">
-		[synonym FpML_5_10 value "exchangeRate"]
 	fixedInterestRate FixedInterestRate (0..1) <"Price specified as a fixed interest rate.">
-		// For IR Swaps
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "fixedRateSchedule" path "calculationPeriodAmount->calculation"]
-		// For CDS
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "fixedAmountCalculation"]
-		// For Repo
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "fixedRateSchedule"]
-		// For FRA:
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 hint "fixedRate"]
 	floatingInterestRate FloatingInterestRate (0..1) <"Price specified as a spread on top of a floating interest rate.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "floatingRateCalculation" path "calculationPeriodAmount->calculation"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "floatingRateCalculation" path "interestCalculation"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "floatingRateCalculation"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "floatingAmountCalculation"]
 
 	condition: one-of
 
@@ -127,21 +108,11 @@ type Price: <"Generic description of the price concept applicable across product
 type CashPrice: <"Describes a price component as a cash amount, which can either represent cash proceeds for a security purchase or a cashflow that is embedded as part of a contractual product: for instance an upfront fee.">
 
 	grossPrice ActualPrice (0..1) <"Specifies the price of the underlier, before commissions.">
-		[synonym FpML_5_10 value "grossPrice"]
 	cleanNetPrice ActualPrice (0..1) <"Specifies the clean price of the underlier (e.g. excluding accrued interest), net of commissions.">
-		[synonym FpML_5_10 value "cleanNetPrice"]
 	netPrice ActualPrice (0..1) <"Specifies the dirty price of the underlier (e.g. including accrued interest), net of commissions.">
-		[synonym FpML_5_10 value "netPrice"]
 	accruedInterest number (0..1) <"Specifies the accrued interest that are part of the dirty price in the case of a fixed income security or a convertible bond. Expressed in percentage of the notional.">
-		[synonym FpML_5_10 value "accruedInterestPrice"]
 	cashflowAmount Money (0..1) <"Specifies the price as a cashflow amount embedded as part of a a contractual product.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "paymentAmount"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "fixedAmount"]
-	/*cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, e.g. brokerage fee, premium, upfront fee etc. Particularly relevant when it cannot be inferred directly through lineage.">
-		// [synonym FpML_5_10, CME_ClearedConfirm_1_17 value "paymentType", "paymentType" path "premium"]
-		[synonym FpML_5_10, CME_ClearedConfirm_1_17
-			set to CashflowTypeEnum -> Fee when "feeLeg" exists,
-			set to CashflowTypeEnum -> Premium when "premium" exists]*/
+
 	/*
 	 * FpML construct also includes other elements, such as the fxConversion
 	 */
@@ -149,125 +120,106 @@ type CashPrice: <"Describes a price component as a cash amount, which can either
 		if CashPrice exists
 		then netPrice exists or cleanNetPrice exists or cashflowAmount exists
 
+
 type InformationSource: <"A class defining the source for a piece of information (e.g. a rate fix or an FX fixing). The attribute names have been adjusted from FpML to address the fact that the information is not limited to rates.">
-	[synonym FpML_5_10 value "InformationSource"]
 
 	sourceProvider InformationProviderEnum (1..1)  <"An information source for obtaining a market data point. For example Bloomberg, Reuters, Telerate, etc.">
 		[metadata scheme]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "rateSource" meta "informationProviderScheme"]
 		[synonym FIX_5_0_SP2 value "RateSource" tag 1446]
 	sourcePage string (0..1) <"A specific page for the source for obtaining a market data point. In FpML, this is specified as a scheme, rateSourcePageScheme, for which no coding Scheme or URI is specified.">
 		[metadata scheme]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "rateSourcePage" meta "rateSourcePageScheme"]
 	sourcePageHeading string (0..1) <"The heading for the source on a given source page.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "rateSourcePageHeading"]
+
 
 type Money: <"A class defining a currency amount.">
 	[metadata key]
-	[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "Money" meta "id"]
+
 	currency string (1..1) <"The currency in which the associated amount is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
 		[metadata scheme]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "currency" maps 2 meta "currencyScheme"]
 	amount number (1..1) <"The monetary quantity in currency units.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "amount" maps 2]
 
 type FixedInterestRate: <"Data to specify a fixed interest rate price.">
 
 	rate number (1..1)
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "initialValue" maps 2]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "fixedRate"]
-
 
 type FloatingInterestRate: <"Data to specify a floating interest rate price.">
 
 	initialRate number (0..1) <"The initial floating rate reset agreed between the principal parties involved in the trade. This is assumed to be the first required reset rate for the first regular calculation period. It should only be included when the rate is not equal to the rate published on the source implied by the floating rate index. An initial rate of 5% would be represented as 0.05.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "initialRate" maps 2]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "initialRate" path "floatingRate" maps 2]
 	spread number (0..1)
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "initialValue" path "spreadSchedule" maps 2]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "initialValue" path "floatingRate->spreadSchedule" maps 2]
 	capRate number (0..1)
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "initialValue" path "capRateSchedule" maps 2]
 	floorRate number (0..1)
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "initialValue" path "floorRateSchedule" maps 2]
 	multiplier number (0..1)
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "initialValue" path "floatingRateMultiplierSchedule" maps 2]
 
 	condition AtLeastOneOf:
-		( initialRate or spread or capRate or floorRate ) exists
+		(initialRate or spread or capRate or floorRate) exists
 
 	condition FloatingRateMultiplierSchedule: <"FpML specifies that the floatingRateMultiplierSchedule should only be included if the multiplier is not equal to 1 for the term of the stream.">
 		if multiplier exists
 		then multiplier <> 1.0
 
-//
 type ExchangeRate: <"A class that is used for describing the exchange rate for a particular transaction.">
-	[synonym FpML_5_10 value "ExchangeRate"]
+
 	quotedCurrencyPair QuotedCurrencyPair (1..1) <"Defines the two currencies for an FX trade and the quotation relationship between the two currencies.">
-		[synonym FpML_5_10 value "quotedCurrencyPair"]
 	rate number (1..1) <"The rate of exchange between the two currencies of the leg of a deal. Must be specified with a quote basis.">
-		[synonym FpML_5_10 value "rate"]
 	spotRate number (0..1) <"An element used for FX forwards and certain types of FX OTC options. For deals consummated in the FX Forwards Market, this represents the current market rate for a particular currency pair. For barrier and digital/binary options, it can be useful to include the spot rate at the time the option was executed to make it easier to know whether the option needs to move 'up' or 'down' to be triggered.">
-		[synonym FpML_5_10 value "spotRate"]
 	forwardPoints number (0..1) <"An optional element used for deals consummated in the FX Forwards market. Forward points represent the interest rate differential between the two currencies traded and are quoted as a premium or a discount. Forward points are added to, or subtracted from, the spot rate to create the rate of the forward trade.">
-		[synonym FpML_5_10 value "forwardPoints"]
 	pointValue number (0..1) <"An optional element that documents the size of point (pip) in which a rate was quoted (or in this case, forwardPoints are calculated). Point (pip) size varies by currency pair: major currencies are all traded in points of 0.0001, with the exception of JPY which has a point size of 0.01. The FpML PointValue type is constrained such that the factor can only be values of 10^n, where n <= 0, this constraint is not enforced here and is left to the implementor.">
-		[synonym FpML_5_10 value "pointValue"]
 	crossRate CrossRate (0..*) <"An optional element that allow for definition of the currency exchange rates used to cross between the traded currencies for non-base currency FX contracts.">
-		[synonym FpML_5_10 value "crossRate"]
+
 	condition PositiveRate: <"Per FpML the rate must be a PositiveDecimal">
 		if rate exists
 		then rate > 0
+
 	condition PositiveSpotRate: <"Per FpML the spotRate must be a PositiveDecimal">
 		if spotRate exists
 		then spotRate > 0
+
 	condition ForwardPoints:
 		if pointValue exists
 		then forwardPoints exists
+
 	condition SpotRate:
 		if forwardPoints exists
 		then spotRate exists
 
 type QuotedCurrencyPair: <"A class that describes the composition of a rate that has been quoted or is to be quoted. This includes the two currencies and the quotation relationship between the two currencies and is used as a building block throughout the FX specification.">
-	[synonym FpML_5_10 value "QuotedCurrencyPair"]
+
 	currency1 string (1..1) <"The first currency specified when a pair of currencies is to be evaluated.">
 		[metadata scheme]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "currency1" meta "currencyScheme"]
 	currency2 string (1..1) <"The second currency specified when a pair of currencies is to be evaluated.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "currency2" meta "currencyScheme"]
 		[metadata scheme]
 	quoteBasis QuoteBasisEnum (1..1) <"The method by which the exchange rate is quoted.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "quoteBasis"]
 
 
 // TODO: Duplicates large part of ExchangeRate, consider removing redundancy
 type CrossRate extends QuotedCurrencyPair: <"A class that is used for including the currency exchange rates used to cross between the traded currencies for non-base currency FX contracts.">
-	[synonym FpML_5_10 value "CrossRate"]
+
 	rate number (1..1) <"The exchange rate used to cross between the traded currencies.">
-		[synonym FpML_5_10 value "rate"]
 	spotRate number (0..1) <"An optional element used for FX forwards and certain types of FX OTC options. For deals consummated in the FX Forwards Market, this represents the current market rate for a particular currency pair.">
-		[synonym FpML_5_10 value "spotRate"]
 	forwardPoints number (0..1) <"An optional element used for deals consummated in the FX Forwards market. Forward points represent the interest rate differential between the two currencies traded and are quoted as a premium or a discount. Forward points are added to, or subtracted from, the spot rate to create the rate of the forward trade.">
-		[synonym FpML_5_10 value "forwardPoints"]
 
 	condition CrossRate:
 		if forwardPoints exists
 		then spotRate exists
 
 type Curve:
+
 	interestRateCurve InterestRateCurve (0..1)
 		[synonym Workflow_Event value "interestRateCurve"]
 	commodityCurve CommodityReferencePriceEnum (0..1) // This is just an illustrative alternative curve instance, which implementation needs to be refined and confirmed
 		[metadata scheme]
 		[synonym Workflow_Event value "commodityCurve" meta "commodityReferencePriceScheme"]
+
 	condition Curve: one-of
 
 type InterestRateCurve:
+
 	floatingRateIndex FloatingRateIndexEnum (1..1)
 		[metadata scheme]
 		[synonym Workflow_Event value "floatingRateIndex" meta "floatingRateIndexScheme"]
 	tenor Period (1..1)
 		[synonym Workflow_Event value "tenor"]
+
 
 
 

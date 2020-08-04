@@ -13,10 +13,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.isda.cdm.CreditSupportObligationsInitialMargin.CreditSupportObligationsInitialMarginBuilder;
 import static org.isda.cdm.MinimumTransferAmount.MinimumTransferAmountBuilder;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
 
 class MinimumTransferAmountMappingProcessorTest {
 
@@ -36,14 +34,13 @@ class MinimumTransferAmountMappingProcessorTest {
 		MappingContext context = new MappingContext(mappings, Collections.emptyMap());
 
 		MinimumTransferAmountBuilder builder = MinimumTransferAmount.builder();
-		CreditSupportObligationsInitialMarginBuilder parent = mock(CreditSupportObligationsInitialMarginBuilder.class);
 
 		// test
 		Path synonymPath = Path.parse("answers.partyA.minimum_transfer_amount");
 		MinimumTransferAmountMappingProcessor processor = new MinimumTransferAmountMappingProcessor(rosettaPath,
 				Collections.singletonList(synonymPath),
 				context);
-		processor.map(synonymPath, builder, parent);
+		processor.map(synonymPath, builder, null);
 		MinimumTransferAmount minimumTransferAmount = builder.build();
 
 		// assert
