@@ -23,7 +23,6 @@ Further detailed information about the CDM and its application is available in t
 * The `ISDA CDM Fact Sheet <https://www.isda.org/a/z8AEE/ISDA-CDM-Factsheet.pdf>`_, published by ISDA in 2018, gives an overview of the CDM and its intended benefits.
 * The `CDM Introduction Video <https://vimeo.com/372578450>`_ gives a tour of the main features of the model. It is based on a version of the CDM from October 2019.
 * Additional information and announcements about the CDM can be found in the `Market Infrastructure and Technology Section <https://www.isda.org/category/infrastructure/market-infrastructure-technology/>`_ of the ISDA website.
-* Information about How-to guide can be found here: `rosetta-models <https://github.com/rosetta-models/documentation>`_
 
 The CDM Components
 ------------------
@@ -49,6 +48,8 @@ The ISDA CDM Distribution
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The ISDA CDM distribution is openly accessible to all industry participants and can be downloaded from the `CDM Portal <https://portal.cdm.rosetta-technology.io>`_. The ISDA CDM is distributed subject to the ISDA CDM open source licence.
+
+* Information on how to access the CDM distribution, and frequently asked questions, can be found here: `CDM Distribution - "How To" Guide  <https://github.com/rosetta-models/documentation>`_
 
 Components
 """"""""""
