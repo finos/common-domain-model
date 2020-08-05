@@ -47,11 +47,13 @@ func Qualify_EquitySwap_PriceReturnBasicPerformance_SingleName: <"The Price Retu
         economicTerms -> payout -> interestRatePayout exists
         and ( economicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum -> Price
             or economicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum -> Total )
-        and ( economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> equity
-            or economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> exchangeTradedFund
-            or economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> mutualFund
-            or economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> warrant
-            ) exists
+        and ( economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Equity
+            or (economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Fund 
+				and economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> fundType = FundProductTypeEnum -> ExchangeTradedFund)
+			or (economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Fund 
+				and economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> fundType = FundProductTypeEnum -> MutualFund)
+			or economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Warrant
+            ) 
 
 func Qualify_EquitySwap_ParameterReturnDividend_SingleName: <"The Parameter Return Dividend equity swap specified in the ISDA taxonomy V2.0 corresponds to the dividend return swap.">
 	[qualification Product]
@@ -61,11 +63,14 @@ func Qualify_EquitySwap_ParameterReturnDividend_SingleName: <"The Parameter Retu
 	assign-output is_product:
         economicTerms -> payout -> interestRatePayout exists
         and economicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum -> Dividend
-        and ( economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> equity
-            or economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> exchangeTradedFund
-            or economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> mutualFund
-            or economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> warrant
-            ) exists
+		and ( economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Equity
+            or (economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Fund 
+				and economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> fundType = FundProductTypeEnum -> ExchangeTradedFund)
+			or (economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Fund 
+				and economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> fundType = FundProductTypeEnum -> MutualFund)
+			or economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Warrant
+            ) 
+       
 
 func Qualify_InterestRate_IRSwap_Basis:
 	[qualification Product]
@@ -325,9 +330,12 @@ func Qualify_InterestRate_Option_DebtOption:
 	output: is_product boolean (1..1)
 		[synonym ISDA_Taxonomy_v1 value "InterestRate_DebtOption"]
 	assign-output is_product:
-        economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> security -> bond exists
-        or economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> security -> convertibleBond exists
+        economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Debt
+		or (economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Debt 
+			and economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> debtType -> debtClass = DebtClassEnum -> Convertible)
 
+		
+		
 func Qualify_InterestRate_CapFloor:
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
