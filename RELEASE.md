@@ -6,4 +6,4 @@ The user extraction API in the CDM Portal is fixed to allow more than 1000 users
 
 _Review directions_
 
-- Login to CDM Portal and download the users. It will contain only the users that have agreed to ISDA license agreement.
+- Login to CDM Portal and download the users. The downloaded file should contain > 1500 users, who have agreed to ISDA license agreement.
