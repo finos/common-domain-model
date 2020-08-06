@@ -48,7 +48,9 @@ The `Rosetta DSL documentation <https://docs.rosetta-technology.io/dsl/index.htm
 The ISDA CDM Distribution
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The ISDA CDM distribution is openly accessible to all industry participants and can be downloaded from the `CDM Portal <https://portal.cdm.rosetta-technology.io>`_. The ISDA CDM is distributed subject to the ISDA CDM open source licence.
+* The ISDA CDM distribution is openly accessible to all industry participants and can be downloaded from the `CDM Portal <https://portal.cdm.rosetta-technology.io>`_. The ISDA CDM is distributed subject to the ISDA CDM open source licence.
+
+* Information on how to access the CDM distribution, and frequently asked questions, can be found here: `CDM Distribution - "How To" Guide  <https://github.com/rosetta-models/documentation>`_
 
 Components
 """"""""""
