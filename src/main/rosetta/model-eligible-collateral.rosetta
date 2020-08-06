@@ -19,47 +19,6 @@ type AgencyRatingCriteria: <"A class to specify multiple credit notations alongs
 		if AgencyRatingCriteria -> mismatchResolution = CreditNotationMismatchResolutionEnum -> ReferenceAgency
 		then AgencyRatingCriteria -> referenceAgency exists
 
-type CollateralIssuerType: <"A class to allow specification of the type of entity issuing the collateral.">
-
-	issuerType IssuerTypeEnum (1..1) <"Origin of entity issuing the collateral.">
-	supraNationalType SupraNationalIssuerTypeEnum (0..1) <"Debt issued by international organisations and multilateral banks.">
-	quasiGovernmentType QuasiGovernmentIssuerType (0..1) <"Debt issues by institutions or bodies, typically constituted by statute, with a function mandated by the government and subject to government supervision inclusive of profit- and non-profit making bodies. Includes the US Agencies and GSEs and the EU concept of public sector entities. Excluding any entities which are also Regional Government">
-	regionalGovernmentType RegionalGovernmentIssuerType (0..1) <"Regional government, local authority or municipal.">
-	specialPurposeVehicleType SpecialPurposeVehicleIssuerType (0..1)
-
-	condition SupraNationalSubType:
-		if issuerType <> IssuerTypeEnum -> SupraNational
-		then supraNationalType is absent
-
-	condition QuasiGovernmentSubType:
-		if issuerType <> IssuerTypeEnum -> QuasiGovernment
-		then quasiGovernmentType is absent
-
-	condition RegionalGovernmentSubType:
-		if issuerType <> IssuerTypeEnum -> RegionalGovernment
-		then regionalGovernmentType is absent
-
-	condition SpecialPurposeVehicleSubType:
-		if issuerType <> IssuerTypeEnum -> SpecialPurposeVehicle
-		then specialPurposeVehicleType is absent
-
-type QuasiGovernmentIssuerType: <"A class to allow specification of different types of Quasi Government collateral.">
-
-	sovereignEntity boolean (1..1) <"True if sovereign entity (e.g. not separate legal personality from sovereign) or false if non-sovereign entity (e.g. separate legal personality from sovereign).">
-	sovereignRecourse boolean (0..1) <"Applies to non-sovereign entity (e.g. separate legal personality from sovereign).  True if entity has recourse to sovereign (e.g. debt guaranteed by government).  False if entity does not have recourse to sovereign.">
-	// TODO: other (non-exhaustive) criteria e.g. GSEs with/without government support, EMIR public sector entities, US agencies
-	condition NonSovereignEntityRecourse:
-		if sovereignRecourse exists then sovereignEntity = False
-
-type RegionalGovernmentIssuerType: <"A class to allow specification of different type of Regional government collateral.">
-
-	sovereignRecourse boolean (1..1) <"Applies to regional governments, local authorities or municipals.  True if entity has recourse to sovereign (e.g. debt guaranteed by government).  False if entity does not have recourse to sovereign.">
-	// TODO: other (non-exhaustive) criteria e.g. US municipals, Canadian provinces, German Lander
-
-type SpecialPurposeVehicleIssuerType: <"A class to allow specification of different types of special purpose vehicle (SPV) collateral.">
-	creditRisk CreditRiskEnum (0..1) <"Tranched or untranched credit risk."> // Not required?  If tranched credit risk then specified ProductCriteria.agencyRating.
-	// TODO: other (non-exhaustive) criteria e.g. by asset class (RMBS, CMBS, CLO, by regional risk focus, by guarantor (e.g. Ginnie Mae)). Can the existing FpML framework be leveraged.  See type MortgageBackedSecurity
-
 type AssetType: <"A class to allow specification of the asset product type.">
 
 	assetType AssetTypeEnum (1..1) <"The type of collateral asset.">
@@ -159,13 +118,3 @@ type AssetCriteria: <"Criteria used to specify eligible collateral assets.">
 	condition Choice: <"If any are specified, only one of AssetType, ProductTaxonomy or ProductIdentifer should exist.">
 		optional choice collateralAssetType, productTaxonomy, productIdentifier
 
-type BondType: <"Specification of the type of bond">
-
-	bondClass BondClassEnum (0..1) <"Specification of the characteristics of bond">
-	bondEconomics BondEconomics (0..*) <"Specification of the financial terms of the bond">
-
-type BondEconomics: <"Specification of the economics of the bond">
-
-	bondSeniority BondSeniorityEnum (0..1) <"Security: Bond Economics: The order of repayment in the event of a sale or bankruptcy of the issuer or a related party (eg guarantor).">
-	bondInterest BondInterestEnum (0..1) <"Security: Bond Economics: The terms of the reference rate for calculation of interest on the bond.">
-	bondPrincipal BondPrincipalEnum (0..1) <"Security: Bond Economics: The repayment terms for the principal on the bond.">

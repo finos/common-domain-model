@@ -9,16 +9,6 @@ import cdm.base.staticdata.party.*
 import cdm.observable.asset.*
 import cdm.synonyms.config.*
 
-type AdjustableRelativeOrPeriodicDates: <"A class giving the choice between defining a series of dates as an explicit list of dates together with applicable adjustments or as relative to some other series of (anchor) dates, or as a calculation period schedule.">
-	[metadata key]
-
-	adjustableDates AdjustableDates (0..1) <"A series of dates that shall be subject to adjustment if they would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
-	relativeDates RelativeDates (0..1) <"A series of dates specified as some offset to another series of dates (the anchor dates).">
-	periodicDates PeriodicDates (0..1) <"A calculation period schedule.">
-
-	condition Choice: <"Choice rule to represent an FpML choice construct.">
-		required choice adjustableDates, relativeDates, periodicDates
-
 type AmericanExercise: <"A class defining the exercise period for an American style option together with any rules governing the notional amount of the underlying which can be exercised on any given exercise date and any associated exercise fees.">
 	[metadata key]
 
@@ -209,13 +199,6 @@ type ExerciseProcedure: <"A class describing how notice of exercise should be gi
 	condition Choice: <"Choice rule to represent an FpML choice construct.">
 		required choice manualExercise, automaticExercise
 
-type FloatingRateOption: <"Specification of a floating rate option as a floating rate index and tenor.">
-
-	floatingRateIndex FloatingRateIndexEnum (1..1) <"The reference index that is used to specify the floating interest rate. The FpML standard maintains the list of such indices, which are positioned as enumeration values as part of the CDM.">
-		[metadata scheme]
-	indexTenor Period (0..1) <"The ISDA Designated Maturity, i.e. the floating rate tenor.">
-
-
 type FloatingRate extends RateSpecificationBase: <"A class defining a floating interest rate through the specification of the floating rate index, the tenor, the multiplier schedule, the spread, the qualification of whether a specific rate treatment and/or a cap or floor apply.">
 	[metadata key]
 
@@ -246,17 +229,6 @@ type FutureValueAmount: <"A class defining a currency and a future value date.">
 	condition PositiveCalculationPeriodNumberOfDays: <"FpML specifies calculationPeriodNumberOfDays as a positiveInteger.">
 		if FutureValueAmount exists
 		then calculationPeriodNumberOfDays >= 0
-
-type FxRate: <"A class describing the rate of a currency conversion: pair of currency, quotation mode and exchange rate.">
-
-	quotedCurrencyPair QuotedCurrencyPair (1..1) <"Defines the two currencies for an FX trade and the quotation relationship between the two currencies.">
-	rate number (0..1) <"The rate of exchange between the two currencies of the leg of a deal. Must be specified with a quote basis.">
-
-type FxSpotRateSource: <"A class defining the rate source and fixing time for an FX rate.">
-
-	primaryRateSource InformationSource (1..1) <"The primary source for where the rate observation will occur. Will typically be either a page or a reference bank published rate.">
-	secondaryRateSource InformationSource (0..1) <"An alternative, or secondary, source for where the rate observation will occur. Will typically be either a page or a reference bank published rate.">
-	fixingTime BusinessCenterTime (0..1) <"The time at which the spot currency exchange rate will be observed. It is specified as a time in a business day calendar location, e.g. 11:00am London time.">
 
 type IndependentAmount extends PayerReceiver: <"A class specifying the Independent Amount as the combination of a payer/receiver, a payment amount, a payment date and an associated payment calculation rule.">
 
@@ -395,13 +367,6 @@ type PaymentRule: <"A class defining the payment calculation rule. As of FpML 5.
 
 	percentageRule PercentageRule (0..1) <"This attribute is not present as part of the FpML construct, as the payment rule is specialised by means of runtime type extension through the xsi:type.">
 
-type PeriodicDates: <"A class for specifying a calculation period schedule.">
-
-	startDate AdjustableOrRelativeDate (0..1) <"The start date of the calculation period. FpML specifies that for interest rate swaps this date must only be specified if it is not equal to the effective date. It is always specified in the case of equity swaps and credit default swaps with periodic payments. This date may be subject to adjustment in accordance with a business day convention.">
-	endDate AdjustableOrRelativeDate (0..1) <"The end date of the calculation period. FpML specifies that for interest rate swaps this date must only be specified if it is not equal to the termination date. It is always specified in the case of equity swaps with periodic payments. This date may be subject to adjustment in accordance with a business day convention.">
-	periodFrequency CalculationPeriodFrequency (0..1) <"The frequency at which calculation period end dates occur with the regular part of the calculation period schedule and their roll date convention.">
-	periodDatesAdjustments BusinessDayAdjustments (0..1) <"The specification of the business day convention and financial business centers used for adjusting any calculation period date if it would otherwise fall on a day that is not a business day in the specified business center.">
-
 type PremiumExpression: <"This class corresponds to the FpML Premium.model group for representing the option premium when expressed in a way other than an amount.">
 
 	premiumType PremiumTypeEnum (0..1) <"Forward start premium type">
@@ -418,23 +383,6 @@ type PrincipalExchanges: <"A class defining which principal exchanges occur for 
 	initialExchange boolean (1..1) <"A true/false flag to indicate whether there is an initial exchange of principal on the effective date.">
 	finalExchange boolean (1..1) <"A true/false flag to indicate whether there is a final exchange of principal on the termination date.">
 	intermediateExchange boolean (1..1) <"A true/false flag to indicate whether there are intermediate or interim exchanges of principal during the term of the swap.">
-
-type RateObservation: <"A class defining parameters associated with an individual observation or fixing. This class forms part of the cashflow representation of a stream.">
-	[metadata key]
-
-	resetDate date (0..1) <"The reset date.">
-	adjustedFixingDate date (0..1) <"The adjusted fixing date, i.e. the actual date the rate is observed. The date should already be adjusted for any applicable business day convention.">
-	observedRate number (0..1) <"The actual observed rate before any required rate treatment is applied, e.g. before converting a rate quoted on a discount basis to an equivalent yield. An observed rate of 5% would be represented as 0.05.">
-	treatedRate number (0..1) <"The observed rate after any required rate treatment is applied. A treated rate of 5% would be represented as 0.05.">
-	observationWeight int (0..1) <"The number of days weighting to be associated with the rate observation, i.e. the number of days such rate is in effect. This is applicable in the case of a weighted average method of calculation where more than one reset date is established for a single calculation period.">
-	rateReference RateObservation (0..1) <"A pointer style reference to a floating rate component defined as part of a stub calculation period amount component. It is only required when it is necessary to distinguish two rate observations for the same fixing date which could occur when linear interpolation of two different rates occurs for a stub calculation period.">
-		[metadata reference]
-	forecastRate number (0..1) <"The value representing the forecast rate used to calculate the forecast future value of the accrual period.A value of 1% should be represented as 0.01.">
-	treatedForecastRate number (0..1) <"The value representing the forecast rate after applying rate treatment rules. A value of 1% should be represented as 0.01.">
-
-	condition PositiveObservationWeight: <"FpML specifies observationWeight as a positive integer.">
-		if observationWeight exists
-		then observationWeight >= 0
 
 type ResetFrequency extends Frequency: <"A class defining the reset frequency. In the case of a weekly reset, also specifies the day of the week that the reset occurs. If the reset frequency is greater than the calculation period frequency the this implies that more or more reset dates is established for each calculation period and some form of rate averaging is applicable. The specific averaging method of calculation is specified in FloatingRateCalculation. In case the reset frequency is of value T (term), the period is defined by the swap/swapStream/calculationPerioDates/effectiveDate and the swap/swapStream/calculationPerioDates/terminationDate.">
 

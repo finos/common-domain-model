@@ -1,92 +1,16 @@
 namespace org.isda.cdm
 version "${project.version}"
 
-enum IssuerTypeEnum:
-	SupraNational <"Debt issued by international organisations and multilateral banks, entities constituted by treaties or with multiple sovereign members includes Multilateral development Banks">
-	SovereignCentralBank <"Sovereign, Government Debt Securities including Central Banks">
-	QuasiGovernment <"Debt issues by institutions or bodies, typically constituted by statute, with a function mandated by the government and subject to government supervision inclusive of profit- and non-profit making bodies. Includes the US Agencies and GSEs and the EU concept of public sector entities. Excluding any entities which are also Regional Government.">
-	RegionalGovernment <"Regional Government Issued Debt including states within countries, local authorities and municipalities.">
-	Corporate <"Debt issued Securities by corporate bodies including Banks">
-	Fund <"A vehicle (with or without separate legal personality) designed for the purposes of collective investment towards a defined investment goal.">
-	SpecialPurposeVehicle <"A vehicle setup for the purpose of acquisition and financing of specific assets on a limited recourse basis. E.g. asset backed securities, including securitisations">
-
-enum SupraNationalIssuerTypeEnum:
-	InternationalOrganisation <"International Financial Institution">
-	MultilateralBank <"Multilateral Bank or Multilateral Development Bank.">
-
-enum CreditRiskEnum:
-	TranchedCreditRisk <"Tranched credit risk, including securitizations.">
-	UntranchedCreditRisk <"Untranched credit risk, including repackagings.">
-
 enum AssetTypeEnum:
 	Security <"Negotiable financial instrument of monetary value with an issue ownership position">
 	Cash <" Cash in a currency form">
 	Commodity <"A basic good used in commerce that is interchangeable with other goods of the same type.">
 	Other <"Other Collateral Products"> // possible place holder to use for other collateral types such as land, machinery, property 
 
-enum SecurityTypeEnum:
-	Bond <"Security: Bonds - Fixed income instrument of debt issued and securitized as a tradable asset">
-	Equity <"Security: Equity value of holding of shares in listed company">
-	Fund <"Security: Fund – Instrument representing holding in an investment fund.">
-	Warrant <"Security: Warrant - a security that give the right, but not the obligation, to buy or sell a security — most commonly an equity — at a certain price before expiration, or to receive the cash 			equivalent.">
-	Certificate <"Security: Certificates – a security that offers a derivative-based economic return which is not structured as a bond, an equity or a warrant."> // (Not Certificates of Deposit)
-
-enum BondClassEnum:
-	Vanilla <"Bond: A bond with a fixed coupon and a defined maturity and is usually issued and redeemed at the face value.">
-	RegCap <"Bond: A security issued by financial institutions to count towards regulatory capital, including term and perpetual subordinated debt, contingently convertible and others.  Excludes preferred share 	capital.">
-	Structured <"Bond: Structured – A bond with non-standard interest or principal features, with full recourse to the issuer.">
-	AssetBacked <"Security: Asset Backed (ABS) A security which income payments and value derived from or backed by a specified pool of underlying assets">
-	// TODO: other (non-exhaustive) criteria e.g. by asset class (RMBS, CMBS, CLO, by regional risk focus, by guarantor (e.g. Ginnie Mae)). Can the existing FpML framework be leveraged.  See type MortgageBackedSecurity
-
-enum EquityTypeEnum:
-	Ordinary <"Equity type: Common stocks and shares">
-	NonConvertiblePreference <"Equity type: Non-Convertible Preference, Shares which hold priority to receive capital return in event of issuer liquidation">
-	Convertible <"Equity type: Convertible, debt securities that can be converted into common shares">
-	IssuerConvertible <"Equity type: Convertible, debt securities that can be converted at the election of the Issuer into common shares of the Issuer.  Also known as reverse convertible.">
-	HolderConvertible <"Equity type: Convertible, debt securities that can be converted primarily at the election of the holder into common shares of the Issuer">
-	IssuerExchangeable <"Equity type: Convertible, debt securities that can be converted at the election of the Issuer into common shares of a party other than the Issuer.  Also known as reverse exchangeable ">
-	HolderExchangeable <"Equity type: Convertible, debt securities that can be converted primarily at the election of the holder into common shares of a party other than the Issuer">
-
-enum BondSeniorityEnum:
-	Secured <"Security: Bond Economics Seniority: Debt which is secured over assets of the issuer or a related party (eg guarantor).">
-	Senior <"Security: Bond Economics Seniority: Debt which ranks pari passu with all other unsecured creditors of the issuer.">
-	Subordinated <"Security: Bond Economics Seniority: a debt owed to an unsecured creditor that in the event of a liquidation can only be paid after the claims of secured and senior creditors have been met.">
-
-enum BondInterestEnum:
-	Fixed <"Security: Bond Economics Interest: Calculated with reference to a fixed interest rate.">
-	Floating <"Security: Bond Economics Interest: Calculated with reference to a floating interest rate.">
-	InflationLinked <"Security: Bond Economics Interest: Calculated with reference to one or more specified inflation rates.">
-	IndexLinked <"Security: Bond Economics Interest: Calculated with reference to one or more price or other indices (other than inflation rates).">
-	OtherStructured  <"Security: Bond Economics Interest: Calculated with reference to other underlyings (not being floating interest rates, inflation rates or indices) or with a non-linear relationship to 				floating interest rates, inflation rates or indices.">
-//Additions
-	ZeroCoupon <"Security: Bond Economics Interest: A zero coupon bond.">
-	InterestOnly <"Security: Bond Economics Interest: A stripped bond represented only the interest component.">
-
-enum BondPrincipalEnum:
-	Bullet <"Security: Bond Economics Principal: The principal is paid all at once on maturity of the bond. Bullet bonds cannot be redeemed early by an issuer, which means they are non-callable.">
-	Callable <"Security: Bond Economics Principal: The principal on the debt can be repaid early, in whole or in part, at the option of the Issuer.">
-	Puttable <"Security: Bond Economics Principal: The principal on the debt can be repaid early, in whole or in part, at the option of the holder.">
-	Amortising <"Security: Bond Economics Principal: The principal on the debt is paid down regularly, along with its interest expense over the life of the bond.  Includes amortising bonds with a bullet balance 		repayment at maturity.">
-	InflationLinked <"Security: Bond Economics Principal: The principal on the debt is calculated with reference to one or more specified inflation rates.">
-	IndexLinked <"Security: Bond Economics Principal: The principal on the debt is calculated with reference to one or more price or other indices (other than inflation rates).">
-	OtherStructured <"Security: Bond Economics Principal: The principal on the debt is calculated with reference to other underlyings (not being floating interest rates, inflation rates or indices) or with a 				non-linear relationship to floating interest rates, inflation rates or indices.">
-//Additions
-	PrincipalOnly <"Security: Bond Economics Interest: A stripped bond represented only the principal component.">
-
-enum FundProductTypeEnum:
-	MoneyMarketFund <"Equity: Fund type: Money Market Fund – A fund that invests only in highly liquid near-term instruments such as cash, cash equivalent securities, and high credit rating debt-based 						securities with a short-term, maturity">
-	ExchangeTradedFund <"Equity: Fund type: Exchange Traded Fund- Investment fund traded on a stock exchange">
-	OtherFund <"Equity: Fund type: A fund which  is not an Exchange Traded Fund or a Money Market Fund.">
-
 enum CreditNotationMismatchResolutionEnum: <"If several agency issue ratings but not equivalent, reference will be made to the lowest/highest available.">
 	Lowest
 	Highest
 	ReferenceAgency
-
-enum MaturityTypeEnum:
-	RemainingMaturity <"Period from now until maturity date.">
-	OriginalMaturity <"Period from issuance until maturity date.">
-	FromIssuance <"Period from issuance date until now.">
 
 enum ConcentrationLimitTypeEnum:
 	Issuer <"Limit on a single issuer in the portfolio.">

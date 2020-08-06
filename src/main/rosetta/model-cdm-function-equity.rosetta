@@ -119,44 +119,10 @@ func ResolveEquityContract: <"Specifies how the updated contract should be const
 		<"Using the Rate of Return we 'reset' the multiplier, which is used to resolve the ultimate notional amount for the equity swap.">  
 		1 + equityPerformance / 100
 
-func EquityPriceObservation: <"Function specification for the observation of an equity price, based on the attributes of the 'EquityValuation' class.">
-	inputs:
-		equity Equity (1..1)
-		valuationDate AdjustableOrRelativeDate (1..1)
-		valuationTime BusinessCenterTime (0..1)
-		timeType TimeTypeEnum (0..1)
-		determinationMethod DeterminationMethodEnum (1..1)
-
-	output:
-		observation ObservationPrimitive (1..1)
-
-	condition: <"Optional choice between directly passing a time or a timeType, which has to be resolved into a time based on the determination method.">
-		if valuationTime exists then timeType is absent
-		else if timeType exists then valuationTime is absent
-			else False
-
-	post-condition: <"The date and time must be properly resolved as attributes on the output.">
-		observation -> date = ResolveAdjustableDate(valuationDate)
-		and if valuationTime exists then
-		observation -> time = TimeZoneFromBusinessCenterTime(valuationTime)
-		else
-		observation -> time = ResolveTimeZoneFromTimeType(timeType, determinationMethod)
-
-	post-condition: <"The number recorded in the observation must match the number fetched from the source.">
-		observation -> observation = EquitySpot(equity, observation -> date, observation -> time)
-
 // should be provided as a fully specified function (with a body, like calculation) with logic based on the direction of RateOfReturn
 func EquityAmountPayer: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 71. ' Equity Amount Payer' means: if the Rate Of Return is positive, then the Short Party shall be the Equity Amount Payer; and if the Rate Of Return is negative, then the Long Party shall be the Equity Amount Payer.">
 	inputs: equityPayout EquityPayout (1..1)
 	output: payerReceiver PayerReceiver (1..1)
-
-func EquitySpot: <"An external market data lookup for the spot equity price of the reference asset based on a determination method.">
-	inputs:
-		equity Equity (1..1)
-		date date (1..1)
-		time TimeZone (1..1 )
-
-	output: spot number (1..1)
 
 func EquityCashSettlementAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 72. 'Equity Cash Settlement Amount' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Cash Settlement Amount = ABS(Rate Of Return) × Equity Notional Amount.">
 	inputs:
