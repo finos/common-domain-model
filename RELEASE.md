@@ -2,7 +2,7 @@
 
 _What is being released_
 
-Upgraded user extraction API to support downloads of more than 1000 users.
+Upgraded user extraction API to support downloads of more than 1000 registered users.
 
 _Review directions_
 
