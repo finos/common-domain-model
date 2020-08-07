@@ -54,10 +54,16 @@ type ProductIdentifier: <"Comprises of an identifier and a source. The associate
 	identifier string (1..1) <"Provides an identifier associated with a specific product.  The identifier is unique within the public source specified in the source attribute.">
 		[metadata scheme]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, Workflow_Event value "instrumentId" maps 2 meta "instrumentIdScheme"]
+		[synonym FpML_5_10 value "instrumentId" path "bond" meta "instrumentIdScheme"]
+		[synonym FpML_5_10 value "instrumentId" path "convertibleBond" meta "instrumentIdScheme"]
 		[synonym Workflow_Event value "instrumentId" meta "instrumentIdScheme"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "productId" meta "productIdScheme"]
 	source ProductIdSourceEnum (1..1) <"Defines the source of the identifier.">
-		[synonym FpML_5_10 set to ProductIdSourceEnum -> Other]
+		// [synonym FpML_5_10 set to ProductIdSourceEnum -> Other when rosettaPath = Contract -> tradableProduct -> product -> contractualProduct -> productIdentification -> productIdentifier -> source]
+		[synonym FpML_5_10 set to ProductIdSourceEnum -> Other when path = "productId"]
+		[synonym FpML_5_10 set to ProductIdSourceEnum -> CUSIP when "bond->instrumentId->instrumentIdScheme" = "CUSIP"] 
+		[synonym FpML_5_10 set to ProductIdSourceEnum -> ISIN when "bond->instrumentId->instrumentIdScheme" = "ISIN"] 
+		[synonym FpML_5_10 set to ProductIdSourceEnum -> ISIN when "convertibleBond->instrumentId->instrumentIdScheme" = "ISIN"]
 
 //can this be deprecated?
 type IdentifiedProduct: <"An abstract class to specify a product which terms are abstracted through reference data.">
@@ -94,11 +100,13 @@ type ProductTaxonomy: <"The product taxonomy, which is composed of a taxonomy va
 
 
 type Security extends ProductBase: <"Identifies a security by referencing a product identifier and by specifying the sector.">
-
-securityType SecurityTypeEnum (1..1) <"Identifies the type of security using an enumerated list.">
-debtType DebtType (0..1) <"Identifies the type of debt and selected debt economics."> 
-equityType EquityTypeEnum (0..1) <"Identifies the type of equity.">
-fundType FundProductTypeEnum (0..1) <"Identifies the type of fund.">
+	securityType SecurityTypeEnum (1..1) <"Identifies the type of security using an enumerated list.">
+		[synonym FpML_5_10 
+			set to SecurityTypeEnum -> Debt when "bond" exists,
+			set to SecurityTypeEnum -> Debt when "convertibleBond" exists]
+	debtType DebtType (0..1) <"Identifies the type of debt and selected debt economics."> 
+	equityType EquityTypeEnum (0..1) <"Identifies the type of equity.">
+	fundType FundProductTypeEnum (0..1) <"Identifies the type of fund.">
 
 condition DebtSubType:
 		if securityType <> SecurityTypeEnum -> Debt
@@ -136,7 +144,7 @@ condition FundSubType:
 	[metadata scheme]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "productType" meta "productTypeScheme"] 
 	externalProductTypeSource ExternalProductTypeSourceEnum (1..1) <"Denotes the enumerated value to identify the source for the specified product type.">
-		[synonym FpML_5_10 set to ExternalProductTypeSourceEnum -> FpMLProductType]
+		[synonym FpML_5_10 set to ExternalProductTypeSourceEnum -> FpMLProductType when path = "productType"]
 
 
 
