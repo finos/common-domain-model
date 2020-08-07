@@ -63,11 +63,9 @@ public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
 	private void flipPayerReceiver(PayerReceiverBuilder originalBuilder, PayerReceiverBuilder newBuilder) {
 		LOGGER.info("Flipping payer/receiver on new FRA interest rate payout");
 		newBuilder.setPayer(originalBuilder.getReceiver());
-		newBuilder.setPayerAccountReferenceBuilder(originalBuilder.getReceiverAccountReference());
 		newBuilder.setPayerPartyReferenceBuilder(originalBuilder.getReceiverPartyReference());
 
 		newBuilder.setReceiver(originalBuilder.getPayer());
-		newBuilder.setReceiverAccountReferenceBuilder(originalBuilder.getPayerAccountReference());
 		newBuilder.setReceiverPartyReferenceBuilder(originalBuilder.getPayerPartyReference());
 	}
 }
