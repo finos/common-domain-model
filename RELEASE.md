@@ -1,9 +1,5 @@
-# *Infrastructure: User Extraction API Fix*
+# *Infrastructure: CDM Portal Change Password bug*
 
 _What is being released_
 
-Upgraded user extraction API to support downloads of more than 1000 registered users.
-
-_Review directions_
-
-- ISDA CDM Admins can log into the portal and download users via the CDM Portal Home Page.
+Fixed a bug affecting a small number of users where the CDM Portal was forcing the user to change their password but wasn't accepting any new password.
