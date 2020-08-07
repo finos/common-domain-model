@@ -2,8 +2,4 @@
 
 _What is being released_
 
-Fixed the bug where CDM Portal was forcing user to change the password but wasn't accepting any new password.
-
-_Review directions_
-
-- Login to CDM Portal and if asked for change password, you should be able to change it successfully.
+Fixed a bug affecting a small number of users where the CDM Portal was forcing the user to change their password but wasn't accepting any new password.
