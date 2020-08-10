@@ -2,6 +2,8 @@ package org.isda.cdm.functions.testing;
 
 import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
+import cdm.observable.asset.QuantityNotation;
+
 import com.google.common.collect.Lists;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
 import org.isda.cdm.*;

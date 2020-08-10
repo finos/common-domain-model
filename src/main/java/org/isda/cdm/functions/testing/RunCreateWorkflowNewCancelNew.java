@@ -5,6 +5,7 @@ import com.regnosys.rosetta.common.testing.ExecutableFunction;
 
 import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
+import cdm.observable.asset.QuantityNotation;
 
 import org.isda.cdm.*;
 import org.isda.cdm.functions.Create_Execution;
