@@ -1,17 +1,24 @@
 package org.isda.cdm.processor;
 
-import com.regnosys.rosetta.common.translation.Mapping;
-import com.regnosys.rosetta.common.translation.Path;
-import com.rosetta.model.lib.path.RosettaPath;
-import org.isda.cdm.*;
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndUpdateMappings;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.ISDA_CREATE_SYNONYM_SOURCE;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.getEnumValue;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.synonymToEnumValueMap;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndUpdateMappings;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.*;
+import org.isda.cdm.ExceptionEnum;
+import org.isda.cdm.RegimeTerms;
+import org.isda.cdm.RetrospectiveEffect;
+import org.isda.cdm.SimmException;
+import org.isda.cdm.SimmExceptionApplicableEnum;
+
+import com.regnosys.rosetta.common.translation.Mapping;
+import com.regnosys.rosetta.common.translation.Path;
+import com.rosetta.model.lib.path.RosettaPath;
 
 class RegimeMappingHelper {
 

@@ -1,22 +1,24 @@
 package org.isda.cdm.processor;
 
-import cdm.base.staticdata.party.Party;
-import cdm.base.staticdata.party.Party.PartyBuilder;
-import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.updateMappings;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.PARTIES;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.toFieldWithMetaString;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.isda.cdm.LegalAgreement.LegalAgreementBuilder;
+
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 import com.rosetta.model.metafields.MetaFields;
-import org.isda.cdm.LegalAgreement.LegalAgreementBuilder;
 
-import java.util.List;
-import java.util.Optional;
-
-import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.updateMappings;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.PARTIES;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.toFieldWithMetaString;
+import cdm.base.staticdata.party.Party;
+import cdm.base.staticdata.party.Party.PartyBuilder;
+import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 
 /**
  * ISDA Create mapping processor.

@@ -1,23 +1,27 @@
 package org.isda.cdm.processor;
 
-import com.regnosys.rosetta.common.translation.MappingContext;
-import com.regnosys.rosetta.common.translation.MappingProcessor;
-import com.regnosys.rosetta.common.translation.Path;
-import com.rosetta.model.lib.RosettaModelObjectBuilder;
-import com.rosetta.model.lib.path.RosettaPath;
-import org.isda.cdm.AdditionalTypeEnum;
-import org.isda.cdm.ApplicableRegime;
-import org.isda.cdm.RegimeTerms;
-import org.isda.cdm.RegulatoryRegimeEnum;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.ISDA_CREATE_SYNONYM_SOURCE;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.PARTIES;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.getEnumValue;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.synonymToEnumValueMap;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.isda.cdm.ApplicableRegime.ApplicableRegimeBuilder;
-import static org.isda.cdm.Regime.RegimeBuilder;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.*;
+import org.isda.cdm.AdditionalTypeEnum;
+import org.isda.cdm.ApplicableRegime;
+import org.isda.cdm.ApplicableRegime.ApplicableRegimeBuilder;
+import org.isda.cdm.Regime.RegimeBuilder;
+import org.isda.cdm.RegimeTerms;
+import org.isda.cdm.RegulatoryRegimeEnum;
+
+import com.regnosys.rosetta.common.translation.MappingContext;
+import com.regnosys.rosetta.common.translation.MappingProcessor;
+import com.regnosys.rosetta.common.translation.Path;
+import com.rosetta.model.lib.RosettaModelObjectBuilder;
+import com.rosetta.model.lib.path.RosettaPath;
 
 @SuppressWarnings("unused")
 public class ApplicableRegimeMappingProcessor extends MappingProcessor {

@@ -1,16 +1,18 @@
 package org.isda.cdm.workflows;
 
-import cdm.base.staticdata.party.Party;
-import com.google.common.collect.Lists;
-import com.google.inject.Inject;
-import com.rosetta.model.lib.process.PostProcessor;
+import java.util.function.Function;
+
 import org.isda.cdm.Contract;
 import org.isda.cdm.Workflow;
 import org.isda.cdm.WorkflowStep;
 import org.isda.cdm.functions.Create_ClearedTrade;
 import org.isda.cdm.functions.example.services.identification.IdentifierService;
 
-import java.util.function.Function;
+import com.google.common.collect.Lists;
+import com.google.inject.Inject;
+import com.rosetta.model.lib.process.PostProcessor;
+
+import cdm.base.staticdata.party.Party;
 
 public class ClearingAccepted implements Function<Contract, Workflow> {
 	@Inject

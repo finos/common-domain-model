@@ -1,17 +1,8 @@
 package org.isda.cdm.functions.testing;
 
-import com.google.common.collect.Lists;
-import com.regnosys.rosetta.common.testing.ExecutableFunction;
+import static java.util.Collections.emptyList;
+import static org.isda.cdm.functions.testing.FunctionUtils.guard;
 
-import cdm.base.staticdata.identifier.AssignedIdentifier;
-import cdm.base.staticdata.identifier.Identifier;
-import cdm.observable.asset.QuantityNotation;
-
-import org.isda.cdm.*;
-import org.isda.cdm.functions.Create_Execution;
-import org.isda.cdm.functions.Create_WorkflowStep;
-
-import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -20,8 +11,26 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static java.util.Collections.emptyList;
-import static org.isda.cdm.functions.testing.FunctionUtils.guard;
+import javax.inject.Inject;
+
+import org.isda.cdm.ActionEnum;
+import org.isda.cdm.BusinessEvent;
+import org.isda.cdm.Contract;
+import org.isda.cdm.EventTimestamp;
+import org.isda.cdm.EventTimestampQualificationEnum;
+import org.isda.cdm.MessageInformation;
+import org.isda.cdm.TradeDate;
+import org.isda.cdm.Workflow;
+import org.isda.cdm.WorkflowStep;
+import org.isda.cdm.functions.Create_Execution;
+import org.isda.cdm.functions.Create_WorkflowStep;
+
+import com.google.common.collect.Lists;
+import com.regnosys.rosetta.common.testing.ExecutableFunction;
+
+import cdm.base.staticdata.identifier.AssignedIdentifier;
+import cdm.base.staticdata.identifier.Identifier;
+import cdm.observable.asset.QuantityNotation;
 
 public class RunCreateWorkflowNewCancelNew implements ExecutableFunction<Contract, Workflow> {
 
