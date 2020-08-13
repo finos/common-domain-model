@@ -2,4 +2,4 @@
 
 _What is being released_
 
-Fixed a bug affecting a small number of users where the CDM Portal was not registering the password change and continuously asking to change their password.
+Fixed a bug where after updating the authentication library, the users were being forced to change their passwords on first login.
