@@ -49,21 +49,54 @@ type Warrant extends IdentifiedProduct: <"A class to specify a warrant as having
 
 type ProductIdentifier: <"Comprises of an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the ProductIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
-	[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 meta "id"]
+	// [synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 meta "id"]
 	
 	identifier string (1..1) <"Provides an identifier associated with a specific product.  The identifier is unique within the public source specified in the source attribute.">
 		[metadata scheme]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, Workflow_Event value "instrumentId" maps 2 meta "instrumentIdScheme"]
 		[synonym FpML_5_10 value "instrumentId" path "bond" meta "instrumentIdScheme"]
 		[synonym FpML_5_10 value "instrumentId" path "convertibleBond" meta "instrumentIdScheme"]
+		[synonym FpML_5_10 value "instrumentId" path "mortgage" meta "instrumentIdScheme"]
+		[synonym FpML_5_10 value "instrumentId" path "equity" meta "instrumentIdScheme"]
 		[synonym Workflow_Event value "instrumentId" meta "instrumentIdScheme"]
 		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "productId" meta "productIdScheme"]
 	source ProductIdSourceEnum (1..1) <"Defines the source of the identifier.">
 		// [synonym FpML_5_10 set to ProductIdSourceEnum -> Other when rosettaPath = Contract -> tradableProduct -> product -> contractualProduct -> productIdentification -> productIdentifier -> source]
-		[synonym FpML_5_10 set to ProductIdSourceEnum -> Other when path = "productId"]
-		[synonym FpML_5_10 set to ProductIdSourceEnum -> CUSIP when "bond->instrumentId->instrumentIdScheme" = "CUSIP"] 
-		[synonym FpML_5_10 set to ProductIdSourceEnum -> ISIN when "bond->instrumentId->instrumentIdScheme" = "ISIN"] 
-		[synonym FpML_5_10 set to ProductIdSourceEnum -> ISIN when "convertibleBond->instrumentId->instrumentIdScheme" = "ISIN"]
+		[synonym FpML_5_10 set to ProductIdSourceEnum -> Other when path = "productId"] // TODO: should account for productIdScheme values per below
+		[synonym FpML_5_10 
+			set to ProductIdSourceEnum -> CUSIP when "bond->instrumentId->instrumentIdScheme" = "CUSIP",
+			set to ProductIdSourceEnum -> CUSIP when "bond->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-CUSIP-1-0",
+			set to ProductIdSourceEnum -> CUSIP when "bond->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-CUSIP",
+			set to ProductIdSourceEnum -> CUSIP when "mortgage->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-CUSIP-1-0",
+			set to ProductIdSourceEnum -> CUSIP when "mortgage->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-CUSIP",
+			set to ProductIdSourceEnum -> CUSIP when "instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-CUSIP"]
+		[synonym FpML_5_10 
+			set to ProductIdSourceEnum -> ISIN when "bond->instrumentId->instrumentIdScheme" = "ISIN",
+			set to ProductIdSourceEnum -> ISIN when "bond->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-ISIN-1-0",
+			set to ProductIdSourceEnum -> ISIN when "bond->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-ISIN",
+			set to ProductIdSourceEnum -> ISIN when "convertibleBond->instrumentId->instrumentIdScheme" = "ISIN",
+			set to ProductIdSourceEnum -> ISIN when "mortgage->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-ISIN-1-0",
+			set to ProductIdSourceEnum -> ISIN when "mortgage->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-ISIN",
+			set to ProductIdSourceEnum -> ISIN when "instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-ISIN",
+			set to ProductIdSourceEnum -> ISIN when "instrumentId->instrumentIdScheme" = "http://www.fpml.org/coding-scheme/external/instrument-id-ISIN-1-0"] 
+		[synonym FpML_5_10 
+			set to ProductIdSourceEnum -> ISIN when "equity->instrumentId->instrumentIdScheme" = "http://www.abc.com/instrument-id-ISIN-1-0",
+			set to ProductIdSourceEnum -> ISIN when "equity->instrumentId->instrumentIdScheme" = "http://www.example.com/instrument-id-ISIN-1-0"]
+		[synonym FpML_5_10 
+			set to ProductIdSourceEnum -> BBGID when "mortgage->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-Bloomberg-1-0",
+			set to ProductIdSourceEnum -> BBGID when "instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-Bloomberg"]
+		[synonym FpML_5_10 
+			set to ProductIdSourceEnum -> RIC when "equity->instrumentId->instrumentIdScheme" = "http://www.abc.com/instrument-id-Reuters-RIC-1-0",
+			set to ProductIdSourceEnum -> RIC when "equity->instrumentId->instrumentIdScheme" = "http://www.example.com/instrument-id-Reuters-RIC-1-0",
+			set to ProductIdSourceEnum -> RIC when "instrumentId->instrumentIdScheme" = "http://www.example.com/instrument-id-Reuters-RIC-1-0"]
+		[synonym FpML_5_10 
+			set to ProductIdSourceEnum -> Other when path = "mortgage->instrumentId",
+			set to ProductIdSourceEnum -> Other when path = "bond->instrumentId",
+			set to ProductIdSourceEnum -> Other when path = "instrumentId"]
+		[synonym FpML_5_10 
+			set to ProductIdSourceEnum -> Other when "equity->instrumentId->instrumentIdScheme" = "http://www.abc.com/instrumentId",
+			set to ProductIdSourceEnum -> Other when "instrumentId->instrumentIdScheme" = "http://www.abc.com/instrumentId"]
+		// [synonym FpML_5_10 set to ProductIdSourceEnum -> Other when "instrumentId->instrumentIdScheme" exists] // catch-all, doesn't work
 
 //can this be deprecated?
 type IdentifiedProduct: <"An abstract class to specify a product which terms are abstracted through reference data.">
@@ -103,7 +136,10 @@ type Security extends ProductBase: <"Identifies a security by referencing a prod
 	securityType SecurityTypeEnum (1..1) <"Identifies the type of security using an enumerated list.">
 		[synonym FpML_5_10 
 			set to SecurityTypeEnum -> Debt when "bond" exists,
-			set to SecurityTypeEnum -> Debt when "convertibleBond" exists]
+			set to SecurityTypeEnum -> Debt when "convertibleBond" exists,
+			set to SecurityTypeEnum -> Debt when "mortgage" exists]
+		[synonym FpML_5_10
+			set to SecurityTypeEnum -> Equity when "equity" exists]
 	debtType DebtType (0..1) <"Identifies the type of debt and selected debt economics."> 
 	equityType EquityTypeEnum (0..1) <"Identifies the type of equity.">
 	fundType FundProductTypeEnum (0..1) <"Identifies the type of fund.">
