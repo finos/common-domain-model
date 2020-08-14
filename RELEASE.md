@@ -11,3 +11,5 @@ This package contain components used across the CDM for market data, holiday cal
 _Review Directions_
 
 In the CDM Portal, navigate to the Downloads tile, review the generated Java source to see the new cdm.observable.* package.
+
+In Rosetta Core (https://ui.rosetta-technology.io/), review the File or Namespace structure in the Editor Textual View.
