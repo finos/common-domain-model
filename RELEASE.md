@@ -2,7 +2,7 @@
 
 _What is being released_
 
-This refactor is the second incremental changes that will further transform the CDM into hierarchical namespace tree. 
+This refactor is the second incremental changes that will further transform the org.isda.cdm file into a hierarchical namespace tree. 
 
 This second refactor includes the changes for the __cdm.observable.*__ package.
 
