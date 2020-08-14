@@ -24,7 +24,6 @@ corpus CommissionDelegatedRegulation "148/2013" ITS_9
 corpus ESMA_Q_and_A "09April 2019|ESMA70-1861941480-56" Q_AND_A_MiFIR_DATA_REPORTING
 	<"The purpose of this document is to promote common supervisory approaches and practices in the application of MiFID II and MiFIR in relation to regulatory data reporting topics. It provides responses to questions posed by the general public, market participants and competent authorities in relation to the practical application of MiFID II and MiFIR.">
 
-
 corpus ReportingStandard "ISO 20022" ISO_20022
 	<"ISO 20022 is a multi part International Standard prepared by ISO Technical Committee TC68 Financial Services.">
 
@@ -117,10 +116,9 @@ eligibility rule QuantityChange
 
 eligibility rule MifirInvestmentFirm <"Identify as an investment firm which has executed the trade">
 	[regulatoryReference ESMA MiFIR RTS_22 section "Context of the Delegation Act"
-	   	provision "The Markets in Financial Instruments Regulation (EU) No 600/2014 (MiFIR) requires investment firms to report complete and accurate details of transactions in financial instruments. ‘investment firm’ means any legal person whose regular occupation or business is the provision of one or more investment services to third parties and/or the performance of one or more investment activities on a professional basis. Member States may include in the definition of investment firms undertakings which are not legal persons, provided that: (a) their legal status ensures a level of protection for third parties’ interests equivalent to that afforded by legal persons; and (b) they are subject to equivalent prudential supervision appropriate to their legal form. However, where a natural person provides services involving the holding of third party funds or transferable securities, that person may be considered to be an investment firm for the purposes of this Directive and of Regulation (EU) No 600/2014 only if, without prejudice to the other requirements imposed in this Directive, in Regulation (EU) No 600/2014, and in Directive 2013/36/EU, that person complies with the following conditions: (a) the ownership rights of third parties in instruments and funds must be safeguarded, especially in the event of the insolvency of the firm or of its proprietors, seizure, set-off or any other action by creditors of the firm or of its proprietors; (b) the firm must be subject to rules designed to monitor the firm’s solvency and that of its proprietors; (c) the firm’s annual accounts must be audited by one or more persons empowered, under national law, to audit accounts; (d) where the firm has only one proprietor, that person must make provision for the protection of investors in the event of the firm’s cessation of business following the proprietor’s death or incapacity or any other such event"]
+	   	provision "The Markets in Financial Instruments Regulation (EU) No 600/2014 (MiFIR) requires investment firms to report complete and accurate details of transactions in financial instruments. 'investment firm’ means any legal person whose regular occupation or business is the provision of one or more investment services to third parties and/or the performance of one or more investment activities on a professional basis. Member States may include in the definition of investment firms undertakings which are not legal persons, provided that: (a) their legal status ensures a level of protection for third parties’ interests equivalent to that afforded by legal persons; and (b) they are subject to equivalent prudential supervision appropriate to their legal form. However, where a natural person provides services involving the holding of third party funds or transferable securities, that person may be considered to be an investment firm for the purposes of this Directive and of Regulation (EU) No 600/2014 only if, without prejudice to the other requirements imposed in this Directive, in Regulation (EU) No 600/2014, and in Directive 2013/36/EU, that person complies with the following conditions: (a) the ownership rights of third parties in instruments and funds must be safeguarded, especially in the event of the insolvency of the firm or of its proprietors, seizure, set-off or any other action by creditors of the firm or of its proprietors; (b) the firm must be subject to rules designed to monitor the firm’s solvency and that of its proprietors; (c) the firm’s annual accounts must be audited by one or more persons empowered, under national law, to audit accounts; (d) where the firm has only one proprietor, that person must make provision for the protection of investors in the event of the firm’s cessation of business following the proprietor’s death or incapacity or any other such event"]
 		filter when rule IsExecutingEntityInvestmentFirm then
 	    filter when rule BranchInEU
-
 
 eligibility rule EmirInvestmentFirm <"Identify as an investment firm which has executed the trade">
 	[regulatoryReference ESMA EMIR ITS_9 article "1 (2)"
@@ -176,7 +174,6 @@ reporting rule ReportingCounterpartyID
 			extract PartyContractInformation -> partyReference -> partyId
 			as "Reporting Counterparty ID"
 
-
 reporting rule ReportStatus <"Indication as to whether the transaction report is new or a cancellation">
 	[regulatoryReference ESMA MiFIR RTS_22
 			annex "I" table "2" field "1"
@@ -185,7 +182,7 @@ reporting rule ReportStatus <"Indication as to whether the transaction report is
 			article "2"
 			rationale_author "DRR"
 			rationale "Article 2 means that each reportable event is treated as an independent transaction. The practical implementation of corrections is: A New event is a NEWT, A new, non-reportable version of a previously-reported event, that renders the previous version of the same event non-reportable, is a CANC, A new, non-reportable version of a non-reportable event is not reported, A new, reportable version of a previously-reported event, that supersedes the previous version of the same event is a CANC followed by a NEWT"
-			structured_provision "MiFIR.ReportStatus is by definition ‘NEWT’ unless the report is a Cancellation when MiFIR.ReportStatus is by definition ‘CANC’"
+			structured_provision "MiFIR.ReportStatus is by definition 'NEWT’ unless the report is a Cancellation when MiFIR.ReportStatus is by definition 'CANC’"
 			provision "Indication as to whether the transaction report is new or a cancellation."]
  	extract if WorkflowStep -> businessEvent -> primitives -> execution exists
  				or WorkflowStep -> businessEvent -> primitives -> contractFormation exists
@@ -198,7 +195,6 @@ reporting rule ReportStatus <"Indication as to whether the transaction report is
 					else ""
 		 			as "Report Status"
 
-
 reporting rule TransactionReferenceNumber
 		[regulatoryReference ESMA MiFIR RTS_22
 			annex "I" table "2" field "2"
@@ -206,7 +202,6 @@ reporting rule TransactionReferenceNumber
 		]
 		extract WorkflowStep -> eventIdentifier -> assignedIdentifier -> identifier
  			as "Transaction Reference Number"
-
 
 reporting rule TradingVenueTransactionIdentificationCode <"Trading venue transaction identification code">
 		[regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "3"
@@ -244,16 +239,12 @@ reporting rule SubmittingEntityIdentificationCode <"Submitting entity identifica
  	extract PartyContractInformation -> partyReference -> partyId
  		as "Submitting Entity Identification Code"
 
-
-
-
 reporting rule TransmissionOfOrderIndicator <"Transmission of order indicator">
 		[regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "25"
-			provision "‘true’ shall be populated by the transmitting firm within the transmitting firm's report where the conditions for transmission specified in Article 4 were not satisfied ‘false’ – in all other circumstances"
+			provision "'true’ shall be populated by the transmitting firm within the transmitting firm's report where the conditions for transmission specified in Article 4 were not satisfied 'false’ – in all other circumstances"
 		]
  	return "Out Of Scope"
  		as "Transmission Of Order Indicator"
-
 
 reporting rule TradingDateTime <"Trading date time">
 		[regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "28"
@@ -299,11 +290,10 @@ reporting rule Quantity <"The number of units of the financial instrument, or th
 
 reporting rule Venue <"Venue">
 		[regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "36"
-			provision "Identification of the venue where the transaction was executed. Use the ISO 10383 segment MIC for transactions executed on a trading venue, Systematic Internaliser (SI) or organised trading platform outside of the Union. Where the segment MIC does not exist, use the operating MIC. Use MIC code ‘XOFF’ for financial instruments admitted to trading, or traded on a trading venue or for which a request for admission was made, where the transaction on that financial instrument is not executed on a trading venue, SI or organised trading platform outside of the Union, or where an investment firm does not know it is trading with another investment firm acting as an SI. Use MIC code ‘XXXX’ for financial instruments that are not admitted to trading or traded on a trading venue or for which no request for admission has been made and that are not traded on an organised trading platform outside of the Union but where the underlying is admitted to trading or traded on a trading venue. "
+			provision "Identification of the venue where the transaction was executed. Use the ISO 10383 segment MIC for transactions executed on a trading venue, Systematic Internaliser (SI) or organised trading platform outside of the Union. Where the segment MIC does not exist, use the operating MIC. Use MIC code 'XOFF’ for financial instruments admitted to trading, or traded on a trading venue or for which a request for admission was made, where the transaction on that financial instrument is not executed on a trading venue, SI or organised trading platform outside of the Union, or where an investment firm does not know it is trading with another investment firm acting as an SI. Use MIC code 'XXXX’ for financial instruments that are not admitted to trading or traded on a trading venue or for which no request for admission has been made and that are not traded on an organised trading platform outside of the Union but where the underlying is admitted to trading or traded on a trading venue. "
 		]
  	return "XXXX"
  		as "Venue"
-
 
 reporting rule CountryOfTheBranchMembership <"Country of the branch membership">
 		[regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "37"
@@ -312,14 +302,12 @@ reporting rule CountryOfTheBranchMembership <"Country of the branch membership">
  	return "Out Of Scope"
  		as "Country Of The Branch Membership"
 
-
 reporting rule InstrumentIdentificationCode <"Instrument identification code">
 		[regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "41"
 			provision "Code used to identify the financial instrument. This field applies to financial instruments for which a request for admission to trading has been made, that are admitted to trading or traded on a trading venue or on a systematic internaliser. It also applies to financial instruments which have an ISIN and are traded on organised trading platform outside of the Union where the underlying is a financial instrument traded on a trading venue."
 		]
  	return "Out Of Scope"
  		as "Instrument Identification Code"
-
 
 reporting rule InstrumentFullName <"Instrument full name">
 		[regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "42"
@@ -328,14 +316,12 @@ reporting rule InstrumentFullName <"Instrument full name">
  	return "Out Of Scope"
  		as "Instrument Full Name"
 
-
 reporting rule InstrumentClassification <"Instrument classification">
 		[regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "43"
 			provision "Taxonomy used to classify the financial instrument. A complete and accurate CFI code shall be provided."
 		]
  	return "Out Of Scope"
  		as "Instrument Classification"
-
 
 reporting rule NotionalCurrency1 <"Notional currency 1">
 		[regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "44"
@@ -344,7 +330,6 @@ reporting rule NotionalCurrency1 <"Notional currency 1">
  	return "Out Of Scope"
  		as "Notional Currency 1"
 
-
 reporting rule NotionalCurrency2 <"Notional currency 2">
 		[regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "45"
 			provision "In the case of multi-currency or cross-currency swaps the currency in which leg 2 of the contract is denominated. For swaptions where the underlying swap is multi-currency, the currency in which leg 2 of the swap is denominated"
@@ -352,14 +337,12 @@ reporting rule NotionalCurrency2 <"Notional currency 2">
  	return "Out Of Scope"
  		as "Notional Currency 2"
 
-
 reporting rule PriceMultiplier <"Price multiplier">
 		[regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "46"
 			provision "Number of units of the underlying instrument represented by a single derivative contract. Monetary value covered by a single swap contract where the quantity field indicates the number of swap contracts in the transaction. For a future or option on an index, the amount per index point. For spreadbets the movement in the price of the underlying instrument on which the spreadbet is based. The information reported in this field shall be consistent with the values provided in fields 30 and 33."
 		]
  	return "Out Of Scope"
  		as "Price Multiplier"
-
 
 reporting rule UnderlyingInstrumentCode <"Underlying instrument code">
 		[regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "47"
@@ -380,14 +363,12 @@ reporting rule UnderlyingIndexName
 			else "NOAP" // TODO NOAP isn't a basket
 			as "Underlying Index Name"
 
-
 reporting rule UnderlyingIndexTermPeriod <"Term of the underlying index period (DAYS, WEEK, MNTH, YEAR)">
 		[regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "49.1"
 			provision "In case the underlying is an index, the term of the index."
 		]
  	return "Out Of Scope"
  		as "Underlying Index Term Period"
-
 
 reporting rule UnderlyingIndexTermMultiplier <"Term of the underlying index (number)">
 		[regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "49.2"
@@ -396,7 +377,6 @@ reporting rule UnderlyingIndexTermMultiplier <"Term of the underlying index (num
  	return "Out Of Scope"
  		as "Underlying Index Term Multiplier"
 
-
 reporting rule ExpiryDate <"Expiry date">
 		[regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "55"
 			provision "Expiry date of the financial instrument. Field only applies to derivatives with a defined expiry date."
@@ -404,14 +384,12 @@ reporting rule ExpiryDate <"Expiry date">
  	return "Out Of Scope"
  		as "Expiry Date"
 
-
 reporting rule DeliveryType <"Delivery type">
 		[regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "56"
-			provision "Indication as to whether the transaction is settled physically or in cash. Where delivery type cannot be determined at time of execution, the value shall be ‘OPTL’. The field is only applicable for derivatives."
+			provision "Indication as to whether the transaction is settled physically or in cash. Where delivery type cannot be determined at time of execution, the value shall be 'OPTL’. The field is only applicable for derivatives."
 		]
  	return "Out Of Scope"
  		as "Delivery Type"
-
 
 reporting rule InvestmentDecisionWithinFirm <"Investment decision within firm (Natural persons or Algorithms)">
 		[regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "57"
@@ -420,14 +398,12 @@ reporting rule InvestmentDecisionWithinFirm <"Investment decision within firm (N
  	return "Out Of Scope"
  		as "Investment Decision Within Firm"
 
-
 reporting rule PersonResponsibleForInvestmentDecisionCountry <"Country of the branch supervising the person responsible for the investment decision">
 		[regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "58"
 			provision "Code used to identify the country of the branch of the investment firm for the person responsible for the investment decision, as set out in Article 14(3)(b). Where the person responsible for the investment decision was not supervised by a branch, this field shall be populated with the country code of the home Member State of the investment firm or the country code of the country where the firm has established its head office or registered office (in the case of third country firms). Where the transaction is for a transmitted order that has met the conditions for transmission set out in Article 4, this field shall be populated by the receiving firm within the receiving firm's report using the information received from the transmitting firm. This field is not applicable when the investment decision was made by an algorithm"
 		]
  	return "Out Of Scope"
  		as "Person Responsible For Investment Decision Country"
-
 
 reporting rule ExecutionWithinFirm <"Execution within firm">
 		[regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "59"
@@ -436,14 +412,12 @@ reporting rule ExecutionWithinFirm <"Execution within firm">
  	return "Out Of Scope"
  		as "Execution Within Firm"
 
-
 reporting rule PersonResponsibleForExecutionCountry <"Country of the branch supervising the person responsible for the execution">
 		[regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "60"
 			provision "Code used to identify the country of the branch of the investment firm for the person responsible for the execution of the transaction, as set out in Article 14(3)(c). Where the person responsible was not supervised by a branch, this field shall be populated with the country code of the home Member State of the investment firm, or the country code of the country where the firm has established its head office or registered office (in the case of third country firms). This field is not applicable when the execution was made by an algorithm."
 		]
  	return "Out Of Scope"
  		as "Person Responsible For ExecutionCountry"
-
 
 reporting rule CommodityDerivativeIndicator <"Commodity derivative indicator">
 		[regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "64"
@@ -454,7 +428,7 @@ reporting rule CommodityDerivativeIndicator <"Commodity derivative indicator">
 
 reporting rule SecuritiesFinancingTransactionIndicator <"Securities financing transaction indicator">
 		[regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "65"
-			provision "‘true’ shall be populated where the transaction falls within the scope of activity but is exempted from reporting under Regulation (EU) 2015/2365. ‘false’ otherwise."
+			provision "'true’ shall be populated where the transaction falls within the scope of activity but is exempted from reporting under Regulation (EU) 2015/2365. 'false’ otherwise."
 		]
  	return "Out Of Scope"
  		as "Securities Financing Transaction Indicator"
@@ -474,11 +448,10 @@ reporting rule RateSpecification
 
 reporting rule BuyerSeller
 		[regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "7"
-			provision "Code used to identify the acquirer of the financial instrument.Where the acquirer is a legal entity, the LEI code of the acquirer shall be used.Where the acquirer is a non-legal entity, the identifier specified in Article 6 shall be used.Where the transaction was executed on a trading venue or on an organised trading platform outside of the Union that utilises a central counterparty (CCP) and where the identity of the acquirer is not disclosed, the LEI code of the CCP shall be used.Where the transaction was executed on a trading venue or on an organised trading platform outside of the Union that does not utilise a CCP and where the identity of the acquirer is not disclosed, the MIC code of the trading venue or of the organised trading platform outside of the Union shall be used.Where the acquirer is an investment firm acting as a systematic internaliser (SI), the LEI code of the SI shall be used.‘INTC’ shall be used to designate an aggregate client account within the investment firm in order to report a transfer into or out of that account with an associated allocation to the individual client(s) out of or into that account respectively.In case of options and swaptions, the buyer shall be the counterparty that holds the right to exercise the option and the seller shall be the counterparty that sells the option and receives a premium.In case of futures and forwards other than futures and forwards relating to currencies, the buyer shall be the counterparty buying the instrument and the seller the counterparty selling the instrument.In the case of swaps relating to securities, the buyer shall be the counterparty that gets the risk of price movement of the underlying security and receives the security amount. The seller shall be the counterparty paying the security amount.In the case of swaps related to interest rates or inflation indices, the buyer shall be the counterparty paying the fixed rate. The seller shall be the counterparty receiving the fixed rate. In case of basis swaps (float-to-float interest rate swaps), the buyer shall be the counterparty that pays the spread and the seller the counterparty that receives the spread.In the case of swaps and forwards related to currencies and of cross currency swaps, the buyer shall be the counterparty receiving the currency which is first when sorted alphabetically by ISO 4217 standard and the seller shall be the counterparty delivering this currency.In the case of swap related to dividends, the buyer shall be the counterparty receiving the equivalent actual dividend payments. The seller is the counterparty paying the dividend and receiving the fixed rate.In the case of derivative instruments for the transfer of credit risk except options and swaptions, the buyer shall be the counterparty buying the protection. The seller is the counterparty selling the protection.In case of derivative contract related to commodities, the buyer shall be the counterparty that receives the commodity specified in the report and the seller the counterparty delivering this commodity.In case of forward rate agreements, the buyer shall be the counterparty paying the fixed rate and the seller the counterparty receiving the fixed rate.For an increase in notional, the buyer shall be the same as the acquirer of the financial instrument in the original transaction and the seller shall be the same as the disposer of the financial instrument in the original transaction.For a decrease in notional the buyer shall be the same as the disposer of the financial instrument in the original transaction and the seller shall be the same as the acquirer of the financial instrument in the original transaction."]
+			provision "Code used to identify the acquirer of the financial instrument.Where the acquirer is a legal entity, the LEI code of the acquirer shall be used.Where the acquirer is a non-legal entity, the identifier specified in Article 6 shall be used.Where the transaction was executed on a trading venue or on an organised trading platform outside of the Union that utilises a central counterparty (CCP) and where the identity of the acquirer is not disclosed, the LEI code of the CCP shall be used.Where the transaction was executed on a trading venue or on an organised trading platform outside of the Union that does not utilise a CCP and where the identity of the acquirer is not disclosed, the MIC code of the trading venue or of the organised trading platform outside of the Union shall be used.Where the acquirer is an investment firm acting as a systematic internaliser (SI), the LEI code of the SI shall be used.'INTC’ shall be used to designate an aggregate client account within the investment firm in order to report a transfer into or out of that account with an associated allocation to the individual client(s) out of or into that account respectively.In case of options and swaptions, the buyer shall be the counterparty that holds the right to exercise the option and the seller shall be the counterparty that sells the option and receives a premium.In case of futures and forwards other than futures and forwards relating to currencies, the buyer shall be the counterparty buying the instrument and the seller the counterparty selling the instrument.In the case of swaps relating to securities, the buyer shall be the counterparty that gets the risk of price movement of the underlying security and receives the security amount. The seller shall be the counterparty paying the security amount.In the case of swaps related to interest rates or inflation indices, the buyer shall be the counterparty paying the fixed rate. The seller shall be the counterparty receiving the fixed rate. In case of basis swaps (float-to-float interest rate swaps), the buyer shall be the counterparty that pays the spread and the seller the counterparty that receives the spread.In the case of swaps and forwards related to currencies and of cross currency swaps, the buyer shall be the counterparty receiving the currency which is first when sorted alphabetically by ISO 4217 standard and the seller shall be the counterparty delivering this currency.In the case of swap related to dividends, the buyer shall be the counterparty receiving the equivalent actual dividend payments. The seller is the counterparty paying the dividend and receiving the fixed rate.In the case of derivative instruments for the transfer of credit risk except options and swaptions, the buyer shall be the counterparty buying the protection. The seller is the counterparty selling the protection.In case of derivative contract related to commodities, the buyer shall be the counterparty that receives the commodity specified in the report and the seller the counterparty delivering this commodity.In case of forward rate agreements, the buyer shall be the counterparty paying the fixed rate and the seller the counterparty receiving the fixed rate.For an increase in notional, the buyer shall be the same as the acquirer of the financial instrument in the original transaction and the seller shall be the same as the disposer of the financial instrument in the original transaction.For a decrease in notional the buyer shall be the same as the disposer of the financial instrument in the original transaction and the seller shall be the same as the acquirer of the financial instrument in the original transaction."]
 		[regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "16"
-			provision "Code used to identify the disposer of the financial instrument.Where the disposer is a legal entity, the LEI code of the disposer shall be used.Where the disposer is a non-legal entity, the identifier specified in Article 6 shall be used.Where the transaction was executed on a trading venue or on an organised trading platform outside of the Union that utilises a CCP and where the identity of the disposer is not disclosed, the LEI code of the CCP shall be used.Where the transaction was executed on a trading venue or on an organised trading platform outside of the Union that does not utilise a CCP and where the identity of the disposer is not disclosed, the MIC code of the trading venue or of the organised trading platform outside of the Union shall be used.Where the disposer is an investment firm acting as a SI, the LEI code of the SI shall be used‘INTC’ shall be used to designate an aggregate client account within the investment firm in order to report a transfer into or out of that account with an associated allocation to the individual client(s) out of or into that account respectively.In case of options and swaptions, the buyer shall be the counterparty that holds the right to exercise the option and the seller shall be the counterparty that sells the option and receives a premium.In case of futures and forwards other than futures and forwards relating to currencies, the buyer shall be the counterparty buying the instrument and the seller the counterparty selling the instrument.In the case of swaps relating to securities, the buyer shall be the counterparty that gets the risk of price movement of the underlying security and receives the security amount. The seller shall be the counterparty paying the security amount.In the case of swaps related to interest rates or inflation indices, the buyer shall be the counterparty paying the fixed rate. The seller shall be the counterparty receiving the fixed rate. In case of basis swaps (float-to-float interest rate swaps), the buyer shall be the counterparty that pays the spread and the seller the counterparty that receives the spread.In the case of swaps and forwards related to currencies and of cross currency swaps, the buyer shall be the counterparty receiving the currency which is first when sorted alphabetically by ISO 4217 standard and the seller shall be the counterparty delivering this currency.In the case of swap related to dividends, the buyer shall be the counterparty receiving the equivalent actual dividend payments. The seller is the counterparty paying the dividend and receiving the fixed rate.In the case of derivative instruments for the transfer of credit risk except options and swaptions, the buyer shall be the counterparty buying the protection. The seller is the counterparty selling the protection.In case of derivative contracts related to commodities, the buyer shall be the counterparty that receives the commodity specified in the report and the seller the counterparty delivering this commodity.In case of forward rate agreements, the buyer shall be the counterparty paying the fixed rate and the seller the counterparty receiving the fixed rate.For an increase in notional, the seller shall be the same as the disposer in the original transaction.For a decrease in notional the seller shall be the same as the acquirer of the financial instrument in the original transaction."]
+			provision "Code used to identify the disposer of the financial instrument.Where the disposer is a legal entity, the LEI code of the disposer shall be used.Where the disposer is a non-legal entity, the identifier specified in Article 6 shall be used.Where the transaction was executed on a trading venue or on an organised trading platform outside of the Union that utilises a CCP and where the identity of the disposer is not disclosed, the LEI code of the CCP shall be used.Where the transaction was executed on a trading venue or on an organised trading platform outside of the Union that does not utilise a CCP and where the identity of the disposer is not disclosed, the MIC code of the trading venue or of the organised trading platform outside of the Union shall be used.Where the disposer is an investment firm acting as a SI, the LEI code of the SI shall be used'INTC’ shall be used to designate an aggregate client account within the investment firm in order to report a transfer into or out of that account with an associated allocation to the individual client(s) out of or into that account respectively.In case of options and swaptions, the buyer shall be the counterparty that holds the right to exercise the option and the seller shall be the counterparty that sells the option and receives a premium.In case of futures and forwards other than futures and forwards relating to currencies, the buyer shall be the counterparty buying the instrument and the seller the counterparty selling the instrument.In the case of swaps relating to securities, the buyer shall be the counterparty that gets the risk of price movement of the underlying security and receives the security amount. The seller shall be the counterparty paying the security amount.In the case of swaps related to interest rates or inflation indices, the buyer shall be the counterparty paying the fixed rate. The seller shall be the counterparty receiving the fixed rate. In case of basis swaps (float-to-float interest rate swaps), the buyer shall be the counterparty that pays the spread and the seller the counterparty that receives the spread.In the case of swaps and forwards related to currencies and of cross currency swaps, the buyer shall be the counterparty receiving the currency which is first when sorted alphabetically by ISO 4217 standard and the seller shall be the counterparty delivering this currency.In the case of swap related to dividends, the buyer shall be the counterparty receiving the equivalent actual dividend payments. The seller is the counterparty paying the dividend and receiving the fixed rate.In the case of derivative instruments for the transfer of credit risk except options and swaptions, the buyer shall be the counterparty buying the protection. The seller is the counterparty selling the protection.In case of derivative contracts related to commodities, the buyer shall be the counterparty that receives the commodity specified in the report and the seller the counterparty delivering this commodity.In case of forward rate agreements, the buyer shall be the counterparty paying the fixed rate and the seller the counterparty receiving the fixed rate.For an increase in notional, the seller shall be the same as the disposer in the original transaction.For a decrease in notional the seller shall be the same as the acquirer of the financial instrument in the original transaction."]
 	ContractForEvent then
-	extract Contract -> tradableProduct then
 	(
 		FixedFloatBuyerSeller,
 		FixedFixedBuyerSeller,
@@ -499,35 +472,54 @@ reporting rule FixedFloatBuyerSeller
 			structured_provision "The Seller of a [Single-Currency] Fixed-Float or Fixed-Inflation Swap is by definition the Receiver of the  Fixed Rate"
 			provision ""]
 	filter when rule IsFixedFloat then
-	extract multiple TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout then
-	filter when InterestRatePayout -> rateSpecification -> fixedRate exists then
-	extract InterestRatePayout -> payerReceiver then
-	PayerReceiverToBuyerSeller
+	filter when Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate exists then 
+	(
+		InterestRatePayoutPayer then PartyToBuyer,
+		InterestRatePayoutReceiver then PartyToSeller
+	)
+
+reporting rule InterestRatePayoutPayer
+	extract Contract -> tradableProduct then
+	(
+		extract multiple TradableProduct -> counterparties,
+		extract multiple TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver
+	) then
+	join key Counterparty -> counterparty foreignKey PayerReceiver -> payer then
+	extract Counterparty -> party
+
+reporting rule InterestRatePayoutReceiver
+	extract Contract -> tradableProduct then
+	(
+		extract multiple TradableProduct -> counterparties,
+		extract multiple TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver
+	) then
+	join key Counterparty -> counterparty foreignKey PayerReceiver -> receiver then
+	extract Counterparty -> party
 
 reporting rule FixedFixedBuyerSeller
 	filter when rule IsFixedFixed then
-	extract TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout then
-	filter when InterestRatePayout -> payoutQuantity exists then //this is my interpretation of "Filter Fixed Rate amount exists"
-	extract InterestRatePayout -> payerReceiver then
-	PayerReceiverToBuyerSeller
-
-reporting rule PayerReceiverToBuyerSeller
+	filter when Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity exists then //this is my interpretation of "Filter Fixed Rate amount exists"
 	(
-		extract PayerReceiver -> payerPartyReference then
+		InterestRatePayoutPayer then PartyToBuyer,
+		InterestRatePayoutReceiver then PartyToSeller
+	)
+
+reporting rule PartyToBuyer
+	(
 		filter when Party -> partyId -> scheme = "iso17442" then
 		extract Party -> partyId as "Buyer identification code"
 		,
-		extract PayerReceiver -> payerPartyReference then
 		filter when Party -> partyId -> scheme = "iso17442" then
 		lookup ExecutingEntity ExecutingEntity then
 		extract ExecutingEntity -> addressOfBranch -> country
 		as "Country of the branch for the buyer"
-		,
-		extract PayerReceiver -> receiverPartyReference then
+	)
+
+reporting rule PartyToSeller
+	(
 		filter when Party -> partyId -> scheme = "iso17442" then
 		extract Party -> partyId as "Seller identification code"
 		,
-		extract PayerReceiver -> receiverPartyReference then
 		filter when Party -> partyId -> scheme = "iso17442" then
 		lookup ExecutingEntity ExecutingEntity then
 		extract ExecutingEntity -> addressOfBranch -> country
@@ -535,32 +527,32 @@ reporting rule PayerReceiverToBuyerSeller
 	)
 
 reporting rule IsFixedFloat
-	extract TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
-	and TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
-
+	extract Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
+	and Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
 
 reporting rule IsFixedFixed
-	extract TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 2
+	extract Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 2
 
 reporting rule SingleCurrencyBasisSwap
-		[regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "7"
-			rationale_author "DRR"
-			rationale "In case of basis swaps (float-to-float interest rate swaps), the buyer shall be the counterparty that pays the spread."
-			structured_provision "The Buyer of a [Single-Currency] Basis Swap is by definition the Payer of the  Spread"
-			provision ""]
-		[regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "16"
-			rationale_author "DRR"
-			rationale "In case of basis swaps (float-to-float interest rate swaps), the seller the counterparty that receives the spread."
-			structured_provision "The Seller of a [Single-Currency] Basis Swap is by definition the Receiver of the  Spread"
-			provision ""]
-
+        [regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "7"
+            rationale_author "DRR"
+            rationale "In case of basis swaps (float-to-float interest rate swaps), the buyer shall be the counterparty that pays the spread."
+            structured_provision "The Buyer of a [Single-Currency] Basis Swap is by definition the Payer of the  Spread"
+            provision ""]
+        [regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "16"
+            rationale_author "DRR"
+            rationale "In case of basis swaps (float-to-float interest rate swaps), the seller the counterparty that receives the spread."
+            structured_provision "The Seller of a [Single-Currency] Basis Swap is by definition the Receiver of the  Spread"
+            provision ""]
 	filter when rule IsIRSwapBasis then
-	filter when TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> assetIdentifier -> rateOption = TradableProduct -> priceNotation -> assetIdentifier -> rateOption then
-	extract TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver then
-		PayerReceiverToBuyerSeller
+	filter when Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> assetIdentifier -> rateOption = Contract -> tradableProduct -> priceNotation -> assetIdentifier -> rateOption then
+	(
+		InterestRatePayoutPayer then PartyToBuyer,
+		InterestRatePayoutReceiver then PartyToSeller
+	)
 
 reporting rule IsIRSwapBasis
-	extract TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 2
+	extract Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 2
 
 reporting rule CrossCurrencySwapBuyerSeller
 		[regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "7"
@@ -573,52 +565,48 @@ reporting rule CrossCurrencySwapBuyerSeller
 			rationale "The cross-currency nature takes precedence over any permutation of interest types"
 			structured_provision "The Seller of a Cross-Currency Swap is by definition the Payer of the ISO 4217 currency which is first when sorted ascending irrespective of the interest type or spread"
 			provision "The seller shall be the counterparty delivering this currency which is first when sorted alphabetically by ISO 4217 standard."]
-
 	filter when rule IsXCCYSwap then
-	extract TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout then
-	minBy InterestRatePayout -> payoutQuantity -> assetIdentifier -> currency then
-	extract InterestRatePayout -> payerReceiver then
-		PayerReceiverToBuyerSeller
+	minBy Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity -> assetIdentifier -> currency then
+	(
+		InterestRatePayoutPayer then PartyToBuyer,
+		InterestRatePayoutReceiver then PartyToSeller
+	)
 
 reporting rule IsXCCYSwap
-	extract multiple TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges exists
+	extract multiple Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges exists
 
 reporting rule CreditDefaultSwapBuyerSeller
 	filter when rule IsCreditDefaultSwap then
-	extract TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller
-	then BuyerSellerToBuyerAndSeller
+	(
+		CreditDefaultPayoutBuyer then PartyToBuyer,
+		CreditDefaultPayoutSeller then PartyToSeller
+	)
 
 reporting rule IsCreditDefaultSwap
-	extract TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout exists
+	extract Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout exists
 
-reporting rule BuyerSellerToBuyerAndSeller
+reporting rule CreditDefaultPayoutBuyer
+	extract Contract -> tradableProduct then
 	(
-		extract BuyerSeller -> buyerPartyReference then
-		filter when Party -> partyId -> scheme = "iso17442" then
-		extract Party -> partyId as "Buyer identification code"
-		,
-		extract BuyerSeller -> buyerPartyReference then
-		filter when Party -> partyId -> scheme = "iso17442" then
-		lookup ExecutingEntity ExecutingEntity then
-		extract ExecutingEntity -> addressOfBranch -> country
-		as "Country of the branch for the buyer"
-		,
-		extract BuyerSeller -> sellerPartyReference then
-		filter when Party -> partyId -> scheme = "iso17442" then
-		extract Party -> partyId as "Seller identification code"
-		,
-		extract BuyerSeller -> sellerPartyReference then
-		filter when Party -> partyId -> scheme = "iso17442" then
-		lookup ExecutingEntity ExecutingEntity then
-		extract ExecutingEntity -> addressOfBranch -> country
-		as "Country of the branch for the seller"
-	)
+		extract multiple TradableProduct -> counterparties,
+		extract multiple TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller
+	) then
+	join key Counterparty -> counterparty foreignKey BuyerSeller -> buyer then
+	extract Counterparty -> party
+
+reporting rule CreditDefaultPayoutSeller
+	extract Contract -> tradableProduct then
+	(
+		extract multiple TradableProduct -> counterparties,
+		extract multiple TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller
+	) then
+	join key Counterparty -> counterparty foreignKey BuyerSeller -> seller then
+	extract Counterparty -> party
 
 reporting rule Price
 		[regulatoryReference ESMA MiFIR RTS_22 annex "1" table "2" field "33"
- 	   	provision "For credit default swaps (CDS) it shall be the coupon in basis points. The information reported in this field shall be consistent with the values provided in fields 30 and 46."]
+ 	   		provision "For credit default swaps (CDS) it shall be the coupon in basis points. The information reported in this field shall be consistent with the values provided in fields 30 and 46."]
 	ContractForEvent then
-	extract Contract -> tradableProduct then
 	(
 		FixedFixedPrice,
 		FixedFloatPrice,
@@ -633,7 +621,7 @@ reporting rule FixedFloatPrice
 	 	   	structured_provision "The regulatoryPrice of a Fixed-Float or Fixed-Inflation Swap is by definition the highest Fixed Rate"
 	 	   	provision "Questions and Answers On MiFIR data reporting. Section 14 Financial instruments’ volatile attributes [Last update: 05/10/2017]. Question 1; Answer 1 (a) Where a swap rate or forward rate financial contract is quoted as the fixed rate and it is considered to be an attribute of the transaction rather than an attribute of the financial instrument, the respective reports should be completed as follows: Transaction report - the price (field 33) of the transaction should be populated with the fixed rate value. Question 2; Example 1: CFI code SRC*S* fixed-floating with single currency"]
 	filter when rule IsFixedFloat then
-	extract TradableProduct -> priceNotation -> price -> fixedInterestRate then
+	extract Contract -> tradableProduct -> priceNotation -> price -> fixedInterestRate then
 	maxBy FixedInterestRate -> rate then
 	extract FixedInterestRate -> rate as "Price"
 
@@ -642,14 +630,14 @@ reporting rule BasisSwapPrice
 			rationale_author "DRR"
 			rationale "We also need to cater for the edge case of spreads on both legs. Assume –ve spreads uncommon enough not to need to debate highest positive spread vs highest absolute spread at this point."
 	 	   	structured_provision "The regulatoryPrice of a Basis or Float-Inflation Swap is by definition the highest Spread"
-	 	   	provision "09April 2019|ESMA70-1861941480-56. Questions and Answers On MiFIR data reporting. Section 16 Interest Rate Swaps reporting [Last update: 26/09/2018]. Question 2 Answer 2 CFI SRA*S*, Tenor basis swap (float-to-float single currency). 10 Years EUR EURIBOR 3 months + 2 basis points VS EURIBOR 6 MONTHS. 33 Price 2: If the spread was negative i.e. Firm X was paying 3 month EUR EURIBOR - 2 basis points then Firm X should still be reported as the buyer but the price would be reported as ‘-2’ in the reports of X and Y."]
+	 	   	provision "09April 2019|ESMA70-1861941480-56. Questions and Answers On MiFIR data reporting. Section 16 Interest Rate Swaps reporting [Last update: 26/09/2018]. Question 2 Answer 2 CFI SRA*S*, Tenor basis swap (float-to-float single currency). 10 Years EUR EURIBOR 3 months + 2 basis points VS EURIBOR 6 MONTHS. 33 Price 2: If the spread was negative i.e. Firm X was paying 3 month EUR EURIBOR - 2 basis points then Firm X should still be reported as the buyer but the price would be reported as '-2’ in the reports of X and Y."]
 	filter when rule IsIRSwapBasis then
-	extract TradableProduct -> priceNotation -> price -> floatingInterestRate then
+	extract Contract -> tradableProduct -> priceNotation -> price -> floatingInterestRate then
 	extract FloatingInterestRate -> initialRate as "Price"
 
 reporting rule FixedFixedPrice
 	filter when rule IsFixedFixed then
-	extract TradableProduct -> priceNotation -> price -> fixedInterestRate then
+	extract Contract -> tradableProduct -> priceNotation -> price -> fixedInterestRate then
 	maxBy FixedInterestRate -> rate then
 	extract FixedInterestRate -> rate as "Price"
 
@@ -659,9 +647,8 @@ reporting rule CDSPrice
 			rationale "Coupon refers to the Fixed Rate. However market practice is to have either/both a Fixed Rate and/or a spread on the Floating Rate."
 	 	   	structured_provision "Of a Credit Default Swap is by definition the Fixed Rate unless the Fixed Rate is Zero and there is a Spread then the regulatoryPrice is by definition the Spread"
 	 	   	provision "For credit default swaps (CDS) it shall be the coupon in basis points. "]
-
 	filter when rule IsCreditDefaultSwap then
-	extract TradableProduct -> priceNotation -> price then
+	extract Contract -> tradableProduct -> priceNotation -> price then
 	if (
 		filter when Price -> fixedInterestRate -> rate <> 0
 			=> extract Price -> fixedInterestRate -> rate as "Price",
@@ -670,12 +657,12 @@ reporting rule CDSPrice
 		=> return 0 as "Price"
 	)
 
-	type ExecutingEntity:
-		isInvestmentFirm boolean (1..1)
-		addressOfBranch Address (1..1)
-		addressOfIncorporation Address (1..1)
+type ExecutingEntity:
+	isInvestmentFirm boolean (1..1)
+	addressOfBranch Address (1..1)
+	addressOfIncorporation Address (1..1)
 
-	eligibility rule IsAddressInEEA
+eligibility rule IsAddressInEEA
 extract
 	Address -> country = "FI" or
 	Address -> country = "AT" or
@@ -755,4 +742,3 @@ extract
 	Address -> country = "SE" or
 	Address -> country = "SI" or
 	Address -> country = "SK"
-

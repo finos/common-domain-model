@@ -44,21 +44,18 @@ func NewEquitySwapProduct: <"Function specification to create an Equity Swap acc
 	post-condition: <"Non-contractual product types must be absent.">
 		product -> contractualProduct only exists
 
-
 func NewSingleNameEquityPayout: <"Function specification to create the equity payout part of an Equity Swap according to the 2018 ISDA CDM Equity Confirmation template.">
 	inputs:
-		//underlier Equity (1..1)
 		security Security (1..1)
 		masterConfirmation EquitySwapMasterConfirmation2018 (0..1)
 
-	
 	output:
 		equityPayout EquityPayout (1..1)
 
 	condition: <"Security must be equity (single name).">
 		security -> securityType = SecurityTypeEnum->Equity //= underlier
 
-	assign-output equityPayout -> returnType: <"Equity payout must inherit terms from the Master Confirmation Agreement."> 
+	assign-output equityPayout -> returnType: <"Equity payout must inherit terms from the Master Confirmation Agreement.">
 		masterConfirmation -> typeOfSwapElection
 
 	assign-output equityPayout -> calculationPeriodDates: <"Equity payout must inherit terms from the Master Confirmation Agreement."> 
@@ -70,7 +67,6 @@ func NewSingleNameEquityPayout: <"Function specification to create the equity pa
 	assign-output equityPayout -> settlementTerms: <"Equity payout must inherit terms from the Master Confirmation Agreement."> 
 		masterConfirmation -> settlementTerms
 
-	
 
 func NewFloatingPayout: <"Function specification to create the interest rate (floating) payout part of an Equity Swap according to the 2018 ISDA CDM Equity Confirmation template.">
 	inputs: masterConfirmation EquitySwapMasterConfirmation2018 (0..1)
@@ -257,7 +253,7 @@ func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirma
 
 	alias assetIdentifier:
 		equityPayout -> payoutQuantity -> assetIdentifier
-	
+
 	alias numberOfSecurities:
 		ExtractQuantityByAsset( contractState -> contract -> tradableProduct -> quantityNotation, assetIdentifier ) -> quantity -> amount
 
@@ -312,7 +308,7 @@ func StockSplit: <"Function specification to create the fully-formed business ev
 		businessEvent BusinessEvent (1..1)
 
 	alias preSplitNumberOfShares:
-		NoOfUnits( instruction -> trade -> contract -> tradableProduct -> quantityNotation )
+		NoOfUnits(instruction -> trade -> contract -> tradableProduct -> quantityNotation)
 
 	alias postSplitNumberOfShares: <"The adjustment ratio is be multiplied by existing shares in an equity derivative contract or other positions to determine the post-split number of shares.">
 		preSplitNumberOfShares * instruction -> adjustmentRatio
@@ -327,10 +323,10 @@ func StockSplit: <"Function specification to create the fully-formed business ev
 		instruction -> trade -> contract exists
 
 	assign-output businessEvent -> primitives -> quantityChange: <"Build QuantityChangePrimitive and add to WorkflowStep.">
-		Create_QuantityChangePrimitive( instruction -> trade, empty, postSplitNumberOfShares )
+		Create_QuantityChangePrimitive(instruction -> trade, empty, postSplitNumberOfShares)
 
 	assign-output businessEvent -> primitives -> termsChange: <"Build TermsChangePrimitive (for price) and add to WorkflowStep.">
-		Create_PriceChangePrimitive( instruction -> trade, postSplitPrice )
+		Create_PriceChangePrimitive(instruction -> trade, postSplitPrice)
 
 
 // MdM comments: this is the Dividend Cash Settlement Amount as defined in the SES1 legal document.  The cash dividend will be paid on the relevant DividendDateReferenceEnum. I did not include a function to monitor when the dividends are declared (i.e a dividend observation).

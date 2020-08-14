@@ -6,247 +6,154 @@ import cdm.base.staticdata.identifier.*
 import cdm.synonyms.config.*
 
 type Counterparty: <"This class specifies which CounterpartyEnum is associated to the Party.">
+
 	counterparty CounterpartyEnum (1..1)
 	party Party (1..1)
 		[metadata reference]
 
 type BuyerSeller: <"This class corresponds to the FpML BuyerSeller.model construct.">
+
 	buyer CounterpartyEnum (0..1) <"Buyer party that can be resolved as one of the two counterparties to the transaction, populated when within the Product. The party that buys this instrument, i.e. pays for this instrument and receives the rights defined by it. ISDA 2002 Equity Definitions section 1.18: `Buyer` means the party specified as such in the related Confirmation. | ISDA 2006 Definitions article 12.1 (b)(i) relating to a Swaption: 'Buyer' means the party that will, on each Premium Payment Date, pay to Seller the Premium | ISDA 2006 Definitions article 12.1 (b)(ii) relating to Swap Transactions with applicable Early Termination: the party specified as such in the related Confirmation, or the Exercising Party if neither party is specified | ISDA 2006 Definitions article 12.1 (b)(iii) relating to any other Option Transaction: the party specified as such in the related Confirmation. | ISDA 2014 Credit Definition article 1.4: `Buyer` means the Fixed Rate Payer.">
-		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value "buyerPartyReference" mapper "CounterpartyEnum"]
-		[synonym CME_SubmissionIRS_1_0 value "buyerPartyReference" mapper "CmeCounterpartyEnum"]
 	buyerPartyReference Party (0..1) <"Buyer party reference populated when used outside of the Product. A reference to the party that buys this instrument, i.e. pays for this instrument and receives the rights defined by it. ISDA 2002 Equity Definitions section 1.18: `Buyer` means the party specified as such in the related Confirmation. | ISDA 2006 Definitions article 12.1 (b)(i) relating to a Swaption: 'Buyer' means the party that will, on each Premium Payment Date, pay to Seller the Premium | ISDA 2006 Definitions article 12.1 (b)(ii) relating to Swap Transactions with applicable Early Termination: the party specified as such in the related Confirmation, or the Exercising Party if neither party is specified | ISDA 2006 Definitions article 12.1 (b)(iii) relating to any other Option Transaction: the party specified as such in the related Confirmation. | ISDA 2014 Credit Definition article 1.4: `Buyer` means the Fixed Rate Payer.">
-        [metadata reference]
-        [synonym FpML_5_10, CME_ClearedConfirm_1_17 value "buyerPartyReference" meta "href"]
-    	[synonym CME_SubmissionIRS_1_0 value "buyerPartyReference" mapper "TradeSideToParty"]
+		[metadata reference]
 	buyerAccountReference Account (0..1) <"A reference to the account that buys this instrument.">
 		[metadata reference]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "buyerAccountReference" meta "href"]
 	seller CounterpartyEnum (0..1) <"Seller party that can be resolved as one of the two counterparties to the transaction, populated when within the Product. The party that sells ('writes') this instrument, i.e. that grants the rights defined by this instrument and in return receives a payment for it. ISDA 2002 Equity Definitions section 1.19: `Seller` means the party specified as such in the related Confirmation. | ISDA 2006 Definitions article 12.1 (a)(i) relating to a Swaption: 'Seller' means the party the party specified as such or as writer in the related Confirmation | ISDA 2006 Definitions article 12.1 (a)(ii) relating to Swap Transactions with applicable Early Termination: the party specified as such or as writer in the related Confirmation or, if neither party is specified as such, the Non-exercising Party | ISDA 2006 Definitions article 12.1 (a)(iii) relating to any other Option Transaction: the party specified as such in the related Confirmation. | ISDA 2014 Credit Definition article 1.4: `Seller` means the Floating Rate Payer.">
-		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value "sellerPartyReference" mapper "CounterpartyEnum"]
-		[synonym CME_SubmissionIRS_1_0 value "sellerPartyReference" mapper "CmeCounterpartyEnum"]
 	sellerPartyReference Party (0..1) <"Seller party reference populated when used outside of the Product. A reference to the party that sells ('writes') this instrument, i.e. that grants the rights defined by this instrument and in return receives a payment for it. ISDA 2002 Equity Definitions section 1.19: `Seller` means the party specified as such in the related Confirmation. | ISDA 2006 Definitions article 12.1 (a)(i) relating to a Swaption: 'Seller' means the party the party specified as such or as writer in the related Confirmation | ISDA 2006 Definitions article 12.1 (a)(ii) relating to Swap Transactions with applicable Early Termination: the party specified as such or as writer in the related Confirmation or, if neither party is specified as such, the Non-exercising Party | ISDA 2006 Definitions article 12.1 (a)(iii) relating to any other Option Transaction: the party specified as such in the related Confirmation. | ISDA 2014 Credit Definition article 1.4: `Seller` means the Floating Rate Payer.">
-        [metadata reference]
-        [synonym FpML_5_10, CME_ClearedConfirm_1_17 value "sellerPartyReference" meta "href"]
-    	[synonym CME_SubmissionIRS_1_0 value "sellerPartyReference" mapper "TradeSideToParty"]
+		[metadata reference]
 	sellerAccountReference Account (0..1) <"A reference to the account that sells this instrument.">
 		[metadata reference]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "sellerAccountReference" meta "href"]
-		
+
 	condition BuyerOrBuyerPartyReference: <"Buyer should be populated when BuyerSeller is used inside the Product, e.g. Contract->tradableProduct->product->contractualProduct->economicTerms->payout->creditDefaultPayout->generalTerms->buyerSeller.  BuyerPartyReference should be populated when BuyerSeller is used outside the Product.">
 		required choice buyer, buyerPartyReference
-	
+
 	condition SellerOrSellerPartyReference: <"Seller should be populated when BuyerSeller is used inside the Product, e.g. Contract->tradableProduct->product->contractualProduct->economicTerms->payout->creditDefaultPayout->generalTerms->buyerSeller.  SellerPartyReference should be populated when BuyerSeller is used outside the Product.">
 		required choice seller, sellerPartyReference
-	
+
 	condition BuyerAndSellerExists:
 		if buyer exists then seller exists and if seller exists then buyer exists
 
 type PayerReceiver: <"A class to represent the FpML PayerReceiver.model.">
 	payer CounterpartyEnum (0..1) <"Payer party that can be resolved as one of the two counterparties to the transaction, populated when within the Product. The party responsible for making the payments defined by this structure.">
-		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value "payerPartyReference" mapper "CounterpartyEnum"]
-		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value "buyerPartyReference" maps 2 mapper "CounterpartyEnum"]
-		[synonym CME_SubmissionIRS_1_0 value "payerPartyReference" mapper "CmeCounterpartyEnum"]
-		[synonym CME_SubmissionIRS_1_0 value "buyerPartyReference" maps 2 mapper "CmeCounterpartyEnum"]
 	payerPartyReference Party (0..1) <"Payer party reference populated when used outside of the Product. A reference to the party responsible for making the payments defined by this structure.">
-        [metadata reference]
-        [synonym FpML_5_10, CME_ClearedConfirm_1_17 value "payerPartyReference" meta "href"]
-        [synonym FpML_5_10, CME_ClearedConfirm_1_17 value "buyerPartyReference" maps 2 meta "href"]
-        [synonym CME_SubmissionIRS_1_0 value "payerPartyReference" mapper "TradeSideToParty"]
-        [synonym CME_SubmissionIRS_1_0 value "buyerPartyReference" maps 2 mapper "TradeSideToParty"]
-    payerAccountReference Account (0..1) <"A reference to the account responsible for making the payments defined by this structure.">
 		[metadata reference]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "payerAccountReference" meta "href"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "buyerAccountReference" maps 2 meta "href"]
+	payerAccountReference Account (0..1) <"A reference to the account responsible for making the payments defined by this structure.">
+		[metadata reference]
 	receiver CounterpartyEnum (0..1) <"Receiver party that can be resolved as one of the two counterparties to the transaction, populated when within the Product.  The party that receives the payments corresponding to this structure.">
-		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value "receiverPartyReference" mapper "CounterpartyEnum"]
-		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value "sellerPartyReference" maps 2 mapper "CounterpartyEnum"]
-		[synonym CME_SubmissionIRS_1_0 value "receiverPartyReference" mapper "CmeCounterpartyEnum"]
-		[synonym CME_SubmissionIRS_1_0 value "sellerPartyReference" maps 2 mapper "CmeCounterpartyEnum"]
 	receiverPartyReference Party (0..1) <"Receiver party reference populated when used outside of the Product. A reference to the party that receives the payments corresponding to this structure.">
-        [metadata reference]
-        [synonym FpML_5_10, CME_ClearedConfirm_1_17 value "receiverPartyReference" meta "href"]
-        [synonym FpML_5_10, CME_ClearedConfirm_1_17 value "sellerPartyReference" maps 2 meta "href"]
-        [synonym CME_SubmissionIRS_1_0 value "receiverPartyReference" mapper "TradeSideToParty"]
-        [synonym CME_SubmissionIRS_1_0 value "sellerPartyReference" maps 2 mapper "TradeSideToParty"]
-    receiverAccountReference Account (0..1) <"A reference to the account that receives the payments corresponding to this structure.">
 		[metadata reference]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "receiverAccountReference" meta "href"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "sellerAccountReference" maps 2 meta "href"]
+	receiverAccountReference Account (0..1) <"A reference to the account that receives the payments corresponding to this structure.">
+		[metadata reference]
 
 	condition PayerOrPayerPartyReference: <"Payer should be populated when PayerReceiver is used inside the Product, e.g. Contract->tradableProduct->product->contractualProduct->economicTerms->payout->interestRatePayout->payerReceiver. PayerPartyReference should be populated when PayerReceiver is used outside the Product, e.g. Contract->collateral->independentAmount->payerReceiver.">
 		required choice payer, payerPartyReference
-	
+
 	condition ReceiverOrReceiverPartyReference: <"Receiver should be populated when PayerReceiver is used inside the Product, e.g. Contract->tradableProduct->product->contractualProduct->economicTerms->payout->interestRatePayout->payerReceiver. ReceiverPartyReference should be populated when PayerReceiver is used outside the Product, e.g. Contract->collateral->independentAmount->payerReceiver.">
 		required choice receiver, receiverPartyReference
-		
+
 	condition PayerAndReceiverExists:
 		if payer exists then receiver exists and if receiver exists then payer exists
 
 type ReferenceBank: <"A class to describe an institution (party) identified by means of a coding scheme and an optional name.">
-	[synonym FpML_5_10 value "ReferenceBank"]
 
 	referenceBankId string (1..1) <"An institution (party) identifier, e.g. a bank identifier code (BIC). FpML specifies a referenceBankIdScheme.">
 		[metadata scheme]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "referenceBankId" meta "referenceBankIdScheme"]
 	referenceBankName string (0..1) <"The name of the institution (party). A free format string. FpML does not define usage rules for the element.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "referenceBankName"]
 
 type RelatedParty:
-	[synonym FpML_5_10 value "RelatedParty"]
 
 	partyReference Party (1..1) <"Reference to a party.">
 		[metadata reference]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "partyReference" meta "href"]
 	accountReference Account (0..1) <"Reference to an account.">
 		[metadata reference]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "accountReference" meta "href"]
 	role PartyRoleEnum (1..1) <"The category of the relationship. The related party performs the role specified in this field for the base party. For example, if the role is ,Guarantor,, the related party acts as a guarantor for the base party.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "role"]
 
 type Account: <"A class to specify an account as an account number alongside, optionally. an account name, an account type, an account beneficiary and a servicing party.">
 	[metadata key]
-	[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "Account" meta "id"]
 
 	accountNumber string (1..1) <"The account number.">
 		[metadata scheme]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "accountId" meta "accountIdScheme"]
 		[synonym ISDA_Create_1_0 value "pledged_account_number"]
 	accountName string (0..1) <"The name by which the account is known.">
 		[metadata scheme]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "accountName" meta "accountNameScheme"]
 		[synonym ISDA_Create_1_0 value "name"]
 	accountType AccountTypeEnum (0..1) <"The type of account, e.g. client, house.">
 		[metadata scheme]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "accountType" meta "accountTypeScheme"]
 	accountBeneficiary Party (0..1) <"A reference to the party beneficiary of the account.">
 		[metadata reference]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "accountBeneficiary" meta "href"]
 	servicingParty Party (0..1)  <"The reference to the legal entity that services the account, i.e. in the books of which the account is held.">
 		[metadata reference]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "servicingParty" meta "href"]
-
 
 type Address: <"A class to specify a post or street address.">
-	[synonym FpML_5_10 value "Address"]
 
 	street string (1..*) <"The set of street and building number information that identifies a postal address within a city.">
-		[synonym FpML_5_10 value "streetAddress"]
 	city string (1..1) <"The city component of the postal address.">
-		[synonym FpML_5_10 value "city"]
 	state string (0..1) <"A country subdivision used in postal addresses in some countries. For example, US states, Canadian provinces, Swiss cantons, ...">
-		[synonym FpML_5_10 value "state"]
 	country string (1..1) <"The ISO 3166 standard code for the country within which the postal address is located.">
 		[metadata scheme]
-		[synonym FpML_5_10 value "country" meta "countryScheme"]
 	postalCode string (1..1) <"The code, required for computerized mail sorting systems, that is allocated to a physical address by a national postal authority.">
-		[synonym FpML_5_10 value "postalCode"]
-
 
 type BusinessUnit: <"A class to specify an organizational unit.">
 	[metadata key]
-	[synonym FpML_5_10 value "BusinessUnit" meta "id"]
 
 	name string (1..1) <"A name used to describe the organizational unit">
-		[synonym FpML_5_10 value "name"]
 	identifier Identifier (0..1) <"An identifier used to uniquely identify the organizational unit">
 	contactInformation ContactInformation (0..1) <"The contact information for such business unit, when different from the contact information associated with the party.">
-		[synonym FpML_5_10 value "contactInfo"]
-
 
 type ContactInformation: <"A class to specify contact information associated with a party: telephone, postal/street address, email and web page.">
-	[synonym FpML_5_10 value "ContactInformation"]
 
 	telephone TelephoneNumber (0..*) <"The telephone number.">
-		[synonym FpML_5_10 value "telephone"]
 	address Address (0..*) <"The street/postal address.">
-		[synonym FpML_5_10 value "address"]
 	email string (0..*) <"The email address.">
-		[synonym FpML_5_10 value "email"]
 	webPage string (0..*) <"The web page. This attribute is not specified as part of the FpML ContactInformation complex type.">
-
 
 type LegalEntity: <"A class to specify a legal entity, with a required name and an optional entity identifier (such as the LEI).">
 	[metadata key]
-	[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 meta "id" path "referenceEntity"]
 
 	entityId string (0..*) <"A legal entity identifier (e.g. RED entity code).">
 		[metadata scheme]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "entityId" meta "entityIdScheme"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "entityId" path "referenceEntity" meta "entityIdScheme"]
 	name string (1..1) <"The legal entity name.">
 		[metadata scheme]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "partyName" meta "entityNameScheme"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "entityName" meta "entityNameScheme"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "entityName" path "referenceEntity" meta "entityNameScheme"]
-		[synonym CME_SubmissionIRS_1_0 value "SID" path "Hdr"]
 		[synonym Workflow_Event value "executionVenue" path "trade"]
-		[synonym FpML_5_10 value "initialDesignation"]
-
 
 type NaturalPerson: <"A class to represent the attributes that are specific to a natural person.">
 	[metadata key]
-	[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "Person" meta "id"]
 
 	honorific string (0..1) <"An honorific title, such as Mr., Ms., Dr. etc.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "honorific"]
 	firstName string (1..1) <"The natural person's first name. It is optional in FpML.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "firstName"]
 	middleName string (0..*)
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "middleName"]
 	initial string (0..*)
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "initial"]
 	surname string (1..1) <"The natural person's surname.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "surname"]
 	suffix string (0..1) <"Name suffix, such as Jr., III, etc.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "suffix"]
 	dateOfBirth date (0..1) <"The natural person's date of birth.">
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "dateOfBirth"]
 
 	condition Choice: <"Choice rule to represent an FpML choice construct.">
 		optional choice middleName, initial
-
 
 type NaturalPersonRole: <"A class to specify the role(s) that natural person(s) may have in relation to the contract.">
 
 	personReference NaturalPerson (1..1) <"A reference to the natural person to whom the role refers to.">
 		[metadata reference]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "personReference" meta "href"]
 	role NaturalPersonRoleEnum (0..1) <"FpML specifies a person role that is distinct from the party role.">
 		[metadata scheme]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "role" meta "personRoleScheme"]
-
 
 type Party: <"A class to specify a party, without a qualification as to whether this party is a legal entity or a natural person, although the model provides the ability to associate a person (or set of persons) to a party, which use case would imply that such party would be a legal entity (even if not formally specified as such). ">
 	[metadata key]
-	[synonym FpML_5_10, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value "Party" meta "id" maps 2]
 
 	partyId string (1..*) <"The identifier associated with a party, e.g. the 20 digits LEI code.">
 		[metadata scheme]
-		[synonym FpML_5_10, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value "partyId" meta "partyIdScheme"]
-		
 	name string (0..1) <"The party name.">
 		[metadata scheme]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "partyName" meta "entityNameScheme"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "entityName" meta "entityNameScheme"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "entityName" path "referenceEntity" meta "entityNameScheme"]
-		[synonym CME_SubmissionIRS_1_0 value "SID" path "Hdr"]
 	person NaturalPerson (0..*) <"The person(s) who might be associated with the party as part of the execution, contract or legal document.">
-		[synonym FpML_5_10, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value "person"]
 	account Account (0..1) <"The account that might be associated with the party. At most one account can be specified, as it is expected that this information is used in the context of a contract or legal document where only one account per party can be associated with such object.">
-		[synonym FpML_5_10, CME_ClearedConfirm_1_17, CME_SubmissionIRS_1_0 value "account"]
 
 type PartyContactInformation: <"A class to specify contact information within a party: address and, optionally, associated business unit and person. This class also supports the ISDA CSA representation as a single string, through the address attribute.">
-	[synonym FpML_5_10 value "PartyContactInformation"]
 
 	partyReference Party (1..1) <"The reference to the party to which the contact information refers to.">
 		[metadata reference]
-		[synonym FpML_5_10 value "partyReference" meta "href"]
 	contactInformation ContactInformation (0..1) <"The postal/street address, telephone number, email address and/or web page. If the contact information is specific to the associated business unit(s), it should be associated with those.">
-		[synonym FpML_5_10 value "contactInfo"]
 	businessUnit BusinessUnit (0..*) <"Optional organization unit information used to describe the organization units (e.g. trading desks) involved in a transaction or business process, incl. the contact information (when relevant).">
-		[synonym FpML_5_10 value "businessUnit"]
 	person NaturalPerson (0..*) <"Optional information about people involved in a transaction or business process. (These are employees of the party.)">
-		[synonym FpML_5_10 value "person"]
 	address string (0..1) <"The address specified as a string to support non-normalized contact information, such as in the case of ISDA Create.">
 
 	condition Choice: <"The address attribute corresponds to a non-normalized alternative representation to the contactInformation. This reflects the current ISDA Create data representation.">
@@ -256,26 +163,12 @@ type PartyRole: <"A class to specify the role(s) that party(ies) may have in rel
 
 	partyReference Party (1..1) <"A reference to the party to which the role refers to.">
 		[metadata reference]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "determiningParty" path "trade" meta "href"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "barrierDeterminationAgent" path "trade" meta "href"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "hedgingParty" path "trade" meta "href"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "brokerPartyReference" path "trade" meta "href"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0, CME_ClearedConfirm_1_17 value "partyReference" path "trade->tradeHeader->partyTradeIdentifier->relatedParty" meta "href"]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0 value "partyReference" path "tradeHeader->partyTradeInformation->relatedParty" meta "href"]
 		[synonym ISDA_Create_1_0 value "partyA"]
 	role PartyRoleEnum (1..1) <"The party role.">
-		[synonym FpML_5_10 set to PartyRoleEnum -> DeterminingParty when path = "trade->determiningParty"]
-		[synonym FpML_5_10 set to PartyRoleEnum -> BarrierDeterminationAgent when path = "trade->barrierDeterminationAgent"]
-		[synonym FpML_5_10 set to PartyRoleEnum -> HedgingParty when path = "trade->hedgingParty"]
-		[synonym FpML_5_10 set to PartyRoleEnum -> ArrangingBroker when path = "trade->brokerPartyReference"]
-		[synonym FpML_5_10, CME_ClearedConfirm_1_17 value "role" path "tradeHeader->partyTradeInformation->relatedParty"]
 	ownershipPartyReference Party (0..1) <"A reference to the party that has ownership of this party role information. FpML specifies that For shared trade information, this attribute will reference the originator of the data (for example, an execution facility or clearing house).">
 		[metadata reference]
-		[synonym FpML_5_10, CME_SubmissionIRS_1_0 value "partyReference" path "tradeHeader->partyTradeInformation" meta "href"]
-
 
 type TelephoneNumber: <"A class to specify a telephone number as a type of phone number (e.g. work, personal, ...) alongside with the actual number.">
 
 	telephoneNumberType TelephoneTypeEnum (0..1) <"The type of telephone number, e.g. work, mobile.">
 	number string (1..1) <"The actual telephone number.">
- 
