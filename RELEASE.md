@@ -12,4 +12,6 @@ _Review Directions_
 
 In Rosetta Core (https://ui.rosetta-technology.io/), review the File or Namespace structure in the Editor Textual View.
 
-In the CDM Portal, navigate to the Downloads tile, then generate artefacts in chosen distribution format and review the source to see the new cdm.observable.* files.
+In the CDM Portal, navigate to the Downloads tile, then generate artefacts in Java, DAML, Typescript or Scala distribution format and review the source to see the new cdm.observable.* files.
+
+(*note*: changes cannot be reviewed in Go, as objects are not downloaded in a file structure)
