@@ -91,10 +91,10 @@ Using the injector created in the previous step,  generate Global Keys and Run Q
 
 .. code-block:: Java
 
-    Contract cdmInstance = buildCdmInstance();// The object that you build
-    Contract.ContractBuilder builder = cdmInstance.toBuilder();
-    keyProcessor.runProcessStep(Contract.class, builder);
-    Contract updatedCdmInstance = builder.build();
+ Contract cdmInstance = buildCdmInstance();// The object that you build
+ Contract.ContractBuilder builder = cdmInstance.toBuilder();
+ keyProcessor.runProcessStep(Contract.class, builder);
+ Contract updatedCdmInstance = builder.build();
 
 
 4 How To: Validate the CDM instance
@@ -104,11 +104,12 @@ In order to validate the CDM instance, it is necessary to create a RosettaTypeVa
 
 .. code-block:: Java
 
-    RosettaTypeValidator validator = injector.getInstance(RosettaTypeValidator.class);
-    ValidationReport validationReport = validator.runProcessStep(cdmInstance.getClass(), cdmInstance.toBuilder());
-    if (validationReport.success()) {
-      // handle failures
-        List<ValidationResult<?>> validationResults = validationReport.validationFailures();
-    }
+ RosettaTypeValidator validator = injector.getInstance(RosettaTypeValidator.class);
+ ValidationReport validationReport = validator.runProcessStep(cdmInstance.getClass(), cdmInstance.toBuilder());
+ if (validationReport.success()) {
+   // handle failures
+   List<ValidationResult<?>> validationResults = validationReport.validationFailures();
+ }
+
 
 If the validation is unsuccessful then the validation results object will contain the list of all the validation failures.
