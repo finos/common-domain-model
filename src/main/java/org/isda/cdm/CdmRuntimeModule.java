@@ -29,6 +29,7 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(CurrencyAmount.class).to(bindCurrencyAmount());
 		bind(SumPostedCreditSupportItemAmounts.class).to(bindSumPostedCreditSupportItemAmounts());
 		bind(RoundToNearest.class).to(bindRoundToNearest());
+		bind(FpmlIrd8.class).to(bindFpmlIrd8());
 	}
 
 	protected Class<? extends ListsCompare> bindListsCompare() {
@@ -83,5 +84,9 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends RoundToNearest> bindRoundToNearest() {
 		return RoundToNearestImpl.class;
+	}
+
+	protected Class<? extends FpmlIrd8> bindFpmlIrd8() {
+		return FpmlIrd8Impl.class;
 	}
 }

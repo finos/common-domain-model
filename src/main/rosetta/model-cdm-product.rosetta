@@ -255,6 +255,10 @@ type Contract: <" A class to specify a financial contract object, which can be i
 			and tradableProduct -> quantityNotation -> quantity -> amount exists
 		then tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> dayCountFraction exists
 
+	condition FpML_ird_8: <"FpML validation rule ird-8 - If the same party is specified as the payer and receiver, then different accounts must be specified.">
+        if tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout exists
+        then FpmlIrd8( tradableProduct, account ) = True
+
 type ContractualProduct: <" A class to specify the contractual products' economic terms, alongside their product identification and product taxonomy. The contractual product class is meant to be used across the pre-execution, execution and (as part of the Contract) post-execution lifecycle contexts.">
 
 	productIdentification ProductIdentification (0..1) <"The product identification value(s) that might be associated with a contractual product. The CDM provides the ability to associate several product identification methods with a product.">
@@ -514,11 +518,6 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
 		if paymentDates -> firstPaymentDate exists
 			and calculationPeriodDates -> effectiveDate exists
 		then paymentDates -> firstPaymentDate > calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
-
-	condition FpML_ird_8: <"FpML validation rule ird-8 - The @href attribute of payerPartyReference must not be equal to the @href attribute of receiverPartyReference. If they are equal, and if payerAccountReference and receiverAccountReference both exist, the @href attribute of payerAccountReference must not be equal to the @href attribute of receiverAccountReference">
-		if InterestRatePayout exists
-		then payerReceiver -> payerPartyReference <> payerReceiver -> receiverPartyReference
-			//or payerReceiver -> payerAccountReference <> payerReceiver -> receiverAccountReference
 
 	condition FpML_ird_23: <"FpML validation rule ird-23 - If the initialStub exists, the calculationPeriodDates element referenced by the @href attribute of stubCalculationPeriodAmount/calculationPeriodDatesReference contains firstRegularPeriodStartDate.">
 		if stubPeriod -> initialStub exists

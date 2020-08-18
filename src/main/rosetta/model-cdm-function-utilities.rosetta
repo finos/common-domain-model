@@ -3,6 +3,7 @@ version "${project.version}"
 
 import cdm.base.math.*
 import cdm.base.staticdata.asset.common.*
+import cdm.base.staticdata.party.*
 import cdm.base.datetime.*
 
 func PriceQuantityTriangulation:
@@ -134,6 +135,13 @@ func ExtractContractState: <"Extracts a single Contract State, given an Event. T
 	assign-output contractState:
 		if primitive -> contractFormation exists then primitive -> contractFormation -> after
 		else if primitive -> reset exists then primitive -> reset -> after
+
+func FpmlIrd8: <"FpML validation rule ird-8 - If the same party is specified as the payer and receiver, then different accounts must be specified.">
+	inputs:
+		tradableProduct TradableProduct (1..1)
+		accounts Account (0..*)
+	output:
+		success boolean (1..1) <"Validation result">
 
 // TODO: turn these functions into language level operators i.e. '+'
 func Plus:
