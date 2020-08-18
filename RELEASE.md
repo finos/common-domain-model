@@ -1,5 +1,13 @@
-# *Infrastructure: CDM Portal Change Password bug*
+# *CDM Model: Constraint for Rejected Previous WorkflowStep*
 
 _What is being released_
 
-Fixed a bug where after updating the authentication library, the users were being forced to change their passwords on first login.
+Added the constraint for excluding of the rejected previous workflowStep.
+
+_Review Directions_
+
+In the CDM Portal, open the Textual Browser and see:
+
+- func `Create_WorkflowStep`
+- func `Create_ProposedWorkflowStep`
+- func `Create_RejectedWorkflowStep`
