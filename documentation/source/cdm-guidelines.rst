@@ -14,26 +14,43 @@ Prerequisites
 
 * Java SDK 11
 
-Introduction
-------------
+1. Introduction
+---------------
 
-* The CDM Java distribution is built using `maven <https://maven.apache.org>`_ and is published using the REGnosys artifactory.
+* The CDM in Java is built using `maven <https://maven.apache.org>`_ and is published using the REGnosys artifactory.
 
-* The latest version of the `CDM Java Distribution <https://portal.cdm.rosetta-technology.io/#/downloads>`_, a `related set of examples <https://isda:isda@regnosys.jfrog.io/regnosys/libs-snapshot/com/regnosys/isda-cdm-examples>`_, and a `video tutorial <https://vimeo.com/359012532>`_ can be downloaded from the CDM Portal.
+* The CDM in Java code, a related set of examples, and a video tutorial accessing the code and loading the examples are available on the     latest version of the `ISDA CDM Portal <https://portal.cdm.rosetta-technology.io/#>`_:
 
-* The model objects are classified into namespaces (cdm.base, cdm.base.staticdata etc). These namespaces translate into Java packages with the same name, with each package containing a package-info file.
+Download page for zip files of the Java code and examples
+
+.. figure:: screenshots/cdm-portal.png
+
+* Direct links:
+    `ISDA CDM as Java Code <https://isda:isda@regnosys.jfrog.io/regnosys/libs-snapshot/com/isda/cdm-distribution>`_
+
+    `ISDA CDM as Java Examples <https://isda:isda@regnosys.jfrog.io/regnosys/libs-snapshot/com/regnosys/isda-cdm-examples>`_
+
+Tutorials
+
+.. figure:: screenshots/cdm-tutorials.png
+
+Direct link: `Tutorials <https://vimeo.com/359012532>`_
+
+* The CDM model objects are classified into namespaces (cdm.base, cdm.base.staticdata etc). These namespaces translate into Java packages with the same name, with each package containing a package-info file.
+
+.. figure:: screenshots/cdm-distribution.png
 
 * The CDM uses `builder pattern <https://en.wikipedia.org/wiki/Builder_pattern>`_ for each of the pojos. The distribution ships with the json to java object serialisers.
 
-How To: Setup Google's Guice Injector
--------------------------------------
+2 How To: Setup Google's Guice Injector
+---------------------------------------
 
-CDM uses Google's Guice as a dependency manager. The Guice Injector can be used to obtain the java instances used to validate, qualify and generate global keys.
+CDM uses `Google's Guice <https://github.com/google/guice>`_ as a dependency manager. . Injector is the core of Guice that contains the whole object graph (context).
 
 The first step is to initialise the injector. There are 2 options:
 
-Option 1: Using provided CdmRuntimeModule
-""""""""""""""""""""""""""""""""""""""""""""""
+2.1 Option 1: Using provided CdmRuntimeModule
+"""""""""""""""""""""""""""""""""""""""""""""
 
 The CDM distribution comes with a pre-built CDM module that can be used to create an injector.
 
@@ -41,8 +58,8 @@ The CDM distribution comes with a pre-built CDM module that can be used to creat
 
     Injector injector = Guice.createInjector(new CdmRuntimeModule()));
 
-Option 2: Build your own Module
-"""""""""""""""""""""""""""""""
+2.2 Option 2: Build your own Module
+"""""""""""""""""""""""""""""""""""
 
 To build a custom injector that is not based on the CDM's runtime module, first create a Guice module with at least the following 2 bindings, as follows:
 
@@ -63,8 +80,8 @@ Once this module has been built it can be used to create the custom injector.
 
     Injector injector = Guice.createInjector(new GenericModule()));
 
-How To: Generate Global Keys and Qualifications
------------------------------------------------
+3 How To: Generate Global Keys and Qualifications
+-------------------------------------------------
 
 Within the model any data object marked with `metadata key` will have a global key generated when that data object is populated. These global keys are automatically generated using hash algorithms.
 
@@ -80,8 +97,8 @@ Using the injector created in the previous step,  generate Global Keys and Run Q
     Contract updatedCdmInstance = builder.build();
 
 
-How To: Validate the CDM instance
----------------------------------
+4 How To: Validate the CDM instance
+-----------------------------------
 
 In order to validate the CDM instance, it is necessary to create a RosettaTypeValidator and post process the instance as follows:
 

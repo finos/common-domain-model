@@ -1,5 +1,11 @@
-# *Infrastructure: CDM Portal Change Password bug*
+# *CDM Documentation: Java Distribution Guidelines*
 
 _What is being released_
 
-Fixed a bug where after updating the authentication library, the users were being forced to change their passwords on first login.
+Added a new section for Java Distribution Guidelines under CDM Portal Documentation.
+
+_Review Direction_
+
+Go to CDM Portal documentation, you will see an additional section called ``CDM Java Distribution Guidelines``.
+
+
