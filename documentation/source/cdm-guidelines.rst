@@ -65,14 +65,14 @@ To build a custom injector that is not based on the CDM's runtime module, first 
 
 .. code-block:: Java
 
-  public class GenericModule extends AbstractModule {
+    public class GenericModule extends AbstractModule {
 
-    @Override
-    protected void configure() {
-      bind(ModelObjectValidator.class).to(RosettaTypeValidator.class);
-      bind(QualifyFunctionFactory.class).to(QualifyFunctionFactory.Default.class);
+      @Override
+      protected void configure() {
+        bind(ModelObjectValidator.class).to(RosettaTypeValidator.class);
+        bind(QualifyFunctionFactory.class).to(QualifyFunctionFactory.Default.class);
+      }
     }
-  }
 
 Once this module has been built it can be used to create the custom injector.
 
