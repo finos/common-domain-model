@@ -313,30 +313,43 @@ The ``productIdentification`` data structure and an instance of a CDM object (`s
 .. code-block:: Haskell
 
  type ProductIdentification:
-   productQualifier productType (0..1)
-   primaryAssetdata AssetClassEnum (0..1)
-     [metadata scheme]
-   secondaryAssetdata AssetClassEnum (0..*)
-     [metadata scheme]
-   externalProductType ExternalProductType (0..*)
-     [metadata scheme]
-   productIdentifier ProductIdentifier (0..*)
-     [metadata scheme]
+ 	productQualifier productType (0..1)
+ 	primaryAssetData AssetClassEnum (0..1)
+ 		[metadata scheme]
+ 	secondaryAssetData AssetClassEnum (0..*)
+ 		[metadata scheme]
+ 	externalProductType ExternalProductType (0..*)
+ 	productIdentifier ProductIdentifier (0..*)
 
 .. code-block:: Javascript
 
  "productIdentification" : {
-   "primaryAssetdata" : {
+   "externalProductType" : [ {
+     "externalProductTypeSource" : "FP_ML_PRODUCT_TYPE",
+     "externalproductType" : {
+       "value" : "InterestRate:IRSwap:FixedFloat",
+       "meta" : {
+         "scheme" : "http://www.fpml.org/coding-scheme/product-taxonomy"
+       }
+     }
+   } ],
+   "primaryAssetData" : {
      "value" : "INTEREST_RATE",
      "meta" : {
        "scheme" : "http://www.fpml.org/coding-scheme/asset-class-simple"
      }
    },
-   "productId" : [ {
-     "value" : "InterestRate:IRSwap:FixedFloat",
+   "productIdentifier" : [ {
+     "identifier" : {
+       "value" : "InterestRate:IRSwap:FixedFloat",
+       "meta" : {
+         "scheme" : "http://www.fpml.org/coding-scheme/product-taxonomy"
+       }
+     },
      "meta" : {
-       "scheme" : "http://www.fpml.org/coding-scheme/product-taxonomy"
-     }
+       "globalKey" : "98513226"
+     },
+     "source" : "OTHER"
    } ],
    "productQualifier" : "InterestRate_IRSwap_FixedFloat_PlainVanilla",
    "externalProductType" : [ {
@@ -1610,20 +1623,24 @@ Some of those calculations are presented below:
 .. code-block:: Haskell
 
  func EquityCashSettlementAmount:
-   inputs:
-     contractState ContractState (1..1)
-     date date (1..1)
-   output:
-     equityCashSettlementAmount Money (1..1)
+ 	inputs:
+ 		contractState ContractState (1..1)
+ 		date date (1..1)
 
-   alias equityPayout: contractState -> contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout
+ 	output:
+ 		equityCashSettlementAmount Money (1..1)
 
-   condition: equityPayout -> payoutQuantity -> assetIdentifier -> productIdentifier = equityPayout -> underlier -> underlyingProduct -> security -> equity -> productIdentifier
+ 	alias equityPayout:
+ 		contractState -> contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout
 
-   assign-output equityCashSettlementAmount -> amount:
-     Abs(contractState -> updatedContract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element -> performance)
-   assign-output equityCashSettlementAmount -> currency:
-     ResolveEquityInitialPrice( equityPayout only-element -> underlier, contractState -> contract -> tradableProduct -> priceNotation ) -> netPrice -> currency
+ 	condition:
+ 		equityPayout -> payoutQuantity -> assetIdentifier -> productIdentifier = equityPayout -> underlier -> underlyingProduct -> security -> productIdentifier
+
+ 	assign-output equityCashSettlementAmount -> amount:
+ 		Abs(contractState -> updatedContract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element -> performance)
+
+ 	assign-output equityCashSettlementAmount -> currency:
+ 		ResolveEquityInitialPrice( equityPayout only-element -> underlier, contractState -> contract -> tradableProduct -> priceNotation ) -> netPrice -> currency
 
 .. code-block:: Haskell
 
