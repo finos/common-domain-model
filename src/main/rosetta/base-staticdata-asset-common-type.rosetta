@@ -38,7 +38,7 @@ type MutualFund extends IdentifiedProduct: <"A class to specify a mutual fund as
 
 type Warrant extends IdentifiedProduct: <"A class to specify a warrant as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
 
-type ProductIdentifier: <"Comprises of an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the ProductIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+type ProductIdentifier: <"Comprises an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the ProductIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
 	identifier string (1..1) <"Provides an identifier associated with a specific product.  The identifier is unique within the public source specified in the source attribute.">
 		[metadata scheme]
@@ -46,14 +46,14 @@ type ProductIdentifier: <"Comprises of an identifier and a source. The associate
 
 //can this be deprecated?
 type IdentifiedProduct: <"An abstract class to specify a product which terms are abstracted through reference data.">
-	productIdentifier ProductIdentifier (1..1)
+	productIdentifier ProductIdentifier (1..1) 
 
 type ProductBase: <"Serves as an abstract class to specify a product using a productIdentifier.">
-	productIdentifier ProductIdentifier (1..*)
+	productIdentifier ProductIdentifier (1..*) <"Comprises an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the ProductIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 
 type Index extends ProductBase: <"Identifies an index by referencing a product identifier.">
 
-type Commodity extends ProductBase: <"Identifies an index by referencing a product identifier.">
+type Commodity extends ProductBase: <"Identifies a commodity by referencing a product identifier.">
 
 type Loan extends ProductBase: <"Identifies a loan by referencing a product identifier and through an optional set of attributes.">
 	borrower LegalEntity (0..*) <"Specifies the borrower. There can be more than one borrower. It is meant to be used in the event that there is no Bloomberg Id or the Secured List isn't applicable.">
@@ -88,18 +88,6 @@ condition EquitySubType:
 condition FundSubType:
 		if securityType <> SecurityTypeEnum -> Fund
 		then fundType is absent
-/* Removed old Security data structure as part of ProductId refactoring
-	bond Bond (0..1)
-		[synonym Workflow_Event value "bond"]
-	convertibleBond ConvertibleBond (0..1)
-		[synonym Workflow_Event value "convertibleBond"]
-	equity Equity (0..1)
-	exchangeTradedFund ExchangeTradedFund (0..1)
-	mortgageBackedSecurity MortgageBackedSecurity (0..1)
-	mutualFund MutualFund (0..1)
-	warrant Warrant (0..1)
-	condition: one-of
-*/
 
  type ExternalProductType: <"Provides a classification of the type of product that is external to the product qualifications used in the CDM. Product types mapped from external models are mapped to this data type.">
 	externalproductType string (1..1) <"Stores the product type value.">
