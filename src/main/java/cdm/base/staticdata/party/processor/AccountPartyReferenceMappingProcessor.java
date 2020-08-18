@@ -43,15 +43,13 @@ public class AccountPartyReferenceMappingProcessor extends MappingProcessor {
 							.map(String::valueOf).distinct()
 							.collect(Collectors.toList());
 					if (partyRefs.size() == 1) {
+						// Set value
 						((ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder) parent).setExternalReference(partyRefs.get(0));
 						// Update mapping report
 						partyRefMappings.stream()
 								.map(Mapping::getXmlPath)
 								.map(partyRefPath -> replacePath(partyRefPath, "PartyReference", "AccountReference"))
-								.forEach(accountRefPath -> {
-									updateMappings(accountRefPath.getParent(), getMappings(), getModelPath());
-									//updateMappings(accountRefPath, getMappings(), getModelPath());
-								});
+								.forEach(accountRefPath -> updateMappings(accountRefPath.getParent(), getMappings(), getModelPath()));
 					}
 				});
 	}
