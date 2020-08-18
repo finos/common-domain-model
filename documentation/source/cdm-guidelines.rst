@@ -91,7 +91,7 @@ Using the injector created in the previous step,  generate Global Keys and Run Q
 
 .. code-block:: Java
 
- Contract cdmInstance = buildCdmInstance();// The object that you build
+ Contract cdmInstance = buildCdmInstance();
  Contract.ContractBuilder builder = cdmInstance.toBuilder();
  keyProcessor.runProcessStep(Contract.class, builder);
  Contract updatedCdmInstance = builder.build();
@@ -107,7 +107,6 @@ In order to validate the CDM instance, it is necessary to create a RosettaTypeVa
  RosettaTypeValidator validator = injector.getInstance(RosettaTypeValidator.class);
  ValidationReport validationReport = validator.runProcessStep(cdmInstance.getClass(), cdmInstance.toBuilder());
  if (validationReport.success()) {
-   // handle failures
    List<ValidationResult<?>> validationResults = validationReport.validationFailures();
  }
 
