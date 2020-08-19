@@ -131,7 +131,8 @@ type Contract: <" A class to specify a financial contract object, which can be i
 	 * TODO - Confirm the set of Contractual Terms Supplements that qualify mortgage products
 	 */
 	condition AdditionalFixedPaymentsMortgages: <"The below set of additional fixed payment provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlier is a mortgage index.">
-		if (tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> mortgageBackedSecurity exists
+		if ( (tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> securityType = SecurityTypeEnum -> Debt
+				and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security-> debtType ->debtClass = DebtClassEnum -> AssetBacked)
 			or documentation -> documentationIdentification -> contractualTermsSupplement -> contractualTermsSupplementType = ContractualSupplementEnum -> CDSonMBS)
 			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents exists
 		then (tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> additionalFixedPayments -> interestShortfallReimbursement
@@ -140,7 +141,9 @@ type Contract: <" A class to specify a financial contract object, which can be i
 			) exists
 
 	condition FloatingAmountEventsMortgages: <"The below set of floating amount events provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlier is a mortgage index.">
-		if (tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> mortgageBackedSecurity exists
+
+		if ((tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> securityType = SecurityTypeEnum -> Debt
+				and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security-> debtType ->debtClass = DebtClassEnum -> AssetBacked)
 			or documentation -> documentationIdentification -> contractualTermsSupplement -> contractualTermsSupplementType = ContractualSupplementEnum -> CDSonMBS)
 			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents exists
 		then (tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> failureToPayPrincipal
@@ -149,7 +152,9 @@ type Contract: <" A class to specify a financial contract object, which can be i
 			) exists
 
 	condition CreditEventsMortgages: <"The below set of credit events provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlier is a mortgage index.">
-		if (tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> mortgageBackedSecurity exists
+
+		if ((tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> securityType = SecurityTypeEnum -> Debt
+				and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security-> debtType ->debtClass = DebtClassEnum -> AssetBacked)
 			or documentation -> documentationIdentification -> contractualTermsSupplement -> contractualTermsSupplementType = ContractualSupplementEnum -> CDSonMBS)
 			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents exists
 		then (tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> failureToPayPrincipal
@@ -385,10 +390,14 @@ type EquityPayout extends PayoutBase: <" The equity payout specification terms. 
 
 	condition SingleUnderlier: <"In the case of an equity payout with a single underlier, that underlier needs to be an equity product.">
 		if underlier exists
-		then (underlier -> underlyingProduct -> security -> equity
-			or underlier -> underlyingProduct -> security -> exchangeTradedFund
-			or underlier -> underlyingProduct -> security -> mutualFund
-			or underlier -> underlyingProduct -> security -> warrant) exists
+
+		then (underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Equity
+            or (underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Fund
+				and  underlier -> underlyingProduct -> security -> fundType = FundProductTypeEnum -> ExchangeTradedFund)
+			or (underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Fund
+				and  underlier -> underlyingProduct -> security -> fundType = FundProductTypeEnum -> MutualFund)
+			or underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Warrant
+            )
 
 type Execution: <"A class to specify an execution, which consists essentially in the economic terms which are agreed between the parties, alongside with the qualification of the type of execution. The associated globalKey denotes the ability to associate a hash value to the respective Execution instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
@@ -701,19 +710,16 @@ type Product: <" A class to represent a financial product. With respect to contr
 	loan Loan (0..1)
 	foreignExchange ForeignExchange (0..1)
 	security Security (0..1)
-
 	condition: one-of
 
 // TBD: positioning of future DateNotation (Effective Date, Termination Date) - only applicable to contractual products. In EconomicTerms?
-// TBD: positioning of future PartyNotation - as part of this type, or higher-up in the Execution / Contract?
-// The latter would align the concept of TradeableProduct across securities and contractual products (securities do not require any party specification to be "tradeable")
 type TradableProduct: <"Definition of a product as ready to be traded, i.e. included in an execution or contract, by associating a specific price and quantity to this product plus an (optional) mechanism for any potential future quantity adjustment.">
 
 	product Product (1..1) <"The underlying product to be included in a contract or execution.">
 	quantityNotation QuantityNotation (1..*) <"Quantity of the underlying product to be included in a contract or execution. Products, including contractual products, are defined as a unit in CDM, with quantity schedule and cross-referencing mechanisms handled as part of the underlying payout legs, so that the overall quantity can be abstracted away from the product definition. Multiple quantity notations can be specified, as in the case of cross-currency products. Each quantity notation includes a tag (e.g. asset identifier) that can referenced by the underlying payout legs to resolve that product by fetching the actual amount from the appropriate quantity notation. The synonym paths to FpML will tend to be quite deep, as we need to extact those values from where they are embedded within the product definition.">
 		[synonym Workflow_Event value "cashflow"]
 	priceNotation PriceNotation (1..*) <"Price of the underlying product to be included in a contract or execution. Contractual products are defined as price-less in the CDM, with the actual price number(s) abstracted away from the product definition. Multiple price notations can be specified and the notation specifies the tags (e.g. asset identifier) allowing price to be then appropriately positioned in the contractual product. The synonym paths to FpML will tend to be quite deep, as we are extacting those values from where they are embedded within the product definition.">
-	counterparties Counterparty (2..2)
+	counterparties Counterparty (2..2) <"The two counterparties to the transaction.  The product is agnostic to the actual parties to the transaction, with the party references abstracted away from the product definition and replaced by the counterparty enum (e.g. CounterpartyEnum values Party1 or Party2). The counterparty enum can then be positioned in the product (e.g. to specify which counterparty is the payer, receiver etc) and this counterparties attribute, which is positioned outside of the product definition, allows the counterparty enum to be associated with an actual party reference.">
 	adjustment NotionalAdjustmentEnum (0..1) <"Specifies the conditions that govern the adjustment to the quantity of a product being traded: e.g. execution, portfolio rebalancing etc. It is typically used in the context of Equity Swaps.">
 
 	condition PriceQuantityTriangulation:
@@ -748,9 +754,9 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
 			and product -> contractualProduct -> economicTerms -> payout -> cashflow -> payoutQuantity -> assetIdentifier -> currency = priceNotation -> price -> cashPrice -> cashflowAmount -> currency)
 
 	condition SecurityQuantityResolvable:
-		if product -> security -> bond -> productIdentifier exists
+		if product -> security exists
 		then quantityNotation -> assetIdentifier -> productIdentifier exists
-			and quantityNotation -> assetIdentifier -> productIdentifier contains product -> security -> bond -> productIdentifier
+			and quantityNotation -> assetIdentifier -> productIdentifier contains product -> security -> productIdentifier
 
 	condition FpML_ird_25_FixedRate: <"FpML validation rule ird-25 - If step does not exist, then rate must not be equal to 0.">
 		if priceNotation -> price -> fixedInterestRate -> rate exists and product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate -> rateSchedule -> step is absent
@@ -768,17 +774,17 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
 		if priceNotation -> price -> floatingInterestRate -> floorRate exists and product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> floorRateSchedule -> step is absent
 		then priceNotation -> price -> floatingInterestRate -> floorRate <> 0.0
 
-type ProductIdentification: <" A class to combine the CDM product qualifier with other product qualifiers, such as the FpML ones. While the CDM product qualifier is derived by the CDM from the product payout features, the other product identification elements are assigned by some external sources and correspond to values specified by other data representation protocols.">
 
-	productQualifier productType (0..1) <"The CDM product qualifier, which corresponds to the outcome of the isProduct qualification logic. This value is derived by the CDM from the product payout features.">
-	primaryAssetdata AssetClassEnum (0..1) <" A classification of the most important risk class of the trade. FpML defines a simple asset class categorisation using a coding scheme.">
+type ProductIdentification: <"Combines the CDM product qualifier with other product types and identifiers. While the CDM product qualifier is derived by the CDM from the product payout features, the other product type and identification elements are assigned by external sources and correspond to values specified by other data representation protocols.">
+
+	productQualifier productType (0..1) <"Derived from the product payout features using a CDM product qualification function that determines the product type based on the product payout features.">
+	primaryAssetData AssetClassEnum (0..1) <"Classifies the most important risk class of the trade.">
 		[metadata scheme]
-	secondaryAssetdata AssetClassEnum (0..*) <" A classification of additional risk classes of the trade, if any. FpML defines a simple asset class categorisation using a coding scheme.">
+	secondaryAssetData AssetClassEnum (0..*) <" Classifies additional risk classes of the trade, if any.">
 		[metadata scheme]
-	productType string (0..*) <"A classification of the type of product. FpML defines a simple product categorisation using a coding scheme.">
-		[metadata scheme]
-	productId string (0..*) <"A product reference identifier. The product Id is an identifier that describes the key economic characteristics of the trade type, with the exception of concepts such as size (notional, quantity, number of units) and price (fixed rate, strike, etc.) that are negotiated for each transaction. It can be used to hold identifiers such as the 'UPI' (universal product identifier) required by certain regulatory reporting rules. It can also be used to hold identifiers of benchmark products or product temnplates used by certain trading systems or facilities. FpML does not define the domain values associated with this element. Note that the domain values for this element are not strictly an enumerated list.">
-		[metadata scheme]
+	externalProductType ExternalProductType (0..*) <"Provides a classification of the type of product that is external to the product qualifications used in the CDM. Product types mapped from external models are mapped to this data type.">
+	productIdentifier ProductIdentifier (0..*) <"Comprises an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the ProductIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+
 
 type RateSpecification: <" A class to specify the fixed interest rate, floating interest rate or inflation rate.">
 

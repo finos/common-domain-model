@@ -5,6 +5,7 @@ import cdm.base.math.*
 import cdm.base.datetime.*
 import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.party.*
+
 import cdm.observable.*
 import cdm.observable.asset.*
 import cdm.observable.common.*
@@ -18,7 +19,7 @@ import cdm.observable.common.*
  */
 func NewEquitySwapProduct: <"Function specification to create an Equity Swap according to the 2018 ISDA CDM Equity Confirmation Template, based on a minimum set of inputs which can (optionally) include a Master Confirmation Agreement. The inputs represent the minimum set of inputs required to create an Equity Swap, either based on an existing Master Confirmation Agreement or as a stand-alone Equity Swap">
 	inputs:
-		underlier Equity (1..1) <"The underlying Equity asset for the swap.">
+		security Security (1..1) <"The underlying Equity asset for the swap.">
 		masterConfirmation EquitySwapMasterConfirmation2018 (0..1) <"An (optional) pointer to the Master Confirmation Agreement, if any, that holds further inputs to the Equity Swap">
 
 	output:
@@ -27,8 +28,12 @@ func NewEquitySwapProduct: <"Function specification to create an Equity Swap acc
 	alias payout:
 		product -> contractualProduct -> economicTerms -> payout
 
+	condition: <"Security must be equity (single name).">
+		security -> securityType = SecurityTypeEnum -> Equity
+
+
 	assign-output product -> contractualProduct -> economicTerms -> payout -> equityPayout:
-		NewSingleNameEquityPayout(underlier, masterConfirmation)
+		NewSingleNameEquityPayout(security, masterConfirmation)
 
 	assign-output product -> contractualProduct -> economicTerms -> payout -> interestRatePayout: <"Equity and interest rate payouts must be set-up according to their corresponding payout specifications">
 		if masterConfirmation exists then NewFloatingPayout(masterConfirmation)
@@ -45,13 +50,16 @@ func NewEquitySwapProduct: <"Function specification to create an Equity Swap acc
 
 func NewSingleNameEquityPayout: <"Function specification to create the equity payout part of an Equity Swap according to the 2018 ISDA CDM Equity Confirmation template.">
 	inputs:
-		underlier Equity (1..1)
+		security Security (1..1)
 		masterConfirmation EquitySwapMasterConfirmation2018 (0..1)
 
 	output:
 		equityPayout EquityPayout (1..1)
 
-	assign-output equityPayout -> returnType: <"Equity payout must inherit terms from the Master Confirmation Agreement."> 
+	condition: <"Security must be equity (single name).">
+		security -> securityType = SecurityTypeEnum->Equity //= underlier
+
+	assign-output equityPayout -> returnType: <"Equity payout must inherit terms from the Master Confirmation Agreement.">
 		masterConfirmation -> typeOfSwapElection
 
 	assign-output equityPayout -> calculationPeriodDates: <"Equity payout must inherit terms from the Master Confirmation Agreement."> 
@@ -63,8 +71,6 @@ func NewSingleNameEquityPayout: <"Function specification to create the equity pa
 	assign-output equityPayout -> settlementTerms: <"Equity payout must inherit terms from the Master Confirmation Agreement."> 
 		masterConfirmation -> settlementTerms
 
-	post-condition: <"Equity payout must be single name on the provided equity underlier.">
-		equityPayout -> underlier -> underlyingProduct -> security -> equity = underlier
 
 func NewFloatingPayout: <"Function specification to create the interest rate (floating) payout part of an Equity Swap according to the 2018 ISDA CDM Equity Confirmation template.">
 	inputs: masterConfirmation EquitySwapMasterConfirmation2018 (0..1)
@@ -137,7 +143,7 @@ func EquityCashSettlementAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity
 
 	// Consider moving this as a data rule on EquityPayout
 	condition:
-		equityPayout -> payoutQuantity -> assetIdentifier -> productIdentifier = equityPayout -> underlier -> underlyingProduct -> security -> equity -> productIdentifier
+		equityPayout -> payoutQuantity -> assetIdentifier -> productIdentifier = equityPayout -> underlier -> underlyingProduct -> security -> productIdentifier
 
 	assign-output equityCashSettlementAmount -> amount: <"Equity Cash Settlement Amount is defined here as Abs( Equity Performance ). Per the ISDA Definitions: Equity Performance = (Rate Of Return) × Equity Notional Amount and Equity Cash Settlement Amount = ABS(Rate Of Return) × Equity Notional Amount; so the calculation for Equity Cash Settlement Amount in the CDM is mathematically equivalent, with the added benefit that Rate of Return does not need to be recomputed, since it was already computed in the Reset Event."> 
 		Abs(contractState -> updatedContract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element -> performance)

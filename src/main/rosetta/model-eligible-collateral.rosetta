@@ -2,11 +2,13 @@ namespace org.isda.cdm
 version "${project.version}"
 
 import cdm.base.*
-import cdm.base.datetime.*
 import cdm.base.math.*
+import cdm.base.datetime.*
 import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.party.*
+
 import cdm.observable.asset.*
+
 // Note: All Eligible Collateral modelling/representation is still under development and discussion with ISDA Working groups
 type AgencyRatingCriteria: <"A class to specify multiple credit notations alongside a conditional 'any' or 'all' qualifier.">
 
@@ -20,21 +22,20 @@ type AgencyRatingCriteria: <"A class to specify multiple credit notations alongs
 		then AgencyRatingCriteria -> referenceAgency exists
 
 type AssetType: <"A class to allow specification of the asset product type.">
-
 	assetType AssetTypeEnum (1..1) <"The type of collateral asset.">
 	securityType SecurityTypeEnum (0..1) <"Filter based on the type of security.">
-	bondType BondType (0..1) <"Filter based on the type of bond.">
+	debtType DebtType (0..1) <"Filter based on the type of bond.">
 	equityType EquityTypeEnum (0..1) <"Filter based on the type of equity.">
 	fundType FundProductTypeEnum (0..1) <"Filter based on the type of fund.">
 	// otherType string (0..1) <"Description of collateral when specified as Product Type - Other">
 
 	condition SecuritySubType:
 		if assetType <> AssetTypeEnum -> Security
-		then ( securityType and bondType and equityType ) is absent 
+		then ( securityType and debtType and equityType ) is absent
 	
 	condition BondSubType:
-		if securityType <> SecurityTypeEnum -> Bond
-		then bondType is absent
+		if securityType <> SecurityTypeEnum -> Debt
+		then debtType is absent
 
 	condition EquitySubType:
 		if securityType <> SecurityTypeEnum -> Equity
