@@ -14,3 +14,9 @@ The refactoring rationalizes the use of ``ProductIdentifier`` and standardizes r
 _Review Directions_
  
 In the CDM Portal, navigate to the Textual Browser and search for the data types noted above.
+
+# *CDM Model: Model Definitions*
+
+_What is being released_
+
+Added definitions for attribute `TradableProduct.counterparties` and type `Counterparty`.
