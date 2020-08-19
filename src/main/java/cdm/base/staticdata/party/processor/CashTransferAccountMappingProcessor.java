@@ -15,7 +15,7 @@ import static cdm.base.staticdata.party.metafields.ReferenceWithMetaAccount.Refe
  *
  * Allow payerReceiver accountReference to be set until future work on accounts is complete.
  *
- * Mapper required due to conditional mapping issues for syntax [set when path = "cashTransfer->payerReceiver"].
+ * Mapper required due to conditional mapping issues for syntax: set when path = "cashTransfer payerReceiver".
  */
 @SuppressWarnings("unused")
 public class CashTransferAccountMappingProcessor extends MappingProcessor {
