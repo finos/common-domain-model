@@ -88,7 +88,6 @@ A financial product is an instrument that is used to transfer financial risk bet
  type Product:
    [metadata key]
    contractualProduct ContractualProduct (0..1)
-   commodity Commodity (0..1)
    index Index (0..1)
    loan Loan (0..1)
    foreignExchange ForeignExchange (0..1)
