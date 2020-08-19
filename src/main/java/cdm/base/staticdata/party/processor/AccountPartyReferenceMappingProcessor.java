@@ -34,14 +34,19 @@ public class AccountPartyReferenceMappingProcessor extends MappingProcessor {
 	public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
 		getNonNullMappedValue(filterMappings(getMappings(), synonymPath))
 				.ifPresent(accountId -> {
+					// Find mappings based on the accountId and account reference path, then find the associated party references by replacing account/party in the path.
 					List<Mapping> partyRefMappings = getMappings().stream()
+							// Find mappings with accountId
 							.filter(m -> accountId.equals(m.getXmlValue()))
+							// Filter to paths ending in *AccountReference.href
 							.filter(this::filterAccountReferencePaths)
+							// Replace AccountReference for PartyReference, and get those party reference mappings
 							.map(accPathMappings -> filterMappings(getMappings(),
 									replacePath(accPathMappings.getXmlPath(), "AccountReference","PartyReference")))
 							.flatMap(Collection::stream)
 							.filter(this::filterNonNullXmlValues)
 							.collect(Collectors.toList());
+					// Extract the party references from the mappings
 					List<String> partyRefs = partyRefMappings.stream()
 							.map(Mapping::getXmlValue)
 							.map(String::valueOf).distinct()
@@ -49,7 +54,7 @@ public class AccountPartyReferenceMappingProcessor extends MappingProcessor {
 					if (partyRefs.size() == 1) {
 						// Set value
 						((ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder) parent).setExternalReference(partyRefs.get(0));
-						// Update mapping report
+						// Update mapping report using the AccountReference mappings
 						partyRefMappings.stream()
 								.map(Mapping::getXmlPath)
 								.map(partyRefPath -> replacePath(partyRefPath, "PartyReference", "AccountReference"))
