@@ -1,20 +1,21 @@
 package org.isda.cdm.processor;
 
-import com.regnosys.rosetta.common.translation.MappingContext;
-import com.regnosys.rosetta.common.translation.MappingProcessor;
-import com.regnosys.rosetta.common.translation.Path;
-import com.rosetta.model.lib.RosettaModelObjectBuilder;
-import com.rosetta.model.lib.path.RosettaPath;
-import org.isda.cdm.AccessConditions;
-import org.isda.cdm.AdditionalTerminationEvent;
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.updateMappings;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.PARTIES;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.updateMappings;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.PARTIES;
+import org.isda.cdm.AccessConditions;
+import org.isda.cdm.AdditionalTerminationEvent;
+
+import com.regnosys.rosetta.common.translation.MappingContext;
+import com.regnosys.rosetta.common.translation.MappingProcessor;
+import com.regnosys.rosetta.common.translation.Path;
+import com.rosetta.model.lib.RosettaModelObjectBuilder;
+import com.rosetta.model.lib.path.RosettaPath;
 
 /**
  * ISDA Create mapping processor.

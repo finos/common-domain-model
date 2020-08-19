@@ -1,16 +1,19 @@
 package org.isda.cdm.functions;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.isda.cdm.ContractualProduct;
+import org.isda.cdm.ResolvablePayoutQuantity;
+import org.isda.cdm.metafields.ReferenceWithMetaResolvablePayoutQuantity;
+
 import com.regnosys.rosetta.common.hashing.ReferenceResolverProcessStep;
 
 import cdm.base.math.NonNegativeQuantity;
 import cdm.base.math.NonNegativeQuantity.NonNegativeQuantityBuilder;
-
-import org.isda.cdm.*;
-import org.isda.cdm.metafields.ReferenceWithMetaResolvablePayoutQuantity;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import cdm.observable.asset.AssetIdentifier;
+import cdm.observable.asset.QuantityNotation;
 
 public class ResolvePayoutQuantityImpl extends ResolvePayoutQuantity {
 

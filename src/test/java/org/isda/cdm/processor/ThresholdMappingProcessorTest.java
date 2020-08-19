@@ -1,20 +1,24 @@
 package org.isda.cdm.processor;
 
-import com.regnosys.rosetta.common.translation.Mapping;
-import com.regnosys.rosetta.common.translation.MappingContext;
-import com.regnosys.rosetta.common.translation.Path;
-import com.rosetta.model.lib.path.RosettaPath;
-import org.isda.cdm.ElectiveAmountElection;
-import org.isda.cdm.Money;
-import org.isda.cdm.Threshold;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.isda.cdm.Threshold.ThresholdBuilder;
-import static org.junit.jupiter.api.Assertions.*;
+import org.isda.cdm.ElectiveAmountElection;
+import org.isda.cdm.Threshold;
+import org.isda.cdm.Threshold.ThresholdBuilder;
+import org.junit.jupiter.api.Test;
+
+import com.regnosys.rosetta.common.translation.Mapping;
+import com.regnosys.rosetta.common.translation.MappingContext;
+import com.regnosys.rosetta.common.translation.Path;
+import com.rosetta.model.lib.path.RosettaPath;
+
+import cdm.observable.asset.Money;
 
 class ThresholdMappingProcessorTest {
 

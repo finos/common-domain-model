@@ -1,22 +1,24 @@
 package org.isda.cdm.processor;
 
-import com.regnosys.rosetta.common.translation.Mapping;
-import com.regnosys.rosetta.common.translation.MappingContext;
-import com.regnosys.rosetta.common.translation.Path;
-import com.rosetta.model.lib.path.RosettaPath;
-import org.isda.cdm.CollateralTransferAgreementElections;
-import org.isda.cdm.ElectiveAmountElection;
-import org.isda.cdm.MinimumTransferAmountAmendment;
-import org.isda.cdm.Money;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.mock;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.Mockito.mock;
+import org.isda.cdm.CollateralTransferAgreementElections;
+import org.isda.cdm.ElectiveAmountElection;
+import org.isda.cdm.MinimumTransferAmountAmendment;
+import org.junit.jupiter.api.Test;
+
+import com.regnosys.rosetta.common.translation.Mapping;
+import com.regnosys.rosetta.common.translation.MappingContext;
+import com.regnosys.rosetta.common.translation.Path;
+import com.rosetta.model.lib.path.RosettaPath;
+
+import cdm.observable.asset.Money;
 
 class MinimumTransferAmountAmendmentMappingProcessorTest {
 

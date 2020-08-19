@@ -1,23 +1,27 @@
 package org.isda.cdm.processor;
 
-import cdm.base.datetime.DayTypeEnum;
-import cdm.base.datetime.Offset;
-import cdm.base.datetime.PeriodEnum;
-import com.regnosys.rosetta.common.translation.MappingContext;
-import com.regnosys.rosetta.common.translation.MappingProcessor;
-import com.regnosys.rosetta.common.translation.Path;
-import com.rosetta.model.lib.RosettaModelObjectBuilder;
-import com.rosetta.model.lib.path.RosettaPath;
-import org.isda.cdm.CustodianEventEndDate;
-import org.isda.cdm.CustomisableOffset;
-import org.jetbrains.annotations.NotNull;
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.ISDA_CREATE_SYNONYM_SOURCE;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.getEnumValue;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.synonymToEnumValueMap;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.*;
+import org.isda.cdm.CustodianEventEndDate;
+import org.isda.cdm.CustomisableOffset;
+import org.jetbrains.annotations.NotNull;
+
+import com.regnosys.rosetta.common.translation.MappingContext;
+import com.regnosys.rosetta.common.translation.MappingProcessor;
+import com.regnosys.rosetta.common.translation.Path;
+import com.rosetta.model.lib.RosettaModelObjectBuilder;
+import com.rosetta.model.lib.path.RosettaPath;
+
+import cdm.base.datetime.DayTypeEnum;
+import cdm.base.datetime.Offset;
+import cdm.base.datetime.PeriodEnum;
 
 /**
  * "Days after Custodian Event" ( "days_after_custodian_event" / "days_after_collateral_manager_event" / "days_after_euroclear_event")

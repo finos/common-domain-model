@@ -1,20 +1,10 @@
 package org.isda.cdm.processor;
 
-import cdm.base.staticdata.asset.common.ProductIdentifier.ProductIdentifierBuilder;
-import cdm.base.staticdata.asset.common.metafields.ReferenceWithMetaProductIdentifier;
-import cdm.base.staticdata.asset.common.metafields.ReferenceWithMetaProductIdentifier.ReferenceWithMetaProductIdentifierBuilder;
-import com.google.common.collect.ImmutableMap;
-import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep;
-import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep.KeyPostProcessReport;
-import com.regnosys.rosetta.common.hashing.SimpleBuilderProcessor;
-import com.rosetta.lib.postprocess.PostProcessorReport;
-import com.rosetta.model.lib.GlobalKeyBuilder;
-import com.rosetta.model.lib.RosettaModelObject;
-import com.rosetta.model.lib.RosettaModelObjectBuilder;
-import com.rosetta.model.lib.path.RosettaPath;
-import com.rosetta.model.lib.process.AttributeMeta;
-import com.rosetta.model.lib.process.BuilderProcessor.Report;
-import com.rosetta.model.lib.process.PostProcessStep;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.function.BiConsumer;
+import java.util.function.BiPredicate;
+
 import org.isda.cdm.BusinessEvent.BusinessEventBuilder;
 import org.isda.cdm.Contract.ContractBuilder;
 import org.isda.cdm.EventEffect.EventEffectBuilder;
@@ -27,10 +17,22 @@ import org.isda.cdm.metafields.ReferenceWithMetaExecution.ReferenceWithMetaExecu
 import org.isda.cdm.metafields.ReferenceWithMetaTransferPrimitive;
 import org.isda.cdm.metafields.ReferenceWithMetaTransferPrimitive.ReferenceWithMetaTransferPrimitiveBuilder;
 
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.function.BiConsumer;
-import java.util.function.BiPredicate;
+import com.google.common.collect.ImmutableMap;
+import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep;
+import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep.KeyPostProcessReport;
+import com.regnosys.rosetta.common.hashing.SimpleBuilderProcessor;
+import com.rosetta.lib.postprocess.PostProcessorReport;
+import com.rosetta.model.lib.GlobalKeyBuilder;
+import com.rosetta.model.lib.RosettaModelObject;
+import com.rosetta.model.lib.RosettaModelObjectBuilder;
+import com.rosetta.model.lib.path.RosettaPath;
+import com.rosetta.model.lib.process.AttributeMeta;
+import com.rosetta.model.lib.process.BuilderProcessor.Report;
+import com.rosetta.model.lib.process.PostProcessStep;
+
+import cdm.base.staticdata.asset.common.ProductIdentifier.ProductIdentifierBuilder;
+import cdm.base.staticdata.asset.common.metafields.ReferenceWithMetaProductIdentifier;
+import cdm.base.staticdata.asset.common.metafields.ReferenceWithMetaProductIdentifier.ReferenceWithMetaProductIdentifierBuilder;
 
 
 public class EventEffectProcessStep implements PostProcessStep{

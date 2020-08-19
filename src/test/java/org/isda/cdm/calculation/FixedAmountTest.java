@@ -6,11 +6,8 @@ import static org.hamcrest.core.Is.is;
 import java.math.BigDecimal;
 
 import org.isda.cdm.CalculationPeriodDates;
-import org.isda.cdm.CalculationPeriodFrequency;
 import org.isda.cdm.DayCountFractionEnum;
-import org.isda.cdm.FixedInterestRate;
 import org.isda.cdm.InterestRatePayout;
-import org.isda.cdm.RollConventionEnum;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.isda.cdm.functions.FixedAmount;
 import org.isda.cdm.metafields.FieldWithMetaDayCountFractionEnum;
@@ -24,9 +21,12 @@ import cdm.base.datetime.AdjustableOrRelativeDate;
 import cdm.base.datetime.BusinessCenters;
 import cdm.base.datetime.BusinessDayAdjustments;
 import cdm.base.datetime.BusinessDayConventionEnum;
+import cdm.base.datetime.CalculationPeriodFrequency;
 import cdm.base.datetime.PeriodExtendedEnum;
+import cdm.base.datetime.RollConventionEnum;
 import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
 import cdm.base.math.NonNegativeQuantity;
+import cdm.observable.asset.FixedInterestRate;
 
 class FixedAmountTest extends AbstractFunctionTest {
 

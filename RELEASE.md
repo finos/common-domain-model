@@ -1,22 +1,15 @@
-# CDM Model: ProductIdentifier Refactoring
- 
+# *CDM Model: Observable namespace classification*
+
 _What is being released_
+
+This refactor is the second incremental change that will further transform the org.isda.cdm file into a hierarchical namespace tree.
  
-The refactoring rationalizes the use of ``ProductIdentifier`` and standardizes related references.  Changes include:
-- Creating a ``ProductBase`` abstract type with one encapsulated data type: ``ProductIdentifier``
-- Setting cardinality of the id and the source in ``ProductIdentifier`` to (1..1)
-- Define Index, Loan, Commodity, and Security as extensions of ``ProductBase``
-- Remove ``IdentifiedProduct``
-- Restructure Security to align with ``CollateralAssetType`` and rename data types and attributes with the word bond by replacing bond with debt
-- The products that were previously extensions of ``IdentifiedProduct`` can now be identified in ``securityType`` and related attributes in the ``Security`` data type: ``Bond``, ``ConvertibleBond``, and ``MortgageBackedSecurity`` are identified as the enumerated value of Debt in ``security``, and ``ConvertibleBond`` and ``MortgageBackedSecurity`` can be further identified in ``debtClass`` as the enumerated values of Convertible and AssetBacked. Similiarly, ``ExchangeTradedFund`` and ``MutualFund``  are identified as the enumerated value Fund in ``security``, and can be further identified in ``fundType``.  Otherwise, the pre-existing types (``Equity`` and ``Warrant``) can be identified as enumerated values in ``security``.
-- In ``ProductIdentification``, replace ``productType`` with ``externalProductType`` (of type ``ExternalProductType``) and replace ``productId`` with ``productIdentifier`` (of type ``ProductIdentifier``)
- 
+This second refactor includes the changes for the __cdm.observable.*__ set of namespaces.
+
+The namespaces contain components used across the CDM for market data, holiday calendar date, event (extraordinary event, trigger event, disruption event), and asset (schedule, settlement, price and quantity notation, etc).
+
 _Review Directions_
- 
-In the CDM Portal, navigate to the Textual Browser and search for the data types noted above.
 
-# *CDM Model: Model Definitions*
+In Rosetta Core (https://ui.rosetta-technology.io/), review the File or Namespace structure in the Editor Textual View.
 
-_What is being released_
-
-Added definitions for attribute `TradableProduct.counterparties` and type `Counterparty`.
+In the CDM Portal, navigate to the Downloads tile, then download artefacts in Java, DAML, Typescript or Scala distribution format and review the source to see the new cdm.observable.* files.

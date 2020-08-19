@@ -1,20 +1,22 @@
 package org.isda.cdm.functions;
 
-import com.google.inject.Inject;
-import com.rosetta.model.metafields.FieldWithMetaString;
-import com.rosetta.model.metafields.MetaFields;
-import org.isda.cdm.CollateralRounding;
-import org.isda.cdm.MarginApproachEnum;
-import org.isda.cdm.Money;
-import org.isda.cdm.PostedCreditSupportItem;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.isda.cdm.CollateralRounding;
+import org.isda.cdm.MarginApproachEnum;
+import org.isda.cdm.PostedCreditSupportItem;
+import org.junit.jupiter.api.Test;
+
+import com.google.inject.Inject;
+import com.rosetta.model.metafields.FieldWithMetaString;
+import com.rosetta.model.metafields.MetaFields;
+
+import cdm.observable.asset.Money;
 
 class ReturnAmountTest extends AbstractFunctionTest {
 

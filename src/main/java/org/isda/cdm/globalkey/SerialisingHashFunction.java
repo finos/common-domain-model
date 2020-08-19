@@ -1,5 +1,9 @@
 package org.isda.cdm.globalkey;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.rosetta.lib.postprocess.PostProcessorReport;
@@ -8,10 +12,6 @@ import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 import com.rosetta.model.lib.process.PostProcessStep;
 import com.rosetta.model.lib.process.ProcessingException;
-
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
 
 public class SerialisingHashFunction implements PostProcessStep {
 
