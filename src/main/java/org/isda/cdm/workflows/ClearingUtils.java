@@ -1,13 +1,22 @@
 package org.isda.cdm.workflows;
 
-import cdm.base.staticdata.identifier.Identifier;
-import cdm.base.staticdata.party.Party;
-import com.rosetta.model.lib.process.PostProcessor;
-import com.rosetta.model.metafields.FieldWithMetaString;
-import org.isda.cdm.*;
+import org.isda.cdm.BusinessEvent;
+import org.isda.cdm.ClearingInstruction;
+import org.isda.cdm.Contract;
+import org.isda.cdm.ContractFormationPrimitive;
+import org.isda.cdm.Instruction;
+import org.isda.cdm.PostContractFormationState;
+import org.isda.cdm.PrimitiveEvent;
+import org.isda.cdm.WorkflowStep;
 import org.isda.cdm.functions.Create_ClearedTrade;
 import org.isda.cdm.functions.example.services.identification.IdentifierService;
 import org.isda.cdm.metafields.ReferenceWithMetaWorkflowStep;
+
+import com.rosetta.model.lib.process.PostProcessor;
+import com.rosetta.model.metafields.FieldWithMetaString;
+
+import cdm.base.staticdata.identifier.Identifier;
+import cdm.base.staticdata.party.Party;
 
 public class ClearingUtils {
 

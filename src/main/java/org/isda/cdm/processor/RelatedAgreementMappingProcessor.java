@@ -1,21 +1,26 @@
 package org.isda.cdm.processor;
 
-import com.regnosys.rosetta.common.translation.MappingContext;
-import com.regnosys.rosetta.common.translation.MappingProcessor;
-import com.regnosys.rosetta.common.translation.Path;
-import com.rosetta.model.lib.RosettaModelObjectBuilder;
-import com.rosetta.model.lib.path.RosettaPath;
-import com.rosetta.model.lib.records.DateImpl;
-import org.isda.cdm.*;
-import org.jetbrains.annotations.NotNull;
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.PARTIES;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.PARTIES;
+import org.isda.cdm.AgreementTerms;
+import org.isda.cdm.LegalAgreement;
+import org.isda.cdm.LegalAgreementNameEnum;
+import org.isda.cdm.LegalAgreementPublisherEnum;
+import org.isda.cdm.RelatedAgreement;
+import org.jetbrains.annotations.NotNull;
+
+import com.regnosys.rosetta.common.translation.MappingContext;
+import com.regnosys.rosetta.common.translation.MappingProcessor;
+import com.regnosys.rosetta.common.translation.Path;
+import com.rosetta.model.lib.RosettaModelObjectBuilder;
+import com.rosetta.model.lib.path.RosettaPath;
+import com.rosetta.model.lib.records.DateImpl;
 
 public class RelatedAgreementMappingProcessor extends MappingProcessor {
 

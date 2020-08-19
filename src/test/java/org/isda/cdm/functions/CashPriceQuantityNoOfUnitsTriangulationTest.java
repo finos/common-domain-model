@@ -14,6 +14,8 @@ import com.google.common.io.Resources;
 import com.google.inject.Inject;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 
+import cdm.observable.common.functions.CashPriceQuantityNoOfUnitsTriangulation;
+
 public class CashPriceQuantityNoOfUnitsTriangulationTest extends AbstractFunctionTest {
 
 	private static final String EQUITY_DIR = "result-json-files/products/equity/";

@@ -50,7 +50,7 @@ The ISDA CDM Distribution
 
 * The ISDA CDM distribution is openly accessible to all industry participants and can be downloaded from the `CDM Portal <https://portal.cdm.rosetta-technology.io>`_. The ISDA CDM is distributed subject to the ISDA CDM open source licence.
 
-* Information on how to access the CDM distribution, and frequently asked questions, can be found here: `CDM Distribution - "How To" Guide  <https://github.com/rosetta-models/documentation>`_
+* Information on how to access the CDM Java distribution can be found here: `CDM Java Distribution Guidelines <https://docs.rosetta-technology.io/cdm/documentation/source/cdm-guidelines.html>`_
 
 Components
 """"""""""

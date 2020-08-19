@@ -1,20 +1,22 @@
 package org.isda.cdm.processor;
 
-import cdm.base.staticdata.party.Account;
-import cdm.base.staticdata.party.LegalEntity;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.PARTIES;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.toFieldWithMetaString;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.isda.cdm.Custodian;
+import org.isda.cdm.CustodianElection;
+
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
-import org.isda.cdm.Custodian;
-import org.isda.cdm.CustodianElection;
 
-import java.util.List;
-import java.util.Optional;
-
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.PARTIES;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.toFieldWithMetaString;
+import cdm.base.staticdata.party.Account;
+import cdm.base.staticdata.party.LegalEntity;
 
 /**
  * ISDA Create mapping processor.

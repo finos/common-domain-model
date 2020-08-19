@@ -8,16 +8,12 @@ import cdm.base.staticdata.identifier.*
 import cdm.base.staticdata.asset.rates.*
 import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.party.*
+
+import cdm.observable.common.*
+import cdm.observable.asset.*
+import cdm.observable.event.*
+
 import cdm.synonyms.config.*
-
-type AssetIdentifier: <"Generic object to specify an identifier for a quantifiable object, which can either be a product, a currency or a rate option.">
-
-	productIdentifier ProductIdentifier (0..1) <"Product identifier, when the quantifiable asset is a product.">
-	currency string (0..1) <"Currency identifier, when the quantifiable asset is a currency.">
-		[metadata scheme]
-	rateOption FloatingRateOption (0..1) <"Rate option identifier, when the quantifiable asset is a floating rate.">
-
-	condition: one-of
 
 type Cashflow extends PayoutBase: <"Class to specify a cashflow, i.e. the outcome of either of computation (e.g. interest accrual) or an assessment of some sort (e.g. a fee). The cashflow can then be turned into a cash transfer, artefact to be used as the input to a payment system or the outcome of it. The associated globalKey denotes the ability to associate a hash value to the Cashflow instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
@@ -264,14 +260,6 @@ type ContractualProduct: <" A class to specify the contractual products' economi
 	productIdentification ProductIdentification (0..1) <"The product identification value(s) that might be associated with a contractual product. The CDM provides the ability to associate several product identification methods with a product.">
 	productTaxonomy ProductTaxonomy (0..*) <"The product taxonomy value(s) associated with a contractual product.">
 	economicTerms EconomicTerms (1..1) <"The economic terms associated with a contractual product, i.e. the set of features that are price-forming.">
-
-type FixedRateSpecification extends RateSpecificationBase: <"Type defining the specification for a fixed rate.">
-	[metadata key]
-
-	rateSchedule Schedule (0..1) <"The fixed rate or fixed rate schedule expressed as explicit fixed rates and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">
-
-	condition CurrencyAssetIdentifier: <"The asset identifier for a fixed interest rate must be a currency.">
-		assetIdentifier -> currency only exists
 
 type QuantityMultiplier: <" Class to specify a mechanism for a quantity to be set as a multiplier to another (reference) quantity, based on a price observation. At the moment this class only supports FX or Equity-linked notional and re-uses existing building blocks for those 2 cases, until such time when component can be made more generic. This captures the case of resetting cross-currency swaps and resetting equity swaps.">
 
@@ -595,65 +583,6 @@ type SecurityLeg: <" Terms defining a security leg in a securities financing tra
 	condition Choice:
 		required choice settlementAmount, settlementCurrency
 
-type SecurityValuation: <" Terms defining the security valuation method as part of a security leg in a securities fianncing transaction and closely modelled onto the CollateralValuation type in FpML.">
-
-	securityValuationModel SecurityValuationModel (1..1) <"The security valuation model choice, based on either a nominal amount or a number of units.">
-	underlier Security (1..1) <"The underlying security of the security leg.">
-
-type SecurityValuationModel: <" The security valuation model choice, which can either be based on nominal amount as for a bond, or on the number of contract units as for equity.">
-
-	bondValuationModel BondValuationModel (0..1) <"The valuation model when the security is a bond.">
-	unitContractValuationModel UnitContractValuationModel (0..1) <"The valuation model when the security is a unit contract like equity.">
-
-	condition: one-of
-
-type BondValuationModel: <" Bond valuation model for the security leg in a securities financing transaction, closely modelled onto the BondCollateral.model in FpML.">
-
-	nominalAmount Money (1..1) <"The quantity of the underlier expressed as a nominal amount.">
-	bondPriceAndYieldModel BondPriceAndYieldModel (1..1) <"Price and yield model for valuing a bond security leg.">
-	accrualsAmount Money (0..1) <"Accruals amount for the bond in the security leg">
-
-type BondPriceAndYieldModel: <" Bond price and yield valuation model for the security leg in a securities financing transaction, closely modelled onto the BondPriceAndYield.model in FpML.">
-
-	cleanOrDirtyPrice CleanOrDirtyPrice (0..1) <"Either the clean or dirty price of the bond.">
-	relativePrice RelativePrice (0..1) <"Bond price relative to a Benchmark.">
-	yieldToMaturity number (0..1) <"Price specified as a yield to maturity.">
-	inflationFactor number (0..1) <"The inflation factor is specified for inflation-linked products which require some additional elements to calculate prices correctly.">
-	allInPrice number (0..1) <"Bond all-in-price which is a price that includes all relevant price adjustments (i.e. accrued interest, haircut or margin ratio, inflation factor,etc.). It expresses a price in terms of percentage of nominal amount.">
-
-type CleanOrDirtyPrice: <" Class specifying the bond price as either clean or dirty in a bond valuation model.">
-
-	cleanPrice CleanPrice (0..1) <"The clean price and accruals presented separately.">
-	dirtyPrice number (0..1) <"The dirty price presented as a single number.">
-
-type CleanPrice: <" Class to specify the clean price of a bond in a bond valuation model, with accruals presented separately, and modelled onto the cleanPrice model in BonPriceAndYield.model in FpML.">
-
-	cleanPrice number (1..1) <"The clean price as a number.">
-	accruals number (0..1) <"The accruals as a number.">
-	dirtyPrice calculation (0..1) <"Placeholder for a calculation of dirtyPrice based on cleanPrice and accruals.">
-
-type RelativePrice: <" Bond price relative to a benchmark, as in a convertible bond.">
-
-	spread number (1..1) <"The spread to a benchmark.">
-	bondEquityModel BondEquityModel (1..*) <"Bond equity model for convertible bonds.">
-
-type BondEquityModel: <" Bond equity model to value convertible bonds and modelled onto BondEquity.model in FpML.">
-
-	bondchoiceModel BondChoiceModel (0..1) <"Either the bond or convertible bond.">
-	equity Equity (0..1) <"The equity.">
-
-	condition: one-of
-
-type BondChoiceModel: <" Either a bond or convertible bond.">
-	bond Bond (0..1)
-	convertibleBond ConvertibleBond (0..1)
-
-	condition: one-of
-
-type UnitContractValuationModel: <" Unit contract model for security valuation, e.g. for equity, modelled onto UnitContract.model in FpML.">
-
-	numberOfUnits Quantity (1..1) <"The number of units (index or securities).">
-	unitPrice Money (1..1) <"The price of each unit.">
 
 type SecurityPayout: <" Security payout specification in case the product payout involves some form of security collateral, as in a securities financing transaction.">
 	[metadata key]
@@ -856,30 +785,6 @@ type ProductIdentification: <"Combines the CDM product qualifier with other prod
 	productIdentifier ProductIdentifier (0..*) <"Comprises an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the ProductIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 
 
-type QuantityNotation: <"Specification of a product's quantity as a single, non-negative amount. The asset identifier qualifies the quantity being specified and can be used as a referencing mechanism in the underlying payout legs to 'resolve' the product, by fetching the actual amount from the appropriate quantity notation. For some product cases, several quantity notations can be associated with a single product: e.g. for an Equity Swap, both the notional and (optionally) the number of securities can be specified, with a validation to check that they are consistent in relation to the equity price. ">
-
-	quantity NonNegativeQuantity (1..1) <"The quantity as a non-negative amount.">
-	assetIdentifier AssetIdentifier (1..1) <"identifier for the asset being quantified, allowing it to be positioned in the product definition.">
-
-	condition CurrencyAmount: <"When quantity type is specified as a currency amount, the quantity must be specified without unit.">
-		if assetIdentifier -> currency exists then quantity -> unit is absent
-
-type PriceNotation: <"Object to specify the price of a product as a single number, which can be negative in some cases, and asset identifier so that it can be positioned in the product. For some product cases, several price notations can be associated with a single product: e.g. for an Equity Swap, both the initial equity price and the rate spread can be specified, which allows factoring of the product definition.">
-
-	price Price (1..1) <"Price expressed as a number.">
-	assetIdentifier AssetIdentifier (0..1) <"Identifier for the asset being priced.">
-
-	condition CurrencyAssetIdentifier: <"The asset identifier for a fixed interest rate must be a currency.">
-		if price -> fixedInterestRate exists
-		then assetIdentifier -> currency only exists
-
-	condition RateOptionAssetIdentifier: <"The asset identifier for an interest rate spread must be a rate option.">
-		if price -> floatingInterestRate exists
-		then assetIdentifier -> rateOption only exists
-
-type RateSpecificationBase:
-	assetIdentifier AssetIdentifier (0..1)
-
 type RateSpecification: <" A class to specify the fixed interest rate, floating interest rate or inflation rate.">
 
 	fixedRate FixedRateSpecification (0..1) <"The fixed rate or fixed rate specification expressed as explicit fixed rates and dates.">
@@ -893,19 +798,6 @@ type StubPeriod: <" A class defining how the initial or final stub calculation p
 		[metadata reference]
 	initialStub StubValue (0..1) <"Specifies how the initial stub amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating tenors may be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3. Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.">
 	finalStub StubValue (0..1) <"Specifies how the final stub amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating tenors may be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3. Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.">
-
-/*
- * QUESTION TO CDM GROUP
- * TODO - FpML sample credit trades don't include examples that specify those attributes
- * Would be great if we could confirm the actual usage though sample transactions
- * See Trello card https://trello.com/c/VLtPwoek
- */
-type TransactedPrice: <" A class to represent the transacted price attributes that are positioned as part of the FpML FeeLeg.">
-
-	marketFixedRate number (0..1) <"An optional element that only has meaning in a credit index trade. This element contains the credit spread ('fair value') at which the trade was executed. Unlike the fixedRate of an index, the marketFixedRate varies over the life of the index depending on market conditions. The marketFixedRate is the price of the index as quoted by trading desks.">
-	initialPoints number (0..1) <"An optional element that contains the up-front points expressed as a percentage of the notional. An initialPoints value of 5% would be represented as 0.05. The initialPoints element is an alternative to marketFixedRate in quoting the traded level of a trade. When initialPoints is used, the traded level is the sum of fixedRate and initialPoints. The initialPoints is one of the items that are factored into the initialPayment calculation and is payable by the Buyer to the Seller. Note that initialPoints and marketFixedRate may both be present in the same document when both implied values are desired.">
-	marketPrice number (0..1) <"An optional element that only has meaning in a credit index trade. This element contains the price at which the trade was executed and is used instead of marketFixedRate on credit trades on certain indicies which are quoted using a price rather than a spread.">
-	quotationStyle QuotationStyleEnum (0..1) <"An optional element that contains the up-front points expressed as a percentage of the notional. An initialPoints value of 5% would be represented as 0.05. The initialPoints element is an alternative to marketFixedRate in quoting the traded level of a trade. When initialPoints is used, the traded level is the sum of fixedRate and initialPoints. The initialPoints is one of the items that are factored into the initialPayment calculation and is payable by the Buyer to the Seller. Note that initialPoints and marketFixedRate may both be present in the same document when both implied values are desired.">
 
 /************************
  * Portfolio Aggregation *

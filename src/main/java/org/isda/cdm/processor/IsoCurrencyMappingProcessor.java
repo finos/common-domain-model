@@ -1,6 +1,14 @@
 package org.isda.cdm.processor;
 
-import cdm.base.staticdata.asset.common.ISOCurrencyCodeEnum;
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.filterMappings;
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.updateMappingFail;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.ISDA_CREATE_SYNONYM_SOURCE;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.getEnumValue;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.synonymToEnumValueMap;
+
+import java.util.List;
+import java.util.Map;
+
 import com.google.common.base.Enums;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
@@ -10,12 +18,7 @@ import com.rosetta.model.lib.path.RosettaPath;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
 
-import java.util.List;
-import java.util.Map;
-
-import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.filterMappings;
-import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.updateMappingFail;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.*;
+import cdm.base.staticdata.asset.common.ISOCurrencyCodeEnum;
 
 /**
  * ISDA Create mapping processor.

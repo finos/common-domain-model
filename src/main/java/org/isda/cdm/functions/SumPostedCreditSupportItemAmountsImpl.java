@@ -3,12 +3,13 @@ package org.isda.cdm.functions;
 import java.math.BigDecimal;
 import java.util.List;
 
-import org.isda.cdm.Money;
-import org.isda.cdm.Money.MoneyBuilder;
 import org.isda.cdm.PostedCreditSupportItem;
 
 import com.google.inject.Inject;
 import com.rosetta.model.metafields.FieldWithMetaString;
+
+import cdm.observable.asset.Money;
+import cdm.observable.asset.Money.MoneyBuilder;
 
 /**
  * For each postedCreditSupportItem call the PostedCreditSupportItemAmount func and return the summed total.
