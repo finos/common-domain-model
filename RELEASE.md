@@ -2,7 +2,7 @@
 
 _What is being released_
 
-This change is part of the ongoing model refactoring to externalise the definition of the parties involved in a transaction from the definition of the product being transacted itself. This particular change addresses account reference details related to each counterparty and currently embedded within the representation of the product.
+This change is part of the ongoing model refactoring to externalise the definition of the parties involved in a transaction from the definition of the product being transacted itself. This particular change addresses counterparty account reference details that are currently embedded within the representation of the product.”
 
 This release focuses on moving `Account` references outside of the `Product`.  Account references in types `PayerReceiver` and `BuyerSeller` (both positioned inside the `Product`) have been deprecated and replaced by linking the `Account` to a `Party` at the `Contract` level by specifying the new attribute `Contract.account.partyReference`. 
 
