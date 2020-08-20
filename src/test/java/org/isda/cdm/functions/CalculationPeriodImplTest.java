@@ -7,8 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.isda.cdm.CalculationPeriodData;
 import org.isda.cdm.CalculationPeriodDates;
-import org.isda.cdm.CalculationPeriodFrequency;
-import org.isda.cdm.RollConventionEnum;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
@@ -21,7 +19,9 @@ import cdm.base.datetime.AdjustableOrRelativeDate;
 import cdm.base.datetime.BusinessCenters;
 import cdm.base.datetime.BusinessDayAdjustments;
 import cdm.base.datetime.BusinessDayConventionEnum;
+import cdm.base.datetime.CalculationPeriodFrequency;
 import cdm.base.datetime.PeriodExtendedEnum;
+import cdm.base.datetime.RollConventionEnum;
 import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
 
 class CalculationPeriodImplTest extends AbstractFunctionTest {

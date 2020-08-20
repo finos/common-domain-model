@@ -1,19 +1,20 @@
 package org.isda.cdm.processor;
 
-import com.regnosys.rosetta.common.translation.MappingContext;
-import com.regnosys.rosetta.common.translation.MappingProcessor;
-import com.regnosys.rosetta.common.translation.Path;
-import com.rosetta.model.lib.RosettaModelObjectBuilder;
-import com.rosetta.model.lib.path.RosettaPath;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.toFieldWithMetaString;
+
+import java.util.List;
+import java.util.Optional;
+
 import org.isda.cdm.UmbrellaAgreement.UmbrellaAgreementBuilder;
 import org.isda.cdm.UmbrellaAgreementEntity;
 import org.isda.cdm.UmbrellaAgreementEntity.UmbrellaAgreementEntityBuilder;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-import java.util.Optional;
-
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.toFieldWithMetaString;
+import com.regnosys.rosetta.common.translation.MappingContext;
+import com.regnosys.rosetta.common.translation.MappingProcessor;
+import com.regnosys.rosetta.common.translation.Path;
+import com.rosetta.model.lib.RosettaModelObjectBuilder;
+import com.rosetta.model.lib.path.RosettaPath;
 
 /**
  * ISDA Create mapping processor.

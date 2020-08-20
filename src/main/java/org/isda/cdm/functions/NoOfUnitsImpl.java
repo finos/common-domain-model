@@ -4,10 +4,10 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-import org.isda.cdm.AssetIdentifier;
-import org.isda.cdm.QuantityNotation;
-
 import cdm.base.math.NonNegativeQuantity;
+import cdm.observable.asset.AssetIdentifier;
+import cdm.observable.asset.QuantityNotation;
+import cdm.observable.common.functions.NoOfUnits;
 
 /**
  * Extracts the quantity amount associated with the product identifier.

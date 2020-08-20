@@ -2,10 +2,12 @@ namespace org.isda.cdm
 version "${project.version}"
 
 import cdm.base.*
-import cdm.base.datetime.*
 import cdm.base.math.*
+import cdm.base.datetime.*
 import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.party.*
+
+import cdm.observable.asset.*
 
 // Note: All Eligible Collateral modelling/representation is still under development and discussion with ISDA Working groups
 type AgencyRatingCriteria: <"A class to specify multiple credit notations alongside a conditional 'any' or 'all' qualifier.">
@@ -18,47 +20,6 @@ type AgencyRatingCriteria: <"A class to specify multiple credit notations alongs
 	condition ReferenceAgency: <"If the mismatch resolution is ReferenceAgency, ensure that the reference agency is specified.">
 		if AgencyRatingCriteria -> mismatchResolution = CreditNotationMismatchResolutionEnum -> ReferenceAgency
 		then AgencyRatingCriteria -> referenceAgency exists
-
-type CollateralIssuerType: <"A class to allow specification of the type of entity issuing the collateral.">
-
-	issuerType IssuerTypeEnum (1..1) <"Origin of entity issuing the collateral.">
-	supraNationalType SupraNationalIssuerTypeEnum (0..1) <"Debt issued by international organisations and multilateral banks.">
-	quasiGovernmentType QuasiGovernmentIssuerType (0..1) <"Debt issues by institutions or bodies, typically constituted by statute, with a function mandated by the government and subject to government supervision inclusive of profit- and non-profit making bodies. Includes the US Agencies and GSEs and the EU concept of public sector entities. Excluding any entities which are also Regional Government">
-	regionalGovernmentType RegionalGovernmentIssuerType (0..1) <"Regional government, local authority or municipal.">
-	specialPurposeVehicleType SpecialPurposeVehicleIssuerType (0..1)
-
-	condition SupraNationalSubType:
-		if issuerType <> IssuerTypeEnum -> SupraNational
-		then supraNationalType is absent
-
-	condition QuasiGovernmentSubType:
-		if issuerType <> IssuerTypeEnum -> QuasiGovernment
-		then quasiGovernmentType is absent
-
-	condition RegionalGovernmentSubType:
-		if issuerType <> IssuerTypeEnum -> RegionalGovernment
-		then regionalGovernmentType is absent
-
-	condition SpecialPurposeVehicleSubType:
-		if issuerType <> IssuerTypeEnum -> SpecialPurposeVehicle
-		then specialPurposeVehicleType is absent
-
-type QuasiGovernmentIssuerType: <"A class to allow specification of different types of Quasi Government collateral.">
-
-	sovereignEntity boolean (1..1) <"True if sovereign entity (e.g. not separate legal personality from sovereign) or false if non-sovereign entity (e.g. separate legal personality from sovereign).">
-	sovereignRecourse boolean (0..1) <"Applies to non-sovereign entity (e.g. separate legal personality from sovereign).  True if entity has recourse to sovereign (e.g. debt guaranteed by government).  False if entity does not have recourse to sovereign.">
-	// TODO: other (non-exhaustive) criteria e.g. GSEs with/without government support, EMIR public sector entities, US agencies
-	condition NonSovereignEntityRecourse:
-		if sovereignRecourse exists then sovereignEntity = False
-
-type RegionalGovernmentIssuerType: <"A class to allow specification of different type of Regional government collateral.">
-
-	sovereignRecourse boolean (1..1) <"Applies to regional governments, local authorities or municipals.  True if entity has recourse to sovereign (e.g. debt guaranteed by government).  False if entity does not have recourse to sovereign.">
-	// TODO: other (non-exhaustive) criteria e.g. US municipals, Canadian provinces, German Lander
-
-type SpecialPurposeVehicleIssuerType: <"A class to allow specification of different types of special purpose vehicle (SPV) collateral.">
-	creditRisk CreditRiskEnum (0..1) <"Tranched or untranched credit risk."> // Not required?  If tranched credit risk then specified ProductCriteria.agencyRating.
-	// TODO: other (non-exhaustive) criteria e.g. by asset class (RMBS, CMBS, CLO, by regional risk focus, by guarantor (e.g. Ginnie Mae)). Can the existing FpML framework be leveraged.  See type MortgageBackedSecurity
 
 type AssetType: <"A class to allow specification of the asset product type.">
 	assetType AssetTypeEnum (1..1) <"The type of collateral asset.">
@@ -75,7 +36,7 @@ type AssetType: <"A class to allow specification of the asset product type.">
 	condition BondSubType:
 		if securityType <> SecurityTypeEnum -> Debt
 		then debtType is absent
-	
+
 	condition EquitySubType:
 		if securityType <> SecurityTypeEnum -> Equity
 		then equityType is absent
@@ -158,11 +119,3 @@ type AssetCriteria: <"Criteria used to specify eligible collateral assets.">
 	condition Choice: <"If any are specified, only one of AssetType, ProductTaxonomy or ProductIdentifer should exist.">
 		optional choice collateralAssetType, productTaxonomy, productIdentifier
 
-type DebtType: <"Specifies the type of debt instrument.">
-	debtClass DebtClassEnum (0..1) <"Specifies the characteristics of a debt instrument.">
-	debtEconomics DebtEconomics (0..*) <"Specifies selected financial terms of a debt instrument.">
-
-type DebtEconomics: <"Specifies selected economics of a debt instrument.">
-	debtSeniority DebtSeniorityEnum (0..1) <"Specifies the order of repayment in the event of a sale or bankruptcy of the issuer or a related party (eg guarantor).">
-	debtInterest DebtInterestEnum (0..1) <"Specifies the general rule for periodic interest rate payment.">
-	debtPrincipal DebtPrincipalEnum (0..1) <"Specifies the general rule for repayment of principal.">
