@@ -1,5 +1,6 @@
 package org.isda.cdm.processor;
 
+import cdm.base.staticdata.party.CounterpartyEnum;
 import cdm.base.staticdata.party.PayerReceiver.PayerReceiverBuilder;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
@@ -9,23 +10,19 @@ import com.rosetta.model.lib.path.RosettaPath;
 import org.isda.cdm.InterestRatePayout.InterestRatePayoutBuilder;
 import org.isda.cdm.RateSpecification.RateSpecificationBuilder;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
+import java.util.function.Consumer;
+
+import static cdm.base.staticdata.party.metafields.ReferenceWithMetaAccount.ReferenceWithMetaAccountBuilder;
+import static cdm.base.staticdata.party.metafields.ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder;
 
 @SuppressWarnings("unused")
 public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(FRAIRPSplitterMappingProcessor.class);
-
-	private final ExecutorService executor;
-
-	public FRAIRPSplitterMappingProcessor(RosettaPath path, List<Path> synonymPaths, MappingContext context) {
-		super(path, synonymPaths, context);
-		this.executor = context.getExecutor();
+	public FRAIRPSplitterMappingProcessor(RosettaPath path, List<Path> synonymPaths, MappingContext mappingContext) {
+		super(path, synonymPaths, mappingContext);
 	}
 
 	@Override
@@ -40,7 +37,7 @@ public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
 				if (rateSpec.getFixedRate()!=null && rateSpec.getFixedRate().hasData() &&
 						rateSpec.getFloatingRate()!=null && rateSpec.getFloatingRate().hasData()) {
 					//this IRP has both fixed and floating - it needs to be split
-
+					
 					InterestRatePayoutBuilder newIrp = irp.build().toBuilder();
 
 					rateSpec.setFloatingRateBuilder(null);
@@ -48,8 +45,7 @@ public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
 
 					CounterpartyMappingHelper.getInstance(getContext())
 							.orElseThrow(() -> new IllegalStateException("CounterpartyMappingHelper not found."))
-							.getBothCounterpartiesCollectedFuture()
-							.thenAcceptAsync(map -> flipPayerReceiver(irp.getPayerReceiver(), newIrp.getPayerReceiver()), executor);
+							.setCounterpartyEnumThen(newIrp.getPayerReceiver(), flipPayerReceiver());
 
 					result.add(newIrp);
 				}
@@ -60,14 +56,19 @@ public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
 	}
 
 	@NotNull
-	private void flipPayerReceiver(PayerReceiverBuilder originalBuilder, PayerReceiverBuilder newBuilder) {
-		LOGGER.info("Flipping payer/receiver on new FRA interest rate payout");
-		newBuilder.setPayer(originalBuilder.getReceiver());
-		newBuilder.setPayerAccountReferenceBuilder(originalBuilder.getReceiverAccountReference());
-		newBuilder.setPayerPartyReferenceBuilder(originalBuilder.getReceiverPartyReference());
+	private Consumer<PayerReceiverBuilder> flipPayerReceiver() {
+		return (builder) -> {
+			CounterpartyEnum payer = builder.getPayer();
+			ReferenceWithMetaPartyBuilder payerPartyReference = builder.getPayerPartyReference();
+			ReferenceWithMetaAccountBuilder payerAccountReference = builder.getPayerAccountReference();
 
-		newBuilder.setReceiver(originalBuilder.getPayer());
-		newBuilder.setReceiverAccountReferenceBuilder(originalBuilder.getPayerAccountReference());
-		newBuilder.setReceiverPartyReferenceBuilder(originalBuilder.getPayerPartyReference());
+			builder.setPayer(builder.getReceiver());
+			builder.setPayerAccountReferenceBuilder(builder.getReceiverAccountReference());
+			builder.setPayerPartyReferenceBuilder(builder.getReceiverPartyReference());
+
+			builder.setReceiver(payer);
+			builder.setReceiverAccountReferenceBuilder(payerAccountReference);
+			builder.setReceiverPartyReferenceBuilder(payerPartyReference);
+		};
 	}
 }

@@ -30,6 +30,6 @@ public class CounterpartyMappingProcessor extends MappingProcessor {
 	@NotNull
 	private CounterpartyMappingHelper createHelper() {
 		return (CounterpartyMappingHelper) getContext().getMappingParams()
-				.compute(COUNTERPARTY_MAPPING_HELPER_KEY, (key, value) -> new CounterpartyMappingHelper(getContext()));
+				.compute(COUNTERPARTY_MAPPING_HELPER_KEY, (key, value) -> new CounterpartyMappingHelper(getContext().getMappings()));
 	}
 }

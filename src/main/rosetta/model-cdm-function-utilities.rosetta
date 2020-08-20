@@ -15,10 +15,11 @@ func PriceQuantityTriangulation:
 
 	assign-output success:
 		if priceNotation -> price -> cashPrice exists
-		then CashPriceQuantityNoOfUnitsTriangulation(priceNotation, quantityNotation)
+		then CashPriceQuantityNoOfUnitsTriangulation( priceNotation, quantityNotation )
 		else if priceNotation -> price -> exchangeRate exists
-			then ExchangeRateQuantityTriangulation(priceNotation, quantityNotation)
-			else True
+		then ExchangeRateQuantityTriangulation( priceNotation, quantityNotation )
+		else True
+
 
 func CashPriceQuantityNoOfUnitsTriangulation: <"Data rule to check the relationship between cash price, notional and number of units.">
 	inputs:
@@ -29,10 +30,10 @@ func CashPriceQuantityNoOfUnitsTriangulation: <"Data rule to check the relations
 		success boolean (1..1)
 
 	alias notional:
-		CurrencyAmount(quantityNotation, empty)
+		CurrencyAmount( quantityNotation, empty )
 
 	alias noOfUnits:
-		NoOfUnits(quantityNotation)
+		NoOfUnits( quantityNotation )
 
 	alias cashPrices:
 		priceNotation -> price -> cashPrice -> netPrice -> amount
@@ -41,8 +42,9 @@ func CashPriceQuantityNoOfUnitsTriangulation: <"Data rule to check the relations
 		cashPrices only-element
 
 	assign-output success:
-		if (cashPrice and noOfUnits and notional) exists
+		if ( cashPrice and noOfUnits and notional ) exists
 		then cashPrice * noOfUnits = notional
+
 
 func ExchangeRateQuantityTriangulation:
 	inputs:
@@ -67,18 +69,19 @@ func ExchangeRateQuantityTriangulation:
 		exchangeRate -> quotedCurrencyPair
 
 	alias quantity1:
-		CurrencyAmount(quantityNotation, quotedCurrency -> currency1)
+		CurrencyAmount( quantityNotation, quotedCurrency -> currency1 )
 
 	alias quantity2:
-		CurrencyAmount(quantityNotation, quotedCurrency -> currency2)
+		CurrencyAmount( quantityNotation, quotedCurrency -> currency2 )
 
 	assign-output success:
-		if (quantity1 and quantity2 and rate) exists
+		if ( quantity1 and quantity2 and rate ) exists
 		then
-		if quotedCurrency -> quoteBasis = QuoteBasisEnum -> Currency1PerCurrency2
+			if quotedCurrency -> quoteBasis = QuoteBasisEnum -> Currency1PerCurrency2
 			then quantity1 / quantity2 = rate
 			else if quotedCurrency -> quoteBasis = QuoteBasisEnum -> Currency2PerCurrency1
-				then quantity2 / quantity1 = rate
+			then quantity2 / quantity1 = rate
+
 
 func NoOfUnits: <"Get quantity associated with product identifier.">
 	inputs:
@@ -86,6 +89,7 @@ func NoOfUnits: <"Get quantity associated with product identifier.">
 
 	output:
 		noOfUnits number (1..1)
+
 
 func CurrencyAmount: <"Get quantity associated with currency.">
 	inputs:
@@ -95,21 +99,25 @@ func CurrencyAmount: <"Get quantity associated with currency.">
 	output:
 		currencyAmount number (1..1)
 
+
 func ResolveContractualProduct: <"For a given ContractualProduct, the function finds all ResolvablePayoutQuantity instances, then for each instance, resolves the quantity, populates the quantity attribute on ResolvablePayoutQuantity, and finally returns the updated ContractualProduct.">
 	inputs:
 		contractualProduct ContractualProduct (1..1) <"The ContractualProduct to be resolved.">
 		quantityNotations QuantityNotation (1..*) <"All QuantityNotations associated with the given ContractualProduct, that will be resolved based on their AssetIdentifier.">
+		
 	output:
 		resolvedContractualProduct ContractualProduct (1..1) <"The updated ContractualProduct with all ResolvablePayoutQuantity instances resolved and updated with the corresponding quantity.">
+
 
 func ResolvePayoutQuantity: <"For a given ResolvablePayoutQuantity, the function resolves and returns the corresponding quantity from the QuantityNotations by matching on AssetIdentifier.">
 	inputs:
 		resolvableQuantity ResolvablePayoutQuantity (1..1) <"The ResolvablePayoutQuantity to resolve.">
 		quantityNotations QuantityNotation (1..*) <"All QuantityNotations associated with the given ContractualProduct, that will be resolved based on their AssetIdentifier.">
 		contractualProduct ContractualProduct (1..1) <"Provided to allow any references to be resolved.">
-
+	
 	output:
 		resolvedQuantity NonNegativeQuantity (1..1) <"The resolved NonNegativeQuantity.">
+
 
 func ResolveQuantity: <"Function specification to resolve a payout quantity, specified as a resolvable quantity with inputs for the resolution, into a basic quantity with just a number and a unit.">
 	inputs:
@@ -117,6 +125,7 @@ func ResolveQuantity: <"Function specification to resolve a payout quantity, spe
 		date date (1..1)
 	output:
 		quantity Quantity (1..1) <"The resolved quantity, containing just a number and (optionally) a unit or currency.">
+
 
 func ResolvePrice: <"Function specification to return the price on a valuation date based on an EquityValuation method. Implementor of this function should make use of the observation primitive and fetch the price based on an observation key.">
 	// TODO Never referenced in CDM
@@ -134,6 +143,7 @@ func ExtractContractState: <"Extracts a single Contract State, given an Event. T
 	assign-output contractState:
 		if primitive -> contractFormation exists then primitive -> contractFormation -> after
 		else if primitive -> reset exists then primitive -> reset -> after
+
 
 // TODO: turn these functions into language level operators i.e. '+'
 func Plus:
@@ -169,12 +179,14 @@ func GreaterThanEquals:
 	output:
 		result boolean (1..1)
 
+
 func ExtractQuantityByAsset:
 	inputs:
 		quantities QuantityNotation (1..*)
 		asset AssetIdentifier (1..1)
 	output:
 		quantity QuantityNotation (1..1)
+
 
 func ExtractQuantityByCurrency:
 	inputs:
@@ -203,7 +215,7 @@ func CashflowSettlementTerms: <"The Payout type contains a cashflow to replicate
 		SettlementTypeEnum -> Cash
 
 	assign-output settlementTerms -> settlementDate:
-	settlementDate
+		settlementDate
 
 func ConvertToAdjustableOrRelativeDate: <"Utility function to convert from AdjustableOrAdjustedOrRelativeDate to AdjustableOrRelativeDate">
 	inputs:
@@ -281,4 +293,4 @@ func Create_LegalAgreementWithPartyReference: <"Constructs a Legal Agreement usi
 		contractualParty as-key
 
 	assign-output legalAgreement -> otherParty:
-	otherParty
+		otherParty
