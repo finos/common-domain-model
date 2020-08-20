@@ -19,7 +19,7 @@ steps:
           releaseNameNotDefined: "${{TAG_REPO}} == false"
     commands:
       - cf_export RELEASE_NAME=${{GLOBAL_RELEASE_VERSION}}.${{CF_BRANCH_TAG_NORMALIZED}}
-      - echo $MAVEN_OPTS
+      - echo before $MAVEN_OPTS
 
   BuildNormal:
     title: Maven build
@@ -31,10 +31,9 @@ steps:
         all:
           isNotRelease: "${{TAG_REPO}} == false"
     environment:
-      - MAVEN_OPTS=-Xmx1024m
+      - MAVEN_OPTS="-Xmx1G"
     commands:
-      - echo $MAVEN_OPTS
-#      - cf_export MAVEN_OPTS="-Xms1024m -Xmx1G"
+      - echo after $MAVEN_OPTS
       - rm -rf /codefresh/volume/.m2/com/regnosys
       - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.common.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
