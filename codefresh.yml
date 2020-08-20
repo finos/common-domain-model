@@ -19,7 +19,6 @@ steps:
           releaseNameNotDefined: "${{TAG_REPO}} == false"
     commands:
       - cf_export RELEASE_NAME=${{GLOBAL_RELEASE_VERSION}}.${{CF_BRANCH_TAG_NORMALIZED}}
-      - echo before $MAVEN_OPTS
 
   BuildNormal:
     title: Maven build
@@ -33,12 +32,12 @@ steps:
     environment:
       - MAVEN_OPTS=-Xms512m -Xmx1024m
     commands:
-      - echo after $MAVEN_OPTS
       - rm -rf /codefresh/volume/.m2/com/regnosys
       - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.common.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.code-generators.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
-      - MAVEN_OPTS="-Xms512m -Xmx1024m" mvn -X -U -s /settings.xml clean deploy -P daml,scala,typescript,golang
+      - mvn -U -s /settings.xml clean test -P daml,scala,typescript,golang
+      - mvn -U -s /settings.xml -f package-deploy-pom.xml deploy
 
   BuildRelease:
     title: Maven build for release
@@ -52,12 +51,12 @@ steps:
     environment:
       - MAVEN_OPTS=-Xmx1024m
     commands:
-#      - cf_export MAVEN_OPTS="-Xms1024m -Xmx1G"
       - rm -rf /codefresh/volume/.m2/com/regnosys
       - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.common.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.code-generators.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
-      - mvn -s /settings.xml clean deploy -P daml,scala,typescript,golang,full
+      - mvn -U -s /settings.xml clean test -P daml,scala,typescript,golang
+      - mvn -U -s /settings.xml -f package-deploy-pom.xml deploy -P full
 
   BuildDaml:
     title: DAML build and deploy
