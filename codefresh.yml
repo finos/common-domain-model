@@ -31,14 +31,14 @@ steps:
         all:
           isNotRelease: "${{TAG_REPO}} == false"
     environment:
-      - MAVEN_OPTS=-Xms512m -Xmx1024m -XX:PermSize=512m
+      - MAVEN_OPTS=-Xms512m -Xmx1024m
     commands:
       - echo after $MAVEN_OPTS
       - rm -rf /codefresh/volume/.m2/com/regnosys
       - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.common.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.code-generators.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
-      - mvn -X -U -s /settings.xml clean deploy -P daml,scala,typescript,golang
+      - MAVEN_OPTS="-Xms512m -Xmx1024m" mvn -X -U -s /settings.xml clean deploy -P daml,scala,typescript,golang
 
   BuildRelease:
     title: Maven build for release
