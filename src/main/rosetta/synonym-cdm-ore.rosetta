@@ -4,6 +4,9 @@ version "0.0.0.master"
 import org.isda.cdm.*
 import cdm.observable.asset.*
 import cdm.base.staticdata.party.*
+import cdm.base.math.*
+import cdm.base.datetime.*
+import cdm.base.staticdata.asset.rates.*
 
 synonym source ORE
 
@@ -15,6 +18,19 @@ synonym source ORE_1_0_39 extends ORE
         + tradableProduct
             [value "Trade"]
 
+    TradableProduct:
+        + quantityNotation
+            [value "LegData" path "SwapData"]
+        + priceNotation
+            [value "LegData" path "SwapData"]
+
+    PriceNotation:
+        + price
+
+    FixedInterestRate:
+        + rate
+            [value "Rate" path "FixedLegData->Rates"]
+
     Party:
         + partyId
             [value "CounterParty"]
@@ -22,7 +38,13 @@ synonym source ORE_1_0_39 extends ORE
 
     QuantityNotation:
         + assetIdentifier
-            [value "LegData" path "SwapData"]
+            // [value "LegData" path "SwapData"]
+        + quantity
+            [value "Notionals"]
+
+    Quantity:
+        + amount
+            [value "Notional"]
 
     Product:
         + contractualProduct
@@ -32,12 +54,47 @@ synonym source ORE_1_0_39 extends ORE
         + interestRatePayout
             [value "LegData"]
 
+    InterestRatePayout:
+        + calculationPeriodDates
+            [value "Rules" path "ScheduleData"]
+        + rateSpecification
+
+
+    CalculationPeriodDates:
+        + effectiveDate
+            [hint "StartDate"]
+
+    AdjustableOrRelativeDate:
+        + adjustableDate
+
+    AdjustableDate:
+        + unadjustedDate
+            [value "StartDate"]
+
     ResolvablePayoutQuantity:
         + assetIdentifier
             [hint "Currency"]
 
+    FloatingRateOption:
+        + floatingRateIndex
+            [value "Index"]
+
+    RateSpecification:
+        + fixedRate
+            [value "FixedLegData"]
+        + floatingRate
+            [value "FloatingLegData"]
+
+
     AssetIdentifier:
         + currency
             [value "Currency"]
+
+    enums
+
+    FloatingRateIndexEnum:
+        + EUR_6M_EURIBOR_SWAP_CME_vs_LCH_ICAP
+            [value "EUR-EURIBOR-6M"]
+
 }
 
