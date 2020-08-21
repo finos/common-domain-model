@@ -29,15 +29,12 @@ steps:
       condition:
         all:
           isNotRelease: "${{TAG_REPO}} == false"
-    environment:
-      - MAVEN_OPTS=-Xms512m -Xmx1024m
     commands:
       - rm -rf /codefresh/volume/.m2/com/regnosys
       - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.common.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.code-generators.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
-      - mvn -U -s /settings.xml clean test -P daml,scala,typescript,golang
-      - mvn -U -s /settings.xml -f package-deploy-pom.xml deploy
+      - mvn -U -s /settings.xml clean deploy -P daml,scala,typescript,golang
 
   BuildRelease:
     title: Maven build for release
@@ -48,15 +45,23 @@ steps:
       condition:
         all:
           isRelease: "${{TAG_REPO}}"
-    environment:
-      - MAVEN_OPTS=-Xmx1024m
     commands:
       - rm -rf /codefresh/volume/.m2/com/regnosys
       - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.common.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.code-generators.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
-      - mvn -U -s /settings.xml clean test -P daml,scala,typescript,golang
-      - mvn -U -s /settings.xml -f package-deploy-pom.xml deploy -P full
+      - mvn -s /settings.xml clean deploy -P daml,scala,typescript,golang,full
+
+  BuildJavaDocs:
+    title: Maven build for javadocs
+    fail_fast: false
+    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+    working_directory: ./
+    commands:
+      - mvn -s /settings.xml javadoc:javadoc
+      - cd /codefresh/volume/rosetta-cdm/target/site
+      - tar -cvzf cdm-javadocs.zip apidocs
+      - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}" -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm/${{RELEASE_NAME}}/cdm-javadocs-${{RELEASE_NAME}}.zip" -T cdm-javadocs.zip
 
   BuildDaml:
     title: DAML build and deploy
