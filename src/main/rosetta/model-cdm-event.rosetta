@@ -8,10 +8,10 @@ import cdm.base.staticdata.identifier.*
 import cdm.base.staticdata.party.*
 import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.asset.rates.*
+import cdm.observable.asset.*
 import cdm.synonyms.config.*
 
 type AllocationInstruction:
-
 	// TODO: add other allocation context
 	breakdowns AllocationBreakdown (1..*) <"The set of allocation breakdowns to be applied to a block trade">
 
@@ -104,16 +104,6 @@ type CreditLimitUtilisationPosition:
 	shortPosition number (0..1) <"Credit limit utilisation attributable to short positions.">
 	longPosition number (0..1) <"Credit limit utilisation attributable to long positions.">
 	global number (0..1) <"Global credit limit utilisation amount, agnostic of long/short position direction.">
-
-type Curve:
-
-	interestRateCurve InterestRateCurve (0..1)
-		[synonym Workflow_Event value "interestRateCurve"]
-	commodityCurve CommodityReferencePriceEnum (0..1) // This is just an illustrative alternative curve instance, which implementation needs to be refined and confirmed
-		[metadata scheme]
-		[synonym Workflow_Event value "commodityCurve" meta "commodityReferencePriceScheme"]
-
-	condition Curve: one-of
 
 type CustomisedWorkflow: <"In its initial iteration, this class is meant to support the DTCC TIW workflow information.">
 
@@ -261,13 +251,6 @@ type ExecutionState: <"A class to specify an execution instantiation with respec
 	execution Execution (1..1)
 		[synonym Workflow_Event value "fpmlExecution"]
 
-type InterestRateCurve:
-
-	floatingRateIndex FloatingRateIndexEnum (1..1)
-		[metadata scheme]
-		[synonym Workflow_Event value "floatingRateIndex" meta "floatingRateIndexScheme"]
-	tenor Period (1..1)
-		[synonym Workflow_Event value "tenor"]
 
 type LimitApplicable:
 
@@ -345,19 +328,6 @@ type MessageInformation: <"This class corresponds to the components of the FpML 
 		[synonym Workflow_Event value "sentTo" path "messageInformation" meta "messageAddressScheme"]
 	copyTo string (0..*) <"A unique identifier (within the specified coding scheme) giving the details of some party to whom a copy of this message will be sent for reference.">
 		[metadata scheme]
-
-type ObservationSource: <"The observation source can be composed of an curve and/or and information source.">
-
-	curve Curve (0..1)
-		[synonym Workflow_Event value "curve"]
-	informationSource InformationSource (0..1)
-		[synonym Workflow_Event value "informationSource"]
-
-	condition CurveInformationSource: <"ObservationSource should not be empty, although the attribute cardinality would allow that.">
-		if ObservationSource exists
-		then (curve exists and informationSource exists)
-			or curve exists
-			or informationSource exists
 
 type PartyCustomisedWorkflow: <"A class to specify a party-related, non-standardized data in a generic form.">
 
@@ -459,10 +429,12 @@ type TransferorTransferee: <"A class mimicking the PayerReceiver, which is itsel
 		[metadata reference]
 	transferorAccountReference Account (0..1) <"A reference to the account responsible for making the payments defined by this structure.">
 		[metadata reference]
+		[synonym Workflow_Event value "payerAccountReference" meta "href"]
 	transfereePartyReference Party (1..1) <"A reference to the party that receives the payments corresponding to this structure.">
 		[metadata reference]
 	transfereeAccountReference Account (0..1) <"A reference to the account that receives the payments corresponding to this structure.">
 		[metadata reference]
+		[synonym Workflow_Event value "receiverAccountReference" meta "href"]
 
 type Velocity:
 
@@ -474,10 +446,10 @@ type Velocity:
  */
 /*
  * workflow rule ClearedContractAgency_Participant <"The cross-events validity constraints to specify that a contract has been cleared according to the agency model from the perspective of the involved clearing member or client.">
- * 
+ *
  *    Event <beta> is ClearingSubmission
  * 	relatedTo <alpha> where lineage -> @globalKey -> eventQualifier = eventQualifier.ClearingSubmission
- * 
+ *
  *    constraint is economicTerms are the same except for payerReceiver or buyerSeller
  *    and <alpha> contract/execution is terminated  *Difference*
  *    and event date of <alpha> submission = trade date of <beta>
@@ -485,18 +457,18 @@ type Velocity:
  */
 /*
  * workflow rule ClearedContractAgency_CCP <"The cross-events validity constraints to specify that a contract has been cleared according to the agency model from the perspective of the involved clearing member or client.">
- * 
+ *
  *    Event <beta> is ClearingSubmission
  * 	relatedTo <alpha> where lineage -> @globalKey -> eventQualifier = eventQualifier.ClearingSubmission
  * 	and relatedTo <gamma> where lineage -> @globalKey -> eventQualifier = eventQualifier.ClearedTrade *Difference*
- * 
+ *
  *    constraint is economicTerms are the same except for payerReceiver or buyerSeller
  *    and event date of <alpha> submission = trade date of <beta>
  *    and CCP which is in the party role in after state of <alpha> submission is the same as the CCP which is counterparty to <beta> and <gamma> *Difference*
  */
 /*
  * workflow rule ClearedContractPrincipal_Participant <"The cross-events validity constraints to specify that a contract has been cleared according to the principal model from the perspective of the involved clearing member or client.">
- * 
+ *
  *   Event <beta> is ClearingSubmission
  * 	relatedTo <alpha> where lineage -> @globalKey -> eventQualifier = eventQualifier.ClearingSubmission
  * 	relatedTo <theta> where lineage -> @globalKey -> eventQualifier = eventQualifier.NewTrade or eventQualifier.ClearedTrade???? *Difference*
@@ -508,11 +480,11 @@ type Velocity:
  */
 /*
  * workflow rule ClearedContractPrincipal_CCP <"The cross-events validity constraints to specify that a contract has been cleared according to the principal model from the perspective of the involved clearing member or client.">
- * 
+ *
  *    Event <beta> is ClearingSubmission
  * 	relatedTo <alpha> where lineage -> @globalKey -> eventQualifier = eventQualifier.ClearingSubmission
  * 	and relatedTo <gamma> where lineage -> @globalKey -> eventQualifier = eventQualifier.ClearedTrade *Difference*
- * 
+ *
  *    constraint is economicTerms are the same except for payerReceiver or buyerSeller
  *    and event date of <alpha> submission = trade date of <beta>
  *    and CCP which is in the party role in after state of <alpha> submission is the same as the CCP which is counterparty to <beta> and <gamma> *Difference*

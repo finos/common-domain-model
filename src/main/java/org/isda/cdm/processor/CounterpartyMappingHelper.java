@@ -1,18 +1,7 @@
 package org.isda.cdm.processor;
 
-import cdm.base.staticdata.party.BuyerSeller;
-import cdm.base.staticdata.party.Counterparty;
-import cdm.base.staticdata.party.CounterpartyEnum;
-import cdm.base.staticdata.party.PayerReceiver;
-import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
-import com.regnosys.rosetta.common.translation.Mapping;
-import com.regnosys.rosetta.common.translation.MappingContext;
-import com.regnosys.rosetta.common.translation.Path;
-import com.rosetta.model.lib.RosettaModelObjectBuilder;
-import com.rosetta.model.lib.path.RosettaPath;
-import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
+import static com.regnosys.rosetta.common.util.StringExtensions.toFirstUpper;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedHashMap;
@@ -24,9 +13,22 @@ import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
-import static com.regnosys.rosetta.common.util.StringExtensions.toFirstUpper;
-import static org.isda.cdm.TradableProduct.TradableProductBuilder;
+import org.isda.cdm.TradableProduct.TradableProductBuilder;
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.regnosys.rosetta.common.translation.Mapping;
+import com.regnosys.rosetta.common.translation.MappingContext;
+import com.regnosys.rosetta.common.translation.Path;
+import com.rosetta.model.lib.RosettaModelObjectBuilder;
+import com.rosetta.model.lib.path.RosettaPath;
+
+import cdm.base.staticdata.party.BuyerSeller;
+import cdm.base.staticdata.party.Counterparty;
+import cdm.base.staticdata.party.CounterpartyEnum;
+import cdm.base.staticdata.party.PayerReceiver;
+import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 
 /**
  * Helper class for FpML mapper processors.

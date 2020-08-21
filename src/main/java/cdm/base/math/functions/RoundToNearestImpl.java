@@ -1,10 +1,9 @@
 package cdm.base.math.functions;
 
-import cdm.base.math.RoundingModeEnum;
-import cdm.base.math.functions.RoundToNearest;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+
+import cdm.base.math.RoundingModeEnum;
 
 public class RoundToNearestImpl extends RoundToNearest {
 

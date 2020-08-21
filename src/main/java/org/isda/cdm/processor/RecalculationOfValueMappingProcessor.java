@@ -1,20 +1,24 @@
 package org.isda.cdm.processor;
 
-import com.regnosys.rosetta.common.translation.MappingContext;
-import com.regnosys.rosetta.common.translation.MappingProcessor;
-import com.regnosys.rosetta.common.translation.Path;
-import com.rosetta.model.lib.RosettaModelObjectBuilder;
-import com.rosetta.model.lib.path.RosettaPath;
-import org.isda.cdm.RecalculationOfValue;
-import org.isda.cdm.RecalculationOfValueElection;
-import org.isda.cdm.RecalculationOfValueElectionEnum;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.ISDA_CREATE_SYNONYM_SOURCE;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.PARTIES;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.getEnumValue;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.synonymToEnumValueMap;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.*;
+import org.isda.cdm.RecalculationOfValue;
+import org.isda.cdm.RecalculationOfValueElection;
+import org.isda.cdm.RecalculationOfValueElectionEnum;
+
+import com.regnosys.rosetta.common.translation.MappingContext;
+import com.regnosys.rosetta.common.translation.MappingProcessor;
+import com.regnosys.rosetta.common.translation.Path;
+import com.rosetta.model.lib.RosettaModelObjectBuilder;
+import com.rosetta.model.lib.path.RosettaPath;
 
 public class RecalculationOfValueMappingProcessor extends MappingProcessor {
 

@@ -1,14 +1,16 @@
 package org.isda.cdm.functions.testing;
 
-import com.regnosys.rosetta.common.testing.ExecutableFunction;
+import static org.isda.cdm.functions.testing.FunctionUtils.guard;
+
+import java.util.Collections;
+
+import javax.inject.Inject;
+
 import org.isda.cdm.BusinessEvent;
 import org.isda.cdm.Contract;
 import org.isda.cdm.functions.Create_Execution;
 
-import javax.inject.Inject;
-import java.util.Collections;
-
-import static org.isda.cdm.functions.testing.FunctionUtils.guard;
+import com.regnosys.rosetta.common.testing.ExecutableFunction;
 
 public class RunExecute implements ExecutableFunction<Contract, BusinessEvent> {
 
