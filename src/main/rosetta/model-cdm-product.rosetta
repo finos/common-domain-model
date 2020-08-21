@@ -13,6 +13,8 @@ import cdm.observable.common.*
 import cdm.observable.asset.*
 import cdm.observable.event.*
 
+import cdm.product.common.*
+
 import cdm.synonyms.config.*
 
 type Cashflow extends PayoutBase: <"Class to specify a cashflow, i.e. the outcome of either of computation (e.g. interest accrual) or an assessment of some sort (e.g. a fee). The cashflow can then be turned into a cash transfer, artefact to be used as the input to a payment system or the outcome of it. The associated globalKey denotes the ability to associate a hash value to the Cashflow instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
@@ -772,17 +774,6 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
 	condition FpML_ird_25_FloatingRateFloorRate: <"FpML validation rule ird-25 - If step does not exist, then floorRate must not be equal to 0.">
 		if priceNotation -> price -> floatingInterestRate -> floorRate exists and product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> floorRateSchedule -> step is absent
 		then priceNotation -> price -> floatingInterestRate -> floorRate <> 0.0
-
-
-type ProductIdentification: <"Combines the CDM product qualifier with other product types and identifiers. While the CDM product qualifier is derived by the CDM from the product payout features, the other product type and identification elements are assigned by external sources and correspond to values specified by other data representation protocols.">
-
-	productQualifier productType (0..1) <"Derived from the product payout features using a CDM product qualification function that determines the product type based on the product payout features.">
-	primaryAssetData AssetClassEnum (0..1) <"Classifies the most important risk class of the trade.">
-		[metadata scheme]
-	secondaryAssetData AssetClassEnum (0..*) <" Classifies additional risk classes of the trade, if any.">
-		[metadata scheme]
-	externalProductType ExternalProductType (0..*) <"Provides a classification of the type of product that is external to the product qualifications used in the CDM. Product types mapped from external models are mapped to this data type.">
-	productIdentifier ProductIdentifier (0..*) <"Comprises an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the ProductIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 
 
 type RateSpecification: <" A class to specify the fixed interest rate, floating interest rate or inflation rate.">
