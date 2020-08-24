@@ -1,13 +1,13 @@
 package org.isda.cdm;
 
-import org.isda.cdm.functions.*;
-
+import cdm.base.math.functions.*;
+import cdm.observable.common.functions.CurrencyAmount;
+import cdm.observable.common.functions.NoOfUnits;
 import com.google.inject.AbstractModule;
 import com.regnosys.rosetta.common.validation.RosettaTypeValidator;
 import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
 import com.rosetta.model.lib.validation.ModelObjectValidator;
-
-import cdm.base.math.functions.*;
+import org.isda.cdm.functions.*;
 
 public class CdmRuntimeModule extends AbstractModule {
 
@@ -29,6 +29,7 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(CurrencyAmount.class).to(bindCurrencyAmount());
 		bind(SumPostedCreditSupportItemAmounts.class).to(bindSumPostedCreditSupportItemAmounts());
 		bind(RoundToNearest.class).to(bindRoundToNearest());
+		bind(FpmlIrd8.class).to(bindFpmlIrd8());
 	}
 
 	protected Class<? extends ListsCompare> bindListsCompare() {
@@ -83,5 +84,9 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends RoundToNearest> bindRoundToNearest() {
 		return RoundToNearestImpl.class;
+	}
+
+	protected Class<? extends FpmlIrd8> bindFpmlIrd8() {
+		return FpmlIrd8Impl.class;
 	}
 }

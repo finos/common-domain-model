@@ -1,17 +1,26 @@
 package org.isda.cdm.functions.testing;
 
-import com.regnosys.rosetta.common.testing.ExecutableFunction;
-import org.isda.cdm.*;
-import org.isda.cdm.functions.CashflowSettlementTerms;
-import org.isda.cdm.functions.Create_Execution;
+import static org.isda.cdm.functions.testing.FunctionUtils.guard;
 
-import javax.inject.Inject;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.isda.cdm.functions.testing.FunctionUtils.guard;
+import javax.inject.Inject;
+
+import org.isda.cdm.BusinessEvent;
+import org.isda.cdm.Contract;
+import org.isda.cdm.ContractualProduct;
+import org.isda.cdm.EconomicTerms;
+import org.isda.cdm.Payout;
+import org.isda.cdm.Product;
+import org.isda.cdm.SettlementTerms;
+import org.isda.cdm.TradableProduct;
+import org.isda.cdm.functions.CashflowSettlementTerms;
+import org.isda.cdm.functions.Create_Execution;
+
+import com.regnosys.rosetta.common.testing.ExecutableFunction;
 
 public class RunExecutionWithSettlementTerms implements ExecutableFunction<Contract, BusinessEvent> {
 

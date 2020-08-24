@@ -106,6 +106,18 @@ By contrast, in the case of the execution of a security (e.g. a listed equity), 
 
 An Index product is an exception because it's not directly tradable, but is included here because it can be referenced as an underlier for a tradable product and can be identified by a public identifier.
 
+Underlier
+"""""""""
+
+The ``Underlier`` type allows for any product to be used as the underlier for a higher-level product such as an option, forward, or an equity swap.
+
+.. code-block:: Haskell
+
+ type Underlier:
+   underlyingProduct Product (1..1)
+
+This nesting of the product component is another example of a composable product model. One use case is an interest rate swaption for which the high-level product uses the ``OptionPayout`` type and underlier is an Interest Rate Swap composed of two ``InterestRatePayout`` types. Similiarly, the product underlying an Equity Swap composed of an ``InterestRatePayout`` and an ``EquityPayout`` would be a non-contractual product: an equity security.
+
 Contractual Product
 ^^^^^^^^^^^^^^^^^^^
 The scope of contractual products in the current model are summarized below:
@@ -219,29 +231,48 @@ There are a number of components that are reusable across several payout types. 
    stubPeriodType StubPeriodTypeEnum (0..1)
    calculationPeriodFrequency CalculationPeriodFrequency (0..1)
 
-Underlier
-"""""""""
 
-The ``Underlier`` type allows for any product to be used as the underlier for a higher-level product such as an option, forward, or an equity swap.
-
-.. code-block:: Haskell
-
- type Underlier:
-   underlyingProduct Product (1..1)
-
-This nesting of the product component is another example of a composable product model. One use case is an interest rate swaption for which the high-level product uses the ``OptionPayout`` type and underlier is an Interest Rate Swap composed of two ``InterestRatePayout`` types. Similiarly, the product underlying an Equity Swap composed of an ``InterestRatePayout`` and an ``EquityPayout`` would be a non-contractual product: an equity security.
-
-Identified Product
-""""""""""""""""""
-
-For identified products the CDM approach is to exclude any attribute that can be abstracted through reference data. Specifying such information as part of the contract information would lead to a risk or contradictory information with the reference data.
+Products with Identifiers
+^^^^^^^^^^^^^^^^^^^^^^^^^
+The abstract data type ProductBase serves as a base for all products that have an identifier, as illustrated below:
 
 .. code-block:: Haskell
 
- type IdentifiedProduct:
-   productIdentifier ProductIdentifier (1..1)
+type ProductBase: 
+    productIdentifier ProductIdentifier (1..*)
 
-As a result, the bond, equity, and other securities are defined as extensions of the product identifier without any additional attributes.
+The data types that extend from ProductBase are Index, Commodity, Loan, and Security.  Index and Commodity do not have any additional attributes.  In the case of Commodity, the applicable product identifiers are the ISDA definitions for reference benchmarks.  Loan and Security both have a set of additional attributes, as shown below:
+
+.. code-block:: Haskell
+
+type Loan extends ProductBase: 
+   borrower LegalEntity (0..*) 
+   lien string (0..1) 
+   facilityType string (0..1) 
+   creditAgreementDate date (0..1) 
+   tranche string (0..1) 
+   
+.. code-block:: Haskell
+   
+type Security extends ProductBase: 
+	securityType SecurityTypeEnum (1..1) 
+	debtType DebtType (0..1)
+	equityType EquityTypeEnum (0..1) 
+	fundType FundProductTypeEnum (0..1) 
+
+condition DebtSubType:
+        if securityType <> SecurityTypeEnum -> Debt
+        then debtType is absent
+
+condition EquitySubType:
+        if securityType <> SecurityTypeEnum -> Equity
+        then equityType is absent
+
+condition FundSubType:
+        if securityType <> SecurityTypeEnum -> Fund
+        then fundType is absent
+ 
+The product identifier will uniquely identify the security.  The ``securityType`` is required for specific purposes in the model, for example for validation as a valid reference obligation for a Credit Default Swap.  The additional security details are optional as these could be determined from a reference database using the product identifier as a key
 
 Product Qualification
 ^^^^^^^^^^^^^^^^^^^^^
@@ -319,10 +350,15 @@ The ``productIdentification`` data structure and an instance of a CDM object (`s
      },
      "source" : "OTHER"
    } ],
-   "productQualifier" : "InterestRate_IRSwap_FixedFloat_PlainVanilla"
+   "productQualifier" : "InterestRate_IRSwap_FixedFloat_PlainVanilla",
+   "externalProductType" : [ {
+     "value" : "InterestRate:IRSwap:FixedFloat",
+     "externalProductTypeSource" : "FpMLProductType"
+
+   } ]
  }
 
-.. note:: ``productType`` is a *meta-type* that indicates that its value is meant to be populated via a function. This mechanism is explained in the `Qualified Type Section`_ of the Rosetta DSL documentation. For a further understanding of the underlying qualification logic in the Product Qualification, see the explanation of the *object qualification* feature of the Rosetta DSL, as described in the `Function Definition Section`_.
+.. note:: ``productQualifier`` is a *meta-type* that indicates that its value is meant to be populated via a function. This mechanism is explained in the `Qualified Type Section`_ of the Rosetta DSL documentation. For a further understanding of the underlying qualification logic in the Product Qualification, see the explanation of the *object qualification* feature of the Rosetta DSL, as described in the `Function Definition Section`_.
 
 
 Event Model
@@ -1881,6 +1917,7 @@ The following set of synonym sources are currently in place for the CDM:
 * **CME** (synonym sources: ``CME_ClearedConfirm_1_17`` and ``CME_SubmissionIRS_1_0``): synonyms to the *cme-conf-ext-1-17.xsd* schema (including the imported FpML schema version 5.0) used for clearing confirmation, and to the *bloombergTradeFixml* schema (including the imported FpML schema version 4.6) used for clearing submission
 * **AcadiaSoft** (synonym source: ``AcadiaSoft_AM_1_0``): synonyms to version 1.0 of AcadiaSoft Agreement Manager
 * **ISDA Create** (synonym source: ``ISDA_Create_1_0``): synonyms to version 1.0 of the ISDA Create tool for Initial Margin negotiation
+* **ORE** (synonym source: ``ORE_1_0_39``): synonyms to version 1.0.39 of the ORE XML Model
 
 Those synonym sources are listed as part of a configuration file in the CDM using a special ``synonym source`` enumeration, so that the synonym source value can be controlled when editing synonyms.
 

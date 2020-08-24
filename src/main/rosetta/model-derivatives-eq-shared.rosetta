@@ -4,32 +4,12 @@ version "${project.version}"
 import cdm.base.*
 import cdm.base.datetime.*
 import cdm.base.staticdata.party.*
+import cdm.observable.*
+import cdm.observable.asset.*
+import cdm.observable.event.*
+import cdm.observable.common.*
 import cdm.synonyms.config.*
 
-type AdditionalDisruptionEvents: <"A type for defining the Additional Disruption Events.">
-
-	changeInLaw boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Change in Law | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Change In Law | If true, then change in law is applicable.">
-	failureToDeliver boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Failure to Deliver | Where the underlying is shares and the transaction is physically settled, then, if true, a failure to deliver the shares on the settlement date will not be an event of default for the purposes of the master agreement.">
-	insolvencyFiling boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Insolvency Filing | If true, then insolvency filing is applicable.">
-	hedgingDisruption boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Hedging Disruption | If true, then hedging disruption is applicable.">
-	increasedCostOfHedging boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Increased Cost of Hedging | If true, then increased cost of hedging is applicable.">
-	foreignOwnershipEvent boolean (0..1) <"If true, then foreign ownership event is applicable.">
-	lossOfStockBorrow boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Loss of Stock Borrow | If true, then loss of stock borrow is applicable.">
-	maximumStockLoanRate number (0..1) <"Specifies the maximum stock loan rate for Loss of Stock Borrow. A percentage of 5% is represented as 0.05.">
-	increasedCostOfStockBorrow boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Increased Cost of Stock Borrow | If true, then increased cost of stock borrow is applicable.">
-	initialStockLoanRate number (0..1) <"Specifies the initial stock loan rate for Increased Cost of Stock Borrow. A percentage of 5% is represented as 0.05.">
-	determiningPartyReference Party (0..1) <"A reference to the party which determines additional disruption events.">
-		[metadata reference]
-
-	condition MaximumStockLoanRate: <" FpML specifies the maximumStockLoanRate as a RestrictedPercentage, meaning that its value is comprised between 0 and 1.">
-		if maximumStockLoanRate exists
-		then maximumStockLoanRate >= 0
-			and maximumStockLoanRate <= 1
-
-	condition InitialStockLoanRate: <" FpML specifies the initialStockLoanRate as a RestrictedPercentage, meaning that its value is comprised between 0 and 1.">
-		if initialStockLoanRate exists
-		then AdditionalDisruptionEvents ->initialStockLoanRate >= 0
-			and initialStockLoanRate <= 1
 
 type DeterminationMethod: <"The purpose of this class is to be extended by the Price and EquityValuation classes.">
 	// TODO Never referenced in CDM
@@ -88,73 +68,8 @@ type DividendReturnTerms: <"A class describing the conditions governing the paym
 		then dividendPeriodEffectiveDate is absent
 			and dividendPeriodEndDate is absent
 
-type EquityCorporateEvents: <"A class for defining the merger events and their treatment.">
-
-	shareForShare ShareExtraordinaryEventEnum (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Merger Event (S-F-S) shall occur if a Merger Event occurs and the consideration for the relevant Security consists solely of Combined Consideration. | The consideration paid for the original shares following the Merger Event consists wholly of new shares.">
-
-	shareForOther ShareExtraordinaryEventEnum (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Merger Event (S-F-O) shall occur if a Merger Event occurs and the consideration for the relevant Security consists solely of Other Consideration. | The consideration paid for the original shares following the Merger Event consists wholly of cash/securities other than new shares.">
-	shareForCombined ShareExtraordinaryEventEnum (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Merger Event (S-F-C) shall occur if a Merger Event occurs and the consideration for the relevant Security consists solely of Combined Consideration. | The consideration paid for the original shares following the Merger Event consists of both cash/securities and new shares.">
-
-type EquityValuation extends CashPrice: <"A class for defining how and when an equity option or equity swap is to be valued.">
-
-	determinationMethod DeterminationMethodEnum (1..1) <"Specifies the method according to which an amount or a date is determined.">
-
-	valuationDates AdjustableRelativeOrPeriodicDates (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Pricing Date">
-	valuationDate AdjustableOrRelativeDate (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Pricing Date">
-	valuationTime BusinessCenterTime (0..1) <"The specific time of day at which the calculation agent values the underlying. The SpecificTime is the only case when the valuationTime (time + business center location – e.g. 10:00:00 USNY) should be provided. You should be able to provide just the valuationTime without valuationTimeType, which infer that this is a specific time.">
-	valuationTimeType TimeTypeEnum (0..1) <"The time of day at which the calculation agent values the underlying, for example the official closing time of the exchange.">
-
-/*
- * The FpML construct has a a number of other attributes: dividend valuation dates, fall-back provision, ...
- * Also, FpML extends Price while the current CDM approach is just to share the determinationMethod.  To be confirmed as a function of the use cases.
- */
-type ExtraordinaryEvents: <"Where the underlying is shares, defines market events affecting the issuer of those shares that may require the terms of the transaction to be adjusted.">
-
-	mergerEvents EquityCorporateEvents (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Merger Event shall occur if a Merger occurs and the Merger Date is on or before the final Equity Valuation Date | Occurs when the underlying ceases to exist following a merger between the Issuer and another company.">
-
-	tenderOfferEvents EquityCorporateEvents (0..1) <"2002 ISDA Equity Derivatives Definitions: Tender Offers | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Tender Offer Event">
-	compositionOfCombinedConsideration boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Composition of Combined Consideration | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Combined Consideration | If present and true, then composition of combined consideration is applicable.">
-	indexAdjustmentEvents IndexAdjustmentEvents (0..1) <"2002 ISDA Equity Derivatives Definitions: Adjustments to Indices | ">
-	additionalDisruptionEvents AdditionalDisruptionEvents (0..1) <"2002 ISDA Equity Derivatives Definitions: Additional Disruption Events | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Additional Disruption Events means each Additional Disruption Event specified in the Confirmation Side Letter. For the avoidance of doubt, each Additional Disruption Event shall be an Extraordinary Event.">
-	failureToDeliver boolean (0..1) <"If true, failure to deliver is applicable.">
-	representations Representations (0..1)
-	nationalizationOrInsolvency NationalizationOrInsolvencyOrDelistingEventEnum (0..1) <"2002 ISDA Equity Derivatives Definitions: Nationalization and Insolvency | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Nationalization shall occur if all the Securities or all or substantially all the assets of an Issuer are nationalized, expropriated or are otherwise required to be transferred to any governmental agency, authority, entity or instrumentality thereof. Insolvency Filing means as defined in the Confirmation Side Letter.">
-	delisting NationalizationOrInsolvencyOrDelistingEventEnum (0..1) <"2002 ISDA Equity Derivatives Definitions: Delisting | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Delisting means Delisting (Broad Relisting) or Delisting (Narrow Relisting), as specified in the Relationship Supplement.">
-
-	condition Choice: <"condition to represent an FpML choice construct.">
-		required choice additionalDisruptionEvents, failureToDeliver
-
-type IndexAdjustmentEvents: <"Defines the specification of the consequences of Index Events as defined by the 2002 ISDA Equity Derivatives Definitions.">
-
-	indexModification IndexEventConsequenceEnum (1..1) <"Consequence of index modification.">
-	indexCancellation IndexEventConsequenceEnum (1..1) <"Consequence of index cancellation.">
-	indexDisruption IndexEventConsequenceEnum (1..1) <"Consequence of index disruption.">
-
-// TODO - Look for further synergies with the SecurityValuation class
-type CashPrice: <"Describes a price component as a cash amount, which can either represent cash proceeds for a security purchase or a cashflow that is embedded as part of a contractual product: for instance an upfront fee.">
-
-	grossPrice ActualPrice (0..1) <"Specifies the price of the underlier, before commissions.">
-	cleanNetPrice ActualPrice (0..1) <"Specifies the clean price of the underlier (e.g. excluding accrued interest), net of commissions.">
-	netPrice ActualPrice (0..1) <"Specifies the dirty price of the underlier (e.g. including accrued interest), net of commissions.">
-	accruedInterest number (0..1) <"Specifies the accrued interest that are part of the dirty price in the case of a fixed income security or a convertible bond. Expressed in percentage of the notional.">
-	cashflowAmount Money (0..1) <"Specifies the price as a cashflow amount embedded as part of a a contractual product.">
-
-	/*
-	 * FpML construct also includes other elements, such as the fxConversion
-	 */
-	condition NetPrice: <" The netPrice and/or cleanNetPrice must be specified.">
-		if CashPrice exists
-		then netPrice exists or cleanNetPrice exists or cashflowAmount exists
-
 type PriceReturnTerms:
 
 	valuationPriceInterim EquityValuation (0..1) <"Specifies the interim valuation price(s) of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
 	valuationPriceFinal EquityValuation (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Final Price | Specifies the final valuation price of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
 
-// In a subsequent phase of work, a single price should be stored and "reset" after each period. Lineage should then be used to resolve the period start and end prices for the Equity Cash Settlement Amount calculation
-type Representations:
-
-	nonReliance boolean (1..1) <"If true, then non reliance is applicable.">
-	agreementsRegardingHedging boolean (1..1) <"If true, then agreements regarding hedging are applicable.">
-	indexDisclaimer boolean (1..1) <"If present and true, then index disclaimer is applicable.">
-	additionalAcknowledgements boolean (0..1) <"If true, then additional acknowledgements are applicable.">

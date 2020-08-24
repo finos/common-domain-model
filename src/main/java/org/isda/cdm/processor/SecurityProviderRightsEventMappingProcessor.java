@@ -1,18 +1,19 @@
 package org.isda.cdm.processor;
 
-import com.regnosys.rosetta.common.translation.MappingContext;
-import com.regnosys.rosetta.common.translation.MappingProcessor;
-import com.regnosys.rosetta.common.translation.Path;
-import com.rosetta.model.lib.RosettaModelObjectBuilder;
-import com.rosetta.model.lib.path.RosettaPath;
-import org.isda.cdm.SecurityProviderRightsEvent;
-import org.isda.cdm.SecurityProviderRightsEventElection;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.PARTIES;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.PARTIES;
+import org.isda.cdm.SecurityProviderRightsEvent;
+import org.isda.cdm.SecurityProviderRightsEventElection;
+
+import com.regnosys.rosetta.common.translation.MappingContext;
+import com.regnosys.rosetta.common.translation.MappingProcessor;
+import com.regnosys.rosetta.common.translation.Path;
+import com.rosetta.model.lib.RosettaModelObjectBuilder;
+import com.rosetta.model.lib.path.RosettaPath;
 
 public class SecurityProviderRightsEventMappingProcessor extends MappingProcessor {
 

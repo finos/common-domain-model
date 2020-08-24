@@ -1,21 +1,26 @@
 package org.isda.cdm.processor;
 
-import cdm.base.staticdata.asset.common.ISOCurrencyCodeEnum;
-import com.regnosys.rosetta.common.translation.MappingContext;
-import com.regnosys.rosetta.common.translation.MappingProcessor;
-import com.regnosys.rosetta.common.translation.Path;
-import com.rosetta.model.lib.RosettaModelObjectBuilder;
-import com.rosetta.model.lib.path.RosettaPath;
-import org.isda.cdm.TerminationCurrencyAmendment;
-import org.isda.cdm.TerminationCurrencyElection;
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.ISDA_CREATE_SYNONYM_SOURCE;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.PARTIES;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.setIsoCurrency;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.synonymToEnumValueMap;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.*;
+import org.isda.cdm.TerminationCurrencyAmendment;
+import org.isda.cdm.TerminationCurrencyElection;
+
+import com.regnosys.rosetta.common.translation.MappingContext;
+import com.regnosys.rosetta.common.translation.MappingProcessor;
+import com.regnosys.rosetta.common.translation.Path;
+import com.rosetta.model.lib.RosettaModelObjectBuilder;
+import com.rosetta.model.lib.path.RosettaPath;
+
+import cdm.base.staticdata.asset.common.ISOCurrencyCodeEnum;
 
 /**
  * ISDA Create mapping processor.
