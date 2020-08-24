@@ -5,6 +5,7 @@ import cdm.base.*
 import cdm.base.datetime.*
 import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.party.*
+import cdm.observable.asset.*
 import cdm.synonyms.config.*
 
 /*
@@ -250,19 +251,6 @@ type ExtensionEvent: <"A data to:  define the adjusted dates associated with an 
 		if ExtensionEvent exists
 		then adjustedExerciseDate < adjustedExtendedTerminationDate
 
-type FallbackReferencePrice: <"The method, prioritised by the order it is listed in this element, to get a replacement rate for the disrupted settlement rate option.">
-
-	valuationPostponement ValuationPostponement (0..1) <"Specifies how long to wait to get a quote from a settlement rate option upon a price source disruption.">
-
-	fallBackSettlementRateOption SettlementRateOptionEnum (0..*) <"This settlement rate option will be used in its place.">
-		[metadata scheme]
-	fallbackSurveyValuationPostponement boolean (0..1) <"Request rate quotes from the market. This element is set as type Empty in FpML. When present, the FpML synonym is mapped to a value True in the CDM.">
-	calculationAgentDetermination CalculationAgent (0..1) <"The calculation agent will decide the rate.">
-
-	condition MaximumDaysOfPostponement: <"FpML specifies maximumDaysOfPostponement as a positive integer.">
-		if valuationPostponement exists
-		then valuationPostponement -> maximumDaysOfPostponement > 0
-
 type FinalCalculationPeriodDateAdjustment: <"A data to:  define business date convention adjustment to final payment period per leg.">
 
 	relevantUnderlyingDateReference AdjustableOrRelativeDates (1..1) <"Reference to the unadjusted cancellation effective dates.">
@@ -332,24 +320,6 @@ type InflationRateSpecification extends FloatingRateSpecification: <"A data to: 
 	condition RateOptionAssetIdentifier: <"The asset identifier for an interest rate spread must be a rate option.">
 		assetIdentifier -> rateOption only exists
 
-type FixedInterestRate: <"Data to specify a fixed interest rate price.">
-
-	rate number (1..1)
-
-type FloatingInterestRate: <"Data to specify a floating interest rate price.">
-
-	initialRate number (0..1) <"The initial floating rate reset agreed between the principal parties involved in the trade. This is assumed to be the first required reset rate for the first regular calculation period. It should only be included when the rate is not equal to the rate published on the source implied by the floating rate index. An initial rate of 5% would be represented as 0.05.">
-	spread number (0..1)
-	capRate number (0..1)
-	floorRate number (0..1)
-	multiplier number (0..1)
-
-	condition AtLeastOneOf:
-		(initialRate or spread or capRate or floorRate) exists
-
-	condition FloatingRateMultiplierSchedule: <"FpML specifies that the floatingRateMultiplierSchedule should only be included if the multiplier is not equal to 1 for the term of the stream.">
-		if multiplier exists
-		then multiplier <> 1.0
 
 type MandatoryEarlyTermination: <"A data to:  define an early termination provision for which exercise is mandatory.">
 	[metadata key]
@@ -496,10 +466,6 @@ type StubCalculationPeriodAmount: <"A data defining:  how the initial or final s
 		[metadata reference]
 	initialStub StubValue (0..1) <"Specifies how the initial stub amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating tenors may be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3. Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.">
 	finalStub StubValue (0..1) <"Specifies how the final stub amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating tenors may be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3. Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.">
-
-type ValuationPostponement: <"Specifies how long to wait to get a quote from a settlement rate option upon a price source disruption.">
-
-	maximumDaysOfPostponement int (1..1) <"The maximum number of days to wait for a quote from the disrupted settlement rate option before proceeding to the next method.">
 
 type YieldCurveMethod: <"A data defining:  the parameters required for each of the ISDA defined yield curve methods for cash settlement.">
 

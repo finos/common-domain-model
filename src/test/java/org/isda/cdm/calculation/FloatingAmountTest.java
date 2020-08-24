@@ -1,23 +1,39 @@
 package org.isda.cdm.calculation;
 
-import cdm.base.datetime.*;
-import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
-import cdm.base.math.NonNegativeQuantity;
-import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
-import cdm.base.staticdata.asset.rates.metafields.FieldWithMetaFloatingRateIndexEnum;
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.rosetta.model.lib.records.DateImpl;
-import org.isda.cdm.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.number.BigDecimalCloseTo.closeTo;
+
+import java.math.BigDecimal;
+
+import org.isda.cdm.CalculationPeriodDates;
+import org.isda.cdm.DayCountFractionEnum;
+import org.isda.cdm.FloatingRateSpecification;
+import org.isda.cdm.InterestRatePayout;
+import org.isda.cdm.RateSpecification;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.isda.cdm.functions.FloatingAmount;
 import org.isda.cdm.metafields.FieldWithMetaDayCountFractionEnum;
 import org.junit.jupiter.api.Test;
 
-import java.math.BigDecimal;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.rosetta.model.lib.records.DateImpl;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.number.BigDecimalCloseTo.closeTo;
+import cdm.base.datetime.AdjustableDate;
+import cdm.base.datetime.AdjustableOrRelativeDate;
+import cdm.base.datetime.BusinessCenters;
+import cdm.base.datetime.BusinessDayAdjustments;
+import cdm.base.datetime.BusinessDayConventionEnum;
+import cdm.base.datetime.CalculationPeriodFrequency;
+import cdm.base.datetime.PeriodExtendedEnum;
+import cdm.base.datetime.RollConventionEnum;
+import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
+import cdm.base.math.NonNegativeQuantity;
+import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
+import cdm.base.staticdata.asset.rates.metafields.FieldWithMetaFloatingRateIndexEnum;
+import cdm.observable.asset.AssetIdentifier;
+import cdm.observable.asset.FloatingInterestRate;
+import cdm.observable.asset.FloatingRateOption;
 
 class FloatingAmountTest extends AbstractFunctionTest{
 	

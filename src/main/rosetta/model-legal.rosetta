@@ -7,6 +7,8 @@ import cdm.base.math.*
 import cdm.base.staticdata.identifier.*
 import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.party.*
+import cdm.observable.asset.*
+import cdm.observable.event.*
 import cdm.synonyms.config.*
 
 type AccessConditions: <"A class to specify each party's election with respect to the Termination Events that will be deemed an Access Condition (Initial Margin CSA) or a Specified Condition (Variation Margin CSA). ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (e)(ii). | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (f)(ii). | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e)(ii). | ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (e): Conditions Precedent and Secured Party’s Rights and Remedies.">
@@ -119,7 +121,7 @@ type AgreementTerms: <"Specification of the content of a legal agreement.">
 
 	agreement Agreement (1..1) <"Specification of the standard set of terms that define a legal agreement.">
 	relatedAgreements RelatedAgreement (0..*) <"Specifies the agreement(s) that govern the agreement, either as a reference to such agreements when specified as part of the CDM, or through identification of some of the key terms of those agreements, such as the type of agreement, the publisher, the vintage, the agreement identifier and the agreement date.">
-		[synonym ISDA_Create_1_0 value 
+		[synonym ISDA_Create_1_0 value
 		    "date_of_euroclear_security_agreement" path "answers->partyA",
 		    "date_of_collateral_transfer_agreement" path "answers->partyA",
 			"date_of_isda_master_agreement" path "answers->partyA",
@@ -456,31 +458,6 @@ type ControlAgreementNecEventElection: <"A class to specify party specific Contr
 	necEvent boolean (1..1)
 		[synonym ISDA_Create_1_0 set to True when "partyA_control_agreement_nec_event" = "applicable", set to False when "partyA_control_agreement_nec_event" = "not_applicable"]
 		[synonym ISDA_Create_1_0 set to True when "partyB_control_agreement_nec_event" = "applicable", set to False when "partyB_control_agreement_nec_event" = "not_applicable"]
-
-type CreditNotation: <"A class to specify the credit notation as the combination of agency, notation, scale and debt type qualifications.">
-
-	agency CreditRatingAgencyEnum (1..1) <"The credit agency to which the other variables (notation, scale, debt type) refer to.">
-		[metadata scheme]
-	notation string (1..1) <"The credit rating notation. As it varies among credit rating agencies, FpML doesn't specify a default scheme.">
-		[metadata scheme]
-	scale string (0..1) <"The credit rating scale, with a typical distinction between short term, long term. FpML doesn't specify a default scheme, which is hence not specified as an enumeration as part of the CDM.">
-		[metadata scheme]
-	debt CreditRatingDebt (0..1) <"The credit rating debt type (e.g. long term, high yield, deposits, ...) associated with the credit rating notation and scale.">
-
-type CreditNotations: <"The credit rating notation higher level construct, which provides the ability to specify multiple rating notations.">
-
-	creditNotation CreditNotation (0..1) <"This attribute is specified when only one credit notation is determined.">
-	creditNotations MultipleCreditNotations (0..1) <"This attribute provides the ability to specify several credit notations, alongside an 'any' or 'all' or all condition.">
-
-	condition: one-of
-
-type CreditRatingDebt: <"The credit rating debt type(s) associated with the credit rating notation and scale. When several debt types are specified, they must be qualified through an 'any' or 'all'.">
-
-	debtType string (0..1) <"This attribute is to be specified when only one debt type is specified. FpML doesn't specify values in relation to the associated scheme, which is hence not specified as an enumeration as part of the CDM.">
-		[metadata scheme]
-	debtTypes MultipleDebtTypes (0..1) <"This attribute provides the ability to specify several debt types, alongside an 'any' or 'all' or all condition. As an example, Baa1 rating is required for any long term debt and deposit.">
-
-	condition: one-of
 
 type CreditSupportAgreementElections: <"The set of elections which specify a Credit Support Annex or Deed.">
 
@@ -1156,24 +1133,6 @@ type MinimumTransferAmountAmendment: <" A class to specify whether Amendment to 
 	condition AmendmentApplicable: <"A data rule to enforce that the Effective Date and Party Elections should be absent when the Minimum Transfer Amount Amendment is stated as not specified for the 											agreement.">
 		if isApplicable = True
 		then effectiveDate exists and partyElections exists
-
-type MultipleCreditNotations: <"A class to specify multiple credit notations alongside a conditional 'any' or 'all' qualifier.">
-
-	condition QuantifierEnum (1..1) <"An enumerated element, to qualify whether All or Any credit notation applies.">
-	creditNotation CreditNotation (2..*) <"At least two credit notations much be specified.">
-		[metadata scheme]
-	mismatchResolution CreditNotationMismatchResolutionEnum (0..1)
-	referenceAgency CreditRatingAgencyEnum (0..1)
-
-	condition ReferenceAgency: <"If the mismatch resolution is ReferenceAgency, ensure that the reference agency is specified.">
-		if MultipleCreditNotations -> mismatchResolution = CreditNotationMismatchResolutionEnum -> ReferenceAgency
-		then MultipleCreditNotations -> referenceAgency exists
-
-type MultipleDebtTypes: <"A class to specify multiple credit debt types alongside a conditional 'any' or 'all' qualifier.">
-
-	condition QuantifierEnum (1..1) <"An enumerated attribute, to qualify whether All or Any debt type applies.">
-	debtType string (2..*) <"The type of debt, e.g. long term debt, deposit, ... FpML doesn't specific a scheme value, hence no enumeration is specified as part of the CDM. At least two debt types much be specified.">
-		[metadata scheme]
 
 type NotificationTime: <"A class to specify the time by which a demand for the Transfer of Eligible Credit Support (IM) or Posted Credit Support (IM) needs to be made in order for the transfer to take place in accordance with the Transfer Timing provisions. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (d)(iii): Notification Time. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e)(iii): Notification Time. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d)(iii): Notification Time.">
 

@@ -1,13 +1,8 @@
-package org.isda.cdm.functions;
+package cdm.observable.common.functions;
 
-import com.google.common.io.Resources;
-import com.google.inject.Inject;
-import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
-import org.isda.cdm.Contract;
-import org.isda.cdm.PriceNotation;
-import org.isda.cdm.QuantityNotation;
-import org.isda.cdm.TradableProduct;
-import org.junit.jupiter.api.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -16,9 +11,18 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.isda.cdm.Contract;
+import org.isda.cdm.TradableProduct;
+import org.isda.cdm.functions.AbstractFunctionTest;
+import org.junit.jupiter.api.Test;
+
+import com.google.common.io.Resources;
+import com.google.inject.Inject;
+import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
+
+import cdm.observable.asset.PriceNotation;
+import cdm.observable.asset.QuantityNotation;
+import cdm.observable.common.functions.ExchangeRateQuantityTriangulation;
 
 public class ExchangeRateQuantityTriangulationTest extends AbstractFunctionTest {
 

@@ -1,13 +1,10 @@
 package org.isda.cdm.functions;
 
-import com.google.common.io.Resources;
-import com.google.inject.Inject;
-import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
-import com.rosetta.model.lib.GlobalKey;
-import com.rosetta.model.lib.meta.MetaFieldsI;
-import org.isda.cdm.*;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import static org.hamcrest.CoreMatchers.startsWith;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -19,10 +16,26 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
-import static org.hamcrest.CoreMatchers.startsWith;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.fail;
+import org.isda.cdm.Contract;
+import org.isda.cdm.ContractualProduct;
+import org.isda.cdm.EconomicTerms;
+import org.isda.cdm.EquityPayout;
+import org.isda.cdm.InterestRatePayout;
+import org.isda.cdm.OptionPayout;
+import org.isda.cdm.Payout;
+import org.isda.cdm.PayoutBase;
+import org.isda.cdm.ResolvablePayoutQuantity;
+import org.isda.cdm.TradableProduct;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
+import com.google.common.io.Resources;
+import com.google.inject.Inject;
+import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
+import com.rosetta.model.lib.GlobalKey;
+import com.rosetta.model.lib.meta.MetaFieldsI;
+
+import cdm.observable.asset.QuantityNotation;
 
 class ResolveContractualProductTest extends AbstractFunctionTest {
 

@@ -1,19 +1,27 @@
 package org.isda.cdm.processor;
 
-import cdm.base.staticdata.asset.common.ISOCurrencyCodeEnum;
-import com.regnosys.rosetta.common.translation.MappingProcessorUtils;
-import com.rosetta.model.lib.annotations.RosettaSynonym;
-import com.rosetta.model.metafields.FieldWithMetaString;
-import com.rosetta.model.metafields.MetaFields;
+import static java.util.Optional.ofNullable;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
+import com.regnosys.rosetta.common.translation.MappingProcessorUtils;
+import com.rosetta.model.lib.annotations.RosettaSynonym;
+import com.rosetta.model.metafields.FieldWithMetaString;
+import com.rosetta.model.metafields.MetaFields;
 
-import static java.util.Optional.ofNullable;
+import cdm.base.staticdata.asset.common.ISOCurrencyCodeEnum;
 
 class CdmMappingProcessorUtils {
 

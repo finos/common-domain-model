@@ -15,7 +15,7 @@
 		<maven.compiler.source>11</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<rosetta.common.version>0.0.0.master</rosetta.common.version>
-		<rosetta.dsl.version>3.2.0</rosetta.dsl.version>
+		<rosetta.dsl.version>3.2.1</rosetta.dsl.version>
 		<rosetta.code-generators.version>0.0.0.master</rosetta.code-generators.version>
 		<xtext.version>2.15.0</xtext.version>
 		<junit.jupiter.version>5.2.0</junit.jupiter.version>
@@ -128,24 +128,6 @@
 								<goals>
 									<goal>generate</goal>
 								</goals>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-javadoc-plugin</artifactId>
-						<version>3.0.1</version>
-						<executions>
-							<execution>
-								<id>attach-javadocs</id>
-								<phase>prepare-package</phase>
-								<goals>
-									<goal>javadoc</goal>
-								</goals>
-								<configuration>
-									<reportOutputDirectory>${project.build.directory}/classes/cdm</reportOutputDirectory>
-									<javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
-								</configuration>
 							</execution>
 						</executions>
 					</plugin>
@@ -562,7 +544,7 @@
 				<version>3.1.0</version>
 				<executions>
 					<execution>
-						<id>copy-cdm-files</id>
+						<id>default-cli</id>
 						<phase>validate</phase>
 						<goals>
 							<goal>copy-resources</goal>
@@ -637,7 +619,7 @@
 				<artifactId>xtext-maven-plugin</artifactId>
 				<executions>
 					<execution>
-						<id>generate-rosetta</id>
+						<id>default-cli</id>
 						<phase>generate-sources</phase>
 						<goals>
 							<goal>generate</goal>
@@ -798,6 +780,25 @@
 			</plugins>
 		</pluginManagement>
 	</build>
+
+	<reporting>
+		<excludeDefaults>true</excludeDefaults>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.0.1</version>
+				<reportSets>
+					<reportSet>
+						<reports>
+							<report>javadoc-no-fork</report>
+							<report>test-javadoc-no-fork</report>
+						</reports>
+					</reportSet>
+				</reportSets>
+			</plugin>
+		</plugins>
+	</reporting>
 
 	<dependencyManagement>
 		<dependencies>
