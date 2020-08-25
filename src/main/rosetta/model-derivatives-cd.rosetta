@@ -8,8 +8,11 @@ import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.party.*
 import cdm.base.staticdata.asset.credit.*
 import cdm.base.staticdata.asset.rates.*
+
 import cdm.observable.asset.*
 import cdm.observable.event.*
+
+import cdm.product.common.schedule.*
 import cdm.synonyms.config.*
 
 /*
@@ -186,19 +189,6 @@ type LoanParticipation extends PCDeliverableObligationCharac: <"A class to speci
 
 	qualifyingParticipationSeller string (0..1) <"If Direct Loan Participation is specified as a deliverable obligation characteristic, this specifies any requirements for the Qualifying Participation Seller. The requirements may be listed free-form. ISDA 2003 Term: Qualifying Participation Seller.">
 
-type MultipleValuationDates extends SingleValuationDate:
-
-	businessDaysThereafter int (0..1) <"The number of business days between successive valuation dates when multiple valuation dates are applicable for cash settlement. ISDA 2003 Term: Business Days thereafter.">
-	numberValuationDates int (0..1) <"Where multiple valuation dates are specified as being applicable for cash settlement, this element specifies (a) the number of applicable valuation dates, and (b) the number of business days after satisfaction of all conditions to settlement when the first such valuation date occurs, and (c) the number of business days thereafter of each successive valuation date. ISDA 2003 Term: Multiple Valuation Dates.">
-
-	condition BusinessDaysThereafter: <"FpML specifies businessDaysThereafter as a PositiveInteger.">
-		if businessDaysThereafter exists
-		then businessDaysThereafter >= 0
-
-	condition NumberValuationDates: <"FpML specifies numberValuationDates as a PositiveInteger.">
-		if numberValuationDates exists
-		then numberValuationDates >= 0
-
 type PCDeliverableObligationCharac: <"A class to specify the Partial Cash Deliverable Obligation Characteristic.">
 
 	applicable boolean (1..1) <"Indicates whether the provision is applicable.">
@@ -307,14 +297,6 @@ type SettledEntityMatrix: <"A class to specify the Relevant Settled Entity Matri
 		[metadata scheme]
 	publicationDate date (0..1) <"Specifies the publication date of the applicable version of the matrix. When this element is omitted, the Standard Terms Supplement defines rules for which version of the matrix is applicable.">
 
-type SingleValuationDate: <"A class to specify the number of business days after satisfaction of all conditions to settlement.">
-
-	businessDays int (0..1) <"A number of business days. Its precise meaning is dependant on the context in which this element is used. ISDA 2003 Term: Business Day.">
-
-	condition NonNegativeBusinessDays: <"FpML specifies businessDays as a NonNegativeInteger.">
-		if businessDays exists
-		then businessDays >= 0
-
 type Tranche: <"The class to represent a CDS Tranche.">
 
 	attachmentPoint number (1..1) <"Lower bound percentage of the loss that the Tranche can endure, expressed as a decimal. An attachment point of 5% would be represented as 0.05. The difference between Attachment and Exhaustion points is called the width of the Tranche.">
@@ -333,9 +315,3 @@ type Tranche: <"The class to represent a CDS Tranche.">
 		if Tranche exists
 		then attachmentPoint <= exhaustionPoint
 
-type ValuationDate:
-
-	singleValuationDate SingleValuationDate (0..1) <"Where single valuation date is specified as being applicable for cash settlement, this element specifies the number of business days after satisfaction of all conditions to settlement when such valuation date occurs. ISDA 2003 Term: Single Valuation Date.">
-	multipleValuationDates MultipleValuationDates (0..1) <"Where multiple valuation dates are specified as being applicable for cash settlement, this element specifies (a) the number of applicable valuation dates, and (b) the number of business days after satisfaction of all conditions to settlement when the first such valuation date occurs, and (c) the number of business days thereafter of each successive valuation date. ISDA 2003 Term: Multiple Valuation Dates.">
-
-	condition: one-of

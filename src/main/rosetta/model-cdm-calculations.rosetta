@@ -1,10 +1,13 @@
 namespace org.isda.cdm
 version "${project.version}"
 
-import cdm.base.datetime.*
 import cdm.base.math.*
+import cdm.base.datetime.*
 import cdm.base.staticdata.asset.rates.*
+
 import cdm.observable.asset.*
+
+import cdm.product.common.schedule.*
 
 func FixedAmount: <"2006 ISDA Definition Article 5 Section 5.1. Calculation of a Fixed Amount: The Fixed Amount payable by a party on a Payment Date will be: (a) if an amount is specified for the Swap Transaction as the Fixed Amount payable by that party for that Payment Date or for the related Calculation Period, that amount; or (b) if an amount is not specified for the Swap Transaction as the Fixed Amount payable by that party for that Payment Date or for the related Calculation Period, an amount calculated on a formula basis for that Payment Date or for the related Calculation Period as follows: Fixed Amount = Calculation Amount × Fixed Rate × Day Count Fraction.">
 	[calculation]
@@ -209,20 +212,3 @@ func ResolveRateIndex: <"The function to specify that the floating rate index en
 	inputs: index FloatingRateIndexEnum (1..1)
 	output: rate number (1..1)
 
-func PeriodsInYear:
-	inputs: frequency CalculationPeriodFrequency (1..1)
-	output: numberOfPeriods int (1..1)
-
-func CalculationPeriod: <"2006 ISDA Definition Section 4.13. 'Calculation Period' means, in respect of a Swap Transaction and a party, each period from, and including, one Period End Date of that party to, but excluding, the next following applicable Period End Date during the Term of the Swap Transaction, except that (a) the initial Calculation Period for the party will commence on, and include, the Effective Date and (b) the final Calculation Period for the party will end on, but exclude, the Termination Date.">
-	inputs:
-		calculationPeriodDates CalculationPeriodDates (1..1)
-		date date (1..1)
-	output: result CalculationPeriodData (1..1)
-
-type CalculationPeriodData:
-	startDate date (1..1)
-	endDate date (1..1)
-	daysInPeriod int (1..1)
-	daysInLeapYearPeriod int (1..1)
-	isFirstPeriod boolean (1..1)
-	isLastPeriod boolean (1..1)
