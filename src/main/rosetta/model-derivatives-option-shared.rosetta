@@ -82,22 +82,6 @@ type OptionProvision: <"A class for defining option provisions.">
 	cancelableProvision CancelableProvision (0..1) <"A provision that allows the specification of an embedded option within a swap giving the buyer of the option the right to terminate the swap, in whole or in part, on the early termination date.">
 	extendibleProvision ExtendibleProvision (0..1) <"A provision that allows the specification of an embedded option with a swap giving the buyer of the option the right to extend the swap, in whole or in part, to the extended termination date.">
 
-type OptionSettlement extends SettlementTerms: <"The option settlement terms, which can either be cash, physical, or fx-based cash-settlement. This class can be used for both the settlement of options or forwards.">
-	// TBD: refactor OptionCashSettlement and FxCashSettlement to be a unique class, where cash settlement can be specified in a given currency?
-	cashSettlementTerms OptionCashSettlement (0..1) <"Specifies the parameters associated with the cash settlement procedure.">
-	physicalSettlementTerms OptionPhysicalSettlement (0..1) <"Specifies the physical settlement terms which apply to the transaction.">
-	fxSettlementTerms FxCashSettlement (0..1) <"Specifies the cash settlement of a non deliverable fx option / forward. It includes the currency to settle into together with the fixings required to calculate the currency amount">
-	condition Choice: <"The option settlement cannot combine both physical and cash terms specification.">
-		optional choice cashSettlementTerms, physicalSettlementTerms, fxSettlementTerms
-
-	condition CashSettlementTerms: <"If the cash settlement terms are specified, then the settlementType can either be Cash, Election or CashOrPhysical">
-		if cashSettlementTerms exists
-		then settlementType <> SettlementTypeEnum -> Physical
-
-	condition PhysicalSettlementTerms: <"If the physical settlement terms are specified, then the settlementType can either be Physical, Election or CashOrPhysical">
-		if physicalSettlementTerms exists
-		then settlementType <> SettlementTypeEnum -> Cash
-
 type OptionStrike: <"A class to specify the option strike.">
 
 	spread number (0..1) <"The strike of a credit default swap option or credit swaption when expressed as a spread per annum.">

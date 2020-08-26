@@ -9,6 +9,7 @@ import cdm.base.staticdata.asset.common.*
 import cdm.observable.asset.*
 
 import cdm.product.common.schedule.*
+import cdm.product.common.settlement.*
 import cdm.synonyms.config.*
 
 /*
@@ -60,29 +61,6 @@ type CashflowRepresentation: <"A data defining:  the cashflow representation of 
 
 	principalExchange PrincipalExchange (0..*) <"The initial, intermediate and final principal exchange amounts. Typically required on cross currency interest rate swaps where actual exchanges of principal occur. A list of principal exchange elements may be ordered in the document by ascending adjusted principal exchange date. An FpML document containing an unordered principal exchange list is still regarded as a conformant document.">
 	paymentCalculationPeriod PaymentCalculationPeriod (0..*) <"The adjusted payment date and associated calculation period parameters required to calculate the actual or projected payment amount. A list of payment calculation period elements may be ordered in the document by ascending adjusted payment date. An FpML document containing an unordered list of payment calculation periods is still regarded as a conformant document.">
-
-type CashPriceMethod: <"A type defining the parameters necessary for each of the ISDA cash price methods for cash settlement.">
-
-	cashSettlementReferenceBanks CashSettlementReferenceBanks (0..1) <"A container for a set of reference institutions. These reference institutions may be called upon to provide rate quotations as part of the method to determine the applicable cash settlement amount. If institutions are not specified, it is assumed that reference institutions will be agreed between the parties on the exercise date, or in the case of swap transaction to which mandatory early termination is applicable, the cash settlement valuation date.">
-	cashSettlementCurrency string (1..1) <"The currency in which the cash settlement amount will be calculated and settled. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
-		[metadata scheme]
-	quotationRateType QuotationRateTypeEnum (1..1) <"Which rate quote is to be observed, either Bid, Mid, Offer or Exercising Party Pays. The meaning of Exercising Party Pays is defined in the 2000 ISDA Definitions, Section 17.2. Certain Definitions Relating to Cash Settlement, paragraph (j).">
-
-type CashSettlementPaymentDate: <"A data defining:  the cash settlement payment date(s) as either a set of explicit dates, together with applicable adjustments, or as a date relative to some other (anchor) date, or as any date in a range of contiguous business days.">
-	[metadata key]
-
-	adjustableDates AdjustableDates (0..1) <"A series of dates that shall be subject to adjustment if they would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
-	relativeDate RelativeDateOffset (0..1) <"A date specified as some offset to another date (the anchor date).">
-	businessDateRange BusinessDateRange (0..1) <"A range of contiguous business days.">
-	condition DateChoice: <"condition to represent an FpML choice construct.">
-		required choice adjustableDates, relativeDate, businessDateRange
-
-type CrossCurrencyMethod: <"A data to:  represent the cash settlement method defined in the 2006 ISDA Definitions, Section 18.3. Cash Settlement Methods, paragraph (g) (published in Supplement number 28).">
-
-	cashSettlementReferenceBanks CashSettlementReferenceBanks (0..*) <"A container for a set of institutions that may be called upon to provide rate quotations as part of the method to determine the applicable cash settlement amount. If institutions are not specified, it is assumed that reference institutions will be agreed between the parties on the exercise date, or in the case of swap transaction to which mandatory early termination is applicable, the cash settlement valuation date.">
-	cashSettlementCurrency string (1..2) <"The currency, or currencies, in which the cash settlement amount(s) will be calculated and settled. While the order in which the currencies are stated is unimportant, the cash settlement currency or currencies must correspond to one or both of the constituent currencies of the swap transaction. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
-		[metadata scheme]
-	quotationRateType QuotationRateTypeEnum (1..1) <"Which rate quote is to be observed, either Bid, Mid, Offer or Exercising Party Pays. The meaning of Exercising Party Pays is defined in the 2000 ISDA Definitions, Section 17.2. Certain Definitions Relating to Cash Settlement, paragraph (j).">
 
 type DiscountingMethod: <"A data defining:  discounting information. The 2000 ISDA definitions, section 8.4. discounting (related to the calculation of a discounted fixed amount or floating amount) apply. This type must only be included if discounting applies.">
 
@@ -195,21 +173,6 @@ type FloatingRateDefinition: <"A data defining:  parameters associated with a fl
 		if floatingRateMultiplier exists
 		then floatingRateMultiplier <> 1
 
-type FxFixingDate extends Offset: <"A data that:  is extending the Offset structure for providing the ability to specify an FX fixing date as an offset to dates specified somewhere else in the document.">
-
-	businessDayConvention BusinessDayConventionEnum (1..1) <"The convention for adjusting a date if it would otherwise fall on a day that is not a business day, as specified by an ISDA convention (e.g. Following, Precedent).">
-	businessCenters BusinessCenters (0..1)
-	businessCentersReference BusinessCenters (0..1) <"A reference to a set of financial business centers defined elsewhere in the document. This set of business centers is used to determine whether a particular day is a business day or not.">
-		[metadata reference]
-	dateRelativeToPaymentDates DateRelativeToPaymentDates (0..1) <"The payment date references on which settlements in non-deliverable currency are due and will then have to be converted according to the terms specified through the other parts of the nonDeliverableSettlement structure.">
-	dateRelativeToCalculationPeriodDates DateRelativeToCalculationPeriodDates (0..1) <"The calculation period references on which settlements in non-deliverable currency are due and will then have to be converted according to the terms specified through the other parts of the nonDeliverableSettlement structure. Implemented for Brazilian-CDI swaps where it will refer to the termination date of the appropriate leg.">
-
-	condition BusinessCentersChoice: <"condition to represent an FpML choice construct.">
-		optional choice businessCenters, businessCentersReference
-
-	condition DateRelativeChoice: <"condition to represent an FpML choice construct.">
-		required choice dateRelativeToPaymentDates, dateRelativeToCalculationPeriodDates
-
 type InflationRateSpecification extends FloatingRateSpecification: <"A data to:  specify the inflation rate.">
 	[synonym ISO20022 value "InfltnIndx"]
 
@@ -250,19 +213,6 @@ type MandatoryEarlyTerminationAdjustedDates: <"A data defining:  the adjusted da
 		then adjustedEarlyTerminationDate <= adjustedCashSettlementValuationDate
 			and adjustedCashSettlementValuationDate <= adjustedCashSettlementPaymentDate
 
-type NonDeliverableSettlement: <"A data defining:  the parameters used when the reference currency of the payout is non-deliverable.">
-
-	referenceCurrency string (1..1) <"The currency in which the swap stream is denominated, which is distinct from the currency in which the cashflows will be settled. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
-		[metadata scheme]
-	fxFixingDate FxFixingDate (0..1) <"The date, when expressed as a relative date, on which the currency rate will be determined for the purpose of specifying the amount in deliverable currency.">
-	fxFixingSchedule AdjustableDates (0..1) <"The date, when expressed as a schedule of date(s), on which the currency rate will be determined for the purpose of specifying the amount in deliverable currency.">
-	settlementRateOption SettlementRateOptionEnum (1..1) <"The rate source for the conversion to the settlement currency. This source is specified through a scheme that reflects the terms of the Annex A to the 1998 FX and Currency Option Definitions.">
-		[metadata scheme]
-	priceSourceDisruption PriceSourceDisruption (0..1) <"An attribute defining the parameters to get a new quote when a settlement rate option is disrupted.">
-
-	condition FixingDateSchedule: <"condition to represent an FpML choice construct.">
-		required choice fxFixingDate, fxFixingSchedule
-
 type OptionalEarlyTermination: <"A data defining:  an early termination provision where either or both parties have the right to exercise.">
 
 	singlePartyOption BuyerSeller (0..1) <"If optional early termination is not available to both parties then this component specifies the buyer and seller of the option. In FpML, this attribute is of type SinglePsrtyOption, which actually consists of the BuyerSeller.model.">
@@ -282,43 +232,3 @@ type OptionalEarlyTerminationAdjustedDates: <"A data defining:  the adjusted dat
 
 	earlyTerminationEvent EarlyTerminationEvent (1..*) <"The adjusted dates associated with an individual early termination date.">
 
-type OptionCashSettlement: <"A data to:  define the cash settlement terms for a product where cash settlement is applicable.">
-	[metadata key]
-
-	cashSettlementValuationTime BusinessCenterTime (0..1) <"The time of the cash settlement valuation date when the cash settlement amount will be determined according to the cash settlement method if the parties have not otherwise been able to agree the cash settlement amount.">
-	cashSettlementValuationDate RelativeDateOffset (0..1) <"The date on which the cash settlement amount will be determined according to the cash settlement method if the parties have not otherwise been able to agree the cash settlement amount.">
-	cashSettlementPaymentDate CashSettlementPaymentDate (0..1) <"The date on which the cash settlement amount will be paid, subject to adjustment in accordance with any applicable business day convention. This component would not be present for a mandatory early termination provision where the cash settlement payment date is the mandatory early termination date.">
-	cashPriceMethod CashPriceMethod (0..1) <"An ISDA defined cash settlement method used for the determination of the applicable cash settlement amount. The method is defined in the 2006 ISDA Definitions, Section 18.3. Cash Settlement Methods, paragraph (a).">
-	cashPriceAlternateMethod CashPriceMethod (0..1) <"An ISDA defined cash settlement method used for the determination of the applicable cash settlement amount. The method is defined in the 2006 ISDA Definitions, Section 18.3. Cash Settlement Methods, paragraph (b).">
-	parYieldCurveAdjustedMethod YieldCurveMethod (0..1) <"An ISDA defined cash settlement method used for the determination of the applicable cash settlement amount. The method is defined in the 2006 ISDA Definitions, Section 18.3. Cash Settlement Methods, paragraph (c).">
-	zeroCouponYieldAdjustedMethod YieldCurveMethod (0..1) <"An ISDA defined cash settlement method used for the determination of the applicable cash settlement amount. The method is defined in the 2006 ISDA Definitions, Section 18.3. Cash Settlement Methods, paragraph (d).">
-	parYieldCurveUnadjustedMethod YieldCurveMethod (0..1) <"An ISDA defined cash settlement method used for the determination of the applicable cash settlement amount. The method is defined in the 2006 ISDA Definitions, Section 18.3. Cash Settlement Methods, paragraph (e).">
-	crossCurrencyMethod CrossCurrencyMethod (0..1) <"An ISDA defined cash settlement method used for the determination of the applicable cash settlement amount. The method is defined in the 2006 ISDA Definitions, Section 18.3. Cash Settlement Methods, paragraph (f) (published in Supplement number 23).">
-	collateralizedCashPriceMethod YieldCurveMethod (0..1) <"An ISDA defined cash settlement method used for the determination of the applicable cash settlement amount. The method is defined in the 2006 ISDA Definitions, Section 18.3. Cash Settlement Methods, paragraph (g) (published in Supplement number 28).">
-
-	condition MethodChoice: <"condition to represent an FpML choice construct.">
-		optional choice cashPriceMethod, cashPriceAlternateMethod, parYieldCurveAdjustedMethod, zeroCouponYieldAdjustedMethod, parYieldCurveUnadjustedMethod, crossCurrencyMethod, collateralizedCashPriceMethod
-
-type PriceSourceDisruption: <"A data defining:  the parameters used to get a price quote to replace the settlement rate option that is disrupted.">
-
-	fallbackReferencePrice FallbackReferencePrice (1..1) <"The method, prioritised by the order it is listed in this element, to get a replacement rate for the disrupted settlement rate option.">
-
-type PrincipalExchange: <"A data for:  defining a principal exchange amount and adjusted exchange date. This data forms:  part of the cashflow representation of a swap stream.">
-	[metadata key]
-
-	unadjustedPrincipalExchangeDate date (0..1) <"The non adjusted principal exchange date.">
-	adjustedPrincipalExchangeDate date (0..1) <"The adjusted principal exchange date. This date should already be adjusted for any applicable business day convention.">
-	principalExchangeAmount number (0..1) <"The principal exchange amount. This amount should be positive if the stream payer is paying the exchange amount and signed negative if they are receiving it.">
-	discountFactor number (0..1) <"The value representing the discount factor used to calculate the present value of the principal exchange amount.">
-	presentValuePrincipalExchangeAmount Money (0..1) <"The amount representing the present value of the principal exchange.">
-
-type SettlementProvision: <"A data defining:  the specification of settlement terms, occurring when the settlement currency is different to the notional currency of the trade.">
-
-	settlementCurrency string (1..1) <"The currency that the payout are settled in when the currency in which the payout is specified is non-deliverable. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
-		[metadata scheme]
-	nonDeliverableSettlement NonDeliverableSettlement (0..1) <"The specification of the non-deliverable settlement provision.">
-
-type YieldCurveMethod: <"A data defining:  the parameters required for each of the ISDA defined yield curve methods for cash settlement.">
-
-	settlementRateSource SettlementRateSource (0..1) <"The method for obtaining a settlement rate. This may be from some information source (e.g. Reuters) or from a set of reference banks.">
-	quotationRateType QuotationRateTypeEnum (1..1) <"Which rate quote is to be observed, either Bid, Mid, Offer or Exercising Party Pays. The meaning of Exercising Party Pays is defined in the 2000 ISDA Definitions, Section 17.2. Certain Definitions Relating to Cash Settlement, paragraph (j).">

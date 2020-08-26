@@ -2,10 +2,12 @@ namespace org.isda.cdm
 version "${project.version}"
 
 import cdm.base.math.*
-import cdm.base.staticdata.asset.common.*
-import cdm.base.staticdata.party.*
 import cdm.base.datetime.*
+import cdm.base.staticdata.party.*
+import cdm.base.staticdata.asset.common.*
+
 import cdm.observable.asset.*
+import cdm.product.common.settlement.*
 
 func ResolveQuantity: <"Function specification to resolve a payout quantity, specified as a resolvable quantity with inputs for the resolution, into a basic quantity with just a number and a unit.">
 	inputs:
@@ -37,28 +39,6 @@ func FpmlIrd8: <"FpML validation rule ird-8 - If the same party is specified as 
 		accounts Account (0..*)
 	output:
 		success boolean (1..1) <"Validation result">
-
-func CashflowSettlementTerms: <"The Payout type contains a cashflow to replicate the FpML structure. This function creates SettlementTerms from the Cashflow that can be used in the Execution -> settlementTerm.">
-	inputs:
-		cashflow Cashflow (0..1)
-
-	output:
-		settlementTerms SettlementTerms (0..1)
-
-	alias settlementDate:
-		ConvertToAdjustableOrRelativeDate(cashflow -> cashflowDate)
-
-	assign-output settlementTerms -> payerReceiver:
-		cashflow -> payerReceiver
-
-	assign-output settlementTerms -> assetIdentifier:
-		cashflow -> payoutQuantity -> assetIdentifier
-
-	assign-output settlementTerms -> settlementType:
-		SettlementTypeEnum -> Cash
-
-	assign-output settlementTerms -> settlementDate:
-	settlementDate
 
 func Create_LegalAgreementWithPartyReference: <"Constructs a Legal Agreement using a reference to the contractual parties">
 	inputs:

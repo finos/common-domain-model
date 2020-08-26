@@ -1,6 +1,30 @@
 namespace cdm.product.common.settlement
 version "${project.version}"
 
+import cdm.base.datetime.*
+
+func CashflowSettlementTerms: <"The Payout type contains a cashflow to replicate the FpML structure. This function creates SettlementTerms from the Cashflow that can be used in the Execution -> settlementTerm.">
+	inputs:
+		cashflow Cashflow (0..1)
+
+	output:
+		settlementTerms SettlementTerms (0..1)
+
+	alias settlementDate:
+		ConvertToAdjustableOrRelativeDate(cashflow -> cashflowDate)
+
+	assign-output settlementTerms -> payerReceiver:
+		cashflow -> payerReceiver
+
+	assign-output settlementTerms -> assetIdentifier:
+		cashflow -> payoutQuantity -> assetIdentifier
+
+	assign-output settlementTerms -> settlementType:
+		SettlementTypeEnum -> Cash
+
+	assign-output settlementTerms -> settlementDate:
+	settlementDate
+
 
 
 
