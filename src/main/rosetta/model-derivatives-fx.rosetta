@@ -1,29 +1,10 @@
 namespace org.isda.cdm
 version "${project.version}"
 
-import cdm.base.*
 import cdm.base.datetime.*
 import cdm.observable.asset.*
-import cdm.observable.asset.*
-import cdm.synonyms.config.*
+import cdm.product.common.settlement.*
 
-type ForwardPayout: <"Representation of a forward settling payout. The 'Underlier' attribute captures the underlying payout, which is settled according to the 'SettlementTerms' attribute. Both FX Spot and FX Forward should use this componen, while distinction between the two will be handled via product qualification.">
-
-	underlier Underlier (1..1) <"Underlying product that the forward is written on, which can be of any type: FX, a contractual product, a security, etc.">
-	settlementTerms OptionSettlement (1..1) <"Settlement terms for the underlier that include the settlement date, settlement method etc.">
-
-	condition SettlementDate: <"For foreign exchange contracts, either the settlementDate is set or the cashflowDates, but not both. When the cashflowDates are set, they must be the same for the 2 legs of the currency pair.">
-		if ForwardFX() exists
-		then (settlementTerms -> valueDate exists
-			and ForwardFX() -> exchangedCurrency1 -> cashflowDate is absent and ForwardFX() -> exchangedCurrency2 -> cashflowDate is absent)
-			or (settlementTerms -> valueDate is absent
-			and ForwardFX() -> exchangedCurrency1 -> cashflowDate exists and ForwardFX() -> exchangedCurrency2 -> cashflowDate exists and
-			ForwardFX() -> exchangedCurrency1 -> cashflowDate = ForwardFX() -> exchangedCurrency2 -> cashflowDate)
-
-	condition FxSettlement: <"For foreign exchange contracts, the settlement type must be either fx non-deliverable settlement or not specified, which implies physical settlement in the case of foreign exchange.">
-		if ForwardFX() exists
-		then (settlementTerms -> cashSettlementTerms is absent
-			and settlementTerms -> physicalSettlementTerms is absent)
 
 // NOW SUPERSEDED By THE USE OF GENERIC 'PRODUCT' UNDERLIER, WHICH ALREADY HAS A 'ONE OF' RULE:
 // choice rule ForwardPayout_choice <"The forward payout must have an underlying asset that is either a security or a foreign exchange contract.">

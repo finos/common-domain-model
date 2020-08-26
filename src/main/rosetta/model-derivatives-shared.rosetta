@@ -1,7 +1,6 @@
 namespace org.isda.cdm
 version "${project.version}"
 
-import cdm.base.*
 import cdm.base.datetime.*
 import cdm.base.math.*
 import cdm.base.staticdata.asset.rates.*
@@ -9,36 +8,10 @@ import cdm.base.staticdata.party.*
 
 import cdm.observable.asset.*
 
-import cdm.product.common.schedule.*
 import cdm.product.common.settlement.*
+import cdm.product.template.*
+
 import cdm.synonyms.config.*
-
-type AmericanExercise: <"A class defining the exercise period for an American style option together with any rules governing the notional amount of the underlying which can be exercised on any given exercise date and any associated exercise fees.">
-	[metadata key]
-
-	commencementDate AdjustableOrRelativeDate (1..1) <"The first day of the exercise period for an American style option.">
-	expirationDate AdjustableOrRelativeDate (1..1) <"The last day within an exercise period for an American style option. For a European style option it is the only day within the exercise period.">
-	relevantUnderlyingDate AdjustableOrRelativeDates (0..1) <"The effective date on the underlying product if the option is exercised.  For example, for a swaption it is the swap effective date, for an option on an FX spot or forward it is the value date for settlement, and in an extendible/cancelable provision it is the swap termination date, which is the date on which the termination is effective.'">
-	earliestExerciseTime BusinessCenterTime (1..1 ) <"The earliest time at which notice of exercise can be given by the buyer to the seller (or seller's agent) to, and including, the expiration date.">
-	latestExerciseTime BusinessCenterTime (0..1 ) <"For a Bermuda or American style option, the latest time on an exercise business day (excluding the expiration date) within the exercise period that notice can be given by the buyer to the seller or seller's agent. Notice of exercise given after this time will be deemed to have been given on the next exercise business day.">
-	expirationTime BusinessCenterTime (1..1) <"The latest time for exercise on expirationDate.">
-	multipleExercise MultipleExercise (0..1) <"As defined in the 2000 ISDA Definitions, Section 12.4. Multiple Exercise, the buyer of the option has the right to exercise all or less than all the unexercised notional amount of the underlying swap on one or more days in the exercise period, but on any such day may not exercise less than the minimum notional amount or more that the maximum notional amount, and if an integral multiple amount is specified, the notional amount exercised must be equal to, or be an integral multiple of, the integral multiple amount.">
-	exerciseFeeSchedule ExerciseFeeSchedule (0..1) <"The fees associated with an exercise date. The fees are conditional on the exercise occurring. The fees can be specified as actual currency amounts or as percentages of the notional amount being exercised.">
-
-type AutomaticExercise: <"A type to define automatic exercise of a swaption. With automatic exercise the option is deemed to have exercised if it is in the money by more than the threshold amount on the exercise date.">
-
-	thresholdRate number (1..1) <"A threshold rate. The threshold of 0.10% would be represented as 0.001">
-
-type BermudaExercise: <"A class defining the Bermuda option exercise dates and the expiration date together with any rules governing the notional amount of the underlying which can be exercised on any given exercise date and any associated exercise fee.">
-	[metadata key]
-
-	bermudaExerciseDates AdjustableOrRelativeDates (1..1) <"The dates that define the Bermuda option exercise dates and the expiration date. The last specified date is assumed to be the expiration date. The dates can either be specified as a series of explicit dates and associated adjustments or as a series of dates defined relative to another schedule of dates, for example, the calculation period start dates. Where a relative series of dates are defined the first and last possible exercise dates can be separately specified.">
-	relevantUnderlyingDate AdjustableOrRelativeDates (0..1) <"The effective date on the underlying product if the option is exercised.  For example, for a swaption it is the swap effective date, for an option on an FX spot or forward it is the value date for settlement, and in an extendible/cancelable provision it is the swap termination date, which is the date on which the termination is effective.">
-	earliestExerciseTime BusinessCenterTime (1..1) <"The earliest time at which notice of exercise can be given by the buyer to the seller (or seller's agent) on each Bermuda option exercise date and the expiration date.">
-	latestExerciseTime BusinessCenterTime (0..1 ) <"For a Bermuda or American style option, the latest time on an exercise business day (excluding the expiration date) within the exercise period that notice can be given by the buyer to the seller or seller's agent. Notice of exercise given after this time will be deemed to have been given on the next exercise business day.">
-	expirationTime BusinessCenterTime (1..1) <"The latest time for exercise on expirationDate.">
-	multipleExercise MultipleExercise (0..1) <"As defined in the 2000 ISDA Definitions, Section 12.4. Multiple Exercise, the buyer of the option has the right to exercise all or less than all the unexercised notional amount of the underlying swap on one or more days in the exercise period, but on any such day may not exercise less than the minimum notional amount or more that the maximum notional amount, and if an integral multiple amount is specified, the notional amount exercised must be equal to, or be an integral multiple of, the integral multiple amount.">
-	exerciseFeeSchedule ExerciseFeeSchedule (0..1) <"The fees associated with an exercise date. The fees are conditional on the exercise occurring. The fees can be specified as actual currency amounts or as percentages of the notional amount being exercised.">
 
 type BrokerConfirmation: <"Identifies the market sector in which the trade has been arranged.">
 
@@ -96,61 +69,6 @@ type DocumentationIdentification: <"A class for defining the definitions that go
 	condition ConfirmationChoice: <"Choice rule to represent an FpML choice construct.">
 		optional choice masterConfirmation, brokerConfirmation
 
-type EuropeanExercise: <"A class defining the exercise period for a European style option together with any rules governing the notional amount of the underlying which can be exercised on any given exercise date and any associated exercise fees.">
-	[metadata key]
-
-	expirationDate AdjustableOrRelativeDate (1..1) <"The last day within an exercise period for an American style option. For a European style option it is the only day within the exercise period.">
-	relevantUnderlyingDate AdjustableOrRelativeDates (0..1) <"The effective date on the underlying product if the option is exercised.  For example, for a swaption it is the swap effective date, for an option on an FX spot or forward it is the value date for settlement, and in an extendible/cancelable provision it is the swap termination date, which is the date on which the termination is effective.">
-	earliestExerciseTime BusinessCenterTime (1..1) <"The earliest time at which notice of exercise can be given by the buyer to the seller (or seller's agent) on the expiration date.">
-	expirationTime BusinessCenterTime (1..1) <"The latest time for exercise on expirationDate.">
-	partialExercise PartialExercise (0..1) <"As defined in the 2000 ISDA Definitions, Section 12.3. Partial Exercise, the buyer of the option has the right to exercise all or less than all the notional amount of the underlying swap on the expiration date, but may not exercise less than the minimum notional amount, and if an integral multiple amount is specified, the notional amount exercised must be equal to, or be an integral multiple of, the integral multiple amount.">
-	exerciseFee ExerciseFee (0..1) <"A fee to be paid on exercise. This could be represented as an amount or a rate and notional reference on which to apply the rate.">
-
-/*
- * In the below notional has been changed to be of type NotionalSchedule
- */
-type ExerciseFee extends BuyerSeller: <"A class defining the fee payable on exercise of an option. This fee may be defined as an amount or a percentage of the notional exercised. As a difference with FpML, it extends the BuyerSeller class.">
-
-	notionalReference Money (1..1) <"A pointer style reference to the associated notional schedule defined elsewhere in the document.">
-		[metadata reference]
-	feeAmount number (0..1) <"The amount of fee to be paid on exercise. The fee currency is that of the referenced notional.">
-	feeRate number (0..1) <"A fee represented as a percentage of some referenced notional. A percentage of 5% would be represented as 0.05.">
-	feePaymentDate RelativeDateOffset (1..1) <"The date on which exercise fee(s) will be paid. It is specified as a relative date.">
-	condition Choice: <"Choice rule to represent an FpML choice construct.">
-		required choice feeAmount, feeRate
-
-/*
- * In the below notional has been changed to be of type NotionalSchedule
- */
-type ExerciseFeeSchedule extends PayerReceiver: <"A class to define a fee or schedule of fees to be payable on the exercise of an option. This fee may be defined as an amount or a percentage of the notional exercised. As a difference with FpML, it extends the BuyerSeller class.">
-
-	notionalReference Money (1..1) <"A pointer style reference to the associated notional schedule defined elsewhere in the document.">
-		[metadata reference]
-	feeAmountSchedule AmountSchedule (0..1) <"The exercise fee amount schedule. The fees are expressed as currency amounts. The currency of the fee is assumed to be that of the notional schedule referenced.">
-	feeRateSchedule Schedule (0..1) <"The exercise free rate schedule. The fees are expressed as percentage rates of the notional being exercised. The currency of the fee is assumed to be that of the notional schedule referenced.">
-	feePaymentDate RelativeDateOffset (1..1) <"The date on which exercise fee(s) will be paid. It is specified as a relative date.">
-	condition Choice: <"Choice rule to represent an FpML choice construct.">
-		required choice feeAmountSchedule, feeRateSchedule
-
-type ExerciseNotice: <"A class defining to whom and where notice of execution should be given. The partyReference refers to one of the principal parties of the trade. If present the exerciseNoticePartyReference refers to a party, other than the principal party, to whom notice should be given.">
-
-	optionBuyer CounterpartyEnum (1..1) <"The party referenced has allocated the trade identifier.">
-	exerciseNoticePartyReference Party (0..1) <"The party referenced is the party to which notice of exercise should be given by the buyer.">
-		[metadata reference]
-	businessCenter BusinessCenterEnum (1..1) <"The business center.">
-		[metadata scheme]
-
-type ExerciseProcedure: <"A class describing how notice of exercise should be given. This can be either manual or automatic.">
-
-	manualExercise ManualExercise (0..1) <"Specifies that the notice of exercise must be given by the buyer to the seller or seller's agent.">
-	automaticExercise AutomaticExercise (0..1) <"If automatic is specified, then the notional amount of the underlying swap not previously exercised under the swaption will be automatically exercised at the expiration time on the expiration date if at such time the buyer is in-the-money, provided that the difference between the settlement rate and the fixed rate under the relevant underlying swap is not less than the specified threshold rate. The term in-the-money is assumed to have the meaning defining in the 2000 ISDA Definitions, Section 17.4 In-the-money.">
-	followUpConfirmation boolean (1..1) <"A flag to indicate whether follow-up confirmation of exercise (written or electronic) is required following telephonic notice by the buyer to the seller or seller's agent.">
-	limitedRightToConfirm boolean (0..1) <"Has the meaning defined as part of the 1997 ISDA Government Bond Option Definitions, section 4.5 Limited Right to Confirm Exercise. If present, (i) the Seller may request the Buyer to confirm its intent if not done on or before the expiration time on the Expiration date (ii) specific rules will apply in relation to the settlement mode.">
-	splitTicket boolean (0..1) <"Typically applicable to the physical settlement of bond and convertible bond options. If present, means that the party required to deliver the bonds will divide those to be delivered as notifying party desires to facilitate delivery obligations.">
-
-	condition Choice: <"Choice rule to represent an FpML choice construct.">
-		required choice manualExercise, automaticExercise
-
 type FloatingRate extends RateSpecificationBase: <"A class defining a floating interest rate through the specification of the floating rate index, the tenor, the multiplier schedule, the spread, the qualification of whether a specific rate treatment and/or a cap or floor apply.">
 	[metadata key]
 
@@ -199,10 +117,6 @@ type IssuerTradeId: <"A class for a two-parts identifier, such as a USI.">
 // 	finalPaymentDate AdjustableOrRelativeDate (0..1) <"The last payment when specified as an adjustable or relative date, as in the FpML total return construct.">
 //
 // 	condition: one-of
-type ManualExercise: <"A class defining manual exercise, i.e. that the option buyer counterparty must give notice to the option seller of exercise.">
-
-	exerciseNotice ExerciseNotice (0..1) <"Definition of the party to whom notice of exercise should be given.">
-	fallbackExercise boolean (0..1) <"If fallback exercise is specified then the notional amount of the underlying swap, not previously exercised under the swaption, will be automatically exercised at the expiration time on the expiration date if at such time the buyer is in-the-money, provided that the difference between the settlement rate and the fixed rate under the relevant underlying swap is not less than one tenth of a percentage point (0.10% or 0.001). The term in-the-money is assumed to have the meaning defined in the 2000 ISDA Definitions, Section 17.4. In-the-money.">
 
 type MasterAgreement: <"A class for defining the agreement executed between the parties and intended to govern all OTC derivatives transactions between those parties.">
 
@@ -224,27 +138,6 @@ type MasterConfirmation: <"A class for defining the master confirmation agreemen
 	masterConfirmationAnnexType MasterConfirmationAnnexTypeEnum (0..1) <"The type of master confirmation annex executed between the parties.">
 		[metadata scheme]
 
-type MultipleExercise extends PartialExercise: <"A class defining multiple exercises. As defined in the 2000 ISDA Definitions, Section 12.4. Multiple Exercise, the buyer of the option has the right to exercise all or less than all the unexercised notional amount of the underlying swap on one or more days in the exercise period, but on any such day may not exercise less than the minimum notional amount or more than the maximum notional amount, and if an integral multiple amount is specified, the notional exercised must be equal to or, be an integral multiple of, the integral multiple amount. In FpML, MultipleExercise is built upon the PartialExercise.model.">
-
-	maximumNotionalAmount number (0..1) <"The maximum notional amount that can be exercised on a given exercise date.">
-	maximumNumberOfOptions number (0..1) <"The maximum number of options that can be exercised on a given exercise date. If the number is not specified, it means that the maximum number of options corresponds to the remaining unexercised options.">
-
-	condition: one-of
-
-	condition MaximumNumberOfOptions: <"FpML MultipleExercise construct specifies the minimumNumberOfOptions as a positive integer.">
-		if maximumNumberOfOptions exists
-		then maximumNotionalAmount >= 0.0
-
-	condition MinimumNumberOfOptions: <"FpML MultipleExercise construct specifies the minimumNumberOfOptions as a positive integer.">
-		if minimumNumberOfOptions exists
-		then minimumNumberOfOptions >= 0
-
-type OptionPhysicalSettlement:
-
-	clearedPhysicalSettlement boolean (1..1) <"Specifies whether the swap resulting from physical settlement of the swaption transaction will clear through a clearing house. The meaning of Cleared Physical Settlement is defined in the 2006 ISDA Definitions, Section 15.2 (published in Supplement number 28).">
-	predeterminedClearingOrganizationPartyReference Party (0..1) <"A reference to the clearing organization (CCP, DCO) to which the trade should be cleared.">
-		[metadata reference]
-
 type OtherAgreement: <"A class for defining an agreement executed between parties.">
 
 	identifier string (0..1) <"An identifier that has been created to identify the agreement.">
@@ -255,27 +148,6 @@ type OtherAgreement: <"A class for defining an agreement executed between partie
 		[metadata scheme]
 	date date (0..1) <"The date on which the agreement was signed.">
 		[synonym ISDA_Create_1_0 value "collateral_transfer_agreement_date" path "collateral_transfer_agreement"]
-
-type PartialExercise: <"A class defining partial exercise. As defined in the 2000 ISDA Definitions, Section 12.3 Partial Exercise, the buyer of the option may exercise all or less than all the notional amount of the underlying swap but may not be less than the minimum notional amount (if specified) and must be an integral multiple of the integral multiple amount if specified.">
-
-	notionaReference Money (1..1) <"A pointer style reference to the associated notional schedule defined elsewhere in the document. This element has been made optional as part of its integration in the OptionBaseExtended, because not required for the options on securities.">
-		[metadata reference]
-	integralMultipleAmount number (0..1) <"A notional amount which restricts the amount of notional that can be exercised when partial exercise or multiple exercise is applicable. The integral multiple amount defines a lower limit of notional that can be exercised and also defines a unit multiple of notional that can be exercised, i.e. only integer multiples of this amount can be exercised.">
-	minimumNotionalAmount number (0..1) <"The minimum notional amount that can be exercised on a given exercise date. See multipleExercise.">
-	minimumNumberOfOptions int (0..1) <"The minimum number of options that can be exercised on a given exercise date.">
-
-	condition MinimumChoice: <"Choice rule to represent an FpML choice construct.">
-		required choice minimumNotionalAmount, minimumNumberOfOptions
-
-type PremiumExpression: <"This class corresponds to the FpML Premium.model group for representing the option premium when expressed in a way other than an amount.">
-
-	premiumType PremiumTypeEnum (0..1) <"Forward start premium type">
-	/*
-	 * Is the premiumType usage intended to be limited to forward start options?  
-	 * See some further comments/questions associated with the PremiumTypeEnum
-	 */
-	pricePerOption Money (0..1) <"The amount of premium to be paid expressed as a function of the number of options.">
-	percentageOfNotional number (0..1) <"The amount of premium to be paid expressed as a percentage of the notional value of the transaction. A percentage of 5% would be expressed as 0.05.">
 
 type Resource: <"Describes the resource that contains the media representation of a business event (i.e used for stating the Publicly Available Information). For example, can describe a file or a URL that represents the event. This type is an extended version of a type defined by RIXML (www.rixml.org).  Rosetta restricts the FpML implementation by not providing the ability to associated a document in hexadecimalBinary or base64Binary until such time that actual use cases will come up.">
 
@@ -306,19 +178,6 @@ type SpreadSchedule extends Schedule: <"Adds an optional spread type element to 
 
 	spreadScheduleType SpreadScheduleTypeEnum (0..1) <"An element which purpose is to identify a long or short spread value.">
 		[metadata scheme]
-
-type Strike: <"A class describing a single cap or floor rate.">
-	[metadata key]
-
-	strikeRate number (1..1) <"The rate for a cap or floor.">
-		[synonym FIX_5_0_SP2 value "StrikePrice" tag 202]
-	buyer PayerReceiverEnum (0..1) <"The buyer of the option.">
-	seller PayerReceiverEnum (0..1) <"The party that has sold.">
-
-type StrikeSchedule extends Schedule: <"A class describing a schedule of cap or floor rates.">
-
-	buyer PayerReceiverEnum (0..1) <"The buyer of the option.">
-	seller PayerReceiverEnum (0..1) <"The party that has sold.">
 
 type StubFloatingRate: <"A class defining a floating rate.">
 

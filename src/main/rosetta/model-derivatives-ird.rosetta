@@ -1,9 +1,7 @@
 namespace org.isda.cdm
 version "${project.version}"
 
-import cdm.base.*
 import cdm.base.datetime.*
-import cdm.base.staticdata.party.*
 import cdm.base.staticdata.asset.common.*
 
 import cdm.observable.asset.*
@@ -30,31 +28,6 @@ type BondReference: <"Reference to a bond underlier to represent an asset swap o
 	conditionPrecedentBond boolean (1..1) <"To indicate whether the Condition Precedent Bond is applicable. The swap contract is only valid if the bond is issued and if there is any dispute over the terms of fixed stream then the bond terms would be used.">
 	discrepancyClause boolean (0..1) <"To indicate whether the Discrepancy Clause is applicable.">
 
-type CancelableProvision extends BuyerSeller: <"A data defining:  the right of a party to cancel a swap transaction on the specified exercise dates. The provision is for 'walk-away' cancellation (i.e. the fair value of the swap is not paid). A fee payable on exercise can be specified. As a difference from the FpML construct, the canonical model extends the BuyerSeller class.">
-
-	americanExercise AmericanExercise (0..1) <"American exercise. FpML implementations consists in an exercise substitution group.">
-	bermudaExercise BermudaExercise (0..1) <"Bermuda exercise. FpML implementations consists in an exercise substitution group.">
-	europeanExercise EuropeanExercise (0..1) <"European exercise. FpML implementations consists in an exercise substitution group.">
-	exerciseNotice ExerciseNotice (0..1) <"Definition of the party to whom notice of exercise should be given.">
-	followUpConfirmation boolean (1..1) <"A flag to indicate whether follow-up confirmation of exercise (written or electronic) is required following telephonic notice by the buyer to the seller or seller's agent.">
-	cancelableProvisionAdjustedDates CancelableProvisionAdjustedDates (0..1) <"The adjusted dates associated with a cancelable provision. These dates have been adjusted for any applicable business day convention.">
-	finalCalculationPeriodDateAdjustment FinalCalculationPeriodDateAdjustment (0..*) <"Business date convention adjustment to final payment period per leg (swapStream) upon exercise event. The adjustments can be made in-line with leg level BDC's or they can be specified separately.">
-	initialFee SimplePayment (0..1) <"An initial fee for the cancelable option.">
-	callingParty CallingPartyEnum (0..1)
-
-	condition ExerciseChoice: <"condition to represent an FpML substitution group construct.">
-		required choice americanExercise, bermudaExercise, europeanExercise
-
-type CancelableProvisionAdjustedDates: <"A data to:  define the adjusted dates for a cancelable provision on a swap transaction.">
-
-	cancellationEvent CancellationEvent (1..*) <"The adjusted dates for an individual cancellation date.">
-
-type CancellationEvent: <"The adjusted dates for a specific cancellation date, including the adjusted exercise date and adjusted termination date.">
-	[metadata key]
-
-	adjustedExerciseDate date (1..1) <"The date on which option exercise takes place. This date should already be adjusted for any applicable business day convention.">
-	adjustedEarlyTerminationDate date (1..1) <"The early termination date that is applicable if an early termination provision is exercised. This date should already be adjusted for any applicable business day convention.">
-
 type CashflowRepresentation: <"A data defining:  the cashflow representation of a swap trade.">
 
 	cashflowsMatchParameters boolean (1..1) <"A true/false flag to indicate whether the cashflows match the parametric definition of the stream, i.e. whether the cashflows could be regenerated from the parameters without loss of information.">
@@ -73,40 +46,6 @@ type DiscountingMethod: <"A data defining:  discounting information. The 2000 IS
 		if discountRateDayCountFraction exists
 		then discountRate exists
 
-type EarlyTerminationEvent: <"A data to:  define the adjusted dates associated with an early termination provision.">
-	[metadata key]
-
-	adjustedExerciseDate date (1..1) <"The date on which option exercise takes place. This date should already be adjusted for any applicable business day convention.">
-	adjustedEarlyTerminationDate date (1..1) <"The early termination date that is applicable if an early termination provision is exercised. This date should already be adjusted for any applicable business day convention.">
-	adjustedCashSettlementValuationDate date (1..1) <"The date by which the cash settlement amount must be agreed. This date should already be adjusted for any applicable business day convention.">
-	adjustedCashSettlementPaymentDate date (1..1) <"The date on which the cash settlement amount is paid. This date should already be adjusted for any applicable business date convention.">
-	adjustedExerciseFeePaymentDate date (0..1) <"The date on which the exercise fee amount is paid. This date should already be adjusted for any applicable business day convention.">
-
-	condition FpML_ird_39: <"FpML validation rule ird-39 - AdjustedExerciseDate must be before or equal to adjustedEarlyTerminationDate.">
-		if EarlyTerminationEvent exists
-		then adjustedExerciseDate <= adjustedEarlyTerminationDate
-
-	condition FpML_ird_40: <"FpML validation rule ird-40 - AdjustedExerciseDate must be before or equal to adjustedCashSettlementValuationDate.">
-		if EarlyTerminationEvent exists
-		then adjustedExerciseDate <= adjustedCashSettlementValuationDate
-
-	condition FpML_ird_41: <"FpML validation rule ird-41 - AdjustedCashSettlementValuationDate must be before or equal to adjustedCashSettlementPaymentDate.">
-		if EarlyTerminationEvent exists
-		then adjustedCashSettlementValuationDate <= adjustedCashSettlementPaymentDate
-
-type EarlyTerminationProvision: <"A data defining:  an early termination provision for a swap. This early termination is at fair value, i.e. on termination the fair value of the product must be settled between the parties.">
-	[metadata key]
-
-	mandatoryEarlyTermination MandatoryEarlyTermination (0..1) <"A mandatory early termination provision to terminate the swap at fair value.">
-	mandatoryEarlyTerminationDateTenor Period (0..1) <"Period after trade date of the mandatory early termination date.">
-	optionalEarlyTermination OptionalEarlyTermination (0..1) <"An option for either or both parties to terminate the swap at fair value.">
-	optionalEarlyTerminationParameters ExercisePeriod (0..1) <"Definition of the first early termination date and the frequency of the termination dates subsequent to that. American exercise is defined by having a frequency of one day.">
-
-	condition MandatoryEarlyTermination: <"The FpML MandatoryEarlyTermination.model specifies a required choice node. The choice node associated with the FpML EarlyTerminationProvision is quite complex and using the data rule provides a more flexible approach than adding complexity to the condition grammar.">
-		if EarlyTerminationProvision exists
-		then (mandatoryEarlyTermination or optionalEarlyTermination) exists
-			or (mandatoryEarlyTermination and optionalEarlyTermination) exists
-
 type ExerciseEvent: <"A data defining:  the adjusted dates associated with a particular exercise event.">
 	[metadata key]
 
@@ -115,41 +54,6 @@ type ExerciseEvent: <"A data defining:  the adjusted dates associated with a par
 	adjustedCashSettlementValuationDate date (0..1) <"The date by which the cash settlement amount must be agreed. This date should already be adjusted for any applicable business day convention.">
 	adjustedCashSettlementPaymentDate date (0..1) <"The date on which the cash settlement amount is paid. This date should already be adjusted for any applicable business day convention.">
 	adjustedExerciseFeePaymentDate date (0..1) <"The date on which the exercise fee amount is paid. This date should already be adjusted for any applicable business day convention.">
-
-type ExercisePeriod: <"This defines the time interval to the start of the exercise period, i.e. the earliest exercise date, and the frequency of subsequent exercise dates (if any).">
-	[metadata key]
-
-	earliestExerciseDateTenor Period (1..1) <"The time interval to the first (and possibly only) exercise date in the exercise period.">
-
-	exerciseFrequency Period (0..1) <"The frequency of subsequent exercise dates in the exercise period following the earliest exercise date. An interval of 1 day should be used to indicate an American style exercise period.">
-
-type ExtendibleProvision extends BuyerSeller: <"A data defining:  an option to extend an existing swap transaction on the specified exercise dates for a term ending on the specified new termination date. As a difference from FpML, it extends the BuyerSeller class, which represents the BuyerSeller.model.">
-
-	americanExercise AmericanExercise (0..1) <"American exercise. FpML implementations consists in an exercise substitution group.">
-
-	bermudaExercise BermudaExercise (0..1) <"Bermuda exercise. FpML implementations consists in an exercise substitution group.">
-	europeanExercise EuropeanExercise (0..1) <"European exercise. FpML implementations consists in an exercise substitution group.">
-	exerciseNotice ExerciseNotice (0..1) <"Definition of the party to whom notice of exercise should be given.">
-	followUpConfirmation boolean (1..1) <"A flag to indicate whether follow-up confirmation of exercise (written or electronic) is required following telephonic notice by the buyer to the seller or seller's agent.">
-	extendibleProvisionAdjustedDates ExtendibleProvisionAdjustedDates (0..1) <"The adjusted dates associated with an extendible provision. These dates have been adjusted for any applicable business day convention.">
-	callingParty CallingPartyEnum (0..1)
-
-	condition ExerciseChoice: <"condition to represent an FpML choice construct.">
-		required choice americanExercise, bermudaExercise, europeanExercise
-
-type ExtendibleProvisionAdjustedDates: <"A data defining:  the adjusted dates associated with a provision to extend a swap.">
-
-	extensionEvent ExtensionEvent (1..*) <"The adjusted dates associated with a single extendible exercise date.">
-
-type ExtensionEvent: <"A data to:  define the adjusted dates associated with an individual extension event.">
-	[metadata key]
-
-	adjustedExerciseDate date (1..1) <"The date on which option exercise takes place. This date should already be adjusted for any applicable business day convention.">
-	adjustedExtendedTerminationDate date (1..1) <"The termination date if an extendible provision is exercised. This date should already be adjusted for any applicable business day convention.">
-
-	condition FpML_ird_42: <"FpML validation rule ird-42 - adjustedExerciseDate must be before adjustedExtendedTerminationDate.">
-		if ExtensionEvent exists
-		then adjustedExerciseDate < adjustedExtendedTerminationDate
 
 type FinalCalculationPeriodDateAdjustment: <"A data to:  define business date convention adjustment to final payment period per leg.">
 
@@ -189,46 +93,4 @@ type InflationRateSpecification extends FloatingRateSpecification: <"A data to: 
 	condition RateOptionAssetIdentifier: <"The asset identifier for an interest rate spread must be a rate option.">
 		assetIdentifier -> rateOption only exists
 
-
-type MandatoryEarlyTermination: <"A data to:  define an early termination provision for which exercise is mandatory.">
-	[metadata key]
-
-	mandatoryEarlyTerminationDate AdjustableDate (1..1) <"The early termination date associated with a mandatory early termination of a swap.">
-	calculationAgent CalculationAgent (1..1) <"The ISDA Calculation Agent responsible for performing duties associated with an optional early termination.">
-	cashSettlement OptionCashSettlement (1..1) <"If specified, this means that cash settlement is applicable to the transaction and defines the parameters associated with the cash settlement procedure. If not specified, then physical settlement is applicable.">
-	mandatoryEarlyTerminationAdjustedDates MandatoryEarlyTerminationAdjustedDates (0..1) <"The adjusted dates associated with a mandatory early termination provision. These dates have been adjusted for any applicable business day convention.">
-
-	condition FpML_ird_27: <"FpML validation rule ird-27 - cashSettlement/cashSettlementPaymentDate must not exist.">
-		if cashSettlement exists
-		then cashSettlement -> cashSettlementPaymentDate is absent
-
-type MandatoryEarlyTerminationAdjustedDates: <"A data defining:  the adjusted dates associated with a mandatory early termination provision.">
-
-	adjustedEarlyTerminationDate date (1..1) <"The early termination date that is applicable if an early termination provision is exercised. This date should already be adjusted for any applicable business day convention.">
-	adjustedCashSettlementValuationDate date (1..1) <"The date by which the cash settlement amount must be agreed. This date should already be adjusted for any applicable business day convention.">
-	adjustedCashSettlementPaymentDate date (1..1) <"The date on which the cash settlement amount is paid. This date should already be adjusted for any applicable business date convention.">
-
-	condition FpML_ird_44: <"FpML validation rule ird-44 - AdjustedEarlyTerminationDate must be before or equal to adjustedCashSettlementValuationDate must be before or the same as adjustedCashSettlementPaymentDate">
-		if MandatoryEarlyTerminationAdjustedDates exists
-		then adjustedEarlyTerminationDate <= adjustedCashSettlementValuationDate
-			and adjustedCashSettlementValuationDate <= adjustedCashSettlementPaymentDate
-
-type OptionalEarlyTermination: <"A data defining:  an early termination provision where either or both parties have the right to exercise.">
-
-	singlePartyOption BuyerSeller (0..1) <"If optional early termination is not available to both parties then this component specifies the buyer and seller of the option. In FpML, this attribute is of type SinglePsrtyOption, which actually consists of the BuyerSeller.model.">
-	americanExercise AmericanExercise (0..1) <"American exercise. FpML implementations consists in an exercise substitution group.">
-	bermudaExercise BermudaExercise (0..1) <"Bermuda exercise. FpML implementations consists in an exercise substitution group.">
-	europeanExercise EuropeanExercise (0..1) <"European exercise. FpML implementations consists in an exercise substitution group.">
-	exerciseNotice ExerciseNotice (0..*) <"Definition of the party to whom notice of exercise should be given.">
-	followUpConfirmation boolean (0..1) <"A flag to indicate whether follow-up confirmation of exercise (written or electronic) is required following telephonic notice by the buyer to the seller or seller's agent.">
-	calculationAgent CalculationAgent (1..1) <"The ISDA Calculation Agent responsible for performing duties associated with an optional early termination.">
-	cashSettlement OptionCashSettlement (1..1) <"If specified, this means that cash settlement is applicable to the transaction and defines the parameters associated with the cash settlement procedure. If not specified, then physical settlement is applicable.">
-	optionalEarlyTerminationAdjustedDates OptionalEarlyTerminationAdjustedDates (0..1) <"An early termination provision to terminate the trade at fair value where one or both parties have the right to decide on termination.">
-
-	condition ExerciseChoice: <"condition to represent an FpML choice construct.">
-		required choice americanExercise, bermudaExercise, europeanExercise
-
-type OptionalEarlyTerminationAdjustedDates: <"A data defining:  the adjusted dates associated with an optional early termination provision.">
-
-	earlyTerminationEvent EarlyTerminationEvent (1..*) <"The adjusted dates associated with an individual early termination date.">
 
