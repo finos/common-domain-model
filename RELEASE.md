@@ -1,9 +1,11 @@
-# *CDM Model: Enhancement to Create_ExecutionPrimitive and Create_Execution*
+# *CDM Model: ProductId Refactoring Supplemental Changes* 
+ 
+_What is being released_ 
+ 
+In the `Product` data type, added the `commodity` attribute, added descriptions for the other attributes, and updated the data type description. 
 
-_What is being released_
+In the `ExternalProductType` data type, renamed the `externalProductType` attributes as `value`. 
 
-Added three input and output attributes to the `Create_ExecutionPrimitive`, `Create_Execution`, and `Create_ClearedTrade` functions.  All three attributes are required in the `ExecutionPrimitive` but were not previously in the functions: `executionType`, `tradeDate`, and `identifier`.
-
-_Review Directions_
-
-In the Rosetta Core, search for the functions noted above.
+_Review Directions_ 
+ 
+In the CDM Portal, use the Textual Browser to look up the data types mentioned above.
