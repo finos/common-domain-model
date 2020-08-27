@@ -9,6 +9,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -87,7 +88,10 @@ public class RunCreateWorkflowNewCancelNew implements ExecutableFunction<Contrac
                 guard(contract.getTradableProduct().getCounterparties()),
                 guard(contract.getParty()),
                 guard(contract.getPartyRole()),
-                Collections.emptyList());
+                Collections.emptyList(),
+				null,
+				Optional.ofNullable(contract.getTradeDate()).map(TradeDate::getDate).orElse(null),
+				guard(contract.getContractIdentifier()));
 		return corrected;
 	}
 
@@ -107,7 +111,10 @@ public class RunCreateWorkflowNewCancelNew implements ExecutableFunction<Contrac
                 guard(contract.getTradableProduct().getCounterparties()),
                 guard(contract.getParty()),
                 guard(contract.getPartyRole()),
-                Collections.emptyList());
+                Collections.emptyList(),
+				null,
+				Optional.ofNullable(contract.getTradeDate()).map(TradeDate::getDate).orElse(null),
+				guard(contract.getContractIdentifier()));
 		return newBusinessEvent;
 	}
 

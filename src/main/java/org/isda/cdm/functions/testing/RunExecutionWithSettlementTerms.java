@@ -9,14 +9,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-import org.isda.cdm.BusinessEvent;
-import org.isda.cdm.Contract;
-import org.isda.cdm.ContractualProduct;
-import org.isda.cdm.EconomicTerms;
-import org.isda.cdm.Payout;
-import org.isda.cdm.Product;
-import org.isda.cdm.SettlementTerms;
-import org.isda.cdm.TradableProduct;
+import org.isda.cdm.*;
 import org.isda.cdm.functions.CashflowSettlementTerms;
 import org.isda.cdm.functions.Create_Execution;
 
@@ -44,7 +37,10 @@ public class RunExecutionWithSettlementTerms implements ExecutableFunction<Contr
                 guard(input.getTradableProduct().getCounterparties()),
                 guard(input.getParty()),
                 guard(input.getPartyRole()),
-                settlementTerm);
+                settlementTerm,
+                null,
+                Optional.ofNullable(input.getTradeDate()).map(TradeDate::getDate).orElse(null),
+                guard(input.getContractIdentifier()));
     }
 
     private Contract clearCashPayout(Contract input) {
