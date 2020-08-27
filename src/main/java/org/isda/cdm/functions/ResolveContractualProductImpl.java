@@ -2,14 +2,14 @@ package org.isda.cdm.functions;
 
 import java.util.List;
 
-import org.isda.cdm.ContractualProduct;
-import org.isda.cdm.ContractualProduct.ContractualProductBuilder;
-import org.isda.cdm.ResolvablePayoutQuantity.ResolvablePayoutQuantityBuilder;
-
 import com.google.inject.Inject;
 import com.regnosys.rosetta.common.util.RosettaObjectBuilderCollectorProcessStep;
 
 import cdm.observable.asset.QuantityNotation;
+import cdm.product.common.functions.ResolveContractualProduct;
+import cdm.product.common.functions.ResolvePayoutQuantity;
+import cdm.product.template.ContractualProduct;
+import cdm.product.template.ContractualProduct.ContractualProductBuilder;
 
 public class ResolveContractualProductImpl extends ResolveContractualProduct {
 

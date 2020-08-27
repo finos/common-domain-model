@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
-import org.isda.cdm.InterestRatePayout.InterestRatePayoutBuilder;
-import org.isda.cdm.RateSpecification.RateSpecificationBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +15,8 @@ import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 
 import cdm.base.staticdata.party.PayerReceiver.PayerReceiverBuilder;
+import cdm.product.asset.InterestRatePayout.InterestRatePayoutBuilder;
+import cdm.product.asset.RateSpecification.RateSpecificationBuilder;
 
 @SuppressWarnings("unused")
 public class FRAIRPSplitterMappingProcessor extends MappingProcessor {

@@ -5,7 +5,6 @@ import java.util.function.Function;
 import org.isda.cdm.Contract;
 import org.isda.cdm.Workflow;
 import org.isda.cdm.WorkflowStep;
-import org.isda.cdm.functions.Create_ClearedTrade;
 import org.isda.cdm.functions.example.services.identification.IdentifierService;
 
 import com.google.common.collect.Lists;
