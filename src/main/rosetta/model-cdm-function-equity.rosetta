@@ -2,26 +2,15 @@ namespace org.isda.cdm
 version "${project.version}"
 
 import cdm.base.math.*
-import cdm.base.datetime.*
-import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.party.*
 
-import cdm.observable.*
 import cdm.observable.asset.*
 import cdm.observable.common.*
 
-import cdm.product.common.schedule.*
 import cdm.product.template.*
+import cdm.product.asset.*
+import cdm.product.common.schedule.*
 
-
-func NewFloatingPayout: <"Function specification to create the interest rate (floating) payout part of an Equity Swap according to the 2018 ISDA CDM Equity Confirmation template.">
-	inputs: masterConfirmation EquitySwapMasterConfirmation2018 (0..1)
-	output: interestRatePayout InterestRatePayout (1..1)
-
-	post-condition: <"Interest rate payout must inherit terms from the Master Confirmation Agreement when it exists.">
-		if masterConfirmation exists
-		then interestRatePayout -> calculationPeriodDates = masterConfirmation -> equityCalculationPeriod
-			and interestRatePayout -> paymentDates = masterConfirmation -> equityCashSettlementDates
 
 /**
  * Function specifications that are used in the Equity Reset process 
@@ -93,43 +82,6 @@ func EquityCashSettlementAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity
 	assign-output equityCashSettlementAmount -> currency: <"Does not handle the cross currency case, currently.">
 		ResolveEquityInitialPrice( equityPayout only-element -> underlier, contractState -> contract -> tradableProduct -> priceNotation ) -> netPrice -> currency
 
-func ResolveEquityPeriodStartPrice: <"Resolves the price from the end of the previous period. If first period, then take the initial price.">
-	inputs:
-		equityPayout EquityPayout (1..1)
-		priceNotations PriceNotation (0..*)
-		date date (1..1)
-	output:
-		price number (1..1)
-
-	alias priceReturnTerms:
-		equityPayout -> priceReturnTerms
-
-	alias calculationPeriod:
-		CalculationPeriod(equityPayout -> calculationPeriodDates, date)
-
-	assign-output price: <"The initial price is taken from the original contract if we are Resetting for the first time i.e. when the number of updated contracts is one.">
-		if calculationPeriod -> isFirstPeriod
-		then ResolveEquityInitialPrice( equityPayout -> underlier, priceNotations ) -> netPrice -> amount
-		else priceReturnTerms -> valuationPriceInterim -> netPrice -> amount
-
-func ResolveEquityPeriodEndPrice:
-	inputs:
-		equityPayout EquityPayout (1..1)
-		date date (1..1)
-	output:
-		price number (1..1)
-
-	alias priceReturnTerms:
-		equityPayout -> priceReturnTerms
-
-	alias calculationPeriod:
-		CalculationPeriod(equityPayout -> calculationPeriodDates, date)
-
-	assign-output price: <"If the last period, take the price from the Valuation Price Final, otherwise from Valuation Price Interim.">
-		if calculationPeriod -> isLastPeriod
-		then priceReturnTerms -> valuationPriceFinal -> netPrice -> amount
-		else priceReturnTerms -> valuationPriceInterim -> netPrice -> amount
-
 func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Performance = (Rate Of Return) × Equity Notional Amount.">
 	inputs:
 		contractState ContractState (1..1)
@@ -185,14 +137,6 @@ func EquityNotionalAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confi
 	assign-output equityNotionalAmount:
 		numberOfSecurities * price
 
-func ResolveEquityInitialPrice:
-	inputs:
-		underlier Underlier (1..1)
-		priceNotations PriceNotation (0..*)
-
-	output:
-		initialPrice CashPrice (1..1)
-
 func StockSplit: <"Function specification to create the fully-formed business event which represents the impact of a stock split (or a reverse stock split) on an Equity Derivatives contract on a certain date.  The function uses the defined adjustmentRatio to adjust the quantity and price as represented in two business events: QuantityChange and termsChange. ">
 	inputs:
 		instruction StockSplitInstruction (1..1)
@@ -221,15 +165,3 @@ func StockSplit: <"Function specification to create the fully-formed business ev
 	assign-output businessEvent -> primitives -> termsChange: <"Build TermsChangePrimitive (for price) and add to WorkflowStep.">
 		Create_PriceChangePrimitive(instruction -> trade, postSplitPrice)
 
-// MdM comments: this is the Dividend Cash Settlement Amount as defined in the SES1 legal document.  The cash dividend will be paid on the relevant DividendDateReferenceEnum. I did not include a function to monitor when the dividends are declared (i.e a dividend observation).
-func DividendCashSettlementAmount: <"Based on the following legal text: means, in respect of a Dividend Period and the related Dividend Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent for such Dividend Period to which the Dividend Cash Settlement Amount relates, pursuant to the following formula: Dividend Cash Settlement Amount = Record Amount × Number Of Securities.">
-
-	inputs:
-		numberOfSecurities number (1..1)
-		declaredDividend number (1..1)
-
-	output:
-		dividendCashSettlementAmount number (1..1)
-
-	assign-output dividendCashSettlementAmount:
-		declaredDividend * numberOfSecurities

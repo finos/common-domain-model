@@ -1,51 +1,6 @@
 namespace org.isda.cdm
 version "${project.version}"
 
-import cdm.base.datetime.*
-import cdm.base.staticdata.asset.common.*
-
-import cdm.observable.asset.*
-
-import cdm.product.common.schedule.*
-import cdm.product.common.settlement.*
-import cdm.synonyms.config.*
-
-/*
- * FpML ird validation rules perceived as needing extensions to the data rule syntax or calls to java functions:
- * http://www.fpml.org/spec/fpml-5-9-7-rec-2/html/confirmation/index.html
- * Total number of rules = 50, 35 implemented -> 70%
- * ird-2, ird-5, ird-36 -> x is is equal to an integer multiple of y
- * ird-3, ird-4 -> a date is equal to one of an array of dates
- * ird-10, ird-11 -> min operator among a set of dates + need further levels of evaluation
- * ird-12 -> calendar evaluation
- * ird-43 -> states that at least one attribute among 4 must exist, which is quite involved to state with current grammar (15 combinations)
- * ird-47 -> the rule suggest to have a dateRelativeTo which is equal to an Id associated with the type of option exercise, which contains a set of dates (and other attributes)
- * ird-50, ird-51, ird-52, ird-53, ird-54 -> vagueness as to how to ensure that the dates in the notionalStepSchedule, the fixedRateSchedule, etc. are unadjusted in the schedule implied by the calculationPeriodDates
- */
-type BondReference: <"Reference to a bond underlier to represent an asset swap or Condition Precedent Bond.">
-
-	bond ProductIdentifier (1..1) <"Reference to a bond underlier.">
-	conditionPrecedentBond boolean (1..1) <"To indicate whether the Condition Precedent Bond is applicable. The swap contract is only valid if the bond is issued and if there is any dispute over the terms of fixed stream then the bond terms would be used.">
-	discrepancyClause boolean (0..1) <"To indicate whether the Discrepancy Clause is applicable.">
-
-type CashflowRepresentation: <"A data defining:  the cashflow representation of a swap trade.">
-
-	cashflowsMatchParameters boolean (1..1) <"A true/false flag to indicate whether the cashflows match the parametric definition of the stream, i.e. whether the cashflows could be regenerated from the parameters without loss of information.">
-
-	principalExchange PrincipalExchange (0..*) <"The initial, intermediate and final principal exchange amounts. Typically required on cross currency interest rate swaps where actual exchanges of principal occur. A list of principal exchange elements may be ordered in the document by ascending adjusted principal exchange date. An FpML document containing an unordered principal exchange list is still regarded as a conformant document.">
-	paymentCalculationPeriod PaymentCalculationPeriod (0..*) <"The adjusted payment date and associated calculation period parameters required to calculate the actual or projected payment amount. A list of payment calculation period elements may be ordered in the document by ascending adjusted payment date. An FpML document containing an unordered list of payment calculation periods is still regarded as a conformant document.">
-
-type DiscountingMethod: <"A data defining:  discounting information. The 2000 ISDA definitions, section 8.4. discounting (related to the calculation of a discounted fixed amount or floating amount) apply. This type must only be included if discounting applies.">
-
-	discountingType DiscountingTypeEnum (1..1) <"The discounting method that is applicable.">
-	discountRate number (0..1) <"A discount rate, expressed as a decimal, to be used in the calculation of a discounted amount. A discount amount of 5% would be represented as 0.05.">
-	discountRateDayCountFraction DayCountFractionEnum (0..1) <"A discount day count fraction to be used in the calculation of a discounted amount.">
-		[metadata scheme]
-
-	condition DiscountRate: <"In FpML discountingRate and discountRateDayCountFraction are part of an optional node, with discountingRate as the required element as part of that node.">
-		if discountRateDayCountFraction exists
-		then discountRate exists
-
 type ExerciseEvent: <"A data defining:  the adjusted dates associated with a particular exercise event.">
 	[metadata key]
 
@@ -54,43 +9,5 @@ type ExerciseEvent: <"A data defining:  the adjusted dates associated with a par
 	adjustedCashSettlementValuationDate date (0..1) <"The date by which the cash settlement amount must be agreed. This date should already be adjusted for any applicable business day convention.">
 	adjustedCashSettlementPaymentDate date (0..1) <"The date on which the cash settlement amount is paid. This date should already be adjusted for any applicable business day convention.">
 	adjustedExerciseFeePaymentDate date (0..1) <"The date on which the exercise fee amount is paid. This date should already be adjusted for any applicable business day convention.">
-
-type FinalCalculationPeriodDateAdjustment: <"A data to:  define business date convention adjustment to final payment period per leg.">
-
-	relevantUnderlyingDateReference AdjustableOrRelativeDates (1..1) <"Reference to the unadjusted cancellation effective dates.">
-		[metadata reference]
-	swapStreamReference InterestRatePayout (1..1) <"Reference to the leg, where date adjustments may apply.">
-		[metadata reference]
-	businessDayConvention BusinessDayConventionEnum (1..1) <"Override business date convention. This takes precedence over leg level information.">
-
-type FloatingRateDefinition: <"A data defining:  parameters associated with a floating rate reset. This data forms:  part of the cashflows representation of a stream.">
-
-	calculatedRate number (0..1) <"The final calculated rate for a calculation period after any required averaging of rates A calculated rate of 5% would be represented as 0.05.">
-
-	rateObservation RateObservation (0..*) <"The details of a particular rate observation, including the fixing date and observed rate. A list of rate observation elements may be ordered in the document by ascending adjusted fixing date. An FpML document containing an unordered list of rate observations is still regarded as a conformant document.">
-	floatingRateMultiplier number (0..1) <"A rate multiplier to apply to the floating rate. The multiplier can be a positive or negative decimal. This element should only be included if the multiplier is not equal to 1 (one).">
-	spread number (0..1) <"The ISDA Spread, if any, which applies for the calculation period. The spread is a per annum rate, expressed as a decimal. For purposes of determining a calculation period amount, if positive the spread will be added to the floating rate and if negative the spread will be subtracted from the floating rate. A positive 10 basis point (0.1%) spread would be represented as 0.001.">
-	capRate Strike (0..*) <"The cap rate, if any, which applies to the floating rate for the calculation period. The cap rate (strike) is only required where the floating rate on a swap stream is capped at a certain strike level. The cap rate is assumed to be exclusive of any spread and is a per annum rate, expressed as a decimal. A cap rate of 5% would be represented as 0.05.">
-	floorRate Strike (0..*) <"The floor rate, if any, which applies to the floating rate for the calculation period. The floor rate (strike) is only required where the floating rate on a swap stream is floored at a certain strike level. The floor rate is assumed to be exclusive of any spread and is a per annum rate, expressed as a decimal. The floor rate of 5% would be represented as 0.05.">
-
-	condition FloatingRateMultiplier: <"FpML specifies that the floatingRateMultiplier should only be included if different from 1.">
-		if floatingRateMultiplier exists
-		then floatingRateMultiplier <> 1
-
-type InflationRateSpecification extends FloatingRateSpecification: <"A data to:  specify the inflation rate.">
-	[synonym ISO20022 value "InfltnIndx"]
-
-	inflationLag Offset (1..1) <"An off-setting period from the payment date which determines the reference period for which the inflation index is observed.">
-	indexSource string (1..1) <"The reference source such as Reuters or Bloomberg. FpML specifies indexSource to be of type rateSourcePageScheme, but without specifying actual values.">
-		[metadata scheme]
-	mainPublication string (1..1) <"The current main publication source such as relevant web site or a government body. FpML specifies mainPublication to be of type mainPublicationSource, but without specifying actual values.">
-		[metadata scheme]
-	interpolationMethod InterpolationMethodEnum (1..1) <"The method used when calculating the Inflation Index Level from multiple points. The most common is Linear.">
-		[metadata scheme]
-	initialIndexLevel number (0..1) <"Initial known index level for the first calculation period.">
-	fallbackBondApplicable boolean (1..1) <"The applicability of a fallback bond as defined in the 2006 ISDA Inflation Derivatives Definitions, sections 1.3 and 1.8.">
-
-	condition RateOptionAssetIdentifier: <"The asset identifier for an interest rate spread must be a rate option.">
-		assetIdentifier -> rateOption only exists
 
 
