@@ -1,8 +1,12 @@
 package org.isda.cdm.workflows;
 
+import java.util.Optional;
 import java.util.function.Function;
 
+import cdm.base.staticdata.identifier.Identifier;
+import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.Contract;
+import org.isda.cdm.TradeDate;
 import org.isda.cdm.Workflow;
 import org.isda.cdm.WorkflowStep;
 import org.isda.cdm.functions.Create_ClearedTrade;
@@ -45,7 +49,15 @@ public class ClearingAccepted implements Function<Contract, Workflow> {
 		// propose clear step
 		WorkflowStep proposeStep = ClearingUtils.buildProposeStep(runner, contractFormationStep, alphaContract, party1, party2, externalReference, identifierService);
 
-		WorkflowStep clearStep = ClearingUtils.buildClear(runner, externalReference, proposeStep, proposeStep.getProposedInstruction().getClearing(), clear, identifierService);
+		Identifier identifier = Optional.ofNullable(alphaContract.getContractIdentifier())
+				.flatMap(ids -> ids.stream().findFirst())
+				.orElse(null);
+		Date tradeDate = Optional.ofNullable(alphaContract.getTradeDate())
+				.map(TradeDate::getDate)
+				.orElse(null);
+
+		WorkflowStep clearStep = ClearingUtils.buildClear(runner, externalReference, proposeStep, proposeStep.getProposedInstruction().getClearing(),
+				clear, identifierService, tradeDate, identifier);
 
 		return Workflow.builder().addSteps(Lists.newArrayList(contractFormationStep, proposeStep, clearStep)).build();
 	}
