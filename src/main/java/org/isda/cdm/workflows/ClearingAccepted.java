@@ -4,6 +4,9 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import cdm.base.staticdata.identifier.Identifier;
+import cdm.base.staticdata.party.Counterparty;
+import cdm.base.staticdata.party.CounterpartyEnum;
+import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.Contract;
 import org.isda.cdm.TradeDate;
@@ -33,13 +36,8 @@ public class ClearingAccepted implements Function<Contract, Workflow> {
 
 		Contract alphaContract = contractBuilder.build();
 
-		Party party1 = contract.getParty().stream()
-				.filter(party -> "party1".equals(party.getMeta().getExternalKey()))
-				.findFirst().orElseThrow(() -> new IllegalArgumentException("Expected party with external key party1 on alpha"));
-
-		Party party2 = contract.getParty().stream()
-				.filter(party -> "party2".equals(party.getMeta().getExternalKey()))
-				.findFirst().orElseThrow(() -> new IllegalArgumentException("Expected party with external key party2 on alpha"));
+		Party party1 = getParty(contract, CounterpartyEnum.PARTY_1);
+		Party party2 = getParty(contract, CounterpartyEnum.PARTY_2);
 
 		String externalReference = alphaContract.getMeta().getGlobalKey();
 
@@ -62,4 +60,16 @@ public class ClearingAccepted implements Function<Contract, Workflow> {
 		return Workflow.builder().addSteps(Lists.newArrayList(contractFormationStep, proposeStep, clearStep)).build();
 	}
 
+	/**
+	 * Extract the party related to the given counterparty enum.
+	 */
+	private Party getParty(Contract contract, CounterpartyEnum counterparty) {
+		return contract.getTradableProduct().getCounterparties().stream()
+				.filter(c -> c.getCounterparty() == counterparty)
+				.map(Counterparty::getParty)
+				.map(ReferenceWithMetaParty::getGlobalReference)
+				.flatMap(partyReference -> contract.getParty().stream().filter(p -> partyReference.equals(p.getMeta().getGlobalKey())))
+				.findFirst()
+				.orElseThrow(() -> new IllegalArgumentException("Party not found for counterparty " + counterparty));
+	}
 }
