@@ -1,9 +1,11 @@
-# *CDM Documentation: Java Distribution Guidelines*
+# *CDM Model: ProductId Refactoring Supplemental Changes* 
+ 
+_What is being released_ 
+ 
+In the `Product` data type, added the `commodity` attribute, added descriptions for the other attributes, and updated the data type description. 
 
-_What is being released_
+In the `ExternalProductType` data type, renamed the `externalProductType` attributes as `value`. 
 
-Added a new section for Java Distribution Guidelines under CDM Portal Documentation.
-
-_Review Direction_
-
-Go to CDM Portal documentation, you will see an additional section called ``CDM Java Distribution Guidelines``.
+_Review Directions_ 
+ 
+In the CDM Portal, use the Textual Browser to look up the data types mentioned above.
