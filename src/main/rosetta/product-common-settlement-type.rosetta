@@ -46,8 +46,6 @@ type Cashflow extends PayoutBase: <"Class to specify a cashflow, i.e. the outcom
 		if payoutQuantity -> assetIdentifier exists
 		then payoutQuantity -> assetIdentifier -> currency exists
 
-
-
 type QuantityMultiplier: <" Class to specify a mechanism for a quantity to be set as a multiplier to another (reference) quantity, based on a price observation. At the moment this class only supports FX or Equity-linked notional and re-uses existing building blocks for those 2 cases, until such time when component can be made more generic. This captures the case of resetting cross-currency swaps and resetting equity swaps.">
 
 	fxLinkedNotionalSchedule FxLinkedNotionalSchedule (0..1) <"Multiplier specified as an FX-linked schedule, e.g. for a resetting cross-currency swap..">
@@ -78,6 +76,7 @@ type ResolvablePayoutQuantity: <"Generic class to specify the quantity for diffe
 		if ResolvablePayoutQuantity -> quantityReference -> reference is absent and assetIdentifier is absent
 		then resolvedQuantity -> amount exists
 
+
 type CrossCurrencyTerms:
 
 	principalExchanges PrincipalExchanges (0..1)
@@ -99,6 +98,7 @@ type CrossCurrencyTerms:
 type PayoutBase: <" Base class that all payout types should extend. Use case is that some validation rules may need to apply across all payout types, for which the data rule can be written at the base class level">
 
 	payoutQuantity ResolvablePayoutQuantity (1..1) <"Each payout leg must implement the quantity concept as a 'resolvable' type, which allows for different payout legs to be linked to each other (e.g. in the case of cross-curreny products).">
+
 
 
 type CashSettlementTerms extends SettlementBase: <"In FpML, PhysicalSettlementTerms and CashSettlementTerms extend SettlementTerms. In the CDM, this extension paradigm has not been used because SettlementTerms class has been used for purposes related to securities transactions, while it is not used as such in the FpML standard (i.e. only as an abstract construct.">

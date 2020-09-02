@@ -106,13 +106,13 @@ type EquityPayout extends PayoutBase: <" The equity payout specification terms. 
 			or underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Warrant
             )
 
+
 type OptionExercise: <" A class to represent the applicable terms to qualify an option exercise: the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">
 
 	optionStyle OptionStyle (1..1) <"The option exercise can be of American style, Bermuda style or European style. The FpML implementation makes use of a substitution group.">
 	strike OptionStrike (0..1) <"Specifies the strike of the option on credit default swap.">
 	exerciseProcedure ExerciseProcedure (0..1) <"The set of parameters defining the procedure associated with the exercise, e.g. manual exercise.">
 	settlement OptionSettlement (0..1) <"The option settlement terms, such as cash vs. physical, the settlement date, the settlement currency and/or amount. FpML represents this information as part of the OptionSettlement.model.">
-
 
 type OptionPayout extends PayoutBase: <" The option payout specification terms. The associated globalKey denotes the ability to associate a hash value to the respective OptionPayout instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
@@ -123,7 +123,6 @@ type OptionPayout extends PayoutBase: <" The option payout specification terms. 
 	denomination OptionDenomination (0..1) <"The denomination qualifies the number of units of underlier per option and the number of options comprised in the option transaction. FpML represents this information as part of the OptionDenomination.model.">
 	exerciseTerms OptionExercise (1..1) <"The terms for exercising the option, which include the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">
 	underlier Underlier (1..1) <"The product underlying the option, which can be of any type including ContractualProduct or Security.">
-
 
 type SecurityLeg: <" Terms defining a security leg in a securities financing transaction, which can either be the near leg or the far leg and is closely modelled onto the nearLeg and farLeg types in FpML">
 	[metadata key]
@@ -163,6 +162,7 @@ type InitialMargin: <" Defines initial margin applied to a repo transaction. Ini
 	condition MinimumTransferAmount:
 		if minimumTransferAmount exists
 		then minimumTransferAmount -> amount > 0
+
 
 type InitialMarginCalculation: <" Defines the initial margin calculation applicable to a single piece of collateral.">
 
@@ -240,7 +240,6 @@ type Payout: <" A class to represent the set of future cashflow methodologies in
 		if equityPayout -> payoutQuantity -> reset = True
 		then interestRatePayout exists
 
-
 type Product: <"Defines the product that is the subject of a tradable product definition, an underlying product definition, a physical exercise, a position, or other purposes.">
 	[metadata key]
 
@@ -252,6 +251,7 @@ type Product: <"Defines the product that is the subject of a tradable product de
 	security Security (0..1) <"Identifies a security by referencing a product identifier and a security type, plus an optional set of attributes.">
 
 	condition: one-of
+
 
 // TBD: positioning of future DateNotation (Effective Date, Termination Date) - only applicable to contractual products. In EconomicTerms?
 type TradableProduct: <"Definition of a product as ready to be traded, i.e. included in an execution or contract, by associating a specific price and quantity to this product plus an (optional) mechanism for any potential future quantity adjustment.">
@@ -314,7 +314,6 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
 	condition FpML_ird_25_FloatingRateFloorRate: <"FpML validation rule ird-25 - If step does not exist, then floorRate must not be equal to 0.">
 		if priceNotation -> price -> floatingInterestRate -> floorRate exists and product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> floorRateSchedule -> step is absent
 		then priceNotation -> price -> floatingInterestRate -> floorRate <> 0.0
-
 
 
 type ConstituentWeight: <"A class describing the weight of each of the underlier constituent within the basket, either in absolute or relative terms.">
