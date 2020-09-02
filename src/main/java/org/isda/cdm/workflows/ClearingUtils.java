@@ -2,12 +2,14 @@ package org.isda.cdm.workflows;
 
 import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.BusinessEvent;
+import org.isda.cdm.ClearingInstruction;
 import org.isda.cdm.Contract;
 import org.isda.cdm.ContractFormationPrimitive;
 import org.isda.cdm.Instruction;
 import org.isda.cdm.PostContractFormationState;
 import org.isda.cdm.PrimitiveEvent;
 import org.isda.cdm.WorkflowStep;
+import org.isda.cdm.functions.Create_ClearedTrade;
 import org.isda.cdm.functions.example.services.identification.IdentifierService;
 import org.isda.cdm.metafields.ReferenceWithMetaWorkflowStep;
 
@@ -62,7 +64,7 @@ public class ClearingUtils {
 	}
 
 	static WorkflowStep buildClear(PostProcessor runner, String externalReference, WorkflowStep previous, ClearingInstruction clearingInstruction,
-			Create_ClearedTrade clear, IdentifierService identifierService, Date tradeDate, Identifier identifier) {
+			Create_ClearedTrade          clear, IdentifierService identifierService, Date tradeDate, Identifier identifier) {
 
 		BusinessEvent.BusinessEventBuilder businessEventBuilder = clear.evaluate(clearingInstruction, tradeDate, identifier).toBuilder();
 

@@ -8,6 +8,7 @@ import com.regnosys.rosetta.common.util.RosettaObjectBuilderCollectorProcessStep
 import cdm.observable.asset.QuantityNotation;
 import cdm.product.common.functions.ResolveContractualProduct;
 import cdm.product.common.functions.ResolvePayoutQuantity;
+import cdm.product.common.settlement.ResolvablePayoutQuantity.ResolvablePayoutQuantityBuilder;
 import cdm.product.template.ContractualProduct;
 import cdm.product.template.ContractualProduct.ContractualProductBuilder;
 

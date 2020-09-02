@@ -7,7 +7,6 @@ import java.time.LocalDate;
 import java.time.chrono.IsoChronology;
 import java.time.temporal.ChronoUnit;
 
-
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;

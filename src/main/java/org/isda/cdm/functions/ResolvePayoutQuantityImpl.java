@@ -11,6 +11,8 @@ import cdm.base.math.NonNegativeQuantity.NonNegativeQuantityBuilder;
 import cdm.observable.asset.AssetIdentifier;
 import cdm.observable.asset.QuantityNotation;
 import cdm.product.common.functions.ResolvePayoutQuantity;
+import cdm.product.common.settlement.ResolvablePayoutQuantity;
+import cdm.product.common.settlement.metafields.ReferenceWithMetaResolvablePayoutQuantity;
 import cdm.product.template.ContractualProduct;
 
 public class ResolvePayoutQuantityImpl extends ResolvePayoutQuantity {
