@@ -222,15 +222,6 @@ func ResolveRateIndex: <"The function to specify that the floating rate index en
 	inputs: index FloatingRateIndexEnum (1..1)
 	output: rate number (1..1)
 
-func NewFloatingPayout: <"Function specification to create the interest rate (floating) payout part of an Equity Swap according to the 2018 ISDA CDM Equity Confirmation template.">
-	inputs: masterConfirmation EquitySwapMasterConfirmation2018 (0..1)
-	output: interestRatePayout InterestRatePayout (1..1)
-
-	post-condition: <"Interest rate payout must inherit terms from the Master Confirmation Agreement when it exists.">
-		if masterConfirmation exists
-		then interestRatePayout -> calculationPeriodDates = masterConfirmation -> equityCalculationPeriod
-			and interestRatePayout -> paymentDates = masterConfirmation -> equityCashSettlementDates
-
 func ResolveEquityPeriodStartPrice: <"Resolves the price from the end of the previous period. If first period, then take the initial price.">
 	inputs:
 		equityPayout EquityPayout (1..1)
