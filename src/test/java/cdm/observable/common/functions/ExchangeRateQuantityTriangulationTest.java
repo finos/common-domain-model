@@ -12,7 +12,6 @@ import java.nio.charset.Charset;
 import java.util.List;
 
 import org.isda.cdm.Contract;
-import org.isda.cdm.TradableProduct;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +21,7 @@ import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 
 import cdm.observable.asset.PriceNotation;
 import cdm.observable.asset.QuantityNotation;
-import cdm.observable.common.functions.ExchangeRateQuantityTriangulation;
+import cdm.product.template.TradableProduct;
 
 public class ExchangeRateQuantityTriangulationTest extends AbstractFunctionTest {
 

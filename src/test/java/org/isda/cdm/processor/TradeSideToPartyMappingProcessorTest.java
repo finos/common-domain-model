@@ -1,22 +1,23 @@
 package org.isda.cdm.processor;
 
-import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder;
-import cdm.base.staticdata.party.processor.TradeSideToPartyMappingProcessor;
-
-import com.regnosys.rosetta.common.translation.Mapping;
-import com.regnosys.rosetta.common.translation.MappingContext;
-import com.regnosys.rosetta.common.translation.Path;
-import com.rosetta.model.lib.path.RosettaPath;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import com.regnosys.rosetta.common.translation.Mapping;
+import com.regnosys.rosetta.common.translation.MappingContext;
+import com.regnosys.rosetta.common.translation.Path;
+import com.rosetta.model.lib.path.RosettaPath;
+
+import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder;
+import cdm.base.staticdata.party.processor.TradeSideToPartyMappingProcessor;
 
 class TradeSideToPartyMappingProcessorTest {
 

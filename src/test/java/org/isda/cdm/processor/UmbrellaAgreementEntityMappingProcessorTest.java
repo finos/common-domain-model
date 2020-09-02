@@ -1,22 +1,25 @@
 package org.isda.cdm.processor;
 
-import com.regnosys.rosetta.common.translation.Mapping;
-import com.regnosys.rosetta.common.translation.MappingContext;
-import com.regnosys.rosetta.common.translation.Path;
-import com.rosetta.model.lib.path.RosettaPath;
-import org.isda.cdm.UmbrellaAgreement;
-import org.isda.cdm.UmbrellaAgreementEntity;
-import org.isda.cdm.UmbrellaAgreementEntity.UmbrellaAgreementEntityBuilder;
-import org.junit.jupiter.api.Test;
+import static com.regnosys.rosetta.common.translation.Path.parse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.regnosys.rosetta.common.translation.Path.PathElement;
-import static com.regnosys.rosetta.common.translation.Path.parse;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
+import org.isda.cdm.UmbrellaAgreement;
+import org.isda.cdm.UmbrellaAgreementEntity;
+import org.isda.cdm.UmbrellaAgreementEntity.UmbrellaAgreementEntityBuilder;
+import org.junit.jupiter.api.Test;
+
+import com.regnosys.rosetta.common.translation.Mapping;
+import com.regnosys.rosetta.common.translation.MappingContext;
+import com.regnosys.rosetta.common.translation.Path;
+import com.regnosys.rosetta.common.translation.Path.PathElement;
+import com.rosetta.model.lib.path.RosettaPath;
 
 class UmbrellaAgreementEntityMappingProcessorTest {
 
