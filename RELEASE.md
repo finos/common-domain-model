@@ -1,9 +1,9 @@
-# *CDM Documentation: Java Distribution Guidelines*
+# *CDM Model: PartyContractInformation multiple related parties* 
+ 
+_What is being released_ 
+ 
+In the `PartyContractInformation` data type, changed related parties and category to allow multiple related parties and categories
 
-_What is being released_
-
-Added a new section for Java Distribution Guidelines under CDM Portal Documentation.
-
-_Review Direction_
-
-Go to CDM Portal documentation, you will see an additional section called ``CDM Java Distribution Guidelines``.
+_Review Directions_ 
+ 
+In the CDM Portal, use the Textual Browser to look up the data types mentioned above.
