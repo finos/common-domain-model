@@ -12,7 +12,7 @@ This section provides directions for downloading and using the Java version of C
 Prerequisites
 -------------
 
-* Java SDK 11
+* Java SDK 8
 
 Introduction
 ---------------
