@@ -252,6 +252,42 @@ type ExecutionState: <"A class to specify an execution instantiation with respec
 		[synonym Workflow_Event value "fpmlExecution"]
 
 
+type TradeState:
+	[metadata key]
+	trade TradeNew (1..1)
+	state State (1..1)
+
+type TradeNew:
+	[metadata key]
+	identifier Identifier (1..*)
+	tradeDate TradeDate (1..1)
+	tradableProduct TradableProduct (1..1)
+	party Party (0..*)
+	partyRole PartyRole (0..*)
+	settlementTerms SettlementTerms (0..*)
+	execution Execution (0..1)
+	contract Contract (0..1)
+
+	condition SecurityPartyRole: <"When the executed product is a security, both ExecutingEntity and Counterparty party roles must exist.">
+		if tradableProduct -> product -> security exists
+		then partyRole -> role contains PartyRoleEnum -> ExecutingEntity and partyRole -> role contains PartyRoleEnum -> Counterparty
+
+	condition SecurityPartyRoleBuyerSeller: <"When the executed product is a security, both buyer and seller party roles must exist.">
+		if tradableProduct -> product -> security exists
+		then partyRole -> role contains PartyRoleEnum -> Buyer and partyRole -> role contains PartyRoleEnum -> Seller
+
+	condition SecurityPrice: <"When the executed product is a security, the price must be specified.">
+		if tradableProduct -> product -> security exists
+		then tradableProduct -> priceNotation -> price exists
+
+	condition SettlementTerms: <"When the executed product is a security, the settlement terms must be specified.">
+		if tradableProduct -> product -> security exists
+		then settlementTerms exists
+
+type State:
+	closedState ClosedStateEnum (0..1)
+	positionState PositionStatusEnum (0..1)
+
 type LimitApplicable:
 
 	limitType CreditLimitTypeEnum (0..1) <"Standard code to indicate which type of credit line is being referred to - i.e. IM, DV01, PV01, CS01, Notional, Clip Size, Notional, maximumOrderQuantity.">
@@ -289,7 +325,7 @@ type Lineage: <"A class to provide lineage information across lifecycle events t
 	eventReference WorkflowStep (0..*) <"The reference to the instantiation of an Event object, either through a globalKey or an xml-derived id/href mechanism. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
 		[synonym Workflow_Event value "eventReference" meta "href"]
-	executionReference Execution (0..*) <"The reference to the instantiation of a Execution object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
+	executionReference TradeNew (0..*) <"The reference to the instantiation of a Execution object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
 		[synonym Workflow_Event value "executionReference" meta "href"]
 	cashflowReference Cashflow (0..*) <"The reference to the instantiation of a Cashflow payout component object. An expected typical usage is to provide lineage for the payment of, say, the option premium or the swap initial fee. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
