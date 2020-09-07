@@ -488,14 +488,9 @@ func Create_Allocation: <"Function specification to create the fully-formed busi
 	post-condition: <"Both split and contract formation primitives should be created.">
 		businessEvent -> primitives -> split exists and businessEvent -> primitives -> contractFormation exists
 
-	// TODO: commented out due to refactoring
-	// post-condition: <"The split outcome must result in execution state of 'Allocated' for an execution.">
-	// 	if businessEvent -> primitives -> split -> after -> originalTrade -> execution exists
-	// 	then businessEvent -> primitives -> split -> after -> originalTrade -> execution -> closedState -> state = ClosedStateEnum -> Allocated
-
-	post-condition: <"The split outcome must result in a contract state of 'Allocated' for a contract.">
-		if businessEvent -> primitives -> split -> after -> originalTrade -> contract exists
-		then businessEvent -> primitives -> split -> after -> originalTrade -> contract -> closedState -> state = ClosedStateEnum -> Allocated
+	post-condition: <"The split outcome must result in execution state of 'Allocated' for an execution.">
+		if businessEvent -> primitives -> split -> after -> originalTrade -> trade exists
+		then businessEvent -> primitives -> split -> after -> originalTrade -> state -> closedState -> state = ClosedStateEnum -> Allocated
 
 func Create_SplitPrimitive: <"Function specification to create the Split primitive based by splitting the trade into separate trades with the qualities specified in the split instructions.">
 	[creation PrimitiveEvent]

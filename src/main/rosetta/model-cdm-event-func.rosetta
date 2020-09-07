@@ -25,7 +25,7 @@ func Qualify_Allocation: <"The qualification of allocation event from the fact t
 	assign-output is_event:
 		businessEvent -> primitives -> split exists
 		and businessEvent -> primitives -> contractFormation exists
-		and businessEvent -> primitives -> split -> after -> splitTrades -> execution count = businessEvent -> primitives -> contractFormation -> after -> contract count
+		and businessEvent -> primitives -> split -> after -> splitTrades -> trade -> execution count = businessEvent -> primitives -> contractFormation -> after -> contract count
 
 /*
  * Temporary event qualification until such time that we firm out the proper qualification and the way to infer it
@@ -90,12 +90,12 @@ func Qualify_ClearingRejection: <"The rejection of an alpha trade submission by 
 		businessEvent -> primitives count = 1
 		and businessEvent -> primitives -> termsChange exists
 		and businessEvent -> workflowEventState -> workflowStatus = WorkflowStatusEnum -> Rejected
-		and (businessEvent -> primitives -> termsChange -> before  -> partyRole is absent
-			or businessEvent -> primitives -> termsChange -> before -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization
-			or businessEvent -> primitives -> termsChange -> before -> partyRole is absent
-			or businessEvent -> primitives -> termsChange -> before -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization)
-		and (businessEvent -> primitives -> termsChange -> after -> partyRole -> role = PartyRoleEnum -> ClearingOrganization
-			or businessEvent -> primitives -> termsChange -> after -> contract -> partyRole -> role = PartyRoleEnum -> ClearingOrganization)
+		and (businessEvent -> primitives -> termsChange -> before  -> trade -> partyRole is absent
+			or businessEvent -> primitives -> termsChange -> before -> trade -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization
+			or businessEvent -> primitives -> termsChange -> before -> trade -> partyRole is absent
+			or businessEvent -> primitives -> termsChange -> before -> trade -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization)
+		and (businessEvent -> primitives -> termsChange -> after -> trade -> partyRole -> role = PartyRoleEnum -> ClearingOrganization
+			or businessEvent -> primitives -> termsChange -> after -> trade -> partyRole -> role = PartyRoleEnum -> ClearingOrganization)
 		and NoQuantityChange(businessEvent -> primitives -> quantityChange) = True
 
 func Qualify_ClearingSubmission: <"The submission of a contract to a CCP, which is qualified by the fact that (i) the termsChange is the only primitive, and (ii) the CCP is positioned as a partyRole to the execution or contract in the after state, while it didn't exist in the before state.">
@@ -108,15 +108,15 @@ func Qualify_ClearingSubmission: <"The submission of a contract to a CCP, which 
 		and businessEvent -> primitives -> termsChange exists
 		and businessEvent -> workflowEventState -> workflowStatus = WorkflowStatusEnum -> Submitted
 		and (
-			businessEvent -> primitives -> termsChange -> before -> partyRole is absent
-			or businessEvent -> primitives -> termsChange -> before -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization
-			or businessEvent -> primitives -> termsChange -> before -> partyRole is absent
-			or businessEvent -> primitives -> termsChange -> before -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization
+			businessEvent -> primitives -> termsChange -> before -> trade -> partyRole is absent
+			or businessEvent -> primitives -> termsChange -> before -> trade -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization
+			or businessEvent -> primitives -> termsChange -> before -> trade -> partyRole is absent
+			or businessEvent -> primitives -> termsChange -> before -> trade -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization
 		)
 		and (
-			businessEvent -> primitives -> termsChange -> after -> contract -> partyRole -> role = PartyRoleEnum -> ClearingOrganization
-			or businessEvent -> primitives -> termsChange -> after -> contract -> partyContractInformation -> relatedParty -> role = PartyRoleEnum -> ClearingOrganization
-			or businessEvent -> primitives -> termsChange -> after -> partyRole -> role = PartyRoleEnum -> ClearingOrganization
+			businessEvent -> primitives -> termsChange -> after -> trade -> partyRole -> role = PartyRoleEnum -> ClearingOrganization
+			or businessEvent -> primitives -> termsChange -> after -> trade -> contract -> partyContractInformation -> relatedParty -> role = PartyRoleEnum -> ClearingOrganization
+			or businessEvent -> primitives -> termsChange -> after -> trade -> partyRole -> role = PartyRoleEnum -> ClearingOrganization
 		)
 
 func Qualify_Compression: <"The qualification of a compression event from the fact that (i) the quantityChange primitive exists, and (ii) there are multiple contracts (or contract references) specified in the before state.">
@@ -324,12 +324,12 @@ func Qualify_StockSplit: <"The qualification of StockSplit business event based 
 		then CurrencyAmount( afterQuantityNotation, empty )
 	
 	alias beforeCashPrices:
-		businessEvent -> primitives -> termsChange -> before -> contract -> tradableProduct -> priceNotation -> price -> cashPrice -> netPrice -> amount
+		businessEvent -> primitives -> termsChange -> before -> trade -> tradableProduct -> priceNotation -> price -> cashPrice -> netPrice -> amount
 	
 	alias beforeCashPrice:
 		beforeCashPrices only-element 
 	alias afterCashPrices:
-		businessEvent -> primitives -> termsChange -> after -> contract -> tradableProduct -> priceNotation -> price -> cashPrice -> netPrice -> amount
+		businessEvent -> primitives -> termsChange -> after -> trade -> tradableProduct -> priceNotation -> price -> cashPrice -> netPrice -> amount
 	
 	alias afterCashPrice:
 		afterCashPrices only-element

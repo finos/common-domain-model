@@ -48,9 +48,8 @@ type ContractFormationPrimitive: <"Specification of a primitive event that repre
 	after PostContractFormationState (1..1) <"The after state corresponds to the new contract being formed between the parties, plus some additional trade workflow information.">
 		[synonym Workflow_Event value "after"]
 
-	// TODO enable condition once party has been refactored out of product
-//	condition: <"The product should be unchanged.">
-//		before -> execution -> tradableProduct -> product = after -> contract -> tradableProduct -> product
+	condition: <"The product should be unchanged.">
+		before -> trade -> tradableProduct -> product = after -> contract -> tradableProduct -> product
 
 	condition: <"The quantity should be unchanged.">
 		if before exists then before -> trade -> tradableProduct -> quantityNotation = after -> contract -> tradableProduct -> quantityNotation
@@ -60,7 +59,7 @@ type ContractFormationPrimitive: <"Specification of a primitive event that repre
 
 type SplitPrimitive: <"The primitive event to represent a split/allocation of a trade. As part of this primitive event the type of trade, either an execution or a contract, does not get altered. In the case of an execution, the further transformation of each split execution into a contract will be the purpose of the ContractFormation primitive.">
 
-	before Trade (1..1) <"The trade before split, which is either an execution if split happens before the contract is formed, or an already formed contract.">
+	before TradeNew (1..1) <"The trade before split, which is either an execution if split happens before the contract is formed, or an already formed contract.">
 		[metadata reference]
 		[synonym Workflow_Event value "before"]
 	after SplitOutcome (1..1) <"Outcome of the split as a list of Trades, which is either a split execution or a split contract, plus a pointer to the previous execution or contract marked as 'Split'.">
@@ -68,43 +67,40 @@ type SplitPrimitive: <"The primitive event to represent a split/allocation of a 
 
 	condition: <"If the pre-split trade is an execution, then the post-split trade must also be an execution.">
 		if before -> execution exists
-		then after -> originalTrade -> execution exists
-			and after -> splitTrades -> execution exists
-			and after -> splitTrades -> contract is absent
+		then after -> originalTrade -> trade -> execution exists
+			and after -> splitTrades -> trade -> execution exists
+			and after -> splitTrades -> trade -> contract is absent
 
 	condition: <"If the pre-split trade is a contract, then the post-split trade must also be a contract.">
 		if before -> contract exists
-		then after -> originalTrade -> contract exists
-			and after -> splitTrades -> contract exists
-			and after -> splitTrades -> execution is absent
+		then after -> originalTrade -> trade -> contract exists
+			and after -> splitTrades -> trade -> contract exists
+			and after -> splitTrades -> trade -> execution is absent
 
-	// TODO: refactor splitTrades once exeuction done
-	// condition: <"The product should be unchanged.">
-	// 	if before -> execution exists	
-	// 	then after -> splitTrades -> execution -> tradableProduct -> product = before -> execution -> tradableProduct -> product
+	condition: <"The product should be unchanged.">
+		if before -> execution exists	
+		then after -> splitTrades -> trade -> tradableProduct -> product = before -> tradableProduct -> product
 
 	condition: <"The product should be unchanged.">
 		if before -> contract exists
-		then after -> splitTrades -> contract -> tradableProduct -> product = before -> contract -> tradableProduct -> product
+		then after -> splitTrades -> trade -> contract -> tradableProduct -> product = before -> contract -> tradableProduct -> product
 
-	// TODO: refactor splitTrades once exeuction done
-	// condition: <"The post-split quantities should sum to the pre-split quantity.">
-	// 	if before -> execution exists
-	// 	then Sum(after -> splitTrades -> execution -> tradableProduct -> quantityNotation -> quantity -> amount) = before -> execution -> tradableProduct -> quantityNotation -> quantity -> amount
+	condition: <"The post-split quantities should sum to the pre-split quantity.">
+		if before -> execution exists
+		then Sum(after -> splitTrades -> trade -> tradableProduct -> quantityNotation -> quantity -> amount) = before -> tradableProduct -> quantityNotation -> quantity -> amount
 
 	condition: <"The post-split quantities should sum to the pre-split quantity.">
 		if before -> contract exists
-		then Sum(after -> splitTrades -> contract -> tradableProduct -> quantityNotation -> quantity -> amount) = before -> contract -> tradableProduct -> quantityNotation -> quantity -> amount
+		then Sum(after -> splitTrades -> trade -> contract -> tradableProduct -> quantityNotation -> quantity -> amount) = before -> contract -> tradableProduct -> quantityNotation -> quantity -> amount
 
 	// TODO add syntax to handle comparison between list and single item.  https://github.com/REGnosys/rosetta-dsl/issues/167
-	// TODO: refactor splitTrades once exeuction done
-	// condition: <"The price should be unchanged.">
-	// 	if before -> execution exists
-	// 	then after -> splitTrades -> execution -> tradableProduct -> priceNotation = before -> execution -> tradableProduct -> priceNotation
+	condition: <"The price should be unchanged.">
+		if before -> execution exists
+		then after -> splitTrades -> trade -> tradableProduct -> priceNotation = before -> tradableProduct -> priceNotation
 
 	condition: <"The price should be unchanged.">
 		if before -> contract exists
-		then after -> splitTrades -> contract -> tradableProduct -> priceNotation = before -> contract -> tradableProduct -> priceNotation
+		then after -> splitTrades -> trade -> contract -> tradableProduct -> priceNotation = before -> contract -> tradableProduct -> priceNotation
 
 type ExercisePrimitive: <"This primitive leverages the FpML OptionExercise construct, except for the exerciseTiming which is deemed as associated to a request for exercise that is meant to take place, as opposed to the actual exercise event.">
 
@@ -141,10 +137,10 @@ type ResetPrimitive: <"The primitive event to represent a reset.">
 
 type TermsChangePrimitive: <"The primitive event to represent change(s) to the contractual terms and the clearing submission and acceptance process.">
 
-	before TradeNew (1..1)
+	before TradeState (1..1)
 		[metadata reference]
 		[synonym Workflow_Event value "before"]
-	after TradeNew (1..1)
+	after TradeState (1..1)
 		[synonym Workflow_Event value "after"]
 
 type TransferPrimitive: <"A class to specify the transfer of assets between parties, those assets being either cash, securities or physical assets. This class combines components that are cross-assets (settlement date, settlement type, status, ...) and some other which are specialized by asset class (e.g. the payer/receiver amount and cashflow type for a cash transfer, the transferor/transferee, security indication, quantity, and asset transfer type qualification for the case of a security). The associated globalKey denotes the ability to associate a hash value to the respective Execution instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
