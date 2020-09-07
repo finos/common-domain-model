@@ -90,13 +90,12 @@ func Qualify_ClearingRejection: <"The rejection of an alpha trade submission by 
 		businessEvent -> primitives count = 1
 		and businessEvent -> primitives -> termsChange exists
 		and businessEvent -> workflowEventState -> workflowStatus = WorkflowStatusEnum -> Rejected
-		// TODO: commenting out so we can refactor termsChange later
-		// and (businessEvent -> primitives -> termsChange -> before -> execution -> partyRole is absent
-		// 	or businessEvent -> primitives -> termsChange -> before -> execution -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization
-		// 	or businessEvent -> primitives -> termsChange -> before -> contract -> partyRole is absent
-		// 	or businessEvent -> primitives -> termsChange -> before -> contract -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization)
-		// and (businessEvent -> primitives -> termsChange -> after -> execution -> partyRole -> role = PartyRoleEnum -> ClearingOrganization
-		// 	or businessEvent -> primitives -> termsChange -> after -> contract -> partyRole -> role = PartyRoleEnum -> ClearingOrganization)
+		and (businessEvent -> primitives -> termsChange -> before  -> partyRole is absent
+			or businessEvent -> primitives -> termsChange -> before -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization
+			or businessEvent -> primitives -> termsChange -> before -> partyRole is absent
+			or businessEvent -> primitives -> termsChange -> before -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization)
+		and (businessEvent -> primitives -> termsChange -> after -> partyRole -> role = PartyRoleEnum -> ClearingOrganization
+			or businessEvent -> primitives -> termsChange -> after -> contract -> partyRole -> role = PartyRoleEnum -> ClearingOrganization)
 		and NoQuantityChange(businessEvent -> primitives -> quantityChange) = True
 
 func Qualify_ClearingSubmission: <"The submission of a contract to a CCP, which is qualified by the fact that (i) the termsChange is the only primitive, and (ii) the CCP is positioned as a partyRole to the execution or contract in the after state, while it didn't exist in the before state.">
@@ -109,18 +108,15 @@ func Qualify_ClearingSubmission: <"The submission of a contract to a CCP, which 
 		and businessEvent -> primitives -> termsChange exists
 		and businessEvent -> workflowEventState -> workflowStatus = WorkflowStatusEnum -> Submitted
 		and (
-			// TODO: commenting out so we can refactor termsChange later
-			// businessEvent -> primitives -> termsChange -> before -> execution -> partyRole is absent
-			// or businessEvent -> primitives -> termsChange -> before -> execution -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization
-			// or 
-			businessEvent -> primitives -> termsChange -> before -> contract -> partyRole is absent
-			or businessEvent -> primitives -> termsChange -> before -> contract -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization
+			businessEvent -> primitives -> termsChange -> before -> partyRole is absent
+			or businessEvent -> primitives -> termsChange -> before -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization
+			or businessEvent -> primitives -> termsChange -> before -> partyRole is absent
+			or businessEvent -> primitives -> termsChange -> before -> partyRole -> role <> PartyRoleEnum -> ClearingOrganization
 		)
 		and (
 			businessEvent -> primitives -> termsChange -> after -> contract -> partyRole -> role = PartyRoleEnum -> ClearingOrganization
 			or businessEvent -> primitives -> termsChange -> after -> contract -> partyContractInformation -> relatedParty -> role = PartyRoleEnum -> ClearingOrganization
-			// TODO: commenting out so we can refactor termsChange later
-			// or businessEvent -> primitives -> termsChange -> after -> execution -> partyRole -> role = PartyRoleEnum -> ClearingOrganization
+			or businessEvent -> primitives -> termsChange -> after -> partyRole -> role = PartyRoleEnum -> ClearingOrganization
 		)
 
 func Qualify_Compression: <"The qualification of a compression event from the fact that (i) the quantityChange primitive exists, and (ii) there are multiple contracts (or contract references) specified in the before state.">
