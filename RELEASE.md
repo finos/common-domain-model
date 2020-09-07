@@ -1,11 +1,10 @@
-# *CDM Model: ProductId Refactoring Supplemental Changes* 
+# Change in rosetta path conditional mapping* 
  
 _What is being released_ 
  
-In the `Product` data type, added the `commodity` attribute, added descriptions for the other attributes, and updated the data type description. 
-
-In the `ExternalProductType` data type, renamed the `externalProductType` attributes as `value`. 
+A slight change to the semantics of the rosetta path conditional logic to make it more consistent required a 
+minor change to the synonyms for 'effectiveDate' in 'calculationPeriodDates'
 
 _Review Directions_ 
  
-In the CDM Portal, use the Textual Browser to look up the data types mentioned above.
+In Portal run ingestion and verify that effective dates are still being mapped correctly
