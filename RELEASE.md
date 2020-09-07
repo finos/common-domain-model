@@ -1,8 +1,10 @@
-# *CDM Model: PartyContractInformation multiple related parties* 
+# *CDM Model: ProductId Refactoring Supplemental Changes* 
  
 _What is being released_ 
  
-In the `PartyContractInformation` data type, changed related parties and category to allow multiple related parties and categories
+In the `Product` data type, added the `commodity` attribute, added descriptions for the other attributes, and updated the data type description. 
+
+In the `ExternalProductType` data type, renamed the `externalProductType` attributes as `value`. 
 
 _Review Directions_ 
  
