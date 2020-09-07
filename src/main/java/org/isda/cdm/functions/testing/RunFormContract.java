@@ -3,11 +3,13 @@ package org.isda.cdm.functions.testing;
 import static org.isda.cdm.functions.testing.FunctionUtils.guard;
 
 import java.util.Collections;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
 import org.isda.cdm.BusinessEvent;
 import org.isda.cdm.Contract;
+import org.isda.cdm.TradeDate;
 import org.isda.cdm.functions.Create_ContractFormation;
 import org.isda.cdm.functions.Create_Execution;
 
@@ -30,7 +32,10 @@ public class RunFormContract implements ExecutableFunction<Contract, BusinessEve
                 guard(contract.getTradableProduct().getCounterparties()),
                 guard(contract.getParty()),
                 guard(contract.getPartyRole()),
-                Collections.emptyList());
+                Collections.emptyList(),
+                null,
+                Optional.ofNullable(contract.getTradeDate()).map(TradeDate::getDate).orElse(null),
+                guard(contract.getContractIdentifier()));
 
         return formContract.evaluate(executeBusinessEvent, null);
     }
