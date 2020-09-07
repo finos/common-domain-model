@@ -3,6 +3,7 @@ package org.isda.cdm.functions.testing;
 import static org.isda.cdm.functions.testing.FunctionUtils.guard;
 
 import java.util.Collections;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -13,6 +14,7 @@ import org.isda.cdm.LegalAgreement;
 import org.isda.cdm.LegalAgreementNameEnum;
 import org.isda.cdm.LegalAgreementPublisherEnum;
 import org.isda.cdm.LegalAgreementType;
+import org.isda.cdm.TradeDate;
 import org.isda.cdm.functions.Create_ContractFormation;
 import org.isda.cdm.functions.Create_Execution;
 
@@ -36,7 +38,10 @@ public class RunFormContractWithLegalAgreement implements ExecutableFunction<Con
                 guard(contract.getTradableProduct().getCounterparties()),
                 guard(contract.getParty()),
                 guard(contract.getPartyRole()),
-                Collections.emptyList());
+                Collections.emptyList(), 
+                null, 
+                Optional.ofNullable(contract.getTradeDate()).map(TradeDate::getDate).orElse(null), 
+                guard(contract.getContractIdentifier()));
 
         LegalAgreement legalAgreement = LegalAgreement.builder()
                 .addContractualPartyRef(guard(contract.getParty()))
