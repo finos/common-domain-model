@@ -3,30 +3,13 @@ version "${project.version}"
 
 import cdm.base.staticdata.party.*
 import cdm.product.common.settlement.*
+
+import cdm.documentation.*
 import cdm.synonyms.config.*
-
-type BrokerConfirmation: <"Identifies the market sector in which the trade has been arranged.">
-
-	brokerConfirmationType BrokerConfirmationTypeEnum (1..1) <"The type of broker confirmation executed between the parties.">
-		[metadata scheme]
 
 type Collateral: <"A type for defining the obligations of the counterparty subject to credit support requirements.">
 
 	independentAmount IndependentAmount (1..1) <"Independent Amount is an amount that usually less creditworthy counterparties are asked to provide. It can either be a fixed amount or a percentage of the Transaction's value. The Independent Amount can be: (i) transferred before any trading between the parties occurs (as a deposit at a third party's account or with the counterparty) or (ii) callable after trading has occurred (typically because a downgrade has occurred). In situation (i), the Independent Amount is not included in the calculation of Exposure, but in situation (ii), it is included in the calculation of Exposure. Thus, for situation (ii), the Independent Amount may be transferred along with any collateral call. Independent Amount is a defined term in the ISDA Credit Support Annex. ('with respect to a party, the amount specified as such for that party in Paragraph 13; if no amount is specified, zero').">
-
-type ContractualMatrix:
-
-	matrixType MatrixTypeEnum (1..1) <"Identifies the form of applicable matrix.">
-		[metadata scheme]
-	publicationDate date (0..1) <"Specifies the publication date of the applicable version of the matrix. When this element is omitted, the ISDA supplemental language for incorporation of the relevant matrix will generally define rules for which version of the matrix is applicable.">
-	matrixTerm MatrixTermEnum (0..1) <"Defines any applicable key into the relevant matrix. For example, the Transaction Type would be the single term required for the Credit Derivatives Physical Settlement Matrix. This element should be omitted in the case of the 2000 ISDA Definitions Settlement Matrix for Early Termination and Swaptions.">
-		[metadata scheme]
-
-type ContractualTermsSupplement: <"A contractual supplement (such as those published by ISDA) and its publication date that will apply to the trade.">
-
-	contractualTermsSupplementType ContractualSupplementEnum (1..1) <"Identifies the form of applicable contractual supplement.">
-		[metadata scheme]
-	publicationDate date (0..1) <"Specifies the publication date of the applicable version of the contractual supplement.">
 
 type CreditSupportAgreement: <"The agreement executed between the parties and intended to govern collateral arrangement for all OTC derivatives transactions between those parties.">
 
@@ -44,40 +27,9 @@ type RelatedAgreement: <"A class for specifying the legal agreements that govern
 	documentationIdentification DocumentationIdentification (0..1) <"The identification of the legal document(s) that govern the contract through some of the key terms of such document(s): type of document, the document identifier, the publisher, the document vintage and the agreement date.">
 		[synonym ISDA_Create_1_0 value "ignore"]
 
-type DocumentationIdentification: <"A class for defining the definitions that govern the document and should include the year and type of definitions referenced, along with any relevant documentation (such as master agreement) and the date it was signed.">
-
-	// TODO - type will be deprecated when all information has been mapped to LegalAgreementBase and synonyms moved.
-	masterAgreement MasterAgreement (0..1) <"The agreement executed between the parties and intended to govern all OTC derivatives transactions between those parties.">
-	masterConfirmation MasterConfirmation (0..1)
-	brokerConfirmation BrokerConfirmation (0..1) <"Specifies the details for a broker confirm.">
-	contractualDefinitions ContractualDefinitionsEnum (0..*) <"The definitions such as those published by ISDA that will define the terms of the trade.">
-		[metadata scheme]
-	contractualTermsSupplement ContractualTermsSupplement (0..*) <"A contractual supplement (such as those published by ISDA) that will apply to the trade.">
-	contractualMatrix ContractualMatrix (0..*) <"A reference to a contractual matrix of elected terms/values (such as those published by ISDA) that shall be deemed to apply to the trade. The applicable matrix is identified by reference to a name and optionally a publication date. Depending on the structure of the matrix, an additional term (specified in the matrixTerm element) may be required to further identify a subset of applicable terms/values within the matrix.">
-	creditSupportAgreement CreditSupportAgreement (0..1) <"The agreement executed between the parties and intended to govern collateral arrangement for all OTC derivatives transactions between those parties.">
-	otherAgreement OtherAgreement (0..*) <"Any other agreement executed between the parties.">
-	attachment Resource (0..*) <"A human readable document related to this transaction, for example a confirmation.">
-
-	condition ConfirmationChoice: <"Choice rule to represent an FpML choice construct.">
-		optional choice masterConfirmation, brokerConfirmation
-
 type IndependentAmount extends PayerReceiver: <"A class specifying the Independent Amount as the combination of a payer/receiver, a payment amount, a payment date and an associated payment calculation rule.">
 
 	paymentDetail PaymentDetail (1..*) <"An attribute that specifies a payment as the combination of a payment amount, a payment date and an associated payment calculation rule.">
-
-type IssuerTradeId: <"A class for a two-parts identifier, such as a USI.">
-	// TODO Never referenced in CDM
-	issuer string (1..1) <"The party that assigns the trade identifier.">
-		[metadata scheme]
-	identifier string (0..1) <"The identifier value. The CDM uses a neutral identifier attribute name rather than the FpML trade qualifier because of the focus that includes the pre-execution lifecycle, at which point a trade doesn't exist yet.">
-		[metadata scheme]
-		[metadata id]
-
-// type LastRegularPaymentDate: <"A class which purpose is to provide the ability into the seemingly incompatible representations of the interest rate and equity last payment date.">
-// 	lastRegularPaymentDate date (0..1) <"The last regular payment date when specified as a date, as in the FpML interest rate construct. FpML specifies that this date may be subject to adjustment in accordance with any business day convention specified in the paymentDatesAdjustments attribute.">
-// 	finalPaymentDate AdjustableOrRelativeDate (0..1) <"The last payment when specified as an adjustable or relative date, as in the FpML total return construct.">
-//
-// 	condition: one-of
 
 type MasterAgreement: <"A class for defining the agreement executed between the parties and intended to govern all OTC derivatives transactions between those parties.">
 
@@ -98,42 +50,6 @@ type MasterConfirmation: <"A class for defining the master confirmation agreemen
 	masterConfirmationAnnexDate date (0..1) <"The date that an annex to the master confirmation was executed between the parties.">
 	masterConfirmationAnnexType MasterConfirmationAnnexTypeEnum (0..1) <"The type of master confirmation annex executed between the parties.">
 		[metadata scheme]
-
-type OtherAgreement: <"A class for defining an agreement executed between parties.">
-
-	identifier string (0..1) <"An identifier that has been created to identify the agreement.">
-		[metadata scheme]
-	otherAgreementType string (1..1) <"The agreement executed between the parties and intended to govern product-specific derivatives transactions between those parties.">
-		[metadata scheme]
-	version string (0..1) <"The version of the agreement.">
-		[metadata scheme]
-	date date (0..1) <"The date on which the agreement was signed.">
-		[synonym ISDA_Create_1_0 value "collateral_transfer_agreement_date" path "collateral_transfer_agreement"]
-
-type Resource: <"Describes the resource that contains the media representation of a business event (i.e used for stating the Publicly Available Information). For example, can describe a file or a URL that represents the event. This type is an extended version of a type defined by RIXML (www.rixml.org).  Rosetta restricts the FpML implementation by not providing the ability to associated a document in hexadecimalBinary or base64Binary until such time that actual use cases will come up.">
-
-	resourceId string (1..1) <"The unique identifier of the resource within the event. FpML specifies this element of type resourceIdScheme but with no specified value.">
-		[metadata scheme]
-	resourceType ResourceTypeEnum (0..1) <"A description of the type of the resource, e.g. a confirmation.">
-		[metadata scheme]
-	language string (0..1) <"Indicates the language of the resource, described using the ISO 639-2/T Code.">
-		[metadata scheme]
-	sizeInBytes number (0..1) <"Indicates the size of the resource in bytes. It could be used by the end user to estimate the download time and storage needs.">
-	length ResourceLength (0..1) <"Indicates the length of the resource. For example, if the resource were a PDF file, the length would be in pages.">
-	mimeType string (0..1) <"Indicates the type of media used to store the content. mimeType is used to determine the software product(s) that can read the content. MIME Types are described in RFC 2046.">
-		[metadata scheme]
-	name string (0..1) <"The name of the resource.  It is specified as a NormalizedString in FpML.">
-	comments string (0..1) <"Any additional comments that are deemed necessary. For example, which software version is required to open the document? Or, how does this resource relate to the others for this event?">
-	string string (0..1) <"Provides extra information as string. In case the extra information is in XML format, a CDATA section must be placed around the source message to prevent its interpretation as XML content.">
-	url string (0..1) <"Indicates where the resource can be found, as a URL that references the information on a web server accessible to the message recipient.">
-
-	condition Choice: <"Choice rule to represent an FpML choice construct. Note that FpML also provides the ability to have hexadecimalBinary or base64Binary, which have not been implemented in Rosetta until we see actual use cases.">
-		optional choice string, url
-
-type ResourceLength: <"A class to indicate the length of the resource.">
-
-	lengthUnit LengthUnitEnum (1..1) <"The length unit of the resource. For example, pages (pdf, text documents) or time (audio, video files).">
-	lengthValue number (1..1) <"The length value of the resource.">
 
 type TradeDate: <"A class to specify the contract's trade date alongside an identifier.">
 	[metadata key]
