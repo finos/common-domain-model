@@ -1,9 +1,11 @@
 package org.isda.cdm.workflows;
 
-import java.util.Optional;
-import java.util.function.Function;
-
 import cdm.base.staticdata.identifier.Identifier;
+import cdm.base.staticdata.party.CounterpartyEnum;
+import cdm.base.staticdata.party.Party;
+import com.google.common.collect.Lists;
+import com.google.inject.Inject;
+import com.rosetta.model.lib.process.PostProcessor;
 import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.Contract;
 import org.isda.cdm.TradeDate;
@@ -12,11 +14,10 @@ import org.isda.cdm.WorkflowStep;
 import org.isda.cdm.functions.Create_ClearedTrade;
 import org.isda.cdm.functions.example.services.identification.IdentifierService;
 
-import com.google.common.collect.Lists;
-import com.google.inject.Inject;
-import com.rosetta.model.lib.process.PostProcessor;
+import java.util.Optional;
+import java.util.function.Function;
 
-import cdm.base.staticdata.party.Party;
+import static org.isda.cdm.workflows.ClearingUtils.getParty;
 
 public class ClearingAccepted implements Function<Contract, Workflow> {
 	@Inject
@@ -33,13 +34,8 @@ public class ClearingAccepted implements Function<Contract, Workflow> {
 
 		Contract alphaContract = contractBuilder.build();
 
-		Party party1 = contract.getParty().stream()
-				.filter(party -> "party1".equals(party.getMeta().getExternalKey()))
-				.findFirst().orElseThrow(() -> new IllegalArgumentException("Expected party with external key party1 on alpha"));
-
-		Party party2 = contract.getParty().stream()
-				.filter(party -> "party2".equals(party.getMeta().getExternalKey()))
-				.findFirst().orElseThrow(() -> new IllegalArgumentException("Expected party with external key party2 on alpha"));
+		Party party1 = getParty(contract, CounterpartyEnum.PARTY_1);
+		Party party2 = getParty(contract, CounterpartyEnum.PARTY_2);
 
 		String externalReference = alphaContract.getMeta().getGlobalKey();
 
@@ -61,5 +57,4 @@ public class ClearingAccepted implements Function<Contract, Workflow> {
 
 		return Workflow.builder().addSteps(Lists.newArrayList(contractFormationStep, proposeStep, clearStep)).build();
 	}
-
 }

@@ -1,13 +1,14 @@
 package org.isda.cdm;
 
 import cdm.base.math.functions.*;
+import cdm.base.staticdata.party.functions.ExtractCounterpartyBySide;
+import cdm.base.staticdata.party.functions.ExtractCounterpartyBySideImpl;
 import cdm.observable.common.functions.CurrencyAmount;
 import cdm.observable.common.functions.NoOfUnits;
 import cdm.product.asset.functions.ResolveEquityInitialPrice;
 import cdm.product.common.functions.ResolveContractualProduct;
 import cdm.product.common.functions.ResolvePayoutQuantity;
 import cdm.product.common.schedule.functions.CalculationPeriod;
-
 import com.google.inject.AbstractModule;
 import com.regnosys.rosetta.common.validation.RosettaTypeValidator;
 import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
@@ -35,6 +36,7 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(SumPostedCreditSupportItemAmounts.class).to(bindSumPostedCreditSupportItemAmounts());
 		bind(RoundToNearest.class).to(bindRoundToNearest());
 		bind(FpmlIrd8.class).to(bindFpmlIrd8());
+		bind(ExtractCounterpartyBySide.class).to(bindExtractCounterpartyBySide());
 	}
 
 	protected Class<? extends ListsCompare> bindListsCompare() {
@@ -93,5 +95,9 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends FpmlIrd8> bindFpmlIrd8() {
 		return FpmlIrd8Impl.class;
+	}
+
+	protected Class<? extends ExtractCounterpartyBySide> bindExtractCounterpartyBySide() {
+		return ExtractCounterpartyBySideImpl.class;
 	}
 }
