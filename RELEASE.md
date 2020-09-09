@@ -32,8 +32,8 @@ In Rosetta Core (https://ui.rosetta-technology.io/), review reporting rules cont
 
 _What is being released_
 
-An enhancement to the semantics of the rosetta path conditional logic required a minor change to the synonyms for 'effectiveDate' in 'calculationPeriodDates'.
+An enhancement to the semantics of the rosetta path conditional logic required a minor change to the synonyms for `effectiveDate` in `calculationPeriodDates`.
 
 _Review Directions_
 
-In Rosetta Core (https://ui.rosetta-technology.io/), navigate to the synonym-cdm-fpml file and review the synonyms for 'effectiveDate' in 'calculationPeriodDates'.
+In Rosetta Core (https://ui.rosetta-technology.io/), navigate to the synonym-cdm-fpml file and review the synonyms for `effectiveDate` in `calculationPeriodDates`.
