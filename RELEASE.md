@@ -28,7 +28,7 @@ _Review Direction_
 
 In Rosetta Core (https://ui.rosetta-technology.io/), review reporting rules containing `regulatoryReference ESMA EMIR ITS_9` in the model-reg-reporting file.
 
-# Change in rosetta path conditional mapping*
+# *Change in rosetta path conditional mapping*
 
 _What is being released_
 
