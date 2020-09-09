@@ -1,4 +1,4 @@
-# *Model Optimisation: Extract Party References from ContractualProduct*
+# *Model Optimisation: Extract Party References from Product*
 
 _What is being released_
 
