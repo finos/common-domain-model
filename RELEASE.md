@@ -1,9 +1,10 @@
-# *CDM Model: PartyContractInformation multiple related parties* 
+# Change in rosetta path conditional mapping* 
  
 _What is being released_ 
  
-In the `PartyContractInformation` data type, changed related parties and category to allow multiple related parties and categories
+A slight change to the semantics of the rosetta path conditional logic to make it more consistent required a 
+minor change to the synonyms for 'effectiveDate' in 'calculationPeriodDates'
 
 _Review Directions_ 
  
-In the CDM Portal, use the Textual Browser to look up the data types mentioned above.
+In Portal run ingestion and verify that effective dates are still being mapped correctly
