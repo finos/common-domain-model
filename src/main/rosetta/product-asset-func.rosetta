@@ -1,10 +1,23 @@
-namespace org.isda.cdm
+namespace cdm.product.asset
 version "${project.version}"
 
-import cdm.base.datetime.*
 import cdm.base.math.*
+import cdm.base.datetime.*
 import cdm.base.staticdata.asset.rates.*
+
 import cdm.observable.asset.*
+
+import cdm.product.template.*
+import cdm.product.common.schedule.*
+
+/***************************************************************
+ * Aliases (other than those embedded in the calculation syntax)
+ */
+func ForwardFX:
+	inputs:
+		forwardPayout ForwardPayout(1..1)
+	output: result ForeignExchange (1..1)
+	assign-output result: forwardPayout -> underlier -> underlyingProduct -> foreignExchange
 
 func FixedAmount: <"2006 ISDA Definition Article 5 Section 5.1. Calculation of a Fixed Amount: The Fixed Amount payable by a party on a Payment Date will be: (a) if an amount is specified for the Swap Transaction as the Fixed Amount payable by that party for that Payment Date or for the related Calculation Period, that amount; or (b) if an amount is not specified for the Swap Transaction as the Fixed Amount payable by that party for that Payment Date or for the related Calculation Period, an amount calculated on a formula basis for that Payment Date or for the related Calculation Period as follows: Fixed Amount = Calculation Amount × Fixed Rate × Day Count Fraction.">
 	[calculation]
@@ -209,20 +222,61 @@ func ResolveRateIndex: <"The function to specify that the floating rate index en
 	inputs: index FloatingRateIndexEnum (1..1)
 	output: rate number (1..1)
 
-func PeriodsInYear:
-	inputs: frequency CalculationPeriodFrequency (1..1)
-	output: numberOfPeriods int (1..1)
-
-func CalculationPeriod: <"2006 ISDA Definition Section 4.13. 'Calculation Period' means, in respect of a Swap Transaction and a party, each period from, and including, one Period End Date of that party to, but excluding, the next following applicable Period End Date during the Term of the Swap Transaction, except that (a) the initial Calculation Period for the party will commence on, and include, the Effective Date and (b) the final Calculation Period for the party will end on, but exclude, the Termination Date.">
+func ResolveEquityPeriodStartPrice: <"Resolves the price from the end of the previous period. If first period, then take the initial price.">
 	inputs:
-		calculationPeriodDates CalculationPeriodDates (1..1)
+		equityPayout EquityPayout (1..1)
+		priceNotations PriceNotation (0..*)
 		date date (1..1)
-	output: result CalculationPeriodData (1..1)
+	output:
+		price number (1..1)
 
-type CalculationPeriodData:
-	startDate date (1..1)
-	endDate date (1..1)
-	daysInPeriod int (1..1)
-	daysInLeapYearPeriod int (1..1)
-	isFirstPeriod boolean (1..1)
-	isLastPeriod boolean (1..1)
+	alias priceReturnTerms:
+		equityPayout -> priceReturnTerms
+
+	alias calculationPeriod:
+		CalculationPeriod(equityPayout -> calculationPeriodDates, date)
+
+	assign-output price: <"The initial price is taken from the original contract if we are Resetting for the first time i.e. when the number of updated contracts is one.">
+		if calculationPeriod -> isFirstPeriod
+		then ResolveEquityInitialPrice( equityPayout -> underlier, priceNotations ) -> netPrice -> amount
+		else priceReturnTerms -> valuationPriceInterim -> netPrice -> amount
+
+func ResolveEquityPeriodEndPrice:
+	inputs:
+		equityPayout EquityPayout (1..1)
+		date date (1..1)
+	output:
+		price number (1..1)
+
+	alias priceReturnTerms:
+		equityPayout -> priceReturnTerms
+
+	alias calculationPeriod:
+		CalculationPeriod(equityPayout -> calculationPeriodDates, date)
+
+	assign-output price: <"If the last period, take the price from the Valuation Price Final, otherwise from Valuation Price Interim.">
+		if calculationPeriod -> isLastPeriod
+		then priceReturnTerms -> valuationPriceFinal -> netPrice -> amount
+		else priceReturnTerms -> valuationPriceInterim -> netPrice -> amount
+
+func ResolveEquityInitialPrice:
+	inputs:
+		underlier Underlier (1..1)
+		priceNotations PriceNotation (0..*)
+
+	output:
+		initialPrice CashPrice (1..1)
+
+// MdM comments: this is the Dividend Cash Settlement Amount as defined in the SES1 legal document.  The cash dividend will be paid on the relevant DividendDateReferenceEnum. I did not include a function to monitor when the dividends are declared (i.e a dividend observation).
+func DividendCashSettlementAmount: <"Based on the following legal text: means, in respect of a Dividend Period and the related Dividend Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent for such Dividend Period to which the Dividend Cash Settlement Amount relates, pursuant to the following formula: Dividend Cash Settlement Amount = Record Amount × Number Of Securities.">
+
+	inputs:
+		numberOfSecurities number (1..1)
+		declaredDividend number (1..1)
+
+	output:
+		dividendCashSettlementAmount number (1..1)
+
+	assign-output dividendCashSettlementAmount:
+		declaredDividend * numberOfSecurities
+	

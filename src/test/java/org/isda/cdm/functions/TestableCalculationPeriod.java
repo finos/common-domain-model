@@ -2,8 +2,10 @@ package org.isda.cdm.functions;
 
 import com.google.inject.Singleton;
 import com.rosetta.model.lib.records.Date;
-import org.isda.cdm.CalculationPeriodData;
-import org.isda.cdm.CalculationPeriodDates;
+
+import cdm.product.common.schedule.CalculationPeriodData;
+import cdm.product.common.schedule.CalculationPeriodDates;
+import cdm.product.common.schedule.functions.CalculationPeriod;
 
 /**
  * Used in DayCountFractionEnumTest

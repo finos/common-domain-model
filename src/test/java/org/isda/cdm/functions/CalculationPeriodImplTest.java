@@ -5,8 +5,6 @@ import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.isda.cdm.CalculationPeriodData;
-import org.isda.cdm.CalculationPeriodDates;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
@@ -23,6 +21,9 @@ import cdm.base.datetime.CalculationPeriodFrequency;
 import cdm.base.datetime.PeriodExtendedEnum;
 import cdm.base.datetime.RollConventionEnum;
 import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
+import cdm.product.common.schedule.CalculationPeriodData;
+import cdm.product.common.schedule.CalculationPeriodDates;
+import cdm.product.common.schedule.functions.CalculationPeriod;
 
 class CalculationPeriodImplTest extends AbstractFunctionTest {
 	

@@ -8,9 +8,10 @@ import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 import com.rosetta.model.lib.process.AttributeMeta;
 import com.rosetta.model.lib.process.PostProcessStep;
-import org.isda.cdm.ContractualProduct;
-import org.isda.cdm.TradableProduct;
-import org.isda.cdm.functions.ResolveContractualProduct;
+
+import cdm.product.common.functions.ResolveContractualProduct;
+import cdm.product.template.ContractualProduct;
+import cdm.product.template.TradableProduct;
 
 public class ResolveContractualProductProcessStep implements PostProcessStep {
 

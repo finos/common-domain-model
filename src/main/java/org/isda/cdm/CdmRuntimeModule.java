@@ -3,6 +3,11 @@ package org.isda.cdm;
 import cdm.base.math.functions.*;
 import cdm.observable.common.functions.CurrencyAmount;
 import cdm.observable.common.functions.NoOfUnits;
+import cdm.product.asset.functions.ResolveEquityInitialPrice;
+import cdm.product.common.functions.ResolveContractualProduct;
+import cdm.product.common.functions.ResolvePayoutQuantity;
+import cdm.product.common.schedule.functions.CalculationPeriod;
+
 import com.google.inject.AbstractModule;
 import com.regnosys.rosetta.common.validation.RosettaTypeValidator;
 import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
@@ -19,7 +24,7 @@ public class CdmRuntimeModule extends AbstractModule {
 
 		// functions
 		bind(Abs.class).to(bindAbs());
-		bind(org.isda.cdm.functions.CalculationPeriod.class).to(bindCalculationPeriod());
+		bind(CalculationPeriod.class).to(bindCalculationPeriod());
 		bind(Sum.class).to(bindSum());
 		bind(ListsCompare.class).to(bindListsCompare());
 		bind(ResolvePayoutQuantity.class).to(bindResolvePayoutQuantity());
@@ -50,7 +55,7 @@ public class CdmRuntimeModule extends AbstractModule {
 		return AbsImpl.class;
 	}
 
-	protected Class<? extends org.isda.cdm.functions.CalculationPeriod> bindCalculationPeriod() {
+	protected Class<? extends CalculationPeriod> bindCalculationPeriod() {
 		return CalculationPeriodImpl.class;
 	}
 

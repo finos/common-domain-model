@@ -1,34 +1,9 @@
 namespace org.isda.cdm
 version "${project.version}"
 
-import cdm.base.math.*
-import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.party.*
-import cdm.base.datetime.*
 import cdm.observable.asset.*
-
-func ResolveContractualProduct: <"For a given ContractualProduct, the function finds all ResolvablePayoutQuantity instances, then for each instance, resolves the quantity, populates the quantity attribute on ResolvablePayoutQuantity, and finally returns the updated ContractualProduct.">
-	inputs:
-		contractualProduct ContractualProduct (1..1) <"The ContractualProduct to be resolved.">
-		quantityNotations QuantityNotation (1..*) <"All QuantityNotations associated with the given ContractualProduct, that will be resolved based on their AssetIdentifier.">
-	output:
-		resolvedContractualProduct ContractualProduct (1..1) <"The updated ContractualProduct with all ResolvablePayoutQuantity instances resolved and updated with the corresponding quantity.">
-
-func ResolvePayoutQuantity: <"For a given ResolvablePayoutQuantity, the function resolves and returns the corresponding quantity from the QuantityNotations by matching on AssetIdentifier.">
-	inputs:
-		resolvableQuantity ResolvablePayoutQuantity (1..1) <"The ResolvablePayoutQuantity to resolve.">
-		quantityNotations QuantityNotation (1..*) <"All QuantityNotations associated with the given ContractualProduct, that will be resolved based on their AssetIdentifier.">
-		contractualProduct ContractualProduct (1..1) <"Provided to allow any references to be resolved.">
-
-	output:
-		resolvedQuantity NonNegativeQuantity (1..1) <"The resolved NonNegativeQuantity.">
-
-func ResolveQuantity: <"Function specification to resolve a payout quantity, specified as a resolvable quantity with inputs for the resolution, into a basic quantity with just a number and a unit.">
-	inputs:
-		resolvableQuantity ResolvablePayoutQuantity (1..1) <"The quantity to resolve.">
-		date date (1..1)
-	output:
-		quantity Quantity (1..1) <"The resolved quantity, containing just a number and (optionally) a unit or currency.">
+import cdm.product.template.*
 
 func ResolvePrice: <"Function specification to return the price on a valuation date based on an EquityValuation method. Implementor of this function should make use of the observation primitive and fetch the price based on an observation key.">
 	// TODO Never referenced in CDM
@@ -53,28 +28,6 @@ func FpmlIrd8: <"FpML validation rule ird-8 - If the same party is specified as 
 		accounts Account (0..*)
 	output:
 		success boolean (1..1) <"Validation result">
-
-func CashflowSettlementTerms: <"The Payout type contains a cashflow to replicate the FpML structure. This function creates SettlementTerms from the Cashflow that can be used in the Execution -> settlementTerm.">
-	inputs:
-		cashflow Cashflow (0..1)
-
-	output:
-		settlementTerms SettlementTerms (0..1)
-
-	alias settlementDate:
-		ConvertToAdjustableOrRelativeDate(cashflow -> cashflowDate)
-
-	assign-output settlementTerms -> payerReceiver:
-		cashflow -> payerReceiver
-
-	assign-output settlementTerms -> assetIdentifier:
-		cashflow -> payoutQuantity -> assetIdentifier
-
-	assign-output settlementTerms -> settlementType:
-		SettlementTypeEnum -> Cash
-
-	assign-output settlementTerms -> settlementDate:
-	settlementDate
 
 func Create_LegalAgreementWithPartyReference: <"Constructs a Legal Agreement using a reference to the contractual parties">
 	inputs:

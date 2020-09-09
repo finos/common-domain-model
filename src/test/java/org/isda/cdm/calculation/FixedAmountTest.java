@@ -5,12 +5,7 @@ import static org.hamcrest.core.Is.is;
 
 import java.math.BigDecimal;
 
-import org.isda.cdm.CalculationPeriodDates;
-import org.isda.cdm.DayCountFractionEnum;
-import org.isda.cdm.InterestRatePayout;
 import org.isda.cdm.functions.AbstractFunctionTest;
-import org.isda.cdm.functions.FixedAmount;
-import org.isda.cdm.metafields.FieldWithMetaDayCountFractionEnum;
 import org.junit.jupiter.api.Test;
 
 import com.google.inject.Inject;
@@ -27,6 +22,11 @@ import cdm.base.datetime.RollConventionEnum;
 import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
 import cdm.base.math.NonNegativeQuantity;
 import cdm.observable.asset.FixedInterestRate;
+import cdm.product.asset.DayCountFractionEnum;
+import cdm.product.asset.InterestRatePayout;
+import cdm.product.asset.functions.FixedAmount;
+import cdm.product.asset.metafields.FieldWithMetaDayCountFractionEnum;
+import cdm.product.common.schedule.CalculationPeriodDates;
 
 class FixedAmountTest extends AbstractFunctionTest {
 

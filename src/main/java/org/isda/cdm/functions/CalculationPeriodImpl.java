@@ -7,10 +7,6 @@ import java.time.LocalDate;
 import java.time.chrono.IsoChronology;
 import java.time.temporal.ChronoUnit;
 
-import org.isda.cdm.CalculationPeriodData;
-import org.isda.cdm.CalculationPeriodData.CalculationPeriodDataBuilder;
-import org.isda.cdm.CalculationPeriodDates;
-
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
@@ -19,6 +15,11 @@ import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.lib.records.DateImpl;
+
+import cdm.product.common.schedule.CalculationPeriodData;
+import cdm.product.common.schedule.CalculationPeriodData.CalculationPeriodDataBuilder;
+import cdm.product.common.schedule.CalculationPeriodDates;
+import cdm.product.common.schedule.functions.CalculationPeriod;
 
 public class CalculationPeriodImpl extends CalculationPeriod {
 	
