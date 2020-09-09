@@ -54,12 +54,16 @@ synonym source ORE_1_0_39 extends ORE
     InterestRatePayout:
         + calculationPeriodDates
             [value "Rules" path "ScheduleData"]
+        + crossCurrencyTerms
+            [value "ignore"]
         + dayCountFraction
             [value "DayCounter"]
-        + payerReceiver
-            [hint "Payer"]
+        // + payerReceiver
+        //     [hint "Payer"]
         + resetDates
             [value "FloatingLegData"]
+        + paymentDate
+            [value "ignore"]
         + paymentDates
             [value "Rules" path "ScheduleData"]
  
@@ -74,14 +78,24 @@ synonym source ORE_1_0_39 extends ORE
             [hint "TermConvention"]
             [value "ignore"]
         + calculationPeriodDatesAdjustments
-            [hint "Convention"]
-            [hint "Calendar"]
+            // [hint "Convention"]
+            // [hint "Calendar"]
  
     AdjustableDate:
         + unadjustedDate
             [value "StartDate" maps 2]
+            // [value "StartDate" maps 2 set when rosettaPath = CalculationPeriodDates->effectiveDate]
             [value "EndDate" maps 2]
+            // [value "EndDate" maps 2 set when rosettaPath = CalculationPeriodDates->terminationDate]
     
+    PeriodicDates:
+        + endDate
+            [hint "EndDate"]
+            [value "ignore"]
+        + startDate
+            [hint "StartDate"]
+            [value "ignore"]
+
     AdjustedRelativeDateOffset:
         + relativeDateAdjustments
             [value "ignore"]
@@ -113,6 +127,7 @@ synonym source ORE_1_0_39 extends ORE
     AssignedIdentifier:
         + identifier
             [value "id"]
+            // [value "id" if rosettaPath = Contract->contractIdentifier->assignedIdentifier->identifier]
  
     BusinessCenters:
         + businessCenter
@@ -120,11 +135,18 @@ synonym source ORE_1_0_39 extends ORE
  
     BusinessDayAdjustments:
         + businessDayConvention
-            [value "PaymentConvention" maps 2]
-            [value "Convention" maps 2]
-            [value "TermConvention" maps 2]
+            [value "PaymentConvention" maps 2] // Payment convention of the leg coupons
+            // [value "PaymentConvention" maps 2 set when rosettaPath = PaymentDates->paymentDatesAdjustments] - Ted initially said that we should map this to calculationPeriodDatesAdjustments for now, in which case this value is currently unnecessary because "Convention" is also being mapped to calculationPeriodDatesAdjustments.
+            [value "Convention" maps 2] // Determines the adjustment of the schedule dates generated
+            // [value "Convention" maps 2 set when rosettaPath = CalculationPeriodDates->calculationPeriodDatesAdjustments]
+            [value "TermConvention" maps 2] // Determines the adjustment of the final schedule date generated
+            // [value "TermConvention" maps 2 set when rosettaPath = CalculationPeriodDates->terminationDate->adjustableDate] - Since "TermConvention" is optional, it may be possible that only one of the legs in ORE has "TermConvention". Would this cause a problem when using the "maps 2" syntax?
             [value "ignore"]
- 
+    
+    PaymentDateSchedule:
+        + finalPaymentDate
+            [value "ignore"]
+
     FixedRateSpecification:
         + rateSchedule
             [value "Rates"]
@@ -146,25 +168,29 @@ synonym source ORE_1_0_39 extends ORE
         + period
             [set to PeriodExtendedEnum -> Y when "Tenor" = "1Y",
                 set to PeriodExtendedEnum -> M when "Tenor" = "6M"]
+            // [... set when rosettaPath = CalculationPeriodDates->calculationPeriodFrequency or rosettaPath = PaymentDates->paymentFrequency]
         + periodMultiplier
             [set to 1 when "Tenor" = "1Y",
                 set to 6 when "Tenor" = "6M"]
+            // [... set when rosettaPath = CalculationPeriodDates->calculationPeriodFrequency or rosettaPath = PaymentDates->paymentFrequency]
 
     CalculationPeriodFrequency:
         + rollConvention
-            [set to RollConventionEnum -> _1 when "StartDate" = "2016-03-01"]// and "Rule" = "Forward",
-                // set to RollConventionEnum -> _1 when "EndDate" = "2016-03-01" and "Rule" = "Backward"]
+            [set to RollConventionEnum -> _1 when "StartDate" = "2016-03-01"]
+            // [set to RollConventionEnum -> _1 when "StartDate" = "2016-03-01" and "Rule" = "Forward",
+            //     set to RollConventionEnum -> _1 when "EndDate" = "2036-03-01" and "Rule" = "Backward"] - There is currently no CDM equivalent to "Rule" in ORE, but the "Forward" and "Backward" schedule date generation rules are equivalent to using the day of the reference date ("StartDate" and "EndDate", respectively) for the regular period.
 
     Offset:
         + dayType
             [value "FixingDays" maps 2]
+            // [set to DayTypeEnum -> Business when "FixingDays" exists] - "FixingDays" assumes fixing gap is expressed as number of business days
     
     Period:
         + periodMultiplier
             [value "FixingDays" maps 2]
         + period
             [value "FixingDays" maps 2]
-
+            // [set to PeriodEnum -> D when "FixingDays" exists] - "FixingDays" assumes fixing gap is expressed as number of business days
 
     Price:
         + floatingInterestRate
