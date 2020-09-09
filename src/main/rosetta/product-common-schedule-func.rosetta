@@ -1,0 +1,72 @@
+namespace cdm.product.common.schedule
+version "${project.version}"
+
+import cdm.base.datetime.*
+
+import cdm.product.template.*
+
+func EffectiveDateContainsPaymentDate:
+	inputs:
+		economicTerms EconomicTerms(1..1)
+	output:
+		result boolean(1..1)
+
+	alias paymentDate: PaymentDate(economicTerms)
+
+	alias effectiveDates: [
+			economicTerms -> effectiveDate -> adjustableDate -> adjustedDate,
+			economicTerms -> effectiveDate -> adjustableDate -> unadjustedDate,
+			economicTerms -> effectiveDate -> relativeDate -> adjustedDate,
+			economicTerms -> payout -> interestRatePayout only-element -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate,
+			economicTerms -> payout -> interestRatePayout only-element -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate,
+			economicTerms -> payout -> interestRatePayout only-element-> calculationPeriodDates -> effectiveDate -> relativeDate -> adjustedDate,
+			economicTerms -> payout -> equityPayout only-element -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate,
+			economicTerms -> payout -> equityPayout only-element-> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate,
+			economicTerms -> payout -> equityPayout only-element-> calculationPeriodDates -> effectiveDate -> relativeDate -> adjustedDate
+	]
+	assign-output result:
+		effectiveDates exists and effectiveDates contains paymentDate
+
+func PaymentDate: // Scope limited to interestPayout until such time that we position it to the economicTerms level
+	inputs: economicTerms EconomicTerms(1..1)
+	output: result date(0..1)
+	assign-output result: economicTerms -> payout -> interestRatePayout only-element -> paymentDate -> adjustedDate
+
+//alias quantityAfterQuantityChange <"The alias to represent the quantity or notional amount in terms of number of units (i.e. ignoring the currency or units denomination) after a quantity change primitive.">
+//
+//
+//alias quantityBeforeQuantityChange <"The alias to represent the quantity or notional amount in terms of number of units (i.e. ignoring the currency or units denomination) before a quantity change primitive.">
+//	( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualQuantity -> quantityNotation group by assetIdentifier -> currency ) -> quantity -> amount
+
+
+func TerminationDate: // Scope limited to interestPayout until such time that we position it to the economicTerms level
+	inputs: economicTerms EconomicTerms(1..1)
+	output: result DateGroup(1..1)
+	alias interestRateTerminationDate: economicTerms -> payout -> interestRatePayout only-element -> calculationPeriodDates -> terminationDate
+	alias equityPayoutTerminationDate: economicTerms -> payout -> equityPayout only-element -> calculationPeriodDates -> terminationDate
+
+	assign-output result -> dates:
+		[
+			economicTerms -> terminationDate -> adjustableDate -> adjustedDate,
+			economicTerms -> terminationDate -> adjustableDate -> unadjustedDate,
+			economicTerms -> terminationDate -> relativeDate -> adjustedDate,
+			interestRateTerminationDate -> adjustableDate -> adjustedDate,
+			interestRateTerminationDate -> adjustableDate -> unadjustedDate,
+			interestRateTerminationDate -> relativeDate -> adjustedDate,
+			equityPayoutTerminationDate -> adjustableDate -> adjustedDate,
+			equityPayoutTerminationDate -> adjustableDate -> unadjustedDate,
+			equityPayoutTerminationDate -> relativeDate -> adjustedDate
+		]
+
+func PeriodsInYear:
+	inputs: frequency CalculationPeriodFrequency (1..1)
+	output: numberOfPeriods int (1..1)
+
+func CalculationPeriod: <"2006 ISDA Definition Section 4.13. 'Calculation Period' means, in respect of a Swap Transaction and a party, each period from, and including, one Period End Date of that party to, but excluding, the next following applicable Period End Date during the Term of the Swap Transaction, except that (a) the initial Calculation Period for the party will commence on, and include, the Effective Date and (b) the final Calculation Period for the party will end on, but exclude, the Termination Date.">
+	inputs:
+		calculationPeriodDates CalculationPeriodDates (1..1)
+		date date (1..1)
+	output: result CalculationPeriodData (1..1)
+
+
+

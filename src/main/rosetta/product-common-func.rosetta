@@ -1,20 +1,40 @@
-namespace org.isda.cdm
+namespace cdm.product.common
 version "${project.version}"
 
-import cdm.base.*
 import cdm.base.math.*
 import cdm.base.datetime.*
-import cdm.base.staticdata.identifier.*
 import cdm.base.staticdata.asset.rates.*
 import cdm.base.staticdata.asset.common.*
-import cdm.base.staticdata.party.*
-import cdm.observable.event.*
+
+import cdm.observable.asset.*
+
+import cdm.product.asset.*
+import cdm.product.template.*
+import cdm.product.common.settlement.*
+import cdm.product.common.schedule.*
+
 import cdm.synonyms.config.*
 
 //***********************
 // Product Qualification
 
 isProduct root EconomicTerms;
+
+func ResolveContractualProduct: <"For a given ContractualProduct, the function finds all ResolvablePayoutQuantity instances, then for each instance, resolves the quantity, populates the quantity attribute on ResolvablePayoutQuantity, and finally returns the updated ContractualProduct.">
+	inputs:
+		contractualProduct ContractualProduct (1..1) <"The ContractualProduct to be resolved.">
+		quantityNotations QuantityNotation (1..*) <"All QuantityNotations associated with the given ContractualProduct, that will be resolved based on their AssetIdentifier.">
+	output:
+		resolvedContractualProduct ContractualProduct (1..1) <"The updated ContractualProduct with all ResolvablePayoutQuantity instances resolved and updated with the corresponding quantity.">
+
+func ResolvePayoutQuantity: <"For a given ResolvablePayoutQuantity, the function resolves and returns the corresponding quantity from the QuantityNotations by matching on AssetIdentifier.">
+	inputs:
+		resolvableQuantity ResolvablePayoutQuantity (1..1) <"The ResolvablePayoutQuantity to resolve.">
+		quantityNotations QuantityNotation (1..*) <"All QuantityNotations associated with the given ContractualProduct, that will be resolved based on their AssetIdentifier.">
+		contractualProduct ContractualProduct (1..1) <"Provided to allow any references to be resolved.">
+
+	output:
+		resolvedQuantity NonNegativeQuantity (1..1) <"The resolved NonNegativeQuantity.">
 
 func Qualify_CreditDefaultSwap: <"This product qualification is temporary until such time that the ISDA Credit Group specifies a proper taxonomy for credit derivatives that is based upon economic terms.">
 	[qualification Product]
@@ -330,7 +350,7 @@ func Qualify_InterestRate_Option_DebtOption:
 		or (economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Debt
 			and economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> debtType -> debtClass = DebtClassEnum -> Convertible)
 
-func Qualify_InterestRate_CapFloor:
+func Qualify_InterestRate_CapFloor:	
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
@@ -386,3 +406,7 @@ func Qualify_RepurchaseAgreement:
 	assign-output is_product:
 		economicTerms -> payout -> securityPayout -> securityLeg count >= 1 and
 		economicTerms -> payout -> interestRatePayout count = 1
+
+
+
+

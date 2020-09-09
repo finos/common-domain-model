@@ -10,10 +10,17 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import org.isda.cdm.*;
-import org.isda.cdm.functions.CashflowSettlementTerms;
 import org.isda.cdm.functions.Create_Execution;
 
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
+
+import cdm.product.common.settlement.SettlementTerms;
+import cdm.product.common.settlement.functions.CashflowSettlementTerms;
+import cdm.product.template.ContractualProduct;
+import cdm.product.template.EconomicTerms;
+import cdm.product.template.Payout;
+import cdm.product.template.Product;
+import cdm.product.template.TradableProduct;
 
 public class RunExecutionWithSettlementTerms implements ExecutableFunction<Contract, BusinessEvent> {
 

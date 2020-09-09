@@ -64,7 +64,7 @@ public class ClearingUtils {
 	}
 
 	static WorkflowStep buildClear(PostProcessor runner, String externalReference, WorkflowStep previous, ClearingInstruction clearingInstruction,
-			Create_ClearedTrade clear, IdentifierService identifierService, Date tradeDate, Identifier identifier) {
+			Create_ClearedTrade          clear, IdentifierService identifierService, Date tradeDate, Identifier identifier) {
 
 		BusinessEvent.BusinessEventBuilder businessEventBuilder = clear.evaluate(clearingInstruction, tradeDate, identifier).toBuilder();
 

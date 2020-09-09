@@ -1,8 +1,7 @@
 package org.isda.cdm.calculation.functions;
 
-import org.isda.cdm.functions.ResolveRateIndex;
-
 import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
+import cdm.product.asset.functions.ResolveRateIndex;
 
 import java.math.BigDecimal;
 

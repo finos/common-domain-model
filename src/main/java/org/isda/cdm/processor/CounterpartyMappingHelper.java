@@ -13,7 +13,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.isda.cdm.TradableProduct.TradableProductBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +28,7 @@ import cdm.base.staticdata.party.Counterparty;
 import cdm.base.staticdata.party.CounterpartyEnum;
 import cdm.base.staticdata.party.PayerReceiver;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
+import cdm.product.template.TradableProduct.TradableProductBuilder;
 
 /**
  * Helper class for FpML mapper processors.

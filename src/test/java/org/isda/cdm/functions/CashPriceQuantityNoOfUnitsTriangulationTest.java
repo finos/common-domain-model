@@ -7,7 +7,6 @@ import java.net.URL;
 import java.nio.charset.Charset;
 
 import org.isda.cdm.Contract;
-import org.isda.cdm.TradableProduct;
 import org.junit.jupiter.api.Test;
 
 import com.google.common.io.Resources;
@@ -15,6 +14,7 @@ import com.google.inject.Inject;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 
 import cdm.observable.common.functions.CashPriceQuantityNoOfUnitsTriangulation;
+import cdm.product.template.TradableProduct;
 
 public class CashPriceQuantityNoOfUnitsTriangulationTest extends AbstractFunctionTest {
 
