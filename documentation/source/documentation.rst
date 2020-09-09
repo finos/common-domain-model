@@ -425,15 +425,6 @@ The lifecycle of a transaction between two parties starts with an *execution* st
    [metadata key]
    executionType ExecutionTypeEnum (1..1)
    executionVenue LegalEntity (0..1)
-   identifier Identifier (1..*)
-   tradeDate date (1..1)
-     [metadata id]
-   tradableProduct TradableProduct (1..1)
-   party Party (0..*)
-     [metadata reference]
-   partyRole PartyRole (0..*)
-   closedState ClosedState (0..1)
-   settlementTerms SettlementTerms (0..*)
 
 The ``settlementTerms`` attribute define how the transaction should be settled (including the settlement date). For instance, a settlement could be a *delivery-versus-payment* scenario for a cash security transaction or a *payment-versus-payment* scenario for an FX spot or forward transaction. The actual settlement amount(s) will need to use the *price* and *quantity* agreed as part of the tradable product.
 
@@ -539,9 +530,9 @@ The transition to an executed state prior to confirmation is represented by the 
 .. code-block:: Haskell
 
  type ExecutionPrimitive:
-   before ExecutionState (0..0)
+   before TradeState (0..0)
      [metadata reference]
-   after ExecutionState (1..1)
+   after TradeState (1..1)
 
 The execution primitive does not allow any before state (as marked by the 0 cardinality of the ``before`` attribute) because the current CDM event model only covers post-trade lifecycle events. In practice, this execution state would be the conclusion of a pre-trade process, which may be a client order that gets filled or a quote that gets accepted by the client.
 
@@ -552,7 +543,7 @@ The ``ContractFormationPrimitive`` represents that transition to the trade state
 .. code-block:: Haskell
 
  type ContractFormationPrimitive:
-   before ExecutionState (0..1)
+   before TradeState (0..1)
      [metadata reference]
    after PostContractFormationState (1..1)
 
