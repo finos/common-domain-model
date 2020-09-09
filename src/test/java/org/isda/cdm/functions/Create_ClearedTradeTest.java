@@ -1,9 +1,7 @@
 package org.isda.cdm.functions;
 
-import cdm.base.staticdata.party.Counterparty;
 import cdm.base.staticdata.party.CounterpartyEnum;
 import cdm.base.staticdata.party.Party;
-import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import com.google.common.io.Resources;
 import com.google.inject.Inject;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
@@ -15,6 +13,7 @@ import com.rosetta.model.metafields.MetaFields;
 import org.isda.cdm.BusinessEvent;
 import org.isda.cdm.ClearingInstruction;
 import org.isda.cdm.Contract;
+import org.isda.cdm.workflows.ClearingUtils;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -32,8 +31,8 @@ class Create_ClearedTradeTest extends AbstractFunctionTest {
 	void shouldCreateClearedTrade() throws IOException {
 		Contract alphaContract = getRosettaModelObject(Contract.class,"result-json-files/products/rates/EUR-Vanilla-account.json");
 
-		Party counterparty1 = getParty(alphaContract, CounterpartyEnum.PARTY_1);
-		Party counterparty2 = getParty(alphaContract, CounterpartyEnum.PARTY_2);
+		Party counterparty1 = ClearingUtils.getParty(alphaContract, CounterpartyEnum.PARTY_1);
+		Party counterparty2 = ClearingUtils.getParty(alphaContract, CounterpartyEnum.PARTY_2);
 		Party clearingParty = Party.builder()
 				.setName(FieldWithMetaString.builder()
 						.setValue("Clearing Party")
@@ -58,16 +57,6 @@ class Create_ClearedTradeTest extends AbstractFunctionTest {
 
 		String businessEventJson = RosettaObjectMapper.getNewRosettaObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(businessEvent);
 		assertEquals(getJson("expected-cleared-trade-business-event.json"), businessEventJson);
-	}
-
-	private Party getParty(Contract alphaContract, CounterpartyEnum counterparty) {
-		return alphaContract.getTradableProduct().getCounterparties().stream()
-				.filter(c -> c.getCounterparty() == counterparty)
-				.map(Counterparty::getParty)
-				.map(ReferenceWithMetaParty::getGlobalReference)
-				.flatMap(partyReference -> alphaContract.getParty().stream().filter(p -> partyReference.equals(p.getMeta().getGlobalKey())))
-				.findFirst()
-				.orElseThrow(() -> new IllegalArgumentException("Party not found for counterparty " + counterparty));
 	}
 
 	private <T extends RosettaModelObject> T getRosettaModelObject(Class<T> clazz, String pathToJson) throws IOException {

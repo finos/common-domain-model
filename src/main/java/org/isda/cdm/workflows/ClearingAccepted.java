@@ -1,12 +1,11 @@
 package org.isda.cdm.workflows;
 
-import java.util.Optional;
-import java.util.function.Function;
-
 import cdm.base.staticdata.identifier.Identifier;
-import cdm.base.staticdata.party.Counterparty;
 import cdm.base.staticdata.party.CounterpartyEnum;
-import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
+import cdm.base.staticdata.party.Party;
+import com.google.common.collect.Lists;
+import com.google.inject.Inject;
+import com.rosetta.model.lib.process.PostProcessor;
 import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.Contract;
 import org.isda.cdm.TradeDate;
@@ -15,11 +14,10 @@ import org.isda.cdm.WorkflowStep;
 import org.isda.cdm.functions.Create_ClearedTrade;
 import org.isda.cdm.functions.example.services.identification.IdentifierService;
 
-import com.google.common.collect.Lists;
-import com.google.inject.Inject;
-import com.rosetta.model.lib.process.PostProcessor;
+import java.util.Optional;
+import java.util.function.Function;
 
-import cdm.base.staticdata.party.Party;
+import static org.isda.cdm.workflows.ClearingUtils.getParty;
 
 public class ClearingAccepted implements Function<Contract, Workflow> {
 	@Inject
@@ -58,18 +56,5 @@ public class ClearingAccepted implements Function<Contract, Workflow> {
 				clear, identifierService, tradeDate, identifier);
 
 		return Workflow.builder().addSteps(Lists.newArrayList(contractFormationStep, proposeStep, clearStep)).build();
-	}
-
-	/**
-	 * Extract the party related to the given counterparty enum.
-	 */
-	private Party getParty(Contract contract, CounterpartyEnum counterparty) {
-		return contract.getTradableProduct().getCounterparties().stream()
-				.filter(c -> c.getCounterparty() == counterparty)
-				.map(Counterparty::getParty)
-				.map(ReferenceWithMetaParty::getGlobalReference)
-				.flatMap(partyReference -> contract.getParty().stream().filter(p -> partyReference.equals(p.getMeta().getGlobalKey())))
-				.findFirst()
-				.orElseThrow(() -> new IllegalArgumentException("Party not found for counterparty " + counterparty));
 	}
 }
