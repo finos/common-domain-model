@@ -45,17 +45,17 @@ type ContractFormationPrimitive: <"Specification of a primitive event that repre
 	before TradeState (0..1) <"The before state corresponds to the output of an execution between the parties.">
 		[metadata reference]
 		[synonym Workflow_Event value "before"]
-	after PostContractFormationState (1..1) <"The after state corresponds to the new contract being formed between the parties, plus some additional trade workflow information.">
+	after TradeState (1..1) <"The after state corresponds to the new contract being formed between the parties, plus some additional trade workflow information.">
 		[synonym Workflow_Event value "after"]
 
 	condition: <"The product should be unchanged.">
-		before -> trade -> tradableProduct -> product = after -> contract -> tradableProduct -> product
+		before -> trade -> tradableProduct -> product = after -> trade -> tradableProduct -> product
 
 	condition: <"The quantity should be unchanged.">
-		if before exists then before -> trade -> tradableProduct -> quantityNotation = after -> contract -> tradableProduct -> quantityNotation
+		if before exists then before -> trade -> tradableProduct -> quantityNotation = after -> trade -> tradableProduct -> quantityNotation
 
 	condition: <"The price should be unchanged.">
-		if before exists then before -> trade -> tradableProduct -> priceNotation = after -> contract -> tradableProduct -> priceNotation
+		if before exists then before -> trade -> tradableProduct -> priceNotation = after -> trade -> tradableProduct -> priceNotation
 
 type SplitPrimitive: <"The primitive event to represent a split/allocation of a trade. As part of this primitive event the type of trade, either an execution or a contract, does not get altered. In the case of an execution, the further transformation of each split execution into a contract will be the purpose of the ContractFormation primitive.">
 

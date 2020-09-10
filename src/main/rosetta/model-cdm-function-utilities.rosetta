@@ -44,8 +44,23 @@ func ExtractContractState: <"Extracts a single Contract State, given an Event. T
 	output: contractState ContractState (1..1)
 	alias primitive: event -> primitives  only-element
 	assign-output contractState:
-		if primitive -> contractFormation exists then primitive -> contractFormation -> after
+		if primitive -> contractFormation exists then ContractStateFromTradeState(primitive -> contractFormation -> after)
 		else if primitive -> reset exists then primitive -> reset -> after
+
+func ContractFromTrade:
+	inputs:
+		trade TradeNew (1..1)
+	output:
+		contract Contract (1..1)
+
+func ContractStateFromTradeState:
+	inputs:
+		contractState TradeState (1..1)
+	output:
+		tradeState ContractState (1..1)
+
+
+
 
 func FpmlIrd8: <"FpML validation rule ird-8 - If the same party is specified as the payer and receiver, then different accounts must be specified.">
 	inputs:

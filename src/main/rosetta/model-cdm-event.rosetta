@@ -148,7 +148,7 @@ type WorkflowStep: <"A workflow step represents the state of a business event. T
 	account Account (0..*) <"Optional account information that could be associated to the event.">
 	lineage Lineage (0..1) <"The lineage attribute provides a linkage among lifecycle events through the globalKey hash value. One example is when a given lifecycle event is being corrected or cancelled. In such case, each subsequent event will have lineage into the prior version of that event. The second broad use case is when an event has a dependency upon either another event (e.g. the regular payment associated with a fix/float swap will have a lineage into the reset event, which will in turn have a lineage into the observation event for the floating rate and the contract) or a contract (e.g. the exercise of an option has a lineage into that option).">
 		[synonym Workflow_Event value "lineage"]
-
+	creditLimitInformation CreditLimitInformation (0..1)
 	condition WorkflowStepStatus:
 		(WorkflowStep -> businessEvent exists and WorkflowStep -> proposedInstruction is absent and WorkflowStep -> rejected is absent)
 		or
@@ -187,9 +187,12 @@ type BusinessEvent: <"A business event represents a life cycle event of a trade 
 	// TODO - this needs to be moved/merged into the WorkflowStep
 	workflowEventState WorkflowStepState (0..1) <"The event workflow information, i.e. the workflow status, the associated comment and the partyCustomisedWorkflow which purpose is to provide the ability to associate custom workflow information to the CDM.">
 		[deprecated]
+	tradeWarehouseWorkflow TradeWarehouseWorkflow (0..1)
 
 type EventEffect: <"The set of operational and positional effects associated with a lifecycle event, alongside the reference to the contract reference(s) that is subject to the event (and is positioned in the before state of the event primitive).">
 
+	effectedTrade TradeNew (0..*)
+		[metadata reference]
 	effectedContract Contract (0..*) <"A pointer to the contract(s) to which the event effect(s) apply, i.e. in the before event state.">
 		[metadata reference]
 	effectedExecution Execution (0..*) <"A pointer to the execution(s) to which the event effect(s) apply, i.e. in the before event state.">
