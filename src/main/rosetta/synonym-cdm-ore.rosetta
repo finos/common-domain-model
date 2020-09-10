@@ -7,12 +7,14 @@ import cdm.base.staticdata.party.*
 import cdm.base.math.*
 import cdm.base.datetime.*
 import cdm.base.staticdata.asset.rates.*
+import cdm.base.staticdata.identifier.*
 
 synonym source ORE
-
 synonym source ORE_1_0_39 extends ORE
 {
     Contract:
+        + contractIdentifier
+            [value "Trade"]
         + party
             [value "Envelope" path "Trade"]
         + tradableProduct
@@ -26,10 +28,14 @@ synonym source ORE_1_0_39 extends ORE
 
     PriceNotation:
         + price
+            [value "FloatingLegData"]
+        + assetIdentifier
+            [hint "FloatingLegData"]
+            [value "ignore"]
 
-    FixedInterestRate:
-        + rate
-            [value "Rate" path "FixedLegData->Rates"]
+    FloatingInterestRate:
+        + spread
+            [value "Spread" path "Spreads"]
 
     Party:
         + partyId
@@ -37,8 +43,6 @@ synonym source ORE_1_0_39 extends ORE
             [value "party_id" path "AdditionalFields"]
 
     QuantityNotation:
-        + assetIdentifier
-            // [value "LegData" path "SwapData"]
         + quantity
             [value "Notionals"]
 
@@ -48,53 +52,261 @@ synonym source ORE_1_0_39 extends ORE
 
     Product:
         + contractualProduct
-            [value "SwapData"]
+            [value "SwapData" set when "TradeType" = "Swap"]
 
     Payout:
         + interestRatePayout
             [value "LegData"]
+        + optionPayout
+            [value "ignore"]
+        + equityPayout
+            [value "ignore"]
 
     InterestRatePayout:
         + calculationPeriodDates
             [value "Rules" path "ScheduleData"]
-        + rateSpecification
+        + crossCurrencyTerms
+            [value "ignore"]
+        + dayCountFraction
+            [value "DayCounter"]
+        + resetDates
+            [value "FloatingLegData" set when "LegType" = "Floating"]
+            [value "Rules" path "ScheduleData" set when "LegType" = "Floating"]
+        + paymentDate
+            [value "ignore"]
 
+    PaymentDates:
+        + payRelativeTo
+            [set to PayRelativeToEnum -> CalculationPeriodStartDate when "ScheduleData->Rules->Rule"="Forward",
+                    set to PayRelativeToEnum -> CalculationPeriodEndDate when "ScheduleData->Rules->Rule"="Backward"]
+        + paymentDatesAdjustments
+            [hint "PaymentConvention"]
+            [value "ignore"]
+        + paymentFrequency
+            [value "Rules" path "ScheduleData"]
 
     CalculationPeriodDates:
+        + firstPeriodStartDate
+            [value "ignore"]
         + effectiveDate
             [hint "StartDate"]
-
-    AdjustableOrRelativeDate:
-        + adjustableDate
-
+            [value "ignore"]
+        + terminationDate
+            [hint "EndDate"]
+            [hint "TermConvention"]
+            [value "ignore"]
+        + calculationPeriodDatesAdjustments
+            [hint "Convention"]
+            [hint "Calendar"]
+            [value "ignore"]
+ 
     AdjustableDate:
         + unadjustedDate
-            [value "StartDate"]
+            [value "StartDate" maps 2]
+            // [value "StartDate" maps 2 set when rosettaPath = CalculationPeriodDates->effectiveDate]
+            [value "EndDate" maps 2]
+            // [value "EndDate" maps 2 set when rosettaPath = CalculationPeriodDates->terminationDate]
+    
+    PeriodicDates:
+        + endDate
+            [hint "EndDate"]
+            [value "ignore"]
+        + startDate
+            [hint "StartDate"]
+            [value "ignore"]
 
-    ResolvablePayoutQuantity:
-        + assetIdentifier
-            [hint "Currency"]
+    AdjustedRelativeDateOffset:
+        + relativeDateAdjustments
+            [value "ignore"]
+
+    RelativeDateOffset:
+        + businessDayConvention
+            [value "Convention"]
 
     FloatingRateOption:
         + floatingRateIndex
-            [value "Index"]
+            [value "Index" maps 2]
+        + indexTenor
+            [value "ignore"]
 
     RateSpecification:
         + fixedRate
             [value "FixedLegData"]
+            [hint "Currency"]
         + floatingRate
-            [value "FloatingLegData"]
+            [hint "FloatingLegData"]
+            [value "ignore"]
+        + inflationRate
+            [value "ignore"]
 
+    FixedRateSpecification:
+        + rateSchedule
+            [value "Rates"]
 
     AssetIdentifier:
         + currency
-            [value "Currency"]
+            [value "Currency" maps 2 set when "LegType"="Fixed"]
+        + rateOption
+            [value "FloatingLegData" set when "LegType"="Floating"]
+            // [value "FloatingLegData" set when rosettaPath = TradableProduct->priceNotation]
+ 
+    AssignedIdentifier:
+        + identifier
+            [value "id"]
+            // [value "id" if rosettaPath = Contract->contractIdentifier->assignedIdentifier->identifier]
+ 
+    BusinessCenters:
+        + businessCenter
+            [value "Calendar" maps 2]
+ 
+    BusinessDayAdjustments:
+        + businessDayConvention
+            [value "PaymentConvention" maps 2] // Payment convention of the leg coupons
+            // [value "PaymentConvention" maps 2 set when rosettaPath = PaymentDates->paymentDatesAdjustments] - Ted initially said that we should map this to calculationPeriodDatesAdjustments for now, in which case this value is currently unnecessary because "Convention" is also being mapped to calculationPeriodDatesAdjustments.
+            [value "Convention" maps 2] // Determines the adjustment of the schedule dates generated
+            // [value "Convention" maps 2 set when rosettaPath = CalculationPeriodDates->calculationPeriodDatesAdjustments]
+            [value "TermConvention" maps 2] // Determines the adjustment of the final schedule date generated
+            // [value "TermConvention" maps 2 set when rosettaPath = CalculationPeriodDates->terminationDate->adjustableDate] - Since "TermConvention" is optional, it may be possible that only one of the legs in ORE has "TermConvention". Would this cause a problem when using the "maps 2" syntax?
+            [value "ignore"]
 
+    PaymentDateSchedule:
+        + finalPaymentDate
+            [value "ignore"]
+        + interimPaymentDates
+            [value "ignore"]
+
+    PayerReceiver:
+        // Party1: Owner of message
+        + payer
+            [set to CounterpartyEnum -> Party1 when "Payer" = True,
+                set to CounterpartyEnum -> Party2 when "Payer" = False]
+        + receiver
+            [set to CounterpartyEnum -> Party2 when "Payer" = True,
+                set to CounterpartyEnum -> Party1 when "Payer" = False]
+
+    Frequency:
+        + period
+            [set to PeriodExtendedEnum -> Y when "Tenor" = "1Y",
+                set to PeriodExtendedEnum -> M when "Tenor" = "6M"]
+            // [... set when rosettaPath = CalculationPeriodDates->calculationPeriodFrequency or rosettaPath = PaymentDates->paymentFrequency]
+        + periodMultiplier
+            [set to 1 when "Tenor" = "1Y",
+                set to 6 when "Tenor" = "6M"]
+            // [... set when rosettaPath = CalculationPeriodDates->calculationPeriodFrequency or rosettaPath = PaymentDates->paymentFrequency]
+
+    CalculationPeriodFrequency:
+        + rollConvention
+            [set to RollConventionEnum -> _1 when "EndOfMonth" <> "Y"]
+                // set to RollConventionEnum -> _1 when "Rules" = "Backward" and "EndDate" = "2036-03-01" and "EndOfMonth" <> "Y"]
+            // There is currently no CDM equivalent to "Rule" in ORE, but the "Forward" and "Backward" schedule date generation rules are equivalent to using the day of the reference date ("StartDate" and "EndDate", respectively) for the regular period.
+
+    Offset:
+        + dayType
+            [value "FixingDays" path "LegData->FloatingLegData"]
+            // [set to DayTypeEnum -> Business when "FixingDays" exists] - "FixingDays" assumes fixing gap is expressed as number of business days
+    
+    Period:
+        + periodMultiplier
+            [value "FixingDays" path "LegData->FloatingLegData"]
+        + period
+            [value "FixingDays" path "LegData->FloatingLegData"]
+            // [set to PeriodEnum -> D when "FixingDays" exists] - "FixingDays" assumes fixing gap is expressed as number of business days
+ 
+    ResetDates:
+        + resetRelativeTo
+            [set to ResetRelativeToEnum -> CalculationPeriodEndDate when "IsInArrears" = True,
+                set to ResetRelativeToEnum -> CalculationPeriodStartDate when "IsInArrears" = False]
+        + rateCutOffDaysOffset
+            [value "ignore"]
+        + initialFixingDate
+            [value "ignore"]
+        + finalFixingDate
+            [value "ignore"]
+        + resetDatesAdjustments
+            [hint "Convention"]
+            [value "ignore"]
+
+    Schedule:
+        + initialValue
+            [value "Rate"]
+ 
     enums
+ 
+    BusinessCenterEnum:
+        // A lot of 1 to many relationships from ORE to CDM. For example, CA is used for all of Canada in ORE. CDM is more granular.
+        + EUTA
+            [value "TARGET"]
+            [value "TGT"]
+            [value "EUR"]
+ 
+    BusinessDayConventionEnum:
+        + FOLLOWING
+            [value "F"]
+            [value "Following"]
+            [value "FOLLOWING"]
+        + MODFOLLOWING
+            [value "MF"]
+            [value "ModifiedFollowing"]
+            [value "Modified Following"]
+            [value "MODIFIEDF"]
+        + PRECEDING
+            [value "P"]
+            [value "Preceding"]
+            [value "PRECEDING"]
+        + MODPRECEDING
+            [value "MP"]
+            [value "ModifiedPreceding"]
+            [value "Modified Preceding"]
+            [value "MODIFIEDP"]
+        + NONE
+            [value "U"]
+            [value "Unadjusted"]
+            [value "INDIFF"]
+        + NEAREST
+            [value "NEAREST"]
+ 
+    DayCountFractionEnum:
+        + ACT_360
+            [value "A360"]
+            [value "Actual/360"]
+            [value "ACT/360"]
+        + ACT_365_FIXED
+            [value "A365"]
+            [value "A365F"]
+            [value "Actual/365 (fixed)"]
+        + ACT_ACT_AFB
+            [value "ActActAFB"]
+            [value "Actual/Actual (AFB)"]
+        + ACT_ACT_ICMA
+            [value "ActActICMA"]
+            [value "ActualActual (ICMA)"] 
+        + ACT_ACT_ISDA
+            [value "ActActISDA"]
+            [value "ActualActual (ISDA)"]
+            [value "ACT/ACT"]
+            [value "ACT"]
+        + BUS_252
+            [value "BUS/252"]
+            [value "Business/252"]
+        + _30E_360
+            [value "30E/360"]
+            [value "30E/360 (Eurobond Basis)"]
+        + _30_360
+            [value "T360"]
+            [value "30/360"]
+            [value "30/360 (Bond Basis)"]
+            [value "ACT/nACT"]
 
     FloatingRateIndexEnum:
+        // ORE allows a string in the format of CCY-INDEX-TENOR
         + EUR_6M_EURIBOR_SWAP_CME_vs_LCH_ICAP
             [value "EUR-EURIBOR-6M"]
 
-}
+    PeriodEnum:
+        + D
+            [value "2"]
 
+    DayTypeEnum:
+        + Business
+            [value "2"]
+}
