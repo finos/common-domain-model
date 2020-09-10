@@ -435,13 +435,14 @@ reporting rule SecuritiesFinancingTransactionIndicator <"Securities financing tr
  	return "Out Of Scope"
  		as "Securities Financing Transaction Indicator"
 
+// TODO: should return Trade, check with Minesh if this is ok
 reporting rule ContractForEvent
  	extract
- 		if WorkflowStep -> businessEvent -> primitives -> contractFormation -> after -> contract only exists
-	then WorkflowStep -> businessEvent -> primitives -> contractFormation -> after -> contract
+ 		if WorkflowStep -> businessEvent -> primitives -> contractFormation -> after -> trade -> contract only exists
+	then WorkflowStep -> businessEvent -> primitives -> contractFormation -> after -> trade -> contract
 	else if WorkflowStep -> businessEvent -> primitives -> quantityChange -> after -> contract  exists
 		then WorkflowStep -> businessEvent -> primitives -> quantityChange -> after -> contract
-		else WorkflowStep -> businessEvent -> primitives -> contractFormation -> after -> contract
+		else WorkflowStep -> businessEvent -> primitives -> contractFormation -> after -> trade -> contract
  	as "Contract"
 
 reporting rule RateSpecification
