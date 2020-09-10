@@ -6,7 +6,7 @@ This change is part of the ongoing model refactoring to externalise the definiti
 
 Update function `Create_ClearedTrade` to correctly assign the counterparties on the resulting beta and gamma trades.
 
-_Review Direction_
+_Review Directions_
 
 In the CDM Portal, use the Textual Browser to review the function `Create_ClearedTrade`, and use the Instance Viewer to review the Clearing Accepted and Clearing Rejected examples.
 
