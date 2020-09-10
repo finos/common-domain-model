@@ -1,12 +1,12 @@
 package org.isda.cdm.functions;
 
+import java.util.List;
+import java.util.Optional;
+
 import cdm.base.staticdata.party.Account;
 import cdm.base.staticdata.party.Counterparty;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
-import org.isda.cdm.TradableProduct;
-
-import java.util.List;
-import java.util.Optional;
+import cdm.product.template.TradableProduct;
 
 /**
  * FpML validation rule ird-8:

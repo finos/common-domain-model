@@ -1,5 +1,8 @@
 package org.isda.cdm.workflows;
 
+import cdm.base.staticdata.party.Counterparty;
+import cdm.base.staticdata.party.CounterpartyEnum;
+import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.BusinessEvent;
 import org.isda.cdm.ClearingInstruction;
@@ -64,7 +67,7 @@ public class ClearingUtils {
 	}
 
 	static WorkflowStep buildClear(PostProcessor runner, String externalReference, WorkflowStep previous, ClearingInstruction clearingInstruction,
-			Create_ClearedTrade clear, IdentifierService identifierService, Date tradeDate, Identifier identifier) {
+			Create_ClearedTrade          clear, IdentifierService identifierService, Date tradeDate, Identifier identifier) {
 
 		BusinessEvent.BusinessEventBuilder businessEventBuilder = clear.evaluate(clearingInstruction, tradeDate, identifier).toBuilder();
 
@@ -108,6 +111,19 @@ public class ClearingUtils {
 			.addPartyId(FieldWithMetaString.builder().setValue("Party").build())
 			.setName(FieldWithMetaString.builder().setValue("CCP").build())
 			.build();
+	}
+
+	/**
+	 * Extract the party related to the given counterparty enum.
+	 */
+	public static Party getParty(Contract contract, CounterpartyEnum counterparty) {
+		return contract.getTradableProduct().getCounterparties().stream()
+				.filter(c -> c.getCounterparty() == counterparty)
+				.map(Counterparty::getParty)
+				.map(ReferenceWithMetaParty::getGlobalReference)
+				.flatMap(partyReference -> contract.getParty().stream().filter(p -> partyReference.equals(p.getMeta().getGlobalKey())))
+				.findFirst()
+				.orElseThrow(() -> new IllegalArgumentException("Party not found for counterparty " + counterparty));
 	}
 }
 

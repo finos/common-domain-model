@@ -1,12 +1,13 @@
 namespace org.isda.cdm
 version "${project.version}"
 
-import cdm.base.math.*
-import cdm.base.datetime.*
 import cdm.base.staticdata.party.*
 import cdm.base.staticdata.identifier.*
 
 import cdm.observable.asset.*
+
+import cdm.product.template.*
+import cdm.product.common.settlement.*
 
 annotation creation: <"Annotation to describe the intent of a function">
     [prefix Create]
@@ -622,6 +623,8 @@ func TerminateContract: <"Function specification for a contract termination wher
 		contract -> tradeDate
 	assign-output terminatedContract -> clearedDate:
 		contract -> clearedDate
+	assign-output terminatedContract -> tradableProduct -> counterparties:
+		contract -> tradableProduct -> counterparties
 	assign-output terminatedContract -> tradableProduct -> product:
 		contract -> tradableProduct -> product
 	assign-output terminatedContract -> tradableProduct -> priceNotation:
@@ -703,22 +706,29 @@ func Create_ClearedTrade: <"Function supporting direct principal and agency clea
 	alias clearerRole: <"The clearing party (CCP) role set to ClearingOrganization.">
 		Create_PartyRole(clearingInstruction -> clearingParty, PartyRoleEnum -> ClearingOrganization)
 
-	alias betaExecution: <"Execution between the CCP and the beta party.">
-		Create_ExecutionPrimitive(
-			clearingInstruction -> alphaContract -> tradableProduct -> product, 
-			clearingInstruction -> alphaContract -> tradableProduct -> quantityNotation, 
-			clearingInstruction -> alphaContract -> tradableProduct -> priceNotation, empty, 
-			[clearingInstruction -> clearingParty, betaParty], [clearerRole], empty,
-			ExecutionTypeEnum ->OffFacility,
-			tradeDate,
-			[identifier]
-			)
-	alias betaExecutionPrimitives: NewExecutionPrimitiveEvent(betaExecution)
+	alias clearerCounterparty:
+		Create_Counterparty(clearingInstruction -> clearingParty, CounterpartyEnum -> Party2)
 
 	alias betaParty: <"Beta party is the clearerParty1 when acting as a clearing member or else is party1 when it is clearing for its own account.">
 		if clearingInstruction -> clearerParty1 exists
 		then clearingInstruction -> clearerParty1
 		else clearingInstruction -> party1
+
+	alias betaCounterparty:
+		Create_Counterparty(betaParty, CounterpartyEnum -> Party1)
+
+	alias betaExecution: <"Execution between the CCP and the beta party.">
+		Create_ExecutionPrimitive(clearingInstruction -> alphaContract -> tradableProduct -> product,
+		    clearingInstruction -> alphaContract -> tradableProduct -> quantityNotation,
+		    clearingInstruction -> alphaContract -> tradableProduct -> priceNotation,
+		    [betaCounterparty, clearerCounterparty],
+		    [betaParty, clearingInstruction -> clearingParty],
+		    [clearerRole],
+		    empty,
+            ExecutionTypeEnum -> OffFacility,
+            tradeDate,
+            [identifier])
+	alias betaExecutionPrimitives: NewExecutionPrimitiveEvent(betaExecution)
 
 	alias betaContract: <"Contract between the CCP and the beta party.">
 		Create_ContractFormationPrimitive(betaExecution -> after -> execution, empty)
@@ -729,16 +739,20 @@ func Create_ClearedTrade: <"Function supporting direct principal and agency clea
 		then clearingInstruction -> clearerParty2
 		else clearingInstruction -> party2
 
+	alias gammaCounterparty:
+		Create_Counterparty(gammaParty, CounterpartyEnum -> Party1)
+
 	alias gammaExecution: <"Execution between the CCP and the gamma party">
-		Create_ExecutionPrimitive(
-			clearingInstruction -> alphaContract -> tradableProduct -> product, 
-			clearingInstruction -> alphaContract -> tradableProduct -> quantityNotation, 
-			clearingInstruction -> alphaContract -> tradableProduct -> priceNotation, empty, 
-			[clearingInstruction -> clearingParty, gammaParty], [clearerRole], empty,
-			ExecutionTypeEnum ->OffFacility,
-			tradeDate,
-			[identifier])
-			
+		Create_ExecutionPrimitive(clearingInstruction -> alphaContract -> tradableProduct -> product,
+		    clearingInstruction -> alphaContract -> tradableProduct -> quantityNotation,
+		    clearingInstruction -> alphaContract -> tradableProduct -> priceNotation,
+		    [gammaCounterparty, clearerCounterparty],
+		    [gammaParty, clearingInstruction -> clearingParty],
+		    [clearerRole],
+		    empty,
+            ExecutionTypeEnum -> OffFacility,
+            tradeDate,
+            [identifier])
 	alias gammaExecutionPrimitives: NewExecutionPrimitiveEvent(gammaExecution)
 
 	alias gammaContract: <"Contract between the CCP and the gamma party.">
@@ -765,7 +779,7 @@ func Create_ClearedTrade: <"Function supporting direct principal and agency clea
 			betaContractPrimitives,
 			gammaExecutionPrimitives,
 			gammaContractPrimitives
-	]
+	    ]
 
 func ExecutionAsTrade: <"Constructs a 'Trade' type that wraps an execution.">
 	inputs:
