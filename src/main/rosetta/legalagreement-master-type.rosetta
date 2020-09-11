@@ -1,11 +1,14 @@
 namespace cdm.legalagreement.master : <"Master agreement concepts.">
 version "${project.version}"
 
+import cdm.base.staticdata.party.*
 import cdm.observable.asset.*
 
 import cdm.product.asset.*
 import cdm.product.common.schedule.*
 import cdm.product.common.settlement.*
+
+import cdm.legalagreement.common.*
 
 import cdm.synonyms.config.*
 
@@ -47,5 +50,31 @@ type EquityMasterConfirmation extends MasterConfirmationBase: <"Specification fo
 //TODO - Deprecate: Still used by Equity Master Confirmation doc which hasn't been refactored.
 type MasterConfirmationBase: <"Legal agreement specification for General Terms and Elections that are applicable across multiple confirmations and are referenced by these confirmations.">
 
+type AutomaticEarlyTermination: <"A class to specify the Automatic Early Termination provision applicable to a Master Agreement.">
+
+	fallbackAET boolean (1..1) <"A boolean election to specify whether provided that, where a party is governed by a system of law which does not permit the termination of one or more Transactions to occur following an Event of Default specified in Section 5(a)(vii)(1), (3), (4), (5), (6) or, to extent analogous thereto, (8) ,then the Automatic Early Termination provisions of Section 6(a) shall apply to such party.">
+	indemnity boolean (1..1) <"A boolean attribute to specify whether if an Early Termination Date occurs because Automatic Early Termination applies in respect of a party, the Defaulting Party shall indemnify the Non- defaulting Party, on demand, against any losses, costs, expenses or damages that the Non- defaulting Party incurs (to the extent not already taken into account in Section 6(e)) in relation to terminating, liquidating, establishing or re- establishing any hedge or related positions as result of movements of rates, indices, prices, yields, volatilities, spreads or other market data between the Early Termination Date and the Local Business Day on which the Non-defaulting Party becomes aware that the Early Termination Date has occurred">
+	partyElection AutomaticEarlyTerminationElection (0..2) <"The party election specific to the Automatic Early Termination Clause.">
+
+	condition fallbackAET: <"The fallback Automatic Early Termination provision can only be specified as applicable if the Automatic Early Termination Clause is not applicable to one of the parties.">
+		if fallbackAET = True
+		then partyElection->isApplicable = False
+
+	condition indemnity: <"If Automatic Early Termination can never apply then indemnity cannot apply.">
+		if fallbackAET = False and partyElection->isApplicable = False
+		then indemnity = False
+
+type AutomaticEarlyTerminationElection: <"A class to specify the party elections specific to the Automatic Early Termination Clause.">
+
+	party Party (1..1) <"The party for which the Automatic Early Termination provisions are being specified.">
+	isApplicable boolean (1..1) <"A boolean election to specify whether the Automatic Early Termination provisions of Section 6(a) are applicable (True) or not applicable (False).">
+
+type MasterAgreementSchedule: <"The set of elections which specify a Master Agreement.">
+
+	automaticEarlyTermination AutomaticEarlyTermination (1..1) <"The specification of whether there is an automatic occurrence of an Early Termination Date in respect of 			Transactions upon the occurrence of certain bankruptcy / insolvency related events.">
+	terminationCurrency TerminationCurrency (1..1) <"Specification of the currency in which the termination payment is made (including the process by which such currency is determined).">
+	addressForNotices AddressForNotices (0..1) <"Specification of the address and other details for notices.">
+
+type TerminationCurrency: <"The set of elections that specify the Termination Currency for the agreement.">
 
 
