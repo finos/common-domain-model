@@ -23,6 +23,7 @@ import cdm.base.staticdata.party.CounterpartyEnum;
 import cdm.base.staticdata.party.Party;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.product.template.TradableProduct;
+import cdm.product.template.functions.FpmlIrd8;
 
 class FpmlIrd8ImplTest extends AbstractFunctionTest {
 

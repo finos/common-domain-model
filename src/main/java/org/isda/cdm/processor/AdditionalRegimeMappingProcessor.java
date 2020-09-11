@@ -14,16 +14,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.isda.cdm.AdditionalRegime.AdditionalRegimeBuilder;
-import org.isda.cdm.AdditionalTypeEnum;
-import org.isda.cdm.Regime;
-
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
+
+import cdm.legalagreement.csa.AdditionalRegime.AdditionalRegimeBuilder;
+import cdm.legalagreement.csa.AdditionalTypeEnum;
+import cdm.legalagreement.csa.Regime;
 
 @SuppressWarnings("unused")
 public class AdditionalRegimeMappingProcessor extends MappingProcessor {

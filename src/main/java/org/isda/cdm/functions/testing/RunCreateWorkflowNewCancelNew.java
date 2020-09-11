@@ -16,7 +16,6 @@ import javax.inject.Inject;
 
 import org.isda.cdm.ActionEnum;
 import org.isda.cdm.BusinessEvent;
-import org.isda.cdm.Contract;
 import org.isda.cdm.EventTimestamp;
 import org.isda.cdm.EventTimestampQualificationEnum;
 import org.isda.cdm.MessageInformation;
@@ -25,6 +24,7 @@ import org.isda.cdm.Workflow;
 import org.isda.cdm.WorkflowStep;
 import org.isda.cdm.functions.Create_Execution;
 import org.isda.cdm.functions.Create_WorkflowStep;
+import org.jetbrains.annotations.Contract;
 
 import com.google.common.collect.Lists;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
