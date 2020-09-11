@@ -33,6 +33,16 @@ synonym source ORE_1_0_39 extends ORE
             [hint "FloatingLegData"]
             [value "ignore"]
 
+    EconomicTerms:
+        + earlyTerminationProvision
+            [value "ignore"]
+        + optionProvision
+            [value "ignore"]
+        + effectiveDate
+            [value "ignore"]
+        + terminationDate
+            [value "ignore"]
+
     FloatingInterestRate:
         + spread
             [value "Spread" path "Spreads"]
@@ -61,6 +71,15 @@ synonym source ORE_1_0_39 extends ORE
             [value "ignore"]
         + equityPayout
             [value "ignore"]
+        + cashflow
+            [value "ignore"]
+        + creditDefaultPayout
+            [value "ignore"]
+        + forwardPayout
+            [value "ignore"]
+        + securityPayout
+            [value "ignore"]
+        
 
     InterestRatePayout:
         + calculationPeriodDates
@@ -69,21 +88,25 @@ synonym source ORE_1_0_39 extends ORE
             [value "ignore"]
         + dayCountFraction
             [value "DayCounter"]
-        + resetDates
-            [value "FloatingLegData" set when "LegType" = "Floating"]
-            [value "Rules" path "ScheduleData" set when "LegType" = "Floating"]
         + paymentDate
+            [value "ignore"]
+        + stubPeriod
+            [value "ignore"]
+        // + resetDates
+        //     [value "ignore" set when "LegType" = "Fixed"]
+
+    ResolvablePayoutQuantity:
+        + quantityMultiplier
             [value "ignore"]
 
     PaymentDates:
         + payRelativeTo
             [set to PayRelativeToEnum -> CalculationPeriodStartDate when "ScheduleData->Rules->Rule"="Forward",
                     set to PayRelativeToEnum -> CalculationPeriodEndDate when "ScheduleData->Rules->Rule"="Backward"]
-        + paymentDatesAdjustments
-            [hint "PaymentConvention"]
-            [value "ignore"]
         + paymentFrequency
             [value "Rules" path "ScheduleData"]
+        + paymentDaysOffset
+            [value "ignore"]
 
     CalculationPeriodDates:
         + firstPeriodStartDate
@@ -121,7 +144,11 @@ synonym source ORE_1_0_39 extends ORE
 
     RelativeDateOffset:
         + businessDayConvention
-            [value "Convention"]
+            [value "Convention" path "ScheduleData->Rules" maps 2]
+
+    BusinessCenters:
+        + businessCenter
+            [value "Calendar" path "ScheduleData->Rules" maps 2]
 
     FloatingRateOption:
         + floatingRateIndex
@@ -154,10 +181,7 @@ synonym source ORE_1_0_39 extends ORE
         + identifier
             [value "id"]
             // [value "id" if rosettaPath = Contract->contractIdentifier->assignedIdentifier->identifier]
- 
-    BusinessCenters:
-        + businessCenter
-            [value "Calendar" maps 2]
+
  
     BusinessDayAdjustments:
         + businessDayConvention
@@ -197,25 +221,29 @@ synonym source ORE_1_0_39 extends ORE
     CalculationPeriodFrequency:
         + rollConvention
             [set to RollConventionEnum -> _1 when "EndOfMonth" <> "Y"]
-                // set to RollConventionEnum -> _1 when "Rules" = "Backward" and "EndDate" = "2036-03-01" and "EndOfMonth" <> "Y"]
+            // [set to RollConventionEnum -> _1 when "Rule" = "Forward" and "StartDate" = "2016-03-01" and "EndOfMonth" <> "Y",
+            //      set to RollConventionEnum -> _1 when "Rule" = "Backward" and "EndDate" = "2036-03-01" and "EndOfMonth" <> "Y"]
+            // As discussed:
+            //      The above is the desired mapping logic. The problem is that it causes a compilation error. When I reference them as subelements, like so,
+            //          [set to RollConventionEnum -> _1 when "Rules->Rule" = "Forward" and "Rules->StartDate" = "2016-03-01" and "Rules->EndOfMonth" <> "Y"]
+            //      then it compiles, but the mapping doesn't actually work. I have verified that each individual boolean operation works. It is when we combine them that the issue occurs.
+            //
             // There is currently no CDM equivalent to "Rule" in ORE, but the "Forward" and "Backward" schedule date generation rules are equivalent to using the day of the reference date ("StartDate" and "EndDate", respectively) for the regular period.
 
     Offset:
         + dayType
-            [value "FixingDays" path "LegData->FloatingLegData"]
-            // [set to DayTypeEnum -> Business when "FixingDays" exists] - "FixingDays" assumes fixing gap is expressed as number of business days
+            [set to DayTypeEnum -> Business when "FloatingLegData->FixingDays" exists]
     
     Period:
         + periodMultiplier
-            [value "FixingDays" path "LegData->FloatingLegData"]
+            [value "FixingDays" path "FloatingLegData"]
         + period
-            [value "FixingDays" path "LegData->FloatingLegData"]
-            // [set to PeriodEnum -> D when "FixingDays" exists] - "FixingDays" assumes fixing gap is expressed as number of business days
+            [set to PeriodEnum -> D when "FloatingLegData->FixingDays" exists]
  
     ResetDates:
         + resetRelativeTo
-            [set to ResetRelativeToEnum -> CalculationPeriodEndDate when "IsInArrears" = True,
-                set to ResetRelativeToEnum -> CalculationPeriodStartDate when "IsInArrears" = False]
+            [set to ResetRelativeToEnum -> CalculationPeriodEndDate when "FloatingLegData->IsInArrears" = True,
+                set to ResetRelativeToEnum -> CalculationPeriodStartDate when "FloatingLegData->IsInArrears" = False]
         + rateCutOffDaysOffset
             [value "ignore"]
         + initialFixingDate
@@ -223,7 +251,6 @@ synonym source ORE_1_0_39 extends ORE
         + finalFixingDate
             [value "ignore"]
         + resetDatesAdjustments
-            [hint "Convention"]
             [value "ignore"]
 
     Schedule:
