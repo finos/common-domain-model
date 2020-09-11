@@ -111,7 +111,7 @@ public class CounterpartyMappingHelper {
 				}, executor);
 	}
 
-	CompletableFuture<Map<String, CounterpartyEnum>> getBothCounterpartiesCollectedFuture() {
+	public CompletableFuture<Map<String, CounterpartyEnum>> getBothCounterpartiesCollectedFuture() {
 		return bothCounterpartiesCollected;
 	}
 
