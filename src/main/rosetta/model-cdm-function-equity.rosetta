@@ -150,6 +150,7 @@ func EquityCashSettlementAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity
 
 	assign-output equityCashSettlementAmount -> currency: <"Does not handle the cross currency case, currently.">
 		ResolveEquityInitialPrice( equityPayout only-element -> underlier, contractState -> contract -> tradableProduct -> priceNotation ) -> netPrice -> currency
+		
 
 func ResolveEquityPeriodStartPrice: <"Resolves the price from the end of the previous period. If first period, then take the initial price.">
 	inputs:
@@ -265,7 +266,8 @@ func StockSplit: <"Function specification to create the fully-formed business ev
 		preSplitNumberOfShares * instruction -> adjustmentRatio
 
 	alias preSplitPrices:
-		instruction -> trade -> contract -> tradableProduct -> priceNotation -> price -> cashPrice -> netPrice -> amount
+		instruction -> trade -> contract -> tradableProduct -> priceNotation -> price -> amount	
+		
 
 	alias postSplitPrice: <"The pre-split price is be divided by the adjustment ratio to determine the post-split price.">
 		preSplitPrices only-element / instruction -> adjustmentRatio

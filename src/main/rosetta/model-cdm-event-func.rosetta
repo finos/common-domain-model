@@ -303,6 +303,8 @@ func Qualify_StockSplit: <"The qualification of StockSplit business event based 
 
 	alias beforeQuantityNotation:
 		businessEvent -> primitives -> quantityChange -> before -> contract -> tradableProduct -> quantityNotation
+		//this didn't work because got an error in NoOfUnits
+		//businessEvent -> primitives -> quantityChange -> before -> contract -> tradableProduct -> priceQuantity -> quantity
 	
 	alias beforeNoOfUnits:
 		if beforeQuantityNotation exists
@@ -310,6 +312,7 @@ func Qualify_StockSplit: <"The qualification of StockSplit business event based 
 	
 	alias afterQuantityNotation:
 		businessEvent -> primitives -> quantityChange -> after -> contract -> tradableProduct -> quantityNotation
+		
 	
 	alias afterNoOfUnits:
 		if afterQuantityNotation exists
@@ -324,13 +327,16 @@ func Qualify_StockSplit: <"The qualification of StockSplit business event based 
 		then CurrencyAmount( afterQuantityNotation, empty )
 	
 	alias beforeCashPrices:
-		businessEvent -> primitives -> termsChange -> before -> contract -> tradableProduct -> priceNotation -> price -> cashPrice -> netPrice -> amount
+	//	businessEvent -> primitives -> termsChange -> before -> contract -> tradableProduct -> priceNotation -> price -> cashPrice -> netPrice -> amount
+		businessEvent -> primitives -> termsChange -> before -> contract -> tradableProduct -> priceNotation -> price -> amount
+		
 	
 	alias beforeCashPrice:
 		beforeCashPrices only-element 
 	alias afterCashPrices:
-		businessEvent -> primitives -> termsChange -> after -> contract -> tradableProduct -> priceNotation -> price -> cashPrice -> netPrice -> amount
-	
+		//businessEvent -> primitives -> termsChange -> after -> contract -> tradableProduct -> priceNotation -> price -> cashPrice -> netPrice -> amount
+		businessEvent -> primitives -> termsChange -> after -> contract -> tradableProduct -> priceNotation -> price -> amount
+	   
 	alias afterCashPrice:
 		afterCashPrices only-element
 	alias currencyAmountUnchanged:

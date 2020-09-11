@@ -3,6 +3,7 @@ version "${project.version}"
 
 import cdm.base.datetime.*
 import cdm.base.staticdata.asset.common.*
+import org.isda.cdm.*
 
 import cdm.observable.asset.*
 
@@ -52,15 +53,18 @@ func PriceQuantityTriangulation:
 	inputs:
 		priceNotation PriceNotation (0..*)
 		quantityNotation QuantityNotation (0..*)
+		product Product (0..1)
 
 	output:
 		success boolean (1..1)
 
 	assign-output success:
-		if priceNotation -> price -> cashPrice exists
+		if //priceNotation -> price -> priceType -> CashPrice exists
+		priceNotation -> price -> priceType = PriceTypeEnum -> CashPrice
 		then CashPriceQuantityNoOfUnitsTriangulation(priceNotation, quantityNotation)
-		else if priceNotation -> price -> exchangeRate exists
-			then ExchangeRateQuantityTriangulation(priceNotation, quantityNotation)
+		else if //priceNotation -> price -> exchangeRate exists
+			priceNotation -> price -> priceType = PriceTypeEnum -> ExchangeRate 
+			then ExchangeRateQuantityTriangulation(priceNotation, quantityNotation, product)
 			else True
 
 func CashPriceQuantityNoOfUnitsTriangulation: <"Data rule to check the relationship between cash price, notional and number of units.">
@@ -78,8 +82,8 @@ func CashPriceQuantityNoOfUnitsTriangulation: <"Data rule to check the relations
 		NoOfUnits(quantityNotation)
 
 	alias cashPrices:
-		priceNotation -> price -> cashPrice -> netPrice -> amount
-
+		//priceNotation -> price -> cashPrice -> netPrice -> amount
+		priceNotation -> price -> amount
 	alias cashPrice:
 		cashPrices only-element
 
@@ -91,36 +95,46 @@ func ExchangeRateQuantityTriangulation:
 	inputs:
 		priceNotation PriceNotation (0..*)
 		quantityNotation QuantityNotation (0..*)
+		product Product (0..1)
 
 	output:
 		success boolean (1..1)
 
 	alias exchangeRates:
-		priceNotation -> price -> exchangeRate
+		priceNotation -> price -> priceType -> ExchangeRate
 
 	alias exchangeRate:
 		exchangeRates only-element
 
 	alias rate:
+		priceNotation -> price -> amount
+	/*
 		if exchangeRate -> rate exists
 		then exchangeRate -> rate
 		else exchangeRate -> spotRate
+		*/
 
 	alias quotedCurrency:
-		exchangeRate -> quotedCurrencyPair
+		//exchangeRate -> quotedCurrencyPair
+		product -> foreignExchange
 
 	alias quantity1:
-		CurrencyAmount(quantityNotation, quotedCurrency -> currency1)
+		//CurrencyAmount(quantityNotation, quotedCurrency -> currency1)
+		product -> foreignExchange -> exchangedCurrency1 ->	payoutQuantity -> resolvedQuantity ->amount
 
 	alias quantity2:
-		CurrencyAmount(quantityNotation, quotedCurrency -> currency2)
+		//CurrencyAmount(quantityNotation, quotedCurrency -> currency2)
+		product -> foreignExchange -> exchangedCurrency2 ->	payoutQuantity -> resolvedQuantity ->amount
 
 	assign-output success:
 		if (quantity1 and quantity2 and rate) exists
 		then
-		if quotedCurrency -> quoteBasis = QuoteBasisEnum -> Currency1PerCurrency2
+		if //quotedCurrency -> quoteBasis = QuoteBasisEnum -> Currency1PerCurrency2
+			product -> foreignExchange -> exchangeRate ->quotedCurrencyPair -> quoteBasis = QuoteBasisEnum -> Currency1PerCurrency2
+
 			then quantity1 / quantity2 = rate
-			else if quotedCurrency -> quoteBasis = QuoteBasisEnum -> Currency2PerCurrency1
+			else if //quotedCurrency -> quoteBasis = QuoteBasisEnum -> Currency2PerCurrency1
+			product -> foreignExchange -> exchangeRate ->quotedCurrencyPair -> quoteBasis = QuoteBasisEnum -> Currency1PerCurrency2
 				then quantity2 / quantity1 = rate
 
 func NoOfUnits: <"Get quantity associated with product identifier.">

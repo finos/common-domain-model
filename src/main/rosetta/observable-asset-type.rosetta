@@ -11,6 +11,7 @@ import cdm.base.staticdata.party.*
 
 import cdm.observable.common.*
 import cdm.synonyms.config.*
+import org.isda.cdm.*
 
 type ObservationSource: <"The observation source can be composed of an curve and/or and information source.">
 
@@ -98,14 +99,14 @@ type ActualPrice:
 
 
 // TODO - #1 Look for further synergies with the option strike
-type Price: <"Generic description of the price concept applicable across product types, which can be expressed in a number of ways other than simply cash price">
+/*type Price: <"Generic description of the price concept applicable across product types, which can be expressed in a number of ways other than simply cash price">
 
 	cashPrice CashPrice (0..1) <"Price specified in cash terms, e.g. for securities proceeds or fee payment in a contractual product.">
 	exchangeRate ExchangeRate (0..1) <"Price specified as an exchange rate between two currencies.">
 	fixedInterestRate FixedInterestRate (0..1) <"Price specified as a fixed interest rate.">
 	floatingInterestRate FloatingInterestRate (0..1) <"Price specified as a spread on top of a floating interest rate.">
 
-	condition: one-of
+	condition: one-of*/
 
 // TODO - Look for further synergies with the SecurityValuation class
 type CashPrice: <"Describes a price component as a cash amount, which can either represent cash proceeds for a security purchase or a cashflow that is embedded as part of a contractual product: for instance an upfront fee.">
@@ -241,21 +242,26 @@ type FixedRateSpecification extends RateSpecificationBase: <"Type defining the s
 		assetIdentifier -> currency only exists
 
 type RateSpecificationBase:
+	//need to deprecate assetIdentifer
 	assetIdentifier AssetIdentifier (0..1)
+	price Price (0..1) <"Specifies a price to be used for trade amounts and other purposes.">
+	[metadata reference]
 
 type QuantityNotation: <"Specification of a product's quantity as a single, non-negative amount. The asset identifier qualifies the quantity being specified and can be used as a referencing mechanism in the underlying payout legs to 'resolve' the product, by fetching the actual amount from the appropriate quantity notation. For some product cases, several quantity notations can be associated with a single product: e.g. for an Equity Swap, both the notional and (optionally) the number of securities can be specified, with a validation to check that they are consistent in relation to the equity price. ">
 
 	quantity NonNegativeQuantity (1..1) <"The quantity as a non-negative amount.">
 	assetIdentifier AssetIdentifier (1..1) <"identifier for the asset being quantified, allowing it to be positioned in the product definition.">
 
+	/*Commenting out because of conflict with new Quantity type which will replace QuantityNotation
 	condition CurrencyAmount: <"When quantity type is specified as a currency amount, the quantity must be specified without unit.">
-		if assetIdentifier -> currency exists then quantity -> unit is absent
+		if assetIdentifier -> currency exists then quantity -> unit is absent*/
 
 type PriceNotation: <"Object to specify the price of a product as a single number, which can be negative in some cases, and asset identifier so that it can be positioned in the product. For some product cases, several price notations can be associated with a single product: e.g. for an Equity Swap, both the initial equity price and the rate spread can be specified, which allows factoring of the product definition.">
 
 	price Price (1..1) <"Price expressed as a number.">
 	assetIdentifier AssetIdentifier (0..1) <"Identifier for the asset being priced.">
 
+	/*Commenting out because it PriceNotation will be replaced by Price
 	condition CurrencyAssetIdentifier: <"The asset identifier for a fixed interest rate must be a currency.">
 		if price -> fixedInterestRate exists
 		then assetIdentifier -> currency only exists
@@ -263,7 +269,7 @@ type PriceNotation: <"Object to specify the price of a product as a single numbe
 	condition RateOptionAssetIdentifier: <"The asset identifier for an interest rate spread must be a rate option.">
 		if price -> floatingInterestRate exists
 		then assetIdentifier -> rateOption only exists
-
+*/
 /*
  * QUESTION TO CDM GROUP
  * TODO - FpML sample credit trades don't include examples that specify those attributes
@@ -449,6 +455,21 @@ type CalculationAgent: <"A class defining the ISDA calculation agent responsible
 
 	condition Choice: <"Choice rule to represent an FpML choice construct.">
 		optional choice calculationAgentPartyReference, calculationAgentParty
+
+
+type Observable: <"Specifies the object to be observed for a price, it could be an asset or a reference.">
+	rateOption FloatingRateOption (0..1) <"Specifies a floating rate index and tenor.">
+	commodity Commodity (0..1) <"Identifies an index by referencing a product identifier.">
+	productIdentifier ProductIdentifier (0..1) <"Comprises of an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the ProductIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+	currencyPair QuotedCurrencyPair (0..1) <"Describes the composition of a rate that has been quoted or is to be quoted, including the two currencies and the quotation relationship between the two currencies.">
+
+	condition: one-of
+
+type PriceQuantity: <"Specifies the price, quantity, and optionally the observable for use in a trade or other purposes.">
+	[metadata key]
+	price Price (1..*) <"Specifies a price to be used for trade amounts and other purposes.">
+	quantity Quantity (1..1) <"Specifies a quantity to be associated with an event, for example a trade amount.">
+	observable Observable (0..1) <"Specifies the object to be observed for a price, it could be an asset or a reference.">
 
 
 

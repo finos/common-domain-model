@@ -718,11 +718,12 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
 	quantityNotation QuantityNotation (1..*) <"Quantity of the underlying product to be included in a contract or execution. Products, including contractual products, are defined as a unit in CDM, with quantity schedule and cross-referencing mechanisms handled as part of the underlying payout legs, so that the overall quantity can be abstracted away from the product definition. Multiple quantity notations can be specified, as in the case of cross-currency products. Each quantity notation includes a tag (e.g. asset identifier) that can referenced by the underlying payout legs to resolve that product by fetching the actual amount from the appropriate quantity notation. The synonym paths to FpML will tend to be quite deep, as we need to extact those values from where they are embedded within the product definition.">
 		[synonym Workflow_Event value "cashflow"]
 	priceNotation PriceNotation (1..*) <"Price of the underlying product to be included in a contract or execution. Contractual products are defined as price-less in the CDM, with the actual price number(s) abstracted away from the product definition. Multiple price notations can be specified and the notation specifies the tags (e.g. asset identifier) allowing price to be then appropriately positioned in the contractual product. The synonym paths to FpML will tend to be quite deep, as we are extacting those values from where they are embedded within the product definition.">
+	
 	counterparties Counterparty (2..2) <"The two counterparties to the transaction.  The product is agnostic to the actual parties to the transaction, with the party references abstracted away from the product definition and replaced by the counterparty enum (e.g. CounterpartyEnum values Party1 or Party2). The counterparty enum can then be positioned in the product (e.g. to specify which counterparty is the payer, receiver etc) and this counterparties attribute, which is positioned outside of the product definition, allows the counterparty enum to be associated with an actual party reference.">
 	adjustment NotionalAdjustmentEnum (0..1) <"Specifies the conditions that govern the adjustment to the quantity of a product being traded: e.g. execution, portfolio rebalancing etc. It is typically used in the context of Equity Swaps.">
 
 	condition PriceQuantityTriangulation:
-		PriceQuantityTriangulation(priceNotation, quantityNotation) = True
+		PriceQuantityTriangulation(priceNotation, quantityNotation, product) = True
 
 	condition NotionalAdjustment: <"As the adjustment attribute applies to return swaps, the equity payout needs to be present alongside it.">
 		if adjustment exists
@@ -743,6 +744,7 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
 		then quantityNotation -> assetIdentifier exists
 			and quantityNotation -> assetIdentifier contains product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> payoutQuantity -> assetIdentifier
 
+	/* not necessary with replacement of assetIdentifier with Observable
 	condition CashflowQuantityResolvable:
 		if product -> contractualProduct -> economicTerms -> payout -> cashflow -> payoutQuantity -> assetIdentifier -> currency exists
 		then
@@ -751,27 +753,42 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
 			or
 			(priceNotation -> price -> cashPrice -> cashflowAmount -> currency exists
 			and product -> contractualProduct -> economicTerms -> payout -> cashflow -> payoutQuantity -> assetIdentifier -> currency = priceNotation -> price -> cashPrice -> cashflowAmount -> currency)
-
+*/
 	condition SecurityQuantityResolvable:
 		if product -> security exists
 		then quantityNotation -> assetIdentifier -> productIdentifier exists
 			and quantityNotation -> assetIdentifier -> productIdentifier contains product -> security -> productIdentifier
 
+	// Maybe remove all 4 of these ird-25 rules because 1) 0 is an out of date test level, it should be a test of exists 2) the new price structure enforces the population of amount
 	condition FpML_ird_25_FixedRate: <"FpML validation rule ird-25 - If step does not exist, then rate must not be equal to 0.">
-		if priceNotation -> price -> fixedInterestRate -> rate exists and product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate -> rateSchedule -> step is absent
-		then priceNotation -> price -> fixedInterestRate -> rate <> 0.0
+		//if priceNotation -> price -> fixedInterestRate -> rate exists and product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate -> rateSchedule -> step is absent
+		if priceNotation -> price ->priceType = PriceTypeEnum -> InterestRate 
+		and product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate exists
+		and product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate -> rateSchedule -> step is absent
+		//then priceNotation -> price -> fixedInterestRate -> rate <> 0.0
+		then priceNotation -> price -> amount <> 0.0
 
 	condition FpML_ird_25_FloatingRateSpread: <"FpML validation rule ird-25 - If step does not exist, then spread must not be equal to 0.">
-		if priceNotation -> price -> floatingInterestRate -> spread exists and product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule -> step is absent
-		then priceNotation -> price -> floatingInterestRate -> spread <> 0.0
+		//if priceNotation -> price -> floatingInterestRate -> spread exists and product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule -> step is absent
+		if priceNotation -> price ->priceType = PriceTypeEnum -> InterestRate 
+		and product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate exists
+		and product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule -> step is absent
+		then priceNotation -> price -> amount <> 0.0
+		
 
 	condition FpML_ird_25_FloatingRateCapRate: <"FpML validation rule ird-25 - If step does not exist, then capRate must not be equal to 0.">
-		if priceNotation -> price -> floatingInterestRate -> capRate exists and product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> capRateSchedule -> step is absent
-		then priceNotation -> price -> floatingInterestRate -> capRate <> 0.0
+		//if priceNotation -> price -> floatingInterestRate -> capRate exists and product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> capRateSchedule -> step is absent
+		if priceNotation -> price ->priceType = PriceTypeEnum -> CapRate 
+		and product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> capRateSchedule -> step is absent
+		//then priceNotation -> price -> floatingInterestRate -> capRate <> 0.0
+		then priceNotation -> price -> amount <> 0.0
 
 	condition FpML_ird_25_FloatingRateFloorRate: <"FpML validation rule ird-25 - If step does not exist, then floorRate must not be equal to 0.">
-		if priceNotation -> price -> floatingInterestRate -> floorRate exists and product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> floorRateSchedule -> step is absent
-		then priceNotation -> price -> floatingInterestRate -> floorRate <> 0.0
+		//if priceNotation -> price -> floatingInterestRate -> floorRate exists and product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> floorRateSchedule -> step is absent
+		if priceNotation -> price ->priceType = PriceTypeEnum -> FloorRate 
+		and product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> floorRateSchedule -> step is absent
+		//then priceNotation -> price -> floatingInterestRate -> floorRate <> 0.0
+		then priceNotation -> price -> amount <> 0.0
 
 
 type ProductIdentification: <"Combines the CDM product qualifier with other product types and identifiers. While the CDM product qualifier is derived by the CDM from the product payout features, the other product type and identification elements are assigned by external sources and correspond to values specified by other data representation protocols.">
@@ -859,3 +876,22 @@ type Portfolio: <" A Portfolio represents an aggregation of multiple Positions, 
 	portfolioState PortfolioState (1..1) <"Describes the state of the Portfolio as a list of Positions resulting from the aggregation.">
 
 // TO ADD: PortfolioState calculation based on EventEffect
+
+type UnitType: <"Defines the unit to be used for price, quantity, or other purposes">
+	capacityUnit CapacityUnitEnum (0..1) <"Provides an enumerated value for a capacity unit, generally used in the context of defining quantities for commodities.">
+	weatherUnit WeatherUnitEnum (0..1) <"Provides an enumerated values for a weather unit, generally used in the context of defining quantities for commodities.">
+	financialUnit FinancialUnitEnum (0..1) <"Provides an enumerated value for financial units, generally used in the context of defining quantities for securities.">
+	currency string (0..1) <"Defines the currency to be used as a unit for a price, quantity, or other purpose.">
+	frequency Frequency (0..1) <"Defines the frequency to be used as a unit for a price, quantity, or other purpose.">
+
+	condition:one-of
+
+type Price extends MeasureBase: <"Specifies a price to be used for trade amounts and other purposes.">
+	[metadata key]
+	priceType PriceTypeEnum (1..1) <"Provides a value for a type of price in order to explain how to interpret the amount and use it in calculations.">
+	perUnitofAmount UnitType (0..1) <"Provides an optional attribute to define the unit being priced.  For example, {amount, unitOfAmount, PerUnitOfAmount} = [10, EUR, Shares] = (10.00 EUR/SHARE) * (300,000 SHARES) = EUR 3,000,000.00 (Shares cancel out in the calculation).">
+/*reviewer proposed perUnit in place of perUnitOfAmount*/
+
+
+
+
