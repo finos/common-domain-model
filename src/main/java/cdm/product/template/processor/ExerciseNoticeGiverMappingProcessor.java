@@ -16,9 +16,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static cdm.product.template.ExerciseNotice.ExerciseNoticeBuilder;
-import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.*;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
-import static com.regnosys.rosetta.common.util.PathUtils.toRosettaPath;
 
 /**
  * FpML mapping processor.
@@ -69,6 +67,8 @@ public class ExerciseNoticeGiverMappingProcessor extends MappingProcessor {
 
 	private String getNonNullMappedValue(String... cdmPathEndsWith) {
 		String cdmPath = getModelPath().buildPath();
+		// If there are multiple contracts (e.g. in an event) then ensure the option buyer / seller is in the same
+		// tradable product as the exercise notice
 		Path tradableProductPath = PathUtils.toPath(RosettaPath.valueOf(cdmPath.substring(0, cdmPath.indexOf(".product."))));
 		return MappingProcessorUtils.getNonNullMappedValue(
 				getMappings().stream()
