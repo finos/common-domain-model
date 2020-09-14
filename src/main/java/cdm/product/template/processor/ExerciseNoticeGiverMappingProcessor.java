@@ -1,10 +1,7 @@
 package cdm.product.template.processor;
 
 import cdm.product.template.ExerciseNoticeGiverEnum;
-import com.regnosys.rosetta.common.translation.MappingContext;
-import com.regnosys.rosetta.common.translation.MappingProcessor;
-import com.regnosys.rosetta.common.translation.MappingProcessorUtils;
-import com.regnosys.rosetta.common.translation.Path;
+import com.regnosys.rosetta.common.translation.*;
 import com.regnosys.rosetta.common.util.PathUtils;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
@@ -13,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static cdm.product.template.ExerciseNotice.ExerciseNoticeBuilder;
@@ -26,8 +24,10 @@ public class ExerciseNoticeGiverMappingProcessor extends MappingProcessor {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ExerciseNoticeGiverMappingProcessor.class);
 
-	private static final String[] OPTION_BUYER_PATH = { "optionPayout", "buyerSeller", "buyer" };
-	private static final String[] OPTION_SELLER_PATH = { "optionPayout", "buyerSeller", "seller" };
+	private static final String[] OPTION_PAYOUT_BUYER_CDM_PATH = { "optionPayout", "buyerSeller", "buyer" };
+	private static final String[] OPTION_PAYOUT_SELLER_CDM_PATH = { "optionPayout", "buyerSeller", "seller" };
+	private static final String[] OPTIONAL_EARLY_TERMINATION_BUYER_XML_PATH = { "optionalEarlyTermination", "singlePartyOption", "buyerPartyReference" };
+	private static final String[] OPTIONAL_EARLY_TERMINATION_SELLER_XML_PATH = { "optionalEarlyTermination", "singlePartyOption", "sellerPartyReference" };
 
 	public ExerciseNoticeGiverMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
 		super(modelPath, synonymPaths, context);
@@ -56,25 +56,37 @@ public class ExerciseNoticeGiverMappingProcessor extends MappingProcessor {
 	}
 
 	private Optional<ExerciseNoticeGiverEnum> getExerciseNoticeGiverEnum(String noticeGiver) {
-		if (noticeGiver.equals(getNonNullMappedValue(OPTION_BUYER_PATH))) {
-			return Optional.of(ExerciseNoticeGiverEnum.BUYER);
-		} else if (noticeGiver.equals(getNonNullMappedValue(OPTION_SELLER_PATH))) {
-			return Optional.of(ExerciseNoticeGiverEnum.SELLER);
+		List<Mapping> tradableProductMappings = filterMappingsToTradableProduct();
+		String buyerParty, sellerParty;
+		if (getModelPath().containsPath(RosettaPath.valueOf("earlyTerminationProvision.optionalEarlyTermination"))) {
+			buyerParty = getXmlValue(tradableProductMappings, m -> m.getXmlPath().endsWith(OPTIONAL_EARLY_TERMINATION_BUYER_XML_PATH));
+			sellerParty = getXmlValue(tradableProductMappings, m -> m.getXmlPath().endsWith(OPTIONAL_EARLY_TERMINATION_SELLER_XML_PATH));
 		} else {
-			return Optional.empty();
+			buyerParty = getXmlValue(tradableProductMappings, m -> m.getRosettaPath().endsWith(OPTION_PAYOUT_BUYER_CDM_PATH));
+			sellerParty = getXmlValue(tradableProductMappings, m -> m.getRosettaPath().endsWith(OPTION_PAYOUT_SELLER_CDM_PATH));
 		}
+		return noticeGiver.equals(buyerParty) ? Optional.of(ExerciseNoticeGiverEnum.BUYER)
+				: noticeGiver.equals(sellerParty) ? Optional.of(ExerciseNoticeGiverEnum.SELLER)
+				: Optional.empty();
 	}
 
-	private String getNonNullMappedValue(String... cdmPathEndsWith) {
+	/**
+	 * If there are multiple contracts (e.g. in an event) then ensure the buyer / seller is in the same
+	 * tradable product as the exercise notice.
+	 */
+	private List<Mapping> filterMappingsToTradableProduct() {
 		String cdmPath = getModelPath().buildPath();
-		// If there are multiple contracts (e.g. in an event) then ensure the option buyer / seller is in the same
-		// tradable product as the exercise notice
 		Path tradableProductPath = PathUtils.toPath(RosettaPath.valueOf(cdmPath.substring(0, cdmPath.indexOf(".product."))));
+		return getMappings().stream()
+				.filter(m -> m.getRosettaPath() != null && m.getRosettaValue() != null)
+				.filter(m -> tradableProductPath.fullStartMatches(m.getRosettaPath()))
+				.collect(Collectors.toList());
+	}
+
+	private String getXmlValue(List<Mapping> tradableProductMappings, Function<Mapping, Boolean> mappingFilter) {
 		return MappingProcessorUtils.getNonNullMappedValue(
-				getMappings().stream()
-						.filter(m -> m.getRosettaPath() != null && m.getRosettaValue() != null)
-						.filter(m -> tradableProductPath.fullStartMatches(m.getRosettaPath()))
-						.filter(m -> m.getRosettaPath().endsWith(cdmPathEndsWith))
+				tradableProductMappings.stream()
+						.filter(mappingFilter::apply)
 						.collect(Collectors.toList()))
 				.orElse(null);
 	}
