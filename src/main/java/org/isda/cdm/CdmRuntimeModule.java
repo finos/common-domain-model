@@ -1,27 +1,8 @@
 package org.isda.cdm;
 
-import org.isda.cdm.functions.AbsImpl;
-import org.isda.cdm.functions.CalculationPeriodImpl;
-import org.isda.cdm.functions.CurrencyAmountImpl;
-import org.isda.cdm.functions.FpmlIrd8Impl;
-import org.isda.cdm.functions.ListsCompareImpl;
-import org.isda.cdm.functions.NoOfUnitsImpl;
-import org.isda.cdm.functions.ResolveContractualProductImpl;
-import org.isda.cdm.functions.ResolveEquityInitialPriceImpl;
-import org.isda.cdm.functions.ResolvePayoutQuantityImpl;
-import org.isda.cdm.functions.SumImpl;
-import org.isda.cdm.functions.SumPostedCreditSupportItemAmountsImpl;
-
-import com.google.inject.AbstractModule;
-import com.regnosys.rosetta.common.validation.RosettaTypeValidator;
-import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
-import com.rosetta.model.lib.validation.ModelObjectValidator;
-
-import cdm.base.math.functions.Abs;
-import cdm.base.math.functions.ListsCompare;
-import cdm.base.math.functions.RoundToNearest;
-import cdm.base.math.functions.RoundToNearestImpl;
-import cdm.base.math.functions.Sum;
+import cdm.base.math.functions.*;
+import cdm.base.staticdata.party.functions.ExtractCounterpartyBySide;
+import cdm.base.staticdata.party.functions.ExtractCounterpartyBySideImpl;
 import cdm.legalagreement.csa.functions.SumPostedCreditSupportItemAmounts;
 import cdm.observable.common.functions.CurrencyAmount;
 import cdm.observable.common.functions.NoOfUnits;
@@ -30,6 +11,11 @@ import cdm.product.common.functions.ResolveContractualProduct;
 import cdm.product.common.functions.ResolvePayoutQuantity;
 import cdm.product.common.schedule.functions.CalculationPeriod;
 import cdm.product.template.functions.FpmlIrd8;
+import com.google.inject.AbstractModule;
+import com.regnosys.rosetta.common.validation.RosettaTypeValidator;
+import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
+import com.rosetta.model.lib.validation.ModelObjectValidator;
+import org.isda.cdm.functions.*;
 
 public class CdmRuntimeModule extends AbstractModule {
 
@@ -52,6 +38,7 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(SumPostedCreditSupportItemAmounts.class).to(bindSumPostedCreditSupportItemAmounts());
 		bind(RoundToNearest.class).to(bindRoundToNearest());
 		bind(FpmlIrd8.class).to(bindFpmlIrd8());
+		bind(ExtractCounterpartyBySide.class).to(bindExtractCounterpartyBySide());
 	}
 
 	protected Class<? extends ListsCompare> bindListsCompare() {
@@ -110,5 +97,9 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends FpmlIrd8> bindFpmlIrd8() {
 		return FpmlIrd8Impl.class;
+	}
+
+	protected Class<? extends ExtractCounterpartyBySide> bindExtractCounterpartyBySide() {
+		return ExtractCounterpartyBySideImpl.class;
 	}
 }
