@@ -1,6 +1,5 @@
 package org.isda.cdm.processor;
 
-import static org.isda.cdm.CalculationDateLocationElection.builder;
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.ISDA_CREATE_SYNONYM_SOURCE;
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.PARTIES;
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.getEnumValue;

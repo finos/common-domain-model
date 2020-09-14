@@ -11,9 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.isda.cdm.TerminationCurrencyAmendment;
-import org.isda.cdm.TerminationCurrencyElection;
-
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
@@ -21,6 +18,8 @@ import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 
 import cdm.base.staticdata.asset.common.ISOCurrencyCodeEnum;
+import cdm.legalagreement.csa.TerminationCurrencyAmendment;
+import cdm.legalagreement.csa.TerminationCurrencyElection;
 
 /**
  * ISDA Create mapping processor.

@@ -6,14 +6,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.isda.cdm.SecurityProviderRightsEvent;
-import org.isda.cdm.SecurityProviderRightsEventElection;
-
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
+
+import cdm.legalagreement.csa.SecurityProviderRightsEvent;
+import cdm.legalagreement.csa.SecurityProviderRightsEventElection;
 
 public class SecurityProviderRightsEventMappingProcessor extends MappingProcessor {
 

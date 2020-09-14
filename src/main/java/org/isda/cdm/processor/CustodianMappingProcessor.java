@@ -6,9 +6,6 @@ import static org.isda.cdm.processor.CdmMappingProcessorUtils.toFieldWithMetaStr
 import java.util.List;
 import java.util.Optional;
 
-import org.isda.cdm.Custodian;
-import org.isda.cdm.CustodianElection;
-
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
@@ -17,6 +14,8 @@ import com.rosetta.model.lib.path.RosettaPath;
 
 import cdm.base.staticdata.party.Account;
 import cdm.base.staticdata.party.LegalEntity;
+import cdm.legalagreement.csa.Custodian;
+import cdm.legalagreement.csa.CustodianElection;
 
 /**
  * ISDA Create mapping processor.
