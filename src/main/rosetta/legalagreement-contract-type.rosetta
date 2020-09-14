@@ -19,7 +19,8 @@ type Contract: <" A class to specify a financial contract object, which can be i
 	[rootType]
 
 	contractIdentifier Identifier (1..*) <"The identifier(s) that uniquely identify a contract, and which can be qualified by referencing or defining the issuer(s) of such identifier(s). There can be several contract identifier, an example of such being a contract is reportable to both the CFTC and ESMA and then has an associated USI (Unique Swap Identifier) UTI (Unique Trade Identifier).">
-	tradeDate TradeDate (1..1) <"The date on which the contract has been executed.">
+	tradeDate date (1..1) <"The date on which the contract has been executed.">
+		[metadata id]
 	clearedDate date (0..1) <"If the trade was cleared (novated) through a central counterparty clearing service, this represents the date the trade was cleared (transferred to the central counterparty).">
 	tradableProduct TradableProduct (1..1) <"The tradable product information that is associated with the contract, which combines quantity and price together with the product's economic terms, identification and taxonomy. The corresponding FpML construct is the product abstract element and the associated substitution group.">
 	collateral Collateral (0..1) <"Defines the collateral obligations of a party.">
@@ -140,21 +141,21 @@ type Contract: <" A class to specify a financial contract object, which can be i
 
 	condition ClearedDate: <"If the cleared date exists, it needs to be on or after the trade date.">
 		if clearedDate exists
-		then clearedDate >= tradeDate -> date
+		then clearedDate >= tradeDate
 
 	condition ContractualProductExists:
 		tradableProduct -> product -> contractualProduct only exists
 
 	condition FpML_cd_1: <"FpML validation rule cd-1 - If referenceInformation exists, tradeDate must be before effectiveDate/unadjustedDate.">
 		if tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
-		then tradeDate -> date < tradableProduct -> product -> contractualProduct -> economicTerms -> effectiveDate -> adjustableDate -> unadjustedDate
-			or tradeDate -> date < tradableProduct -> product -> contractualProduct -> economicTerms -> effectiveDate -> adjustableDate -> adjustedDate
+		then tradeDate < tradableProduct -> product -> contractualProduct -> economicTerms -> effectiveDate -> adjustableDate -> unadjustedDate
+			or tradeDate < tradableProduct -> product -> contractualProduct -> economicTerms -> effectiveDate -> adjustableDate -> adjustedDate
 
 	condition FpML_cd_7: <"FpML validation rule cd-7 - If condition LongForm is true, then effectiveDate/dateAdjustments exists.">
 		if ( documentation -> documentationIdentification -> masterConfirmation and documentation -> documentationIdentification -> contractualMatrix ) is absent
 			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
 		then tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> dateAdjustments exists
-			or tradeDate -> date < tradableProduct -> product -> contractualProduct -> economicTerms -> effectiveDate -> adjustableDate -> adjustedDate
+			or tradeDate  < tradableProduct -> product -> contractualProduct -> economicTerms -> effectiveDate -> adjustableDate -> adjustedDate
 
 	condition FpML_cd_8: <"FpML validation rule cd-8 - If condition LongForm is true, and if scheduledTerminationDate exists then scheduledTerminationDate/dateAdjustments exists.">
 		if ( documentation -> documentationIdentification -> masterConfirmation and documentation -> documentationIdentification -> contractualMatrix ) is absent
