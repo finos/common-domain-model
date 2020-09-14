@@ -8,9 +8,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.isda.cdm.AgreementTerms;
-import org.isda.cdm.LegalAgreement;
-import org.isda.cdm.RelatedAgreement;
 import org.jetbrains.annotations.NotNull;
 
 import com.regnosys.rosetta.common.translation.MappingContext;
@@ -20,8 +17,11 @@ import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 import com.rosetta.model.lib.records.DateImpl;
 
+import cdm.legalagreement.common.AgreementTerms;
+import cdm.legalagreement.common.LegalAgreement;
 import cdm.legalagreement.common.LegalAgreementNameEnum;
 import cdm.legalagreement.common.LegalAgreementPublisherEnum;
+import cdm.legalagreement.common.RelatedAgreement;
 
 public class RelatedAgreementMappingProcessor extends MappingProcessor {
 

@@ -4,6 +4,7 @@ import static org.isda.cdm.processor.CdmMappingProcessorUtils.ISDA_CREATE_SYNONY
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.PARTIES;
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.getEnumValue;
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.synonymToEnumValueMap;
+import static cdm.legalagreement.csa.CalculationDateLocationElection.builder;
 
 import java.util.List;
 import java.util.Map;

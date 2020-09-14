@@ -4,7 +4,7 @@ import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.filt
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getNonNullMappedValue;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.updateMappingSuccess;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.updateMappings;
-import static org.isda.cdm.AdditionalRegime.builder;
+import static cdm.legalagreement.csa.AdditionalRegime.builder;
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.ISDA_CREATE_SYNONYM_SOURCE;
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.PARTIES;
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.getEnumValue;

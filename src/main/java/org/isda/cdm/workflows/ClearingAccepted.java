@@ -7,12 +7,14 @@ import java.util.function.Function;
 
 import org.isda.cdm.Workflow;
 import org.isda.cdm.WorkflowStep;
+import org.isda.cdm.functions.Create_ClearedTrade;
 import org.isda.cdm.functions.example.services.identification.IdentifierService;
 
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.process.PostProcessor;
 import com.rosetta.model.lib.records.Date;
+import com.rosetta.model.metafields.FieldWithMetaDate;
 
 import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.party.CounterpartyEnum;
@@ -49,7 +51,7 @@ public class ClearingAccepted implements Function<Contract, Workflow> {
 				.flatMap(ids -> ids.stream().findFirst())
 				.orElse(null);
 		Date tradeDate = Optional.ofNullable(alphaContract.getTradeDate())
-				.map(TradeDate::getDate)
+				.map(FieldWithMetaDate::getValue)
 				.orElse(null);
 
 		WorkflowStep clearStep = ClearingUtils.buildClear(runner, externalReference, proposeStep, proposeStep.getProposedInstruction().getClearing(),
