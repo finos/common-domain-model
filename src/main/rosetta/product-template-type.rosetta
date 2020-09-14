@@ -660,15 +660,16 @@ type ExerciseFeeSchedule extends PayerReceiver: <"A class to define a fee or sch
 	feeAmountSchedule AmountSchedule (0..1) <"The exercise fee amount schedule. The fees are expressed as currency amounts. The currency of the fee is assumed to be that of the notional schedule referenced.">
 	feeRateSchedule Schedule (0..1) <"The exercise free rate schedule. The fees are expressed as percentage rates of the notional being exercised. The currency of the fee is assumed to be that of the notional schedule referenced.">
 	feePaymentDate RelativeDateOffset (1..1) <"The date on which exercise fee(s) will be paid. It is specified as a relative date.">
+	
 	condition Choice: <"Choice rule to represent an FpML choice construct.">
 		required choice feeAmountSchedule, feeRateSchedule
 
-type ExerciseNotice: <"A class defining to whom and where notice of execution should be given. The partyReference refers to one of the principal parties of the trade. If present the exerciseNoticePartyReference refers to a party, other than the principal party, to whom notice should be given.">
+type ExerciseNotice: <"Defines to whom and where notice of execution should be given. The exerciseNoticeGiver refers to one or both of the principal parties of the trade. If present the exerciseNoticeReceiver refers to a party, other than the principal party, to whom notice should be given.">
 
-	optionBuyer CounterpartyEnum (1..1) <"The party referenced has allocated the trade identifier.">
-	exerciseNoticePartyReference Party (0..1) <"The party referenced is the party to which notice of exercise should be given by the buyer.">
+	exerciseNoticeGiver ExerciseNoticeGiverEnum (1..1) <"Specifies the principal party of the trade that has the right to exercise.">
+	exerciseNoticeReceiver Party (0..1) <"Specifies the party to which notice of exercise should be given, e.g. by the buyer of the option. Although in many cases it is the buyer of the option who sends the exercise notice to the seller of the option, this component is reused, e.g. in case of OptionEarlyTermination, either or both parties have the right to exercise.">
 		[metadata reference]
-	businessCenter BusinessCenterEnum (1..1) <"The business center.">
+	businessCenter BusinessCenterEnum (1..1) <"Specifies the location where the exercise must be reported, e.g. where the exercise notice receiver is based.">
 		[metadata scheme]
 
 type ExerciseProcedure: <"A class describing how notice of exercise should be given. This can be either manual or automatic.">

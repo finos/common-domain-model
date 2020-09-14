@@ -1,13 +1,13 @@
-# *Model Optimisation: Extract Party References from Product*
+# *Model Optimisation: Exercise Notice*
 
 _What is being released_
 
-This change is part of the ongoing model refactoring to externalise the definition of the parties involved in a transaction from the definition of the transacted product.
+The `ExerciseNotice` data structure is insufficient to address all use cases, for example when both parties have the right to exercise.​
 
-Update function `Create_ClearedTrade` to correctly assign the counterparties on the resulting beta and gamma trades.
+To address all use cases, `ExerciseNoticeGiverEnum` has been introduced with values `Buyer`, `Seller`, `Both` and `AsSpecifiedInMasterAgreement`.
+
+In addition, for greater clarity the `ExerciseNotice` attributes have been renamed to `exerciseNoticeGiver` and `exerciseNoticeReceiver`  and the descriptions have been updated.
 
 _Review Directions_
 
-In the CDM Portal, use the Textual Browser to review the function `Create_ClearedTrade`, and use the Instance Viewer to review the Clearing Accepted and Clearing Rejected examples.
-
-In Rosetta Core, review the function `Create_ClearedTrade` in file `model-cdm-functions`, and on the Visualisation panel review the Clearing Accepted and Clearing Rejected examples.
+In the CDM Portal, use the Textual Browser to review `ExerciseNotice` and `ExerciseNoticeGiverEnum`.
