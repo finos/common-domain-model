@@ -8,6 +8,9 @@ import com.rosetta.model.lib.path.RosettaPath;
 
 import java.util.List;
 
+/**
+ * FpML mapping processor.
+ */
 @SuppressWarnings("unused")
 public class PredeterminedClearingOrganizationPartyMappingProcessor extends CounterpartyOrRelatedPartyMappingProcessor {
 

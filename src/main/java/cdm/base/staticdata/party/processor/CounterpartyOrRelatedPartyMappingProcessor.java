@@ -11,7 +11,10 @@ import org.isda.cdm.processor.PartyMappingHelper;
 
 import java.util.List;
 
-public class CounterpartyOrRelatedPartyMappingProcessor extends MappingProcessor {
+/**
+ * FpML mapping processor.
+ */
+public abstract class CounterpartyOrRelatedPartyMappingProcessor extends MappingProcessor {
 
 	private final RelatedPartyRoleEnum relatedPartyEnum;
 
