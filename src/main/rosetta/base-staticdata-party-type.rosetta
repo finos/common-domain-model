@@ -10,6 +10,13 @@ type Counterparty: <"This class specifies which counterparty enum is associated 
 	party Party (1..1) <"Reference to the party associated to this counterparty.">
 		[metadata reference]
 
+type CounterpartyOrRelatedParty:
+
+	counterparty CounterpartyEnum (0..1)
+	relatedParty RelatedPartyRoleEnum (0..1)
+	
+	condition: one-of
+
 type BuyerSeller: <"This class corresponds to the FpML BuyerSeller.model construct.">
 
 	buyer CounterpartyEnum (0..1) <"Buyer party that can be resolved as one of the two counterparties to the transaction, populated when within the Product. The party that buys this instrument, i.e. pays for this instrument and receives the rights defined by it. ISDA 2002 Equity Definitions section 1.18: `Buyer` means the party specified as such in the related Confirmation. | ISDA 2006 Definitions article 12.1 (b)(i) relating to a Swaption: 'Buyer' means the party that will, on each Premium Payment Date, pay to Seller the Premium | ISDA 2006 Definitions article 12.1 (b)(ii) relating to Swap Transactions with applicable Early Termination: the party specified as such in the related Confirmation, or the Exercising Party if neither party is specified | ISDA 2006 Definitions article 12.1 (b)(iii) relating to any other Option Transaction: the party specified as such in the related Confirmation. | ISDA 2014 Credit Definition article 1.4: `Buyer` means the Fixed Rate Payer.">
@@ -58,6 +65,13 @@ type PayerReceiver: <"A class to represent the FpML PayerReceiver.model.">
 
 	condition PayerAndReceiverExists:
 		if payer exists then receiver exists and if receiver exists then payer exists
+
+type RelatedPartyReference:
+
+	relatedPartyRole RelatedPartyRoleEnum (1..1)
+	partyReference Party (1..*)
+		[metadata reference]
+	onBehalfOfCounterparty CounterpartyEnum (0..1)
 
 type ReferenceBank: <"A class to describe an institution (party) identified by means of a coding scheme and an optional name.">
 
