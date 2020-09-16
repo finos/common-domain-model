@@ -2,7 +2,7 @@
 
 _What is being released_
 
-This refactor is the fourth incremental change that will further transform the org.isda.cdm file into a hierarchical namespace tree.
+This refactor is the fourth incremental change that will further transform the org.isda.cdm file into a hierarchical namespace.
 
 This fourth refactor includes the changes for the __cdm.legalagreement.*__ set of namespaces.
 
@@ -16,4 +16,4 @@ The namespaces contain components used across the CDM for
 _Review Direction_
 
 In Rosetta Core (https://ui.rosetta-technology.io/), review the File or Namespace structure in the Editor Textual View. In the CDM Portal, 
-navigate to the Downloads tile, then download artefacts in Java, DAML, Typescript or Scala distribution format and review the source to see the new cdm.legalagreement.* files.
+navigate to the Downloads tile, then download artefacts in Java, DAML, Typescript or Scala distribution format and review the reorganised source folder with new cdm.legalagreement.* files.
