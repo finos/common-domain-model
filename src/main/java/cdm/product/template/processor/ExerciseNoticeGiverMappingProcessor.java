@@ -26,8 +26,6 @@ public class ExerciseNoticeGiverMappingProcessor extends MappingProcessor {
 
 	private static final String[] OPTION_PAYOUT_BUYER_CDM_PATH = { "optionPayout", "buyerSeller", "buyer" };
 	private static final String[] OPTION_PAYOUT_SELLER_CDM_PATH = { "optionPayout", "buyerSeller", "seller" };
-	private static final String[] OPTIONAL_EARLY_TERMINATION_BUYER_XML_PATH = { "optionalEarlyTermination", "singlePartyOption", "buyerPartyReference" };
-	private static final String[] OPTIONAL_EARLY_TERMINATION_SELLER_XML_PATH = { "optionalEarlyTermination", "singlePartyOption", "sellerPartyReference" };
 
 	public ExerciseNoticeGiverMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
 		super(modelPath, synonymPaths, context);
@@ -57,17 +55,14 @@ public class ExerciseNoticeGiverMappingProcessor extends MappingProcessor {
 
 	private Optional<ExerciseNoticeGiverEnum> getExerciseNoticeGiverEnum(String noticeGiver) {
 		List<Mapping> tradableProductMappings = filterMappingsToTradableProduct();
-		String buyerParty, sellerParty;
-		if (getModelPath().containsPath(RosettaPath.valueOf("earlyTerminationProvision.optionalEarlyTermination"))) {
-			buyerParty = getXmlValue(tradableProductMappings, m -> m.getXmlPath().endsWith(OPTIONAL_EARLY_TERMINATION_BUYER_XML_PATH));
-			sellerParty = getXmlValue(tradableProductMappings, m -> m.getXmlPath().endsWith(OPTIONAL_EARLY_TERMINATION_SELLER_XML_PATH));
-		} else {
-			buyerParty = getXmlValue(tradableProductMappings, m -> m.getRosettaPath().endsWith(OPTION_PAYOUT_BUYER_CDM_PATH));
-			sellerParty = getXmlValue(tradableProductMappings, m -> m.getRosettaPath().endsWith(OPTION_PAYOUT_SELLER_CDM_PATH));
+		if (getModelPath().containsPath(RosettaPath.valueOf("exerciseProcedure.manualExercise"))) {
+			String buyerParty = getXmlValue(tradableProductMappings, m -> m.getRosettaPath().endsWith(OPTION_PAYOUT_BUYER_CDM_PATH));
+			String sellerParty = getXmlValue(tradableProductMappings, m -> m.getRosettaPath().endsWith(OPTION_PAYOUT_SELLER_CDM_PATH));
+			return noticeGiver.equals(buyerParty) ? Optional.of(ExerciseNoticeGiverEnum.BUYER)
+					: noticeGiver.equals(sellerParty) ? Optional.of(ExerciseNoticeGiverEnum.SELLER)
+					: Optional.empty();
 		}
-		return noticeGiver.equals(buyerParty) ? Optional.of(ExerciseNoticeGiverEnum.BUYER)
-				: noticeGiver.equals(sellerParty) ? Optional.of(ExerciseNoticeGiverEnum.SELLER)
-				: Optional.empty();
+		return Optional.empty();
 	}
 
 	/**

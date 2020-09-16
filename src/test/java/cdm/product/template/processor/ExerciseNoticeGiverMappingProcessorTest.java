@@ -80,7 +80,7 @@ class ExerciseNoticeGiverMappingProcessorTest {
 		assertEquals("p3", updatedMapping.getXmlValue());
 		assertNull(updatedMapping.getRosettaPath());
 		assertEquals("no destination", updatedMapping.getError());
-		assertFalse(updatedMapping.isCondition());
+		assertTrue(updatedMapping.isCondition());
 	}
 
 	@NotNull

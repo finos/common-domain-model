@@ -362,6 +362,10 @@ type CancelableProvision extends BuyerSeller: <"A data defining:  the right of a
 
 	condition ExerciseChoice: <"condition to represent an FpML substitution group construct.">
 		required choice americanExercise, bermudaExercise, europeanExercise
+	
+	condition CancelableProvisionExerciseNoticeReceiverParty:
+		if exerciseNotice -> exerciseNoticeReceiver exists
+		then exerciseNotice -> exerciseNoticeReceiver = RelatedPartyRoleEnum -> CancelableProvisionExerciseNoticeReceiverParty
 
 type CancelableProvisionAdjustedDates: <"A data to:  define the adjusted dates for a cancelable provision on a swap transaction.">
 
@@ -417,7 +421,6 @@ type ExercisePeriod: <"This defines the time interval to the start of the exerci
 type ExtendibleProvision extends BuyerSeller: <"A data defining:  an option to extend an existing swap transaction on the specified exercise dates for a term ending on the specified new termination date. As a difference from FpML, it extends the BuyerSeller class, which represents the BuyerSeller.model.">
 
 	americanExercise AmericanExercise (0..1) <"American exercise. FpML implementations consists in an exercise substitution group.">
-
 	bermudaExercise BermudaExercise (0..1) <"Bermuda exercise. FpML implementations consists in an exercise substitution group.">
 	europeanExercise EuropeanExercise (0..1) <"European exercise. FpML implementations consists in an exercise substitution group.">
 	exerciseNotice ExerciseNotice (0..1) <"Definition of the party to whom notice of exercise should be given.">
@@ -427,6 +430,10 @@ type ExtendibleProvision extends BuyerSeller: <"A data defining:  an option to e
 
 	condition ExerciseChoice: <"condition to represent an FpML choice construct.">
 		required choice americanExercise, bermudaExercise, europeanExercise
+	
+	condition ExtendibleProvisionExerciseNoticeReceiverParty:
+		if exerciseNotice -> exerciseNoticeReceiver exists
+		then exerciseNotice -> exerciseNoticeReceiver = RelatedPartyRoleEnum -> ExtendibleProvisionExerciseNoticeReceiverParty
 
 type ExtendibleProvisionAdjustedDates: <"A data defining:  the adjusted dates associated with a provision to extend a swap.">
 
@@ -479,6 +486,10 @@ type OptionalEarlyTermination: <"A data defining:  an early termination provisio
 
 	condition ExerciseChoice: <"condition to represent an FpML choice construct.">
 		required choice americanExercise, bermudaExercise, europeanExercise
+
+	condition OptionalEarlyTerminationExerciseNoticeReceiverParty:
+		if exerciseNotice -> exerciseNoticeReceiver exists
+		then exerciseNotice -> exerciseNoticeReceiver = RelatedPartyRoleEnum -> OptionalEarlyTerminationExerciseNoticeReceiverParty
 
 type OptionalEarlyTerminationAdjustedDates: <"A data defining:  the adjusted dates associated with an optional early termination provision.">
 
@@ -668,8 +679,7 @@ type ExerciseFeeSchedule extends PayerReceiver: <"A class to define a fee or sch
 type ExerciseNotice: <"Defines to whom and where notice of execution should be given. The exerciseNoticeGiver refers to one or both of the principal parties of the trade. If present the exerciseNoticeReceiver refers to a party, other than the principal party, to whom notice should be given.">
 
 	exerciseNoticeGiver ExerciseNoticeGiverEnum (1..1) <"Specifies the principal party of the trade that has the right to exercise.">
-	exerciseNoticeReceiver Party (0..1) <"Specifies the party to which notice of exercise should be given, e.g. by the buyer of the option. Although in many cases it is the buyer of the option who sends the exercise notice to the seller of the option, this component is reused, e.g. in case of OptionEarlyTermination, either or both parties have the right to exercise.">
-		[metadata reference]
+	exerciseNoticeReceiver RelatedPartyRoleEnum (0..1) <"Specifies the party to which notice of exercise should be given, e.g. by the buyer of the option. Although in many cases it is the buyer of the option who sends the exercise notice to the seller of the option, this component is reused, e.g. in case of OptionEarlyTermination, either or both parties have the right to exercise.">
 	businessCenter BusinessCenterEnum (1..1) <"Specifies the location where the exercise must be reported, e.g. where the exercise notice receiver is based.">
 		[metadata scheme]
 
@@ -688,6 +698,11 @@ type ManualExercise: <"A class defining manual exercise, i.e. that the option bu
 
 	exerciseNotice ExerciseNotice (0..1) <"Definition of the party to whom notice of exercise should be given.">
 	fallbackExercise boolean (0..1) <"If fallback exercise is specified then the notional amount of the underlying swap, not previously exercised under the swaption, will be automatically exercised at the expiration time on the expiration date if at such time the buyer is in-the-money, provided that the difference between the settlement rate and the fixed rate under the relevant underlying swap is not less than one tenth of a percentage point (0.10% or 0.001). The term in-the-money is assumed to have the meaning defined in the 2000 ISDA Definitions, Section 17.4. In-the-money.">
+
+	condition ManualExerciseNoticeReceiverParty:
+		if exerciseNotice -> exerciseNoticeReceiver exists
+		then exerciseNotice -> exerciseNoticeReceiver = RelatedPartyRoleEnum -> ManualExerciseNoticeReceiverParty
+	
 
 type MultipleExercise extends PartialExercise: <"A class defining multiple exercises. As defined in the 2000 ISDA Definitions, Section 12.4. Multiple Exercise, the buyer of the option has the right to exercise all or less than all the unexercised notional amount of the underlying swap on one or more days in the exercise period, but on any such day may not exercise less than the minimum notional amount or more than the maximum notional amount, and if an integral multiple amount is specified, the notional exercised must be equal to or, be an integral multiple of, the integral multiple amount. In FpML, MultipleExercise is built upon the PartialExercise.model.">
 

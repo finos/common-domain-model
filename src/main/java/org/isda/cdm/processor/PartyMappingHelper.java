@@ -5,7 +5,6 @@ import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.product.template.TradableProduct.TradableProductBuilder;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.MappingContext;
-import com.regnosys.rosetta.common.translation.MappingProcessorUtils;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
@@ -81,32 +80,38 @@ public class PartyMappingHelper {
 						if (!bothCounterpartiesCollected.isDone() && partyExternalReferenceToCounterpartyEnumMap.size() == 2) {
 							bothCounterpartiesCollected.complete(partyExternalReferenceToCounterpartyEnumMap);
 						}
-						// Return true to update synonym mapping stats
-						return updated;
+						// Return true to update synonym mapping stats to success
+						// Instead of hardcoding true, return the "updated" variable once deprecated attributes payerPartyReference / receiverPartyReference / buyerPartyReference / sellerPartyReference have been removed.
+						return true;
 					},
 					mappings,
 					modelPath);
 		}
 	}
 
-	/**
-	 * Waits until the partyExternalReference to CounterpartyEnum map is ready, then adds both Counterparty instances to TradableProductBuilder.
-	 */
 	void supplyTradableProductBuilder(TradableProductBuilder tradableProductBuilder) {
 		// complete future so any updates can happen
 		tradableProductBuilderSupplied.complete(tradableProductBuilder);
+	}
+
+	/**
+	 * Waits until the partyExternalReference to CounterpartyEnum map is ready, then adds both Counterparty instances to TradableProductBuilder.
+	 */
+	void addCounterparties() {
 		// when both counterparties have been collected, update tradableProduct.counterparties
-		bothCounterpartiesCollected
-				.thenAcceptAsync(map -> {
-					LOGGER.info("Setting TradableProduct.counterparties");
-					tradableProductBuilder.clearCounterparties()
-							.addCounterparties(map.entrySet().stream()
-									.map(extRefCounterpartyEntry -> Counterparty.builder()
-											.setCounterparty(extRefCounterpartyEntry.getValue())
-											.setPartyBuilder(ReferenceWithMetaParty.builder().setExternalReference(extRefCounterpartyEntry.getKey()))
-											.build())
-									.collect(Collectors.toList()));
-				}, executor);
+		tradableProductBuilderSupplied.thenAcceptAsync(tradableProductBuilder -> {
+			bothCounterpartiesCollected.thenAcceptAsync(map -> {
+						LOGGER.info("Setting TradableProduct.counterparties");
+						tradableProductBuilder.clearCounterparties()
+								.addCounterparties(map.entrySet().stream()
+										.map(extRefCounterpartyEntry -> Counterparty.builder()
+												.setCounterparty(extRefCounterpartyEntry.getValue())
+												.setPartyBuilder(ReferenceWithMetaParty.builder().setExternalReference(extRefCounterpartyEntry.getKey()))
+												.build())
+										.collect(Collectors.toList()));
+					}, executor);
+		}, executor);
+
 	}
 
 	public CompletableFuture<Map<String, CounterpartyEnum>> getBothCounterpartiesCollectedFuture() {
@@ -162,34 +167,33 @@ public class PartyMappingHelper {
 					} else {
 						LOGGER.info("Adding {} for {}", relatedPartyEnum, partyExternalReference);
 						builder.setRelatedParty(relatedPartyEnum);
-						tradableProductBuilderSupplied.thenAcceptAsync(tradableProductBuilder ->
-							tradableProductBuilder.addRelatedParties(addOrUpdateRelatedPartyReferences(tradableProductBuilder, relatedPartyEnum, partyExternalReference)),
-								executor);
+						addRelatedParties(partyExternalReference, relatedPartyEnum);
 					}
 				}, executor);
 	}
 
-	@NotNull
-	private List<RelatedPartyReference> addOrUpdateRelatedPartyReferences(TradableProductBuilder tradableProduct,
-			RelatedPartyRoleEnum relatedPartyEnum,
-			String partyExternalReference) {
-		LOGGER.info("Adding {} as {} to TradableProduct.relatedParties", partyExternalReference, relatedPartyEnum);
-		List<RelatedPartyReferenceBuilder> relatedParties = Optional.ofNullable(tradableProduct.getRelatedParties()).orElse(new ArrayList<>());
-		Optional<RelatedPartyReferenceBuilder> relatedPartyReference = relatedParties.stream()
-				.filter(r -> relatedPartyEnum == r.getRelatedPartyRole())
-				.findFirst();
-		if (relatedPartyReference.isPresent()) {
-			// Update existing entry
-			relatedPartyReference.get()
-					.addPartyReference(ReferenceWithMetaParty.builder().setExternalReference(partyExternalReference).build());
-		} else {
-			// Add new entry
-			relatedParties.add(RelatedPartyReference.builder()
-					.setRelatedPartyRole(relatedPartyEnum)
-					.addPartyReference(ReferenceWithMetaParty.builder().setExternalReference(partyExternalReference).build()));
-		}
-		return relatedParties.stream()
-				.map(RelatedPartyReferenceBuilder::build)
-				.collect(Collectors.toList());
+	public void addRelatedParties(String partyExternalReference, RelatedPartyRoleEnum relatedPartyEnum) {
+		tradableProductBuilderSupplied
+				.thenAcceptAsync(tradableProductBuilder -> {
+							LOGGER.info("Adding {} as {} to TradableProduct.relatedParties", partyExternalReference, relatedPartyEnum);
+							Optional<RelatedPartyReferenceBuilder> relatedPartyReference = Optional.ofNullable(tradableProductBuilder.getRelatedParties())
+									.orElse(new ArrayList<>())
+									.stream()
+									.filter(r -> relatedPartyEnum == r.getRelatedPartyRole())
+									.findFirst();
+							if (relatedPartyReference.isPresent()) {
+								// Update existing entry
+								relatedPartyReference.get()
+										.addPartyReference(ReferenceWithMetaParty.builder().setExternalReference(partyExternalReference).build());
+								return;
+							} else {
+								// Add new entry
+								tradableProductBuilder
+										.addRelatedParties(RelatedPartyReference.builder()
+												.setRelatedPartyRole(relatedPartyEnum)
+												.addPartyReferenceBuilder(ReferenceWithMetaParty.builder().setExternalReference(partyExternalReference)).build());
+							}
+						},
+						executor);
 	}
 }

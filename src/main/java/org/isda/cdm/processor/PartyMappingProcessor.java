@@ -26,7 +26,9 @@ public class PartyMappingProcessor extends MappingProcessor {
 
 	@Override
 	public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
-		createHelper().supplyTradableProductBuilder((TradableProduct.TradableProductBuilder) builder);
+		PartyMappingHelper partyMappigHelper = createHelper();
+		partyMappigHelper.supplyTradableProductBuilder((TradableProduct.TradableProductBuilder) builder);
+		partyMappigHelper.addCounterparties();
 	}
 
 	@NotNull
