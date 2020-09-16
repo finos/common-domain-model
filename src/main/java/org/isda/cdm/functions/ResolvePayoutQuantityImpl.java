@@ -23,8 +23,8 @@ public class ResolvePayoutQuantityImpl extends ResolvePayoutQuantity {
 			List<QuantityNotation> quantityNotations,
 			ContractualProduct contractualProduct) {
 
-        if (quantityNotations == null) {
-            return NonNegativeQuantity.builder();
+	    if (quantityNotations == null) {
+			return NonNegativeQuantity.builder();
         } else if (resolvableQuantity.getAssetIdentifier() != null) {
 			return resolveQuantityFromAssetIdentifier(resolvableQuantity.getAssetIdentifier(), quantityNotations);
 		} else if (resolvableQuantity.getQuantityReference() != null) {
