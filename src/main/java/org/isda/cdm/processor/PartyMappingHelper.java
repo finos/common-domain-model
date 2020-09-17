@@ -106,7 +106,7 @@ public class PartyMappingHelper {
 								.addCounterparties(map.entrySet().stream()
 										.map(extRefCounterpartyEntry -> Counterparty.builder()
 												.setCounterparty(extRefCounterpartyEntry.getValue())
-												.setPartyBuilder(ReferenceWithMetaParty.builder().setExternalReference(extRefCounterpartyEntry.getKey()))
+												.setPartyReferenceBuilder(ReferenceWithMetaParty.builder().setExternalReference(extRefCounterpartyEntry.getKey()))
 												.build())
 										.collect(Collectors.toList()));
 					}, executor);
@@ -157,7 +157,7 @@ public class PartyMappingHelper {
 		}
 	}
 
-	public void setCounterpartyOrRelatedParty(CounterpartyOrRelatedPartyBuilder builder, String partyExternalReference, RelatedPartyRoleEnum relatedPartyEnum) {
+	public void setCounterpartyOrRelatedParty(CounterpartyOrRelatedPartyBuilder builder, String partyExternalReference, RelatedPartyEnum relatedPartyEnum) {
 		getBothCounterpartiesCollectedFuture()
 				.thenAcceptAsync(map -> {
 					Optional<CounterpartyEnum> counterparty = Optional.ofNullable(map.get(partyExternalReference));
@@ -172,25 +172,24 @@ public class PartyMappingHelper {
 				}, executor);
 	}
 
-	public void addRelatedParties(String partyExternalReference, RelatedPartyRoleEnum relatedPartyEnum) {
+	public void addRelatedParties(String partyExternalReference, RelatedPartyEnum relatedPartyEnum) {
 		tradableProductBuilderSupplied
 				.thenAcceptAsync(tradableProductBuilder -> {
 							LOGGER.info("Adding {} as {} to TradableProduct.relatedParties", partyExternalReference, relatedPartyEnum);
 							Optional<RelatedPartyReferenceBuilder> relatedPartyReference = Optional.ofNullable(tradableProductBuilder.getRelatedParties())
 									.orElse(new ArrayList<>())
 									.stream()
-									.filter(r -> relatedPartyEnum == r.getRelatedPartyRole())
+									.filter(r -> relatedPartyEnum == r.getRelatedParty())
 									.findFirst();
 							if (relatedPartyReference.isPresent()) {
 								// Update existing entry
 								relatedPartyReference.get()
 										.addPartyReference(ReferenceWithMetaParty.builder().setExternalReference(partyExternalReference).build());
-								return;
 							} else {
 								// Add new entry
 								tradableProductBuilder
 										.addRelatedParties(RelatedPartyReference.builder()
-												.setRelatedPartyRole(relatedPartyEnum)
+												.setRelatedParty(relatedPartyEnum)
 												.addPartyReferenceBuilder(ReferenceWithMetaParty.builder().setExternalReference(partyExternalReference)).build());
 							}
 						},

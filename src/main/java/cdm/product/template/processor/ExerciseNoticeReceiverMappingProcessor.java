@@ -1,6 +1,6 @@
 package cdm.product.template.processor;
 
-import cdm.base.staticdata.party.RelatedPartyRoleEnum;
+import cdm.base.staticdata.party.RelatedPartyEnum;
 import cdm.product.template.ExerciseNotice;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
@@ -31,12 +31,12 @@ public class ExerciseNoticeReceiverMappingProcessor extends MappingProcessor {
 		setRelatedParty(synonymPath, (ExerciseNotice.ExerciseNoticeBuilder) parent, getRelatedPartyEnum());
 	}
 
-	private RelatedPartyRoleEnum getRelatedPartyEnum() {
+	private RelatedPartyEnum getRelatedPartyEnum() {
 		// TODO check path and return associated enum
-		return RelatedPartyRoleEnum.MANUAL_EXERCISE_NOTICE_RECEIVER_PARTY;
+		return RelatedPartyEnum.MANUAL_EXERCISE_NOTICE_RECEIVER_PARTY;
 	}
 
-	private void setRelatedParty(Path synonymPath, ExerciseNotice.ExerciseNoticeBuilder builder, RelatedPartyRoleEnum relatedPartyEnum) {
+	private void setRelatedParty(Path synonymPath, ExerciseNotice.ExerciseNoticeBuilder builder, RelatedPartyEnum relatedPartyEnum) {
 		setValueAndUpdateMappings(synonymPath,
 				partyExternalReference -> {
 					// set related party enum (inside product)

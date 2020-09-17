@@ -1,6 +1,6 @@
 package cdm.observable.event.processor;
 
-import cdm.base.staticdata.party.RelatedPartyRoleEnum;
+import cdm.base.staticdata.party.RelatedPartyEnum;
 import cdm.base.staticdata.party.processor.CounterpartyOrRelatedPartyMappingProcessor;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.Path;
@@ -15,6 +15,6 @@ import java.util.List;
 public class DisruptionEventsDeterminingPartyMappingProcessor extends CounterpartyOrRelatedPartyMappingProcessor {
 
 	public DisruptionEventsDeterminingPartyMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
-		super(modelPath, synonymPaths, context, RelatedPartyRoleEnum.DISRUPTION_EVENTS_DETERMINING_PARTY);
+		super(modelPath, synonymPaths, context, RelatedPartyEnum.DISRUPTION_EVENTS_DETERMINING_PARTY);
 	}
 }

@@ -22,6 +22,8 @@ import com.rosetta.model.metafields.FieldWithMetaString;
 import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.party.Party;
 
+import java.util.Objects;
+
 public class ClearingUtils {
 
 	static WorkflowStep buildRejectStep(PostProcessor runner, WorkflowStep previous, String externalReference, IdentifierService identifierService) {
@@ -119,7 +121,8 @@ public class ClearingUtils {
 	public static Party getParty(Contract contract, CounterpartyEnum counterparty) {
 		return contract.getTradableProduct().getCounterparties().stream()
 				.filter(c -> c.getCounterparty() == counterparty)
-				.map(Counterparty::getParty)
+				.map(Counterparty::getPartyReference)
+				.filter(Objects::nonNull)
 				.map(ReferenceWithMetaParty::getGlobalReference)
 				.flatMap(partyReference -> contract.getParty().stream().filter(p -> partyReference.equals(p.getMeta().getGlobalKey())))
 				.findFirst()

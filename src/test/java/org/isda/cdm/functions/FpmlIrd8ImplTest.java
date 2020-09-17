@@ -78,7 +78,7 @@ class FpmlIrd8ImplTest extends AbstractFunctionTest {
 	private Counterparty getCounterparty(Party party, CounterpartyEnum counterparty) {
 		return Counterparty.builder()
 				.setCounterparty(counterparty)
-				.setParty(getPartyReference(party))
+				.setPartyReference(getPartyReference(party))
 				.build();
 	}
 

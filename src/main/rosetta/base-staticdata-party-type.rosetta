@@ -4,16 +4,16 @@ version "${project.version}"
 import cdm.base.staticdata.identifier.*
 import cdm.synonyms.config.*
 
-type Counterparty: <"This class specifies which counterparty enum is associated to a party reference.  The product is agnostic to the actual parties to the transaction, with the party references abstracted away from the product definition and replaced by the counterparty enum (e.g. CounterpartyEnum values Party1 or Party2). The counterparty enum can then be positioned in the product (e.g. to specify which counterparty is the payer, receiver etc) and this Counterparty type, which is positioned outside of the product definition, allows the counterparty enum to be associated with an actual party reference.">
+type Counterparty: <"Defines a counterparty enumerated value, e.g. Party1 or Party2, and an associated party reference.  The product is agnostic to the actual parties to the transaction, with the party references abstracted away from the product definition and replaced by the counterparty enum (e.g. CounterpartyEnum values Party1 or Party2). The counterparty enum can then be positioned in the product (e.g. to specify which counterparty is the payer, receiver etc) and this Counterparty type, which is positioned outside of the product definition, allows the counterparty enum to be associated with an actual party reference.">
 
-	counterparty CounterpartyEnum (1..1) <"Enumerated value specifying one of the two counterparties.">
-	party Party (1..1) <"Reference to the party associated to this counterparty.">
+	counterparty CounterpartyEnum (1..1) <"Specifies the counterparty enum, e.g. either Party1 or Party2.">
+	partyReference Party (1..1) <"Specifies the party associated to this counterparty enum.">
 		[metadata reference]
 
-type CounterpartyOrRelatedParty:
+type CounterpartyOrRelatedParty: <"Defines either a counterparty enum or a related party enum.">
 
-	counterparty CounterpartyEnum (0..1)
-	relatedParty RelatedPartyRoleEnum (0..1)
+	counterparty CounterpartyEnum (0..1) <"Specifies the counterparty enum, e.g. either Party1 or Party2.">
+	relatedParty RelatedPartyEnum (0..1) <"Specifies the related party enum, e.g. DisruptionEventsDeterminingParty, ExtraordinaryDividendsParty etc.">
 	
 	condition: one-of
 
@@ -68,7 +68,7 @@ type PayerReceiver: <"A class to represent the FpML PayerReceiver.model.">
 
 type RelatedPartyReference:
 
-	relatedPartyRole RelatedPartyRoleEnum (1..1)
+	relatedParty RelatedPartyEnum (1..1)
 	partyReference Party (1..*)
 		[metadata reference]
 	onBehalfOfCounterparty CounterpartyEnum (0..1)

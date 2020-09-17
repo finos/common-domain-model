@@ -1,6 +1,6 @@
 package cdm.product.asset.processor;
 
-import cdm.base.staticdata.party.RelatedPartyRoleEnum;
+import cdm.base.staticdata.party.RelatedPartyEnum;
 import cdm.base.staticdata.party.processor.CounterpartyOrRelatedPartyMappingProcessor;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.Path;
@@ -15,6 +15,6 @@ import java.util.List;
 public class ExtraordinaryDividendsPartyMappingProcessor extends CounterpartyOrRelatedPartyMappingProcessor {
 
 	public ExtraordinaryDividendsPartyMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
-		super(modelPath, synonymPaths, context, RelatedPartyRoleEnum.EXTRAORDINARY_DIVIDENDS_PARTY);
+		super(modelPath, synonymPaths, context, RelatedPartyEnum.EXTRAORDINARY_DIVIDENDS_PARTY);
 	}
 }

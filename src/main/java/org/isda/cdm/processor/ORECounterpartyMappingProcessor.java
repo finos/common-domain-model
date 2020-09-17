@@ -26,7 +26,7 @@ public class ORECounterpartyMappingProcessor extends MappingProcessor {
 	public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
 		TradableProductBuilder tradable = (TradableProductBuilder) builder;
 		if (tradable.getCounterparties().size()==1) {
-			tradable.addCounterparties(Counterparty.builder().setParty(
+			tradable.addCounterparties(Counterparty.builder().setPartyReference(
 					ReferenceWithMetaParty.builder().setValue(
 						Party.builder().setName(
 							FieldWithMetaString.builder().setValue("ME").build())
