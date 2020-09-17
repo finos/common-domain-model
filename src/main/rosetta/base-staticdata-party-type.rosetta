@@ -4,18 +4,25 @@ version "${project.version}"
 import cdm.base.staticdata.identifier.*
 import cdm.synonyms.config.*
 
-type Counterparty: <"Defines a counterparty enumerated value, e.g. Party1 or Party2, and an associated party reference.  The product is agnostic to the actual parties to the transaction, with the party references abstracted away from the product definition and replaced by the counterparty enum (e.g. CounterpartyEnum values Party1 or Party2). The counterparty enum can then be positioned in the product (e.g. to specify which counterparty is the payer, receiver etc) and this Counterparty type, which is positioned outside of the product definition, allows the counterparty enum to be associated with an actual party reference.">
+type Counterparty: <"Defines a counterparty enumerated value, e.g. Party1 or Party2, with an associated party reference. The product is agnostic to the actual parties to the transaction, with the party references abstracted away from the product definition and replaced by the CounterpartyEnum (e.g. values Party1 or Party2). The CounterpartyEnum can then be positioned in the product (e.g. to specify which counterparty is the payer, receiver etc) and this Counterparty type, which is positioned outside of the product definition, allows the CounterpartyEnum to be associated with an actual party reference.">
 
-	counterparty CounterpartyEnum (1..1) <"Specifies the counterparty enum, e.g. either Party1 or Party2.">
-	partyReference Party (1..1) <"Specifies the party associated to this counterparty enum.">
+	counterparty CounterpartyEnum (1..1) <"Specifies the CounterpartyEnum, e.g. either Party1 or Party2, that is associated to the partyReference.">
+	partyReference Party (1..1) <"Specifies the party that is associated to the counterparty.">
 		[metadata reference]
 
-type CounterpartyOrRelatedParty: <"Defines either a counterparty enum or a related party enum.">
+type CounterpartyOrRelatedParty: <"Defines either a CounterpartyEnum or a RelatedPartyEnum.">
 
-	counterparty CounterpartyEnum (0..1) <"Specifies the counterparty enum, e.g. either Party1 or Party2.">
-	relatedParty RelatedPartyEnum (0..1) <"Specifies the related party enum, e.g. DisruptionEventsDeterminingParty, ExtraordinaryDividendsParty etc.">
+	counterparty CounterpartyEnum (0..1) <"Specifies the CounterpartyEnum, e.g. either Party1 or Party2.">
+	relatedParty RelatedPartyEnum (0..1) <"Specifies the RelatedPartyEnum, e.g. DisruptionEventsDeterminingParty, ExtraordinaryDividendsParty etc.">
 	
 	condition: one-of
+
+type RelatedPartyReference: <"Defines a related party enumerated value with an associated party reference. The product is agnostic to the actual parties involved in the transaction, with the party references abstracted away from the product definition and replaced by the RelatedPartyEnum. The RelatedPartyEnum can then be positioned in the product and this RelatedPartyReferenc type, which is positioned outside of the product definition, allows the RelatedPartyEnum to be associated with an actual party reference.">
+
+	relatedParty RelatedPartyEnum (1..1) <"Specifies the RelatedPartyEnum, e.g. either Party1 or Party2, that is associated to the partyReference. A related party is any involved party that is not one of the two principal parties to the transaction.">
+	partyReference Party (1..*) <"Specifies the party, or parties, associated to the relatedParty.">
+		[metadata reference]
+	onBehalfOfCounterparty CounterpartyEnum (0..1) <"Specifies the counterparty that the related party is acting on behalf of.">
 
 type BuyerSeller: <"This class corresponds to the FpML BuyerSeller.model construct.">
 
@@ -32,10 +39,10 @@ type BuyerSeller: <"This class corresponds to the FpML BuyerSeller.model constru
 		[metadata reference]
 		[deprecated]
 
-	condition BuyerOrBuyerPartyReference: <"Buyer should be populated when BuyerSeller is used inside the Product, e.g. Contract->tradableProduct->product->contractualProduct->economicTerms->payout->creditDefaultPayout->generalTerms->buyerSeller.  BuyerPartyReference should be populated when BuyerSeller is used outside the Product.">
+	condition BuyerOrBuyerPartyReference: <"Buyer should be populated when BuyerSeller is used inside the Product, e.g. Contract->tradableProduct->product->contractualProduct->economicTerms->payout->creditDefaultPayout->generalTerms->buyerSeller. BuyerPartyReference should be populated when BuyerSeller is used outside the Product.">
 		required choice buyer, buyerPartyReference
 
-	condition SellerOrSellerPartyReference: <"Seller should be populated when BuyerSeller is used inside the Product, e.g. Contract->tradableProduct->product->contractualProduct->economicTerms->payout->creditDefaultPayout->generalTerms->buyerSeller.  SellerPartyReference should be populated when BuyerSeller is used outside the Product.">
+	condition SellerOrSellerPartyReference: <"Seller should be populated when BuyerSeller is used inside the Product, e.g. Contract->tradableProduct->product->contractualProduct->economicTerms->payout->creditDefaultPayout->generalTerms->buyerSeller. SellerPartyReference should be populated when BuyerSeller is used outside the Product.">
 		required choice seller, sellerPartyReference
 
 	condition BuyerAndSellerExists:
@@ -49,7 +56,7 @@ type PayerReceiver: <"A class to represent the FpML PayerReceiver.model.">
 		[metadata reference]
 		[deprecated]
 		[synonym Workflow_Event value "payerAccountReference" meta "href" mapper "CashTransferAccount"]
-	receiver CounterpartyEnum (0..1) <"Receiver party that can be resolved as one of the two counterparties to the transaction, populated when within the Product.  The party that receives the payments corresponding to this structure.">
+	receiver CounterpartyEnum (0..1) <"Receiver party that can be resolved as one of the two counterparties to the transaction, populated when within the Product. The party that receives the payments corresponding to this structure.">
 	receiverPartyReference Party (0..1) <"Receiver party reference populated when used outside of the Product. A reference to the party that receives the payments corresponding to this structure.">
 		[metadata reference]
 	receiverAccountReference Account (0..1) <"A reference to the account that receives the payments corresponding to this structure.">
@@ -65,13 +72,6 @@ type PayerReceiver: <"A class to represent the FpML PayerReceiver.model.">
 
 	condition PayerAndReceiverExists:
 		if payer exists then receiver exists and if receiver exists then payer exists
-
-type RelatedPartyReference:
-
-	relatedParty RelatedPartyEnum (1..1)
-	partyReference Party (1..*)
-		[metadata reference]
-	onBehalfOfCounterparty CounterpartyEnum (0..1)
 
 type ReferenceBank: <"A class to describe an institution (party) identified by means of a coding scheme and an optional name.">
 
@@ -102,7 +102,7 @@ type Account: <"A class to specify an account as an account number alongside, op
 		[metadata scheme]
 	accountBeneficiary Party (0..1) <"A reference to the party beneficiary of the account.">
 		[metadata reference]
-	servicingParty Party (0..1)  <"The reference to the legal entity that services the account, i.e. in the books of which the account is held.">
+	servicingParty Party (0..1) <"The reference to the legal entity that services the account, i.e. in the books of which the account is held.">
 		[metadata reference]
 
 type Address: <"A class to specify a post or street address.">
