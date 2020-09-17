@@ -14,7 +14,7 @@ The first string is a regular expression using the PERL standard syntax used to 
 A tenor value of "1Y" will be deconstructed into a period of 'Year' and a periodMultiplier of '1'
 
 `dateFormat` - A date/time synonym can be followed by a format construct. The keyword `dateFormat` should be followed by a string. 
-The string should be a date format and will be interpreted following the standard documented here [Date format](https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html). This format will be used to interpret dates/times from the input element.
+The string should be a date format and will be interpreted following the pattern documented here [Date format](https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html). This format will be used to interpret dates/times from the input element.
 E.g.
 ```
 	+ tradeDate
