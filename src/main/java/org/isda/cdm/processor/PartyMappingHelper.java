@@ -26,7 +26,7 @@ import static com.regnosys.rosetta.common.util.StringExtensions.toFirstUpper;
 
 /**
  * Helper class for FpML mapper processors.
- *
+ * <p>
  * Handles Counterparty and RelatedParties.  A new instance is created for each TradableProduct.
  */
 public class PartyMappingHelper {
@@ -101,15 +101,15 @@ public class PartyMappingHelper {
 		// when both counterparties have been collected, update tradableProduct.counterparties
 		tradableProductBuilderSupplied.thenAcceptAsync(tradableProductBuilder -> {
 			bothCounterpartiesCollected.thenAcceptAsync(map -> {
-						LOGGER.info("Setting TradableProduct.counterparties");
-						tradableProductBuilder.clearCounterparties()
-								.addCounterparties(map.entrySet().stream()
-										.map(extRefCounterpartyEntry -> Counterparty.builder()
-												.setCounterparty(extRefCounterpartyEntry.getValue())
-												.setPartyReferenceBuilder(ReferenceWithMetaParty.builder().setExternalReference(extRefCounterpartyEntry.getKey()))
-												.build())
-										.collect(Collectors.toList()));
-					}, executor);
+				LOGGER.info("Setting TradableProduct.counterparties");
+				tradableProductBuilder.clearCounterparties()
+						.addCounterparties(map.entrySet().stream()
+								.map(extRefCounterpartyEntry -> Counterparty.builder()
+										.setCounterparty(extRefCounterpartyEntry.getValue())
+										.setPartyReferenceBuilder(ReferenceWithMetaParty.builder().setExternalReference(extRefCounterpartyEntry.getKey()))
+										.build())
+								.collect(Collectors.toList()));
+			}, executor);
 		}, executor);
 
 	}
@@ -176,9 +176,9 @@ public class PartyMappingHelper {
 		tradableProductBuilderSupplied
 				.thenAcceptAsync(tradableProductBuilder -> {
 							LOGGER.info("Adding {} as {} to TradableProduct.relatedParties", partyExternalReference, relatedPartyEnum);
-							Optional<RelatedPartyReferenceBuilder> relatedPartyReference = Optional.ofNullable(tradableProductBuilder.getRelatedParties())
-									.orElse(new ArrayList<>())
-									.stream()
+							List<RelatedPartyReferenceBuilder> relatedParties = Optional.ofNullable(tradableProductBuilder.getRelatedParties())
+									.orElse(new ArrayList<>());
+							Optional<RelatedPartyReferenceBuilder> relatedPartyReference = relatedParties.stream()
 									.filter(r -> relatedPartyEnum == r.getRelatedParty())
 									.findFirst();
 							if (relatedPartyReference.isPresent()) {
@@ -187,11 +187,17 @@ public class PartyMappingHelper {
 										.addPartyReference(ReferenceWithMetaParty.builder().setExternalReference(partyExternalReference).build());
 							} else {
 								// Add new entry
-								tradableProductBuilder
-										.addRelatedParties(RelatedPartyReference.builder()
-												.setRelatedParty(relatedPartyEnum)
-												.addPartyReferenceBuilder(ReferenceWithMetaParty.builder().setExternalReference(partyExternalReference)).build());
+								relatedParties.add(RelatedPartyReference.builder()
+										.setRelatedParty(relatedPartyEnum)
+										.addPartyReferenceBuilder(ReferenceWithMetaParty.builder().setExternalReference(partyExternalReference)));
 							}
+							// Clear related parties, and re-add sorted list so we don't get diffs on the list order on each ingestion
+							tradableProductBuilder
+									.clearRelatedParties()
+									.addRelatedParties(relatedParties.stream()
+											.map(RelatedPartyReferenceBuilder::build)
+											.sorted(Comparator.comparing(RelatedPartyReference::getRelatedParty))
+											.collect(Collectors.toList()));
 						},
 						executor);
 	}
