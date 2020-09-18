@@ -49,7 +49,7 @@ public class PartyMappingHelper {
 	}
 
 	/**
-	 * Get an instance of this counterparty mapping helper from the MappingContext params.
+	 * Get an instance of this party mapping helper from the MappingContext params.
 	 */
 	@NotNull
 	public synchronized static Optional<PartyMappingHelper> getInstance(MappingContext mappingContext) {
@@ -89,6 +89,9 @@ public class PartyMappingHelper {
 		}
 	}
 
+	/**
+	 * Provides a TradableProductBuilder instance so the counterparties and relatedParties can be added.
+	 */
 	void supplyTradableProductBuilder(TradableProductBuilder tradableProductBuilder) {
 		// complete future so any updates can happen
 		tradableProductBuilderSupplied.complete(tradableProductBuilder);
@@ -98,20 +101,17 @@ public class PartyMappingHelper {
 	 * Waits until the partyExternalReference to CounterpartyEnum map is ready, then adds both Counterparty instances to TradableProductBuilder.
 	 */
 	void addCounterparties() {
-		// when both counterparties have been collected, update tradableProduct.counterparties
-		tradableProductBuilderSupplied.thenAcceptAsync(tradableProductBuilder -> {
-			bothCounterpartiesCollected.thenAcceptAsync(map -> {
-				LOGGER.info("Setting TradableProduct.counterparties");
-				tradableProductBuilder.clearCounterparties()
-						.addCounterparties(map.entrySet().stream()
-								.map(extRefCounterpartyEntry -> Counterparty.builder()
-										.setCounterparty(extRefCounterpartyEntry.getValue())
-										.setPartyReferenceBuilder(ReferenceWithMetaParty.builder().setExternalReference(extRefCounterpartyEntry.getKey()))
-										.build())
-								.collect(Collectors.toList()));
-			}, executor);
+		// when the tradableProductBuilder has been supplied and both counterparties have been collected, update tradableProduct.counterparties
+		tradableProductBuilderSupplied.thenAcceptBothAsync(bothCounterpartiesCollected, (tradableProductBuilder, map) -> {
+			LOGGER.info("Setting TradableProduct.counterparties");
+			tradableProductBuilder.clearCounterparties()
+					.addCounterparties(map.entrySet().stream()
+							.map(extRefCounterpartyEntry -> Counterparty.builder()
+									.setCounterparty(extRefCounterpartyEntry.getValue())
+									.setPartyReferenceBuilder(ReferenceWithMetaParty.builder().setExternalReference(extRefCounterpartyEntry.getKey()))
+									.build())
+							.collect(Collectors.toList()));
 		}, executor);
-
 	}
 
 	public CompletableFuture<Map<String, CounterpartyEnum>> getBothCounterpartiesCollectedFuture() {
@@ -157,6 +157,10 @@ public class PartyMappingHelper {
 		}
 	}
 
+	/**
+	 * Determines whether partyExternalReference is a counterparty or not, then updates the CounterpartyOrRelatedPartyBuilder accordingly.
+	 * If it is not a counterparty, then the TradableProduct.relatedParties must also be updated.
+	 */
 	public void setCounterpartyOrRelatedParty(CounterpartyOrRelatedPartyBuilder builder, String partyExternalReference, RelatedPartyEnum relatedPartyEnum) {
 		getBothCounterpartiesCollectedFuture()
 				.thenAcceptAsync(map -> {
@@ -172,6 +176,9 @@ public class PartyMappingHelper {
 				}, executor);
 	}
 
+	/**
+	 * Add RelatedPartyEnum and associated partyExternalReference to tradableProduct.relatedParties.
+	 */
 	public void addRelatedParties(String partyExternalReference, RelatedPartyEnum relatedPartyEnum) {
 		tradableProductBuilderSupplied
 				.thenAcceptAsync(tradableProductBuilder -> {
