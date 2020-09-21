@@ -10,15 +10,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.isda.cdm.RecalculationOfValue;
-import org.isda.cdm.RecalculationOfValueElection;
-import org.isda.cdm.RecalculationOfValueElectionEnum;
-
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
+
+import cdm.legalagreement.csa.RecalculationOfValue;
+import cdm.legalagreement.csa.RecalculationOfValueElection;
+import cdm.legalagreement.csa.RecalculationOfValueElectionEnum;
 
 public class RecalculationOfValueMappingProcessor extends MappingProcessor {
 

@@ -6,7 +6,6 @@ import static org.hamcrest.Matchers.closeTo;
 import java.math.BigDecimal;
 import java.util.List;
 
-import org.isda.cdm.Contract;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.isda.cdm.functions.FxMarkToMarket;
 import org.isda.cdm.functions.InterpolateForwardRate;
@@ -17,6 +16,7 @@ import com.google.inject.Inject;
 import com.rosetta.model.metafields.FieldWithMetaString;
 
 import cdm.base.math.NonNegativeQuantity;
+import cdm.legalagreement.contract.Contract;
 import cdm.observable.asset.AssetIdentifier;
 import cdm.observable.asset.ExchangeRate;
 import cdm.observable.asset.Price;

@@ -1,12 +1,7 @@
 package org.isda.cdm.workflows;
 
-import cdm.base.staticdata.party.Counterparty;
-import cdm.base.staticdata.party.CounterpartyEnum;
-import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
-import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.BusinessEvent;
 import org.isda.cdm.ClearingInstruction;
-import org.isda.cdm.Contract;
 import org.isda.cdm.ContractFormationPrimitive;
 import org.isda.cdm.Instruction;
 import org.isda.cdm.PostContractFormationState;
@@ -17,10 +12,15 @@ import org.isda.cdm.functions.example.services.identification.IdentifierService;
 import org.isda.cdm.metafields.ReferenceWithMetaWorkflowStep;
 
 import com.rosetta.model.lib.process.PostProcessor;
+import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.metafields.FieldWithMetaString;
 
 import cdm.base.staticdata.identifier.Identifier;
+import cdm.base.staticdata.party.Counterparty;
+import cdm.base.staticdata.party.CounterpartyEnum;
 import cdm.base.staticdata.party.Party;
+import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
+import cdm.legalagreement.contract.Contract;
 
 import java.util.Objects;
 

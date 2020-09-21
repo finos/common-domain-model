@@ -11,13 +11,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.isda.cdm.ElectiveAmountElection;
-
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.path.RosettaPath;
 
 import cdm.base.staticdata.asset.common.ISOCurrencyCodeEnum;
+import cdm.legalagreement.csa.ElectiveAmountElection;
 import cdm.observable.asset.Money;
 
 class ElectiveAmountElectionMappingHelper {

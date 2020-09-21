@@ -1,18 +1,20 @@
 package org.isda.cdm.workflows;
 
-import cdm.base.staticdata.party.CounterpartyEnum;
-import cdm.base.staticdata.party.Party;
-import com.google.common.collect.Lists;
-import com.google.inject.Inject;
-import com.rosetta.model.lib.process.PostProcessor;
-import org.isda.cdm.Contract;
+import static org.isda.cdm.workflows.ClearingUtils.getParty;
+
+import java.util.function.Function;
+
 import org.isda.cdm.Workflow;
 import org.isda.cdm.WorkflowStep;
 import org.isda.cdm.functions.example.services.identification.IdentifierService;
 
-import java.util.function.Function;
+import com.google.common.collect.Lists;
+import com.google.inject.Inject;
+import com.rosetta.model.lib.process.PostProcessor;
 
-import static org.isda.cdm.workflows.ClearingUtils.getParty;
+import cdm.base.staticdata.party.CounterpartyEnum;
+import cdm.base.staticdata.party.Party;
+import cdm.legalagreement.contract.Contract;
 
 public class ClearingRejected implements Function<Contract, Workflow> {
 	@Inject

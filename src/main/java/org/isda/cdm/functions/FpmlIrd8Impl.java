@@ -7,6 +7,7 @@ import cdm.base.staticdata.party.Account;
 import cdm.base.staticdata.party.Counterparty;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.product.template.TradableProduct;
+import cdm.product.template.functions.FpmlIrd8;
 
 /**
  * FpML validation rule ird-8:

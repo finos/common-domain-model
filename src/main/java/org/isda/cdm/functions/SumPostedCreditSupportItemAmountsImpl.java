@@ -3,11 +3,12 @@ package org.isda.cdm.functions;
 import java.math.BigDecimal;
 import java.util.List;
 
-import org.isda.cdm.PostedCreditSupportItem;
-
 import com.google.inject.Inject;
 import com.rosetta.model.metafields.FieldWithMetaString;
 
+import cdm.legalagreement.csa.PostedCreditSupportItem;
+import cdm.legalagreement.csa.functions.PostedCreditSupportItemAmount;
+import cdm.legalagreement.csa.functions.SumPostedCreditSupportItemAmounts;
 import cdm.observable.asset.Money;
 import cdm.observable.asset.Money.MoneyBuilder;
 

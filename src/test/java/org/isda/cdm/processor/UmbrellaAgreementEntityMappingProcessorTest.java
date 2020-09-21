@@ -10,9 +10,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.isda.cdm.UmbrellaAgreement;
-import org.isda.cdm.UmbrellaAgreementEntity;
-import org.isda.cdm.UmbrellaAgreementEntity.UmbrellaAgreementEntityBuilder;
 import org.junit.jupiter.api.Test;
 
 import com.regnosys.rosetta.common.translation.Mapping;
@@ -20,6 +17,10 @@ import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.Path;
 import com.regnosys.rosetta.common.translation.Path.PathElement;
 import com.rosetta.model.lib.path.RosettaPath;
+
+import cdm.legalagreement.common.UmbrellaAgreement;
+import cdm.legalagreement.common.UmbrellaAgreementEntity;
+import cdm.legalagreement.common.UmbrellaAgreementEntity.UmbrellaAgreementEntityBuilder;
 
 class UmbrellaAgreementEntityMappingProcessorTest {
 

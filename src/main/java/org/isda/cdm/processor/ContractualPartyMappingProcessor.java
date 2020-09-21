@@ -7,8 +7,6 @@ import static org.isda.cdm.processor.CdmMappingProcessorUtils.toFieldWithMetaStr
 import java.util.List;
 import java.util.Optional;
 
-import org.isda.cdm.LegalAgreement.LegalAgreementBuilder;
-
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
@@ -19,6 +17,7 @@ import com.rosetta.model.metafields.MetaFields;
 import cdm.base.staticdata.party.Party;
 import cdm.base.staticdata.party.Party.PartyBuilder;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
+import cdm.legalagreement.common.LegalAgreement.LegalAgreementBuilder;
 
 /**
  * ISDA Create mapping processor.

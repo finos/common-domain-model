@@ -1,7 +1,16 @@
 package org.isda.cdm.functions;
 
-import cdm.base.staticdata.party.CounterpartyEnum;
-import cdm.base.staticdata.party.Party;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.io.IOException;
+import java.net.URL;
+import java.nio.charset.Charset;
+
+import org.isda.cdm.BusinessEvent;
+import org.isda.cdm.ClearingInstruction;
+import org.isda.cdm.workflows.ClearingUtils;
+import org.junit.jupiter.api.Test;
+
 import com.google.common.io.Resources;
 import com.google.inject.Inject;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
@@ -10,17 +19,10 @@ import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.lib.records.DateImpl;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
-import org.isda.cdm.BusinessEvent;
-import org.isda.cdm.ClearingInstruction;
-import org.isda.cdm.Contract;
-import org.isda.cdm.workflows.ClearingUtils;
-import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.net.URL;
-import java.nio.charset.Charset;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import cdm.base.staticdata.party.CounterpartyEnum;
+import cdm.base.staticdata.party.Party;
+import cdm.legalagreement.contract.Contract;
 
 class Create_ClearedTradeTest extends AbstractFunctionTest {
 

@@ -10,7 +10,6 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Optional;
 
-import org.isda.cdm.Contract;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
@@ -20,6 +19,7 @@ import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.rosetta.model.lib.GlobalKey;
 import com.rosetta.model.lib.meta.MetaFieldsI;
 
+import cdm.legalagreement.contract.Contract;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.common.settlement.PayoutBase;
 import cdm.product.template.ContractualProduct;
