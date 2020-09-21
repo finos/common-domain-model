@@ -96,11 +96,13 @@ class PartyMappingHelperTest {
 
 		PayerReceiverBuilder builder = PayerReceiver.builder();
 
+		// test
 		Path payerSynonymPath = PAYER_XML_PATH.getParent();
 		helper.setCounterpartyEnum(builder, PAYER_MODEL_PATH, payerSynonymPath, null);
 
 		assertFalse(helper.getBothCounterpartiesCollectedFuture().isDone());
 
+		// test
 		Path receiverSynonymPath = RECEIVER_XML_PATH.getParent();
 		helper.setCounterpartyEnum(builder, RECEIVER_MODEL_PATH, receiverSynonymPath, null);
 
@@ -200,7 +202,6 @@ class PartyMappingHelperTest {
 						"no destination",
 						false,
 						false)
-
 		);
 	}
 }
