@@ -10,15 +10,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.isda.cdm.ExceptionEnum;
-import org.isda.cdm.RegimeTerms;
-import org.isda.cdm.RetrospectiveEffect;
-import org.isda.cdm.SimmException;
-import org.isda.cdm.SimmExceptionApplicableEnum;
-
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.path.RosettaPath;
+
+import cdm.legalagreement.csa.ExceptionEnum;
+import cdm.legalagreement.csa.RegimeTerms;
+import cdm.legalagreement.csa.RetrospectiveEffect;
+import cdm.legalagreement.csa.SimmException;
+import cdm.legalagreement.csa.SimmExceptionApplicableEnum;
 
 class RegimeMappingHelper {
 

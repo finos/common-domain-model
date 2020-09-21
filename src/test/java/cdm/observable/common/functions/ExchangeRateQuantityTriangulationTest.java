@@ -11,7 +11,6 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.List;
 
-import org.isda.cdm.Contract;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
@@ -19,6 +18,7 @@ import com.google.common.io.Resources;
 import com.google.inject.Inject;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 
+import cdm.legalagreement.contract.Contract;
 import cdm.observable.asset.PriceNotation;
 import cdm.observable.asset.QuantityNotation;
 import cdm.product.template.TradableProduct;
