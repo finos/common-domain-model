@@ -9,11 +9,13 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-import org.isda.cdm.*;
+import org.isda.cdm.BusinessEvent;
 import org.isda.cdm.functions.Create_Execution;
 
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
+import com.rosetta.model.metafields.FieldWithMetaDate;
 
+import cdm.legalagreement.contract.Contract;
 import cdm.product.common.settlement.SettlementTerms;
 import cdm.product.common.settlement.functions.CashflowSettlementTerms;
 import cdm.product.template.ContractualProduct;
@@ -46,7 +48,7 @@ public class RunExecutionWithSettlementTerms implements ExecutableFunction<Contr
                 guard(input.getPartyRole()),
                 settlementTerm,
                 null,
-                Optional.ofNullable(input.getTradeDate()).map(TradeDate::getDate).orElse(null),
+                Optional.ofNullable(input.getTradeDate()).map(FieldWithMetaDate::getValue).orElse(null),
                 guard(input.getContractIdentifier()));
     }
 

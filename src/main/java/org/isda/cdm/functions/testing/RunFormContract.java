@@ -8,12 +8,13 @@ import java.util.Optional;
 import javax.inject.Inject;
 
 import org.isda.cdm.BusinessEvent;
-import org.isda.cdm.Contract;
-import org.isda.cdm.TradeDate;
 import org.isda.cdm.functions.Create_ContractFormation;
 import org.isda.cdm.functions.Create_Execution;
 
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
+import com.rosetta.model.metafields.FieldWithMetaDate;
+
+import cdm.legalagreement.contract.Contract;
 
 public class RunFormContract implements ExecutableFunction<Contract, BusinessEvent> {
 
@@ -34,7 +35,7 @@ public class RunFormContract implements ExecutableFunction<Contract, BusinessEve
                 guard(contract.getPartyRole()),
                 Collections.emptyList(),
                 null,
-                Optional.ofNullable(contract.getTradeDate()).map(TradeDate::getDate).orElse(null),
+                Optional.ofNullable(contract.getTradeDate()).map(FieldWithMetaDate::getValue).orElse(null),
                 guard(contract.getContractIdentifier()));
 
         return formContract.evaluate(executeBusinessEvent, null);

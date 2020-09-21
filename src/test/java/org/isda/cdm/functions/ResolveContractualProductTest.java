@@ -16,7 +16,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
-import org.isda.cdm.Contract;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -26,6 +25,7 @@ import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.rosetta.model.lib.GlobalKey;
 import com.rosetta.model.lib.meta.MetaFieldsI;
 
+import cdm.legalagreement.contract.Contract;
 import cdm.observable.asset.QuantityNotation;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.common.functions.ResolveContractualProduct;

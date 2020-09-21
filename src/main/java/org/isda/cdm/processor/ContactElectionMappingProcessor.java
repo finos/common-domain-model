@@ -5,8 +5,6 @@ import static org.isda.cdm.processor.CdmMappingProcessorUtils.PARTIES;
 import java.util.List;
 import java.util.Optional;
 
-import org.isda.cdm.ContactElection;
-
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
@@ -15,6 +13,7 @@ import com.rosetta.model.lib.path.RosettaPath;
 
 import cdm.base.staticdata.party.PartyContactInformation;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
+import cdm.legalagreement.csa.ContactElection;
 
 public class ContactElectionMappingProcessor extends MappingProcessor {
     public ContactElectionMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {

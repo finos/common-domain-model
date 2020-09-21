@@ -1,18 +1,14 @@
 package org.isda.cdm.processor;
 
-import static org.isda.cdm.CalculationDateLocationElection.builder;
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.ISDA_CREATE_SYNONYM_SOURCE;
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.PARTIES;
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.getEnumValue;
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.synonymToEnumValueMap;
+import static cdm.legalagreement.csa.CalculationDateLocationElection.builder;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import org.isda.cdm.CalculationDateLocation.CalculationDateLocationBuilder;
-import org.isda.cdm.CalculationDateLocationElection;
-import org.isda.cdm.CalculationDateLocationElection.CalculationDateLocationElectionBuilder;
 
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
@@ -22,6 +18,9 @@ import com.rosetta.model.lib.path.RosettaPath;
 
 import cdm.base.datetime.BusinessCenterEnum;
 import cdm.base.datetime.metafields.FieldWithMetaBusinessCenterEnum;
+import cdm.legalagreement.csa.CalculationDateLocation.CalculationDateLocationBuilder;
+import cdm.legalagreement.csa.CalculationDateLocationElection;
+import cdm.legalagreement.csa.CalculationDateLocationElection.CalculationDateLocationElectionBuilder;
 
 /**
  * ISDA Create mapping processor.

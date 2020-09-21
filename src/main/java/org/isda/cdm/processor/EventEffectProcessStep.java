@@ -6,12 +6,9 @@ import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
 
 import org.isda.cdm.BusinessEvent.BusinessEventBuilder;
-import org.isda.cdm.Contract.ContractBuilder;
 import org.isda.cdm.EventEffect.EventEffectBuilder;
 import org.isda.cdm.Execution.ExecutionBuilder;
 import org.isda.cdm.TransferPrimitive.TransferPrimitiveBuilder;
-import org.isda.cdm.metafields.ReferenceWithMetaContract;
-import org.isda.cdm.metafields.ReferenceWithMetaContract.ReferenceWithMetaContractBuilder;
 import org.isda.cdm.metafields.ReferenceWithMetaExecution;
 import org.isda.cdm.metafields.ReferenceWithMetaExecution.ReferenceWithMetaExecutionBuilder;
 import org.isda.cdm.metafields.ReferenceWithMetaTransferPrimitive;
@@ -33,6 +30,9 @@ import com.rosetta.model.lib.process.PostProcessStep;
 import cdm.base.staticdata.asset.common.ProductIdentifier.ProductIdentifierBuilder;
 import cdm.base.staticdata.asset.common.metafields.ReferenceWithMetaProductIdentifier;
 import cdm.base.staticdata.asset.common.metafields.ReferenceWithMetaProductIdentifier.ReferenceWithMetaProductIdentifierBuilder;
+import cdm.legalagreement.contract.Contract.ContractBuilder;
+import cdm.legalagreement.contract.metafields.ReferenceWithMetaContract;
+import cdm.legalagreement.contract.metafields.ReferenceWithMetaContract.ReferenceWithMetaContractBuilder;
 
 
 public class EventEffectProcessStep implements PostProcessStep{

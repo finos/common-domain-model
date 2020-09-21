@@ -6,14 +6,14 @@ import static org.isda.cdm.processor.CdmMappingProcessorUtils.PARTIES;
 import java.util.List;
 import java.util.Optional;
 
-import org.isda.cdm.ControlAgreement;
-import org.isda.cdm.ControlAgreementElections;
-
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
+
+import cdm.legalagreement.csa.ControlAgreement;
+import cdm.legalagreement.csa.ControlAgreementElections;
 
 /**
  * ISDA Create mapping processor.
