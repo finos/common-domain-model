@@ -1,31 +1,25 @@
 package util;
 
+import cdm.base.staticdata.party.Party;
+import cdm.base.staticdata.party.Party.PartyBuilder;
 import cdm.legalagreement.contract.Contract;
-import com.rosetta.model.metafields.MetaFields;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-
 import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep;
 import com.regnosys.rosetta.common.hashing.NonNullHashCollector;
 import com.rosetta.model.lib.records.DateImpl;
 import com.rosetta.model.metafields.FieldWithMetaDate;
 import com.rosetta.model.metafields.FieldWithMetaDate.FieldWithMetaDateBuilder;
 import com.rosetta.model.metafields.FieldWithMetaString;
+import org.junit.jupiter.api.Test;
 
-import cdm.base.staticdata.party.Party;
-import cdm.base.staticdata.party.Party.PartyBuilder;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-@Disabled
 public class GlobalKeyGenerationTest {
 
 	@Test
 	public void shouldNotSetGlobalKeyOnFieldWithMetaBuilderWithoutMetadataId() {
 		FieldWithMetaDateBuilder tradeDate = FieldWithMetaDate.builder().setValue(DateImpl.of(2020, 1, 1));
-		
+
 		new GlobalKeyProcessStep(NonNullHashCollector::new).runProcessStep(FieldWithMetaDate.class, tradeDate);
 
 		assertNull(tradeDate.getMeta(),
@@ -42,15 +36,16 @@ public class GlobalKeyGenerationTest {
 		assertNotNull(contract.getMeta().getGlobalKey(),
 				"Contract implements GlobalKey and contains data so should have global key set");
 		assertNotNull(contract.getTradeDate().getMeta().getGlobalKey(),
-				"Global Key should not be set because the field is not marked with a [metadata id] annotation");
+				"Global Key should be set because the field is marked with a [metadata id] annotation");
 	}
 
 	@Test
 	public void shouldSetGlobalKeyOnRosettaTypeGlobalKeyBuilder() {
 		PartyBuilder party = Party.builder().setName(FieldWithMetaString.builder().setValue("blah").build());
-		
+
 		new GlobalKeyProcessStep(NonNullHashCollector::new).runProcessStep(Party.class, party);
 
-		assertNotNull(party.getMeta().getGlobalKey());
+		assertNotNull(party.getMeta().getGlobalKey(),
+				"Party implements GlobalKey and contains data so should have global key set");
 	}
 }
