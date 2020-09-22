@@ -7,14 +7,14 @@ import com.rosetta.model.lib.path.RosettaPath;
 import java.util.List;
 
 /**
- * Counterparty mapping processor.
+ * Party mapping processor.
  *
  * Mapper must be in same namespace as the type it is used for.
  */
 @SuppressWarnings("unused")
-	public class CounterpartyMappingProcessor extends org.isda.cdm.processor.CounterpartyMappingProcessor {
+	public class PartyMappingProcessor extends org.isda.cdm.processor.PartyMappingProcessor {
 
-	public CounterpartyMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
+	public PartyMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
 		super(modelPath, synonymPaths, mappingContext);
 	}
 }
