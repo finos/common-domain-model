@@ -27,9 +27,9 @@ The first string is a regular expression using the PERL standard syntax used to 
 ```
        Frequency:
               + periodMultiplier
-                     [value "Tenor" maps 2 pattern "([0-9]*).*" "$1"]
+                    [value "Tenor" maps 2 pattern "([0-9]*).*" "$1"]
               + period
-					[value "Tenor" maps 2 pattern "[0-9]*(.*)" "$1"]
+                    [value "Tenor" maps 2 pattern "[0-9]*(.*)" "$1"]
 ```
 A tenor value of "1Y" will be deconstructed into a period of 'Year' and a periodMultiplier of '1'
 
@@ -38,7 +38,7 @@ The string should be a date format and will be interpreted following the pattern
 E.g.
 ```
 	+ tradeDate
-		[value "startDate" dateFormat "MM/dd/yy"]
+        [value "startDate" dateFormat "MM/dd/yy"]
 ```
 _Review Directions_
 
