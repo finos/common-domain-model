@@ -265,11 +265,14 @@ type TradeNew:
 	identifier Identifier (1..*)
 	tradeDate TradeDate (1..1)
 	tradableProduct TradableProduct (1..1)
-	party Party (0..*)
-	partyRole PartyRole (0..*)
+	party Party (1..*)
+	partyRole PartyRole (1..*)
 	settlementTerms SettlementTerms (0..*)
 	execution Execution (0..1)
 	contract Contract (0..1)
+
+	condition: 
+		required choice execution, contract 
 
 	condition SecurityPartyRole: <"When the executed product is a security, both ExecutingEntity and Counterparty party roles must exist.">
 		if tradableProduct -> product -> security exists
@@ -287,9 +290,13 @@ type TradeNew:
 		if tradableProduct -> product -> security exists
 		then settlementTerms exists
 
+// TODO: Meet with Ruddy, Ted and Jim to agree on set of status enum values.
 type State:
 	closedState ClosedState (0..1)
 	positionState PositionStatusEnum (0..1)
+
+	condition: if positionState = PositionStatusEnum -> Closed then 
+		closedState exists
 
 type LimitApplicable:
 
