@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
-import org.isda.cdm.processor.CounterpartyMappingHelper;
+import org.isda.cdm.processor.PartyMappingHelper;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,8 +49,8 @@ public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
 					rateSpec.setFloatingRateBuilder(null);
 					newIrp.getRateSpecification().setFixedRateBuilder(null);
 
-					CounterpartyMappingHelper.getInstance(getContext())
-							.orElseThrow(() -> new IllegalStateException("CounterpartyMappingHelper not found."))
+					PartyMappingHelper.getInstance(getContext())
+							.orElseThrow(() -> new IllegalStateException("PartyMappingHelper not found."))
 							.getBothCounterpartiesCollectedFuture()
 							.thenAcceptAsync(map -> flipPayerReceiver(irp.getPayerReceiver(), newIrp.getPayerReceiver()), executor);
 
