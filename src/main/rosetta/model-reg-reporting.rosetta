@@ -530,7 +530,7 @@ reporting rule PartyToSeller
 
 reporting rule IsFixedFloat
 	extract TradeNew -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
-	and Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
+	and TradeNew -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
 
 reporting rule IsFixedFixed
 	extract TradeNew -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 2
@@ -547,7 +547,7 @@ reporting rule SingleCurrencyBasisSwap
             structured_provision "The Seller of a [Single-Currency] Basis Swap is by definition the Receiver of the  Spread"
             provision ""]
 	filter when rule IsIRSwapBasis then
-	filter when TradeNew -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> assetIdentifier -> rateOption = Contract -> tradableProduct -> priceNotation -> assetIdentifier -> rateOption then
+	filter when TradeNew -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> assetIdentifier -> rateOption = TradeNew -> tradableProduct -> priceNotation -> assetIdentifier -> rateOption then
 	(
 		InterestRatePayoutPayer then PartyToBuyer,
 		InterestRatePayoutReceiver then PartyToSeller

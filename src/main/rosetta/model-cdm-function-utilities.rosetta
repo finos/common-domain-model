@@ -39,12 +39,22 @@ func ResolvePrice: <"Function specification to return the price on a valuation d
 	output:
 		price number  (1..1)
 
+// TODO: document as this causes code generation problems
+// func ExtractContractState: <"Extracts a single Contract State, given an Event. This function navigates all the possible paths to product and extracts a single value.">
+// 	inputs: event BusinessEvent (1..1)
+// 	output: contractState ContractState (1..1)
+// 	alias primitive: event -> primitives  only-element
+// 	assign-output contractState:
+// 		if primitive -> contractFormation exists then ContractStateFromTradeState(primitive -> contractFormation -> after)
+// 		else if primitive -> reset exists then primitive -> reset -> after
+
 func ExtractContractState: <"Extracts a single Contract State, given an Event. This function navigates all the possible paths to product and extracts a single value.">
 	inputs: event BusinessEvent (1..1)
 	output: contractState ContractState (1..1)
 	alias primitive: event -> primitives  only-element
+	alias tradeState: primitive -> contractFormation -> after
 	assign-output contractState:
-		if primitive -> contractFormation exists then ContractStateFromTradeState(primitive -> contractFormation -> after)
+		if primitive -> contractFormation exists then ContractStateFromTradeState(tradeState)
 		else if primitive -> reset exists then primitive -> reset -> after
 
 func ContractFromTrade:
