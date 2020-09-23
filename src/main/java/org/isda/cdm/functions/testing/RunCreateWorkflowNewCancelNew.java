@@ -9,17 +9,16 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
 import org.isda.cdm.ActionEnum;
 import org.isda.cdm.BusinessEvent;
-import org.isda.cdm.Contract;
 import org.isda.cdm.EventTimestamp;
 import org.isda.cdm.EventTimestampQualificationEnum;
 import org.isda.cdm.MessageInformation;
-import org.isda.cdm.TradeDate;
 import org.isda.cdm.Workflow;
 import org.isda.cdm.WorkflowStep;
 import org.isda.cdm.functions.Create_Execution;
@@ -27,9 +26,11 @@ import org.isda.cdm.functions.Create_WorkflowStep;
 
 import com.google.common.collect.Lists;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
+import com.rosetta.model.metafields.FieldWithMetaDate;
 
 import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
+import cdm.legalagreement.contract.Contract;
 import cdm.observable.asset.QuantityNotation;
 
 public class RunCreateWorkflowNewCancelNew implements ExecutableFunction<Contract, Workflow> {
@@ -64,9 +65,9 @@ public class RunCreateWorkflowNewCancelNew implements ExecutableFunction<Contrac
         return workflow;
     }
 
-	private EventTimestamp eventDate(TradeDate tradeDate, LocalTime time) {
+	private EventTimestamp eventDate(FieldWithMetaDate tradeDate, LocalTime time) {
 		return EventTimestamp.builder()
-    		.setDateTime(ZonedDateTime.of(tradeDate.getDate().toLocalDate(), time, ZoneId.of("UTC")))
+    		.setDateTime(ZonedDateTime.of(tradeDate.getValue().toLocalDate(), time, ZoneId.of("UTC")))
     		.setQualification(EventTimestampQualificationEnum.EVENT_CREATION_DATE_TIME)
     		.build();
 	}
@@ -87,7 +88,10 @@ public class RunCreateWorkflowNewCancelNew implements ExecutableFunction<Contrac
                 guard(contract.getTradableProduct().getCounterparties()),
                 guard(contract.getParty()),
                 guard(contract.getPartyRole()),
-                Collections.emptyList());
+                Collections.emptyList(),
+				null,
+				Optional.ofNullable(contract.getTradeDate()).map(FieldWithMetaDate::getValue).orElse(null),
+				guard(contract.getContractIdentifier()));
 		return corrected;
 	}
 
@@ -107,7 +111,10 @@ public class RunCreateWorkflowNewCancelNew implements ExecutableFunction<Contrac
                 guard(contract.getTradableProduct().getCounterparties()),
                 guard(contract.getParty()),
                 guard(contract.getPartyRole()),
-                Collections.emptyList());
+                Collections.emptyList(),
+				null,
+				Optional.ofNullable(contract.getTradeDate()).map(FieldWithMetaDate::getValue).orElse(null),
+				guard(contract.getContractIdentifier()));
 		return newBusinessEvent;
 	}
 

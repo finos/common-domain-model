@@ -7,15 +7,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.isda.cdm.CollateralRounding;
-import org.isda.cdm.MarginApproachEnum;
-import org.isda.cdm.PostedCreditSupportItem;
 import org.junit.jupiter.api.Test;
 
 import com.google.inject.Inject;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
 
+import cdm.legalagreement.csa.CollateralRounding;
+import cdm.legalagreement.csa.MarginApproachEnum;
+import cdm.legalagreement.csa.PostedCreditSupportItem;
+import cdm.legalagreement.csa.functions.DeliveryAmount;
 import cdm.observable.asset.Money;
 
 class DeliveryAmountTest extends AbstractFunctionTest {

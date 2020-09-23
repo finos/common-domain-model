@@ -5,8 +5,6 @@ import static org.isda.cdm.processor.CdmMappingProcessorUtils.PARTIES;
 import java.util.List;
 import java.util.Optional;
 
-import org.isda.cdm.PostingObligations;
-import org.isda.cdm.PostingObligationsElection;
 import org.jetbrains.annotations.NotNull;
 
 import com.regnosys.rosetta.common.translation.MappingContext;
@@ -14,6 +12,9 @@ import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
+
+import cdm.legalagreement.csa.PostingObligations;
+import cdm.legalagreement.csa.PostingObligationsElection;
 
 public class PostingObligationsMappingProcessor extends MappingProcessor {
 

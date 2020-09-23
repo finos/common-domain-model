@@ -5,14 +5,14 @@ import static org.isda.cdm.processor.CdmMappingProcessorUtils.PARTIES;
 import java.util.List;
 import java.util.Optional;
 
-import org.isda.cdm.CollateralManagementAgreement;
-import org.isda.cdm.CollateralManagementAgreementElection;
-
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
+
+import cdm.legalagreement.csa.CollateralManagementAgreement;
+import cdm.legalagreement.csa.CollateralManagementAgreementElection;
 
 /**
  * ISDA Create mapping processor.

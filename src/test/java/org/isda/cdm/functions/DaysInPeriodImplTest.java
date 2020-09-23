@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.time.LocalDate;
 
-import org.isda.cdm.CalculationPeriodDates;
 import org.junit.jupiter.api.Test;
 
 import com.google.inject.Inject;
@@ -22,6 +21,8 @@ import cdm.base.datetime.CalculationPeriodFrequency;
 import cdm.base.datetime.PeriodExtendedEnum;
 import cdm.base.datetime.RollConventionEnum;
 import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
+import cdm.product.common.schedule.CalculationPeriodDates;
+import cdm.product.common.schedule.functions.CalculationPeriod;
 
 public class DaysInPeriodImplTest extends AbstractFunctionTest {
 

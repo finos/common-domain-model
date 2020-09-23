@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.isda.cdm.CustodianEventEndDate;
-import org.isda.cdm.CustomisableOffset;
 import org.jetbrains.annotations.NotNull;
 
 import com.regnosys.rosetta.common.translation.MappingContext;
@@ -19,9 +17,11 @@ import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 
+import cdm.base.datetime.CustomisableOffset;
 import cdm.base.datetime.DayTypeEnum;
 import cdm.base.datetime.Offset;
 import cdm.base.datetime.PeriodEnum;
+import cdm.legalagreement.csa.CustodianEventEndDate;
 
 /**
  * "Days after Custodian Event" ( "days_after_custodian_event" / "days_after_collateral_manager_event" / "days_after_euroclear_event")

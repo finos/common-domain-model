@@ -1,9 +1,9 @@
 package org.isda.cdm.functions;
 
-import org.isda.cdm.CalculationPeriodDates;
-
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.RollConvention;
+
+import cdm.product.common.schedule.CalculationPeriodDates;
 
 class CdmToStrataMapper {
 

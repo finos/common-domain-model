@@ -1,12 +1,16 @@
 namespace org.isda.cdm
 version "${project.version}"
 
-import cdm.base.math.*
-import cdm.base.datetime.*
 import cdm.base.staticdata.party.*
 import cdm.base.staticdata.identifier.*
 
 import cdm.observable.asset.*
+
+import cdm.product.template.*
+import cdm.product.common.settlement.*
+
+import cdm.legalagreement.common.*
+import cdm.legalagreement.contract.*
 
 annotation creation: <"Annotation to describe the intent of a function">
     [prefix Create]
@@ -188,36 +192,43 @@ func Create_RejectedWorkflowStep: <"Represents the rejection of a proposed instr
 	assign-output rejectedWorkflowStep -> rejected: <"Set the rejected flag to True">
 		True
 
-func Create_Execution: <"Function specification to create an execution business event, representing the instantiation of a transaction between two parties on a financial product for a given price, quantity and settlement terms. The business event is constructed to contain a single execution primitive event, and no other primitive event.">
+func Create_Execution: <"Specifies a function to create an execution business event, representing the instantiation of a transaction between two parties on a financial product for a given price, quantity and settlement terms. The business event is constructed to contain a single execution primitive event, and no other primitive event.">
 	[creation BusinessEvent]
 	inputs:
-		product Product (1..1) <"The financial product to be executed and contract formed.">
-		quantityNotation QuantityNotation (1..*) <"Quantities (e.g. currency amount, no. shares) associated with the constituents of the transacted product.">
-		priceNotation PriceNotation (1..*) <"Prices (e.g. spread, equity price, FX rate) associated with the constituents of the transacted product.">
-		counterparties  Counterparty (2..2)
-		parties Party (2..*) <"All parties to that execution, including agents and brokers.">
-		partyRoles PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the execution.">
-		settlementTerms SettlementTerms (0..*) <"The settlement terms for the execution e.g. initial fee, broker fee, up-front cds payment or option premium settlement">
+
+		product Product (1..1) <"Defines the financial product to be executed and contract formed.">
+		quantityNotation QuantityNotation (1..*) <"Defines the quantities (e.g. currency amount, no. shares) associated with the constituents of the transacted product.">
+		priceNotation PriceNotation (1..*) <"Defines the prices (e.g. spread, equity price, FX rate) associated with the constituents of the transacted product.">
+		counterparties  Counterparty (2..2) <"Maps two defined parties to counterparty enums for the transacted product.">
+		parties Party (2..*) <"Defines all parties to that execution, including agents and brokers.">
+		partyRoles PartyRole (0..*) <"Defines the role(s) that party(ies) may have in relation to the execution.">
+		settlementTerms SettlementTerms (0..*) <"Specifies the settlement terms for the execution e.g. initial fee, broker fee, up-front cds payment or option premium settlement">
+		executionType ExecutionTypeEnum (1..1) <"Specifies the type of execution, e.g. via voice, or electronically.">
+		tradeDate date (1..1) <"Denotes the trade/execution date.">
+		identifier Identifier (1..*) <"Denotes one or more identifiers associated with the transaction.">
 
 	output:
 		executionEvent BusinessEvent (1..1) <"Qualified execution business event containing a single execution primitive event, and no other primitive event.">
 
 	assign-output executionEvent -> primitives -> execution: <"Create and assign the execution primitive event to the execution business event, using the corresponding primitive event creation function.">
-		Create_ExecutionPrimitive(product, quantityNotation, priceNotation, counterparties, parties, partyRoles, settlementTerms)
+		Create_ExecutionPrimitive(product, quantityNotation, priceNotation, counterparties, parties, partyRoles, settlementTerms, executionType, tradeDate, identifier)
 
 	assign-output executionEvent -> eventEffect -> execution: <"The execution object, i.e. the after state of the execution primitive event, is the single event effect of the business event.">
 		executionEvent -> primitives -> execution -> after -> execution
 
-func Create_ExecutionPrimitive: <"Function specification to compose an execution based on a minimum required set of inputs: product, quantity, parties etc.">
+func Create_ExecutionPrimitive: <"Specifies the function to compose an execution based on a minimum required set of inputs: product, quantity, parties, etc.">
 	[creation PrimitiveEvent]
 	inputs:
-		product Product (1..1) <"The financial product to be executed and contract formed.">
-		quantityNotation QuantityNotation (1..*) <"Quantities (e.g. currency amount, no. shares) associated with the constituents of the transacted product.">
-		priceNotation PriceNotation (1..*) <"Prices (e.g. spread, equity price, FX rate) associated with the constituents of the transacted product.">
-		counterparties  Counterparty (2..2)
-		parties Party (2..*) <"All parties to that execution, including agents and brokers.">
-		partyRoles PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the execution.">
-		settlementTerms SettlementTerms (0..*) <"The settlement terms for the execution e.g. initial fee, broker fee, up-front cds payment or option premium settlement">
+		product Product (1..1) <"Defines the financial product to be executed and contract formed.">
+		quantityNotation QuantityNotation (1..*) <"Defines the quantities (e.g. currency amount, no. shares) associated with the constituents of the transacted product.">
+		priceNotation PriceNotation (1..*) <"Defines the prices (e.g. spread, equity price, FX rate) associated with the constituents of the transacted product.">
+		counterparties  Counterparty (2..2) <"Maps two defined parties to counterparty enums for the transacted product.">
+		parties Party (2..*) <"Defines all parties to that execution, including agents and brokers.">
+		partyRoles PartyRole (0..*) <"Defines the role(s) that party(ies) may have in relation to the execution.">
+		settlementTerms SettlementTerms (0..*) <"Specifies the settlement terms for the execution e.g. initial fee, broker fee, up-front cds payment or option premium settlement.">
+		executionType ExecutionTypeEnum (1..1) <"Specifies the type of execution, e.g. via voice or electronically.">
+		tradeDate date (1..1) <"Denotes the trade/execution date.">
+		identifier Identifier (1..*) <"Denotes one or more identifiers associated with the transaction.">
 
 	output:
 		executionPrimitive ExecutionPrimitive (1..1) <"Execution primitive event with absent before state and an after state containing the tradable product, parties, associated party roles and the known settlement terms.">
@@ -242,6 +253,15 @@ func Create_ExecutionPrimitive: <"Function specification to compose an execution
 
 	assign-output executionPrimitive -> after -> execution -> settlementTerms: <"Assign the settlement terms input to the execution object.">
 		settlementTerms
+
+	assign-output executionPrimitive -> after -> execution -> executionType: <"Assign the settlement terms input to the execution object.">
+		executionType
+
+	assign-output executionPrimitive -> after -> execution -> tradeDate: <"Assign the tradeDate input to the execution object.">
+		tradeDate
+	
+	assign-output executionPrimitive -> after -> execution -> identifier: <"Assign the identifier input to the execution object.">
+		identifier
 
 	post-condition: <"The execution will be the first event in any post-trade life cycle and therefore does not have a before state. Once pre-trade elements are brought into CDM, the 'before' will be used to refer to the last of the pre-trade event states.">
 		executionPrimitive -> before is absent
@@ -300,7 +320,7 @@ func Create_ContractFormationPrimitive: <"Function specification to create the p
 	assign-output contract -> contractIdentifier: <"Assign the contract identifier input to the execution object.">
 		execution -> identifier
 
-	assign-output contract -> tradeDate -> date: <"Assign the trade date input to the execution object.">
+	assign-output contract -> tradeDate: <"Assign the trade date input to the execution object.">
 		execution -> tradeDate
 
 	assign-output contract -> partyRole: <"Assign the party role input to the execution object.">
@@ -311,7 +331,7 @@ func Create_ContractFormationPrimitive: <"Function specification to create the p
 
 	assign-output contract -> documentation -> legalAgreement: <"When an overlaying legal agreement exists, the contract must reference it.">
 		if legalAgreement exists
-		then Create_LegalAgreementWithPartyReference(legalAgreement -> agreementTerms, legalAgreement -> agreementDate, legalAgreement -> effectiveDate, legalAgreement -> identifier, legalAgreement -> lineage, legalAgreement -> agreementType, legalAgreement -> contractualParty, legalAgreement -> otherParty)
+		then Create_LegalAgreementWithPartyReference(legalAgreement -> agreementTerms, legalAgreement -> agreementDate, legalAgreement -> effectiveDate, legalAgreement -> identifier, /*legalAgreement -> lineage,*/ legalAgreement -> agreementType, legalAgreement -> contractualParty, legalAgreement -> otherParty)
 
 func Create_Reset:
 	[creation BusinessEvent]
@@ -606,6 +626,8 @@ func TerminateContract: <"Function specification for a contract termination wher
 		contract -> tradeDate
 	assign-output terminatedContract -> clearedDate:
 		contract -> clearedDate
+	assign-output terminatedContract -> tradableProduct -> counterparties:
+		contract -> tradableProduct -> counterparties
 	assign-output terminatedContract -> tradableProduct -> product:
 		contract -> tradableProduct -> product
 	assign-output terminatedContract -> tradableProduct -> priceNotation:
@@ -674,6 +696,8 @@ func Create_ClearedTrade: <"Function supporting direct principal and agency clea
 	[creation BusinessEvent]
 	inputs:
 		clearingInstruction ClearingInstruction(1..1) <"Clearing Instruction with all party information required to clear the trade.">
+		tradeDate date (1..1) <"Denotes the trade/execution date.">
+		identifier Identifier (1..1) <"Denotes one or more identifiers associated with the transaction.">
 
 	output:
 		clearedEvent BusinessEvent (1..1) <"Business event qualified as a cleared trade consisting of five primitive events; terminated alpha contract, new beta execution, beta contract formation, new gamma execution and gamma contract formation">
@@ -685,14 +709,29 @@ func Create_ClearedTrade: <"Function supporting direct principal and agency clea
 	alias clearerRole: <"The clearing party (CCP) role set to ClearingOrganization.">
 		Create_PartyRole(clearingInstruction -> clearingParty, PartyRoleEnum -> ClearingOrganization)
 
-	alias betaExecution: <"Execution between the CCP and the beta party.">
-		Create_ExecutionPrimitive(clearingInstruction -> alphaContract -> tradableProduct -> product, clearingInstruction -> alphaContract -> tradableProduct -> quantityNotation, clearingInstruction -> alphaContract -> tradableProduct -> priceNotation, empty, [clearingInstruction -> clearingParty, betaParty], [clearerRole], empty)
-	alias betaExecutionPrimitives: NewExecutionPrimitiveEvent(betaExecution)
+	alias clearerCounterparty:
+		Create_Counterparty(clearingInstruction -> clearingParty, CounterpartyEnum -> Party2)
 
 	alias betaParty: <"Beta party is the clearerParty1 when acting as a clearing member or else is party1 when it is clearing for its own account.">
 		if clearingInstruction -> clearerParty1 exists
 		then clearingInstruction -> clearerParty1
 		else clearingInstruction -> party1
+
+	alias betaCounterparty:
+		Create_Counterparty(betaParty, CounterpartyEnum -> Party1)
+
+	alias betaExecution: <"Execution between the CCP and the beta party.">
+		Create_ExecutionPrimitive(clearingInstruction -> alphaContract -> tradableProduct -> product,
+		    clearingInstruction -> alphaContract -> tradableProduct -> quantityNotation,
+		    clearingInstruction -> alphaContract -> tradableProduct -> priceNotation,
+		    [betaCounterparty, clearerCounterparty],
+		    [betaParty, clearingInstruction -> clearingParty],
+		    [clearerRole],
+		    empty,
+            ExecutionTypeEnum -> OffFacility,
+            tradeDate,
+            [identifier])
+	alias betaExecutionPrimitives: NewExecutionPrimitiveEvent(betaExecution)
 
 	alias betaContract: <"Contract between the CCP and the beta party.">
 		Create_ContractFormationPrimitive(betaExecution -> after -> execution, empty)
@@ -703,8 +742,20 @@ func Create_ClearedTrade: <"Function supporting direct principal and agency clea
 		then clearingInstruction -> clearerParty2
 		else clearingInstruction -> party2
 
+	alias gammaCounterparty:
+		Create_Counterparty(gammaParty, CounterpartyEnum -> Party1)
+
 	alias gammaExecution: <"Execution between the CCP and the gamma party">
-		Create_ExecutionPrimitive(clearingInstruction -> alphaContract -> tradableProduct -> product, clearingInstruction -> alphaContract -> tradableProduct -> quantityNotation, clearingInstruction -> alphaContract -> tradableProduct -> priceNotation, empty, [clearingInstruction -> clearingParty, gammaParty], [clearerRole], empty)
+		Create_ExecutionPrimitive(clearingInstruction -> alphaContract -> tradableProduct -> product,
+		    clearingInstruction -> alphaContract -> tradableProduct -> quantityNotation,
+		    clearingInstruction -> alphaContract -> tradableProduct -> priceNotation,
+		    [gammaCounterparty, clearerCounterparty],
+		    [gammaParty, clearingInstruction -> clearingParty],
+		    [clearerRole],
+		    empty,
+            ExecutionTypeEnum -> OffFacility,
+            tradeDate,
+            [identifier])
 	alias gammaExecutionPrimitives: NewExecutionPrimitiveEvent(gammaExecution)
 
 	alias gammaContract: <"Contract between the CCP and the gamma party.">
@@ -731,7 +782,7 @@ func Create_ClearedTrade: <"Function supporting direct principal and agency clea
 			betaContractPrimitives,
 			gammaExecutionPrimitives,
 			gammaContractPrimitives
-	]
+	    ]
 
 func ExecutionAsTrade: <"Constructs a 'Trade' type that wraps an execution.">
 	inputs:

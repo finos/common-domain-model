@@ -4,16 +4,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.isda.cdm.ContractualProduct;
-import org.isda.cdm.ResolvablePayoutQuantity;
-import org.isda.cdm.metafields.ReferenceWithMetaResolvablePayoutQuantity;
-
 import com.regnosys.rosetta.common.hashing.ReferenceResolverProcessStep;
 
 import cdm.base.math.NonNegativeQuantity;
 import cdm.base.math.NonNegativeQuantity.NonNegativeQuantityBuilder;
 import cdm.observable.asset.AssetIdentifier;
 import cdm.observable.asset.QuantityNotation;
+import cdm.product.common.functions.ResolvePayoutQuantity;
+import cdm.product.common.settlement.ResolvablePayoutQuantity;
+import cdm.product.common.settlement.metafields.ReferenceWithMetaResolvablePayoutQuantity;
+import cdm.product.template.ContractualProduct;
 
 public class ResolvePayoutQuantityImpl extends ResolvePayoutQuantity {
 
@@ -23,7 +23,9 @@ public class ResolvePayoutQuantityImpl extends ResolvePayoutQuantity {
 			List<QuantityNotation> quantityNotations,
 			ContractualProduct contractualProduct) {
 
-		if (resolvableQuantity.getAssetIdentifier() != null) {
+		if (quantityNotations == null) {
+			return NonNegativeQuantity.builder();
+		} else if (resolvableQuantity.getAssetIdentifier() != null) {
 			return resolveQuantityFromAssetIdentifier(resolvableQuantity.getAssetIdentifier(), quantityNotations);
 		} else if (resolvableQuantity.getQuantityReference() != null) {
 			return resolveQuantityFromReference(resolvableQuantity.getQuantityReference(), quantityNotations, contractualProduct);

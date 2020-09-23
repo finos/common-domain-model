@@ -1,16 +1,11 @@
 namespace cdm.observable.event : <"Observable event concepts: extraordinary event, trigger event, disruption event etc.">
 version "${project.version}"
 
-import cdm.base.*
 import cdm.base.datetime.*
 import cdm.base.staticdata.party.*
 
 import cdm.observable.asset.*
-import cdm.observable.event.*
-import cdm.observable.asset.*
 import cdm.observable.common.*
-
-import cdm.synonyms.config.*
 
 type AdditionalDisruptionEvents: <"A type for defining the Additional Disruption Events.">
 
@@ -24,8 +19,7 @@ type AdditionalDisruptionEvents: <"A type for defining the Additional Disruption
 	maximumStockLoanRate number (0..1) <"Specifies the maximum stock loan rate for Loss of Stock Borrow. A percentage of 5% is represented as 0.05.">
 	increasedCostOfStockBorrow boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Increased Cost of Stock Borrow | If true, then increased cost of stock borrow is applicable.">
 	initialStockLoanRate number (0..1) <"Specifies the initial stock loan rate for Increased Cost of Stock Borrow. A percentage of 5% is represented as 0.05.">
-	determiningPartyReference Party (0..1) <"A reference to the party which determines additional disruption events.">
-		[metadata reference]
+	determiningParty CounterpartyOrRelatedParty (0..1) <"Specifies the party which determines additional disruption events.">
 
 	condition MaximumStockLoanRate: <" FpML specifies the maximumStockLoanRate as a RestrictedPercentage, meaning that its value is comprised between 0 and 1.">
 		if maximumStockLoanRate exists
@@ -37,6 +31,9 @@ type AdditionalDisruptionEvents: <"A type for defining the Additional Disruption
 		then AdditionalDisruptionEvents ->initialStockLoanRate >= 0
 			and initialStockLoanRate <= 1
 
+	condition DisruptionEventsDeterminingParty:
+		if determiningParty -> relatedParty exists
+		then determiningParty -> relatedParty = RelatedPartyEnum -> DisruptionEventsDeterminingParty
 
 /*
  * The FpML construct has a a number of other attributes: dividend valuation dates, fall-back provision, ...

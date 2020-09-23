@@ -8,14 +8,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import org.isda.cdm.AccessConditions;
-import org.isda.cdm.AdditionalTerminationEvent;
-
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
+
+import cdm.legalagreement.csa.AccessConditions;
+import cdm.legalagreement.csa.AdditionalTerminationEvent;
 
 /**
  * ISDA Create mapping processor.

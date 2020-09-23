@@ -5,14 +5,7 @@ import static org.hamcrest.number.BigDecimalCloseTo.closeTo;
 
 import java.math.BigDecimal;
 
-import org.isda.cdm.CalculationPeriodDates;
-import org.isda.cdm.DayCountFractionEnum;
-import org.isda.cdm.FloatingRateSpecification;
-import org.isda.cdm.InterestRatePayout;
-import org.isda.cdm.RateSpecification;
 import org.isda.cdm.functions.AbstractFunctionTest;
-import org.isda.cdm.functions.FloatingAmount;
-import org.isda.cdm.metafields.FieldWithMetaDayCountFractionEnum;
 import org.junit.jupiter.api.Test;
 
 import com.google.inject.Inject;
@@ -34,6 +27,13 @@ import cdm.base.staticdata.asset.rates.metafields.FieldWithMetaFloatingRateIndex
 import cdm.observable.asset.AssetIdentifier;
 import cdm.observable.asset.FloatingInterestRate;
 import cdm.observable.asset.FloatingRateOption;
+import cdm.product.asset.DayCountFractionEnum;
+import cdm.product.asset.FloatingRateSpecification;
+import cdm.product.asset.InterestRatePayout;
+import cdm.product.asset.RateSpecification;
+import cdm.product.asset.functions.FloatingAmount;
+import cdm.product.asset.metafields.FieldWithMetaDayCountFractionEnum;
+import cdm.product.common.schedule.CalculationPeriodDates;
 
 class FloatingAmountTest extends AbstractFunctionTest{
 	

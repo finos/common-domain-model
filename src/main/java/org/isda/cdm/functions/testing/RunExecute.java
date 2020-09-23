@@ -3,14 +3,17 @@ package org.isda.cdm.functions.testing;
 import static org.isda.cdm.functions.testing.FunctionUtils.guard;
 
 import java.util.Collections;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
 import org.isda.cdm.BusinessEvent;
-import org.isda.cdm.Contract;
 import org.isda.cdm.functions.Create_Execution;
 
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
+import com.rosetta.model.metafields.FieldWithMetaDate;
+
+import cdm.legalagreement.contract.Contract;
 
 public class RunExecute implements ExecutableFunction<Contract, BusinessEvent> {
 
@@ -25,7 +28,10 @@ public class RunExecute implements ExecutableFunction<Contract, BusinessEvent> {
                 guard(contract.getTradableProduct().getCounterparties()),
                 guard(contract.getParty()),
                 guard(contract.getPartyRole()),
-                Collections.emptyList());
+                Collections.emptyList(),
+                null,
+                Optional.ofNullable(contract.getTradeDate()).map(FieldWithMetaDate::getValue).orElse(null),
+                guard(contract.getContractIdentifier()));
     }
 
     @Override

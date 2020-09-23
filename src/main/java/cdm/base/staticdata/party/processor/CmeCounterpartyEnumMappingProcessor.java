@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-import org.isda.cdm.processor.CounterpartyMappingHelper;
+import org.isda.cdm.processor.PartyMappingHelper;
 
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
@@ -27,7 +27,7 @@ public class CmeCounterpartyEnumMappingProcessor extends MappingProcessor {
 
 	@Override
 	public <T> void mapBasic(Path synonymPath, Optional<T> instance, RosettaModelObjectBuilder parent) {
-		CounterpartyMappingHelper.getInstance(getContext())
+		PartyMappingHelper.getInstance(getContext())
 				.ifPresent(h -> h.setCounterpartyEnum(parent, getModelPath(), synonymPath, externalRefTranslator));
 	}
 }

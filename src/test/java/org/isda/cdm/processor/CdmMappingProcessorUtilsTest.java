@@ -1,12 +1,15 @@
 package org.isda.cdm.processor;
 
-import cdm.base.datetime.BusinessCenterEnum;
-import org.junit.jupiter.api.Test;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.ISDA_CREATE_SYNONYM_SOURCE;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.getEnumValue;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.synonymToEnumValueMap;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Map;
 
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
+
+import cdm.base.datetime.BusinessCenterEnum;
 
 class CdmMappingProcessorUtilsTest {
 

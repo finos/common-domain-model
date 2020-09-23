@@ -1,26 +1,29 @@
 package org.isda.cdm.functions;
 
-import cdm.base.staticdata.party.Account;
-import cdm.base.staticdata.party.Counterparty;
-import cdm.base.staticdata.party.CounterpartyEnum;
-import cdm.base.staticdata.party.Party;
-import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.Test;
+
 import com.google.inject.Inject;
 import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep;
 import com.regnosys.rosetta.common.hashing.NonNullHashCollector;
 import com.rosetta.model.lib.RosettaModelObject;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.metafields.FieldWithMetaString;
-import org.isda.cdm.TradableProduct;
-import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import cdm.base.staticdata.party.Account;
+import cdm.base.staticdata.party.Counterparty;
+import cdm.base.staticdata.party.CounterpartyEnum;
+import cdm.base.staticdata.party.Party;
+import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
+import cdm.product.template.TradableProduct;
+import cdm.product.template.functions.FpmlIrd8;
 
 class FpmlIrd8ImplTest extends AbstractFunctionTest {
 
@@ -76,7 +79,7 @@ class FpmlIrd8ImplTest extends AbstractFunctionTest {
 	private Counterparty getCounterparty(Party party, CounterpartyEnum counterparty) {
 		return Counterparty.builder()
 				.setCounterparty(counterparty)
-				.setParty(getPartyReference(party))
+				.setPartyReference(getPartyReference(party))
 				.build();
 	}
 

@@ -1,12 +1,13 @@
 package org.isda.cdm.functions;
 
+import java.util.List;
+import java.util.Optional;
+
 import cdm.base.staticdata.party.Account;
 import cdm.base.staticdata.party.Counterparty;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
-import org.isda.cdm.TradableProduct;
-
-import java.util.List;
-import java.util.Optional;
+import cdm.product.template.TradableProduct;
+import cdm.product.template.functions.FpmlIrd8;
 
 /**
  * FpML validation rule ird-8:
@@ -20,8 +21,8 @@ public class FpmlIrd8Impl extends FpmlIrd8 {
 		if ( tradableProduct.getCounterparties() == null || tradableProduct.getCounterparties().size() != 2)
 			return false;
 
-		Optional<ReferenceWithMetaParty> party1 = Optional.ofNullable(tradableProduct.getCounterparties().get(0)).map(Counterparty::getParty);
-		Optional<ReferenceWithMetaParty> party2 = Optional.ofNullable(tradableProduct.getCounterparties().get(1)).map(Counterparty::getParty);
+		Optional<ReferenceWithMetaParty> party1 = Optional.ofNullable(tradableProduct.getCounterparties().get(0)).map(Counterparty::getPartyReference);
+		Optional<ReferenceWithMetaParty> party2 = Optional.ofNullable(tradableProduct.getCounterparties().get(1)).map(Counterparty::getPartyReference);
 
 		if (!party1.isPresent() || !party2.isPresent())
 			return false;
