@@ -173,8 +173,11 @@ type FloatingRateSpecification extends FloatingRate: <"A class to specify the fl
 	averagingMethod AveragingMethodEnum (0..1) <"If averaging is applicable, this component specifies whether a weighted or unweighted average method of calculation is to be used. The component must only be included when averaging applies.">
 	negativeInterestRateTreatment NegativeInterestRateTreatmentEnum (0..1) <"The specification of any provisions for calculating payment obligations when a floating rate is negative (either due to a quoted negative floating rate or by operation of a spread that is subtracted from the floating rate).">
 
-	condition RateOptionAssetIdentifier: <"The asset identifier for an interest rate spread must be a rate option.">
-		assetIdentifier -> rateOption only exists
+	//condition RateOptionAssetIdentifier: <"The asset identifier for an interest rate spread must be a rate option.">
+	//	assetIdentifier -> rateOption only exists
+
+	condition RateOptionObservable: <"Requires that the observable for an interest rate spread must be a rate option.">
+		observable -> rateOption only exists
 
 type FutureValueAmount: <"A class defining a currency and a future value date.">
 
@@ -388,7 +391,8 @@ type SettlementTerms extends SettlementBase: <"The settlement terms applicable t
 	settlementAmount Money (0..1) <"The Settlement Amount, when known in advance.">
 	transferSettlementType TransferSettlementEnum (0..1) <"The qualification as to how the transfer will settle, e.g. a DvP settlement.">
 	payerReceiver PayerReceiver (0..1) <"The direction of transfer of the settlement.">
-	assetIdentifier AssetIdentifier (0..1) <"Identifier for the asset being settled.">
+	//	assetIdentifier AssetIdentifier (0..1) <"Identifier for the asset being settled.">
+	priceQuantity PriceQuantity (0..1) <"Identifies the relevant price, quantity, and observable that is being settled.">
 
 	condition Choice: <"The settlementCurrency attribute is to be specified when the settlement amount is not known in advance.">
 		optional choice settlementAmount, settlementCurrency

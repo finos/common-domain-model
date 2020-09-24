@@ -4,6 +4,8 @@ version "${project.version}"
 import cdm.base.datetime.*
 import cdm.base.staticdata.asset.common.*
 import org.isda.cdm.*
+// added to support new Quantity
+import cdm.base.math.*
 
 import cdm.observable.asset.*
 
@@ -50,40 +52,49 @@ func EquitySpot: <"An external market data lookup for the spot equity price of t
 	output: spot number (1..1)
 
 func PriceQuantityTriangulation:
+//Needs a description
 	inputs:
-		priceNotation PriceNotation (0..*)
-		quantityNotation QuantityNotation (0..*)
+		//priceNotation PriceNotation (0..*)
+		//quantityNotation QuantityNotation (0..*)
+		priceQuantity PriceQuantity (0..*)
 		product Product (0..1)
 
 	output:
 		success boolean (1..1)
 
 	assign-output success:
-		if //priceNotation -> price -> priceType -> CashPrice exists
-		priceNotation -> price -> priceType = PriceTypeEnum -> CashPrice
-		then CashPriceQuantityNoOfUnitsTriangulation(priceNotation, quantityNotation)
-		else if //priceNotation -> price -> exchangeRate exists
-			priceNotation -> price -> priceType = PriceTypeEnum -> ExchangeRate 
-			then ExchangeRateQuantityTriangulation(priceNotation, quantityNotation, product)
+		if //original//priceNotation -> price -> priceType -> CashPrice exists
+		//first change//priceNotation -> price -> priceType = PriceTypeEnum -> CashPrice
+		priceQuantity -> price -> priceType = PriceTypeEnum -> CashPrice
+		then //CashPriceQuantityNoOfUnitsTriangulation(priceNotation, quantityNotation)
+		CashPriceQuantityNoOfUnitsTriangulation(priceQuantity)
+		else if //orginal//priceNotation -> price -> exchangeRate exists
+			//first change//priceNotation -> price -> priceType = PriceTypeEnum -> ExchangeRate 
+			priceQuantity -> price -> priceType = PriceTypeEnum -> ExchangeRate 
+			then ExchangeRateQuantityTriangulation (priceQuantity, product)
 			else True
 
-func CashPriceQuantityNoOfUnitsTriangulation: <"Data rule to check the relationship between cash price, notional and number of units.">
+func CashPriceQuantityNoOfUnitsTriangulation: <"Specifies a data rule to check the relationship between cash price, notional, and number of units.">
 	inputs:
-		priceNotation PriceNotation (0..*)
-		quantityNotation QuantityNotation (0..*)
+	//original//	priceNotation PriceNotation (0..*)
+	//first change//	quantityNotation QuantityNotation (0..*)
+	priceQuantity PriceQuantity (0..*)
 
 	output:
 		success boolean (1..1)
 
 	alias notional:
-		CurrencyAmount(quantityNotation, empty)
+		//CurrencyAmount(quantityNotation, empty)
+		CurrencyAmount( priceQuantity, empty)
 
 	alias noOfUnits:
-		NoOfUnits(quantityNotation)
+		//NoOfUnits(quantityNotation)
+		NoOfUnits(priceQuantity)
 
 	alias cashPrices:
-		//priceNotation -> price -> cashPrice -> netPrice -> amount
-		priceNotation -> price -> amount
+		//original//priceNotation -> price -> cashPrice -> netPrice -> amount
+		//first change//priceNotation -> price -> amount
+		priceQuantity -> price -> amount
 	alias cashPrice:
 		cashPrices only-element
 
@@ -92,22 +103,25 @@ func CashPriceQuantityNoOfUnitsTriangulation: <"Data rule to check the relations
 		then cashPrice * noOfUnits = notional
 
 func ExchangeRateQuantityTriangulation:
+//needs a description
 	inputs:
-		priceNotation PriceNotation (0..*)
-		quantityNotation QuantityNotation (0..*)
+		//priceNotation PriceNotation (0..*)
+		//quantityNotation QuantityNotation (0..*)
+		priceQuantity PriceQuantity (0..*)
 		product Product (0..1)
 
 	output:
 		success boolean (1..1)
 
 	alias exchangeRates:
-		priceNotation -> price -> priceType -> ExchangeRate
+		//priceNotation -> price -> priceType -> ExchangeRate
+		priceQuantity -> price -> priceType -> ExchangeRate
 
 	alias exchangeRate:
 		exchangeRates only-element
 
 	alias rate:
-		priceNotation -> price -> amount
+		priceQuantity -> price -> amount
 	/*
 		if exchangeRate -> rate exists
 		then exchangeRate -> rate
@@ -139,7 +153,8 @@ func ExchangeRateQuantityTriangulation:
 
 func NoOfUnits: <"Get quantity associated with product identifier.">
 	inputs:
-		quantityNotations QuantityNotation (0..*)
+		//quantityNotations QuantityNotation (0..*)
+		priceQuantity PriceQuantity (0..*)
 
 	output:
 		noOfUnits number (1..1)
@@ -147,7 +162,8 @@ func NoOfUnits: <"Get quantity associated with product identifier.">
 
 func CurrencyAmount: <"Get quantity associated with currency.">
 	inputs:
-		quantityNotations QuantityNotation (0..*)
+		//quantityNotations QuantityNotation (0..*)
+		priceQuantity PriceQuantity (0..*)
 		currency string (0..1)
 
 	output:
@@ -156,16 +172,23 @@ func CurrencyAmount: <"Get quantity associated with currency.">
 // TODO: turn these functions into language level operators i.e. '+'
 func Plus:
 	inputs:
-		q1 QuantityNotation (1..1)
-		q2 QuantityNotation (1..1)
+			
+		//q1 QuantityNotation (1..1)
+		//q2 QuantityNotation (1..1)
+		//is this the right value, or should it be something else, e.g. measureBase?
+		q1 Quantity (1..1)
+		q2 Quantity (1..1)
 	output:
-		result QuantityNotation (1..1)
+		//result QuantityNotation (1..1)
+		result Quantity (1..1)
 
 // TODO: turn these functions into language level operators i.e. '='
 func Equals:
 	// TODO Never referenced in CDM
 	inputs:
-		quantity QuantityNotation (1..*)
+
+		//quantity QuantityNotation (1..*)
+		quantity Quantity (1..*)
 		scalar number (1..1)
 	output:
 		result boolean (1..1)
@@ -173,7 +196,8 @@ func Equals:
 // TODO: turn these functions into language level operators i.e. '>'
 func GreaterThan:
 	inputs:
-		quantity QuantityNotation (1..*)
+		//quantity QuantityNotation (1..*)
+		quantity Quantity (1..*)
 		scalar number (1..1)
 	output:
 		result boolean (1..1)
@@ -182,23 +206,29 @@ func GreaterThan:
 func GreaterThanEquals:
 	// TODO Never referenced in CDM
 	inputs:
-		quantity QuantityNotation (1..*)
+		//quantity QuantityNotation (1..*)
+		quantity Quantity (1..*)
 		scalar number (1..1)
 	output:
 		result boolean (1..1)
 
 func ExtractQuantityByAsset:
 	inputs:
-		quantities QuantityNotation (1..*)
-		asset AssetIdentifier (1..1)
+		//quantities QuantityNotation (1..*)
+		priceQuantities PriceQuantity (1..*)
+		//asset AssetIdentifier (1..1)
+		observable Observable (1..1)
+		
 	output:
-		quantity QuantityNotation (1..1)
+		//quantity QuantityNotation (1..1)
+		priceQuantity PriceQuantity (1..1)
 
 func ExtractQuantityByCurrency:
 	inputs:
-		quantities QuantityNotation (1..*)
+		//quantities QuantityNotation (1..*)
+		priceQuantities PriceQuantity (1..*)
 		currency string (1..1)
 	output:
-		quantity QuantityNotation (1..1)
-
+		//quantity QuantityNotation (1..1)
+		quantity PriceQuantity (1..1)
 

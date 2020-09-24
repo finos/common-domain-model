@@ -20,7 +20,9 @@ type AllocationBreakdown:
 
 	partyReference Party (1..1) <"Reference to the party to specify the account.">
 		[metadata reference]
-	quantity QuantityNotation (1..1) <"The quantity to be allocated to the party.">
+//	quantity QuantityNotation (1..1) <"The quantity to be allocated to the party.">
+//  is Quantity sufficient?  do we also need to add observable?
+	quantity Quantity (1..1) <"Specifies the quantity to be allocated to the party.">
 	allocationTradeId Identifier (1..*)<"The identifier to be assigned to the new trade post allocation">
 	account Account (0..1)<"The account to allocate the trade into">
 	collateral Collateral (0..1)<"The sum that must be posted upfront to collateralize against counterparty credit risk.">
@@ -60,7 +62,8 @@ type CommodityTransferBreakdown extends TransferBreakdown:
 	commodity Commodity (1..1)
 	quantity number (1..1)
 		[synonym Workflow_Event value "quantity"]
-	unit UnitEnum (1..1) <"The unit of measure, applicable to physical assets.">
+	//unit UnitEnum (1..1) <"The unit of measure, applicable to physical assets.">
+	capacityUnit CapacityUnitEnum (1..1) <"Provides enumerated values for capacity units, generally used in the context of defining quantities for commodities.">
 	timeUnit TimeUnitEnum (0..1)
 
 type CommodityTransferComponent extends TransferBase:
@@ -69,7 +72,8 @@ type CommodityTransferComponent extends TransferBase:
 	commodity Commodity (1..1)
 	quantity number (1..1)
 		[synonym Workflow_Event value "quantity"]
-	unit UnitEnum (1..1) <"The unit of measure, applicable to physical assets.">
+	//unit UnitEnum (1..1) <"The unit of measure, applicable to physical assets.">
+	capacityUnit CapacityUnitEnum (1..1) <"Provides enumerated values for capacity units, generally used in the context of defining quantities for commodities.">
 	timeUnit TimeUnitEnum (0..1)
 	assetTransferType AssetTransferTypeEnum (0..1) <"The type of transfer, e.g. Free of Payment.">
 	breakdown CommodityTransferBreakdown (0..*) <"The security transfer breakdown, when the transfer corresponds to a net transfer across several components which breakdown is deemed relevant (e.g. the net security transfer related to several contracts).">
@@ -233,7 +237,10 @@ type WorkflowStepState: <"A class to specify workflow information, which is conc
 type CashExercise: <"The cash exercise specifies the cashflow using the cashflow payout and a given quantity.">
 
 	cashflow Cashflow (1..1) <"Cashflow payout specification, excluding the quantity.">
-	quantity QuantityNotation (1..1) <"Quantity of the cashflow payout.">
+	//quantity QuantityNotation (1..1) <"Quantity of the cashflow payout.">
+	// is this sufficient? is observable also needed?
+	quantity Quantity (1..1) <"Quantity of the cashflow payout.">
+
 
 type ExerciseOutcome: <"The exercise outcome combines the option contract (which states would be 'Exercised' in case of a full exercise and which would have a reduced notional in case of partial exercise) and either a physical or partial exercise.">
 
@@ -346,7 +353,7 @@ type PhysicalExercise: <"The physical exercise results into a financial product 
 		[synonym Workflow_Event value "product"]
 	quantity Quantity (0..1) <"The quantity associated the asset that is physically settled. This quantity should only be associated with non-contractual products, as it is then expressed as part of the contractual terms.">
 		[synonym Workflow_Event value "quantity"]
-	quantityNotation QuantityNotation (0..*) <"Complex attribute to specify the quantity of the contractual product that is being exercised. This temporarily makes uses of the 'ExecutionQuantity' class, until such time when the latter can be renamed as, and supersede, the existing 'ContractualQuantity' class. To be later merged with the 'quantity' attribute to have consistent mechanism between contractual and non-contractual products.">
+	//quantityNotation QuantityNotation (0..*) <"Complex attribute to specify the quantity of the contractual product that is being exercised. This temporarily makes uses of the 'ExecutionQuantity' class, until such time when the latter can be renamed as, and supersede, the existing 'ContractualQuantity' class. To be later merged with the 'quantity' attribute to have consistent mechanism between contractual and non-contractual products.">
 		// For Swap Stream:
 		[synonym Workflow_Event value "notionalSchedule" path "product->swap->swapStream->calculationPeriodAmount->calculation"]
 		[synonym Workflow_Event value "cashflow"]
