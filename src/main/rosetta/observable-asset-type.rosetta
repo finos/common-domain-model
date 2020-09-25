@@ -87,7 +87,7 @@ type UnitContractValuationModel: <" Unit contract model for security valuation, 
 	numberOfUnits Quantity (1..1) <"The number of units (index or securities).">
 	unitPrice Money (1..1) <"The price of each unit.">
 
-type ActualPrice:
+/*type ActualPrice:
 
 	currency string (0..1) <"Specifies the currency associated with the net price. This element is not present if the price is expressed in percentage terms (as specified through the priceExpression element).">
 		[metadata scheme]
@@ -97,9 +97,9 @@ type ActualPrice:
 		if priceExpression = PriceExpressionEnum -> PercentageOfNotional
 		then currency is absent
 
-
+*/
 // TODO - #1 Look for further synergies with the option strike
-/*type Price: <"Generic description of the price concept applicable across product types, which can be expressed in a number of ways other than simply cash price">
+/*: <"Generic description of the price concept applicable across product types, which can be expressed in a number of ways other than simply cash price">
 
 	cashPrice CashPrice (0..1) <"Price specified in cash terms, e.g. for securities proceeds or fee payment in a contractual product.">
 	exchangeRate ExchangeRate (0..1) <"Price specified as an exchange rate between two currencies.">
@@ -109,7 +109,7 @@ type ActualPrice:
 	condition: one-of*/
 
 // TODO - Look for further synergies with the SecurityValuation class
-type CashPrice: <"Describes a price component as a cash amount, which can either represent cash proceeds for a security purchase or a cashflow that is embedded as part of a contractual product: for instance an upfront fee.">
+/*type CashPrice: <"Describes a price component as a cash amount, which can either represent cash proceeds for a security purchase or a cashflow that is embedded as part of a contractual product: for instance an upfront fee.">
 
 	grossPrice ActualPrice (0..1) <"Specifies the price of the underlier, before commissions.">
 	cleanNetPrice ActualPrice (0..1) <"Specifies the clean price of the underlier (e.g. excluding accrued interest), net of commissions.">
@@ -117,13 +117,13 @@ type CashPrice: <"Describes a price component as a cash amount, which can either
 	accruedInterest number (0..1) <"Specifies the accrued interest that are part of the dirty price in the case of a fixed income security or a convertible bond. Expressed in percentage of the notional.">
 	cashflowAmount Money (0..1) <"Specifies the price as a cashflow amount embedded as part of a a contractual product.">
 
-	/*
-	 * FpML construct also includes other elements, such as the fxConversion
-	 */
+	
+	// FpML construct also includes other elements, such as the fxConversion
+	
 	condition NetPrice: <" The netPrice and/or cleanNetPrice must be specified.">
 		if CashPrice exists
-		then netPrice exists or cleanNetPrice exists or cashflowAmount exists
-
+	then netPrice exists or cleanNetPrice exists or cashflowAmount exists
+*/
 
 type InformationSource: <"A class defining the source for a piece of information (e.g. a rate fix or an FX fixing). The attribute names have been adjusted from FpML to address the fact that the information is not limited to rates.">
 
@@ -142,11 +142,13 @@ type Money: <"A class defining a currency amount.">
 		[metadata scheme]
 	amount number (1..1) <"The monetary quantity in currency units.">
 
-type FixedInterestRate: <"Data to specify a fixed interest rate price.">
+/*type FixedInterestRate: <"Data to specify a fixed interest rate price.">
 
 	rate number (1..1)
 
-type FloatingInterestRate: <"Data to specify a floating interest rate price.">
+	*/
+
+/*type FloatingInterestRate: <"Data to specify a floating interest rate price.">
 
 	initialRate number (0..1) <"The initial floating rate reset agreed between the principal parties involved in the trade. This is assumed to be the first required reset rate for the first regular calculation period. It should only be included when the rate is not equal to the rate published on the source implied by the floating rate index. An initial rate of 5% would be represented as 0.05.">
 	spread number (0..1)
@@ -160,6 +162,7 @@ type FloatingInterestRate: <"Data to specify a floating interest rate price.">
 	condition FloatingRateMultiplierSchedule: <"FpML specifies that the floatingRateMultiplierSchedule should only be included if the multiplier is not equal to 1 for the term of the stream.">
 		if multiplier exists
 		then multiplier <> 1.0
+*/
 
 type ExchangeRate: <"A class that is used for describing the exchange rate for a particular transaction.">
 
@@ -185,6 +188,7 @@ type ExchangeRate: <"A class that is used for describing the exchange rate for a
 	condition SpotRate:
 		if forwardPoints exists
 		then spotRate exists
+
 
 type QuotedCurrencyPair: <"A class that describes the composition of a rate that has been quoted or is to be quoted. This includes the two currencies and the quotation relationship between the two currencies and is used as a building block throughout the FX specification.">
 
@@ -309,7 +313,9 @@ type SwapCurveValuation: <"A class to specify a valuation swap curve, which is u
 	side QuotationSideEnum (0..1) <"The side (bid/mid/ask) of the measure.">
 
 
-type EquityValuation extends CashPrice: <"A class for defining how and when an equity option or equity swap is to be valued.">
+type EquityValuation extends //CashPrice: <"A class for defining how and when an equity option or equity swap is to be valued.">
+Price: <"Defines how and when an equity option or equity swap is to be valued.">
+
 
 	determinationMethod DeterminationMethodEnum (1..1) <"Specifies the method according to which an amount or a date is determined.">
 

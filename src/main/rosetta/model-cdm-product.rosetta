@@ -923,11 +923,17 @@ type UnitType: <"Defines the unit to be used for price, quantity, or other purpo
 	condition:one-of
 
 type Price extends MeasureBase: <"Specifies a price to be used for trade amounts and other purposes.">
-	[metadata key]
 	priceType PriceTypeEnum (1..1) <"Provides a value for a type of price in order to explain how to interpret the amount and use it in calculations.">
 	perUnitofAmount UnitType (0..1) <"Provides an optional attribute to define the unit being priced.  For example, {amount, unitOfAmount, PerUnitOfAmount} = [10, EUR, Shares] = (10.00 EUR/SHARE) * (300,000 SHARES) = EUR 3,000,000.00 (Shares cancel out in the calculation).">
-/*reviewer proposed perUnit in place of perUnitOfAmount*/
 
+	//conditions from CDM ExchangeRate data type which is being deprecated
+	condition FXPositiveRate: <"Requires that per FpML rules, the FX rate must be a positive value.">
+		if priceType=PriceTypeEnum->ExchangeRate 
+		then amount > 0
+
+	condition PositiveSpotRate: <"Requires that per FpML rules, the spot rate must be a positive value, for example for FX or Commodities.">
+		if priceType=PriceTypeEnum->Spot
+		then amount > 0
 
 
 
