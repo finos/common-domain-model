@@ -149,6 +149,8 @@ In the CDM, contractual products are represented by the ``ContractualProduct`` t
 .. code-block:: Haskell
 
  type ContractualProduct:
+    [metadata key]
+    [metadata template]
     productIdentification ProductIdentification (0..1)
     productTaxonomy ProductTaxonomy (0..*)
     economicTerms EconomicTerms (1..1)
