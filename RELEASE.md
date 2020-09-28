@@ -8,7 +8,8 @@ This fifth refactor includes the changes for the __cdm.event.*__ set of namespac
 
 The namespaces contain components used across the CDM for 
 * Business event concepts: primitives, contract state and associated state transition function specifications,
-* and Workflow concepts (orthogonal to business event): time stamp, credit limit, trade warehouse info and associated function specifications.
+* Workflow concepts (orthogonal to business event): time stamp, credit limit, trade warehouse info and associated function specifications.
+* and Position concepts: portfolio and portfolio aggregation
 
 _Review Directions_
 
@@ -24,9 +25,7 @@ This refactor is the fifth incremental change that will further transform the or
 This fifth refactor includes the changes for the __cdm.regulation.*__ set of namespaces.
 
 The namespaces contain components used across the CDM for 
-* Regulatory reporting concepts: regulatory rules, report definitions, reporting formats,
 * ISO standard concepts.
-* and Position concepts: portfolio and portfolio aggregation
 
 _Review Directions_
 
