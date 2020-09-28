@@ -10,7 +10,7 @@ The namespaces contain components used across the CDM for
 * Business event concepts: primitives, contract state and associated state transition function specifications,
 * and Workflow concepts (orthogonal to business event): time stamp, credit limit, trade warehouse info and associated function specifications.
 
-_Review Direction_
+_Review Directions_
 
 In Rosetta Core (https://ui.rosetta-technology.io/), review the File or Namespace structure in the Editor Textual View. In the CDM Portal, 
 navigate to the Downloads tile, then download artefacts in Java, DAML, Typescript or Scala distribution format and review the reorganised source folder with new cdm.event.* files.
@@ -28,7 +28,7 @@ The namespaces contain components used across the CDM for
 * ISO standard concepts.
 * and Position concepts: portfolio and portfolio aggregation
 
-_Review Direction_
+_Review Directions_
 
 In Rosetta Core (https://ui.rosetta-technology.io/), review the File or Namespace structure in the Editor Textual View. In the CDM Portal, 
 navigate to the Downloads tile, then download artefacts in Java, DAML, Typescript or Scala distribution format and review the reorganised source folder with new cdm.regulation.* files.
