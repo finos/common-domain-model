@@ -1,15 +1,11 @@
-_NOTE: please include into any CDM release post version 2.78.0_
-
-# *User Documentation: Regulatory Reporting Syntax*
+# *Code Generator: CSharp code generation*
 
 _What is being released_
+Added a C Sharp implementations (.Net 3.1 and .Net 5 Preview) of the CDM to the available downloads.
 
-A new section has been added to the Rosetta DSL documentation that explains the regulatory reporting components and the syntax that can be used to write reporting logic.
+Notable changes and updates introduced:
 
-This update will allow external contributors to write further regulatory reporting components in the CDM, in order to scale-up the effort of digitising regulatory rules and associated best practices.
+2 new tiles in the downloads section of the portal offering the option to download C Sharp artifacts.
 
-_Review Directions_
-
-In the CDM Portal, navigate to the ISDA CDM Documentation tile and find the "Reporting Component" under the Rosetta DSL > Rosetta Modelling Components section.
-
-Alternatively, documentation section is directly accessible at: https://docs.rosetta-technology.io/dsl/documentation.html#reporting-component.
+_Review direction_
+Download the C Sharp artifacts from the downloads section of the portal
