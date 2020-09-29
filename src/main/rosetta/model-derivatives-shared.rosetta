@@ -167,11 +167,12 @@ type FloatingRate extends RateSpecificationBase: <"A class defining a floating i
 
 type FloatingRateSpecification extends FloatingRate: <"A class to specify the floating interest rate by extending the floating rate definition with a set of attributes that specify such rate: the initial value specified as part of the trade, the rounding convention, the averaging method and the negative interest rate treatment.">
 
-	initialRate number (0..1) <"The initial floating rate reset agreed between the principal parties involved in the trade. This is assumed to be the first required reset rate for the first regular calculation period. It should only be included when the rate is not equal to the rate published on the source implied by the floating rate index. An initial rate of 5% would be represented as 0.05.">
-		[deprecated]
+	//initialRate number (0..1) <"The initial floating rate reset agreed between the principal parties involved in the trade. This is assumed to be the first required reset rate for the first regular calculation period. It should only be included when the rate is not equal to the rate published on the source implied by the floating rate index. An initial rate of 5% would be represented as 0.05.">
+		//[deprecated]
 	finalRateRounding Rounding (0..1) <"The rounding convention to apply to the final rate used in determination of a calculation period amount.">
 	averagingMethod AveragingMethodEnum (0..1) <"If averaging is applicable, this component specifies whether a weighted or unweighted average method of calculation is to be used. The component must only be included when averaging applies.">
 	negativeInterestRateTreatment NegativeInterestRateTreatmentEnum (0..1) <"The specification of any provisions for calculating payment obligations when a floating rate is negative (either due to a quoted negative floating rate or by operation of a spread that is subtracted from the floating rate).">
+	
 
 	//condition RateOptionAssetIdentifier: <"The asset identifier for an interest rate spread must be a rate option.">
 	//	assetIdentifier -> rateOption only exists
@@ -377,22 +378,22 @@ type ResourceLength: <"A class to indicate the length of the resource.">
 	lengthUnit LengthUnitEnum (1..1) <"The length unit of the resource. For example, pages (pdf, text documents) or time (audio, video files).">
 	lengthValue number (1..1) <"The length value of the resource.">
 
-type SettlementBase: <"A base class to be extended by the SettlementTerms, CashSettlementTerms and PhysicalSettlementTerms classes.">
+type SettlementBase: <"Represents a base class to be extended by the SettlementTerms, CashSettlementTerms and PhysicalSettlementTerms classes.">
 	[metadata key]
 
 	settlementCurrency string (0..1) <"The settlement currency is to be specified when the Settlement Amount cannot be known in advance. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
 		[metadata scheme]
 
-type SettlementTerms extends SettlementBase: <"The settlement terms applicable to any transfer of cash or securities, including the date, amount, payer/receiver side and type (e.g. cash vs physical, DvP etc.)">
+type SettlementTerms extends SettlementBase: <"Deifnes the settlement terms applicable to any transfer of cash or securities, including the date, amount, payer/receiver side and type (e.g. cash vs physical, DvP etc.).">
 
-	settlementType SettlementTypeEnum (0..1) <"Whether the settlement will be cash, physical, by election, ...">
-	settlementDate AdjustableOrRelativeDate (0..1)
-	valueDate date (0..1) <"The settlement date for a forward settling product. For Foreign Exchange contracts, this represents a common settlement date between both currency legs. To specify different settlement dates for each currency leg, see the ForeignExchange class. This attribute is meant to be merged with the 'settlementDate' at some future point noce we refactor 'Date' to use a single complex type across the model.">
+	settlementType SettlementTypeEnum (0..1) <"Identifies whether the settlement will be cash or physical.">
+	settlementDate AdjustableOrRelativeDate (0..1) <"Denotes the date on which the settlement will take place with the transfer of funds and/or securities.">
+	valueDate date (0..1) <"The settlement date for a forward settling product. For Foreign Exchange contracts, this represents a common settlement date between both currency legs. To specify different settlement dates for each currency leg, see the ForeignExchange class. This attribute is meant to be merged with the 'settlementDate' at some future point.">
 	settlementAmount Money (0..1) <"The Settlement Amount, when known in advance.">
 	transferSettlementType TransferSettlementEnum (0..1) <"The qualification as to how the transfer will settle, e.g. a DvP settlement.">
 	payerReceiver PayerReceiver (0..1) <"The direction of transfer of the settlement.">
-	//	assetIdentifier AssetIdentifier (0..1) <"Identifier for the asset being settled.">
 	priceQuantity PriceQuantity (0..1) <"Identifies the relevant price, quantity, and observable that is being settled.">
+	[metadata reference]
 
 	condition Choice: <"The settlementCurrency attribute is to be specified when the settlement amount is not known in advance.">
 		optional choice settlementAmount, settlementCurrency

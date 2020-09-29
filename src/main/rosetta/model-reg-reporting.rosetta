@@ -280,18 +280,18 @@ reporting rule Quantity <"The number of units of the financial instrument, or th
  	ContractForEvent then
  		//filter when RateSpecification -> fixedRate count > 0 then
  		//filter when Contract -> tradableProduct -> priceNotation -> price -> fixedInterestRate -> rate exists then
-		filter when Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate -> price then
+		filter when Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate then
 	 		//extract Contract -> tradableProduct -> priceNotation -> price -> fixedInterestRate -> rate
-			 extract Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate -> price 
+			 extract Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate ->rateSchedule->initialValue->amount 
 	 		// extract max value
 		 	as "Price"
 
   reporting rule FloatingRatePrice
  	ContractForEvent then
 	 	//filter when Contract -> tradableProduct -> priceNotation -> price -> floatingInterestRate -> spread exists then
-		 filter when Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> price then
+		 filter when Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate then
 	 		//extract Contract -> tradableProduct -> priceNotation -> price -> floatingInterestRate -> spread 
-			 extract Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> price 
+			 extract Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate->floorRateSchedule->initialValue->amount 
 			 //filter when RateSpecification -> fixedRate count = 0 then
 	 		// extract max value
 	 		as "Price"
@@ -637,11 +637,11 @@ reporting rule FixedFloatPrice
 	 	   	provision "Questions and Answers On MiFIR data reporting. Section 14 Financial instruments’ volatile attributes [Last update: 05/10/2017]. Question 1; Answer 1 (a) Where a swap rate or forward rate financial contract is quoted as the fixed rate and it is considered to be an attribute of the transaction rather than an attribute of the financial instrument, the respective reports should be completed as follows: Transaction report - the price (field 33) of the transaction should be populated with the fixed rate value. Question 2; Example 1: CFI code SRC*S* fixed-floating with single currency"]
 	filter when rule IsFixedFloat then
 	//	extract Contract -> tradableProduct -> priceNotation -> price -> fixedInterestRate then
-	extract Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate -> price then
+	extract Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification then
 	//maxBy FixedInterestRate -> rate then
-	maxBy Price->amount then
+	maxBy RateSpecification->fixedRate->rateSchedule->initialValue->amount then
 	//extract FixedInterestRate -> rate as "Price"
-	extract Price->amount as "Price"
+	extract RateSpecification->fixedRate->rateSchedule->initialValue->amount as "Price"
 	
 reporting rule BasisSwapPrice
 		[regulatoryReference ESMA MiFIR RTS_22 annex "1" table "2" field "33"
@@ -651,18 +651,18 @@ reporting rule BasisSwapPrice
 	 	   	provision "09April 2019|ESMA70-1861941480-56. Questions and Answers On MiFIR data reporting. Section 16 Interest Rate Swaps reporting [Last update: 26/09/2018]. Question 2 Answer 2 CFI SRA*S*, Tenor basis swap (float-to-float single currency). 10 Years EUR EURIBOR 3 months + 2 basis points VS EURIBOR 6 MONTHS. 33 Price 2: If the spread was negative i.e. Firm X was paying 3 month EUR EURIBOR - 2 basis points then Firm X should still be reported as the buyer but the price would be reported as '-2’ in the reports of X and Y."]
 	filter when rule IsIRSwapBasis then
 	//extract Contract -> tradableProduct -> priceNotation -> price -> floatingInterestRate then
-	extract Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> price then
+	extract Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate then
 	//extract FloatingInterestRate -> initialRate as "Price"
-	extract Price->amount as "Price"
+	extract FloatingRateSpecification->spreadSchedule->initialValue->amount as "Price"
 
 reporting rule FixedFixedPrice
 	filter when rule IsFixedFixed then
 	//extract Contract -> tradableProduct -> priceNotation -> price -> fixedInterestRate then
-	extract Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate -> price then
+	extract Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate then
 	//maxBy FixedInterestRate -> rate then
-	maxBy Price->amount then
+	maxBy FixedRateSpecification->rateSchedule->initialValue->amount then
 	//extract FixedInterestRate -> rate as "Price"
-	extract Price->amount as "Price"
+	extract FixedRateSpecification->rateSchedule->initialValue->amount as "Price"
 
 reporting rule CDSPrice
 		[regulatoryReference ESMA MiFIR RTS_22 annex "1" table "2" field "33"
