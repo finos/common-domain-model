@@ -1,21 +1,18 @@
 namespace cdm.synonyms.cme
 version "${project.version}"
 
-import cdm.base.*
-import cdm.base.math.*
-import cdm.base.datetime.*
-import cdm.base.staticdata.*
 import cdm.base.staticdata.party.*
-import cdm.base.staticdata.asset.*
-import cdm.base.staticdata.asset.credit.*
-import cdm.base.staticdata.asset.rates.*
-import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.identifier.*
 
 import cdm.observable.event.*
 import cdm.observable.asset.*
+
+import cdm.product.asset.*
+import cdm.product.template.*
+import cdm.product.common.settlement.*
+
+import cdm.legalagreement.contract.*
 import cdm.synonyms.fpml.*
-import cdm.synonyms.config.*
 import org.isda.cdm.*
 
 synonym source CME_ClearedConfirm_1_17 extends CME_BASE
@@ -33,12 +30,6 @@ synonym source CME_ClearedConfirm_1_17 extends CME_BASE
 			[value "tradeId" meta "tradeIdScheme"]
 			[value "usi" meta "usiScheme"]
 
-	Identifier:
-		+ issuerReference
-			[value "partyReference" meta "href"]
-		+ issuer
-			[value "issuer" meta "issuerIdScheme"]
-
 	PartyContractInformation:
 		+ accountReference
 			[value "accountReference" meta "href"]
@@ -46,8 +37,6 @@ synonym source CME_ClearedConfirm_1_17 extends CME_BASE
 	Contract:
 		+ contractIdentifier
 			[value "universalSwapIdentifier" path "trade->tradeHeader"]
-		+ partyContractInformation
-			[value "partyTradeInformation" path "trade->tradeHeader"]
 		- account
 
 	OptionPayout:
@@ -187,14 +176,9 @@ synonym source CME_SubmissionIRS_1_0 extends CME_BASE
 		+ before
 			[value "ignore"]
 
-	ExerciseNotice:
-	    - optionBuyer
-		+ optionBuyer
-			[value "partyReference" mapper "CmeCounterpartyEnum"]
-
-	TradeDate:
-		+ date
-			[value "tradeDate" path "Instrmt->SecXML->FpML->trade->tradeHeader" meta "id"]
+//	TradeDate:
+//		+ date
+//			[value "tradeDate" path "Instrmt->SecXML->FpML->trade->tradeHeader" meta "id"]
 
 	NotifyingParty:
 	    - buyer
@@ -212,10 +196,11 @@ synonym source CME_SubmissionIRS_1_0 extends CME_BASE
 		+ contractIdentifier
 			[value "partyTradeIdentifier" path "Instrmt->SecXML->FpML->trade->tradeHeader"]
 		+ tradeDate
-			[value "tradeHeader" path "Instrmt->SecXML->FpML->trade"]
+//			[value "tradeHeader" path "Instrmt->SecXML->FpML->trade"]
+			[value "tradeDate" path "Instrmt->SecXML->FpML->trade->tradeHeader" meta "id"]
 		- tradableProduct
 		+ tradableProduct
-			[value "trade" path "Instrmt->SecXML->FpML" mapper "Counterparty"]
+			[value "trade" path "Instrmt->SecXML->FpML" mapper "Party"]
 		+ party
 			[value "party" path "Instrmt->SecXML->FpML"]
 
@@ -228,7 +213,7 @@ synonym source CME_SubmissionIRS_1_0 extends CME_BASE
 			[value "tradeDate" path "Instrmt->SecXML->FpML->trade->tradeHeader" meta "id"]
 		- tradableProduct
 		+ tradableProduct
-			[value "trade" path "Instrmt->SecXML->FpML" mapper "Counterparty"]
+			[value "trade" path "Instrmt->SecXML->FpML" mapper "Party"]
 		+ party
 			[value "party" path "Instrmt->SecXML->FpML"]
 

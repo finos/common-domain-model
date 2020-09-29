@@ -91,6 +91,7 @@ A financial product is an instrument that is used to transfer financial risk bet
    index Index (0..1)
    loan Loan (0..1)
    foreignExchange ForeignExchange (0..1)
+   commodity Commodity (0..1)
    security Security (0..1)
    condition: one-of
 
@@ -456,7 +457,8 @@ The contract type is only applicable to contractual products.  It represents the
    [metadata key]
    [rootType]
    contractIdentifier Identifier (1..*)
-   tradeDate TradeDate (1..1)
+   tradeDate date (1..1)
+   	 [metadata id]
    clearedDate date (0..1)
    tradableProduct TradableProduct (1..1)
    collateral Collateral (0..1)
@@ -1077,7 +1079,6 @@ The CDM provides support for implementors to uniquely identify a legal agreement
    agreementDate date (1..1)
    effectiveDate date (0..1)
    identifier Identifier (0..*)
-   lineage Lineage (0..1)
    agreementType LegalAgreementType (1..1)
    contractualParty Party (2..2)
      [metadata reference]
@@ -1408,7 +1409,8 @@ Financial transactions defined in CDM can be referenced in the ``Contract`` data
    [metadata key]
    [rootType]
    contractIdentifier Identifier (1..*)
-   tradeDate TradeDate (1..1)
+   tradeDate date (1..1)
+   	 [metadata id]
    clearedDate date (0..1)
    tradableProduct TradableProduct (1..1)
    collateral Collateral (0..1)

@@ -15,17 +15,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
-import org.isda.cdm.Contract;
-import org.isda.cdm.ContractualProduct;
-import org.isda.cdm.EconomicTerms;
-import org.isda.cdm.EquityPayout;
-import org.isda.cdm.InterestRatePayout;
-import org.isda.cdm.OptionPayout;
-import org.isda.cdm.Payout;
-import org.isda.cdm.PayoutBase;
-import org.isda.cdm.Product;
-import org.isda.cdm.ResolvablePayoutQuantity;
-import org.isda.cdm.TradableProduct;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -36,7 +25,19 @@ import com.rosetta.model.lib.GlobalKey;
 import com.rosetta.model.lib.meta.MetaFieldsI;
 
 import cdm.base.math.NonNegativeQuantity;
+import cdm.legalagreement.contract.Contract;
 import cdm.observable.asset.QuantityNotation;
+import cdm.product.asset.InterestRatePayout;
+import cdm.product.common.functions.ResolvePayoutQuantity;
+import cdm.product.common.settlement.PayoutBase;
+import cdm.product.common.settlement.ResolvablePayoutQuantity;
+import cdm.product.template.ContractualProduct;
+import cdm.product.template.EconomicTerms;
+import cdm.product.template.EquityPayout;
+import cdm.product.template.OptionPayout;
+import cdm.product.template.Payout;
+import cdm.product.template.Product;
+import cdm.product.template.TradableProduct;
 
 class ResolvePayoutQuantityTest extends AbstractFunctionTest {
 

@@ -10,17 +10,19 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import org.isda.cdm.BusinessEvent;
-import org.isda.cdm.Contract;
-import org.isda.cdm.ContractualProduct;
-import org.isda.cdm.EconomicTerms;
-import org.isda.cdm.Payout;
-import org.isda.cdm.Product;
-import org.isda.cdm.SettlementTerms;
-import org.isda.cdm.TradableProduct;
-import org.isda.cdm.functions.CashflowSettlementTerms;
 import org.isda.cdm.functions.Create_Execution;
 
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
+import com.rosetta.model.metafields.FieldWithMetaDate;
+
+import cdm.legalagreement.contract.Contract;
+import cdm.product.common.settlement.SettlementTerms;
+import cdm.product.common.settlement.functions.CashflowSettlementTerms;
+import cdm.product.template.ContractualProduct;
+import cdm.product.template.EconomicTerms;
+import cdm.product.template.Payout;
+import cdm.product.template.Product;
+import cdm.product.template.TradableProduct;
 
 public class RunExecutionWithSettlementTerms implements ExecutableFunction<Contract, BusinessEvent> {
 
@@ -44,7 +46,10 @@ public class RunExecutionWithSettlementTerms implements ExecutableFunction<Contr
                 guard(input.getTradableProduct().getCounterparties()),
                 guard(input.getParty()),
                 guard(input.getPartyRole()),
-                settlementTerm);
+                settlementTerm,
+                null,
+                Optional.ofNullable(input.getTradeDate()).map(FieldWithMetaDate::getValue).orElse(null),
+                guard(input.getContractIdentifier()));
     }
 
     private Contract clearCashPayout(Contract input) {

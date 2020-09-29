@@ -3,21 +3,24 @@ package org.isda.cdm.functions.testing;
 import static org.isda.cdm.functions.testing.FunctionUtils.guard;
 
 import java.util.Collections;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
 import org.isda.cdm.BusinessEvent;
-import org.isda.cdm.Contract;
-import org.isda.cdm.GoverningLawEnum;
-import org.isda.cdm.LegalAgreement;
-import org.isda.cdm.LegalAgreementNameEnum;
-import org.isda.cdm.LegalAgreementPublisherEnum;
-import org.isda.cdm.LegalAgreementType;
 import org.isda.cdm.functions.Create_ContractFormation;
 import org.isda.cdm.functions.Create_Execution;
 
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
 import com.rosetta.model.lib.records.DateImpl;
+import com.rosetta.model.metafields.FieldWithMetaDate;
+
+import cdm.legalagreement.common.GoverningLawEnum;
+import cdm.legalagreement.common.LegalAgreement;
+import cdm.legalagreement.common.LegalAgreementNameEnum;
+import cdm.legalagreement.common.LegalAgreementPublisherEnum;
+import cdm.legalagreement.common.LegalAgreementType;
+import cdm.legalagreement.contract.Contract;
 
 public class RunFormContractWithLegalAgreement implements ExecutableFunction<Contract, BusinessEvent> {
 
@@ -36,7 +39,10 @@ public class RunFormContractWithLegalAgreement implements ExecutableFunction<Con
                 guard(contract.getTradableProduct().getCounterparties()),
                 guard(contract.getParty()),
                 guard(contract.getPartyRole()),
-                Collections.emptyList());
+                Collections.emptyList(), 
+                null, 
+                Optional.ofNullable(contract.getTradeDate()).map(FieldWithMetaDate::getValue).orElse(null), 
+                guard(contract.getContractIdentifier()));
 
         LegalAgreement legalAgreement = LegalAgreement.builder()
                 .addContractualPartyRef(guard(contract.getParty()))

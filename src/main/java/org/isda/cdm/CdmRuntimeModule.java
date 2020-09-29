@@ -1,8 +1,16 @@
 package org.isda.cdm;
 
 import cdm.base.math.functions.*;
+import cdm.base.staticdata.party.functions.ExtractCounterpartyBySide;
+import cdm.base.staticdata.party.functions.ExtractCounterpartyBySideImpl;
+import cdm.legalagreement.csa.functions.SumPostedCreditSupportItemAmounts;
 import cdm.observable.common.functions.CurrencyAmount;
 import cdm.observable.common.functions.NoOfUnits;
+import cdm.product.asset.functions.ResolveEquityInitialPrice;
+import cdm.product.common.functions.ResolveContractualProduct;
+import cdm.product.common.functions.ResolvePayoutQuantity;
+import cdm.product.common.schedule.functions.CalculationPeriod;
+import cdm.product.template.functions.FpmlIrd8;
 import com.google.inject.AbstractModule;
 import com.regnosys.rosetta.common.validation.RosettaTypeValidator;
 import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
@@ -19,7 +27,7 @@ public class CdmRuntimeModule extends AbstractModule {
 
 		// functions
 		bind(Abs.class).to(bindAbs());
-		bind(org.isda.cdm.functions.CalculationPeriod.class).to(bindCalculationPeriod());
+		bind(CalculationPeriod.class).to(bindCalculationPeriod());
 		bind(Sum.class).to(bindSum());
 		bind(ListsCompare.class).to(bindListsCompare());
 		bind(ResolvePayoutQuantity.class).to(bindResolvePayoutQuantity());
@@ -30,6 +38,7 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(SumPostedCreditSupportItemAmounts.class).to(bindSumPostedCreditSupportItemAmounts());
 		bind(RoundToNearest.class).to(bindRoundToNearest());
 		bind(FpmlIrd8.class).to(bindFpmlIrd8());
+		bind(ExtractCounterpartyBySide.class).to(bindExtractCounterpartyBySide());
 	}
 
 	protected Class<? extends ListsCompare> bindListsCompare() {
@@ -50,7 +59,7 @@ public class CdmRuntimeModule extends AbstractModule {
 		return AbsImpl.class;
 	}
 
-	protected Class<? extends org.isda.cdm.functions.CalculationPeriod> bindCalculationPeriod() {
+	protected Class<? extends CalculationPeriod> bindCalculationPeriod() {
 		return CalculationPeriodImpl.class;
 	}
 
@@ -88,5 +97,9 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends FpmlIrd8> bindFpmlIrd8() {
 		return FpmlIrd8Impl.class;
+	}
+
+	protected Class<? extends ExtractCounterpartyBySide> bindExtractCounterpartyBySide() {
+		return ExtractCounterpartyBySideImpl.class;
 	}
 }

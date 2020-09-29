@@ -1,14 +1,24 @@
 namespace org.isda.cdm
 version "${project.version}"
 
-import cdm.base.*
 import cdm.base.math.*
 import cdm.base.datetime.*
-import cdm.base.staticdata.identifier.*
 import cdm.base.staticdata.party.*
+import cdm.base.staticdata.identifier.*
 import cdm.base.staticdata.asset.common.*
-import cdm.base.staticdata.asset.rates.*
+
 import cdm.observable.asset.*
+
+import cdm.product.asset.*
+import cdm.product.template.*
+import cdm.product.common.settlement.*
+import cdm.product.common.schedule.*
+
+import cdm.legalagreement.csa.*
+import cdm.legalagreement.contract.*
+import cdm.legalagreement.common.*
+
+
 import cdm.synonyms.config.*
 
 type AllocationInstruction:
@@ -73,14 +83,6 @@ type CommodityTransferComponent extends TransferBase:
 	assetTransferType AssetTransferTypeEnum (0..1) <"The type of transfer, e.g. Free of Payment.">
 	breakdown CommodityTransferBreakdown (0..*) <"The security transfer breakdown, when the transfer corresponds to a net transfer across several components which breakdown is deemed relevant (e.g. the net security transfer related to several contracts).">
 		[synonym Workflow_Event value "breakdown"]
-
-type ComputedAmount: <"A class to specify the outcome of a computed amount, for testing purposes.">
-
-	callFunction calculation (1..1)
-	amount number (1..1)
-	currency string (0..1) <"The currency in which the computed amount is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
-		[metadata scheme]
-		[synonym Workflow_Event value "currency" meta "currencyScheme"]
 
 type ContractState: <"A class to specify a contract state instantiation with respect to the before and/or after state of lifecycle events.">
 	[metadata key]
@@ -179,7 +181,7 @@ type BusinessEvent: <"A business event represents a life cycle event of a trade 
 	functionCall string (0..1) <"This is placeholder concept for a function call into a calculation that will return an outcome. This concept needs to be further firmed out.">
 		[synonym Workflow_Event value "functionCall"]
 	eventQualifier eventType (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic which qualifies the lifecycle event as a function of its features (e.g. PartialTermination, ClearingSubmission, Novation, ...).">
-	eventDate date (1..1) <"The date on which the event is taking place. This is the equivalent of the trade date in the case of an execution or a contract.">
+	eventDate date (1..1) <"Specifies the date on which the event is taking place. This is the equivalent of the trade date in the case of an execution.">
 		[synonym Workflow_Event value "eventDate"]
 	effectiveDate date (0..1) <"The date on which the event contractually takes effect, when different from the event date.">
 		[synonym Workflow_Event value "effectiveDate"]

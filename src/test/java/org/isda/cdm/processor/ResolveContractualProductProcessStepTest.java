@@ -1,13 +1,6 @@
 package org.isda.cdm.processor;
 
-import com.google.common.io.Resources;
-import com.google.inject.Inject;
-import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
-import com.rosetta.model.lib.GlobalKey;
-import com.rosetta.model.lib.meta.MetaFieldsI;
-import org.isda.cdm.*;
-import org.isda.cdm.functions.AbstractFunctionTest;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -17,7 +10,23 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.isda.cdm.functions.AbstractFunctionTest;
+import org.junit.jupiter.api.Test;
+
+import com.google.common.io.Resources;
+import com.google.inject.Inject;
+import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
+import com.rosetta.model.lib.GlobalKey;
+import com.rosetta.model.lib.meta.MetaFieldsI;
+
+import cdm.legalagreement.contract.Contract;
+import cdm.product.asset.InterestRatePayout;
+import cdm.product.common.settlement.PayoutBase;
+import cdm.product.template.ContractualProduct;
+import cdm.product.template.EconomicTerms;
+import cdm.product.template.Payout;
+import cdm.product.template.Product;
+import cdm.product.template.TradableProduct;
 
 class ResolveContractualProductProcessStepTest extends AbstractFunctionTest {
 

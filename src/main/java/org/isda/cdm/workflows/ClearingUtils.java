@@ -2,7 +2,6 @@ package org.isda.cdm.workflows;
 
 import org.isda.cdm.BusinessEvent;
 import org.isda.cdm.ClearingInstruction;
-import org.isda.cdm.Contract;
 import org.isda.cdm.ContractFormationPrimitive;
 import org.isda.cdm.Instruction;
 import org.isda.cdm.PostContractFormationState;
@@ -13,10 +12,17 @@ import org.isda.cdm.functions.example.services.identification.IdentifierService;
 import org.isda.cdm.metafields.ReferenceWithMetaWorkflowStep;
 
 import com.rosetta.model.lib.process.PostProcessor;
+import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.metafields.FieldWithMetaString;
 
 import cdm.base.staticdata.identifier.Identifier;
+import cdm.base.staticdata.party.Counterparty;
+import cdm.base.staticdata.party.CounterpartyEnum;
 import cdm.base.staticdata.party.Party;
+import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
+import cdm.legalagreement.contract.Contract;
+
+import java.util.Objects;
 
 public class ClearingUtils {
 
@@ -62,9 +68,10 @@ public class ClearingUtils {
 		return stepBuilder.build();
 	}
 
-	static WorkflowStep buildClear(PostProcessor runner, String externalReference, WorkflowStep previous, ClearingInstruction clearingInstruction, Create_ClearedTrade clear, IdentifierService identifierService) {
+	static WorkflowStep buildClear(PostProcessor runner, String externalReference, WorkflowStep previous, ClearingInstruction clearingInstruction,
+			Create_ClearedTrade          clear, IdentifierService identifierService, Date tradeDate, Identifier identifier) {
 
-		BusinessEvent.BusinessEventBuilder businessEventBuilder = clear.evaluate(clearingInstruction).toBuilder();
+		BusinessEvent.BusinessEventBuilder businessEventBuilder = clear.evaluate(clearingInstruction, tradeDate, identifier).toBuilder();
 
 		WorkflowStep.WorkflowStepBuilder clearedTradeWorkflowEventBuilder = WorkflowStep.builder().setBusinessEventBuilder(businessEventBuilder);
 
@@ -106,6 +113,20 @@ public class ClearingUtils {
 			.addPartyId(FieldWithMetaString.builder().setValue("Party").build())
 			.setName(FieldWithMetaString.builder().setValue("CCP").build())
 			.build();
+	}
+
+	/**
+	 * Extract the party related to the given counterparty enum.
+	 */
+	public static Party getParty(Contract contract, CounterpartyEnum counterparty) {
+		return contract.getTradableProduct().getCounterparties().stream()
+				.filter(c -> c.getCounterparty() == counterparty)
+				.map(Counterparty::getPartyReference)
+				.filter(Objects::nonNull)
+				.map(ReferenceWithMetaParty::getGlobalReference)
+				.flatMap(partyReference -> contract.getParty().stream().filter(p -> partyReference.equals(p.getMeta().getGlobalKey())))
+				.findFirst()
+				.orElseThrow(() -> new IllegalArgumentException("Party not found for counterparty " + counterparty));
 	}
 }
 

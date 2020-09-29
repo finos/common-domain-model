@@ -10,18 +10,18 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.isda.cdm.AdditionalTypeEnum;
-import org.isda.cdm.ApplicableRegime;
-import org.isda.cdm.ApplicableRegime.ApplicableRegimeBuilder;
-import org.isda.cdm.Regime.RegimeBuilder;
-import org.isda.cdm.RegimeTerms;
-import org.isda.cdm.RegulatoryRegimeEnum;
-
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
+
+import cdm.legalagreement.csa.AdditionalTypeEnum;
+import cdm.legalagreement.csa.ApplicableRegime;
+import cdm.legalagreement.csa.ApplicableRegime.ApplicableRegimeBuilder;
+import cdm.legalagreement.csa.Regime.RegimeBuilder;
+import cdm.legalagreement.csa.RegimeTerms;
+import cdm.legalagreement.csa.RegulatoryRegimeEnum;
 
 @SuppressWarnings("unused")
 public class ApplicableRegimeMappingProcessor extends MappingProcessor {

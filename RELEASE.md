@@ -1,12 +1,15 @@
-# *Infrastructure: Add Ingestion Environment for ORE XML model*
+_NOTE: please include into any CDM release post version 2.78.0_
+
+# *User Documentation: Regulatory Reporting Syntax*
 
 _What is being released_
 
-A new synonym source `ORE_1_0_39` has been created in the CDM which is being used to create mappings between the ORE XML model and the CDM. The initial scope for the mapping is plain vanilla interest rate swaps.
+A new section has been added to the Rosetta DSL documentation that explains the regulatory reporting components and the syntax that can be used to write reporting logic.
 
-A new Ingestion Envrionment has also been added such that ORE XML sample documents and their ingested CDM representations can be displayed in the CDM Portal.  
+This update will allow external contributors to write further regulatory reporting components in the CDM, in order to scale-up the effort of digitising regulatory rules and associated best practices.
 
 _Review Directions_
-In the Rosetta core, see the filename synonyms-cdm-ore
 
-In the Ingestion page, see the drop-down for the `ore-1-0-39` entry.
+In the CDM Portal, navigate to the ISDA CDM Documentation tile and find the "Reporting Component" under the Rosetta DSL > Rosetta Modelling Components section.
+
+Alternatively, documentation section is directly accessible at: https://docs.rosetta-technology.io/dsl/documentation.html#reporting-component.

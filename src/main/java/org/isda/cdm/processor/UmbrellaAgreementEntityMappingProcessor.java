@@ -5,9 +5,6 @@ import static org.isda.cdm.processor.CdmMappingProcessorUtils.toFieldWithMetaStr
 import java.util.List;
 import java.util.Optional;
 
-import org.isda.cdm.UmbrellaAgreement.UmbrellaAgreementBuilder;
-import org.isda.cdm.UmbrellaAgreementEntity;
-import org.isda.cdm.UmbrellaAgreementEntity.UmbrellaAgreementEntityBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import com.regnosys.rosetta.common.translation.MappingContext;
@@ -15,6 +12,10 @@ import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
+
+import cdm.legalagreement.common.UmbrellaAgreement.UmbrellaAgreementBuilder;
+import cdm.legalagreement.common.UmbrellaAgreementEntity;
+import cdm.legalagreement.common.UmbrellaAgreementEntity.UmbrellaAgreementEntityBuilder;
 
 /**
  * ISDA Create mapping processor.
