@@ -1,11 +1,10 @@
-# *Code Generator: CSharp code generation*
+# *Code Generator: C# code generators*
 
 _What is being released_
-Added a C Sharp implementations (.Net 3.1 and .Net 5 Preview) of the CDM to the available downloads.
+Added the following C# code generators to the CDM Portal.
 
-Notable changes and updates introduced:
+* C# 8.0 based on .NET Core 3.1 (.NET Standard 2.1).
+* C# 9.0 based on .Net 5 Preview.
 
-2 new tiles in the downloads section of the portal offering the option to download C Sharp artifacts.
-
-_Review direction_
-Download the C Sharp artifacts from the downloads section of the portal
+_Review Directions_
+2 new tiles in the downloads section of the CDM Portal offering the option to download the new C# CDM Distribution.
