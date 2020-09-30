@@ -32,6 +32,7 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
 	earlyTerminationProvision EarlyTerminationProvision (0..1) <"Parameters specifying provisions relating to the optional and mandatory early termination of a swap transaction.">
 	optionProvision OptionProvision (0..1) <"Cancelable and/or extendible provisions.">
 	extraordinaryEvents ExtraordinaryEvents (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Extraordinary Events.">
+	calculationAgent CalculationAgent (0..1) <"The ISDA calculation agent responsible for performing duties as defined in the applicable product definitions.">
 
 	condition ExtraordinaryEvents: <"Extraordinary events provisions must be associated with an equity payout.">
 		if extraordinaryEvents exists
@@ -60,6 +61,10 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
 		if (payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate
 			and terminationDate) exists
 		then payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate < terminationDate -> adjustableDate -> unadjustedDate
+	
+//	condition IndependentCalculationAgent:
+//		if calculationAgent -> party -> relatedParty exists
+//		then calculationAgent -> party -> relatedParty = RelatedPartyEnum -> IndependentCalculationAgent
 
     // FIXME Object compare: effectiveDate > terminationDate
     // condition CalculationPeriodDates_effectiveDate_terminationDate: <"If the effective date and the termination date are specified, then the termination date must be after the effective date. This data rule extends the FpML validation rules ird-14 & cd-5, which scope is limited to the unadjusted date, to the adjusted date.">
