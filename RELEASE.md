@@ -1,33 +1,15 @@
-# *Model Optimisation: Extract Party References from Product*
+_NOTE: please include into any CDM release post version 2.78.0_
+
+# *User Documentation: Regulatory Reporting Syntax*
 
 _What is being released_
 
-This change is part of the ongoing model refactoring to externalise the definition of the parties involved in a transaction from the definition of the transacted product.
+A new section has been added to the Rosetta DSL documentation that explains the regulatory reporting components and the syntax that can be used to write reporting logic.
 
-- New enum `RelatedPartyEnum` specifies all the possible parties roles (other than counterparty) which are defined within the product.​  
-- The `RelatedPartyEnum` can be resolved to an actual party by looking up the enum value in type `RelatedPartyReference` to find the corresponding party reference.
-- New type `CounterpartyOrRelatedParty` is used when the party can be either one of the counterparties or a related party.​
-- `RelatedPartyEnum` is constrained within each usage in the model using conditions.
-
-This release covers the party references in `AdditionalDisruptionEvents.determiningParty`, `DividendReturnTerms.extraordinaryDividendsParty`, `OptionPhysicalSettlement.predeterminedClearingOrganizationParty` and `ExerciseNotice.exerciseNoticeReceiver`.  Future releases will cover the remaining party references defined within the product.
+This update will allow external contributors to write further regulatory reporting components in the CDM, in order to scale-up the effort of digitising regulatory rules and associated best practices.
 
 _Review Directions_
 
-In the CDM Portal, use the Textual Browser to review the enum and types mentioned above.
+In the CDM Portal, navigate to the ISDA CDM Documentation tile and find the "Reporting Component" under the Rosetta DSL > Rosetta Modelling Components section.
 
-In the CDM Portal, use the Ingestion page to review the following samples:
-
-AdditionalDisruptionEvents.determiningParty:
-- `equity > eqs-ex01-single-underlyer-execution-long-form.xml`
-- `equity > eqs-ex01-single-underlyer-execution-long-form-related-party.xml`
-- `equity > eqs-ex06-single-index-long-form.xml`
-
-DividendReturnTerms.extraordinaryDividendsParty:
-- `equity > eqs-ex01-single-underlyer-execution-long-form.xml`
-- `equity > eqs-ex01-single-underlyer-execution-long-form-related-party.xml`
-
-OptionPhysicalSettlement.predeterminedClearingOrganizationParty:
-- `events > exercise-swaption-physical-related-party.xml`
-
-ExerciseNotice.exerciseNoticeReceiver:
-- `rates > ird-ex12-euro-swaption-straddle-cash-related-party.xml`
+Alternatively, documentation section is directly accessible at: https://docs.rosetta-technology.io/dsl/documentation.html#reporting-component.
