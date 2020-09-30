@@ -1,4 +1,4 @@
-# *Code Generator: C# code generators*
+# *CDM Distribution: C# Language*
 
 _What is being released_
 The suite of CDM Distributions has been expanded to 2 versions in C# programming language on the CDM Portal:
