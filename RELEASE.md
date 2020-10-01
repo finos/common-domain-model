@@ -1,42 +1,27 @@
-# *CDM Model: Event namespace classification*
+# *CDM Model: Event & Regulation namespace classification*
 
 _What is being released_
 
 This refactor is the fifth incremental change that will further transform the org.isda.cdm file into a hierarchical namespace.
 
-This fifth refactor includes the changes for the __cdm.event.*__ set of namespaces.
+This fifth refactor includes the changes for the __cdm.event.*__ & __cdm.regulation.*__ set of namespaces.
 
 The namespaces contain components used across the CDM for 
-* Business event concepts: primitives, contract state and associated state transition function specifications,
-* Workflow concepts (orthogonal to business event): time stamp, credit limit, trade warehouse info and associated function specifications.
-* and Position concepts: portfolio and portfolio aggregation
+* Business event concepts: primitives, contract state and associated state transition function specifications
+* Workflow concepts (orthogonal to business event): time stamp, credit limit, trade warehouse info and associated function specifications
+* Position concepts: portfolio and portfolio aggregation
+* ISO standard concepts.
 
 _Review Directions_
 
 In Rosetta Core (https://ui.rosetta-technology.io/), review the File or Namespace structure in the Editor Textual View. In the CDM Portal, 
 navigate to the Downloads tile, then download artefacts in Java, DAML, Typescript or Scala distribution format and review the reorganised source folder with new cdm.event.* files.
 
-# *CDM Model: Regulation namespace classification*
+# *CDM Model: Deprecated types & functions*
 
 _What is being released_
 
-This refactor is the fifth incremental change that will further transform the org.isda.cdm file into a hierarchical namespace.
-
-This fifth refactor includes the changes for the __cdm.regulation.*__ set of namespaces.
-
-The namespaces contain components used across the CDM for 
-* ISO standard concepts.
-
-_Review Directions_
-
-In Rosetta Core (https://ui.rosetta-technology.io/), review the File or Namespace structure in the Editor Textual View. In the CDM Portal, 
-navigate to the Downloads tile, then download artefacts in Java, DAML, Typescript or Scala distribution format and review the reorganised source folder with new cdm.regulation.* files.
-
-# *CDM Model: Deprecated types & funcs*
-
-_What is being released_
-
-Following objects to be deprecated.
+Following objects to be marked deprecated.
 
 Types:
 * CommoditySet
