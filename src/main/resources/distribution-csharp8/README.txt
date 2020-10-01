@@ -20,6 +20,6 @@ The file names in the common-domain-model folder should be considered in aggrega
 /documentation
 Contains both the CDM documentation in html format.  In each on the sub-folders there is an index.html file.  Open this file to use the documentation.  You must extract the .zip archive before your browser can assess all the files and render them correctly.
 
-/c#8
-The CSharp8 source code generated from the CDM.
+/csharp8
+The C# 8.0 source code generated from the CDM.
 
