@@ -1,18 +1,20 @@
 package org.isda.cdm.functions;
 
-import com.google.inject.Inject;
-import com.rosetta.model.lib.records.Date;
-import com.rosetta.model.lib.records.DateImpl;
-import org.isda.cdm.BusinessEvent.BusinessEventBuilder;
-import org.isda.cdm.PrimitiveEvent.PrimitiveEventBuilder;
-import org.isda.cdm.WorkflowStep;
-import org.isda.cdm.WorkflowStep.WorkflowStepBuilder;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.isda.cdm.test.functions.TestPartialNovationFunc;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import com.google.inject.Inject;
+import com.rosetta.model.lib.records.Date;
+import com.rosetta.model.lib.records.DateImpl;
+
+import cdm.event.common.BusinessEvent.BusinessEventBuilder;
+import cdm.event.common.PrimitiveEvent.PrimitiveEventBuilder;
+import cdm.event.workflow.WorkflowStep;
+import cdm.event.workflow.WorkflowStep.WorkflowStepBuilder;
 
 class MapperTreeOrTest extends AbstractFunctionTest {
 
