@@ -182,29 +182,32 @@ public class PartyMappingHelper {
 	public void addRelatedParties(String partyExternalReference, RelatedPartyEnum relatedPartyEnum) {
 		tradableProductBuilderSupplied
 				.thenAcceptAsync(tradableProductBuilder -> {
-							LOGGER.info("Adding {} as {} to TradableProduct.relatedParties", partyExternalReference, relatedPartyEnum);
-							List<RelatedPartyReferenceBuilder> relatedParties = Optional.ofNullable(tradableProductBuilder.getRelatedParties())
-									.orElse(new ArrayList<>());
-							Optional<RelatedPartyReferenceBuilder> relatedPartyReference = relatedParties.stream()
-									.filter(r -> relatedPartyEnum == r.getRelatedParty())
-									.findFirst();
-							if (relatedPartyReference.isPresent()) {
-								// Update existing entry
-								relatedPartyReference.get()
-										.addPartyReference(ReferenceWithMetaParty.builder().setExternalReference(partyExternalReference).build());
-							} else {
-								// Add new entry
-								relatedParties.add(RelatedPartyReference.builder()
-										.setRelatedParty(relatedPartyEnum)
-										.addPartyReferenceBuilder(ReferenceWithMetaParty.builder().setExternalReference(partyExternalReference)));
+							synchronized (tradableProductBuilder) {
+								LOGGER.info("Adding {} as {} to TradableProduct.relatedParties", partyExternalReference, relatedPartyEnum);
+								List<RelatedPartyReferenceBuilder> relatedParties = Optional.ofNullable(tradableProductBuilder.getRelatedParties())
+										.orElse(new ArrayList<>());
+								Optional<RelatedPartyReferenceBuilder> relatedPartyReference = relatedParties.stream()
+										.filter(r -> relatedPartyEnum == r.getRelatedParty())
+										.findFirst();
+								if (relatedPartyReference.isPresent()) {
+									// Update existing entry
+									relatedPartyReference.get()
+											.addPartyReference(ReferenceWithMetaParty.builder().setExternalReference(partyExternalReference).build());
+								} else {
+									// Add new entry
+									relatedParties.add(RelatedPartyReference.builder()
+											.setRelatedParty(relatedPartyEnum)
+											.addPartyReferenceBuilder(ReferenceWithMetaParty.builder().setExternalReference(partyExternalReference)));
+								}
+								// Clear related parties, and re-add sorted list so we don't get diffs on the list order on each ingestion
+								tradableProductBuilder
+										.clearRelatedParties()
+										.addRelatedParties(relatedParties.stream()
+												.map(RelatedPartyReferenceBuilder::build)
+												.sorted(Comparator.comparing(RelatedPartyReference::getRelatedParty))
+												.collect(Collectors.toList()));
 							}
-							// Clear related parties, and re-add sorted list so we don't get diffs on the list order on each ingestion
-							tradableProductBuilder
-									.clearRelatedParties()
-									.addRelatedParties(relatedParties.stream()
-											.map(RelatedPartyReferenceBuilder::build)
-											.sorted(Comparator.comparing(RelatedPartyReference::getRelatedParty))
-											.collect(Collectors.toList()));
+
 						},
 						executor);
 	}

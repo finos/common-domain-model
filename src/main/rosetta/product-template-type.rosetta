@@ -62,9 +62,9 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
 			and terminationDate) exists
 		then payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate < terminationDate -> adjustableDate -> unadjustedDate
 	
-//	condition IndependentCalculationAgent:
-//		if calculationAgent -> party -> relatedParty exists
-//		then calculationAgent -> party -> relatedParty = RelatedPartyEnum -> IndependentCalculationAgent
+	condition IndependentCalculationAgent:
+		if calculationAgent -> calculationAgentPartyReference -> relatedParty exists
+		then calculationAgent -> calculationAgentPartyReference -> relatedParty = RelatedPartyEnum -> IndependentCalculationAgent
 
     // FIXME Object compare: effectiveDate > terminationDate
     // condition CalculationPeriodDates_effectiveDate_terminationDate: <"If the effective date and the termination date are specified, then the termination date must be after the effective date. This data rule extends the FpML validation rules ird-14 & cd-5, which scope is limited to the unadjusted date, to the adjusted date.">
@@ -467,6 +467,10 @@ type MandatoryEarlyTermination: <"A data to:  define an early termination provis
 		if cashSettlement exists
 		then cashSettlement -> cashSettlementPaymentDate is absent
 
+    condition MandatoryEarlyTerminationCalculationAgent:
+        if calculationAgent -> calculationAgentPartyReference -> relatedParty exists
+        then calculationAgent -> calculationAgentPartyReference -> relatedParty = RelatedPartyEnum -> MandatoryEarlyTerminationCalculationAgent
+
 type MandatoryEarlyTerminationAdjustedDates: <"A data defining:  the adjusted dates associated with a mandatory early termination provision.">
 
 	adjustedEarlyTerminationDate date (1..1) <"The early termination date that is applicable if an early termination provision is exercised. This date should already be adjusted for any applicable business day convention.">
@@ -496,6 +500,10 @@ type OptionalEarlyTermination: <"A data defining:  an early termination provisio
 	condition OptionalEarlyTerminationExerciseNoticeReceiverParty:
 		if exerciseNotice -> exerciseNoticeReceiver exists
 		then exerciseNotice -> exerciseNoticeReceiver = RelatedPartyEnum -> OptionalEarlyTerminationExerciseNoticeReceiverParty
+
+    condition MandatoryEarlyTerminationCalculationAgent:
+        if calculationAgent -> calculationAgentPartyReference -> relatedParty exists
+        then calculationAgent -> calculationAgentPartyReference -> relatedParty = RelatedPartyEnum -> OptionalEarlyTerminationCalculationAgent
 
 type OptionalEarlyTerminationAdjustedDates: <"A data defining:  the adjusted dates associated with an optional early termination provision.">
 

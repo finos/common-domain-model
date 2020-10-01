@@ -10,28 +10,36 @@ import com.rosetta.model.lib.path.RosettaPath;
 import org.isda.cdm.processor.PartyMappingHelper;
 
 import java.util.List;
+import java.util.Optional;
+
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
 
 /**
  * FpML mapping processor.
  */
 public abstract class CounterpartyOrRelatedPartyMappingProcessor extends MappingProcessor {
 
-	private final RelatedPartyEnum relatedPartyEnum;
-
-	public CounterpartyOrRelatedPartyMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context, RelatedPartyEnum relatedPartyEnum) {
+	public CounterpartyOrRelatedPartyMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
 		super(modelPath, synonymPaths, context);
-		this.relatedPartyEnum = relatedPartyEnum;
 	}
 
 	@Override
 	public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
-		setValueAndUpdateMappings(synonymPath,
+		setValueAndOptionallyUpdateMappings(synonymPath,
 				partyExternalReference ->
-						PartyMappingHelper.getInstance(getContext())
-								.orElseThrow(() -> new IllegalStateException("PartyMappingHelper not found."))
-								.setCounterpartyOrRelatedParty(
-										(CounterpartyOrRelatedParty.CounterpartyOrRelatedPartyBuilder) builder,
-										partyExternalReference,
-										relatedPartyEnum));
+				{
+					Optional<RelatedPartyEnum> relatedPartyEnum = getRelatedPartyEnum();
+					relatedPartyEnum.ifPresent(p -> PartyMappingHelper.getInstance(getContext())
+							.orElseThrow(() -> new IllegalStateException("PartyMappingHelper not found."))
+							.setCounterpartyOrRelatedParty(
+									(CounterpartyOrRelatedParty.CounterpartyOrRelatedPartyBuilder) builder,
+									partyExternalReference,
+									p));
+					return relatedPartyEnum.isPresent();
+				},
+				getMappings(),
+				getModelPath());
 	}
+
+	protected abstract Optional<RelatedPartyEnum> getRelatedPartyEnum();
 }

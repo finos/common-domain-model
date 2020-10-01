@@ -333,6 +333,10 @@ type FallbackReferencePrice: <"The method, prioritised by the order it is listed
 		if valuationPostponement exists
 		then valuationPostponement -> maximumDaysOfPostponement > 0
 
+	condition FallbackCalculationAgent:
+        if calculationAgentDetermination -> calculationAgentPartyReference -> relatedParty exists
+        then calculationAgentDetermination -> calculationAgentPartyReference -> relatedParty = RelatedPartyEnum -> FallbackCalculationAgent
+
 type ValuationPostponement: <"Specifies how long to wait to get a quote from a settlement rate option upon a price source disruption.">
 
 	maximumDaysOfPostponement int (1..1) <"The maximum number of days to wait for a quote from the disrupted settlement rate option before proceeding to the next method.">
@@ -439,8 +443,7 @@ type ObservationPrimitive: <"A class to specify the primitive object to specify 
 
 type CalculationAgent: <"A class defining the ISDA calculation agent responsible for performing duties as defined in the applicable product definitions.">
 
-	calculationAgentPartyReference Party (0..*) <"In FpML, a pointer style reference to a party identifier defined elsewhere in the document. The party referenced is the ISDA Calculation Agent for the trade. If more than one party is referenced then the parties are assumed to be co-calculation agents, i.e. they have joint responsibility.">
-		[metadata reference]
+	calculationAgentPartyReference CounterpartyOrRelatedParty (0..1) <"In FpML, a pointer style reference to a party identifier defined elsewhere in the document. The party referenced is the ISDA Calculation Agent for the trade. If more than one party is referenced then the parties are assumed to be co-calculation agents, i.e. they have joint responsibility.">
 	calculationAgentParty CalculationAgentPartyEnum (0..1) <"The ISDA calculation agent responsible for performing duties as defined in the applicable product definitions. For example, the Calculation Agent may be defined as being the Non-exercising Party.">
 	calculationAgentBusinessCenter BusinessCenterEnum (0..1) <"The city in which the office through which ISDA Calculation Agent is acting for purposes of the transaction is located The short-form confirm for a trade that is executed under a Sovereign or Asia Pacific Master Confirmation Agreement ( MCA ), does not need to specify the Calculation Agent. However, the confirm does need to specify the Calculation Agent City. This is due to the fact that the MCA sets the value for Calculation Agent but does not set the value for Calculation Agent City.">
 		[metadata scheme]
