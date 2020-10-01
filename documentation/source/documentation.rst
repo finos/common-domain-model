@@ -239,14 +239,14 @@ The abstract data type ProductBase serves as a base for all products that have a
 
 .. code-block:: Haskell
 
-type ProductBase: 
+ type ProductBase: 
     productIdentifier ProductIdentifier (1..*)
 
 The data types that extend from ProductBase are Index, Commodity, Loan, and Security.  Index and Commodity do not have any additional attributes.  In the case of Commodity, the applicable product identifiers are the ISDA definitions for reference benchmarks.  Loan and Security both have a set of additional attributes, as shown below:
 
 .. code-block:: Haskell
 
-type Loan extends ProductBase: 
+ type Loan extends ProductBase: 
    borrower LegalEntity (0..*) 
    lien string (0..1) 
    facilityType string (0..1) 
@@ -255,21 +255,21 @@ type Loan extends ProductBase:
    
 .. code-block:: Haskell
    
-type Security extends ProductBase: 
+ type Security extends ProductBase: 
 	securityType SecurityTypeEnum (1..1) 
 	debtType DebtType (0..1)
 	equityType EquityTypeEnum (0..1) 
 	fundType FundProductTypeEnum (0..1) 
 
-condition DebtSubType:
+ condition DebtSubType:
         if securityType <> SecurityTypeEnum -> Debt
         then debtType is absent
 
-condition EquitySubType:
+ condition EquitySubType:
         if securityType <> SecurityTypeEnum -> Equity
         then equityType is absent
 
-condition FundSubType:
+ condition FundSubType:
         if securityType <> SecurityTypeEnum -> Fund
         then fundType is absent
  
