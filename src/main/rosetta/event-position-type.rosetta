@@ -1,69 +1,15 @@
-namespace org.isda.cdm
+namespace cdm.event.position : <"Position concepts: portfolio and portfolio aggregation.">
 version "${project.version}"
 
 import cdm.base.math.*
-import cdm.base.datetime.*
-import cdm.base.staticdata.identifier.*
-import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.party.*
 
 import cdm.observable.asset.*
-import cdm.observable.common.*
-
 import cdm.product.template.*
-import cdm.product.asset.*
-import cdm.product.common.*
-import cdm.product.common.settlement.*
-import cdm.product.common.schedule.*
 
-import cdm.legalagreement.common.*
 import cdm.legalagreement.contract.*
+import cdm.event.common.*
 
-import cdm.synonyms.config.*
-
-
-type Execution: <"A class to specify an execution, which consists essentially in the economic terms which are agreed between the parties, alongside with the qualification of the type of execution. The associated globalKey denotes the ability to associate a hash value to the respective Execution instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
-	[metadata key]
-
-	executionType ExecutionTypeEnum (1..1) <"Specifies the type of execution, e.g. via voice, electronically...">
-		[synonym Workflow_Event value "executionType" path "trade"]
-	executionVenue LegalEntity (0..1) <"The execution venue identification, when applicable.">
-	identifier Identifier (1..*) <"The identifier(s) associated with the execution.">
-	tradeDate date (1..1) <"The trade/execution date.">
-		[metadata id]
-	tradableProduct TradableProduct (1..1) <"The product traded as part of this execution, including quantity and price">
-	party Party (0..*) <"The party reference is optional because positioned as part of the Event class when the execution is specified as part of such context.">
-		[metadata reference]
-	partyRole PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the execution, further to the principal parties (i.e payer/receive or buyer/seller) to it.">
-		[synonym Workflow_Event value "trade"]
-	closedState ClosedState (0..1) <"The qualification of what led to the execution closure alongside with the dates on which this closure takes effect.">
-		[synonym Workflow_Event value "closedState" path "trade"]
-	settlementTerms SettlementTerms (0..*) <"The settlement terms applicable to any initial transfer of cash or securities resulting from the transaction that is not part of the product definition: e.g. option premium, swap unwind fee, security delivery vs payment.">
-
-	condition ExecutionVenue: <"When the execution type is set to 'Electronically', the execution venue must be specified.">
-		if executionType = ExecutionTypeEnum -> Electronic
-		then executionVenue exists
-
-	condition SecurityPartyRole: <"When the executed product is a security, both ExecutingEntity and Counterparty party roles must exist.">
-		if tradableProduct -> product -> security exists
-		then partyRole -> role contains PartyRoleEnum -> ExecutingEntity and partyRole -> role contains PartyRoleEnum -> Counterparty
-
-	condition SecurityPartyRoleBuyerSeller: <"When the executed product is a security, both buyer and seller party roles must exist.">
-		if tradableProduct -> product -> security exists
-		then partyRole -> role contains PartyRoleEnum -> Buyer and partyRole -> role contains PartyRoleEnum -> Seller
-
-	condition SecurityPrice: <"When the executed product is a security, the price must be specified.">
-		if tradableProduct -> product -> security exists
-		then tradableProduct -> priceNotation -> price exists
-
-	condition SettlementTerms: <"When the executed product is a security, the settlement terms must be specified.">
-		if tradableProduct -> product -> security exists
-		then settlementTerms exists
-
-
-/************************
- * Portfolio Aggregation *
- ************************/
 type Position: <" A Position describes how much of a given Product is being held and constitutes the atomic element of a Portfolio.">
 
 	product Product (1..1) <"The product underlying the position, which can either be a contractual product or securities.">
@@ -77,15 +23,6 @@ type Position: <" A Position describes how much of a given Product is being held
 		if positionStatus = PositionStatusEnum -> Formed
 		then contractReference exists
 
-/*
- * 	TODO: implement this extra check based on a comparison function for EconomicTerms
- * 		and product -> contractualProduct -> = contract -> contractualProduct -> EconomicTerms
- */
-enum PositionStatusEnum: <"Enumeration to describe the different (risk) states of a Position, whether executed, settled, matured...etc">
-	Executed <"The position has been executed, which is the point at which risk has been transferred.">
-	Formed <"Contract has been formed, in case position is on a contractual product.">
-	Settled <"The position has settled, in case product is subject to settlement after execution, such as securities.">
-	Cancelled <"The position has been cancelled, in case of a cancellation event following an execution.">
 
 type PortfolioState: <" State-full representation of a Portfolio that describes all the positions held at a given time, in various states which can be either traded, settled, etc., with lineage information to the previous state">
 	[metadata key]
@@ -99,7 +36,6 @@ type PortfolioState: <" State-full representation of a Portfolio that describes 
 			and lineage -> eventReference is absent
 
 type AggregationParameters: <" Parameters to be used to filter events that are relevant to a given portfolio in order to calculate the state of this portfolio. The attributes correspond to all the possible aggregation criteria that can be used and these criteria can be combined. All the attributes are optional.">
-
 	dateTime zonedDateTime (1..1) <"To aggregate as of a particular date">
 	totalPosition boolean (0..1) <"Specifies whether to calculate total position to given date, or only daily position for the given date.">
 	// Just a subset of possible aggregation parameters, for illustration to initiate the build-up of that class
@@ -121,3 +57,4 @@ type Portfolio: <" A Portfolio represents an aggregation of multiple Positions, 
 	portfolioState PortfolioState (1..1) <"Describes the state of the Portfolio as a list of Positions resulting from the aggregation.">
 
 // TO ADD: PortfolioState calculation based on EventEffect
+		

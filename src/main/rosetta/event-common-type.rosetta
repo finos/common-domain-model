@@ -1,14 +1,14 @@
-namespace org.isda.cdm
+namespace cdm.event.common : <"Business event concepts: primitives, contract state and associated state transition function specifications.">
 version "${project.version}"
 
 import cdm.base.math.*
 import cdm.base.datetime.*
+import cdm.base.staticdata.asset.*
 import cdm.base.staticdata.party.*
-import cdm.base.staticdata.identifier.*
 import cdm.base.staticdata.asset.common.*
+import cdm.base.staticdata.identifier.*
 
 import cdm.observable.asset.*
-
 import cdm.product.asset.*
 import cdm.product.template.*
 import cdm.product.common.settlement.*
@@ -18,8 +18,34 @@ import cdm.legalagreement.csa.*
 import cdm.legalagreement.contract.*
 import cdm.legalagreement.common.*
 
+import cdm.event.workflow.*
+import cdm.event.position.*
 
 import cdm.synonyms.config.*
+
+type Confirmation: <"A class to specify a trade confirmation.">
+
+	identifier Identifier (1..*) <"The identifier(s) associated with the trade and resulting confirmation.">
+	party Party (1..*) <"The parties associated with the trade.">
+	partyRole PartyRole (1..*) <"The role(s) that party(ies) may have in relation to the trade">
+	lineage Lineage (0..1) <"The lineage attribute provides a linkage to previous lifecycle events and associated data.">
+	status ConfirmationStatusEnum (1..1)
+
+	condition BothBuyerAndSellerPartyRolesMustExist: <"For an security confirmation, both buyer and seller party roles must exist.">
+		if lineage -> executionReference -> tradableProduct -> product -> security exists
+		then partyRole -> role contains PartyRoleEnum -> Buyer or partyRole -> role contains PartyRoleEnum -> Seller
+
+type Affirmation: <"A class to specify a trade affirmation.">
+
+	identifier Identifier (1..*) <"The identifier(s) associated with the trade and resulting confirmation.">
+	party Party (1..*) <"The parties associated with the trade.">
+	partyRole PartyRole (1..*) <"The role(s) that party(ies) may have in relation to the trade">
+	lineage Lineage (0..1) <"The lineage attribute provides a linkage to previous lifecycle events and associated data.">
+	status AffirmationStatusEnum (1..1)
+
+	condition BothBuyerAndSellerPartyRolesMustExist: <"For an security affirmation, both buyer and seller party roles must exist.">
+		if lineage -> executionReference -> tradableProduct -> product -> security exists
+		then partyRole -> role contains PartyRoleEnum -> Buyer or partyRole -> role contains PartyRoleEnum -> Seller
 
 type AllocationInstruction:
 	// TODO: add other allocation context
@@ -91,28 +117,6 @@ type ContractState: <"A class to specify a contract state instantiation with res
 		[synonym Workflow_Event value "fpmlTrade"]
 	updatedContract Contract (0..1) <"The state of the contract, represented as a replica of the original contract with updated values where applicable, e.g. in the case of resets.">
 
-type CreditLimitInformation: <"A class to represent the credit limit utilisation information.">
-
-	limitApplicable LimitApplicableExtended (1..*)
-		[synonym Workflow_Event value "limitApplicable"]
-
-type CreditLimitUtilisation: <"Credit limit utilisation breakdown by executed trades and pending orders.">
-
-	executed CreditLimitUtilisationPosition (0..1) <"Credit limit utilisation attributable to executed trades.">
-	pending CreditLimitUtilisationPosition (0..1) <"Credit limit utilisation attributable to pending unexecuted orders.">
-
-type CreditLimitUtilisationPosition:
-
-	shortPosition number (0..1) <"Credit limit utilisation attributable to short positions.">
-	longPosition number (0..1) <"Credit limit utilisation attributable to long positions.">
-	global number (0..1) <"Global credit limit utilisation amount, agnostic of long/short position direction.">
-
-type CustomisedWorkflow: <"In its initial iteration, this class is meant to support the DTCC TIW workflow information.">
-
-	itemName string (1..1) <"In this initial iteration, this corresponds to the DTCC TIW element name.">
-	itemValue string (1..1) <"In this initial iteration, this corresponds to the DTCC value.">
-
-
 type Instruction: <"Instruction to a function that will be used to perform a business event">
 
 	// TODO - This should be updated to either use a cross reference to a func type or use an annotation.
@@ -121,55 +125,6 @@ type Instruction: <"Instruction to a function that will be used to perform a bus
 	clearing ClearingInstruction (0..1) <"Instruction to clear">
 
 	condition OneOfInstruction: required choice allocation, clearing
-
-type WorkflowStep: <"A workflow step represents the state of a business event. The workflow step contains a reference to a previous WorkflowStep in order to preserve lineage. A workflow step is accepted if it contains a business event, proposed if proposedInstruction is present and is rejected if the rejected flag is set.">
-	[metadata key]
-	[rootType]
-	[synonym Workflow_Event meta "id"]
-
-	businessEvent BusinessEvent (0..1) <"Life cycle event for the step. The businessEvent is optional when a proposedInstruction or rejection are present.">
-	proposedInstruction Instruction (0..1) <"The proposed instruction for the next workflow step. The proposedInstruction is optional when the businessEvent or rejection are present">
-		[synonym Workflow_Event value "proposedInstruction"]
-	// TODO - This will be replaced with a list of signatories that must sign off the 'previousWorkflowStep' and any operational reasons why it may be rejected.
-	rejected boolean (0..1) <"Flags this step as rejected.">
-		[synonym Workflow_Event value "rejected"]
-	previousWorkflowStep WorkflowStep (0..1) <"Optional previous workflow step that provides lineage to workflow steps that precedes it.">
-		[metadata reference]
-		[synonym Workflow_Event value "previousWorkflowStep"]
-	messageInformation MessageInformation (0..1) <"Contains all information pertaining the FpML messaging header ">
-	timestamp EventTimestamp (1..*) <"The set of timestamp(s) associated with the event as a collection of [dateTime, qualifier].">
-		[synonym Workflow_Event value "timestamp"]
-	eventIdentifier Identifier (1..*) <"The identifier(s) that uniquely identify a lifecycle event. The unbounded cardinality is meant to provide the ability to associate identifiers that are issued by distinct parties. As an example, each of the parties to the event may choose to associate their own identifiers to the event.">
-		[synonym Workflow_Event value "eventIdentifier"]
-	action ActionEnum (0..1) <"Specifies whether the event is a new, a correction or a cancellation.">
-		[synonym Workflow_Event
-			set to ActionEnum -> New when "isCorrection" = False,
-			set to ActionEnum -> Correct when "isCorrection" = True,
-			set to ActionEnum -> Cancel when "isRetraction" = True]
-	party Party (0..*) <"The specification of the event parties. This attribute is optional, as not applicable to certain events (e.g. most of the observations).">
-	account Account (0..*) <"Optional account information that could be associated to the event.">
-	lineage Lineage (0..1) <"The lineage attribute provides a linkage among lifecycle events through the globalKey hash value. One example is when a given lifecycle event is being corrected or cancelled. In such case, each subsequent event will have lineage into the prior version of that event. The second broad use case is when an event has a dependency upon either another event (e.g. the regular payment associated with a fix/float swap will have a lineage into the reset event, which will in turn have a lineage into the observation event for the floating rate and the contract) or a contract (e.g. the exercise of an option has a lineage into that option).">
-		[synonym Workflow_Event value "lineage"]
-
-	condition WorkflowStepStatus:
-		(WorkflowStep -> businessEvent exists and WorkflowStep -> proposedInstruction is absent and WorkflowStep -> rejected is absent)
-		or
-		(WorkflowStep -> proposedInstruction exists and WorkflowStep -> businessEvent is absent and WorkflowStep -> rejected is absent)
-		or
-		(WorkflowStep -> rejected exists and WorkflowStep -> businessEvent is absent and WorkflowStep -> proposedInstruction is absent)
-
-	condition Intent: <"The intent should only be associated with the primitives which use can lead to ambiguity with respect to the qualification of the event.">
-		if (businessEvent -> primitives -> split exists
-			or businessEvent -> primitives -> exercise exists
-			or businessEvent -> primitives -> execution exists
-			or businessEvent -> primitives -> contractFormation exists
-			or businessEvent -> primitives -> observation exists
-			or businessEvent -> primitives -> reset exists)
-		then businessEvent -> intent is absent
-
-type Workflow: <"A collection of workflow steps which together makeup an entire workflow sequence.">
-
-	steps WorkflowStep (1..*)
 
 type BusinessEvent: <"A business event represents a life cycle event of a trade and consists of a series of primitive events. The combination of the state changes results in a qualifiable life cycle event. An example of a Business Event is a PartialTermination which is a defined by a quantity change primitive event.">
 	[metadata key]
@@ -213,24 +168,6 @@ type EventTestBundle: <"A class which combines several events for testing purpos
 	computedAmount ComputedAmount (0..*)
 		[synonym Workflow_Event value "computedAmount"]
 
-type EventTimestamp: <"A class to represent the various set of timestamps that can be associated with lifecycle events, as a collection of [dateTime, qualifier].">
-
-	dateTime zonedDateTime (1..1) <"The CDM specifies that the zoned date time is to be expressed in accordance with ISO 8601, either as UTC as an offset to UTC.">
-		[synonym Workflow_Event value "creationTimestamp"]
-		[synonym Workflow_Event value "expiryTimestamp"]
-	qualification EventTimestampQualificationEnum (1..1) <"The timestamp qualifier is specified through an enumeration because the experience of integrating the DTCC and CME data representations suggests that a wide set of timestamps are currently utilized among service providers, while there is not at present an objective set of criteria that could help suggest a defined set of timestamps as part of the CDM. At some future point, one possible baseline could be developed from the review of the set of timestamps specified across regulatory regimes and regulations (incl. regulations such as high frequency trading). Also, the integration with a further set of implementations and the specification of business workflows such as clearing as part of the CDM development should help confirm the implementation approach in this respect.">
-		[synonym Workflow_Event set to EventTimestampQualificationEnum -> eventCreationDateTime when "creationTimestamp" exists]
-		[synonym Workflow_Event set to EventTimestampQualificationEnum -> eventExpirationDateTime when "expiryTimestamp" exists]
-		[synonym Workflow_Event set to EventTimestampQualificationEnum -> clearingSubmissionDateTime when "submittedForClearing" exists]
-
-
-type WorkflowStepState: <"A class to specify workflow information, which is conceptually applicable to all lifecycle events.">
-
-	workflowStatus WorkflowStatusEnum (0..*) <"The workflow status indicator, e.g. Accepted, Rejected, ...">
-		[synonym Workflow_Event value "workflowStatus"]
-	comment string (0..1) <"A comment field to be associated with the workflow, e.g. to specify why a transaction event was rejected by a party.">
-	partyCustomisedWorkflow PartyCustomisedWorkflow (0..*) <"Workflow data that is specific to certain market participants and is expressed as part of the CDM in a very generic manner, which can be party-specific. The initial use cases have been derived from the CME clearing and the DTCC TIW submissions.">
-
 type CashExercise: <"The cash exercise specifies the cashflow using the cashflow payout and a given quantity.">
 
 	cashflow Cashflow (1..1) <"Cashflow payout specification, excluding the quantity.">
@@ -252,36 +189,6 @@ type ExecutionState: <"A class to specify an execution instantiation with respec
 
 	execution Execution (1..1)
 		[synonym Workflow_Event value "fpmlExecution"]
-
-
-type LimitApplicable:
-
-	limitType CreditLimitTypeEnum (0..1) <"Standard code to indicate which type of credit line is being referred to - i.e. IM, DV01, PV01, CS01, Notional, Clip Size, Notional, maximumOrderQuantity.">
-		[metadata scheme]
-		[synonym Workflow_Event value "limitType" meta "creditLimitTypeScheme"]
-	clipSize int (0..1) <"This element is required in FpML, optional in CDM for the purpose of accommodating the CME data representation while making reference to the FpML one.">
-	amountUtilized number (0..1) <"The limit utilised by all the cleared trades for the limit level and limit type. While the attribute is of type integer in FpML and the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">
-		[synonym Workflow_Event value "amountUtilized"]
-	utilization CreditLimitUtilisation (0..1)
-	amountRemaining number (0..1) <"The limit remaining for the limit level and limit type. This does not take into account any pending trades. While the attribute is of type integer in FpML and the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">
-		[synonym Workflow_Event value "amountRemaining"]
-	currency string (0..1) <"The currency in which the applicable limit is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
-		[metadata scheme]
-		[synonym Workflow_Event value "currency" meta "currencyScheme"]
-	velocity Velocity (0..1)
-
-	condition Choice: <"Choice rule to represent an FpML choice construct.">
-		optional choice amountUtilized, utilization
-
-type LimitApplicableExtended extends LimitApplicable: <"A class to represent the CDM attributes that are not part of the FpML standard. Once broader usage is confirmed, it is expected that those two classes can be collapsed.">
-
-	limitLevel LimitLevelEnum (0..1) <"The level at which the limit is set: customer business, proprietary business or account level. This attribute is specified as a string as part of the CME clearing confirmation specification.">
-		[metadata scheme]
-		[synonym Workflow_Event value "level" meta "creditLimitLevelScheme"]
-	limitAmount number (0..1) <"The total limit available for the limit level and limit type. While the attribute is of type integer in the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">
-		[synonym Workflow_Event value "limitAmount"]
-	limitImpactDueToTrade number (0..1) <"The limit utilized by this specific trade. While the attribute is of type integer in the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">
-		[synonym Workflow_Event value "limitImpactDueToTrade"]
 
 type Lineage: <"A class to provide lineage information across lifecycle events through a pointer or set of pointers into the event(s), contract(s) and, possibly, payout components that the event is dependent on or relates to. As an example, if an contractFormation event is corrected, the correction event will have a lineage into the initial event, which takes the form of a globalKey into that initial contract formation event. Two referencing mechanisms are provided as part of the CDM: either the globalKey, which corresponds to the hash value of the CDM class which is referred to, or a reference qualifier which is meant to provide support for the ingestion of xml documents with id/href mechanisms. The CDM recommends the use of the globalKey and provides a default implementation which is accessible in the generated code through org.isda.cdm.globalKey.GlobalKeyHashCalculator. If implementers want to use an alternative hashing mechanism, the API in which they need to plug it is com.rosetta.model.lib.HashFunction.">
 
@@ -316,30 +223,6 @@ type Lineage: <"A class to provide lineage information across lifecycle events t
 		[metadata reference]
 	portfolioStateReference PortfolioState (0..*) <"The refence to the previous state of a Portfolio, in a chain of Events leading up to a build of that Portfolio as the holding of Product(s) in specific Quantity(ies). As part of the PortfolioState object, a pointer to the previous PortfolioState is provided through a Lineage object, together with pointer(s) to the Event or set of Events leading up to the current (new) state.">
 		[metadata reference]
-
-type MessageInformation: <"This class corresponds to the components of the FpML MessageHeader.model.">
-
-	messageId string (1..1) <"A unique identifier assigned to the message.">
-		[metadata scheme]
-		[synonym Workflow_Event value "messageId" path "messageInformation" meta "messageIdScheme"]
-	sentBy string (0..1) <"The identifier for the originator of a message instance.">
-		[metadata scheme]
-		[synonym Workflow_Event value "sentBy" path "messageInformation" meta "messageAddressScheme"]
-	sentTo string (0..*) <"The identifier(s) for the recipient(s) of a message instance.">
-		[metadata scheme]
-		[synonym Workflow_Event value "sentTo" path "messageInformation" meta "messageAddressScheme"]
-	copyTo string (0..*) <"A unique identifier (within the specified coding scheme) giving the details of some party to whom a copy of this message will be sent for reference.">
-		[metadata scheme]
-
-type PartyCustomisedWorkflow: <"A class to specify a party-related, non-standardized data in a generic form.">
-
-	partyReference Party (0..1) <"Reference to the party to which the workflow pertains to.">
-		[metadata reference]
-	partyName string (0..1) <"The party name to which the workflow pertains to.">
-	customisedWorkflow CustomisedWorkflow (1..*) <"Non-standardized data in a generic form.">
-
-	condition Choice: <"The identification of the party to which the PartyCustomisedWorkflow pertains to can be done through either a party reference or the party name.">
-		required choice partyName, partyReference
 
 type PhysicalExercise: <"The physical exercise results into a financial product which is represented through the Product class, with an associated quantity and cashflow (e.g. a physical exercise of a bond option will result into a bond with a cash proceed which will be a function of the option strike price).">
 
@@ -400,13 +283,6 @@ type Trade: <"A class to represent the general trade concept, which can either b
 		[synonym Workflow_Event value "fpmlContract"]
 	condition Trade: one-of
 
-type TradeWarehouseWorkflow: <"A class to specify trade warehouse workflow information: the identity of the trade warehouse, the contract status at the warehouse and party-specific workflow information.">
-
-	warehouseIdentity WarehouseIdentityEnum (1..1)
-	warehouseStatus WorkflowStatusEnum (1..1)
-	partyCustomisedWorkflow PartyCustomisedWorkflow (0..*) <"Non-standardized workflow data related to a party.">
-
-
 type TransferBase:
 
 	identifier string (0..1) <"The identifier that can be associated with each of the transfer components">
@@ -438,56 +314,206 @@ type TransferorTransferee: <"A class mimicking the PayerReceiver, which is itsel
 		[metadata reference]
 		[synonym Workflow_Event value "receiverAccountReference" meta "href"]
 
-type Velocity:
+type ClearingInstruction: <"All information required to perform the clear life cycle event; the clearing party (CCP), the two parties facing each other on the alpha contract, and optionally the parties acting as clearing members.">
+	alphaContract Contract (1..1) <"The contract that will be submitted to the clearing house for clearing. The contract should indicate that it should be cleared by assigning a clearing organisation as a party role.">
 
-	periodMultiplier int (0..1)
-	period PeriodTimeEnum (0..1)
+	clearingParty Party(1..1) <"The Central Counter party (CCP) that the contract will be submitted to for clearing.">
+	party1 Party(1..1) <"First party facing the CCP if it is clearing for its own account.">
+	party2 Party(1..1) <"Second party facing the CCP if it is clearing for its own account.">
 
-/****************
- * Workflow rules
- */
-/*
- * workflow rule ClearedContractAgency_Participant <"The cross-events validity constraints to specify that a contract has been cleared according to the agency model from the perspective of the involved clearing member or client.">
- *
- *    Event <beta> is ClearingSubmission
- * 	relatedTo <alpha> where lineage -> @globalKey -> eventQualifier = eventQualifier.ClearingSubmission
- *
- *    constraint is economicTerms are the same except for payerReceiver or buyerSeller
- *    and <alpha> contract/execution is terminated  *Difference*
- *    and event date of <alpha> submission = trade date of <beta>
- *    and CCP which is in the party role in after state of <alpha> submission is the same as the CCP which is counterparty to <beta>
- */
-/*
- * workflow rule ClearedContractAgency_CCP <"The cross-events validity constraints to specify that a contract has been cleared according to the agency model from the perspective of the involved clearing member or client.">
- *
- *    Event <beta> is ClearingSubmission
- * 	relatedTo <alpha> where lineage -> @globalKey -> eventQualifier = eventQualifier.ClearingSubmission
- * 	and relatedTo <gamma> where lineage -> @globalKey -> eventQualifier = eventQualifier.ClearedTrade *Difference*
- *
- *    constraint is economicTerms are the same except for payerReceiver or buyerSeller
- *    and event date of <alpha> submission = trade date of <beta>
- *    and CCP which is in the party role in after state of <alpha> submission is the same as the CCP which is counterparty to <beta> and <gamma> *Difference*
- */
-/*
- * workflow rule ClearedContractPrincipal_Participant <"The cross-events validity constraints to specify that a contract has been cleared according to the principal model from the perspective of the involved clearing member or client.">
- *
- *   Event <beta> is ClearingSubmission
- * 	relatedTo <alpha> where lineage -> @globalKey -> eventQualifier = eventQualifier.ClearingSubmission
- * 	relatedTo <theta> where lineage -> @globalKey -> eventQualifier = eventQualifier.NewTrade or eventQualifier.ClearedTrade???? *Difference*
+	clearerParty1 Party(0..1) <"Optional party facing the CCP, acting as clearing member for party1.">
+	clearerParty2 Party(0..1) <"Optional party facing the CCP, acting as clearing member for party2.">
 
- *   constraint is economicTerms are the same except for payerReceiver or buyerSeller
- *   and <alpha> contract/execution is terminated  *Difference*
- *   and event date of <alpha> submission = trade date of <beta>
- *   and CCP which is in the party role in after state of <alpha> submission is the same as the CCP which is counterparty to <beta>
- */
-/*
- * workflow rule ClearedContractPrincipal_CCP <"The cross-events validity constraints to specify that a contract has been cleared according to the principal model from the perspective of the involved clearing member or client.">
- *
- *    Event <beta> is ClearingSubmission
- * 	relatedTo <alpha> where lineage -> @globalKey -> eventQualifier = eventQualifier.ClearingSubmission
- * 	and relatedTo <gamma> where lineage -> @globalKey -> eventQualifier = eventQualifier.ClearedTrade *Difference*
- *
- *    constraint is economicTerms are the same except for payerReceiver or buyerSeller
- *    and event date of <alpha> submission = trade date of <beta>
- *    and CCP which is in the party role in after state of <alpha> submission is the same as the CCP which is counterparty to <beta> and <gamma> *Difference*
- */
+type PrimitiveEvent: <"A primitive event is defined by one and only one atomic change in state of a trade. An example of this is a contract formation where the legal terms of the contact are added to the trade. A Primitive event contains a before and after state where the before is a reference to another after state of a primitive event in order to preserve lineage.">
+
+	execution ExecutionPrimitive (0..1)
+		[synonym Workflow_Event value "executionPrimitive" path "primitive"]
+	contractFormation ContractFormationPrimitive (0..1)
+		[synonym Workflow_Event value "contractFormation" path "primitive"]
+	split SplitPrimitive (0..1)
+		[synonym Workflow_Event value "split" path "primitive"]
+	exercise ExercisePrimitive (0..1)
+		[synonym Workflow_Event value "exercise" path "primitive"]
+	observation ObservationPrimitive (0..1)
+		[synonym Workflow_Event value "observation" path "primitive"]
+	quantityChange QuantityChangePrimitive (0..1)
+		[synonym Workflow_Event value "quantityChange" path "primitive"]
+	reset ResetPrimitive (0..1)
+		[synonym Workflow_Event value "reset" path "primitive"]
+	termsChange TermsChangePrimitive (0..1)
+		[synonym Workflow_Event value "termsChange" path "primitive"]
+	transfer TransferPrimitive (0..1)
+		[synonym Workflow_Event value "transfer" path "primitive"]
+	condition PrimitiveEvent: one-of
+
+type ExecutionPrimitive: <"Specification of the primitive event for an execution, with 'after' state being an ExecutionState and the 'before' state being Null. It is expected that the 'before' state will be adjusted or deprecated once the CDM scope is extended to the pre-execution space.">
+
+	before ExecutionState (0..0) <"The 0 cardinality reflects the fact that there is no execution in the before state of an execution primitive. As noted in the definition associated with the class, this is expected to change once the CDM scope is extended to the pre-execution space.">
+		[metadata reference]
+		[synonym Workflow_Event value "before"]
+	after ExecutionState (1..1) <"The after state corresponds to the execution between the parties. In the case of an execution on a contractual product, some additional characteristics may need to be specified to get a fully-formed contract, for instance when the executing party acts as an agent, as is the case in an allocation scenario. This is the purpose of the 'ContractFormation' primitive event.">
+		[synonym Workflow_Event value "after"]
+
+type ContractFormationPrimitive: <"Specification of a primitive event that represents an executed trade for a contractual product that has been affirmed (or confirmed) by the two parties.  The optional 'before' state is an 'ExecutionState' consisting of an ExecutionPrimitive.  The 'after' state is a 'PostContractFormationState' that includes a Contract in which there is an optional reference to a RelatedAgreeemnt, such as a Master Agreement.  If an 'after' and 'before' both exist, then they must have the same TradableProduct values.">
+
+	before ExecutionState (0..1) <"The before state corresponds to the output of an execution between the parties.">
+		[metadata reference]
+		[synonym Workflow_Event value "before"]
+	after PostContractFormationState (1..1) <"The after state corresponds to the new contract being formed between the parties, plus some additional trade workflow information.">
+		[synonym Workflow_Event value "after"]
+
+	// TODO enable condition once party has been refactored out of product
+//	condition: <"The product should be unchanged.">
+//		before -> execution -> tradableProduct -> product = after -> contract -> tradableProduct -> product
+
+	condition: <"The quantity should be unchanged.">
+		if before exists then before -> execution -> tradableProduct -> quantityNotation = after -> contract -> tradableProduct -> quantityNotation
+
+	condition: <"The price should be unchanged.">
+		if before exists then before -> execution -> tradableProduct -> priceNotation = after -> contract -> tradableProduct -> priceNotation
+
+type SplitPrimitive: <"The primitive event to represent a split/allocation of a trade. As part of this primitive event the type of trade, either an execution or a contract, does not get altered. In the case of an execution, the further transformation of each split execution into a contract will be the purpose of the ContractFormation primitive.">
+
+	before Trade (1..1) <"The trade before split, which is either an execution if split happens before the contract is formed, or an already formed contract.">
+		[metadata reference]
+		[synonym Workflow_Event value "before"]
+	after SplitOutcome (1..1) <"Outcome of the split as a list of Trades, which is either a split execution or a split contract, plus a pointer to the previous execution or contract marked as 'Split'.">
+		[synonym Workflow_Event value "after"]
+
+	condition: <"If the pre-split trade is an execution, then the post-split trade must also be an execution.">
+		if before -> execution exists
+		then after -> originalTrade -> execution exists
+			and after -> splitTrades -> execution exists
+			and after -> splitTrades -> contract is absent
+
+	condition: <"If the pre-split trade is a contract, then the post-split trade must also be a contract.">
+		if before -> contract exists
+		then after -> originalTrade -> contract exists
+			and after -> splitTrades -> contract exists
+			and after -> splitTrades -> execution is absent
+
+	condition: <"The product should be unchanged.">
+		if before -> execution exists
+		then after -> splitTrades -> execution -> tradableProduct -> product = before -> execution -> tradableProduct -> product
+
+	condition: <"The product should be unchanged.">
+		if before -> contract exists
+		then after -> splitTrades -> contract -> tradableProduct -> product = before -> contract -> tradableProduct -> product
+
+	condition: <"The post-split quantities should sum to the pre-split quantity.">
+		if before -> execution exists
+		then Sum(after -> splitTrades -> execution -> tradableProduct -> quantityNotation -> quantity -> amount) = before -> execution -> tradableProduct -> quantityNotation -> quantity -> amount
+
+	condition: <"The post-split quantities should sum to the pre-split quantity.">
+		if before -> contract exists
+		then Sum(after -> splitTrades -> contract -> tradableProduct -> quantityNotation -> quantity -> amount) = before -> contract -> tradableProduct -> quantityNotation -> quantity -> amount
+
+	// TODO add syntax to handle comparison between list and single item.  https://github.com/REGnosys/rosetta-dsl/issues/167
+	condition: <"The price should be unchanged.">
+		if before -> execution exists
+		then after -> splitTrades -> execution -> tradableProduct -> priceNotation = before -> execution -> tradableProduct -> priceNotation
+
+	condition: <"The price should be unchanged.">
+		if before -> contract exists
+		then after -> splitTrades -> contract -> tradableProduct -> priceNotation = before -> contract -> tradableProduct -> priceNotation
+
+type ExercisePrimitive: <"This primitive leverages the FpML OptionExercise construct, except for the exerciseTiming which is deemed as associated to a request for exercise that is meant to take place, as opposed to the actual exercise event.">
+
+	exerciseDate AdjustableOrAdjustedDate (0..1)
+		[synonym Workflow_Event value "exerciseDate"]
+	exerciseTime BusinessCenterTime (0..1)
+		[synonym Workflow_Event value "exerciseTime"]
+	fullExercise boolean (1..1)
+		[synonym Workflow_Event value "fullExercise"]
+	before ContractState (1..1)
+		[metadata reference]
+		[synonym Workflow_Event value "before"]
+	after ExerciseOutcome (1..1)
+		[synonym Workflow_Event value "after"]
+
+type QuantityChangePrimitive: <"The primitive event to represent a change in quantity or notional.">
+
+	before Trade (1..1) <"The state of the trade (either an execution or a contract, before the event.">
+		[metadata reference]
+		[synonym Workflow_Event value "before"]
+	after Trade (1..1) <"The state of the trade (either an execution or a contract, as a follow-up from the event.">
+		[synonym Workflow_Event value "after"]
+
+type ResetPrimitive: <"The primitive event to represent a reset.">
+
+	before ContractState (1..1) <"Contract state before the reset, as per previous events processed on the contract.">
+		[metadata reference]
+		[synonym Workflow_Event value "ignore"]
+	after ContractState (1..1) <"Contract state after the reset, that embeds the reset value as an updated field on the contract state.">
+		[synonym Workflow_Event value "ignore"]
+	condition Contract: <"The original contract in the before/after state of a reset should match.">
+		if ResetPrimitive exists
+		then before -> contract = after -> contract
+
+type TermsChangePrimitive: <"The primitive event to represent change(s) to the contractual terms and the clearing submission and acceptance process.">
+
+	before Trade (1..1)
+		[metadata reference]
+		[synonym Workflow_Event value "before"]
+	after Trade (1..1)
+		[synonym Workflow_Event value "after"]
+
+type TransferPrimitive: <"A class to specify the transfer of assets between parties, those assets being either cash, securities or physical assets. This class combines components that are cross-assets (settlement date, settlement type, status, ...) and some other which are specialized by asset class (e.g. the payer/receiver amount and cashflow type for a cash transfer, the transferor/transferee, security indication, quantity, and asset transfer type qualification for the case of a security). The associated globalKey denotes the ability to associate a hash value to the respective Execution instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+	[metadata key]
+
+	identifier string (0..1) <"The identifier which might be associated with the transfer.">
+		[metadata scheme]
+	settlementType TransferSettlementEnum (0..1) <"The qualification as to how the transfer will settle, e.g. a DvP settlement.">
+		[synonym Workflow_Event value "transferType"]
+	settlementDate AdjustableOrAdjustedOrRelativeDate (1..1)
+		[synonym Workflow_Event value "settlementDate"]
+	cashTransfer CashTransferComponent (0..*) <"The cash transfer component of the transfer. In the case where several currencies are involved in the transfer, several components should be used, as the component supports one single currency amount.">
+		[synonym Workflow_Event value "cashTransfer"]
+	securityTransfer SecurityTransferComponent (0..*) <"The security transfer component of the transfer. In the case where several securities are involved in the transfer, several components should be used, as the component supports one single security.">
+		[synonym Workflow_Event value "securityTransfer"]
+	commodityTransfer CommodityTransferComponent (0..*)
+	status TransferStatusEnum (0..1) <"The transfer status, e.g. Instructed, Settled, ...">
+		[synonym Workflow_Event value "status"]
+	settlementReference string (0..1) <"The settlement reference, when applicable.">
+		[synonym Workflow_Event value "settlementReference"]
+
+type Execution: <"A class to specify an execution, which consists essentially in the economic terms which are agreed between the parties, alongside with the qualification of the type of execution. The associated globalKey denotes the ability to associate a hash value to the respective Execution instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+	[metadata key]
+
+	executionType ExecutionTypeEnum (1..1) <"Specifies the type of execution, e.g. via voice, electronically...">
+		[synonym Workflow_Event value "executionType" path "trade"]
+	executionVenue LegalEntity (0..1) <"The execution venue identification, when applicable.">
+	identifier Identifier (1..*) <"The identifier(s) associated with the execution.">
+	tradeDate date (1..1) <"The trade/execution date.">
+		[metadata id]
+	tradableProduct TradableProduct (1..1) <"The product traded as part of this execution, including quantity and price">
+	party Party (0..*) <"The party reference is optional because positioned as part of the Event class when the execution is specified as part of such context.">
+		[metadata reference]
+	partyRole PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the execution, further to the principal parties (i.e payer/receive or buyer/seller) to it.">
+		[synonym Workflow_Event value "trade"]
+	closedState ClosedState (0..1) <"The qualification of what led to the execution closure alongside with the dates on which this closure takes effect.">
+		[synonym Workflow_Event value "closedState" path "trade"]
+	settlementTerms SettlementTerms (0..*) <"The settlement terms applicable to any initial transfer of cash or securities resulting from the transaction that is not part of the product definition: e.g. option premium, swap unwind fee, security delivery vs payment.">
+
+	condition ExecutionVenue: <"When the execution type is set to 'Electronically', the execution venue must be specified.">
+		if executionType = ExecutionTypeEnum -> Electronic
+		then executionVenue exists
+
+	condition SecurityPartyRole: <"When the executed product is a security, both ExecutingEntity and Counterparty party roles must exist.">
+		if tradableProduct -> product -> security exists
+		then partyRole -> role contains PartyRoleEnum -> ExecutingEntity and partyRole -> role contains PartyRoleEnum -> Counterparty
+
+	condition SecurityPartyRoleBuyerSeller: <"When the executed product is a security, both buyer and seller party roles must exist.">
+		if tradableProduct -> product -> security exists
+		then partyRole -> role contains PartyRoleEnum -> Buyer and partyRole -> role contains PartyRoleEnum -> Seller
+
+	condition SecurityPrice: <"When the executed product is a security, the price must be specified.">
+		if tradableProduct -> product -> security exists
+		then tradableProduct -> priceNotation -> price exists
+
+	condition SettlementTerms: <"When the executed product is a security, the settlement terms must be specified.">
+		if tradableProduct -> product -> security exists
+		then settlementTerms exists
+
+
+		

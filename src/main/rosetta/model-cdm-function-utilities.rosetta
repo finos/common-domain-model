@@ -6,6 +6,7 @@ import cdm.observable.asset.*
 import cdm.product.template.*
 
 func ResolvePrice: <"Function specification to return the price on a valuation date based on an EquityValuation method. Implementor of this function should make use of the observation primitive and fetch the price based on an observation key.">
+	[deprecated]
 	// TODO Never referenced in CDM
 	inputs:
 		equityValuation EquityValuation (1..1)
@@ -13,12 +14,4 @@ func ResolvePrice: <"Function specification to return the price on a valuation d
 
 	output:
 		price number  (1..1)
-
-func ExtractContractState: <"Extracts a single Contract State, given an Event. This function navigates all the possible paths to product and extracts a single value.">
-	inputs: event BusinessEvent (1..1)
-	output: contractState ContractState (1..1)
-	alias primitive: event -> primitives  only-element
-	assign-output contractState:
-		if primitive -> contractFormation exists then primitive -> contractFormation -> after
-		else if primitive -> reset exists then primitive -> reset -> after
 

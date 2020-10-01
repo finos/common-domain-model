@@ -5,9 +5,6 @@ import static org.isda.cdm.workflows.ClearingUtils.getParty;
 import java.util.Optional;
 import java.util.function.Function;
 
-import org.isda.cdm.Workflow;
-import org.isda.cdm.WorkflowStep;
-import org.isda.cdm.functions.Create_ClearedTrade;
 import org.isda.cdm.functions.example.services.identification.IdentifierService;
 
 import com.google.common.collect.Lists;
@@ -19,6 +16,9 @@ import com.rosetta.model.metafields.FieldWithMetaDate;
 import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.party.CounterpartyEnum;
 import cdm.base.staticdata.party.Party;
+import cdm.event.common.functions.Create_ClearedTrade;
+import cdm.event.workflow.Workflow;
+import cdm.event.workflow.WorkflowStep;
 import cdm.legalagreement.contract.Contract;
 
 public class ClearingAccepted implements Function<Contract, Workflow> {

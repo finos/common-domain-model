@@ -6,8 +6,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
 
-import org.isda.cdm.BusinessEvent;
-import org.isda.cdm.ClearingInstruction;
 import org.isda.cdm.workflows.ClearingUtils;
 import org.junit.jupiter.api.Test;
 
@@ -22,6 +20,9 @@ import com.rosetta.model.metafields.MetaFields;
 
 import cdm.base.staticdata.party.CounterpartyEnum;
 import cdm.base.staticdata.party.Party;
+import cdm.event.common.BusinessEvent;
+import cdm.event.common.ClearingInstruction;
+import cdm.event.common.functions.Create_ClearedTrade;
 import cdm.legalagreement.contract.Contract;
 
 class Create_ClearedTradeTest extends AbstractFunctionTest {
