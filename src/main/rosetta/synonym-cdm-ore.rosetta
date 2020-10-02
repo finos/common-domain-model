@@ -28,6 +28,8 @@ synonym source ORE_1_0_39 extends ORE
             [value "ignore"]
         + tradableProduct
             [value "Trade" mapper "ORECounterparty"]
+        + tradeDate
+            [value "StartDate" path "Trade->SwapData->LegData->ScheduleData->Rules" maps 2 dateFormat "yyyyMMdd"]
 
     TradableProduct:
         + quantityNotation
@@ -39,7 +41,7 @@ synonym source ORE_1_0_39 extends ORE
         + partyReference
             [value "Envelope"]
         + counterparty
-            [set to CounterpartyEnum->Party2]
+            [set to CounterpartyEnum->Party2 when "Envelope->CounterParty" exists]
 
     Party:
         + partyId
@@ -112,8 +114,9 @@ synonym source ORE_1_0_39 extends ORE
 
     PaymentDates:
         + payRelativeTo
-            [set to PayRelativeToEnum -> CalculationPeriodStartDate when "ScheduleData->Rules->Rule"="Forward",
-                set to PayRelativeToEnum -> CalculationPeriodEndDate when "ScheduleData->Rules->Rule"="Backward"]
+            // [set to PayRelativeToEnum -> CalculationPeriodStartDate when "ScheduleData->Rules->Rule"="Forward",
+            //     set to PayRelativeToEnum -> CalculationPeriodEndDate when "ScheduleData->Rules->Rule"="Backward"]
+            [set to PayRelativeToEnum -> CalculationPeriodEndDate when rosettaPath = Payout->interestRatePayout]
         + paymentFrequency
             [value "Rules" path "ScheduleData"]
         + paymentDaysOffset
@@ -123,6 +126,10 @@ synonym source ORE_1_0_39 extends ORE
     CalculationPeriodDates:
         + firstPeriodStartDate
             [value "ignore"]
+        + firstRegularPeriodStartDate
+            [value "FirstDate" dateFormat "yyyyMMdd"]
+        + lastRegularPeriodEndDate
+            [value "LastDate" dateFormat "yyyyMMdd"]
         + effectiveDate
             [hint "StartDate"]
             [value "ignore"]
@@ -171,6 +178,10 @@ synonym source ORE_1_0_39 extends ORE
     FixedRateSpecification:
         + rateSchedule
             [value "Rates"]
+
+    Identifier:
+        + issuer
+            [set to "ME" when rosettaPath = Contract->contractIdentifier]
 
     AssetIdentifier:
         + currency
@@ -226,6 +237,7 @@ synonym source ORE_1_0_39 extends ORE
         + resetRelativeTo
             [set to ResetRelativeToEnum -> CalculationPeriodEndDate when "FloatingLegData->IsInArrears" = True,
                 set to ResetRelativeToEnum -> CalculationPeriodStartDate when "FloatingLegData->IsInArrears" = False]
+                // set to ResetRelativeToEnum -> CalculationPeriodStartDate when "FloatingLegData->IsInArrears" is absent]
         + rateCutOffDaysOffset
             [value "ignore"]
         + initialFixingDate
