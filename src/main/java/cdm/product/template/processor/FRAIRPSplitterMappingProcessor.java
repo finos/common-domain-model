@@ -15,7 +15,7 @@ import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 
-import cdm.base.staticdata.party.PayerReceiver.PayerReceiverBuilder;
+import cdm.base.staticdata.party.CounterpartyPayerReceiver.CounterpartyPayerReceiverBuilder;
 import cdm.product.asset.InterestRatePayout.InterestRatePayoutBuilder;
 import cdm.product.asset.RateSpecification.RateSpecificationBuilder;
 
@@ -63,7 +63,7 @@ public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
 	}
 
 	@NotNull
-	private void flipPayerReceiver(PayerReceiverBuilder originalBuilder, PayerReceiverBuilder newBuilder) {
+	private void flipPayerReceiver(CounterpartyPayerReceiverBuilder originalBuilder, CounterpartyPayerReceiverBuilder newBuilder) {
 		LOGGER.info("Flipping payer/receiver on new FRA interest rate payout");
 		newBuilder.setPayer(originalBuilder.getReceiver());
 		newBuilder.setPayerPartyReferenceBuilder(originalBuilder.getReceiverPartyReference());

@@ -145,7 +145,7 @@ public class PartyMappingHelper {
 					.getMethod("set" + toFirstUpper(attribute), CounterpartyEnum.class)
 					.invoke(builder, counterpartyEnum);
 			// blank out partyReference if builder is a BuyerSeller or PayerReceiver
-			if (builder instanceof BuyerSeller.BuyerSellerBuilder || builder instanceof PayerReceiver.PayerReceiverBuilder) {
+			if (builder instanceof BuyerSeller.BuyerSellerBuilder) { // || builder instanceof PayerReceiver.PayerReceiverBuilder
 				builder.getClass()
 						.getMethod("set" + toFirstUpper(attribute) + "PartyReference", ReferenceWithMetaParty.class)
 						.invoke(builder, ReferenceWithMetaParty.builder().build());
