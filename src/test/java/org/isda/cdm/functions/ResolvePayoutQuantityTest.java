@@ -22,7 +22,7 @@ import com.google.common.io.Resources;
 import com.google.inject.Inject;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.rosetta.model.lib.GlobalKey;
-import com.rosetta.model.lib.meta.MetaFieldsI;
+import com.rosetta.model.lib.meta.GlobalKeyFields;
 
 import cdm.base.math.NonNegativeQuantity;
 import cdm.legalagreement.contract.Contract;
@@ -292,7 +292,7 @@ class ResolvePayoutQuantityTest extends AbstractFunctionTest {
 	private boolean externalKeyMatches(GlobalKey o, String key) {
 		return Optional.ofNullable(o)
 				.map(GlobalKey::getMeta)
-				.map(MetaFieldsI::getExternalKey)
+				.map(GlobalKeyFields::getExternalKey)
 				.map(key::equals)
 				.orElse(false);
 	}

@@ -9,12 +9,11 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-import org.isda.cdm.BusinessEvent;
-import org.isda.cdm.functions.Create_Execution;
-
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
 import com.rosetta.model.metafields.FieldWithMetaDate;
 
+import cdm.event.common.BusinessEvent;
+import cdm.event.common.functions.Create_Execution;
 import cdm.legalagreement.contract.Contract;
 import cdm.product.common.settlement.SettlementTerms;
 import cdm.product.common.settlement.functions.CashflowSettlementTerms;

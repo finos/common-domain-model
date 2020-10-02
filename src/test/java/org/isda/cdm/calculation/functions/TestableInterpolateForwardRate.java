@@ -1,12 +1,11 @@
 package org.isda.cdm.calculation.functions;
 
+import java.math.BigDecimal;
+
 import com.google.inject.Singleton;
 
+import cdm.event.position.functions.InterpolateForwardRate;
 import cdm.product.template.ForwardPayout;
-
-import org.isda.cdm.functions.InterpolateForwardRate;
-
-import java.math.BigDecimal;
 
 @Singleton
 public class TestableInterpolateForwardRate extends InterpolateForwardRate {

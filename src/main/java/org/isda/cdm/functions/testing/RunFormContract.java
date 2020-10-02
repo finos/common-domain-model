@@ -7,13 +7,12 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
-import org.isda.cdm.BusinessEvent;
-import org.isda.cdm.functions.Create_ContractFormation;
-import org.isda.cdm.functions.Create_Execution;
-
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
 import com.rosetta.model.metafields.FieldWithMetaDate;
 
+import cdm.event.common.BusinessEvent;
+import cdm.event.common.functions.Create_ContractFormation;
+import cdm.event.common.functions.Create_Execution;
 import cdm.legalagreement.contract.Contract;
 
 public class RunFormContract implements ExecutableFunction<Contract, BusinessEvent> {
