@@ -7,7 +7,7 @@ import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
-import org.isda.cdm.processor.PartyMappingHelper;
+import cdm.legalagreement.contract.processor.PartyMappingHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,9 +1,10 @@
-package org.isda.cdm.processor;
+package cdm.legalagreement.contract.processor;
 
 import cdm.base.staticdata.party.Counterparty;
 import cdm.base.staticdata.party.CounterpartyEnum;
-import cdm.base.staticdata.party.CounterpartyPayerReceiver;
+import cdm.base.staticdata.party.PayerReceiver;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
+import cdm.legalagreement.contract.processor.PartyMappingHelper;
 import cdm.product.template.TradableProduct;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.MappingContext;
@@ -22,7 +23,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import static cdm.base.staticdata.party.CounterpartyPayerReceiver.CounterpartyPayerReceiverBuilder;
+import static cdm.base.staticdata.party.PayerReceiver.PayerReceiverBuilder;
 import static cdm.product.template.TradableProduct.TradableProductBuilder;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
@@ -52,11 +53,11 @@ class PartyMappingHelperTest {
 
 	@Test
 	void shouldMapPayerToParty1() {
-		PartyMappingHelper helper = new PartyMappingHelper(context);
+		PartyMappingHelper helper = new PartyMappingHelper(context, null);
 
-		CounterpartyPayerReceiverBuilder builder = CounterpartyPayerReceiver.builder();
+		PayerReceiverBuilder builder = PayerReceiver.builder();
 		Path synonymPath = PAYER_XML_PATH.getParent();
-		helper.setCounterpartyEnum(builder, PAYER_MODEL_PATH, synonymPath, null);
+		helper.setCounterpartyEnum(builder::setPayer, PAYER_MODEL_PATH, synonymPath);
 
 		assertEquals(CounterpartyEnum.PARTY_1, builder.getPayer());
 		assertFalse(helper.getBothCounterpartiesCollectedFuture().isDone());
@@ -72,11 +73,11 @@ class PartyMappingHelperTest {
 
 	@Test
 	void shouldMapReceiverToParty1() {
-		PartyMappingHelper helper = new PartyMappingHelper(context);
+		PartyMappingHelper helper = new PartyMappingHelper(context, null);
 
-		CounterpartyPayerReceiverBuilder builder = CounterpartyPayerReceiver.builder();
+		PayerReceiverBuilder builder = PayerReceiver.builder();
 		Path synonymPath = RECEIVER_XML_PATH.getParent();
-		helper.setCounterpartyEnum(builder, RECEIVER_MODEL_PATH, synonymPath, null);
+		helper.setCounterpartyEnum(builder::setReceiver, RECEIVER_MODEL_PATH, synonymPath);
 
 		assertEquals(CounterpartyEnum.PARTY_1, builder.getReceiver());
 		assertFalse(helper.getBothCounterpartiesCollectedFuture().isDone());
@@ -92,19 +93,19 @@ class PartyMappingHelperTest {
 
 	@Test
 	void shouldMapPayerToParty1AndReceiverToParty2() throws ExecutionException, InterruptedException {
-		PartyMappingHelper helper = new PartyMappingHelper(context);
+		PartyMappingHelper helper = new PartyMappingHelper(context, null);
 
-		CounterpartyPayerReceiverBuilder builder = CounterpartyPayerReceiver.builder();
+		PayerReceiverBuilder builder = PayerReceiver.builder();
 
 		// test
 		Path payerSynonymPath = PAYER_XML_PATH.getParent();
-		helper.setCounterpartyEnum(builder, PAYER_MODEL_PATH, payerSynonymPath, null);
+		helper.setCounterpartyEnum(builder::setPayer, PAYER_MODEL_PATH, payerSynonymPath);
 
 		assertFalse(helper.getBothCounterpartiesCollectedFuture().isDone());
 
 		// test
 		Path receiverSynonymPath = RECEIVER_XML_PATH.getParent();
-		helper.setCounterpartyEnum(builder, RECEIVER_MODEL_PATH, receiverSynonymPath, null);
+		helper.setCounterpartyEnum(builder::setReceiver, RECEIVER_MODEL_PATH, receiverSynonymPath);
 
 		assertEquals(CounterpartyEnum.PARTY_1, builder.getPayer());
 		assertEquals(CounterpartyEnum.PARTY_2, builder.getReceiver());
@@ -167,11 +168,11 @@ class PartyMappingHelperTest {
 
 	@Test
 	void shouldMapCounterpartyBecauseModelPathOutsideProduct() {
-		PartyMappingHelper helper = new PartyMappingHelper(context);
+		PartyMappingHelper helper = new PartyMappingHelper(context, null);
 
-		CounterpartyPayerReceiverBuilder builder = CounterpartyPayerReceiver.builder();
+		PayerReceiverBuilder builder = PayerReceiver.builder();
 		Path synonymPath = PAYER_XML_PATH.getParent();
-		helper.setCounterpartyEnum(builder, RosettaPath.valueOf("Contract.collateral.independentAmount.payer"), synonymPath, null);
+		helper.setCounterpartyEnum(builder::setPayer, RosettaPath.valueOf("Contract.collateral.independentAmount.payer"), synonymPath);
 
 		assertNull(builder.getPayer());
 		assertFalse(helper.getBothCounterpartiesCollectedFuture().isDone());

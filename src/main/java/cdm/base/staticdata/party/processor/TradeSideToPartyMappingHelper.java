@@ -12,14 +12,14 @@ import com.regnosys.rosetta.common.translation.Path;
 /**
  * Helper class to translate TradeSide.id to TradeSide.orderer.party.id for CME Submission mapping processors.
  */
-class TradeSideToPartyMappingHelper implements Function<String, Optional<String>> {
+public class TradeSideToPartyMappingHelper implements Function<String, Optional<String>> {
 
 	// Relative path between tradeSide and party.  E.g. <trade-side>.orderer.party.href
 	private static final Path RELATIVE_PATH = Path.parse("orderer.party.href");
 
 	private final List<Mapping> mappings;
 
-	TradeSideToPartyMappingHelper(List<Mapping> mappings) {
+	public TradeSideToPartyMappingHelper(List<Mapping> mappings) {
 		this.mappings = mappings;
 	}
 

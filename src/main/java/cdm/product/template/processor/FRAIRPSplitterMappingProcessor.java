@@ -2,10 +2,10 @@ package cdm.product.template.processor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 
-import org.isda.cdm.processor.PartyMappingHelper;
-import org.jetbrains.annotations.NotNull;
+import cdm.legalagreement.contract.processor.PartyMappingHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +15,7 @@ import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 
-import cdm.base.staticdata.party.CounterpartyPayerReceiver.CounterpartyPayerReceiverBuilder;
+import cdm.base.staticdata.party.PayerReceiver.PayerReceiverBuilder;
 import cdm.product.asset.InterestRatePayout.InterestRatePayoutBuilder;
 import cdm.product.asset.RateSpecification.RateSpecificationBuilder;
 
@@ -49,10 +49,16 @@ public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
 					rateSpec.setFloatingRateBuilder(null);
 					newIrp.getRateSpecification().setFixedRateBuilder(null);
 
-					PartyMappingHelper.getInstance(getContext())
-							.orElseThrow(() -> new IllegalStateException("PartyMappingHelper not found."))
-							.getBothCounterpartiesCollectedFuture()
-							.thenAcceptAsync(map -> flipPayerReceiver(irp.getPayerReceiver(), newIrp.getPayerReceiver()), executor);
+					executor.submit(() -> {
+						try {
+							PartyMappingHelper.getInstance(getContext())
+									.orElseThrow(() -> new IllegalStateException("PartyMappingHelper not found."))
+									.getBothCounterpartiesCollectedFuture().get();
+							flipPayerReceiver(irp.getPayerReceiver(), newIrp.getPayerReceiver());
+						} catch (InterruptedException|ExecutionException e) {
+							LOGGER.warn("FRA payer / receiver not set - {}", e.getMessage());
+						}
+					});
 
 					result.add(newIrp);
 				}
@@ -62,13 +68,9 @@ public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
 		irps.addAll(result);
 	}
 
-	@NotNull
-	private void flipPayerReceiver(CounterpartyPayerReceiverBuilder originalBuilder, CounterpartyPayerReceiverBuilder newBuilder) {
+	private void flipPayerReceiver(PayerReceiverBuilder originalBuilder, PayerReceiverBuilder newBuilder) {
 		LOGGER.info("Flipping payer/receiver on new FRA interest rate payout");
 		newBuilder.setPayer(originalBuilder.getReceiver());
-		newBuilder.setPayerPartyReferenceBuilder(originalBuilder.getReceiverPartyReference());
-
 		newBuilder.setReceiver(originalBuilder.getPayer());
-		newBuilder.setReceiverPartyReferenceBuilder(originalBuilder.getPayerPartyReference());
 	}
 }
