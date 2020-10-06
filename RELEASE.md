@@ -20,4 +20,4 @@ Objects to be deleted:
 _Review Directions_
 
 In Rosetta Core (https://ui.rosetta-technology.io/), review the File or Namespace structure in the Editor Textual View. In the CDM Portal,
-navigate to the Downloads tile, then download artefacts in Java, DAML, Typescript, Golang or Scala distribution format and review the reorganised source folder.
+navigate to the Downloads tile, then download artefacts in Java, DAML, Typescript or Scala distribution format and review the reorganised source folder.
