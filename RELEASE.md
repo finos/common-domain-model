@@ -7,14 +7,15 @@ This refactor includes the reorganisation of some model objects to existing name
 
 Types to be moved to existing namespaces:
 
-* Types: CalculationAgentModel moved to __cdm.product.template__ namespace, while PackageInformation moved to __cdm.event.common__ namespace.
+* Types: CalculationAgentModel moved to __cdm.product.template__ namespace. 
+* Types: PackageInformation moved to __cdm.event.common__ namespace.
 * Funcs: NewEquitySwapProduct, NewSingleNameEquityPayout & NewFloatingPayout moved to __cdm.event.common__ namespace.
 
 Objects to be deleted:
 
-* Types: CommoditySet, BondOptionStrike, CalculationAmount & DeterminationMethod
-* Enums: StandardSettlementStyleEnum, OriginatingEventEnum, PaymentStatusEnum & PackageTypeEnum
-* Funcs: EquityAmountPayer & ResolvePrice 
+* Types: CommoditySet, BondOptionStrike, CalculationAmount & DeterminationMethod.
+* Enums: StandardSettlementStyleEnum, OriginatingEventEnum, PaymentStatusEnum & PackageTypeEnum.
+* Funcs: EquityAmountPayer & ResolvePrice. 
 
 _Review Directions_
 
