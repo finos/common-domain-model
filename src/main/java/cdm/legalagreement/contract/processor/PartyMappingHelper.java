@@ -150,6 +150,9 @@ public class PartyMappingHelper {
 		}
 	}
 
+	/**
+	 * Wait until both counterparties have been computed then determine if this party is a counterparty or related party and update accordingly.
+	 */
 	public void setCounterpartyOrRelatedParty(RosettaPath modelPath,
 			Path synonymPath,
 			Consumer<CounterpartyEnum> counterpartySetter,
@@ -167,7 +170,14 @@ public class PartyMappingHelper {
 						executor);
 	}
 
-	public void computeCounterpartyOrRelatedParty(RosettaPath modelPath,
+	/**
+	 * Cashflow payout is problematic because it is defined inside the Product yet can contain either a counterparty or related party.
+	 * Model should be refactored so cashflow payout only allows counterparties, and any 3rd party payments are defined outside the Product (e.g. SettlementTerms).
+	 *
+	 * If both counterparties have not yet been computed, get or create counterparty based on the party reference.
+	 * If both counterparties have already been computed, then add as a related party.
+	 */
+	public void computeCashflowCounterpartyOrRelatedParty(RosettaPath modelPath,
 			Path synonymPath,
 			Consumer<CounterpartyEnum> counterpartySetter,
 			Consumer<RelatedPartyEnum> relatedPartySetter,
@@ -181,10 +191,6 @@ public class PartyMappingHelper {
 				this::getOrCreateCounterpartyEnum);
 	}
 
-	/**
-	 * Determines whether partyExternalReference is a counterparty or not, then updates the CounterpartyOrRelatedPartyBuilder accordingly.
-	 * If it is not a counterparty, then the TradableProduct.relatedParties must also be updated.
-	 */
 	private void setCounterpartyOrRelatedParty(RosettaPath modelPath,
 			Path synonymPath,
 			Consumer<CounterpartyEnum> counterpartySetter,

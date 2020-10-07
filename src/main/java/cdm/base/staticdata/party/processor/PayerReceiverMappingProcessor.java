@@ -5,6 +5,8 @@ import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +19,8 @@ import static cdm.legalagreement.contract.processor.PartyMappingHelper.PRODUCT_S
  */
 public abstract class PayerReceiverMappingProcessor extends MappingProcessor {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(ReceiverMappingProcessor.class);
+
 	PayerReceiverMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
 		super(modelPath, synonymPaths, context);
 	}
@@ -24,8 +28,9 @@ public abstract class PayerReceiverMappingProcessor extends MappingProcessor {
 	@Override
 	public <T> void mapBasic(Path synonymPath, Optional<T> instance, RosettaModelObjectBuilder parent) {
 		if (!getModelPath().containsPath(PRODUCT_SUB_PATH)) {
+			LOGGER.warn("PayerReceiver used outside of the Product definition", getModelPath().buildPath());
 			setPartyReference(synonymPath, (PayerReceiverBuilder) parent);
-		} else if (getModelPath().toIndexless().containsPath(RosettaPath.valueOf("cashflow.payerReceiver"))) {
+		} else if (getModelPath().toIndexless().containsPath(RosettaPath.valueOf("economicTerms.payout.cashflow.payerReceiver"))) {
 			setCashflowCounterpartyOrRelatedParty(synonymPath, (PayerReceiverBuilder) parent);
 		} else {
 			setCounterparty(synonymPath, (PayerReceiverBuilder) parent);

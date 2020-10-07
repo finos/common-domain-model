@@ -2,10 +2,10 @@ package cdm.base.staticdata.party.processor;
 
 import cdm.base.staticdata.party.RelatedPartyEnum;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
+import cdm.legalagreement.contract.processor.PartyMappingHelper;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.path.RosettaPath;
-import cdm.legalagreement.contract.processor.PartyMappingHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,17 +28,19 @@ public class PayerMappingProcessor extends PayerReceiverMappingProcessor {
 	@Override
 	void setCounterparty(Path synonymPath, PayerReceiverBuilder builder) {
 		PartyMappingHelper.getInstance(getContext())
-				.ifPresent(h -> h.setCounterpartyEnum(getModelPath(), synonymPath, builder::setPayer));
+				.ifPresent(helper ->
+						helper.setCounterpartyEnum(getModelPath(), synonymPath, builder::setPayer));
 	}
 
 	@Override
 	void setCashflowCounterpartyOrRelatedParty(Path synonymPath, PayerReceiverBuilder builder) {
 		PartyMappingHelper.getInstance(getContext())
-				.ifPresent(h -> h.computeCounterpartyOrRelatedParty(getModelPath(),
-						synonymPath,
-						builder::setPayer,
-						builder::setPayerRelatedParty,
-						RelatedPartyEnum.CASHFLOW_PAYMENT_PARTY));
+				.ifPresent(helper ->
+						helper.computeCashflowCounterpartyOrRelatedParty(getModelPath(),
+								synonymPath,
+								builder::setPayer,
+								builder::setPayerRelatedParty,
+								RelatedPartyEnum.CASHFLOW_PAYMENT_PARTY));
 	}
 
 	@Override
