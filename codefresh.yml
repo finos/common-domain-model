@@ -94,22 +94,24 @@ steps:
   BuildCSharp8:
     title: CSharp8 build and deploy
     fail_fast: false
-    image: spotify/alpine
-    working_directory: ./target/classes/cdm
+    image: mcr.microsoft.com/dotnet/core/sdk:3.1
+    working_directory: ./target/classes/cdm/csharp8
     shell: bash
     commands:
-      - tar -cvzf cdm-csharp8.zip csharp8 RosettaCommon
-      - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-csharp8/${{RELEASE_NAME}}/cdm-csharp8-${{RELEASE_NAME}}.zip" -T cdm-csharp8.zip
+      - dotnet publish -c release -o ./app
+      - tar -cvzf cdm-csharp8.tar.gz app
+      - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-csharp8/${{RELEASE_NAME}}/cdm-csharp8-${{RELEASE_NAME}}.tar.gz" -T cdm-csharp8.tar.gz
 
   BuildCSharp9:
     title: CSharp9 build and deploy
     fail_fast: false
-    image: spotify/alpine
-    working_directory: ./target/classes/cdm
+    image: mcr.microsoft.com/dotnet/sdk:5.0
+    working_directory: ./target/classes/cdm/csharp9
     shell: bash
     commands:
-      - tar -cvzf cdm-csharp9.zip csharp9 RosettaCommon
-      - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-csharp9/${{RELEASE_NAME}}/cdm-csharp9-${{RELEASE_NAME}}.zip" -T cdm-csharp9.zip
+      - dotnet publish -c release -o ./app
+      - tar -cvzf cdm-csharp9.tar.gz app
+      - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-csharp9/${{RELEASE_NAME}}/cdm-csharp9-${{RELEASE_NAME}}.tar.gz" -T cdm-csharp9.tar.gz
 
   BuildTypeScript:
     title: TypeScript build and deploy
@@ -145,6 +147,8 @@ steps:
           buildDamlFailed: steps.BuildDaml.result == 'error'
           buildScalaFailed: steps.BuildScala.result == 'error'
           buildTypeScriptFailed: steps.BuildTypeScript.result == 'error'
+          buildCSharp8Failed: steps.BuildCSharp8.result == 'error'
+          buildCSharp9Failed: steps.BuildCSharp9.result == 'error'
           buildGoFailed: steps.BuildGo.result == 'error'
     commands:
       - export SAFE_COMMIT_AUTHOR='${{CF_COMMIT_AUTHOR}}'
@@ -168,6 +172,8 @@ steps:
           damlBuildFailure: steps.BuildDaml.result == 'failure'
           scalaBuildFailure: steps.BuildScala.result == 'failure'
           typeScriptBuildFailure: steps.BuildTypeScript.result == 'failure'
+          cSharp8BuildFailure: steps.BuildCSharp8.result == 'failure'
+          cSharp9BuildFailure: steps.BuildCSharp9.result == 'failure'
           goBuildFailure: steps.BuildGo.result == 'failure'
     commands:
       - exit 1
