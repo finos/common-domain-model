@@ -1,10 +1,23 @@
-# *CDM Distribution: C# Language*
+# *CDM Model: Remaining model in org.isda.cdm namespace classification*
 
 _What is being released_
-The suite of CDM Distributions has been expanded to 2 versions in C# programming language on the CDM Portal:
 
-* C# 8.0 based on .NET Core 3.1 (.NET Standard 2.1).
-* C# 9.0 based on .Net 5 Preview.
+This refactor is the sixth and final incremental change that will further transform the org.isda.cdm file into a hierarchical namespace.
+This refactor includes the reorganisation of some model objects to existing namespaces while other being deleted (as they are not being used in CDM).
+
+Types to be moved to existing namespaces:
+
+* Types: CalculationAgentModel moved to __cdm.product.template__ namespace. 
+* Types: PackageInformation & ExerciseEvent moved to __cdm.event.common__ namespace.
+* Funcs: NewEquitySwapProduct, NewSingleNameEquityPayout & NewFloatingPayout moved to __cdm.event.common__ namespace.
+
+Objects to be deleted:
+
+* Types: CommoditySet, BondOptionStrike, CalculationAmount & DeterminationMethod.
+* Enums: StandardSettlementStyleEnum, OriginatingEventEnum, PaymentStatusEnum & PackageTypeEnum.
+* Funcs: EquityAmountPayer & ResolvePrice. 
 
 _Review Directions_
-2 new tiles in the downloads section of the CDM Portal offering the option to download the new C# CDM Distributions.
+
+In Rosetta Core (https://ui.rosetta-technology.io/), review the File or Namespace structure in the Editor Textual View. In the CDM Portal,
+navigate to the Downloads tile, then download artefacts in Java, DAML, Typescript or Scala distribution format and review the reorganised source folder.
