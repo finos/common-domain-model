@@ -877,14 +877,20 @@ func Create_CashTransferPrimitive: <"Function specification to generate a transf
 	alias cashflow:
 		ResolveCashflow(contractState, date)
 
+	alias counterparties:
+		contractState -> contract -> tradableProduct -> counterparties
+
 	assign-output transfer -> status:
 		TransferStatusEnum -> Instructed
 
 	assign-output transfer -> cashTransfer -> amount:
 		cashflow -> cashflowAmount
 
-//	assign-output transfer -> cashTransfer -> payerReceiver:
-//		cashflow -> payerReceiver
+	assign-output transfer -> cashTransfer -> payerReceiver -> payerPartyReference:
+		ExtractCounterpartyBySide( counterparties, cashflow -> payerReceiver -> payer ) -> partyReference
+
+	assign-output transfer -> cashTransfer -> payerReceiver -> receiverPartyReference:
+		ExtractCounterpartyBySide( counterparties, cashflow -> payerReceiver -> receiver ) -> partyReference
 
 	assign-output transfer -> settlementDate:
 		cashflow -> cashflowDate
