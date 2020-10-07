@@ -16,8 +16,10 @@ public class ExtractCounterpartyBySideImpl extends ExtractCounterpartyBySide {
 
 		if (counterpartiesForSide.size() > 1) {
 			throw new IllegalArgumentException("Counterparties input contains more than 1 entry for side: " + side);
-		} else {
+		} else if (counterpartiesForSide.size() == 1) {
 			return counterpartiesForSide.get(0).toBuilder();
+		} else {
+			return Counterparty.builder();
 		}
 	}
 }
