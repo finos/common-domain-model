@@ -9,12 +9,13 @@ Types to be moved to existing namespaces:
 
 * Types: CalculationAgentModel moved to __cdm.product.template__ namespace. 
 * Types: PackageInformation & ExerciseEvent moved to __cdm.event.common__ namespace.
+* Enums: StandardSettlementStyleEnum moved to _cdm.product.common_.
 * Funcs: NewEquitySwapProduct, NewSingleNameEquityPayout & NewFloatingPayout moved to __cdm.event.common__ namespace.
 
 Objects to be deleted:
 
 * Types: CommoditySet, BondOptionStrike, CalculationAmount & DeterminationMethod.
-* Enums: StandardSettlementStyleEnum, OriginatingEventEnum, PaymentStatusEnum & PackageTypeEnum.
+* Enums: OriginatingEventEnum, PaymentStatusEnum & PackageTypeEnum.
 * Funcs: EquityAmountPayer & ResolvePrice. 
 
 _Review Directions_
