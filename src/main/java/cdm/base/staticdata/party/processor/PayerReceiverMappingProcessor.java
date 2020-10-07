@@ -1,18 +1,20 @@
 package cdm.base.staticdata.party.processor;
 
-import com.regnosys.rosetta.common.translation.MappingContext;
-import com.regnosys.rosetta.common.translation.MappingProcessor;
-import com.regnosys.rosetta.common.translation.Path;
+import cdm.base.staticdata.party.RelatedPartyEnum;
+import com.regnosys.rosetta.common.translation.*;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static cdm.base.staticdata.party.PayerReceiver.PayerReceiverBuilder;
 import static cdm.legalagreement.contract.processor.PartyMappingHelper.PRODUCT_SUB_PATH;
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.*;
 
 /**
  * FpML mapping processor.
@@ -31,7 +33,7 @@ public abstract class PayerReceiverMappingProcessor extends MappingProcessor {
 			LOGGER.warn("PayerReceiver used outside of the Product definition {}", getModelPath().buildPath());
 			setPartyReference(synonymPath, (PayerReceiverBuilder) parent);
 		} else if (getModelPath().toIndexless().containsPath(RosettaPath.valueOf("economicTerms.payout.cashflow.payerReceiver"))) {
-			setCashflowCounterpartyOrRelatedParty(synonymPath, (PayerReceiverBuilder) parent);
+			setCashflowCounterpartyOrRelatedParty(synonymPath, (PayerReceiverBuilder) parent, getCashflowRelatedPartyEnum(synonymPath));
 		} else {
 			setCounterparty(synonymPath, (PayerReceiverBuilder) parent);
 		}
@@ -39,7 +41,23 @@ public abstract class PayerReceiverMappingProcessor extends MappingProcessor {
 
 	abstract void setCounterparty(Path synonymPath, PayerReceiverBuilder builder);
 
-	abstract void setCashflowCounterpartyOrRelatedParty(Path synonymPath, PayerReceiverBuilder builder);
+	abstract void setCashflowCounterpartyOrRelatedParty(Path synonymPath, PayerReceiverBuilder builder, RelatedPartyEnum cashflowRelatedPartyEnum);
 
 	abstract void setPartyReference(Path synonymPath, PayerReceiverBuilder builder);
+
+	@NotNull
+	private RelatedPartyEnum getCashflowRelatedPartyEnum(Path synonymPath) {
+		String partyExternalReference = getNonNullMappedValue(filterMappings(getMappings(), synonymPath.addElement("href"))).orElse("");
+		if (getMappedValue("brokerPartyReference", "href").map(partyExternalReference::equals).orElse(false)) {
+			return RelatedPartyEnum.ARRANGING_BROKER;
+		}
+		// TODO add other checks to determine related party enum based on FpML roles
+		return RelatedPartyEnum.OTHER_PARTY;
+	}
+
+	private Optional<String> getMappedValue(String... endsWith) {
+		return getNonNullMappedValue(getMappings().stream()
+				.filter(p -> p.getXmlPath().endsWith(endsWith))
+				.collect(Collectors.toList()));
+	}
 }

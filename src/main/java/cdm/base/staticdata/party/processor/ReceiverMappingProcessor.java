@@ -33,14 +33,14 @@ public class ReceiverMappingProcessor extends PayerReceiverMappingProcessor {
 	}
 
 	@Override
-	void setCashflowCounterpartyOrRelatedParty(Path synonymPath, PayerReceiverBuilder builder) {
+	void setCashflowCounterpartyOrRelatedParty(Path synonymPath, PayerReceiverBuilder builder, RelatedPartyEnum relatedPartyEnum) {
 		PartyMappingHelper.getInstance(getContext())
 				.ifPresent(helper ->
 						helper.computeCashflowCounterpartyOrRelatedParty(getModelPath(),
 								synonymPath,
 								builder::setReceiver,
 								builder::setReceiverRelatedParty,
-								RelatedPartyEnum.CASHFLOW_PAYMENT_PARTY));
+								relatedPartyEnum));
 	}
 
 	@Override
