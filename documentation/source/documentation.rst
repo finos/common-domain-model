@@ -470,7 +470,6 @@ The contract type is only applicable to contractual products.  It represents the
    party Party (0..*)
    account Account (0..*)
    partyRole PartyRole (0..*)
-   calculationAgent CalculationAgent (0..1)
    partyContractInformation PartyContractInformation (0..*)
    closedState ClosedState (0..1)
 
@@ -1422,7 +1421,6 @@ Financial transactions defined in CDM can be referenced in the ``Contract`` data
    party Party (0..*)
    account Account (0..*)
    partyRole PartyRole (0..*)
-   calculationAgent CalculationAgent (0..1)
    partyContractInformation PartyContractInformation (0..*)
    closedState ClosedState (0..1)
 
