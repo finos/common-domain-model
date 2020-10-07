@@ -70,15 +70,22 @@ public class PartyMappingHelper {
 					(partyExternalReference) -> {
 						// Map externalRef to CounterpartyEnm and update builder object
 						Optional<CounterpartyEnum> counterpartyEnum =
-								getOrCreateCounterpartyEnum(
-										// apply additional external reference translation function if provided
-										Optional.ofNullable(translator).flatMap(t -> t.apply(partyExternalReference)).orElse(partyExternalReference));
+								getOrCreateCounterpartyEnum(translatePartyExternalReference(partyExternalReference));
 						counterpartyEnum.ifPresent(setter);
 						return counterpartyEnum.isPresent(); // return true to update synonym mapping stats to success
 					},
 					mappings,
 					modelPath);
 		}
+	}
+
+	/**
+	 * Apply party external reference translation if translator provided
+	 */
+	public String translatePartyExternalReference(String partyExternalReference) {
+		return Optional.ofNullable(translator)
+				.flatMap(t -> t.apply(partyExternalReference))
+				.orElse(partyExternalReference);
 	}
 
 	/**
@@ -136,10 +143,8 @@ public class PartyMappingHelper {
 					}));
 			// If both counterparties have been added to the map, then complete the future
 			if (!bothCounterpartiesCollected.isDone() && partyExternalReferenceToCounterpartyEnumMap.size() == 2) {
-				executor.submit(() -> {
-					LOGGER.info("Both counterparties collected");
-					bothCounterpartiesCollected.complete(partyExternalReferenceToCounterpartyEnumMap);
-				});
+				LOGGER.debug("Both counterparties collected");
+				bothCounterpartiesCollected.complete(partyExternalReferenceToCounterpartyEnumMap);
 			}
 			return counterpartyEnum;
 		}
@@ -190,8 +195,7 @@ public class PartyMappingHelper {
 		if (modelPath.containsPath(PRODUCT_SUB_PATH)) {
 			setValueAndUpdateMappings(synonymPath,
 					partyExternalReference -> {
-						Optional<CounterpartyEnum> counterparty = partyToCounterpartyFunc.apply(
-								Optional.ofNullable(translator).flatMap(t -> t.apply(partyExternalReference)).orElse(partyExternalReference));
+						Optional<CounterpartyEnum> counterparty = partyToCounterpartyFunc.apply(translatePartyExternalReference(partyExternalReference));
 						if (counterparty.isPresent()) {
 							counterpartySetter.accept(counterparty.get());
 						} else {

@@ -1,23 +1,25 @@
 package cdm.product.template.processor;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-
+import cdm.base.staticdata.party.CounterpartyEnum;
+import cdm.base.staticdata.party.PayerReceiver.PayerReceiverBuilder;
 import cdm.legalagreement.contract.processor.PartyMappingHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import cdm.product.asset.InterestRatePayout.InterestRatePayoutBuilder;
+import cdm.product.asset.RateSpecification.RateSpecificationBuilder;
+import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import cdm.base.staticdata.party.PayerReceiver.PayerReceiverBuilder;
-import cdm.product.asset.InterestRatePayout.InterestRatePayoutBuilder;
-import cdm.product.asset.RateSpecification.RateSpecificationBuilder;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 
 @SuppressWarnings("unused")
 public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
@@ -49,17 +51,26 @@ public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
 					rateSpec.setFloatingRateBuilder(null);
 					newIrp.getRateSpecification().setFixedRateBuilder(null);
 
-					executor.submit(() -> {
+					executor.execute(() -> {
 						try {
-							PartyMappingHelper.getInstance(getContext())
-									.orElseThrow(() -> new IllegalStateException("PartyMappingHelper not found."))
-									.getBothCounterpartiesCollectedFuture().get();
-							flipPayerReceiver(irp.getPayerReceiver(), newIrp.getPayerReceiver());
+							LOGGER.debug("Waiting for both counterparties");
+							PartyMappingHelper helper = PartyMappingHelper.getInstance(getContext())
+									.orElseThrow(() -> new IllegalStateException("PartyMappingHelper not found."));
+							Map<String, CounterpartyEnum> map = helper.getBothCounterpartiesCollectedFuture().get();
+							LOGGER.info("Flipping payer/receiver on new FRA interest rate payout");
+							PayerReceiverBuilder newBuilder = newIrp.getPayerReceiver();
+							getPartyReference("payer")
+									.map(helper::translatePartyExternalReference)
+									.map(map::get)
+									.ifPresent(newBuilder::setReceiver);
+							getPartyReference("receiver")
+									.map(helper::translatePartyExternalReference)
+									.map(map::get)
+									.ifPresent(newBuilder::setPayer);
 						} catch (InterruptedException|ExecutionException e) {
-							LOGGER.warn("FRA payer / receiver not set - {}", e.getMessage());
+							LOGGER.warn("FRA payer / receiver splitter thread interrupted - {}", e.getMessage());
 						}
 					});
-
 					result.add(newIrp);
 				}
 			}
@@ -68,9 +79,12 @@ public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
 		irps.addAll(result);
 	}
 
-	private void flipPayerReceiver(PayerReceiverBuilder originalBuilder, PayerReceiverBuilder newBuilder) {
-		LOGGER.info("Flipping payer/receiver on new FRA interest rate payout");
-		newBuilder.setPayer(originalBuilder.getReceiver());
-		newBuilder.setReceiver(originalBuilder.getPayer());
+	private Optional<String> getPartyReference(String attribute) {
+		return getMappings().stream()
+				.filter(m -> m.getRosettaPath() != null)
+				.filter(m -> m.getRosettaPath().endsWith("interestRatePayout", "payerReceiver", attribute))
+				.findFirst()
+				.map(Mapping::getXmlValue)
+				.map(String.class::cast);
 	}
 }
