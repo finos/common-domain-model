@@ -17,6 +17,10 @@ Objects to be deleted:
 * Enums: OriginatingEventEnum, PaymentStatusEnum & PackageTypeEnum.
 * Funcs: EquityAmountPayer & ResolvePrice. 
 
+_Bug fixes_
+
+* The `Documentation > JavaDocs` link on CDM Portal is now fixed. 
+
 _Review Directions_
 
 In Rosetta Core (https://ui.rosetta-technology.io/), review the File or Namespace structure in the Editor Textual View. In the CDM Portal,
