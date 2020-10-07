@@ -14,7 +14,7 @@ Types to be moved to existing namespaces:
 Objects to be deleted:
 
 * Types: CommoditySet, BondOptionStrike, CalculationAmount & DeterminationMethod.
-* Enums: StandardSettlementStyleEnum, OriginatingEventEnum, PaymentStatusEnum & PackageTypeEnum.
+* Enums: OriginatingEventEnum, PaymentStatusEnum & PackageTypeEnum.
 * Funcs: EquityAmountPayer & ResolvePrice. 
 
 _Review Directions_
