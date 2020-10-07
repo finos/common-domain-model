@@ -28,7 +28,7 @@ public abstract class PayerReceiverMappingProcessor extends MappingProcessor {
 	@Override
 	public <T> void mapBasic(Path synonymPath, Optional<T> instance, RosettaModelObjectBuilder parent) {
 		if (!getModelPath().containsPath(PRODUCT_SUB_PATH)) {
-			LOGGER.warn("PayerReceiver used outside of the Product definition", getModelPath().buildPath());
+			LOGGER.warn("PayerReceiver used outside of the Product definition {}", getModelPath().buildPath());
 			setPartyReference(synonymPath, (PayerReceiverBuilder) parent);
 		} else if (getModelPath().toIndexless().containsPath(RosettaPath.valueOf("economicTerms.payout.cashflow.payerReceiver"))) {
 			setCashflowCounterpartyOrRelatedParty(synonymPath, (PayerReceiverBuilder) parent);
